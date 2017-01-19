@@ -22,8 +22,12 @@ types: !include resourceTypes/datatypes.raml
   get:
     description: Returns a list of locations for the specified agency.
     is: [
-          searchable: {description : "", example : ""},
-          orderable: {fieldsList : ""},
+          searchable:
+            {
+              description : "to limit the locations returned. Searchable fields: locationId, agencyId, locationType, parentLocationId, livingUnit, and housingUnitType. If the field housingUnitType is used, then <'livingUnit', true, 'equalTo'> is implied.",
+              example : ""
+            },
+          orderable: {fieldsList : "locationId, agencyId, locationType, parentLocationId, livingUnit, or housingUnitType"},
           pageable
         ]
     responses:
@@ -47,8 +51,12 @@ types: !include resourceTypes/datatypes.raml
   get:
     description: Returns the scheduled movements associated to the location.
     is: [
-          searchable: {description : "", example : ""},
-          orderable: {fieldsList : ""},
+          searchable:
+            {
+              description : "to limit the movements returned. Searchable fields: moveCategory, inmateId, moveDateTime, fromAgencyId, toAgencyId, moveType, moveReason, fromLocationId, and toLocation. If the fields fromAgencyId, toAgencyId, moveType, or moveReason are used, then <'moveCategory', 'external', 'equalTo'> is implied. If the fields fromLocationId or toLocation are used, then <'moveCategory', 'internal', 'equalTo'> is implied. If the field moveDateTime is not provided, <'moveDateTime', 'now', 'greaterThan'> is implied.",
+              example : ""
+            },
+          orderable: {fieldsList : "moveCategory, inmateId, moveDateTime, fromAgencyId, toAgencyId, moveType, moveReason, fromLocationId, or toLocation"},
           pageable
         ]
     responses:
@@ -63,8 +71,12 @@ types: !include resourceTypes/datatypes.raml
   get:
     description: Returns the inmates currently located at the location.
     is: [
-          searchable: {description : "", example : ""},
-          orderable: {fieldsList : ""},
+          searchable:
+            {
+              description : "to limit the inmates returned. Searchable fields: inmateId, bookingId, offenderId, firstName, lastName, alertCodes, agencyId, currentLocationId, and assignedLivingUnitId.",
+              example : ""
+            },
+          orderable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, alertCodes, agencyId, currentLocationId, or assignedLivingUnitId"},
           pageable
         ]
     responses:
@@ -78,8 +90,8 @@ types: !include resourceTypes/datatypes.raml
   get:
     description: Returns the living units associated to the location.
     is: [
-          searchable: {description : "", example : ""},
-          orderable: {fieldsList : ""},
+          searchable: {description : "limit the living units returned. Searchable fields: locationId, locationType, or housingUnitType.", example : ""},
+          orderable: {fieldsList : "locationId, locationType, or housingUnitType."},
           pageable
         ]
     responses:
@@ -93,8 +105,12 @@ types: !include resourceTypes/datatypes.raml
   get:
     description: Returns the within the system.
     is: [
-          searchable: {description : "", example : ""},
-          orderable: {fieldsList : ""},
+          searchable:
+            {
+              description : "to limit the inmates returned. Searchable fields: inmateId, bookingId, offenderId, firstName, lastName, alertCodes, agencyId, currentLocationId, and assignedLivingUnitId.",
+              example : ""
+            },
+          orderable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, alertCodes, agencyId, currentLocationId, or assignedLivingUnitId"},
           pageable
         ]
     responses:
@@ -116,8 +132,12 @@ types: !include resourceTypes/datatypes.raml
   get:
     description: Returns the scheduled movements associated to the inmate.
     is: [
-          searchable: {description : "", example : ""},
-          orderable: {fieldsList : ""},
+          searchable:
+            {
+              description : "to limit the movements returned. Searchable fields: moveCategory, moveDateTime, fromAgencyId, toAgencyId, moveType, moveReason, fromLocationId, and toLocation. If the fields fromAgencyId, toAgencyId, moveType, or moveReason are used, then <'moveCategory', 'external', 'equalTo'> is implied. If the fields fromLocationId or toLocation are used, then <'moveCategory', 'internal', 'equalTo'> is implied. If the field moveDateTime is not provided, <'moveDateTime', 'now', 'greaterThan'> is implied.",
+              example : ""
+            },
+          orderable: {fieldsList : "moveCategory, moveDateTime, fromAgencyId, toAgencyId, moveType, moveReason, fromLocationId, or toLocation"},
           pageable
         ]
     responses:
