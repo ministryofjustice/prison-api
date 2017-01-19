@@ -2,54 +2,8 @@
 title: New API
 version: v1
 baseUri: http://api.samplehost.com
-securedBy: [oauth_2_0]
-securitySchemes:
-  oauth_2_0: !include securitySchemes/oauth_2_0.raml
-types:
-  TestType:
-    type: object
-    properties:
-      id: number
-      optional?: string
-      expanded:
-        type: object
-        properties:
-          count: number
 
-traits:
-  searchable:
-      queryParameters:
-        query:
-          description: |
-            JSON array [{"field1","value1","operator1"},{"field2","value2","operator2"},...,{"fieldN","valueN","operatorN"}] <<description>>
-          example: |
-            <<example>>
-  orderable:
-    queryParameters:
-      orderBy:
-        description: |
-          Order by field: <<fieldsList>>
-        type: string
-        required: false
-      order:
-        description: Order
-        enum: [desc, asc]
-        default: desc
-        required: false
-  pageable:
-    queryParameters:
-      offset:
-        description: Skip over a number of elements by specifying an offset value for the query
-        type: integer
-        required: false
-        example: 20
-        default: 0
-      limit:
-        description: Limit the number of elements on the response
-        type: integer
-        required: false
-        example: 80
-        default: 10
+traits: !include traits/traits.raml
 
 # add authentication
 
@@ -58,7 +12,6 @@ traits:
   get:
     is: [pageable]
     description: Returns the list of agencies viewable by the user
-    securedBy: [oauth_2_0]
     responses:
       200:
         body:
@@ -92,8 +45,7 @@ traits:
           orderable: {fieldsList : ""},
           pageable
         ]
-    securedBy: [oauth_2_0]
-    responses: 
+    responses:
       200:
         body:
           application/json:
@@ -104,6 +56,7 @@ traits:
                   "type": "Tier",
                   "housingLevel" : "1",
                   "capacity" : "50",
+                  "agencyId" : "3",
                   "locationId" : "1"
                 },
                 {
@@ -111,6 +64,7 @@ traits:
                   "type": "Wing",
                   "housingLevel" : "2",
                   "capacity" : "25",
+                  "agencyId" : "3",
                   "parentLocationId" : "1",
                   "locationId" : "2"
                 },
@@ -119,11 +73,13 @@ traits:
                   "type": "Cell",
                   "housingLevel" : "3",
                   "capacity" : "1",
+                  "agencyId" : "3",
                   "parentLocationId" : "2",
                   "locationId" : "3"
                 },
                 {
-                  "name" : "Downtown Courts",
+                  "name" : "Holding Pend",
+                  "agencyId" : "4",
                   "locationId" : "4"
                 }
               ]
@@ -131,3 +87,64 @@ traits:
 /locations/{locationId}:
   description: Returns details about the specified location
   get:
+    description: Returns details of the specified location.
+
+/locations/{locationId}/movements:
+  description: The collection of scheduled movements associated to the location.
+  get:
+    description: Returns the scheduled movements associated to the location.
+    is: [
+          searchable: {description : "", example : ""},
+          orderable: {fieldsList : ""},
+          pageable
+        ]
+
+/locations/{locationId}/inmates:
+  description: The collection of inmates present at the specified location.
+  get:
+    description: Returns the inmates currently located at the location.
+    is: [
+          searchable: {description : "", example : ""},
+          orderable: {fieldsList : ""},
+          pageable
+        ]
+
+/locations/{locationId}/bedAssignments:
+  description: The collection of assignable beds at the specified location. This method is only valid for living unit locations.
+  get:
+    description: Returns the assignable beds associated to the location.
+    is: [
+          searchable: {description : "", example : ""},
+          orderable: {fieldsList : ""},
+          pageable
+        ]
+    responses:
+      200:
+        # outline response
+      404:
+        description: Returned if the location does not support assignable beds. (i.e. not a living unit)
+
+/inmates:
+  description: The collection of inmates within the system.
+  get:
+    description: Returns the within the system.
+    is: [
+          searchable: {description : "", example : ""},
+          orderable: {fieldsList : ""},
+          pageable
+        ]
+
+/inmates/{inmateId}:
+  description: The details specific to the specified inmate.
+  get:
+    description: Returns the inmate's details.
+
+/inmates/{inmateId}/movements:
+  description: The collection of scheduled movements associated to the inmate.
+  get:
+    description: Returns the scheduled movements associated to the inmate.
+    is: [
+          searchable: {description : "", example : ""},
+          orderable: {fieldsList : ""},
+          pageable
+        ]
