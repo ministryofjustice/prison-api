@@ -2,10 +2,10 @@
 title: New API
 version: v1
 baseUri: http://api.samplehost.com
+mediaType: application/json
 
 traits: !include traits/traits.raml
-
-# add authentication
+types: !include resourceTypes/datatypes.raml
 
 /agencies:
   description: The collection of agencies in the system.
@@ -15,26 +15,7 @@ traits: !include traits/traits.raml
     responses:
       200:
         body:
-          application/json:
-            example: |
-              [
-                {
-                  "name" : "Pretrial Center",
-                  "agencyId" : "1"
-                },
-                {
-                  "name" : "Intake Center",
-                  "agencyId" : "2"
-                },
-                {
-                  "name" : "Springfield Prison",
-                  "agencyId" : "3"
-                },
-                {
-                  "name" : "Downtown Courts",
-                  "agencyId" : "4"
-                }
-              ]
+          type: agency[]
 
 /locations:
   description: The collection of internal locations within an agency.
@@ -48,46 +29,18 @@ traits: !include traits/traits.raml
     responses:
       200:
         body:
-          application/json:
-            example: |
-              [
-                {
-                  "name" : "Center Block",
-                  "type": "Tier",
-                  "housingLevel" : "1",
-                  "capacity" : "50",
-                  "agencyId" : "3",
-                  "locationId" : "1"
-                },
-                {
-                  "name" : "North Wing",
-                  "type": "Wing",
-                  "housingLevel" : "2",
-                  "capacity" : "25",
-                  "agencyId" : "3",
-                  "parentLocationId" : "1",
-                  "locationId" : "2"
-                },
-                {
-                  "name" : "Cell 1",
-                  "type": "Cell",
-                  "housingLevel" : "3",
-                  "capacity" : "1",
-                  "agencyId" : "3",
-                  "parentLocationId" : "2",
-                  "locationId" : "3"
-                },
-                {
-                  "name" : "Holding Pend",
-                  "agencyId" : "4",
-                  "locationId" : "4"
-                }
-              ]
+          type: location[]
 
 /locations/{locationId}:
   description: Returns details about the specified location
   get:
     description: Returns details of the specified location.
+    responses:
+      200:
+        body:
+          type: location
+      404:
+        description: Returned if the location id is not valid or the user does not have authorization to view it.
 
 /locations/{locationId}/movements:
   description: The collection of scheduled movements associated to the location.
@@ -98,6 +51,12 @@ traits: !include traits/traits.raml
           orderable: {fieldsList : ""},
           pageable
         ]
+    responses:
+      200:
+        body:
+          type: movement[]
+      404:
+        description: Returned if the location id is not valid or the user does not have authorization to view the data.
 
 /locations/{locationId}/inmates:
   description: The collection of inmates present at the specified location.
@@ -108,11 +67,16 @@ traits: !include traits/traits.raml
           orderable: {fieldsList : ""},
           pageable
         ]
+    responses:
+      200:
+        body: inmateSummary[]
+      404:
+        description: Returned if the location id is not valid or the user does not have authorization to view the data.
 
-/locations/{locationId}/bedAssignments:
-  description: The collection of assignable beds at the specified location. This method is only valid for living unit locations.
+/locations/{locationId}/livingUnits:
+  description: The collection of living units (assignable beds) at the specified location. This method is only valid for living unit locations.
   get:
-    description: Returns the assignable beds associated to the location.
+    description: Returns the living units associated to the location.
     is: [
           searchable: {description : "", example : ""},
           orderable: {fieldsList : ""},
@@ -120,9 +84,9 @@ traits: !include traits/traits.raml
         ]
     responses:
       200:
-        # outline response
+        body: livingUnit[]
       404:
-        description: Returned if the location does not support assignable beds. (i.e. not a living unit)
+        description: Returned if the location is not a living unit or the user does not have authorization to view the data.
 
 /inmates:
   description: The collection of inmates within the system.
@@ -133,11 +97,19 @@ traits: !include traits/traits.raml
           orderable: {fieldsList : ""},
           pageable
         ]
+    responses:
+      200:
+        body: inmateSummary[]
 
 /inmates/{inmateId}:
   description: The details specific to the specified inmate.
   get:
     description: Returns the inmate's details.
+    responses:
+      200:
+        body: inmateDetail[]
+      404:
+        description: Returned if the inmateId is not valid or the user does not have authorization to view the data.
 
 /inmates/{inmateId}/movements:
   description: The collection of scheduled movements associated to the inmate.
@@ -148,3 +120,9 @@ traits: !include traits/traits.raml
           orderable: {fieldsList : ""},
           pageable
         ]
+    responses:
+      200:
+        body:
+          type: movement[]
+      404:
+        description: Returned if the inmateId is not valid or the user does not have authorization to view the data.

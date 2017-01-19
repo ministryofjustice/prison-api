@@ -1,0 +1,102 @@
+  agency:
+    type: object
+    properties:
+      agencyId: string
+      description: string
+      type: string
+
+  location:
+    type: object
+    discriminator: livingUnit
+    properties:
+      locationId: string
+      agencyId: string
+      locationType: string
+      description: string
+      parentLocationId: string
+      operationalCapacity:
+        type: number
+        required: false
+      currentOccupancy: number
+      livingUnit: boolean
+  livingUnit:
+    type: location
+    discriminatorValue: true
+    properties:
+      housingUnitType: string
+      assignedInmates: inmateSummary[]
+
+  movement:
+    type: object
+    discriminator: moveCategory
+    properties:
+      moveCategory: string
+      inmateId: string
+      moveDateTime: datetime
+  externalMovement:
+    type: movement
+    discriminatorValue: external
+    properties:
+      fromAgencyId: string
+      toAgencyId: string
+      moveType: string
+      moveReason: string
+  internalMovement:
+    type: movement
+    discriminatorValue: internal
+    properties:
+      fromLocationId: string
+      toLocationId: string
+
+  physicalAttributes:
+    type: object
+    properties:
+      gender: string
+      ethnicity: string
+      heightInches: number
+      heightMeters: number
+      weightPounds: number
+      weightKg: number
+  physicalCharacteristic:
+    type: object
+    properties:
+      characteristic: string
+      detail: string
+  physicalMark:
+    type: object
+    properties:
+      type: string
+      side: string
+      bodyPart: string
+      orientation: string
+      comment: string
+  inmateSummary:
+    type: object
+    properties:
+      inmateId: string
+      bookingId: string
+      offenderId: string
+      firstName: string
+      lastName: string
+      alertCodes: string[]
+      agencyId: string
+      currentLocationId: string
+      assignedLivingUnitId: string
+  inmateDetail:
+    type: object
+    properties:
+      inmateId: string
+      bookingId: string
+      offenderId: string
+      firstName: string
+      middleName: string
+      lastName: string
+      alertCodes: string[]
+      agencyId: string
+      currentLocationId: string
+      assignedLivingUnitId: string
+      dateOfBirth: date-only
+      age: number
+      physicalAttributes: physicalAttributes
+      physicalCharacteristics: physicalCharacteristic[]
+      physicalMarks: physicalMark[]
