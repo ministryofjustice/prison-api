@@ -44,7 +44,9 @@ types: !include resourceTypes/datatypes.raml
         body:
           type: location
       404:
-        description: Returned if the location id is not valid or the user does not have authorization to view it.
+        description: |
+          Returned if the location id is not valid or the user does not have
+          authorization to view it.
 
 /locations/{locationId}/movements:
   description: The collection of scheduled movements associated to the location.
@@ -64,7 +66,9 @@ types: !include resourceTypes/datatypes.raml
         body:
           type: movement[]
       404:
-        description: Returned if the location id is not valid or the user does not have authorization to view the data.
+        description: |
+          Returned if the location id is not valid or the user does not have
+          authorization to view the data.
 
 /locations/{locationId}/inmates:
   description: The collection of inmates present at the specified location.
@@ -83,14 +87,22 @@ types: !include resourceTypes/datatypes.raml
       200:
         body: inmateSummary[]
       404:
-        description: Returned if the location id is not valid or the user does not have authorization to view the data.
+        description: |
+          Returned if the location id is not valid or the user does not have
+          authorization to view the data.
 
 /locations/{locationId}/livingUnits:
-  description: The collection of living units (assignable beds) at the specified location. This method is only valid for living unit locations.
+  description: |
+    The collection of living units (assignable beds) at the specified location.
+    This method is only valid for living unit locations.
   get:
     description: Returns the living units associated to the location.
     is: [
-          searchable: {description : "limit the living units returned. Searchable fields: locationId, locationType, or housingUnitType.", example : ""},
+          searchable:
+            {
+              description : "limit the living units returned. Searchable fields: locationId, locationType, or housingUnitType.",
+              example : ""
+            },
           orderable: {fieldsList : "locationId, locationType, or housingUnitType."},
           pageable
         ]
@@ -98,7 +110,9 @@ types: !include resourceTypes/datatypes.raml
       200:
         body: livingUnit[]
       404:
-        description: Returned if the location is not a living unit or the user does not have authorization to view the data.
+        description: |
+          Returned if the location is not a living unit or the user does not
+          have authorization to view the data.
 
 /inmates:
   description: The collection of inmates within the system.
@@ -125,7 +139,9 @@ types: !include resourceTypes/datatypes.raml
       200:
         body: inmateDetail[]
       404:
-        description: Returned if the inmateId is not valid or the user does not have authorization to view the data.
+        description: |
+          Returned if the inmateId is not valid or the user does not have
+          authorization to view the data.
 
 /inmates/{inmateId}/movements:
   description: The collection of scheduled movements associated to the inmate.
@@ -145,4 +161,38 @@ types: !include resourceTypes/datatypes.raml
         body:
           type: movement[]
       404:
-        description: Returned if the inmateId is not valid or the user does not have authorization to view the data.
+        description: |
+          Returned if the inmateId is not valid or the user does not have
+          authorization to view the data.
+
+/search:
+  description: |
+    The ability to search for occurances of a string of text across different
+    objects and fields accessible through the API.
+  get:
+    queryParameters:
+      query:
+        description: The string to search for.
+        minLength: 3
+        required: true
+      objects:
+        description: |
+          A JSON array [{"object1"},{"object2"},...,{"objectN"}] of object types to
+          search for the string. The order of the objects defines the order of
+          the search.
+        example: |
+          [{"locations"},{"inmates"}]
+        required: true
+      limit:
+        description: Limit the number of elements on the response
+        type: integer
+        required: false
+        example: 30
+        default: 10
+        maximum: 50
+        minimum: 1
+    responses:
+      200:
+        body: searchResult[]
+      204:
+        description: The string was not found in the objects specified.

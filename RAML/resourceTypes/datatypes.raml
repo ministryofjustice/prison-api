@@ -100,3 +100,22 @@
       physicalAttributes: physicalAttributes
       physicalCharacteristics: physicalCharacteristic[]
       physicalMarks: physicalMark[]
+
+  searchResult:
+    type: object
+    discriminator: resultType
+    properties:
+      resultType: string
+      resultOrder: integer
+  searchResultInmate:
+    type: searchResult
+    discriminatorValue: inmate
+    properties:
+      inmateId: string
+      data: inmateSummary
+  searchResultLocation:
+    type: searchResult
+    discriminatorValue: location
+    properties:
+      locationId: string
+      data: location
