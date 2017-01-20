@@ -4,7 +4,7 @@ UI/jspm_packages
 UI/npm-debug.*
 UI/link-checker-results.txt
 UI/app/**/*.js
-UI/*.js.map
+**/*.js.map
 UI/e2e/**/*.js
 UI/e2e/**/*.js.map
 UI/_test-output
