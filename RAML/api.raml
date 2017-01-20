@@ -180,8 +180,12 @@ types: !include resourceTypes/datatypes.raml
           A JSON array [{"object1"},{"object2"},...,{"objectN"}] of object types to
           search for the string. The order of the objects defines the order of
           the search.
+
+          For object type "location" the "description" field is searched.
+          For object type "inmate" the "bookingId", "offenderId", "firstName",
+          and "lastName" fields are searched. 
         example: |
-          [{"locations"},{"inmates"}]
+          [{"location"},{"inmate"}]
         required: true
       limit:
         description: Limit the number of elements on the response
