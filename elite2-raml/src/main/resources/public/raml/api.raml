@@ -1,0 +1,202 @@
+#%RAML 1.0
+title: New API
+version: v1
+baseUri: http://api.samplehost.com
+mediaType: application/json
+
+traits: !include traits/traits.raml
+types: !include resourceTypes/datatypes.raml
+
+/agencies:
+  description: The collection of agencies in the system.
+  get:
+    is: [pageable]
+    description: Returns the list of agencies viewable by the user
+    responses:
+      200:
+        body:
+          type: agency[]
+
+/locations:
+  description: The collection of internal locations within an agency.
+  get:
+    description: Returns a list of locations for the specified agency.
+    is: [
+          searchable:
+            {
+              description : "to limit the locations returned. Searchable fields: locationId, agencyId, locationType, parentLocationId, livingUnit, and housingUnitType. If the field housingUnitType is used, then <'livingUnit', true, 'equalTo'> is implied.",
+              example : ""
+            },
+          orderable: {fieldsList : "locationId, agencyId, locationType, parentLocationId, livingUnit, or housingUnitType"},
+          pageable
+        ]
+    responses:
+      200:
+        body:
+          type: location[]
+
+/locations/{locationId}:
+  description: Returns details about the specified location
+  get:
+    description: Returns details of the specified location.
+    responses:
+      200:
+        body:
+          type: location
+      404:
+        description: |
+          Returned if the location id is not valid or the user does not have
+          authorization to view it.
+
+/locations/{locationId}/movements:
+  description: The collection of scheduled movements associated to the location.
+  get:
+    description: Returns the scheduled movements associated to the location.
+    is: [
+          searchable:
+            {
+              description : "to limit the movements returned. Searchable fields: moveCategory, inmateId, moveDateTime, fromAgencyId, toAgencyId, moveType, moveReason, fromLocationId, and toLocation. If the fields fromAgencyId, toAgencyId, moveType, or moveReason are used, then <'moveCategory', 'external', 'equalTo'> is implied. If the fields fromLocationId or toLocation are used, then <'moveCategory', 'internal', 'equalTo'> is implied. If the field moveDateTime is not provided, <'moveDateTime', 'now', 'greaterThan'> is implied.",
+              example : ""
+            },
+          orderable: {fieldsList : "moveCategory, inmateId, moveDateTime, fromAgencyId, toAgencyId, moveType, moveReason, fromLocationId, or toLocation"},
+          pageable
+        ]
+    responses:
+      200:
+        body:
+          type: movement[]
+      404:
+        description: |
+          Returned if the location id is not valid or the user does not have
+          authorization to view the data.
+
+/locations/{locationId}/inmates:
+  description: The collection of inmates present at the specified location.
+  get:
+    description: Returns the inmates currently located at the location.
+    is: [
+          searchable:
+            {
+              description : "to limit the inmates returned. Searchable fields: inmateId, bookingId, offenderId, firstName, lastName, alertCodes, agencyId, currentLocationId, and assignedLivingUnitId.",
+              example : ""
+            },
+          orderable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, alertCodes, agencyId, currentLocationId, or assignedLivingUnitId"},
+          pageable
+        ]
+    responses:
+      200:
+        body: inmateSummary[]
+      404:
+        description: |
+          Returned if the location id is not valid or the user does not have
+          authorization to view the data.
+
+/locations/{locationId}/livingUnits:
+  description: |
+    The collection of living units (assignable beds) at the specified location.
+    This method is only valid for living unit locations.
+  get:
+    description: Returns the living units associated to the location.
+    is: [
+          searchable:
+            {
+              description : "limit the living units returned. Searchable fields: locationId, locationType, or housingUnitType.",
+              example : ""
+            },
+          orderable: {fieldsList : "locationId, locationType, or housingUnitType."},
+          pageable
+        ]
+    responses:
+      200:
+        body: livingUnit[]
+      404:
+        description: |
+          Returned if the location is not a living unit or the user does not
+          have authorization to view the data.
+
+/inmates:
+  description: The collection of inmates within the system.
+  get:
+    description: Returns the within the system.
+    is: [
+          searchable:
+            {
+              description : "to limit the inmates returned. Searchable fields: inmateId, bookingId, offenderId, firstName, lastName, alertCodes, agencyId, currentLocationId, and assignedLivingUnitId.",
+              example : ""
+            },
+          orderable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, alertCodes, agencyId, currentLocationId, or assignedLivingUnitId"},
+          pageable
+        ]
+    responses:
+      200:
+        body: inmateSummary[]
+
+/inmates/{inmateId}:
+  description: The details specific to the specified inmate.
+  get:
+    description: Returns the inmate's details.
+    responses:
+      200:
+        body: inmateDetail[]
+      404:
+        description: |
+          Returned if the inmateId is not valid or the user does not have
+          authorization to view the data.
+
+/inmates/{inmateId}/movements:
+  description: The collection of scheduled movements associated to the inmate.
+  get:
+    description: Returns the scheduled movements associated to the inmate.
+    is: [
+          searchable:
+            {
+              description : "to limit the movements returned. Searchable fields: moveCategory, moveDateTime, fromAgencyId, toAgencyId, moveType, moveReason, fromLocationId, and toLocation. If the fields fromAgencyId, toAgencyId, moveType, or moveReason are used, then <'moveCategory', 'external', 'equalTo'> is implied. If the fields fromLocationId or toLocation are used, then <'moveCategory', 'internal', 'equalTo'> is implied. If the field moveDateTime is not provided, <'moveDateTime', 'now', 'greaterThan'> is implied.",
+              example : ""
+            },
+          orderable: {fieldsList : "moveCategory, moveDateTime, fromAgencyId, toAgencyId, moveType, moveReason, fromLocationId, or toLocation"},
+          pageable
+        ]
+    responses:
+      200:
+        body:
+          type: movement[]
+      404:
+        description: |
+          Returned if the inmateId is not valid or the user does not have
+          authorization to view the data.
+
+/search:
+  description: |
+    The ability to search for occurances of a string of text across different
+    objects and fields accessible through the API.
+  get:
+    queryParameters:
+      query:
+        description: The string to search for.
+        minLength: 3
+        required: true
+      objects:
+        description: |
+          A JSON array [{"object1"},{"object2"},...,{"objectN"}] of object types to
+          search for the string. The order of the objects defines the order of
+          the search.
+
+          For object type "location" the "description" field is searched.
+          For object type "inmate" the "bookingId", "offenderId", "firstName",
+          and "lastName" fields are searched. 
+        example: |
+          [{"location"},{"inmate"}]
+        required: true
+      limit:
+        description: Limit the number of elements on the response
+        type: integer
+        required: false
+        example: 30
+        default: 10
+        maximum: 50
+        minimum: 1
+    responses:
+      200:
+        body: searchResult[]
+      204:
+        description: The string was not found in the objects specified.
