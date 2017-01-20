@@ -1,0 +1,11 @@
+UI/.idea
+UI/node_modules
+UI/jspm_packages
+UI/npm-debug.*
+UI/link-checker-results.txt
+UI/app/**/*.js
+UI/*.js.map
+UI/e2e/**/*.js
+UI/e2e/**/*.js.map
+UI/_test-output
+UI/_temp
