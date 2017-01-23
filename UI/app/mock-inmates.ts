@@ -1,7 +1,51 @@
 import { Inmate } from './inmate';
 
 export const INMATES: Inmate[] = [
-	{ inmateId: 38268, bookingId: '2015-037258', offenderId: '16480', firstName: 'Giovani', lastName: 'Jenkins',  },
+	{
+		inmateId: 38268,
+		bookingId: '2015-037258',
+		offenderId: '16480',
+		firstName: 'Giovani',
+		middleName: 'Louis',
+		lastName: 'Jenkins',
+		alertCodes: [ 'V', 'R', 'X'],
+		dateOfBirth: '1982-07-21',
+		age: 35,
+		physicalAttributes: {
+			gender: 'M',
+			ethnicity: 'BLA',
+			heightInches: 74,
+			heightMeters: 1.87,
+			weightPounds: 198,
+			weightKg: 90
+		},
+		physicalCharacteristics: [
+			{
+				characteristic: 'Eye Colour',
+				detail: 'Brown'
+			},
+			{
+				characteristic: 'Hair Colour',
+				detail: 'Grey'
+			}
+		],
+		physicalMarks: [
+			{
+				type: 'tatoo',
+				side: 'right',
+				bodyPart: 'upper arm',
+				orientation: 'front',
+				comment: 'eagle in flight'
+			},
+			{
+				type: 'scar',
+				side: 'left',
+				bodyPart: 'lower leg',
+				orientation: 'back',
+				comment: 'across calf mid leg'
+			}
+		]
+	},
 	{ inmateId: 38269, bookingId: '2015-037259', offenderId: '39105', firstName: 'Alan', lastName: 'Goodwin',  },
 	{ inmateId: 38393, bookingId: '2015-037382', offenderId: '39208', firstName: 'Marquise', lastName: 'Mullen',  },
 	{ inmateId: 38433, bookingId: '2015-037422', offenderId: '39268', firstName: 'Kendall', lastName: 'Patterson',  },
