@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
 import { OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { Inmate } from './inmate';
 import { InmateService } from './inmate.service';
 
 @Component({
+  moduleId: module.id,
   selector: 'my-inmates',
   template: `
 	<h2>{{title}}</h2>
@@ -13,9 +15,6 @@ import { InmateService } from './inmate.service';
 			{{inmate.firstName}} {{inmate.lastName}} ({{inmate.bookingId}})<span class="badge">&gt;</span>
 		</li>
 	</ul>
-	<div *ngIf="selectedInmate">
-	<my-inmate-detail [inmate]="selectedInmate"></my-inmate-detail>
-	</div>
 	`,
 	styles: [`
 	  .selected {
@@ -74,10 +73,14 @@ export class InmatesComponent implements OnInit  {
 	inmates: Inmate[];
 	selectedInmate: Inmate;
 	
-	constructor(private inmateService: InmateService) { }
+	constructor(
+		private router: Router,
+		private inmateService: InmateService ) 
+	{ }
 		
 	onSelect(inmate: Inmate): void {
-		this.selectedInmate = inmate;
+///		this.selectedInmate = inmate;
+		this.router.navigate(['/inmates', inmate.inmateId]);
 	}
 	
 	ngOnInit(): void {
