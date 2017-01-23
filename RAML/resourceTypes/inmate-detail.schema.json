@@ -1,0 +1,140 @@
+{
+  "$schema": "http://json-schema.org/draft-03/schema",
+
+  "title": "Inmate Detail",
+  "type": "object",
+  "properties": {
+    "inmateId":    {
+      "type:": "number",
+      "required": true
+    },
+    "bookingId":    {
+      "type:": "string",
+      "required": true
+    },
+    "offenderId":    {
+      "type:": "string",
+      "required": true
+    },
+    "firstName":    {
+      "type:": "string",
+      "required": true
+    },
+    "middleName":    {
+      "type:": "string",
+      "required": true
+    },
+    "lastName":    {
+        "type:": "string",
+        "required": true
+    },
+    "alertsCodes": {
+      "type": "array",
+      "required": false,
+      "items": {
+        "type": "string"
+      }
+    },
+    "agencyId":  {
+      "type:": "string",
+      "required": true
+    },
+    "currentLocationId":  {
+      "type:": "number",
+      "required": true
+    },
+    "assignedLivingUnitId":  {
+      "type:": "number",
+      "required": false
+    },
+    "dateOfBirth":  {
+      "type:": "date-only",
+      "required": false
+    },
+    "age":   {
+      "type:": "number",
+      "required": true
+    },
+
+    "physicalAttributes": {
+      "type": "object",
+      "required": false,
+      "properties": {
+        "gender": {
+          "type:": "string",
+          "required": true
+        },
+        "ethnicity": {
+          "type:": "string",
+          "required": true
+        },
+        "heightInches": {
+          "type:": "number",
+          "required": true
+        },
+        "heightMeters": {
+          "type:": "number",
+          "required": true
+        },
+        "weightPounds": {
+          "type:": "number",
+          "required": true
+        },
+        "weightKg": {
+          "type:": "number",
+          "required": true
+        },
+      },
+    },
+
+    "physicalCharacteristics": {
+      "type": "array",
+      "required": false,
+      "items": {
+        "title": "physicalCharacteristic",
+        "type": "object",
+        "properties": {
+          "characteristic": {
+            "type:": "string",
+            "required": true
+          },
+          "detail": {
+            "type:": "string",
+            "required": true
+          },
+        },
+      }
+    },
+
+    "physicalMarks": {
+      "type": "array",
+      "required": false,
+      "items": {
+        "title": "physicalMark",
+        "type": "object",
+        "properties": {
+          "type": {
+            "type:": "string",
+            "required": true
+          },
+          "side": {
+            "type:": "string",
+            "required": true
+          },
+          "bodyPart": {
+            "type:": "string",
+            "required": true
+          },
+          "orientation": {
+            "type:": "string",
+            "required": true
+          },
+          "comment": {
+            "type:": "string",
+            "required": true
+          },
+        },
+      }
+    }
+  }
+}
