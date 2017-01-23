@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-03/schema",
+
+  "title": "Inmate Summary Set",
+  "type": "array",
+  "items": {
+    "title": "Inmate Summary",
+    "type": "object",
+    "properties": {
+      "inmateId":    {
+        "type:": "number",
+        "required": true
+      },
+      "bookingId":    {
+        "type:": "string",
+        "required": true
+      },
+      "offenderId":    {
+        "type:": "string",
+        "required": true
+      },
+      "firstName":    {
+        "type:": "string",
+        "required": true
+      },
+      "lastName":    {
+        "type:": "string",
+        "required": true
+      },
+      "alertsCodes": {
+        "type": "array",
+        "required": false,
+        "items": {
+          "type": "string"
+        }
+      },
+      "agencyId":    {
+        "type:": "string",
+        "required": true
+      },
+      "currentLocationId": {
+        "type:": "number",
+        "required": true
+      },
+      "assignedLivingUnitId": {
+        "type:": "number",
+        "required": false
+      },
+    }
+  }
+}

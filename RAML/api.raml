@@ -1,11 +1,10 @@
-#%RAML 1.0
+#%RAML 0.8
 title: New API
+baseUri: http://api.mobile.elite.com/{version}
 version: v1
-baseUri: http://api.samplehost.com
 mediaType: application/json
 
 traits: !include traits/traits.raml
-types: !include resourceTypes/datatypes.raml
 
 /agencies:
   description: The collection of agencies in the system.
@@ -15,7 +14,8 @@ types: !include resourceTypes/datatypes.raml
     responses:
       200:
         body:
-          type: agency[]
+          application/json:
+            schema: !include resourceTypes/agencies.schema.json
 
 /locations:
   description: The collection of internal locations within an agency.
@@ -33,7 +33,8 @@ types: !include resourceTypes/datatypes.raml
     responses:
       200:
         body:
-          type: location[]
+          application/json:
+            schema: !include resourceTypes/locations.schema.json
 
 /locations/{locationId}:
   description: Returns details about the specified location
@@ -42,7 +43,8 @@ types: !include resourceTypes/datatypes.raml
     responses:
       200:
         body:
-          type: location
+          application/json:
+            schema: !include "resourceTypes/location.schema.json"
       404:
         description: |
           Returned if the location id is not valid or the user does not have
@@ -64,7 +66,8 @@ types: !include resourceTypes/datatypes.raml
     responses:
       200:
         body:
-          type: movement[]
+          application/json:
+            schema: !include "resourceTypes/movements.schema.json"
       404:
         description: |
           Returned if the location id is not valid or the user does not have
@@ -85,7 +88,9 @@ types: !include resourceTypes/datatypes.raml
         ]
     responses:
       200:
-        body: inmateSummary[]
+        body:
+          application/json:
+            schema: !include "resourceTypes/inmate-summaries.schema.json"
       404:
         description: |
           Returned if the location id is not valid or the user does not have
@@ -108,7 +113,9 @@ types: !include resourceTypes/datatypes.raml
         ]
     responses:
       200:
-        body: livingUnit[]
+        body:
+          application/json:
+            schema: !include "resourceTypes/locations.schema.json"
       404:
         description: |
           Returned if the location is not a living unit or the user does not
@@ -129,7 +136,9 @@ types: !include resourceTypes/datatypes.raml
         ]
     responses:
       200:
-        body: inmateSummary[]
+        body:
+          application/json:
+            schema: !include "resourceTypes/inmate-summaries.schema.json"
 
 /inmates/{inmateId}:
   description: The details specific to the specified inmate.
@@ -137,7 +146,9 @@ types: !include resourceTypes/datatypes.raml
     description: Returns the inmate's details.
     responses:
       200:
-        body: inmateDetail[]
+        body:
+          application/json:
+            schema: !include "resourceTypes/inmate-detail.schema.json"
       404:
         description: |
           Returned if the inmateId is not valid or the user does not have
@@ -159,7 +170,8 @@ types: !include resourceTypes/datatypes.raml
     responses:
       200:
         body:
-          type: movement[]
+          application/json:
+            schema: !include "resourceTypes/movements.schema.json"
       404:
         description: |
           Returned if the inmateId is not valid or the user does not have
@@ -183,7 +195,7 @@ types: !include resourceTypes/datatypes.raml
 
           For object type "location" the "description" field is searched.
           For object type "inmate" the "bookingId", "offenderId", "firstName",
-          and "lastName" fields are searched. 
+          and "lastName" fields are searched.
         example: |
           [{"location"},{"inmate"}]
         required: true
@@ -197,6 +209,8 @@ types: !include resourceTypes/datatypes.raml
         minimum: 1
     responses:
       200:
-        body: searchResult[]
+        body:
+          application/json:
+            schema: !include "resourceTypes/search-result.schema.json"
       204:
         description: The string was not found in the objects specified.

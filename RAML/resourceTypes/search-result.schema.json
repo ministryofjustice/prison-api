@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json-schema.org/draft-03/schema",
+
+  "title": "Search Result Set",
+  "type": "array",
+  "items": {
+    "title": "Search Result",
+    "type": "object",
+    "properties": {
+      "resultType": {
+        "type:": "string",
+        "required": true
+      },
+      "resultOrder":  {
+        "type:": "number",
+        "required": true
+      },
+      "inmate":  {
+        "type:": "object",
+        "required": false,
+        "properties": {
+          "inmateId":    {
+            "type:": "number",
+            "required": true
+          },
+          "bookingId":    {
+            "type:": "string",
+            "required": true
+          },
+          "offenderId":    {
+            "type:": "string",
+            "required": true
+          },
+          "firstName":    {
+            "type:": "string",
+            "required": true
+          },
+          "lastName":    {
+            "type:": "string",
+            "required": true
+          },
+          "alertsCodes": {
+            "type": "array",
+            "required": false,
+            "items": {
+              "type": "string"
+            }
+          },
+          "agencyId":    {
+            "type:": "string",
+            "required": true
+          },
+          "currentLocationId": {
+            "type:": "number",
+            "required": true
+          },
+          "assignedLivingUnitId": {
+            "type:": "number",
+            "required": false
+          },
+        }
+      },
+      "location":  {
+        "type:": "object",
+        "required": false,
+        "properties": {
+          "locationId":   {
+            "type:": "number",
+            "required": true
+          },
+          "agencyId":   {
+            "type:": "string",
+            "required": true
+          },
+          "locationType":   {
+            "type:": "string",
+            "required": true
+          },
+          "description":   {
+            "type:": "string",
+            "required": true
+          },
+          "parentLocationId":   {
+            "type:": "number",
+            "required": true
+          },
+          "operationalCapacity":  {
+            "type:": "number",
+            "required": false
+          },
+          "currentOccupancy":   {
+            "type:": "number",
+            "required": true
+          },
+          "livingUnit":   {
+            "type:": "boolean",
+            "required": true
+          },
+          "housingUnitType":   {
+            "type:": "string",
+            "required": false
+          },
+        }
+      },
+    }
+  }
+}
