@@ -4,39 +4,43 @@ import { RouterModule }   from '@angular/router';
 
 import { AppComponent }  from './app.component';
 
-import { LocationDetailComponent } from './location-detail.component';
-import { LocationsComponent } from './locations.component';
+import { AgencyLocationDetailComponent } from './agency-location-detail.component';
+import { AgencyLocationsComponent } from './agency-locations.component';
 import { InmatesComponent } from './inmates.component';
 import { InmateDetailComponent } from './inmate-detail.component';
-import { LocationService } from './location.service';
+import { AgencyLocationService } from './agency-location.service';
 import { InmateService } from './inmate.service';
 
 @NgModule({
-  imports:      [ 
+  imports:      [
 	BrowserModule,
 	RouterModule.forRoot([
 	  {
 		path: 'locations',
-		component: LocationsComponent
+		component: AgencyLocationsComponent
 	  },
 	  {
 		path: 'inmates',
 		component: InmatesComponent
 	  },
 	  {
-	    path: 'inmates/:inmateId',
+	  path: 'inmates/:inmateId',
 		component: InmateDetailComponent
+	  },
+	  {
+	  path: 'locations/:locationId',
+		component: AgencyLocationDetailComponent
 	  }
 	])
   ],
-  declarations: [ 
+  declarations: [
 	AppComponent,
-	LocationDetailComponent,
-	LocationsComponent,
+	AgencyLocationDetailComponent,
+	AgencyLocationsComponent,
 	InmatesComponent,
 	InmateDetailComponent
   ],
-  providers: [ LocationService, InmateService ],
+  providers: [ AgencyLocationService, InmateService ],
   bootstrap:    [ AppComponent ]
 })
 export class AppModule { }

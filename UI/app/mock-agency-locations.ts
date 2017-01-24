@@ -1,6 +1,6 @@
-import { Location } from './location';
+import { AgencyLocation } from './agency-location';
 
-export const LOCATIONS: Location[] = [
+export const AGENCYLOCATIONS: AgencyLocation[] = [
 	{ locationId: 8210, agencyId: 'SDP', locationType: 'CLAS', description: 'SDP-SCHOOL',  },
 	{ locationId: 8211, agencyId: 'SDP', locationType: 'CLAS', description: 'SDP-SCHOOL-LIBRARY',  },
 	{ locationId: 8212, agencyId: 'SDP', locationType: 'CLAS', description: 'SDP-SCHOOL-CLASSRM',  },

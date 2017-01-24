@@ -1,4 +1,4 @@
-export class Location  {
+export class AgencyLocation  {
 	locationId: number;
 	agencyId: string;
 	locationType: string;

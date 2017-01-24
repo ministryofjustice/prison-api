@@ -3,7 +3,7 @@ import { ActivatedRoute, Params }   from '@angular/router';
 import { Location }                 from '@angular/common';
 
 import { Inmate } from './inmate';
-import {InmateService } from './inmate.service';
+import { InmateService } from './inmate.service';
 
 import 'rxjs/add/operator/switchMap';
 
