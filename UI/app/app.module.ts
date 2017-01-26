@@ -30,7 +30,12 @@ import { InmateService } from './inmate.service';
 	  {
 	  path: 'locations/:locationId',
 		component: AgencyLocationDetailComponent
-	  }
+	  },
+    {
+    path: '',
+    redirectTo: '/locations',
+    pathMatch: 'full'
+    }
 	])
   ],
   declarations: [
