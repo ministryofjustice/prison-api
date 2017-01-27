@@ -21,8 +21,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
+		<raml.path>api.raml</raml.path>
 		<output.path>../elite2-web/src/main/generated</output.path>
-		<raml.path>${project.basedir}/api.raml</raml.path>
 		<json.schema.path>${project.basedir}/schemas</json.schema.path>
 		<base.package>net.syscon.elite.web.api</base.package>
 	</properties>
@@ -56,7 +56,7 @@
 				<artifactId>springmvc-raml-plugin</artifactId>
 				<version>0.8.9</version>
 				<configuration>
-					<ramlPath>api.raml</ramlPath>
+					<ramlPath>${raml.path}</ramlPath>
 					<schemaLocation>${json.schema.path}</schemaLocation>
 					<outputRelativePath>${output.path}</outputRelativePath>
 					<addTimestampFolder>false</addTimestampFolder>
@@ -68,6 +68,10 @@
 						<includeAdditionalProperties>false</includeAdditionalProperties>
 					</generationConfig>
 					<seperateMethodsByContentType>false</seperateMethodsByContentType>
+					<!-- alternative  rules
+					<rule>com.phoenixnap.oss.ramlapisync.generation.rules.Spring4ControllerStubRule</rule>
+					<rule>com.phoenixnap.oss.ramlapisync.generation.rules.Spring4ControllerDecoratorRule</rule>
+					-->
 					<rule>com.phoenixnap.oss.ramlapisync.generation.rules.Spring4ControllerInterfaceRule</rule>
 					<ruleConfiguration>
 					</ruleConfiguration>

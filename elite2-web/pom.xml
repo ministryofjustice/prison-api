@@ -141,41 +141,34 @@
 				</executions>
 			</plugin>
 
-			<!-- PhoenixNAP RAML Code Generator plugin used to generate sources from raml -->
 			<plugin>
 				<groupId>com.phoenixnap.oss</groupId>
 				<artifactId>springmvc-raml-plugin</artifactId>
 				<version>0.8.9</version>
 				<configuration>
-					<ramlPath>${raml.path}</ramlPath>
-					<schemaLocation>${json.schema.path}</schemaLocation>
-					<outputRelativePath>${output.path}</outputRelativePath>
-					<addTimestampFolder>false</addTimestampFolder>
-					<basePackage>${base.package}.web.api</basePackage>
-					<baseUri>/api</baseUri>
-					<generateUnreferencedSchemas>true</generateUnreferencedSchemas>
-					<generationConfig>
-						<includeAdditionalProperties>false</includeAdditionalProperties>
-					</generationConfig>
-					<seperateMethodsByContentType>false</seperateMethodsByContentType>
-					<!-- alternative  rules 
-					<rule>com.phoenixnap.oss.ramlapisync.generation.rules.Spring4ControllerStubRule</rule>
-					<rule>com.phoenixnap.oss.ramlapisync.generation.rules.Spring4ControllerDecoratorRule</rule>
-					-->
-					<rule>com.phoenixnap.oss.ramlapisync.generation.rules.Spring4ControllerInterfaceRule</rule>
-					<ruleConfiguration>
-					</ruleConfiguration>
+					<outputRamlFilePath>/../elite2-raml/generated-api.raml</outputRamlFilePath>
+					<restBasePath>/api</restBasePath>
+					<version>v1</version>
+					<includeGlobalMediaType>false</includeGlobalMediaType>
+					<restrictOnMediaType>false</restrictOnMediaType>
+					<ignoredList>
+						<!--
+						<param>net.syscon.elite.web.api.ignore</param>
+						-->
+					</ignoredList>
+					<dependencyPackagesList>
+						<param>net.syscon.elite.web.api</param>
+					</dependencyPackagesList>
 				</configuration>
 				<executions>
 					<execution>
-						<id>generate-springmvc-endpoints</id>
-						<phase>generate-sources</phase>
+						<id>generate-springmvc-api-docs</id>
+						<phase>compile</phase>
 						<goals>
-							<goal>generate-springmvc-endpoints</goal>
+							<goal>generate-springmvc-api-docs</goal>
 						</goals>
 					</execution>
 				</executions>
-
 			</plugin>
 
 		</plugins>
