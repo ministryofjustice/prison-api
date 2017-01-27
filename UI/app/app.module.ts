@@ -7,7 +7,7 @@ import { AppComponent }  from './app.component';
 
 // Imports for loading & configuring the in-memory web api
 import { InMemoryWebApiModule } from 'angular-in-memory-web-api';
-import { InmateData }  from './inmate-data';
+import { InMemoryDBMockData }  from './in-memory-db-mock-data';
 
 import { AgencyLocationDetailComponent } from './agency-location-detail.component';
 import { AgencyLocationsComponent } from './agency-locations.component';
@@ -21,7 +21,7 @@ import { InmateService } from './inmate.service';
 	BrowserModule,
   HttpModule,
   JsonpModule,
-  InMemoryWebApiModule.forRoot(InmateData),
+  InMemoryWebApiModule.forRoot( InMemoryDBMockData ),
 	RouterModule.forRoot([
 	  {
 		path: 'locations',
@@ -36,7 +36,7 @@ import { InmateService } from './inmate.service';
 		component: InmateDetailComponent
 	  },
 	  {
-	  path: 'locations/:locationId',
+	  path: 'locations/:id',
 		component: AgencyLocationDetailComponent
 	  },
     {

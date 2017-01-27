@@ -93,7 +93,7 @@ export class AgencyLocationDetailComponent implements OnInit {
 
     ngOnInit(): void {
       this.route.params
-        .switchMap((params: Params) => this.agencyLocationService.getAgencyLocation(+params['locationId']))
+        .switchMap((params: Params) => this.agencyLocationService.getAgencyLocation(+params['id']))
         .subscribe(agencyLocation => this.agencyLocation = agencyLocation);
     }
 

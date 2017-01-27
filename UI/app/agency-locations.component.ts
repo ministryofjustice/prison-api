@@ -79,7 +79,7 @@ export class AgencyLocationsComponent implements OnInit  {
 
 	onSelect(agencyLocation: AgencyLocation): void {
 ///		this.selectedAgencyLocation = agencyLocation;
-    this.router.navigate(['/locations', agencyLocation.locationId]);
+    this.router.navigate(['/locations', agencyLocation.id]);
 	}
 
 	ngOnInit(): void {
