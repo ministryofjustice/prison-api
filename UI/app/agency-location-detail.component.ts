@@ -98,7 +98,7 @@ export class AgencyLocationDetailComponent implements OnInit {
     }
 
   onSelect(inmate: Inmate): void {
-    this.router.navigate(['/inmates', inmate.inmateId]);
+    this.router.navigate(['/inmates', inmate.id]);
   }
 
     goBack(): void {

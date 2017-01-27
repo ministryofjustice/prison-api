@@ -1,8 +1,13 @@
 import { NgModule }      from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule }   from '@angular/router';
+import { HttpModule, JsonpModule }    from '@angular/http';
 
 import { AppComponent }  from './app.component';
+
+// Imports for loading & configuring the in-memory web api
+import { InMemoryWebApiModule } from 'angular-in-memory-web-api';
+import { InmateData }  from './inmate-data';
 
 import { AgencyLocationDetailComponent } from './agency-location-detail.component';
 import { AgencyLocationsComponent } from './agency-locations.component';
@@ -14,6 +19,9 @@ import { InmateService } from './inmate.service';
 @NgModule({
   imports:      [
 	BrowserModule,
+  HttpModule,
+  JsonpModule,
+  InMemoryWebApiModule.forRoot(InmateData),
 	RouterModule.forRoot([
 	  {
 		path: 'locations',
@@ -24,7 +32,7 @@ import { InmateService } from './inmate.service';
 		component: InmatesComponent
 	  },
 	  {
-	  path: 'inmates/:inmateId',
+	  path: 'inmates/:id',
 		component: InmateDetailComponent
 	  },
 	  {
@@ -36,7 +44,7 @@ import { InmateService } from './inmate.service';
     redirectTo: '/locations',
     pathMatch: 'full'
     }
-	])
+	]),
   ],
   declarations: [
 	AppComponent,

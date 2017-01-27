@@ -62,7 +62,7 @@ export class InmateDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.params
-      .switchMap((params: Params) => this.inmateService.getInmate(+params['inmateId']))
+      .switchMap((params: Params) => this.inmateService.getInmate(+params['id']))
       .subscribe(inmate => this.inmate = inmate);
   }
 

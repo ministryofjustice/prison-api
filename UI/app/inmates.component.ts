@@ -72,21 +72,21 @@ export class InmatesComponent implements OnInit  {
 	title = 'Select Inmate';
 	inmates: Inmate[];
 	selectedInmate: Inmate;
-	
+
 	constructor(
 		private router: Router,
-		private inmateService: InmateService ) 
+		private inmateService: InmateService )
 	{ }
-		
+
 	onSelect(inmate: Inmate): void {
 ///		this.selectedInmate = inmate;
-		this.router.navigate(['/inmates', inmate.inmateId]);
+		this.router.navigate(['/inmates', inmate.id]);
 	}
-	
+
 	ngOnInit(): void {
 	  this.getInmates();
 	}
-	
+
 	getInmates(): void {
 		this.inmateService.getInmates().then(inmates => this.inmates = inmates);
 	}
