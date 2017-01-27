@@ -1,0 +1,60 @@
+get:
+  queryParameters:
+    limit:
+      displayName: Limit
+      description: Maximum number of items to be contained in the response
+      type: string
+      example: 1
+      required: false
+      default: 2
+    offset:
+      displayName: Offset
+      description: Skip over a certain number of items by specifying an offset value for the query
+      type: string
+      example: 20
+      required: false
+      default: 0
+  responses:
+    200:
+      body:
+        application/json:
+          schema:
+            <<responseSchemaCollection>>
+          example:
+            <<responseExampleCollection>>
+    400:
+       body:
+         application/json:
+           schema: !include ../schemas/output/http-status.schema.json
+           example: |
+            {
+                "httpStatus": "400",
+                "code": "400",
+                "message": "Invalid request body",
+                "developerMessage": "The request could not be understood by the server due to malformed syntax. The client should not repeat the request without modifications.",
+                "moreInfo": ""
+             }
+    500:
+      body:
+        application/json:
+          schema: !include ../schemas/output/http-status.schema.json
+          example: |
+            {
+               "status": "500",
+               "code": "500",
+               "message": "Unexpected server error",
+               "developerMessage": "Unexpected server error",
+               "moreInfo": ""
+            }
+    404:
+      body:
+        application/json:
+          schema: !include ../schemas/output/http-status.schema.json
+          example: |
+            {
+               "httpStatus": "404",
+               "code": "404",
+               "message": "Resource not found",
+               "developerMessage": "The resource could not be found. The client should not repeat the request without modifications.",
+               "moreInfo": ""
+            }

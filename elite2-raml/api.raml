@@ -1,0 +1,23 @@
+#%RAML 0.8
+title: Elite2 Public API
+baseUri: http://api.elite2.syscon.net/{version}
+version: v1
+mediaType: application/json
+
+
+documentation:
+ - title: Test Raml to SprindMVC
+   content: | 
+      It has been created to test the tool springmvc-raml-plugin
+
+schemas:
+- AgencyResponse: !include schemas/output/agencies-list.schema.json
+
+traits: !include traits/traits.raml
+
+resourceTypes:
+  - get-collection: !include resourceTypes/get-collection.raml
+  - get-agencies-list: !include resourceTypes/get-agencies-list.raml
+
+# Resources
+/agencies: !include resources/agencies.raml

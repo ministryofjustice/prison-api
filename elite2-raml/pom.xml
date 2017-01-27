@@ -1,147 +1,101 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>net.syscon.elite</groupId>
+		<artifactId>elite2</artifactId>
+		<version>2.0-SNAPSHOT</version>
+	</parent>
+
 	<groupId>net.syscon.elite</groupId>
 	<artifactId>elite2-raml</artifactId>
-	
-	<description>Spring MVC-RAML Integration</description>
+
+	<description>Elite2 API Specs - RAML</description>
 	<name>elite2-raml</name>
 	<version>0.0.1</version>
 	<packaging>pom</packaging>
-	
-	
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>1.4.3.RELEASE</version>
-	</parent>
 
-	<properties>			
-		<plugin-version>0.8.6</plugin-version>
-		<output-relative-path>../elite2-web/src/main/generated</output-relative-path>
-		<raml-path>src/main/resources/public/raml/api.raml</raml-path>	
-		<base-package>syscon.net.elite</base-package>				
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+		<output.path>../elite2-web/src/main/generated</output.path>
+		<raml.path>${project.basedir}/api.raml</raml.path>
+		<json.schema.path>${project.basedir}/schemas</json.schema.path>
+		<base.package>net.syscon.elite.web.api</base.package>
 	</properties>
 
-	<build>				
+	<build>
 
 		<plugins>
-				
-			<plugin>
-		        <groupId>org.apache.maven.plugins</groupId>
-		        <artifactId>maven-compiler-plugin</artifactId>
-		        <version>3.5.1</version>
-		        <configuration>
-		          <source>1.8</source>
-		          <target>1.8</target>
-		        </configuration>
-		    </plugin>
 
-			
-			<!-- Required to build the executable jar file -->
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-		                	<classifier>exec</classifier>
-				</configuration>
-			</plugin>
-
-			<!-- required for adding generated sources -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>		
+				<artifactId>build-helper-maven-plugin</artifactId>
 				<executions>
-					<execution>					        	
+					<execution>
 						<phase>generate-sources</phase>
-						<goals><goal>add-source</goal></goals>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
 						<configuration>
 							<sources>
-								<!-- where to find the generated sources --> 
-								<source>${output-relative-path}</source>
+								<!-- where to find the generated sources -->
+								<source>${output.path}</source>
 							</sources>
 						</configuration>
 					</execution>
-				</executions>									
+				</executions>
 			</plugin>
-			
-			
-			<!-- PhoenixNAP RAML Code Generator plugin used to generate sources from raml -->
+
+
 			<plugin>
 				<groupId>com.phoenixnap.oss</groupId>
 				<artifactId>springmvc-raml-plugin</artifactId>
-				<version>${plugin-version}</version>
+				<version>0.8.9</version>
 				<configuration>
-					<!-- path to raml file --> 
-					<ramlPath>${raml-path}</ramlPath>
-					<!-- output of generated code --> 
-					<outputRelativePath>${output-relative-path}</outputRelativePath>
+					<ramlPath>api.raml</ramlPath>
+					<schemaLocation>${json.schema.path}</schemaLocation>
+					<outputRelativePath>${output.path}</outputRelativePath>
 					<addTimestampFolder>false</addTimestampFolder>
-					<!-- package for generated sources --> 
-					<basePackage>${base-package}</basePackage>
-					<baseUri>/</baseUri>
+					<schemaLocation>schemas</schemaLocation>
+					<basePackage>${base.package}</basePackage>
+					<baseUri>/api</baseUri>
+					<generateUnreferencedSchemas>true</generateUnreferencedSchemas>
+					<generationConfig>
+						<includeAdditionalProperties>false</includeAdditionalProperties>
+					</generationConfig>
 					<seperateMethodsByContentType>false</seperateMethodsByContentType>
-					<useJackson1xCompatibility>false</useJackson1xCompatibility>
-					<rule>com.phoenixnap.oss.ramlapisync.generation.rules.Spring4ControllerDecoratorRule</rule>		
+					<rule>com.phoenixnap.oss.ramlapisync.generation.rules.Spring4ControllerInterfaceRule</rule>
+					<ruleConfiguration>
+					</ruleConfiguration>
 				</configuration>
-
 				<executions>
 					<execution>
-						<id>generate-springmvc-controllers</id>
+						<id>generate-springmvc-endpoints</id>
 						<phase>generate-sources</phase>
 						<goals>
 							<goal>generate-springmvc-endpoints</goal>
 						</goals>
 					</execution>
 				</executions>
-			</plugin>	
-			
-			
-		</plugins>		
+			</plugin>
 
-	</build>		
- 
+
+
+		</plugins>
+
+	</build>
+
 
 
 	<dependencies>
-		
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<version>2.6</version>
-			<optional>true</optional>		
-		</dependency>
-		
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		
-		<dependency>
-		    <groupId>org.springframework.boot</groupId>
-		    <artifactId>spring-boot-starter-security</artifactId>		    
-		</dependency>
-		
-		<dependency>
-		    <groupId>joda-time</groupId>
-		    <artifactId>joda-time</artifactId>		    
-		</dependency>
-		
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>						
-		</dependency>
-		
+
+
 	</dependencies>
 
 
-	<!-- 
-	<profiles>
-		<profile>
-			<id>generate-controllers</id>
-			
-		</profile>
-	</profiles>
-  
-  -->
-  
+
 </project>

@@ -1,0 +1,28 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Session",
+    "type": "object",
+    "allOf": [{"$ref": "container.json"}],
+    "properties": {
+        "_id": {},
+        "created": {},
+        "modified": {},
+        "permissions": {},
+        "files": {},
+        "public": {},
+        "archived": {},
+        "label": {},
+        "satisfies_template": {"type": "boolean"},
+        "project_has_template": {"type": "boolean"},
+        "tags": {},
+        "info": {},
+
+        "group":        {"type": "string"},
+        "project":      {},
+        "uid":          {"type": "string"},
+        "timestamp":    {},
+        "timezone":     {"type": "string"},
+        "subject":      {"$ref": "subject.json"}
+    },
+    "additionalProperties": false
+}

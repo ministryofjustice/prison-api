@@ -1,0 +1,21 @@
+<configuration>
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<charset>utf-8</charset>
+			<Pattern>%d{HH:mm:ss.SSS} [%p] %c.%M - %m%n</Pattern>
+		</encoder>
+	</appender>
+	<logger name="liquibase" level="ERROR"/>
+	<logger name="com.zaxxer.hikari.HikariConfig" level="ERROR"/>
+	<logger name="java.sql.DatabaseMetaData" level="ERROR"/>
+	<logger name="org.hibernate.tool.hbm2ddl.SchemaUpdate" level="ERROR"/>
+	<logger name="org.hibernate.cache.ehcache.AbstractEhcacheRegionFactory" level="ERROR"/>
+	<logger name="org.hibernate" level="WARN"/>
+	<logger name="hsqldb.db" level="WARN"/>
+	<logger name="org.springframework.security.web" level="DEBUG"/>
+	<logger name="org.apache.catalina.startup.DigesterFactory" level="OFF"/>
+	<logger name="org.hibernate.tool.schema.internal.ExceptionHandlerLoggedImpl" level="ERROR"/>
+	<root level="INFO">
+		<appender-ref ref="CONSOLE"/>
+	</root>
+</configuration>
