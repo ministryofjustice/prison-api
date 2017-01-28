@@ -1,5 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -51,55 +51,96 @@
 			</plugin>
 
 
+			<!--<plugin>-->
+			<!--<groupId>com.phoenixnap.oss</groupId>-->
+			<!--<artifactId>springmvc-raml-plugin</artifactId>-->
+			<!--<version>0.8.9</version>-->
+			<!--<configuration>-->
+			<!--<ramlPath>${raml.path}</ramlPath>-->
+			<!--<schemaLocation>${json.schema.path}</schemaLocation>-->
+			<!--<outputRelativePath>${output.path}</outputRelativePath>-->
+			<!--<addTimestampFolder>false</addTimestampFolder>-->
+			<!--<schemaLocation>schemas</schemaLocation>-->
+			<!--<basePackage>${base.package}</basePackage>-->
+			<!--<baseUri>/api</baseUri>-->
+			<!--<generateUnreferencedSchemas>true</generateUnreferencedSchemas>-->
+			<!--<generationConfig>-->
+			<!--<includeAdditionalProperties>false</includeAdditionalProperties>-->
+			<!--</generationConfig>-->
+			<!--<seperateMethodsByContentType>false</seperateMethodsByContentType>-->
+			<!--&lt;!&ndash; alternative  rules-->
+			<!--<rule>com.phoenixnap.oss.ramlapisync.generation.rules.Spring4ControllerStubRule</rule>-->
+			<!--<rule>com.phoenixnap.oss.ramlapisync.generation.rules.Spring4ControllerDecoratorRule</rule>-->
+			<!--&ndash;&gt;-->
+			<!--<rule>com.phoenixnap.oss.ramlapisync.generation.rules.Spring4ControllerInterfaceRule</rule>-->
+			<!--<ruleConfiguration>-->
+			<!--</ruleConfiguration>-->
+			<!--</configuration>-->
+			<!--<executions>-->
+			<!--<execution>-->
+			<!--<id>generate-springmvc-endpoints</id>-->
+			<!--<phase>generate-sources</phase>-->
+			<!--<goals>-->
+			<!--<goal>generate-springmvc-endpoints</goal>-->
+			<!--</goals>-->
+			<!--</execution>-->
+			<!--</executions>-->
+			<!--</plugin>-->
+
+
 			<plugin>
-				<groupId>com.phoenixnap.oss</groupId>
-				<artifactId>springmvc-raml-plugin</artifactId>
-				<version>0.8.9</version>
+
+				<groupId>org.raml.plugins</groupId>
+				<artifactId>raml-jaxrs-maven-plugin</artifactId>
+				<version>1.3.4</version>
+
 				<configuration>
-					<ramlPath>${raml.path}</ramlPath>
-					<schemaLocation>${json.schema.path}</schemaLocation>
-					<outputRelativePath>${output.path}</outputRelativePath>
-					<addTimestampFolder>false</addTimestampFolder>
-					<schemaLocation>schemas</schemaLocation>
-					<basePackage>${base.package}</basePackage>
-					<baseUri>/api</baseUri>
-					<generateUnreferencedSchemas>true</generateUnreferencedSchemas>
-					<generationConfig>
-						<includeAdditionalProperties>false</includeAdditionalProperties>
-					</generationConfig>
-					<seperateMethodsByContentType>false</seperateMethodsByContentType>
-					<!-- alternative  rules
-					<rule>com.phoenixnap.oss.ramlapisync.generation.rules.Spring4ControllerStubRule</rule>
-					<rule>com.phoenixnap.oss.ramlapisync.generation.rules.Spring4ControllerDecoratorRule</rule>
-					-->
-					<rule>com.phoenixnap.oss.ramlapisync.generation.rules.Spring4ControllerInterfaceRule</rule>
-					<ruleConfiguration>
-					</ruleConfiguration>
+					<sourceDirectory>${basedir}</sourceDirectory>
+					<basePackageName>net.syscon.elite.web.api</basePackageName>
+					<jaxrsVersion>2.0</jaxrsVersion>
+					<useJsr303Annotations>false</useJsr303Annotations>
+					<jsonMapper>jackson2</jsonMapper>
+					<removeOldOutput>true</removeOldOutput>
+					<outputDirectory>${output.path}</outputDirectory>
 				</configuration>
 				<executions>
 					<execution>
-						<id>generate-springmvc-endpoints</id>
-						<phase>generate-sources</phase>
 						<goals>
-							<goal>generate-springmvc-endpoints</goal>
+							<goal>generate</goal>
 						</goals>
+						<phase>generate-sources</phase>
 					</execution>
 				</executions>
 			</plugin>
 
 
-
 		</plugins>
+
+
+
+
 
 	</build>
 
 
 
 	<dependencies>
-
-
+		<dependency>
+			<groupId>org.glassfish.jersey.containers</groupId>
+			<artifactId>jersey-container-simple-http</artifactId>
+			<version>${jersey.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.media</groupId>
+			<artifactId>jersey-media-multipart</artifactId>
+			<version>${jersey.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.jaxrs</groupId>
+			<artifactId>jackson-jaxrs-json-provider</artifactId>
+			<version>2.2.3</version>
+		</dependency>
 	</dependencies>
-
 
 
 </project>

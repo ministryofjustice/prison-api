@@ -1,20 +1,19 @@
 
 package net.syscon.elite.web.api.model;
 
+import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Generated("org.jsonschema2pojo")
 @JsonPropertyOrder({
     "agencyId",
     "description",
     "agencyType"
 })
-public class AgencyResponse {
+public class Agency {
 
     /**
      * 
@@ -23,11 +22,6 @@ public class AgencyResponse {
      */
     @JsonProperty("agencyId")
     private String agencyId;
-    /**
-     * 
-     * (Required)
-     * 
-     */
     @JsonProperty("description")
     private String description;
     /**
@@ -62,9 +56,12 @@ public class AgencyResponse {
         this.agencyId = agencyId;
     }
 
+    public Agency withAgencyId(String agencyId) {
+        this.agencyId = agencyId;
+        return this;
+    }
+
     /**
-     * 
-     * (Required)
      * 
      * @return
      *     The description
@@ -76,14 +73,17 @@ public class AgencyResponse {
 
     /**
      * 
-     * (Required)
-     * 
      * @param description
      *     The description
      */
     @JsonProperty("description")
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Agency withDescription(String description) {
+        this.description = description;
+        return this;
     }
 
     /**
@@ -110,26 +110,9 @@ public class AgencyResponse {
         this.agencyType = agencyType;
     }
 
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this);
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder().append(agencyId).append(description).append(agencyType).toHashCode();
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (other == this) {
-            return true;
-        }
-        if ((other instanceof AgencyResponse) == false) {
-            return false;
-        }
-        AgencyResponse rhs = ((AgencyResponse) other);
-        return new EqualsBuilder().append(agencyId, rhs.agencyId).append(description, rhs.description).append(agencyType, rhs.agencyType).isEquals();
+    public Agency withAgencyType(String agencyType) {
+        this.agencyType = agencyType;
+        return this;
     }
 
 }

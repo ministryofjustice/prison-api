@@ -18,16 +18,27 @@
           default: desc
           required: false
   - pageable:
+      displayName: pageable
       queryParameters:
         offset:
+          displayName: offset
           description: Skip over a number of elements by specifying an offset value for the query
           type: integer
           required: false
           example: 20
           default: 0
         limit:
+          displayName: limit
           description: Limit the number of elements on the response
           type: integer
           required: false
           example: 80
           default: 10
+  - secured:
+      displayName: secured
+      headers:
+        Authorization:
+          description: The auth token for this request
+      responses:
+        401:
+          description: Unauthorized

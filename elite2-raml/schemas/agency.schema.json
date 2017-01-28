@@ -1,0 +1,11 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"type":"object",
+	"properties":{
+		"agencyId":{"type": "string", "id": "agency-id"},
+		"description":{"type": "string"},
+		"agencyType":{"type": "string"}
+	},
+	"additionalProperties":false,
+	"required":[ "agencyId", "destination", "agencyType"]
+}
