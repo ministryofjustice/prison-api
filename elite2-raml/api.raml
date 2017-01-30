@@ -3,58 +3,15 @@ title: Elite2 Public API
 baseUri: http://api.elite2.syscon.net/{version}
 version: v1
 schemas:
-  - agency: !include schemas/agency.schema.json
-  - agencies: !include schemas/agencies.schema.json
-  - product: |
-      {  "$schema": "http://json-schema.org/draft-03/schema",
-         "type": "object",
-         "description": "A single Product",
-         "properties": {
-           "id":  { "type": "string", "required": true },
-           "name":  { "type": "string", "required": true },
-           "description":  { "type": "string" },
-           "imageUrl":  { "type": "string" },
-           "region": { "type": "string", "required": true }
-         }
-      }
-  - products: |
-      {  "$schema": "http://json-schema.org/draft-03/schema",
-         "type": "object",
-         "description": "A collection of Products",
-         "properties": {
-           "size":  { "type": "integer", "required": true },
-           "products":  {
-              "type": "array",
-              "items": { "$ref": "product" }
-           }
-         }
-      }
+- httpStatus: !include schemas/http-status.schema.json
+- agency: !include schemas/agency.schema.json
+- agencies: !include schemas/agencies.schema.json
+
 resourceTypes: !include resourceTypes/generic-resource-types.raml
+
 traits: !include traits/generic-traits.raml
 
-
-
-
-
-
 /agencies: &agencies
-  type: { typedCollection: { schema: agency, collectionSchema: agencies } }
-  is: [ secured, pageable ]
-  get:
-
-
-/products:
-  type: { typedCollection: { schema: product, collectionSchema: products } }
-  is: [ secured ]
-  get:
-    queryParameters:
-      region:
-        type: string
-        displayName: region
-        description: Filter by region
-  /{productId}:
-    type: { typedMember: { schema: product } }
-    is: [ secured ]
-    /agencies: *agencies
-
-
+    description: Return a list of Agencies
+    type: { get-collection: { collectionSchema: agency } }
+    is: [ secured, pageable ]
