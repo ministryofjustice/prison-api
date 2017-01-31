@@ -1,9 +1,9 @@
 
 package net.syscon.elite.web.api.resource;
 
+import java.util.List;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -23,8 +23,6 @@ public interface AgenciesResource {
 
     /**
      * 
-     * @param authorization
-     *     The auth token for this request
      * @param offset
      *     Skip over a number of elements by specifying an offset value for the query e.g. 20
      * @param limit
@@ -35,8 +33,6 @@ public interface AgenciesResource {
         "application/json"
     })
     AgenciesResource.GetAgenciesResponse getAgencies(
-        @HeaderParam("Authorization")
-        String authorization,
         @QueryParam("offset")
         @DefaultValue("0")
         int offset,
@@ -61,7 +57,7 @@ public interface AgenciesResource {
          * @param entity
          *     
          */
-        public static AgenciesResource.GetAgenciesResponse withJsonOK(Agency entity) {
+        public static AgenciesResource.GetAgenciesResponse withJsonOK(List<Agency> entity) {
             Response.ResponseBuilder responseBuilder = Response.status(200).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
             return new AgenciesResource.GetAgenciesResponse(responseBuilder.build());
@@ -142,15 +138,6 @@ public interface AgenciesResource {
         public static AgenciesResource.GetAgenciesResponse withJsonInternalServerError(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(500).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new AgenciesResource.GetAgenciesResponse(responseBuilder.build());
-        }
-
-        /**
-         * Unauthorized
-         * 
-         */
-        public static AgenciesResource.GetAgenciesResponse withUnauthorized() {
-            Response.ResponseBuilder responseBuilder = Response.status(401);
             return new AgenciesResource.GetAgenciesResponse(responseBuilder.build());
         }
 

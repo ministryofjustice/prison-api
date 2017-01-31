@@ -5,12 +5,10 @@ version: v1
 schemas:
 - httpStatus: !include schemas/http-status.schema.json
 - agency: !include schemas/agency.schema.json
-
-traits: !include traits/generic-traits.raml
+- agencies: !include schemas/agencies.schema.json
 
 resourceTypes: !include resourceTypes/generic-resource-types.raml
 
+traits: !include traits/generic-traits.raml
+
 /agencies: !include resources/agencies.raml
-#/inmatees: !include resources/inmates.raml
-
-
