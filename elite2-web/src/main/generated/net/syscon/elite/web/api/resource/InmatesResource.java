@@ -8,17 +8,16 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
-import net.syscon.elite.web.api.model.Agency;
 import net.syscon.elite.web.api.model.HttpStatus;
-import net.syscon.elite.web.api.resource.support.ResponseWrapper;
+import net.syscon.elite.web.api.model.InmateSummary;
 
 
 /**
  * Returns the list of agencies viewable by the user
  * 
  */
-@Path("agencies")
-public interface AgenciesResource {
+@Path("inmates")
+public interface InmatesResource {
 
 
     /**
@@ -32,7 +31,7 @@ public interface AgenciesResource {
     @Produces({
         "application/json"
     })
-    AgenciesResource.GetAgenciesResponse getAgencies(
+    InmatesResource.GetInmatesResponse getInmates(
         @QueryParam("offset")
         @DefaultValue("0")
         int offset,
@@ -42,12 +41,33 @@ public interface AgenciesResource {
         throws Exception
     ;
 
-    public class GetAgenciesResponse
-        extends ResponseWrapper
+    /**
+     * Returns the within the system.
+     * 
+     */
+    @GET
+    @Path("inmates")
+    InmatesResource.GetInmatesInmatesResponse getInmatesInmates()
+        throws Exception
+    ;
+
+    public class GetInmatesInmatesResponse
+        extends net.syscon.elite.web.api.resource.support.ResponseWrapper
     {
 
 
-        private GetAgenciesResponse(Response delegate) {
+        private GetInmatesInmatesResponse(Response delegate) {
+            super(delegate);
+        }
+
+    }
+
+    public class GetInmatesResponse
+        extends net.syscon.elite.web.api.resource.support.ResponseWrapper
+    {
+
+
+        private GetInmatesResponse(Response delegate) {
             super(delegate);
         }
 
@@ -57,10 +77,10 @@ public interface AgenciesResource {
          * @param entity
          *     
          */
-        public static AgenciesResource.GetAgenciesResponse withJsonOK(List<Agency> entity) {
+        public static InmatesResource.GetInmatesResponse withJsonOK(List<InmateSummary> entity) {
             Response.ResponseBuilder responseBuilder = Response.status(200).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new AgenciesResource.GetAgenciesResponse(responseBuilder.build());
+            return new InmatesResource.GetInmatesResponse(responseBuilder.build());
         }
 
         /**
@@ -83,10 +103,10 @@ public interface AgenciesResource {
          *     }
          *     
          */
-        public static AgenciesResource.GetAgenciesResponse withJsonBadRequest(HttpStatus entity) {
+        public static InmatesResource.GetInmatesResponse withJsonBadRequest(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(400).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new AgenciesResource.GetAgenciesResponse(responseBuilder.build());
+            return new InmatesResource.GetInmatesResponse(responseBuilder.build());
         }
 
         /**
@@ -109,10 +129,10 @@ public interface AgenciesResource {
          *     }
          *     
          */
-        public static AgenciesResource.GetAgenciesResponse withJsonNotFound(HttpStatus entity) {
+        public static InmatesResource.GetInmatesResponse withJsonNotFound(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(404).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new AgenciesResource.GetAgenciesResponse(responseBuilder.build());
+            return new InmatesResource.GetInmatesResponse(responseBuilder.build());
         }
 
         /**
@@ -135,10 +155,10 @@ public interface AgenciesResource {
          *     }
          *     
          */
-        public static AgenciesResource.GetAgenciesResponse withJsonInternalServerError(HttpStatus entity) {
+        public static InmatesResource.GetInmatesResponse withJsonInternalServerError(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(500).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new AgenciesResource.GetAgenciesResponse(responseBuilder.build());
+            return new InmatesResource.GetInmatesResponse(responseBuilder.build());
         }
 
     }
