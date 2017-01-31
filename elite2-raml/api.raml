@@ -5,13 +5,12 @@ version: v1
 schemas:
 - httpStatus: !include schemas/http-status.schema.json
 - agency: !include schemas/agency.schema.json
-- agencies: !include schemas/agencies.schema.json
-
-resourceTypes: !include resourceTypes/generic-resource-types.raml
 
 traits: !include traits/generic-traits.raml
 
-/agencies: &agencies
-    description: Return a list of Agencies
-    type: { get-collection: { collectionSchema: agency } }
-    is: [ secured, pageable ]
+resourceTypes: !include resourceTypes/generic-resource-types.raml
+
+/agencies: !include resources/agencies.raml
+#/inmatees: !include resources/inmates.raml
+
+
