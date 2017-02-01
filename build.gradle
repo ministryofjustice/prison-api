@@ -19,20 +19,6 @@ plugins {
 }
 
 
-apply plugin: 'java'
-buildDir = 'target'
-
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
-
-// global exclusions
-configurations {
-	all*.exclude module: 'commons-logging'
-	all*.exclude module: 'log4j'
-	all*.exclude module: 'c3p0'
-}
-
 
 subprojects {
 
@@ -41,6 +27,19 @@ subprojects {
 		mavenLocal()
 	}
 
+	apply plugin: 'java'
+	sourceCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8
+
+
+	// global exclusions
+	configurations {
+		all*.exclude module: 'commons-logging'
+		all*.exclude module: 'log4j'
+		all*.exclude module: 'c3p0'
+	}
+
+
 	apply plugin: 'maven'
 	apply plugin: 'eclipse'
 	apply plugin: 'idea'
@@ -48,44 +47,33 @@ subprojects {
 
 	group = 'net.syscon.elite'
 	version = '1.0-SNAPSHOT'
-	buildDir = 'target'
 
-
-
-	install {
-		repositories.mavenInstaller {
-			pom.whenConfigured { generatedPom ->
-				generatedPom.project {
-					name = project.name
-					description = project.description
-					url 'http://www.syscon.net'
-					organization {
-						name 'Syscon Justice Systems'
-						url 'http://www.syscon.net'
-					}
-					developers {
-						developer {
-							id 'syscon-elite-team'
-							name 'Syscon Elite Team'
-							organization  'Syscon Justice Systems'
-							organizationUrl 'http://www.syscon.net'
-						}
-					}
+	install.repositories.mavenInstaller.pom.whenConfigured { generatedPom ->
+		generatedPom.project {
+			name = project.name
+			description = project.description
+			url 'http://www.syscon.net'
+			organization { name 'Syscon Justice Systems'; url 'http://www.syscon.net' }
+			developers {
+				developer {
+					id 'syscon-elite-team'
+					name 'Syscon Elite Team'
+					organization  'Syscon Justice Systems'
+					organizationUrl 'http://www.syscon.net'
 				}
 			}
 		}
 	}
+
 }
 
 
 project(":elite2-raml") {
+
 	task "generate-sources" {
 		def configs = new Configuration()
-		File ramlDir = new File(".")
-		if (!ramlDir.absolutePath.endsWith("raml")) {
-			ramlDir = new File(ramlDir, "elite2-raml")
-		}
-		def sourceGenDir = new File(ramlDir, "../elite2-web/src/main/generated")
+		def ramlDir = new File("${rootDir}/elite2-raml")
+		def sourceGenDir = new File("${rootDir}/elite2-web/src/main/generated")
 		sourceGenDir.listFiles().each{ f -> if (f != null) delete f }
 		sourceGenDir.mkdirs()
 		configs.setOutputDirectory(sourceGenDir)
@@ -93,28 +81,53 @@ project(":elite2-raml") {
 		configs.setBasePackageName("net.syscon.elite.web.api");
 		configs.setJaxrsVersion(Configuration.JaxrsVersion.JAXRS_2_0)
 		configs.setJsonMapper(AnnotationStyle.JACKSON2)
-		configs.setUseJsr303Annotations(true)
+		configs.setUseJsr303Annotations(false)
 		new Generator().run(new FileReader(new File(ramlDir, "./api.raml")), configs, "")
 	}
 }
 
+
 project(":elite2-web") {
+
+	bootRun {
+		addResources = true
+	}
+
+	sourceSets {
+		generated{ 
+			java.srcDir "src/main/generated" 
+		}
+	}
+
 	dependencies {
+
 		compile('org.springframework.boot:spring-boot-starter-web') {
 			exclude(module: 'spring-boot-starter-tomcat')
 		}
+		compile("org.springframework.boot:spring-boot-starter-jetty")
 		compile('org.springframework.boot:spring-boot-starter-actuator')
 		compile('org.springframework.boot:spring-boot-starter-data-jpa')
 		compile('org.springframework.boot:spring-boot-starter-security')
 		compile('org.springframework.boot:spring-boot-starter-cache')
 
-
-		compile "org.glassfish.jersey.containers:jersey-container-simple-http:${version_jersey}"
 		compile "org.glassfish.jersey.media:jersey-media-multipart:${version_jersey}"
-		compile "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:${version_jackson_jaxrs}"
+		compile "org.glassfish.jersey.containers:jersey-container-simple-http:${version_jersey}"
+		compile "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:${version_jackson}"
+		compile "com.fasterxml.jackson.core:jackson-annotations:${version_jackson}"
+
+		compile "org.hibernate:hibernate-ehcache:${version_hibernate}"
+
+		compile ("com.zaxxer:HikariCP:${version_hikaricp}") {
+			exclude(module: 'tools')
+		}
 
 		testCompile('org.springframework.boot:spring-boot-starter-test')
+
+
+		compile files("src/main/configs")
+		compile fileTree(dir: "${rootDir}/libs", include: "*.jar")
 
 	}
 
 }
+
