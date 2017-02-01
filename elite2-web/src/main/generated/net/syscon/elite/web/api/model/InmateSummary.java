@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -41,6 +43,7 @@ public class InmateSummary {
      * 
      */
     @JsonProperty("inmateId")
+    @NotNull
     private Object inmateId;
     /**
      * 
@@ -48,6 +51,7 @@ public class InmateSummary {
      * 
      */
     @JsonProperty("bookingId")
+    @NotNull
     private String bookingId;
     /**
      * 
@@ -55,6 +59,7 @@ public class InmateSummary {
      * 
      */
     @JsonProperty("offenderId")
+    @NotNull
     private Object offenderId;
     /**
      * 
@@ -62,6 +67,7 @@ public class InmateSummary {
      * 
      */
     @JsonProperty("firstName")
+    @NotNull
     private Object firstName;
     /**
      * 
@@ -69,8 +75,10 @@ public class InmateSummary {
      * 
      */
     @JsonProperty("lastName")
+    @NotNull
     private Object lastName;
     @JsonProperty("alertsCodes")
+    @Valid
     private List<String> alertsCodes = new ArrayList<String>();
     /**
      * 
@@ -78,6 +86,7 @@ public class InmateSummary {
      * 
      */
     @JsonProperty("agencyId")
+    @NotNull
     private Object agencyId;
     /**
      * 
@@ -85,6 +94,7 @@ public class InmateSummary {
      * 
      */
     @JsonProperty("currentLocationId")
+    @NotNull
     private Object currentLocationId;
     @JsonProperty("assignedLivingUnitId")
     private Object assignedLivingUnitId;

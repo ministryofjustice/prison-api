@@ -26,12 +26,22 @@ public interface InmatesResource {
      *     Skip over a number of elements by specifying an offset value for the query e.g. 20
      * @param limit
      *     Limit the number of elements on the response e.g. 80
+     * @param orderBy
+     *     Order by field: inmateId, bookingId, offenderId, firstName, lastName, alertCodes, agencyId, currentLocationId, or assignedLivingUnitId
+     *     
+     * @param order
+     *     Order
      */
     @GET
     @Produces({
         "application/json"
     })
     InmatesResource.GetInmatesResponse getInmates(
+        @QueryParam("orderBy")
+        String orderBy,
+        @QueryParam("order")
+        @DefaultValue("asc")
+        InmatesResource.Order order,
         @QueryParam("offset")
         @DefaultValue("0")
         int offset,
@@ -160,6 +170,13 @@ public interface InmatesResource {
             responseBuilder.entity(entity);
             return new InmatesResource.GetInmatesResponse(responseBuilder.build());
         }
+
+    }
+
+    public enum Order {
+
+        desc,
+        asc;
 
     }
 

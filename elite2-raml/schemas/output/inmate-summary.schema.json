@@ -3,7 +3,7 @@
 	"title": "Inmate Summary",
 	"type": "object",
 	"properties": {
-		"inmateId": { "type:": "int" },
+		"inmateId": { "type:": "int64" },
 		"bookingId": { "type": "string" },
 		"offenderId":    { "type:": "string" },
 		"firstName":    { "type:": "string" },

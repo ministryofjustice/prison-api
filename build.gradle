@@ -1,0 +1,121 @@
+import org.jsonschema2pojo.AnnotationStyle
+import org.raml.jaxrs.codegen.core.Configuration
+import org.raml.jaxrs.codegen.core.Generator
+
+
+buildscript {
+	repositories {
+		maven { url "https://repo.spring.io/plugins-release" }
+		maven { url "https://plugins.gradle.org/m2" }
+	}
+	dependencies {
+		classpath "org.raml:raml-jaxrs-codegen-core:1.3.4"
+		classpath "org.springframework.boot:spring-boot-gradle-plugin:${version_spring_boot}"
+	}
+}
+
+plugins {
+	id "org.sonarqube" version "1.2"
+}
+
+
+apply plugin: 'java'
+buildDir = 'target'
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+
+// global exclusions
+configurations {
+	all*.exclude module: 'commons-logging'
+	all*.exclude module: 'log4j'
+	all*.exclude module: 'c3p0'
+}
+
+
+subprojects {
+
+	repositories {
+		mavenCentral()
+		mavenLocal()
+	}
+
+	apply plugin: 'maven'
+	apply plugin: 'eclipse'
+	apply plugin: 'idea'
+	apply plugin: 'org.springframework.boot'
+
+	group = 'net.syscon.elite'
+	version = '1.0-SNAPSHOT'
+	buildDir = 'target'
+
+
+
+	install {
+		repositories.mavenInstaller {
+			pom.whenConfigured { generatedPom ->
+				generatedPom.project {
+					name = project.name
+					description = project.description
+					url 'http://www.syscon.net'
+					organization {
+						name 'Syscon Justice Systems'
+						url 'http://www.syscon.net'
+					}
+					developers {
+						developer {
+							id 'syscon-elite-team'
+							name 'Syscon Elite Team'
+							organization  'Syscon Justice Systems'
+							organizationUrl 'http://www.syscon.net'
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+
+project(":elite2-raml") {
+	task "generate-sources" {
+		def configs = new Configuration()
+		File curr = new File(".")
+		if (!curr.absolutePath.endsWith("raml")) {
+			curr = new File(curr, "elite2-raml")
+		}
+
+		def sourceGenDir = new File(curr, "../elite2-web/src/main/generated")
+		sourceGenDir.listFiles().each{ f -> if (f != null) delete f }
+		sourceGenDir.mkdirs()
+		configs.setOutputDirectory(sourceGenDir)
+		configs.setSourceDirectory(curr)
+		configs.setBasePackageName("net.syscon.elite.web.api");
+		configs.setJaxrsVersion(Configuration.JaxrsVersion.JAXRS_2_0)
+		configs.setJsonMapper(AnnotationStyle.JACKSON2)
+		configs.setUseJsr303Annotations(true)
+		new Generator().run(new FileReader(new File(curr, "./api.raml")), configs, "")
+	}
+}
+
+project(":elite2-web") {
+	dependencies {
+		compile('org.springframework.boot:spring-boot-starter-web') {
+			exclude(module: 'spring-boot-starter-tomcat')
+		}
+		compile('org.springframework.boot:spring-boot-starter-actuator')
+		compile('org.springframework.boot:spring-boot-starter-data-jpa')
+		compile('org.springframework.boot:spring-boot-starter-security')
+		compile('org.springframework.boot:spring-boot-starter-cache')
+
+
+		compile "org.glassfish.jersey.containers:jersey-container-simple-http:${version_jersey}"
+		compile "org.glassfish.jersey.media:jersey-media-multipart:${version_jersey}"
+		compile "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:${version_jackson_jaxrs}"
+
+		testCompile('org.springframework.boot:spring-boot-starter-test')
+
+	}
+
+}

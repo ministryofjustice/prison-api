@@ -4,6 +4,7 @@ package net.syscon.elite.web.api.model;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Generated;
+import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -33,6 +34,7 @@ public class Agency {
      * 
      */
     @JsonProperty("agencyId")
+    @NotNull
     private String agencyId;
     /**
      * 
@@ -40,6 +42,7 @@ public class Agency {
      * 
      */
     @JsonProperty("description")
+    @NotNull
     private String description;
     /**
      * 
@@ -47,6 +50,7 @@ public class Agency {
      * 
      */
     @JsonProperty("agencyType")
+    @NotNull
     private String agencyType;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();

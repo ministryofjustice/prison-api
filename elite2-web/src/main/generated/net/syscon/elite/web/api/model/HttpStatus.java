@@ -4,6 +4,7 @@ package net.syscon.elite.web.api.model;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Generated;
+import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -35,6 +36,7 @@ public class HttpStatus {
      * 
      */
     @JsonProperty("httpStatus")
+    @NotNull
     private String httpStatus;
     @JsonProperty("code")
     private String code;
@@ -44,6 +46,7 @@ public class HttpStatus {
      * 
      */
     @JsonProperty("message")
+    @NotNull
     private String message;
     /**
      * 
@@ -51,6 +54,7 @@ public class HttpStatus {
      * 
      */
     @JsonProperty("developerMessage")
+    @NotNull
     private String developerMessage;
     @JsonProperty("moreInfo")
     private String moreInfo;
