@@ -81,21 +81,20 @@ subprojects {
 project(":elite2-raml") {
 	task "generate-sources" {
 		def configs = new Configuration()
-		File curr = new File(".")
-		if (!curr.absolutePath.endsWith("raml")) {
-			curr = new File(curr, "elite2-raml")
+		File ramlDir = new File(".")
+		if (!ramlDir.absolutePath.endsWith("raml")) {
+			ramlDir = new File(ramlDir, "elite2-raml")
 		}
-
-		def sourceGenDir = new File(curr, "../elite2-web/src/main/generated")
+		def sourceGenDir = new File(ramlDir, "../elite2-web/src/main/generated")
 		sourceGenDir.listFiles().each{ f -> if (f != null) delete f }
 		sourceGenDir.mkdirs()
 		configs.setOutputDirectory(sourceGenDir)
-		configs.setSourceDirectory(curr)
+		configs.setSourceDirectory(ramlDir)
 		configs.setBasePackageName("net.syscon.elite.web.api");
 		configs.setJaxrsVersion(Configuration.JaxrsVersion.JAXRS_2_0)
 		configs.setJsonMapper(AnnotationStyle.JACKSON2)
 		configs.setUseJsr303Annotations(true)
-		new Generator().run(new FileReader(new File(curr, "./api.raml")), configs, "")
+		new Generator().run(new FileReader(new File(ramlDir, "./api.raml")), configs, "")
 	}
 }
 
