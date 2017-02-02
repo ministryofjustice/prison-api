@@ -114,6 +114,11 @@ project(":elite2-web") {
 		compile "org.glassfish.jersey.containers:jersey-container-simple-http:${version_jersey}"
 		compile "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:${version_jackson}"
 		compile "com.fasterxml.jackson.core:jackson-annotations:${version_jackson}"
+		
+		compile 'org.jboss.resteasy:resteasy-jaxrs:3.0.10.Final'
+		compile 'org.jboss.resteasy:resteasy-spring:3.0.10.Final'
+		compile 'org.jboss.resteasy:resteasy-jackson2-provider:3.0.10.Final'		
+			
 
 		compile "org.hibernate:hibernate-ehcache:${version_hibernate}"
 

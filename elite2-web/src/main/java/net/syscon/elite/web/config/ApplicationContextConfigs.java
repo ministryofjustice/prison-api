@@ -1,8 +1,6 @@
 package net.syscon.elite.web.config;
 
 import java.io.File;
-import java.util.Properties;
-
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,13 +11,10 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.ConfigurableEnvironment;
-
-import net.syscon.util.ReloadablePropertySource;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 
 @Configuration

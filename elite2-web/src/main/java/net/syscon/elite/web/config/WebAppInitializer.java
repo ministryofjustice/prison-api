@@ -4,7 +4,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.web.WebApplicationInitializer;
@@ -15,10 +14,9 @@ import org.springframework.web.servlet.DispatcherServlet;
 
 
 @Order(1)
-@Configuration
 public class WebAppInitializer implements WebApplicationInitializer  {
 
-	private void setActiveProfile(ConfigurableEnvironment env) {
+	private void setActiveProfile(final ConfigurableEnvironment env) {
 		String activeProfile = System.getProperty("spring.profiles.active");
 		if (activeProfile == null) {
 			activeProfile = "dev";
@@ -28,7 +26,7 @@ public class WebAppInitializer implements WebApplicationInitializer  {
 	
 	
 	@Override
-	public void onStartup(ServletContext container) throws ServletException {
+	public void onStartup(final ServletContext container) throws ServletException {
 
 	      // Create the 'root' Spring application context
 	      final AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();

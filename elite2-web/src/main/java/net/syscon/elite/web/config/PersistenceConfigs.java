@@ -3,7 +3,6 @@ package net.syscon.elite.web.config;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
@@ -13,38 +12,40 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.instrument.classloading.InstrumentationLoadTimeWeaver;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.util.StringUtils;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import net.syscon.elite.persistence.domain.AgencyLocation;
+import net.syscon.elite.persistence.repository.AgencyLocationRepository;
 import net.syscon.util.PropertiesUtil;
-import org.springframework.util.StringUtils;
 
 @Configuration
 @EnableCaching
+@EnableAspectJAutoProxy
+@EnableTransactionManagement
+@EnableJpaRepositories(basePackageClasses = AgencyLocationRepository.class)
+@ComponentScan(basePackageClasses = {AgencyLocationRepository.class, AgencyLocation.class })
 public class PersistenceConfigs {
 	
 
 	private final Logger LOG = LoggerFactory.getLogger(getClass());
-	
-	private ConfigurableEnvironment env;
-
-	@Inject
-	private void setConfigurableEnvironment(ConfigurableEnvironment env) {
-		this.env = env;
-	}
 
 	@Bean
-	public DataSource dataSource(ConfigurableEnvironment env) {
+	public DataSource dataSource(final ConfigurableEnvironment env) {
 		try {
 			final HikariConfig config = new HikariConfig();
 			config.setPoolName(env.getProperty("spring.datasource.hikari.pool-name"));
@@ -56,7 +57,7 @@ public class PersistenceConfigs {
 			config.setJdbcUrl(env.getProperty("spring.datasource.hikari.jdbc-url"));
 			config.setConnectionInitSql(env.getProperty("spring.datasource.hikari.connection-init-sql"));
 			config.setConnectionTestQuery(env.getProperty("spring.datasource.hikari.connection-test-query"));
-			DataSource dataSource = new HikariDataSource(config);
+			final DataSource dataSource = new HikariDataSource(config);
 			return dataSource;
 		} catch (final Exception ex) {
 			LOG.error(ex.getMessage(), ex);
@@ -65,28 +66,22 @@ public class PersistenceConfigs {
 	}
 
 	@Bean
-	public NamedParameterJdbcTemplate namedJdbcTemplate(DataSource dataSource) {
+	public NamedParameterJdbcTemplate namedJdbcTemplate(final DataSource dataSource) {
 		return new NamedParameterJdbcTemplate(dataSource);
 	}
 
 	@Bean
-	public NamedParameterJdbcTemplate jdbcTemplate(DataSource dataSource) {
-		return new NamedParameterJdbcTemplate(dataSource);
-	}
-
-	@Bean
-	public EntityManager entityManager(EntityManagerFactory entityManagerFactory) {
+	public EntityManager entityManager(final EntityManagerFactory entityManagerFactory) {
 		final EntityManager entityManager =  entityManagerFactory.createEntityManager();
 		return entityManager;
 	}
 
 	@Bean
-	public EntityManagerFactory entityManagerFactory(DataSource dataSource) {
+	public EntityManagerFactory entityManagerFactory(final ConfigurableEnvironment env, final DataSource dataSource) {
 		try {
-
-			LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
+			final LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
 			entityManagerFactoryBean.setDataSource(dataSource);
-			String domainPackage = AgencyLocation.class.getPackage().getName();
+			final String domainPackage = AgencyLocation.class.getPackage().getName();
 			entityManagerFactoryBean.setPackagesToScan(domainPackage);
 			entityManagerFactoryBean.setPersistenceUnitName("rental-pu");
 			
@@ -104,7 +99,7 @@ public class PersistenceConfigs {
 
 			return entityManagerFactoryBean.getObject();
 
-		} catch (Throwable ex) {
+		} catch (final Throwable ex) {
 			LOG.error(ex.getMessage(), ex);
 			throw new RuntimeException(ex.getMessage(), ex);
 		}
@@ -112,8 +107,8 @@ public class PersistenceConfigs {
 
 
 	@Bean
-	public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
-		JpaTransactionManager transactionManager = new JpaTransactionManager();
+	public PlatformTransactionManager transactionManager(final EntityManagerFactory entityManagerFactory) {
+		final JpaTransactionManager transactionManager = new JpaTransactionManager();
 		transactionManager.setEntityManagerFactory(entityManagerFactory);
 		return transactionManager;
 	}

@@ -1,25 +1,19 @@
 package net.syscon.elite;
 
-import net.syscon.elite.web.config.ApplicationContextConfigs;
-
+import java.io.File;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.io.File;
+import net.syscon.elite.web.config.ApplicationContextConfigs;
 
 @SpringBootApplication
 public class Elite2ApplicationDevelProfile {
 
-	public static void main(String[] args) {
-
-		File baseDir = new File(".");
-		if (!baseDir.getAbsolutePath().contains("elite2-web")) {
-			baseDir = new File("elite2-web");
-		}
-		File configsDir = new File(baseDir, "src/main/configs");
-
-		System.setProperty(ApplicationContextConfigs.CONFIGS_DIR_PROPERTY, configsDir.getAbsolutePath());
+	public static void main(final String[] args) {
+		final File currDir = new File(".");
+		final File baseDir = currDir.getAbsolutePath().contains("elite2-web")? currDir: new File("elite2-web");
+		System.setProperty(ApplicationContextConfigs.CONFIGS_DIR_PROPERTY, new File(baseDir, "src/main/configs").getAbsolutePath());
 		System.setProperty("spring.profiles.active", "dev");
 		SpringApplication.run(Elite2ApplicationDevelProfile.class, args);
 	}
