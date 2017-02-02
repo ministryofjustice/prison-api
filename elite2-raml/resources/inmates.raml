@@ -1,0 +1,11 @@
+description: Returns the list of agencies viewable by the user
+type: { get-collection: { collectionSchema: inmateSummaries } }
+is: [
+  orderable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, alertCodes, agencyId, currentLocationId, or assignedLivingUnitId"},
+  pageable
+]
+
+/inmates:
+  description: The collection of inmates within the system.
+  get:
+    description: Returns the within the system.

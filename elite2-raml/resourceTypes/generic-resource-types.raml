@@ -1,0 +1,30 @@
+- get-base:
+    get?:
+      responses: &standardResponses
+        200:
+          description: OK
+        400:
+          body:
+            application/json:
+              schema: httpStatus
+              example: !include ../examples/output/400.sample.json
+        404:
+          body:
+            application/json:
+                schema: httpStatus
+                example:  !include ../examples/output/404.sample.json
+        500:
+          body:
+            application/json:
+              schema: httpStatus
+              example: !include ../examples/output/500.sample.json
+- get-collection:
+    type:
+      get-base:
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              schema: <<collectionSchema>>
+

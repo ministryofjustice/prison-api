@@ -1,0 +1,18 @@
+#%RAML 0.8
+title: Elite2 Public API
+baseUri: http://api.elite2.syscon.net/{version}
+version: v1
+schemas:
+- httpStatus: !include schemas/output/http-status.schema.json
+- agency: !include schemas/output/agency.schema.json
+- agencies: !include schemas/output/agencies.schema.json
+- inmateSummary: !include schemas/output/inmate-summary.schema.json
+- inmateSummaries: !include schemas/output/inmate-summaries.schema.json
+
+resourceTypes: !include resourceTypes/generic-resource-types.raml
+
+traits: !include traits/generic-traits.raml
+
+/agencies: !include resources/agencies.raml
+/inmates: !include resources/inmates.raml
+

@@ -1,0 +1,3 @@
+rootProject.name = 'elite2'
+
+include "elite2-raml", "elite2-web"

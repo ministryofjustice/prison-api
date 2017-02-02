@@ -1,0 +1,7 @@
+{
+  "httpStatus": "500",
+  "code": "500",
+  "message": "Unexpected server error",
+  "developerMessage": "Unexpected server error",
+  "moreInfo": ""
+}
