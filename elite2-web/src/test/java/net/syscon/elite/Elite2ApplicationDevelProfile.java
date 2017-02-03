@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import net.syscon.elite.web.config.ApplicationContextConfigs;
 
 @SpringBootApplication
+
 public class Elite2ApplicationDevelProfile {
 
 	public static void main(final String[] args) {

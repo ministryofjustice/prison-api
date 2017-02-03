@@ -9,7 +9,7 @@ spring:
   jackson:
     serialization:
       INDENT_OUTPUT: true
-    
+      
   cache:
     jcache:
       config: ehcache.xml
@@ -55,4 +55,16 @@ liquibase:
 
 server:
     port: 8080
-    contextPath: /elite2
+    contextPath: /elite
+    
+security:
+  basic:
+    enable: false
+       
+management:
+  security:
+    enabled: false
+
+
+    
+    

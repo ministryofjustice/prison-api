@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="AGENCY_LOCATION")
+@Table(name="AGENCY_LOCATIONS")
 @SuppressWarnings("serial")
 public class AgencyLocation implements Serializable {
 	
@@ -25,19 +25,19 @@ public class AgencyLocation implements Serializable {
 	public String getAgencyId() {
 		return agencyId;
 	}
-	public void setAgencyId(String agencyId) {
+	public void setAgencyId(final String agencyId) {
 		this.agencyId = agencyId;
 	}
 	public String getDescription() {
 		return description;
 	}
-	public void setDescription(String description) {
+	public void setDescription(final String description) {
 		this.description = description;
 	}
 	public String getAgencyType() {
 		return agencyType;
 	}
-	public void setAgencyType(String agencyType) {
+	public void setAgencyType(final String agencyType) {
 		this.agencyType = agencyType;
 	}
 

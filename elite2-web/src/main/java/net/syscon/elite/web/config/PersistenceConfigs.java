@@ -1,13 +1,10 @@
 package net.syscon.elite.web.config;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceException;
-import javax.sql.DataSource;
-
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import net.syscon.elite.persistence.domain.AgencyLocation;
+import net.syscon.elite.persistence.repository.AgencyLocationRepository;
+import net.syscon.util.PropertiesUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.EnableCaching;
@@ -26,12 +23,12 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.util.StringUtils;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-
-import net.syscon.elite.persistence.domain.AgencyLocation;
-import net.syscon.elite.persistence.repository.AgencyLocationRepository;
-import net.syscon.util.PropertiesUtil;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceException;
+import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @EnableCaching
@@ -83,7 +80,7 @@ public class PersistenceConfigs {
 			entityManagerFactoryBean.setDataSource(dataSource);
 			final String domainPackage = AgencyLocation.class.getPackage().getName();
 			entityManagerFactoryBean.setPackagesToScan(domainPackage);
-			entityManagerFactoryBean.setPersistenceUnitName("rental-pu");
+			entityManagerFactoryBean.setPersistenceUnitName("elite2-pu");
 			
 			final Map<String, Object> configsMap = new HashMap<>();
 			final String prefix = "spring.jpa.properties.";

@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
@@ -19,7 +18,6 @@ public class AgenciesResourceImpl implements AgenciesResource {
 	private AgencyService agencyService;
 
 	@Inject
-	@Named("agencyService")
 	public void setAgencyService(final AgencyService agencyService) { this.agencyService = agencyService; }
 
 	

@@ -5,7 +5,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
-import org.jvnet.hk2.annotations.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
@@ -15,7 +14,6 @@ import net.syscon.elite.service.AgencyService;
 
 
 @Transactional
-@Service(name="agencyService")
 public class AgencyServiceImpl implements AgencyService {
 	
 	private AgencyLocationRepository agencyLocationRepository;
