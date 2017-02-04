@@ -34,9 +34,14 @@ This README is going to show how to run Elite2 API server.
   To connect the application to a database, change the configurations in your configuration profile file, for example in elite2-dev.yml.
   
 * How to run the Application
-  You can use the Gradle to run the application or you can just run the main method of the class 
-  net.syscon.elite.Elite2Application in your IDE or you can also package in a jar file and run it using
-  java -jar elite2.jar
+  You can use the Gradle to run the application 
+  
+    cd elite2-web
+    gradle bootRun
+    
+  Or you can just run the main method of the class net.syscon.elite.Elite2Application in your IDE 
+  
+  Alternatively you can also package in a jar file and run it using java -jar elite2.jar
   
 * How to package the Application
   To create a JAR of the application just run gradle to package it:
@@ -45,7 +50,8 @@ This README is going to show how to run Elite2 API server.
     
 
 * Deployment instructions
-
+  There is no deployment because we are using spring boot and the webapp has already a web container 
+  embedded using a micro-services model
 
 ### Contribution guidelines ###
 
@@ -56,7 +62,5 @@ This README is going to show how to run Elite2 API server.
 ### Who do I talk to? ###
 
 * Repo owner or admin
-
-
 
 
