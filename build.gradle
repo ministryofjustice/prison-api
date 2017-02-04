@@ -37,6 +37,8 @@ subprojects {
 		all*.exclude module: "commons-logging"
 		all*.exclude module: "log4j"
 		all*.exclude module: "c3p0"
+		all*.exclude group: "org.apache.tomcat"
+		all*.exclude group: "org.apache.tomcat.embed"
 	}
 
 
@@ -87,25 +89,27 @@ project(":elite2-raml") {
 }
 
 
+
 project(":elite2-web") {
 
+	def configsDir = new java.io.File("${rootDir}/elite2-web/src/main/configs").absolutePath.replace('\\', '/') 
 	bootRun {
-		addResources = true
+		jvmArgs("-Dspring.profiles.active=dev", "-Dsyscon.configs.dir=${configsDir}")
+		addResources = true 
 	}
-
-	sourceSets {
-		generated{ 
-			java.srcDir "src/main/generated" 
-		}
-	}
+	
+	sourceSets { generated.java.srcDirs "${rootDir}/elite2-web/src/main/generated" }
+	compileJava { source "${rootDir}/elite2-web/src/main/generated" }
 
 	dependencies {
 
-		compile files("src/main/configs")
+		compile files("${rootDir}/elite2-web/src/main/configs")
 		compile fileTree(dir: "${rootDir}/libs", include: "*.jar")
 		
 		compile("org.springframework.boot:spring-boot-starter-jetty")
-		compile("org.springframework.boot:spring-boot-starter-jersey")
+		compile("org.springframework.boot:spring-boot-starter-jersey") {
+			exclude(module: "spring-boot-starter-tomcat")
+		}
 		compile("org.springframework.boot:spring-boot-starter-data-jpa")
 		compile("org.springframework.boot:spring-boot-starter-cache")
 		compile("org.springframework.boot:spring-boot-starter-web") {
