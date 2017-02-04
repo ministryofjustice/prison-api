@@ -28,6 +28,7 @@ subprojects {
 	}
 
 	apply plugin: "java"
+	apply plugin: 'idea'
 	sourceCompatibility = JavaVersion.VERSION_1_8
 	targetCompatibility = JavaVersion.VERSION_1_8
 
@@ -44,7 +45,6 @@ subprojects {
 
 	apply plugin: "maven"
 	apply plugin: "eclipse"
-	apply plugin: "idea"
 	apply plugin: "org.springframework.boot"
 
 	group = "net.syscon.elite"
@@ -97,8 +97,8 @@ project(":elite2-web") {
 		jvmArgs("-Dspring.profiles.active=dev", "-Dsyscon.configs.dir=${configsDir}")
 		addResources = true 
 	}
-	
-	sourceSets { generated.java.srcDirs "${rootDir}/elite2-web/src/main/generated" }
+
+	sourceSets.main.java.srcDir new File("${rootDir}/elite2-web/src/main/generated")
 	compileJava { source "${rootDir}/elite2-web/src/main/generated" }
 
 	dependencies {

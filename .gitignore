@@ -117,3 +117,5 @@ buildNumber.properties
 
 # Created by .ignore support plugin (hsz.mobi)
 /elite2-web/src/main/configs/elite2-dev.yml
+/elite2-web/gradle
+/elite2-web/output.txt
