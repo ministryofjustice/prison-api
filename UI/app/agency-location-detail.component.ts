@@ -16,15 +16,15 @@ import 'rxjs/add/operator/switchMap';
     <div *ngIf="agencyLocation.currentOccupancy"><span><label>Current Occupancy:</label>{{agencyLocation.currentOccupancy}}</span></div>
     <div *ngIf="agencyLocation.operationalCapacity"><span><label>Operational Capacity:</label>{{agencyLocation.operationalCapacity}}</span></div>
     <h3>Inmates</h3>
+    <div *ngIf="!agencyLocation.assignedInmates">Loading inmates...</div>
     <div *ngIf="agencyLocation.assignedInmates">
       <ul class="inmates">
     		<li *ngFor="let inmate of agencyLocation.assignedInmates" (click)="onSelect(inmate)">
     			{{inmate.firstName}} {{inmate.lastName}} ({{inmate.bookingId}})<span class="badge">&gt;</span>
     		</li>
     	</ul>
+      <div *ngIf="agencyLocation.assignedInmates.length === 0">No inmates currently in the location.</div>
     <div>
-    <div *ngIf="agencyLocation.assignedInmates.length === 0">No inmates currently in the location.</div>
-
   </div>
   <div *ngIf="!agencyLocation">Loading location...</div>
   <button (click)="goBack()">Back</button>
@@ -94,7 +94,19 @@ export class AgencyLocationDetailComponent implements OnInit {
     ngOnInit(): void {
       this.route.params
         .switchMap((params: Params) => this.agencyLocationService.getAgencyLocation(+params['id']))
-        .subscribe(agencyLocation => this.agencyLocation = agencyLocation);
+//        .subscribe(agencyLocation => this.agencyLocation = agencyLocation);
+        .subscribe(agencyLocation => this.setAgencyLocation(agencyLocation));
+    }
+
+    setAgencyLocation(agyLoc: AgencyLocation): void
+    {
+      this.agencyLocation = agyLoc;
+
+      if(!this.agencyLocation.assignedInmates)
+      {
+        // Add code to load inmates for this location
+        this.agencyLocationService.getInmates(this.agencyLocation.id).then(inmates => this.agencyLocation.assignedInmates = inmates);
+      }
     }
 
   onSelect(inmate: Inmate): void {

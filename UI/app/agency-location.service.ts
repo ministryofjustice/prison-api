@@ -3,6 +3,7 @@ import { Headers, Http } from '@angular/http';
 
 import 'rxjs/add/operator/toPromise';
 
+import { Inmate } from './inmate';
 import { AgencyLocation } from './agency-location';
 
 @Injectable()
@@ -23,6 +24,17 @@ export class AgencyLocationService {
     return this.http.get(url)
       .toPromise()
       .then(response => response.json().data as AgencyLocation)
+      .catch(this.handleError);
+  }
+
+  getInmates(id:number): Promise<Inmate[]> {
+  //// TEMP CODE
+  const url = `api/inmates/?currentLocationId=${id}`;
+  //// SHOULD BE:
+  //  const url = `${this.locationsUrl}/${id}/assignedInmates`;
+    return this.http.get(url)
+      .toPromise()
+      .then(response => response.json().data as Inmate[])
       .catch(this.handleError);
   }
 
