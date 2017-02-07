@@ -4,16 +4,15 @@ is: [
   orderable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, alertCodes, agencyId, currentLocationId, or assignedLivingUnitId"},
   pageable
 ]
+
 /inmates/{inmateId}:
   description: The details specific to the specified inmate.
-  get:
-    description: Returns the inmate's details.
-    responses:
-      200:
-        body:
-          application/json:
-            schema: !include ../schemas/output/inmate-detail.schema.json
-      404:
-        description: |
-          Returned if the inmateId is not valid or the user does not have
-          authorization to view the data.
+  type: { get-item: { schema: inmateDetail }}
+
+/inmates/{inmateId}/movements:
+  description: The collection of scheduled movements associated to the inmate.
+  type: { get-collection: { collectionSchema: movements } }
+  is: [
+    orderable: {fieldsList : "moveCategory, moveDateTime, fromAgencyId, toAgencyId, moveType, moveReason, fromLocationId, or toLocation"},
+    pageable
+  ]
