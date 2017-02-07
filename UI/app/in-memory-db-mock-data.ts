@@ -1,6 +1,19 @@
 import { InMemoryDbService } from 'angular-in-memory-web-api';
 export class InMemoryDBMockData implements InMemoryDbService {
   createDb() {
+    let counts = [
+      {
+        id: 0,
+        locationId: 0,
+        status: 'Completed',
+        initialCount: {
+          conductUserId: '',
+          countReason: '',
+          count: 0
+        }
+      }
+    ];
+
     let inmates = [
     	{
     		id: 38268,
@@ -180,6 +193,6 @@ export class InMemoryDBMockData implements InMemoryDbService {
       { id: 8288, agencyId: 'SDP', locationType: 'WORK', description: 'SDP-MCI', currentOccupancy: 0, livingUnit: false,  },
     ];
 
-    return {inmates, locations};
+    return {inmates, locations, counts};
   }
 }

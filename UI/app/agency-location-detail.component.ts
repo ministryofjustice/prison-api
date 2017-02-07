@@ -13,6 +13,7 @@ import 'rxjs/add/operator/switchMap';
   template: `
   <div *ngIf="agencyLocation">
     <h2>{{agencyLocation.description}} Details</h2>
+    <button (click)="goCount()">Physical Count</button>
     <div *ngIf="agencyLocation.currentOccupancy"><span><label>Current Occupancy:</label>{{agencyLocation.currentOccupancy}}</span></div>
     <div *ngIf="agencyLocation.operationalCapacity"><span><label>Operational Capacity:</label>{{agencyLocation.operationalCapacity}}</span></div>
     <h3>Inmates</h3>
@@ -94,17 +95,13 @@ export class AgencyLocationDetailComponent implements OnInit {
     ngOnInit(): void {
       this.route.params
         .switchMap((params: Params) => this.agencyLocationService.getAgencyLocation(+params['id']))
-//        .subscribe(agencyLocation => this.agencyLocation = agencyLocation);
         .subscribe(agencyLocation => this.setAgencyLocation(agencyLocation));
     }
 
-    setAgencyLocation(agyLoc: AgencyLocation): void
-    {
+    setAgencyLocation(agyLoc: AgencyLocation): void {
       this.agencyLocation = agyLoc;
 
-      if(!this.agencyLocation.assignedInmates)
-      {
-        // Add code to load inmates for this location
+      if(!this.agencyLocation.assignedInmates) {
         this.agencyLocationService.getInmates(this.agencyLocation.id).then(inmates => this.agencyLocation.assignedInmates = inmates);
       }
     }
@@ -113,7 +110,12 @@ export class AgencyLocationDetailComponent implements OnInit {
     this.router.navigate(['/inmates', inmate.id]);
   }
 
-    goBack(): void {
-      this.location.back();
-    }
+  goCount(): void {
+    this.router.navigate(['/count', this.agencyLocation.id])
+  }
+
+  goBack(): void {
+    this.location.back();
+  }
+
 }
