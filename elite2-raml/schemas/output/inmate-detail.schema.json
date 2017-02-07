@@ -1,0 +1,66 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "Inmate Detail",
+	"type": "object",
+	"properties": {
+		"inmateId": { "type": "integer" },
+		"bookingId": { "type": "string" },
+		"offenderId": { "type": "string" },
+		"firstName": { "type": "string" },
+		"middleName": {"type": "string" },
+		"lastName":    {"type": "string" },
+		"alertsCodes": {
+			"type": "array",
+			"items": { "type": "string" }
+		},
+		"agencyId":  { "type": "string" },
+		"currentLocationId":  { "type": "number" },
+		"assignedLivingUnitId":  { "type": "number" },
+		"dateOfBirth":  {
+			"type": "string",
+			"format": "date-only"
+		},
+		"age":   { "type": "integer" },
+		"physicalAttributes": {
+			"type": "object",
+			"properties": {
+				"gender": { "type": "string" },
+				"ethnicity": { "type": "string" },
+				"heightInches": { "type": "number" },
+				"heightMeters": { "type": "number" },
+				"weightPounds": { "type": "number" },
+				"weightKg": { "type": "number" }
+			},
+			"required": ["gender", "ethnicity", "heightInches", "heightMeters", "weightPounds", "weightKg"]
+		},
+		"physicalCharacteristics": {
+			"type": "array",
+			"items": {
+				"title": "physicalCharacteristic",
+				"type": "object",
+				"properties": {
+					"characteristic": { "type": "string" },
+					"detail": { "type": "string" }
+				},
+				"required": ["characteristic", "detail"]
+			}
+		},
+		"physicalMarks": {
+			"type": "array",
+			"items": {
+				"title": "physicalMark",
+				"type": "object",
+				"properties": {
+					"type": { "type": "string" },
+					"side": { "type": "string" },
+					"bodyPart": { "type": "string" },
+					"orientation": { "type": "string" },
+					"comment": { "type": "string" }
+				},
+				"required": ["type", "side", "bodyPart", "orientation", "comment"]
+			}
+		}
+	},
+	"required": ["inmateId", "bookingId", "offenderId", "firstName", "middleName", "lastName", "agencyId", "currentLocationId", "age"]
+}
+

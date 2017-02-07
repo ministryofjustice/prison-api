@@ -3,15 +3,15 @@
 	"title": "Inmate Summary",
 	"type": "object",
 	"properties": {
-		"inmateId": { "type:": "int64" },
+		"inmateId": { "type:": "integer" },
 		"bookingId": { "type": "string" },
 		"offenderId":    { "type:": "string" },
 		"firstName":    { "type:": "string" },
 		"lastName":    { "type:": "string" },
 		"alertsCodes": { "type": "array", "items": { "type": "string" } },
 		"agencyId":    { "type:": "string" },
-		"currentLocationId": { "type:": "int" },
-		"assignedLivingUnitId": { "type:": "int" }
+		"currentLocationId": { "type:": "integer" },
+		"assignedLivingUnitId": { "type:": "integer" }
 	},
 	"required": ["inmateId", "bookingId", "offenderId", "firstName", "lastName", "agencyId", "currentLocationId"]
 }
