@@ -20,18 +20,21 @@ import 'rxjs/add/operator/switchMap';
     <div *ngIf="!recordedCount">
       <label>Head count:</label><input #locationCount/>
       <button (click)="submitCount(locationCount.value)">Submit</button><button (click)="goBack()">Cancel</button>
-    <div>
+    </div>
     <div *ngIf="recordedCount">
       <label>Count Status:</label>{{recordedCount.status}}
       <h4>Initial Count</h4>
-      <label>Conducted By:</label>{{recordedCount.initialCount.conductUserId}}
-      <label>Reason:</label>{{recordedCount.initialCount.countReason}}
-      <label>Count:</label>{{recordedCount.initialCount.count}}
+      <table>
+        <tr><td><label>Conducted By:</label></td><td>{{recordedCount.initialCount.conductUserId}}</td></tr>
+        <tr><td><label>Reason:</label></td><td>{{recordedCount.initialCount.countReason}}</td></tr>
+        <tr><td><label>Count:</label></td><td>{{recordedCount.initialCount.count}}</td></tr>
+      </table>
       <button (click)="goBack()">Done</button>
-    <div>
+    </div>
   </div>
-  <div *ngIf="!agencyLocation">Loading location...</div>
-  <button (click)="goBack()">Back</button>
+  <div *ngIf="!agencyLocation">Loading location...
+    <button (click)="goBack()">Back</button>
+  </div>
   `
 })
 export class AgencyLocationCountComponent implements OnInit {
@@ -56,7 +59,7 @@ export class AgencyLocationCountComponent implements OnInit {
 
   submitCount(count: number): void {
     const inmateCount: AgencyLocationInmateCount = {
-      id: 1,
+      id: this.agencyLocation.id,
       locationId: this.agencyLocation.id,
       status: 'Completed',
       initialCount: {
@@ -67,7 +70,7 @@ export class AgencyLocationCountComponent implements OnInit {
     };
 
     this.agencyLocationCountService.recordInitialCount(inmateCount)
-      .then(count => this.recordedCount = count);
+      .then(inmateCount => this.recordedCount = inmateCount);
   }
 
   goBack(): void {

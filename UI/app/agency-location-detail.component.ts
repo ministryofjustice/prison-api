@@ -39,7 +39,7 @@ import 'rxjs/add/operator/switchMap';
     margin: 0 0 2em 0;
     list-style-type: none;
     padding: 0;
-    width: 30em;
+    width: auto;
     }
     .inmates li {
     cursor: pointer;

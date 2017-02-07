@@ -24,7 +24,7 @@ import { AgencyLocationService } from './agency-location.service';
 		margin: 0 0 2em 0;
 		list-style-type: none;
 		padding: 0;
-		width: 30em;
+		width: auto;
 	  }
 	  .agencyLocations li {
 		cursor: pointer;
@@ -68,7 +68,7 @@ import { AgencyLocationService } from './agency-location.service';
 	providers: [AgencyLocationService]
 })
 export class AgencyLocationsComponent implements OnInit  {
-	title = 'Select Agency Location';
+	title = 'Internal Locations';
 	agencyLocations: AgencyLocation[];
 	selectedAgencyLocation: AgencyLocation;
 
