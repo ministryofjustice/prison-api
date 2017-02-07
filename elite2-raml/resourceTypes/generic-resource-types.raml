@@ -18,6 +18,18 @@
             application/json:
               schema: httpStatus
               example: !include ../examples/output/500.sample.json
+
+- get-item:
+    type:
+      get-base:
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+              schema: <<schema>>
+
+
 - get-collection:
     type:
       get-base:
@@ -27,4 +39,3 @@
           body:
             application/json:
               schema: <<collectionSchema>>
-

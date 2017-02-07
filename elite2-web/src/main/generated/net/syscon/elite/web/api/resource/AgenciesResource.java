@@ -94,7 +94,7 @@ public interface AgenciesResource {
          * 	"httpStatus": "404",
          * 	"code": "404",
          * 	"message": "Resource not found",
-         * 	"developerMessage": "The resource could not be found. The client should not repeat the request without modifications.",
+         * 	"developerMessage": "The resource could not be found or the user does not have authorization to view the data.",
          * 	"moreInfo": ""
          * }
          * 
@@ -104,7 +104,7 @@ public interface AgenciesResource {
          *     	"httpStatus": "404",
          *     	"code": "404",
          *     	"message": "Resource not found",
-         *     	"developerMessage": "The resource could not be found. The client should not repeat the request without modifications.",
+         *     	"developerMessage": "The resource could not be found or the user does not have authorization to view the data.",
          *     	"moreInfo": ""
          *     }
          *     

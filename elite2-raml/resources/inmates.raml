@@ -1,11 +1,18 @@
-description: Returns the list of agencies viewable by the user
+description:  The collection of inmates within the system.
 type: { get-collection: { collectionSchema: inmateSummaries } }
 is: [
   orderable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, alertCodes, agencyId, currentLocationId, or assignedLivingUnitId"},
   pageable
 ]
 
-/inmates:
-  description: The collection of inmates within the system.
-  get:
-    description: Returns the within the system.
+/inmates/{inmateId}:
+  description: The details specific to the specified inmate.
+  type: { get-item: { schema: inmateDetail }}
+
+/inmates/{inmateId}/movements:
+  description: The collection of scheduled movements associated to the inmate.
+  type: { get-collection: { collectionSchema: movements } }
+  is: [
+    orderable: {fieldsList : "moveCategory, moveDateTime, fromAgencyId, toAgencyId, moveType, moveReason, fromLocationId, or toLocation"},
+    pageable
+  ]
