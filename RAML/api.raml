@@ -121,6 +121,42 @@ traits: !include traits/traits.raml
           Returned if the location is not a living unit or the user does not
           have authorization to view the data.
 
+/locations/{locationId}/inmateCount:
+  description: |
+    The active count for the location.
+  get:
+    description: Returns the status of the active count.
+    responses:
+      200:
+        body:
+          application/json:
+            schema: !include "resourceTypes/physical-count-detail.schema.json"
+      404:
+        description: There is no active count for this location.
+  post:
+    description: Submit the initial count for the active inmate count.
+    responses:
+      201:
+        description:  |
+          The count was accepted. Check the status of the count for additional
+          steps. The service will return this response if a count was already
+          submitted that matched the original data.
+      403:
+        description: Another count has already been recorded. Use PUT to submit recounts.
+      404:
+        description: There is no active count for this location.
+  put:
+    description: Submit a recount for the active inmate count.
+    responses:
+      201:
+        description: |
+          The recount was accepted. The service will return this response if a
+          count was already submitted that matched the original data.
+      403:
+        description: Another recount has already been recorded.
+      404:
+        description: There is no active count for this location.
+
 /inmates:
   description: The collection of inmates within the system.
   get:

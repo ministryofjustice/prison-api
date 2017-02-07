@@ -1,0 +1,17 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "Physical Inmate Count",
+	"type": "object",
+	"properties": {
+		"conductByUserId": { "type": "string" },
+		"enteredByUserId": { "type": "string" },
+		"countReason": {
+			"type": "integer",
+		 	"description": "The id to the LoV for the count." },
+		"inmateCount": { "type": "integer"},
+		"comment": {
+			"type": "string",
+		 	"description": "A comment about the count. If a recount, the comment shoudl include references to the inmate(s) not present." }
+	},
+	"required": ["conductByUserId", "enteredByUserId", "countReason", "inmateCount"]
+}

@@ -4,34 +4,13 @@
   "title": "Location",
   "type": "object",
   "properties": {
-    "locationId":   {
-      "type:": "string",
-      "required": true
-    },
-    "agencyId":   {
-      "type:": "string",
-      "required": true
-    },
-    "locationType":   {
-      "type:": "string",
-      "required": true
-    },
-    "description":   {
-      "type:": "string",
-      "required": true
-    },
-    "parentLocationId":   {
-      "type:": "string",
-      "required": true
-    },
-    "operationalCapacity":  {
-      "type:": "number",
-      "required": false
-    },
-    "currentOccupancy":   {
-      "type:": "number",
-      "required": true
-    },
+    "locationId": { "type:": "integer" },
+    "agencyId": { "type:": "integer" },
+    "locationType": { "type:": "string" },
+    "description": { "type:": "string" },
+    "parentLocationId": { "type:": "integer" },
+    "operationalCapacity": { "type:": "integer" },
+    "currentOccupancy": { "type:": "integer" },
     "livingUnit":   {
       "type:": "boolean",
       "required": true
@@ -40,54 +19,5 @@
       "type:": "string",
       "required": false
     },
-    "assignedInmates": {
-      "type:": "array",
-      "required": false,
-      "items":
-      {
-        "type": "object",
-        "properties": {
-          "inmateId":    {
-            "type:": "number",
-            "required": true
-          },
-          "bookingId":    {
-            "type:": "string",
-            "required": true
-          },
-          "offenderId":    {
-            "type:": "string",
-            "required": true
-          },
-          "firstName":    {
-            "type:": "string",
-            "required": true
-          },
-          "lastName":    {
-            "type:": "string",
-            "required": true
-          },
-          "alertsCodes": {
-            "type": "array",
-            "required": false,
-            "items": {
-                "type": "string"
-            }
-          },
-          "agencyId":    {
-            "type:": "string",
-            "required": true
-          },
-          "currentLocationId": {
-            "type:": "number",
-            "required": true
-          },
-          "assignedLivingUnitId": {
-            "type:": "number",
-            "required": false
-          },
-        }
-      }
-    }
   }
 }
