@@ -10,6 +10,7 @@ import { AppComponent }  from './app.component';
 import { InMemoryWebApiModule } from 'angular-in-memory-web-api';
 import { InMemoryDBMockData }  from './in-memory-db-mock-data';
 
+import { AgenciesComponent } from './agencies.component';
 import { AgencyLocationDetailComponent } from './agency-location-detail.component';
 import { AgencyLocationsComponent } from './agency-locations.component';
 import { AgencyLocationCountComponent } from './agency-location-count.component';
@@ -19,6 +20,7 @@ import { InmateDetailComponent } from './inmate-detail.component';
 import { AgencyLocationService } from './agency-location.service';
 import { InmateService } from './inmate.service';
 import { AgencyLocationCountService } from './agency-location-count.service';
+import { AgencyService } from './agency.service';
 
 import { AppRoutingModule }     from './app-routing.module';
 
@@ -33,6 +35,7 @@ import { AppRoutingModule }     from './app-routing.module';
   ],
   declarations: [
   	AppComponent,
+    AgenciesComponent,
   	AgencyLocationDetailComponent,
   	AgencyLocationsComponent,
     AgencyLocationCountComponent,
@@ -42,7 +45,8 @@ import { AppRoutingModule }     from './app-routing.module';
   providers: [
     AgencyLocationService,
     InmateService,
-    AgencyLocationCountService ],
+    AgencyLocationCountService,
+    AgencyService ],
   bootstrap: [ AppComponent ]
 })
 export class AppModule { }

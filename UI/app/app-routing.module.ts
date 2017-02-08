@@ -5,10 +5,12 @@ import { AgencyLocationDetailComponent } from './agency-location-detail.componen
 import { AgencyLocationsComponent } from './agency-locations.component';
 import { InmatesComponent } from './inmates.component';
 import { InmateDetailComponent } from './inmate-detail.component';
- import { AgencyLocationCountComponent } from './agency-location-count.component';
+import { AgencyLocationCountComponent } from './agency-location-count.component';
+import { AgenciesComponent } from './agencies.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/locations', pathMatch: 'full' },
+  { path: '', redirectTo: '/agencies', pathMatch: 'full' },
+  { path: 'agencies', component: AgenciesComponent },
   { path: 'locations', component: AgencyLocationsComponent },
   { path: 'inmates', component: InmatesComponent },
   { path: 'inmates/:id', component: InmateDetailComponent },
