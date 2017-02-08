@@ -1,7 +1,7 @@
 import { Inmate } from './inmate';
 
 export class AgencyLocation  {
-	id: number;
+	locationId: number;
 	agencyId: string;
 	locationType: string;
 	description: string;

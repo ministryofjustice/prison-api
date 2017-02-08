@@ -102,16 +102,16 @@ export class AgencyLocationDetailComponent implements OnInit {
       this.agencyLocation = agyLoc;
 
       if(!this.agencyLocation.assignedInmates) {
-        this.agencyLocationService.getInmates(this.agencyLocation.id).then(inmates => this.agencyLocation.assignedInmates = inmates);
+        this.agencyLocationService.getInmates(this.agencyLocation.locationId).then(inmates => this.agencyLocation.assignedInmates = inmates);
       }
     }
 
   onSelect(inmate: Inmate): void {
-    this.router.navigate(['/inmates', inmate.id]);
+    this.router.navigate(['/inmates', inmate.inmateId]);
   }
 
   goCount(): void {
-    this.router.navigate(['/count', this.agencyLocation.id])
+    this.router.navigate(['/count', this.agencyLocation.locationId])
   }
 
   goBack(): void {

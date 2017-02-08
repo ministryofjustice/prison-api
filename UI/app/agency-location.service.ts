@@ -31,7 +31,7 @@ export class AgencyLocationService {
   //// TEMP CODE
   const url = `api/inmates/?currentLocationId=${id}`;
   //// SHOULD BE:
-  //  const url = `${this.locationsUrl}/${id}/assignedInmates`;
+  //  const url = `${this.locationsUrl}/${id}/inmates`;
     return this.http.get(url)
       .toPromise()
       .then(response => response.json().data as Inmate[])

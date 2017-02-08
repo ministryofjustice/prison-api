@@ -21,7 +21,8 @@ export class PhysicalMark {
 }
 
 export class Inmate {
-  id: number;
+  //id: number;
+  inmateId: number;
   bookingId: string;
   offenderId: string;
   firstName: string;

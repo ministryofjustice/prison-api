@@ -104,6 +104,6 @@ export class AgencyComponent implements OnInit  {
   }
 
 	onSelect(agencyLocation: AgencyLocation): void {
-    this.router.navigate(['/locations', agencyLocation.id]);
+    this.router.navigate(['/locations', agencyLocation.locationId]);
 	}
 }

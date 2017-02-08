@@ -59,8 +59,8 @@ export class AgencyLocationCountComponent implements OnInit {
 
   submitCount(count: number): void {
     const inmateCount: AgencyLocationInmateCount = {
-      id: this.agencyLocation.id,
-      locationId: this.agencyLocation.id,
+      id: this.agencyLocation.locationId,
+      locationId: this.agencyLocation.locationId,
       status: 'Completed',
       initialCount: {
         conductUserId: '(mobile User)',
