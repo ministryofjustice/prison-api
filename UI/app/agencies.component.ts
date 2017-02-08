@@ -15,7 +15,7 @@ import { AgencyService } from './agency.service';
 		</li>
 	</ul>
 	`,
-	styles: [`
+  styles: [`
 	  .selected {
 		background-color: #CFD8DC !important;
 		color: white;
@@ -31,7 +31,7 @@ import { AgencyService } from './agency.service';
 		position: relative;
 		left: 0;
 		background-color: #EEE;
-		margin: .5em;
+    margin: .5em 0 .5em 0;
 		padding: .3em 0;
 		height: 1.6em;
 		border-radius: 4px;
@@ -60,7 +60,7 @@ import { AgencyService } from './agency.service';
 		left: -1px;
 		top: -4px;
 		height: 1.8em;
-		margin-left: .8em;
+		/*margin-left: .8em;*/
 		border-radius: 0 4px 4px 0;
 		float: right;
 	  }

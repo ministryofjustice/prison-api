@@ -43,7 +43,7 @@ import 'rxjs/add/operator/switchMap';
 		position: relative;
 		left: 0;
 		background-color: #EEE;
-		margin: .5em;
+    margin: .5em 0 .5em 0;
 		padding: .3em 0;
 		height: 1.6em;
 		border-radius: 4px;
