@@ -3,8 +3,8 @@ export class InMemoryDBMockData implements InMemoryDbService {
   createDb() {
 
     let agencies = [
-      { id: 0, agencyId: 'SDP', description: 'Sam Dennison Prison', agencyType: 'INST'},
-      { id: 1, agencyId: 'JSP', description: 'Jefferson Smith Pretrial', agencyType: 'INST'}
+      { id: 1, agencyId: 'SDP', description: 'Sam Dennison Prison', agencyType: 'INST'},
+      { id: 2, agencyId: 'JSP', description: 'Jefferson Smith Pretrial', agencyType: 'INST'}
     ];
 
     let counts = [

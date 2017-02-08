@@ -12,7 +12,7 @@ import { InMemoryDBMockData }  from './in-memory-db-mock-data';
 
 import { AgenciesComponent } from './agencies.component';
 import { AgencyLocationDetailComponent } from './agency-location-detail.component';
-import { AgencyLocationsComponent } from './agency-locations.component';
+import { AgencyComponent } from './agency.component';
 import { AgencyLocationCountComponent } from './agency-location-count.component';
 import { InmatesComponent } from './inmates.component';
 import { InmateDetailComponent } from './inmate-detail.component';
@@ -37,7 +37,7 @@ import { AppRoutingModule }     from './app-routing.module';
   	AppComponent,
     AgenciesComponent,
   	AgencyLocationDetailComponent,
-  	AgencyLocationsComponent,
+  	AgencyComponent,
     AgencyLocationCountComponent,
   	InmatesComponent,
   	InmateDetailComponent

@@ -14,9 +14,9 @@ export class AgencyLocationService {
 
   getAgencyLocations(): Promise<AgencyLocation[]> {
     return this.http.get(this.locationsUrl)
-              .toPromise()
-              .then(response => response.json().data as AgencyLocation[])
-              .catch(this.handleError);
+      .toPromise()
+      .then(response => response.json().data as AgencyLocation[])
+      .catch(this.handleError);
   }
 
   getAgencyLocation(id: number): Promise<AgencyLocation> {
@@ -35,6 +35,14 @@ export class AgencyLocationService {
     return this.http.get(url)
       .toPromise()
       .then(response => response.json().data as Inmate[])
+      .catch(this.handleError);
+  }
+
+  getAgencyLocationsByAgencyId(id:string): Promise<AgencyLocation[]> {
+    const url = `api/locations?agencyId=^${id}`;
+    return this.http.get(url)
+      .toPromise()
+      .then(response => response.json().data as AgencyLocation[])
       .catch(this.handleError);
   }
 

@@ -78,8 +78,7 @@ export class AgenciesComponent implements OnInit  {
   ) { }
 
 	onSelect(agency: Agency): void {
-  // TODO - Add logic to display locations based on selected agency
-    this.router.navigate(['/locations']);
+    this.router.navigate(['/agencies', agency.id]);
 	}
 
 	ngOnInit(): void {
