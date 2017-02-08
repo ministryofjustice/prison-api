@@ -1,25 +1,24 @@
 package net.syscon.elite.persistence.domain;
 
-import java.io.Serializable;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 
 @Entity
-@Table(name="AGENCY_LOCATIONS")
+@Table(name="agency_locations")
 @SuppressWarnings("serial")
 public class AgencyLocation implements Serializable {
 	
 	@Id
-	@Column(name="AGY_LOC_ID")
+	@Column(name="agy_loc_id")
 	private String agencyId;
 	
-	@Column(name="DESCRIPTION")
+	@Column(name="description")
 	private String description;
 	
-	@Column(name="AGENCY_LOCATION_TYPE")
+	@Column(name="agency_location_type")
 	private String agencyType;
 	
 	public String getAgencyId() {
