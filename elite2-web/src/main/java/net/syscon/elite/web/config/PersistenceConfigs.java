@@ -2,8 +2,7 @@ package net.syscon.elite.web.config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import net.syscon.elite.persistence.domain.AgencyLocation;
-import net.syscon.elite.persistence.repository.AgencyLocationRepository;
+import net.syscon.elite.persistence.repository.AgencyRepository;
 import net.syscon.util.PropertiesUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +14,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.instrument.classloading.InstrumentationLoadTimeWeaver;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -34,11 +34,10 @@ import java.util.Map;
 @EnableCaching
 @EnableAspectJAutoProxy
 @EnableTransactionManagement
-@EnableJpaRepositories(basePackageClasses = AgencyLocationRepository.class)
-@ComponentScan(basePackageClasses = {AgencyLocationRepository.class, AgencyLocation.class })
+@EnableJpaRepositories(basePackageClasses = AgencyRepository.class)
+@ComponentScan(basePackageClasses = {AgencyRepository.class })
 public class PersistenceConfigs {
 	
-
 	private final Logger LOG = LoggerFactory.getLogger(getClass());
 
 	@Bean
@@ -63,7 +62,7 @@ public class PersistenceConfigs {
 	}
 
 	@Bean
-	public NamedParameterJdbcTemplate namedJdbcTemplate(final DataSource dataSource) {
+	public NamedParameterJdbcOperations namedJdbcTemplate(final DataSource dataSource) {
 		return new NamedParameterJdbcTemplate(dataSource);
 	}
 
@@ -78,10 +77,9 @@ public class PersistenceConfigs {
 		try {
 			final LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
 			entityManagerFactoryBean.setDataSource(dataSource);
-			final String domainPackage = AgencyLocation.class.getPackage().getName();
-			entityManagerFactoryBean.setPackagesToScan(domainPackage);
 			entityManagerFactoryBean.setPersistenceUnitName("elite2-pu");
-			
+			entityManagerFactoryBean.setPackagesToScan("net.syscon.elite.persistence.domain");
+
 			final Map<String, Object> configsMap = new HashMap<>();
 			final String prefix = "spring.jpa.properties.";
 			PropertiesUtil.toProperties(env, prefix).entrySet().forEach(entry -> {

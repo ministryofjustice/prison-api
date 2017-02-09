@@ -9,9 +9,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.HttpStatus;
 import net.syscon.elite.web.api.model.InmateDetail;
-import net.syscon.elite.web.api.model.InmateSummary;
 import net.syscon.elite.web.api.model.Movement;
 
 
@@ -323,7 +323,7 @@ public interface InmatesResource {
          * @param entity
          *     
          */
-        public static InmatesResource.GetInmatesResponse withJsonOK(List<InmateSummary> entity) {
+        public static InmatesResource.GetInmatesResponse withJsonOK(List<AssignedInmate> entity) {
             Response.ResponseBuilder responseBuilder = Response.status(200).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
             return new InmatesResource.GetInmatesResponse(responseBuilder.build());

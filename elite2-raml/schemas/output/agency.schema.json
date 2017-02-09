@@ -3,8 +3,8 @@
 	"title": "Agency",
 	"type": "object",
 	"properties": {
-		"agencyId": { "type": "integer" },
-		"agencyCode": { "type": "string" },
+		"uid": { "type":  "integer" },
+		"agencyId": { "type": "string" },
 		"description": { "type": "string" },
 		"agencyType": { "type": "string" }
 	},

@@ -12,7 +12,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 
 /**
@@ -122,6 +124,49 @@ public class InmateDetail {
     private List<PhysicalMark> physicalMarks = new ArrayList<PhysicalMark>();
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    /**
+     * No args constructor for use in serialization
+     * 
+     */
+    public InmateDetail() {
+    }
+
+    /**
+     * 
+     * @param lastName
+     * @param physicalMarks
+     * @param physicalCharacteristics
+     * @param agencyId
+     * @param assignedLivingUnitId
+     * @param dateOfBirth
+     * @param physicalAttributes
+     * @param bookingId
+     * @param firstName
+     * @param alertsCodes
+     * @param inmateId
+     * @param middleName
+     * @param offenderId
+     * @param currentLocationId
+     * @param age
+     */
+    public InmateDetail(Long inmateId, String bookingId, String offenderId, String firstName, String middleName, String lastName, List<String> alertsCodes, String agencyId, Double currentLocationId, Double assignedLivingUnitId, String dateOfBirth, Long age, PhysicalAttributes physicalAttributes, List<PhysicalCharacteristic> physicalCharacteristics, List<PhysicalMark> physicalMarks) {
+        this.inmateId = inmateId;
+        this.bookingId = bookingId;
+        this.offenderId = offenderId;
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.lastName = lastName;
+        this.alertsCodes = alertsCodes;
+        this.agencyId = agencyId;
+        this.currentLocationId = currentLocationId;
+        this.assignedLivingUnitId = assignedLivingUnitId;
+        this.dateOfBirth = dateOfBirth;
+        this.age = age;
+        this.physicalAttributes = physicalAttributes;
+        this.physicalCharacteristics = physicalCharacteristics;
+        this.physicalMarks = physicalMarks;
+    }
 
     /**
      * 
@@ -552,6 +597,23 @@ public class InmateDetail {
     public InmateDetail withAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
         return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(inmateId).append(bookingId).append(offenderId).append(firstName).append(middleName).append(lastName).append(alertsCodes).append(agencyId).append(currentLocationId).append(assignedLivingUnitId).append(dateOfBirth).append(age).append(physicalAttributes).append(physicalCharacteristics).append(physicalMarks).append(additionalProperties).toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if ((other instanceof InmateDetail) == false) {
+            return false;
+        }
+        InmateDetail rhs = ((InmateDetail) other);
+        return new EqualsBuilder().append(inmateId, rhs.inmateId).append(bookingId, rhs.bookingId).append(offenderId, rhs.offenderId).append(firstName, rhs.firstName).append(middleName, rhs.middleName).append(lastName, rhs.lastName).append(alertsCodes, rhs.alertsCodes).append(agencyId, rhs.agencyId).append(currentLocationId, rhs.currentLocationId).append(assignedLivingUnitId, rhs.assignedLivingUnitId).append(dateOfBirth, rhs.dateOfBirth).append(age, rhs.age).append(physicalAttributes, rhs.physicalAttributes).append(physicalCharacteristics, rhs.physicalCharacteristics).append(physicalMarks, rhs.physicalMarks).append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
 }

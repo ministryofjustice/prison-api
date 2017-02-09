@@ -1,38 +1,37 @@
 package net.syscon.elite.web.api.resource.impl;
 
-import net.syscon.elite.service.AgencyService;
-import net.syscon.elite.web.api.model.Agency;
+import net.syscon.elite.service.AgencyLocationService;
+import net.syscon.elite.web.api.model.Location;
 import net.syscon.elite.web.api.resource.AgenciesResource;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import javax.ws.rs.DefaultValue;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class AgenciesResourceImpl implements AgenciesResource {
 	
-	private AgencyService agencyService;
+	private AgencyLocationService agencyLocationService;
 
 	@Inject
-	public void setAgencyService(final AgencyService agencyService) { this.agencyService = agencyService; }
+	public void setAgencyLocationService(final AgencyLocationService agencyLocationService) { this.agencyLocationService = agencyLocationService; }
 
-	
+
 	@Override
 	public GetAgenciesResponse getAgencies(final int offset, final int limit) throws Exception {
-
-		final List<Agency> result = agencyService.getLocations(offset, limit)
-				.stream().map(agencyLocation -> {
-					final Agency agency = new Agency();
-					BeanUtils.copyProperties(agencyLocation, agency);
-					return agency;
-				}).collect(Collectors.toList());
-		
-		return GetAgenciesResponse.withJsonOK(result);
+		return GetAgenciesResponse.withJsonOK(agencyLocationService.getAgencies(offset, limit));
 	}
-	
-	
-	
+
+	@Override
+	public GetAgenciesAgenciesByAgencyIdResponse getAgenciesAgenciesByAgencyId(String agencyId) throws Exception {
+		return GetAgenciesAgenciesByAgencyIdResponse.withJsonOK(agencyLocationService.getAgency(agencyId));
+	}
+
+	@Override
+	public GetAgenciesAgenciesByAgencyIdLocationsResponse getAgenciesAgenciesByAgencyIdLocations(String agencyId, String orderBy, @DefaultValue("asc") Order order, @DefaultValue("0") int offset, @DefaultValue("10") int limit) throws Exception {
+		final List<Location> locations = agencyLocationService.getLocationsFromAgency(agencyId, offset, limit);
+		return GetAgenciesAgenciesByAgencyIdLocationsResponse.withJsonOK(locations);
+	}
 
 }

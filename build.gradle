@@ -86,6 +86,10 @@ project(":elite2-raml") {
 			configs.jsonMapperConfiguration = new HashMap<>()
 			configs.jsonMapperConfiguration["useLongIntegers"] = "true"
 			configs.jsonMapperConfiguration["includeToString"] = "true"
+			configs.jsonMapperConfiguration["includeHashcodeAndEquals"] = "true"
+			configs.jsonMapperConfiguration["includeConstructors"] = "true"
+			configs.jsonMapperConfiguration["useCommonsLang3"] = "true"
+
 			new Generator().run(new FileReader(new File(ramlDir, "./api.raml")), configs, "")
 		}
 	}
@@ -126,7 +130,8 @@ project(":elite2-web") {
 		compile ("com.zaxxer:HikariCP:${version_hikaricp}") {
 			exclude(module: "tools")
 		}
-		compile 'commons-lang:commons-lang:2.6'
+		compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
+
 
 
 

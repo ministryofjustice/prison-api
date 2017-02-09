@@ -1,3 +1,17 @@
 description: Returns the list of agencies viewable by the user
 type: { get-collection: { collectionSchema: agencies } }
 is: [ pageable ]
+
+
+/agencies/{agencyId}:
+  description: Returns the list of agencies viewable by the user
+  type: { get-item: { schema: agency } }
+
+
+/agencies/{agencyId}/locations:
+  description: The collection of scheduled movements associated to the inmate.
+  type: { get-collection: { collectionSchema: locations } }
+  is: [
+    orderable: {fieldsList : "moveCategory, moveDateTime, fromAgencyId, toAgencyId, moveType, moveReason, fromLocationId, or toLocation"},
+    pageable
+  ]

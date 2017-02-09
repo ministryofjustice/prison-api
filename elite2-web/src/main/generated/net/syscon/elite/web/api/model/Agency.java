@@ -10,7 +10,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 
 /**
@@ -22,22 +24,22 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("org.jsonschema2pojo")
 @JsonPropertyOrder({
+    "uid",
     "agencyId",
-    "agencyCode",
     "description",
     "agencyType"
 })
 public class Agency {
 
+    @JsonProperty("uid")
+    private Long uid;
     /**
      * 
      * (Required)
      * 
      */
     @JsonProperty("agencyId")
-    private Long agencyId;
-    @JsonProperty("agencyCode")
-    private String agencyCode;
+    private String agencyId;
     /**
      * 
      * (Required)
@@ -56,6 +58,52 @@ public class Agency {
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
+     * No args constructor for use in serialization
+     * 
+     */
+    public Agency() {
+    }
+
+    /**
+     * 
+     * @param uid
+     * @param description
+     * @param agencyId
+     * @param agencyType
+     */
+    public Agency(Long uid, String agencyId, String description, String agencyType) {
+        this.uid = uid;
+        this.agencyId = agencyId;
+        this.description = description;
+        this.agencyType = agencyType;
+    }
+
+    /**
+     * 
+     * @return
+     *     The uid
+     */
+    @JsonProperty("uid")
+    public Long getUid() {
+        return uid;
+    }
+
+    /**
+     * 
+     * @param uid
+     *     The uid
+     */
+    @JsonProperty("uid")
+    public void setUid(Long uid) {
+        this.uid = uid;
+    }
+
+    public Agency withUid(Long uid) {
+        this.uid = uid;
+        return this;
+    }
+
+    /**
      * 
      * (Required)
      * 
@@ -63,7 +111,7 @@ public class Agency {
      *     The agencyId
      */
     @JsonProperty("agencyId")
-    public Long getAgencyId() {
+    public String getAgencyId() {
         return agencyId;
     }
 
@@ -75,37 +123,12 @@ public class Agency {
      *     The agencyId
      */
     @JsonProperty("agencyId")
-    public void setAgencyId(Long agencyId) {
+    public void setAgencyId(String agencyId) {
         this.agencyId = agencyId;
     }
 
-    public Agency withAgencyId(Long agencyId) {
+    public Agency withAgencyId(String agencyId) {
         this.agencyId = agencyId;
-        return this;
-    }
-
-    /**
-     * 
-     * @return
-     *     The agencyCode
-     */
-    @JsonProperty("agencyCode")
-    public String getAgencyCode() {
-        return agencyCode;
-    }
-
-    /**
-     * 
-     * @param agencyCode
-     *     The agencyCode
-     */
-    @JsonProperty("agencyCode")
-    public void setAgencyCode(String agencyCode) {
-        this.agencyCode = agencyCode;
-    }
-
-    public Agency withAgencyCode(String agencyCode) {
-        this.agencyCode = agencyCode;
         return this;
     }
 
@@ -185,6 +208,23 @@ public class Agency {
     public Agency withAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
         return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(uid).append(agencyId).append(description).append(agencyType).append(additionalProperties).toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if ((other instanceof Agency) == false) {
+            return false;
+        }
+        Agency rhs = ((Agency) other);
+        return new EqualsBuilder().append(uid, rhs.uid).append(agencyId, rhs.agencyId).append(description, rhs.description).append(agencyType, rhs.agencyType).append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
 }
