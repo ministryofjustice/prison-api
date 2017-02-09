@@ -38,14 +38,6 @@ export class AgencyLocationService {
       .catch(this.handleError);
   }
 
-  getAgencyLocationsByAgencyId(id:string): Promise<AgencyLocation[]> {
-    const url = `api/locations?agencyId=^${id}`;
-    return this.http.get(url)
-      .toPromise()
-      .then(response => response.json().data as AgencyLocation[])
-      .catch(this.handleError);
-  }
-
   private handleError(error: any): Promise<any> {
      console.error('An error occurred', error); // for demo purposes only
      return Promise.reject(error.message || error);

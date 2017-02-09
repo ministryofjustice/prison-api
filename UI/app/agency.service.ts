@@ -4,6 +4,7 @@ import { Headers, Http } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
 
 import { Agency } from './agency';
+import { AgencyLocation } from './agency-location';
 
 @Injectable()
 export class AgencyService {
@@ -25,6 +26,14 @@ export class AgencyService {
     return this.http.get(url)
       .toPromise()
       .then(response => response.json() as Agency)
+      .catch(this.handleError);
+  }
+
+  getAgencyLocations(id: string): Promise<AgencyLocation[]> {
+    const url = `${this.agenciesUrl}/${id}/locations`;
+    return this.http.get(url)
+      .toPromise()
+      .then(response => response.json() as AgencyLocation[])
       .catch(this.handleError);
   }
 

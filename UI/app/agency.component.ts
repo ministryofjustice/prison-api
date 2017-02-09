@@ -99,7 +99,7 @@ export class AgencyComponent implements OnInit  {
 
   setAgency(agency: Agency): void {
     this.agency = agency;
-    this.agencyLocationService.getAgencyLocationsByAgencyId(agency.agencyId)
+    this.agencyService.getAgencyLocations(agency.agencyId)
       .then(agencyLocations => this.agencyLocations = agencyLocations);
   }
 
