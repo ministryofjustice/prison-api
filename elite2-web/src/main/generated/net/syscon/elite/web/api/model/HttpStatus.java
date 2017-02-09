@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -192,6 +193,11 @@ public class HttpStatus {
     public HttpStatus withMoreInfo(String moreInfo) {
         this.moreInfo = moreInfo;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 
     @JsonAnyGetter

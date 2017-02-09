@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -47,7 +48,7 @@ public class InmateDetail {
      * 
      */
     @JsonProperty("inmateId")
-    private Integer inmateId;
+    private Long inmateId;
     /**
      * 
      * (Required)
@@ -109,7 +110,7 @@ public class InmateDetail {
      * 
      */
     @JsonProperty("age")
-    private Integer age;
+    private Long age;
     /**
      * 
      */
@@ -130,7 +131,7 @@ public class InmateDetail {
      *     The inmateId
      */
     @JsonProperty("inmateId")
-    public Integer getInmateId() {
+    public Long getInmateId() {
         return inmateId;
     }
 
@@ -142,11 +143,11 @@ public class InmateDetail {
      *     The inmateId
      */
     @JsonProperty("inmateId")
-    public void setInmateId(Integer inmateId) {
+    public void setInmateId(Long inmateId) {
         this.inmateId = inmateId;
     }
 
-    public InmateDetail withInmateId(Integer inmateId) {
+    public InmateDetail withInmateId(Long inmateId) {
         this.inmateId = inmateId;
         return this;
     }
@@ -437,7 +438,7 @@ public class InmateDetail {
      *     The age
      */
     @JsonProperty("age")
-    public Integer getAge() {
+    public Long getAge() {
         return age;
     }
 
@@ -449,11 +450,11 @@ public class InmateDetail {
      *     The age
      */
     @JsonProperty("age")
-    public void setAge(Integer age) {
+    public void setAge(Long age) {
         this.age = age;
     }
 
-    public InmateDetail withAge(Integer age) {
+    public InmateDetail withAge(Long age) {
         this.age = age;
         return this;
     }
@@ -531,6 +532,11 @@ public class InmateDetail {
     public InmateDetail withPhysicalMarks(List<PhysicalMark> physicalMarks) {
         this.physicalMarks = physicalMarks;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 
     @JsonAnyGetter

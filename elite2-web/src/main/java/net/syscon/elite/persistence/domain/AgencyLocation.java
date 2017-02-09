@@ -20,7 +20,8 @@ public class AgencyLocation implements Serializable {
 	
 	@Column(name="agency_location_type")
 	private String agencyType;
-	
+
+
 	public String getAgencyId() {
 		return agencyId;
 	}

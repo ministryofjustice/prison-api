@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -41,7 +42,7 @@ public class InmateSummary {
      * 
      */
     @JsonProperty("inmateId")
-    private Object inmateId;
+    private Long inmateId;
     /**
      * 
      * (Required)
@@ -55,21 +56,21 @@ public class InmateSummary {
      * 
      */
     @JsonProperty("offenderId")
-    private Object offenderId;
+    private String offenderId;
     /**
      * 
      * (Required)
      * 
      */
     @JsonProperty("firstName")
-    private Object firstName;
+    private String firstName;
     /**
      * 
      * (Required)
      * 
      */
     @JsonProperty("lastName")
-    private Object lastName;
+    private String lastName;
     @JsonProperty("alertsCodes")
     private List<String> alertsCodes = new ArrayList<String>();
     /**
@@ -78,16 +79,16 @@ public class InmateSummary {
      * 
      */
     @JsonProperty("agencyId")
-    private Object agencyId;
+    private String agencyId;
     /**
      * 
      * (Required)
      * 
      */
     @JsonProperty("currentLocationId")
-    private Object currentLocationId;
+    private Long currentLocationId;
     @JsonProperty("assignedLivingUnitId")
-    private Object assignedLivingUnitId;
+    private Long assignedLivingUnitId;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -99,7 +100,7 @@ public class InmateSummary {
      *     The inmateId
      */
     @JsonProperty("inmateId")
-    public Object getInmateId() {
+    public Long getInmateId() {
         return inmateId;
     }
 
@@ -111,11 +112,11 @@ public class InmateSummary {
      *     The inmateId
      */
     @JsonProperty("inmateId")
-    public void setInmateId(Object inmateId) {
+    public void setInmateId(Long inmateId) {
         this.inmateId = inmateId;
     }
 
-    public InmateSummary withInmateId(Object inmateId) {
+    public InmateSummary withInmateId(Long inmateId) {
         this.inmateId = inmateId;
         return this;
     }
@@ -157,7 +158,7 @@ public class InmateSummary {
      *     The offenderId
      */
     @JsonProperty("offenderId")
-    public Object getOffenderId() {
+    public String getOffenderId() {
         return offenderId;
     }
 
@@ -169,11 +170,11 @@ public class InmateSummary {
      *     The offenderId
      */
     @JsonProperty("offenderId")
-    public void setOffenderId(Object offenderId) {
+    public void setOffenderId(String offenderId) {
         this.offenderId = offenderId;
     }
 
-    public InmateSummary withOffenderId(Object offenderId) {
+    public InmateSummary withOffenderId(String offenderId) {
         this.offenderId = offenderId;
         return this;
     }
@@ -186,7 +187,7 @@ public class InmateSummary {
      *     The firstName
      */
     @JsonProperty("firstName")
-    public Object getFirstName() {
+    public String getFirstName() {
         return firstName;
     }
 
@@ -198,11 +199,11 @@ public class InmateSummary {
      *     The firstName
      */
     @JsonProperty("firstName")
-    public void setFirstName(Object firstName) {
+    public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
 
-    public InmateSummary withFirstName(Object firstName) {
+    public InmateSummary withFirstName(String firstName) {
         this.firstName = firstName;
         return this;
     }
@@ -215,7 +216,7 @@ public class InmateSummary {
      *     The lastName
      */
     @JsonProperty("lastName")
-    public Object getLastName() {
+    public String getLastName() {
         return lastName;
     }
 
@@ -227,11 +228,11 @@ public class InmateSummary {
      *     The lastName
      */
     @JsonProperty("lastName")
-    public void setLastName(Object lastName) {
+    public void setLastName(String lastName) {
         this.lastName = lastName;
     }
 
-    public InmateSummary withLastName(Object lastName) {
+    public InmateSummary withLastName(String lastName) {
         this.lastName = lastName;
         return this;
     }
@@ -269,7 +270,7 @@ public class InmateSummary {
      *     The agencyId
      */
     @JsonProperty("agencyId")
-    public Object getAgencyId() {
+    public String getAgencyId() {
         return agencyId;
     }
 
@@ -281,11 +282,11 @@ public class InmateSummary {
      *     The agencyId
      */
     @JsonProperty("agencyId")
-    public void setAgencyId(Object agencyId) {
+    public void setAgencyId(String agencyId) {
         this.agencyId = agencyId;
     }
 
-    public InmateSummary withAgencyId(Object agencyId) {
+    public InmateSummary withAgencyId(String agencyId) {
         this.agencyId = agencyId;
         return this;
     }
@@ -298,7 +299,7 @@ public class InmateSummary {
      *     The currentLocationId
      */
     @JsonProperty("currentLocationId")
-    public Object getCurrentLocationId() {
+    public Long getCurrentLocationId() {
         return currentLocationId;
     }
 
@@ -310,11 +311,11 @@ public class InmateSummary {
      *     The currentLocationId
      */
     @JsonProperty("currentLocationId")
-    public void setCurrentLocationId(Object currentLocationId) {
+    public void setCurrentLocationId(Long currentLocationId) {
         this.currentLocationId = currentLocationId;
     }
 
-    public InmateSummary withCurrentLocationId(Object currentLocationId) {
+    public InmateSummary withCurrentLocationId(Long currentLocationId) {
         this.currentLocationId = currentLocationId;
         return this;
     }
@@ -325,7 +326,7 @@ public class InmateSummary {
      *     The assignedLivingUnitId
      */
     @JsonProperty("assignedLivingUnitId")
-    public Object getAssignedLivingUnitId() {
+    public Long getAssignedLivingUnitId() {
         return assignedLivingUnitId;
     }
 
@@ -335,13 +336,18 @@ public class InmateSummary {
      *     The assignedLivingUnitId
      */
     @JsonProperty("assignedLivingUnitId")
-    public void setAssignedLivingUnitId(Object assignedLivingUnitId) {
+    public void setAssignedLivingUnitId(Long assignedLivingUnitId) {
         this.assignedLivingUnitId = assignedLivingUnitId;
     }
 
-    public InmateSummary withAssignedLivingUnitId(Object assignedLivingUnitId) {
+    public InmateSummary withAssignedLivingUnitId(Long assignedLivingUnitId) {
         this.assignedLivingUnitId = assignedLivingUnitId;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 
     @JsonAnyGetter

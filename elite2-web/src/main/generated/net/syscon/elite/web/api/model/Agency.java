@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("org.jsonschema2pojo")
 @JsonPropertyOrder({
     "agencyId",
+    "agencyCode",
     "description",
     "agencyType"
 })
@@ -33,7 +35,9 @@ public class Agency {
      * 
      */
     @JsonProperty("agencyId")
-    private String agencyId;
+    private Long agencyId;
+    @JsonProperty("agencyCode")
+    private String agencyCode;
     /**
      * 
      * (Required)
@@ -59,7 +63,7 @@ public class Agency {
      *     The agencyId
      */
     @JsonProperty("agencyId")
-    public String getAgencyId() {
+    public Long getAgencyId() {
         return agencyId;
     }
 
@@ -71,12 +75,37 @@ public class Agency {
      *     The agencyId
      */
     @JsonProperty("agencyId")
-    public void setAgencyId(String agencyId) {
+    public void setAgencyId(Long agencyId) {
         this.agencyId = agencyId;
     }
 
-    public Agency withAgencyId(String agencyId) {
+    public Agency withAgencyId(Long agencyId) {
         this.agencyId = agencyId;
+        return this;
+    }
+
+    /**
+     * 
+     * @return
+     *     The agencyCode
+     */
+    @JsonProperty("agencyCode")
+    public String getAgencyCode() {
+        return agencyCode;
+    }
+
+    /**
+     * 
+     * @param agencyCode
+     *     The agencyCode
+     */
+    @JsonProperty("agencyCode")
+    public void setAgencyCode(String agencyCode) {
+        this.agencyCode = agencyCode;
+    }
+
+    public Agency withAgencyCode(String agencyCode) {
+        this.agencyCode = agencyCode;
         return this;
     }
 
@@ -136,6 +165,11 @@ public class Agency {
     public Agency withAgencyType(String agencyType) {
         this.agencyType = agencyType;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 
     @JsonAnyGetter

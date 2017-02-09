@@ -3,18 +3,18 @@
 	"type": "object",
 	"title": "Location",
 	"properties": {
-		"locationId":   { "type:": "string" },
-		"agencyId":   { "type:": "string" },
-		"locationType":   { "type:": "string" },
-		"description": { "type:": "string" },
-		"parentLocationId":   { "type:": "string" },
-		"operationalCapacity":  { "type:": "number" },
-		"currentOccupancy": { "type:": "number" },
-		"livingUnit": { "type:": "boolean" },
-		"housingUnitType": { "type:": "string" },
+		"locationId":   { "type": "string" },
+		"agencyId":   { "type": "string" },
+		"locationType":   { "type": "string" },
+		"description": { "type": "string" },
+		"parentLocationId":   { "type": "string" },
+		"operationalCapacity":  { "type": "number" },
+		"currentOccupancy": { "type": "number" },
+		"livingUnit": { "type": "boolean" },
+		"housingUnitType": { "type": "string" },
 		"assignedInmates": {
-			"type:": "array",
-			"items": { "$ref": "inmate" }
+			"type": "array",
+			"items": { "$ref": "inmateSummary" }
 		}
 	},
 	"required": ["locationId", "agencyId", "locationType", "description", "parentLocationId", "currentOccupancy", "livingUnit"]

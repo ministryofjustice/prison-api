@@ -6,10 +6,13 @@ import java.util.Map;
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonValue;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -39,14 +42,14 @@ public class Movement {
      * 
      */
     @JsonProperty("moveCategory")
-    private Object moveCategory;
+    private Movement.MoveCategory moveCategory;
     /**
      * 
      * (Required)
      * 
      */
     @JsonProperty("inmateId")
-    private Integer inmateId;
+    private Long inmateId;
     @JsonProperty("moveDateTime")
     private String moveDateTime;
     @JsonProperty("fromAgencyId")
@@ -72,7 +75,7 @@ public class Movement {
      *     The moveCategory
      */
     @JsonProperty("moveCategory")
-    public Object getMoveCategory() {
+    public Movement.MoveCategory getMoveCategory() {
         return moveCategory;
     }
 
@@ -84,11 +87,11 @@ public class Movement {
      *     The moveCategory
      */
     @JsonProperty("moveCategory")
-    public void setMoveCategory(Object moveCategory) {
+    public void setMoveCategory(Movement.MoveCategory moveCategory) {
         this.moveCategory = moveCategory;
     }
 
-    public Movement withMoveCategory(Object moveCategory) {
+    public Movement withMoveCategory(Movement.MoveCategory moveCategory) {
         this.moveCategory = moveCategory;
         return this;
     }
@@ -101,7 +104,7 @@ public class Movement {
      *     The inmateId
      */
     @JsonProperty("inmateId")
-    public Integer getInmateId() {
+    public Long getInmateId() {
         return inmateId;
     }
 
@@ -113,11 +116,11 @@ public class Movement {
      *     The inmateId
      */
     @JsonProperty("inmateId")
-    public void setInmateId(Integer inmateId) {
+    public void setInmateId(Long inmateId) {
         this.inmateId = inmateId;
     }
 
-    public Movement withInmateId(Integer inmateId) {
+    public Movement withInmateId(Long inmateId) {
         this.inmateId = inmateId;
         return this;
     }
@@ -297,6 +300,11 @@ public class Movement {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
+
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -310,6 +318,42 @@ public class Movement {
     public Movement withAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
         return this;
+    }
+
+    @Generated("org.jsonschema2pojo")
+    public static enum MoveCategory {
+
+        EXTERNAL("external"),
+        INTERNAL("internal");
+        private final String value;
+        private final static Map<String, Movement.MoveCategory> CONSTANTS = new HashMap<String, Movement.MoveCategory>();
+
+        static {
+            for (Movement.MoveCategory c: values()) {
+                CONSTANTS.put(c.value, c);
+            }
+        }
+
+        private MoveCategory(String value) {
+            this.value = value;
+        }
+
+        @JsonValue
+        @Override
+        public String toString() {
+            return this.value;
+        }
+
+        @JsonCreator
+        public static Movement.MoveCategory fromValue(String value) {
+            Movement.MoveCategory constant = CONSTANTS.get(value);
+            if (constant == null) {
+                throw new IllegalArgumentException(value);
+            } else {
+                return constant;
+            }
+        }
+
     }
 
 }

@@ -1,7 +1,9 @@
 
 package net.syscon.elite.web.api.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
@@ -10,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 
 /**
@@ -40,55 +43,55 @@ public class Location {
      * 
      */
     @JsonProperty("locationId")
-    private Object locationId;
+    private String locationId;
     /**
      * 
      * (Required)
      * 
      */
     @JsonProperty("agencyId")
-    private Object agencyId;
+    private String agencyId;
     /**
      * 
      * (Required)
      * 
      */
     @JsonProperty("locationType")
-    private Object locationType;
+    private String locationType;
     /**
      * 
      * (Required)
      * 
      */
     @JsonProperty("description")
-    private Object description;
+    private String description;
     /**
      * 
      * (Required)
      * 
      */
     @JsonProperty("parentLocationId")
-    private Object parentLocationId;
+    private String parentLocationId;
     @JsonProperty("operationalCapacity")
-    private Object operationalCapacity;
+    private Double operationalCapacity;
     /**
      * 
      * (Required)
      * 
      */
     @JsonProperty("currentOccupancy")
-    private Object currentOccupancy;
+    private Double currentOccupancy;
     /**
      * 
      * (Required)
      * 
      */
     @JsonProperty("livingUnit")
-    private Object livingUnit;
+    private Boolean livingUnit;
     @JsonProperty("housingUnitType")
-    private Object housingUnitType;
+    private String housingUnitType;
     @JsonProperty("assignedInmates")
-    private Object assignedInmates;
+    private List<InmateSummary> assignedInmates = new ArrayList<InmateSummary>();
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -100,7 +103,7 @@ public class Location {
      *     The locationId
      */
     @JsonProperty("locationId")
-    public Object getLocationId() {
+    public String getLocationId() {
         return locationId;
     }
 
@@ -112,11 +115,11 @@ public class Location {
      *     The locationId
      */
     @JsonProperty("locationId")
-    public void setLocationId(Object locationId) {
+    public void setLocationId(String locationId) {
         this.locationId = locationId;
     }
 
-    public Location withLocationId(Object locationId) {
+    public Location withLocationId(String locationId) {
         this.locationId = locationId;
         return this;
     }
@@ -129,7 +132,7 @@ public class Location {
      *     The agencyId
      */
     @JsonProperty("agencyId")
-    public Object getAgencyId() {
+    public String getAgencyId() {
         return agencyId;
     }
 
@@ -141,11 +144,11 @@ public class Location {
      *     The agencyId
      */
     @JsonProperty("agencyId")
-    public void setAgencyId(Object agencyId) {
+    public void setAgencyId(String agencyId) {
         this.agencyId = agencyId;
     }
 
-    public Location withAgencyId(Object agencyId) {
+    public Location withAgencyId(String agencyId) {
         this.agencyId = agencyId;
         return this;
     }
@@ -158,7 +161,7 @@ public class Location {
      *     The locationType
      */
     @JsonProperty("locationType")
-    public Object getLocationType() {
+    public String getLocationType() {
         return locationType;
     }
 
@@ -170,11 +173,11 @@ public class Location {
      *     The locationType
      */
     @JsonProperty("locationType")
-    public void setLocationType(Object locationType) {
+    public void setLocationType(String locationType) {
         this.locationType = locationType;
     }
 
-    public Location withLocationType(Object locationType) {
+    public Location withLocationType(String locationType) {
         this.locationType = locationType;
         return this;
     }
@@ -187,7 +190,7 @@ public class Location {
      *     The description
      */
     @JsonProperty("description")
-    public Object getDescription() {
+    public String getDescription() {
         return description;
     }
 
@@ -199,11 +202,11 @@ public class Location {
      *     The description
      */
     @JsonProperty("description")
-    public void setDescription(Object description) {
+    public void setDescription(String description) {
         this.description = description;
     }
 
-    public Location withDescription(Object description) {
+    public Location withDescription(String description) {
         this.description = description;
         return this;
     }
@@ -216,7 +219,7 @@ public class Location {
      *     The parentLocationId
      */
     @JsonProperty("parentLocationId")
-    public Object getParentLocationId() {
+    public String getParentLocationId() {
         return parentLocationId;
     }
 
@@ -228,11 +231,11 @@ public class Location {
      *     The parentLocationId
      */
     @JsonProperty("parentLocationId")
-    public void setParentLocationId(Object parentLocationId) {
+    public void setParentLocationId(String parentLocationId) {
         this.parentLocationId = parentLocationId;
     }
 
-    public Location withParentLocationId(Object parentLocationId) {
+    public Location withParentLocationId(String parentLocationId) {
         this.parentLocationId = parentLocationId;
         return this;
     }
@@ -243,7 +246,7 @@ public class Location {
      *     The operationalCapacity
      */
     @JsonProperty("operationalCapacity")
-    public Object getOperationalCapacity() {
+    public Double getOperationalCapacity() {
         return operationalCapacity;
     }
 
@@ -253,11 +256,11 @@ public class Location {
      *     The operationalCapacity
      */
     @JsonProperty("operationalCapacity")
-    public void setOperationalCapacity(Object operationalCapacity) {
+    public void setOperationalCapacity(Double operationalCapacity) {
         this.operationalCapacity = operationalCapacity;
     }
 
-    public Location withOperationalCapacity(Object operationalCapacity) {
+    public Location withOperationalCapacity(Double operationalCapacity) {
         this.operationalCapacity = operationalCapacity;
         return this;
     }
@@ -270,7 +273,7 @@ public class Location {
      *     The currentOccupancy
      */
     @JsonProperty("currentOccupancy")
-    public Object getCurrentOccupancy() {
+    public Double getCurrentOccupancy() {
         return currentOccupancy;
     }
 
@@ -282,11 +285,11 @@ public class Location {
      *     The currentOccupancy
      */
     @JsonProperty("currentOccupancy")
-    public void setCurrentOccupancy(Object currentOccupancy) {
+    public void setCurrentOccupancy(Double currentOccupancy) {
         this.currentOccupancy = currentOccupancy;
     }
 
-    public Location withCurrentOccupancy(Object currentOccupancy) {
+    public Location withCurrentOccupancy(Double currentOccupancy) {
         this.currentOccupancy = currentOccupancy;
         return this;
     }
@@ -299,7 +302,7 @@ public class Location {
      *     The livingUnit
      */
     @JsonProperty("livingUnit")
-    public Object getLivingUnit() {
+    public Boolean getLivingUnit() {
         return livingUnit;
     }
 
@@ -311,11 +314,11 @@ public class Location {
      *     The livingUnit
      */
     @JsonProperty("livingUnit")
-    public void setLivingUnit(Object livingUnit) {
+    public void setLivingUnit(Boolean livingUnit) {
         this.livingUnit = livingUnit;
     }
 
-    public Location withLivingUnit(Object livingUnit) {
+    public Location withLivingUnit(Boolean livingUnit) {
         this.livingUnit = livingUnit;
         return this;
     }
@@ -326,7 +329,7 @@ public class Location {
      *     The housingUnitType
      */
     @JsonProperty("housingUnitType")
-    public Object getHousingUnitType() {
+    public String getHousingUnitType() {
         return housingUnitType;
     }
 
@@ -336,11 +339,11 @@ public class Location {
      *     The housingUnitType
      */
     @JsonProperty("housingUnitType")
-    public void setHousingUnitType(Object housingUnitType) {
+    public void setHousingUnitType(String housingUnitType) {
         this.housingUnitType = housingUnitType;
     }
 
-    public Location withHousingUnitType(Object housingUnitType) {
+    public Location withHousingUnitType(String housingUnitType) {
         this.housingUnitType = housingUnitType;
         return this;
     }
@@ -351,7 +354,7 @@ public class Location {
      *     The assignedInmates
      */
     @JsonProperty("assignedInmates")
-    public Object getAssignedInmates() {
+    public List<InmateSummary> getAssignedInmates() {
         return assignedInmates;
     }
 
@@ -361,13 +364,18 @@ public class Location {
      *     The assignedInmates
      */
     @JsonProperty("assignedInmates")
-    public void setAssignedInmates(Object assignedInmates) {
+    public void setAssignedInmates(List<InmateSummary> assignedInmates) {
         this.assignedInmates = assignedInmates;
     }
 
-    public Location withAssignedInmates(Object assignedInmates) {
+    public Location withAssignedInmates(List<InmateSummary> assignedInmates) {
         this.assignedInmates = assignedInmates;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 
     @JsonAnyGetter
