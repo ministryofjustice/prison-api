@@ -13,6 +13,10 @@ schemas:
 - movements: !include schemas/output/movements.schema.json
 - location: !include schemas/output/location.schema.json
 - locations: !include schemas/output/locations.schema.json
+- imageSummary: !include schemas/output/image-summary.schema.json
+- imageSummaries: !include schemas/output/image-summaries.schema.json
+- imageDetail: !include schemas/output/image-detail.schema.json
+- imageData: !include schemas/output/image-data.schema.json
 
 resourceTypes: !include resourceTypes/generic-resource-types.raml
 
@@ -21,4 +25,4 @@ traits: !include traits/generic-traits.raml
 /agencies: !include resources/agencies.raml
 /inmates: !include resources/inmates.raml
 /locations: !include resources/locations.raml
-
+/images: !include resources/images.raml
