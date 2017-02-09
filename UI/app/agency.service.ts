@@ -5,12 +5,11 @@ import 'rxjs/add/operator/toPromise';
 
 import { Agency } from './agency';
 import { AgencyLocation } from './agency-location';
+import { ENVIRONMENT } from './environment';
 
 @Injectable()
 export class AgencyService {
-//  private agenciesUrl = 'api/agencies';  // URL to web api
-// TEMP - Access external API server
-  private agenciesUrl = 'http://10.10.117.47:8080/api/agencies';  // Wellington's dev box
+  private agenciesUrl = ENVIRONMENT.apiUrl + 'api/agencies';  // URL to web api
 
   constructor(private http: Http) { }
 

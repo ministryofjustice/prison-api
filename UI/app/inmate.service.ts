@@ -4,17 +4,18 @@ import { Headers, Http } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
 
 import { Inmate } from './inmate';
+import { ENVIRONMENT } from './environment';
 
 @Injectable()
 export class InmateService {
-  private inmatesUrl = 'api/inmates';  // URL to web api
+  private inmatesUrl = ENVIRONMENT.apiUrl + 'api/inmates';  // URL to web api
 
   constructor(private http: Http) { }
 
   getInmates(): Promise<Inmate[]> {
     return this.http.get(this.inmatesUrl)
               .toPromise()
-              .then(response => response.json().data as Inmate[])
+              .then(response => response.json() as Inmate[])
               .catch(this.handleError);
   }
 
@@ -22,7 +23,7 @@ export class InmateService {
     const url = `${this.inmatesUrl}/${id}`;
     return this.http.get(url)
       .toPromise()
-      .then(response => response.json().data as Inmate)
+      .then(response => response.json() as Inmate)
       .catch(this.handleError);
   }
 

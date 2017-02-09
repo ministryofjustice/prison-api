@@ -5,17 +5,18 @@ import 'rxjs/add/operator/toPromise';
 
 import { Inmate } from './inmate';
 import { AgencyLocation } from './agency-location';
+import { ENVIRONMENT } from './environment';
 
 @Injectable()
 export class AgencyLocationService {
-  private locationsUrl = 'api/locations';  // URL to web api
+  private locationsUrl = ENVIRONMENT.apiUrl + 'api/locations';  // URL to web api
 
   constructor(private http: Http) { }
 
   getAgencyLocations(): Promise<AgencyLocation[]> {
     return this.http.get(this.locationsUrl)
       .toPromise()
-      .then(response => response.json().data as AgencyLocation[])
+      .then(response => response.json() as AgencyLocation[])
       .catch(this.handleError);
   }
 
@@ -23,18 +24,15 @@ export class AgencyLocationService {
     const url = `${this.locationsUrl}/${id}`;
     return this.http.get(url)
       .toPromise()
-      .then(response => response.json().data as AgencyLocation)
+      .then(response => response.json() as AgencyLocation)
       .catch(this.handleError);
   }
 
   getInmates(id:number): Promise<Inmate[]> {
-  //// TEMP CODE
-  const url = `api/inmates/?currentLocationId=${id}`;
-  //// SHOULD BE:
-  //  const url = `${this.locationsUrl}/${id}/inmates`;
+    const url = `${this.locationsUrl}/${id}/inmates`;
     return this.http.get(url)
       .toPromise()
-      .then(response => response.json().data as Inmate[])
+      .then(response => response.json() as Inmate[])
       .catch(this.handleError);
   }
 

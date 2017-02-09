@@ -5,25 +5,26 @@ import 'rxjs/add/operator/toPromise';
 
 import { PhysicalInmateCount } from './agency-location-count';
 import { AgencyLocationInmateCount } from './agency-location-count';
+import { ENVIRONMENT } from './environment';
 
 @Injectable()
 export class AgencyLocationCountService {
 
   private headers = new Headers({'Content-Type': 'application/json'});
-  private locationsUrl = 'api/counts';  // URL to web api
+  private locationCountUrl = ENVIRONMENT.apiUrl + 'api/counts';  // URL to web api
 
   constructor(private http: Http) { }
 
   getActiveCount(id: number): Promise<AgencyLocationInmateCount> {
-    const url = `${this.locationsUrl}/${id}`;
+    const url = `${this.locationCountUrl}/${id}`;
     return this.http.get(url)
       .toPromise()
-      .then(response => response.json().data as AgencyLocationInmateCount)
+      .then(response => response.json() as AgencyLocationInmateCount)
       .catch(this.handleError);
   }
 
   recordInitialCount(inmateCount: AgencyLocationInmateCount): Promise<AgencyLocationInmateCount> {
-    const url = `${this.locationsUrl}/${inmateCount.locationId}`;
+    const url = `${this.locationCountUrl}/${inmateCount.locationId}`;
     return this.http
       .post(url, JSON.stringify(inmateCount), {headers: this.headers})
       .toPromise()
