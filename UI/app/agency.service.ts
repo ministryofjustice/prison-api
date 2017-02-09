@@ -7,14 +7,16 @@ import { Agency } from './agency';
 
 @Injectable()
 export class AgencyService {
-  private agenciesUrl = 'api/agencies';  // URL to web api
+//  private agenciesUrl = 'api/agencies';  // URL to web api
+// TEMP - Access thrid party API server
+  private agenciesUrl = 'http://10.10.117.47:8080/api/agencies';  // URL to web api
 
   constructor(private http: Http) { }
 
   getAgencies(): Promise<Agency[]> {
     return this.http.get(this.agenciesUrl)
               .toPromise()
-              .then(response => response.json().data as Agency[])
+              .then(response => response.json() as Agency[])
               .catch(this.handleError);
   }
 

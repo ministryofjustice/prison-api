@@ -9,11 +9,14 @@ import { AgencyService } from './agency.service';
   selector: 'my-agencies',
   template: `
 	<h2>{{title}}</h2>
+  <div *ngIf="agencies">
 	<ul class="agencies">
 		<li *ngFor="let agency of agencies" (click)="onSelect(agency)">
-			{{agency.description}} ({{agency.agencyId}}) <span class="badge">&gt;</span>
+			{{agency.description}} ({{agency.agencyId}}) <div *ngIf="agency.id"><span class="badge">&gt;</span></div>
 		</li>
 	</ul>
+  </div>
+  <div *ngIf="!agencies">Loading agencies...</div>
 	`,
   styles: [`
 	  .selected {
@@ -78,7 +81,10 @@ export class AgenciesComponent implements OnInit  {
   ) { }
 
 	onSelect(agency: Agency): void {
-    this.router.navigate(['/agencies', agency.id]);
+    if(agency.id != null)
+    {
+      this.router.navigate(['/agencies', agency.id]);
+    }
 	}
 
 	ngOnInit(): void {

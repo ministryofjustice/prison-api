@@ -1,5 +1,5 @@
 export class Agency  {
-	id: number;
+	id?: number;
 	agencyId: string;
 	description: string;
 	agencyType: string;
