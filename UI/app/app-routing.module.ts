@@ -11,7 +11,7 @@ import { AgenciesComponent } from './agencies.component';
 const routes: Routes = [
   { path: '', redirectTo: '/agencies', pathMatch: 'full' },
   { path: 'agencies', component: AgenciesComponent },
-  { path: 'agencies/:id', component: AgencyComponent },
+  { path: 'agencies/:name', component: AgencyComponent },
   { path: 'inmates', component: InmatesComponent },
   { path: 'inmates/:id', component: InmateDetailComponent },
   { path: 'locations/:id', component: AgencyLocationDetailComponent },

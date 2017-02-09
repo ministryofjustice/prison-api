@@ -93,7 +93,7 @@ export class AgencyComponent implements OnInit  {
 
   ngOnInit(): void {
     this.route.params
-      .switchMap((params: Params) => this.agencyService.getAgency(+params['id']))
+      .switchMap((params: Params) => this.agencyService.getAgency(params['name']))
       .subscribe(agency => this.setAgency(agency));
   }
 

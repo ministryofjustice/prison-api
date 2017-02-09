@@ -12,7 +12,7 @@ import { AgencyService } from './agency.service';
   <div *ngIf="agencies">
 	<ul class="agencies">
 		<li *ngFor="let agency of agencies" (click)="onSelect(agency)">
-			{{agency.description}} ({{agency.agencyId}}) <div *ngIf="agency.id"><span class="badge">&gt;</span></div>
+			{{agency.description}} ({{agency.agencyId}}) <span class="badge">&gt;</span>
 		</li>
 	</ul>
   </div>
@@ -81,10 +81,7 @@ export class AgenciesComponent implements OnInit  {
   ) { }
 
 	onSelect(agency: Agency): void {
-    if(agency.id != null)
-    {
-      this.router.navigate(['/agencies', agency.id]);
-    }
+    this.router.navigate(['/agencies', agency.agencyId]);
 	}
 
 	ngOnInit(): void {

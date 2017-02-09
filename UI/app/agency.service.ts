@@ -8,8 +8,8 @@ import { Agency } from './agency';
 @Injectable()
 export class AgencyService {
 //  private agenciesUrl = 'api/agencies';  // URL to web api
-// TEMP - Access thrid party API server
-  private agenciesUrl = 'http://10.10.117.47:8080/api/agencies';  // URL to web api
+// TEMP - Access external API server
+  private agenciesUrl = 'http://10.10.117.47:8080/api/agencies';  // Wellington's dev box
 
   constructor(private http: Http) { }
 
@@ -20,11 +20,11 @@ export class AgencyService {
               .catch(this.handleError);
   }
 
-  getAgency(id: number): Promise<Agency> {
+  getAgency(id: string): Promise<Agency> {
     const url = `${this.agenciesUrl}/${id}`;
     return this.http.get(url)
       .toPromise()
-      .then(response => response.json().data as Agency)
+      .then(response => response.json() as Agency)
       .catch(this.handleError);
   }
 
