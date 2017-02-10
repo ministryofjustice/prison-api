@@ -5,9 +5,10 @@ import net.syscon.elite.persistence.repository.LocationRepository;
 import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.web.api.model.Agency;
 import net.syscon.elite.web.api.model.Location;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
+
 import java.util.List;
 
 

@@ -5,11 +5,11 @@ is: [
   pageable
 ]
 
-/locations/{locationId}:
+/{locationId}:
   description: Returns details about the specified location
   type: { get-item: { schema: location }}
 
-/locations/{locationId}/movements:
+/{locationId}/movements:
   description: The collection of scheduled movements associated to the inmate.
   type: { get-collection: { collectionSchema: movement } }
   is: [
@@ -17,7 +17,7 @@ is: [
     pageable
   ]
 
-/locations/{locationId}/inmates:
+/{locationId}/inmates:
   description: The collection of inmates present at the specified location.
   type: { get-collection: { collectionSchema: movements } }
   is: [

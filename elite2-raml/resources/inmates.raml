@@ -5,11 +5,11 @@ is: [
   pageable
 ]
 
-/inmates/{inmateId}:
+/{inmateId}:
   description: The details specific to the specified inmate.
   type: { get-item: { schema: inmateDetail }}
 
-/inmates/{inmateId}/movements:
+/{inmateId}/movements:
   description: The collection of scheduled movements associated to the inmate.
   type: { get-collection: { collectionSchema: movements } }
   is: [

@@ -1,4 +1,5 @@
 package net.syscon.elite.web.listener;
+
 import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeResolver;
 import org.glassfish.jersey.server.model.Resource;
@@ -15,6 +16,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
+
 
 public class EndpointLoggingListener implements ApplicationEventListener {
 
