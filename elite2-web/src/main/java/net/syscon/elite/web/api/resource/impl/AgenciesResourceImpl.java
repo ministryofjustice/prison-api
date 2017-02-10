@@ -1,6 +1,7 @@
 package net.syscon.elite.web.api.resource.impl;
 
 import net.syscon.elite.service.AgencyLocationService;
+import net.syscon.elite.web.api.model.Agency;
 import net.syscon.elite.web.api.model.Location;
 import net.syscon.elite.web.api.resource.AgenciesResource;
 import org.springframework.stereotype.Component;
@@ -20,18 +21,20 @@ public class AgenciesResourceImpl implements AgenciesResource {
 
 	@Override
 	public GetAgenciesResponse getAgencies(final int offset, final int limit) throws Exception {
-		return GetAgenciesResponse.withJsonOK(agencyLocationService.getAgencies(offset, limit));
+		final List<Agency> result = agencyLocationService.getAgencies(offset, limit);
+		return GetAgenciesResponse.withJsonOK(result);
 	}
 
 	@Override
 	public GetAgenciesAgenciesByAgencyIdResponse getAgenciesAgenciesByAgencyId(String agencyId) throws Exception {
-		return GetAgenciesAgenciesByAgencyIdResponse.withJsonOK(agencyLocationService.getAgency(agencyId));
+		final Agency result = agencyLocationService.getAgency(agencyId);
+		return GetAgenciesAgenciesByAgencyIdResponse.withJsonOK(result);
 	}
 
 	@Override
 	public GetAgenciesAgenciesByAgencyIdLocationsResponse getAgenciesAgenciesByAgencyIdLocations(String agencyId, String orderBy, @DefaultValue("asc") Order order, @DefaultValue("0") int offset, @DefaultValue("10") int limit) throws Exception {
-		final List<Location> locations = agencyLocationService.getLocationsFromAgency(agencyId, offset, limit);
-		return GetAgenciesAgenciesByAgencyIdLocationsResponse.withJsonOK(locations);
+		final List<Location> result = agencyLocationService.getLocationsFromAgency(agencyId, offset, limit);
+		return GetAgenciesAgenciesByAgencyIdLocationsResponse.withJsonOK(result);
 	}
 
 }

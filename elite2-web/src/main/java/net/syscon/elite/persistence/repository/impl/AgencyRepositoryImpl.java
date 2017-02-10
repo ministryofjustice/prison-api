@@ -13,6 +13,12 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
 	private final AgencyMapping agencyMapping = new AgencyMapping();
 
 	@Override
+	public Agency find(String agencyId) {
+		String sql = getPagedQuery("FIND_AGENCY");
+		return jdbcTemplate.queryForObject(sql, createParams("agencyId", agencyId), agencyMapping);
+	}
+
+	@Override
 	public List<Agency> findAll(int offset, int limit) {
 		String sql = getPagedQuery("FIND_ALL_AGENCIES");
 		return jdbcTemplate.query(sql, createParams("offset", offset, "limit", limit), agencyMapping);

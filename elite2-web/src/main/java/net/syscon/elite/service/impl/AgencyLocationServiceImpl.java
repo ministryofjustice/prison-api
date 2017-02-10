@@ -26,8 +26,7 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 
 	@Override
 	public Agency getAgency(String agencyId) {
-
-		return null;
+		return agencyRepository.find(agencyId);
 	}
 
 	@Override
