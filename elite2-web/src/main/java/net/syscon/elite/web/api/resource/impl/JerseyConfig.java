@@ -1,10 +1,8 @@
 package net.syscon.elite.web.api.resource.impl;
 
-import java.util.Set;
-
-import javax.ws.rs.ApplicationPath;
-
+import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -12,6 +10,9 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+
+import javax.ws.rs.ApplicationPath;
+import java.util.Set;
 
 @Component
 @ApplicationPath("/api")
@@ -34,6 +35,9 @@ public class JerseyConfig extends ResourceConfig {
 				 }
 			 }
 		 }
+		register(RequestContextFilter.class);
+
+		register(LoggingFilter.class);
 	}
-	
+
 }

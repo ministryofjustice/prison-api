@@ -14,7 +14,7 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
 
 	@Override
 	public Agency find(String agencyId) {
-		String sql = getPagedQuery("FIND_AGENCY");
+		String sql = getQuery("FIND_AGENCY");
 		return jdbcTemplate.queryForObject(sql, createParams("agencyId", agencyId), agencyMapping);
 	}
 

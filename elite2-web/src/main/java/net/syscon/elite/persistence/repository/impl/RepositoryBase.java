@@ -53,5 +53,9 @@ public class RepositoryBase implements ApplicationContextAware {
 		return sb.toString();
 	}
 
+	public String getQuery(String name) {
+		return sqlProvider.get(name);
+	}
+
 
 }

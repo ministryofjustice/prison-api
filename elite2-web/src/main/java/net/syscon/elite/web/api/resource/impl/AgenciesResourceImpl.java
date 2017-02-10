@@ -26,15 +26,16 @@ public class AgenciesResourceImpl implements AgenciesResource {
 	}
 
 	@Override
-	public GetAgenciesAgenciesByAgencyIdResponse getAgenciesAgenciesByAgencyId(String agencyId) throws Exception {
+	public GetAgenciesByAgencyIdResponse getAgenciesByAgencyId(String agencyId) throws Exception {
 		final Agency result = agencyLocationService.getAgency(agencyId);
-		return GetAgenciesAgenciesByAgencyIdResponse.withJsonOK(result);
+		return GetAgenciesByAgencyIdResponse.withJsonOK(result);
 	}
 
-	@Override
-	public GetAgenciesAgenciesByAgencyIdLocationsResponse getAgenciesAgenciesByAgencyIdLocations(String agencyId, String orderBy, @DefaultValue("asc") Order order, @DefaultValue("0") int offset, @DefaultValue("10") int limit) throws Exception {
+
+	public GetAgenciesByAgencyIdLocationsResponse getAgenciesByAgencyIdLocations(String agencyId, String orderBy, @DefaultValue("asc") Order order, @DefaultValue("0") int offset, @DefaultValue("10") int limit) throws Exception {
 		final List<Location> result = agencyLocationService.getLocationsFromAgency(agencyId, offset, limit);
-		return GetAgenciesAgenciesByAgencyIdLocationsResponse.withJsonOK(result);
+		return GetAgenciesByAgencyIdLocationsResponse.withJsonOK(result);
 	}
+
 
 }

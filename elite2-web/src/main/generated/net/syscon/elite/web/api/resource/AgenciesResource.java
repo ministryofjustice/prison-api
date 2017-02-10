@@ -49,11 +49,11 @@ public interface AgenciesResource {
      *     
      */
     @GET
-    @Path("agencies/{agencyId}")
+    @Path("{agencyId}")
     @Produces({
         "application/json"
     })
-    AgenciesResource.GetAgenciesAgenciesByAgencyIdResponse getAgenciesAgenciesByAgencyId(
+    AgenciesResource.GetAgenciesByAgencyIdResponse getAgenciesByAgencyId(
         @PathParam("agencyId")
         String agencyId)
         throws Exception
@@ -74,11 +74,11 @@ public interface AgenciesResource {
      *     Order
      */
     @GET
-    @Path("agencies/{agencyId}/locations")
+    @Path("{agencyId}/locations")
     @Produces({
         "application/json"
     })
-    AgenciesResource.GetAgenciesAgenciesByAgencyIdLocationsResponse getAgenciesAgenciesByAgencyIdLocations(
+    AgenciesResource.GetAgenciesByAgencyIdLocationsResponse getAgenciesByAgencyIdLocations(
         @PathParam("agencyId")
         String agencyId,
         @QueryParam("orderBy")
@@ -95,12 +95,12 @@ public interface AgenciesResource {
         throws Exception
     ;
 
-    public class GetAgenciesAgenciesByAgencyIdLocationsResponse
+    public class GetAgenciesByAgencyIdLocationsResponse
         extends net.syscon.elite.web.api.resource.support.ResponseWrapper
     {
 
 
-        private GetAgenciesAgenciesByAgencyIdLocationsResponse(Response delegate) {
+        private GetAgenciesByAgencyIdLocationsResponse(Response delegate) {
             super(delegate);
         }
 
@@ -110,10 +110,10 @@ public interface AgenciesResource {
          * @param entity
          *     
          */
-        public static AgenciesResource.GetAgenciesAgenciesByAgencyIdLocationsResponse withJsonOK(List<Location> entity) {
+        public static AgenciesResource.GetAgenciesByAgencyIdLocationsResponse withJsonOK(List<Location> entity) {
             Response.ResponseBuilder responseBuilder = Response.status(200).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new AgenciesResource.GetAgenciesAgenciesByAgencyIdLocationsResponse(responseBuilder.build());
+            return new AgenciesResource.GetAgenciesByAgencyIdLocationsResponse(responseBuilder.build());
         }
 
         /**
@@ -136,10 +136,10 @@ public interface AgenciesResource {
          *     }
          *     
          */
-        public static AgenciesResource.GetAgenciesAgenciesByAgencyIdLocationsResponse withJsonBadRequest(HttpStatus entity) {
+        public static AgenciesResource.GetAgenciesByAgencyIdLocationsResponse withJsonBadRequest(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(400).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new AgenciesResource.GetAgenciesAgenciesByAgencyIdLocationsResponse(responseBuilder.build());
+            return new AgenciesResource.GetAgenciesByAgencyIdLocationsResponse(responseBuilder.build());
         }
 
         /**
@@ -162,10 +162,10 @@ public interface AgenciesResource {
          *     }
          *     
          */
-        public static AgenciesResource.GetAgenciesAgenciesByAgencyIdLocationsResponse withJsonNotFound(HttpStatus entity) {
+        public static AgenciesResource.GetAgenciesByAgencyIdLocationsResponse withJsonNotFound(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(404).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new AgenciesResource.GetAgenciesAgenciesByAgencyIdLocationsResponse(responseBuilder.build());
+            return new AgenciesResource.GetAgenciesByAgencyIdLocationsResponse(responseBuilder.build());
         }
 
         /**
@@ -188,20 +188,20 @@ public interface AgenciesResource {
          *     }
          *     
          */
-        public static AgenciesResource.GetAgenciesAgenciesByAgencyIdLocationsResponse withJsonInternalServerError(HttpStatus entity) {
+        public static AgenciesResource.GetAgenciesByAgencyIdLocationsResponse withJsonInternalServerError(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(500).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new AgenciesResource.GetAgenciesAgenciesByAgencyIdLocationsResponse(responseBuilder.build());
+            return new AgenciesResource.GetAgenciesByAgencyIdLocationsResponse(responseBuilder.build());
         }
 
     }
 
-    public class GetAgenciesAgenciesByAgencyIdResponse
+    public class GetAgenciesByAgencyIdResponse
         extends net.syscon.elite.web.api.resource.support.ResponseWrapper
     {
 
 
-        private GetAgenciesAgenciesByAgencyIdResponse(Response delegate) {
+        private GetAgenciesByAgencyIdResponse(Response delegate) {
             super(delegate);
         }
 
@@ -211,10 +211,10 @@ public interface AgenciesResource {
          * @param entity
          *     
          */
-        public static AgenciesResource.GetAgenciesAgenciesByAgencyIdResponse withJsonOK(Agency entity) {
+        public static AgenciesResource.GetAgenciesByAgencyIdResponse withJsonOK(Agency entity) {
             Response.ResponseBuilder responseBuilder = Response.status(200).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new AgenciesResource.GetAgenciesAgenciesByAgencyIdResponse(responseBuilder.build());
+            return new AgenciesResource.GetAgenciesByAgencyIdResponse(responseBuilder.build());
         }
 
         /**
@@ -237,10 +237,10 @@ public interface AgenciesResource {
          *     }
          *     
          */
-        public static AgenciesResource.GetAgenciesAgenciesByAgencyIdResponse withJsonBadRequest(HttpStatus entity) {
+        public static AgenciesResource.GetAgenciesByAgencyIdResponse withJsonBadRequest(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(400).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new AgenciesResource.GetAgenciesAgenciesByAgencyIdResponse(responseBuilder.build());
+            return new AgenciesResource.GetAgenciesByAgencyIdResponse(responseBuilder.build());
         }
 
         /**
@@ -263,10 +263,10 @@ public interface AgenciesResource {
          *     }
          *     
          */
-        public static AgenciesResource.GetAgenciesAgenciesByAgencyIdResponse withJsonNotFound(HttpStatus entity) {
+        public static AgenciesResource.GetAgenciesByAgencyIdResponse withJsonNotFound(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(404).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new AgenciesResource.GetAgenciesAgenciesByAgencyIdResponse(responseBuilder.build());
+            return new AgenciesResource.GetAgenciesByAgencyIdResponse(responseBuilder.build());
         }
 
         /**
@@ -289,10 +289,10 @@ public interface AgenciesResource {
          *     }
          *     
          */
-        public static AgenciesResource.GetAgenciesAgenciesByAgencyIdResponse withJsonInternalServerError(HttpStatus entity) {
+        public static AgenciesResource.GetAgenciesByAgencyIdResponse withJsonInternalServerError(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(500).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new AgenciesResource.GetAgenciesAgenciesByAgencyIdResponse(responseBuilder.build());
+            return new AgenciesResource.GetAgenciesByAgencyIdResponse(responseBuilder.build());
         }
 
     }

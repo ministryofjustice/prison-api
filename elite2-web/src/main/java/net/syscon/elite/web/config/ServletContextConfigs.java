@@ -3,6 +3,7 @@ package net.syscon.elite.web.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import net.syscon.elite.web.filter.CorsFilter;
+import net.syscon.elite.web.listener.MyApplicationEventListener;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,7 +46,11 @@ public class ServletContextConfigs {
 	public CorsFilter corsFilter() {
 		return new CorsFilter();
 	}
-	
 
+
+	@Bean
+	public MyApplicationEventListener myApplicationEventListener() {
+		return new MyApplicationEventListener();
+	}
 
 }

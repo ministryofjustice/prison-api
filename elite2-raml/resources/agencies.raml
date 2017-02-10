@@ -3,12 +3,12 @@ type: { get-collection: { collectionSchema: agencies } }
 is: [ pageable ]
 
 
-/agencies/{agencyId}:
+/{agencyId}:
   description: Returns the list of agencies viewable by the user
   type: { get-item: { schema: agency } }
 
 
-/agencies/{agencyId}/locations:
+/{agencyId}/locations:
   description: The collection of scheduled movements associated to the inmate.
   type: { get-collection: { collectionSchema: locations } }
   is: [

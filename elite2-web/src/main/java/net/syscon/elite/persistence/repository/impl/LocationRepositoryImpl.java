@@ -1,12 +1,11 @@
 package net.syscon.elite.persistence.repository.impl;
 
-import java.util.List;
-
-import org.springframework.stereotype.Repository;
-
 import net.syscon.elite.persistence.mapping.LocationMapping;
 import net.syscon.elite.persistence.repository.LocationRepository;
 import net.syscon.elite.web.api.model.Location;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public class LocationRepositoryImpl extends RepositoryBase implements LocationRepository {

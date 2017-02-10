@@ -122,15 +122,20 @@ project(":elite2-web") {
 		compile("org.springframework.boot:spring-boot-starter-web") {
 			exclude(module: "spring-boot-starter-tomcat")
 		}
+
 		
-		//compile("org.springframework.boot:spring-boot-starter-actuator")
+		compile("org.springframework.boot:spring-boot-starter-actuator")
 		//compile("org.springframework.boot:spring-boot-starter-security")
 		
 		compile("org.hibernate:hibernate-ehcache:${version_hibernate}")
 		compile ("com.zaxxer:HikariCP:${version_hikaricp}") {
 			exclude(module: "tools")
 		}
+
+		compile group: 'javax.inject', name: 'javax.inject', version: '1'
+
 		compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.5'
+		compile group: 'org.osgi', name: 'org.osgi.core', version: '6.0.0'
 
 
 
