@@ -7,7 +7,6 @@ import net.syscon.elite.web.api.resource.AgenciesResource;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
-import javax.ws.rs.DefaultValue;
 import java.util.List;
 
 @Component
@@ -26,16 +25,16 @@ public class AgenciesResourceImpl implements AgenciesResource {
 	}
 
 	@Override
-	public GetAgenciesByAgencyIdResponse getAgenciesByAgencyId(String agencyId) throws Exception {
+	public GetAgenciesByAgencyIdResponse getAgenciesByAgencyId(final String agencyId) throws Exception {
 		final Agency result = agencyLocationService.getAgency(agencyId);
 		return GetAgenciesByAgencyIdResponse.withJsonOK(result);
 	}
 
 
-	public GetAgenciesByAgencyIdLocationsResponse getAgenciesByAgencyIdLocations(String agencyId, String orderBy, @DefaultValue("asc") Order order, @DefaultValue("0") int offset, @DefaultValue("10") int limit) throws Exception {
+	@Override
+	public GetAgenciesByAgencyIdLocationsResponse getAgenciesByAgencyIdLocations(final String agencyId, final String orderBy, final Order order, final int offset, final int limit) throws Exception {
 		final List<Location> result = agencyLocationService.getLocationsFromAgency(agencyId, offset, limit);
 		return GetAgenciesByAgencyIdLocationsResponse.withJsonOK(result);
 	}
-
 
 }

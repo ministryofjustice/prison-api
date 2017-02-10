@@ -12,6 +12,7 @@ public class Elite2Application {
 	
 	private static void setUp() {
 
+
 		System.setProperty("jersey.config.server.monitoring.statistics.mbeans.enabled", "true");
 
 

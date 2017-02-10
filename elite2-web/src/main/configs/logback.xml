@@ -16,7 +16,7 @@
 	<logger name="org.apache.catalina.startup.DigesterFactory" level="OFF"/>
 	<logger name="org.hibernate.tool.schema.internal.ExceptionHandlerLoggedImpl" level="ERROR"/>
 	<logger name="org.eclipse.jetty" level="ERROR"/>
-	<logger name="org.springframework" level="ERROR"/>
+	<logger name="org.springframework" level="INFO"/>
 
 
 	<root level="INFO">
