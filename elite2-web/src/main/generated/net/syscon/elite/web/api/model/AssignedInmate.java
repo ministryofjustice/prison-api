@@ -51,7 +51,7 @@ public class AssignedInmate {
      * 
      */
     @JsonProperty("bookingId")
-    private String bookingId;
+    private Long bookingId;
     /**
      * 
      * (Required)
@@ -113,7 +113,7 @@ public class AssignedInmate {
      * @param currentLocationId
      * @param bookingId
      */
-    public AssignedInmate(Long inmateId, String bookingId, String offenderId, String firstName, String lastName, List<String> alertsCodes, String agencyId, Long currentLocationId, Long assignedLivingUnitId) {
+    public AssignedInmate(Long inmateId, Long bookingId, String offenderId, String firstName, String lastName, List<String> alertsCodes, String agencyId, Long currentLocationId, Long assignedLivingUnitId) {
         this.inmateId = inmateId;
         this.bookingId = bookingId;
         this.offenderId = offenderId;
@@ -162,7 +162,7 @@ public class AssignedInmate {
      *     The bookingId
      */
     @JsonProperty("bookingId")
-    public String getBookingId() {
+    public Long getBookingId() {
         return bookingId;
     }
 
@@ -174,11 +174,11 @@ public class AssignedInmate {
      *     The bookingId
      */
     @JsonProperty("bookingId")
-    public void setBookingId(String bookingId) {
+    public void setBookingId(Long bookingId) {
         this.bookingId = bookingId;
     }
 
-    public AssignedInmate withBookingId(String bookingId) {
+    public AssignedInmate withBookingId(Long bookingId) {
         this.bookingId = bookingId;
         return this;
     }

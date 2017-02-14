@@ -17,7 +17,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-
 public class EndpointLoggingListener implements ApplicationEventListener {
 
 	private static final TypeResolver TYPE_RESOLVER = new TypeResolver();

@@ -57,7 +57,7 @@ public class InmateDetail {
      * 
      */
     @JsonProperty("bookingId")
-    private String bookingId;
+    private Long bookingId;
     /**
      * 
      * (Required)
@@ -150,7 +150,7 @@ public class InmateDetail {
      * @param currentLocationId
      * @param age
      */
-    public InmateDetail(Long inmateId, String bookingId, String offenderId, String firstName, String middleName, String lastName, List<String> alertsCodes, String agencyId, Double currentLocationId, Double assignedLivingUnitId, String dateOfBirth, Long age, PhysicalAttributes physicalAttributes, List<PhysicalCharacteristic> physicalCharacteristics, List<PhysicalMark> physicalMarks) {
+    public InmateDetail(Long inmateId, Long bookingId, String offenderId, String firstName, String middleName, String lastName, List<String> alertsCodes, String agencyId, Double currentLocationId, Double assignedLivingUnitId, String dateOfBirth, Long age, PhysicalAttributes physicalAttributes, List<PhysicalCharacteristic> physicalCharacteristics, List<PhysicalMark> physicalMarks) {
         this.inmateId = inmateId;
         this.bookingId = bookingId;
         this.offenderId = offenderId;
@@ -205,7 +205,7 @@ public class InmateDetail {
      *     The bookingId
      */
     @JsonProperty("bookingId")
-    public String getBookingId() {
+    public Long getBookingId() {
         return bookingId;
     }
 
@@ -217,11 +217,11 @@ public class InmateDetail {
      *     The bookingId
      */
     @JsonProperty("bookingId")
-    public void setBookingId(String bookingId) {
+    public void setBookingId(Long bookingId) {
         this.bookingId = bookingId;
     }
 
-    public InmateDetail withBookingId(String bookingId) {
+    public InmateDetail withBookingId(Long bookingId) {
         this.bookingId = bookingId;
         return this;
     }

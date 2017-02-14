@@ -4,7 +4,7 @@
 	"type": "object",
 	"properties": {
 		"inmateId": { "type": "integer" },
-		"bookingId": { "type": "string" },
+		"bookingId": { "type": "integer" },
 		"offenderId": { "type": "string" },
 		"firstName": { "type": "string" },
 		"middleName": {"type": "string" },

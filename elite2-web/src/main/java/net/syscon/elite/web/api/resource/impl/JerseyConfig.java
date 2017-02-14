@@ -6,6 +6,7 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -23,6 +24,10 @@ public class JerseyConfig extends ResourceConfig {
 
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+	@Value("https://${cas.server.host:localhost:8443}/cas/login")
+	private String casLoginUrl;
+
 
 	@Inject
 	public JerseyConfig(ConfigurableEnvironment env) {

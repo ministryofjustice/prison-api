@@ -1,9 +1,11 @@
 package net.syscon.elite.service.impl;
 
 import net.syscon.elite.persistence.repository.AgencyRepository;
+import net.syscon.elite.persistence.repository.InmateRepository;
 import net.syscon.elite.persistence.repository.LocationRepository;
 import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.web.api.model.Agency;
+import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.Location;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,12 +19,16 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 
 	private AgencyRepository agencyRepository;
 	private LocationRepository locationRepository;
+	private InmateRepository inmageRepository;
 
 	@Inject
 	public void setAgencyRepository(final AgencyRepository agencyRepository) { this.agencyRepository = agencyRepository; }
 
 	@Inject
-	public void setLocationRepository(final LocationRepository locationRepository) { this.locationRepository = locationRepository;}
+	public void setLocationRepository(final LocationRepository locationRepository) { this.locationRepository = locationRepository; }
+
+	@Inject
+	public void setInmateRepository(final InmateRepository inmageRepository) { this.inmageRepository = inmageRepository; }
 
 
 	@Override
@@ -32,12 +38,27 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 
 	@Override
 	public List<Agency> getAgencies(final int offset, final int limit) {
-		return agencyRepository.findAll(offset, limit);
+		return agencyRepository.findAgencies(offset, limit);
+	}
+
+	@Override
+	public List<Location> getLocations(int offset, int limit) {
+		return locationRepository.findLocations(offset, limit);
 	}
 
 	@Override
 	public List<Location> getLocationsFromAgency(String agencyId, int offset, int limit) {
 		return locationRepository.findLocationsByAgencyId(agencyId, offset, limit);
+	}
+
+	@Override
+	public List<AssignedInmate> getInmatesFromLocation(Long locationId, int offset, int limit) {
+		return inmageRepository.findInmatesByLocation(locationId, offset, limit);
+	}
+
+	@Override
+	public Location getLocation(String locationId) {
+		return locationRepository.findLocation(Long.valueOf(locationId));
 	}
 
 

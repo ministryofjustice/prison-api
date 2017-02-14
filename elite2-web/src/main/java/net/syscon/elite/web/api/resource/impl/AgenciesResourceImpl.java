@@ -20,14 +20,14 @@ public class AgenciesResourceImpl implements AgenciesResource {
 
 	@Override
 	public GetAgenciesResponse getAgencies(final int offset, final int limit) throws Exception {
-		final List<Agency> result = agencyLocationService.getAgencies(offset, limit);
-		return GetAgenciesResponse.withJsonOK(result);
+		final List<Agency> agencies = agencyLocationService.getAgencies(offset, limit);
+		return GetAgenciesResponse.withJsonOK(agencies);
 	}
 
 	@Override
 	public GetAgenciesByAgencyIdResponse getAgenciesByAgencyId(final String agencyId) throws Exception {
-		final Agency result = agencyLocationService.getAgency(agencyId);
-		return GetAgenciesByAgencyIdResponse.withJsonOK(result);
+		final Agency agency = agencyLocationService.getAgency(agencyId);
+		return GetAgenciesByAgencyIdResponse.withJsonOK(agency);
 	}
 
 
