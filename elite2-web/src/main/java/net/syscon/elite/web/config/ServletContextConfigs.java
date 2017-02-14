@@ -1,5 +1,8 @@
 package net.syscon.elite.web.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import net.syscon.elite.web.filter.CorsFilter;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,9 +13,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 @Configuration
 @EnableWebMvc
@@ -41,8 +41,10 @@ public class ServletContextConfigs {
 		return new MethodValidationPostProcessor();
 	}
 	
-	
-	
-	
+	@Bean
+	public CorsFilter corsFilter() {
+		return new CorsFilter();
+	}
+
 
 }

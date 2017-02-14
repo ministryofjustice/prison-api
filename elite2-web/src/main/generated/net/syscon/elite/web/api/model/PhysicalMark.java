@@ -10,7 +10,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 
 /**
@@ -67,6 +69,29 @@ public class PhysicalMark {
     private String comment;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    /**
+     * No args constructor for use in serialization
+     * 
+     */
+    public PhysicalMark() {
+    }
+
+    /**
+     * 
+     * @param side
+     * @param orientation
+     * @param comment
+     * @param type
+     * @param bodyPart
+     */
+    public PhysicalMark(String type, String side, String bodyPart, String orientation, String comment) {
+        this.type = type;
+        this.side = side;
+        this.bodyPart = bodyPart;
+        this.orientation = orientation;
+        this.comment = comment;
+    }
 
     /**
      * 
@@ -231,6 +256,23 @@ public class PhysicalMark {
     public PhysicalMark withAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
         return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(type).append(side).append(bodyPart).append(orientation).append(comment).append(additionalProperties).toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if ((other instanceof PhysicalMark) == false) {
+            return false;
+        }
+        PhysicalMark rhs = ((PhysicalMark) other);
+        return new EqualsBuilder().append(type, rhs.type).append(side, rhs.side).append(bodyPart, rhs.bodyPart).append(orientation, rhs.orientation).append(comment, rhs.comment).append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
 }

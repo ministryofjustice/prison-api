@@ -3,13 +3,13 @@
 	"type": "object",
 	"title": "Location",
 	"properties": {
-		"locationId":   { "type": "string" },
+		"locationId":   { "type": "integer" },
 		"agencyId":   { "type": "string" },
 		"locationType":   { "type": "string" },
 		"description": { "type": "string" },
-		"parentLocationId":   { "type": "string" },
-		"operationalCapacity":  { "type": "number" },
-		"currentOccupancy": { "type": "number" },
+		"parentLocationId":   { "type": "integer" },
+		"operationalCapacity":  { "type": "integer" },
+		"currentOccupancy": { "type": "integer" },
 		"livingUnit": { "type": "boolean" },
 		"housingUnitType": { "type": "string" },
 		"assignedInmates": {

@@ -10,7 +10,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("org.jsonschema2pojo")
@@ -68,6 +70,31 @@ public class PhysicalAttributes {
     private Double weightKg;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    /**
+     * No args constructor for use in serialization
+     * 
+     */
+    public PhysicalAttributes() {
+    }
+
+    /**
+     * 
+     * @param gender
+     * @param ethnicity
+     * @param heightMeters
+     * @param weightPounds
+     * @param heightInches
+     * @param weightKg
+     */
+    public PhysicalAttributes(String gender, String ethnicity, Double heightInches, Double heightMeters, Double weightPounds, Double weightKg) {
+        this.gender = gender;
+        this.ethnicity = ethnicity;
+        this.heightInches = heightInches;
+        this.heightMeters = heightMeters;
+        this.weightPounds = weightPounds;
+        this.weightKg = weightKg;
+    }
 
     /**
      * 
@@ -261,6 +288,23 @@ public class PhysicalAttributes {
     public PhysicalAttributes withAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
         return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(gender).append(ethnicity).append(heightInches).append(heightMeters).append(weightPounds).append(weightKg).append(additionalProperties).toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if ((other instanceof PhysicalAttributes) == false) {
+            return false;
+        }
+        PhysicalAttributes rhs = ((PhysicalAttributes) other);
+        return new EqualsBuilder().append(gender, rhs.gender).append(ethnicity, rhs.ethnicity).append(heightInches, rhs.heightInches).append(heightMeters, rhs.heightMeters).append(weightPounds, rhs.weightPounds).append(weightKg, rhs.weightKg).append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
 }

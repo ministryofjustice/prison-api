@@ -12,7 +12,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 
 /**
@@ -34,7 +36,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
     "currentLocationId",
     "assignedLivingUnitId"
 })
-public class InmateSummary {
+public class AssignedInmate {
 
     /**
      * 
@@ -93,6 +95,37 @@ public class InmateSummary {
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
+     * No args constructor for use in serialization
+     * 
+     */
+    public AssignedInmate() {
+    }
+
+    /**
+     * 
+     * @param firstName
+     * @param lastName
+     * @param alertsCodes
+     * @param inmateId
+     * @param agencyId
+     * @param assignedLivingUnitId
+     * @param offenderId
+     * @param currentLocationId
+     * @param bookingId
+     */
+    public AssignedInmate(Long inmateId, String bookingId, String offenderId, String firstName, String lastName, List<String> alertsCodes, String agencyId, Long currentLocationId, Long assignedLivingUnitId) {
+        this.inmateId = inmateId;
+        this.bookingId = bookingId;
+        this.offenderId = offenderId;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.alertsCodes = alertsCodes;
+        this.agencyId = agencyId;
+        this.currentLocationId = currentLocationId;
+        this.assignedLivingUnitId = assignedLivingUnitId;
+    }
+
+    /**
      * 
      * (Required)
      * 
@@ -116,7 +149,7 @@ public class InmateSummary {
         this.inmateId = inmateId;
     }
 
-    public InmateSummary withInmateId(Long inmateId) {
+    public AssignedInmate withInmateId(Long inmateId) {
         this.inmateId = inmateId;
         return this;
     }
@@ -145,7 +178,7 @@ public class InmateSummary {
         this.bookingId = bookingId;
     }
 
-    public InmateSummary withBookingId(String bookingId) {
+    public AssignedInmate withBookingId(String bookingId) {
         this.bookingId = bookingId;
         return this;
     }
@@ -174,7 +207,7 @@ public class InmateSummary {
         this.offenderId = offenderId;
     }
 
-    public InmateSummary withOffenderId(String offenderId) {
+    public AssignedInmate withOffenderId(String offenderId) {
         this.offenderId = offenderId;
         return this;
     }
@@ -203,7 +236,7 @@ public class InmateSummary {
         this.firstName = firstName;
     }
 
-    public InmateSummary withFirstName(String firstName) {
+    public AssignedInmate withFirstName(String firstName) {
         this.firstName = firstName;
         return this;
     }
@@ -232,7 +265,7 @@ public class InmateSummary {
         this.lastName = lastName;
     }
 
-    public InmateSummary withLastName(String lastName) {
+    public AssignedInmate withLastName(String lastName) {
         this.lastName = lastName;
         return this;
     }
@@ -257,7 +290,7 @@ public class InmateSummary {
         this.alertsCodes = alertsCodes;
     }
 
-    public InmateSummary withAlertsCodes(List<String> alertsCodes) {
+    public AssignedInmate withAlertsCodes(List<String> alertsCodes) {
         this.alertsCodes = alertsCodes;
         return this;
     }
@@ -286,7 +319,7 @@ public class InmateSummary {
         this.agencyId = agencyId;
     }
 
-    public InmateSummary withAgencyId(String agencyId) {
+    public AssignedInmate withAgencyId(String agencyId) {
         this.agencyId = agencyId;
         return this;
     }
@@ -315,7 +348,7 @@ public class InmateSummary {
         this.currentLocationId = currentLocationId;
     }
 
-    public InmateSummary withCurrentLocationId(Long currentLocationId) {
+    public AssignedInmate withCurrentLocationId(Long currentLocationId) {
         this.currentLocationId = currentLocationId;
         return this;
     }
@@ -340,7 +373,7 @@ public class InmateSummary {
         this.assignedLivingUnitId = assignedLivingUnitId;
     }
 
-    public InmateSummary withAssignedLivingUnitId(Long assignedLivingUnitId) {
+    public AssignedInmate withAssignedLivingUnitId(Long assignedLivingUnitId) {
         this.assignedLivingUnitId = assignedLivingUnitId;
         return this;
     }
@@ -360,9 +393,26 @@ public class InmateSummary {
         this.additionalProperties.put(name, value);
     }
 
-    public InmateSummary withAdditionalProperty(String name, Object value) {
+    public AssignedInmate withAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
         return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(inmateId).append(bookingId).append(offenderId).append(firstName).append(lastName).append(alertsCodes).append(agencyId).append(currentLocationId).append(assignedLivingUnitId).append(additionalProperties).toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if ((other instanceof AssignedInmate) == false) {
+            return false;
+        }
+        AssignedInmate rhs = ((AssignedInmate) other);
+        return new EqualsBuilder().append(inmateId, rhs.inmateId).append(bookingId, rhs.bookingId).append(offenderId, rhs.offenderId).append(firstName, rhs.firstName).append(lastName, rhs.lastName).append(alertsCodes, rhs.alertsCodes).append(agencyId, rhs.agencyId).append(currentLocationId, rhs.currentLocationId).append(assignedLivingUnitId, rhs.assignedLivingUnitId).append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
 }

@@ -12,7 +12,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 
 /**
@@ -43,7 +45,7 @@ public class Location {
      * 
      */
     @JsonProperty("locationId")
-    private String locationId;
+    private Long locationId;
     /**
      * 
      * (Required)
@@ -71,16 +73,16 @@ public class Location {
      * 
      */
     @JsonProperty("parentLocationId")
-    private String parentLocationId;
+    private Long parentLocationId;
     @JsonProperty("operationalCapacity")
-    private Double operationalCapacity;
+    private Long operationalCapacity;
     /**
      * 
      * (Required)
      * 
      */
     @JsonProperty("currentOccupancy")
-    private Double currentOccupancy;
+    private Long currentOccupancy;
     /**
      * 
      * (Required)
@@ -91,9 +93,42 @@ public class Location {
     @JsonProperty("housingUnitType")
     private String housingUnitType;
     @JsonProperty("assignedInmates")
-    private List<InmateSummary> assignedInmates = new ArrayList<InmateSummary>();
+    private List<AssignedInmate> assignedInmates = new ArrayList<AssignedInmate>();
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    /**
+     * No args constructor for use in serialization
+     * 
+     */
+    public Location() {
+    }
+
+    /**
+     * 
+     * @param housingUnitType
+     * @param parentLocationId
+     * @param livingUnit
+     * @param assignedInmates
+     * @param locationId
+     * @param operationalCapacity
+     * @param locationType
+     * @param description
+     * @param agencyId
+     * @param currentOccupancy
+     */
+    public Location(Long locationId, String agencyId, String locationType, String description, Long parentLocationId, Long operationalCapacity, Long currentOccupancy, Boolean livingUnit, String housingUnitType, List<AssignedInmate> assignedInmates) {
+        this.locationId = locationId;
+        this.agencyId = agencyId;
+        this.locationType = locationType;
+        this.description = description;
+        this.parentLocationId = parentLocationId;
+        this.operationalCapacity = operationalCapacity;
+        this.currentOccupancy = currentOccupancy;
+        this.livingUnit = livingUnit;
+        this.housingUnitType = housingUnitType;
+        this.assignedInmates = assignedInmates;
+    }
 
     /**
      * 
@@ -103,7 +138,7 @@ public class Location {
      *     The locationId
      */
     @JsonProperty("locationId")
-    public String getLocationId() {
+    public Long getLocationId() {
         return locationId;
     }
 
@@ -115,11 +150,11 @@ public class Location {
      *     The locationId
      */
     @JsonProperty("locationId")
-    public void setLocationId(String locationId) {
+    public void setLocationId(Long locationId) {
         this.locationId = locationId;
     }
 
-    public Location withLocationId(String locationId) {
+    public Location withLocationId(Long locationId) {
         this.locationId = locationId;
         return this;
     }
@@ -219,7 +254,7 @@ public class Location {
      *     The parentLocationId
      */
     @JsonProperty("parentLocationId")
-    public String getParentLocationId() {
+    public Long getParentLocationId() {
         return parentLocationId;
     }
 
@@ -231,11 +266,11 @@ public class Location {
      *     The parentLocationId
      */
     @JsonProperty("parentLocationId")
-    public void setParentLocationId(String parentLocationId) {
+    public void setParentLocationId(Long parentLocationId) {
         this.parentLocationId = parentLocationId;
     }
 
-    public Location withParentLocationId(String parentLocationId) {
+    public Location withParentLocationId(Long parentLocationId) {
         this.parentLocationId = parentLocationId;
         return this;
     }
@@ -246,7 +281,7 @@ public class Location {
      *     The operationalCapacity
      */
     @JsonProperty("operationalCapacity")
-    public Double getOperationalCapacity() {
+    public Long getOperationalCapacity() {
         return operationalCapacity;
     }
 
@@ -256,11 +291,11 @@ public class Location {
      *     The operationalCapacity
      */
     @JsonProperty("operationalCapacity")
-    public void setOperationalCapacity(Double operationalCapacity) {
+    public void setOperationalCapacity(Long operationalCapacity) {
         this.operationalCapacity = operationalCapacity;
     }
 
-    public Location withOperationalCapacity(Double operationalCapacity) {
+    public Location withOperationalCapacity(Long operationalCapacity) {
         this.operationalCapacity = operationalCapacity;
         return this;
     }
@@ -273,7 +308,7 @@ public class Location {
      *     The currentOccupancy
      */
     @JsonProperty("currentOccupancy")
-    public Double getCurrentOccupancy() {
+    public Long getCurrentOccupancy() {
         return currentOccupancy;
     }
 
@@ -285,11 +320,11 @@ public class Location {
      *     The currentOccupancy
      */
     @JsonProperty("currentOccupancy")
-    public void setCurrentOccupancy(Double currentOccupancy) {
+    public void setCurrentOccupancy(Long currentOccupancy) {
         this.currentOccupancy = currentOccupancy;
     }
 
-    public Location withCurrentOccupancy(Double currentOccupancy) {
+    public Location withCurrentOccupancy(Long currentOccupancy) {
         this.currentOccupancy = currentOccupancy;
         return this;
     }
@@ -354,7 +389,7 @@ public class Location {
      *     The assignedInmates
      */
     @JsonProperty("assignedInmates")
-    public List<InmateSummary> getAssignedInmates() {
+    public List<AssignedInmate> getAssignedInmates() {
         return assignedInmates;
     }
 
@@ -364,11 +399,11 @@ public class Location {
      *     The assignedInmates
      */
     @JsonProperty("assignedInmates")
-    public void setAssignedInmates(List<InmateSummary> assignedInmates) {
+    public void setAssignedInmates(List<AssignedInmate> assignedInmates) {
         this.assignedInmates = assignedInmates;
     }
 
-    public Location withAssignedInmates(List<InmateSummary> assignedInmates) {
+    public Location withAssignedInmates(List<AssignedInmate> assignedInmates) {
         this.assignedInmates = assignedInmates;
         return this;
     }
@@ -391,6 +426,23 @@ public class Location {
     public Location withAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
         return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(locationId).append(agencyId).append(locationType).append(description).append(parentLocationId).append(operationalCapacity).append(currentOccupancy).append(livingUnit).append(housingUnitType).append(assignedInmates).append(additionalProperties).toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if ((other instanceof Location) == false) {
+            return false;
+        }
+        Location rhs = ((Location) other);
+        return new EqualsBuilder().append(locationId, rhs.locationId).append(agencyId, rhs.agencyId).append(locationType, rhs.locationType).append(description, rhs.description).append(parentLocationId, rhs.parentLocationId).append(operationalCapacity, rhs.operationalCapacity).append(currentOccupancy, rhs.currentOccupancy).append(livingUnit, rhs.livingUnit).append(housingUnitType, rhs.housingUnitType).append(assignedInmates, rhs.assignedInmates).append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
 }

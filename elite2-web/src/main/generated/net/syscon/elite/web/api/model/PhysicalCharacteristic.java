@@ -10,7 +10,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 
 /**
@@ -43,6 +45,23 @@ public class PhysicalCharacteristic {
     private String detail;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    /**
+     * No args constructor for use in serialization
+     * 
+     */
+    public PhysicalCharacteristic() {
+    }
+
+    /**
+     * 
+     * @param detail
+     * @param characteristic
+     */
+    public PhysicalCharacteristic(String characteristic, String detail) {
+        this.characteristic = characteristic;
+        this.detail = detail;
+    }
 
     /**
      * 
@@ -120,6 +139,23 @@ public class PhysicalCharacteristic {
     public PhysicalCharacteristic withAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
         return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(characteristic).append(detail).append(additionalProperties).toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if ((other instanceof PhysicalCharacteristic) == false) {
+            return false;
+        }
+        PhysicalCharacteristic rhs = ((PhysicalCharacteristic) other);
+        return new EqualsBuilder().append(characteristic, rhs.characteristic).append(detail, rhs.detail).append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
 }

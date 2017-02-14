@@ -38,6 +38,7 @@ subprojects {
 		all*.exclude module: "c3p0"
 		all*.exclude group: "org.apache.tomcat"
 		all*.exclude group: "org.apache.tomcat.embed"
+		all*.exclude module: "spring-boot-starter-tomcat"
 	}
 
 
@@ -86,6 +87,10 @@ project(":elite2-raml") {
 			configs.jsonMapperConfiguration = new HashMap<>()
 			configs.jsonMapperConfiguration["useLongIntegers"] = "true"
 			configs.jsonMapperConfiguration["includeToString"] = "true"
+			configs.jsonMapperConfiguration["includeHashcodeAndEquals"] = "true"
+			configs.jsonMapperConfiguration["includeConstructors"] = "true"
+			configs.jsonMapperConfiguration["useCommonsLang3"] = "true"
+
 			new Generator().run(new FileReader(new File(ramlDir, "./api.raml")), configs, "")
 		}
 	}
@@ -109,26 +114,14 @@ project(":elite2-web") {
 		compile files("${rootDir}/elite2-web/src/main/configs")
 		compile fileTree(dir: "${rootDir}/libs", include: "*.jar")
 		
+		compile("org.springframework.boot:spring-boot-starter-web")
+		compile("org.springframework.boot:spring-boot-starter-aop")
+		compile("org.springframework.boot:spring-boot-starter-jdbc")
 		compile("org.springframework.boot:spring-boot-starter-jetty")
-		compile("org.springframework.boot:spring-boot-starter-jersey") {
-			exclude(module: "spring-boot-starter-tomcat")
-		}
-		compile("org.springframework.boot:spring-boot-starter-data-jpa")
-		compile("org.springframework.boot:spring-boot-starter-cache")
-		compile("org.springframework.boot:spring-boot-starter-web") {
-			exclude(module: "spring-boot-starter-tomcat")
-		}
-		
-		//compile("org.springframework.boot:spring-boot-starter-actuator")
-		//compile("org.springframework.boot:spring-boot-starter-security")
-		
-		compile("org.hibernate:hibernate-ehcache:${version_hibernate}")
-		compile ("com.zaxxer:HikariCP:${version_hikaricp}") {
-			exclude(module: "tools")
-		}
-		compile 'commons-lang:commons-lang:2.6'
+		compile("org.springframework.boot:spring-boot-starter-jersey")
 
-
+		compile "org.apache.commons:commons-lang3:3.5"
+		compile ("com.zaxxer:HikariCP:${version_hikaricp}") { exclude(module: "tools") }
 
 		testCompile("org.springframework.boot:spring-boot-starter-test")
 

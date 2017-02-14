@@ -12,7 +12,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonValue;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 
 /**
@@ -66,6 +68,37 @@ public class Movement {
     private String toLocationId;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    /**
+     * No args constructor for use in serialization
+     * 
+     */
+    public Movement() {
+    }
+
+    /**
+     * 
+     * @param moveDateTime
+     * @param inmateId
+     * @param fromAgencyId
+     * @param toLocationId
+     * @param moveCategory
+     * @param toAgencyId
+     * @param fromLocationId
+     * @param moveType
+     * @param moveReason
+     */
+    public Movement(Movement.MoveCategory moveCategory, Long inmateId, String moveDateTime, String fromAgencyId, String toAgencyId, String moveType, String moveReason, String fromLocationId, String toLocationId) {
+        this.moveCategory = moveCategory;
+        this.inmateId = inmateId;
+        this.moveDateTime = moveDateTime;
+        this.fromAgencyId = fromAgencyId;
+        this.toAgencyId = toAgencyId;
+        this.moveType = moveType;
+        this.moveReason = moveReason;
+        this.fromLocationId = fromLocationId;
+        this.toLocationId = toLocationId;
+    }
 
     /**
      * 
@@ -318,6 +351,23 @@ public class Movement {
     public Movement withAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
         return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(moveCategory).append(inmateId).append(moveDateTime).append(fromAgencyId).append(toAgencyId).append(moveType).append(moveReason).append(fromLocationId).append(toLocationId).append(additionalProperties).toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if ((other instanceof Movement) == false) {
+            return false;
+        }
+        Movement rhs = ((Movement) other);
+        return new EqualsBuilder().append(moveCategory, rhs.moveCategory).append(inmateId, rhs.inmateId).append(moveDateTime, rhs.moveDateTime).append(fromAgencyId, rhs.fromAgencyId).append(toAgencyId, rhs.toAgencyId).append(moveType, rhs.moveType).append(moveReason, rhs.moveReason).append(fromLocationId, rhs.fromLocationId).append(toLocationId, rhs.toLocationId).append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
     @Generated("org.jsonschema2pojo")
