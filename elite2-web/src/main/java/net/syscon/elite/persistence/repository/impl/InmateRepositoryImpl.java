@@ -1,11 +1,14 @@
 package net.syscon.elite.persistence.repository.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
+import net.syscon.elite.exception.RowMappingException;
 import net.syscon.elite.persistence.repository.InmateRepository;
 import net.syscon.elite.web.api.model.AssignedInmate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -24,13 +27,17 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	@Override
 	public List<AssignedInmate> findInmatesByLocation(Long locationId, int offset, int limit) {
 		final String sql = getPagedQuery("FIND_INMATES_BY_LOCATION");
-		final RowMapper<AssignedInmate> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, AssignedInmate.class, assignedInmateMapping);
-		final List<AssignedInmate> inmates = jdbcTemplate.query(sql, createParams("locationId", locationId, "offset", offset, "limit", limit), assignedInmateRowMapper);
-		final String sqlAlertCodes = getQuery("FIND_ALERT_CODES_BY_BOOKING_ID");
-		inmates.forEach( inmate -> {
-			inmate.setCurrentLocationId(locationId);
-			inmate.setAlertsCodes(jdbcTemplate.queryForList(sqlAlertCodes, createParams("bookingId", inmate.getBookingId()), String.class));
+		final RowMapper<AssignedInmate> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, AssignedInmate.class, assignedInmateMapping, (rs, inmate) -> {
+			try {
+				if (rs.getString("ALERT_TYPES") != null) {
+					inmate.setAlertsCodes(Arrays.asList(rs.getString("ALERT_TYPES").split(",")));
+				}
+			} catch (final SQLException ex) {
+				throw new RowMappingException(ex.getMessage(), ex);
+			}
+			return null;
 		});
+		final List<AssignedInmate> inmates = jdbcTemplate.query(sql, createParams("locationId", locationId, "offset", offset, "limit", limit), assignedInmateRowMapper);
 		return inmates;
 	}
 

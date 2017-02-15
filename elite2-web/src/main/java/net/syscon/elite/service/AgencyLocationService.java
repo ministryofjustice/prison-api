@@ -12,11 +12,10 @@ public interface AgencyLocationService {
 	Agency getAgency(String agencyId);
 	List<Agency> getAgencies(final int offset, final int limit);
 
+	Location getLocation(Long locationId);
 	List<Location> getLocations(final int offset, final int limit);
 	List<Location> getLocationsFromAgency(String agencyId, final int offset, final int limit);
 	List<AssignedInmate> getInmatesFromLocation(Long locationId, int offset, int limit);
-
-	Location getLocation(String locationId);
 
 }
 

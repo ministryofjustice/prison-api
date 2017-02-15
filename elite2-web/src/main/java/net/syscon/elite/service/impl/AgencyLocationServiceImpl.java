@@ -7,15 +7,19 @@ import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.web.api.model.Agency;
 import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.Location;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-
 import java.util.List;
 
 
 @Transactional
 public class AgencyLocationServiceImpl implements AgencyLocationService {
+
+
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private AgencyRepository agencyRepository;
 	private LocationRepository locationRepository;
@@ -57,8 +61,20 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 	}
 
 	@Override
-	public Location getLocation(String locationId) {
-		return locationRepository.findLocation(Long.valueOf(locationId));
+	public Location getLocation(Long locationId) {
+
+		try {
+			Location location = locationRepository.findLocation(locationId);
+			List<AssignedInmate> inmates = inmageRepository.findInmatesByLocation(locationId, 0, 1000);
+			location.setAssignedInmates(inmates);
+			return location;
+		} catch (Throwable ex) {
+			log.error(ex.getMessage(), ex);
+			throw ex;
+		}
+
+
+
 	}
 
 

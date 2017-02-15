@@ -1,11 +1,14 @@
 package net.syscon.elite.persistence.repository.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
+import net.syscon.elite.exception.RowMappingException;
 import net.syscon.elite.persistence.repository.LocationRepository;
 import net.syscon.elite.web.api.model.Location;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -22,23 +25,23 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 		.put("NO_OF_OCCUPANT", "currentOccupancy").build();
 
 	@Override
-	public Location findLocation(Long locationId) {
-		String sql = getQuery("FIND_LOCATION");
-		RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
+	public Location findLocation(final Long locationId) {
+		final String sql = getQuery("FIND_LOCATION");
+		final RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
 		return jdbcTemplate.queryForObject(sql, createParams("locationId", locationId), locationRowMapper);
 	}
 
 	@Override
-	public List<Location> findLocations(int offset, int limit) {
+	public List<Location> findLocations(final int offset, final int limit) {
 		final String sql = getPagedQuery("FIND_ALL_LOCATIONS");
-		RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
+		final RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
 		return jdbcTemplate.query(sql, createParams("offset", offset, "limit", limit), locationRowMapper);
 	}
 
 	@Override
 	public List<Location> findLocationsByAgencyId(final String agencyId, final int offset, final int limit) {
 		final String sql = getPagedQuery("FIND_LOCATIONS_BY_AGENCY_ID");
-		RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
+		final RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
 		return jdbcTemplate.query(sql, createParams("agencyId", agencyId, "offset", offset, "limit", limit), locationRowMapper);
 	}
 }

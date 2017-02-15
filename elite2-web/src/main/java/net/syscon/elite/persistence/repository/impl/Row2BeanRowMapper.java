@@ -15,6 +15,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
 
 
 public class Row2BeanRowMapper<T> implements RowMapper<T> {
@@ -23,16 +24,19 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 	private static final Map<MappingInfo, Row2BeanRowMapper> cachedMappings = new ConcurrentHashMap<>();
 
 	private static final Logger logger = LoggerFactory.getLogger(Row2BeanRowMapper.class);
+	private final BiFunction<ResultSet, T, Void> additionalFunction;
 
-	private String sql;
-	private Class<? extends T> type;
+	private final String sql;
+	private final Class<? extends T> type;
+	private final Map<String, String> columnsMapping;
+
 	private List<String> sqlToCollumns;
-	private Map<String, String> columnsMapping;
 
-	public Row2BeanRowMapper(String sql, Class<? extends T> type, Map<String, String> mappings) {
+	public Row2BeanRowMapper(String sql, Class<? extends T> type, Map<String, String> mappings, BiFunction<ResultSet, T, Void> additionalFunction) {
 		this.type = type;
 		this.sql = sql;
 		this.columnsMapping = new HashMap<>();
+		this.additionalFunction = additionalFunction;
 		for (Map.Entry<String, String> entry: mappings.entrySet()) {
 			final String upperKey = entry.getKey() != null? entry.getKey().toUpperCase(): null;
 			this.columnsMapping.put(upperKey, entry.getValue());
@@ -138,6 +142,9 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 					}
 				}
 			}
+			if (additionalFunction != null) {
+				additionalFunction.apply(rs, bean);
+			}
 			return bean;
 		} catch (Exception ex) {
 			throw new RowMappingException(ex.getMessage(), ex);
@@ -170,11 +177,16 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 	}
 
 
-	@SuppressWarnings("unchecked")
 	public static <M> RowMapper<M> makeMapping(String sql, Class<M> type, Map<String, String> mappings) {
+		return makeMapping(sql, type, mappings, null);
+	}
+
+
+	@SuppressWarnings("unchecked")
+	public static <M> RowMapper<M> makeMapping(String sql, Class<M> type, Map<String, String> mappings, BiFunction<ResultSet, M, Void> additionalFunction) {
 		MappingInfo mappingInfo = new MappingInfo(sql, type);
 		if (!cachedMappings.containsKey(mappingInfo)) {
-			cachedMappings.put(mappingInfo, new Row2BeanRowMapper(sql, type, mappings));
+			cachedMappings.put(mappingInfo, new Row2BeanRowMapper(sql, type, mappings, additionalFunction));
 		}
 		RowMapper<M> mapping = (RowMapper<M>) cachedMappings.get(mappingInfo);
 		return mapping;
