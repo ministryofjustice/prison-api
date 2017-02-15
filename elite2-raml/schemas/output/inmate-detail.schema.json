@@ -3,9 +3,9 @@
 	"title": "Inmate Detail",
 	"type": "object",
 	"properties": {
-		"inmateId": { "type": "integer" },
 		"bookingId": { "type": "integer" },
-		"offenderId": { "type": "string" },
+		"bookingNo": { "type": "string" },
+		"offenderNo": { "type": "string" },
 		"firstName": { "type": "string" },
 		"middleName": {"type": "string" },
 		"lastName":    {"type": "string" },
