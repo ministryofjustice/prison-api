@@ -8,7 +8,7 @@ import java.util.List;
 public interface AgencyRepository {
 
 	Agency find(String agencyId);
-	List<Agency> findAll(final int offset, final int limit);
+	List<Agency> findAgencies(final int offset, final int limit);
 
 }
 

@@ -9,13 +9,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.HttpStatus;
 import net.syscon.elite.web.api.model.Location;
 import net.syscon.elite.web.api.model.Movement;
 
 
 /**
- * The collection of internal locations within an agency.
+ * Returns the list of locations viewable by the user
  * 
  */
 @Path("locations")
@@ -28,22 +29,12 @@ public interface LocationsResource {
      *     Skip over a number of elements by specifying an offset value for the query e.g. 20
      * @param limit
      *     Limit the number of elements on the response e.g. 80
-     * @param orderBy
-     *     Order by field: locationId, agencyId, locationType, parentLocationId, livingUnit, or housingUnitType
-     *     
-     * @param order
-     *     Order
      */
     @GET
     @Produces({
         "application/json"
     })
     LocationsResource.GetLocationsResponse getLocations(
-        @QueryParam("orderBy")
-        String orderBy,
-        @QueryParam("order")
-        @DefaultValue("asc")
-        LocationsResource.Order order,
         @QueryParam("offset")
         @DefaultValue("0")
         int offset,
@@ -59,11 +50,11 @@ public interface LocationsResource {
      *     
      */
     @GET
-    @Path("locations/{locationId}")
+    @Path("{locationId}")
     @Produces({
         "application/json"
     })
-    LocationsResource.GetLocationsLocationsByLocationIdResponse getLocationsLocationsByLocationId(
+    LocationsResource.GetLocationsByLocationIdResponse getLocationsByLocationId(
         @PathParam("locationId")
         String locationId)
         throws Exception
@@ -84,11 +75,11 @@ public interface LocationsResource {
      *     Order
      */
     @GET
-    @Path("locations/{locationId}/movements")
+    @Path("{locationId}/movements")
     @Produces({
         "application/json"
     })
-    LocationsResource.GetLocationsLocationsByLocationIdMovementsResponse getLocationsLocationsByLocationIdMovements(
+    LocationsResource.GetLocationsByLocationIdMovementsResponse getLocationsByLocationIdMovements(
         @PathParam("locationId")
         String locationId,
         @QueryParam("orderBy")
@@ -120,11 +111,11 @@ public interface LocationsResource {
      *     Order
      */
     @GET
-    @Path("locations/{locationId}/inmates")
+    @Path("{locationId}/inmates")
     @Produces({
         "application/json"
     })
-    LocationsResource.GetLocationsLocationsByLocationIdInmatesResponse getLocationsLocationsByLocationIdInmates(
+    LocationsResource.GetLocationsByLocationIdInmatesResponse getLocationsByLocationIdInmates(
         @PathParam("locationId")
         String locationId,
         @QueryParam("orderBy")
@@ -141,12 +132,12 @@ public interface LocationsResource {
         throws Exception
     ;
 
-    public class GetLocationsLocationsByLocationIdInmatesResponse
+    public class GetLocationsByLocationIdInmatesResponse
         extends net.syscon.elite.web.api.resource.support.ResponseWrapper
     {
 
 
-        private GetLocationsLocationsByLocationIdInmatesResponse(Response delegate) {
+        private GetLocationsByLocationIdInmatesResponse(Response delegate) {
             super(delegate);
         }
 
@@ -156,10 +147,10 @@ public interface LocationsResource {
          * @param entity
          *     
          */
-        public static LocationsResource.GetLocationsLocationsByLocationIdInmatesResponse withJsonOK(List<Movement> entity) {
+        public static LocationsResource.GetLocationsByLocationIdInmatesResponse withJsonOK(List<AssignedInmate> entity) {
             Response.ResponseBuilder responseBuilder = Response.status(200).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new LocationsResource.GetLocationsLocationsByLocationIdInmatesResponse(responseBuilder.build());
+            return new LocationsResource.GetLocationsByLocationIdInmatesResponse(responseBuilder.build());
         }
 
         /**
@@ -182,10 +173,10 @@ public interface LocationsResource {
          *     }
          *     
          */
-        public static LocationsResource.GetLocationsLocationsByLocationIdInmatesResponse withJsonBadRequest(HttpStatus entity) {
+        public static LocationsResource.GetLocationsByLocationIdInmatesResponse withJsonBadRequest(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(400).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new LocationsResource.GetLocationsLocationsByLocationIdInmatesResponse(responseBuilder.build());
+            return new LocationsResource.GetLocationsByLocationIdInmatesResponse(responseBuilder.build());
         }
 
         /**
@@ -208,10 +199,10 @@ public interface LocationsResource {
          *     }
          *     
          */
-        public static LocationsResource.GetLocationsLocationsByLocationIdInmatesResponse withJsonNotFound(HttpStatus entity) {
+        public static LocationsResource.GetLocationsByLocationIdInmatesResponse withJsonNotFound(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(404).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new LocationsResource.GetLocationsLocationsByLocationIdInmatesResponse(responseBuilder.build());
+            return new LocationsResource.GetLocationsByLocationIdInmatesResponse(responseBuilder.build());
         }
 
         /**
@@ -234,20 +225,20 @@ public interface LocationsResource {
          *     }
          *     
          */
-        public static LocationsResource.GetLocationsLocationsByLocationIdInmatesResponse withJsonInternalServerError(HttpStatus entity) {
+        public static LocationsResource.GetLocationsByLocationIdInmatesResponse withJsonInternalServerError(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(500).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new LocationsResource.GetLocationsLocationsByLocationIdInmatesResponse(responseBuilder.build());
+            return new LocationsResource.GetLocationsByLocationIdInmatesResponse(responseBuilder.build());
         }
 
     }
 
-    public class GetLocationsLocationsByLocationIdMovementsResponse
+    public class GetLocationsByLocationIdMovementsResponse
         extends net.syscon.elite.web.api.resource.support.ResponseWrapper
     {
 
 
-        private GetLocationsLocationsByLocationIdMovementsResponse(Response delegate) {
+        private GetLocationsByLocationIdMovementsResponse(Response delegate) {
             super(delegate);
         }
 
@@ -257,10 +248,10 @@ public interface LocationsResource {
          * @param entity
          *     
          */
-        public static LocationsResource.GetLocationsLocationsByLocationIdMovementsResponse withJsonOK(Movement entity) {
+        public static LocationsResource.GetLocationsByLocationIdMovementsResponse withJsonOK(List<Movement> entity) {
             Response.ResponseBuilder responseBuilder = Response.status(200).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new LocationsResource.GetLocationsLocationsByLocationIdMovementsResponse(responseBuilder.build());
+            return new LocationsResource.GetLocationsByLocationIdMovementsResponse(responseBuilder.build());
         }
 
         /**
@@ -283,10 +274,10 @@ public interface LocationsResource {
          *     }
          *     
          */
-        public static LocationsResource.GetLocationsLocationsByLocationIdMovementsResponse withJsonBadRequest(HttpStatus entity) {
+        public static LocationsResource.GetLocationsByLocationIdMovementsResponse withJsonBadRequest(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(400).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new LocationsResource.GetLocationsLocationsByLocationIdMovementsResponse(responseBuilder.build());
+            return new LocationsResource.GetLocationsByLocationIdMovementsResponse(responseBuilder.build());
         }
 
         /**
@@ -309,10 +300,10 @@ public interface LocationsResource {
          *     }
          *     
          */
-        public static LocationsResource.GetLocationsLocationsByLocationIdMovementsResponse withJsonNotFound(HttpStatus entity) {
+        public static LocationsResource.GetLocationsByLocationIdMovementsResponse withJsonNotFound(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(404).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new LocationsResource.GetLocationsLocationsByLocationIdMovementsResponse(responseBuilder.build());
+            return new LocationsResource.GetLocationsByLocationIdMovementsResponse(responseBuilder.build());
         }
 
         /**
@@ -335,20 +326,20 @@ public interface LocationsResource {
          *     }
          *     
          */
-        public static LocationsResource.GetLocationsLocationsByLocationIdMovementsResponse withJsonInternalServerError(HttpStatus entity) {
+        public static LocationsResource.GetLocationsByLocationIdMovementsResponse withJsonInternalServerError(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(500).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new LocationsResource.GetLocationsLocationsByLocationIdMovementsResponse(responseBuilder.build());
+            return new LocationsResource.GetLocationsByLocationIdMovementsResponse(responseBuilder.build());
         }
 
     }
 
-    public class GetLocationsLocationsByLocationIdResponse
+    public class GetLocationsByLocationIdResponse
         extends net.syscon.elite.web.api.resource.support.ResponseWrapper
     {
 
 
-        private GetLocationsLocationsByLocationIdResponse(Response delegate) {
+        private GetLocationsByLocationIdResponse(Response delegate) {
             super(delegate);
         }
 
@@ -358,10 +349,10 @@ public interface LocationsResource {
          * @param entity
          *     
          */
-        public static LocationsResource.GetLocationsLocationsByLocationIdResponse withJsonOK(Location entity) {
+        public static LocationsResource.GetLocationsByLocationIdResponse withJsonOK(Location entity) {
             Response.ResponseBuilder responseBuilder = Response.status(200).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new LocationsResource.GetLocationsLocationsByLocationIdResponse(responseBuilder.build());
+            return new LocationsResource.GetLocationsByLocationIdResponse(responseBuilder.build());
         }
 
         /**
@@ -384,10 +375,10 @@ public interface LocationsResource {
          *     }
          *     
          */
-        public static LocationsResource.GetLocationsLocationsByLocationIdResponse withJsonBadRequest(HttpStatus entity) {
+        public static LocationsResource.GetLocationsByLocationIdResponse withJsonBadRequest(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(400).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new LocationsResource.GetLocationsLocationsByLocationIdResponse(responseBuilder.build());
+            return new LocationsResource.GetLocationsByLocationIdResponse(responseBuilder.build());
         }
 
         /**
@@ -410,10 +401,10 @@ public interface LocationsResource {
          *     }
          *     
          */
-        public static LocationsResource.GetLocationsLocationsByLocationIdResponse withJsonNotFound(HttpStatus entity) {
+        public static LocationsResource.GetLocationsByLocationIdResponse withJsonNotFound(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(404).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new LocationsResource.GetLocationsLocationsByLocationIdResponse(responseBuilder.build());
+            return new LocationsResource.GetLocationsByLocationIdResponse(responseBuilder.build());
         }
 
         /**
@@ -436,10 +427,10 @@ public interface LocationsResource {
          *     }
          *     
          */
-        public static LocationsResource.GetLocationsLocationsByLocationIdResponse withJsonInternalServerError(HttpStatus entity) {
+        public static LocationsResource.GetLocationsByLocationIdResponse withJsonInternalServerError(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(500).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new LocationsResource.GetLocationsLocationsByLocationIdResponse(responseBuilder.build());
+            return new LocationsResource.GetLocationsByLocationIdResponse(responseBuilder.build());
         }
 
     }
@@ -459,7 +450,7 @@ public interface LocationsResource {
          * @param entity
          *     
          */
-        public static LocationsResource.GetLocationsResponse withJsonOK(Location entity) {
+        public static LocationsResource.GetLocationsResponse withJsonOK(List<Location> entity) {
             Response.ResponseBuilder responseBuilder = Response.status(200).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
             return new LocationsResource.GetLocationsResponse(responseBuilder.build());

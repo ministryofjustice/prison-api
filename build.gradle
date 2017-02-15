@@ -121,6 +121,8 @@ project(":elite2-web") {
 		compile("org.springframework.boot:spring-boot-starter-jersey")
 
 		compile "org.apache.commons:commons-lang3:3.5"
+		compile "commons-dbutils:commons-dbutils:1.6"
+
 		compile ("com.zaxxer:HikariCP:${version_hikaricp}") { exclude(module: "tools") }
 
 		testCompile("org.springframework.boot:spring-boot-starter-test")

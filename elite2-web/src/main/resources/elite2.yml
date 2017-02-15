@@ -8,7 +8,7 @@ spring:
     active: dev
   jackson:
     serialization:
-      INDENT_OUTPUT: true
+      INDENT_OUTPUT: false
 
   datasource:
     hikari:

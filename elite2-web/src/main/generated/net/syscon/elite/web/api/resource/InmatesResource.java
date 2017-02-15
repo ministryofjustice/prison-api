@@ -60,11 +60,11 @@ public interface InmatesResource {
      *     
      */
     @GET
-    @Path("inmates/{inmateId}")
+    @Path("{inmateId}")
     @Produces({
         "application/json"
     })
-    InmatesResource.GetInmatesInmatesByInmateIdResponse getInmatesInmatesByInmateId(
+    InmatesResource.GetInmatesByInmateIdResponse getInmatesByInmateId(
         @PathParam("inmateId")
         String inmateId)
         throws Exception
@@ -85,11 +85,11 @@ public interface InmatesResource {
      *     Order
      */
     @GET
-    @Path("inmates/{inmateId}/movements")
+    @Path("{inmateId}/movements")
     @Produces({
         "application/json"
     })
-    InmatesResource.GetInmatesInmatesByInmateIdMovementsResponse getInmatesInmatesByInmateIdMovements(
+    InmatesResource.GetInmatesByInmateIdMovementsResponse getInmatesByInmateIdMovements(
         @PathParam("inmateId")
         String inmateId,
         @QueryParam("orderBy")
@@ -106,12 +106,12 @@ public interface InmatesResource {
         throws Exception
     ;
 
-    public class GetInmatesInmatesByInmateIdMovementsResponse
+    public class GetInmatesByInmateIdMovementsResponse
         extends net.syscon.elite.web.api.resource.support.ResponseWrapper
     {
 
 
-        private GetInmatesInmatesByInmateIdMovementsResponse(Response delegate) {
+        private GetInmatesByInmateIdMovementsResponse(Response delegate) {
             super(delegate);
         }
 
@@ -121,10 +121,10 @@ public interface InmatesResource {
          * @param entity
          *     
          */
-        public static InmatesResource.GetInmatesInmatesByInmateIdMovementsResponse withJsonOK(List<Movement> entity) {
+        public static InmatesResource.GetInmatesByInmateIdMovementsResponse withJsonOK(List<Movement> entity) {
             Response.ResponseBuilder responseBuilder = Response.status(200).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new InmatesResource.GetInmatesInmatesByInmateIdMovementsResponse(responseBuilder.build());
+            return new InmatesResource.GetInmatesByInmateIdMovementsResponse(responseBuilder.build());
         }
 
         /**
@@ -147,10 +147,10 @@ public interface InmatesResource {
          *     }
          *     
          */
-        public static InmatesResource.GetInmatesInmatesByInmateIdMovementsResponse withJsonBadRequest(HttpStatus entity) {
+        public static InmatesResource.GetInmatesByInmateIdMovementsResponse withJsonBadRequest(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(400).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new InmatesResource.GetInmatesInmatesByInmateIdMovementsResponse(responseBuilder.build());
+            return new InmatesResource.GetInmatesByInmateIdMovementsResponse(responseBuilder.build());
         }
 
         /**
@@ -173,10 +173,10 @@ public interface InmatesResource {
          *     }
          *     
          */
-        public static InmatesResource.GetInmatesInmatesByInmateIdMovementsResponse withJsonNotFound(HttpStatus entity) {
+        public static InmatesResource.GetInmatesByInmateIdMovementsResponse withJsonNotFound(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(404).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new InmatesResource.GetInmatesInmatesByInmateIdMovementsResponse(responseBuilder.build());
+            return new InmatesResource.GetInmatesByInmateIdMovementsResponse(responseBuilder.build());
         }
 
         /**
@@ -199,20 +199,20 @@ public interface InmatesResource {
          *     }
          *     
          */
-        public static InmatesResource.GetInmatesInmatesByInmateIdMovementsResponse withJsonInternalServerError(HttpStatus entity) {
+        public static InmatesResource.GetInmatesByInmateIdMovementsResponse withJsonInternalServerError(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(500).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new InmatesResource.GetInmatesInmatesByInmateIdMovementsResponse(responseBuilder.build());
+            return new InmatesResource.GetInmatesByInmateIdMovementsResponse(responseBuilder.build());
         }
 
     }
 
-    public class GetInmatesInmatesByInmateIdResponse
+    public class GetInmatesByInmateIdResponse
         extends net.syscon.elite.web.api.resource.support.ResponseWrapper
     {
 
 
-        private GetInmatesInmatesByInmateIdResponse(Response delegate) {
+        private GetInmatesByInmateIdResponse(Response delegate) {
             super(delegate);
         }
 
@@ -222,10 +222,10 @@ public interface InmatesResource {
          * @param entity
          *     
          */
-        public static InmatesResource.GetInmatesInmatesByInmateIdResponse withJsonOK(InmateDetail entity) {
+        public static InmatesResource.GetInmatesByInmateIdResponse withJsonOK(InmateDetail entity) {
             Response.ResponseBuilder responseBuilder = Response.status(200).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new InmatesResource.GetInmatesInmatesByInmateIdResponse(responseBuilder.build());
+            return new InmatesResource.GetInmatesByInmateIdResponse(responseBuilder.build());
         }
 
         /**
@@ -248,10 +248,10 @@ public interface InmatesResource {
          *     }
          *     
          */
-        public static InmatesResource.GetInmatesInmatesByInmateIdResponse withJsonBadRequest(HttpStatus entity) {
+        public static InmatesResource.GetInmatesByInmateIdResponse withJsonBadRequest(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(400).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new InmatesResource.GetInmatesInmatesByInmateIdResponse(responseBuilder.build());
+            return new InmatesResource.GetInmatesByInmateIdResponse(responseBuilder.build());
         }
 
         /**
@@ -274,10 +274,10 @@ public interface InmatesResource {
          *     }
          *     
          */
-        public static InmatesResource.GetInmatesInmatesByInmateIdResponse withJsonNotFound(HttpStatus entity) {
+        public static InmatesResource.GetInmatesByInmateIdResponse withJsonNotFound(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(404).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new InmatesResource.GetInmatesInmatesByInmateIdResponse(responseBuilder.build());
+            return new InmatesResource.GetInmatesByInmateIdResponse(responseBuilder.build());
         }
 
         /**
@@ -300,10 +300,10 @@ public interface InmatesResource {
          *     }
          *     
          */
-        public static InmatesResource.GetInmatesInmatesByInmateIdResponse withJsonInternalServerError(HttpStatus entity) {
+        public static InmatesResource.GetInmatesByInmateIdResponse withJsonInternalServerError(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(500).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new InmatesResource.GetInmatesInmatesByInmateIdResponse(responseBuilder.build());
+            return new InmatesResource.GetInmatesByInmateIdResponse(responseBuilder.build());
         }
 
     }
