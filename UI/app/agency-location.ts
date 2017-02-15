@@ -11,4 +11,5 @@ export class AgencyLocation  {
 	livingUnit: boolean;
 	housingUnitType?: string;
 	assignedInmates?: Inmate[];
+	inmateActiveCountStatus?: string;
 }

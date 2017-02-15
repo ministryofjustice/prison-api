@@ -138,8 +138,9 @@ export class InMemoryDBMockData implements InMemoryDbService {
         currentOccupancy: 1,
         livingUnit: true,
         housingUnitType: 'DR',
+        inmateActiveCountStatus: 'Counted',
       },
-      { id: 7018, agencyId: 'SDP', locationType: 'TIER', description: 'SDP-WEST-SOUTH 1', parentLocationId: 6921, operationalCapacity: 26, currentOccupancy: 19, livingUnit: true, housingUnitType: 'SPEC NEEDS',  },
+      { id: 7018, agencyId: 'SDP', locationType: 'TIER', description: 'SDP-WEST-SOUTH 1', parentLocationId: 6921, operationalCapacity: 26, currentOccupancy: 19, livingUnit: true, housingUnitType: 'SPEC NEEDS', inmateActiveCountStatus: 'Recount', },
       {
         id: 7032,
         agencyId: 'SDP',
@@ -150,6 +151,7 @@ export class InMemoryDBMockData implements InMemoryDbService {
         currentOccupancy: 26,
         livingUnit: true,
         housingUnitType: 'SPEC NEEDS',
+        inmateActiveCountStatus: 'NotCounted',
       },
       { id: 7110, agencyId: 'SDP', locationType: 'TIER', description: 'SDP-SHU-UPPER EAST', parentLocationId: 7099, operationalCapacity: 18, currentOccupancy: 10, livingUnit: true, housingUnitType: 'DISG SEG',  },
       { id: 7120, agencyId: 'SDP', locationType: 'TIER', description: 'SDP-SHU-LOW WEST', parentLocationId: 7099, operationalCapacity: 18, currentOccupancy: 13, livingUnit: true, housingUnitType: 'DISG SEG',  },
