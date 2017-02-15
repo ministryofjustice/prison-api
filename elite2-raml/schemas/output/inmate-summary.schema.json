@@ -11,8 +11,8 @@
 		"alertsCodes": { "type": "array", "items": { "type": "string" } },
 		"agencyId":    { "type": "string" },
 		"currentLocationId": { "type": "integer" },
-		"assignedLivingUnitId": { "type": "integer" }
+		"assignedLivingUnitId": { "type": "integer" },
+		"facialImageId": { "type": "integer" }
 	},
 	"required": ["inmateId", "bookingId", "offenderId", "firstName", "lastName", "agencyId", "currentLocationId"]
 }
-

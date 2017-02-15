@@ -16,6 +16,7 @@
 		"agencyId":  { "type": "string" },
 		"currentLocationId":  { "type": "number" },
 		"assignedLivingUnitId":  { "type": "number" },
+		"facialImageId": { "type": "integer" },
 		"dateOfBirth":  {
 			"type": "string",
 			"format": "date-only"
@@ -40,7 +41,8 @@
 				"type": "object",
 				"properties": {
 					"characteristic": { "type": "string" },
-					"detail": { "type": "string" }
+					"detail": { "type": "string" },
+					"imageId": { "type": "integer" }
 				},
 				"required": ["characteristic", "detail"]
 			}
@@ -55,7 +57,8 @@
 					"side": { "type": "string" },
 					"bodyPart": { "type": "string" },
 					"orientation": { "type": "string" },
-					"comment": { "type": "string" }
+					"comment": { "type": "string" },
+					"imageId": { "type": "integer" }
 				},
 				"required": ["type", "side", "bodyPart", "orientation", "comment"]
 			}
@@ -63,4 +66,3 @@
 	},
 	"required": ["inmateId", "bookingId", "offenderId", "firstName", "middleName", "lastName", "agencyId", "currentLocationId", "age"]
 }
-
