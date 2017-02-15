@@ -15,8 +15,8 @@
 		"assignedInmates": {
 			"type": "array",
 			"items": { "$ref": "inmateSummary" }
-		}
+		},
+		"inmateActiveCountStatus": { "type": { "enum": [ "Counted", "Recount", "NotCounted" ]} }
 	},
 	"required": ["locationId", "agencyId", "locationType", "description", "parentLocationId", "currentOccupancy", "livingUnit"]
 }
-
