@@ -1,28 +1,27 @@
 package net.syscon.elite.persistence.repository.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
-import net.syscon.elite.exception.RowMappingException;
 import net.syscon.elite.persistence.repository.LocationRepository;
+import net.syscon.elite.persistence.repository.mapping.FieldMapper;
+import net.syscon.elite.persistence.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.web.api.model.Location;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 @Repository
 public class LocationRepositoryImpl extends RepositoryBase implements LocationRepository {
 
-	private final Map<String, String> locationMapping = new ImmutableMap.Builder<String, String>()
-		.put("INTERNAL_LOCATION_ID", "locationId")
-		.put("AGENCY_ID", "agencyId")
-		.put("INTERNAL_LOCATION_TYPE", "locationType")
-		.put("DESCRIPTION", "description")
-		.put("AGENCY_LOCATION_TYPE", "agencyType")
-		.put("PARENT_INTERNAL_LOCATION_ID", "parentLocationId")
-		.put("NO_OF_OCCUPANT", "currentOccupancy").build();
+	private final Map<String, FieldMapper> locationMapping = new ImmutableMap.Builder<String, FieldMapper>()
+		.put("INTERNAL_LOCATION_ID", 		new FieldMapper("locationId"))
+		.put("AGENCY_ID", 					new FieldMapper("agencyId"))
+		.put("INTERNAL_LOCATION_TYPE", 		new FieldMapper("locationType"))
+		.put("DESCRIPTION", 				new FieldMapper("description"))
+		.put("AGENCY_LOCATION_TYPE", 		new FieldMapper("agencyType"))
+		.put("PARENT_INTERNAL_LOCATION_ID", new FieldMapper("parentLocationId"))
+		.put("NO_OF_OCCUPANT", 				new FieldMapper("currentOccupancy")).build();
 
 	@Override
 	public Location findLocation(final Long locationId) {

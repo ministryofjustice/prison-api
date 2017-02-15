@@ -26,9 +26,9 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("org.jsonschema2pojo")
 @JsonPropertyOrder({
-    "inmateId",
     "bookingId",
-    "offenderId",
+    "bookingNo",
+    "offenderNo",
     "firstName",
     "lastName",
     "alertsCodes",
@@ -43,22 +43,12 @@ public class AssignedInmate {
      * (Required)
      * 
      */
-    @JsonProperty("inmateId")
-    private Long inmateId;
-    /**
-     * 
-     * (Required)
-     * 
-     */
     @JsonProperty("bookingId")
     private Long bookingId;
-    /**
-     * 
-     * (Required)
-     * 
-     */
-    @JsonProperty("offenderId")
-    private String offenderId;
+    @JsonProperty("bookingNo")
+    private String bookingNo;
+    @JsonProperty("offenderNo")
+    private String offenderNo;
     /**
      * 
      * (Required)
@@ -103,55 +93,26 @@ public class AssignedInmate {
 
     /**
      * 
+     * @param bookingNo
      * @param firstName
      * @param lastName
      * @param alertsCodes
-     * @param inmateId
+     * @param offenderNo
      * @param agencyId
      * @param assignedLivingUnitId
-     * @param offenderId
      * @param currentLocationId
      * @param bookingId
      */
-    public AssignedInmate(Long inmateId, Long bookingId, String offenderId, String firstName, String lastName, List<String> alertsCodes, String agencyId, Long currentLocationId, Long assignedLivingUnitId) {
-        this.inmateId = inmateId;
+    public AssignedInmate(Long bookingId, String bookingNo, String offenderNo, String firstName, String lastName, List<String> alertsCodes, String agencyId, Long currentLocationId, Long assignedLivingUnitId) {
         this.bookingId = bookingId;
-        this.offenderId = offenderId;
+        this.bookingNo = bookingNo;
+        this.offenderNo = offenderNo;
         this.firstName = firstName;
         this.lastName = lastName;
         this.alertsCodes = alertsCodes;
         this.agencyId = agencyId;
         this.currentLocationId = currentLocationId;
         this.assignedLivingUnitId = assignedLivingUnitId;
-    }
-
-    /**
-     * 
-     * (Required)
-     * 
-     * @return
-     *     The inmateId
-     */
-    @JsonProperty("inmateId")
-    public Long getInmateId() {
-        return inmateId;
-    }
-
-    /**
-     * 
-     * (Required)
-     * 
-     * @param inmateId
-     *     The inmateId
-     */
-    @JsonProperty("inmateId")
-    public void setInmateId(Long inmateId) {
-        this.inmateId = inmateId;
-    }
-
-    public AssignedInmate withInmateId(Long inmateId) {
-        this.inmateId = inmateId;
-        return this;
     }
 
     /**
@@ -185,30 +146,51 @@ public class AssignedInmate {
 
     /**
      * 
-     * (Required)
-     * 
      * @return
-     *     The offenderId
+     *     The bookingNo
      */
-    @JsonProperty("offenderId")
-    public String getOffenderId() {
-        return offenderId;
+    @JsonProperty("bookingNo")
+    public String getBookingNo() {
+        return bookingNo;
     }
 
     /**
      * 
-     * (Required)
-     * 
-     * @param offenderId
-     *     The offenderId
+     * @param bookingNo
+     *     The bookingNo
      */
-    @JsonProperty("offenderId")
-    public void setOffenderId(String offenderId) {
-        this.offenderId = offenderId;
+    @JsonProperty("bookingNo")
+    public void setBookingNo(String bookingNo) {
+        this.bookingNo = bookingNo;
     }
 
-    public AssignedInmate withOffenderId(String offenderId) {
-        this.offenderId = offenderId;
+    public AssignedInmate withBookingNo(String bookingNo) {
+        this.bookingNo = bookingNo;
+        return this;
+    }
+
+    /**
+     * 
+     * @return
+     *     The offenderNo
+     */
+    @JsonProperty("offenderNo")
+    public String getOffenderNo() {
+        return offenderNo;
+    }
+
+    /**
+     * 
+     * @param offenderNo
+     *     The offenderNo
+     */
+    @JsonProperty("offenderNo")
+    public void setOffenderNo(String offenderNo) {
+        this.offenderNo = offenderNo;
+    }
+
+    public AssignedInmate withOffenderNo(String offenderNo) {
+        this.offenderNo = offenderNo;
         return this;
     }
 
@@ -400,7 +382,7 @@ public class AssignedInmate {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder().append(inmateId).append(bookingId).append(offenderId).append(firstName).append(lastName).append(alertsCodes).append(agencyId).append(currentLocationId).append(assignedLivingUnitId).append(additionalProperties).toHashCode();
+        return new HashCodeBuilder().append(bookingId).append(bookingNo).append(offenderNo).append(firstName).append(lastName).append(alertsCodes).append(agencyId).append(currentLocationId).append(assignedLivingUnitId).append(additionalProperties).toHashCode();
     }
 
     @Override
@@ -412,7 +394,7 @@ public class AssignedInmate {
             return false;
         }
         AssignedInmate rhs = ((AssignedInmate) other);
-        return new EqualsBuilder().append(inmateId, rhs.inmateId).append(bookingId, rhs.bookingId).append(offenderId, rhs.offenderId).append(firstName, rhs.firstName).append(lastName, rhs.lastName).append(alertsCodes, rhs.alertsCodes).append(agencyId, rhs.agencyId).append(currentLocationId, rhs.currentLocationId).append(assignedLivingUnitId, rhs.assignedLivingUnitId).append(additionalProperties, rhs.additionalProperties).isEquals();
+        return new EqualsBuilder().append(bookingId, rhs.bookingId).append(bookingNo, rhs.bookingNo).append(offenderNo, rhs.offenderNo).append(firstName, rhs.firstName).append(lastName, rhs.lastName).append(alertsCodes, rhs.alertsCodes).append(agencyId, rhs.agencyId).append(currentLocationId, rhs.currentLocationId).append(assignedLivingUnitId, rhs.assignedLivingUnitId).append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
 }

@@ -19,8 +19,8 @@ import net.syscon.elite.web.api.model.Movement;
  * The collection of inmates within the system.
  * 
  */
-@Path("inmates")
-public interface InmatesResource {
+@Path("booking")
+public interface BookingResource {
 
 
     /**
@@ -39,12 +39,12 @@ public interface InmatesResource {
     @Produces({
         "application/json"
     })
-    InmatesResource.GetInmatesResponse getInmates(
+    BookingResource.GetBookingResponse getBooking(
         @QueryParam("orderBy")
         String orderBy,
         @QueryParam("order")
         @DefaultValue("asc")
-        InmatesResource.Order order,
+        BookingResource.Order order,
         @QueryParam("offset")
         @DefaultValue("0")
         int offset,
@@ -56,24 +56,22 @@ public interface InmatesResource {
 
     /**
      * 
-     * @param inmateId
+     * @param bookingId
      *     
      */
     @GET
-    @Path("{inmateId}")
+    @Path("{bookingId}")
     @Produces({
         "application/json"
     })
-    InmatesResource.GetInmatesByInmateIdResponse getInmatesByInmateId(
-        @PathParam("inmateId")
-        String inmateId)
+    BookingResource.GetBookingByBookingIdResponse getBookingByBookingId(
+        @PathParam("bookingId")
+        String bookingId)
         throws Exception
     ;
 
     /**
      * 
-     * @param inmateId
-     *     
      * @param offset
      *     Skip over a number of elements by specifying an offset value for the query e.g. 20
      * @param limit
@@ -81,22 +79,24 @@ public interface InmatesResource {
      * @param orderBy
      *     Order by field: moveCategory, moveDateTime, fromAgencyId, toAgencyId, moveType, moveReason, fromLocationId, or toLocation
      *     
+     * @param bookingId
+     *     
      * @param order
      *     Order
      */
     @GET
-    @Path("{inmateId}/movements")
+    @Path("{bookingId}/movements")
     @Produces({
         "application/json"
     })
-    InmatesResource.GetInmatesByInmateIdMovementsResponse getInmatesByInmateIdMovements(
-        @PathParam("inmateId")
-        String inmateId,
+    BookingResource.GetBookingByBookingIdMovementsResponse getBookingByBookingIdMovements(
+        @PathParam("bookingId")
+        String bookingId,
         @QueryParam("orderBy")
         String orderBy,
         @QueryParam("order")
         @DefaultValue("asc")
-        InmatesResource.Order order,
+        BookingResource.Order order,
         @QueryParam("offset")
         @DefaultValue("0")
         int offset,
@@ -106,12 +106,12 @@ public interface InmatesResource {
         throws Exception
     ;
 
-    public class GetInmatesByInmateIdMovementsResponse
+    public class GetBookingByBookingIdMovementsResponse
         extends net.syscon.elite.web.api.resource.support.ResponseWrapper
     {
 
 
-        private GetInmatesByInmateIdMovementsResponse(Response delegate) {
+        private GetBookingByBookingIdMovementsResponse(Response delegate) {
             super(delegate);
         }
 
@@ -121,10 +121,10 @@ public interface InmatesResource {
          * @param entity
          *     
          */
-        public static InmatesResource.GetInmatesByInmateIdMovementsResponse withJsonOK(List<Movement> entity) {
+        public static BookingResource.GetBookingByBookingIdMovementsResponse withJsonOK(List<Movement> entity) {
             Response.ResponseBuilder responseBuilder = Response.status(200).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new InmatesResource.GetInmatesByInmateIdMovementsResponse(responseBuilder.build());
+            return new BookingResource.GetBookingByBookingIdMovementsResponse(responseBuilder.build());
         }
 
         /**
@@ -147,10 +147,10 @@ public interface InmatesResource {
          *     }
          *     
          */
-        public static InmatesResource.GetInmatesByInmateIdMovementsResponse withJsonBadRequest(HttpStatus entity) {
+        public static BookingResource.GetBookingByBookingIdMovementsResponse withJsonBadRequest(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(400).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new InmatesResource.GetInmatesByInmateIdMovementsResponse(responseBuilder.build());
+            return new BookingResource.GetBookingByBookingIdMovementsResponse(responseBuilder.build());
         }
 
         /**
@@ -173,10 +173,10 @@ public interface InmatesResource {
          *     }
          *     
          */
-        public static InmatesResource.GetInmatesByInmateIdMovementsResponse withJsonNotFound(HttpStatus entity) {
+        public static BookingResource.GetBookingByBookingIdMovementsResponse withJsonNotFound(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(404).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new InmatesResource.GetInmatesByInmateIdMovementsResponse(responseBuilder.build());
+            return new BookingResource.GetBookingByBookingIdMovementsResponse(responseBuilder.build());
         }
 
         /**
@@ -199,20 +199,20 @@ public interface InmatesResource {
          *     }
          *     
          */
-        public static InmatesResource.GetInmatesByInmateIdMovementsResponse withJsonInternalServerError(HttpStatus entity) {
+        public static BookingResource.GetBookingByBookingIdMovementsResponse withJsonInternalServerError(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(500).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new InmatesResource.GetInmatesByInmateIdMovementsResponse(responseBuilder.build());
+            return new BookingResource.GetBookingByBookingIdMovementsResponse(responseBuilder.build());
         }
 
     }
 
-    public class GetInmatesByInmateIdResponse
+    public class GetBookingByBookingIdResponse
         extends net.syscon.elite.web.api.resource.support.ResponseWrapper
     {
 
 
-        private GetInmatesByInmateIdResponse(Response delegate) {
+        private GetBookingByBookingIdResponse(Response delegate) {
             super(delegate);
         }
 
@@ -222,10 +222,10 @@ public interface InmatesResource {
          * @param entity
          *     
          */
-        public static InmatesResource.GetInmatesByInmateIdResponse withJsonOK(InmateDetail entity) {
+        public static BookingResource.GetBookingByBookingIdResponse withJsonOK(InmateDetail entity) {
             Response.ResponseBuilder responseBuilder = Response.status(200).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new InmatesResource.GetInmatesByInmateIdResponse(responseBuilder.build());
+            return new BookingResource.GetBookingByBookingIdResponse(responseBuilder.build());
         }
 
         /**
@@ -248,10 +248,10 @@ public interface InmatesResource {
          *     }
          *     
          */
-        public static InmatesResource.GetInmatesByInmateIdResponse withJsonBadRequest(HttpStatus entity) {
+        public static BookingResource.GetBookingByBookingIdResponse withJsonBadRequest(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(400).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new InmatesResource.GetInmatesByInmateIdResponse(responseBuilder.build());
+            return new BookingResource.GetBookingByBookingIdResponse(responseBuilder.build());
         }
 
         /**
@@ -274,10 +274,10 @@ public interface InmatesResource {
          *     }
          *     
          */
-        public static InmatesResource.GetInmatesByInmateIdResponse withJsonNotFound(HttpStatus entity) {
+        public static BookingResource.GetBookingByBookingIdResponse withJsonNotFound(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(404).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new InmatesResource.GetInmatesByInmateIdResponse(responseBuilder.build());
+            return new BookingResource.GetBookingByBookingIdResponse(responseBuilder.build());
         }
 
         /**
@@ -300,20 +300,20 @@ public interface InmatesResource {
          *     }
          *     
          */
-        public static InmatesResource.GetInmatesByInmateIdResponse withJsonInternalServerError(HttpStatus entity) {
+        public static BookingResource.GetBookingByBookingIdResponse withJsonInternalServerError(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(500).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new InmatesResource.GetInmatesByInmateIdResponse(responseBuilder.build());
+            return new BookingResource.GetBookingByBookingIdResponse(responseBuilder.build());
         }
 
     }
 
-    public class GetInmatesResponse
+    public class GetBookingResponse
         extends net.syscon.elite.web.api.resource.support.ResponseWrapper
     {
 
 
-        private GetInmatesResponse(Response delegate) {
+        private GetBookingResponse(Response delegate) {
             super(delegate);
         }
 
@@ -323,10 +323,10 @@ public interface InmatesResource {
          * @param entity
          *     
          */
-        public static InmatesResource.GetInmatesResponse withJsonOK(List<AssignedInmate> entity) {
+        public static BookingResource.GetBookingResponse withJsonOK(List<AssignedInmate> entity) {
             Response.ResponseBuilder responseBuilder = Response.status(200).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new InmatesResource.GetInmatesResponse(responseBuilder.build());
+            return new BookingResource.GetBookingResponse(responseBuilder.build());
         }
 
         /**
@@ -349,10 +349,10 @@ public interface InmatesResource {
          *     }
          *     
          */
-        public static InmatesResource.GetInmatesResponse withJsonBadRequest(HttpStatus entity) {
+        public static BookingResource.GetBookingResponse withJsonBadRequest(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(400).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new InmatesResource.GetInmatesResponse(responseBuilder.build());
+            return new BookingResource.GetBookingResponse(responseBuilder.build());
         }
 
         /**
@@ -375,10 +375,10 @@ public interface InmatesResource {
          *     }
          *     
          */
-        public static InmatesResource.GetInmatesResponse withJsonNotFound(HttpStatus entity) {
+        public static BookingResource.GetBookingResponse withJsonNotFound(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(404).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new InmatesResource.GetInmatesResponse(responseBuilder.build());
+            return new BookingResource.GetBookingResponse(responseBuilder.build());
         }
 
         /**
@@ -401,10 +401,10 @@ public interface InmatesResource {
          *     }
          *     
          */
-        public static InmatesResource.GetInmatesResponse withJsonInternalServerError(HttpStatus entity) {
+        public static BookingResource.GetBookingResponse withJsonInternalServerError(HttpStatus entity) {
             Response.ResponseBuilder responseBuilder = Response.status(500).header("Content-Type", "application/json");
             responseBuilder.entity(entity);
-            return new InmatesResource.GetInmatesResponse(responseBuilder.build());
+            return new BookingResource.GetBookingResponse(responseBuilder.build());
         }
 
     }
