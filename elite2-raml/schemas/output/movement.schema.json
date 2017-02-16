@@ -1,0 +1,18 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "Movement",
+	"type": "object",
+	"properties": {
+		"moveCategory": { "enum": [ "external", "internal" ]},
+		"inmateId": { "type": "integer"},
+		"moveDateTime": { "type": "string", "format": "datetime" },
+		"fromAgencyId": { "type": "string" },
+		"toAgencyId": { "type": "string" },
+		"moveType": { "type": "string" },
+		"moveReason": { "type": "string" },
+		"fromLocationId": { "type": "string" },
+		"toLocationId": { "type": "string" }
+	},
+	"required": ["moveCategory", "inmateId", "moveDate"]
+}
+

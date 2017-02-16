@@ -1,0 +1,53 @@
+# ===================================================================
+# Spring Boot configuration for the "dev" profile.
+# This configuration overrides the application.yml file.
+# ===================================================================
+
+spring:
+  profiles:
+    active: dev
+  jackson:
+    serialization:
+      INDENT_OUTPUT: true
+  main:
+    banner-mode: on      
+  cache:
+    jcache:
+      config: ehcache.xml
+          
+  datasource:
+    hikari:
+      pool-name: EliteCP
+      maximum-pool-size: 5
+      driver-class-name: oracle.jdbc.OracleDriver
+      connection-init-sql: SELECT 1 FROM DUAL
+      connection-test-query: SELECT 1 FROM DUAL
+      jdbc-url: jdbc:oracle:thin:@wndbsvsdaqas01.syscon.ca:1521:sdprobi1
+      username: oms_owner
+      password: oms_owner
+      idle-timeout: 10000
+      
+  jpa:
+    database-platform: org.hibernate.dialect.Oracle12cDialect
+    database: ORACLE
+    show-sql: true
+    properties:
+      hibernate.cache.use_second_level_cache: true
+      hibernate.cache.use_query_cache: false
+      hibernate.generate_statistics: true
+      hibernate.javax.cache.provider: org.ehcache.jsr107.EhcacheCachingProvider
+      hibernate.javax.cache.uri: ${spring.cache.jcache.config}
+      hibernate.cache.region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
+      
+server:
+    port: 8080
+    contextPath: /
+    
+security:
+  basic:
+    enable: false
+       
+management:
+  security:
+    enabled: false
+

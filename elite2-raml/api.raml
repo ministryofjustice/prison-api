@@ -8,11 +8,21 @@ schemas:
 - agencies: !include schemas/output/agencies.schema.json
 - inmateSummary: !include schemas/output/inmate-summary.schema.json
 - inmateSummaries: !include schemas/output/inmate-summaries.schema.json
+- inmateDetail: !include schemas/output/inmate-detail.schema.json
+- movement: !include schemas/output/movement.schema.json
+- movements: !include schemas/output/movements.schema.json
+- location: !include schemas/output/location.schema.json
+- locations: !include schemas/output/locations.schema.json
+- imageSummary: !include schemas/output/image-summary.schema.json
+- imageSummaries: !include schemas/output/image-summaries.schema.json
+- imageDetail: !include schemas/output/image-detail.schema.json
+- imageData: !include schemas/output/image-data.schema.json
 
 resourceTypes: !include resourceTypes/generic-resource-types.raml
 
 traits: !include traits/generic-traits.raml
 
 /agencies: !include resources/agencies.raml
-/inmates: !include resources/inmates.raml
-
+/booking: !include resources/booking.raml
+/locations: !include resources/locations.raml
+/images: !include resources/images.raml

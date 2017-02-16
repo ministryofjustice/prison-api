@@ -1,0 +1,14 @@
+description:  The collection of images within the system.
+type: { get-collection: { collectionSchema: imageSummaries } }
+is: [
+  orderable: {fieldsList : "imageId, captureDate, imageView, imageOrientation, imageType"},
+  pageable
+]
+
+/images/{imageId}:
+  description: Details about the specified image including the image itself.
+  type: { get-item: { schema: imageDetail }}
+
+/inmates/{imageId}/data:
+  description: The data for the image.
+  type: { get-item: { schema: imageData }}

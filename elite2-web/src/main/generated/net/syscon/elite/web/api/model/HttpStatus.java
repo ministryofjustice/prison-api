@@ -10,6 +10,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 
 /**
@@ -56,6 +59,29 @@ public class HttpStatus {
     private String moreInfo;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    /**
+     * No args constructor for use in serialization
+     * 
+     */
+    public HttpStatus() {
+    }
+
+    /**
+     * 
+     * @param code
+     * @param developerMessage
+     * @param httpStatus
+     * @param message
+     * @param moreInfo
+     */
+    public HttpStatus(String httpStatus, String code, String message, String developerMessage, String moreInfo) {
+        this.httpStatus = httpStatus;
+        this.code = code;
+        this.message = message;
+        this.developerMessage = developerMessage;
+        this.moreInfo = moreInfo;
+    }
 
     /**
      * 
@@ -194,6 +220,11 @@ public class HttpStatus {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
+    }
+
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -207,6 +238,23 @@ public class HttpStatus {
     public HttpStatus withAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
         return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(httpStatus).append(code).append(message).append(developerMessage).append(moreInfo).append(additionalProperties).toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+        if ((other instanceof HttpStatus) == false) {
+            return false;
+        }
+        HttpStatus rhs = ((HttpStatus) other);
+        return new EqualsBuilder().append(httpStatus, rhs.httpStatus).append(code, rhs.code).append(message, rhs.message).append(developerMessage, rhs.developerMessage).append(moreInfo, rhs.moreInfo).append(additionalProperties, rhs.additionalProperties).isEquals();
     }
 
 }

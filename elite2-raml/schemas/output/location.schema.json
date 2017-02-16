@@ -1,71 +1,21 @@
 {
-	"$schema": "http://json-schema.org/draft-03/schema",
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"type": "object",
+	"title": "Location",
 	"properties": {
-		"name": {
-			"required": true,
-			"type": "string"
-		},
-		"description": {
-			"required": true,
-			"type": "string"
-		},
-		"url": {
-			"required": true,
-			"type": "string"
-		},
-		"image": {
-			"required": true,
-			"type": "string"
-		},
-		"thumbnailUrl": {
-			"required": true,
-			"type": "string"
-		},
-		"keywords": {
-			"required": true,
-			"type": "string"
-		},
-		"brand": {
-			"required": false,
-			"type": "string"
-		},
-		"color": {
-			"required": false,
-			"type": "string"
-		},
-		"itemCondition": {
-			"required": false,
-			"type": "string"
-		},
-		"manufacturer": {
-			"required": false,
-			"type": "string"
-		},
-		"model": {
-			"required": false,
-			"type": "string"
-		},
-		"sku": {
-			"required": false,
-			"type": "string"
-		},
-		"weight": {
-			"required": false,
-			"type": "string"
-		},
-		"width": {
-			"required": false,
-			"type": "string"
-		},
-		"height": {
-			"required": false,
-			"type": "string"
-		},
-		"depth": {
-			"required": false,
-			"type": "string"
+		"locationId":   { "type": "integer" },
+		"agencyId":   { "type": "string" },
+		"locationType":   { "type": "string" },
+		"description": { "type": "string" },
+		"parentLocationId":   { "type": "integer" },
+		"operationalCapacity":  { "type": "integer" },
+		"currentOccupancy": { "type": "integer" },
+		"livingUnit": { "type": "boolean" },
+		"housingUnitType": { "type": "string" },
+		"assignedInmates": {
+			"type": "array",
+			"items": { "$ref": "inmateSummary" }
 		}
 	},
-	"required": true,
-	"type": "object"
+	"required": ["locationId", "agencyId", "locationType", "description", "parentLocationId", "currentOccupancy", "livingUnit"]
 }
