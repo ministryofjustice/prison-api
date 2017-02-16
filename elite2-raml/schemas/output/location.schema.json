@@ -11,8 +11,7 @@
 		"operationalCapacity":  { "type": "integer" },
 		"currentOccupancy": { "type": "integer" },
 		"livingUnit": { "type": "boolean" },
-		"housingUnitType": { "type": "string" },
-		"inmateActiveCountStatus": { "type": { "enum": [ "Counted", "Recount", "NotCounted" ]} }
+		"housingUnitType": { "type": "string" }
 	},
 	"required": ["locationId", "agencyId", "locationType", "description", "parentLocationId", "currentOccupancy", "livingUnit"]
 }
