@@ -11,7 +11,11 @@
 		"operationalCapacity":  { "type": "integer" },
 		"currentOccupancy": { "type": "integer" },
 		"livingUnit": { "type": "boolean" },
-		"housingUnitType": { "type": "string" }
+		"housingUnitType": { "type": "string" },
+		"assignedInmates": {
+			"type": "array",
+			"items": { "$ref": "inmateSummary" }
+		}
 	},
 	"required": ["locationId", "agencyId", "locationType", "description", "parentLocationId", "currentOccupancy", "livingUnit"]
 }
