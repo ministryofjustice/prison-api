@@ -30,7 +30,7 @@ import { AppRoutingModule }     from './app-routing.module';
     FormsModule,
     HttpModule,
     JsonpModule,
-    InMemoryWebApiModule.forRoot( InMemoryDBMockData ),
+    //InMemoryWebApiModule.forRoot( InMemoryDBMockData ),
     AppRoutingModule
   ],
   declarations: [
