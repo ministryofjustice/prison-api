@@ -16,6 +16,7 @@ plugins {
 	id "org.sonarqube" version "1.2"
 }
 
+defaultTasks 'clean', 'run'
 
 
 subprojects {
@@ -71,40 +72,57 @@ subprojects {
 
 project(":elite2-raml") {
 
-	task "generate-sources" {
-		doLast {
-			def configs = new org.raml.jaxrs.codegen.core.Configuration()
-			def ramlDir = new File("${rootDir}/elite2-raml")
-			def sourceGenDir = new File("${rootDir}/elite2-web/src/main/generated")
-			sourceGenDir.listFiles().each{ f -> if (f != null) delete f }
-			sourceGenDir.mkdirs()
-			configs.outputDirectory = sourceGenDir
-			configs.sourceDirectory = ramlDir
-			configs.setBasePackageName("net.syscon.elite.web.api");
-			configs.setJaxrsVersion(org.raml.jaxrs.codegen.core.Configuration.JaxrsVersion.JAXRS_2_0)
-			configs.setJsonMapper(AnnotationStyle.JACKSON2)
-			configs.setUseJsr303Annotations(false)
-			configs.jsonMapperConfiguration = new HashMap<>()
-			configs.jsonMapperConfiguration["useLongIntegers"] = "true"
-			configs.jsonMapperConfiguration["includeToString"] = "true"
-			configs.jsonMapperConfiguration["includeHashcodeAndEquals"] = "true"
-			configs.jsonMapperConfiguration["includeConstructors"] = "true"
-			configs.jsonMapperConfiguration["useCommonsLang3"] = "true"
+	def sourceGenDir = new File("${rootDir}/elite2-web/src/main/generated")
 
-			new Generator().run(new FileReader(new File(ramlDir, "./api.raml")), configs, "")
-		}
+	processResources {
+		def configs = new org.raml.jaxrs.codegen.core.Configuration()
+		def ramlDir = new File("${rootDir}/elite2-raml")
+		sourceGenDir.listFiles().each{ f -> if (f != null) delete f }
+		sourceGenDir.mkdirs()
+		configs.outputDirectory = sourceGenDir
+		configs.sourceDirectory = ramlDir
+		configs.setBasePackageName("net.syscon.elite.web.api");
+		configs.setJaxrsVersion(org.raml.jaxrs.codegen.core.Configuration.JaxrsVersion.JAXRS_2_0)
+		configs.setJsonMapper(AnnotationStyle.JACKSON2)
+		configs.setUseJsr303Annotations(false)
+		configs.jsonMapperConfiguration = new HashMap<>()
+		configs.jsonMapperConfiguration["useLongIntegers"] = "true"
+		configs.jsonMapperConfiguration["includeToString"] = "true"
+		configs.jsonMapperConfiguration["includeHashcodeAndEquals"] = "true"
+		configs.jsonMapperConfiguration["includeConstructors"] = "true"
+		configs.jsonMapperConfiguration["useCommonsLang3"] = "true"
+		new Generator().run(new FileReader(new File(ramlDir, "./api.raml")), configs, "")
 	}
+
+	task run {
+		doLast() { println ">>> Source Code Generated on ${sourceGenDir.absolutePath}!"}
+	}
+	run.dependsOn processResources
+
 }
 
-
-
 project(":elite2-web") {
+	def configsDir = new java.io.File("${rootDir}/elite2-web/src/main/configs").absolutePath.replace('\\', '/')
+	processResources {
+		def devConfigsFile = new java.io.File("${configsDir}/elite2-dev.yml")
+		if (!devConfigsFile.exists()) {
+			copy {
+				from (configsDir) { include "elite2-dev-SAMPLE.yml" }
+				into configsDir
+				rename { String fileName ->
+					fileName.replace("elite2-dev-SAMPLE.yml", "elite2-dev.yml")
+				}
+			}
+		}
+	}
 
-	def configsDir = new java.io.File("${rootDir}/elite2-web/src/main/configs").absolutePath.replace('\\', '/') 
+
 	bootRun {
 		jvmArgs("-Dspring.profiles.active=dev", "-Dsyscon.configs.dir=${configsDir}")
 		addResources = true 
 	}
+
+
 
 	sourceSets.main.java.srcDir new File("${rootDir}/elite2-web/src/main/generated")
 	compileJava { source "${rootDir}/elite2-web/src/main/generated" }
@@ -128,6 +146,15 @@ project(":elite2-web") {
 		testCompile("org.springframework.boot:spring-boot-starter-test")
 
 	}
+
+
+	task run {
+		doLast() { println "Server ready for requests ..." }
+	}
+
+	compileJava.dependsOn processResources
+	run.dependsOn bootRun
+
 
 }
 
