@@ -4,6 +4,7 @@ import { Headers, Http } from '@angular/http';
 import 'rxjs/add/operator/toPromise';
 
 import { Inmate } from './inmate';
+import { ImageSummary } from './image-summary';
 
 @Injectable()
 export class InmateService {
@@ -23,6 +24,14 @@ export class InmateService {
     return this.http.get(url)
       .toPromise()
       .then(response => response.json().data as Inmate)
+      .catch(this.handleError);
+  }
+
+  getInmateImages(id: number): Promise<ImageSummary[]> {
+    const url = `${this.inmatesUrl}/${id}/images`;
+    return this.http.get(url)
+      .toPromise()
+      .then(response => response.json() as ImageSummary)
       .catch(this.handleError);
   }
 

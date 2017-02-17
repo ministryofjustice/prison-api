@@ -4,6 +4,9 @@ import { Location }                 from '@angular/common';
 
 import { Inmate } from './inmate';
 import { InmateService } from './inmate.service';
+import { ImageDetail } from './image-detail';
+import { ImageSummary } from './image-summary';
+import { ImageService } from './image.service';
 
 import 'rxjs/add/operator/switchMap';
 
@@ -13,6 +16,7 @@ import 'rxjs/add/operator/switchMap';
   <div *ngIf="inmate">
     <h2>{{inmate.firstName}} {{inmate.lastName}} Details</h2>
 
+    <div *ngIf="inmate.facialImageId"><img src="/api/images/{{inmate.facialImageId}}/data" alt="Inmate front facial image."/></div>
     <table>
     <tr><td><label>Fullname</label></td><td *ngIf="inmate.middleName">{{inmate.firstName}} {{inmate.middleName}} {{inmate.lastName}}</td><td *ngIf="!inmate.middleName">{{inmate.firstName}} {{inmate.lastName}}</td></tr>
     <tr *ngIf="inmate.bookingId"><td><label>Booking Id</label></td><td>{{inmate.bookingId}}</td></tr>
@@ -56,6 +60,7 @@ export class InmateDetailComponent implements OnInit {
 
   constructor(
     private inmateService: InmateService,
+    private imageService: ImageService,
     private route: ActivatedRoute,
     private location: Location
   ) { }
@@ -63,7 +68,7 @@ export class InmateDetailComponent implements OnInit {
   ngOnInit(): void {
     this.route.params
       .switchMap((params: Params) => this.inmateService.getInmate(+params['id']))
-      .subscribe(inmate => this.inmate = inmate);
+      .subscribe(inmate => this.inmate = inmate );
   }
 
   goBack(): void {

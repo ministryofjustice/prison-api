@@ -31,6 +31,7 @@ export class Inmate {
   alertCodes?: string[];
   currentLocationId?: number;
   assignedLivingUnitId?: number;
+  facialImageId?: number;
   dateOfBirth?: string;
   age?: number;
   physicalAttributes?: PhysicalAttributes
