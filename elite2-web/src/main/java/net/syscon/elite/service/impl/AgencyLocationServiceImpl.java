@@ -1,8 +1,8 @@
 package net.syscon.elite.service.impl;
 
-import net.syscon.elite.persistence.repository.AgencyRepository;
-import net.syscon.elite.persistence.repository.InmateRepository;
-import net.syscon.elite.persistence.repository.LocationRepository;
+import net.syscon.elite.persistence.AgencyRepository;
+import net.syscon.elite.persistence.InmateRepository;
+import net.syscon.elite.persistence.LocationRepository;
 import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.web.api.model.Agency;
 import net.syscon.elite.web.api.model.AssignedInmate;
@@ -23,7 +23,7 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 
 	private AgencyRepository agencyRepository;
 	private LocationRepository locationRepository;
-	private InmateRepository inmageRepository;
+	private InmateRepository inmateRepository;
 
 	@Inject
 	public void setAgencyRepository(final AgencyRepository agencyRepository) { this.agencyRepository = agencyRepository; }
@@ -32,7 +32,7 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 	public void setLocationRepository(final LocationRepository locationRepository) { this.locationRepository = locationRepository; }
 
 	@Inject
-	public void setInmateRepository(final InmateRepository inmageRepository) { this.inmageRepository = inmageRepository; }
+	public void setInmateRepository(final InmateRepository inmateRepository) { this.inmateRepository = inmateRepository; }
 
 
 	@Override
@@ -57,24 +57,20 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 
 	@Override
 	public List<AssignedInmate> getInmatesFromLocation(Long locationId, int offset, int limit) {
-		return inmageRepository.findInmatesByLocation(locationId, offset, limit);
+		return inmateRepository.findInmatesByLocation(locationId, offset, limit);
 	}
 
 	@Override
 	public Location getLocation(Long locationId) {
-
 		try {
 			Location location = locationRepository.findLocation(locationId);
-			List<AssignedInmate> inmates = inmageRepository.findInmatesByLocation(locationId, 0, 1000);
+			List<AssignedInmate> inmates = inmateRepository.findInmatesByLocation(locationId, 0, 1000);
 			location.setAssignedInmates(inmates);
 			return location;
 		} catch (Throwable ex) {
 			log.error(ex.getMessage(), ex);
 			throw ex;
 		}
-
-
-
 	}
 
 

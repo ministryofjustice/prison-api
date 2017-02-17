@@ -1,7 +1,5 @@
 package net.syscon.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.text.MessageFormat;
@@ -10,7 +8,6 @@ import java.util.*;
 
 public class SQLProvider {
 
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 	private Map<String, String[]> statements = new HashMap<String, String[]>();
     private final Map<String, String> variables = new HashMap<String, String>();
     private File file;

@@ -18,9 +18,9 @@
 	<logger name="org.eclipse.jetty" level="ERROR"/>
 	<logger name="org.springframework" level="INFO"/>
 
-
 	<root level="INFO">
 		<appender-ref ref="CONSOLE"/>
 	</root>
+
 </configuration>
 

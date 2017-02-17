@@ -16,11 +16,3 @@ is: [
     orderable: {fieldsList : "moveCategory, moveDateTime, fromAgencyId, toAgencyId, moveType, moveReason, fromLocationId, or toLocation"},
     pageable
   ]
-
-/inmates/{inmateId}/images:
-  description: The collection of images associated to the inmate. Only images related to the inmate (booking) will be included.
-  type: { get-collection: { collectionSchema: imageSummaries } }
-  is: [
-    orderable: {fieldsList : "imageId, captureDate, imageView, imageOrientation, imageType"},
-    pageable
-  ]

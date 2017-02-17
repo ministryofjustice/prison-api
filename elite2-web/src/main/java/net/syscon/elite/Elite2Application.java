@@ -11,11 +11,6 @@ import java.io.File;
 public class Elite2Application {
 	
 	private static void setUp() {
-
-
-		System.setProperty("jersey.config.server.monitoring.statistics.mbeans.enabled", "true");
-
-
 		final File currDir = new File(".");
 		final File projectDir = currDir.getAbsolutePath().contains("elite2-web")? currDir: new File("elite2-web");
 		String activeProfile = System.getProperty(AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME);

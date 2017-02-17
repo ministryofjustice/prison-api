@@ -30,7 +30,6 @@ public class AgenciesResourceImpl implements AgenciesResource {
 		return GetAgenciesByAgencyIdResponse.withJsonOK(agency);
 	}
 
-
 	@Override
 	public GetAgenciesByAgencyIdLocationsResponse getAgenciesByAgencyIdLocations(final String agencyId, final String orderBy, final Order order, final int offset, final int limit) throws Exception {
 		final List<Location> result = agencyLocationService.getLocationsFromAgency(agencyId, offset, limit);
@@ -38,3 +37,4 @@ public class AgenciesResourceImpl implements AgenciesResource {
 	}
 
 }
+
