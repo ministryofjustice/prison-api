@@ -10,7 +10,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Blob;
-import java.sql.SQLException;
 import java.util.Map;
 
 @Repository
@@ -46,7 +45,7 @@ public class ImageRepositoryImpl extends RepositoryBase implements ImageReposito
 				blob.free();
 			}
 			return content;
-		} catch (SQLException ex) {
+		} catch (Exception ex) {
 			throw new RecoverableDataAccessException(ex.getMessage(), ex);
 		}
 	}

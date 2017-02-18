@@ -1,10 +1,12 @@
 package net.syscon.elite.persistence.mapping;
 
 
+import org.apache.commons.lang3.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 
+import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -91,24 +93,34 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 			for (final String columnName: sqlToCollumns) {
 				final Object value = rs.getObject(columnName);
 				if (value != null) {
+
 					FieldMapper fieldMapper = columnsMapping.get(columnName);
 					if (fieldMapper == null) {
-						fieldMapper = new FieldMapper(FieldMapper.ADDITIONAL_PROPERTIES, null, (field) -> {
-							try {
-								if (field != null && field.getType().equals(Map.class)) {
-									@SuppressWarnings("unchecked")
-									Map<String, Object> additionalProperties = (Map<String, Object>) field.get(bean);
-									if (additionalProperties == null) {
-										additionalProperties = new HashMap<String, Object>();
-										field.set(bean, additionalProperties);
+						Field candidateField = null;
+						String fieldName = WordUtils.capitalizeFully(columnName.toLowerCase(), '_');
+						fieldName = (fieldName.substring(0, 1).toLowerCase() + fieldName.substring(1)).replaceAll("\\_", "");
+						try { candidateField = bean.getClass().getDeclaredField(fieldName); } catch (Exception ex) {}
+						if (candidateField != null) {
+							fieldMapper = new FieldMapper(fieldName);
+							columnsMapping.put(columnName, fieldMapper);
+						} else {
+							fieldMapper = new FieldMapper(FieldMapper.ADDITIONAL_PROPERTIES, null, (field) -> {
+								try {
+									if (field != null && field.getType().equals(Map.class)) {
+										@SuppressWarnings("unchecked")
+										Map<String, Object> additionalProperties = (Map<String, Object>) field.get(bean);
+										if (additionalProperties == null) {
+											additionalProperties = new HashMap<String, Object>();
+											field.set(bean, additionalProperties);
+										}
+										additionalProperties.put(columnName.toLowerCase(), value);
 									}
-									additionalProperties.put(columnName.toLowerCase(), value);
+								} catch (final Throwable ex) {
+									logger.warn("Failure adding the field "  +  columnName + " on \"" + FieldMapper.ADDITIONAL_PROPERTIES +"\" " + type.getName());
 								}
-							} catch (final Throwable ex) {
-								logger.warn("Failure adding the field "  +  columnName + " on \"" + FieldMapper.ADDITIONAL_PROPERTIES +"\" " + type.getName());
-							}
-							return null;
-						});
+								return null;
+							});
+						}
 					}
 					fieldMapper.setValue(bean, value);
 				}
