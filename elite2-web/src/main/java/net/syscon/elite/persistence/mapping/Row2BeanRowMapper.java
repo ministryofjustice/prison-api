@@ -1,7 +1,6 @@
-package net.syscon.elite.persistence.repository.mapping;
+package net.syscon.elite.persistence.mapping;
 
 
-import net.syscon.elite.exception.RowMappingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
@@ -18,15 +17,15 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 	private static class MappingInfo {
 		public String sql;
 		public Class<?> type;
-		public MappingInfo(String sql, Class<?> type) {
+		public MappingInfo(final String sql, final Class<?> type) {
 			this.sql = sql;
 			this.type = type;
 		}
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(final Object o) {
 			if (this == o) return true;
 			if (o == null || getClass() != o.getClass()) return false;
-			MappingInfo that = (MappingInfo) o;
+			final MappingInfo that = (MappingInfo) o;
 			return Objects.equals(sql, that.sql) &&
 					Objects.equals(type, that.type);
 		}
@@ -37,67 +36,67 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 	}
 
 
+	@SuppressWarnings("rawtypes")
 	private static final Map<MappingInfo , Row2BeanRowMapper> cachedMappings = new ConcurrentHashMap<>();
 
 	private static final Logger logger = LoggerFactory.getLogger(Row2BeanRowMapper.class);
 
 
-	private final String sql;
 	private final Class<? extends T> type;
 	private final Map<String, FieldMapper> columnsMapping;
 
 	private List<String> sqlToCollumns;
 
-	public Row2BeanRowMapper(String sql, Class<? extends T> type, Map<String, FieldMapper> mappings) {
+	public Row2BeanRowMapper(final String sql, final Class<? extends T> type, final Map<String, FieldMapper> mappings) {
 		this.type = type;
-		this.sql = sql;
 		this.columnsMapping = new HashMap<>();
-		for (Map.Entry<String, FieldMapper> entry: mappings.entrySet()) {
+		for (final Map.Entry<String, FieldMapper> entry: mappings.entrySet()) {
 			final String upperKey = entry.getKey() != null? entry.getKey().toUpperCase(): null;
 			this.columnsMapping.put(upperKey, entry.getValue());
 		}
 	}
 
-	private void loadColumns(ResultSet rs) {
+	private void loadColumns(final ResultSet rs) {
 		if (sqlToCollumns == null) {
-			List<String> loadingCols = new ArrayList<>();
+			final List<String> loadingCols = new ArrayList<>();
 			try {
-				ResultSetMetaData rsmd = rs.getMetaData();
-				int count = rsmd.getColumnCount();
+				final ResultSetMetaData rsmd = rs.getMetaData();
+				final int count = rsmd.getColumnCount();
 				for (int i = 1; i <= count; i++) {
 					loadingCols.add(rsmd.getColumnName(i).toUpperCase());
 				}
 				sqlToCollumns = loadingCols;
-			} catch (SQLException ex) {
+			} catch (final SQLException ex) {
 				throw new RowMappingException(ex.getMessage(), ex);
 			}
 		}
 	}
 
 
-	@SuppressWarnings("unchecked")
-	public static <M> RowMapper<M> makeMapping(String sql, Class<M> type, Map<String, FieldMapper> mappings) {
-		MappingInfo mappingInfo = new MappingInfo(sql, type);
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static <M> RowMapper<M> makeMapping(final String sql, final Class<M> type, final Map<String, FieldMapper> mappings) {
+		final MappingInfo mappingInfo = new MappingInfo(sql, type);
 		if (!cachedMappings.containsKey(mappingInfo)) {
 			cachedMappings.put(mappingInfo, new Row2BeanRowMapper(sql, type, mappings));
 		}
-		RowMapper<M> mapping = (RowMapper<M>) cachedMappings.get(mappingInfo);
+		final RowMapper<M> mapping = cachedMappings.get(mappingInfo);
 		return mapping;
 	}
 
 	@Override
 	public T mapRow(final ResultSet rs, final int rowNum) throws SQLException {
 		try {
-			T bean = type.newInstance();
+			final T bean = type.newInstance();
 			loadColumns(rs);
-			for (String columnName: sqlToCollumns) {
-				Object value = rs.getObject(columnName);
+			for (final String columnName: sqlToCollumns) {
+				final Object value = rs.getObject(columnName);
 				if (value != null) {
 					FieldMapper fieldMapper = columnsMapping.get(columnName);
 					if (fieldMapper == null) {
 						fieldMapper = new FieldMapper(FieldMapper.ADDITIONAL_PROPERTIES, null, (field) -> {
 							try {
 								if (field != null && field.getType().equals(Map.class)) {
+									@SuppressWarnings("unchecked")
 									Map<String, Object> additionalProperties = (Map<String, Object>) field.get(bean);
 									if (additionalProperties == null) {
 										additionalProperties = new HashMap<String, Object>();
@@ -105,7 +104,7 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 									}
 									additionalProperties.put(columnName.toLowerCase(), value);
 								}
-							} catch (Throwable ex) {
+							} catch (final Throwable ex) {
 								logger.warn("Failure adding the field "  +  columnName + " on \"" + FieldMapper.ADDITIONAL_PROPERTIES +"\" " + type.getName());
 							}
 							return null;
@@ -115,7 +114,7 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 				}
 			}
 			return bean;
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			throw new RowMappingException(ex.getMessage(), ex);
 		}
 	}

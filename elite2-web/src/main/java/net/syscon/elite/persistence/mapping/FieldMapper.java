@@ -1,4 +1,4 @@
-package net.syscon.elite.persistence.repository.mapping;
+package net.syscon.elite.persistence.mapping;
 
 
 import org.slf4j.Logger;
@@ -71,7 +71,7 @@ public class FieldMapper {
 			if (BigInteger.class.equals(fieldType))
 				return new BigInteger(numberValue.toString());
 		}
-		if (value instanceof java.util.Date) {
+		else if (value instanceof java.util.Date) {
 			if (fieldType.equals(java.sql.Date.class)) {
 				return new java.sql.Date(((java.util.Date) value).getTime());
 			} else if (fieldType.equals(java.sql.Time.class)) {

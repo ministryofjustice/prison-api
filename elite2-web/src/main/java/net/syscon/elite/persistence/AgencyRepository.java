@@ -1,4 +1,4 @@
-package net.syscon.elite.persistence.repository;
+package net.syscon.elite.persistence;
 
 
 import net.syscon.elite.web.api.model.Agency;

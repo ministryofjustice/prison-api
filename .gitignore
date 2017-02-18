@@ -129,9 +129,23 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 
+# Angular UI temporary files
+UI/.idea
+UI/node_modules
+UI/jspm_packages
+UI/npm-debug.*
+UI/link-checker-results.txt
+UI/app/**/*.js
+UI/**/*.js.map
+UI/e2e/**/*.js
+UI/e2e/**/*.js.map
+UI/_test-output
+UI/_temp
+
 # Created by .ignore support plugin (hsz.mobi)
 
 /elite2-web/src/main/configs/elite2-dev.yml
 /elite2-web/gradle
 /elite2-web/output.txt
-/elite2-web/src/main/generated
+/elite2-web/src/main/generated/net/syscon/elite/web/api/resource
+/elite2-web/src/main/generated/net/syscon/elite/web/api/model

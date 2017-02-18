@@ -1,0 +1,18 @@
+
+FIND_IMAGE_DETAIL {
+    SELECT I.IMAGE_ID,
+           I.CAPTURE_DATE,
+           I.IMAGE_VIEW_TYPE,
+           I.ORIENTATION_TYPE,
+           I.IMAGE_OBJECT_TYPE,
+           I.IMAGE_OBJECT_ID
+      FROM IMAGES I
+     WHERE I.IMAGE_ID = :imageId
+}
+
+FIND_IMAGE_CONTENT {
+    SELECT I.IMAGE_DATA
+      FROM IMAGES I
+     WHERE I.IMAGE_ID = :imageId
+}
+

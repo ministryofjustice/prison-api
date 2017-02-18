@@ -1,9 +1,9 @@
-package net.syscon.elite.persistence.repository.impl;
+package net.syscon.elite.persistence.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
-import net.syscon.elite.persistence.repository.LocationRepository;
-import net.syscon.elite.persistence.repository.mapping.FieldMapper;
-import net.syscon.elite.persistence.repository.mapping.Row2BeanRowMapper;
+import net.syscon.elite.persistence.mapping.FieldMapper;
+import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
+import net.syscon.elite.persistence.LocationRepository;
 import net.syscon.elite.web.api.model.Location;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;

@@ -13,7 +13,8 @@ This README is going to show how to run Elite2 API server.
 
 ### How do I get set up? ###
 
-* The Elite2 API Server uses the configuration file in YAML format. There is at least one initial configuration in
+* The Elite2 API Server uses the configuration file in YAML format. There is at least one initial configuration
+  packaged in the jar on
 
     elite2-web/src/main/resources/elite2.yaml
        
@@ -37,7 +38,7 @@ This README is going to show how to run Elite2 API server.
   You can use the Gradle to run the application 
   
     cd elite2-web
-    gradle bootRun
+    gradle run
     
   Or you can just run the main method of the class net.syscon.elite.Elite2Application in your IDE 
   
@@ -46,7 +47,7 @@ This README is going to show how to run Elite2 API server.
 * How to package the Application
   To create a JAR of the application just run gradle to package it:
     
-    gradle package
+    gradle build
     
 
 * Deployment instructions

@@ -1,4 +1,4 @@
-package net.syscon.elite.persistence.repository.impl;
+package net.syscon.elite.persistence.impl;
 
 
 import net.syscon.util.SQLProvider;
