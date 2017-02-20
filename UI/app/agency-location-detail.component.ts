@@ -13,15 +13,29 @@ import 'rxjs/add/operator/switchMap';
   template: `
   <div *ngIf="agencyLocation">
     <h2>{{agencyLocation.description}} Details</h2>
-    <button (click)="goCount()">Physical Count</button>
+
     <div *ngIf="agencyLocation.currentOccupancy"><span><label>Current Occupancy:</label>{{agencyLocation.currentOccupancy}}</span></div>
     <div *ngIf="agencyLocation.operationalCapacity"><span><label>Operational Capacity:</label>{{agencyLocation.operationalCapacity}}</span></div>
+
+    <div *ngIf="agencyLocation.inmateActiveCountStatus">
+      <h3>Inmate Count In Progress</h3>
+      <div *ngIf="agencyLocation.inmateActiveCountStatus=='NotCounted'">
+        <button (click)="goCount()">Enter Physical Count</button>
+      </div>
+      <div *ngIf="agencyLocation.inmateActiveCountStatus=='Recount'">
+        <button (click)="goCount()">Enter Physical Recount</button>
+      </div>
+      <div *ngIf="agencyLocation.inmateActiveCountStatus=='Counted'">
+        <span>Inmate count completed for this location</span>
+      </div>
+    </div>
+
     <h3>Inmates</h3>
     <div *ngIf="!agencyLocation.assignedInmates">Loading inmates...</div>
     <div *ngIf="agencyLocation.assignedInmates">
       <ul class="inmates">
     		<li *ngFor="let inmate of agencyLocation.assignedInmates" (click)="onSelect(inmate)">
-    			{{inmate.firstName}} {{inmate.lastName}} ({{inmate.bookingId}})<span class="badge">&gt;</span>
+    			{{inmate.firstName}} {{inmate.lastName}} ({{inmate.bookingNo}})<span class="badge">&gt;</span>
     		</li>
     	</ul>
       <div *ngIf="agencyLocation.assignedInmates.length === 0">No inmates currently in the location.</div>
@@ -107,7 +121,7 @@ export class AgencyLocationDetailComponent implements OnInit {
     }
 
   onSelect(inmate: Inmate): void {
-    this.router.navigate(['/inmates', inmate.inmateId]);
+    this.router.navigate(['/inmates', inmate.bookingId]);
   }
 
   goCount(): void {
