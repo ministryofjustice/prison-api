@@ -5,6 +5,8 @@ import net.syscon.elite.persistence.ImageRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.web.api.model.ImageDetail;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -15,7 +17,7 @@ import java.util.Map;
 @Repository
 public class ImageRepositoryImpl extends RepositoryBase implements ImageRepository {
 
-
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final Map<String, FieldMapper> imageSummaryMapping = new ImmutableMap.Builder<String, FieldMapper>()
 		.put("IMAGE_ID",            new FieldMapper("imageId"))
@@ -46,6 +48,7 @@ public class ImageRepositoryImpl extends RepositoryBase implements ImageReposito
 			}
 			return content;
 		} catch (Exception ex) {
+			log.error(ex.getMessage(), ex);
 			throw new RecoverableDataAccessException(ex.getMessage(), ex);
 		}
 	}
