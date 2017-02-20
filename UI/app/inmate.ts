@@ -10,6 +10,7 @@ export class PhysicalAttributes {
 export class PhysicalCharacteristic {
   characteristic: string;
   detail: string;
+  imageId?: number;
 }
 
 export class PhysicalMark {
@@ -18,6 +19,7 @@ export class PhysicalMark {
   bodyPart: string;
   orientation: string;
   comment: string;
+  imageId?: number;
 }
 
 export class Inmate {
@@ -32,6 +34,7 @@ export class Inmate {
   alertCodes?: string[];
   currentLocationId?: number;
   assignedLivingUnitId?: number;
+  facialImageId?: number;
   dateOfBirth?: string;
   age?: number;
   physicalAttributes?: PhysicalAttributes

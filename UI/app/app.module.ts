@@ -21,6 +21,7 @@ import { AgencyLocationService } from './agency-location.service';
 import { InmateService } from './inmate.service';
 import { AgencyLocationCountService } from './agency-location-count.service';
 import { AgencyService } from './agency.service';
+import { ImageService } from './image.service';
 
 import { AppRoutingModule }     from './app-routing.module';
 
@@ -46,7 +47,8 @@ import { AppRoutingModule }     from './app-routing.module';
     AgencyLocationService,
     InmateService,
     AgencyLocationCountService,
-    AgencyService ],
+    AgencyService,
+    ImageService ],
   bootstrap: [ AppComponent ]
 })
 export class AppModule { }

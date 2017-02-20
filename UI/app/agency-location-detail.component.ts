@@ -13,9 +13,23 @@ import 'rxjs/add/operator/switchMap';
   template: `
   <div *ngIf="agencyLocation">
     <h2>{{agencyLocation.description}} Details</h2>
-    <button (click)="goCount()">Physical Count</button>
+
     <div *ngIf="agencyLocation.currentOccupancy"><span><label>Current Occupancy:</label>{{agencyLocation.currentOccupancy}}</span></div>
     <div *ngIf="agencyLocation.operationalCapacity"><span><label>Operational Capacity:</label>{{agencyLocation.operationalCapacity}}</span></div>
+
+    <div *ngIf="agencyLocation.inmateActiveCountStatus">
+      <h3>Inmate Count In Progress</h3>
+      <div *ngIf="agencyLocation.inmateActiveCountStatus=='NotCounted'">
+        <button (click)="goCount()">Enter Physical Count</button>
+      </div>
+      <div *ngIf="agencyLocation.inmateActiveCountStatus=='Recount'">
+        <button (click)="goCount()">Enter Physical Recount</button>
+      </div>
+      <div *ngIf="agencyLocation.inmateActiveCountStatus=='Counted'">
+        <span>Inmate count completed for this location</span>
+      </div>
+    </div>
+
     <h3>Inmates</h3>
     <div *ngIf="!agencyLocation.assignedInmates">Loading inmates...</div>
     <div *ngIf="agencyLocation.assignedInmates">

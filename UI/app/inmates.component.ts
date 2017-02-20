@@ -79,7 +79,7 @@ export class InmatesComponent implements OnInit  {
 	{ }
 
 	onSelect(inmate: Inmate): void {
-		this.router.navigate(['/inmates', inmate.inmateId]);
+		this.router.navigate(['/inmates', inmate.bookingId]);
 	}
 
 	ngOnInit(): void {

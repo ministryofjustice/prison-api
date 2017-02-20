@@ -18,7 +18,13 @@ import 'rxjs/add/operator/switchMap';
     <div *ngIf="agencyLocations">
     	<ul class="agencyLocations">
     		<li *ngFor="let agencyLocation of agencyLocations" (click)="onSelect(agencyLocation)">
-    			{{agencyLocation.description}} <span class="badge">&gt;</span>
+    			{{agencyLocation.description}}
+            <div class="notify" *ngIf="agencyLocation.inmateActiveCountStatus">
+              <span *ngIf="agencyLocation.inmateActiveCountStatus=='Counted'">&#x2705;</span>
+              <span *ngIf="agencyLocation.inmateActiveCountStatus=='Recount'">&#x2755;</span>
+              <span *ngIf="agencyLocation.inmateActiveCountStatus=='NotCounted'">&#x2754;</span>
+            </div>
+            <span class="badge">&gt;</span>
     		</li>
     	</ul>
       <div *ngIf="agencyLocations.length === 0">No locations for this agency.</div>
@@ -75,6 +81,21 @@ import 'rxjs/add/operator/switchMap';
 		margin-left: .8em;
 		border-radius: 0 4px 4px 0;
 		float: right;
+	  }
+    .agencyLocations .notify {
+		display: inline-block;
+		font-size: small;
+		color: white;
+		padding: 0.8em 0.7em 0 0.7em;
+		background-color: #8b6e60;
+		line-height: 1em;
+		position: relative;
+		left: -1px;
+		top: -4px;
+		height: 1.8em;
+		margin-right: .8em;
+		border-radius: 4px 0 0 4px;
+		float: left;
 	  }
 	`],
 })
