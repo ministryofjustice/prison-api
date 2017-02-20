@@ -95,7 +95,19 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	private PhysicalAttributes findPhysicalAttributes(Long bookingId) {
-		return null;
+		String sql = getQuery("FIND_PHYSICAL_ATTRIBUTES_BY_BOOKING");
+		final Map<String, FieldMapper> physicalAttributesMapping = new ImmutableMap.Builder<String, FieldMapper>()
+				.put("SEX_CODE",   new FieldMapper("gender"))
+				.put("RACE_CODE",  new FieldMapper("ethnicity"))
+				.put("HEIGHT_FT",  new FieldMapper("detail"))
+				.put("HEIGHT_IN",  new FieldMapper("heightInches"))
+				.put("HEIGHT_CM",  new FieldMapper("heightMeters", (value) -> ((Number) value).doubleValue() / 100.0, null))
+				.put("WEIGHT_LBS", new FieldMapper("weightPounds"))
+				.put("WEIGHT_KG",  new FieldMapper("weightKg"))
+				.build();
+		RowMapper<PhysicalAttributes> physicalAttributesRowMapper = Row2BeanRowMapper.makeMapping(sql, PhysicalAttributes.class, physicalAttributesMapping);
+		PhysicalAttributes physicalAttributes = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId), physicalAttributesRowMapper);
+		return physicalAttributes;
 	}
 
 }

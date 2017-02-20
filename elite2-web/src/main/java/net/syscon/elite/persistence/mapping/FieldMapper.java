@@ -8,6 +8,7 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.function.Function;
 
@@ -79,6 +80,11 @@ public class FieldMapper {
 			} else if (fieldType.equals(java.sql.Timestamp.class)) {
 				return new java.sql.Timestamp(((java.util.Date) value).getTime());
 			}
+		} else if (value instanceof  Blob && fieldType == byte[].class) {
+			Blob blob = (Blob) value;
+			int length = (int) blob.length();
+			value = blob.getBytes(1, length);
+			blob.free();
 		}
 		return value;
 	}

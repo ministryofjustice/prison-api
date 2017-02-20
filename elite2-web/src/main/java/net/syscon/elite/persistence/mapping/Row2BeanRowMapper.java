@@ -85,6 +85,12 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 		return mapping;
 	}
 
+	private String camelize(String columnName) {
+		String result = WordUtils.capitalizeFully(columnName.toLowerCase(), '_');
+		result = (result.substring(0, 1).toLowerCase() + result.substring(1)).replaceAll("\\_", "");
+		return result;
+	}
+
 	@Override
 	public T mapRow(final ResultSet rs, final int rowNum) throws SQLException {
 		try {
@@ -97,8 +103,7 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 					FieldMapper fieldMapper = columnsMapping.get(columnName);
 					if (fieldMapper == null) {
 						Field candidateField = null;
-						String fieldName = WordUtils.capitalizeFully(columnName.toLowerCase(), '_');
-						fieldName = (fieldName.substring(0, 1).toLowerCase() + fieldName.substring(1)).replaceAll("\\_", "");
+						String fieldName = camelize(columnName);
 						try { candidateField = bean.getClass().getDeclaredField(fieldName); } catch (Exception ex) {}
 						if (candidateField != null) {
 							fieldMapper = new FieldMapper(fieldName);
@@ -113,10 +118,10 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 											additionalProperties = new HashMap<String, Object>();
 											field.set(bean, additionalProperties);
 										}
-										additionalProperties.put(columnName.toLowerCase(), value);
+										additionalProperties.put(fieldName, value);
 									}
 								} catch (final Throwable ex) {
-									logger.warn("Failure adding the field "  +  columnName + " on \"" + FieldMapper.ADDITIONAL_PROPERTIES +"\" " + type.getName());
+									logger.warn("Failure adding the field "  +  fieldName + " on \"" + FieldMapper.ADDITIONAL_PROPERTIES +"\" " + type.getName());
 								}
 								return null;
 							});
