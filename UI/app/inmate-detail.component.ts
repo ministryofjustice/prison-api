@@ -61,7 +61,7 @@ import 'rxjs/add/operator/switchMap';
       <h3>Physical Marks</h3>
       <table>
         <tr *ngFor="let pm of inmate.physicalMarks">
-          <td><label>{{pm.type}}</label></td>
+          <td><label>{{pm.type}}:</label></td>
           <td>{{pm.side}}</td>
           <td>{{pm.bodyPart}}</td>
           <td>{{pm.orientation}}</td>
