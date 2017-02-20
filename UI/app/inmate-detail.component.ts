@@ -15,8 +15,8 @@ import 'rxjs/add/operator/switchMap';
 
     <table>
     <tr><td><label>Fullname</label></td><td *ngIf="inmate.middleName">{{inmate.firstName}} {{inmate.middleName}} {{inmate.lastName}}</td><td *ngIf="!inmate.middleName">{{inmate.firstName}} {{inmate.lastName}}</td></tr>
-    <tr *ngIf="inmate.bookingId"><td><label>Booking Id</label></td><td>{{inmate.bookingId}}</td></tr>
-    <tr *ngIf="inmate.offenderId"><td><label>Offender Id</label></td><td>{{inmate.offenderId}}</td></tr>
+    <tr *ngIf="inmate.bookingNo"><td><label>Booking Id</label></td><td>{{inmate.bookingNo}}</td></tr>
+    <tr *ngIf="inmate.offenderNo"><td><label>Offender Id</label></td><td>{{inmate.offenderNo}}</td></tr>
 
     <tr *ngIf="inmate.dateOfBirth"><td><label>DoB</label></td><td>{{inmate.dateOfBirth}}</td></tr>
     <tr *ngIf="inmate.age"><td><label>Age</label></td><td>{{inmate.age}}</td></tr>

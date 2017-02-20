@@ -22,9 +22,9 @@ export class PhysicalMark {
 
 export class Inmate {
   //id: number;
-  inmateId: number;
-  bookingId: string;
-  offenderId: string;
+  bookingId: number;
+  bookingNo: string;
+  offenderNo: string;
   firstName: string;
   lastName: string;
 

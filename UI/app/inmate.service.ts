@@ -8,7 +8,7 @@ import { ENVIRONMENT } from './environment';
 
 @Injectable()
 export class InmateService {
-  private inmatesUrl = ENVIRONMENT.apiUrl + 'api/bookings';  // URL to web api
+  private inmatesUrl = ENVIRONMENT.apiUrl + 'api/booking';  // URL to web api
 
   constructor(private http: Http) { }
 

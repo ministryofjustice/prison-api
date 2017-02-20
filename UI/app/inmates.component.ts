@@ -12,7 +12,7 @@ import { InmateService } from './inmate.service';
 	<h2>{{title}}</h2>
 	<ul class="inmates">
 		<li *ngFor="let inmate of inmates" (click)="onSelect(inmate)">
-			{{inmate.firstName}} {{inmate.lastName}} ({{inmate.bookingId}})<span class="badge">&gt;</span>
+			{{inmate.firstName}} {{inmate.lastName}} ({{inmate.bookingNo}})<span class="badge">&gt;</span>
 		</li>
 	</ul>
 	`,

@@ -21,7 +21,7 @@ import 'rxjs/add/operator/switchMap';
     <div *ngIf="agencyLocation.assignedInmates">
       <ul class="inmates">
     		<li *ngFor="let inmate of agencyLocation.assignedInmates" (click)="onSelect(inmate)">
-    			{{inmate.firstName}} {{inmate.lastName}} ({{inmate.bookingId}})<span class="badge">&gt;</span>
+    			{{inmate.firstName}} {{inmate.lastName}} ({{inmate.bookingNo}})<span class="badge">&gt;</span>
     		</li>
     	</ul>
       <div *ngIf="agencyLocation.assignedInmates.length === 0">No inmates currently in the location.</div>
@@ -107,7 +107,7 @@ export class AgencyLocationDetailComponent implements OnInit {
     }
 
   onSelect(inmate: Inmate): void {
-    this.router.navigate(['/inmates', inmate.inmateId]);
+    this.router.navigate(['/inmates', inmate.bookingId]);
   }
 
   goCount(): void {
