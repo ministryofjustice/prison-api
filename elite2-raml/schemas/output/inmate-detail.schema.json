@@ -14,8 +14,8 @@
 			"items": { "type": "string" }
 		},
 		"agencyId":  { "type": "string" },
-		"currentLocationId":  { "type": "number" },
-		"assignedLivingUnitId":  { "type": "number" },
+		"currentLocationId":  { "type": "integer" },
+		"assignedLivingUnitId":  { "type": "integer" },
 		"facialImageId": { "type": "integer" },
 		"dateOfBirth":  {
 			"type": "string",

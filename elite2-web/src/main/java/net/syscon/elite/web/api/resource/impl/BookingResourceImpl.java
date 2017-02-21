@@ -2,10 +2,12 @@ package net.syscon.elite.web.api.resource.impl;
 
 import net.syscon.elite.persistence.InmateRepository;
 import net.syscon.elite.web.api.model.AssignedInmate;
+import net.syscon.elite.web.api.model.HttpStatus;
 import net.syscon.elite.web.api.model.InmateDetail;
 import net.syscon.elite.web.api.resource.BookingResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -32,8 +34,14 @@ public class BookingResourceImpl implements BookingResource {
 
 	@Override
 	public GetBookingByBookingIdResponse getBookingByBookingId(String bookingId) throws Exception {
-		InmateDetail inmate = inmateRepository.findInmate(Long.valueOf(bookingId));
-		return GetBookingByBookingIdResponse.withJsonOK(inmate);
+		try {
+			InmateDetail inmate = inmateRepository.findInmate(Long.valueOf(bookingId));
+			return GetBookingByBookingIdResponse.withJsonOK(inmate);
+		} catch (EmptyResultDataAccessException ex) {
+			String message = String.format("Booking \"%s\" not found", bookingId);
+			HttpStatus httpStatus = new HttpStatus("404", "404", message, message, "");
+			return GetBookingByBookingIdResponse.withJsonNotFound(httpStatus);
+		}
 	}
 
 	@Override

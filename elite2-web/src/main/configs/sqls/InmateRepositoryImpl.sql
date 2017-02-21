@@ -30,7 +30,8 @@ FIND_INMATE_DETAIL {
                 )
                 WHERE ROWNUM <= 1
             ) AS FACE_IMAGE_ID,
-            O.BIRTH_DATE
+            O.BIRTH_DATE,
+            (SYSDATE - O.BIRTH_DATE) / 365 AS AGE
        FROM OFFENDER_BOOKINGS B
             LEFT JOIN OFFENDERS O ON B.OFFENDER_ID = O.OFFENDER_ID
       WHERE B.ACTIVE_FLAG = 'Y' AND B.OFFENDER_BOOK_ID = :bookingId

@@ -71,6 +71,11 @@ public class FieldMapper {
 				return new BigDecimal(numberValue.toString());
 			if (BigInteger.class.equals(fieldType))
 				return new BigInteger(numberValue.toString());
+			if (Float.TYPE.equals(fieldType) || Float.class.equals(fieldType))
+				return numberValue.floatValue();
+			if (Double.TYPE.equals(fieldType) || Double.class.equals(fieldType))
+				return numberValue.doubleValue();
+
 		}
 		else if (value instanceof java.util.Date) {
 			if (fieldType.equals(java.sql.Date.class)) {

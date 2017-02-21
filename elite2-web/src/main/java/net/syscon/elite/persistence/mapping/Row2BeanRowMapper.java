@@ -115,7 +115,7 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 										@SuppressWarnings("unchecked")
 										Map<String, Object> additionalProperties = (Map<String, Object>) field.get(bean);
 										if (additionalProperties == null) {
-											additionalProperties = new HashMap<String, Object>();
+											additionalProperties = new HashMap<>();
 											field.set(bean, additionalProperties);
 										}
 										additionalProperties.put(fieldName, value);
