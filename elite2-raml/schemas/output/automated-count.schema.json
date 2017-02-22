@@ -1,0 +1,13 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "Automated Count",
+  "type": "object",
+	"properties": {
+		"countId": { "type": "integer" },
+		"agencyId": {"type": "string" },
+    "countTypeCode": { "type": "string" },
+    "datetime": { "type": "string" },
+    "locationCounts": { "type": "array", "items": { "$ref": "locationCount" }}
+	},
+	"required": ["countId", "agencyId", "countTypeCode", "datetime", "locationCounts"]
+}

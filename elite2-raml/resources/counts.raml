@@ -1,0 +1,7 @@
+/{countId}:
+  description: Details about the specified count.
+  type: { get-item: { schema: automatedCount }}
+
+/{countId}/locations/{locationId}:
+  description: Details about the count at the specified location.
+  type: { get-item: { schema: locationCount }}

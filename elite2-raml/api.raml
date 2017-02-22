@@ -17,6 +17,9 @@ schemas:
 - imageSummaries: !include schemas/output/image-summaries.schema.json
 - imageDetail: !include schemas/output/image-detail.schema.json
 - imageData: !include schemas/output/image-data.schema.json
+- locationCountDetail: !include schemas/output/location-count-detail.schema.json
+- locationCount: !include schemas/output/location-count.schema.json
+- automatedCount: !include schemas/output/automated-count.schema.json
 
 resourceTypes: !include resourceTypes/generic-resource-types.raml
 
@@ -26,3 +29,4 @@ traits: !include traits/generic-traits.raml
 /booking: !include resources/booking.raml
 /locations: !include resources/locations.raml
 /images: !include resources/images.raml
+/counts: !include resources/counts.raml

@@ -15,7 +15,9 @@
 		"assignedInmates": {
 			"type": "array",
 			"items": { "$ref": "inmateSummary" }
-		}
+		},
+		"activeCountStatusCode": { "enum": ["I", "R", "C"] },
+		"activeCountId": { "type": "integer" }
 	},
 	"required": ["locationId", "agencyId", "locationType", "description", "parentLocationId", "currentOccupancy", "livingUnit"]
 }
