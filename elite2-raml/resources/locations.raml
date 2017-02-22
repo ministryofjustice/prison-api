@@ -1,25 +1,22 @@
-description: The collection of internal locations within an agency.
-type: { get-collection: { collectionSchema: location } }
-is: [
-  orderable: {fieldsList : "locationId, agencyId, locationType, parentLocationId, livingUnit, or housingUnitType"},
-  pageable
-]
+description: Returns the list of locations viewable by the user
+type: { get-collection: { collectionSchema: locations } }
+is: [ pageable ]
 
-/locations/{locationId}:
+/{locationId}:
   description: Returns details about the specified location
   type: { get-item: { schema: location }}
 
-/locations/{locationId}/movements:
+/{locationId}/movements:
   description: The collection of scheduled movements associated to the inmate.
-  type: { get-collection: { collectionSchema: movement } }
+  type: { get-collection: { collectionSchema: movements } }
   is: [
     orderable: {fieldsList : "moveCategory, moveDateTime, fromAgencyId, toAgencyId, moveType, moveReason, fromLocationId, or toLocation"},
     pageable
   ]
 
-/locations/{locationId}/inmates:
+/{locationId}/inmates:
   description: The collection of inmates present at the specified location.
-  type: { get-collection: { collectionSchema: movements } }
+  type: { get-collection: { collectionSchema: inmateSummaries } }
   is: [
     orderable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, alertCodes, agencyId, currentLocationId, or assignedLivingUnitId"},
     pageable

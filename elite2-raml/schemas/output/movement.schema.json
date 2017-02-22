@@ -3,7 +3,7 @@
 	"title": "Movement",
 	"type": "object",
 	"properties": {
-		"moveCategory": { "enum:": [ "external", "internal" ]},
+		"moveCategory": { "enum": [ "external", "internal" ]},
 		"inmateId": { "type": "integer"},
 		"moveDateTime": { "type": "string", "format": "datetime" },
 		"fromAgencyId": { "type": "string" },

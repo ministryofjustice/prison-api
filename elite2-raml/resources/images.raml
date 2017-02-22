@@ -1,0 +1,13 @@
+/{imageId}:
+  description: Details about the specified image including the image itself.
+  type: { get-item: { schema: imageDetail }}
+
+/{imageId}/data:
+    type:
+      get-base:
+    get:
+      responses:
+        200:
+          body:
+            image/jpeg:
+

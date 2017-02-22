@@ -1,0 +1,15 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "Image Detail",
+	"type": "object",
+	"properties": {
+		"imageId": { "type": "integer" },
+		"captureDate": { "type": "string", "format": "datetime" },
+		"imageView": { "type": "string" },
+		"imageOrientation":    { "type": "string" },
+		"imageType": { "type": "string" },
+		"objectId": { "type": "integer" },
+    	"imageData": { "type": "string" }
+	},
+	"required": ["imageId", "captureDate", "imageView", "imageOrientation", "imageType", "objectId", "imageData" ]
+}

@@ -8,13 +8,13 @@ spring:
     active: dev
   jackson:
     serialization:
-      INDENT_OUTPUT: true
-    
+      INDENT_OUTPUT: false
+
   datasource:
     hikari:
       pool-name: EliteCP
       maximum-pool-size: 5
-      data-source-class-name: oracle.jdbc.pool.OracleDataSource
+      driver-class-name: oracle.jdbc.OracleDriver
       connection-init-sql: SELECT 1 FROM DUAL
       connection-test-query: SELECT 1 FROM DUAL
       jdbc-url: jdbc:oracle:thin:@prod-12c-dev.syscon.ca:1521:pb12cdv1

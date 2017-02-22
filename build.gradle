@@ -1,7 +1,5 @@
 import org.jsonschema2pojo.AnnotationStyle
-import org.raml.jaxrs.codegen.core.Configuration
 import org.raml.jaxrs.codegen.core.Generator
-
 
 buildscript {
 	repositories {
@@ -11,13 +9,11 @@ buildscript {
 	dependencies {
 		classpath "org.raml:raml-jaxrs-codegen-core:1.3.4"
 		classpath "org.springframework.boot:spring-boot-gradle-plugin:${version_spring_boot}"
+		classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.2.1"
 	}
 }
 
-plugins {
-	id "org.sonarqube" version "1.2"
-}
-
+defaultTasks 'clean', 'run'
 
 
 subprojects {
@@ -26,6 +22,20 @@ subprojects {
 		mavenCentral()
 		mavenLocal()
 	}
+
+	apply plugin: 'java'
+	apply plugin: 'org.sonarqube'
+	apply plugin: 'checkstyle'
+
+
+	sonarqube {
+		properties {
+			property "sonar.projectName", "Elite2"
+			property "sonar.projectKey", "net.syscon.elite:elite2"
+			property "sonar.sourceEncoding", "UTF-8"
+		}
+	}
+
 
 	apply plugin: "java"
 	apply plugin: 'idea'
@@ -40,6 +50,7 @@ subprojects {
 		all*.exclude module: "c3p0"
 		all*.exclude group: "org.apache.tomcat"
 		all*.exclude group: "org.apache.tomcat.embed"
+		all*.exclude module: "spring-boot-starter-tomcat"
 	}
 
 
@@ -66,67 +77,82 @@ subprojects {
 			}
 		}
 	}
-
 }
 
+def sourceGenDir = file("${rootDir}/elite2-web/src/main/generated")
 
 project(":elite2-raml") {
-
-	task "generate-sources" {
-		def configs = new Configuration()
+	processResources {
+		def configs = new org.raml.jaxrs.codegen.core.Configuration()
 		def ramlDir = new File("${rootDir}/elite2-raml")
-		def sourceGenDir = new File("${rootDir}/elite2-web/src/main/generated")
 		sourceGenDir.listFiles().each{ f -> if (f != null) delete f }
 		sourceGenDir.mkdirs()
-		configs.setOutputDirectory(sourceGenDir)
-		configs.setSourceDirectory(ramlDir)
+		configs.outputDirectory = sourceGenDir
+		configs.sourceDirectory = ramlDir
 		configs.setBasePackageName("net.syscon.elite.web.api");
-		configs.setJaxrsVersion(Configuration.JaxrsVersion.JAXRS_2_0)
+		configs.setJaxrsVersion(org.raml.jaxrs.codegen.core.Configuration.JaxrsVersion.JAXRS_2_0)
 		configs.setJsonMapper(AnnotationStyle.JACKSON2)
 		configs.setUseJsr303Annotations(false)
+		configs.jsonMapperConfiguration = new HashMap<>()
+		configs.jsonMapperConfiguration["useLongIntegers"] = "true"
+		configs.jsonMapperConfiguration["includeToString"] = "true"
+		configs.jsonMapperConfiguration["includeHashcodeAndEquals"] = "true"
+		configs.jsonMapperConfiguration["includeConstructors"] = "true"
+		configs.jsonMapperConfiguration["useCommonsLang3"] = "true"
 		new Generator().run(new FileReader(new File(ramlDir, "./api.raml")), configs, "")
 	}
+
+	task run { doLast() { println ">>> Source Code Generated on ${sourceGenDir.absolutePath}!"} }
+	run.dependsOn processResources
+
 }
 
 
 
 project(":elite2-web") {
 
-	def configsDir = new java.io.File("${rootDir}/elite2-web/src/main/configs").absolutePath.replace('\\', '/') 
+	def configsDir = file("${rootDir}/elite2-web/src/main/configs").absolutePath
+	processResources {
+		def devConfigsFile = file("${configsDir}/elite2-dev.yml")
+		if (!devConfigsFile.exists()) {
+			copy {
+				from (configsDir) { include "elite2-dev-SAMPLE.yml" }
+				into configsDir
+				rename { String fileName -> fileName.replace("elite2-dev-SAMPLE.yml", "elite2-dev.yml") }
+			}
+		}
+	}
+
+
 	bootRun {
 		jvmArgs("-Dspring.profiles.active=dev", "-Dsyscon.configs.dir=${configsDir}")
 		addResources = true 
 	}
 
-	sourceSets.main.java.srcDir new File("${rootDir}/elite2-web/src/main/generated")
-	compileJava { source "${rootDir}/elite2-web/src/main/generated" }
+	sourceSets.main.java.srcDir sourceGenDir
+	compileJava { source sourceGenDir.absolutePath }
+	compileJava.dependsOn processResources
 
 	dependencies {
 
 		compile files("${rootDir}/elite2-web/src/main/configs")
 		compile fileTree(dir: "${rootDir}/libs", include: "*.jar")
 		
+		compile("org.springframework.boot:spring-boot-starter-web")
+		compile("org.springframework.boot:spring-boot-starter-aop")
+		compile("org.springframework.boot:spring-boot-starter-jdbc")
 		compile("org.springframework.boot:spring-boot-starter-jetty")
-		compile("org.springframework.boot:spring-boot-starter-jersey") {
-			exclude(module: "spring-boot-starter-tomcat")
-		}
-		compile("org.springframework.boot:spring-boot-starter-data-jpa")
-		compile("org.springframework.boot:spring-boot-starter-cache")
-		compile("org.springframework.boot:spring-boot-starter-web") {
-			exclude(module: "spring-boot-starter-tomcat")
-		}
-		
-		//compile("org.springframework.boot:spring-boot-starter-actuator")
-		//compile("org.springframework.boot:spring-boot-starter-security")
-		
-		compile("org.hibernate:hibernate-ehcache:${version_hibernate}")
-		compile ("com.zaxxer:HikariCP:${version_hikaricp}") {
-			exclude(module: "tools")
-		}
-		
+		compile("org.springframework.boot:spring-boot-starter-jersey")
+
+		compile "org.apache.commons:commons-lang3:3.5"
+		compile ("com.zaxxer:HikariCP:${version_hikaricp}") { exclude(module: "tools") }
+
 		testCompile("org.springframework.boot:spring-boot-starter-test")
 
 	}
+
+	task run { doLast() { println "Server ready for requests ..." } }
+	run.dependsOn bootRun
 
 }
 
