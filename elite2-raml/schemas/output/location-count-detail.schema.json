@@ -5,9 +5,9 @@
 	"properties": {
     "conductByUserId": { "type": "integer" },
     "enteredByUserId": { "type": "integer" },
-    "countReasonCode": { "type": "string", "description": "The id to the LoV for the count." },
+    "countReasonCode": { "type": "string" },
     "inmateCount": { "type": "integer"},
-    "comment": { "type": "string", "description": "A comment about the count. If a recount, the comment shoudl include references to the inmate(s) not present." }
+    "comment": { "type": "string" }
   },
   "required": ["conductByUserId", "enteredByUserId", "countReason", "inmateCount"]
 }
