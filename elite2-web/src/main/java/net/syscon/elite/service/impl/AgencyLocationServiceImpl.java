@@ -9,6 +9,7 @@ import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.Location;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
@@ -16,6 +17,7 @@ import java.util.List;
 
 
 @Transactional
+@Service
 public class AgencyLocationServiceImpl implements AgencyLocationService {
 
 
