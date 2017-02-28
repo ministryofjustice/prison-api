@@ -1,6 +1,6 @@
 package net.syscon.elite.persistence;
 
-public class CountsRepository {
+public interface CountsRepository {
 
 
 

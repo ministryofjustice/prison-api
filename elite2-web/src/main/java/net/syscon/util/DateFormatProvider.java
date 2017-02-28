@@ -1,40 +1,32 @@
 package net.syscon.util;
 
 import java.text.DateFormat;
-import java.text.FieldPosition;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DateFormatProvider {
 
-    private static final Map<String, ThreadLocal<DateFormat>> THREAD_LOCAL_MAP = new ConcurrentHashMap<String, ThreadLocal<DateFormat>>();
-
+    private static final Map<String, ThreadLocal<DateFormat>> THREAD_LOCAL_MAP = new ConcurrentHashMap<>();
     public static final String NORTH_AMERICA_DATE_FORMAT = "MM/dd/yyyy";
+    
+    private DateFormatProvider() {}
 
 
     public static DateFormat get() {
-		final StringBuffer buffer = new StringBuffer();
-        final Calendar date = Calendar.getInstance();
-        final DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault());
-        final FieldPosition yearPosition = new FieldPosition(DateFormat.YEAR_FIELD);
-        final StringBuffer pattern = dateFormat.format(date.getTime(), buffer, yearPosition);
-        pattern.replace(yearPosition.getBeginIndex(), yearPosition.getEndIndex(), String.valueOf(date.get(Calendar.YEAR)));
-        return get(pattern.toString(), TimeZone.getDefault());
+    	return get(NORTH_AMERICA_DATE_FORMAT);
     }
 
-    public static DateFormat get(String pattern) {
+    public static DateFormat get(final String pattern) {
         return get(pattern, TimeZone.getDefault());
     }
 
-    public static DateFormat get(String pattern, TimeZone timeZone) {
+    public static DateFormat get(final String pattern, final TimeZone timeZone) {
         final String key = pattern + timeZone.getID();
         ThreadLocal<DateFormat> threadLocal = THREAD_LOCAL_MAP.get(key);
         if (threadLocal == null) {
-            threadLocal = new ThreadLocal<DateFormat>();
+            threadLocal = new ThreadLocal<>();
             THREAD_LOCAL_MAP.put(key, threadLocal);
         }
         DateFormat dateFormat = threadLocal.get();

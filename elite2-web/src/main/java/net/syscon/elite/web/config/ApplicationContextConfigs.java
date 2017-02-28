@@ -16,8 +16,11 @@ import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 
+import net.syscon.elite.exception.EliteRuntimeException;
+
 
 @Configuration
+@SuppressWarnings("squid:S1118")
 @PropertySources(@PropertySource(value = "classpath:elite2.yml"))
 public class ApplicationContextConfigs {
 
@@ -26,7 +29,7 @@ public class ApplicationContextConfigs {
 	public static final String CONFIGS_DIR_PROPERTY = "syscon.configs.dir";
 
 	@Bean
-	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer(ConfigurableEnvironment env) {
+	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer(final ConfigurableEnvironment env) {
 
 		final PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
 		final MutablePropertySources sources = env.getPropertySources();
@@ -45,9 +48,9 @@ public class ApplicationContextConfigs {
 				try {
 					yamlFactory.setResources(new FileSystemResource(configurationFile));
 					sources.addFirst(new PropertiesPropertySource(configurationFile.getAbsolutePath(), yamlFactory.getObject()));
-				} catch (Exception ex) {
+				} catch (final Exception ex) {
 					LOG.error(ex.getMessage(), ex);
-					throw new RuntimeException(ex.getMessage(), ex);
+					throw new EliteRuntimeException(ex.getMessage(), ex);
 				}
 			}
 		}

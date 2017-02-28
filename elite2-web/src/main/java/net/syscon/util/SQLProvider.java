@@ -1,32 +1,43 @@
 package net.syscon.util;
 
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.CharArrayWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.MessageFormat;
 import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+
+import net.syscon.elite.exception.EliteRuntimeException;
 
 public class SQLProvider {
 
-	private Map<String, String[]> statements = new HashMap<String, String[]>();
-    private final Map<String, String> variables = new HashMap<String, String>();
+	private Map<String, String[]> statements = new HashMap<>();
+    private final Map<String, String> variables = new HashMap<>();
     private File file;
 
 
 
     public SQLProvider() {
+    	// default constructor to be used with lazy loading ...
     }
 
-    public SQLProvider(Class<?> clazz) {
-        String resourcePath = "/net.syscon.elite.persistence.repository.impl.".replace('.', '/')  + clazz.getSimpleName() + ".sql";
-        InputStream in = clazz.getResourceAsStream(resourcePath);
+    public SQLProvider(final Class<?> clazz) {
+        final String resourcePath = "/net.syscon.elite.persistence.repository.impl.".replace('.', '/')  + clazz.getSimpleName() + ".sql";
+        final InputStream in = clazz.getResourceAsStream(resourcePath);
         loadFromStream(in);
     }
 
-
-
-
-    public SQLProvider(File file) {
+    public SQLProvider(final File file) {
         this.file = file;
     }
 
@@ -44,42 +55,33 @@ public class SQLProvider {
         }
     }
 
-    public void addVariable(String key, String value) {
+    public void addVariable(final String key, final String value) {
         variables.put(key, value);
     }
 
-    public void loadFromFile(File file) {
-        InputStream in = null;
-        try {
-            in = new FileInputStream(file);
+    public void loadFromFile(final File file) {
+    	try (FileInputStream in = new FileInputStream(file)) {
             loadFromStream(in);
             this.file = file;
         } catch (final IOException ex) {
-            throw new RuntimeException();
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (final IOException e) {
-                }
-            }
+            throw new EliteRuntimeException(ex.getMessage(), ex);
         }
     }
 
-    public void loadFromClassLoader(String filename) {
+    public void loadFromClassLoader(final String filename) {
         final ClassLoader cl = Thread.currentThread().getContextClassLoader();
         final InputStream in = cl.getResourceAsStream(filename);
         if (in != null) {
             loadFromStream(in);
         } else {
-            throw new RuntimeException("File " + filename + " not found on the classloader");
+            throw new EliteRuntimeException("File " + filename + " not found on the classloader");
         }
     }
 
-    public void loadFromStream(InputStream in) {
+    public void loadFromStream(final InputStream in) {
         loadVariables();
         final CharArrayWriter out = new CharArrayWriter();
-        final char cbuf[] = new char[1024];
+        final char[] cbuf = new char[1024];
         try {
             final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             int size = reader.read(cbuf);
@@ -89,7 +91,7 @@ public class SQLProvider {
             }
             parse(out.toCharArray());
         } catch (final Exception ex) {
-            throw new RuntimeException(ex);
+            throw new EliteRuntimeException(ex);
         }
     }
 
@@ -97,19 +99,18 @@ public class SQLProvider {
         loadFromFile(file);
     }
 
-    public void setFile(File file) {
+    public void setFile(final File file) {
         this.file = file;
     }
 
-    private void parse(char content[]) throws ParseException {
+    private void parse(final char[] content) throws ParseException {
 
-        final Map<String, String[]> newStatements = new HashMap<String, String[]>();
+        final Map<String, String[]> newStatements = new HashMap<>();
         String paramName = null;
-        int startIndex = -1;
 
-        final Queue<Character> queue = new LinkedList<Character>();
+        final Queue<Character> queue = new LinkedList<>();
 
-        int i = 0;
+        int i = 0, startIndex;
         while (i < content.length) {
 
             // get the param name
@@ -131,17 +132,17 @@ public class SQLProvider {
             paramName = validateConfigName(paramName.trim());
             startIndex = i;
 
-            while (i < content.length && queue.size() > 0) {
+            while (i < content.length && !queue.isEmpty()) {
                 if (content[i] == '{') {
                     queue.add('{');
                 }
                 if (content[i] == '}') {
                     queue.poll();
                 }
-                if (queue.size() == 0) {
+                if (queue.isEmpty()) {
                     final String s = new String(content, startIndex, i - startIndex - 1);
                     final List<String> list = new ArrayList<String>();
-                    String values[] = s.split("\\\n");
+                    String[] values = s.split("\\\n");
                     for (int k = 0; k < values.length; k++) {
                         String ss = values[k];
                         for (final Map.Entry<String, String> entry : variables.entrySet()) {
@@ -149,7 +150,7 @@ public class SQLProvider {
                             ss = ss.replace(key, entry.getValue());
                         }
                         if (ss.indexOf("${") > 0) {
-                            throw new RuntimeException("Variable on configs file not resolved => " + ss);
+                            throw new EliteRuntimeException("Variable on configs file not resolved => " + ss);
                         }
                         final String clean = getCleanStr(ss).trim();
                         if (!"".equals(clean)) {
@@ -171,7 +172,7 @@ public class SQLProvider {
 
     }
 
-    private String getCleanStr(String text) {
+    private String getCleanStr(final String text) {
 
         if (text == null) {
             throw new IllegalArgumentException("Input text is null");
@@ -224,11 +225,11 @@ public class SQLProvider {
         return statementName;
     }
 
-    public String get(String name) {
+    public String get(final String name) {
         return get(name, false);
     }
 
-    public String get(String name, boolean trimElements) {
+    public String get(final String name, final boolean trimElements) {
         String sep = "";
         final StringBuilder sb = new StringBuilder();
         final String values[] = statements.get(name);
@@ -247,7 +248,7 @@ public class SQLProvider {
         return sb.toString().trim();
     }
 
-    public String getWithParams(String name, String... args) {
+    public String getWithParams(final String name, final String... args) {
         final String s[] = statements.get(name);
         final StringBuilder sb = new StringBuilder();
         if (s != null) {

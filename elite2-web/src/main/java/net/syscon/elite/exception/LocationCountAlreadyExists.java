@@ -1,4 +1,4 @@
-package net.syscon.elite.service.exception;
+package net.syscon.elite.exception;
 
 
 public class LocationCountAlreadyExists extends Exception {

@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 
+import net.syscon.elite.exception.RowMappingException;
+
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -17,8 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Row2BeanRowMapper<T> implements RowMapper<T> {
 
 	private static class MappingInfo {
-		public String sql;
-		public Class<?> type;
+		final String sql;
+		final Class<?> type;
 		public MappingInfo(final String sql, final Class<?> type) {
 			this.sql = sql;
 			this.type = type;
@@ -49,7 +51,7 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 
 	private List<String> sqlToCollumns;
 
-	public Row2BeanRowMapper(final String sql, final Class<? extends T> type, final Map<String, FieldMapper> mappings) {
+	public Row2BeanRowMapper(final Class<? extends T> type, final Map<String, FieldMapper> mappings) {
 		this.type = type;
 		this.columnsMapping = new HashMap<>();
 		for (final Map.Entry<String, FieldMapper> entry: mappings.entrySet()) {
@@ -79,13 +81,12 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 	public static <M> RowMapper<M> makeMapping(final String sql, final Class<M> type, final Map<String, FieldMapper> mappings) {
 		final MappingInfo mappingInfo = new MappingInfo(sql, type);
 		if (!cachedMappings.containsKey(mappingInfo)) {
-			cachedMappings.put(mappingInfo, new Row2BeanRowMapper(sql, type, mappings));
+			cachedMappings.put(mappingInfo, new Row2BeanRowMapper(type, mappings));
 		}
-		final RowMapper<M> mapping = cachedMappings.get(mappingInfo);
-		return mapping;
+		return cachedMappings.get(mappingInfo);
 	}
 
-	private String camelize(String columnName) {
+	private String camelize(final String columnName) {
 		String result = WordUtils.capitalizeFully(columnName.toLowerCase(), '_');
 		result = (result.substring(0, 1).toLowerCase() + result.substring(1)).replaceAll("\\_", "");
 		return result;
@@ -97,36 +98,9 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 			final T bean = type.newInstance();
 			loadColumns(rs);
 			for (final String columnName: sqlToCollumns) {
-				final Object value = rs.getObject(columnName);
-				if (value != null) {
-
-					FieldMapper fieldMapper = columnsMapping.get(columnName);
-					if (fieldMapper == null) {
-						Field candidateField = null;
-						String fieldName = camelize(columnName);
-						try { candidateField = bean.getClass().getDeclaredField(fieldName); } catch (Exception ex) {}
-						if (candidateField != null) {
-							fieldMapper = new FieldMapper(fieldName);
-							columnsMapping.put(columnName, fieldMapper);
-						} else {
-							fieldMapper = new FieldMapper(FieldMapper.ADDITIONAL_PROPERTIES, null, (field) -> {
-								try {
-									if (field != null && field.getType().equals(Map.class)) {
-										@SuppressWarnings("unchecked")
-										Map<String, Object> additionalProperties = (Map<String, Object>) field.get(bean);
-										if (additionalProperties == null) {
-											additionalProperties = new HashMap<>();
-											field.set(bean, additionalProperties);
-										}
-										additionalProperties.put(fieldName, value);
-									}
-								} catch (final Throwable ex) {
-									logger.warn("Failure adding the field "  +  fieldName + " on \"" + FieldMapper.ADDITIONAL_PROPERTIES +"\" " + type.getName());
-								}
-								return null;
-							});
-						}
-					}
+				if (rs.getObject(columnName) != null) {
+					final Object value = rs.getObject(columnName);
+					final FieldMapper fieldMapper = getFieldMapper(bean, columnName, value);
 					fieldMapper.setValue(bean, value);
 				}
 			}
@@ -136,6 +110,42 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 		}
 	}
 
+	@SuppressWarnings({"squid:S00108", "squid:S1166"})
+	private FieldMapper getFieldMapper(final T bean, final String columnName, final Object value) {
+		FieldMapper fieldMapper = columnsMapping.get(columnName);
+		if (fieldMapper == null) {
+			Field candidateField = null;
+			final String fieldName = camelize(columnName);
+			try { candidateField = bean.getClass().getDeclaredField(fieldName); } catch (final Exception ex) {}
+			if (candidateField != null) {
+				fieldMapper = new FieldMapper(fieldName);
+				columnsMapping.put(columnName, fieldMapper);
+			} else {
+				fieldMapper = getAdditionalPropertiesFieldMapper(bean, value, fieldName);
+			}
+		}
+		return fieldMapper;
+	}
+
+	@SuppressWarnings("squid:S1166")
+	private FieldMapper getAdditionalPropertiesFieldMapper(final T bean, final Object value, final String fieldName) {
+		return new FieldMapper(FieldMapper.ADDITIONAL_PROPERTIES, null, (field) -> {
+			try {
+				if (field != null && field.getType().equals(Map.class)) {
+					@SuppressWarnings("unchecked")
+					Map<String, Object> additionalProperties = (Map<String, Object>) field.get(bean);
+					if (additionalProperties == null) {
+						additionalProperties = new HashMap<>();
+						field.set(bean, additionalProperties);
+					}
+					additionalProperties.put(fieldName, value);
+				}
+			} catch (final IllegalArgumentException | IllegalAccessException ex) {
+				logger.warn("Failure adding the field "  +  fieldName + " on \"" + FieldMapper.ADDITIONAL_PROPERTIES +"\" " + type.getName());
+			}
+			return null;
+		});
+	}
 
 
 }

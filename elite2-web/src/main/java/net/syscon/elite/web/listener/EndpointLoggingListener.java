@@ -1,7 +1,10 @@
 package net.syscon.elite.web.listener;
 
-import com.fasterxml.classmate.ResolvedType;
-import com.fasterxml.classmate.TypeResolver;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.glassfish.jersey.server.model.Resource;
 import org.glassfish.jersey.server.model.ResourceMethod;
 import org.glassfish.jersey.server.model.ResourceModel;
@@ -12,10 +15,8 @@ import org.glassfish.jersey.server.monitoring.RequestEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
+import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.TypeResolver;
 
 public class EndpointLoggingListener implements ApplicationEventListener {
 
@@ -26,24 +27,24 @@ public class EndpointLoggingListener implements ApplicationEventListener {
 	private boolean withOptions = false;
 	private boolean withWadl = false;
 
-	public EndpointLoggingListener(String applicationPath) {
+	public EndpointLoggingListener(final String applicationPath) {
 		this.applicationPath = applicationPath;
 	}
 
 	@Override
-	public void onEvent(ApplicationEvent event) {
+	public void onEvent(final ApplicationEvent event) {
 		if (event.getType() == ApplicationEvent.Type.INITIALIZATION_APP_FINISHED) {
 			final ResourceModel resourceModel = event.getResourceModel();
 			final ResourceLogDetails logDetails = new ResourceLogDetails();
-			resourceModel.getResources().stream().forEach((resource) -> {
-				logDetails.addEndpointLogLines(getLinesFromResource(resource));
-			});
+			resourceModel.getResources().stream().forEach(resource ->
+				logDetails.addEndpointLogLines(getLinesFromResource(resource))
+			);
 			logDetails.log();
 		}
 	}
 
 	@Override
-	public RequestEventListener onRequest(RequestEvent requestEvent) {
+	public RequestEventListener onRequest(final RequestEvent requestEvent) {
 		return null;
 	}
 
@@ -57,58 +58,69 @@ public class EndpointLoggingListener implements ApplicationEventListener {
 		return this;
 	}
 
-	private Set<EndpointLogLine> getLinesFromResource(Resource resource) {
-		Set<EndpointLogLine> logLines = new HashSet<>();
+	private Set<EndpointLogLine> getLinesFromResource(final Resource resource) {
+		final Set<EndpointLogLine> logLines = new HashSet<>();
 		populate(this.applicationPath, false, resource, logLines);
 		return logLines;
 	}
 
-	private void populate(String basePath, Class<?> klass, boolean isLocator,
-						  Set<EndpointLogLine> endpointLogLines) {
+	private void populate(final String basePath, final Class<?> klass, final boolean isLocator, final Set<EndpointLogLine> endpointLogLines) {
 		populate(basePath, isLocator, Resource.from(klass), endpointLogLines);
 	}
+	
+	private boolean shouldLog(final String basePath, final ResourceMethod method) {
+		if (!withOptions && "OPTIONS".equalsIgnoreCase(method.getHttpMethod())) {
+			return false;
+		}
+		if (!withWadl && basePath.contains(".wadl")) {
+			return false;
+		}
+		return true;
+	}
 
-	private void populate(String basePath, boolean isLocator, Resource resource,
-						  Set<EndpointLogLine> endpointLogLines) {
+	private void populate(final String path, final boolean isLocator, final Resource resource, final Set<EndpointLogLine> endpointLogLines) {
+		String basePath = path;
 		if (!isLocator) {
 			basePath = normalizePath(basePath, resource.getPath());
 		}
-
-		for (ResourceMethod method : resource.getResourceMethods()) {
-			if (!withOptions && method.getHttpMethod().equalsIgnoreCase("OPTIONS")) {
-				continue;
+		
+		for (final ResourceMethod method : resource.getResourceMethods()) {
+			if (shouldLog(basePath, method)) {
+				endpointLogLines.add(new EndpointLogLine(method.getHttpMethod(), basePath, null));
 			}
-			if (!withWadl && basePath.contains(".wadl")) {
-				continue;
-			}
-			endpointLogLines.add(new EndpointLogLine(method.getHttpMethod(), basePath, null));
 		}
 
-		for (Resource childResource : resource.getChildResources()) {
-			for (ResourceMethod method : childResource.getAllMethods()) {
-				if (method.getType() == ResourceMethod.JaxrsType.RESOURCE_METHOD) {
-					final String path = normalizePath(basePath, childResource.getPath());
-					if (!withOptions && method.getHttpMethod().equalsIgnoreCase("OPTIONS")) {
-						continue;
-					}
-					if (!withWadl && path.contains(".wadl")) {
-						continue;
-					}
-					endpointLogLines.add(new EndpointLogLine(method.getHttpMethod(), path, null));
-				} else if (method.getType() == ResourceMethod.JaxrsType.SUB_RESOURCE_LOCATOR) {
-					final String path = normalizePath(basePath, childResource.getPath());
-					final ResolvedType responseType = TYPE_RESOLVER
-							.resolve(method.getInvocable().getResponseType());
-					final Class<?> erasedType = !responseType.getTypeBindings().isEmpty()
-							? responseType.getTypeBindings().getBoundType(0).getErasedType()
-							: responseType.getErasedType();
-					populate(path, erasedType, true, endpointLogLines);
-				}
+		for (final Resource childResource : resource.getChildResources()) {
+			for (final ResourceMethod method : childResource.getAllMethods()) {
+				populateMethodInfo(basePath, endpointLogLines, childResource, method);
 			}
 		}
 	}
 
-	private static String normalizePath(String basePath, String path) {
+
+
+	private void populateMethodInfo(final String basePath, final Set<EndpointLogLine> endpointLogLines, final Resource childResource, final ResourceMethod method) {
+		if (method.getType() == ResourceMethod.JaxrsType.RESOURCE_METHOD) {
+			final String path = normalizePath(basePath, childResource.getPath());
+			if (!withOptions &&  "OPTIONS".equalsIgnoreCase(method.getHttpMethod())) {
+				return;
+			}
+			if (!withWadl && path.contains(".wadl")) {
+				return;
+			}
+			endpointLogLines.add(new EndpointLogLine(method.getHttpMethod(), path, null));
+		} else if (method.getType() == ResourceMethod.JaxrsType.SUB_RESOURCE_LOCATOR) {
+			final String path = normalizePath(basePath, childResource.getPath());
+			final ResolvedType responseType = TYPE_RESOLVER
+					.resolve(method.getInvocable().getResponseType());
+			final Class<?> erasedType = !responseType.getTypeBindings().isEmpty()
+					? responseType.getTypeBindings().getBoundType(0).getErasedType()
+					: responseType.getErasedType();
+			populate(path, erasedType, true, endpointLogLines);
+		}
+	}
+
+	private static String normalizePath(final String basePath, final String path) {
 		if (path == null) {
 			return basePath;
 		}
@@ -119,24 +131,15 @@ public class EndpointLoggingListener implements ApplicationEventListener {
 	}
 
 	private static class ResourceLogDetails {
-
 		private static final Logger logger = LoggerFactory.getLogger(ResourceLogDetails.class);
-
-		private static final Comparator<EndpointLogLine> COMPARATOR
-				= Comparator.comparing((EndpointLogLine e) -> e.path)
-				.thenComparing((EndpointLogLine e) -> e.httpMethod);
-
+		private static final Comparator<EndpointLogLine> COMPARATOR = Comparator.comparing((final EndpointLogLine e) -> e.path).thenComparing((final EndpointLogLine e) -> e.httpMethod);
 		private final Set<EndpointLogLine> logLines = new TreeSet<>(COMPARATOR);
-
 		private void log() {
-			StringBuilder sb = new StringBuilder("\nAll endpoints for Jersey application\n");
-			logLines.stream().forEach((line) -> {
-				sb.append(line).append("\n");
-			});
+			final StringBuilder sb = new StringBuilder("\nAll endpoints for Jersey application\n");
+			logLines.stream().forEach(line -> sb.append(line).append("\n"));
 			logger.info(sb.toString());
 		}
-
-		private void addEndpointLogLines(Set<EndpointLogLine> logLines) {
+		private void addEndpointLogLines(final Set<EndpointLogLine> logLines) {
 			this.logLines.addAll(logLines);
 		}
 	}
@@ -148,7 +151,7 @@ public class EndpointLoggingListener implements ApplicationEventListener {
 		final String path;
 		final String format;
 
-		private EndpointLogLine(String httpMethod, String path, String format) {
+		private EndpointLogLine(final String httpMethod, final String path, final String format) {
 			this.httpMethod = httpMethod;
 			this.path = path;
 			this.format = format == null ? DEFAULT_FORMAT : format;

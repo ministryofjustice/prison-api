@@ -1,13 +1,14 @@
 package net.syscon.elite.web.api.resource.impl;
 
 
-import net.syscon.elite.service.CountsService;
-import net.syscon.elite.service.exception.LocationCountAlreadyExists;
-import net.syscon.elite.web.api.model.LocationCount;
-import net.syscon.elite.web.api.resource.CountsResource;
+import javax.inject.Inject;
+
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
+import net.syscon.elite.exception.LocationCountAlreadyExists;
+import net.syscon.elite.service.CountsService;
+import net.syscon.elite.web.api.model.LocationCount;
+import net.syscon.elite.web.api.resource.CountsResource;
 
 @Component
 public class CountsResourceImpl implements CountsResource {
@@ -19,27 +20,28 @@ public class CountsResourceImpl implements CountsResource {
 	public void setCountsService(final CountsService countsService) { this.countsService = countsService; }
 
 	@Override
-	public GetCountsByCountIdResponse getCountsByCountId(String countId) throws Exception {
+	public GetCountsByCountIdResponse getCountsByCountId(final String countId) throws Exception {
 		return null;
 	}
 
 	@Override
-	public GetCountsByCountIdLocationsByLocationIdResponse getCountsByCountIdLocationsByLocationId(String countId, String locationId) throws Exception {
+	public GetCountsByCountIdLocationsByLocationIdResponse getCountsByCountIdLocationsByLocationId(final String countId, final String locationId) throws Exception {
 		return null;
 	}
 
 	@Override
-	public PostCountsByCountIdLocationsByLocationIdResponse postCountsByCountIdLocationsByLocationId(String countId, String locationId, LocationCount entity) throws Exception {
+	public PostCountsByCountIdLocationsByLocationIdResponse postCountsByCountIdLocationsByLocationId(final String countId, final String locationId, final LocationCount entity) throws Exception {
 		return null;
 	}
 
 	@Override
-	public PutCountsByCountIdLocationsByLocationIdResponse putCountsByCountIdLocationsByLocationId(String countId, String locationId, LocationCount entity) throws Exception {
+	@SuppressWarnings("squid:S1166")
+	public PutCountsByCountIdLocationsByLocationIdResponse putCountsByCountIdLocationsByLocationId(final String countId, final String locationId, final LocationCount entity) throws Exception {
 		PutCountsByCountIdLocationsByLocationIdResponse result = null;
 		try {
 			countsService.createLocationCount(countId, locationId, entity);
 			result = PutCountsByCountIdLocationsByLocationIdResponse.withJsonCreated(entity);
-		} catch (LocationCountAlreadyExists ex) {
+		} catch (final LocationCountAlreadyExists ex) {
 			result = PutCountsByCountIdLocationsByLocationIdResponse.withJsonConflict(entity);
 		}
 		return result;

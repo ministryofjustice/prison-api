@@ -1,5 +1,15 @@
 package net.syscon.elite.service.impl;
 
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import net.syscon.elite.persistence.AgencyRepository;
 import net.syscon.elite.persistence.InmateRepository;
 import net.syscon.elite.persistence.LocationRepository;
@@ -7,13 +17,6 @@ import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.web.api.model.Agency;
 import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.Location;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.inject.Inject;
-import java.util.List;
 
 
 @Transactional
@@ -38,7 +41,7 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 
 
 	@Override
-	public Agency getAgency(String agencyId) {
+	public Agency getAgency(final String agencyId) {
 		return agencyRepository.find(agencyId);
 	}
 
@@ -48,28 +51,28 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 	}
 
 	@Override
-	public List<Location> getLocations(int offset, int limit) {
+	public List<Location> getLocations(final int offset, final int limit) {
 		return locationRepository.findLocations(offset, limit);
 	}
 
 	@Override
-	public List<Location> getLocationsFromAgency(String agencyId, int offset, int limit) {
+	public List<Location> getLocationsFromAgency(final String agencyId, final int offset, final int limit) {
 		return locationRepository.findLocationsByAgencyId(agencyId, offset, limit);
 	}
 
 	@Override
-	public List<AssignedInmate> getInmatesFromLocation(Long locationId, int offset, int limit) {
+	public List<AssignedInmate> getInmatesFromLocation(final Long locationId, final int offset, final int limit) {
 		return inmateRepository.findInmatesByLocation(locationId, offset, limit);
 	}
 
 	@Override
-	public Location getLocation(Long locationId) {
+	public Location getLocation(final Long locationId) {
 		try {
-			Location location = locationRepository.findLocation(locationId);
-			List<AssignedInmate> inmates = inmateRepository.findInmatesByLocation(locationId, 0, 1000);
+			final Location location = locationRepository.findLocation(locationId);
+			final List<AssignedInmate> inmates = inmateRepository.findInmatesByLocation(locationId, 0, 1000);
 			location.setAssignedInmates(inmates);
 			return location;
-		} catch (Throwable ex) {
+		} catch (final DataAccessException ex) {
 			log.error(ex.getMessage(), ex);
 			throw ex;
 		}

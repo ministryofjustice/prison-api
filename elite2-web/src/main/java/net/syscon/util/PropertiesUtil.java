@@ -1,5 +1,6 @@
 package net.syscon.util;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
@@ -15,49 +16,52 @@ import org.springframework.core.io.support.PropertiesLoaderUtils;
 public class PropertiesUtil {
 
 	public static final Logger LOG = LoggerFactory.getLogger(PropertiesUtil.class);
+	
+	private PropertiesUtil() {}
 
-	public static void loadFromClassloader(Properties props, String... fileNames) {
+	@SuppressWarnings("squid:S1166")
+	public static void loadFromClassloader(final Properties props, final String... fileNames) {
 		final ClassLoader cl = Thread.currentThread().getContextClassLoader();
-		for (String resource : fileNames) {
+		for (final String resource : fileNames) {
 			try {
-				Properties prop = PropertiesLoaderUtils.loadAllProperties(resource, cl);
+				final Properties prop = PropertiesLoaderUtils.loadAllProperties(resource, cl);
 				props.putAll(prop);
-			} catch (Throwable ex) {
-				LOG.debug("ignoring net.wisecoding.util.config file " + resource + " ...");
+			} catch (IOException | RuntimeException ex) {
+				LOG.debug("ignoring properties file " + resource + " ...");
 			}
 		}
 	}
 
-	public static Properties getPropertiesFromClassloader(String... fileNames) {
+	public static Properties getPropertiesFromClassloader(final String... fileNames) {
 		final Properties props = new Properties();
 		loadFromClassloader(props, fileNames);
 		return props;
 	}
 
-	private static void loadAllProperties(PropertySource<?> propertySource, Properties result) {
+	private static void loadAllProperties(final PropertySource<?> propertySource, final Properties result) {
 		if (propertySource instanceof CompositePropertySource) {
-			CompositePropertySource compositePropertySource = (CompositePropertySource) propertySource;
+			final CompositePropertySource compositePropertySource = (CompositePropertySource) propertySource;
 			compositePropertySource.getPropertySources().forEach(source -> loadAllProperties(source, result));
 		} else if (propertySource instanceof EnumerablePropertySource<?>) {
-			EnumerablePropertySource<?> enumerablePropertySource = (EnumerablePropertySource<?>) propertySource;
-			for (String propertyName : enumerablePropertySource.getPropertyNames()) {
+			final EnumerablePropertySource<?> enumerablePropertySource = (EnumerablePropertySource<?>) propertySource;
+			for (final String propertyName : enumerablePropertySource.getPropertyNames()) {
 				result.put(propertyName, enumerablePropertySource.getProperty(propertyName));
 			}
 		}
 	}
 
-	public static Properties toProperties(ConfigurableEnvironment env) {
+	public static Properties toProperties(final ConfigurableEnvironment env) {
 		final Properties props = new Properties();
-		for (PropertySource<?> propertySource : env.getPropertySources()) {
+		for (final PropertySource<?> propertySource : env.getPropertySources()) {
 			loadAllProperties(propertySource, props);
 		}
 		return props;
 	}
 
-	public static Properties toProperties(ConfigurableEnvironment env, String... prefixFilters) {
+	public static Properties toProperties(final ConfigurableEnvironment env, final String... prefixFilters) {
 		final Properties result = new Properties();
-		for (String prefixFilter : prefixFilters) {
-			for (Map.Entry<Object, Object> entry : toProperties(env).entrySet()) {
+		for (final String prefixFilter : prefixFilters) {
+			for (final Map.Entry<Object, Object> entry : toProperties(env).entrySet()) {
 				if (entry.getKey().toString().startsWith(prefixFilter)) {
 					result.put(entry.getKey(), entry.getValue());
 				}

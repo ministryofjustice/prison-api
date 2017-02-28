@@ -1,8 +1,7 @@
 package net.syscon.elite.web.config;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import net.syscon.elite.persistence.AgencyRepository;
+import javax.sql.DataSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.EnableCaching;
@@ -17,17 +16,20 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException;
 
-import javax.sql.DataSource;
+import net.syscon.elite.exception.EliteRuntimeException;
 
 @Configuration
 @EnableCaching
 @EnableAspectJAutoProxy
 @EnableTransactionManagement
-@ComponentScan(basePackageClasses = {AgencyRepository.class })
+@ComponentScan(basePackages = "net.syscon.elite.persistence")
 public class PersistenceConfigs {
 	
-	private final Logger LOG = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	@Bean
 	public DataSource dataSource(final ConfigurableEnvironment env) {
@@ -44,9 +46,9 @@ public class PersistenceConfigs {
 			config.setConnectionTestQuery(env.getProperty("spring.datasource.hikari.connection-test-query"));
 			final DataSource dataSource = new HikariDataSource(config);
 			return dataSource;
-		} catch (final Exception ex) {
-			LOG.error(ex.getMessage(), ex);
-			throw new RuntimeException(ex.getMessage(), ex);
+		} catch (final PoolInitializationException ex) {
+			log.error(ex.getMessage(), ex);
+			throw new EliteRuntimeException(ex.getMessage(), ex);
 		}
 	}
 
@@ -56,7 +58,7 @@ public class PersistenceConfigs {
 	}
 
 	@Bean
-	public PlatformTransactionManager transactionManager(DataSource dataSource) {
+	public PlatformTransactionManager transactionManager(final DataSource dataSource) {
 		final DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
 		return transactionManager;
 	}

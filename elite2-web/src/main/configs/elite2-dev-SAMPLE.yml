@@ -14,7 +14,13 @@ spring:
   cache:
     jcache:
       config: ehcache.xml
-          
+
+endpoints:
+  cors:
+    allowed-origins: 
+    allow-credentials: true
+    
+    
   datasource:
     hikari:
       pool-name: EliteCP

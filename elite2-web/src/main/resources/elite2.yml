@@ -21,7 +21,12 @@ spring:
       username: oms_owner
       password: oms_owner
       idle-timeout: 10000
-      
+
+endpoints:
+  cors:
+    allowed-origins: http://localhost:8080
+    allow-credentials: true
+
   jpa:
     database-platform: org.hibernate.dialect.Oracle12cDialect
     database: ORACLE

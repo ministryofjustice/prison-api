@@ -50,50 +50,63 @@ public class FieldMapper {
 		Class<?> fieldType = field.getType();
 		if (decodeFunction != null) {
 			return decodeFunction.apply(value);
-		}
-		else if (fieldType.isInstance(value)) {
+		} else if (fieldType.isInstance(value)) {
 			return value;
 		} else if (value instanceof Number) {
-			Number numberValue = (Number) value;
-			if (Long.TYPE.equals(fieldType) || Long.class.equals(fieldType))
-				return numberValue.longValue();
-			if (Integer.TYPE.equals(fieldType) || Integer.class.equals(fieldType))
-				return numberValue.intValue();
-			if (Short.TYPE.equals(fieldType) || Short.class.equals(fieldType))
-				return numberValue.shortValue();
-			if (Byte.TYPE.equals(fieldType) || Byte.class.equals(fieldType))
-				return numberValue.byteValue();
-			if (Character.TYPE.equals(fieldType) || Character.class.equals(fieldType))
-				return (char) numberValue.shortValue();
-			if (Boolean.TYPE.equals(fieldType) || boolean.class.equals(fieldType))
-				return numberValue.byteValue() == 0 ? false : true;
-			if (BigDecimal.class.equals(fieldType))
-				return new BigDecimal(numberValue.toString());
-			if (BigInteger.class.equals(fieldType))
-				return new BigInteger(numberValue.toString());
-			if (Float.TYPE.equals(fieldType) || Float.class.equals(fieldType))
-				return numberValue.floatValue();
-			if (Double.TYPE.equals(fieldType) || Double.class.equals(fieldType))
-				return numberValue.doubleValue();
-
-		}
-		else if (value instanceof java.util.Date) {
-			if (fieldType.equals(java.sql.Date.class)) {
-				return new java.sql.Date(((java.util.Date) value).getTime());
-			} else if (fieldType.equals(java.sql.Time.class)) {
-				return new java.sql.Time(((java.util.Date) value).getTime());
-			} else if (fieldType.equals(java.sql.Timestamp.class)) {
-				return new java.sql.Timestamp(((java.util.Date) value).getTime());
-			}
+			return getNumberValue(value, fieldType);
+		} else if (value instanceof java.util.Date) {
+			return getDateValue(value, fieldType);
 		} else if (value instanceof  Blob && fieldType == byte[].class) {
-			Blob blob = (Blob) value;
-			int length = (int) blob.length();
-			value = blob.getBytes(1, length);
-			blob.free();
+			return getBlobValue(value);
 		}
 		return value;
 	}
 
+	private Object getBlobValue(Object value) throws SQLException {
+		Blob blob = (Blob)value;
+		int length = (int) blob.length();
+		byte result[]  = blob.getBytes(1, length);
+		blob.free();
+		return result;
+	}
+
+	private Object getDateValue(Object value, Class<?> fieldType) {
+		if (fieldType.equals(java.sql.Date.class)) {
+			return new java.sql.Date(((java.util.Date) value).getTime());
+		} else if (fieldType.equals(java.sql.Time.class)) {
+			return new java.sql.Time(((java.util.Date) value).getTime());
+		} else if (fieldType.equals(java.sql.Timestamp.class)) {
+			return new java.sql.Timestamp(((java.util.Date) value).getTime());
+		}
+		return null;
+	}
+
+	private Object getNumberValue(Object value, Class<?> fieldType) {
+		Number numberValue = (Number) value;
+		if (Long.TYPE.equals(fieldType) || Long.class.equals(fieldType))
+			return numberValue.longValue();
+		if (Integer.TYPE.equals(fieldType) || Integer.class.equals(fieldType))
+			return numberValue.intValue();
+		if (Short.TYPE.equals(fieldType) || Short.class.equals(fieldType))
+			return numberValue.shortValue();
+		if (Byte.TYPE.equals(fieldType) || Byte.class.equals(fieldType))
+			return numberValue.byteValue();
+		if (Character.TYPE.equals(fieldType) || Character.class.equals(fieldType))
+			return (char) numberValue.shortValue();
+		if (Boolean.TYPE.equals(fieldType) || boolean.class.equals(fieldType))
+			return numberValue.byteValue() == 0 ? false : true;
+		if (BigDecimal.class.equals(fieldType))
+			return new BigDecimal(numberValue.toString());
+		if (BigInteger.class.equals(fieldType))
+			return new BigInteger(numberValue.toString());
+		if (Float.TYPE.equals(fieldType) || Float.class.equals(fieldType))
+			return numberValue.floatValue();
+		if (Double.TYPE.equals(fieldType) || Double.class.equals(fieldType))
+			return numberValue.doubleValue();
+		return null;
+	}
+
+	@SuppressWarnings("squid:S1166")
 	public void setValue(Object target, Object value) {
 		if (value != null && target != null) {
 			try {

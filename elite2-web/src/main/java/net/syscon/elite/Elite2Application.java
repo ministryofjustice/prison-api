@@ -9,7 +9,7 @@ import java.io.File;
 
 @SpringBootApplication
 public class Elite2Application {
-	
+
 	private static void setUp() {
 		final File currDir = new File(".");
 		final File projectDir = currDir.getAbsolutePath().contains("elite2-web")? currDir: new File("elite2-web");
@@ -22,8 +22,6 @@ public class Elite2Application {
 		System.setProperty(AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME, activeProfile);
 		System.setProperty(ApplicationContextConfigs.CONFIGS_DIR_PROPERTY, configsPath);
 	}
-	
-	
 
 	public static void main(final String[] args) {
 		setUp();
