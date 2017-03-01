@@ -1,31 +1,17 @@
 package net.syscon.util;
 
 
-import java.io.BufferedReader;
-import java.io.CharArrayWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.text.MessageFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-
 import net.syscon.elite.exception.EliteRuntimeException;
+
+import java.io.*;
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SQLProvider {
 
-	private Map<String, String[]> statements = new HashMap<>();
-    private final Map<String, String> variables = new HashMap<>();
+	private final Map<String, String> statements = new HashMap<>();
     private File file;
-
-
 
     public SQLProvider() {
     	// default constructor to be used with lazy loading ...
@@ -39,24 +25,6 @@ public class SQLProvider {
 
     public SQLProvider(final File file) {
         this.file = file;
-    }
-
-    protected void loadVariables() {
-        for (final Map.Entry<String, String> entry : System.getenv().entrySet()) {
-            variables.put(entry.getKey(), entry.getValue());
-        }
-        for (final Map.Entry<Object, Object> entry : System.getProperties().entrySet()) {
-            variables.put(entry.getKey().toString(), entry.getValue().toString());
-        }
-        // workaround to define $HOME on Windows
-        final String value = variables.get("${HOMEPATH}");
-        if (value != null) {
-            variables.put("${HOME}", value);
-        }
-    }
-
-    public void addVariable(final String key, final String value) {
-        variables.put(key, value);
     }
 
     public void loadFromFile(final File file) {
@@ -79,7 +47,6 @@ public class SQLProvider {
     }
 
     public void loadFromStream(final InputStream in) {
-        loadVariables();
         final CharArrayWriter out = new CharArrayWriter();
         final char[] cbuf = new char[1024];
         try {
@@ -102,167 +69,85 @@ public class SQLProvider {
     public void setFile(final File file) {
         this.file = file;
     }
+    
+    
+    private int getNext(final char[] content, final int offset, final char searchFor) {
+    	if (offset >= 0) {
+	    	for (int i = offset; i < content.length; i++) {
+	    		if (content[i] == searchFor) return i;
+	    	}
+    	}
+    	return -1;
+    }
+
+
+    private String makeString(final char[] content, int startIndex, int endIndex) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = startIndex; i < content.length && i < endIndex; i++) {
+            sb.append(content[i]);
+        }
+        return sb.toString();
+    }
 
     private void parse(final char[] content) throws ParseException {
-
-        final Map<String, String[]> newStatements = new HashMap<>();
-        String paramName = null;
-
-        final Queue<Character> queue = new LinkedList<>();
-
-        int i = 0, startIndex;
-        while (i < content.length) {
-
-            // get the param name
-            if (paramName == null) {
-                startIndex = i;
-                while (i < content.length && paramName == null) {
-                    if (content[i] == '{') {
-                        queue.add('{');
-                        paramName = new String(content, startIndex, i - startIndex);
-                    }
-                    i++;
-                }
-            }
-
-            if (i >= content.length) {
-                continue;
-            }
-
-            paramName = validateConfigName(paramName.trim());
-            startIndex = i;
-
-            while (i < content.length && !queue.isEmpty()) {
-                if (content[i] == '{') {
-                    queue.add('{');
-                }
-                if (content[i] == '}') {
-                    queue.poll();
-                }
-                if (queue.isEmpty()) {
-                    final String s = new String(content, startIndex, i - startIndex - 1);
-                    final List<String> list = new ArrayList<String>();
-                    String[] values = s.split("\\\n");
-                    for (int k = 0; k < values.length; k++) {
-                        String ss = values[k];
-                        for (final Map.Entry<String, String> entry : variables.entrySet()) {
-                            final String key = "${" + entry.getKey() + "}";
-                            ss = ss.replace(key, entry.getValue());
-                        }
-                        if (ss.indexOf("${") > 0) {
-                            throw new EliteRuntimeException("Variable on configs file not resolved => " + ss);
-                        }
-                        final String clean = getCleanStr(ss).trim();
-                        if (!"".equals(clean)) {
-                            list.add(ss);
-                        }
-                    }
-                    values = list.toArray(new String[0]);
-                    newStatements.put(paramName, values);
-                    paramName = null;
-                }
-                i++;
-            }
-        }
-        if (queue.size() > 0) {
-            final String text = new String(content, content.length - 21, 20);
-            throw new ParseException("Missing end brace", text.length() - 1);
-        }
-        statements = newStatements;
-
-    }
-
-    private String getCleanStr(final String text) {
-
-        if (text == null) {
-            throw new IllegalArgumentException("Input text is null");
-        }
-
-        int startIndex = -1;
-        int endIndex = -1;
+        final Map<String, String> newStatements = new HashMap<>();
         int i = 0;
-        char c;
-
-        // get the startIndex
-        while (i < text.length() && startIndex == -1 && i < text.length()) {
-            c = text.charAt(i);
-            if (c != '\n' && c != '\r' && c != ' ' && c != '\t') {
-                startIndex = i;
-            }
-            i++;
-        }
-
-        // get the endIndex
-        i = text.length() - 1;
-        while (i >= 0 && i >= 0 && endIndex == -1) {
-            c = text.charAt(i);
-            if (c != '\n' && c != '\r') {
-                endIndex = i;
-            }
-            i--;
-        }
-
-        if (startIndex == -1 || endIndex == -1) {
-            return "";
-        }
-        return text.substring(startIndex, endIndex + 1).trim();
-    }
-
-    private String validateConfigName(String statementName) throws ParseException {
-        char c;
-        int i;
-        boolean valid;
-        statementName = getCleanStr(statementName);
-        final String s = statementName.toUpperCase();
-
-        for (i = 0; i < s.length(); i++) {
-            c = s.charAt(i);
-            valid = c >= 'A' && c <= 'Z' || c == '.' || c == '_' || c >= '0' && c <= '9';
-            if (!valid) {
-                throw new ParseException(statementName, i);
-            }
-        }
-        return statementName;
-    }
-
-    public String get(final String name) {
-        return get(name, false);
-    }
-
-    public String get(final String name, final boolean trimElements) {
-        String sep = "";
-        final StringBuilder sb = new StringBuilder();
-        final String values[] = statements.get(name);
-        if (values != null) {
-            for (int i = 0; i < values.length; i++) {
-                if (values[i].startsWith("\t")) {
-                    values[i] = values[i].substring(1);
+        while (i < content.length) {
+        	final int startIndex = getNext(content, i, '{');
+        	final int endIndex = getNext(content, startIndex, '}');
+        	if (startIndex > -1 && endIndex > -1) {
+        		final String key = removeSpecialChars(makeString(content, i, startIndex).trim(), ' ', '\t', '\n', '\r');
+        		final String value = removeSpecialChars(makeString(content, startIndex + 1, endIndex),  '\r', '\n');
+        		newStatements.put(key, value);
+                i = endIndex + 1;
+        	} else {
+        	    if (startIndex < 0 && endIndex < 0) {
+                    i = content.length;
+                } else {
+                    throw new ParseException("Missing end brace + ", startIndex);
                 }
-                if (trimElements) {
-                    values[i] = getCleanStr(values[i]);
-                }
-                sb.append(sep).append(values[i]);
-                sep = "\n";
-            }
+        	}
         }
-        return sb.toString().trim();
-    }
-
-    public String getWithParams(final String name, final String... args) {
-        final String s[] = statements.get(name);
-        final StringBuilder sb = new StringBuilder();
-        if (s != null) {
-            for (int i = 0; i < s.length; i++) {
-                sb.append(s[i]).append("\n");
-            }
-        }
-        final Object params[] = new Object[args.length];
-        for (int i = 0; i < args.length; i++) {
-            params[i] = args[i];
-        }
-        final String result = MessageFormat.format(sb.toString(), params);
-        return result;
+        statements.clear();
+        statements.putAll(newStatements);
     }
 
 
+    private boolean in(char value, char[] elements) {
+        boolean found = false;
+        for (int i = 0; !found && i < elements.length; i++) {
+            found = elements[i] == value;
+        }
+        return found;
+    }
+
+
+    private String removeCharsStartingWith(String text, char ... elementsToRemove) {
+        for (int i = 0; i < text.length(); i++) {
+            if (!in(text.charAt(i), elementsToRemove)) {
+                return text.substring(i);
+            }
+        }
+        return "";
+    }
+
+    private String removeCharsEndingWith(String text, char ... elementsToRemove) {
+        for (int i = text.length() - 1; i > 0; i--) {
+            if (!in(text.charAt(i), elementsToRemove)) {
+                return text.substring(0, i + 1);
+            }
+        }
+        return "";
+    }
+
+    private String removeSpecialChars(final String text, char ... elementsToRemove) {
+        String result = removeCharsStartingWith(text, elementsToRemove);
+        return removeCharsEndingWith(result, elementsToRemove);
+    }
+
+
+    public String get(String name) {
+        return statements.get(name);
+    }
 }
+

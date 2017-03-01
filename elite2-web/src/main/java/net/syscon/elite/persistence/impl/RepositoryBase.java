@@ -2,9 +2,8 @@ package net.syscon.elite.persistence.impl;
 
 
 import net.syscon.util.SQLProvider;
-
-import org.slf4j.*;
-import org.springframework.beans.BeansException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.Resource;
@@ -22,7 +21,7 @@ public class RepositoryBase implements ApplicationContextAware {
 	protected SQLProvider sqlProvider;
 
 	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+	public void setApplicationContext(ApplicationContext applicationContext) {
 		jdbcTemplate = applicationContext.getBean(NamedParameterJdbcOperations.class);
 		final String resourcePath = "classpath:sqls/" + getClass().getSimpleName().replace('.', '/') + ".sql";
 		final Resource resource = applicationContext.getResource(resourcePath);

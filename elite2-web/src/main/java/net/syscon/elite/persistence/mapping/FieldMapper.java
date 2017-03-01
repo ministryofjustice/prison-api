@@ -65,7 +65,7 @@ public class FieldMapper {
 	private Object getBlobValue(Object value) throws SQLException {
 		Blob blob = (Blob)value;
 		int length = (int) blob.length();
-		byte result[]  = blob.getBytes(1, length);
+		byte[] result  = blob.getBytes(1, length);
 		blob.free();
 		return result;
 	}
@@ -81,6 +81,7 @@ public class FieldMapper {
 		return null;
 	}
 
+	@SuppressWarnings({"squid:S3776", "squid:MethodCyclomaticComplexity"})
 	private Object getNumberValue(Object value, Class<?> fieldType) {
 		Number numberValue = (Number) value;
 		if (Long.TYPE.equals(fieldType) || Long.class.equals(fieldType))
@@ -93,7 +94,7 @@ public class FieldMapper {
 			return numberValue.byteValue();
 		if (Character.TYPE.equals(fieldType) || Character.class.equals(fieldType))
 			return (char) numberValue.shortValue();
-		if (Boolean.TYPE.equals(fieldType) || boolean.class.equals(fieldType))
+		if (Boolean.TYPE.equals(fieldType) || Boolean.class.equals(fieldType))
 			return numberValue.byteValue() == 0 ? false : true;
 		if (BigDecimal.class.equals(fieldType))
 			return new BigDecimal(numberValue.toString());
@@ -106,25 +107,23 @@ public class FieldMapper {
 		return null;
 	}
 
-	@SuppressWarnings("squid:S1166")
+
 	public void setValue(Object target, Object value) {
-		if (value != null && target != null) {
-			try {
-				Field beanField = target.getClass().getDeclaredField(name);
-				if (beanField != null) {
-					final boolean accessible = beanField.isAccessible();
-					beanField.setAccessible(true);
-					if (setterFunction != null) {
-						setterFunction.apply(beanField);
-					} else {
-						final Object compatibleValue = getCompatibleValue(beanField, value);
-						ReflectionUtils.setField(beanField, target, compatibleValue);
-					}
-					beanField.setAccessible(accessible);
+		try {
+			Field beanField = target.getClass().getDeclaredField(name);
+			if (beanField != null) {
+				final boolean accessible = beanField.isAccessible();
+				beanField.setAccessible(true);
+				if (setterFunction != null) {
+					setterFunction.apply(beanField);
+				} else {
+					final Object compatibleValue = getCompatibleValue(beanField, value);
+					ReflectionUtils.setField(beanField, target, compatibleValue);
 				}
-			} catch (Exception ex) {
-				logger.warn("Failure setting the field \"" + name + "\" on " + target.getClass().getName());
+				beanField.setAccessible(accessible);
 			}
+		} catch (SQLException | NoSuchFieldException ex) {
+			logger.warn("Failure setting the field \"" + name + "\" on " + target.getClass().getName());
 		}
 	}
 

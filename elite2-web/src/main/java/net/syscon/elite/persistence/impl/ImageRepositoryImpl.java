@@ -1,9 +1,10 @@
 package net.syscon.elite.persistence.impl;
 
-import java.sql.Blob;
-import java.sql.SQLException;
-import java.util.Map;
-
+import jersey.repackaged.com.google.common.collect.ImmutableMap;
+import net.syscon.elite.persistence.ImageRepository;
+import net.syscon.elite.persistence.mapping.FieldMapper;
+import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
+import net.syscon.elite.web.api.model.ImageDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -11,11 +12,9 @@ import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import jersey.repackaged.com.google.common.collect.ImmutableMap;
-import net.syscon.elite.persistence.ImageRepository;
-import net.syscon.elite.persistence.mapping.FieldMapper;
-import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
-import net.syscon.elite.web.api.model.ImageDetail;
+import java.sql.Blob;
+import java.sql.SQLException;
+import java.util.Map;
 
 @Repository
 public class ImageRepositoryImpl extends RepositoryBase implements ImageRepository {
@@ -40,7 +39,7 @@ public class ImageRepositoryImpl extends RepositoryBase implements ImageReposito
 	@Override
 	public byte[] getImageContent(final Long imageId) {
 		try {
-			byte content[] = null;
+			byte[] content = null;
 			final String sql = getQuery("FIND_IMAGE_CONTENT");
 			final Blob blob = jdbcTemplate.queryForObject(sql, createParams("imageId", imageId), Blob.class);
 			if (blob != null) {

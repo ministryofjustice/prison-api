@@ -30,7 +30,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		.put("FIRST_NAME", 			new FieldMapper("firstName"))
 		.put("MIDDLE_NAME", 		new FieldMapper("middleName"))
 		.put("LAST_NAME", 			new FieldMapper("lastName"))
-		.put("ALERT_TYPES", 		new FieldMapper("alertsCodes", (value) -> Arrays.asList(value.toString().split(",")), null))
+		.put("ALERT_TYPES", 		new FieldMapper("alertsCodes", value -> Arrays.asList(value.toString().split(",")), null))
 		.put("LIVING_UNIT_ID", 		new FieldMapper("assignedLivingUnitId"))
 		.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
 	.build();
@@ -42,10 +42,10 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		.put("AGY_LOC_ID", 			new FieldMapper("agencyId"))
 		.put("FIRST_NAME", 			new FieldMapper("firstName"))
 		.put("LAST_NAME", 			new FieldMapper("lastName"))
-		.put("ALERT_TYPES", 		new FieldMapper("alertsCodes", (value) -> Arrays.asList(value.toString().split(",")), null))
+		.put("ALERT_TYPES", 		new FieldMapper("alertsCodes", value -> Arrays.asList(value.toString().split(",")), null))
 		.put("LIVING_UNIT_ID", 		new FieldMapper("assignedLivingUnitId"))
 		.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
-		.put("BIRTH_DATE", 			new FieldMapper("birthDate", (value) -> DateFormatProvider.get("yyyy-MM-dd").format((Date)value), null))
+		.put("BIRTH_DATE", 			new FieldMapper("birthDate", value -> DateFormatProvider.get("yyyy-MM-dd").format((Date)value), null))
 		.put("AGE",                 new FieldMapper("age"))
 	.build();
 
@@ -54,7 +54,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		.put("RACE_CODE",  new FieldMapper("ethnicity"))
 		.put("HEIGHT_FT",  new FieldMapper("detail"))
 		.put("HEIGHT_IN",  new FieldMapper("heightInches"))
-		.put("HEIGHT_CM",  new FieldMapper("heightMeters", (value) -> ((Number) value).doubleValue() / 100.0, null))
+		.put("HEIGHT_CM",  new FieldMapper("heightMeters", value -> ((Number) value).doubleValue() / 100.0, null))
 		.put("WEIGHT_LBS", new FieldMapper("weightPounds"))
 		.put("WEIGHT_KG",  new FieldMapper("weightKg"))
 	.build();

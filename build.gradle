@@ -33,7 +33,8 @@ subprojects {
 			property "sonar.sourceEncoding", "UTF-8"
 			property "sonar.login", "e73c987cc6cad28be858a8610636c1d2545c4c96"
 			property "sonar.host.url", "http://chronos.syscon.ca:9000/sonar"
-			property "sonar.sources", "src/main/java,src/main/generated"
+			property "sonar.sources", "src/main/java"
+			property "sonar.exclusions", "**/generated/**"
 		}
 	}
 
@@ -148,6 +149,7 @@ project(":elite2-web") {
 		compile("org.springframework.boot:spring-boot-starter-jersey")
 
 		compile "org.apache.commons:commons-lang3:3.5"
+		compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
 		compile ("com.zaxxer:HikariCP:${version_hikaricp}") { exclude(module: "tools") }
 
 		testCompile("org.springframework.boot:spring-boot-starter-test")

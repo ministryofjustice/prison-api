@@ -7,11 +7,5 @@ import org.springframework.context.annotation.Import;
 @Import(PersistenceConfigs.class)
 public class ServiceConfigs {
 
-//	@Bean
-//	public AgencyLocationService agencyService() {
-//		return new AgencyLocationServiceImpl();
-//	}
-
-	
 	
 }

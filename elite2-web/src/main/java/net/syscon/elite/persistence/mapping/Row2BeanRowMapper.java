@@ -127,9 +127,8 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 		return fieldMapper;
 	}
 
-	@SuppressWarnings("squid:S1166")
 	private FieldMapper getAdditionalPropertiesFieldMapper(final T bean, final Object value, final String fieldName) {
-		return new FieldMapper(FieldMapper.ADDITIONAL_PROPERTIES, null, (field) -> {
+		return new FieldMapper(FieldMapper.ADDITIONAL_PROPERTIES, null, field -> {
 			try {
 				if (field != null && field.getType().equals(Map.class)) {
 					@SuppressWarnings("unchecked")

@@ -7,6 +7,7 @@ import org.springframework.core.env.AbstractEnvironment;
 
 import java.io.File;
 
+@SuppressWarnings("squid:S1118")
 @SpringBootApplication
 public class Elite2Application {
 

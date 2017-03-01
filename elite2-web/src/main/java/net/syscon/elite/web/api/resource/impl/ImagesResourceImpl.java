@@ -1,15 +1,14 @@
 package net.syscon.elite.web.api.resource.impl;
 
 
-import javax.inject.Inject;
-import javax.ws.rs.core.StreamingOutput;
-
-import org.springframework.stereotype.Component;
-
 import net.syscon.elite.persistence.ImageRepository;
 import net.syscon.elite.web.api.model.HttpStatus;
 import net.syscon.elite.web.api.model.ImageDetail;
 import net.syscon.elite.web.api.resource.ImagesResource;
+import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import javax.ws.rs.core.StreamingOutput;
 
 @Component
 public class ImagesResourceImpl implements ImagesResource {
@@ -29,7 +28,7 @@ public class ImagesResourceImpl implements ImagesResource {
 	@Override
 	@SuppressWarnings("squid:S1166")
 	public GetImagesByImageIdDataResponse getImagesByImageIdData(final String imageId) throws Exception {
-		final byte data[] = imageRepository.getImageContent(Long.valueOf(imageId));
+		final byte[] data = imageRepository.getImageContent(Long.valueOf(imageId));
 		if (data != null) {
 			final StreamingOutput out = output -> output.write(data);
 			return GetImagesByImageIdDataResponse.withJpegOK(out);
