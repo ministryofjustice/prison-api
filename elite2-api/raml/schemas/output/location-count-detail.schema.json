@@ -1,0 +1,13 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"type": "object",
+	"title": "Location Inmate Count",
+	"properties": {
+    "conductByUserId": { "type": "integer" },
+    "enteredByUserId": { "type": "integer" },
+    "countReasonCode": { "type": "string" },
+    "inmateCount": { "type": "integer"},
+    "comment": { "type": "string" }
+  },
+  "required": ["conductByUserId", "enteredByUserId", "countReason", "inmateCount"]
+}

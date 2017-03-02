@@ -1,9 +1,7 @@
-import org.jsonschema2pojo.AnnotationStyle
-import org.raml.jaxrs.codegen.core.Generator
-
 buildscript {
 	repositories {
-		maven { url "http://chronos.syscon.ca:8081/artifactory/libs-release" }
+		maven { url "${artifactory_url}/libs-release" }
+		
 	}
 	dependencies {
 		classpath "org.raml:raml-jaxrs-codegen-core:1.3.4"
@@ -12,20 +10,46 @@ buildscript {
 	}
 }
 
-defaultTasks 'clean', 'run'
+
+defaultTasks "clean", "run"
 
 
 subprojects {
 
 	repositories {
-		maven { url "http://chronos.syscon.ca:8081/artifactory/libs-release" }
+		maven { url "${artifactory_url}/libs-release" }
+		maven { url "${artifactory_url}/third-party" }
 	}
 
-	apply plugin: 'java'
-	apply plugin: 'org.sonarqube'
-	apply plugin: 'checkstyle'
+	// global exclusions
+	configurations {
+		all*.exclude module: "commons-logging"
+		all*.exclude module: "log4j"
+		all*.exclude module: "c3p0"
+		all*.exclude group: "org.apache.tomcat"
+		all*.exclude group: "org.apache.tomcat.embed"
+		all*.exclude module: "spring-boot-starter-tomcat"
 
+		integrationTestCompile.extendsFrom testCompile
+		integrationTestRuntime.extendsFrom testRuntime
+	}
 
+	apply plugin: "java"
+	apply plugin: "org.sonarqube"
+	apply plugin: "checkstyle"
+	apply plugin: "maven"
+	apply plugin: "maven-publish"
+	apply plugin: "idea"
+	apply plugin: "eclipse"
+	apply plugin: "org.springframework.boot"
+
+	
+	sourceCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8	
+
+	group = "net.syscon.elite"
+	version = "1.0-SNAPSHOT"
+	
 	sonarqube {
 		properties {
 			property "sonar.projectName", "Elite2"
@@ -36,32 +60,12 @@ subprojects {
 			property "sonar.sources", "src/main/java"
 			property "sonar.exclusions", "**/generated/**"
 		}
+	}	
+	
+	dependencies {
+		compile( "org.apache.commons:commons-lang3:3.5")
+		compile("com.google.code.findbugs:jsr305:3.0.1")
 	}
-
-
-	apply plugin: "java"
-	apply plugin: 'idea'
-	sourceCompatibility = JavaVersion.VERSION_1_8
-	targetCompatibility = JavaVersion.VERSION_1_8
-
-
-	// global exclusions
-	configurations {
-		all*.exclude module: "commons-logging"
-		all*.exclude module: "log4j"
-		all*.exclude module: "c3p0"
-		all*.exclude group: "org.apache.tomcat"
-		all*.exclude group: "org.apache.tomcat.embed"
-		all*.exclude module: "spring-boot-starter-tomcat"
-	}
-
-
-	apply plugin: "maven"
-	apply plugin: "eclipse"
-	apply plugin: "org.springframework.boot"
-
-	group = "net.syscon.elite"
-	version = "1.0-SNAPSHOT"
 
 	install.repositories.mavenInstaller.pom.whenConfigured { generatedPom ->
 		generatedPom.project {
@@ -79,23 +83,64 @@ subprojects {
 			}
 		}
 	}
+
+
+	def repositoryType = project.version.endsWith('-SNAPSHOT')? "snapshot": "release"
+	publishing {
+		publications {
+			mavenJava(MavenPublication) {
+				from components.java
+			}
+		}
+		repositories {
+			maven {
+				credentials {
+					username = "${artifactory_username}"
+					password = "${artifactory_password}"
+				}
+				url "${artifactory_url}/libs-${repositoryType}-local"
+			}
+		}
+	}
+
+	sourceSets {
+		integrationTest {
+			java.srcDir file("src/integration-test/resources")
+			resources.srcDir file("src/integration-test/resources")
+			compileClasspath += sourceSets.main.output + sourceSets.test.output + configurations.integrationTestCompile
+			runtimeClasspath += sourceSets.main.output + sourceSets.test.output + configurations.integrationTestRuntime
+		}
+	}
+
+	task integrationTest(type: Test) {
+		testClassesDir = sourceSets.integrationTest.output.classesDir
+		classpath = sourceSets.integrationTest.runtimeClasspath
+	}
+
 }
 
-def sourceGenDir = file("${rootDir}/elite2-web/src/main/generated")
 
+def sourceGenDir = file("${rootDir}/elite2-api/src/main/generated")
 
+project(":elite2-api") {
 
-project(":elite2-raml") {
+	dependencies {
+		compile("org.springframework.boot:spring-boot-starter-jersey")
+	}
+	
+	sourceSets.main.java.srcDirs sourceGenDir
+
 	processResources {
 		def configs = new org.raml.jaxrs.codegen.core.Configuration()
-		def ramlDir = new File("${rootDir}/elite2-raml")
+		def ramlDir = new File("${rootDir}/elite2-api/raml")
 		sourceGenDir.listFiles().each{ f -> if (f != null) delete f }
 		sourceGenDir.mkdirs()
+		
 		configs.outputDirectory = sourceGenDir
 		configs.sourceDirectory = ramlDir
 		configs.setBasePackageName("net.syscon.elite.web.api");
 		configs.setJaxrsVersion(org.raml.jaxrs.codegen.core.Configuration.JaxrsVersion.JAXRS_2_0)
-		configs.setJsonMapper(AnnotationStyle.JACKSON2)
+		configs.setJsonMapper(org.jsonschema2pojo.AnnotationStyle.JACKSON2)
 		configs.setUseJsr303Annotations(false)
 		configs.jsonMapperConfiguration = new HashMap<>()
 		configs.jsonMapperConfiguration["useLongIntegers"] = "true"
@@ -103,17 +148,39 @@ project(":elite2-raml") {
 		configs.jsonMapperConfiguration["includeHashcodeAndEquals"] = "true"
 		configs.jsonMapperConfiguration["includeConstructors"] = "true"
 		configs.jsonMapperConfiguration["useCommonsLang3"] = "true"
-		new Generator().run(new FileReader(new File(ramlDir, "./api.raml")), configs, "")
+		def sourceGenerator = new org.raml.jaxrs.codegen.core.Generator()
+		sourceGenerator.run(new FileReader(new File(ramlDir, "./api.raml")), configs, "")
 	}
-
+	
+	compileJava.dependsOn processResources
+	
 	task run { doLast() { println ">>> Source Code Generated on ${sourceGenDir.absolutePath}!"} }
-	run.dependsOn processResources
-
+	run.dependsOn jar
 }
 
 
 
 project(":elite2-web") {
+
+	dependencies {
+
+		compile project(":elite2-api")
+		compile files("${rootDir}/elite2-web/src/main/configs")
+
+		compile("com.oracle:ojdbc7:12.1.0.1")
+		compile("org.springframework.boot:spring-boot-starter-web")
+		compile("org.springframework.boot:spring-boot-starter-aop")
+		compile("org.springframework.boot:spring-boot-starter-jdbc")
+		compile("org.springframework.boot:spring-boot-starter-jetty")
+		compile("com.zaxxer:HikariCP:${version_hikaricp}") { exclude(module: "tools") }
+
+		testCompile("org.springframework.boot:spring-boot-starter-test")
+		testCompile("io.rest-assured:rest-assured:3.0.2")
+		testCompile("io.rest-assured:json-schema-validator:3.0.2")
+		testCompile("io.rest-assured:spring-mock-mvc:3.0.2")
+
+	}
+
 
 	def configsDir = file("${rootDir}/elite2-web/src/main/configs").absolutePath
 	processResources {
@@ -127,34 +194,18 @@ project(":elite2-web") {
 		}
 	}
 
+	springBoot {
+		mainClass = "net.syscon.elite.Elite2Application"
+		executable = true
+		buildInfo()
+	}
 
 	bootRun {
 		jvmArgs("-Dspring.profiles.active=dev", "-Dsyscon.configs.dir=${configsDir}")
 		addResources = true 
 	}
 
-	sourceSets.main.java.srcDirs sourceGenDir
-	compileJava { source sourceGenDir.absolutePath }
 	compileJava.dependsOn processResources
-
-	dependencies {
-
-		compile files("${rootDir}/elite2-web/src/main/configs")
-		compile fileTree(dir: "${rootDir}/libs", include: "*.jar")
-		
-		compile("org.springframework.boot:spring-boot-starter-web")
-		compile("org.springframework.boot:spring-boot-starter-aop")
-		compile("org.springframework.boot:spring-boot-starter-jdbc")
-		compile("org.springframework.boot:spring-boot-starter-jetty")
-		compile("org.springframework.boot:spring-boot-starter-jersey")
-
-		compile "org.apache.commons:commons-lang3:3.5"
-		compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
-		compile ("com.zaxxer:HikariCP:${version_hikaricp}") { exclude(module: "tools") }
-
-		testCompile("org.springframework.boot:spring-boot-starter-test")
-
-	}
 
 	task run { doLast() { println "Server ready for requests ..." } }
 	run.dependsOn bootRun
