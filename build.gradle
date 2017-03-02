@@ -29,6 +29,7 @@ subprojects {
 		all*.exclude group: "org.apache.tomcat"
 		all*.exclude group: "org.apache.tomcat.embed"
 		all*.exclude module: "spring-boot-starter-tomcat"
+		all*.exclude module: "tools"
 
 		integrationTestCompile.extendsFrom testCompile
 		integrationTestRuntime.extendsFrom testRuntime
@@ -172,7 +173,7 @@ project(":elite2-web") {
 		compile("org.springframework.boot:spring-boot-starter-aop")
 		compile("org.springframework.boot:spring-boot-starter-jdbc")
 		compile("org.springframework.boot:spring-boot-starter-jetty")
-		compile("com.zaxxer:HikariCP:${version_hikaricp}") { exclude(module: "tools") }
+		compile("com.zaxxer:HikariCP:${version_hikaricp}")
 
 		testCompile("org.springframework.boot:spring-boot-starter-test")
 		testCompile("io.rest-assured:rest-assured:3.0.2")
