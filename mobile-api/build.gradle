@@ -1,0 +1,40 @@
+
+
+def sourceGenDir = file("${rootDir}/mobile-api/src/main/generated")
+
+project(":mobile-api") {
+
+	dependencies {
+		compile("org.springframework.boot:spring-boot-starter-jersey")
+	}
+	
+	sourceSets.main.java.srcDirs sourceGenDir
+
+	processResources {
+		def configs = new org.raml.jaxrs.codegen.core.Configuration()
+		def ramlDir = new File("${rootDir}/mobile-api/raml")
+		sourceGenDir.listFiles().each{ f -> if (f != null) delete f }
+		sourceGenDir.mkdirs()
+		
+		configs.outputDirectory = sourceGenDir
+		configs.sourceDirectory = ramlDir
+		configs.setBasePackageName("net.syscon.elite.web.api");
+		configs.setJaxrsVersion(org.raml.jaxrs.codegen.core.Configuration.JaxrsVersion.JAXRS_2_0)
+		configs.setJsonMapper(org.jsonschema2pojo.AnnotationStyle.JACKSON2)
+		configs.setUseJsr303Annotations(false)
+		configs.jsonMapperConfiguration = new HashMap<>()
+		configs.jsonMapperConfiguration["useLongIntegers"] = "true"
+		configs.jsonMapperConfiguration["includeToString"] = "true"
+		configs.jsonMapperConfiguration["includeHashcodeAndEquals"] = "true"
+		configs.jsonMapperConfiguration["includeConstructors"] = "true"
+		configs.jsonMapperConfiguration["useCommonsLang3"] = "true"
+		def sourceGenerator = new org.raml.jaxrs.codegen.core.Generator()
+		sourceGenerator.run(new FileReader(new File(ramlDir, "./api.raml")), configs, "")
+	}
+	
+	compileJava.dependsOn processResources
+	
+	task run { doLast() { println ">>> Source Code Generated on ${sourceGenDir.absolutePath}!"} }
+	run.dependsOn jar
+}
+

@@ -1,5 +1,5 @@
-rootProject.name = 'elite2'
+rootProject.name = 'mobile-server'
 
-include "elite2-api", "elite2-web"
+include "mobile-api", "mobile-web"
 
 

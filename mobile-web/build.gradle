@@ -1,0 +1,55 @@
+
+
+project(":mobile-web") {
+
+	dependencies {
+
+		compile project(":mobile-api")
+		compile files("${rootDir}/mobile-web/src/main/configs")
+
+		compile("com.oracle:ojdbc7:12.1.0.1")
+		compile("org.springframework.boot:spring-boot-starter-web")
+		compile("org.springframework.boot:spring-boot-starter-aop")
+		compile("org.springframework.boot:spring-boot-starter-jdbc")
+		compile("org.springframework.boot:spring-boot-starter-jetty")
+		compile("com.zaxxer:HikariCP:${version_hikaricp}")
+
+		testCompile("org.springframework.boot:spring-boot-starter-test")
+		testCompile("io.rest-assured:rest-assured:3.0.2")
+		testCompile("io.rest-assured:json-schema-validator:3.0.2")
+		testCompile("io.rest-assured:spring-mock-mvc:3.0.2")
+
+	}
+
+
+	def configsDir = file("${rootDir}/mobile-web/src/main/configs").absolutePath
+	processResources {
+		def devConfigsFile = file("${configsDir}/mobile-dev.yml")
+		if (!devConfigsFile.exists()) {
+			copy {
+				from (configsDir) { include "mobile-dev-SAMPLE.yml" }
+				into configsDir
+				rename { String fileName -> fileName.replace("mobile-dev-SAMPLE.yml", "mobile-dev.yml") }
+			}
+		}
+	}
+
+	springBoot {
+		mainClass = "net.syscon.elite.Elite2Application"
+		executable = true
+		buildInfo()
+	}
+
+	bootRun {
+		jvmArgs("-Dspring.profiles.active=dev", "-Dsyscon.configs.dir=${configsDir}")
+		addResources = true 
+	}
+
+	compileJava.dependsOn processResources
+
+	task run { doLast() { println "Server ready for requests ..." } }
+	run.dependsOn bootRun
+
+}
+
+
