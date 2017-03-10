@@ -1,6 +1,6 @@
 # README #
 
-This README is going to show how to run Elite2 API server.
+This README is going to show how to run mobile API server.
 
 ### What is this repository for? ###
 
@@ -13,36 +13,36 @@ This README is going to show how to run Elite2 API server.
 
 ### How do I get set up? ###
 
-* The Elite2 API Server uses the configuration file in YAML format. There is at least one initial configuration
+* The mobile API Server uses the configuration file in YAML format. There is at least one initial configuration
   packaged in the jar on
 
-    elite2-web/src/main/resources/elite2.yaml
+    mobile-web/src/main/resources/mobile.yaml
        
   If you need override any property from the initial configuration file, you have to do it in your own copy. Just copy
   the SAMPLE file available in accordingly with your desired profile. 
     
-    elite2-web/src/main/configs/elite2-dev-SAMPLE.yml
+    mobile-web/src/main/configs/mobile-dev-SAMPLE.yml
   
   Let's say you want create a specific configuration to the DEV profile, so just copy a file to your configurations.
        
-    elite2-web/src/main/configs/elite2-dev.yml
+    mobile-web/src/main/configs/mobile-dev.yml
     
 * Dependencies
   To minimize the dependency management job we choose to use Spring Boot because they give us a broad set of
   frameworks with the right version avoiding library conflicts.
   
 * Database configuration
-  To connect the application to a database, change the configurations in your configuration profile file, for example in elite2-dev.yml.
+  To connect the application to a database, change the configurations in your configuration profile file, for example in mobile-dev.yml.
   
 * How to run the Application
   You can use the Gradle to run the application 
   
-    cd elite2-web
+    cd mobile-web
     gradle run
     
-  Or you can just run the main method of the class net.syscon.elite.Elite2Application in your IDE 
+  Or you can just run the main method of the class net.syscon.elite.mobileApplication in your IDE 
   
-  Alternatively you can also package in a jar file and run it using java -jar elite2.jar
+  Alternatively you can also package in a jar file and run it using java -jar mobile.jar
   
 * How to package the Application
   To create a JAR of the application just run gradle to package it:

@@ -9,11 +9,11 @@ import org.springframework.core.env.AbstractEnvironment;
 import net.syscon.elite.web.config.ApplicationContextConfigs;
 
 @SpringBootApplication
-public class Elite2Application {
+public class MobileApiServer {
 
 	private static void setUp() {
 		final File currDir = new File(".");
-		final File projectDir = currDir.getAbsolutePath().contains("elite2-web")? currDir: new File("elite2-web");
+		final File projectDir = currDir.getAbsolutePath().contains("mobile-web")? currDir: new File("mobile-web");
 		String activeProfile = System.getProperty(AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME);
 		if (activeProfile == null) {
 			activeProfile = projectDir.exists()? "dev": "prod";
@@ -26,6 +26,6 @@ public class Elite2Application {
 
 	public static void main(final String[] args) {
 		setUp();
-		SpringApplication.run(Elite2Application.class, args);
+		SpringApplication.run(MobileApiServer.class, args);
 	}
 }

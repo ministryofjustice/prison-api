@@ -7,7 +7,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class Elite2ApplicationTests {
+public class MobileApiServerTests {
 
 	@Test
 	public void contextLoads() {

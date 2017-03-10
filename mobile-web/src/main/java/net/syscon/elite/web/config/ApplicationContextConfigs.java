@@ -21,7 +21,7 @@ import net.syscon.elite.exception.EliteRuntimeException;
 
 @Configuration
 @SuppressWarnings("squid:S1118")
-@PropertySources(@PropertySource(value = "classpath:elite2.yml"))
+@PropertySources(@PropertySource(value = "classpath:mobile.yml"))
 public class ApplicationContextConfigs {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ApplicationContextConfigs.class);
@@ -34,7 +34,7 @@ public class ApplicationContextConfigs {
 		final PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
 		final MutablePropertySources sources = env.getPropertySources();
 
-		String filename = "elite2.yml";
+		String filename = "mobile.yml";
 		final YamlPropertiesFactoryBean yamlFactory = new YamlPropertiesFactoryBean();
 		yamlFactory.setResources(new ClassPathResource(filename));
 		sources.addFirst(new PropertiesPropertySource("classpath:" + filename, yamlFactory.getObject()));
@@ -42,7 +42,7 @@ public class ApplicationContextConfigs {
 		final String configsPath = System.getProperty(CONFIGS_DIR_PROPERTY) != null ? System.getProperty(CONFIGS_DIR_PROPERTY) : "./conf";
 		final File configsDir = new File(configsPath);
 		for (final String profile : env.getActiveProfiles()) {
-			filename = "elite2-" + profile + ".yml";
+			filename = "mobile-" + profile + ".yml";
 			final File configurationFile = new File(configsDir, filename);
 			if (configurationFile.exists()) {
 				try {
