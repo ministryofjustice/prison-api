@@ -1,13 +1,15 @@
 package net.syscon.elite.web.api.resource.impl;
 
+import java.util.List;
+
+import javax.inject.Inject;
+
+import org.springframework.stereotype.Component;
+
 import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.web.api.model.Agency;
 import net.syscon.elite.web.api.model.Location;
 import net.syscon.elite.web.api.resource.AgenciesResource;
-import org.springframework.stereotype.Component;
-
-import javax.inject.Inject;
-import java.util.List;
 
 @Component
 public class AgenciesResourceImpl implements AgenciesResource {
@@ -20,8 +22,13 @@ public class AgenciesResourceImpl implements AgenciesResource {
 
 	@Override
 	public GetAgenciesResponse getAgencies(final int offset, final int limit) throws Exception {
-		final List<Agency> agencies = agencyLocationService.getAgencies(offset, limit);
-		return GetAgenciesResponse.withJsonOK(agencies);
+		try {
+			final List<Agency> agencies = agencyLocationService.getAgencies(offset, limit);
+			return GetAgenciesResponse.withJsonOK(agencies);
+		} catch (final Throwable ex) {
+			ex.printStackTrace();
+			throw ex;
+		}
 	}
 
 	@Override

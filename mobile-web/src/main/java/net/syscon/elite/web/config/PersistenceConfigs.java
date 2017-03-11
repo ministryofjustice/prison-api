@@ -17,10 +17,11 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException;
 
 import net.syscon.elite.exception.EliteRuntimeException;
+import net.syscon.elite.persistence.proxy.ProxyDataSource;
+import net.syscon.elite.persistence.proxy.UserInfoProvider;
 
 @Configuration
 @EnableCaching
@@ -44,7 +45,10 @@ public class PersistenceConfigs {
 			config.setJdbcUrl(env.getProperty("spring.datasource.hikari.jdbc-url"));
 			config.setConnectionInitSql(env.getProperty("spring.datasource.hikari.connection-init-sql"));
 			config.setConnectionTestQuery(env.getProperty("spring.datasource.hikari.connection-test-query"));
-			final DataSource dataSource = new HikariDataSource(config);
+			
+			final ProxyDataSource dataSource = new ProxyDataSource(config, new UserInfoProvider());
+			
+			//final DataSource dataSource = new HikariDataSource(config);
 			return dataSource;
 		} catch (final PoolInitializationException ex) {
 			log.error(ex.getMessage(), ex);
