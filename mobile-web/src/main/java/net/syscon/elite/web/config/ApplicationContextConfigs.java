@@ -17,7 +17,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 
 import net.syscon.elite.exception.EliteRuntimeException;
-import net.syscon.elite.persistence.proxy.UserInfoProvider;
+import net.syscon.elite.persistence.security.UserInfoProvider;
 
 
 @Configuration

@@ -1,4 +1,4 @@
-package net.syscon.elite.persistence.proxy;
+package net.syscon.elite.persistence.security;
 
 import java.util.Properties;
 

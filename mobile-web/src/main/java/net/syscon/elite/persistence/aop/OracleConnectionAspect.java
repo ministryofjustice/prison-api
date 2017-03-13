@@ -17,7 +17,7 @@ import org.springframework.aop.MethodBeforeAdvice;
 import org.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor;
 import org.springframework.aop.framework.ProxyFactory;
 
-import net.syscon.elite.persistence.proxy.UserInfoProvider;
+import net.syscon.elite.persistence.security.UserInfoProvider;
 import oracle.jdbc.driver.OracleConnection;
 
 
