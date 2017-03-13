@@ -17,6 +17,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 
 import net.syscon.elite.exception.EliteRuntimeException;
+import net.syscon.elite.persistence.proxy.UserInfoProvider;
 
 
 @Configuration
@@ -56,6 +57,13 @@ public class ApplicationContextConfigs {
 		}
 		return configurer;
 	}
+	
+	
+	@Bean
+	public UserInfoProvider userInfoProvider() {
+		return new UserInfoProvider();
+	}
+
 
 
 }

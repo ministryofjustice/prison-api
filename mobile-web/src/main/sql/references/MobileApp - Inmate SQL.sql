@@ -1,3 +1,6 @@
+alter user wellington grant connect through oms_owner 
+
+
 -- Offender summary information
 SELECT
   B.OFFENDER_BOOK_ID, -- bookingId

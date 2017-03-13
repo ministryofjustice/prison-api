@@ -6,6 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.env.AbstractEnvironment;
 
+import net.syscon.elite.core.Constants;
 import net.syscon.elite.web.config.ApplicationContextConfigs;
 
 @SpringBootApplication
@@ -16,7 +17,7 @@ public class MobileApiServer {
 		final File projectDir = currDir.getAbsolutePath().contains("mobile-web")? currDir: new File("mobile-web");
 		String activeProfile = System.getProperty(AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME);
 		if (activeProfile == null) {
-			activeProfile = projectDir.exists()? "dev": "prod";
+			activeProfile = projectDir.exists()? Constants.SPRING_PROFILE_DEVELOPMENT: Constants.SPRING_PROFILE_PRODUCTION;
 		}
 		final File configsDir = "prod".equals(activeProfile)? new File(currDir, "conf"): new File(projectDir, "src/main/configs");
 		final String configsPath = configsDir.getAbsolutePath().replace("\\",  "/").replace("\\.",  "");

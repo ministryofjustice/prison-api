@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 @EnableCaching
 @EnableAsync
 @ComponentScan(basePackages = {"net.syscon.elite.persistence", "net.syscon.elite.service"})
-@Import({ PersistenceConfigs.class, ServiceConfigs.class})
+@Import({ PersistenceConfigs.class, ServiceConfigs.class, AopConfigs.class})
 public class ServletContextConfigs {
 	
 	@Bean
