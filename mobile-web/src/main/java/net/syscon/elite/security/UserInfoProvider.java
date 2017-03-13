@@ -1,4 +1,4 @@
-package net.syscon.elite.persistence.security;
+package net.syscon.elite.security;
 
 import java.util.Properties;
 
