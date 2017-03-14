@@ -1,4 +1,4 @@
-package net.syscon.elite.persistence.aop;
+package net.syscon.elite.aop;
 
 
 import java.util.Arrays;
@@ -26,7 +26,7 @@ public class LoggingAspect {
     @Inject
     private Environment env;
 
-    @Pointcut("within(net.syscon.elite.persistence..*) || within(net.syscon.elite.service..*) || within(net.syscon.web.api..*)")
+    @Pointcut("within(net.syscon.elite.persistence..*) || within(net.syscon.elite.service..*) || within(net.syscon.web.api..*) || within(net.syscon.elite.aop..*)")
     public void loggingPointcut() {
     }
 

@@ -33,6 +33,7 @@ endpoints:
       username: oms_owner
       password: oms_owner
       idle-timeout: 10000
+      oracle-proxy: true
       
   jpa:
     database-platform: org.hibernate.dialect.Oracle12cDialect
