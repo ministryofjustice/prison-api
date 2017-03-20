@@ -24,11 +24,6 @@ spring:
       idle-timeout: 10000
       oracle-proxy: true
 
-endpoints:
-  cors:
-    allowed-origins: http://localhost:8080
-    allow-credentials: true
-
   jpa:
     database-platform: org.hibernate.dialect.Oracle12cDialect
     database: ORACLE
@@ -64,3 +59,8 @@ liquibase:
 server:
     port: 8080
     contextPath: /elite2
+
+endpoints:
+  cors:
+    allowed-origins: http://localhost:8080
+    allow-credentials: true

@@ -14,15 +14,9 @@ spring:
   cache:
     jcache:
       config: ehcache.xml
-      
-endpoints:
-  cors:
-    allowed-origins: 
-    allow-credentials: true
-
   datasource:
     hikari:
-      pool-name: EliteCP
+      pool-name: EliteHikariCP
       maximum-pool-size: 5
       driver-class-name: oracle.jdbc.OracleDriver
       connection-init-sql: SELECT 1 FROM DUAL
@@ -34,7 +28,6 @@ endpoints:
       password: oms_owner
       idle-timeout: 10000
       oracle-proxy: true
-      
   jpa:
     database-platform: org.hibernate.dialect.Oracle12cDialect
     database: ORACLE
@@ -46,7 +39,12 @@ endpoints:
       hibernate.javax.cache.provider: org.ehcache.jsr107.EhcacheCachingProvider
       hibernate.javax.cache.uri: ${spring.cache.jcache.config}
       hibernate.cache.region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
-      
+
+endpoints:
+  cors:
+    allowed-origins: 
+    allow-credentials: true
+
 server:
     port: 8080
     contextPath: /

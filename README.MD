@@ -37,7 +37,6 @@ This README is going to show how to run mobile API server.
 * How to run the Application
   You can use the Gradle to run the application 
   
-    cd mobile-web
     gradle run
     
   Or you can just run the main method of the class net.syscon.elite.mobileApplication in your IDE 
@@ -48,20 +47,22 @@ This README is going to show how to run mobile API server.
   To create a JAR of the application just run gradle to package it:
     
     gradle build
-    
 
 * Deployment instructions
   There is no deployment because we are using spring boot and the webapp has already a web container 
   embedded using a micro-services model
 
-### Contribution guidelines ###
+### TODO: ###
 
-* Writing tests
-* Code review
+* Automated Tests
+* 
 * Other guidelines
 
-### Who do I talk to? ###
+### Project related links ###
+* [SonarQube](http://chronos.syscon.ca:9000/sonar)
+* [Artifactory](http://chronos.syscon.ca:8081/artifactory)
+* [Jenkins](http://chronos.syscon.ca:7080)
 
-* Repo owner or admin
+  
 
 
