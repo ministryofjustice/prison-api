@@ -53,10 +53,10 @@ This README is going to show how to run mobile API server.
   embedded using a micro-services model
 
 ### TODO: ###
-
 * Automated Tests
-* 
-* Other guidelines
+* Code style and metrics
+* Continuous integration
+* Authentication/Authorization
 
 ### Project related links ###
 * [SonarQube](http://chronos.syscon.ca:9000/sonar)
