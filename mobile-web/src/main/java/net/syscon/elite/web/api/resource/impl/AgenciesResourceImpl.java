@@ -37,6 +37,11 @@ public class AgenciesResourceImpl implements AgenciesResource {
 		final List<Location> result = agencyLocationService.getLocationsFromAgency(agencyId, offset, limit);
 		return GetAgenciesByAgencyIdLocationsResponse.withJsonOK(result);
 	}
+	
+	
+	
+	
+	
 
 }
 
