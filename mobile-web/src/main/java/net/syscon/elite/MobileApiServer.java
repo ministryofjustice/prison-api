@@ -1,19 +1,19 @@
 package net.syscon.elite;
 
-import java.io.File;
-
+import net.syscon.elite.core.Constants;
+import net.syscon.elite.web.config.ApplicationContextConfigs;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.env.AbstractEnvironment;
 
-import net.syscon.elite.core.Constants;
-import net.syscon.elite.web.config.ApplicationContextConfigs;
+import java.io.File;
 
 @SpringBootApplication
 public class MobileApiServer {
 
-	private static void setUp() {
+	private static void setUp() throws Exception {
 		final File currDir = new File(".");
+		System.out.println(currDir.toURI().toURL().toString());
 		final File projectDir = currDir.getAbsolutePath().contains("mobile-web")? currDir: new File("mobile-web");
 		String activeProfile = System.getProperty(AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME);
 		if (activeProfile == null) {
@@ -25,7 +25,7 @@ public class MobileApiServer {
 		System.setProperty(ApplicationContextConfigs.CONFIGS_DIR_PROPERTY, configsPath);
 	}
 
-	public static void main(final String[] args) {
+	public static void main(final String[] args) throws Exception {
 		setUp();
 		SpringApplication.run(MobileApiServer.class, args);
 	}

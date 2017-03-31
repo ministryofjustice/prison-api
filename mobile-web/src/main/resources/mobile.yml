@@ -62,5 +62,5 @@ server:
 
 endpoints:
   cors:
-    allowed-origins: http://localhost:8080
+    allowed-origins: http://localhost:7080
     allow-credentials: true

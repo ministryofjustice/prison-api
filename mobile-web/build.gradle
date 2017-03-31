@@ -12,6 +12,9 @@ project(":mobile-web") {
 		compile("org.springframework.boot:spring-boot-starter-aop")
 		compile("org.springframework.boot:spring-boot-starter-jdbc")
 		compile("org.springframework.boot:spring-boot-starter-jetty")
+		compile 
+		
+		
 		compile("com.zaxxer:HikariCP:${version_hikaricp}")
 
 		testCompile("org.springframework.boot:spring-boot-starter-test")

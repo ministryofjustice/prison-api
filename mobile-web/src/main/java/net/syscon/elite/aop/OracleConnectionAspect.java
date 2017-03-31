@@ -1,12 +1,7 @@
 package net.syscon.elite.aop;
 
-import java.sql.Connection;
-import java.util.Arrays;
-import java.util.Properties;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
+import net.syscon.elite.security.UserInfoProvider;
+import oracle.jdbc.driver.OracleConnection;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -18,8 +13,11 @@ import org.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.core.env.Environment;
 
-import net.syscon.elite.security.UserInfoProvider;
-import oracle.jdbc.driver.OracleConnection;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.sql.Connection;
+import java.util.Arrays;
+import java.util.Properties;
 
 
 @Aspect
@@ -30,6 +28,7 @@ public class OracleConnectionAspect {
 	private AspectJExpressionPointcutAdvisor closeConnectionAdvisor;
 	private UserInfoProvider userInfoProvider;
 	private Environment env;
+
 	
 	@Inject
 	public void setUserInfoProvider(final UserInfoProvider userInfoProvider) {
@@ -47,23 +46,25 @@ public class OracleConnectionAspect {
 	
 	@PostConstruct
 	public void postConstruct() {
-		closeConnectionAdvisor = new AspectJExpressionPointcutAdvisor();
-		closeConnectionAdvisor.setExpression("execution (* java.sql.Connection.close(..))");
-		closeConnectionAdvisor.setOrder(10);
-		closeConnectionAdvisor.setAdvice((MethodBeforeAdvice) (method, args, target) -> {
-			if (env.getProperty("spring.datasource.hikari.oracle-proxy", Boolean.class)) {
-				if (method.getName().equals("close")) {
-					final Connection conn = (Connection) target;
-					final OracleConnection oracleConn = (OracleConnection) conn.unwrap(Connection.class);
-					oracleConn.close(OracleConnection.PROXY_SESSION);
+		if (env.getProperty("spring.datasource.hikari.oracle-proxy", Boolean.class)) {
+			closeConnectionAdvisor = new AspectJExpressionPointcutAdvisor();
+			closeConnectionAdvisor.setExpression("execution (* java.sql.Connection.close(..))");
+			closeConnectionAdvisor.setOrder(10);
+			closeConnectionAdvisor.setAdvice((MethodBeforeAdvice) (method, args, target) -> {
+				if (env.getProperty("spring.datasource.hikari.oracle-proxy", Boolean.class)) {
+					if (method.getName().equals("close")) {
+						final Connection conn = (Connection) target;
+						final OracleConnection oracleConn = (OracleConnection) conn.unwrap(Connection.class);
+						oracleConn.close(OracleConnection.PROXY_SESSION);
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 
 
 	@Around ("onNewConnectionPointcut()")
-	public Object logAround(final ProceedingJoinPoint joinPoint) throws Throwable {
+	public Object connectionAround(final ProceedingJoinPoint joinPoint) throws Throwable {
 	    if (log.isDebugEnabled()) {
 	    	log.debug("Enter: {}.{}()", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
 	    }
