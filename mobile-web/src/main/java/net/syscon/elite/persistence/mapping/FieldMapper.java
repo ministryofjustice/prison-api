@@ -126,6 +126,10 @@ public class FieldMapper {
 			logger.warn("Failure setting the field \"" + name + "\" on " + target.getClass().getName());
 		}
 	}
+	
+	public String getName() {
+		return name;
+	}
 
 
 }
