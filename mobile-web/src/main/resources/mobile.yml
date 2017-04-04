@@ -1,11 +1,12 @@
 # ===================================================================
-# Spring Boot configuration for the "dev" profile.
-# This configuration overrides the elite2.yml file.
+# Standard Spring Boot configuration
 # ===================================================================
 
 spring:
+
   profiles:
     active: dev
+    
   jackson:
     serialization:
       INDENT_OUTPUT: false
@@ -24,19 +25,13 @@ spring:
       idle-timeout: 10000
       oracle-proxy: true
 
-  jpa:
-    database-platform: org.hibernate.dialect.Oracle12cDialect
-    database: ORACLE
-    show-sql: true
-    properties:
-      hibernate.show_sql: true
-      hibernate.cache.use_second_level_cache: true
-      hibernate.cache.use_query_cache: false
-      hibernate.generate_statistics: true
-      hibernate.javax.cache.provider: org.ehcache.jsr107.EhcacheCachingProvider
-      hibernate.javax.cache.uri: ${spring.cache.jcache.config}
-      hibernate.cache.region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
+jwt:
+  header: Authorization
+  secret: my-very-secret-key
 
+logging:
+  level:
+    org.springframework.security: INFO
   cache:
     jcache:
       config: ehcache.xml
@@ -49,9 +44,7 @@ spring:
     
   messages:
     cache-seconds: 1
-    
-  thymeleaf:
-    cache: false
+
     
 liquibase:
     contexts: dev

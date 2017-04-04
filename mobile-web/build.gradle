@@ -15,7 +15,7 @@ project(":mobile-web") {
 		compile("org.springframework.boot:spring-boot-starter-aop")
 		compile("org.springframework.boot:spring-boot-starter-jdbc")
 		compile("org.springframework.boot:spring-boot-starter-jetty")
-		//compile("org.springframework.boot:spring-boot-starter-security")
+		compile("org.springframework.boot:spring-boot-starter-security")
 
 		compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.7.0'
 		
