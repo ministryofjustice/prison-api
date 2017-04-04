@@ -1,9 +1,15 @@
 package net.syscon.util;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import net.syscon.elite.persistence.mapping.FieldMapper;
-
+/**
+ * 
+ * @author om.pandey
+ *
+ */
 public class QueryBuilder {
 	private Builder queryBuilder;
 	
@@ -22,6 +28,23 @@ public class QueryBuilder {
 		public Builder(String baseQuery, Map<String,FieldMapper> fieldMap) {
 			this.baseQuery = new StringBuilder(baseQuery);
 			this.fieldMap = fieldMap;
+		}
+		
+		public Builder addQuery(String query) {
+			if(null!=query && query.length()>0) {
+				List<String> queryList = QueryUtil.checkPrecdencyAndSplit(query, new ArrayList<String>());
+				if (baseQuery.length() > 0 && (baseQuery.toString().contains("where") || baseQuery.toString().contains("WHERE"))) {
+					baseQuery.append(" and ");
+				}
+				queryList.stream().filter(queryItem ->{return queryItem.length()>0;}).forEach(queryItem -> {
+					if(queryItem.contains("(") && queryItem.contains(")")) {
+						baseQuery.append(QueryUtil.prepareQuery(queryItem, true, fieldMap));
+					} else {
+						baseQuery.append(QueryUtil.prepareQuery(queryItem, false, fieldMap));
+					}
+				});
+			}
+			return this;
 		}
 		
 		public  Builder addPagedQuery() {

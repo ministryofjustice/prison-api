@@ -1,5 +1,7 @@
 FIND_LOCATIONS_BY_AGENCY_ID {
 	 -- Internal Agency Locations (PILOT VERSION)
+	 --  This clause is for the pilot only
+	-- AND A.INTERNAL_LOCATION_TYPE != 'BLOCK' --  This clause is for the pilot only
 	 SELECT A.INTERNAL_LOCATION_ID,
 	  		  A.AGY_LOC_ID,
 	  		  A.INTERNAL_LOCATION_TYPE,
@@ -8,8 +10,7 @@ FIND_LOCATIONS_BY_AGENCY_ID {
 	  		  A.NO_OF_OCCUPANT
 	   FROM	AGENCY_INTERNAL_LOCATIONS A
 	  WHERE	A.ACTIVE_FLAG = 'Y'
-			    AND A.AGY_LOC_ID = :agencyId --  This clause is for the pilot only
-			    -- AND A.INTERNAL_LOCATION_TYPE != 'BLOCK' --  This clause is for the pilot only
+			    AND A.AGY_LOC_ID = :agencyId 
 }
 
 FIND_ALL_LOCATIONS {
