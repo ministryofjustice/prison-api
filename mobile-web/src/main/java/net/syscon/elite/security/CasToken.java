@@ -18,7 +18,7 @@ import org.apache.http.message.BasicNameValuePair;
 
 import net.syscon.elite.exception.EliteRuntimeException;
 
-public class TokenAuthentication {
+public class CasToken {
 
 	public String getGrantingTicket(final String ticketUrl, final String username, final String password) {
 		try {
@@ -82,7 +82,7 @@ public class TokenAuthentication {
 		final String username = "oms_owner";
 		final String password = "oms_owner";
 
-		final TokenAuthentication tokenAuth = new TokenAuthentication();
+		final CasToken tokenAuth = new CasToken();
 		final String grantingTicket = tokenAuth.getGrantingTicket(ticketUrl, username, password);
 		System.out.println("Granting Ticket: " + grantingTicket);
 		

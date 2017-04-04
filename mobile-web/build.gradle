@@ -8,14 +8,24 @@ project(":mobile-web") {
 		compile files("${rootDir}/mobile-web/src/main/configs")
 
 		compile("com.oracle:ojdbc7:12.1.0.1")
+
+
+		
 		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-aop")
 		compile("org.springframework.boot:spring-boot-starter-jdbc")
 		compile("org.springframework.boot:spring-boot-starter-jetty")
-		compile 
+		//compile("org.springframework.boot:spring-boot-starter-security")
+
+		compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.7.0'
 		
 		
 		compile("com.zaxxer:HikariCP:${version_hikaricp}")
+
+		compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.3'
+
+
+
 
 		testCompile("org.springframework.boot:spring-boot-starter-test")
 		testCompile("io.rest-assured:rest-assured:3.0.2")

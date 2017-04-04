@@ -22,6 +22,8 @@ import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException;
 
 import net.syscon.elite.exception.EliteRuntimeException;
 
+import java.sql.SQLException;
+
 @Configuration
 @EnableCaching
 @EnableAspectJAutoProxy
@@ -44,10 +46,8 @@ public class PersistenceConfigs {
 			config.setJdbcUrl(env.getProperty("spring.datasource.hikari.jdbc-url"));
 			config.setConnectionInitSql(env.getProperty("spring.datasource.hikari.connection-init-sql"));
 			config.setConnectionTestQuery(env.getProperty("spring.datasource.hikari.connection-test-query"));
-			
-			//final ProxyDataSource dataSource = new ProxyDataSource(config, new UserInfoProvider());
-			
 			final DataSource dataSource = new HikariDataSource(config);
+
 			return dataSource;
 		} catch (final PoolInitializationException ex) {
 			log.error(ex.getMessage(), ex);

@@ -4,6 +4,9 @@ baseUri: http://api.elite2.syscon.net/{version}
 version: v1
 schemas:
 - httpStatus: !include schemas/output/http-status.schema.json
+
+- loginAuth: !include schemas/input/login-auth.schema.json
+- tokenAuth: !include schemas/output/token-auth.json
 - agency: !include schemas/output/agency.schema.json
 - agencies: !include schemas/output/agencies.schema.json
 - inmateSummary: !include schemas/output/inmate-summary.schema.json
@@ -25,6 +28,7 @@ resourceTypes: !include resourceTypes/generic-resource-types.raml
 
 traits: !include traits/generic-traits.raml
 
+/auth: !include resources/auth.raml
 /agencies: !include resources/agencies.raml
 /booking: !include resources/booking.raml
 /locations: !include resources/locations.raml

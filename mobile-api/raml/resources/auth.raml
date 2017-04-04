@@ -1,0 +1,19 @@
+description: API Authentication
+post:
+  description: Login using Username and Password
+  body:
+    application/json:
+      schema: loginAuth
+  responses:
+    201:
+      description: The login has been completed with success. The token object is returned including the status.
+      body:
+        application/json:
+          schema: tokenAuth
+    401:
+      description: Invalid username or password
+      body:
+        application/json:
+          schema: httpStatus
+          example: !include ../examples/output/401.sample.json
+
