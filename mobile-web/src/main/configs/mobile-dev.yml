@@ -23,11 +23,11 @@ spring:
       connection-test-query: SELECT 1 FROM DUAL
       #jdbc-url: jdbc:oracle:thin:@db-rh-s5.syscon.ca:1521:ndd11dv1
       #jdbc-url: jdbc:oracle:thin:@wndbsvsdaqas01.syscon.ca:1521:sdprobi1
-      jdbc-url: jdbc:oracle:thin:@prod-12c-dev.syscon.ca:1521:pb12cdv1
-      username: oms_owner
-      password: oms_owner
+      jdbc-url: jdbc:oracle:thin:@172.16.3.11:1522:DB12C
+      username: OMS_OWNER
+      password: OMS_OWNER
       idle-timeout: 10000
-      oracle-proxy: true
+      oracle-proxy: false
   jpa:
     database-platform: org.hibernate.dialect.Oracle12cDialect
     database: ORACLE
@@ -46,7 +46,7 @@ endpoints:
     allow-credentials: true
 
 server:
-    port: 7080
+    port: 8080
     contextPath: /
     
 security:
