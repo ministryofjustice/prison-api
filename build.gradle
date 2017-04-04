@@ -20,15 +20,20 @@ subprojects {
 		maven { url "${artifactory_url}/third-party" }
 	}
 
-	// global exclusions
+
 	configurations {
-		all*.exclude module: "commons-logging"
-		all*.exclude module: "log4j"
-		all*.exclude module: "c3p0"
-		all*.exclude group: "org.apache.tomcat"
-		all*.exclude group: "org.apache.tomcat.embed"
-		all*.exclude module: "spring-boot-starter-tomcat"
-		all*.exclude module: "tools"
+	
+		// global exclusions	
+		compile.exclude module: "commons-logging"
+		compile.exclude module: "log4j"
+		compile.exclude module: "c3p0"
+		compile.exclude module: "tomcat-embed-core"
+		compile.exclude module: "tomcat-embed-el"
+		compile.exclude module: "tomcat-embed-websocket"
+		compile.exclude module: "tomcat-juli"
+		compile.exclude module: "tomcat-jdbc"
+		compile.exclude module: "spring-boot-starter-tomcat"
+		compile.exclude module: "tools"
 
 		integrationTestCompile.extendsFrom testCompile
 		integrationTestRuntime.extendsFrom testRuntime
