@@ -2,6 +2,19 @@
 
 project(":mobile-web") {
 
+
+	sonarqube {
+		properties {
+			property "sonar.projectName", "Elite2"
+			property "sonar.projectKey", "net.syscon.elite:elite2"
+			property "sonar.sourceEncoding", "UTF-8"
+			property "sonar.login", "e73c987cc6cad28be858a8610636c1d2545c4c96"
+			property "sonar.host.url", "http://chronos.syscon.ca:9000/sonar"
+			property "sonar.sources", "${rootDir}/mobile-web/src/main/java"
+			property "sonar.exclusions", "**/generated/**"
+		}
+	}
+
 	dependencies {
 
 		compile project(":mobile-api")
