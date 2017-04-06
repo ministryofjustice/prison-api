@@ -1,0 +1,51 @@
+[ {
+  "uid" : 1,
+  "agencyId" : "123",
+  "description" : "CLARK COUNTY",
+  "agencyType" : "BOTH"
+}, {
+  "uid" : 2,
+  "agencyId" : "CCC",
+  "description" : "Calgary Corrections Centre",
+  "agencyType" : "INST"
+}, {
+  "uid" : 3,
+  "agencyId" : "CPAR",
+  "description" : "Syscon Parole Field Office",
+  "agencyType" : "COMM"
+}, {
+  "uid" : 4,
+  "agencyId" : "CTAG",
+  "description" : "Syscon Probation Office",
+  "agencyType" : "COMM"
+}, {
+  "uid" : 5,
+  "agencyId" : "ERC",
+  "description" : "Edmonton Remand Centre",
+  "agencyType" : "COMM"
+}, {
+  "uid" : 6,
+  "agencyId" : "ITAG",
+  "description" : "Syscon Jail",
+  "agencyType" : "INST"
+}, {
+  "uid" : 7,
+  "agencyId" : "RRRRR",
+  "description" : "rrrrrerererr",
+  "agencyType" : "PD"
+}, {
+  "uid" : 8,
+  "agencyId" : "SDC",
+  "description" : "Syscon District Court",
+  "agencyType" : "CRT"
+}, {
+  "uid" : 9,
+  "agencyId" : "SDTC",
+  "description" : "Syscon Detention Center",
+  "agencyType" : "INST"
+}, {
+  "uid" : 10,
+  "agencyId" : "SSC",
+  "description" : "Syscon Supreme Court",
+  "agencyType" : "CRT"
+} ]

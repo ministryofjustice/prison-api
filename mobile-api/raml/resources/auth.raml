@@ -1,19 +1,37 @@
-description: API Authentication
-post:
-  description: Login using Username and Password
-  body:
-    application/json:
-      schema: authLogin
-  responses:
-    201:
-      description: The login has been completed with success. The token object is returned including the status.
-      body:
-        application/json:
-          schema: authToken
-    401:
-      description: Invalid username or password
-      body:
-        application/json:
-          schema: httpStatus
-          example: !include ../examples/output/401.sample.json
-
+/login:
+  post:
+    description: Login using Username and Password
+    body:
+      application/json:
+        schema: authLogin
+    responses:
+      201:
+        description: If the login has been completed with success. The token object is returned including the status.
+        body:
+          application/json:
+            schema: token
+      401:
+        description: Invalid username or password
+        body:
+          application/json:
+            schema: httpStatus
+            example: !include ../examples/output/401.sample.json
+  
+/token:
+  post:
+    description: Renew the JWT to keep as a authenticated user
+    body:
+      application/json:
+        schema: authToken
+    responses:
+      201:
+        description: If the token validation completed with success. The token object is returned including the status.
+        body:
+          application/json:
+            schema: token
+      401:
+        description: Invalid Token
+        body:
+          application/json:
+            schema: httpStatus
+            example: !include ../examples/output/401.sample.json

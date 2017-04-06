@@ -1,63 +1,92 @@
 package net.syscon.elite.web.config;
-import java.util.Arrays;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.stereotype.Service;
 
-import net.syscon.elite.security.jwt.JwtAuthenticationEntryPoint;
-import net.syscon.elite.security.jwt.JwtAuthenticationProvider;
-import net.syscon.elite.security.jwt.JwtAuthenticationSuccessHandler;
-import net.syscon.elite.security.jwt.JwtAuthenticationTokenFilter;
-
+import net.syscon.elite.security.jwt.JWTAuthenticationFilter;
+import net.syscon.elite.security.jwt.JWTLoginFilter;
 
 @Configuration
 @EnableWebSecurity
-@EnableAutoConfiguration(exclude = { org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration.class })
-@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    private JwtAuthenticationEntryPoint unauthorizedHandler;
-    @Autowired
-    private JwtAuthenticationProvider authenticationProvider;
-    @Bean
-    @Override
-    public AuthenticationManager authenticationManager() throws Exception {
-        return new ProviderManager(Arrays.asList(authenticationProvider));
-    }
-    @Bean
-    public JwtAuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
-        final JwtAuthenticationTokenFilter authenticationTokenFilter = new JwtAuthenticationTokenFilter();
-        authenticationTokenFilter.setAuthenticationManager(authenticationManager());
-        authenticationTokenFilter.setAuthenticationSuccessHandler(new JwtAuthenticationSuccessHandler());
-        return authenticationTokenFilter;
-    }
-    @Override
-    protected void configure(final HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
-                // we don't need CSRF because our token is invulnerable
-                .csrf().disable()
-                // All urls must be authenticated (filter for token always fires (/**)
-                .authorizeRequests().anyRequest().authenticated()
-                .and()
-                // Call our errorHandler if authentication/authorisation fails
-                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
-                .and()
-                // don't create session
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); //.and()
-        // Custom JWT based security filter
-        httpSecurity
-                .addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
-        // disable page caching
-        httpSecurity.headers().cacheControl();
-    }
+	
+	
+	@Value("spring.datasource.hikari.driver-class-name")
+	private String jdbcDriver;
+	
+	@Value("spring.datasource.hikari.jdbc-url")
+    private String jdbcUrl;
+	
+
+	@Override
+	protected void configure(final HttpSecurity http) throws Exception {
+		http.authorizeRequests().anyRequest().authenticated().and().formLogin().loginProcessingUrl("/api/auth/login").usernameParameter("username").passwordParameter("password").and().csrf().disable()
+				// We filter the api/login requests
+				.addFilterBefore(new JWTLoginFilter("/api/auth/login", authenticationManager()), UsernamePasswordAuthenticationFilter.class)
+				// And filter other requests to check the presence of JWT in
+				// header
+				.addFilterBefore(new JWTAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+	}
+
+	@Override
+	protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
+		// Create a default account
+		auth.authenticationProvider(authenticationProvider());
+	}
+	
+	@Bean
+	public AuthenticationProvider authenticationProvider() {
+		return new CustomAuthenticationProvider();
+	}
+	
+	
+
+	@Configurable
+	@Service
+	public static class CustomAuthenticationProvider implements AuthenticationProvider {
+
+		@Override
+		public Authentication authenticate(final Authentication auth) throws AuthenticationException {
+	        
+			
+			
+			final String username = auth.getName();
+	        final String password = auth.getCredentials().toString();
+	        
+
+	        
+	        // to add more logic
+	        final List<GrantedAuthority> grantedAuths = new ArrayList<>();
+	        grantedAuths.add(new SimpleGrantedAuthority("ROLE_USER"));
+	        return new UsernamePasswordAuthenticationToken(username, password, grantedAuths);
+	        
+	        
+	        
+	        
+		}
+
+		@Override
+		public boolean supports(final Class<?> authentication) {
+			return true;
+		}
+
+	}
+
 }
