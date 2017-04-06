@@ -1,0 +1,19 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "User Details",
+	"type": "object",
+	"properties": {
+		"userId": { "type": "integer" },
+		"username": { "type": "string" },
+		"accountNonExpired": { "type": "boolean" },
+		"accountNonLocked": { "type": "boolean" },
+		"credentialsNonExpired": { "type": "boolean" },
+		"enabled": { "type": "boolean" },
+		"thumbnailId": { "type": "integer" },
+		"roles": {
+			"type": "array",
+			"items": { "type": "string" }
+		}
+	},
+	"required": ["userId", "username", "accountNonExpired", "accountNonLocked", "accountNonLocked", "credentialsNonExpired", "enabled", "authorities"]
+}

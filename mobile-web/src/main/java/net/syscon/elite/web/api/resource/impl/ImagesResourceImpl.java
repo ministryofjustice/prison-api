@@ -1,14 +1,15 @@
 package net.syscon.elite.web.api.resource.impl;
 
 
-import net.syscon.elite.persistence.ImageRepository;
-import net.syscon.elite.web.api.model.HttpStatus;
-import net.syscon.elite.web.api.model.ImageDetail;
-import net.syscon.elite.web.api.resource.ImagesResource;
-import org.springframework.stereotype.Component;
-
 import javax.inject.Inject;
 import javax.ws.rs.core.StreamingOutput;
+
+import org.springframework.stereotype.Component;
+
+import net.syscon.elite.persistence.ImageRepository;
+import net.syscon.elite.web.api.model.HttpStatus;
+import net.syscon.elite.web.api.model.ImageDetails;
+import net.syscon.elite.web.api.resource.ImagesResource;
 
 @Component
 public class ImagesResourceImpl implements ImagesResource {
@@ -21,7 +22,7 @@ public class ImagesResourceImpl implements ImagesResource {
 
 	@Override
 	public GetImagesByImageIdResponse getImagesByImageId(final String imageId) throws Exception {
-		final ImageDetail imageDetail = imageRepository.findImageDetail(Long.valueOf(imageId));
+		final ImageDetails imageDetail = imageRepository.findImageDetail(Long.valueOf(imageId));
 		return GetImagesByImageIdResponse.withJsonOK(imageDetail);
 	}
 

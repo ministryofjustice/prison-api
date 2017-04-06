@@ -5,6 +5,7 @@ version: v1
 schemas:
 - httpStatus: !include schemas/output/http-status.schema.json
 
+- userDetails: !include schemas/output/user-details.schema.json
 - authLogin: !include schemas/input/auth-login.schema.json
 - authToken: !include schemas/input/auth-token.schema.json
 - token: !include schemas/output/token.schema.json
@@ -12,24 +13,34 @@ schemas:
 - agencies: !include schemas/output/agencies.schema.json
 - inmateSummary: !include schemas/output/inmate-summary.schema.json
 - inmateSummaries: !include schemas/output/inmate-summaries.schema.json
-- inmateDetail: !include schemas/output/inmate-detail.schema.json
+- inmateDetails: !include schemas/output/inmate-details.schema.json
 - movement: !include schemas/output/movement.schema.json
 - movements: !include schemas/output/movements.schema.json
 - location: !include schemas/output/location.schema.json
 - locations: !include schemas/output/locations.schema.json
 - imageSummary: !include schemas/output/image-summary.schema.json
 - imageSummaries: !include schemas/output/image-summaries.schema.json
-- imageDetail: !include schemas/output/image-detail.schema.json
+- imageDetails: !include schemas/output/image-details.schema.json
 - imageData: !include schemas/output/image-data.schema.json
 - locationCountDetail: !include schemas/output/location-count-detail.schema.json
 - locationCount: !include schemas/output/location-count.schema.json
 - automatedCount: !include schemas/output/automated-count.schema.json
 
+securitySchemes:
+- jwt:
+    describedBy:
+      queryParameters:
+         token:
+           description: Provided Token
+           type: string
+           example: eyJpc3MiOiJzY290Y2guaW8iLCJleHAiOjEzMDA4MTkzODAsIm5hbWUiOiJDaHJpcyBTZXZpbGxlamEiLCJhZG1pbiI6dHJ1ZX0
+    type: x-jwt
+
 resourceTypes: !include resourceTypes/generic-resource-types.raml
 
 traits: !include traits/generic-traits.raml
 
-/auth: !include resources/auth.raml
+/users: !include resources/users.raml
 /agencies: !include resources/agencies.raml
 /booking: !include resources/booking.raml
 /locations: !include resources/locations.raml

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import net.syscon.elite.persistence.InmateRepository;
 import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.HttpStatus;
-import net.syscon.elite.web.api.model.InmateDetail;
+import net.syscon.elite.web.api.model.InmateDetails;
 import net.syscon.elite.web.api.resource.BookingResource;
 
 @Component
@@ -38,7 +38,7 @@ public class BookingResourceImpl implements BookingResource {
 	@SuppressWarnings("squid:S1166")
 	public GetBookingByBookingIdResponse getBookingByBookingId(final String bookingId) throws Exception {
 		try {
-			final InmateDetail inmate = inmateRepository.findInmate(Long.valueOf(bookingId));
+			final InmateDetails inmate = inmateRepository.findInmate(Long.valueOf(bookingId));
 			return GetBookingByBookingIdResponse.withJsonOK(inmate);
 		} catch (final EmptyResultDataAccessException ex) {
 			final String message = String.format("Booking \"%s\" not found", bookingId);

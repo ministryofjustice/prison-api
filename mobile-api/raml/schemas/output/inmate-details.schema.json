@@ -1,6 +1,6 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema#",
-	"title": "Inmate Detail",
+	"title": "Inmate Details",
 	"type": "object",
 	"properties": {
 		"bookingId": { "type": "integer" },

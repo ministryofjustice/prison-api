@@ -1,21 +1,26 @@
 package net.syscon.elite.persistence.impl;
 
-import jersey.repackaged.com.google.common.collect.ImmutableMap;
-import net.syscon.elite.persistence.InmateRepository;
-import net.syscon.elite.persistence.mapping.FieldMapper;
-import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
-import net.syscon.elite.web.api.model.*;
-import net.syscon.util.DateFormatProvider;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import jersey.repackaged.com.google.common.collect.ImmutableMap;
+import net.syscon.elite.persistence.InmateRepository;
+import net.syscon.elite.persistence.mapping.FieldMapper;
+import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
+import net.syscon.elite.web.api.model.AssignedInmate;
+import net.syscon.elite.web.api.model.InmateDetails;
+import net.syscon.elite.web.api.model.PhysicalAttributes;
+import net.syscon.elite.web.api.model.PhysicalCharacteristic;
+import net.syscon.elite.web.api.model.PhysicalMark;
+import net.syscon.util.DateFormatProvider;
 
 @Repository
 public class InmateRepositoryImpl extends RepositoryBase implements InmateRepository {
@@ -73,7 +78,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 
 	@Override
-	public List<AssignedInmate> findInmatesByLocation(Long locationId, int offset, int limit) {
+	public List<AssignedInmate> findInmatesByLocation(final Long locationId, final int offset, final int limit) {
 		final String sql = getPagedQuery("FIND_INMATES_BY_LOCATION");
 		final RowMapper<AssignedInmate> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, AssignedInmate.class, assignedInmateMapping);
 		final List<AssignedInmate> inmates = jdbcTemplate.query(sql, createParams("locationId", locationId, "offset", offset, "limit", limit), assignedInmateRowMapper);
@@ -81,48 +86,48 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public List<AssignedInmate> findAllInmates(int offset, int limit) {
+	public List<AssignedInmate> findAllInmates(final int offset, final int limit) {
 		final String sql = getPagedQuery("FIND_ALL_INMATES");
 		final RowMapper<AssignedInmate> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, AssignedInmate.class, assignedInmateMapping);
 		final List<AssignedInmate> inmates = jdbcTemplate.query(sql, createParams("offset", offset, "limit", limit), assignedInmateRowMapper);
 		return inmates;
 	}
 
-	private List<PhysicalMark> findPhysicalMarks(Long bookingId) {
+	private List<PhysicalMark> findPhysicalMarks(final Long bookingId) {
 		final String sql = getQuery("FIND_PHYSICAL_MARKS_BY_BOOKING");
 		final RowMapper<PhysicalMark> physicalMarkRowMapper = Row2BeanRowMapper.makeMapping(sql, PhysicalMark.class, physicalMarkMapping);
 		final List<PhysicalMark> physicalMarks = jdbcTemplate.query(sql, createParams("bookingId", bookingId), physicalMarkRowMapper);
 		return physicalMarks;
 	}
 
-	private List<PhysicalCharacteristic> findPhysicalCharacteristics(Long bookingId) {
+	private List<PhysicalCharacteristic> findPhysicalCharacteristics(final Long bookingId) {
 		final String sql = getQuery("FIND_PHYSICAL_CHARACTERISTICS_BY_BOOKING");
 		final RowMapper<PhysicalCharacteristic> physicalCharacteristicsRowMapper = Row2BeanRowMapper.makeMapping(sql, PhysicalCharacteristic.class, physicalCharacteristicsMapping);
 		final List<PhysicalCharacteristic> physicalCharacteristics = jdbcTemplate.query(sql, createParams("bookingId", bookingId), physicalCharacteristicsRowMapper);
 		return physicalCharacteristics;
 	}
 
-	private PhysicalAttributes findPhysicalAttributes(Long bookingId) {
-		String sql = getQuery("FIND_PHYSICAL_ATTRIBUTES_BY_BOOKING");
-		RowMapper<PhysicalAttributes> physicalAttributesRowMapper = Row2BeanRowMapper.makeMapping(sql, PhysicalAttributes.class, physicalAttributesMapping);
-		PhysicalAttributes physicalAttributes = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId), physicalAttributesRowMapper);
+	private PhysicalAttributes findPhysicalAttributes(final Long bookingId) {
+		final String sql = getQuery("FIND_PHYSICAL_ATTRIBUTES_BY_BOOKING");
+		final RowMapper<PhysicalAttributes> physicalAttributesRowMapper = Row2BeanRowMapper.makeMapping(sql, PhysicalAttributes.class, physicalAttributesMapping);
+		final PhysicalAttributes physicalAttributes = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId), physicalAttributesRowMapper);
 		return physicalAttributes;
 	}
 
 
 	@Override
-	public InmateDetail findInmate(Long bookingId) {
-		String sql = getQuery("FIND_INMATE_DETAIL");
+	public InmateDetails findInmate(final Long bookingId) {
+		final String sql = getQuery("FIND_INMATE_DETAIL");
 		try {
-			RowMapper<InmateDetail> inmateDetailRowMapper = Row2BeanRowMapper.makeMapping(sql, InmateDetail.class, inmateDetailsMapping);
-			InmateDetail inmate = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId), inmateDetailRowMapper);
+			final RowMapper<InmateDetails> inmateDetailRowMapper = Row2BeanRowMapper.makeMapping(sql, InmateDetails.class, inmateDetailsMapping);
+			final InmateDetails inmate = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId), inmateDetailRowMapper);
 			if (inmate != null) {
 				inmate.setPhysicalAttributes(findPhysicalAttributes(inmate.getBookingId()));
 				inmate.setPhysicalCharacteristics(this.findPhysicalCharacteristics(inmate.getBookingId()));
 				inmate.setPhysicalMarks(this.findPhysicalMarks(inmate.getBookingId()));
 			}
 			return inmate;
-		} catch (EmptyResultDataAccessException ex) {
+		} catch (final EmptyResultDataAccessException ex) {
 			log.error(ex.getMessage(), ex);
 			throw ex;
 		}

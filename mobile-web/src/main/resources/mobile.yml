@@ -27,7 +27,8 @@ spring:
 
 jwt:
   header: Authorization
-  secret: my-very-secret-key
+  secret: s3cre3tK3y
+  expiration: 1000
 
 logging:
   level:
@@ -57,3 +58,4 @@ endpoints:
   cors:
     allowed-origins: http://localhost:7080
     allow-credentials: true
+    allow-headers: Origin, X-Requested-With, Content-Type, Accept, X-Auth-Token

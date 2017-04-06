@@ -1,24 +1,31 @@
-package net.syscon.elite.security.jwt;
+package net.syscon.elite.web.filter;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.mobile.device.Device;
+import org.springframework.mobile.device.DeviceUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
-public class JWTAuthenticationFilter extends GenericFilterBean {
+import net.syscon.util.DeviceProvider;
 
+public class DeviceResolverFilter extends GenericFilterBean {
+	
+	@Inject
+	private DeviceProvider deviceProvider;
+	
+	
 	@Override
 	public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain filterChain) throws IOException, ServletException {
-		final Authentication authentication = TokenAuthenticationService.getAuthentication((HttpServletRequest) request);
-
-		SecurityContextHolder.getContext().setAuthentication(authentication);
+		final Device device = DeviceUtils.getCurrentDevice((HttpServletRequest) request);
+		deviceProvider.set(device);
 		filterChain.doFilter(request, response);
 	}
+
 }
