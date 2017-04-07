@@ -1,5 +1,10 @@
 package net.syscon.elite.persistence.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Repository;
 
 import net.syscon.elite.model.EliteUser;
@@ -17,6 +22,13 @@ public class UserRepositoryImpl implements UserRepository {
 		user.setAccountNonLocked(true);
 		user.setCredentialsNonExpired(true);
 		return user;
+	}
+
+	@Override
+	public List<GrantedAuthority> findAuthorities(final String username) {
+		final List<GrantedAuthority> authorities = new ArrayList<>();
+		authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+		return authorities;
 	}
 	
 

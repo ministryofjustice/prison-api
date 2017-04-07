@@ -1,35 +1,60 @@
 package net.syscon.elite.security;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
+
+import net.syscon.elite.exception.EliteRuntimeException;
+import net.syscon.elite.persistence.UserRepository;
 
 @Configurable
 @Service
 public class CustomAuthenticationProvider implements AuthenticationProvider {
+	
+	private final Logger logger = LoggerFactory.getLogger(getClass());
+	
+	@Value("spring.datasource.hikari.driver-class-name")
+	private String jdbcDriver;
 
+	@Value("spring.datasource.hikari.jdbc-url")
+	private String jdbcUrl;
+	
+	@Inject
+	private UserRepository userRepository;
+	
+	
+	@PostConstruct
+	public void postConstruct() {
+		try {
+			Class.forName(jdbcDriver);
+		} catch (final ClassNotFoundException e) {
+			throw new EliteRuntimeException(e.getMessage(), e);
+		}
+	}
+	
 	@Override
 	public Authentication authenticate(final Authentication auth) throws AuthenticationException {
-
 		final String username = auth.getName();
 		final String password = auth.getCredentials().toString();
-		
-
-		
-
-		// to add more logic
-		final List<GrantedAuthority> grantedAuths = new ArrayList<>();
-		grantedAuths.add(new SimpleGrantedAuthority("ROLE_USER"));
-		return new UsernamePasswordAuthenticationToken(username, password, grantedAuths);
-
+		try (final Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
+			return new UsernamePasswordAuthenticationToken(username, password, userRepository.findAuthorities(username));
+		} catch (final SQLException ex) {
+			throw new BadCredentialsException(ex.getMessage(), ex);
+		}
 	}
 
 	@Override

@@ -106,12 +106,14 @@ public class TokenUtils {
 
 	private String generateAudience(final Device device) {
 		String audience = this.AUDIENCE_UNKNOWN;
-		if (device.isNormal()) {
-			audience = this.AUDIENCE_WEB;
-		} else if (device.isTablet()) {
-			audience = AUDIENCE_TABLET;
-		} else if (device.isMobile()) {
-			audience = AUDIENCE_MOBILE;
+		if (device != null) {
+			if (device.isNormal()) {
+				audience = this.AUDIENCE_WEB;
+			} else if (device.isTablet()) {
+				audience = AUDIENCE_TABLET;
+			} else if (device.isMobile()) {
+				audience = AUDIENCE_MOBILE;
+			}
 		}
 		return audience;
 	}

@@ -2,7 +2,6 @@ package net.syscon.elite.web.config;
 
 import javax.inject.Inject;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -29,12 +28,6 @@ import net.syscon.util.DeviceProvider;
 @EnableWebSecurity
 @Import(PersistenceConfigs.class)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-
-	@Value("spring.datasource.hikari.driver-class-name")
-	private String jdbcDriver;
-
-	@Value("spring.datasource.hikari.jdbc-url")
-	private String jdbcUrl;
 
 	@Inject
 	private EntryPointUnauthorizedHandler unauthorizedHandler;
@@ -91,7 +84,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 			.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and().authorizeRequests()
 				.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-				.antMatchers("/api/users/auth/**")
+				.antMatchers("/api/users/login")
 				.permitAll().anyRequest().authenticated();
 
 		// Custom JWT based authentication
