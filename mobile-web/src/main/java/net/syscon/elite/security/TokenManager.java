@@ -16,7 +16,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import net.syscon.util.DeviceProvider;
 
 
-public class TokenUtils {
+public class TokenManager {
 
 	private final String AUDIENCE_UNKNOWN = "unknown";
 	private final String AUDIENCE_WEB = "web";
@@ -128,7 +128,7 @@ public class TokenUtils {
 		claims.put("sub", userDetails.getUsername());
 		claims.put("audience", this.generateAudience(deviceProvider.get()));
 		claims.put("created", this.generateCurrentDate());
-		return this.generateToken(claims);
+		return "Bearer " + this.generateToken(claims);
 	}
 
 	private String generateToken(final Map<String, Object> claims) {

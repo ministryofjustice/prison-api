@@ -17,9 +17,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import net.syscon.elite.security.AuthenticationTokenFilter;
-import net.syscon.elite.security.CustomAuthenticationProvider;
+import net.syscon.elite.security.DbAuthenticationProvider;
 import net.syscon.elite.security.EntryPointUnauthorizedHandler;
-import net.syscon.elite.security.TokenUtils;
+import net.syscon.elite.security.TokenManager;
 import net.syscon.elite.service.impl.UserDetailsServiceImpl;
 import net.syscon.elite.web.filter.DeviceResolverFilter;
 import net.syscon.util.DeviceProvider;
@@ -29,24 +29,27 @@ import net.syscon.util.DeviceProvider;
 @Import(PersistenceConfigs.class)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-	@Inject
-	private EntryPointUnauthorizedHandler unauthorizedHandler;
-
 	@Override
 	@Bean
 	public UserDetailsService userDetailsService() {
 		return new UserDetailsServiceImpl();
 	}
 
-	@Override
-	protected void configure(final AuthenticationManagerBuilder auth) throws Exception {
-		auth.authenticationProvider(authenticationProvider()).userDetailsService(userDetailsService());
+	@Bean
+	public EntryPointUnauthorizedHandler unauthorizedHandler() {
+		return new EntryPointUnauthorizedHandler();
 	}
 
 	@Bean
 	public AuthenticationProvider authenticationProvider() {
-		return new CustomAuthenticationProvider();
+		return new DbAuthenticationProvider();
 	}
+
+	@Inject
+	public void setAuthenticationProvider(final AuthenticationManagerBuilder auth, AuthenticationProvider authenticationProvider, UserDetailsService userDetailsService) throws Exception {
+		auth.authenticationProvider(authenticationProvider).userDetailsService(userDetailsService);
+	}
+
 
 	@Bean
 	@Override
@@ -65,14 +68,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 	
 	@Bean
-	public TokenUtils tokenUtils() {
-		return new TokenUtils();
+	public TokenManager tokenManager() {
+		return new TokenManager();
 	}
 
 
 	@Bean
-	public AuthenticationTokenFilter authenticationTokenFilterBean() throws Exception {
-		final AuthenticationTokenFilter authenticationTokenFilter = new AuthenticationTokenFilter(userDetailsService(), tokenUtils());
+	public AuthenticationTokenFilter authenticationTokenFilter() throws Exception {
+		final AuthenticationTokenFilter authenticationTokenFilter = new AuthenticationTokenFilter();
 		authenticationTokenFilter.setAuthenticationManager(authenticationManagerBean());
 		return authenticationTokenFilter;
 	}
@@ -80,7 +83,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(final HttpSecurity httpSecurity) throws Exception {
 		httpSecurity.csrf().disable()
-			.exceptionHandling().authenticationEntryPoint(this.unauthorizedHandler)
+			.exceptionHandling().authenticationEntryPoint(unauthorizedHandler())
 			.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and().authorizeRequests()
 				.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -88,7 +91,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.permitAll().anyRequest().authenticated();
 
 		// Custom JWT based authentication
-		httpSecurity.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
+		httpSecurity.addFilterBefore(authenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 	}
 
 }

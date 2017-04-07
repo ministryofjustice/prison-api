@@ -54,10 +54,10 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 	public List<Location> getLocations(final int offset, final int limit) {
 		return locationRepository.findLocations(offset, limit);
 	}
-
+	
 	@Override
-	public List<Location> getLocationsFromAgency(final String agencyId, final int offset, final int limit) {
-		return locationRepository.findLocationsByAgencyId(agencyId, offset, limit);
+	public List<Location> getLocationsFromAgency(final String agencyId, final String query, final int offset, final int limit, final String orderByField, final String order) {
+		return locationRepository.findLocationsByAgencyId(agencyId, query, offset, limit, orderByField, order);
 	}
 
 	@Override

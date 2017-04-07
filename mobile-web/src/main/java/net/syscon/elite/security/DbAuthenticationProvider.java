@@ -23,14 +23,14 @@ import net.syscon.elite.persistence.UserRepository;
 
 @Configurable
 @Service
-public class CustomAuthenticationProvider implements AuthenticationProvider {
+public class DbAuthenticationProvider implements AuthenticationProvider {
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
-	@Value("spring.datasource.hikari.driver-class-name")
+	@Value("${spring.datasource.hikari.driver-class-name}")
 	private String jdbcDriver;
 
-	@Value("spring.datasource.hikari.jdbc-url")
+	@Value("${spring.datasource.hikari.jdbc-url}")
 	private String jdbcUrl;
 	
 	@Inject
@@ -51,8 +51,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 		final String username = auth.getName();
 		final String password = auth.getCredentials().toString();
 		try (final Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
+			conn.close();
 			return new UsernamePasswordAuthenticationToken(username, password, userRepository.findAuthorities(username));
 		} catch (final SQLException ex) {
+			logger.error(ex.getMessage(), ex);
 			throw new BadCredentialsException(ex.getMessage(), ex);
 		}
 	}

@@ -13,16 +13,6 @@ import net.syscon.elite.web.api.model.UserDetails;
 
 @SuppressWarnings("serial")
 public class EliteUser extends UserDetails implements org.springframework.security.core.userdetails.UserDetails {
-	
-	private String email;
-	
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(final String email) {
-		this.email = email;
-	}
 
 	@Override
 	public boolean isAccountNonExpired() {
@@ -61,6 +51,8 @@ public class EliteUser extends UserDetails implements org.springframework.securi
 	public String getPassword() {
 		return null;
 	}
+
+
 
 }
 

@@ -5,6 +5,8 @@ import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.persistence.LocationRepository;
 import net.syscon.elite.web.api.model.Location;
+import net.syscon.util.QueryBuilder;
+
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -38,8 +40,12 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 	}
 
 	@Override
-	public List<Location> findLocationsByAgencyId(final String agencyId, final int offset, final int limit) {
-		final String sql = getPagedQuery("FIND_LOCATIONS_BY_AGENCY_ID");
+	public List<Location> findLocationsByAgencyId(final String agencyId, final String query, final int offset, final int limit, final String orderByField, final String order) {
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_LOCATIONS_BY_AGENCY_ID"), locationMapping).
+						addQuery(query).
+						addOrderBy(order.equalsIgnoreCase("asc")?true:false, orderByField).
+						addPagedQuery()
+						.build();
 		final RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
 		return jdbcTemplate.query(sql, createParams("agencyId", agencyId, "offset", offset, "limit", limit), locationRowMapper);
 	}

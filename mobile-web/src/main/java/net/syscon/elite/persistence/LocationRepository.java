@@ -9,7 +9,7 @@ public interface LocationRepository {
 
 	Location findLocation(Long locationId);
 	List<Location> findLocations(int offset, int limit);
-	List<Location> findLocationsByAgencyId(String agencyId, final int offset, final int limit);
+	List<Location> findLocationsByAgencyId(final String agencyId, final String query, final int offset, final int limit, final String orderByField, final String order);
 
 
 }

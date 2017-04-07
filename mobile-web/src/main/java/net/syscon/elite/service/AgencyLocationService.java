@@ -14,7 +14,7 @@ public interface AgencyLocationService {
 
 	Location getLocation(Long locationId);
 	List<Location> getLocations(final int offset, final int limit);
-	List<Location> getLocationsFromAgency(String agencyId, final int offset, final int limit);
+	List<Location> getLocationsFromAgency(String agencyId, final String query, final int offset, final int limit,final String orderByField, final String order);
 	List<AssignedInmate> getInmatesFromLocation(Long locationId, int offset, int limit);
 
 }

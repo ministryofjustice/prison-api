@@ -11,6 +11,7 @@ is: [ pageable ]
   description: The collection of scheduled movements associated to the inmate.
   type: { get-collection: { collectionSchema: locations } }
   is: [
+    searchable,
     orderable: {fieldsList : "moveCategory, moveDateTime, fromAgencyId, toAgencyId, moveType, moveReason, fromLocationId, or toLocation"},
     pageable
   ]
