@@ -5,6 +5,7 @@
 	"properties": {
 		"userId": { "type": "integer" },
 		"username": { "type": "string" },
+	    "email": { "type": "string" },
 		"accountNonExpired": { "type": "boolean" },
 		"accountNonLocked": { "type": "boolean" },
 		"credentialsNonExpired": { "type": "boolean" },

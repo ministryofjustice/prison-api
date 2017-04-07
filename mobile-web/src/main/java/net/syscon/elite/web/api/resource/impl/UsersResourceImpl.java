@@ -23,6 +23,11 @@ import net.syscon.elite.web.api.resource.UsersResource;
 @Component
 public class UsersResourceImpl implements UsersResource {
 
+
+	@Value("${jwt.schema}")
+	private String authorizationSchema;
+
+
 	@Value("${jwt.header}")
 	private String tokenHeader;
 
@@ -47,12 +52,8 @@ public class UsersResourceImpl implements UsersResource {
 		try {
 			final Authentication authentication = this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authLogin.getUsername(), authLogin.getPassword()));
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-
 			final UserDetails userDetails = userDetailsService.loadUserByUsername(authLogin.getUsername());
-
-			final String base64Token = this.tokenManager.generateToken(userDetails);
-			final Token token = new Token(base64Token);
-
+			final Token token = new Token(String.format("%s %s", authorizationSchema, this.tokenManager.generateToken(userDetails)));
 			return PostUsersLoginResponse.withJsonCreated(token);
 		} catch (AuthenticationException ex) {
 			final String message = "Authentication Error";

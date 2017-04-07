@@ -18,6 +18,7 @@ import net.syscon.util.DeviceProvider;
 
 public class TokenManager {
 
+
 	private final String AUDIENCE_UNKNOWN = "unknown";
 	private final String AUDIENCE_WEB = "web";
 	private final String AUDIENCE_MOBILE = "mobile";
@@ -128,7 +129,7 @@ public class TokenManager {
 		claims.put("sub", userDetails.getUsername());
 		claims.put("audience", this.generateAudience(deviceProvider.get()));
 		claims.put("created", this.generateCurrentDate());
-		return "Bearer " + this.generateToken(claims);
+		return this.generateToken(claims);
 	}
 
 	private String generateToken(final Map<String, Object> claims) {

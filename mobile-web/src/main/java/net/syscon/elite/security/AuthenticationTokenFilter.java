@@ -9,6 +9,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
+import net.syscon.elite.exception.EliteRuntimeException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +19,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 
 public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFilter {
+
+
+	@Value("${jwt.schema}")
+	private String authorizationSchema;
+
 
 	@Value("${jwt.header}")
 	private String tokenHeader;
@@ -32,10 +38,18 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
 
 	@Override
 	public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
-
 		final HttpServletRequest httpRequest = (HttpServletRequest) request;
-		final String authToken = httpRequest.getHeader(this.tokenHeader);
-		final String username = this.tokenManager.getUsernameFromToken(authToken);
+		final String header = httpRequest.getHeader(this.tokenHeader);
+		String authToken = null;
+		String username = null;
+		if (header != null) {
+			final int index = header.indexOf(authorizationSchema);
+			if (index < 0) {
+				throw new EliteRuntimeException("Authorization Schema not supported");
+			}
+			authToken = header.substring(index + authorizationSchema.length()).trim();
+			username = this.tokenManager.getUsernameFromToken(authToken);
+		}
 
 		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 			final UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);

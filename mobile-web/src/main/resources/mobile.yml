@@ -29,6 +29,7 @@ jwt:
   header: Authorization
   secret: s3cre3tK3y
   expiration: 1000
+  schema: Bearer
 
 logging:
   level:
