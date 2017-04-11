@@ -4,7 +4,7 @@
   "title": "TokenAuth",
   "properties": {
 	"token":   { "type": "string" },
-	"renewToken": {"type": "string" }
+	"refreshToken": {"type": "string" }
   },
   "required": ["token"]
 }

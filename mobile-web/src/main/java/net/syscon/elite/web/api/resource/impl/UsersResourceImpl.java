@@ -42,7 +42,7 @@ public class UsersResourceImpl implements UsersResource {
 	
 	@Override
 	public GetUsersMeResponse getUsersMe() throws Exception {
-		// TODO Auto-generated method stub
+		System.out.print("now");
 		return null;
 	}
 
@@ -65,6 +65,7 @@ public class UsersResourceImpl implements UsersResource {
 
 	@Override
 	public PostUsersTokenResponse postUsersToken(final AuthToken entity) throws Exception {
+		System.out.print("now");
 		// TODO Auto-generated method stub
 		return null;
 	}

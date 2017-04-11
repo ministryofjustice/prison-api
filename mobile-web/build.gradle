@@ -9,12 +9,10 @@ project(":mobile-web") {
 		compile("com.oracle:ojdbc7:12.1.0.1")
 
 		compile("org.springframework.boot:spring-boot-starter-web")
-		compile("org.springframework.boot:spring-boot-starter-web-services")
 		compile("org.springframework.boot:spring-boot-starter-aop")
 		compile("org.springframework.boot:spring-boot-starter-jdbc")
 		compile("org.springframework.boot:spring-boot-starter-jetty")
 		compile("org.springframework.boot:spring-boot-starter-security")
-
 		compile("org.springframework.mobile:spring-mobile-device")
 		
 
@@ -27,8 +25,7 @@ project(":mobile-web") {
 		testCompile("io.rest-assured:rest-assured:3.0.2")
 		testCompile("io.rest-assured:json-schema-validator:3.0.2")
 		testCompile("io.rest-assured:spring-mock-mvc:3.0.2")
-
-
+		testCompile("com.google.code.gson:gson:2.8.0")
 
 	}
 
@@ -40,11 +37,11 @@ project(":mobile-web") {
 	sourceSets {
 		integTest {
 			java {
-				srcDir file('src/integ-test/java')
+				srcDir file("${rootDir}/mobile-web/src/integ-test/java")
 				compileClasspath += main.output + test.output
 				runtimeClasspath += main.output + test.output
 			}
-			resources.srcDir file('src/integ-test/resources')
+			resources.srcDir file("${rootDir}/mobile-web/src/integ-test/resources")
 		}
 	}
 
@@ -65,6 +62,11 @@ project(":mobile-web") {
 				into configsDir
 				rename { String fileName -> fileName.replace("mobile-dev-SAMPLE.yml", "mobile-dev.yml") }
 			}
+			copy {
+				from (configsDir) { include "mobile-dev-SAMPLE.yml" }
+				into file("${}")
+				rename { String fileName -> fileName.replace("mobile-dev-SAMPLE.yml", "mobile-dev.yml") }
+			}
 		}
 	}
 
@@ -75,7 +77,7 @@ project(":mobile-web") {
 	}
 
 	bootRun {
-		jvmArgs("-Dspring.profiles.active=dev", "-Dsyscon.configs.dir=${configsDir}")
+		jvmArgs("-Dspring.profiles.active=dev")
 		addResources = true 
 	}
 

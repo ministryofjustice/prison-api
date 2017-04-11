@@ -31,28 +31,19 @@ public class ApplicationContextConfigs {
 
 	@Bean
 	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer(final ConfigurableEnvironment env) {
-
 		final PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
 		final MutablePropertySources sources = env.getPropertySources();
-
 		String filename = "mobile.yml";
 		final YamlPropertiesFactoryBean yamlFactory = new YamlPropertiesFactoryBean();
 		yamlFactory.setResources(new ClassPathResource(filename));
 		sources.addFirst(new PropertiesPropertySource("classpath:" + filename, yamlFactory.getObject()));
-
-		final String configsPath = System.getProperty(CONFIGS_DIR_PROPERTY) != null ? System.getProperty(CONFIGS_DIR_PROPERTY) : "./conf";
-		final File configsDir = new File(configsPath);
 		for (final String profile : env.getActiveProfiles()) {
-			filename = "mobile-" + profile + ".yml";
-			final File configurationFile = new File(configsDir, filename);
-			if (configurationFile.exists()) {
-				try {
-					yamlFactory.setResources(new FileSystemResource(configurationFile));
-					sources.addFirst(new PropertiesPropertySource(configurationFile.getAbsolutePath(), yamlFactory.getObject()));
-				} catch (final Exception ex) {
-					LOG.error(ex.getMessage(), ex);
-					throw new EliteRuntimeException(ex.getMessage(), ex);
-				}
+			try {
+				filename = "mobile-" + profile + ".yml";
+				yamlFactory.setResources(new ClassPathResource(filename));
+				sources.addFirst(new PropertiesPropertySource("classpath:" + filename, yamlFactory.getObject()));
+			} catch (final Exception ex) {
+				LOG.warn("Fail loading the file {}. Exception: {}", filename, ex.getMessage());
 			}
 		}
 		return configurer;

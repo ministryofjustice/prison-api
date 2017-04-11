@@ -1,29 +1,34 @@
 # ===================================================================
-# Standard Spring Boot configuration
+# Spring Boot configuration for the "dev" profile.
+# This configuration overrides the application.yml file.
 # ===================================================================
 
 spring:
-
   profiles:
-    active: dev
-    
+    active: integ
   jackson:
     serialization:
-      INDENT_OUTPUT: false
-
+      INDENT_OUTPUT: true
+  main:
+    banner-mode: on
+  cache:
+    jcache:
+      config: ehcache.xml
   datasource:
     hikari:
-      pool-name: EliteCP
+      pool-name: EliteHikariCP
       maximum-pool-size: 5
       driver-class-name: oracle.jdbc.OracleDriver
       connection-init-sql: SELECT 1 FROM DUAL
       connection-test-query: SELECT 1 FROM DUAL
-      #jdbc-url: jdbc:oracle:thin:@db-rh-s5.syscon.ca:1521:ndd11dv1
       jdbc-url: jdbc:oracle:thin:@prod-12c-dev.syscon.ca:1521:pb12cdv1
       username: oms_owner
       password: oms_owner
       idle-timeout: 10000
       oracle-proxy: true
+logging:
+  level:
+    org.springframework.security: INFO
 
 jwt:
   header: Authorization
@@ -31,27 +36,20 @@ jwt:
   expiration: 1000
   schema: Bearer
 
-logging:
-  level:
-    org.springframework.security: INFO
-  cache:
-    jcache:
-      config: ehcache.xml
-      
-  mail:
-    host: localhost
-    port: 25
-    username:
-    password:
-    
-  messages:
-    cache-seconds: 1
-
-server:
-    contextPath: /
-
 endpoints:
   cors:
-    allowed-origins: http://localhost:${server.port}
+    allowed-origins: 
     allow-credentials: true
-    allow-headers: Origin, X-Requested-With, Content-Type, Accept, X-Auth-Token
+
+server:
+    port:
+    contextPath: /
+    
+security:
+  basic:
+    enable: false
+       
+management:
+  security:
+    enabled: false
+
