@@ -25,6 +25,7 @@ project(":mobile-web") {
 		testCompile("io.rest-assured:rest-assured:3.0.2")
 		testCompile("io.rest-assured:json-schema-validator:3.0.2")
 		testCompile("io.rest-assured:spring-mock-mvc:3.0.2")
+		testCompile("org.springframework.security:spring-security-test:4.2.2.RELEASE")
 		testCompile("com.google.code.gson:gson:2.8.0")
 
 	}

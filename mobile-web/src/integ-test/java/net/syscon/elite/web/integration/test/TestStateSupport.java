@@ -16,7 +16,7 @@ import static io.restassured.RestAssured.given;
 public class TestStateSupport {
 
 	private static final AuthLogin VALID_CREDENTIALS = new AuthLogin("oms_owner", "oms_owner");
-	private static final String AUTHORIZATION_HEADER = "Authorization";
+	public static final String AUTHORIZATION_HEADER = "Authorization";
 
 	private static Map<String, Object> map = new ConcurrentHashMap<>();
 
