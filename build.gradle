@@ -34,10 +34,9 @@ subprojects {
 		compile.exclude module: "tomcat-jdbc"
 		compile.exclude module: "spring-boot-starter-tomcat"
 		compile.exclude module: "tools"
-
-		integrationTestCompile.extendsFrom testCompile
-		integrationTestRuntime.extendsFrom testRuntime
 	}
+
+
 
 	apply plugin: "java"
 	apply plugin: "org.sonarqube"

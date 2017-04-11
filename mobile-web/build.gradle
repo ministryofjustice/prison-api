@@ -1,7 +1,6 @@
 
 project(":mobile-web") {
 
-
 	dependencies {
 
 		compile project(":mobile-api")
@@ -9,25 +8,53 @@ project(":mobile-web") {
 
 		compile("com.oracle:ojdbc7:12.1.0.1")
 
-		
 		compile("org.springframework.boot:spring-boot-starter-web")
+		compile("org.springframework.boot:spring-boot-starter-web-services")
 		compile("org.springframework.boot:spring-boot-starter-aop")
 		compile("org.springframework.boot:spring-boot-starter-jdbc")
 		compile("org.springframework.boot:spring-boot-starter-jetty")
 		compile("org.springframework.boot:spring-boot-starter-security")
+
 		compile("org.springframework.mobile:spring-mobile-device")
+		
 
 		compile("io.jsonwebtoken:jjwt:${version_jjwt}")
 		compile("com.zaxxer:HikariCP:${version_hikaricp}")
 
-
+		
 		testCompile("org.springframework.boot:spring-boot-starter-test")
+		testCompile("org.springframework.boot:spring-boot-test-autoconfigure")
 		testCompile("io.rest-assured:rest-assured:3.0.2")
 		testCompile("io.rest-assured:json-schema-validator:3.0.2")
 		testCompile("io.rest-assured:spring-mock-mvc:3.0.2")
 
+
+
 	}
 
+	configurations {
+		integTestCompile.extendsFrom testCompile
+		integTestRuntime.extendsFrom testRuntime
+	}
+
+	sourceSets {
+		integTest {
+			java {
+				srcDir file('src/integ-test/java')
+				compileClasspath += main.output + test.output
+				runtimeClasspath += main.output + test.output
+			}
+			resources.srcDir file('src/integ-test/resources')
+		}
+	}
+
+
+	task integTest(type: Test) {
+		testClassesDir = sourceSets.integTest.output.classesDir
+		classpath = sourceSets.integTest.runtimeClasspath
+	}
+
+	check.dependsOn integTest
 
 	def configsDir = file("${rootDir}/mobile-web/src/main/configs").absolutePath
 	processResources {
