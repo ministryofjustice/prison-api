@@ -1,0 +1,17 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"type": "object",
+	"title": "CaseNote",
+	"properties": {
+		"caseNoteId":   { "type": "integer" },
+		"bookingId":   { "type": "string" },
+		"type":   { "type": "string" },
+		"subType": { "type": "string" },
+		"source": { "type": "string" },
+		"creationDateTime":   { "type": "string", "format": "datetime" },
+		"occuranceDateTime":  { "type": "string", "format": "datetime" },
+		"authorUserId": { "type": "integer" },
+		"text": { "type": "string" }
+	},
+	"required": ["caseNoteId", "inmateId", "type", "subType", "text"]
+}

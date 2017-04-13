@@ -43,7 +43,7 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 	public List<Location> findLocationsByAgencyId(final String agencyId, final String query, final int offset, final int limit, final String orderByField, final String order) {
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_LOCATIONS_BY_AGENCY_ID"), locationMapping).
 						addQuery(query).
-						addOrderBy(order.equalsIgnoreCase("asc")?true:false, orderByField).
+						addOrderBy("asc".equalsIgnoreCase(order)?true:false, orderByField).
 						addPagedQuery()
 						.build();
 		final RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);

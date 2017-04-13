@@ -10,7 +10,9 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import net.syscon.elite.persistence.InmateRepository;
+import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.web.api.model.AssignedInmate;
+import net.syscon.elite.web.api.model.Casenote;
 import net.syscon.elite.web.api.model.HttpStatus;
 import net.syscon.elite.web.api.model.InmateDetails;
 import net.syscon.elite.web.api.resource.BookingResource;
@@ -22,6 +24,14 @@ public class BookingResourceImpl implements BookingResource {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private InmateRepository inmateRepository;
+	private CaseNoteService caseNoteService;
+	
+	
+
+	@Inject
+	public void setCaseNoteService(final CaseNoteService caseNoteService) {
+		this.caseNoteService = caseNoteService;
+	}
 
 
 	@Inject
@@ -50,6 +60,38 @@ public class BookingResourceImpl implements BookingResource {
 
 	@Override
 	public GetBookingByBookingIdMovementsResponse getBookingByBookingIdMovements(final String bookingId, final String orderBy, final Order order,final int offset, final int limit) throws Exception {
+		return null;
+	}
+
+
+	@Override
+	public GetBookingByBookingIdCasenotesResponse getBookingByBookingIdCasenotes(String bookingId, String query,
+			String orderBy, Order order, int offset, int limit) throws Exception {
+		List<Casenote> caseNotes = this.caseNoteService.getCaseNotes(bookingId, query, orderBy, order, offset, limit);
+		return GetBookingByBookingIdCasenotesResponse.withJsonOK(caseNotes);
+	}
+
+
+	@Override
+	public PostBookingByBookingIdCasenotesByCaseNoteIdResponse postBookingByBookingIdCasenotesByCaseNoteId(
+			String bookingId, String caseNoteId, Casenote entity) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public PutBookingByBookingIdCasenotesByCaseNoteIdResponse putBookingByBookingIdCasenotesByCaseNoteId(
+			String bookingId, String caseNoteId, Casenote entity) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public GetBookingByBookingIdCasenotesByCaseNoteIdResponse getBookingByBookingIdCasenotesByCaseNoteId(
+			String bookingId, String caseNoteId) throws Exception {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
