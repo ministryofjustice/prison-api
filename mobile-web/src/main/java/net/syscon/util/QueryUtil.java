@@ -67,7 +67,7 @@ public class QueryUtil {
 			String operator = size==3?operatorFieldValue[1]:operatorFieldValue[2];// Get Real SQL Operator From Enum
 			String value = size==3?operatorFieldValue[2]:operatorFieldValue[3];// Supply it as it is.
 			if(value.contains("|")) {
-				value = value.replaceAll("|", ",");
+				value = "("+value.replaceAll("\\|", ",")+")";
 			}
 			stringBuilder.append(" ")
 			.append(!"".equals(connector)?getSqlOperator(connector):"")
