@@ -3,8 +3,8 @@
   "type": "object",
   "title": "TokenAuth",
   "properties": {
-	"token":   { "type": "string" }
-	
+	"token":   { "type": "string" },
+	"refreshToken": { "type": "string" }
   },
-  "required": ["token"]
+  "required": ["token", "refreshToken"]
 }

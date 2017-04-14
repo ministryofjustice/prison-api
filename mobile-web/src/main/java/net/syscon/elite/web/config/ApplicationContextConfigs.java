@@ -1,7 +1,6 @@
 package net.syscon.elite.web.config;
 
-import java.io.File;
-
+import net.syscon.elite.security.UserInfoProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
@@ -14,10 +13,6 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
-
-import net.syscon.elite.exception.EliteRuntimeException;
-import net.syscon.elite.security.UserInfoProvider;
 
 
 @Configuration
@@ -48,8 +43,8 @@ public class ApplicationContextConfigs {
 		}
 		return configurer;
 	}
-	
-	
+
+
 	@Bean
 	public UserInfoProvider userInfoProvider() {
 		return new UserInfoProvider();

@@ -31,6 +31,18 @@ jwt:
   expiration: 1000
   schema: Bearer
 
+security:
+  basic:
+    enable: false
+  jwt:
+    header: Authorization
+    signingKey: s3cre3tK3y
+    schema: Bearer
+    expiration: 15 # Number of minutes
+    refreshExpiration: 60 # Minutes
+    issuer: http://www.syscon.net
+
+
 logging:
   level:
     org.springframework.security: INFO

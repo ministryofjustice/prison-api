@@ -1,8 +1,8 @@
 package net.syscon.elite.security;
 
-import java.util.Properties;
-
 import oracle.jdbc.driver.OracleConnection;
+
+import java.util.Properties;
 
 public class UserInfoProvider {
 	

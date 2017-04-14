@@ -1,15 +1,14 @@
 package net.syscon.elite.web.api.resource.impl;
 
-import java.util.List;
-
-import javax.inject.Inject;
-
-import org.springframework.stereotype.Component;
-
 import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.web.api.model.Agency;
 import net.syscon.elite.web.api.model.Location;
 import net.syscon.elite.web.api.resource.AgenciesResource;
+import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import java.util.Base64;
+import java.util.List;
 
 @Component
 public class AgenciesResourceImpl implements AgenciesResource {
@@ -37,5 +36,14 @@ public class AgenciesResourceImpl implements AgenciesResource {
 		final List<Location> result = agencyLocationService.getLocationsFromAgency(agencyId, query, offset, limit, orderBy, order.toString());
 		return GetAgenciesByAgencyIdLocationsResponse.withJsonOK(result);
 	}
+
+
+	public static void main(final String args[]) {
+		final String s = "itag_user:it4g_us3r";
+		System.out.println(Base64.getEncoder().encodeToString (s.getBytes()));
+		
+
+	}
+
 }
 
