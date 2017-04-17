@@ -27,6 +27,8 @@ schemas:
 - automatedCount: !include schemas/output/automated-count.schema.json
 - casenote: !include schemas/output/casenote.schema.json
 - casenotes: !include schemas/output/casenotes.schema.json
+- referencecode: !include schemas/output/referencecode.schema.json
+- referencecodes: !include schemas/output/referencecodes.schema.json
 
 securitySchemes:
 - jwt:
@@ -48,3 +50,4 @@ traits: !include traits/generic-traits.raml
 /locations: !include resources/locations.raml
 /images: !include resources/images.raml
 /counts: !include resources/counts.raml
+/referencecodes: !include resources/referencecodes.raml
