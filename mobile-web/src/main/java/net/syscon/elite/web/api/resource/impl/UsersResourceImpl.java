@@ -3,7 +3,6 @@ package net.syscon.elite.web.api.resource.impl;
 import net.syscon.elite.security.jwt.TokenManagement;
 import net.syscon.elite.security.jwt.TokenSettings;
 import net.syscon.elite.web.api.model.AuthLogin;
-import net.syscon.elite.web.api.model.AuthToken;
 import net.syscon.elite.web.api.model.HttpStatus;
 import net.syscon.elite.web.api.model.Token;
 import net.syscon.elite.web.api.resource.UsersResource;
@@ -85,22 +84,21 @@ public class UsersResourceImpl implements UsersResource {
 	}
 
 	@Override
-	public PostUsersTokenResponse postUsersToken(AuthToken authToken) throws Exception {
+	public PostUsersTokenResponse postUsersToken(String header) throws Exception {
 		Token token = null;
 		try {
-			if (authToken != null) {
-				final String header = authToken.getToken();
-				final int index = header.indexOf(tokenSettings.getSchema());
-				if (index > -1) {
-					String encodedToken = header.substring(index + tokenSettings.getSchema().length()).trim();
-					String username = tokenManagement.getUsernameFromToken(encodedToken);
-					final UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-					token = tokenManagement.createToken(userDetails);
-				}
+			final int index = header.indexOf(tokenSettings.getSchema());
+			if (index > -1) {
+				String encodedToken = header.substring(index + tokenSettings.getSchema().length()).trim();
+				String username = tokenManagement.getUsernameFromToken(encodedToken);
+				final UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+				token = tokenManagement.createToken(userDetails);
 			}
+
 		} catch (AuthenticationException ex) {
 			log.error(ex.getMessage(), ex);
 		}
+
 		if (token != null) {
 			return PostUsersTokenResponse.withJsonCreated(token.getToken(), token);
 		} else {

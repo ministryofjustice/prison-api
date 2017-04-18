@@ -52,7 +52,9 @@ public class TokenManagement {
 				.setIssuedAt(issuedAt)
 				.setExpiration(expiration)
 				.signWith(SignatureAlgorithm.HS512, settings.getSigningKey());
-		return new Token(builder.compact(), issuedAt.getTime(), expiration.getTime());
+
+		final String strToken = String.format("%s %s", settings.getSchema(), builder.compact());
+		return new Token(strToken, issuedAt.getTime(), expiration.getTime());
 	}
 
 
@@ -77,21 +79,15 @@ public class TokenManagement {
 		return username;
 	}
 
-	public Boolean validateToken(final String token, final UserDetails userDetails, boolean isAutentication) {
+	public Boolean validateToken(final String token, final UserDetails userDetails) {
 		final Claims claims = this.getClaimsFromToken(token);
 		final String username = claims.getSubject();
 		boolean valid = true;
 		if (!username.equals(userDetails.getUsername())) {
 			valid = false;
 		}
-		if (valid && !isAutentication && claims.containsKey("id")) {
-			valid = false;
-		}
 		Date expiration = claims.getExpiration();
-		if (valid && expiration.after(new Date())) {
-			valid = false;
-		}
-		return valid;
+		return valid && expiration.after(new Date());
 	}
 
 }

@@ -4,8 +4,8 @@
   "title": "TokenAuth",
   "properties": {
 	"token":   { "type": "string" },
-    "iat": { "type": "integer" },
-	"exp": { "type": "integer" }
+    "issuedAt": { "type": "integer" },
+	"expiration": { "type": "integer" }
   },
-  "required": ["token", "iat", "exp"]
+  "required": ["token", "issuedAt", "expiration"]
 }

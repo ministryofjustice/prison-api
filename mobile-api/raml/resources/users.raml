@@ -37,9 +37,11 @@
 /token:
   post:
     description: Renew the JWT to keep as a authenticated user
-    body:
-      application/json:
-        schema: authToken
+    headers:
+      Authorization:
+        description: Current Token
+        required: true
+        example: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJpdGFnX3VzZXIiLCJhdWRpZW5jZSI6InVua25vd24iLCJjcmVhdGVkIjoxNDkyMTIwOTE1MDgzLCJleHAiOjE0OTIxMjE5MTV9.9gX_NzwtD2gHPZ9PJwClHuLxEohZBlKaeGWYJBL2nY1ydjlT7PQ2xjsWPsDusebpSozdbUCnm8H3fpKE7yWRZg
     responses:
       201:
         description: If the login has been completed with success. The token object is returned including the status.
