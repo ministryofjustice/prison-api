@@ -25,11 +25,6 @@ spring:
       idle-timeout: 10000
       oracle-proxy: true
 
-jwt:
-  header: Authorization
-  secret: s3cre3tK3y
-  expiration: 1000
-  schema: Bearer
 
 security:
   basic:
@@ -39,9 +34,7 @@ security:
     signingKey: s3cre3tK3y
     schema: Bearer
     expiration: 15 # Number of minutes
-    refreshExpiration: 60 # Minutes
     issuer: http://www.syscon.net
-
 
 logging:
   level:
@@ -66,4 +59,4 @@ endpoints:
   cors:
     allowed-origins: http://localhost:${server.port}
     allow-credentials: true
-    allow-headers: Origin, X-Requested-With, Content-Type, Accept, X-Auth-Token
+    allow-headers: Origin, X-Requested-With, Content-Type, Accept, Authorization

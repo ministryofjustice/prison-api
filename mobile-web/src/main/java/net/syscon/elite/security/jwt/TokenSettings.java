@@ -14,7 +14,6 @@ public class TokenSettings {
 	private String signingKey;
 	private String schema;
 	private int expiration;
-	private int  refreshExpiration;
 	private String issuer;
 
 
@@ -40,14 +39,6 @@ public class TokenSettings {
 
 	public void setExpiration(int expiration) {
 		this.expiration = expiration;
-	}
-
-	public int getRefreshExpiration() {
-		return refreshExpiration;
-	}
-
-	public void setRefreshExpiration(int refreshExpiration) {
-		this.refreshExpiration = refreshExpiration;
 	}
 
 	public String getIssuer() {

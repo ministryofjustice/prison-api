@@ -42,10 +42,16 @@
         schema: authToken
     responses:
       201:
-        description: If the token validation completed with success. The token object is returned including the status.
+        description: If the login has been completed with success. The token object is returned including the status.
         body:
           application/json:
             schema: token
+            example: !include ../examples/output/login-success.sample.json
+        headers:
+          Authorization:
+            description: Generated token
+            required: true
+            example: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJpdGFnX3VzZXIiLCJhdWRpZW5jZSI6InVua25vd24iLCJjcmVhdGVkIjoxNDkyMTIwOTE1MDgzLCJleHAiOjE0OTIxMjE5MTV9.9gX_NzwtD2gHPZ9PJwClHuLxEohZBlKaeGWYJBL2nY1ydjlT7PQ2xjsWPsDusebpSozdbUCnm8H3fpKE7yWRZg
       401:
         description: Invalid Token
         body:

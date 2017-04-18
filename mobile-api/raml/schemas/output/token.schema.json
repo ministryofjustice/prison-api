@@ -4,7 +4,8 @@
   "title": "TokenAuth",
   "properties": {
 	"token":   { "type": "string" },
-	"refreshToken": { "type": "string" }
+    "iat": { "type": "integer" },
+	"exp": { "type": "integer" }
   },
-  "required": ["token", "refreshToken"]
+  "required": ["token", "iat", "exp"]
 }

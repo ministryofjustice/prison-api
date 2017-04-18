@@ -66,14 +66,11 @@ public class UsersResourceImpl implements UsersResource {
 					}
 				}
 			}
-
 			if (username != null && password != null) {
 				final Authentication authentication = this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 				final UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-				String accessToken =  String.format("%s %s", tokenSettings.getSchema(), tokenManagement.createToken(userDetails, true));
-				String refreshToken = String.format("%s %s", tokenSettings.getSchema(), tokenManagement.createToken(userDetails, false));
-				token = new Token(accessToken, refreshToken);
+				token = tokenManagement.createToken(userDetails);
 			}
 		} catch (AuthenticationException ex) {
 			log.error(ex.getMessage(), ex);
@@ -87,12 +84,31 @@ public class UsersResourceImpl implements UsersResource {
 		}
 	}
 
-
 	@Override
-	public PostUsersTokenResponse postUsersToken(final AuthToken entity) throws Exception {
-		System.out.print("now");
-		// TODO Auto-generated method stub
-		return null;
+	public PostUsersTokenResponse postUsersToken(AuthToken authToken) throws Exception {
+		Token token = null;
+		try {
+			if (authToken != null) {
+				final String header = authToken.getToken();
+				final int index = header.indexOf(tokenSettings.getSchema());
+				if (index > -1) {
+					String encodedToken = header.substring(index + tokenSettings.getSchema().length()).trim();
+					String username = tokenManagement.getUsernameFromToken(encodedToken);
+					final UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+					token = tokenManagement.createToken(userDetails);
+				}
+			}
+		} catch (AuthenticationException ex) {
+			log.error(ex.getMessage(), ex);
+		}
+		if (token != null) {
+			return PostUsersTokenResponse.withJsonCreated(token.getToken(), token);
+		} else {
+			final String message = "Authentication Error";
+			final HttpStatus httpStatus = new HttpStatus("401", "401", message, message, "");
+			return PostUsersTokenResponse.withJsonUnauthorized(httpStatus);
+		}
 	}
+
 
 }

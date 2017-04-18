@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import net.syscon.elite.web.api.model.Token;
 import net.syscon.util.DateTimeConverter;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
@@ -25,7 +26,7 @@ public class TokenManagement {
 		this.settings = settings;
 	}
 
-	public String createToken(final UserDetails userDetails, boolean isRefresh) {
+	public Token createToken(final UserDetails userDetails) {
 		if (StringUtils.isEmpty(userDetails.getUsername())) {
 			throw new IllegalArgumentException("Cannot create JWT Token without username");
 		}
@@ -38,21 +39,20 @@ public class TokenManagement {
 		claims.put("scopes", userDetails.getAuthorities().stream().map(s -> s.getAuthority()).collect(Collectors.toList()));
 
 		final LocalDateTime now = LocalDateTime.now();
-		int expiration = isRefresh? settings.getExpiration(): settings.getRefreshExpiration();
 
+		final Date issuedAt = DateTimeConverter.toDate(now);
+		final Date expiration = DateTimeConverter.toDate(now.plusMinutes(settings.getExpiration()));
+
+		final Token token = new Token();
 
 		final JwtBuilder builder = Jwts.builder()
 				.setClaims(claims)
 				.setIssuer(settings.getIssuer())
-				.setIssuedAt(DateTimeConverter.toDate(now))
-				.setExpiration(DateTimeConverter.toDate(now.plusMinutes(expiration)))
+				.setId(UUID.randomUUID().toString())
+				.setIssuedAt(issuedAt)
+				.setExpiration(expiration)
 				.signWith(SignatureAlgorithm.HS512, settings.getSigningKey());
-
-		if (isRefresh) {
-			builder.setId(UUID.randomUUID().toString());
-		}
-		return builder.compact();
-
+		return new Token(builder.compact(), issuedAt.getTime(), expiration.getTime());
 	}
 
 
