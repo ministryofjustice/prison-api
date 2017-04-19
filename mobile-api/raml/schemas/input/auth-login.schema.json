@@ -3,8 +3,8 @@
   "type": "object",
   "title": "LoginAuth",
   "properties": {
-	"username":   { "type": "string" },
-	"password":   { "type": "string" }
+  	"username":   { "type": "string" },
+  	"password":   { "type": "string" }
   },
   "required": ["username", "password"]
 }

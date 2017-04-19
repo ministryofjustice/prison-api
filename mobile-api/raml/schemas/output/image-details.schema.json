@@ -9,7 +9,7 @@
 		"imageOrientation":    { "type": "string" },
 		"imageType": { "type": "string" },
 		"objectId": { "type": "integer" },
-    	"imageData": { "type": "string" }
+    "imageData": { "type": "string" }
 	},
 	"required": ["imageId", "captureDate", "imageView", "imageOrientation", "imageType", "objectId", "imageData" ]
 }

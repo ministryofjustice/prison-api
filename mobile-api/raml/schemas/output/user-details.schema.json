@@ -5,16 +5,12 @@
 	"properties": {
 		"userId": { "type": "integer" },
 		"username": { "type": "string" },
-	    "email": { "type": "string" },
-		"accountNonExpired": { "type": "boolean" },
-		"accountNonLocked": { "type": "boolean" },
-		"credentialsNonExpired": { "type": "boolean" },
-		"enabled": { "type": "boolean" },
+	  "email": { "type": "string" },
 		"thumbnailId": { "type": "integer" },
 		"roles": {
 			"type": "array",
 			"items": { "type": "string" }
 		}
 	},
-	"required": ["userId", "username", "accountNonExpired", "accountNonLocked", "accountNonLocked", "credentialsNonExpired", "enabled", "authorities"]
+	"required": ["userId", "username"]
 }

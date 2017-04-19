@@ -1,0 +1,30 @@
+description: Reference domains used by the API
+type: { get-collection : { collectionSchema: referencedomains}}
+is: [
+  searchable,
+  pageable,
+  secured
+]
+
+/{domainId}:
+  description: General information for the specified reference domain
+  type: { get-item : { schema: referencedomain}}
+  is: [
+    secured
+  ]
+
+/{domainId}/codes:
+  description: Reference codes associated with the domain
+  type: { get-collection : { collectionSchema: referencecodes}}
+  is: [
+    searchable,
+    pageable,
+    secured
+  ]
+
+/{domainId}/codes/{codeId}:
+    description: Reference Code description for specified code
+    type: { get-item : { schema: referencecode}}
+    is: [
+      secured
+    ]

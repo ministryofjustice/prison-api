@@ -1,6 +1,41 @@
 /me:
-  description: Details of the current logged user 
+  description: Details of the current logged user
   type: { get-item: { schema: userDetails } }
+  is: [ secured ]
+
+/me/caseloads:
+  description: Returns the list of caseloads associated to the user
+  type: { get-collection: { collectionSchema: caseloads } }
+  is: [
+    pageable,
+    secured
+  ]
+
+/me/activecaseload:
+  description: The active caseload associated to the user
+  type: { get-item: { schema: caseload } }
+  is: [ secured ]
+
+  put:
+    description: Set the active caseload associated to the user.
+    body:
+      application/json:
+        schema: caseload
+    responses:
+      200:
+        description: The user's active caseload has been updated.
+      401:
+        description: Invalid username or password
+        body:
+          application/json:
+            schema: httpStatus
+            example: !include ../examples/output/401.sample.json
+      403:
+        description: the user does not have permission to view the caseload.
+        body:
+          application/json:
+            schema: httpStatus
+            example: !include ../examples/output/403.sample.json
 
 /login:
   post:
@@ -20,7 +55,7 @@
           application/json:
             schema: httpStatus
             example: !include ../examples/output/401.sample.json
-  
+
 /token:
   post:
     description: Renew the JWT to keep as a authenticated user
