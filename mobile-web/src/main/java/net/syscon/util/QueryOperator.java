@@ -9,6 +9,7 @@ public enum QueryOperator {
 	CONNECTOR_AND("and","and"),
 	CONNECTOR_OR("or", "or"),
 	EQUAL("eq","="),
+	NOTEQUAL("neq","!="),
 	GREATER("gt", ">"),
 	GREATER_EQ("gteq",">="),
 	LESSER("lt", "<"),

@@ -10,7 +10,7 @@
 		"source": { "type": "string" },
 		"creationDateTime":   { "type": "string", "format": "datetime" },
 		"occuranceDateTime":  { "type": "string", "format": "datetime" },
-		"authorUserId": { "type": "integer" },
+		"authorUserId": { "type": "string" },
 		"text": { "type": "string" }
 	},
 	"required": ["caseNoteId", "inmateId", "type", "subType", "text"]

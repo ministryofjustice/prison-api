@@ -59,6 +59,9 @@ public class QueryUtil {
 		StringBuilder stringBuilder = new StringBuilder();
 		String[] fields =queryItem.split(",");
 		Arrays.stream(fields).filter(fieldItem ->fieldItem.length()>0).forEach(fieldItem ->{
+			if(fieldItem.equals(fields[0])) {
+				fieldItem="and:"+fieldItem;
+			}
 			String[] operatorFieldValue = fieldItem.split(":");
 			int size = operatorFieldValue.length;
 			
@@ -66,6 +69,7 @@ public class QueryUtil {
 			String fieldName = size==3?operatorFieldValue[0]:operatorFieldValue[1];// Get Field Name form Field Mapper
 			String operator = size==3?operatorFieldValue[1]:operatorFieldValue[2];// Get Real SQL Operator From Enum
 			String value = size==3?operatorFieldValue[2]:operatorFieldValue[3];// Supply it as it is.
+			String format = size==5?operatorFieldValue[4]:"";
 			if(value.contains("|")) {
 				value = "("+value.replaceAll("\\|", ",")+")";
 			}
@@ -78,7 +82,7 @@ public class QueryUtil {
 			.append(" ")
 			.append(getSqlOperator(operator))
 			.append(" ")
-			.append(value)
+			.append(!"".equals(format)?"to_date("+value+","+format+")":value)
 			.append(" ")
 			.append(isPrecedence?")":"")
 			.append(" ");
