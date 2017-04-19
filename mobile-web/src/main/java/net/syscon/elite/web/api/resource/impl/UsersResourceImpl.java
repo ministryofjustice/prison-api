@@ -1,10 +1,12 @@
 package net.syscon.elite.web.api.resource.impl;
 
+import net.syscon.elite.model.EliteUser;
 import net.syscon.elite.security.jwt.TokenManagement;
 import net.syscon.elite.security.jwt.TokenSettings;
 import net.syscon.elite.web.api.model.AuthLogin;
 import net.syscon.elite.web.api.model.HttpStatus;
 import net.syscon.elite.web.api.model.Token;
+
 import net.syscon.elite.web.api.resource.UsersResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
@@ -40,8 +42,8 @@ public class UsersResourceImpl implements UsersResource {
 
 	@Override
 	public GetUsersMeResponse getUsersMe() throws Exception {
-		System.out.print("now");
-		return null;
+		EliteUser userDetails = (EliteUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		return GetUsersMeResponse.withJsonOK(userDetails);
 	}
 
 	@Override
@@ -68,7 +70,7 @@ public class UsersResourceImpl implements UsersResource {
 			if (username != null && password != null) {
 				final Authentication authentication = this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 				SecurityContextHolder.getContext().setAuthentication(authentication);
-				final UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+				final EliteUser userDetails = (EliteUser) userDetailsService.loadUserByUsername(username);
 				token = tokenManagement.createToken(userDetails);
 			}
 		} catch (AuthenticationException ex) {
@@ -91,7 +93,7 @@ public class UsersResourceImpl implements UsersResource {
 			if (index > -1) {
 				String encodedToken = header.substring(index + tokenSettings.getSchema().length()).trim();
 				String username = tokenManagement.getUsernameFromToken(encodedToken);
-				final UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+				final EliteUser userDetails = (EliteUser) this.userDetailsService.loadUserByUsername(username);
 				token = tokenManagement.createToken(userDetails);
 			}
 

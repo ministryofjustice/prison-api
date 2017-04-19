@@ -5,7 +5,9 @@
   "properties": {
 	"token":   { "type": "string" },
     "issuedAt": { "type": "integer" },
-	"expiration": { "type": "integer" }
+	"expiration": { "type": "integer" },
+    "refreshToken": { "type": "string" },
+    "refreshExpiration": { "type": "integer" }
   },
-  "required": ["token", "issuedAt", "expiration"]
+  "required": ["token", "issuedAt", "expiration", "refreshToken", "refreshExpiration"]
 }

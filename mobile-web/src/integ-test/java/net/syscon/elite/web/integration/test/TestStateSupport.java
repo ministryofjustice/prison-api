@@ -15,8 +15,11 @@ import static io.restassured.RestAssured.given;
 
 public class TestStateSupport {
 
-	private static final AuthLogin VALID_CREDENTIALS = new AuthLogin("oms_owner", "oms_owner");
-	private static final String AUTHORIZATION_HEADER = "Authorization";
+	public static final AuthLogin VALID_CREDENTIALS = new AuthLogin("oms_owner", "oms_owner");
+	public static final String TOKEN = "token";
+	public static final String REFRESH_TOKEN = "refreshToken";
+	public static final String AUTHORIZATION_HEADER = "Authorization";
+
 
 	private static Map<String, Object> map = new ConcurrentHashMap<>();
 
@@ -49,7 +52,7 @@ public class TestStateSupport {
 						statusCode(HttpStatus.CREATED.value()).
 						extract().response();
 
-		String token = tokenResponse.getBody().jsonPath().getString("token");
-		TestStateSupport.set(AUTHORIZATION_HEADER, token);
+		TestStateSupport.set(TOKEN, tokenResponse.getBody().jsonPath().getString(TOKEN));
+		TestStateSupport.set(REFRESH_TOKEN, tokenResponse.getBody().jsonPath().getString(REFRESH_TOKEN));
 	}
 }

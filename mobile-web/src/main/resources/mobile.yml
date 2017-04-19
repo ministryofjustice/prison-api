@@ -33,8 +33,10 @@ security:
     header: Authorization
     signingKey: s3cre3tK3y
     schema: Bearer
-    expiration: 15 # Number of minutes
+    expiration: 10 # Number of minutes
+    refreshExpiration: 60 # Number of minutes
     issuer: http://www.syscon.net
+
 
 logging:
   level:
