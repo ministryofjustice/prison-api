@@ -22,9 +22,11 @@
               example: !include ../examples/output/500.sample.json
 
 - get-item:
+    usage: This resourceType should be used to reference an items in a collection of items
     type:
       get-base:
     get:
+      description: Get the specified <<resourcePathName | !singularize>>.
       responses:
         200:
           body:
@@ -33,9 +35,12 @@
 
 
 - get-collection:
+    usage: This resourceType should be used for any collection of items
+    description: The collection of <<resourcePathName>>
     type:
       get-base:
     get:
+      description: Get all <<resourcePathName>>.
       responses:
         200:
           body:
