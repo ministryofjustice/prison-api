@@ -1,24 +1,25 @@
 package net.syscon.elite.exception;
 
 
+@SuppressWarnings("serial")
 public class LocationCountAlreadyExists extends Exception {
 
 	public LocationCountAlreadyExists() {
 	}
 
-	public LocationCountAlreadyExists(String s) {
+	public LocationCountAlreadyExists(final String s) {
 		super(s);
 	}
 
-	public LocationCountAlreadyExists(String s, Throwable throwable) {
+	public LocationCountAlreadyExists(final String s, final Throwable throwable) {
 		super(s, throwable);
 	}
 
-	public LocationCountAlreadyExists(Throwable throwable) {
+	public LocationCountAlreadyExists(final Throwable throwable) {
 		super(throwable);
 	}
 
-	public LocationCountAlreadyExists(String s, Throwable throwable, boolean b, boolean b1) {
+	public LocationCountAlreadyExists(final String s, final Throwable throwable, final boolean b, final boolean b1) {
 		super(s, throwable, b, b1);
 	}
 }

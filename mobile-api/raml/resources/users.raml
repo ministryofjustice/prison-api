@@ -3,14 +3,14 @@
   type: { get-item: { schema: userDetails } }
 
 
-/me/caseloads:
+/me/caseLoads:
   description: Returns the list of caseloads associated to the user
   type: { get-collection: { collectionSchema: caseLoads } }
   is: [
     pageable
   ]
 
-/me/activecaseload:
+/me/activeCaseLoad:
   description: The active caseload associated to the user
   type: { get-item: { schema: caseLoad } }
 

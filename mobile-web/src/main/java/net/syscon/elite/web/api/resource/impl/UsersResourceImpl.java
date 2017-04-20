@@ -112,22 +112,24 @@ public class UsersResourceImpl implements UsersResource {
 	}
 
 	@Override
-	public GetUsersMeCaseloadsResponse getUsersMeCaseloads(final int offset, final int limit) throws Exception {
+	public GetUsersMeCaseLoadsResponse getUsersMeCaseLoads(final int offset, final int limit) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public PutUsersMeActivecaseloadResponse putUsersMeActivecaseload(final CaseLoad entity) throws Exception {
+	public PutUsersMeActiveCaseLoadResponse putUsersMeActiveCaseLoad(final CaseLoad entity) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public GetUsersMeActivecaseloadResponse getUsersMeActivecaseload() throws Exception {
+	public GetUsersMeActiveCaseLoadResponse getUsersMeActiveCaseLoad() throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+
 
 
 }
