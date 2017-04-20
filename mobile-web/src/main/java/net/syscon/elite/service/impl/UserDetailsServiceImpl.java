@@ -1,12 +1,11 @@
 package net.syscon.elite.service.impl;
 
-import javax.inject.Inject;
-
+import net.syscon.elite.model.EliteUser;
+import net.syscon.elite.persistence.UserRepository;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import net.syscon.elite.model.EliteUser;
-import net.syscon.elite.persistence.UserRepository;
+import javax.inject.Inject;
 
 public class UserDetailsServiceImpl implements UserDetailsService {
 
@@ -23,6 +22,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		if (user == null) {
 			throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
 		}
+		user.setAuthorities(userRepository.findAuthorities(username));
 		return user;
 	}
 

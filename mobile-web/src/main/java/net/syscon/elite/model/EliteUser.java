@@ -1,15 +1,13 @@
 package net.syscon.elite.model;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import net.syscon.elite.web.api.model.UserDetails;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import net.syscon.elite.web.api.model.UserDetails;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @SuppressWarnings("serial")
 public class EliteUser extends UserDetails implements org.springframework.security.core.userdetails.UserDetails {
@@ -45,7 +43,15 @@ public class EliteUser extends UserDetails implements org.springframework.securi
 		}
 		return authorities;
 	}
-	
+
+	public void setAuthorities(Collection<? extends GrantedAuthority> values) {
+		List<String> roles = new ArrayList<>();
+		for (GrantedAuthority authority: values) {
+			roles.add(authority.getAuthority());
+		}
+		super.setRoles(roles);
+	}
+
 	@Override
 	@JsonIgnore
 	public String getPassword() {

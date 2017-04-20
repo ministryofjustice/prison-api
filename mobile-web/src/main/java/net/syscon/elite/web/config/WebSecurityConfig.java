@@ -1,7 +1,11 @@
 package net.syscon.elite.web.config;
 
-import javax.inject.Inject;
-
+import net.syscon.elite.security.DbAuthenticationProvider;
+import net.syscon.elite.security.EntryPointUnauthorizedHandler;
+import net.syscon.elite.security.jwt.AuthenticationTokenFilter;
+import net.syscon.elite.security.jwt.TokenManagement;
+import net.syscon.elite.security.jwt.TokenSettings;
+import net.syscon.elite.service.impl.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -16,18 +20,21 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import net.syscon.elite.security.AuthenticationTokenFilter;
-import net.syscon.elite.security.DbAuthenticationProvider;
-import net.syscon.elite.security.EntryPointUnauthorizedHandler;
-import net.syscon.elite.security.TokenManager;
-import net.syscon.elite.service.impl.UserDetailsServiceImpl;
-import net.syscon.elite.web.filter.DeviceResolverFilter;
-import net.syscon.util.DeviceProvider;
+import javax.inject.Inject;
 
 @Configuration
 @EnableWebSecurity
 @Import(PersistenceConfigs.class)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	public static final String LOGIN_URI = "/api/users/login";
+	public static final String REFRESH_URI = "/api/users/token";
+
+	@Bean
+	public TokenSettings tokenSettings() {
+		return new TokenSettings();
+	}
+
 
 	@Override
 	@Bean
@@ -56,20 +63,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	public AuthenticationManager authenticationManagerBean() throws Exception {
 		return super.authenticationManagerBean();
 	}
-	
+
+
 	@Bean
-	public DeviceProvider deviceProvider() {
-		return new DeviceProvider();
-	}
-	
-	@Bean
-	public DeviceResolverFilter deviceResolverFilter() {
-		return new DeviceResolverFilter();
-	}
-	
-	@Bean
-	public TokenManager tokenManager() {
-		return new TokenManager();
+	public TokenManagement tokenManagement() {
+		return new TokenManagement();
 	}
 
 
@@ -83,11 +81,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(final HttpSecurity httpSecurity) throws Exception {
 		httpSecurity.csrf().disable()
-			.exceptionHandling().authenticationEntryPoint(unauthorizedHandler())
-			.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-			.and().authorizeRequests()
+				.exceptionHandling().authenticationEntryPoint(unauthorizedHandler())
+				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+				.and().authorizeRequests()
 				.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-				.antMatchers("/api/users/login")
+				.antMatchers( "/api/users/login")
 				.permitAll().anyRequest().authenticated();
 
 		// Custom JWT based authentication

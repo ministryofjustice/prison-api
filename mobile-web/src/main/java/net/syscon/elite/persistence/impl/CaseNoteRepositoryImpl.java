@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.hamcrest.core.IsInstanceOf;
+
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;

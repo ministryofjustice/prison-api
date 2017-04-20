@@ -40,7 +40,7 @@ public class AgenciesResourceImplIntegTest {
 	@Test
 	public void getLocations() {
 		given().
-			header(new Header(AUTHORIZATION_HEADER, get(AUTHORIZATION_HEADER))).
+			header(new Header(AUTHORIZATION_HEADER, get(TOKEN))).
 			param("orderBy","locationId").
 			param("order","asc").
 			pathParam("agenciesId", "ITAG").
@@ -53,7 +53,7 @@ public class AgenciesResourceImplIntegTest {
 	@Test
 	public void getLocationsByOrder() {
 		given().
-			header(new Header(AUTHORIZATION_HEADER, get(AUTHORIZATION_HEADER))).
+			header(new Header(AUTHORIZATION_HEADER, get(TOKEN))).
 			param("orderBy","locationId").
 			param("order","asc").
 			pathParam("agenciesId", "ITAG").
@@ -66,7 +66,7 @@ public class AgenciesResourceImplIntegTest {
 	@Test
 	public void getLocationsWithSearchQuery() {
 		given().
-			header(new Header(AUTHORIZATION_HEADER, get(AUTHORIZATION_HEADER))).
+			header(new Header(AUTHORIZATION_HEADER, get(TOKEN))).
 			param("query","description:like:'%BED%'").
 			param("orderBy","locationId").
 			param("order","asc").
