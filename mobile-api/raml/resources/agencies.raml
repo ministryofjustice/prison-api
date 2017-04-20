@@ -1,14 +1,10 @@
 description: Returns the list of agencies viewable by the user
 type: { get-collection: { collectionSchema: agencies } }
-is: [
-  pageable,
-  secured
-]
+is: [ pageable ]
 
 /{agencyId}:
   description: Returns the list of agencies viewable by the user
   type: { get-item: { schema: agency } }
-  is: [ secured ]
 
 
 /{agencyId}/locations:
@@ -17,6 +13,5 @@ is: [
   is: [
     searchable,
     orderable: {fieldsList : "moveCategory, moveDateTime, fromAgencyId, toAgencyId, moveType, moveReason, fromLocationId, or toLocation"},
-    pageable,
-    secured
+    pageable
   ]

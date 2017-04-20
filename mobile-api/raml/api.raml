@@ -2,6 +2,7 @@
 title: Elite2 Public API
 baseUri: http://api.elite2.syscon.net/{version}
 version: v1
+securedBy: [jwt]
 schemas:
 - httpStatus: !include schemas/output/http-status.schema.json
 
@@ -25,26 +26,42 @@ schemas:
 # - locationCountDetails: !include schemas/output/location-count-details.schema.json
 # - locationCount: !include schemas/output/location-count.schema.json
 # - automatedCount: !include schemas/output/automated-count.schema.json
-- casenote: !include schemas/output/casenote.schema.json
-- casenotes: !include schemas/output/casenotes.schema.json
-- referencecode: !include schemas/output/referencecode.schema.json
-- referencecodes: !include schemas/output/referencecodes.schema.json
-- referencedomain: !include schemas/output/referencedomain.schema.json
-- referencedomains: !include schemas/output/referencedomains.schema.json
-- caseload: !include schemas/output/caseload.schema.json
-- caseloads: !include schemas/output/caseloads.schema.json
+- caseNote: !include schemas/output/casenote.schema.json
+- caseNotes: !include schemas/output/casenotes.schema.json
+- referenceCode: !include schemas/output/referencecode.schema.json
+- referenceCodes: !include schemas/output/referencecodes.schema.json
+- referenceDomain: !include schemas/output/referencedomain.schema.json
+- referenceDomains: !include schemas/output/referencedomains.schema.json
+- caseLoad: !include schemas/output/caseload.schema.json
+- caseLoads: !include schemas/output/caseloads.schema.json
 - alert: !include schemas/output/alert.schema.json
 - alerts: !include schemas/output/alerts.schema.json
 
 securitySchemes:
 - jwt:
-    describedBy:
-      queryParameters:
-         token:
-           description: Provided Token
-           type: string
-           example: eyJpc3MiOiJzY290Y2guaW8iLCJleHAiOjEzMDA4MTkzODAsIm5hbWUiOiJDaHJpcyBTZXZpbGxlamEiLCJhZG1pbiI6dHJ1ZX0
+    description: Elite API uses Json Web Token (JWT) to authenticate most requests
     type: x-jwt
+    describedBy:
+      headers:
+        Authorization:
+          description: Used to send a valid JWT. Do not use  query string parameter.
+          type: string
+          example: "Authorization: Bearer eyJpc3MiOiJzY290Y2guaW8iLCJleHAiOjEzMDA4MTkzODAsIm5hbWUiOiJDaHJpcyBTZXZpbGxlamEiLCJhZG1pbiI6dHJ1ZX0"
+
+- basic:
+    description: Each request must contain the headers necessary for basic authentication
+    type: Basic Authentication
+    describedBy:
+      headers:
+        Authorization:
+          description: Used to send the Base64-encoded "username:password" credentials
+          type: string
+      responses:
+        401:
+          description: |
+            Unauthorized. Either the provided username and password
+            combination is invalid, or the user is not allowed to access
+            the content provided by the requested URL.
 
 resourceTypes: !include resourceTypes/generic-resource-types.raml
 
@@ -56,4 +73,4 @@ traits: !include traits/generic-traits.raml
 /locations: !include resources/locations.raml
 /images: !include resources/images.raml
 # /counts: !include resources/counts.raml
-/referencedomains: !include resources/referencedomains.raml
+/referenceDomains: !include resources/referencedomains.raml

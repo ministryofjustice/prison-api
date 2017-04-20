@@ -3,37 +3,33 @@ type: { get-collection: { collectionSchema: inmateSummaries } }
 is: [
   searchable,
   orderable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, alertCodes, agencyId, currentLocationId, or assignedLivingUnitId"},
-  pageable,
-  secured
+  pageable
 ]
 
 /{bookingId}:
   description: The details specific to the specified inmate.
   type: { get-item: { schema: inmateDetails }}
-  is: [ secured ]
 
 /{bookingId}/casenotes:
   description: The collection of case notes associated to the booking.
-  type: { get-collection: { collectionSchema: casenotes } }
+  type: { get-collection: { collectionSchema: caseNotes } }
   is: [
     searchable,
     orderable: {fieldsList : "creationDateTime, type, subType, source"},
-    pageable,
-    secured
+    pageable
   ]
 
   post:
     description: Entry of new case note under a booking.
     body:
       application/json:
-        schema: casenote
-    is: [ secured ]
+        schema: caseNote
     responses:
       201:
         description: The Case Note has been recorded. The updated object is returned including the status.
         body:
           application/json:
-            schema: casenote
+            schema: caseNote
       400:
         body:
           application/json:
@@ -49,7 +45,7 @@ is: [
         description: The case note has already been recorded under the booking. The current unmodified object (including status) is returned.
         body:
           application/json:
-            schema: casenote
+            schema: caseNote
       500:
         body:
           application/json:
@@ -58,21 +54,20 @@ is: [
 
 /{bookingId}/casenotes/{caseNoteId}:
   description: The specific case note of a booking.
-  type: { get-item: { schema: casenote } }
-  is: [ secured ]
+  type: { get-item: { schema: caseNote } }
+
 
   put:
     description: Update specific case note under a booking.
-    is: [ secured ]
     body:
       application/json:
-        schema: casenote
+        schema: caseNote
     responses:
       201:
         description: The Case Note has been recorded. The updated object is returned including the status.
         body:
           application/json:
-            schema: casenote
+            schema: caseNote
       400:
         body:
           application/json:
@@ -88,7 +83,7 @@ is: [
         description: The case note has already been recorded under the booking. The current unmodified object (including status) is returned.
         body:
           application/json:
-            schema: casenote
+            schema: caseNote
       500:
         body:
           application/json:
@@ -101,11 +96,10 @@ is: [
   is: [
     searchable,
     orderable: {fieldsList : "creationDateTime, type, subType, source"},
-    pageable,
-    secured
+    pageable
   ]
 
 /{bookingId}/alerts/{alertId}:
   description: A specific alert associated to the booking.
   type: { get-item: { schema: alert } }
-  is: [ secured ]
+

@@ -1,13 +1,9 @@
 package net.syscon.elite.web.api.resource.impl;
 
-import net.syscon.elite.model.EliteUser;
-import net.syscon.elite.security.jwt.TokenManagement;
-import net.syscon.elite.security.jwt.TokenSettings;
-import net.syscon.elite.web.api.model.AuthLogin;
-import net.syscon.elite.web.api.model.HttpStatus;
-import net.syscon.elite.web.api.model.Token;
+import java.util.Base64;
 
-import net.syscon.elite.web.api.resource.UsersResource;
+import javax.inject.Inject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,12 +11,17 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-import java.util.Base64;
+import net.syscon.elite.model.EliteUser;
+import net.syscon.elite.security.jwt.TokenManagement;
+import net.syscon.elite.security.jwt.TokenSettings;
+import net.syscon.elite.web.api.model.AuthLogin;
+import net.syscon.elite.web.api.model.CaseLoad;
+import net.syscon.elite.web.api.model.HttpStatus;
+import net.syscon.elite.web.api.model.Token;
+import net.syscon.elite.web.api.resource.UsersResource;
 
 @Component
 public class UsersResourceImpl implements UsersResource {
@@ -42,12 +43,12 @@ public class UsersResourceImpl implements UsersResource {
 
 	@Override
 	public GetUsersMeResponse getUsersMe() throws Exception {
-		EliteUser userDetails = (EliteUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		final EliteUser userDetails = (EliteUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		return GetUsersMeResponse.withJsonOK(userDetails);
 	}
 
 	@Override
-	public PostUsersLoginResponse postUsersLogin(String credentials, AuthLogin authLogin) throws Exception {
+	public PostUsersLoginResponse postUsersLogin(final String credentials, final AuthLogin authLogin) throws Exception {
 		Token token = null;
 		try {
 			String username = null;
@@ -56,11 +57,11 @@ public class UsersResourceImpl implements UsersResource {
 				username = authLogin.getUsername();
 				password = authLogin.getPassword();
 			} else if (credentials != null) {
-				int index = credentials.indexOf(TokenSettings.BASIC_AUTHENTICATION);
+				final int index = credentials.indexOf(TokenSettings.BASIC_AUTHENTICATION);
 				if (index > -1) {
-					String ss = credentials.substring(index + TokenSettings.BASIC_AUTHENTICATION.length()).trim();
-					String usrPwd = new String(Base64.getDecoder().decode(ss));
-					String[] items = usrPwd.split(":");
+					final String ss = credentials.substring(index + TokenSettings.BASIC_AUTHENTICATION.length()).trim();
+					final String usrPwd = new String(Base64.getDecoder().decode(ss));
+					final String[] items = usrPwd.split(":");
 					if (items.length == 2) {
 						username = items[0];
 						password = items[1];
@@ -73,7 +74,7 @@ public class UsersResourceImpl implements UsersResource {
 				final EliteUser userDetails = (EliteUser) userDetailsService.loadUserByUsername(username);
 				token = tokenManagement.createToken(userDetails);
 			}
-		} catch (AuthenticationException ex) {
+		} catch (final AuthenticationException ex) {
 			log.error(ex.getMessage(), ex);
 		}
 		if (token != null) {
@@ -86,18 +87,18 @@ public class UsersResourceImpl implements UsersResource {
 	}
 
 	@Override
-	public PostUsersTokenResponse postUsersToken(String header) throws Exception {
+	public PostUsersTokenResponse postUsersToken(final String header) throws Exception {
 		Token token = null;
 		try {
 			final int index = header.indexOf(tokenSettings.getSchema());
 			if (index > -1) {
-				String encodedToken = header.substring(index + tokenSettings.getSchema().length()).trim();
-				String username = tokenManagement.getUsernameFromToken(encodedToken);
+				final String encodedToken = header.substring(index + tokenSettings.getSchema().length()).trim();
+				final String username = tokenManagement.getUsernameFromToken(encodedToken);
 				final EliteUser userDetails = (EliteUser) this.userDetailsService.loadUserByUsername(username);
 				token = tokenManagement.createToken(userDetails);
 			}
 
-		} catch (AuthenticationException ex) {
+		} catch (final AuthenticationException ex) {
 			log.error(ex.getMessage(), ex);
 		}
 
@@ -108,6 +109,24 @@ public class UsersResourceImpl implements UsersResource {
 			final HttpStatus httpStatus = new HttpStatus("401", "401", message, message, "");
 			return PostUsersTokenResponse.withJsonUnauthorized(httpStatus);
 		}
+	}
+
+	@Override
+	public GetUsersMeCaseloadsResponse getUsersMeCaseloads(final int offset, final int limit) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public PutUsersMeActivecaseloadResponse putUsersMeActivecaseload(final CaseLoad entity) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public GetUsersMeActivecaseloadResponse getUsersMeActivecaseload() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

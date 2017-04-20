@@ -3,14 +3,12 @@ type: { get-collection: { collectionSchema: locations } }
 is: [
   searchable,
   orderable: {fieldsList : "locationId, agencyId, locationType, and parentLocationId"},
-  pageable,
-  secured
+  pageable
 ]
 
 /{locationId}:
   description: Returns details about the specified location
   type: { get-item: { schema: location }}
-  is: [ secured ]
 
 /{locationId}/inmates:
   description: The collection of inmates present at the specified location.
@@ -18,6 +16,5 @@ is: [
   is: [
     searchable,
     orderable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, alertCodes, agencyId, currentLocationId, or assignedLivingUnitId"},
-    pageable,
-    secured
+    pageable
   ]

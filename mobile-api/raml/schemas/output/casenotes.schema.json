@@ -2,5 +2,5 @@
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"title": "CaseNotes",
 	"type": "array",
-	"items": { "$ref": "casenote" }
+	"items": { "$ref": "caseNote" }
 }

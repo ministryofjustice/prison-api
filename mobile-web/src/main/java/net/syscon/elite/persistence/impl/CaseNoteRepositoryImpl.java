@@ -15,7 +15,7 @@ import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.persistence.CaseNoteRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
-import net.syscon.elite.web.api.model.Casenote;
+import net.syscon.elite.web.api.model.CaseNote;
 import net.syscon.elite.web.api.resource.BookingResource.Order;
 import net.syscon.util.DateFormatProvider;
 import net.syscon.util.QueryBuilder;
@@ -26,9 +26,9 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	
 	private final String DATE_FORMAT = "MM-dd-yyyy hh:mm:ss";
 	private final String DATE_FORMAT_OCCUR = "MM-dd-yyyy";
-	private final Map<String, FieldMapper> caseNoteMapping = new ImmutableMap.Builder<String, FieldMapper>()
+	private final Map<String, FieldMapper> CaseNoteMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("OFFENDER_BOOK_ID", 			new FieldMapper("bookingId"))
-			.put("CASE_NOTE_ID", 				new FieldMapper("caseNoteId"))
+			.put("CASE_NOTE_ID", 				new FieldMapper("CaseNoteId"))
 			.put("CASE_NOTE_TYPE", 				new FieldMapper("type"))
 			.put("CASE_NOTE_SUB_TYPE", 			new FieldMapper("subType"))
 			.put("NOTE_SOURCE_CODE", 			new FieldMapper("source"))
@@ -39,34 +39,34 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 			.build();
 
 	@Override
-	public List<Casenote> getCaseNotes(String bookingId, String query, String orderByField, Order order, int offset,
+	public List<CaseNote> getCaseNotes(String bookingId, String query, String orderByField, Order order, int offset,
 			int limit) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_CASENOTES"), caseNoteMapping)
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_CaseNoteS"), CaseNoteMapping)
 											.addQuery(query)
 											.addOrderBy("asc".equalsIgnoreCase(order.toString())?true:false, orderByField)
 											.addPagedQuery()
 											.build();
-		final RowMapper<Casenote> caseNoteMapper = Row2BeanRowMapper.makeMapping(sql, Casenote.class, caseNoteMapping);
-		return jdbcTemplate.query(sql, createParams("bookingId", bookingId, "offset", offset, "limit", limit), caseNoteMapper);
+		final RowMapper<CaseNote> CaseNoteMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, CaseNoteMapping);
+		return jdbcTemplate.query(sql, createParams("bookingId", bookingId, "offset", offset, "limit", limit), CaseNoteMapper);
 	}
 
 	@Override
-	public Casenote getCaseNote(String bookingId, String caseNoteId) {
+	public CaseNote getCaseNote(String bookingId, String CaseNoteId) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Casenote createCaseNote(String bookingId, String caseNoteId, Casenote entity) {
+	public CaseNote createCaseNote(String bookingId, String CaseNoteId, CaseNote entity) {
 		GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
-		String sql = new QueryBuilder.Builder(getQuery("INSERT_CASE_NOTE"), caseNoteMapping).build();
+		String sql = new QueryBuilder.Builder(getQuery("INSERT_CASE_NOTE"), CaseNoteMapping).build();
 		//TODO Replace Create User logic from User principle.
 		//TODO Staff Id is not null. So provide this also.
 		//TODO - Below logic is related to Get Maximum from DB to create new CASE NOTE ID. Need to remove this logic.
 		Long maxCaseNoteID = jdbcTemplate.queryForObject("select max(CASE_NOTE_ID) from OFFENDER_CASE_NOTES", new MapSqlParameterSource(), Long.class);
 		long staffId = 1L;
 		jdbcTemplate.update(sql, createParams("bookingID", bookingId,
-												"caseNoteID", maxCaseNoteID+1,
+												"CaseNoteID", maxCaseNoteID+1,
 												"text", entity.getText(), 
 												"type", entity.getType(),
 												"subType", entity.getSubType(),
@@ -84,10 +84,10 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
-	public Casenote updateCaseNote(String bookingId, String caseNoteId, Casenote entity) {
-		String sql = new QueryBuilder.Builder(getQuery("UPDATE_CASE_NOTE"), caseNoteMapping).build();
+	public CaseNote updateCaseNote(String bookingId, String CaseNoteId, CaseNote entity) {
+		String sql = new QueryBuilder.Builder(getQuery("UPDATE_CASE_NOTE"), CaseNoteMapping).build();
 		jdbcTemplate.update(sql, createParams("modifyBy", "oms_owner",
-												"caseNoteId", caseNoteId,
+												"CaseNoteId", CaseNoteId,
 												"text", entity.getText()));
 		return entity;
 	}

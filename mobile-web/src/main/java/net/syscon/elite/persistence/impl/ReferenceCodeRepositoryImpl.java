@@ -10,7 +10,7 @@ import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.persistence.ReferenceCodeRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
-import net.syscon.elite.web.api.model.Referencecode;
+import net.syscon.elite.web.api.model.ReferenceCode;
 
 @Repository
 public class ReferenceCodeRepositoryImpl extends RepositoryBase implements ReferenceCodeRepository {
@@ -21,30 +21,30 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 			.build();
 
 	@Override
-	public List<Referencecode> getCnotetypesByCaseLoad(String caseLoad) {
+	public List<ReferenceCode> getCnotetypesByCaseLoad(final String caseLoad) {
 		final String sql = getQuery("FIND_CNOTE_TYPES_BY_CASE_LOAD");
-		final RowMapper<Referencecode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, Referencecode.class, referenceCodeMapping);
+		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
 		return jdbcTemplate.query(sql, createParams("caseLoad", caseLoad), referenceCodeRowMapper);
 	}
 
 	@Override
-	public List<Referencecode> getCnoteSubtypesByCaseNoteType(String caseNotetype) {
+	public List<ReferenceCode> getCnoteSubtypesByCaseNoteType(final String caseNotetype) {
 		final String sql = getQuery("FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE");
-		final RowMapper<Referencecode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, Referencecode.class, referenceCodeMapping);
+		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
 		return jdbcTemplate.query(sql, createParams("caseNoteType", caseNotetype), referenceCodeRowMapper);
 	}
 
 	@Override
-	public List<Referencecode> getReferencecodesForDomain(String domain) {
+	public List<ReferenceCode> getReferenceCodesForDomain(final String domain) {
 		final String sql = getQuery("FIND_REF_CODES");
-		final RowMapper<Referencecode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, Referencecode.class, referenceCodeMapping);
+		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
 		return jdbcTemplate.query(sql, createParams("domain", domain), referenceCodeRowMapper);
 	}
 
 	@Override
-	public Referencecode getReferencecodeDescriptionForCode(String domain, String code) {
+	public ReferenceCode getReferenceCodeDescriptionForCode(final String domain, final String code) {
 		final String sql = getQuery("FIND_REF_CODE_DESC");
-		final RowMapper<Referencecode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, Referencecode.class, referenceCodeMapping);
+		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
 		return jdbcTemplate.queryForObject(sql, createParams("domain", domain, "code", code), referenceCodeRowMapper);
 	}
 

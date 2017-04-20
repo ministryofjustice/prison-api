@@ -2,5 +2,5 @@
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"title": "ReferenceDomains",
 	"type": "array",
-	"items": { "$ref": "referencedomain" }
+	"items": { "$ref": "referenceDomain" }
 }

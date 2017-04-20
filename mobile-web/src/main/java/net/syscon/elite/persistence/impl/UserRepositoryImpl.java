@@ -17,10 +17,6 @@ public class UserRepositoryImpl implements UserRepository {
 	public EliteUser findByUsername(final String username) {
 		final EliteUser user = new EliteUser();
 		user.setUsername(username);
-		user.setEnabled(true);
-		user.setAccountNonExpired(true);
-		user.setAccountNonLocked(true);
-		user.setCredentialsNonExpired(true);
 		return user;
 	}
 

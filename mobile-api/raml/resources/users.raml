@@ -1,26 +1,24 @@
 /me:
   description: Details of the current logged user
   type: { get-item: { schema: userDetails } }
-  is: [ secured ]
+
 
 /me/caseloads:
   description: Returns the list of caseloads associated to the user
-  type: { get-collection: { collectionSchema: caseloads } }
+  type: { get-collection: { collectionSchema: caseLoads } }
   is: [
-    pageable,
-    secured
+    pageable
   ]
 
 /me/activecaseload:
   description: The active caseload associated to the user
-  type: { get-item: { schema: caseload } }
-  is: [ secured ]
+  type: { get-item: { schema: caseLoad } }
 
   put:
     description: Set the active caseload associated to the user.
     body:
       application/json:
-        schema: caseload
+        schema: caseLoad
     responses:
       200:
         description: The user's active caseload has been updated.

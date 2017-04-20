@@ -1,7 +1,6 @@
 package net.syscon.elite.web.api.resource.impl;
 
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Component;
 import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.Location;
-import net.syscon.elite.web.api.model.Movement;
 import net.syscon.elite.web.api.resource.LocationsResource;
 
 
@@ -23,9 +21,8 @@ public class LocationsResourceImpl implements LocationsResource {
 	@Inject
 	public void setAgencyLocationService(final AgencyLocationService agencyLocationService) { this.agencyLocationService = agencyLocationService; }
 
-
 	@Override
-	public GetLocationsResponse getLocations(final int offset, final int limit) throws Exception {
+	public GetLocationsResponse getLocations(final String query, final String orderBy, final Order order, final int offset, final int limit) throws Exception {
 		final List<Location> locations = agencyLocationService.getLocations(offset, limit);
 		return GetLocationsResponse.withJsonOK(locations);
 	}
@@ -36,15 +33,11 @@ public class LocationsResourceImpl implements LocationsResource {
 	}
 
 	@Override
-	public GetLocationsByLocationIdMovementsResponse getLocationsByLocationIdMovements(final String locationId, final String orderBy, final Order order, final int offset, final int limit) throws Exception {
-		final List<Movement> movements = new ArrayList<>();
-		return GetLocationsByLocationIdMovementsResponse.withJsonOK(movements);
-	}
-
-	@Override
-	public GetLocationsByLocationIdInmatesResponse getLocationsByLocationIdInmates(final String locationId, final String orderBy, final Order order,final int offset, final int limit) throws Exception {
+	public GetLocationsByLocationIdInmatesResponse getLocationsByLocationIdInmates(final String locationId, final String query, final String orderBy, final Order order, final int offset, final int limit) throws Exception {
 		final List<AssignedInmate> inmates = agencyLocationService.getInmatesFromLocation(Long.valueOf(locationId), offset, limit);
 		return GetLocationsByLocationIdInmatesResponse.withJsonOK(inmates);
 	}
+
+
 
 }

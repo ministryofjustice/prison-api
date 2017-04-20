@@ -1,12 +1,10 @@
 /{imageId}:
   description: Details about the specified image including the image itself.
   type: { get-item: { schema: imageDetails }}
-  is: [ secured ]
 
 /{imageId}/data:
     type:
       get-base:
-    is: [ secured ]
     
     get:
       responses:

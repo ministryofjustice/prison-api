@@ -2,5 +2,5 @@
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"title": "caseloads",
 	"type": "array",
-	"items": { "$ref": "caseload" }
+	"items": { "$ref": "caseLoad" }
 }

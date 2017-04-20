@@ -1,47 +1,39 @@
 /domains:
   description: Reference domains used by the API
-  type: { get-collection : { collectionSchema: referencedomains}}
+  type: { get-collection : { collectionSchema: referenceDomains}}
   is: [
     searchable,
-    pageable,
-    secured
+    pageable
   ]
 
 /domains/{domainId}:
   description: General information for the specified reference domain
-  type: { get-item : { schema: referencedomain}}
-  is: [
-    secured
-  ]
+  type: { get-item : { schema: referenceDomain}}
+
 
 /domains/{domainId}/codes:
   description: Reference codes associated with the domain
-  type: { get-collection : { collectionSchema: referencecodes}}
+  type: { get-collection : { collectionSchema: referenceCodes}}
   is: [
     searchable,
-    pageable,
-    secured
+    pageable
   ]
 
 /domains/{domainId}/codes/{codeId}:
   description: Reference Code description for specified code
-  type: { get-item : { schema: referencecode}}
-  is: [
-    secured
-  ]
+  type: { get-item : { schema: referenceCode}}
+
 
 /casenotes/types/{caseLoad}:
   description: Case note type reference codes related to specified case load. Case load can either be 'COMM' or 'INST'
-  type: { get-collection : { collectionSchema: referencecodes}}
+  type: { get-collection : { collectionSchema: referenceCodes}}
   is: [
-    pageable,
-    secured
+    pageable
   ]
 
 /casenotes/subtypes/{caseNoteType}:
   description: Case note sub type reference codes related to specified case note type.
-  type: { get-collection : { collectionSchema: referencecodes}}
+  type: { get-collection : { collectionSchema: referenceCodes}}
   is: [
-    pageable,
-    secured
+    pageable
   ]

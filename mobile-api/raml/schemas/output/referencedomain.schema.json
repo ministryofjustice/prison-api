@@ -5,7 +5,7 @@
 	"properties": {
 		"domainId": { "type": "string" },
 		"description": { "type": "string" },
-    "parentDomainId": { "type": "string" }
+    	"parentDomainId": { "type": "string" }
 	},
 	"required": ["domainId", "description"]
 }
