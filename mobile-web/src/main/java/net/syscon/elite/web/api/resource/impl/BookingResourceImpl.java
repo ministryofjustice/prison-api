@@ -1,23 +1,17 @@
 package net.syscon.elite.web.api.resource.impl;
 
-import java.util.List;
-
-import javax.inject.Inject;
-
+import net.syscon.elite.persistence.InmateRepository;
+import net.syscon.elite.service.CaseNoteService;
+import net.syscon.elite.web.api.model.*;
+import net.syscon.elite.web.api.resource.BookingResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import net.syscon.elite.persistence.InmateRepository;
-import net.syscon.elite.service.CaseNoteService;
-import net.syscon.elite.web.api.model.AssignedInmate;
-import net.syscon.elite.web.api.model.CaseNote;
-import net.syscon.elite.web.api.model.HttpStatus;
-import net.syscon.elite.web.api.model.InmateDetails;
-import net.syscon.elite.web.api.model.UserDetails;
-import net.syscon.elite.web.api.resource.BookingResource;
+import javax.inject.Inject;
+import java.util.List;
 
 @Component
 public class BookingResourceImpl implements BookingResource {

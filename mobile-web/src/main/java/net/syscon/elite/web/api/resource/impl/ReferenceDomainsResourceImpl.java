@@ -1,11 +1,10 @@
 package net.syscon.elite.web.api.resource.impl;
 
-import javax.inject.Inject;
-
-import org.springframework.stereotype.Component;
-
 import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.web.api.resource.ReferenceDomainsResource;
+import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
 
 @Component
 public class ReferenceDomainsResourceImpl implements ReferenceDomainsResource {
