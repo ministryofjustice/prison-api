@@ -94,3 +94,18 @@ is: [
           application/json:
             schema: httpStatus
             example: !include ../examples/output/500.sample.json
+
+/{bookingId}/alerts:
+  description: The collection of alerts associated to the booking.
+  type: { get-collection: { collectionSchema: alerts } }
+  is: [
+    searchable,
+    orderable: {fieldsList : "creationDateTime, type, subType, source"},
+    pageable,
+    secured
+  ]
+
+/{bookingId}/alerts/{alertId}:
+  description: A specific alert associated to the booking.
+  type: { get-item: { schema: alert } }
+  is: [ secured ]
