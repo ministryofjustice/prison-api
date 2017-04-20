@@ -33,9 +33,6 @@ public class QueryBuilder {
 		public Builder addQuery(String query) {
 			if(null!=query && query.length()>0) {
 				List<String> queryList = QueryUtil.checkPrecdencyAndSplit(query, new ArrayList<String>());
-				if (baseQuery.length() > 0 && (baseQuery.toString().contains("where") || baseQuery.toString().contains("WHERE"))) {
-					baseQuery.append(" and ");
-				}
 				queryList.stream().filter(queryItem ->{return queryItem.length()>0;}).forEach(queryItem -> {
 					if(queryItem.contains("(") && queryItem.contains(")")) {
 						baseQuery.append(QueryUtil.prepareQuery(queryItem, true, fieldMap));

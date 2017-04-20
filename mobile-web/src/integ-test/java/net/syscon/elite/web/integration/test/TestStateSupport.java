@@ -15,10 +15,12 @@ import static io.restassured.RestAssured.given;
 
 public class TestStateSupport {
 
+
 	public static final AuthLogin VALID_CREDENTIALS = new AuthLogin("oms_owner", "oms_owner");
 	public static final String TOKEN = "token";
 	public static final String REFRESH_TOKEN = "refreshToken";
 	public static final String AUTHORIZATION_HEADER = "Authorization";
+
 
 
 	private static Map<String, Object> map = new ConcurrentHashMap<>();
