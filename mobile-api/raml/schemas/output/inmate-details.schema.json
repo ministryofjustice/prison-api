@@ -62,7 +62,8 @@
 				},
 				"required": ["type", "side", "bodyPart", "orientation", "comment"]
 			}
-		}
+		},
+		"assignedOfficerUserId": { "type": "integer" }
 	},
 	"required": ["inmateId", "bookingId", "offenderId", "firstName", "middleName", "lastName", "agencyId", "currentLocationId", "age"]
 }
