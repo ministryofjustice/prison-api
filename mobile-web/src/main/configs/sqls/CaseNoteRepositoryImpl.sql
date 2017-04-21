@@ -17,7 +17,7 @@ INSERT_CASE_NOTE {
 	CONTACT_DATE, CONTACT_TIME, CASE_NOTE_TYPE, CASE_NOTE_SUB_TYPE, STAFF_ID, 
 	CASE_NOTE_TEXT, DATE_CREATION, TIME_CREATION, CREATE_USER_ID, NOTE_SOURCE_CODE, MODIFY_DATETIME) 
 	VALUES 
-    (:caseNoteID, :bookingID, :contactDate, :contactTime, :type, :subType, :staffId, :text, :createDate, :createTime, :createdBy, :sourceCode, null)
+    (case_note_id.nextval, :bookingID, :contactDate, :contactTime, :type, :subType, (SELECT  STAFF_ID FROM staff_members where user_Id = :user_Id), :text, :createDate, :createTime, :createdBy, :sourceCode, null)
 
 }
 

@@ -1,9 +1,9 @@
   - searchable:
       queryParameters:
         query:
-          description: |
-            JSON array [{"field1","value1","operator1"},{"field2","value2","operator2"},...,{"fieldN","valueN","operatorN"}]
-          example: |
+          description: Search parameters with the format [connector]:<fieldName>:<operator>:<value>:[format],...|
+                        Supported Operators- 
+          example: query=creationDateTime:gt:'07-12-2013':'MM-DD-YYYY',and:type:in:'CNOTE'|'PROG_NOTE'
   - orderable:
       queryParameters:
         orderBy:

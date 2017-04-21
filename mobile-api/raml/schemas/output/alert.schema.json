@@ -1,0 +1,13 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "Alert",
+	"type": "object",
+	"properties": {
+		"alertType": { "type":  "integer" },
+		"alertCode": { "type": "string" },
+		"comment": { "type": "string" },
+		"createDate": { "type": "string", "format": "datetime" },
+		"expireDate": { "type": "string", "format": "datetime" }
+	},
+	"required": ["alertType", "alertCode", "comment","createDate","expireDate"]
+}

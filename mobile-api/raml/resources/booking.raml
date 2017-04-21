@@ -8,6 +8,16 @@ is: [
 /{bookingId}:
   description: The details specific to the specified inmate.
   type: { get-item: { schema: inmateDetails }}
+  
+/{bookingId}/alerts:
+  description: The collection of alerts associated to the inmate.
+  type: {get-collection: {collectionSchema: alerts}}
+  is: [
+    orderable: {fieldsList: "alertType, alertCode, createDate, expireDate"},
+    searchable: {queryList: "createDate:gt:todayDate"},
+    pageable,
+    secured
+  ]
 
 /{bookingId}/movements:
   description: The collection of scheduled movements associated to the inmate.
@@ -20,7 +30,7 @@ is: [
   description: The collection of case notes associated to the booking.
   type: { get-collection: { collectionSchema: casenotes } }
   is: [
-    searchable,
+    searchable: {queryList : "creationDateTime:gt:'07-12-2013':'MM-DD-YYYY',and:type:in:'CNOTE'|'PROG_NOTE'"},
     orderable: {fieldsList : "creationDateTime, type, subType, source"},
     pageable
   ]

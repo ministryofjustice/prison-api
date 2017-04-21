@@ -99,5 +99,13 @@ public class BookingResourceImpl implements BookingResource {
 		return null;
 	}
 
+
+	@Override
+	public GetBookingByBookingIdAlertsResponse getBookingByBookingIdAlerts(String bookingId, String authorization,
+			String orderBy, Order order, String query, int offset, int limit) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
 
