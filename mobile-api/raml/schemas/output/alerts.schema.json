@@ -1,6 +1,7 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema#",
-	"title": "alerts",
+	"title": "Alerts",
 	"type": "array",
 	"items": { "$ref": "alert" }
 }
+

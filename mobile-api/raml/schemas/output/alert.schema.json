@@ -1,20 +1,20 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema",
   "type": "object",
-  "title": "alert",
+  "title": "Alert",
   "properties": {
-  	"alertId": { "type": "integer" },
-  	"alertType": { "type": "string" },
-    "alertCode": { "type": "string"},
-    "comment": { "type": "string"},
-    "dateCreated":  {
-			"type": "string",
-			"format": "date-only"
-		},
-    "dateExpires":  {
-      "type": "string",
-      "format": "date-only"
-    }
+	"alertId": { "type": "integer" },
+	"alertType": { "type": "string" },
+	"alertCode": { "type": "string"},
+	"comment": { "type": "string"},
+	"dateCreated":  {
+	  "type": "string",
+	  "format": "date-only"
+	},
+	"dateExpires":  {
+	  "type": "string",
+	  "format": "date-only"
+	}
   },
   "required": ["alertId", "alertType", "alertCode", "comment"]
 }

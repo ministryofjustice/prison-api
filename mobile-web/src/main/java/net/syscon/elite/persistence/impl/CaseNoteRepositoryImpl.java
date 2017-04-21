@@ -9,13 +9,17 @@ import java.util.Map;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.persistence.CaseNoteRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
+
 import net.syscon.elite.web.api.model.CaseNote;
+import net.syscon.elite.web.api.model.UserDetails;
+
 import net.syscon.elite.web.api.resource.BookingResource.Order;
 import net.syscon.util.DateFormatProvider;
 import net.syscon.util.QueryBuilder;
@@ -63,10 +67,9 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 		//TODO Replace Create User logic from User principle.
 		//TODO Staff Id is not null. So provide this also.
 		//TODO - Below logic is related to Get Maximum from DB to create new CASE NOTE ID. Need to remove this logic.
-		Long maxCaseNoteID = jdbcTemplate.queryForObject("select max(CASE_NOTE_ID) from OFFENDER_CASE_NOTES", new MapSqlParameterSource(), Long.class);
-		long staffId = 1L;
+		//Long ; = jdbcTemplate.queryForObject("SELECT  STAFF_ID FROM staff_members where user_Id = 'ADMINQA'", new MapSqlParameterSource(), Long.class);
+		UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		jdbcTemplate.update(sql, createParams("bookingID", bookingId,
-												"CaseNoteID", maxCaseNoteID+1,
 												"text", entity.getText(), 
 												"type", entity.getType(),
 												"subType", entity.getSubType(),
@@ -75,8 +78,8 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 												"createTime", new Date(),
 												"contactDate", new Date(),
 												"contactTime", new Date(),
-												"createdBy", "oms_owner",
-												"staffId", staffId
+												"createdBy", user.getUsername().toUpperCase(),
+												"user_Id", user.getUsername().toUpperCase()
 							), generatedKeyHolder, new String[] {"CASE_NOTE_ID" }
 						 );
 		entity.setCaseNoteId(generatedKeyHolder.getKey().longValue());

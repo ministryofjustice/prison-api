@@ -15,17 +15,12 @@ schemas:
 - inmateSummary: !include schemas/output/inmate-summary.schema.json
 - inmateSummaries: !include schemas/output/inmate-summaries.schema.json
 - inmateDetails: !include schemas/output/inmate-details.schema.json
-# - movement: !include schemas/output/movement.schema.json
-# - movements: !include schemas/output/movements.schema.json
 - location: !include schemas/output/location.schema.json
 - locations: !include schemas/output/locations.schema.json
 - imageSummary: !include schemas/output/image-summary.schema.json
 - imageSummaries: !include schemas/output/image-summaries.schema.json
 - imageDetails: !include schemas/output/image-details.schema.json
 - imageData: !include schemas/output/image-data.schema.json
-# - locationCountDetails: !include schemas/output/location-count-details.schema.json
-# - locationCount: !include schemas/output/location-count.schema.json
-# - automatedCount: !include schemas/output/automated-count.schema.json
 - caseNote: !include schemas/output/case-note.schema.json
 - caseNotes: !include schemas/output/case-notes.schema.json
 - referenceCode: !include schemas/output/reference-code.schema.json
@@ -36,6 +31,7 @@ schemas:
 - caseLoads: !include schemas/output/case-loads.schema.json
 - alert: !include schemas/output/alert.schema.json
 - alerts: !include schemas/output/alerts.schema.json
+
 
 securitySchemes:
 - jwt:
@@ -72,5 +68,4 @@ traits: !include traits/generic-traits.raml
 /booking: !include resources/booking.raml
 /locations: !include resources/locations.raml
 /images: !include resources/images.raml
-# /counts: !include resources/counts.raml
 /referenceDomains: !include resources/reference-domains.raml

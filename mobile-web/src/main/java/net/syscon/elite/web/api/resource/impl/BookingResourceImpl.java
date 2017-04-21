@@ -54,50 +54,50 @@ public class BookingResourceImpl implements BookingResource {
 
 
 	@Override
-	public PostBookingByBookingIdCasenotesResponse postBookingByBookingIdCasenotes(final String bookingId, final String query, final String orderBy, final Order order, final int offset, final int limit, final CaseNote entity) throws Exception {
-		final UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		System.out.println(user.getUsername());
-//		final CaseNote caseNote = this.caseNoteService.createCaseNote(bookingId, entity);
-//		return PostBookingByBookingIdCasenotesResponse.withJsonCreated(caseNote);
-		return null;
-	}
-	
-
-
-	@Override
-	public GetBookingByBookingIdCasenotesResponse getBookingByBookingIdCasenotes(final String bookingId, final String query, final String orderBy, final Order order, final int offset, final int limit) throws Exception {
-		final List<CaseNote> caseNotes = this.caseNoteService.getCaseNotes(bookingId, query, orderBy, order, offset, limit);
-		return GetBookingByBookingIdCasenotesResponse.withJsonOK(caseNotes);
-	}
-
-
-	@Override
-	public PutBookingByBookingIdCasenotesByCaseNoteIdResponse putBookingByBookingIdCasenotesByCaseNoteId(final String bookingId, final String caseNoteId, final CaseNote entity) throws Exception {
-		// TODO Auto-generated method stub
+	public PostBookingByBookingIdCaseNotesResponse postBookingByBookingIdCaseNotes(String bookingId, String query, String orderBy, Order order, int offset, int limit, CaseNote entity) throws Exception {
 		return null;
 	}
 
-
 	@Override
-	public GetBookingByBookingIdCasenotesByCaseNoteIdResponse getBookingByBookingIdCasenotesByCaseNoteId(final String bookingId, final String caseNoteId) throws Exception {
-		// TODO Auto-generated method stub
+	public GetBookingByBookingIdCaseNotesResponse getBookingByBookingIdCaseNotes(String bookingId, String query, String orderBy, Order order, int offset, int limit) throws Exception {
 		return null;
 	}
 
+	@Override
+	public PutBookingByBookingIdCaseNotesByCaseNoteIdResponse putBookingByBookingIdCaseNotesByCaseNoteId(String bookingId, String caseNoteId, CaseNote entity) throws Exception {
+		return null;
+	}
 
 	@Override
-	public GetBookingByBookingIdAlertsResponse getBookingByBookingIdAlerts(final String bookingId, final String query, final String orderBy, final Order order, final int offset, final int limit) throws Exception {
-		// TODO Auto-generated method stub
+	public GetBookingByBookingIdCaseNotesByCaseNoteIdResponse getBookingByBookingIdCaseNotesByCaseNoteId(String bookingId, String caseNoteId) throws Exception {
+		return null;
+	}
+
+	@Override
+	public GetBookingByBookingIdAlertsResponse getBookingByBookingIdAlerts(String bookingId, String orderBy, Order order, String query, int offset, int limit) throws Exception {
+		return null;
+	}
+
+	@Override
+	public GetBookingByBookingIdAlertsByAlertIdResponse getBookingByBookingIdAlertsByAlertId(String bookingId, String alertId) throws Exception {
 		return null;
 	}
 
 
-	@Override
-	public GetBookingByBookingIdAlertsByAlertIdResponse getBookingByBookingIdAlertsByAlertId(final String bookingId, final String alertId) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+//	@Override
+//	public PostBookingByBookingIdCasenotesResponse postBookingByBookingIdCasenotes(final String bookingId, final String query, final String orderBy, final Order order, final int offset, final int limit, final CaseNote entity) throws Exception {
+//		final UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//
+//	}
+//
+//
+//
+//	@Override
+//	public GetBookingByBookingIdCasenotesResponse getBookingByBookingIdCasenotes(final String bookingId, final String query, final String orderBy, final Order order, final int offset, final int limit) throws Exception {
+//		final List<CaseNote> caseNotes = this.caseNoteService.getCaseNotes(bookingId, query, orderBy, order, offset, limit);
+//		return GetBookingByBookingIdCasenotesResponse.withJsonOK(caseNotes);
+//	}
+//
 
 
 
