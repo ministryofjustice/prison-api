@@ -1,7 +1,7 @@
 description: Returns the list of locations viewable by the user
 type: { get-collection: { collectionSchema: locations } }
 is: [
-  searchable,
+  searchable: {fieldsList : "locationId, agencyId, locationType, and parentLocationId"},
   orderable: {fieldsList : "locationId, agencyId, locationType, and parentLocationId"},
   pageable
 ]
@@ -14,7 +14,7 @@ is: [
   description: The collection of inmates present at the specified location.
   type: { get-collection: { collectionSchema: inmateSummaries } }
   is: [
-    searchable,
-    orderable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, alertCodes, agencyId, currentLocationId, or assignedLivingUnitId"},
+    searchable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, agencyId, currentLocationId, or assignedLivingUnitId"},
+    orderable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, agencyId, currentLocationId, or assignedLivingUnitId"},
     pageable
   ]

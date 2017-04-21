@@ -1,8 +1,8 @@
 description:  The collection of inmates within the system.
 type: { get-collection: { collectionSchema: inmateSummaries } }
 is: [
-  searchable,
-  orderable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, alertCodes, agencyId, currentLocationId, or assignedLivingUnitId"},
+  searchable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, agencyId, currentLocationId, or assignedLivingUnitId"},
+  orderable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, agencyId, currentLocationId, or assignedLivingUnitId"},
   pageable
 ]
 
@@ -14,9 +14,7 @@ is: [
   description: The collection of case notes associated to the booking.
   type: { get-collection: { collectionSchema: caseNotes } }
   is: [
-#    searchable: {
-#      queryList : "creationDateTime:gt:'07-12-2013':'MM-DD-YYYY',and:type:in:'CNOTE'|'PROG_NOTE'"
-#    },
+    searchable: {fieldsList : "creationDateTime, type, subType, source"},
     orderable: {fieldsList : "creationDateTime, type, subType, source"},
     pageable
   ]
@@ -106,11 +104,10 @@ is: [
   type: {get-collection: {collectionSchema: alerts}}
   is: [
     orderable: {fieldsList: "alertType, alertCode, createDate, expireDate"},
-#    searchable: {queryList: "createDate:gt:todayDate"},
+    searchable: {fieldsList: "alertType, alertCode, createDate, expireDate"},
     pageable
   ]
 
 /{bookingId}/alerts/{alertId}:
   description: A specific alert associated to the booking.
   type: { get-item: { schema: alert } }
-

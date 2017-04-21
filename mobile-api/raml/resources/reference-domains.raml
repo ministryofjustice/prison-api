@@ -2,7 +2,7 @@
   description: Reference domains used by the API
   type: { get-collection : { collectionSchema: referenceDomains}}
   is: [
-    searchable,
+    searchable: {fieldsList: "domainId, parentDomainId"},
     pageable
   ]
 
@@ -15,7 +15,7 @@
   description: Reference codes associated with the domain
   type: { get-collection : { collectionSchema: referenceCodes}}
   is: [
-    searchable,
+    searchable: {fieldsList: "code, parentDomainId, and parentCode"},
     pageable
   ]
 

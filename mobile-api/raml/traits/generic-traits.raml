@@ -1,8 +1,11 @@
   - searchable:
       queryParameters:
         query:
-          description: Search parameters with the format [connector]:<fieldName>:<operator>:<value>:[format],...|
-                        Supported Operators- 
+          description: |
+            Search parameters with the format [connector]:&lt;fieldName&gt;:&lt;operator&gt;:&lt;value&gt;:[format],...
+            <p>Connector operators - and, or
+            <p>Supported Operators - eq, neq, gt, gteq, lt, lteq, like, in</p>
+            <p>Supported Fields - <<fieldsList>></p>
           example: query=creationDateTime:gt:'07-12-2013':'MM-DD-YYYY',and:type:in:'CNOTE'|'PROG_NOTE'
   - orderable:
       queryParameters:
@@ -33,5 +36,3 @@
           required: false
           example: 80
           default: 10
-
-
