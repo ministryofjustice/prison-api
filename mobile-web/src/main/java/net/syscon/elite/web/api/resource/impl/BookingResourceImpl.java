@@ -52,14 +52,13 @@ public class BookingResourceImpl implements BookingResource {
 		}
 	}
 
-
 	@Override
-	public PostBookingByBookingIdCaseNotesResponse postBookingByBookingIdCaseNotes(String bookingId, String query, String orderBy, Order order, int offset, int limit, CaseNote entity) throws Exception {
+	public PostBookingByBookingIdCaseNotesResponse postBookingByBookingIdCaseNotes(String bookingId, String orderBy, Order order, int offset, int limit, CaseNote entity) throws Exception {
 		return null;
 	}
 
 	@Override
-	public GetBookingByBookingIdCaseNotesResponse getBookingByBookingIdCaseNotes(String bookingId, String query, String orderBy, Order order, int offset, int limit) throws Exception {
+	public GetBookingByBookingIdCaseNotesResponse getBookingByBookingIdCaseNotes(String bookingId, String orderBy, Order order, int offset, int limit) throws Exception {
 		return null;
 	}
 
@@ -74,7 +73,7 @@ public class BookingResourceImpl implements BookingResource {
 	}
 
 	@Override
-	public GetBookingByBookingIdAlertsResponse getBookingByBookingIdAlerts(String bookingId, String orderBy, Order order, String query, int offset, int limit) throws Exception {
+	public GetBookingByBookingIdAlertsResponse getBookingByBookingIdAlerts(String bookingId, String orderBy, Order order, int offset, int limit) throws Exception {
 		return null;
 	}
 

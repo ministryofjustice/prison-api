@@ -32,7 +32,7 @@ public class CaseNoteServiceImpl implements CaseNoteService{
 	@Override
 	public List<CaseNote> getCaseNotes(final String bookingId, String query, String orderBy, Order order, final int offset,
 			final int limit) {
-		//If Source filter is not available in Query then add Default filter SOURCE!=’AUTO’
+		//If Source filter is not available in Query then add Default filter SOURCE!="AUTO"
 		if(query==null ) {
 			query =  "source:neq:'AUTO'";
 		} else if (!"source:".contains(query)) {
@@ -60,7 +60,7 @@ public class CaseNoteServiceImpl implements CaseNoteService{
 
 	@Override
 	public CaseNote updateCaseNote(final String bookingId, final String caseNoteId, final CaseNote entity) {
-		//Append “...[<userId> updated the case note on <datetime>] <text provided>”.
+		//Append "...[<userId> updated the case note on <datetime>] <text provided>".
 		final UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		final StringBuilder textNoteBuilder = new StringBuilder(user.getUsername());
 		textNoteBuilder.append(amendTextNote);
