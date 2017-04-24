@@ -42,17 +42,16 @@ public class BookingResourceImpl implements BookingResource {
 
 	@Inject
 	public void setInmateRepository(final InmateRepository inmateRepository) { this.inmateRepository = inmateRepository; }
-
-
+	
 	@Override
-	public GetBookingResponse getBooking(final String query, final String orderBy, final Order order, final int offset, final int limit) throws Exception {
+	public GetBookingResponse getBooking(String query, String orderBy, Order order, int offset, int limit)
+			throws Exception {
 		final List<AssignedInmate> inmates = inmateRepository.findAllInmates(offset, limit);
 		return GetBookingResponse.withJsonOK(inmates);
 	}
-
-
+	
 	@Override
-	public GetBookingByBookingIdResponse getBookingByBookingId(final String bookingId) throws Exception {
+	public GetBookingByBookingIdResponse getBookingByBookingId(String bookingId) throws Exception {
 		try {
 			final InmateDetails inmate = inmateRepository.findInmate(Long.valueOf(bookingId));
 			return GetBookingByBookingIdResponse.withJsonOK(inmate);
@@ -63,61 +62,53 @@ public class BookingResourceImpl implements BookingResource {
 			return GetBookingByBookingIdResponse.withJsonNotFound(httpStatus);
 		}
 	}
-
+	
 	@Override
-	public PostBookingByBookingIdCaseNotesResponse postBookingByBookingIdCaseNotes(String bookingId, String orderBy, Order order, int offset, int limit, CaseNote entity) throws Exception  {
-			System.out.println(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-			CaseNote caseNote = this.caseNoteService.createCaseNote(bookingId, "", entity);
-			return PostBookingByBookingIdCaseNotesResponse.withJsonCreated(caseNote);
-	}
-
-	@Override
-	public GetBookingByBookingIdCaseNotesResponse getBookingByBookingIdCaseNotes(String bookingId, String orderBy, Order order, int offset, int limit) throws Exception {
-		//List<CaseNote> caseNotes = this.caseNoteService.getCaseNotes(bookingId, query, orderBy, order, offset, limit);
-		//return GetBookingByBookingIdCasenotesResponse.withJsonOK(caseNotes);
+	public GetBookingByBookingIdCaseNotesResponse getBookingByBookingIdCaseNotes(String bookingId, String query,
+			String orderBy, Order order, int offset, int limit) throws Exception {
+		// TODO Refactor method stub
+//		List<CaseNote> caseNotes = this.caseNoteService.getCaseNotes(bookingId, query, orderBy, order, offset, limit);
+//		return GetBookingByBookingIdCasenotesResponse.withJsonOK(caseNotes);
 		return null;
 	}
-
+	
 	@Override
-	public PutBookingByBookingIdCaseNotesByCaseNoteIdResponse putBookingByBookingIdCaseNotesByCaseNoteId(String bookingId, String caseNoteId, CaseNote entity) throws Exception {
+	public PostBookingByBookingIdCaseNotesResponse postBookingByBookingIdCaseNotes(String bookingId, CaseNote entity)
+			throws Exception {
+		System.out.println(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+		CaseNote caseNote = this.caseNoteService.createCaseNote(bookingId, "", entity);
+		return PostBookingByBookingIdCaseNotesResponse.withJsonCreated(caseNote);
+	}
+	
+	@Override
+	public PutBookingByBookingIdCaseNotesByCaseNoteIdResponse putBookingByBookingIdCaseNotesByCaseNoteId(
+			String bookingId, String caseNoteId, CaseNote entity) throws Exception {
 		UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		System.out.println(user.getUsername());
 		CaseNote caseNote = this.caseNoteService.updateCaseNote(bookingId, caseNoteId, entity);
 		return PutBookingByBookingIdCaseNotesByCaseNoteIdResponse.withJsonCreated(caseNote);
 	}
-
+	
 	@Override
-	public GetBookingByBookingIdCaseNotesByCaseNoteIdResponse getBookingByBookingIdCaseNotesByCaseNoteId(String bookingId, String caseNoteId) throws Exception {
+	public GetBookingByBookingIdCaseNotesByCaseNoteIdResponse getBookingByBookingIdCaseNotesByCaseNoteId(
+			String bookingId, String caseNoteId) throws Exception {
+		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
 	@Override
-	public GetBookingByBookingIdAlertsResponse getBookingByBookingIdAlerts(String bookingId, String orderBy, Order order, int offset, int limit) throws Exception {
+	public GetBookingByBookingIdAlertsResponse getBookingByBookingIdAlerts(String bookingId, String orderBy,
+			Order order, String query, int offset, int limit) throws Exception {
 		List<Alert> alerts = this.inmateAlertService.getInmateAlert(bookingId, "", orderBy, order, offset, limit);
 		return GetBookingByBookingIdAlertsResponse.withJsonOK(alerts);
 	}
-
+	
 	@Override
-	public GetBookingByBookingIdAlertsByAlertIdResponse getBookingByBookingIdAlertsByAlertId(String bookingId, String alertId) throws Exception {
+	public GetBookingByBookingIdAlertsByAlertIdResponse getBookingByBookingIdAlertsByAlertId(String bookingId,
+			String alertId) throws Exception {
+		// TODO Auto-generated method stub
 		return null;
 	}
-
-
-//	@Override
-//	public PostBookingByBookingIdCasenotesResponse postBookingByBookingIdCasenotes(final String bookingId, final String query, final String orderBy, final Order order, final int offset, final int limit, final CaseNote entity) throws Exception {
-//		final UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//
-//	}
-//
-//
-//
-//	@Override
-//	public GetBookingByBookingIdCasenotesResponse getBookingByBookingIdCasenotes(final String bookingId, final String query, final String orderBy, final Order order, final int offset, final int limit) throws Exception {
-//		final List<CaseNote> caseNotes = this.caseNoteService.getCaseNotes(bookingId, query, orderBy, order, offset, limit);
-//		return GetBookingByBookingIdCasenotesResponse.withJsonOK(caseNotes);
-//	}
-//
-
 
 
 }

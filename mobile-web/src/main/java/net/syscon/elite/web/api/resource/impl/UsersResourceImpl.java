@@ -129,7 +129,10 @@ public class UsersResourceImpl implements UsersResource {
 		return null;
 	}
 
-
-
+	@Override
+	public GetUsersByUserIdResponse getUsersByUserId(String userId) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

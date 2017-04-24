@@ -11,14 +11,34 @@ is: [
   type: { get-item: { schema: inmateDetails }}
 
 /{bookingId}/caseNotes:
-  description: The collection of case notes associated to the booking.
-  type: { get-collection: { collectionSchema: caseNotes } }
-  is: [
-    searchable: {fieldsList : "creationDateTime, type, subType, source"},
-    orderable: {fieldsList : "creationDateTime, type, subType, source"},
-    pageable
-  ]
-
+  description: The collection of <<resourcePathName>>
+  get:
+    description: Get all <<resourcePathName | !pluralize>>.
+    is: [
+      searchable: {fieldsList : "creationDateTime, type, subType, source"},
+      orderable: {fieldsList : "creationDateTime, type, subType, source"},
+      pageable
+    ]
+    responses:
+      200:
+        body:
+          application/json:
+            schema: caseNotes
+      400:
+        body:
+          application/json:
+            schema: httpStatus
+            example: !include ../examples/output/400.sample.json
+      404:
+        body:
+          application/json:
+              schema: httpStatus
+              example:  !include ../examples/output/404.sample.json
+      500:
+        body:
+          application/json:
+            schema: httpStatus
+            example: !include ../examples/output/500.sample.json
   post:
     description: Entry of new case note under a booking.
     body:
