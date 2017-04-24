@@ -3359,11 +3359,13 @@
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"title": "ReferenceCode",
 	"type": "object",
-	"properties": {
+	"properties": {	
+		"domain": { "type": "string" },
 		"code": { "type": "string" },
 		"description": { "type": "string" },
 		"parentDomainId": { "type": "string" },
-		"parentCode": { "type": "string" }
+		"parentCode": { "type": "string" },
+		"activeFlag": { "type": "boolean" } 
 	},
 	"required": ["code", "description"]
 }
