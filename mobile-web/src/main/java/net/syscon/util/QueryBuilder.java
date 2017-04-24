@@ -35,6 +35,7 @@ public class QueryBuilder {
 				List<String> queryList = QueryUtil.checkPrecdencyAndSplit(query, new ArrayList<String>());
 				queryList.stream().filter(queryItem ->{return queryItem.length()>0;}).forEach(queryItem -> {
 					if(queryItem.contains("(") && queryItem.contains(")")) {
+						queryItem = queryItem.replace("(", "").replace(")", "");
 						baseQuery.append(QueryUtil.prepareQuery(queryItem, true, fieldMap));
 					} else {
 						baseQuery.append(QueryUtil.prepareQuery(queryItem, false, fieldMap));

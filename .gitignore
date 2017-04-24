@@ -149,3 +149,8 @@ UI/_temp
 /elite2-web/output.txt
 /elite2-web/src/main/generated/net/syscon/elite/web/api/resource
 /elite2-web/src/main/generated/net/syscon/elite/web/api/model
+
+# Log file
+mobile-web/hs_err_pid16052.log
+.gitignore
+

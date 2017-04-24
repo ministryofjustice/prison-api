@@ -64,10 +64,6 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	public CaseNote createCaseNote(String bookingId, String CaseNoteId, CaseNote entity) {
 		GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
 		String sql = new QueryBuilder.Builder(getQuery("INSERT_CASE_NOTE"), CaseNoteMapping).build();
-		//TODO Replace Create User logic from User principle.
-		//TODO Staff Id is not null. So provide this also.
-		//TODO - Below logic is related to Get Maximum from DB to create new CASE NOTE ID. Need to remove this logic.
-		//Long ; = jdbcTemplate.queryForObject("SELECT  STAFF_ID FROM staff_members where user_Id = 'ADMINQA'", new MapSqlParameterSource(), Long.class);
 		UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		jdbcTemplate.update(sql, createParams("bookingID", bookingId,
 												"text", entity.getText(), 
