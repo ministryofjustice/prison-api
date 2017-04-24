@@ -76,7 +76,7 @@ public class QueryUtil {
 			stringBuilder.append(" ")
 			.append(!"".equals(connector)?getSqlOperator(connector):"")
 			.append(" ")
-			.append(isPrecedence?"(":"")
+			.append(isPrecedence && fieldItem.equals("and:"+fields[0])?"(":"")
 			.append(" ")
 			.append(getSqlFieldName(fieldMap, fieldName))
 			.append(" ")
@@ -84,7 +84,7 @@ public class QueryUtil {
 			.append(" ")
 			.append(!"".equals(format)?"to_date("+value+","+format+")":value)
 			.append(" ")
-			.append(isPrecedence?")":"")
+			.append(isPrecedence && fieldItem.equals(fields[fields.length-1])?")":"")
 			.append(" ");
 			
 		});
