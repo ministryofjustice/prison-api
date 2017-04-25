@@ -1,15 +1,8 @@
 package net.syscon.elite.web.api.resource.imp;
 
 
-import static io.restassured.RestAssured.given;
-import static net.syscon.elite.web.integration.test.TestStateSupport.AUTHORIZATION_HEADER;
-import static net.syscon.elite.web.integration.test.TestStateSupport.TOKEN;
-import static net.syscon.elite.web.integration.test.TestStateSupport.autenticate;
-import static net.syscon.elite.web.integration.test.TestStateSupport.get;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-
+import io.restassured.RestAssured;
+import io.restassured.http.Header;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,8 +11,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import io.restassured.RestAssured;
-import io.restassured.http.Header;
+import static io.restassured.RestAssured.given;
+import static net.syscon.elite.web.integration.test.TestStateSupport.*;
+import static org.hamcrest.Matchers.*;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -29,7 +23,7 @@ public class AgenciesResourceImplIntegTest {
 
 
 	@Value("${local.server.port}")
-	private final int port = 7080;
+	private int port;
 
 
 	@Before

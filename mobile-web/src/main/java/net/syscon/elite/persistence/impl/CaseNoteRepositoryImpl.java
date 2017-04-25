@@ -1,36 +1,31 @@
 package net.syscon.elite.persistence.impl;
 
-import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Repository;
-
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.persistence.CaseNoteRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
-
 import net.syscon.elite.web.api.model.CaseNote;
 import net.syscon.elite.web.api.model.UserDetails;
-
 import net.syscon.elite.web.api.resource.BookingResource.Order;
 import net.syscon.util.DateFormatProvider;
 import net.syscon.util.QueryBuilder;
 import oracle.sql.TIMESTAMP;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Repository;
+
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Repository
 public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRepository {
 	
 	private final String DATE_FORMAT = "MM-dd-yyyy hh:mm:ss";
 	private final String DATE_FORMAT_OCCUR = "MM-dd-yyyy";
-	private final Map<String, FieldMapper> CaseNoteMapping = new ImmutableMap.Builder<String, FieldMapper>()
+	private final Map<String, FieldMapper> caseNoteMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("OFFENDER_BOOK_ID", 			new FieldMapper("bookingId"))
 			.put("CASE_NOTE_ID", 				new FieldMapper("CaseNoteId"))
 			.put("CASE_NOTE_TYPE", 				new FieldMapper("type"))
@@ -45,12 +40,12 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	@Override
 	public List<CaseNote> getCaseNotes(String bookingId, String query, String orderByField, Order order, int offset,
 			int limit) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_CaseNoteS"), CaseNoteMapping)
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_CaseNoteS"), caseNoteMapping)
 											.addQuery(query)
 											.addOrderBy("asc".equalsIgnoreCase(order.toString())?true:false, orderByField)
 											.addPagedQuery()
 											.build();
-		final RowMapper<CaseNote> CaseNoteMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, CaseNoteMapping);
+		final RowMapper<CaseNote> CaseNoteMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, caseNoteMapping);
 		return jdbcTemplate.query(sql, createParams("bookingId", bookingId, "offset", offset, "limit", limit), CaseNoteMapper);
 	}
 
@@ -63,7 +58,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	@Override
 	public CaseNote createCaseNote(String bookingId, String CaseNoteId, CaseNote entity) {
 		GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
-		String sql = new QueryBuilder.Builder(getQuery("INSERT_CASE_NOTE"), CaseNoteMapping).build();
+		String sql = new QueryBuilder.Builder(getQuery("INSERT_CASE_NOTE"), caseNoteMapping).build();
 		UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		jdbcTemplate.update(sql, createParams("bookingID", bookingId,
 												"text", entity.getText(), 
@@ -84,7 +79,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 
 	@Override
 	public CaseNote updateCaseNote(String bookingId, String CaseNoteId, CaseNote entity) {
-		String sql = new QueryBuilder.Builder(getQuery("UPDATE_CASE_NOTE"), CaseNoteMapping).build();
+		String sql = new QueryBuilder.Builder(getQuery("UPDATE_CASE_NOTE"), caseNoteMapping).build();
 		jdbcTemplate.update(sql, createParams("modifyBy", "oms_owner",
 												"CaseNoteId", CaseNoteId,
 												"text", entity.getText()));

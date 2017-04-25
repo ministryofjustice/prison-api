@@ -1,19 +1,17 @@
 package net.syscon.elite.service.impl;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.inject.Inject;
-
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import net.syscon.elite.persistence.CaseNoteRepository;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.web.api.model.CaseNote;
 import net.syscon.elite.web.api.model.UserDetails;
 import net.syscon.elite.web.api.resource.BookingResource.Order;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.util.Date;
+import java.util.List;
 
 @Transactional
 @Service
@@ -53,7 +51,7 @@ public class CaseNoteServiceImpl implements CaseNoteService{
 
 	@Override
 	public CaseNote createCaseNote(final String bookingId, final String caseNoteId, final CaseNote entity) {
-		//First - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
+		//TODO: First - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
 		final CaseNote caseNote = this.caseNoteRepository.createCaseNote(bookingId, caseNoteId, entity);
 		return caseNote;
 	}

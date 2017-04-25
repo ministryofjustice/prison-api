@@ -32,7 +32,7 @@ public class UsersResourceImplIntegTest {
 	private static final String INVALID_TOKEN = Base64.getEncoder().encodeToString("xhfjaksdffsd99895sdc8893q2re7w".getBytes());
 
 	@Value("${local.server.port}")
-	private int port = 7080;
+	private int port;
 
 
 	@Before
