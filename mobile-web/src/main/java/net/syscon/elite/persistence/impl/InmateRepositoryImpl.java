@@ -21,6 +21,7 @@ import net.syscon.elite.web.api.model.PhysicalAttributes;
 import net.syscon.elite.web.api.model.PhysicalCharacteristic;
 import net.syscon.elite.web.api.model.PhysicalMark;
 import net.syscon.util.DateFormatProvider;
+import net.syscon.util.QueryBuilder;
 
 @Repository
 public class InmateRepositoryImpl extends RepositoryBase implements InmateRepository {
@@ -86,8 +87,13 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public List<AssignedInmate> findAllInmates(final int offset, final int limit) {
-		final String sql = getPagedQuery("FIND_ALL_INMATES");
+	public List<AssignedInmate> findAllInmates(final String query, final int offset, final int limit, final String orderBy, final boolean order) {
+		//final String sql = getPagedQuery("FIND_ALL_INMATES");
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_ALL_INMATES"), assignedInmateMapping).
+				addQuery(query).
+				addOrderBy(order, orderBy).
+				addPagedQuery()
+				.build();
 		final RowMapper<AssignedInmate> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, AssignedInmate.class, assignedInmateMapping);
 		final List<AssignedInmate> inmates = jdbcTemplate.query(sql, createParams("offset", offset, "limit", limit), assignedInmateRowMapper);
 		return inmates;
