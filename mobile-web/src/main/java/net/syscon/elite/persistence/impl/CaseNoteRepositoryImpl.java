@@ -45,14 +45,16 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 											.addOrderBy("asc".equalsIgnoreCase(order.toString())?true:false, orderByField)
 											.addPagedQuery()
 											.build();
-		final RowMapper<CaseNote> CaseNoteMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, caseNoteMapping);
-		return jdbcTemplate.query(sql, createParams("bookingId", bookingId, "offset", offset, "limit", limit), CaseNoteMapper);
+		final RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, caseNoteMapping);
+		return jdbcTemplate.query(sql, createParams("bookingId", bookingId, "offset", offset, "limit", limit), caseNoteRowMapper);
 	}
 
 	@Override
-	public CaseNote getCaseNote(String bookingId, String CaseNoteId) {
-		// TODO Auto-generated method stub
-		return null;
+	public CaseNote getCaseNote(String bookingId, String caseNoteId) {
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_CaseNote"), caseNoteMapping)
+								.build();
+		final RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, caseNoteMapping);
+		return jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "caseNoteId", caseNoteId), caseNoteRowMapper);
 	}
 
 	@Override
@@ -96,8 +98,6 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 					} else {
 						date = (Date)value;
 					}
-					
-					System.out.println(date);
 					creationDate = DateFormatProvider.get(dateFormat).format(date);
 					} catch (SQLException e) {
 						// TODO Auto-generated catch block

@@ -24,15 +24,19 @@ public class InmateAlertServiceImpl implements InmatesAlertService {
 
 
 	@Override
-	public List<Alert> getInmateAlert(String bookingId, String query, String orderByField, Order order, int offset,
+	public List<Alert> getInmateAlerts(String bookingId, String query, String orderByField, Order order, int offset,
 			int limit) {
-		// TODO Auto-generated method stub
 		if(null==query || "".equals(query) ) {
 			query = query + "(dateExpires:gt:sysdate,or:dateExpires:is:NULL)";
 		}
-		//|| !query.contains("dateExpires")
-		
 		return inmateAlertRepository.getInmateAlert(bookingId, query, orderByField, order, offset, limit);
+	}
+
+
+	@Override
+	public Alert getInmateAlert(String bookingId, String alertSeqId) {
+		// TODO Auto-generated method stub
+		return inmateAlertRepository.getInmateAlert(bookingId, alertSeqId);
 	}
 	
 }

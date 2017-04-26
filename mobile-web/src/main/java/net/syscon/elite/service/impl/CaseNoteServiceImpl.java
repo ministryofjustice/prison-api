@@ -18,6 +18,7 @@ import java.util.List;
 public class CaseNoteServiceImpl implements CaseNoteService{
 	
 	//Inject Case Note Repository.
+	private final String DEFAULT_CONDITION = "source:neq:'AUTO'";
 	private CaseNoteRepository caseNoteRepository;
 	private final String amendTextNote = " updated the case note on ";
 	@Inject
@@ -32,9 +33,9 @@ public class CaseNoteServiceImpl implements CaseNoteService{
 			final int limit) {
 		//If Source filter is not available in Query then add Default filter SOURCE!="AUTO"
 		if(query==null ) {
-			query =  "source:neq:'AUTO'";
+			query = DEFAULT_CONDITION ;
 		} else if (!"source:".contains(query)) {
-			query =  query+",and:source:neq:'AUTO'";
+			query =  query+",and"+DEFAULT_CONDITION;
 		}
 		if(orderBy == null) {
 			orderBy = "creationDateTime";
@@ -45,8 +46,7 @@ public class CaseNoteServiceImpl implements CaseNoteService{
 
 	@Override
 	public CaseNote getCaseNote(final String bookingId, final String caseNoteId) {
-		// TODO Auto-generated method stub
-		return null;
+		return caseNoteRepository.getCaseNote(bookingId, caseNoteId);
 	}
 
 	@Override

@@ -45,8 +45,17 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 											.addPagedQuery()
 											.build();
 		final RowMapper<Alert> alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);
-		System.out.println("===="+alertMapper);
 		return jdbcTemplate.query(sql, createParams("bookingId", bookingId, "offset", offset, "limit", limit), alertMapper);
 	}
+
+	@Override
+	public Alert getInmateAlert(String bookingId, String alertSeqId) {
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_INMATE_ALERT"), alertMapping)
+											.build();
+		final RowMapper<Alert> alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);
+		return jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "alertSeqId", alertSeqId),alertMapper);
+	}
+	
+	
 
 }

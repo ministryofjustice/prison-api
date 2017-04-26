@@ -26,3 +26,17 @@ UPDATE_CASE_NOTE {
                               MODIFY_USER_ID = :modifyBy
                               WHERE CASE_NOTE_ID = :caseNoteId
 }
+
+FIND_CaseNote{
+	select OFFENDER_BOOK_ID, 
+    CASE_NOTE_TYPE, 
+    CASE_NOTE_SUB_TYPE, 
+    CASE_NOTE_TEXT, 
+    CASE_NOTE_ID, 
+    NOTE_SOURCE_CODE, 
+    CREATE_DATETIME, 
+    CREATE_USER_ID,
+    CONTACT_DATE
+    from offender_case_notes 
+    where offender_Book_Id = :bookingId and CASE_NOTE_ID = :caseNoteId
+}
