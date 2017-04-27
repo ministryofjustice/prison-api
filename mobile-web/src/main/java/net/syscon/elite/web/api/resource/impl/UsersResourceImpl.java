@@ -13,6 +13,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import net.syscon.elite.exception.EliteRuntimeException;
 import net.syscon.elite.persistence.UserRepository;
 import net.syscon.elite.security.UserDetailsImpl;
 import net.syscon.elite.security.jwt.TokenManagement;
@@ -44,9 +45,9 @@ public class UsersResourceImpl implements UsersResource {
 
 	@Override
 	public GetUsersMeResponse getUsersMe() throws Exception {
-		final UserDetailsImpl userDetailsImpl = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		final UserDetails userDetails = userRepository.findByUsername(userDetailsImpl.getUsername());
-		return GetUsersMeResponse.withJsonOK(userDetails);
+		final UserDetailsImpl currUser = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		final UserDetails user = userRepository.findByUsername(currUser.getUsername());
+		return GetUsersMeResponse.withJsonOK(user);
 	}
 
 	@Override
@@ -56,7 +57,7 @@ public class UsersResourceImpl implements UsersResource {
 			String username = null;
 			String password = null;
 			if (authLogin != null) {
-				username = authLogin.getUsername();
+				username = authLogin.getUsername().toUpperCase();
 				password = authLogin.getPassword();
 			} else if (credentials != null) {
 				final int index = credentials.indexOf(TokenSettings.BASIC_AUTHENTICATION);
@@ -94,7 +95,7 @@ public class UsersResourceImpl implements UsersResource {
 			final int index = header.indexOf(tokenSettings.getSchema());
 			if (index > -1) {
 				final String encodedToken = header.substring(index + tokenSettings.getSchema().length()).trim();
-				final String username = tokenManagement.getUsernameFromToken(encodedToken);
+				final String username = tokenManagement.getUsernameFromToken(encodedToken).toUpperCase();
 				token = tokenManagement.createToken(username);
 			}
 
@@ -129,14 +130,18 @@ public class UsersResourceImpl implements UsersResource {
 		return null;
 	}
 
+
 	@Override
 	public GetUsersByStaffIdResponse getUsersByStaffId(final String staffId) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			final UserDetails user = userRepository.findByStaffId(Long.valueOf(staffId));
+			return GetUsersByStaffIdResponse.withJsonOK(user);
+		} catch (final EliteRuntimeException ex) {
+			log.error(ex.getMessage());
+			final HttpStatus httpStatus = new HttpStatus("404", "404", "User Not Found", "User Not Found", "");
+			return GetUsersByStaffIdResponse.withJsonNotFound(httpStatus);
+		}
 	}
 	
-	
-
-
 
 }

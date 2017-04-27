@@ -1,6 +1,7 @@
 package net.syscon.elite.aop;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -76,19 +77,27 @@ public class OracleConnectionAspect {
 			final Connection conn = (Connection) joinPoint.proceed();
 			if (env.getProperty("spring.datasource.hikari.oracle-proxy", Boolean.class)) {
 				final OracleConnection oracleConn = (OracleConnection) conn.unwrap(Connection.class);
-				final String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-				final UserDetailsImpl userDetailsImpl = (UserDetailsImpl) userDetailsService.loadUserByUsername(username);
-				if (userDetailsImpl == null) {
+				
+				final Object userPrincipal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+				if (userPrincipal == null || !(userPrincipal instanceof UserDetailsImpl)) {
 					throw new AccessDeniedException("The user is not authenticated");
 				}
-				final Properties properties = new Properties();
-				properties.getProperty(OracleConnection.PROXY_USER_NAME, userDetailsImpl.getUsername());
-				properties.getProperty(OracleConnection.PROXY_USER_PASSWORD, userDetailsImpl.getPassword());
-		        oracleConn.openProxySession(OracleConnection.PROXYTYPE_USER_NAME, properties);
-		        oracleConn.setSchema(env.getProperty("spring.datasource.hikari.username", String.class));
+				final UserDetailsImpl userDetailsImpl = (UserDetailsImpl) userPrincipal;
+				final Properties info = new Properties();
+			    info.put(OracleConnection.PROXY_USER_NAME, userDetailsImpl.getUsername());
+			    info.put(OracleConnection.PROXY_USER_PASSWORD, userDetailsImpl.getPassword());
+		        oracleConn.openProxySession(OracleConnection.PROXYTYPE_USER_NAME, info);
+		        
 		        final ProxyFactory proxyFactory = new ProxyFactory(conn);
 		        proxyFactory.addAdvisor(closeConnectionAdvisor);
 		        final Connection proxyConn = (Connection) proxyFactory.getProxy();
+		        
+		        final String sql = env.getProperty("spring.datasource.hikari.oracle-proxy-sql-session");
+		        final PreparedStatement stmt = oracleConn.prepareStatement("SET ROLE TAG_USER IDENTIFIED BY omsowner");
+		        stmt.execute();
+		        stmt.close();
+		        
+		        
 		        if (log.isDebugEnabled()) {
 		        	log.debug("Exit: {}.{}() with result = {}", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(), conn);
 		        }

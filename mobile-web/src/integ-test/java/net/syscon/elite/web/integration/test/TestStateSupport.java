@@ -1,22 +1,24 @@
 package net.syscon.elite.web.integration.test;
 
+import static io.restassured.RestAssured.given;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.springframework.http.HttpStatus;
+
 import com.google.gson.Gson;
+
 import io.restassured.http.Header;
 import io.restassured.response.Response;
 import net.syscon.elite.web.api.model.AuthLogin;
-import org.springframework.http.HttpStatus;
-
-import java.util.concurrent.ConcurrentHashMap;
-
-
-import java.util.Map;
-
-import static io.restassured.RestAssured.given;
 
 public class TestStateSupport {
 
 
-	public static final AuthLogin VALID_CREDENTIALS = new AuthLogin("oms_owner", "oms_owner");
+	public static final AuthLogin VALID_CREDENTIALS = new AuthLogin("itag_user", "it4g_us3r");
+	//public static final AuthLogin VALID_CREDENTIALS = new AuthLogin("WELLINGTON", "brazil123");
+	
 	public static final String TOKEN = "token";
 	public static final String REFRESH_TOKEN = "refreshToken";
 	public static final String AUTHORIZATION_HEADER = "Authorization";
@@ -25,15 +27,15 @@ public class TestStateSupport {
 
 	private static Map<String, Object> map = new ConcurrentHashMap<>();
 
-	public static void set(String key, Object value) {
+	public static void set(final String key, final Object value) {
 		map.put(key, value);
 	}
 
-	public static <T> T get(String key) {
+	public static <T> T get(final String key) {
 		return (T) map.get(key);
 	}
 
-	public static boolean containsKey(String key) {
+	public static boolean containsKey(final String key) {
 		return map.containsKey(key);
 	}
 
@@ -44,7 +46,7 @@ public class TestStateSupport {
 	 */
 	public static void autenticate() {
 
-		Response tokenResponse =
+		final Response tokenResponse =
 				given().
 						header(new Header("Content-Type", "application/json")).
 						body(new Gson().toJson(VALID_CREDENTIALS)).

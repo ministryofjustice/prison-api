@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +27,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import net.syscon.elite.exception.EliteRuntimeException;
-import net.syscon.elite.persistence.UserRepository;
 
 @Configurable
 @Service
@@ -44,9 +42,7 @@ public class DbAuthenticationProvider implements AuthenticationProvider, UserDet
 	@Value("${spring.datasource.hikari.jdbc-url}")
 	private String jdbcUrl;
 	
-	@Inject
-	private UserRepository userRepository;
-	
+
 	@PostConstruct
 	public void postConstruct() {
 		try {
@@ -58,12 +54,13 @@ public class DbAuthenticationProvider implements AuthenticationProvider, UserDet
 	
 	@Override
 	public Authentication authenticate(final Authentication auth) throws AuthenticationException {
-		final String username = auth.getName();
+		final String username = auth.getName().toUpperCase();
 		final String password = auth.getCredentials().toString();
 		try (final Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
 			conn.close();
-			userDetailsMap.put(username, new UserDetailsImpl(username, password, getUserAuthorities(username)));
-			return new UsernamePasswordAuthenticationToken(username, password, userRepository.findAuthorities(username));
+			final List<GrantedAuthority> authorities = getUserAuthorities(username);
+			userDetailsMap.put(username, new UserDetailsImpl(username, password, authorities));
+			return new UsernamePasswordAuthenticationToken(username, password, authorities);
 		} catch (final SQLException ex) {
 			logger.error(ex.getMessage(), ex);
 			throw new BadCredentialsException(ex.getMessage(), ex);

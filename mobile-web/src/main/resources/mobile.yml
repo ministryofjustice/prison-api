@@ -24,7 +24,7 @@ spring:
       password: oms_owner
       idle-timeout: 10000
       oracle-proxy: true
-
+      oracle-proxy-sql-session: SET ROLE TAG_USER IDENTIFIED BY omsowner
 
 security:
   basic:

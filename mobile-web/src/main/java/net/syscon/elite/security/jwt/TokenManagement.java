@@ -29,7 +29,8 @@ public class TokenManagement {
 	}
 
 	public Token createToken(final String username) {
-		final Claims claims = Jwts.claims().setSubject(username);
+		final String usernameToken = username.toUpperCase();
+		final Claims claims = Jwts.claims().setSubject(usernameToken);
 		final int deviceFingerprintHashCode = DeviceFingerprint.get().hashCode();
 		claims.put(DEVICE_FINGERPRINT_HASH_CODE, deviceFingerprintHashCode);
 		claims.put(ALLOW_REFRESH_TOKEN, Boolean.FALSE);
@@ -49,7 +50,7 @@ public class TokenManagement {
 				.setExpiration(expiration)
 				.signWith(SignatureAlgorithm.HS512, settings.getSigningKey());
 
-		final Claims refreshClaims = Jwts.claims().setSubject(username);
+		final Claims refreshClaims = Jwts.claims().setSubject(usernameToken);
 		refreshClaims.put(DEVICE_FINGERPRINT_HASH_CODE, deviceFingerprintHashCode);
 		refreshClaims.put(ALLOW_REFRESH_TOKEN, Boolean.TRUE);
 
