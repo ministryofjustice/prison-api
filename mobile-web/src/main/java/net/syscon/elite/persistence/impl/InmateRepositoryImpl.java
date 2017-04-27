@@ -20,8 +20,10 @@ import net.syscon.elite.web.api.model.InmateDetails;
 import net.syscon.elite.web.api.model.PhysicalAttributes;
 import net.syscon.elite.web.api.model.PhysicalCharacteristic;
 import net.syscon.elite.web.api.model.PhysicalMark;
+import net.syscon.elite.web.api.resource.BookingResource.Order;
 import net.syscon.util.DateFormatProvider;
 import net.syscon.util.QueryBuilder;
+
 
 @Repository
 public class InmateRepositoryImpl extends RepositoryBase implements InmateRepository {
@@ -87,11 +89,11 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public List<AssignedInmate> findAllInmates(final String query, final int offset, final int limit, final String orderBy, final boolean order) {
+	public List<AssignedInmate> findAllInmates(final String query, final int offset, final int limit, final String orderBy, Order order) {
 		//final String sql = getPagedQuery("FIND_ALL_INMATES");
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_ALL_INMATES"), assignedInmateMapping).
 				addQuery(query).
-				addOrderBy(order, orderBy).
+				addOrderBy(order == Order.asc, orderBy).
 				addPagedQuery()
 				.build();
 		final RowMapper<AssignedInmate> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, AssignedInmate.class, assignedInmateMapping);

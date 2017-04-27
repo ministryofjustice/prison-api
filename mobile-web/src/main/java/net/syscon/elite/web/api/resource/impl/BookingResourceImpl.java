@@ -46,7 +46,7 @@ public class BookingResourceImpl implements BookingResource {
 	@Override
 	public GetBookingResponse getBooking(String query, String orderBy, Order order, int offset, int limit)
 			throws Exception {
-		final List<AssignedInmate> inmates = inmateRepository.findAllInmates(query, offset, limit, orderBy, (order == Order.asc));
+		final List<AssignedInmate> inmates = inmateRepository.findAllInmates(query, offset, limit, orderBy, order);
 		return GetBookingResponse.withJsonOK(inmates);
 	}
 	
