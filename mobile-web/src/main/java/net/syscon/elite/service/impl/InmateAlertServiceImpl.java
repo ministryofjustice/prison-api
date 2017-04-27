@@ -27,7 +27,7 @@ public class InmateAlertServiceImpl implements InmatesAlertService {
 	public List<Alert> getInmateAlerts(String bookingId, String query, String orderByField, Order order, int offset,
 			int limit) {
 		if(null==query || "".equals(query) ) {
-			query = query + "(dateExpires:gt:sysdate,or:dateExpires:is:NULL)";
+			query = "(dateExpires:gt:sysdate,or:dateExpires:is:NULL)";
 		}
 		return inmateAlertRepository.getInmateAlert(bookingId, query, orderByField, order, offset, limit);
 	}
