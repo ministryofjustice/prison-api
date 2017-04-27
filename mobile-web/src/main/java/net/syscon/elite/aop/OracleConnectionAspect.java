@@ -20,7 +20,6 @@ import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
 import net.syscon.elite.security.UserDetailsImpl;
 import oracle.jdbc.driver.OracleConnection;
@@ -32,17 +31,13 @@ public class OracleConnectionAspect {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	private AspectJExpressionPointcutAdvisor closeConnectionAdvisor;
-	private UserDetailsService userDetailsService;
-	private Environment env;
-	
-	@Inject
-	public void setUserDetailsService(final UserDetailsService userDetailsService) {
-		this.userDetailsService = userDetailsService;
-	}
+	private boolean enableProxy;
+	private String sqlStartSession;
 	
 	@Inject
 	public void setEnvironment(final Environment env) {
-		this.env = env;
+		enableProxy = env.getProperty("spring.datasource.hikari.oracle-proxy.enabled", Boolean.class);
+		sqlStartSession = env.getProperty("spring.datasource.hikari.oracle-proxy.initialize-session-statement");
 	}
 	
 	@Pointcut("execution (* com.zaxxer.hikari.HikariDataSource.getConnection())")
@@ -51,17 +46,16 @@ public class OracleConnectionAspect {
 	
 	@PostConstruct
 	public void postConstruct() {
-		if (env.getProperty("spring.datasource.hikari.oracle-proxy", Boolean.class)) {
+		
+		if (enableProxy) {
 			closeConnectionAdvisor = new AspectJExpressionPointcutAdvisor();
 			closeConnectionAdvisor.setExpression("execution (* java.sql.Connection.close(..))");
 			closeConnectionAdvisor.setOrder(10);
 			closeConnectionAdvisor.setAdvice((MethodBeforeAdvice) (method, args, target) -> {
-				if (env.getProperty("spring.datasource.hikari.oracle-proxy", Boolean.class)) {
-					if (method.getName().equals("close")) {
-						final Connection conn = (Connection) target;
-						final OracleConnection oracleConn = (OracleConnection) conn.unwrap(Connection.class);
-						oracleConn.close(OracleConnection.PROXY_SESSION);
-					}
+				if (method.getName().equals("close")) {
+					final Connection conn = (Connection) target;
+					final OracleConnection oracleConn = (OracleConnection) conn.unwrap(Connection.class);
+					oracleConn.close(OracleConnection.PROXY_SESSION);
 				}
 			});
 		}
@@ -75,7 +69,7 @@ public class OracleConnectionAspect {
 	    }
 		try {
 			final Connection conn = (Connection) joinPoint.proceed();
-			if (env.getProperty("spring.datasource.hikari.oracle-proxy", Boolean.class)) {
+			if (enableProxy) {
 				final OracleConnection oracleConn = (OracleConnection) conn.unwrap(Connection.class);
 				
 				final Object userPrincipal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -92,11 +86,9 @@ public class OracleConnectionAspect {
 		        proxyFactory.addAdvisor(closeConnectionAdvisor);
 		        final Connection proxyConn = (Connection) proxyFactory.getProxy();
 		        
-		        final String sql = env.getProperty("spring.datasource.hikari.oracle-proxy-sql-session");
-		        final PreparedStatement stmt = oracleConn.prepareStatement("SET ROLE TAG_USER IDENTIFIED BY omsowner");
+		        final PreparedStatement stmt = oracleConn.prepareStatement(sqlStartSession);
 		        stmt.execute();
 		        stmt.close();
-		        
 		        
 		        if (log.isDebugEnabled()) {
 		        	log.debug("Exit: {}.{}() with result = {}", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(), conn);

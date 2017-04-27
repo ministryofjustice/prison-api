@@ -41,7 +41,6 @@ public class DbAuthenticationProvider implements AuthenticationProvider, UserDet
 
 	@Value("${spring.datasource.hikari.jdbc-url}")
 	private String jdbcUrl;
-	
 
 	@PostConstruct
 	public void postConstruct() {

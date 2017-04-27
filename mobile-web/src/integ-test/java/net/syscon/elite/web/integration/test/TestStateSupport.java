@@ -15,9 +15,7 @@ import net.syscon.elite.web.api.model.AuthLogin;
 
 public class TestStateSupport {
 
-
 	public static final AuthLogin VALID_CREDENTIALS = new AuthLogin("itag_user", "it4g_us3r");
-	//public static final AuthLogin VALID_CREDENTIALS = new AuthLogin("WELLINGTON", "brazil123");
 	
 	public static final String TOKEN = "token";
 	public static final String REFRESH_TOKEN = "refreshToken";
