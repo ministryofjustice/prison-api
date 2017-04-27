@@ -20,7 +20,8 @@ import net.syscon.elite.web.api.model.InmateDetails;
 import net.syscon.elite.web.api.model.PhysicalAttributes;
 import net.syscon.elite.web.api.model.PhysicalCharacteristic;
 import net.syscon.elite.web.api.model.PhysicalMark;
-import net.syscon.elite.web.api.resource.BookingResource.Order;
+import net.syscon.elite.web.api.resource.BookingResource;
+import net.syscon.elite.web.api.resource.LocationsResource;
 import net.syscon.util.DateFormatProvider;
 import net.syscon.util.QueryBuilder;
 
@@ -81,19 +82,22 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 
 	@Override
-	public List<AssignedInmate> findInmatesByLocation(final Long locationId, final int offset, final int limit) {
-		final String sql = getPagedQuery("FIND_INMATES_BY_LOCATION");
+	public List<AssignedInmate> findInmatesByLocation(final Long locationId, String query, String orderByField, LocationsResource.Order order, final int offset, final int limit) {
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_INMATES_BY_LOCATION"), assignedInmateMapping).
+				addQuery(query).
+				addOrderBy(order == LocationsResource.Order.asc, orderByField).
+				addPagedQuery()
+				.build();
 		final RowMapper<AssignedInmate> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, AssignedInmate.class, assignedInmateMapping);
 		final List<AssignedInmate> inmates = jdbcTemplate.query(sql, createParams("locationId", locationId, "offset", offset, "limit", limit), assignedInmateRowMapper);
 		return inmates;
 	}
 
 	@Override
-	public List<AssignedInmate> findAllInmates(final String query, final int offset, final int limit, final String orderBy, Order order) {
-		//final String sql = getPagedQuery("FIND_ALL_INMATES");
+	public List<AssignedInmate> findAllInmates(final String query, final int offset, final int limit, final String orderBy, BookingResource.Order order) {
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_ALL_INMATES"), assignedInmateMapping).
 				addQuery(query).
-				addOrderBy(order == Order.asc, orderBy).
+				addOrderBy(order == BookingResource.Order.asc, orderBy).
 				addPagedQuery()
 				.build();
 		final RowMapper<AssignedInmate> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, AssignedInmate.class, assignedInmateMapping);

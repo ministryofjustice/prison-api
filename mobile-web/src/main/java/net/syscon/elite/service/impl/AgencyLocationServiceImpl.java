@@ -62,15 +62,15 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 	}
 
 	@Override
-	public List<AssignedInmate> getInmatesFromLocation(final Long locationId, final int offset, final int limit) {
-		return inmateRepository.findInmatesByLocation(locationId, offset, limit);
+	public List<AssignedInmate> getInmatesFromLocation(final Long locationId, String query, String orderByField, Order order, final int offset, final int limit) {
+		return inmateRepository.findInmatesByLocation(locationId, query, orderByField, order, offset, limit);
 	}
 
 	@Override
 	public Location getLocation(final Long locationId) {
 		try {
 			final Location location = locationRepository.findLocation(locationId);
-			final List<AssignedInmate> inmates = inmateRepository.findInmatesByLocation(locationId, 0, 1000);
+			final List<AssignedInmate> inmates = inmateRepository.findInmatesByLocation(locationId, null, null, null, 0, 1000);
 			location.setAssignedInmates(inmates);
 			return location;
 		} catch (final DataAccessException ex) {
