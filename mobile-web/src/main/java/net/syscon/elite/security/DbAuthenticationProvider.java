@@ -3,6 +3,10 @@ package net.syscon.elite.security;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -16,6 +20,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import net.syscon.elite.exception.EliteRuntimeException;
@@ -23,9 +32,11 @@ import net.syscon.elite.persistence.UserRepository;
 
 @Configurable
 @Service
-public class DbAuthenticationProvider implements AuthenticationProvider {
+public class DbAuthenticationProvider implements AuthenticationProvider, UserDetailsService {
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
+	
+	private final Map<String, UserDetailsImpl> userDetailsMap = new ConcurrentHashMap<>();
 	
 	@Value("${spring.datasource.hikari.driver-class-name}")
 	private String jdbcDriver;
@@ -35,7 +46,6 @@ public class DbAuthenticationProvider implements AuthenticationProvider {
 	
 	@Inject
 	private UserRepository userRepository;
-	
 	
 	@PostConstruct
 	public void postConstruct() {
@@ -52,16 +62,32 @@ public class DbAuthenticationProvider implements AuthenticationProvider {
 		final String password = auth.getCredentials().toString();
 		try (final Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
 			conn.close();
+			userDetailsMap.put(username, new UserDetailsImpl(username, password, getUserAuthorities(username)));
 			return new UsernamePasswordAuthenticationToken(username, password, userRepository.findAuthorities(username));
 		} catch (final SQLException ex) {
 			logger.error(ex.getMessage(), ex);
 			throw new BadCredentialsException(ex.getMessage(), ex);
 		}
 	}
+	
+	private List<GrantedAuthority> getUserAuthorities(final String username) {
+		final List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+		authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+		return authorities;
+	}
 
 	@Override
 	public boolean supports(final Class<?> authentication) {
 		return true;
+	}
+
+	@Override
+	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+		final UserDetails userDetails = userDetailsMap.get(username);
+		if (userDetails == null) {
+			throw new UsernameNotFoundException("User not found");
+		}
+		return userDetails;
 	}
 
 }

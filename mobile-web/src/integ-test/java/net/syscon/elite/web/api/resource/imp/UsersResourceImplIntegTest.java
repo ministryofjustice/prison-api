@@ -1,10 +1,19 @@
 package net.syscon.elite.web.api.resource.imp;
 
 
-import com.google.gson.Gson;
-import io.restassured.RestAssured;
-import io.restassured.http.Header;
-import net.syscon.elite.web.api.model.AuthLogin;
+import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
+import static net.syscon.elite.web.integration.test.TestStateSupport.AUTHORIZATION_HEADER;
+import static net.syscon.elite.web.integration.test.TestStateSupport.REFRESH_TOKEN;
+import static net.syscon.elite.web.integration.test.TestStateSupport.TOKEN;
+import static net.syscon.elite.web.integration.test.TestStateSupport.VALID_CREDENTIALS;
+import static net.syscon.elite.web.integration.test.TestStateSupport.autenticate;
+import static net.syscon.elite.web.integration.test.TestStateSupport.get;
+import static org.hamcrest.Matchers.equalTo;
+
+import java.util.Base64;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,18 +23,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Base64;
+import com.google.gson.Gson;
 
-import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.when;
-import static net.syscon.elite.web.integration.test.TestStateSupport.*;
-import static org.hamcrest.Matchers.equalTo;
+import io.restassured.RestAssured;
+import io.restassured.http.Header;
+import net.syscon.elite.web.api.model.AuthLogin;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("integ")
 public class UsersResourceImplIntegTest {
 
+	
+	
 
 	private static final AuthLogin INVALID_CREDENTIALS = new AuthLogin("invalid", "invalid");
 	private static final AuthLogin USER_WITH_INVALID_PASSWORD = new AuthLogin("oms_owner", "invalid");
@@ -39,6 +49,11 @@ public class UsersResourceImplIntegTest {
 	public void setup() {
 		RestAssured.port = this.port;
 		autenticate();
+	}
+	
+	@After
+	public void tearDown() {
+		System.out.println("end");
 	}
 
 

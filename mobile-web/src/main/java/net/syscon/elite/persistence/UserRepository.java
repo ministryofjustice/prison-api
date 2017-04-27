@@ -1,13 +1,15 @@
 package net.syscon.elite.persistence;
 
-import net.syscon.elite.model.EliteUser;
-import org.springframework.security.core.GrantedAuthority;
 
 import java.util.List;
 
+import org.springframework.security.core.GrantedAuthority;
+
+import net.syscon.elite.web.api.model.UserDetails;
+
 public interface UserRepository {
 	
-	EliteUser findByUsername(String username);
+	UserDetails findByUsername(String username);
 	List<GrantedAuthority> findAuthorities(String username);
 
 }

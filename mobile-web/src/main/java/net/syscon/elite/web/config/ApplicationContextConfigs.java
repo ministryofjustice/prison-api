@@ -1,6 +1,5 @@
 package net.syscon.elite.web.config;
 
-import net.syscon.elite.security.UserInfoProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
@@ -45,10 +44,6 @@ public class ApplicationContextConfigs {
 	}
 
 
-	@Bean
-	public UserInfoProvider userInfoProvider() {
-		return new UserInfoProvider();
-	}
 
 
 

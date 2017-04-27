@@ -11,16 +11,17 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
-import net.syscon.elite.model.EliteUser;
+import net.syscon.elite.persistence.UserRepository;
+import net.syscon.elite.security.UserDetailsImpl;
 import net.syscon.elite.security.jwt.TokenManagement;
 import net.syscon.elite.security.jwt.TokenSettings;
 import net.syscon.elite.web.api.model.AuthLogin;
 import net.syscon.elite.web.api.model.CaseLoad;
 import net.syscon.elite.web.api.model.HttpStatus;
 import net.syscon.elite.web.api.model.Token;
+import net.syscon.elite.web.api.model.UserDetails;
 import net.syscon.elite.web.api.resource.UsersResource;
 
 @Component
@@ -38,12 +39,13 @@ public class UsersResourceImpl implements UsersResource {
 	private AuthenticationManager authenticationManager;
 	
 	@Inject
-	private UserDetailsService userDetailsService;
+	private UserRepository userRepository;
 	
 
 	@Override
 	public GetUsersMeResponse getUsersMe() throws Exception {
-		final EliteUser userDetails = (EliteUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		final UserDetailsImpl userDetailsImpl = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		final UserDetails userDetails = userRepository.findByUsername(userDetailsImpl.getUsername());
 		return GetUsersMeResponse.withJsonOK(userDetails);
 	}
 
@@ -71,8 +73,7 @@ public class UsersResourceImpl implements UsersResource {
 			if (username != null && password != null) {
 				final Authentication authentication = this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 				SecurityContextHolder.getContext().setAuthentication(authentication);
-				final EliteUser userDetails = (EliteUser) userDetailsService.loadUserByUsername(username);
-				token = tokenManagement.createToken(userDetails);
+				token = tokenManagement.createToken(username);
 			}
 		} catch (final AuthenticationException ex) {
 			log.error(ex.getMessage(), ex);
@@ -94,8 +95,7 @@ public class UsersResourceImpl implements UsersResource {
 			if (index > -1) {
 				final String encodedToken = header.substring(index + tokenSettings.getSchema().length()).trim();
 				final String username = tokenManagement.getUsernameFromToken(encodedToken);
-				final EliteUser userDetails = (EliteUser) this.userDetailsService.loadUserByUsername(username);
-				token = tokenManagement.createToken(userDetails);
+				token = tokenManagement.createToken(username);
 			}
 
 		} catch (final AuthenticationException ex) {
@@ -130,9 +130,13 @@ public class UsersResourceImpl implements UsersResource {
 	}
 
 	@Override
-	public GetUsersByUserIdResponse getUsersByUserId(String userId) throws Exception {
+	public GetUsersByStaffIdResponse getUsersByStaffId(final String staffId) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	
+
+
 
 }

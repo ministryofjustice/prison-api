@@ -1,6 +1,13 @@
 package net.syscon.elite.security.jwt;
 
 
+import java.time.LocalDateTime;
+import java.util.Date;
+
+import javax.inject.Inject;
+
+import org.springframework.security.core.userdetails.UserDetails;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
@@ -8,13 +15,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import net.syscon.elite.security.DeviceFingerprint;
 import net.syscon.elite.web.api.model.Token;
 import net.syscon.util.DateTimeConverter;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.util.StringUtils;
-
-import javax.inject.Inject;
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.stream.Collectors;
 
 public class TokenManagement {
 
@@ -28,18 +28,9 @@ public class TokenManagement {
 		this.settings = settings;
 	}
 
-	public Token createToken(final UserDetails userDetails) {
-		if (StringUtils.isEmpty(userDetails.getUsername())) {
-			throw new IllegalArgumentException("Cannot create JWT Token without username");
-		}
-
-		if (userDetails.getAuthorities() == null || userDetails.getAuthorities().isEmpty()) {
-			throw new IllegalArgumentException("User doesn't have any privileges");
-		}
-
-		final Claims claims = Jwts.claims().setSubject(userDetails.getUsername());
-		claims.put(SCOPES, userDetails.getAuthorities().stream().map(s -> s.getAuthority()).collect(Collectors.toList()));
-		int deviceFingerprintHashCode = DeviceFingerprint.get().hashCode();
+	public Token createToken(final String username) {
+		final Claims claims = Jwts.claims().setSubject(username);
+		final int deviceFingerprintHashCode = DeviceFingerprint.get().hashCode();
 		claims.put(DEVICE_FINGERPRINT_HASH_CODE, deviceFingerprintHashCode);
 		claims.put(ALLOW_REFRESH_TOKEN, Boolean.FALSE);
 
@@ -58,8 +49,7 @@ public class TokenManagement {
 				.setExpiration(expiration)
 				.signWith(SignatureAlgorithm.HS512, settings.getSigningKey());
 
-		final Claims refreshClaims = Jwts.claims().setSubject(userDetails.getUsername());
-		refreshClaims.put(SCOPES, userDetails.getAuthorities().stream().map(s -> s.getAuthority()).collect(Collectors.toList()));
+		final Claims refreshClaims = Jwts.claims().setSubject(username);
 		refreshClaims.put(DEVICE_FINGERPRINT_HASH_CODE, deviceFingerprintHashCode);
 		refreshClaims.put(ALLOW_REFRESH_TOKEN, Boolean.TRUE);
 
@@ -103,7 +93,7 @@ public class TokenManagement {
 		return username;
 	}
 
-	public Boolean validateToken(final String token, final UserDetails userDetails, DeviceFingerprint deviceFingerprint, boolean refreshingToken) {
+	public Boolean validateToken(final String token, final UserDetails userDetails, final DeviceFingerprint deviceFingerprint, final boolean refreshingToken) {
 		final Claims claims = this.getClaimsFromToken(token);
 		final String username = claims.getSubject();
 		final Boolean allowRefreshToken = (Boolean) claims.get(ALLOW_REFRESH_TOKEN);
@@ -118,12 +108,12 @@ public class TokenManagement {
 			valid = false;
 		}
 
-		Integer deviceFingerprintHashCode = (Integer) claims.get(DEVICE_FINGERPRINT_HASH_CODE);
+		final Integer deviceFingerprintHashCode = (Integer) claims.get(DEVICE_FINGERPRINT_HASH_CODE);
 		if (valid && deviceFingerprint != null && deviceFingerprintHashCode != null) {
 			valid = deviceFingerprint.hashCode() == deviceFingerprintHashCode.intValue();
 		}
 
-		Date expiration = claims.getExpiration();
+		final Date expiration = claims.getExpiration();
 		if (valid && expiration != null) {
 			valid =  expiration.after(new Date());
 		}

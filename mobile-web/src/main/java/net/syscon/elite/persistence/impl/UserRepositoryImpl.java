@@ -7,15 +7,15 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Repository;
 
-import net.syscon.elite.model.EliteUser;
 import net.syscon.elite.persistence.UserRepository;
+import net.syscon.elite.web.api.model.UserDetails;
 
 @Repository
 public class UserRepositoryImpl implements UserRepository {
 
 	@Override
-	public EliteUser findByUsername(final String username) {
-		final EliteUser user = new EliteUser();
+	public UserDetails findByUsername(final String username) {
+		final UserDetails user = new UserDetails();
 		user.setUsername(username);
 		return user;
 	}

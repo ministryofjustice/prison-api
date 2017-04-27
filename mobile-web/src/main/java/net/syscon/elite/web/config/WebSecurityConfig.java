@@ -1,11 +1,7 @@
 package net.syscon.elite.web.config;
 
-import net.syscon.elite.security.DbAuthenticationProvider;
-import net.syscon.elite.security.EntryPointUnauthorizedHandler;
-import net.syscon.elite.security.jwt.AuthenticationTokenFilter;
-import net.syscon.elite.security.jwt.TokenManagement;
-import net.syscon.elite.security.jwt.TokenSettings;
-import net.syscon.elite.service.impl.UserDetailsServiceImpl;
+import javax.inject.Inject;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -20,7 +16,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import javax.inject.Inject;
+import net.syscon.elite.security.DbAuthenticationProvider;
+import net.syscon.elite.security.EntryPointUnauthorizedHandler;
+import net.syscon.elite.security.jwt.AuthenticationTokenFilter;
+import net.syscon.elite.security.jwt.TokenManagement;
+import net.syscon.elite.security.jwt.TokenSettings;
 
 @Configuration
 @EnableWebSecurity
@@ -35,13 +35,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		return new TokenSettings();
 	}
 
-
-	@Override
-	@Bean
-	public UserDetailsService userDetailsService() {
-		return new UserDetailsServiceImpl();
-	}
-
 	@Bean
 	public EntryPointUnauthorizedHandler unauthorizedHandler() {
 		return new EntryPointUnauthorizedHandler();
@@ -53,7 +46,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	@Inject
-	public void setAuthenticationProvider(final AuthenticationManagerBuilder auth, AuthenticationProvider authenticationProvider, UserDetailsService userDetailsService) throws Exception {
+	public void setAuthenticationProvider(final AuthenticationManagerBuilder auth, final AuthenticationProvider authenticationProvider, final UserDetailsService userDetailsService) throws Exception {
 		auth.authenticationProvider(authenticationProvider).userDetailsService(userDetailsService);
 	}
 
