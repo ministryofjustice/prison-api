@@ -17,6 +17,7 @@ import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.web.api.model.Agency;
 import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.Location;
+import net.syscon.elite.web.api.resource.LocationsResource.Order;
 
 
 @Transactional
@@ -51,8 +52,8 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 	}
 
 	@Override
-	public List<Location> getLocations(final int offset, final int limit) {
-		return locationRepository.findLocations(offset, limit);
+	public List<Location> getLocations(String query, String orderBy, Order order, final int offset, final int limit) {
+		return locationRepository.findLocations(query, orderBy, order, offset, limit);
 	}
 	
 	@Override

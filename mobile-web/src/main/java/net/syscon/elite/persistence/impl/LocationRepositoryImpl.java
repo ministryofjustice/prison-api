@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import net.syscon.elite.web.api.resource.LocationsResource.Order;
 
 @Repository
 public class LocationRepositoryImpl extends RepositoryBase implements LocationRepository {
@@ -33,8 +34,13 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 	}
 
 	@Override
-	public List<Location> findLocations(final int offset, final int limit) {
-		final String sql = getPagedQuery("FIND_ALL_LOCATIONS");
+	public List<Location> findLocations(String query, String orderByField, Order order, final int offset, final int limit) {
+		//final String sql = getPagedQuery("FIND_ALL_LOCATIONS");
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_ALL_LOCATIONS"), locationMapping).
+				addQuery(query).
+				addOrderBy(order == Order.asc, orderByField).
+				addPagedQuery()
+				.build();
 		final RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
 		return jdbcTemplate.query(sql, createParams("offset", offset, "limit", limit), locationRowMapper);
 	}

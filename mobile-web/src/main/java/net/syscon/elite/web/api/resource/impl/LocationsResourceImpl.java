@@ -23,7 +23,7 @@ public class LocationsResourceImpl implements LocationsResource {
 
 	@Override
 	public GetLocationsResponse getLocations(final String query, final String orderBy, final Order order, final int offset, final int limit) throws Exception {
-		final List<Location> locations = agencyLocationService.getLocations(offset, limit);
+		final List<Location> locations = agencyLocationService.getLocations(query, orderBy, order, offset, limit);
 		return GetLocationsResponse.withJsonOK(locations);
 	}
 
