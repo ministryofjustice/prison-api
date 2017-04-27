@@ -3,14 +3,12 @@
 	"title": "User Details",
 	"type": "object",
 	"properties": {
-		"userId": { "type": "integer" },
+		"staffId": { "type": "integer" },
 		"username": { "type": "string" },
-	  "email": { "type": "string" },
-		"thumbnailId": { "type": "integer" },
-		"roles": {
-			"type": "array",
-			"items": { "type": "string" }
-		}
+		"firstName": { "type": "string" },
+		"lastName": { "type": "string" },
+		"email": { "type": "string" },
+		"thumbnailId": { "type": "integer" }
 	},
 	"required": ["userId", "username"]
 }
