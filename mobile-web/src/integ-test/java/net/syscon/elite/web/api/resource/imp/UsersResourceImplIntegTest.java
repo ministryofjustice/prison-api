@@ -73,7 +73,7 @@ public class UsersResourceImplIntegTest {
 			get("/api/users/me").
 		then().
 			statusCode(HttpStatus.OK.value()).and().
-			body("username", equalTo (VALID_CREDENTIALS.getUsername()));
+			body("username", equalTo (VALID_CREDENTIALS.getUsername().toUpperCase()));
 	}
 
 	@Test
