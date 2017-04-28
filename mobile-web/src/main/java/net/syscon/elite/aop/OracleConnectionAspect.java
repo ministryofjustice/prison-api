@@ -18,10 +18,16 @@ import org.springframework.aop.MethodBeforeAdvice;
 import org.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.core.env.Environment;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import net.syscon.elite.persistence.impl.UserRepositoryImpl;
 import net.syscon.elite.security.UserDetailsImpl;
+import net.syscon.util.SQLProvider;
 import oracle.jdbc.driver.OracleConnection;
 
 
@@ -32,12 +38,30 @@ public class OracleConnectionAspect {
 	
 	private AspectJExpressionPointcutAdvisor closeConnectionAdvisor;
 	private boolean enableProxy;
-	private String sqlStartSession;
+	private String rolePassword;
+	
 	
 	@Inject
 	public void setEnvironment(final Environment env) {
 		enableProxy = env.getProperty("spring.datasource.hikari.oracle-proxy.enabled", Boolean.class);
-		sqlStartSession = env.getProperty("spring.datasource.hikari.oracle-proxy.initialize-session-statement");
+		final String jdbcUrl = env.getProperty("spring.datasource.hikari.jdbc-url");
+		final String username = env.getProperty("spring.datasource.hikari.username");
+		final String password = env.getProperty("spring.datasource.hikari.password");
+		final DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource(jdbcUrl, username, password);
+		final NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(driverManagerDataSource);
+		try {
+			final String filename = String.format("sqls/%s.sql", UserRepositoryImpl.class.getSimpleName());
+			final SQLProvider sqlProvider = new SQLProvider();
+			sqlProvider.loadFromClassLoader(filename);
+			final String sql = sqlProvider.get("FIND_ROLE_PASSWORD");
+			final MapSqlParameterSource params = new MapSqlParameterSource();
+			
+			final String encryptedPassword = jdbcTemplate.queryForObject(sql, params, String.class);
+			params.addValue("password", encryptedPassword);
+			rolePassword = jdbcTemplate.queryForObject("SELECT decryption('2DECRYPTPASSWRD', :password) FROM DUAL", params, String.class);
+		} catch (final DataAccessException ex) {
+			log.error(ex.getMessage(), ex);
+		}
 	}
 	
 	@Pointcut("execution (* com.zaxxer.hikari.HikariDataSource.getConnection())")
@@ -86,7 +110,8 @@ public class OracleConnectionAspect {
 		        proxyFactory.addAdvisor(closeConnectionAdvisor);
 		        final Connection proxyConn = (Connection) proxyFactory.getProxy();
 		        
-		        final PreparedStatement stmt = oracleConn.prepareStatement(sqlStartSession);
+		        final String startSessionSQL = "SET ROLE TAG_USER IDENTIFIED BY " + rolePassword;
+		        final PreparedStatement stmt = oracleConn.prepareStatement(startSessionSQL);
 		        stmt.execute();
 		        stmt.close();
 		        
