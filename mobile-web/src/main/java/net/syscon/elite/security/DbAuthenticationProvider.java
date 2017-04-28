@@ -1,11 +1,15 @@
 package net.syscon.elite.security;
 
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
@@ -27,6 +31,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import net.syscon.elite.exception.EliteRuntimeException;
+import net.syscon.elite.persistence.impl.UserRepositoryImpl;
+import net.syscon.util.SQLProvider;
 
 @Configurable
 @Service
@@ -35,6 +41,7 @@ public class DbAuthenticationProvider implements AuthenticationProvider, UserDet
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	
 	private final Map<String, UserDetailsImpl> userDetailsMap = new ConcurrentHashMap<>();
+	private final SQLProvider sqlProvider = new SQLProvider();
 	
 	@Value("${spring.datasource.hikari.driver-class-name}")
 	private String jdbcDriver;
@@ -46,6 +53,8 @@ public class DbAuthenticationProvider implements AuthenticationProvider, UserDet
 	public void postConstruct() {
 		try {
 			Class.forName(jdbcDriver);
+			final String filename = String.format("sqls/%s.sql", UserRepositoryImpl.class.getSimpleName());
+			sqlProvider.loadFromClassLoader(filename);
 		} catch (final ClassNotFoundException e) {
 			throw new EliteRuntimeException(e.getMessage(), e);
 		}
@@ -56,8 +65,9 @@ public class DbAuthenticationProvider implements AuthenticationProvider, UserDet
 		final String username = auth.getName().toUpperCase();
 		final String password = auth.getCredentials().toString();
 		try (final Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
+			logger.debug(String.format("User %s logged with success!", username));
 			conn.close();
-			final List<GrantedAuthority> authorities = getUserAuthorities(username);
+			final Set<GrantedAuthority> authorities = getUserAuthorities(conn, username);
 			userDetailsMap.put(username, new UserDetailsImpl(username, password, authorities));
 			return new UsernamePasswordAuthenticationToken(username, password, authorities);
 		} catch (final SQLException ex) {
@@ -66,9 +76,19 @@ public class DbAuthenticationProvider implements AuthenticationProvider, UserDet
 		}
 	}
 	
-	private List<GrantedAuthority> getUserAuthorities(final String username) {
-		final List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-		authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+	private Set<GrantedAuthority> getUserAuthorities(final Connection conn, final String username) {
+		final Set<GrantedAuthority> authorities = new TreeSet<>();
+		try (PreparedStatement stmt = conn.prepareStatement(sqlProvider.get("FIND_ROLES_BY_USERNAME")))  {
+			stmt.setString(1, username);
+			final ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				final String roleName = defaultIfEmpty(rs.getString("ROLE_CODE"), "").replace('-', '_');
+				authorities.add(new SimpleGrantedAuthority(roleName));
+			}
+			rs.close();
+		} catch (final SQLException ex) {
+			logger.error(ex.getMessage(), ex);
+		}
 		return authorities;
 	}
 

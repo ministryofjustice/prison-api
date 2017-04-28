@@ -1,6 +1,8 @@
 package net.syscon.elite.security;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,11 +11,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class UserDetailsImpl implements UserDetails {
 	private final String username;
 	private final String password;
-	private final List<GrantedAuthority> authorities;
-	public UserDetailsImpl(final String username, final String password, final List<GrantedAuthority> authorities) {
+	private final Set<GrantedAuthority> authorities = new TreeSet<>();
+	public UserDetailsImpl(final String username, final String password, final Collection<GrantedAuthority> authorities) {
 		this.username = username;
 		this.password = password;
-		this.authorities = authorities;
+		this.authorities.addAll(authorities);
 	}
 	@Override public boolean isEnabled() { return true; }
 	@Override public boolean isCredentialsNonExpired() { return true; }
@@ -21,5 +23,5 @@ public class UserDetailsImpl implements UserDetails {
 	@Override public boolean isAccountNonExpired() { return true; }
 	@Override public String getUsername() { return username; }
 	@Override public String getPassword() { return password; }
-	@Override public List<GrantedAuthority> getAuthorities() { return authorities; }
+	@Override public Set<GrantedAuthority> getAuthorities() { return authorities; }
 }

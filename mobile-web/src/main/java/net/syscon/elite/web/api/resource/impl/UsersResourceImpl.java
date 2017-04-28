@@ -72,6 +72,7 @@ public class UsersResourceImpl implements UsersResource {
 				}
 			}
 			if (username != null && password != null) {
+				log.debug("Trying to authenticate the user ", username, " ...");
 				final Authentication authentication = this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 				token = tokenManagement.createToken(username);

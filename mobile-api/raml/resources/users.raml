@@ -41,6 +41,7 @@
 
 /login:
   post:
+    securedBy: [basic]
     description: Login using Username and Password
     body:
       application/json:
