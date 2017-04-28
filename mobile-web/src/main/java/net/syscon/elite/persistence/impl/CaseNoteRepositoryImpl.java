@@ -27,7 +27,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	private final String DATE_FORMAT_OCCUR = "MM-dd-yyyy";
 	private final Map<String, FieldMapper> caseNoteMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("OFFENDER_BOOK_ID", 			new FieldMapper("bookingId"))
-			.put("CASE_NOTE_ID", 				new FieldMapper("CaseNoteId"))
+			.put("CASE_NOTE_ID", 				new FieldMapper("caseNoteId"))
 			.put("CASE_NOTE_TYPE", 				new FieldMapper("type"))
 			.put("CASE_NOTE_SUB_TYPE", 			new FieldMapper("subType"))
 			.put("NOTE_SOURCE_CODE", 			new FieldMapper("source"))
@@ -40,7 +40,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	@Override
 	public List<CaseNote> getCaseNotes(String bookingId, String query, String orderByField, Order order, int offset,
 			int limit) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_CaseNoteS"), caseNoteMapping)
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_CASENOTES"), caseNoteMapping)
 											.addQuery(query)
 											.addOrderBy("asc".equalsIgnoreCase(order.toString())?true:false, orderByField)
 											.addPagedQuery()
@@ -51,8 +51,9 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 
 	@Override
 	public CaseNote getCaseNote(String bookingId, String caseNoteId) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_CaseNote"), caseNoteMapping)
-								.build();
+//		final String sql = new QueryBuilder.Builder(getQuery("FIND_CASENOTE"), caseNoteMapping)
+//								.build();
+		final String sql = getQuery("FIND_CASENOTE");
 		final RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, caseNoteMapping);
 		return jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "caseNoteId", caseNoteId), caseNoteRowMapper);
 	}

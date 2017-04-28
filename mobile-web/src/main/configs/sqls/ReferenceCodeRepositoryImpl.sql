@@ -1,19 +1,33 @@
 FIND_REF_CODES {
-	select DESCRIPTION, CODE   
+	select DOMAIN, CODE, DESCRIPTION, PARENT_DOMAIN, PARENT_CODE, ACTIVE_FLAG   
 	from reference_codes 
 	where domain = :domain and ACTIVE_FLAG = 'Y'
-  	order by  description ,code
+  	order by  DESCRIPTION ,CODE
 }
 
 FIND_REF_CODE_DESC {
-	select DESCRIPTION, CODE   
+	select DOMAIN, CODE, DESCRIPTION, PARENT_DOMAIN, PARENT_CODE, ACTIVE_FLAG   
 	from reference_codes 
 	where CODE = :code and domain = :domain
 }
 
+FIND_ALERT_REF_CODES {
+	select DOMAIN, CODE, DESCRIPTION, PARENT_DOMAIN, PARENT_CODE, ACTIVE_FLAG   
+	from reference_codes 
+	where domain = :domain and ACTIVE_FLAG = 'Y' and parent_code=:parentCode 
+  	order by  description ,code
+}
+
+FIND_ALERT_REF_CODE_DESC {
+	select DOMAIN, CODE, DESCRIPTION, PARENT_DOMAIN, PARENT_CODE, ACTIVE_FLAG   
+	from reference_codes 
+	where domain = :domain and ACTIVE_FLAG = 'Y' and parent_code=:parentCode and CODE = :code
+  	order by  description ,code
+}
+
 FIND_CNOTE_TYPES_BY_CASE_LOAD {
 	SELECT DISTINCT rc.description, 
-       work_type code 
+       work_type code , rc.domain, rc.PARENT_DOMAIN, rc.PARENT_CODE, rc.ACTIVE_FLAG
   	FROM works w,
        reference_codes rc
  	WHERE workflow_type = 'CNOTE'
@@ -28,7 +42,7 @@ FIND_CNOTE_TYPES_BY_CASE_LOAD {
 
 FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE {
 	SELECT DISTINCT rc.description, 
-       w.work_sub_type code
+       w.work_sub_type code, rc.domain, rc.PARENT_DOMAIN, rc.PARENT_CODE, rc.ACTIVE_FLAG
   	FROM works w,
        reference_codes rc
  	WHERE workflow_type = 'CNOTE'

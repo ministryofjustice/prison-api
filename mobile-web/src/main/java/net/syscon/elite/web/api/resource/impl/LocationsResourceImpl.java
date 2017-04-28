@@ -23,7 +23,7 @@ public class LocationsResourceImpl implements LocationsResource {
 
 	@Override
 	public GetLocationsResponse getLocations(final String query, final String orderBy, final Order order, final int offset, final int limit) throws Exception {
-		final List<Location> locations = agencyLocationService.getLocations(offset, limit);
+		final List<Location> locations = agencyLocationService.getLocations(query, orderBy, order, offset, limit);
 		return GetLocationsResponse.withJsonOK(locations);
 	}
 
@@ -34,7 +34,7 @@ public class LocationsResourceImpl implements LocationsResource {
 
 	@Override
 	public GetLocationsByLocationIdInmatesResponse getLocationsByLocationIdInmates(final String locationId, final String query, final String orderBy, final Order order, final int offset, final int limit) throws Exception {
-		final List<AssignedInmate> inmates = agencyLocationService.getInmatesFromLocation(Long.valueOf(locationId), offset, limit);
+		final List<AssignedInmate> inmates = agencyLocationService.getInmatesFromLocation(Long.valueOf(locationId), query, orderBy, order, offset, limit);
 		return GetLocationsByLocationIdInmatesResponse.withJsonOK(inmates);
 	}
 

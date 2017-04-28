@@ -1,28 +1,25 @@
-/domains:
-  description: Reference domains used by the API
-  type: { get-collection : { collectionSchema: referenceDomains}}
-  is: [
-    searchable: {fieldsList: "domainId, parentDomainId"},
-    pageable
-  ]
-
-/domains/{domainId}:
-  description: General information for the specified reference domain
-  type: { get-item : { schema: referenceDomain}}
-
-
-/domains/{domainId}/codes:
-  description: Reference codes associated with the domain
+/alertTypes:
+  description: Give all Alert types
   type: { get-collection : { collectionSchema: referenceCodes}}
   is: [
-    searchable: {fieldsList: "code, parentDomainId, and parentCode"},
     pageable
   ]
-
-/domains/{domainId}/codes/{codeId}:
-  description: Reference Code description for specified code
+  
+/alertTypes/{alertType}: 
+  description: Give all Alerts for specific Alert type
   type: { get-item : { schema: referenceCode}}
-
+  
+/alertTypes/{alertType}/codes: 
+  description: Give all Alert Codes for specific Alert type
+  type: { get-collection : { collectionSchema: referenceCodes}}
+  is: [
+    pageable
+  ]
+  
+/alertTypes/{alertType}/codes/{alertCode}: 
+  description: Give specific code details of alerts.
+  type: { get-item : { schema: referenceCode}}
+  
 
 /caseNotes/types/{caseLoad}:
   description: Case note type reference codes related to specified case load. Case load can either be 'COMM' or 'INST'

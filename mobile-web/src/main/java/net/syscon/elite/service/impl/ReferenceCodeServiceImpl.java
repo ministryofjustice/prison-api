@@ -34,13 +34,27 @@ public class ReferenceCodeServiceImpl implements ReferenceDomainService {
 	}
 	@Override
 	public List<ReferenceCode> getReferencecodesForDomain(final String domain) {
-		// TODO Auto-generated method stub
 		return referenceCodeRepository.getReferenceCodesForDomain(domain);
 	}
 	@Override
 	public ReferenceCode getRefrenceCodeDescriptionForCode(final String domain, final String code) {
-		// TODO Auto-generated method stub
 		return referenceCodeRepository.getReferenceCodeDescriptionForCode(domain, code);
+	}
+	@Override
+	public List<ReferenceCode> getAlertTypes(int offset, int limit) {
+		return referenceCodeRepository.getAlertTypes(offset, limit);
+	}
+	@Override
+	public ReferenceCode getAlertTypesByAlertType(String alertType) {
+		return referenceCodeRepository.getAlertTypesByAlertType(alertType);
+	}
+	@Override
+	public List<ReferenceCode> getAlertTypesByAlertTypeCode(String alertType, int offset, int limit) {
+		return referenceCodeRepository.getAlertTypesByAlertTypeCode(alertType, offset, limit);
+	}
+	@Override
+	public ReferenceCode getAlertTypeCodesByAlertCode(String alertType, String alertCode) {
+		return referenceCodeRepository.getAlertTypeCodesByAlertCode(alertType, alertCode);
 	}
 
 	

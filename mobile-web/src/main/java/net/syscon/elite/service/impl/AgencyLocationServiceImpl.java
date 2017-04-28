@@ -17,6 +17,7 @@ import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.web.api.model.Agency;
 import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.Location;
+import net.syscon.elite.web.api.resource.LocationsResource.Order;
 
 
 @Transactional
@@ -51,8 +52,8 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 	}
 
 	@Override
-	public List<Location> getLocations(final int offset, final int limit) {
-		return locationRepository.findLocations(offset, limit);
+	public List<Location> getLocations(String query, String orderBy, Order order, final int offset, final int limit) {
+		return locationRepository.findLocations(query, orderBy, order, offset, limit);
 	}
 	
 	@Override
@@ -61,15 +62,15 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 	}
 
 	@Override
-	public List<AssignedInmate> getInmatesFromLocation(final Long locationId, final int offset, final int limit) {
-		return inmateRepository.findInmatesByLocation(locationId, offset, limit);
+	public List<AssignedInmate> getInmatesFromLocation(final Long locationId, String query, String orderByField, Order order, final int offset, final int limit) {
+		return inmateRepository.findInmatesByLocation(locationId, query, orderByField, order, offset, limit);
 	}
 
 	@Override
 	public Location getLocation(final Long locationId) {
 		try {
 			final Location location = locationRepository.findLocation(locationId);
-			final List<AssignedInmate> inmates = inmateRepository.findInmatesByLocation(locationId, 0, 1000);
+			final List<AssignedInmate> inmates = inmateRepository.findInmatesByLocation(locationId, null, null, null, 0, 1000);
 			location.setAssignedInmates(inmates);
 			return location;
 		} catch (final DataAccessException ex) {

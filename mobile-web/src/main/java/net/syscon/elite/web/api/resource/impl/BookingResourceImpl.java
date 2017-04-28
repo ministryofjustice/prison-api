@@ -94,7 +94,7 @@ public class BookingResourceImpl implements BookingResource {
 	@Override
 	public GetBookingByBookingIdAlertsResponse getBookingByBookingIdAlerts(String bookingId, String orderBy,
 			Order order, String query, int offset, int limit) throws Exception {
-		List<Alert> alerts = this.inmateAlertService.getInmateAlerts(bookingId, "", orderBy, order, offset, limit);
+		List<Alert> alerts = this.inmateAlertService.getInmateAlerts(bookingId, query, orderBy, order, offset, limit);
 		return GetBookingByBookingIdAlertsResponse.withJsonOK(alerts);
 	}
 	

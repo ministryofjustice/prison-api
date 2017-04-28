@@ -1,10 +1,13 @@
 package net.syscon.elite.web.api.resource.impl;
 
+import java.util.List;
+
 import javax.inject.Inject;
 
 import org.springframework.stereotype.Component;
 
 import net.syscon.elite.service.ReferenceDomainService;
+import net.syscon.elite.web.api.model.ReferenceCode;
 import net.syscon.elite.web.api.resource.ReferenceDomainsResource;
 
 @Component
@@ -19,39 +22,42 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainsResource {
 	}
 
 	@Override
-	public GetReferenceDomainsDomainsResponse getReferenceDomainsDomains(final String query, final int offset, final int limit) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public GetReferenceDomainsDomainsByDomainIdResponse getReferenceDomainsDomainsByDomainId(final String domainId) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public GetReferenceDomainsDomainsByDomainIdCodesResponse getReferenceDomainsDomainsByDomainIdCodes(final String domainId, final String query, final int offset, final int limit) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public GetReferenceDomainsDomainsByDomainIdCodesByCodeIdResponse getReferenceDomainsDomainsByDomainIdCodesByCodeId(final String domainId, final String codeId) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public GetReferenceDomainsCaseNotesTypesByCaseLoadResponse getReferenceDomainsCaseNotesTypesByCaseLoad(final String caseLoad, final int offset, final int limit) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		List<ReferenceCode> refrenceCodeList = this.refrenceCodeService.getCnotetypesByCaseLoad(caseLoad);
+		return GetReferenceDomainsCaseNotesTypesByCaseLoadResponse.withJsonOK(refrenceCodeList);
 	}
 
 	@Override
 	public GetReferenceDomainsCaseNotesSubTypesByCaseNoteTypeResponse getReferenceDomainsCaseNotesSubTypesByCaseNoteType(final String caseNoteType, final int offset, final int limit) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		List<ReferenceCode> refrenceCodeList = this.refrenceCodeService.getCnoteSubtypesByCaseNoteType(caseNoteType);
+		return GetReferenceDomainsCaseNotesSubTypesByCaseNoteTypeResponse.withJsonOK(refrenceCodeList);
+	}
+
+	@Override
+	public GetReferenceDomainsAlertTypesResponse getReferenceDomainsAlertTypes(int offset, int limit) throws Exception {
+		List<ReferenceCode> refrenceCodeList = this.refrenceCodeService.getAlertTypes(offset, limit);
+		return GetReferenceDomainsAlertTypesResponse.withJsonOK(refrenceCodeList);
+	}
+
+	@Override
+	public GetReferenceDomainsAlertTypesByAlertTypeResponse getReferenceDomainsAlertTypesByAlertType(String alertType)
+			throws Exception {
+		ReferenceCode referenceCode = this.refrenceCodeService.getAlertTypesByAlertType(alertType);
+		return GetReferenceDomainsAlertTypesByAlertTypeResponse.withJsonOK(referenceCode);
+	}
+
+	@Override
+	public GetReferenceDomainsAlertTypesByAlertTypeCodesResponse getReferenceDomainsAlertTypesByAlertTypeCodes(
+			String alertType, int offset, int limit) throws Exception {
+		List<ReferenceCode> refrenceCodeList = this.refrenceCodeService.getAlertTypesByAlertTypeCode(alertType, offset, limit);
+		return GetReferenceDomainsAlertTypesByAlertTypeCodesResponse.withJsonOK(refrenceCodeList);
+	}
+
+	@Override
+	public GetReferenceDomainsAlertTypesByAlertTypeCodesByAlertCodeResponse getReferenceDomainsAlertTypesByAlertTypeCodesByAlertCode(
+			String alertType, String alertCode) throws Exception {
+		ReferenceCode referenceCode = this.refrenceCodeService.getAlertTypeCodesByAlertCode(alertType, alertCode);
+		return GetReferenceDomainsAlertTypesByAlertTypeCodesByAlertCodeResponse.withJsonOK(referenceCode);
 	}
 
 

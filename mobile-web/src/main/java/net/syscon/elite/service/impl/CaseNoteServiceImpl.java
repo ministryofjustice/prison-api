@@ -35,7 +35,7 @@ public class CaseNoteServiceImpl implements CaseNoteService{
 		if(query==null ) {
 			query = DEFAULT_CONDITION ;
 		} else if (!"source:".contains(query)) {
-			query =  query+",and"+DEFAULT_CONDITION;
+			query =  query+",and:"+DEFAULT_CONDITION;
 		}
 		if(orderBy == null) {
 			orderBy = "creationDateTime";

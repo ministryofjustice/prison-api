@@ -27,7 +27,7 @@ UPDATE_CASE_NOTE {
                               WHERE CASE_NOTE_ID = :caseNoteId
 }
 
-FIND_CaseNote{
+FIND_CASENOTE{
 	select OFFENDER_BOOK_ID, 
     CASE_NOTE_TYPE, 
     CASE_NOTE_SUB_TYPE, 
