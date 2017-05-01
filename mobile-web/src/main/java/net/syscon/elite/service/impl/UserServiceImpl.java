@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
 		if (!found) {
 			throw new AccessDeniedException(String.format("The user does not have access to the caseLoadid = %d", caseLoadId));
 		} else {
-			caseLoadRepository.updateCurrentLoad(staffId, caseLoadId);
+			userRepository.updateCurrentLoad(staffId, caseLoadId);
 		}
 	}
 

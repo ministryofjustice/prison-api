@@ -34,11 +34,6 @@ public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRe
 	}
 	
 
-	@Override
-	public int updateCurrentLoad(final Long staffId, final String caseLoadId) {
-		final String sql = getQuery("UPDATE_STAFF_ACTIVE_CASE_LOAD");
-		return jdbcTemplate.update(sql,  createParams());
-	}
 }
 
 

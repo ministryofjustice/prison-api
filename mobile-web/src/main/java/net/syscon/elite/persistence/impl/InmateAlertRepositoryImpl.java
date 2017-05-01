@@ -7,8 +7,7 @@ import java.util.Map;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import ch.qos.logback.classic.net.SyslogAppender;
-import ch.qos.logback.core.net.SyslogOutputStream;
+
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.persistence.InmateAlertRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
@@ -23,9 +22,6 @@ import net.syscon.util.QueryBuilder;
 @Repository
 public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateAlertRepository {
 
-
-	private final String DATE_FORMAT = "MM-dd-yyyy hh:mm:ss";
-	private final String DATE_FORMAT_OCCUR = "MM-dd-yyyy";
 
 	private final Map<String, FieldMapper> alertMapping = new ImmutableMap.Builder<String, FieldMapper>()
 		.put("ALERT_SEQ", 			new FieldMapper("alertId"))
