@@ -8,7 +8,8 @@
 		"firstName": { "type": "string" },
 		"lastName": { "type": "string" },
 		"email": { "type": "string" },
-		"thumbnailId": { "type": "integer" }
+		"thumbnailId": { "type": "integer" },
+		"activeCaseLoadId": { "type": "integer" }
 	},
 	"required": ["userId", "username"]
 }

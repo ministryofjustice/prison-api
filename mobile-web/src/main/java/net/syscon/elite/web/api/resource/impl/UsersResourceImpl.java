@@ -1,11 +1,14 @@
 package net.syscon.elite.web.api.resource.impl;
 
 import java.util.Base64;
+import java.util.List;
 
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -14,10 +17,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import net.syscon.elite.exception.EliteRuntimeException;
-import net.syscon.elite.persistence.UserRepository;
 import net.syscon.elite.security.UserDetailsImpl;
 import net.syscon.elite.security.jwt.TokenManagement;
 import net.syscon.elite.security.jwt.TokenSettings;
+import net.syscon.elite.service.UserService;
 import net.syscon.elite.web.api.model.AuthLogin;
 import net.syscon.elite.web.api.model.CaseLoad;
 import net.syscon.elite.web.api.model.HttpStatus;
@@ -40,13 +43,12 @@ public class UsersResourceImpl implements UsersResource {
 	private AuthenticationManager authenticationManager;
 	
 	@Inject
-	private UserRepository userRepository;
+	private UserService userService;
 	
 
 	@Override
 	public GetUsersMeResponse getUsersMe() throws Exception {
-		final UserDetailsImpl currUser = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		final UserDetails user = userRepository.findByUsername(currUser.getUsername());
+		final UserDetails user = getCurrentUser();
 		return GetUsersMeResponse.withJsonOK(user);
 	}
 
@@ -115,27 +117,46 @@ public class UsersResourceImpl implements UsersResource {
 
 	@Override
 	public GetUsersMeCaseLoadsResponse getUsersMeCaseLoads(final int offset, final int limit) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		final UserDetails user = getCurrentUser();
+		final List<CaseLoad> caseLoads = userService.getCaseLoads(user.getStaffId());
+		return GetUsersMeCaseLoadsResponse.withJsonOK(caseLoads);
+	}
+
+	private UserDetails getCurrentUser() {
+		final UserDetailsImpl currUser = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		final UserDetails user = userService.getUserByUsername(currUser.getUsername());
+		return user;
 	}
 
 	@Override
 	public PutUsersMeActiveCaseLoadResponse putUsersMeActiveCaseLoad(final CaseLoad entity) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			final UserDetails user = getCurrentUser();
+			userService.setActiveCaseLoad(user.getStaffId(), entity.getCaseLoadId());
+			return PutUsersMeActiveCaseLoadResponse.withOK();
+		} catch (final AccessDeniedException ex) {
+			final HttpStatus httpStatus = new HttpStatus("403",  "403", "Not Authorized", "The current user does not have acess to this CaseLoad", "");
+			return PutUsersMeActiveCaseLoadResponse.withJsonUnauthorized(httpStatus);
+		}
 	}
 
 	@Override
 	public GetUsersMeActiveCaseLoadResponse getUsersMeActiveCaseLoad() throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			final UserDetails user = getCurrentUser();
+			final CaseLoad caseLoad = userService.getActiveCaseLoad(user.getStaffId());
+			return GetUsersMeActiveCaseLoadResponse.withJsonOK(caseLoad);
+		} catch (final DataAccessException ex) {
+			final HttpStatus httpStatus = new HttpStatus("500",  "500", "Internal Error", "Internal Error", "");
+			return GetUsersMeActiveCaseLoadResponse.withJsonBadRequest(httpStatus);
+		}
 	}
 
 
 	@Override
 	public GetUsersByStaffIdResponse getUsersByStaffId(final String staffId) throws Exception {
 		try {
-			final UserDetails user = userRepository.findByStaffId(Long.valueOf(staffId));
+			final UserDetails user = userService.getUserByStaffId(Long.valueOf(staffId));
 			return GetUsersByStaffIdResponse.withJsonOK(user);
 		} catch (final EliteRuntimeException ex) {
 			log.error(ex.getMessage());

@@ -3,7 +3,8 @@ FIND_AGENCY {
     SELECT ROWNUM AS ID,
            AGY_LOC_ID,
            DESCRIPTION,
-           AGENCY_LOCATION_TYPE
+           AGENCY_LOCATION_TYPE,
+           to_char(SYSDATE, 'dd/mm/yyyy') last_update
       FROM AGENCY_LOCATIONS
      WHERE AGY_LOC_ID = :agencyId
            AND ACTIVE_FLAG = 'Y'

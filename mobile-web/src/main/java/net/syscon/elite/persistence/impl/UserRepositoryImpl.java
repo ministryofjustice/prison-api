@@ -1,6 +1,5 @@
 package net.syscon.elite.persistence.impl;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +38,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 		.put("LAST_NAME", new FieldMapper("lastName"))
 		.put("EMAIL", new FieldMapper("email"))
 		.put("IMAGE_ID", new FieldMapper("imageId"))
-		.put("ROLES", new FieldMapper("roles", value -> Arrays.asList(value.toString().split(",")), null)
+		.put("ASSIGNED_CASELOAD_ID", new FieldMapper("activeCaseLoadId")
 	).build();
 
 	@Override

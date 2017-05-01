@@ -1,11 +1,7 @@
 package net.syscon.elite.security;
 
-import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Set;
@@ -66,9 +62,9 @@ public class DbAuthenticationProvider implements AuthenticationProvider, UserDet
 		final String password = auth.getCredentials().toString();
 		try (final Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
 			logger.debug(String.format("User %s logged with success!", username));
-			conn.close();
 			final Set<GrantedAuthority> authorities = getUserAuthorities(conn, username);
 			userDetailsMap.put(username, new UserDetailsImpl(username, password, authorities));
+			conn.close();
 			return new UsernamePasswordAuthenticationToken(username, password, authorities);
 		} catch (final SQLException ex) {
 			logger.error(ex.getMessage(), ex);
@@ -78,6 +74,7 @@ public class DbAuthenticationProvider implements AuthenticationProvider, UserDet
 	
 	private Set<GrantedAuthority> getUserAuthorities(final Connection conn, final String username) {
 		final Set<GrantedAuthority> authorities = new TreeSet<>();
+		/*
 		try (PreparedStatement stmt = conn.prepareStatement(sqlProvider.get("FIND_ROLES_BY_USERNAME")))  {
 			stmt.setString(1, username);
 			final ResultSet rs = stmt.executeQuery();
@@ -89,6 +86,8 @@ public class DbAuthenticationProvider implements AuthenticationProvider, UserDet
 		} catch (final SQLException ex) {
 			logger.error(ex.getMessage(), ex);
 		}
+		*/
+		authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 		return authorities;
 	}
 

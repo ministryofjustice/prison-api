@@ -3,7 +3,7 @@
   "type": "object",
   "title": "caseload",
   "properties": {
-  	"caseloadId": { "type": "string" },
+  	"caseLoadId": { "type": "string" },
   	"description": { "type": "string" },
     "type": { "type": "string"}
   },
