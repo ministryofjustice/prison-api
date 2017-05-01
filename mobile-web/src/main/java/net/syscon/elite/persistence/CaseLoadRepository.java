@@ -5,7 +5,7 @@ import java.util.List;
 import net.syscon.elite.web.api.model.CaseLoad;
 
 public interface CaseLoadRepository {
-	CaseLoad find(Long caseLoadId);
+	CaseLoad find(String caseLoadId);
 	List<CaseLoad> findCaseLoadsByStaffId(Long staffId);
 
 }

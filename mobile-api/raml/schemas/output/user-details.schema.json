@@ -9,7 +9,7 @@
 		"lastName": { "type": "string" },
 		"email": { "type": "string" },
 		"thumbnailId": { "type": "integer" },
-		"activeCaseLoadId": { "type": "integer" }
+		"activeCaseLoadId": { "type": "string" }
 	},
 	"required": ["userId", "username"]
 }
