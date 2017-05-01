@@ -2,6 +2,8 @@
   description: Give all Alert types
   type: { get-collection : { collectionSchema: referenceCodes}}
   is: [
+    searchable: {fieldsList: "code, description, activeFlag and parentCode"},
+    orderable: {fieldsList: "code"},
     pageable
   ]
   
@@ -13,6 +15,8 @@
   description: Give all Alert Codes for specific Alert type
   type: { get-collection : { collectionSchema: referenceCodes}}
   is: [
+    searchable: {fieldsList: "code, description, activeFlag and parentCode"},
+    orderable: {fieldsList: "code"},
     pageable
   ]
   

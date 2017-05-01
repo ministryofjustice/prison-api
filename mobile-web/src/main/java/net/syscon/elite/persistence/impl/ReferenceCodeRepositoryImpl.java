@@ -11,6 +11,8 @@ import net.syscon.elite.persistence.ReferenceCodeRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.web.api.model.ReferenceCode;
+import net.syscon.elite.web.api.resource.ReferenceDomainsResource.Order;
+import net.syscon.util.QueryBuilder;
 
 @Repository
 public class ReferenceCodeRepositoryImpl extends RepositoryBase implements ReferenceCodeRepository {
@@ -21,7 +23,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 			.put("DOMAIN", 				new FieldMapper("domain"))
 			.put("PARENT_DOMAIN", 		new FieldMapper("parentDomainId"))
 			.put("PARENT_CODE", 		new FieldMapper("parentCode"))
-			.put("ACTIVE_FLAG", 		new FieldMapper("activeFlag", value ->{ return value.equals("Y")?true:false;}))
+			.put("ACTIVE_FLAG", 		new FieldMapper("activeFlag"))
 			.build();
 
 	@Override
@@ -53,11 +55,13 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	}
 
 	@Override
-	public List<ReferenceCode> getAlertTypes(int offset, int limit) {
+	public List<ReferenceCode> getAlertTypes(String query, String orderBy, Order order, int offset, int limit) {
 		final String sql = getQuery("FIND_REF_CODES");
 		String domain = "ALERT";
+		boolean isAsc = order.toString().equals("asc")?true:false;
+		String sqlQuery = new QueryBuilder.Builder(sql, referenceCodeMapping).addQuery(query).addOrderBy(isAsc, orderBy).addPagedQuery().build();
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
-		return jdbcTemplate.query(sql, createParams("domain", domain), referenceCodeRowMapper);
+		return jdbcTemplate.query(sqlQuery, createParams("domain", domain, "offset", offset, "limit", limit), referenceCodeRowMapper);
 	}
 
 	@Override
@@ -69,11 +73,13 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	}
 
 	@Override
-	public List<ReferenceCode> getAlertTypesByAlertTypeCode(String alertType, int offset, int limit) {
+	public List<ReferenceCode> getAlertTypesByAlertTypeCode(String alertType, String query, String orderBy, Order order, int offset, int limit) {
 		final String sql = getQuery("FIND_ALERT_REF_CODES");
 		String domain = "ALERT_CODE";
+		boolean isAsc = order.toString().equals("asc")?true:false;
+		String sqlQuery = new QueryBuilder.Builder(sql, referenceCodeMapping).addQuery(query).addOrderBy(isAsc, orderBy).addPagedQuery().build();
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
-		return jdbcTemplate.query(sql, createParams("domain", domain, "parentCode", alertType), referenceCodeRowMapper);
+		return jdbcTemplate.query(sqlQuery, createParams("domain", domain, "parentCode", alertType, "offset", offset, "limit", limit), referenceCodeRowMapper);
 	}
 
 	@Override

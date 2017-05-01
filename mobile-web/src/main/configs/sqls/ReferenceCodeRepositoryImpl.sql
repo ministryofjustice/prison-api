@@ -1,8 +1,7 @@
 FIND_REF_CODES {
 	select DOMAIN, CODE, DESCRIPTION, PARENT_DOMAIN, PARENT_CODE, ACTIVE_FLAG   
 	from reference_codes 
-	where domain = :domain and ACTIVE_FLAG = 'Y'
-  	order by  DESCRIPTION ,CODE
+	where domain = :domain
 }
 
 FIND_REF_CODE_DESC {
@@ -14,15 +13,13 @@ FIND_REF_CODE_DESC {
 FIND_ALERT_REF_CODES {
 	select DOMAIN, CODE, DESCRIPTION, PARENT_DOMAIN, PARENT_CODE, ACTIVE_FLAG   
 	from reference_codes 
-	where domain = :domain and ACTIVE_FLAG = 'Y' and parent_code=:parentCode 
-  	order by  description ,code
+	where domain = :domain and parent_code=:parentCode 
 }
 
 FIND_ALERT_REF_CODE_DESC {
 	select DOMAIN, CODE, DESCRIPTION, PARENT_DOMAIN, PARENT_CODE, ACTIVE_FLAG   
 	from reference_codes 
-	where domain = :domain and ACTIVE_FLAG = 'Y' and parent_code=:parentCode and CODE = :code
-  	order by  description ,code
+	where domain = :domain and parent_code=:parentCode and CODE = :code
 }
 
 FIND_CNOTE_TYPES_BY_CASE_LOAD {

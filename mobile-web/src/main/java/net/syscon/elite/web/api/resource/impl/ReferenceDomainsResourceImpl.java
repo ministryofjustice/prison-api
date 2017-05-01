@@ -34,8 +34,8 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainsResource {
 	}
 
 	@Override
-	public GetReferenceDomainsAlertTypesResponse getReferenceDomainsAlertTypes(int offset, int limit) throws Exception {
-		List<ReferenceCode> refrenceCodeList = this.refrenceCodeService.getAlertTypes(offset, limit);
+	public GetReferenceDomainsAlertTypesResponse getReferenceDomainsAlertTypes(String query, String orderBy, Order order, int offset, int limit) throws Exception {
+		List<ReferenceCode> refrenceCodeList = this.refrenceCodeService.getAlertTypes(query, orderBy, order, offset, limit);
 		return GetReferenceDomainsAlertTypesResponse.withJsonOK(refrenceCodeList);
 	}
 
@@ -47,9 +47,8 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainsResource {
 	}
 
 	@Override
-	public GetReferenceDomainsAlertTypesByAlertTypeCodesResponse getReferenceDomainsAlertTypesByAlertTypeCodes(
-			String alertType, int offset, int limit) throws Exception {
-		List<ReferenceCode> refrenceCodeList = this.refrenceCodeService.getAlertTypesByAlertTypeCode(alertType, offset, limit);
+	public GetReferenceDomainsAlertTypesByAlertTypeCodesResponse getReferenceDomainsAlertTypesByAlertTypeCodes(String alertType, String query, String orderBy, Order order, int offset, int limit) throws Exception {
+		List<ReferenceCode> refrenceCodeList = this.refrenceCodeService.getAlertTypesByAlertTypeCode(alertType, query, orderBy, order, offset, limit);
 		return GetReferenceDomainsAlertTypesByAlertTypeCodesResponse.withJsonOK(refrenceCodeList);
 	}
 
@@ -59,8 +58,4 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainsResource {
 		ReferenceCode referenceCode = this.refrenceCodeService.getAlertTypeCodesByAlertCode(alertType, alertCode);
 		return GetReferenceDomainsAlertTypesByAlertTypeCodesByAlertCodeResponse.withJsonOK(referenceCode);
 	}
-
-
-
-
 }

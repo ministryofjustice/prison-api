@@ -8,7 +8,7 @@
 		"description": { "type": "string" },
 		"parentDomainId": { "type": "string" },
 		"parentCode": { "type": "string" },
-		"activeFlag": { "type": "boolean" } 
+		"activeFlag": { "type": "string" } 
 	},
 	"required": ["code", "description"]
 }
