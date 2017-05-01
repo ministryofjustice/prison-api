@@ -3,9 +3,9 @@ package net.syscon.elite.security;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.PostConstruct;
@@ -73,7 +73,7 @@ public class DbAuthenticationProvider implements AuthenticationProvider, UserDet
 	}
 	
 	private Set<GrantedAuthority> getUserAuthorities(final Connection conn, final String username) {
-		final Set<GrantedAuthority> authorities = new TreeSet<>();
+		final Set<GrantedAuthority> authorities = new HashSet<>();
 		/*
 		try (PreparedStatement stmt = conn.prepareStatement(sqlProvider.get("FIND_ROLES_BY_USERNAME")))  {
 			stmt.setString(1, username);

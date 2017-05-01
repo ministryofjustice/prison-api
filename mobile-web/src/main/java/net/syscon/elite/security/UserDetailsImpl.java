@@ -1,8 +1,8 @@
 package net.syscon.elite.security;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class UserDetailsImpl implements UserDetails {
 	private final String username;
 	private final String password;
-	private final Set<GrantedAuthority> authorities = new TreeSet<>();
+	private final Set<GrantedAuthority> authorities = new HashSet<>();
 	public UserDetailsImpl(final String username, final String password, final Collection<GrantedAuthority> authorities) {
 		this.username = username;
 		this.password = password;

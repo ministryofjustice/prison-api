@@ -55,7 +55,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
 	@Override
 	public UserDetails findByStaffId(final Long staffId) {
-		final String sql = getQuery("FIND_USER_BY_USERNAME");
+		final String sql = getQuery("FIND_USER_BY_STAFF_ID");
 		final RowMapper<UserDetails> userRowMapper = Row2BeanRowMapper.makeMapping(sql, UserDetails.class, userMapping);
 		try {
 			final UserDetails userDetails = jdbcTemplate.queryForObject(sql,  createParams("staffId", staffId), userRowMapper);
