@@ -56,7 +56,17 @@ subprojects {
 
 	group = "net.syscon.elite"
 	version = "1.0-SNAPSHOT"
-	
+
+
+	checkstyle {
+		configFile = new File(rootDir, "syscon-checkstyle.xml")
+	}
+
+
+	bootRepackage {
+		mainClass = 'net.syscon.elite.MobileApiServer'
+	}
+
 	sonarqube {
 		properties {
 			property "sonar.projectName", "Elite2"

@@ -1,5 +1,3 @@
-
-
 def sourceGenDir = file("${rootDir}/mobile-api/src/main/generated")
 
 project(":mobile-api") {

@@ -1,0 +1,14 @@
+version: '3.1'
+services:
+  elite-2-api:
+   image: sysconjusticesystems/mobile-web
+   networks:
+     - nomis-network
+   ports:
+    - "7080:7080"
+   environment:
+     - JAVA_OPTS=-Xms128m -Xmx128m
+     - SERVER_PORT=7080
+     - SPRING_PROFILES_ACTIVE=dev
+networks:
+  nomis-network:

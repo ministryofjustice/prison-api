@@ -1,3 +1,4 @@
+def sourceGenDir = file("${rootDir}/mobile-api/src/main/generated")
 
 project(":mobile-web") {
 
@@ -10,6 +11,7 @@ project(":mobile-web") {
 
 		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-aop")
+		compile('org.springframework.boot:spring-boot-starter-actuator')
 		compile("org.springframework.boot:spring-boot-starter-jdbc")
 		compile("org.springframework.boot:spring-boot-starter-jetty")
 		compile("org.springframework.boot:spring-boot-starter-security")
@@ -36,6 +38,15 @@ project(":mobile-web") {
 	}
 
 	sourceSets {
+        main {
+            java {
+                srcDirs = ['src/main/java', sourceGenDir]
+            }
+            resources {
+                srcDirs = ['src/main/configs', 'src/main/resources']
+            }
+        }
+
 		integTest {
 			java {
 				srcDir file("${rootDir}/mobile-web/src/integ-test/java")
