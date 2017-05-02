@@ -14,7 +14,7 @@ project(":mobile-api") {
 
 
 	// The following task requires node-js installed in order to generate the API HTML version
-	// Also install after install the node-js with the following command
+	// Also install raml2html after install the node-js with the following command
 	// npm i -g raml2html@3.0.11
 	def htmlGenCommand = "raml2html"
 	def htmlGenArgs = ['-i', ramlFile.absolutePath, '-o', htmlFile.absolutePath]
