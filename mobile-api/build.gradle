@@ -1,4 +1,4 @@
-
+import org.apache.tools.ant.taskdefs.condition.Os
 
 def sourceGenDir = file("${rootDir}/mobile-api/src/main/generated")
 
@@ -7,15 +7,35 @@ project(":mobile-api") {
 	dependencies {
 		compile("org.springframework.boot:spring-boot-starter-jersey")
 	}
-	
+
+	def ramlDir = new File("${rootDir}/mobile-api/raml")
+	def ramlFile = new File(ramlDir, "api.raml")
+	def htmlFile = new File(ramlDir, "api.html")
+
+
+	// The following task requires node-js installed in order to generate the API HTML version
+	// Also install after install the node-js with the following command
+	// npm i -g raml2html@3.0.11
+	def htmlGenCommand = "raml2html"
+	def htmlGenArgs = ['-i', ramlFile.absolutePath, '-o', htmlFile.absolutePath]
+	if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+		htmlGenCommand = "${rootDir}/mobile-api/raml/htmlgen.bat"
+		htmlGenArgs = [ramlFile.absolutePath, htmlFile.absolutePath]
+	}
+	task htmlGen(type: Exec) {
+		workingDir ramlDir.absolutePath
+		commandLine htmlGenCommand
+		args htmlGenArgs
+	}
+
+
 	sourceSets.main.java.srcDirs sourceGenDir
 
 	processResources {
 		def configs = new org.raml.jaxrs.codegen.core.Configuration()
-		def ramlDir = new File("${rootDir}/mobile-api/raml")
 		sourceGenDir.listFiles().each{ f -> if (f != null) delete f }
 		sourceGenDir.mkdirs()
-		
+
 		configs.outputDirectory = sourceGenDir
 		configs.sourceDirectory = ramlDir
 		configs.setBasePackageName("net.syscon.elite.web.api");
@@ -31,9 +51,9 @@ project(":mobile-api") {
 		def sourceGenerator = new org.raml.jaxrs.codegen.core.Generator()
 		sourceGenerator.run(new FileReader(new File(ramlDir, "./api.raml")), configs, "")
 	}
-	
+
 	compileJava.dependsOn processResources
-	
+
 	task run { doLast() { println ">>> Source Code Generated on ${sourceGenDir.absolutePath}!"} }
 	run.dependsOn jar
 }
