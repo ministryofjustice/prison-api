@@ -1,12 +1,12 @@
 package net.syscon.elite.persistence;
 
 
-import java.util.List;
-
 import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.InmateDetails;
 import net.syscon.elite.web.api.resource.BookingResource;
 import net.syscon.elite.web.api.resource.LocationsResource;
+
+import java.util.List;
 
 
 public interface InmateRepository {

@@ -15,23 +15,23 @@ import java.util.Map;
 public class AgencyRepositoryImpl extends RepositoryBase implements AgencyRepository {
 
 	private final Map<String, FieldMapper> agencyMapping = new ImmutableMap.Builder<String, FieldMapper>()
-		.put("ID", 						new FieldMapper("uid"))
-		.put("AGY_LOC_ID", 				new FieldMapper("agencyId"))
-		.put("DESCRIPTION", 			new FieldMapper("description"))
-		.put("AGENCY_LOCATION_TYPE", 	new FieldMapper("agencyType")).build();
+			.put("ID", 						new FieldMapper("uid"))
+			.put("AGY_LOC_ID", 				new FieldMapper("agencyId"))
+			.put("DESCRIPTION", 			new FieldMapper("description"))
+			.put("AGENCY_LOCATION_TYPE", 	new FieldMapper("agencyType")).build();
 
 	@Override
-	public Agency find(String agencyId) {
+	public Agency find(String caseLoadId, String agencyId) {
 		String sql = getQuery("FIND_AGENCY");
 		RowMapper<Agency> agencyRowMapper = Row2BeanRowMapper.makeMapping(sql, Agency.class, agencyMapping);
-		return jdbcTemplate.queryForObject(sql, createParams("agencyId", agencyId), agencyRowMapper);
+		return jdbcTemplate.queryForObject(sql, createParams("caseLoadId", caseLoadId, "agencyId", agencyId), agencyRowMapper);
 	}
 
 	@Override
-	public List<Agency> findAgencies(int offset, int limit) {
+	public List<Agency> findAgencies(String caseLoadId, int offset, int limit) {
 		String sql = getPagedQuery("FIND_ALL_AGENCIES");
 		RowMapper<Agency> agencyRowMapper = Row2BeanRowMapper.makeMapping(sql, Agency.class, agencyMapping);
-		return jdbcTemplate.query(sql, createParams("offset", offset, "limit", limit), agencyRowMapper);
+		return jdbcTemplate.query(sql, createParams("caseLoadId", caseLoadId, "offset", offset, "limit", limit), agencyRowMapper);
 	}
 }
 

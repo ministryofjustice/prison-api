@@ -21,6 +21,7 @@ public class AgenciesResourceImpl implements AgenciesResource {
 
 	@Override
 	public GetAgenciesResponse getAgencies(final int offset, final int limit) throws Exception {
+
 		final List<Agency> agencies = agencyLocationService.getAgencies(offset, limit);
 		return GetAgenciesResponse.withJsonOK(agencies);
 	}
