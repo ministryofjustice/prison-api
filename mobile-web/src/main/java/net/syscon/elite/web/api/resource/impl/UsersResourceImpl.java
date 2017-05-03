@@ -1,10 +1,12 @@
 package net.syscon.elite.web.api.resource.impl;
 
-import java.util.Base64;
-import java.util.List;
-
-import javax.inject.Inject;
-
+import net.syscon.elite.exception.EliteRuntimeException;
+import net.syscon.elite.security.UserDetailsImpl;
+import net.syscon.elite.security.jwt.TokenManagement;
+import net.syscon.elite.security.jwt.TokenSettings;
+import net.syscon.elite.service.UserService;
+import net.syscon.elite.web.api.model.*;
+import net.syscon.elite.web.api.resource.UsersResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -16,17 +18,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import net.syscon.elite.exception.EliteRuntimeException;
-import net.syscon.elite.security.UserDetailsImpl;
-import net.syscon.elite.security.jwt.TokenManagement;
-import net.syscon.elite.security.jwt.TokenSettings;
-import net.syscon.elite.service.UserService;
-import net.syscon.elite.web.api.model.AuthLogin;
-import net.syscon.elite.web.api.model.CaseLoad;
-import net.syscon.elite.web.api.model.HttpStatus;
-import net.syscon.elite.web.api.model.Token;
-import net.syscon.elite.web.api.model.UserDetails;
-import net.syscon.elite.web.api.resource.UsersResource;
+import javax.inject.Inject;
+import java.util.Base64;
+import java.util.List;
 
 @Component
 public class UsersResourceImpl implements UsersResource {
@@ -44,7 +38,19 @@ public class UsersResourceImpl implements UsersResource {
 	
 	@Inject
 	private UserService userService;
-	
+
+
+	@Override
+	public GetUsersByUsernameResponse getUsersByUsername(String username) throws Exception {
+		try {
+			final UserDetails user = userService.getUserByUsername(username);
+			return GetUsersByUsernameResponse.withJsonOK(user);
+		} catch (final EliteRuntimeException ex) {
+			log.error(ex.getMessage());
+			final HttpStatus httpStatus = new HttpStatus("404", "404", "User Not Found", "User Not Found", "");
+			return GetUsersByUsernameResponse.withJsonNotFound(httpStatus);
+		}
+	}
 
 	@Override
 	public GetUsersMeResponse getUsersMe() throws Exception {
@@ -153,17 +159,6 @@ public class UsersResourceImpl implements UsersResource {
 	}
 
 
-	@Override
-	public GetUsersByStaffIdResponse getUsersByStaffId(final String staffId) throws Exception {
-		try {
-			final UserDetails user = userService.getUserByStaffId(Long.valueOf(staffId));
-			return GetUsersByStaffIdResponse.withJsonOK(user);
-		} catch (final EliteRuntimeException ex) {
-			log.error(ex.getMessage());
-			final HttpStatus httpStatus = new HttpStatus("404", "404", "User Not Found", "User Not Found", "");
-			return GetUsersByStaffIdResponse.withJsonNotFound(httpStatus);
-		}
-	}
 	
 
 }
