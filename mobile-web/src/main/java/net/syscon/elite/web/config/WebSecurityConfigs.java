@@ -25,7 +25,7 @@ import net.syscon.elite.security.jwt.TokenSettings;
 @Configuration
 @EnableWebSecurity
 @Import(PersistenceConfigs.class)
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfigs extends WebSecurityConfigurerAdapter {
 
 	public static final String LOGIN_URI = "/api/users/login";
 	public static final String REFRESH_URI = "/api/users/token";
@@ -72,17 +72,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	@Override
-	protected void configure(final HttpSecurity httpSecurity) throws Exception {
-		httpSecurity.csrf().disable()
+	protected void configure(final HttpSecurity http) throws Exception {
+		http.csrf().disable()
 				.exceptionHandling().authenticationEntryPoint(unauthorizedHandler())
 				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and().authorizeRequests()
 				.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-				.antMatchers( "/api/users/login")
-				.permitAll().anyRequest().authenticated();
+				.antMatchers( "/api/users/login").permitAll()
+				.antMatchers("/info").permitAll()
+				.anyRequest().authenticated();
 
 		// Custom JWT based authentication
-		httpSecurity.addFilterBefore(authenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+		http.addFilterBefore(authenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 	}
+
+
 
 }
