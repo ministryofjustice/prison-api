@@ -1,6 +1,16 @@
 
 project(":mobile-web") {
 
+	apply plugin: "org.springframework.boot"
+
+	bootRun {
+		addResources = true
+	}
+
+	bootRepackage {
+		mainClass = 'net.syscon.elite.MobileApiServer'
+	}
+
 	dependencies {
 
 		compile project(":mobile-api")

@@ -19,10 +19,10 @@ subprojects {
 
 
 	repositories {
-		mavenLocal()
-		mavenCentral()
 		maven { url "${artifactory_url}/libs-release" }
 		maven { url "${artifactory_url}/third-party" }
+		mavenLocal()
+		mavenCentral()
 	}
 
 
@@ -48,7 +48,7 @@ subprojects {
 	apply plugin: "maven-publish"
 	apply plugin: "idea"
 	apply plugin: "eclipse"
-	apply plugin: "org.springframework.boot"
+
 
 	
 	sourceCompatibility = JavaVersion.VERSION_1_8

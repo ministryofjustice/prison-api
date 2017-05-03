@@ -1,13 +1,11 @@
 package net.syscon.elite;
 
-import java.io.File;
-
+import net.syscon.elite.core.Constants;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.env.AbstractEnvironment;
 
-import net.syscon.elite.core.Constants;
-import net.syscon.elite.web.config.ApplicationContextConfigs;
+import java.io.File;
 
 
 @SpringBootApplication

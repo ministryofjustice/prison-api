@@ -5,7 +5,7 @@ def sourceGenDir = file("${rootDir}/mobile-api/src/main/generated")
 project(":mobile-api") {
 
 	dependencies {
-		compile("org.springframework.boot:spring-boot-starter-jersey")
+		compile("org.springframework.boot:spring-boot-starter-jersey:${version_spring_boot}")
 	}
 
 	def ramlDir = new File("${rootDir}/mobile-api/raml")

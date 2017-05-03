@@ -2,6 +2,7 @@ package net.syscon.util;
 
 
 import net.syscon.elite.exception.EliteRuntimeException;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.*;
 import java.text.ParseException;
@@ -18,9 +19,14 @@ public class SQLProvider {
     }
 
     public SQLProvider(final Class<?> clazz) {
-        final String resourcePath = "/net.syscon.elite.persistence.repository.impl.".replace('.', '/')  + clazz.getSimpleName() + ".sql";
-        final InputStream in = clazz.getResourceAsStream(resourcePath);
-        loadFromStream(in);
+        try {
+            final String resourcePath = clazz.getSimpleName() + ".sql";
+            ClassPathResource resource = new ClassPathResource(resourcePath);
+            final InputStream in = resource.getInputStream();
+            loadFromStream(in);
+        } catch (IOException ex) {
+            throw new EliteRuntimeException(ex.getMessage(), ex);
+        }
     }
 
     public SQLProvider(final File file) {
@@ -37,12 +43,12 @@ public class SQLProvider {
     }
 
     public void loadFromClassLoader(final String filename) {
-        final ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        final InputStream in = cl.getResourceAsStream(filename);
-        if (in != null) {
+        try {
+            ClassPathResource resource = new ClassPathResource(filename);
+            final InputStream in = resource.getInputStream();
             loadFromStream(in);
-        } else {
-            throw new EliteRuntimeException("File " + filename + " not found on the classloader");
+        } catch (IOException ex) {
+            throw new EliteRuntimeException(ex.getMessage(), ex);
         }
     }
 
