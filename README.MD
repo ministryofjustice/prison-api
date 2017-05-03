@@ -40,7 +40,7 @@ This README is going to show how to run mobile API server.
     `gradle run`
     
   Or you can just run the main method of the class net.syscon.elite.mobileApplication in your IDE 
-  
+* Running a packaged JAR version
   Alternatively you can also package in a jar file and run it using the command below:
 ```bash
 nohup java -cp mobile-web-<VERSION>.jar:/etc/elite-mobile -Dloader.main=net.syscon.elite.MobileApiServer org.springframework.boot.loader.PropertiesLauncher &
