@@ -19,9 +19,9 @@ subprojects {
 
 
 	repositories {
+		mavenLocal()
 		maven { url "${artifactory_url}/libs-release" }
 		maven { url "${artifactory_url}/third-party" }
-		mavenLocal()
 		mavenCentral()
 	}
 
