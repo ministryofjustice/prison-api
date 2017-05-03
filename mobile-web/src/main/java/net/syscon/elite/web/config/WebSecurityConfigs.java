@@ -79,7 +79,7 @@ public class WebSecurityConfigs extends WebSecurityConfigurerAdapter {
 				.and().authorizeRequests()
 				.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 				.antMatchers( "/api/users/login").permitAll()
-				.antMatchers("/info").permitAll()
+				.antMatchers("/api/management/info").permitAll()
 				.anyRequest().authenticated();
 
 		// Custom JWT based authentication

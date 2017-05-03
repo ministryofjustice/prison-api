@@ -94,6 +94,7 @@ project(":mobile-web") {
 	}
 
 	springBoot {
+		mainClass = applicationMainClass
 		buildInfo {
 			// Generate extra build info.
 			additionalProperties = [
@@ -105,7 +106,6 @@ project(":mobile-web") {
 					name: 'elite2-api'
 			]
 		}
-		mainClass = applicationMainClass
 		executable = true
 	}
 

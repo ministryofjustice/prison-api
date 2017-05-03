@@ -63,10 +63,6 @@ subprojects {
 	}
 
 
-	bootRepackage {
-		mainClass = 'net.syscon.elite.MobileApiServer'
-	}
-
 	sonarqube {
 		properties {
 			property "sonar.projectName", "Elite2"
