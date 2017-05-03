@@ -20,7 +20,7 @@ import java.lang.management.ThreadInfo;
 @Path("/management")
 @Produces({MediaType.APPLICATION_JSON})
 @Component
-public class ActuatorEndpoints {
+public class ManagementResourceImpl {
 
 	private HealthEndpoint healthEndpoint;
 	private MetricsEndpoint metricsEndpoint;
