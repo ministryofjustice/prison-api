@@ -46,7 +46,7 @@ This README is going to show how to run mobile API server.
 * How to package the Application
   To create a JAR of the application just run gradle to package it:
     
-    `gradle build`
+    `gradle assemble`
 
 * Deployment instructions
   There is no deployment because we are using spring boot and the webapp has already a web container 
@@ -78,7 +78,3 @@ docker-compose up -d
 * [SonarQube](http://chronos.syscon.ca:9000/sonar)
 * [Artifactory](http://chronos.syscon.ca:8081/artifactory)
 * [Jenkins](http://chronos.syscon.ca:7080)
-
-  
-
-
