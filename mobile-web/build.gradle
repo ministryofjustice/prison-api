@@ -3,14 +3,6 @@ project(":mobile-web") {
 
 	apply plugin: "org.springframework.boot"
 
-	bootRun {
-		addResources = true
-	}
-
-	bootRepackage {
-		mainClass = 'net.syscon.elite.MobileApiServer'
-	}
-
 	dependencies {
 
 		compile project(":mobile-api")
@@ -23,6 +15,7 @@ project(":mobile-web") {
 		compile("org.springframework.boot:spring-boot-starter-jdbc")
 		compile("org.springframework.boot:spring-boot-starter-jetty")
 		compile("org.springframework.boot:spring-boot-starter-security")
+		compile("org.springframework.boot:spring-boot-starter-actuator")
 		compile("org.springframework.mobile:spring-mobile-device")
 		
 
@@ -81,10 +74,28 @@ project(":mobile-web") {
 		}
 	}
 
+
+	def applicationMainClass = 'net.syscon.elite.MobileApiServer'
+	def dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+
+	bootRepackage {
+		mainClass = applicationMainClass
+	}
+
 	springBoot {
-		mainClass = "net.syscon.elite.MobileApiServer"
+		buildInfo {
+			// Generate extra build info.
+			additionalProperties = [
+					by: System.properties['user.name'],
+					operatingSystem: "${System.properties['os.name']} (${System.properties['os.version']})",
+					continuousIntegration: System.getenv('CI') ? true: false,
+					machine: InetAddress.localHost.hostName,
+					time:dateFormat.format(new Date()),
+					name: 'elite2-api'
+			]
+		}
+		mainClass = applicationMainClass
 		executable = true
-		buildInfo()
 	}
 
 	bootRun {

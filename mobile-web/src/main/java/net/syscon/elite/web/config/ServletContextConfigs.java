@@ -44,7 +44,7 @@ import net.syscon.elite.web.listener.EndpointLoggingListener;
 @EnableCaching
 @EnableAsync
 @ComponentScan(basePackages = {"net.syscon.elite.persistence", "net.syscon.elite.service"})
-@Import({ PersistenceConfigs.class, WebSecurityConfig.class, ServiceConfigs.class, AopConfigs.class})
+@Import({ PersistenceConfigs.class, WebSecurityConfigs.class, ServiceConfigs.class, AopConfigs.class})
 @ApplicationPath("/api")
 public class ServletContextConfigs extends ResourceConfig {
 	
