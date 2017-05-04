@@ -33,30 +33,25 @@ This README is going to show how to run mobile API server.
   
 * Database configuration
   To connect the application to a database, change the configurations in your configuration profile file, for example in mobile-dev.yml.
-  
-* How to run the Application
-  You can use the Gradle to run the application 
-  
-    `gradle run`
-    
-  Or you can just run the main method of the class net.syscon.elite.mobileApplication in your IDE 
 
-### Running a packaged JAR version ###
-  Alternatively you can also package in a jar file and run it using the command below:
+###How to run the Application? ###
+
+1) Running the main method of the class `net.syscon.elite.MobileApiServer` in your IDE
+
+2) Using directly Gradle via command-line
 ```bash
+gradle run
+```
+
+3) Using `java -jar` with a pakcaged version
+```bash
+gradle assemble
+...
 nohup java -cp mobile-web-<VERSION>.jar:/etc/elite-mobile -Dloader.main=net.syscon.elite.MobileApiServer org.springframework.boot.loader.PropertiesLauncher &
 ```
-  
-* How to package the Application
-  To create a JAR of the application just run gradle to package it:
-    
-    `gradle assemble`
+4) In a Docker container
 
-* Deployment instructions
-  There is no deployment because we are using spring boot and the webapp has already a web container 
-  embedded using a micro-services model
-
-* Build Docker image and run
+Build Docker image and run
 
 ```bash
 docker build -t sysconjusticesystems/mobile-web .
@@ -67,7 +62,7 @@ Run
 docker run -d -p 7080:7080 -e SERVER_PORT=7080 -e SPRING_PROFILES_ACTIVE=dev --name=mobile-web sysconjusticesystems/mobile-web 
 ```
 
-### Using Docker compose
+### Using Docker compose ###
 ```bash
 docker-compose up -d
 ```
