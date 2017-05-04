@@ -49,6 +49,8 @@ gradle assemble
 ...
 nohup java -cp mobile-web-<VERSION>.jar:/etc/elite-mobile -Dloader.main=net.syscon.elite.MobileApiServer org.springframework.boot.loader.PropertiesLauncher &
 ```
+Where `/etc/elite-mobile` is the external configuration directory. In the project this directory is `mobile-web/src/main/configs`
+
 4) In a Docker container
 
 Build Docker image and run
