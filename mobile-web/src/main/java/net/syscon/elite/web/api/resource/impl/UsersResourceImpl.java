@@ -43,7 +43,7 @@ public class UsersResourceImpl implements UsersResource {
 	@Override
 	public GetUsersByUsernameResponse getUsersByUsername(String username) throws Exception {
 		try {
-			final UserDetails user = userService.getUserByUsername(username);
+			final UserDetails user = userService.getUserByUsername(username.toUpperCase());
 			return GetUsersByUsernameResponse.withJsonOK(user);
 		} catch (final EliteRuntimeException ex) {
 			log.error(ex.getMessage());

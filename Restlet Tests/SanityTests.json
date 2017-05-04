@@ -50,7 +50,7 @@
       "body": {
         "bodyType": "Text",
         "autoSetLength": true,
-        "textBody": "{\n  \"username\": \"oms_owner\",\n  \"password\": \"oms_owner\"\n}"
+        "textBody": "{\n  \"username\": \"itag_user\",\n  \"password\": \"it4g_us3r\"\n}"
       },
       "headersType": "Form",
       "uri": {
