@@ -177,3 +177,18 @@ FIND_PHYSICAL_ATTRIBUTES_BY_BOOKING {
      WHERE B.OFFENDER_BOOK_ID = :bookingId
            AND B.ACTIVE_FLAG = 'Y'
 }
+FIND_ACTIVE_APPROVED_ASSESSMENT {
+	SELECT
+		offender_assessments.offender_book_id,
+		assessments.assessment_code,
+		assessments.description as assessment_description,
+		ref_cd_SUP_LVL_TYPE.description as classification
+		FROM offender_assessments, assessments, reference_codes ref_cd_SUP_LVL_TYPE
+		WHERE offender_assessments.assessment_type_id = assessments.assessment_id
+		AND assessments.assessment_class = 'TYPE'
+		AND offender_assessments.offender_book_id = :bookingId
+		AND offender_assessments.review_sup_level_type = ref_cd_SUP_LVL_TYPE.code
+		AND ref_cd_SUP_LVL_TYPE.domain = 'SUP_LVL_TYPE'
+		AND offender_assessments.assess_status = 'A'
+		AND offender_assessments.evaluation_result_code = 'APP'
+}

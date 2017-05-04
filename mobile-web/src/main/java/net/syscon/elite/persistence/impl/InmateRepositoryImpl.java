@@ -15,6 +15,7 @@ import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.persistence.InmateRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
+import net.syscon.elite.web.api.model.Assessment;
 import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.InmateDetails;
 import net.syscon.elite.web.api.model.PhysicalAttributes;
@@ -77,6 +78,12 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	final Map<String, FieldMapper> physicalMarkMapping = new ImmutableMap.Builder<String, FieldMapper>()
 		.put("COMMENT_TEXT",	new FieldMapper("comment"))
 	.build();
+	
+	final Map<String, FieldMapper> assessmentMapping = new ImmutableMap.Builder<String, FieldMapper>()
+			.put("ASSESSMENT_CODE",	new FieldMapper("assessmentCode"))
+			.put("ASSESSMENT_DESCRIPTION",	new FieldMapper("assessmentDesc"))
+			.put("CLASSIFICATION",	new FieldMapper("assessmentType"))
+		.build();
 
 
 
@@ -125,6 +132,13 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		final PhysicalAttributes physicalAttributes = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId), physicalAttributesRowMapper);
 		return physicalAttributes;
 	}
+	
+	private List<Assessment> findAssessments(final long bookingId) {
+		final String sql = getQuery("FIND_ACTIVE_APPROVED_ASSESSMENT");
+		final RowMapper<Assessment> assessmentAttributesRowMapper = Row2BeanRowMapper.makeMapping(sql, Assessment.class, assessmentMapping);
+		final List<Assessment> assessments = jdbcTemplate.query(sql, createParams("bookingId", bookingId), assessmentAttributesRowMapper);
+		return assessments;
+	}
 
 
 	@Override
@@ -137,6 +151,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 				inmate.setPhysicalAttributes(findPhysicalAttributes(inmate.getBookingId()));
 				inmate.setPhysicalCharacteristics(this.findPhysicalCharacteristics(inmate.getBookingId()));
 				inmate.setPhysicalMarks(this.findPhysicalMarks(inmate.getBookingId()));
+				inmate.setAssessments(findAssessments(inmate.getBookingId()));
 			}
 			return inmate;
 		} catch (final EmptyResultDataAccessException ex) {
