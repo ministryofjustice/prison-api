@@ -130,4 +130,17 @@ subprojects {
 		classpath = sourceSets.integrationTest.runtimeClasspath
 	}
 
+	task assembleSandbox {
+		dependsOn([":mobile-api:htmlGen", "assemble"])
+		doLast {
+			def staticDir = file("${rootDir}/mobile-web/src/main/resources/static")
+			if (!staticDir.exists()) { staticDir.mkdirs() }
+			copy {
+				from ("${rootDir}/mobile-api/raml") { include "api.html" }
+				into (staticDir.absolutePath)
+				rename { String fileName -> "index.html" }
+			}
+		}
+	}
+
 }

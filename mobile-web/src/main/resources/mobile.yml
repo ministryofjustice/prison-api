@@ -25,6 +25,8 @@ spring:
       idle-timeout: 10000
       oracle-proxy.enabled: true
 
+  application:
+    index: api.html
 
 security:
   basic:

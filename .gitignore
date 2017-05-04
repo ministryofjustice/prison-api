@@ -153,3 +153,4 @@ UI/_temp
 # Log file
 mobile-web/hs_err_pid16052.log
 
+mobile-web/src/main/resources/static/index.html

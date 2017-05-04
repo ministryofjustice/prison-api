@@ -15,7 +15,7 @@ project(":mobile-api") {
 
 	// The following task requires node-js installed in order to generate the API HTML version
 	// Also install raml2html after install the node-js with the following command
-	// npm i -g raml2html@3.0.11
+	// npm i -g raml2html@3.0.1
 	def htmlGenCommand = "raml2html"
 	def htmlGenArgs = ['-i', ramlFile.absolutePath, '-o', htmlFile.absolutePath]
 	if (Os.isFamily(Os.FAMILY_WINDOWS)) {
@@ -54,7 +54,10 @@ project(":mobile-api") {
 
 	compileJava.dependsOn processResources
 
-	task run { doLast() { println ">>> Source Code Generated on ${sourceGenDir.absolutePath}!"} }
-	run.dependsOn jar
+	task run {
+		dependsOn jar
+		doLast() { println ">>> Source Code Generated on \"${sourceGenDir.absolutePath}\"!"}
+	}
+
 }
 

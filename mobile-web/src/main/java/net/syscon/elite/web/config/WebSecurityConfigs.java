@@ -27,9 +27,6 @@ import net.syscon.elite.security.jwt.TokenSettings;
 @Import(PersistenceConfigs.class)
 public class WebSecurityConfigs extends WebSecurityConfigurerAdapter {
 
-	public static final String LOGIN_URI = "/api/users/login";
-	public static final String REFRESH_URI = "/api/users/token";
-
 	@Bean
 	public TokenSettings tokenSettings() {
 		return new TokenSettings();
@@ -78,6 +75,7 @@ public class WebSecurityConfigs extends WebSecurityConfigurerAdapter {
 				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and().authorizeRequests()
 				.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+				.antMatchers("/api").permitAll()
 				.antMatchers( "/api/users/login").permitAll()
 				.antMatchers("/api/management/info").permitAll()
 				.anyRequest().authenticated();

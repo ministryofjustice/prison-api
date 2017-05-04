@@ -19,12 +19,12 @@ project(":mobile-web") {
 		compile("org.springframework.boot:spring-boot-starter-security")
 		compile("org.springframework.boot:spring-boot-starter-actuator")
 		compile("org.springframework.mobile:spring-mobile-device")
-		
+
 
 		compile("io.jsonwebtoken:jjwt:${version_jjwt}")
 		compile("com.zaxxer:HikariCP:${version_hikaricp}")
 
-		
+
 		testCompile("org.springframework.boot:spring-boot-starter-test")
 		testCompile("org.springframework.boot:spring-boot-test-autoconfigure")
 		testCompile("io.rest-assured:rest-assured:3.0.2")
@@ -41,14 +41,14 @@ project(":mobile-web") {
 	}
 
 	sourceSets {
-        main {
-            java {
-                srcDirs = ['src/main/java', sourceGenDir]
-            }
-            resources {
-                srcDirs = ['src/main/configs', 'src/main/resources']
-            }
-        }
+		main {
+			java {
+				srcDirs = ['src/main/java', sourceGenDir]
+			}
+			resources {
+				srcDirs = ['src/main/configs', 'src/main/resources']
+			}
+		}
 
 		integTest {
 			java {
@@ -67,19 +67,15 @@ project(":mobile-web") {
 	}
 
 	check.dependsOn integTest
+	compileJava.dependsOn processResources
 
 	def configsDir = file("${rootDir}/mobile-web/src/main/configs").absolutePath
 	processResources {
 		def devConfigsFile = file("${configsDir}/mobile-dev.yml")
 		if (!devConfigsFile.exists()) {
 			copy {
-				from (configsDir) { include "mobile-dev-SAMPLE.yml" }
+				from(configsDir) { include "mobile-dev-SAMPLE.yml" }
 				into configsDir
-				rename { String fileName -> fileName.replace("mobile-dev-SAMPLE.yml", "mobile-dev.yml") }
-			}
-			copy {
-				from (configsDir) { include "mobile-dev-SAMPLE.yml" }
-				into file("${}")
 				rename { String fileName -> fileName.replace("mobile-dev-SAMPLE.yml", "mobile-dev.yml") }
 			}
 		}
@@ -98,12 +94,12 @@ project(":mobile-web") {
 		buildInfo {
 			// Generate extra build info.
 			additionalProperties = [
-					by: System.properties['user.name'],
-					operatingSystem: "${System.properties['os.name']} (${System.properties['os.version']})",
-					continuousIntegration: System.getenv('CI') ? true: false,
-					machine: InetAddress.localHost.hostName,
-					time:dateFormat.format(new Date()),
-					name: 'elite2-api'
+					by                   : System.properties['user.name'],
+					operatingSystem      : "${System.properties['os.name']} (${System.properties['os.version']})",
+					continuousIntegration: System.getenv('CI') ? true : false,
+					machine              : InetAddress.localHost.hostName,
+					time                 : dateFormat.format(new Date()),
+					name                 : 'elite2-api'
 			]
 		}
 		executable = true
@@ -111,13 +107,13 @@ project(":mobile-web") {
 
 	bootRun {
 		jvmArgs("-Dspring.profiles.active=dev")
-		addResources = true 
+		addResources = true
 	}
 
-	compileJava.dependsOn processResources
-
-	task run { doLast() { println "Server ready for requests ..." } }
-	run.dependsOn bootRun
+	task run {
+		dependsOn bootRun
+		doLast() { println "Server ready for requests ..." }
+	}
 
 }
 

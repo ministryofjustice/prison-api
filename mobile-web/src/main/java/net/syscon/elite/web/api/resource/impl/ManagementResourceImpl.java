@@ -5,19 +5,17 @@ import org.springframework.boot.actuate.endpoint.DumpEndpoint;
 import org.springframework.boot.actuate.endpoint.HealthEndpoint;
 import org.springframework.boot.actuate.endpoint.InfoEndpoint;
 import org.springframework.boot.actuate.endpoint.MetricsEndpoint;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.lang.management.ThreadInfo;
 
-@Path("/management")
+@Path("/")
 @Produces({MediaType.APPLICATION_JSON})
 @Component
 public class ManagementResourceImpl {
@@ -48,26 +46,25 @@ public class ManagementResourceImpl {
 	}
 
 	@GET
-	@Path("/info")
+	@Path("management/info")
 	public Object getInfoEndpoint() {
 		return infoEndpoint.invoke();
 	}
 
-
 	@GET
-	@Path("/health")
+	@Path("management/health")
 	public Object getHealthEndpoint() {
 		return healthEndpoint.invoke();
 	}
 
 	@GET
-	@Path("/metrics")
+	@Path("management/metrics")
 	public Object getMetricsEndpoint() {
 		return this.metricsEndpoint.invoke();
 	}
 
 	@GET
-	@Path("/metrics/{name:.*}")
+	@Path("management/metrics/{name:.*}")
 	public Object getMetric(@PathParam("name") final String name) {
 		final Object value = this.metricsEndpoint.invoke().get(name);
 		if (value == null) {
@@ -77,23 +74,43 @@ public class ManagementResourceImpl {
 	}
 
 	@GET
-	@Path("/dump")
+	@Path("management/dump")
 	@Produces(MediaType.TEXT_PLAIN)
 	public Object getThreadDump() {
-
 		return new StreamingOutput() {
-
 			@Override
 			public void write(java.io.OutputStream out) throws IOException, WebApplicationException {
 				final Writer writer = new BufferedWriter(new OutputStreamWriter(out));
 				for (final ThreadInfo thread : dumpEndpoint.invoke()) {
 					writer.write(thread.toString());
 				}
-
 				writer.flush();
 			}
 		};
-
-
 	}
+
+	@GET
+	@Path("/")
+	@Produces(MediaType.TEXT_HTML)
+	public Object apiIndex() {
+		return new StreamingOutput() {
+			@Override
+			public void write(java.io.OutputStream out) throws IOException, WebApplicationException {
+				final Writer writer = new BufferedWriter(new OutputStreamWriter(out));
+				ClassPathResource resource = new ClassPathResource("static/index.html");
+				InputStream in = resource.getInputStream();
+				if (in != null) {
+					try (BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
+						String s;
+						while ((s = br.readLine()) != null) {
+							writer.write(s);
+							writer.write("\n");
+						}
+					}
+				}
+				writer.flush();
+			}
+		};
+	}
+
 }
