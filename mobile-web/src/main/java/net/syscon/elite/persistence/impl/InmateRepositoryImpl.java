@@ -15,6 +15,7 @@ import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.persistence.InmateRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
+import net.syscon.elite.web.api.model.Alias;
 import net.syscon.elite.web.api.model.Assessment;
 import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.InmateDetails;
@@ -83,8 +84,17 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("ASSESSMENT_CODE",	new FieldMapper("assessmentCode"))
 			.put("ASSESSMENT_DESCRIPTION",	new FieldMapper("assessmentDesc"))
 			.put("CLASSIFICATION",	new FieldMapper("assessmentType"))
-		.build();
+			.build();
 
+	final Map<String, FieldMapper> aliasMapping = new ImmutableMap.Builder<String, FieldMapper>()
+			.put("LAST_NAME",	new FieldMapper("lastName"))
+			.put("FIRST_NAME",	new FieldMapper("firstName"))
+			.put("MIDDLE_NAME",	new FieldMapper("middleName"))
+			.put("BIRTH_DATE",	new FieldMapper("dob"))
+			.put("AGE",			new FieldMapper("age"))
+			.put("ETHNICITY",	new FieldMapper("ethinicity"))
+			.put("ALIAS_TYPE",	new FieldMapper("nameType"))
+			.build();
 
 
 
@@ -158,6 +168,15 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			log.error(ex.getMessage(), ex);
 			throw ex;
 		}
+	}
+	@Override
+	public List<Alias> findInmateAliases(final long bookingId, String orderByField, BookingResource.Order order, final int offset, final int limit) {
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_INMATE_ALIASES"), aliasMapping)
+											.addOrderBy("asc".equals(order.toString())?true:false, (null==orderByField || "".equals("orderByField"))?"firstName":orderByField)
+											.build();
+		final RowMapper<Alias> aliasAttributesRowMapper = Row2BeanRowMapper.makeMapping(sql, Alias.class, aliasMapping);
+		final List<Alias> aliases = jdbcTemplate.query(sql, createParams("bookingId", bookingId), aliasAttributesRowMapper);
+		return aliases;
 	}
 
 }

@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "type": "object",
+  "title": "Alias",
+  "properties": {
+	"firstName": { "type": "string" },
+	"lastName": { "type": "string" },
+	"middleName": { "type": "string"},
+	"age": { "type": "integer"},
+	"dob":  {
+	  "type": "string",
+	  "format": "date-only"
+	},
+	"ethinicity":  {"type": "string"},
+	"nameType":  {"type": "string"}
+  },
+  "required": ["firstName", "lastName", "age", "dob", "ethinicity", "nameType"]
+}

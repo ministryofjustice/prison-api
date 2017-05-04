@@ -14,6 +14,7 @@ import net.syscon.elite.persistence.InmateRepository;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.InmatesAlertService;
 import net.syscon.elite.web.api.model.Alert;
+import net.syscon.elite.web.api.model.Alias;
 import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.CaseNote;
 import net.syscon.elite.web.api.model.HttpStatus;
@@ -103,6 +104,20 @@ public class BookingResourceImpl implements BookingResource {
 			String alertId) throws Exception {
 		Alert alert = this.inmateAlertService.getInmateAlert(bookingId, alertId);
 		return GetBookingByBookingIdAlertsByAlertIdResponse.withJsonOK(alert);
+	}
+	
+	@Override
+	public GetBookingByBookingIdAliasesResponse getBookingByBookingIdAliases(String bookingId, String orderBy,
+			Order order, int offset, int limit) throws Exception {
+		try {
+			List<Alias> aliases = this.inmateRepository.findInmateAliases(Long.valueOf(bookingId), orderBy, order, offset, limit);
+			return GetBookingByBookingIdAliasesResponse.withJsonOK(aliases);
+		} catch (final EmptyResultDataAccessException ex) {
+			final String message = String.format("Booking \"%s\" not found", bookingId);
+			log.info(message);
+			final HttpStatus httpStatus = new HttpStatus("404", "404", message, message, "");
+			return GetBookingByBookingIdAliasesResponse.withJsonNotFound(httpStatus);
+		}
 	}
 
 

@@ -192,3 +192,19 @@ FIND_ACTIVE_APPROVED_ASSESSMENT {
 		AND offender_assessments.assess_status = 'A'
 		AND offender_assessments.evaluation_result_code = 'APP'
 }
+FIND_INMATE_ALIASES {
+	SELECT 	offenders.last_name, 
+		offenders.first_name, 
+		offenders.middle_name,
+		offenders.birth_date,  
+		TRUNC(MONTHS_BETWEEN(sysdate, offenders.birth_date)/12) as AGE,
+		ref_cd_ETHNICITY.description as ethnicity, 
+		ref_cd_NAME_TYPE.description as alias_type  
+  	FROM offenders, offender_bookings, reference_codes ref_cd_ETHNICITY, reference_codes ref_cd_NAME_TYPE 
+ 	WHERE offenders.root_offender_id = offender_bookings.root_offender_id 
+   	AND offender_bookings.offender_book_id = :bookingId 
+   	AND offenders.race_code = ref_cd_ETHNICITY.code 
+   	AND ref_cd_ETHNICITY .domain = 'ETHNICITY' 
+   	AND offenders.alias_name_type = ref_cd_NAME_TYPE.code 
+   	AND ref_cd_NAME_TYPE.domain = 'NAME_TYPE'
+}
