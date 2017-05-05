@@ -1,17 +1,17 @@
 {
-  "front-version": "2.2.3",
+  "front-version": "2.3.0",
   "version": 3,
   "nodes": [
     {
       "type": "Project",
       "id": "54E9846C-08D4-4F19-B123-70DBC54E565E",
-      "lastModified": "2017-05-01T15:18:44.901-07:00",
+      "lastModified": "2017-05-05T11:35:16.835-07:00",
       "name": "REST API"
     },
     {
       "type": "Scenario",
       "id": "5D606E92-FE6F-4DE4-995F-6A0CD980FBD0",
-      "lastModified": "2017-05-01T15:18:44.901-07:00",
+      "lastModified": "2017-05-04T12:59:19.798-07:00",
       "name": "Bookings",
       "requestOrder": [
         "Login",
@@ -36,7 +36,12 @@
         "Location Details - Assigned Inmates - Search",
         "Location Details - Assigned Inmates - OrderBy",
         "Get Image Meta Data",
-        "Get Image Image Data"
+        "Get Image Image Data",
+        "Get Booking Aliases",
+        "Get Booking Aliases - OrderBy",
+        "Get User Details",
+        "Build information",
+        "Get Staff Details"
       ],
       "parentId": "54E9846C-08D4-4F19-B123-70DBC54E565E"
     },
@@ -50,7 +55,7 @@
       "body": {
         "bodyType": "Text",
         "autoSetLength": true,
-        "textBody": "{\n  \"username\": \"itag_user\",\n  \"password\": \"it4g_us3r\"\n}"
+        "textBody": "{\n  \"username\": \"oms_owner\",\n  \"password\": \"oms_owner\"\n}"
       },
       "headersType": "Form",
       "uri": {
@@ -58,11 +63,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/users/login"
       },
       "id": "18FFC5C0-B3FD-4F00-9AFB-57F3F3A3E232",
-      "lastModified": "2017-04-27T10:13:16.510-07:00",
+      "lastModified": "2017-05-05T11:31:30.243-07:00",
       "name": "Login",
       "headers": [
         {
@@ -90,11 +95,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/booking"
       },
       "id": "4FB8E935-590F-446B-90B6-3355A63293EE",
-      "lastModified": "2017-04-27T10:32:12.662-07:00",
+      "lastModified": "2017-05-05T11:31:47.694-07:00",
       "name": "Get Bookings",
       "headers": [
         {
@@ -130,11 +135,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/booking/18733"
       },
       "id": "DA019470-A149-48ED-8B86-7FEA168AA4E8",
-      "lastModified": "2017-04-27T10:34:08.419-07:00",
+      "lastModified": "2017-05-05T11:31:54.485-07:00",
       "name": "Get Booking Details",
       "headers": [
         {
@@ -186,11 +191,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/booking"
       },
       "id": "58154D81-BD3D-4E81-B40A-A6F19AD88982",
-      "lastModified": "2017-04-27T11:10:35.360-07:00",
+      "lastModified": "2017-05-05T11:32:31.383-07:00",
       "name": "Get Bookings - Search",
       "headers": [
         {
@@ -247,11 +252,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/booking"
       },
       "id": "7C34B86E-2267-4CC7-B197-3AFD9FF9EFD7",
-      "lastModified": "2017-04-27T11:14:49.602-07:00",
+      "lastModified": "2017-05-05T11:32:37.612-07:00",
       "name": "Get Bookings - OrderBy",
       "headers": [
         {
@@ -303,11 +308,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/booking"
       },
       "id": "B84863EB-DA70-4809-BC0A-4F2CCF3A6BA8",
-      "lastModified": "2017-05-01T15:15:44.475-07:00",
+      "lastModified": "2017-05-05T11:32:44.388-07:00",
       "name": "Get Bookings - Search Like",
       "headers": [
         {
@@ -349,11 +354,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/booking/18733/caseNotes"
       },
       "id": "7040EFA6-96B8-4D71-A0E6-3EED63643798",
-      "lastModified": "2017-04-27T10:49:15.215-07:00",
+      "lastModified": "2017-05-05T11:32:50.601-07:00",
       "name": "CaseNotes",
       "headers": [
         {
@@ -381,11 +386,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/booking/18733/caseNotes/33781"
       },
       "id": "D5BD6245-4B48-4F7D-8246-2AF580A78249",
-      "lastModified": "2017-04-27T11:01:59.119-07:00",
+      "lastModified": "2017-05-05T11:32:55.789-07:00",
       "name": "CaseNote Details",
       "headers": [
         {
@@ -423,11 +428,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/booking/18733/caseNotes"
       },
       "id": "CC7F026E-F6C8-473B-9041-5D06C427DA00",
-      "lastModified": "2017-04-27T11:21:53.938-07:00",
+      "lastModified": "2017-05-05T11:33:02.915-07:00",
       "name": "CaseNotes - Search",
       "headers": [
         {
@@ -484,11 +489,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/booking/18733/caseNotes"
       },
       "id": "AEF26D83-9D49-4ADC-B7B4-04B4F79BF2D1",
-      "lastModified": "2017-04-27T11:35:04.203-07:00",
+      "lastModified": "2017-05-05T11:33:08.662-07:00",
       "name": "CaseNotes - OrderBy",
       "headers": [
         {
@@ -530,11 +535,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/booking/18733/alerts"
       },
       "id": "4E50CDEB-8387-43BE-ACB7-87E9C9CD3DCD",
-      "lastModified": "2017-04-27T11:04:33.678-07:00",
+      "lastModified": "2017-05-05T11:33:15.243-07:00",
       "name": "Alerts",
       "headers": [
         {
@@ -562,11 +567,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/booking/18733/alerts/2"
       },
       "id": "8A06329C-238E-4B7E-800D-5D7EBD5F183B",
-      "lastModified": "2017-04-27T11:05:26.154-07:00",
+      "lastModified": "2017-05-05T11:33:21.417-07:00",
       "name": "Alert Details",
       "headers": [
         {
@@ -618,11 +623,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/booking/18733/alerts"
       },
       "id": "DB1158E6-735E-4DCF-BF5D-2E257EDF5F9B",
-      "lastModified": "2017-04-27T11:36:36.515-07:00",
+      "lastModified": "2017-05-05T11:33:28.192-07:00",
       "name": "Alerts - Search",
       "headers": [
         {
@@ -679,11 +684,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/booking/18733/alerts"
       },
       "id": "A9796395-E9AF-4A74-95C1-4EF64DC537EE",
-      "lastModified": "2017-04-27T11:38:59.913-07:00",
+      "lastModified": "2017-05-05T11:33:34.426-07:00",
       "name": "Alerts - OrderBy",
       "headers": [
         {
@@ -725,11 +730,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/locations"
       },
       "id": "A8D787D1-7ED9-4462-81A4-BB33C4061690",
-      "lastModified": "2017-04-27T11:58:54.138-07:00",
+      "lastModified": "2017-05-05T11:33:41.895-07:00",
       "name": "Locations",
       "headers": [
         {
@@ -775,11 +780,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/locations"
       },
       "id": "5ABB676D-34DB-4488-A3F6-99B9214344E1",
-      "lastModified": "2017-04-27T12:01:16.192-07:00",
+      "lastModified": "2017-05-05T11:33:49.383-07:00",
       "name": "Locations - Search",
       "headers": [
         {
@@ -841,11 +846,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/locations"
       },
       "id": "86D46AD2-17BA-408C-93B0-31CD738741BA",
-      "lastModified": "2017-04-27T12:02:29.963-07:00",
+      "lastModified": "2017-05-05T11:33:58.182-07:00",
       "name": "Locations - OrderBy",
       "headers": [
         {
@@ -893,11 +898,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/locations/5573"
       },
       "id": "0D70755E-E077-4AA6-9057-95A2D78183DD",
-      "lastModified": "2017-04-27T12:03:47.996-07:00",
+      "lastModified": "2017-05-05T11:34:04.765-07:00",
       "name": "Location Details",
       "headers": [
         {
@@ -939,11 +944,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/locations/5412/inmates"
       },
       "id": "063FFF22-D1F6-45E4-A945-77C2D6869269",
-      "lastModified": "2017-04-27T12:31:03.957-07:00",
+      "lastModified": "2017-05-05T11:34:16.085-07:00",
       "name": "Location Details - Assigned Inmates",
       "headers": [
         {
@@ -995,11 +1000,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/locations/5412/inmates"
       },
       "id": "CA8BB546-120E-4A33-9C5D-C74B7F5AD80A",
-      "lastModified": "2017-04-27T12:07:04.576-07:00",
+      "lastModified": "2017-05-05T11:34:22.247-07:00",
       "name": "Location Details - Assigned Inmates - Search",
       "headers": [
         {
@@ -1056,11 +1061,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/locations/5412/inmates"
       },
       "id": "4F36CAA4-9141-4035-8C33-9F4F20709914",
-      "lastModified": "2017-04-27T12:31:42.968-07:00",
+      "lastModified": "2017-05-05T11:34:28.268-07:00",
       "name": "Location Details - Assigned Inmates - OrderBy",
       "headers": [
         {
@@ -1102,11 +1107,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/images/8535"
       },
       "id": "AEF5299D-4268-4661-BCE2-DA45D867DC5B",
-      "lastModified": "2017-04-27T12:33:34.334-07:00",
+      "lastModified": "2017-05-05T11:34:33.594-07:00",
       "name": "Get Image Meta Data",
       "headers": [
         {
@@ -1148,11 +1153,11 @@
           "name": "http",
           "version": "V11"
         },
-        "host": "localhost:7080",
+        "host": "${\"HOST\"}",
         "path": "/api/images/8535/data"
       },
       "id": "9ACC031F-C505-4BDF-B30F-B47C4E2AD471",
-      "lastModified": "2017-04-27T12:35:30.355-07:00",
+      "lastModified": "2017-05-05T11:34:42.257-07:00",
       "name": "Get Image Image Data",
       "headers": [
         {
@@ -1185,11 +1190,255 @@
       "parentId": "5D606E92-FE6F-4DE4-995F-6A0CD980FBD0"
     },
     {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/20847/aliases"
+      },
+      "id": "4CB6C9E6-D137-4B0D-9842-ED422F5DB6CD",
+      "lastModified": "2017-05-05T11:34:49.300-07:00",
+      "name": "Get Booking Aliases",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.firstName[0]",
+          "value": "BILLY JEAN"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "5D606E92-FE6F-4DE4-995F-6A0CD980FBD0"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "lastName"
+            },
+            {
+              "enabled": true,
+              "name": "order",
+              "value": "asc"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/20847/aliases"
+      },
+      "id": "75043B4D-D79F-4834-8FA2-4A0B16F8A603",
+      "lastModified": "2017-05-05T11:34:55.047-07:00",
+      "name": "Get Booking Aliases - OrderBy",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.lastName[0]",
+          "value": "BOWEN"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "5D606E92-FE6F-4DE4-995F-6A0CD980FBD0"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/users/me"
+      },
+      "id": "860608E7-2F8B-4938-A9ED-0FFB6F5F9FBE",
+      "lastModified": "2017-05-05T11:35:02.322-07:00",
+      "name": "Get User Details",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.username",
+          "value": "OMS_OWNER"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "5D606E92-FE6F-4DE4-995F-6A0CD980FBD0"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/management/dump"
+      },
+      "id": "44BF8A73-25DB-4760-9E18-E5A2E135059F",
+      "lastModified": "2017-05-05T11:35:08.882-07:00",
+      "name": "Build information",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "5D606E92-FE6F-4DE4-995F-6A0CD980FBD0"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/users/OMS_OWNER"
+      },
+      "id": "64D32930-15B5-40E4-A83E-211F41CD3BD5",
+      "lastModified": "2017-05-05T11:35:16.835-07:00",
+      "name": "Get Staff Details",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.username",
+          "value": "OMS_OWNER"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "5D606E92-FE6F-4DE4-995F-6A0CD980FBD0"
+    },
+    {
       "type": "Context",
       "id": "5448E9A4-7237-4EA9-8064-C52B91A99650",
-      "lastModified": "2017-04-27T10:05:10.770-07:00",
+      "lastModified": "2017-05-05T11:31:12.947-07:00",
       "name": "header",
       "variables": [
+        {
+          "enabled": true,
+          "name": "HOST",
+          "value": "10.10.100.32:8080"
+        },
         {
           "enabled": true,
           "name": "",
