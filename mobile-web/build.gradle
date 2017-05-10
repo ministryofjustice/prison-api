@@ -9,7 +9,7 @@ project(":mobile-web") {
 		compile project(":mobile-api")
 		compile files("${rootDir}/mobile-web/src/main/configs")
 
-		compile("com.oracle:ojdbc7:12.1.0.1")
+		compile files("${rootDir}/lib/ojdbc7-12.1.0.1.jar")
 
 		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-aop")
