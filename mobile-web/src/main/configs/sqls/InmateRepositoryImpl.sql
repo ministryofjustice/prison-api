@@ -179,7 +179,6 @@ FIND_PHYSICAL_ATTRIBUTES_BY_BOOKING {
 }
 FIND_ACTIVE_APPROVED_ASSESSMENT {
 	SELECT
-		offender_assessments.offender_book_id,
 		assessments.assessment_code,
 		assessments.description as assessment_description,
 		ref_cd_SUP_LVL_TYPE.description as classification

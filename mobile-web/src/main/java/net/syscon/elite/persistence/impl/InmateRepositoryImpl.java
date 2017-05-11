@@ -83,7 +83,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	final Map<String, FieldMapper> assessmentMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("ASSESSMENT_CODE",	new FieldMapper("assessmentCode"))
 			.put("ASSESSMENT_DESCRIPTION",	new FieldMapper("assessmentDesc"))
-			.put("CLASSIFICATION", 	new FieldMapper("assessmentType"))
+			.put("CLASSIFICATION", 	new FieldMapper("classification"))
 			.build();
 
 	final Map<String, FieldMapper> aliasMapping = new ImmutableMap.Builder<String, FieldMapper>()
