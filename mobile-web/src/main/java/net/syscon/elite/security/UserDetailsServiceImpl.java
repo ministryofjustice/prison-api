@@ -32,7 +32,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		List<String> roles = userRepository.findRolesByUsername(username);
 		Set<GrantedAuthority> authorities = roles.stream()
 				.filter(name -> name != null)
-				.map(name -> new SimpleGrantedAuthority(name))
+				.map(name -> new SimpleGrantedAuthority(name.replace('-', '_')))
 				.collect(Collectors.toSet());
 		return new UserDetailsImpl(username, null, authorities);
 	}
