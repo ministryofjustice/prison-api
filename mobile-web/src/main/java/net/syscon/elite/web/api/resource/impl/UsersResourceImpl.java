@@ -1,7 +1,7 @@
 package net.syscon.elite.web.api.resource.impl;
 
 import net.syscon.elite.exception.EliteRuntimeException;
-import net.syscon.elite.security.UserDetailsImpl;
+import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.security.jwt.TokenManagement;
 import net.syscon.elite.security.jwt.TokenSettings;
 import net.syscon.elite.service.UserService;
@@ -129,8 +129,7 @@ public class UsersResourceImpl implements UsersResource {
 	}
 
 	private UserDetails getCurrentUser() {
-		final UserDetailsImpl currUser = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		final UserDetails user = userService.getUserByUsername(currUser.getUsername());
+		final UserDetails user = userService.getUserByUsername(UserSecurityUtils.getCurrentUsername());
 		return user;
 	}
 

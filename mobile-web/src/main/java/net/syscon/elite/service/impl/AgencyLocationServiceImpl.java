@@ -4,7 +4,7 @@ import net.syscon.elite.persistence.AgencyRepository;
 import net.syscon.elite.persistence.InmateRepository;
 import net.syscon.elite.persistence.LocationRepository;
 import net.syscon.elite.persistence.UserRepository;
-import net.syscon.elite.security.UserDetailsImpl;
+import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.web.api.model.Agency;
 import net.syscon.elite.web.api.model.AssignedInmate;
@@ -14,7 +14,6 @@ import net.syscon.elite.web.api.resource.LocationsResource.Order;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,10 +49,8 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 
 
 	private String getCurrentCaseLoad() {
-		// get the user context from Spring Security
-		final UserDetailsImpl currUser = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		//  get the user data from the database
-		final UserDetails userDetails = userRepository.findByUsername(currUser.getUsername());
+		final UserDetails userDetails = userRepository.findByUsername(UserSecurityUtils.getCurrentUsername());
 		return userDetails.getActiveCaseLoadId();
 	}
 

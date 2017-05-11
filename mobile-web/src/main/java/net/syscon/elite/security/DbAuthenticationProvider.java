@@ -1,15 +1,8 @@
 package net.syscon.elite.security;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.annotation.PostConstruct;
-
+import net.syscon.elite.exception.EliteRuntimeException;
+import net.syscon.elite.persistence.impl.UserRepositoryImpl;
+import net.syscon.util.SQLProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -21,22 +14,20 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import net.syscon.elite.exception.EliteRuntimeException;
-import net.syscon.elite.persistence.impl.UserRepositoryImpl;
-import net.syscon.util.SQLProvider;
+import javax.annotation.PostConstruct;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
 @Configurable
 @Service
-public class DbAuthenticationProvider implements AuthenticationProvider, UserDetailsService {
+public class DbAuthenticationProvider implements AuthenticationProvider {
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
-	
-	private final Map<String, UserDetailsImpl> userDetailsMap = new ConcurrentHashMap<>();
 	private final SQLProvider sqlProvider = new SQLProvider();
 	
 	@Value("${spring.datasource.hikari.driver-class-name}")
@@ -63,7 +54,6 @@ public class DbAuthenticationProvider implements AuthenticationProvider, UserDet
 		try (final Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
 			logger.debug(String.format("User %s logged with success!", username));
 			final Set<GrantedAuthority> authorities = getUserAuthorities(conn, username);
-			userDetailsMap.put(username, new UserDetailsImpl(username, password, authorities));
 			conn.close();
 			return new UsernamePasswordAuthenticationToken(username, password, authorities);
 		} catch (final SQLException ex) {
@@ -74,19 +64,6 @@ public class DbAuthenticationProvider implements AuthenticationProvider, UserDet
 	
 	private Set<GrantedAuthority> getUserAuthorities(final Connection conn, final String username) {
 		final Set<GrantedAuthority> authorities = new HashSet<>();
-		/*
-		try (PreparedStatement stmt = conn.prepareStatement(sqlProvider.get("FIND_ROLES_BY_USERNAME")))  {
-			stmt.setString(1, username);
-			final ResultSet rs = stmt.executeQuery();
-			if (rs.next()) {
-				final String roleName = defaultIfEmpty(rs.getString("ROLE_CODE"), "").replace('-', '_');
-				authorities.add(new SimpleGrantedAuthority(roleName));
-			}
-			rs.close();
-		} catch (final SQLException ex) {
-			logger.error(ex.getMessage(), ex);
-		}
-		*/
 		authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 		return authorities;
 	}
@@ -96,13 +73,5 @@ public class DbAuthenticationProvider implements AuthenticationProvider, UserDet
 		return true;
 	}
 
-	@Override
-	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-		final UserDetails userDetails = userDetailsMap.get(username);
-		if (userDetails == null) {
-			throw new UsernameNotFoundException("User not found");
-		}
-		return userDetails;
-	}
 
 }
