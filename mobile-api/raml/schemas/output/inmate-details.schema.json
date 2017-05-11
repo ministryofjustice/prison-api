@@ -69,11 +69,11 @@
 				"title":"assessment",
 				"type":"object",
 				"properties": {
-					"assessmentType": { "type": "string" },
+					"classification": { "type": "string" },
 					"assessmentCode": { "type": "string" },
 					"assessmentDesc": { "type": "string" }
 				},
-				"required": ["assessmentType", "assessmentCode", "assessmentDesc"]
+				"required": ["classification", "assessmentCode", "assessmentDesc"]
 			}
 		},
 		"assignedOfficerUserId": { "type": "integer" }
