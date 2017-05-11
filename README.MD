@@ -34,7 +34,7 @@ This README is going to show how to run mobile API server.
 * Database configuration
   To connect the application to a database, change the configurations in your configuration profile file, for example in mobile-dev.yml.
 
-###How to run the Application? ###
+### How to run the Application? ###
 
 1) Running the main method of the class `net.syscon.elite.MobileApiServer` in your IDE
 
@@ -68,6 +68,7 @@ docker run -d -p 7080:7080 -e SERVER_PORT=7080 -e SPRING_PROFILES_ACTIVE=dev --n
 ```bash
 docker-compose up -d
 ```
+
 
 ### TODO: ###
 * Automated Tests
