@@ -24,7 +24,7 @@ import net.syscon.elite.security.jwt.TokenSettings;
 
 @Configuration
 @EnableWebSecurity
-@Import(PersistenceConfigs.class)
+@Import({PersistenceConfigs.class, ServiceConfigs.class})
 public class WebSecurityConfigs extends WebSecurityConfigurerAdapter {
 
 	@Bean

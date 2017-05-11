@@ -1,6 +1,12 @@
 package net.syscon.elite.security.jwt;
 
-import java.io.IOException;
+import net.syscon.elite.security.DeviceFingerprint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 
 import javax.inject.Inject;
 import javax.servlet.FilterChain;
@@ -8,30 +14,16 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-
-import net.syscon.elite.security.DeviceFingerprint;
+import java.io.IOException;
+import java.util.Collections;
 
 public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFilter {
-	
-	private final String LOGIN_URI = "/api/users/login";
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	@Inject
 	private TokenSettings tokenSettings;
 
-
-	@Inject
-	private UserDetailsService userDetailsService;
 
 	@Inject
 	private TokenManagement tokenManagement;
@@ -58,16 +50,13 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
 		}
 
 		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-			final UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-			if (tokenManagement.validateToken(token, userDetails, deviceFingerprint, uri.endsWith("/users/token"))) {
+			if (tokenManagement.validateToken(token, username, deviceFingerprint, uri.endsWith("/users/token"))) {
 				if (log.isDebugEnabled()) {
 					log.debug("--passing control to filterChain for \"" + httpRequest.getRequestURL().toString() + "\" from \"" + request.getRemoteAddr() + "\"--");
 				}
-
-				final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+				final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username, null, Collections.emptyList());
 				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));
 				SecurityContextHolder.getContext().setAuthentication(authentication);
-
 			}
 		}
 		

@@ -1,13 +1,6 @@
 package net.syscon.elite.security.jwt;
 
 
-import java.time.LocalDateTime;
-import java.util.Date;
-
-import javax.inject.Inject;
-
-import org.springframework.security.core.userdetails.UserDetails;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
@@ -16,9 +9,12 @@ import net.syscon.elite.security.DeviceFingerprint;
 import net.syscon.elite.web.api.model.Token;
 import net.syscon.util.DateTimeConverter;
 
+import javax.inject.Inject;
+import java.time.LocalDateTime;
+import java.util.Date;
+
 public class TokenManagement {
 
-	private static final String SCOPES = "scopes";
 	private static final String DEVICE_FINGERPRINT_HASH_CODE = "deviceFingerprintHashCode";
 	private static final String ALLOW_REFRESH_TOKEN = "allowRefreshToken";
 	private TokenSettings settings;
@@ -38,7 +34,7 @@ public class TokenManagement {
 		final LocalDateTime now = LocalDateTime.now();
 
 		final Date issuedAt = DateTimeConverter.toDate(now);
-		final Date expiration = DateTimeConverter.toDate(now.plusMinutes(settings.getExpiration()));
+		final Date expiration = DateTimeConverter.toDate(now.plusMinutes(1));
 		final Date refreshExpiration = DateTimeConverter.toDate(now.plusMinutes(settings.getRefreshExpiration()));
 
 		final Token token = new Token();
@@ -94,18 +90,13 @@ public class TokenManagement {
 		return username;
 	}
 
-	public Boolean validateToken(final String token, final UserDetails userDetails, final DeviceFingerprint deviceFingerprint, final boolean refreshingToken) {
+	public Boolean validateToken(final String token, final String username, final DeviceFingerprint deviceFingerprint, final boolean refreshingToken) {
 		final Claims claims = this.getClaimsFromToken(token);
-		final String username = claims.getSubject();
 		final Boolean allowRefreshToken = (Boolean) claims.get(ALLOW_REFRESH_TOKEN);
-		boolean valid = token != null && userDetails != null && deviceFingerprint != null && username != null;
+		boolean valid = token != null && deviceFingerprint != null && username != null;
 
 		// validate the kind of token
 		if (refreshingToken && !allowRefreshToken || !refreshingToken && allowRefreshToken) {
-			valid = false;
-		}
-
-		if (valid && !username.equals(userDetails.getUsername())) {
 			valid = false;
 		}
 

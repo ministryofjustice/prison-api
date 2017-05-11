@@ -1,13 +1,9 @@
 package net.syscon.elite.aop;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.util.Arrays;
-import java.util.Properties;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-
+import net.syscon.elite.persistence.impl.UserRepositoryImpl;
+import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.util.SQLProvider;
+import oracle.jdbc.driver.OracleConnection;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -22,13 +18,13 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.context.SecurityContextHolder;
 
-import net.syscon.elite.persistence.impl.UserRepositoryImpl;
-import net.syscon.elite.security.UserDetailsImpl;
-import net.syscon.util.SQLProvider;
-import oracle.jdbc.driver.OracleConnection;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.util.Arrays;
+import java.util.Properties;
 
 
 @Aspect
@@ -95,15 +91,11 @@ public class OracleConnectionAspect {
 			final Connection conn = (Connection) joinPoint.proceed();
 			if (enableProxy) {
 				final OracleConnection oracleConn = (OracleConnection) conn.unwrap(Connection.class);
-				
-				final Object userPrincipal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-				if (userPrincipal == null || !(userPrincipal instanceof UserDetailsImpl)) {
-					throw new AccessDeniedException("The user is not authenticated");
-				}
-				final UserDetailsImpl userDetailsImpl = (UserDetailsImpl) userPrincipal;
+
+				final String username = UserSecurityUtils.getCurrentUsername();
+
 				final Properties info = new Properties();
-			    info.put(OracleConnection.PROXY_USER_NAME, userDetailsImpl.getUsername());
-			    info.put(OracleConnection.PROXY_USER_PASSWORD, userDetailsImpl.getPassword());
+			    info.put(OracleConnection.PROXY_USER_NAME, username);
 		        oracleConn.openProxySession(OracleConnection.PROXYTYPE_USER_NAME, info);
 		        
 		        final ProxyFactory proxyFactory = new ProxyFactory(conn);
