@@ -78,10 +78,10 @@ is: [
 
 
   put:
-    description: Update specific case note under a booking.
+    description: It will update text note of specified case note. Text will not be replaced but it will be appended by provided text.
     body:
       application/json:
-        schema: caseNote
+        schema: updateCaseNote
     responses:
       201:
         description: The Case Note has been recorded. The updated object is returned including the status.

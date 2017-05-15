@@ -4,7 +4,9 @@ import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.persistence.CaseNoteRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
+import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.web.api.model.CaseNote;
+import net.syscon.elite.web.api.model.UpdateCaseNote;
 import net.syscon.elite.web.api.model.UserDetails;
 import net.syscon.elite.web.api.resource.BookingResource.Order;
 import net.syscon.util.DateFormatProvider;
@@ -62,7 +64,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	public CaseNote createCaseNote(String bookingId, String CaseNoteId, CaseNote entity) {
 		GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
 		String sql = new QueryBuilder.Builder(getQuery("INSERT_CASE_NOTE"), caseNoteMapping).build();
-		UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String user = UserSecurityUtils.getCurrentUsername();
 		jdbcTemplate.update(sql, createParams("bookingID", bookingId,
 												"text", entity.getText(), 
 												"type", entity.getType(),
@@ -72,8 +74,8 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 												"createTime", new Date(),
 												"contactDate", new Date(),
 												"contactTime", new Date(),
-												"createdBy", user.getUsername().toUpperCase(),
-												"user_Id", user.getUsername().toUpperCase()
+												"createdBy", user,
+												"user_Id", user
 							), generatedKeyHolder, new String[] {"CASE_NOTE_ID" }
 						 );
 		entity.setCaseNoteId(generatedKeyHolder.getKey().longValue());
@@ -81,12 +83,17 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
-	public CaseNote updateCaseNote(String bookingId, String CaseNoteId, CaseNote entity) {
+	public CaseNote updateCaseNote(String bookingId, String caseNoteId, UpdateCaseNote entity) {
+		CaseNote caseNote = getCaseNote(bookingId, caseNoteId);
+		String updatedText = caseNote.getText() + entity.getText();
+		String user = UserSecurityUtils.getCurrentUsername();
 		String sql = new QueryBuilder.Builder(getQuery("UPDATE_CASE_NOTE"), caseNoteMapping).build();
-		jdbcTemplate.update(sql, createParams("modifyBy", "oms_owner",
-												"CaseNoteId", CaseNoteId,
-												"text", entity.getText()));
-		return entity;
+		jdbcTemplate.update(sql, createParams("modifyBy", user,
+												"caseNoteId", caseNoteId,
+												"text", updatedText));
+		
+		caseNote.setText(updatedText);
+		return caseNote;
 	}
 
 	private String convertDate(Object value, String dateFormat) {

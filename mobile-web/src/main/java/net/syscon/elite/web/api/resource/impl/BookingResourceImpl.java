@@ -19,6 +19,7 @@ import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.CaseNote;
 import net.syscon.elite.web.api.model.HttpStatus;
 import net.syscon.elite.web.api.model.InmateDetails;
+import net.syscon.elite.web.api.model.UpdateCaseNote;
 import net.syscon.elite.web.api.model.UserDetails;
 import net.syscon.elite.web.api.resource.BookingResource;
 
@@ -79,13 +80,6 @@ public class BookingResourceImpl implements BookingResource {
 	}
 	
 	@Override
-	public PutBookingByBookingIdCaseNotesByCaseNoteIdResponse putBookingByBookingIdCaseNotesByCaseNoteId(
-			String bookingId, String caseNoteId, CaseNote entity) throws Exception {
-		CaseNote caseNote = this.caseNoteService.updateCaseNote(bookingId, caseNoteId, entity);
-		return PutBookingByBookingIdCaseNotesByCaseNoteIdResponse.withJsonCreated(caseNote);
-	}
-	
-	@Override
 	public GetBookingByBookingIdCaseNotesByCaseNoteIdResponse getBookingByBookingIdCaseNotesByCaseNoteId(
 			String bookingId, String caseNoteId) throws Exception {
 		CaseNote caseNote = this.caseNoteService.getCaseNote(bookingId, caseNoteId);
@@ -118,6 +112,13 @@ public class BookingResourceImpl implements BookingResource {
 			final HttpStatus httpStatus = new HttpStatus("404", "404", message, message, "");
 			return GetBookingByBookingIdAliasesResponse.withJsonNotFound(httpStatus);
 		}
+	}
+	
+	@Override
+	public PutBookingByBookingIdCaseNotesByCaseNoteIdResponse putBookingByBookingIdCaseNotesByCaseNoteId(
+			String bookingId, String caseNoteId, UpdateCaseNote entity) throws Exception {
+		CaseNote caseNote = this.caseNoteService.updateCaseNote(bookingId, caseNoteId, entity);
+		return PutBookingByBookingIdCaseNotesByCaseNoteIdResponse.withJsonCreated(caseNote);
 	}
 
 
