@@ -1,8 +1,10 @@
 package net.syscon.elite.service.impl;
 
 import net.syscon.elite.persistence.CaseNoteRepository;
+import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.web.api.model.CaseNote;
+import net.syscon.elite.web.api.model.UpdateCaseNote;
 import net.syscon.elite.web.api.model.UserDetails;
 import net.syscon.elite.web.api.resource.BookingResource.Order;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -57,10 +59,10 @@ public class CaseNoteServiceImpl implements CaseNoteService{
 	}
 
 	@Override
-	public CaseNote updateCaseNote(final String bookingId, final String caseNoteId, final CaseNote entity) {
+	public CaseNote updateCaseNote(final String bookingId, final String caseNoteId, final UpdateCaseNote entity) {
 		//Append "...[<userId> updated the case note on <datetime>] <text provided>".
-		final UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		final StringBuilder textNoteBuilder = new StringBuilder(user.getUsername());
+		String  user = UserSecurityUtils.getCurrentUsername();
+		final StringBuilder textNoteBuilder = new StringBuilder(user);
 		textNoteBuilder.append(amendTextNote);
 		textNoteBuilder.append(new Date());
 		textNoteBuilder.append(" "+entity.getText());
