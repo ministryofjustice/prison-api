@@ -58,6 +58,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
 		.put("BIRTH_DATE", 			new FieldMapper("birthDate", value -> DateFormatProvider.get("yyyy-MM-dd").format((Date)value), null))
 		.put("AGE",                 new FieldMapper("age"))
+		.put("ASSIGNED_OFFEICER_ID",                 new FieldMapper("assignedOfficerUserId"))
 	.build();
 
 	private final Map<String, FieldMapper> physicalAttributesMapping = new ImmutableMap.Builder<String, FieldMapper>()
