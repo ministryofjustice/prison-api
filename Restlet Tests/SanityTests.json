@@ -136,7 +136,7 @@
           "version": "V11"
         },
         "host": "${\"HOST\"}",
-        "path": "/api/booking/18733"
+        "path": "/api/booking/18800"
       },
       "id": "DA019470-A149-48ED-8B86-7FEA168AA4E8",
       "lastModified": "2017-05-05T11:31:54.485-07:00",
@@ -159,7 +159,7 @@
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
           "path": "$.bookingId",
-          "value": "\"18733\""
+          "value": "\"18800\""
         }
       ],
       "metaInfo": {},
@@ -276,7 +276,7 @@
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
           "path": "$.bookingId[0]",
-          "value": "18733"
+          "value": "18756"
         }
       ],
       "metaInfo": {},
@@ -387,7 +387,7 @@
           "version": "V11"
         },
         "host": "${\"HOST\"}",
-        "path": "/api/booking/18733/caseNotes/33781"
+        "path": "/api/booking/18733/caseNotes/33839"
       },
       "id": "D5BD6245-4B48-4F7D-8246-2AF580A78249",
       "lastModified": "2017-05-05T11:32:55.789-07:00",
@@ -451,8 +451,8 @@
         {
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
-          "path": "$.caseNoteId[(@.length-1)]",
-          "value": "33758"
+          "path": "$.caseNoteId[0]",
+          "value": "33781"
         }
       ],
       "metaInfo": {},
@@ -1437,7 +1437,7 @@
         {
           "enabled": true,
           "name": "HOST",
-          "value": "10.10.100.32:8080"
+          "value": "localhost:7080"
         },
         {
           "enabled": true,

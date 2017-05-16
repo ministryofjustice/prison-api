@@ -1,14 +1,15 @@
 package net.syscon.elite.web.api.resource.impl;
 
-import java.util.List;
-
-import javax.inject.Inject;
-
+import net.syscon.elite.persistence.InmateRepository;
+import net.syscon.elite.service.CaseNoteService;
+import net.syscon.elite.service.InmatesAlertService;
+import net.syscon.elite.web.api.model.*;
+import net.syscon.elite.web.api.resource.BookingResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+
 
 import net.syscon.elite.persistence.InmateRepository;
 import net.syscon.elite.service.CaseNoteService;
@@ -23,27 +24,30 @@ import net.syscon.elite.web.api.model.UpdateCaseNote;
 import net.syscon.elite.web.api.model.UserDetails;
 import net.syscon.elite.web.api.resource.BookingResource;
 
+import javax.inject.Inject;
+import java.util.List;
+
+
 @Component
 public class BookingResourceImpl implements BookingResource {
 
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
+
 	private InmateRepository inmateRepository;
 	private CaseNoteService caseNoteService;
 	private InmatesAlertService inmateAlertService;
 	
 	@Inject
-	public void setCaseNoteService(final CaseNoteService caseNoteService) {
-		this.caseNoteService = caseNoteService;
-	}
+	public void setCaseNoteService(final CaseNoteService caseNoteService) { this.caseNoteService = caseNoteService; }
+	
 	@Inject
-	public void setInmateAlertService(InmatesAlertService inmateAlertService) {
-		this.inmateAlertService = inmateAlertService;
-	}
-
+	public void setInmateAlertService(InmatesAlertService inmateAlertService) { this.inmateAlertService = inmateAlertService; }
+	
 	@Inject
 	public void setInmateRepository(final InmateRepository inmateRepository) { this.inmateRepository = inmateRepository; }
+
 	
 	@Override
 	public GetBookingResponse getBooking(String query, String orderBy, Order order, int offset, int limit)
