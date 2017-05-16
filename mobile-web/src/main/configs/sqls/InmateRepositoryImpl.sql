@@ -33,6 +33,7 @@ FIND_INMATE_DETAIL {
             O.BIRTH_DATE,
             (SYSDATE - O.BIRTH_DATE) / 365 AS AGE
        FROM OFFENDER_BOOKINGS B
+            INNER JOIN CASELOAD_AGENCY_LOCATIONS C ON C.CASELOAD_ID = :caseLoadId AND B.AGY_LOC_ID = C.AGY_LOC_ID
             LEFT JOIN OFFENDERS O ON B.OFFENDER_ID = O.OFFENDER_ID
       WHERE B.ACTIVE_FLAG = 'Y' AND B.OFFENDER_BOOK_ID = :bookingId
 }
@@ -69,6 +70,7 @@ FIND_ALL_INMATES {
                 WHERE ROWNUM <= 1
             ) AS FACE_IMAGE_ID
        FROM OFFENDER_BOOKINGS B
+            INNER JOIN CASELOAD_AGENCY_LOCATIONS C ON C.CASELOAD_ID = :caseLoadId AND B.AGY_LOC_ID = C.AGY_LOC_ID
             LEFT JOIN OFFENDERS O ON B.OFFENDER_ID = O.OFFENDER_ID
       WHERE B.ACTIVE_FLAG = 'Y'
 }
@@ -106,6 +108,7 @@ FIND_INMATES_BY_LOCATION {
                 WHERE ROWNUM <= 1
             ) AS FACE_IMAGE_ID
        FROM OFFENDER_BOOKINGS B
+            INNER JOIN CASELOAD_AGENCY_LOCATIONS C ON C.CASELOAD_ID = :caseLoadId AND B.AGY_LOC_ID = C.AGY_LOC_ID
             LEFT JOIN OFFENDERS O ON B.OFFENDER_ID = O.OFFENDER_ID
       WHERE B.ACTIVE_FLAG = 'Y'
             AND B.LIVING_UNIT_ID IN (
@@ -133,6 +136,7 @@ FIND_PHYSICAL_CHARACTERISTICS_BY_BOOKING {
              WHERE ROWNUM <= 1
            ) AS IMAGE_ID
       FROM OFFENDER_BOOKINGS B
+           INNER JOIN CASELOAD_AGENCY_LOCATIONS C ON C.CASELOAD_ID = :caseLoadId AND B.AGY_LOC_ID = C.AGY_LOC_ID
            LEFT JOIN OFFENDER_PROFILE_DETAILS P ON B.OFFENDER_BOOK_ID = P.OFFENDER_BOOK_ID
      WHERE B.OFFENDER_BOOK_ID = :bookingId
            AND B.ACTIVE_FLAG = 'Y'
@@ -157,6 +161,7 @@ FIND_PHYSICAL_MARKS_BY_BOOKING {
                    AND M.ID_MARK_SEQ = I.IMAGE_OBJECT_SEQ
            ) AS IMAGE_ID
       FROM OFFENDER_BOOKINGS B
+           INNER JOIN CASELOAD_AGENCY_LOCATIONS C ON C.CASELOAD_ID = :caseLoadId AND B.AGY_LOC_ID = C.AGY_LOC_ID
            INNER JOIN offender_identifying_marks M ON B.OFFENDER_BOOK_ID = M.OFFENDER_BOOK_ID
      WHERE B.OFFENDER_BOOK_ID = :bookingId
            AND B.ACTIVE_FLAG = 'Y'
@@ -172,38 +177,45 @@ FIND_PHYSICAL_ATTRIBUTES_BY_BOOKING {
            P.WEIGHT_LBS,
            P.WEIGHT_KG
       FROM OFFENDER_BOOKINGS B
+           INNER JOIN CASELOAD_AGENCY_LOCATIONS C ON C.CASELOAD_ID = :caseLoadId AND B.AGY_LOC_ID = C.AGY_LOC_ID
            LEFT JOIN OFFENDERS O ON B.OFFENDER_ID = O.OFFENDER_ID
            LEFT JOIN OFFENDER_PHYSICAL_ATTRIBUTES P ON B.OFFENDER_BOOK_ID = P.OFFENDER_BOOK_ID
      WHERE B.OFFENDER_BOOK_ID = :bookingId
            AND B.ACTIVE_FLAG = 'Y'
 }
+
 FIND_ACTIVE_APPROVED_ASSESSMENT {
-	SELECT
-		assessments.assessment_code,
-		assessments.description as assessment_description,
-		ref_cd_SUP_LVL_TYPE.description as classification
-		FROM offender_assessments, assessments, reference_codes ref_cd_SUP_LVL_TYPE
-		WHERE offender_assessments.assessment_type_id = assessments.assessment_id
-		AND assessments.assessment_class = 'TYPE'
-		AND offender_assessments.offender_book_id = :bookingId
-		AND offender_assessments.review_sup_level_type = ref_cd_SUP_LVL_TYPE.code
-		AND ref_cd_SUP_LVL_TYPE.domain = 'SUP_LVL_TYPE'
-		AND offender_assessments.assess_status = 'A'
-		AND offender_assessments.evaluation_result_code = 'APP'
+    SELECT ASSESSMENTS.ASSESSMENT_CODE,
+           ASSESSMENTS.DESCRIPTION AS ASSESSMENT_DESCRIPTION,
+           REF_CD_SUP_LVL_TYPE.DESCRIPTION AS CLASSIFICATION
+      FROM OFFENDER_ASSESSMENTS,
+           ASSESSMENTS,
+           REFERENCE_CODES REF_CD_SUP_LVL_TYPE
+     WHERE OFFENDER_ASSESSMENTS.ASSESSMENT_TYPE_ID = ASSESSMENTS.ASSESSMENT_ID
+           AND ASSESSMENTS.ASSESSMENT_CLASS = 'TYPE'
+           AND OFFENDER_ASSESSMENTS.OFFENDER_BOOK_ID = :bookingId
+           AND OFFENDER_ASSESSMENTS.REVIEW_SUP_LEVEL_TYPE = REF_CD_SUP_LVL_TYPE.CODE
+           AND REF_CD_SUP_LVL_TYPE.DOMAIN = 'SUP_LVL_TYPE'
+           AND OFFENDER_ASSESSMENTS.ASSESS_STATUS = 'A'
+           AND OFFENDER_ASSESSMENTS.EVALUATION_RESULT_CODE = 'APP'
 }
+
+
 FIND_INMATE_ALIASES {
-	SELECT 	offenders.last_name, 
-		offenders.first_name, 
-		offenders.middle_name,
-		offenders.birth_date,  
-		TRUNC(MONTHS_BETWEEN(sysdate, offenders.birth_date)/12) as AGE,
-		ref_cd_ETHNICITY.description as ethnicity, 
-		ref_cd_NAME_TYPE.description as alias_type  
-  	FROM offenders, offender_bookings, reference_codes ref_cd_ETHNICITY, reference_codes ref_cd_NAME_TYPE 
- 	WHERE offenders.root_offender_id = offender_bookings.root_offender_id 
-   	AND offender_bookings.offender_book_id = :bookingId 
-   	AND offenders.race_code = ref_cd_ETHNICITY.code 
-   	AND ref_cd_ETHNICITY .domain = 'ETHNICITY' 
-   	AND offenders.alias_name_type = ref_cd_NAME_TYPE.code 
-   	AND ref_cd_NAME_TYPE.domain = 'NAME_TYPE'
+    SELECT OFFENDERS.LAST_NAME,
+           OFFENDERS.FIRST_NAME,
+           OFFENDERS.MIDDLE_NAME,
+           OFFENDERS.BIRTH_DATE,
+           TRUNC(MONTHS_BETWEEN(SYSDATE, OFFENDERS.BIRTH_DATE)/12) AS AGE,
+           REF_CD_ETHNICITY.DESCRIPTION AS ETHNICITY,
+           REF_CD_NAME_TYPE.DESCRIPTION AS ALIAS_TYPE
+      FROM OFFENDERS, OFFENDER_BOOKINGS,
+           REFERENCE_CODES REF_CD_ETHNICITY,
+           REFERENCE_CODES REF_CD_NAME_TYPE
+     WHERE OFFENDERS.ROOT_OFFENDER_ID = OFFENDER_BOOKINGS.ROOT_OFFENDER_ID
+           AND OFFENDER_BOOKINGS.OFFENDER_BOOK_ID = :bookingId
+           AND OFFENDERS.RACE_CODE = REF_CD_ETHNICITY.CODE
+           AND REF_CD_ETHNICITY .DOMAIN = 'ETHNICITY'
+           AND OFFENDERS.ALIAS_NAME_TYPE = REF_CD_NAME_TYPE.CODE
+           AND REF_CD_NAME_TYPE.DOMAIN = 'NAME_TYPE'
 }

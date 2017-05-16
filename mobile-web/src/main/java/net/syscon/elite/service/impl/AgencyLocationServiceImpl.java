@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -77,7 +78,11 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 
 	@Override
 	public List<AssignedInmate> getInmatesFromLocation(final Long locationId, String query, String orderByField, Order order, final int offset, final int limit) {
-		return inmateRepository.findInmatesByLocation(locationId, query, orderByField, order, offset, limit);
+		List<AssignedInmate> result = new ArrayList<>();
+		if (getLocation(locationId) != null) {
+			return inmateRepository.findInmatesByLocation(locationId, query, orderByField, order, offset, limit);
+		}
+		return result;
 	}
 
 	@Override

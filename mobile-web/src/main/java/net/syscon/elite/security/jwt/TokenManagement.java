@@ -34,7 +34,7 @@ public class TokenManagement {
 		final LocalDateTime now = LocalDateTime.now();
 
 		final Date issuedAt = DateTimeConverter.toDate(now);
-		final Date expiration = DateTimeConverter.toDate(now.plusMinutes(1));
+		final Date expiration = DateTimeConverter.toDate(now.plusMinutes(settings.getExpiration()));
 		final Date refreshExpiration = DateTimeConverter.toDate(now.plusMinutes(settings.getRefreshExpiration()));
 
 		final Token token = new Token();
