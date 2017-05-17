@@ -36,6 +36,7 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 	public List<Location> findLocations(final String caseLoadId, String query, String orderByField, Order order, final int offset, final int limit) {
 		//final String sql = getPagedQuery("FIND_ALL_LOCATIONS");
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_ALL_LOCATIONS"), locationMapping).
+				addRowCount().
 				addQuery(query).
 				addOrderBy(order == Order.asc, orderByField).
 				addPagedQuery()
@@ -47,6 +48,7 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 	@Override
 	public List<Location> findLocationsByAgencyId(final String caseLoadId, final String agencyId, final String query, final int offset, final int limit, final String orderByField, final String order) {
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_LOCATIONS_BY_AGENCY_ID"), locationMapping).
+						addRowCount().
 						addQuery(query).
 						addOrderBy("asc".equalsIgnoreCase(order)?true:false, orderByField).
 						addPagedQuery()

@@ -1,6 +1,13 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"title": "ReferenceDomains",
-	"type": "array",
-	"items": { "$ref": "referenceDomain" }
+	"type": "object",
+	"properties": {
+		"referenceDomains" : {
+			"type": "array",
+			"items": { "$ref": "referenceDomain" }
+		},
+		"pageMetaData": {"$ref": "pageMetaData"}
+	},
+	"required": ["content", "pageMetaData"]
 }

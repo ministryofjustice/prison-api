@@ -43,12 +43,13 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	public List<CaseNote> getCaseNotes(String bookingId, String query, String orderByField, Order order, int offset,
 			int limit) {
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_CASENOTES"), caseNoteMapping)
+											.addRowCount()
 											.addQuery(query)
 											.addOrderBy("asc".equalsIgnoreCase(order.toString())?true:false, orderByField)
 											.addPagedQuery()
 											.build();
 		final RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, caseNoteMapping);
-		return jdbcTemplate.query(sql, createParams("bookingId", bookingId, "offset", offset, "limit", limit), caseNoteRowMapper);
+		return jdbcTemplate.query(sql, createParams("bookingId", bookingId, "caseLoadId", getCurrentCaseLoad(), "offset", offset, "limit", limit), caseNoteRowMapper);
 	}
 
 	@Override
@@ -57,7 +58,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 //								.build();
 		final String sql = getQuery("FIND_CASENOTE");
 		final RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, caseNoteMapping);
-		return jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "caseNoteId", caseNoteId), caseNoteRowMapper);
+		return jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "caseNoteId", caseNoteId, "caseLoadId", getCurrentCaseLoad()), caseNoteRowMapper);
 	}
 
 	@Override

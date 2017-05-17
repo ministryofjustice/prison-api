@@ -8,7 +8,9 @@ import org.springframework.stereotype.Component;
 
 import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.web.api.model.ReferenceCode;
+import net.syscon.elite.web.api.model.ReferenceCodes;
 import net.syscon.elite.web.api.resource.ReferenceDomainsResource;
+import net.syscon.util.MetaDataFactory;
 
 @Component
 public class ReferenceDomainsResourceImpl implements ReferenceDomainsResource {
@@ -24,19 +26,22 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainsResource {
 	@Override
 	public GetReferenceDomainsCaseNotesTypesByCaseLoadResponse getReferenceDomainsCaseNotesTypesByCaseLoad(final String caseLoad, final int offset, final int limit) throws Exception {
 		List<ReferenceCode> refrenceCodeList = this.refrenceCodeService.getCnotetypesByCaseLoad(caseLoad);
-		return GetReferenceDomainsCaseNotesTypesByCaseLoadResponse.withJsonOK(refrenceCodeList);
+		ReferenceCodes referenceCodes = new ReferenceCodes(refrenceCodeList, MetaDataFactory.createMetaData(limit, offset, refrenceCodeList));
+		return GetReferenceDomainsCaseNotesTypesByCaseLoadResponse.withJsonOK(referenceCodes);
 	}
 
 	@Override
 	public GetReferenceDomainsCaseNotesSubTypesByCaseNoteTypeResponse getReferenceDomainsCaseNotesSubTypesByCaseNoteType(final String caseNoteType, final int offset, final int limit) throws Exception {
 		List<ReferenceCode> refrenceCodeList = this.refrenceCodeService.getCnoteSubtypesByCaseNoteType(caseNoteType);
-		return GetReferenceDomainsCaseNotesSubTypesByCaseNoteTypeResponse.withJsonOK(refrenceCodeList);
+		ReferenceCodes referenceCodes = new ReferenceCodes(refrenceCodeList, MetaDataFactory.createMetaData(limit, offset, refrenceCodeList));
+		return GetReferenceDomainsCaseNotesSubTypesByCaseNoteTypeResponse.withJsonOK(referenceCodes);
 	}
 
 	@Override
 	public GetReferenceDomainsAlertTypesResponse getReferenceDomainsAlertTypes(String query, String orderBy, Order order, int offset, int limit) throws Exception {
 		List<ReferenceCode> refrenceCodeList = this.refrenceCodeService.getAlertTypes(query, orderBy, order, offset, limit);
-		return GetReferenceDomainsAlertTypesResponse.withJsonOK(refrenceCodeList);
+		ReferenceCodes referenceCodes = new ReferenceCodes(refrenceCodeList, MetaDataFactory.createMetaData(limit, offset, refrenceCodeList));
+		return GetReferenceDomainsAlertTypesResponse.withJsonOK(referenceCodes);
 	}
 
 	@Override
@@ -49,7 +54,8 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainsResource {
 	@Override
 	public GetReferenceDomainsAlertTypesByAlertTypeCodesResponse getReferenceDomainsAlertTypesByAlertTypeCodes(String alertType, String query, String orderBy, Order order, int offset, int limit) throws Exception {
 		List<ReferenceCode> refrenceCodeList = this.refrenceCodeService.getAlertTypesByAlertTypeCode(alertType, query, orderBy, order, offset, limit);
-		return GetReferenceDomainsAlertTypesByAlertTypeCodesResponse.withJsonOK(refrenceCodeList);
+		ReferenceCodes referenceCodes = new ReferenceCodes(refrenceCodeList, MetaDataFactory.createMetaData(limit, offset, refrenceCodeList));
+		return GetReferenceDomainsAlertTypesByAlertTypeCodesResponse.withJsonOK(referenceCodes);
 	}
 
 	@Override

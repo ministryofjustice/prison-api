@@ -1,6 +1,13 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"title": "ResferenceCode Set",
-	"type": "array",
-	"items": { "$ref": "referenceCode" }
+	"type": "object",
+	"properties": {
+		"ReferenceCodes" : {
+			"type": "array",
+			"items": { "$ref": "referenceCode" }
+		},
+		"pageMetaData": {"$ref": "pageMetaData"}
+	},
+	"required": ["ReferenceCodes", "pageMetaData"]
 }

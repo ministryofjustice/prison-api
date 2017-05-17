@@ -1,14 +1,16 @@
 package net.syscon.elite.web.api.resource.impl;
 
-import net.syscon.elite.service.AgencyLocationService;
-import net.syscon.elite.web.api.model.Agency;
-import net.syscon.elite.web.api.model.Location;
-import net.syscon.elite.web.api.resource.AgenciesResource;
-import org.springframework.stereotype.Component;
-
-import javax.inject.Inject;
 import java.util.Base64;
 import java.util.List;
+import javax.inject.Inject;
+import org.springframework.stereotype.Component;
+import net.syscon.elite.service.AgencyLocationService;
+import net.syscon.elite.web.api.model.Agencies;
+import net.syscon.elite.web.api.model.Agency;
+import net.syscon.elite.web.api.model.Location;
+import net.syscon.elite.web.api.model.Locations;
+import net.syscon.elite.web.api.resource.AgenciesResource;
+import net.syscon.util.MetaDataFactory;
 
 @Component
 public class AgenciesResourceImpl implements AgenciesResource {
@@ -21,8 +23,10 @@ public class AgenciesResourceImpl implements AgenciesResource {
 
 	@Override
 	public GetAgenciesResponse getAgencies(final int offset, final int limit) throws Exception {
-
-		final List<Agency> agencies = agencyLocationService.getAgencies(offset, limit);
+		final List<Agency> agencyItems = agencyLocationService.getAgencies(offset, limit);
+		final Agencies agencies = new Agencies();
+		agencies.setPageMetaData(MetaDataFactory.createMetaData(limit, offset, agencyItems));
+		agencies.setAgencies(agencyItems);
 		return GetAgenciesResponse.withJsonOK(agencies);
 	}
 
@@ -35,7 +39,8 @@ public class AgenciesResourceImpl implements AgenciesResource {
 	@Override
 	public GetAgenciesByAgencyIdLocationsResponse getAgenciesByAgencyIdLocations(final String agencyId, final String query, final String orderBy, final Order order, final int offset, final int limit) throws Exception {
 		final List<Location> result = agencyLocationService.getLocationsFromAgency(agencyId, query, offset, limit, orderBy, order.toString());
-		return GetAgenciesByAgencyIdLocationsResponse.withJsonOK(result);
+		Locations locations = new Locations(result, MetaDataFactory.createMetaData(limit, offset, result));
+		return GetAgenciesByAgencyIdLocationsResponse.withJsonOK(locations);
 	}
 
 

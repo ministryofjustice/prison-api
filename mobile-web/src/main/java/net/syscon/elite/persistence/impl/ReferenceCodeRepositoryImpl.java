@@ -28,21 +28,22 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 
 	@Override
 	public List<ReferenceCode> getCnotetypesByCaseLoad(final String caseLoad) {
-		final String sql = getQuery("FIND_CNOTE_TYPES_BY_CASE_LOAD");
+		
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_CNOTE_TYPES_BY_CASE_LOAD"), referenceCodeMapping).addRowCount().build();
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
 		return jdbcTemplate.query(sql, createParams("caseLoad", caseLoad), referenceCodeRowMapper);
 	}
 
 	@Override
 	public List<ReferenceCode> getCnoteSubtypesByCaseNoteType(final String caseNotetype) {
-		final String sql = getQuery("FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE");
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE"), referenceCodeMapping).addRowCount().build();
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
 		return jdbcTemplate.query(sql, createParams("caseNoteType", caseNotetype), referenceCodeRowMapper);
 	}
 
 	@Override
 	public List<ReferenceCode> getReferenceCodesForDomain(final String domain) {
-		final String sql = getQuery("FIND_REF_CODES");
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_REF_CODES"), referenceCodeMapping).addRowCount().build();
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
 		return jdbcTemplate.query(sql, createParams("domain", domain), referenceCodeRowMapper);
 	}
@@ -56,7 +57,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 
 	@Override
 	public List<ReferenceCode> getAlertTypes(String query, String orderBy, Order order, int offset, int limit) {
-		final String sql = getQuery("FIND_REF_CODES");
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_REF_CODES"), referenceCodeMapping).addRowCount().build();
 		String domain = "ALERT";
 		boolean isAsc = order.toString().equals("asc")?true:false;
 		String sqlQuery = new QueryBuilder.Builder(sql, referenceCodeMapping).addQuery(query).addOrderBy(isAsc, orderBy).addPagedQuery().build();
@@ -74,7 +75,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 
 	@Override
 	public List<ReferenceCode> getAlertTypesByAlertTypeCode(String alertType, String query, String orderBy, Order order, int offset, int limit) {
-		final String sql = getQuery("FIND_ALERT_REF_CODES");
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_ALERT_REF_CODES"), referenceCodeMapping).addRowCount().build();
 		String domain = "ALERT_CODE";
 		boolean isAsc = order.toString().equals("asc")?true:false;
 		String sqlQuery = new QueryBuilder.Builder(sql, referenceCodeMapping).addQuery(query).addOrderBy(isAsc, orderBy).addPagedQuery().build();

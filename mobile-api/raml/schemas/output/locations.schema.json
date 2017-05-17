@@ -1,6 +1,14 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"title": "Locations",
-	"type": "array",
-	"items": { "$ref": "location" }
+	"type": "object",
+	"properties": {
+		"locations" : {
+			"type": "array",
+			"items": { "$ref": "location" }
+		},
+		"pageMetaData": {"$ref": "pageMetaData"}
+	},
+	"required": ["locations", "pageMetaData"]
 }
+

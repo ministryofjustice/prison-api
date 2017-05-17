@@ -1,6 +1,13 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"title": "Agencies",
-	"type": "array",
-	"items": { "$ref": "agency" }
+	"type": "object",
+	"properties": {
+		"agencies" : {
+			"type": "array",
+			"items": { "$ref": "agency" }
+		},
+		"pageMetaData": {"$ref": "pageMetaData"}
+	},
+	"required": ["agencies", "pageMetaData"]
 }

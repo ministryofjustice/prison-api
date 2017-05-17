@@ -1,8 +1,9 @@
 package net.syscon.elite.persistence.impl;
 
 
-import java.io.IOException;
-
+import net.syscon.elite.exception.EliteRuntimeException;
+import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.util.SQLProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -11,7 +12,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
-import net.syscon.util.SQLProvider;
+import java.io.IOException;
 
 
 public class RepositoryBase implements ApplicationContextAware {
@@ -20,6 +21,19 @@ public class RepositoryBase implements ApplicationContextAware {
 
 	protected NamedParameterJdbcOperations jdbcTemplate;
 	protected SQLProvider sqlProvider;
+
+
+
+	// TODO: Remove UserRepository dependency using SQLFilter approach to generate the filter
+	//************************** PLEASE, FIX ME LATER!!! **************************
+	protected String getCurrentCaseLoad() {
+		final String username = UserSecurityUtils.getCurrentUsername();
+		final String sql = "SELECT ASSIGNED_CASELOAD_ID FROM STAFF_MEMBERS WHERE PERSONNEL_TYPE = 'STAFF' AND USER_ID = :username";
+		return jdbcTemplate.queryForObject(sql, createParams("username", username), String.class);
+	}
+	//********************************************************************************
+
+
 
 	@Override
 	public void setApplicationContext(final ApplicationContext applicationContext) {
@@ -46,7 +60,18 @@ public class RepositoryBase implements ApplicationContextAware {
 	}
 
 	public String getPagedQuery(final String name) {
-		final StringBuilder sb = new StringBuilder(sqlProvider.get(name));
+		final StringBuilder sb = new StringBuilder();
+		String sql = sqlProvider.get(name);
+		int i = sql.toUpperCase().indexOf("SELECT");
+		if (i < 0) {
+			throw new EliteRuntimeException("Paged Query must have a SELECT statement!");
+		}
+
+		sb.append(sql.substring(0, i + 6));
+		sb.append(" COUNT(*) OVER() TOTAL, ");
+		sb.append(sql.substring(i + 7));
+
+
 		if (sb.length() > 0) {
 			sb.append(" OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY");
 		}

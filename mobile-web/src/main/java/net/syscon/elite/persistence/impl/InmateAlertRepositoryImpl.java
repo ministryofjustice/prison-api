@@ -36,6 +36,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 	public List<Alert> getInmateAlert(String bookingId, String query, String orderByField, Order order, int offset,
 			int limit) {
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_INMATE_ALERTS"), alertMapping)
+											.addRowCount()
 											.addQuery(query)
 											.addOrderBy("asc".equalsIgnoreCase(order.toString())?true:false, orderByField)
 											.addPagedQuery()
