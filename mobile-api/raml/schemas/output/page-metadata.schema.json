@@ -1,0 +1,12 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "PageMetaData",
+	"type": "object",
+	"properties": {
+		"offset": { "type": "integer" },
+		"limit": { "type": "integer" },
+		"totalRecords": { "type": "integer" },
+		"name": {"type":"string"}
+	},
+	"required": ["offset", "limit", "totalRecords"]
+}

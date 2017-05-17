@@ -101,6 +101,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	@Override
 	public List<AssignedInmate> findInmatesByLocation(final Long locationId, String query, String orderByField, LocationsResource.Order order, final int offset, final int limit) {
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_INMATES_BY_LOCATION"), assignedInmateMapping).
+				addRowCount().
 				addQuery(query).
 				addOrderBy(order == LocationsResource.Order.asc, orderByField).
 				addPagedQuery()
@@ -113,6 +114,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	@Override
 	public List<AssignedInmate> findAllInmates(final String query, final int offset, final int limit, final String orderBy, BookingResource.Order order) {
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_ALL_INMATES"), assignedInmateMapping).
+				addRowCount().
 				addQuery(query).
 				addOrderBy(order == BookingResource.Order.asc, orderBy).
 				addPagedQuery()

@@ -1,7 +1,13 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"title": "Alerts",
-	"type": "array",
-	"items": { "$ref": "alert" }
+	"type": "object",
+	"properties": {
+		"alerts" : {
+			"type": "array",
+			"items": { "$ref": "alert" }
+		},
+		"pageMetaData": {"$ref": "pageMetaData"}
+	},
+	"required": ["alerts", "pageMetaData"]
 }
-

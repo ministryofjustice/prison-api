@@ -1,6 +1,13 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"title": "CaseNotes",
-	"type": "array",
-	"items": { "$ref": "caseNote" }
+	"type": "object",
+	"properties": {
+		"caseNotes" : {
+			"type": "array",
+			"items": { "$ref": "caseNote" }
+		},
+		"pageMetaData": {"$ref": "pageMetaData"}
+	},
+	"required": ["caseNotes", "pageMetaData"]
 }

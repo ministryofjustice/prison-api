@@ -45,6 +45,14 @@ public class QueryBuilder {
 			return this;
 		}
 		
+		public Builder addRowCount() {
+			String sqlQuery = this.baseQuery.toString().toLowerCase();
+			int firstSelectLocation = sqlQuery.indexOf("select");
+			String rowCountQuery = "  COUNT(*) OVER() RECORD_COUNT, ";
+			baseQuery.insert(firstSelectLocation + 6, rowCountQuery);
+			return this;
+		}
+		
 		public  Builder addPagedQuery() {
 			if (baseQuery.length() > 0) {
 				baseQuery.append(" OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY");

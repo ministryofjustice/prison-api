@@ -5,7 +5,7 @@ version: v1
 securedBy: [jwt]
 schemas:
 - httpStatus: !include schemas/output/http-status.schema.json
-
+- pageMetaData: !include schemas/output/page-metadata.schema.json
 - userDetails: !include schemas/output/user-details.schema.json
 - authLogin: !include schemas/input/auth-login.schema.json
 - authToken: !include schemas/input/auth-token.schema.json
