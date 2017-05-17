@@ -55,7 +55,7 @@
       "body": {
         "bodyType": "Text",
         "autoSetLength": true,
-        "textBody": "{\n  \"username\": \"oms_owner\",\n  \"password\": \"oms_owner\"\n}"
+        "textBody": "{\n  \"username\": \"itag_user\",\n  \"password\": \"it4g_us3r\"\n}"
       },
       "headersType": "Form",
       "uri": {
@@ -1330,7 +1330,7 @@
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
           "path": "$.username",
-          "value": "OMS_OWNER"
+          "value": "ITAG_USER"
         }
       ],
       "metaInfo": {},
@@ -1393,7 +1393,7 @@
           "version": "V11"
         },
         "host": "${\"HOST\"}",
-        "path": "/api/users/OMS_OWNER"
+        "path": "/api/users/ITAG_USER"
       },
       "id": "EC9C5B84-2F65-4EB9-B280-F95257921CC0",
       "lastModified": "2017-05-16T14:04:33.307-07:00",
@@ -1416,7 +1416,7 @@
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
           "path": "$.username",
-          "value": "OMS_OWNER"
+          "value": "ITAG_USER"
         }
       ],
       "metaInfo": {},
