@@ -13,9 +13,16 @@
 			"type": "array",
 			"items": { "type": "string" }
 		},
-		"agencyId":  { "type": "string" },
+		"assignedLivingUnit": {
+			"type": "object",
+			"properties": {
+				"agencyId": { "type": "string" },
+				"locationId": { "type": "integer" },
+				"description": { "type": "string" }
+			},
+			"required": ["agencyId", "locationId", "description"]
+		},
 		"currentLocationId":  { "type": "integer" },
-		"assignedLivingUnitId":  { "type": "integer" },
 		"facialImageId": { "type": "integer" },
 		"dateOfBirth":  {
 			"type": "string",

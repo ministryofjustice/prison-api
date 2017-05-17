@@ -41,7 +41,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		.put("MIDDLE_NAME", 		new FieldMapper("middleName"))
 		.put("LAST_NAME", 			new FieldMapper("lastName"))
 		.put("ALERT_TYPES", 		new FieldMapper("alertsCodes", value -> Arrays.asList(value.toString().split(",")), null))
-		.put("LIVING_UNIT_ID", 		new FieldMapper("assignedLivingUnitId"))
 		.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
 	.build();
 
@@ -74,6 +73,12 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		.put("CHARACTERISTIC", 	new FieldMapper("characteristic"))
 		.put("DETAIL",          new FieldMapper("detail"))
 		.put("IMAGE_ID", new FieldMapper("imageId"))
+	.build();
+
+	private final Map<String, FieldMapper> assignedLivingUnitMapping = new ImmutableMap.Builder<String, FieldMapper>()
+		.put("AGY_LOC_ID", 	new FieldMapper("agencyId"))
+		.put("LIVING_UNIT_ID",          new FieldMapper("locationId"))
+		.put("LIVING_UNIT_DESCRITION", new FieldMapper("description"))
 	.build();
 
 	final Map<String, FieldMapper> physicalMarkMapping = new ImmutableMap.Builder<String, FieldMapper>()
@@ -153,6 +158,13 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		return assessments;
 	}
 
+	private AssignedLivingUnit findAssignedLivingUnit(final long bookingId) {
+		final String sql = getQuery("FIND_ASSINGED_LIVING_UNIT");
+		final RowMapper<AssignedLivingUnit> assignedLivingUnitRowMapper = Row2BeanRowMapper.makeMapping(sql, AssignedLivingUnit.class, assignedLivingUnitMapping);
+		final AssignedLivingUnit assignedLivingUnit = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId), assignedLivingUnitRowMapper);
+		return assignedLivingUnit;
+	}
+
 
 	@Override
 	public InmateDetails findInmate(final Long bookingId) {
@@ -165,6 +177,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 				inmate.setPhysicalCharacteristics(this.findPhysicalCharacteristics(inmate.getBookingId()));
 				inmate.setPhysicalMarks(this.findPhysicalMarks(inmate.getBookingId()));
 				inmate.setAssessments(findAssessments(inmate.getBookingId()));
+				inmate.setAssignedLivingUnit(this.findAssignedLivingUnit(bookingId));
 			}
 			return inmate;
 		} catch (final EmptyResultDataAccessException ex) {
