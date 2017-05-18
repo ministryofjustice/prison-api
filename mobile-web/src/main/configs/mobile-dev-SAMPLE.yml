@@ -4,8 +4,6 @@
 # ===================================================================
 
 spring:
-  profiles:
-    active: dev
   jackson:
     serialization:
       INDENT_OUTPUT: true
@@ -19,19 +17,6 @@ endpoints:
   cors:
     allowed-origins: 
     allow-credentials: true
-    
-    
-  datasource:
-    hikari:
-      pool-name: EliteCP
-      maximum-pool-size: 5
-      driver-class-name: oracle.jdbc.OracleDriver
-      connection-init-sql: SELECT 1 FROM DUAL
-      connection-test-query: SELECT 1 FROM DUAL
-      jdbc-url: jdbc:oracle:thin:@db-rh-s1.syscon.ca:1521:bs12cqa1
-      username: oms_owner
-      password: oms_owner
-      idle-timeout: 10000
       
   jpa:
     database-platform: org.hibernate.dialect.Oracle12cDialect
@@ -46,7 +31,6 @@ endpoints:
       hibernate.cache.region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
       
 server:
-    port: 8080
     contextPath: /
     
 security:

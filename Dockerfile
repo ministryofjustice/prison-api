@@ -1,7 +1,7 @@
 FROM openjdk:8
 
-ENV USER noms
-ENV GROUP noms
+ENV USER elite2
+ENV GROUP elite2
 ENV NAME mobile-web
 ENV JAR_PATH mobile-web/build/libs
 
@@ -19,8 +19,8 @@ COPY run.sh /app
 
 RUN chmod a+x /app/run.sh
 
-EXPOSE 7080
+EXPOSE 8080
 
-USER noms
+USER elite2
 
 ENTRYPOINT /app/run.sh

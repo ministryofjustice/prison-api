@@ -33,8 +33,15 @@ public class RepositoryBase implements ApplicationContextAware {
 	//************************** PLEASE, FIX ME LATER!!! **************************
 	protected String getCurrentCaseLoad() {
 		final String username = UserSecurityUtils.getCurrentUsername();
-		//final String sql = "SELECT ASSIGNED_CASELOAD_ID FROM STAFF_MEMBERS WHERE PERSONNEL_TYPE = 'STAFF' AND USER_ID = :username";
-		final String sql = "SELECT WORKING_CASELOAD_ID FROM STAFF_USER_ACCOUNTS WHERE USERNAME = :username";
+
+		String sql;
+
+		// TODO: temp hack for nomis - use the SQLFilter approach instead
+		if (!schemaType.equalsIgnoreCase("nomis")) {
+			sql = "SELECT ASSIGNED_CASELOAD_ID FROM STAFF_MEMBERS WHERE PERSONNEL_TYPE = 'STAFF' AND USER_ID = :username";
+		} else {
+			sql = "SELECT WORKING_CASELOAD_ID FROM STAFF_USER_ACCOUNTS WHERE USERNAME = :username";
+		}
 		return jdbcTemplate.queryForObject(sql, createParams("username", username), String.class);
 	}
 	//********************************************************************************
@@ -47,7 +54,9 @@ public class RepositoryBase implements ApplicationContextAware {
 		this.sqlProvider = new SQLProvider();
 
 		loadSql(applicationContext, "classpath:sqls/" + getClass().getSimpleName().replace('.', '/') + ".sql");
-		loadSql(applicationContext, "classpath:sqls/" + (StringUtils.isNotBlank(schemaType) ? schemaType + "/" : "") + getClass().getSimpleName().replace('.', '/') + ".sql");
+		if (StringUtils.isNotBlank(schemaType)) {
+			loadSql(applicationContext, "classpath:sqls/" + schemaType + "/"  + getClass().getSimpleName().replace('.', '/') + ".sql");
+		}
 	}
 
 	private void loadSql(ApplicationContext applicationContext, String resourcePath) {
