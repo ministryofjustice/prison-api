@@ -1,17 +1,15 @@
 package net.syscon.elite.web.integration.test;
 
-import static io.restassured.RestAssured.given;
+import com.google.gson.Gson;
+import io.restassured.http.Header;
+import io.restassured.response.Response;
+import net.syscon.elite.web.api.model.AuthLogin;
+import org.springframework.http.HttpStatus;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.http.HttpStatus;
-
-import com.google.gson.Gson;
-
-import io.restassured.http.Header;
-import io.restassured.response.Response;
-import net.syscon.elite.web.api.model.AuthLogin;
+import static io.restassured.RestAssured.given;
 
 public class TestStateSupport {
 
