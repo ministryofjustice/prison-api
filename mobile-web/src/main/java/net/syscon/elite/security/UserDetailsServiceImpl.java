@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,7 +32,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		}
 		List<String> roles = userRepository.findRolesByUsername(username);
 		Set<GrantedAuthority> authorities = roles.stream()
-				.filter(name -> name != null)
+				.filter(Objects::nonNull)
 				.map(name -> new SimpleGrantedAuthority(name.replace('-', '_')))
 				.collect(Collectors.toSet());
 		return new UserDetailsImpl(username, null, authorities);

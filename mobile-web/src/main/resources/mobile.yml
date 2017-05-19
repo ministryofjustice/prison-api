@@ -4,26 +4,22 @@
 
 spring:
 
-  profiles:
-    active: dev
-    
   jackson:
     serialization:
       INDENT_OUTPUT: false
 
   datasource:
-    hikari:
-      pool-name: EliteCP
-      maximum-pool-size: 5
-      driver-class-name: oracle.jdbc.OracleDriver
-      connection-init-sql: SELECT 1 FROM DUAL
-      connection-test-query: SELECT 1 FROM DUAL
-      #jdbc-url: jdbc:oracle:thin:@db-rh-s5.syscon.ca:1521:ndd11dv1
-      jdbc-url: jdbc:oracle:thin:@prod-12c-dev.syscon.ca:1521:pb12cdv1
-      username: oms_owner
-      password: oms_owner
-      idle-timeout: 10000
-      oracle-proxy.enabled: true
+      hikari:
+        pool-name: EliteCP
+        maximum-pool-size: 5
+        driver-class-name: ${driver.class.name}
+        connection-init-sql: SELECT 1 FROM DUAL
+        connection-test-query: SELECT 1 FROM DUAL
+        jdbc-url: ${app.jdbc.url}
+        username: ${app.username}
+        password: ${app.password}
+        idle-timeout: 10000
+        oracle-proxy.enabled: true
 
   application:
     index: api.html

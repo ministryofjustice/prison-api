@@ -4,10 +4,14 @@ package net.syscon.elite.persistence.impl;
 import net.syscon.elite.exception.EliteRuntimeException;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.util.SQLProvider;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -22,13 +26,22 @@ public class RepositoryBase implements ApplicationContextAware {
 	protected NamedParameterJdbcOperations jdbcTemplate;
 	protected SQLProvider sqlProvider;
 
-
+	@Value("${schema.type}")
+	protected String schemaType;
 
 	// TODO: Remove UserRepository dependency using SQLFilter approach to generate the filter
 	//************************** PLEASE, FIX ME LATER!!! **************************
 	protected String getCurrentCaseLoad() {
 		final String username = UserSecurityUtils.getCurrentUsername();
-		final String sql = "SELECT ASSIGNED_CASELOAD_ID FROM STAFF_MEMBERS WHERE PERSONNEL_TYPE = 'STAFF' AND USER_ID = :username";
+
+		String sql;
+
+		// TODO: temp hack for nomis - use the SQLFilter approach instead
+		if (!schemaType.equalsIgnoreCase("nomis")) {
+			sql = "SELECT ASSIGNED_CASELOAD_ID FROM STAFF_MEMBERS WHERE PERSONNEL_TYPE = 'STAFF' AND USER_ID = :username";
+		} else {
+			sql = "SELECT WORKING_CASELOAD_ID FROM STAFF_USER_ACCOUNTS WHERE USERNAME = :username";
+		}
 		return jdbcTemplate.queryForObject(sql, createParams("username", username), String.class);
 	}
 	//********************************************************************************
@@ -38,13 +51,22 @@ public class RepositoryBase implements ApplicationContextAware {
 	@Override
 	public void setApplicationContext(final ApplicationContext applicationContext) {
 		jdbcTemplate = applicationContext.getBean(NamedParameterJdbcOperations.class);
-		final String resourcePath = "classpath:sqls/" + getClass().getSimpleName().replace('.', '/') + ".sql";
-		final Resource resource = applicationContext.getResource(resourcePath);
 		this.sqlProvider = new SQLProvider();
-		try {
-			sqlProvider.loadFromStream(resource.getInputStream());
-		} catch (final IOException ex) {
-			log.error(ex.getMessage(), ex);
+
+		loadSql(applicationContext, "classpath:sqls/" + getClass().getSimpleName().replace('.', '/') + ".sql");
+		if (StringUtils.isNotBlank(schemaType)) {
+			loadSql(applicationContext, "classpath:sqls/" + schemaType + "/"  + getClass().getSimpleName().replace('.', '/') + ".sql");
+		}
+	}
+
+	private void loadSql(ApplicationContext applicationContext, String resourcePath) {
+		final Resource resource = applicationContext.getResource(resourcePath);
+		if (resource.exists()) {
+			try {
+				sqlProvider.loadFromStream(resource.getInputStream());
+			} catch (final IOException ex) {
+				log.error(ex.getMessage(), ex);
+			}
 		}
 	}
 

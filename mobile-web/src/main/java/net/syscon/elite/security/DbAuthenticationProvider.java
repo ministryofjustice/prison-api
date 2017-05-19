@@ -29,11 +29,11 @@ public class DbAuthenticationProvider implements AuthenticationProvider {
 	
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private final SQLProvider sqlProvider = new SQLProvider();
-	
-	@Value("${spring.datasource.hikari.driver-class-name}")
+
+	@Value("${driver.class.name}")
 	private String jdbcDriver;
 
-	@Value("${spring.datasource.hikari.jdbc-url}")
+	@Value("${app.jdbc.url}")
 	private String jdbcUrl;
 
 	@PostConstruct
