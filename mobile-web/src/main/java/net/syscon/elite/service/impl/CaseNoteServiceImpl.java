@@ -5,9 +5,7 @@ import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.web.api.model.CaseNote;
 import net.syscon.elite.web.api.model.UpdateCaseNote;
-import net.syscon.elite.web.api.model.UserDetails;
 import net.syscon.elite.web.api.resource.BookingResource.Order;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +29,7 @@ public class CaseNoteServiceImpl implements CaseNoteService{
 	//Inject Reference Code repository
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<CaseNote> getCaseNotes(final String bookingId, String query, String orderBy, Order order, final int offset,
 			final int limit) {
 		//If Source filter is not available in Query then add Default filter SOURCE!="AUTO"
@@ -47,6 +46,7 @@ public class CaseNoteServiceImpl implements CaseNoteService{
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public CaseNote getCaseNote(final String bookingId, final String caseNoteId) {
 		return caseNoteRepository.getCaseNote(bookingId, caseNoteId);
 	}

@@ -32,7 +32,7 @@ project(":mobile-web") {
 		testCompile("io.rest-assured:spring-mock-mvc:3.0.2")
 		testCompile("org.springframework.security:spring-security-test:4.2.2.RELEASE")
 		testCompile("com.google.code.gson:gson:2.8.0")
-
+		testCompile("org.assertj:assertj-core:3.5.2")
 	}
 
 	configurations {

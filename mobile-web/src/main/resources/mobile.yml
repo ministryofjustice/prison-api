@@ -12,12 +12,12 @@ spring:
       hikari:
         pool-name: EliteCP
         maximum-pool-size: 5
-        driver-class-name: ${driver.class.name}
+        driver-class-name: ${spring.datasource.driver-class-name}
         connection-init-sql: SELECT 1 FROM DUAL
         connection-test-query: SELECT 1 FROM DUAL
-        jdbc-url: ${app.jdbc.url}
-        username: ${app.username}
-        password: ${app.password}
+        jdbc-url: ${spring.datasource.url}
+        username: ${spring.datasource.username}
+        password: ${spring.datasource.password}
         idle-timeout: 10000
         oracle-proxy.enabled: true
 

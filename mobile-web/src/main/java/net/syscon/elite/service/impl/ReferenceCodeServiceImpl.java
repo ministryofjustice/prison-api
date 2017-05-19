@@ -1,22 +1,20 @@
 package net.syscon.elite.service.impl;
 
-import java.util.List;
-
-import javax.inject.Inject;
-
+import net.syscon.elite.persistence.ReferenceCodeRepository;
+import net.syscon.elite.service.ReferenceDomainService;
+import net.syscon.elite.web.api.model.ReferenceCode;
+import net.syscon.elite.web.api.resource.ReferenceDomainsResource.Order;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import net.syscon.elite.persistence.ReferenceCodeRepository;
-import net.syscon.elite.service.ReferenceDomainService;
-import net.syscon.elite.web.api.model.ReferenceCode;
-import net.syscon.elite.web.api.resource.ReferenceDomainsResource.Order;
+import javax.inject.Inject;
+import java.util.List;
 
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class ReferenceCodeServiceImpl implements ReferenceDomainService {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final String DEFAULT_ACTIVE_FLAG_QUERY = "activeFlag:eq:'Y'";

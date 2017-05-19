@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Transactional
+@Transactional(readOnly = true)
 @Service
 public class AgencyLocationServiceImpl implements AgencyLocationService {
 

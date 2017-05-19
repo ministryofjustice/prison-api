@@ -7,12 +7,11 @@ import net.syscon.util.SQLProvider;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
@@ -29,6 +28,9 @@ public class RepositoryBase implements ApplicationContextAware {
 	@Value("${schema.type}")
 	protected String schemaType;
 
+	@Value("${schema.pre.oracle12:false}")
+	protected boolean preOracle12;
+
 	// TODO: Remove UserRepository dependency using SQLFilter approach to generate the filter
 	//************************** PLEASE, FIX ME LATER!!! **************************
 	protected String getCurrentCaseLoad() {
@@ -42,7 +44,12 @@ public class RepositoryBase implements ApplicationContextAware {
 		} else {
 			sql = "SELECT WORKING_CASELOAD_ID FROM STAFF_USER_ACCOUNTS WHERE USERNAME = :username";
 		}
-		return jdbcTemplate.queryForObject(sql, createParams("username", username), String.class);
+
+		try {
+			return jdbcTemplate.queryForObject(sql, createParams("username", username), String.class);
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
 	}
 	//********************************************************************************
 

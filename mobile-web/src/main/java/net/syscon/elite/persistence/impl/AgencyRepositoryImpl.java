@@ -6,7 +6,6 @@ import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.web.api.model.Agency;
 import net.syscon.util.QueryBuilder;
-
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -31,7 +30,7 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
 
 	@Override
 	public List<Agency> findAgencies(String caseLoadId, int offset, int limit) {
-		String sql =  new QueryBuilder.Builder(getQuery("FIND_ALL_AGENCIES"), agencyMapping)
+		String sql =  new QueryBuilder.Builder(getQuery("FIND_ALL_AGENCIES"), agencyMapping, preOracle12)
 									.addRowCount()
 									.addPagedQuery()
 									.build();//getPagedQuery("FIND_ALL_AGENCIES");

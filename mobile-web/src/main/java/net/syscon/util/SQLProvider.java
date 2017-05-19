@@ -114,7 +114,6 @@ public class SQLProvider {
                 }
         	}
         }
-        statements.clear();
         statements.putAll(newStatements);
     }
 
