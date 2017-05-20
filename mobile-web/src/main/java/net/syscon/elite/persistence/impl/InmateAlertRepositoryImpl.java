@@ -1,22 +1,19 @@
 package net.syscon.elite.persistence.impl;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Repository;
-
-
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.persistence.InmateAlertRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.web.api.model.Alert;
-
 import net.syscon.elite.web.api.resource.BookingResource.Order;
 import net.syscon.util.DateFormatProvider;
 import net.syscon.util.QueryBuilder;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 
 @Repository
@@ -35,7 +32,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 	@Override
 	public List<Alert> getInmateAlert(String bookingId, String query, String orderByField, Order order, int offset,
 			int limit) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_INMATE_ALERTS"), alertMapping)
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_INMATE_ALERTS"), alertMapping, preOracle12)
 											.addRowCount()
 											.addQuery(query)
 											.addOrderBy("asc".equalsIgnoreCase(order.toString())?true:false, orderByField)
@@ -47,7 +44,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 
 	@Override
 	public Alert getInmateAlert(String bookingId, String alertSeqId) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_INMATE_ALERT"), alertMapping)
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_INMATE_ALERT"), alertMapping, preOracle12)
 											.build();
 		final RowMapper<Alert> alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);
 		return jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "alertSeqId", alertSeqId),alertMapper);

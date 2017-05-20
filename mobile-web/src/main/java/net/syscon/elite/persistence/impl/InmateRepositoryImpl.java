@@ -2,7 +2,6 @@ package net.syscon.elite.persistence.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.persistence.InmateRepository;
-import net.syscon.elite.persistence.UserRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.web.api.model.*;
@@ -16,20 +15,13 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Repository
 public class InmateRepositoryImpl extends RepositoryBase implements InmateRepository {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
-
-	@Inject
-	private UserRepository userRepository;
 
 
 	private final Map<String, FieldMapper> assignedInmateMapping = new ImmutableMap.Builder<String, FieldMapper>()
@@ -105,20 +97,23 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 	@Override
 	public List<AssignedInmate> findInmatesByLocation(final Long locationId, String query, String orderByField, LocationsResource.Order order, final int offset, final int limit) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_INMATES_BY_LOCATION"), assignedInmateMapping).
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_INMATES_BY_LOCATION"), assignedInmateMapping, preOracle12).
 				addRowCount().
 				addQuery(query).
 				addOrderBy(order == LocationsResource.Order.asc, orderByField).
 				addPagedQuery()
 				.build();
 		final RowMapper<AssignedInmate> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, AssignedInmate.class, assignedInmateMapping);
-		final List<AssignedInmate> inmates = jdbcTemplate.query(sql, createParams("locationId", locationId, "caseLoadId", getCurrentCaseLoad(), "offset", offset, "limit", limit), assignedInmateRowMapper);
-		return inmates;
+		try {
+			return jdbcTemplate.query(sql, createParams("locationId", locationId, "caseLoadId", getCurrentCaseLoad(), "offset", offset, "limit", limit), assignedInmateRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			return Collections.emptyList();
+		}
 	}
 
 	@Override
 	public List<AssignedInmate> findAllInmates(final String query, final int offset, final int limit, final String orderBy, BookingResource.Order order) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_ALL_INMATES"), assignedInmateMapping).
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_ALL_INMATES"), assignedInmateMapping, preOracle12).
 				addRowCount().
 				addQuery(query).
 				addOrderBy(order == BookingResource.Order.asc, orderBy).
@@ -126,8 +121,11 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 				.build();
 
 		final RowMapper<AssignedInmate> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, AssignedInmate.class, assignedInmateMapping);
-		final List<AssignedInmate> inmates = jdbcTemplate.query(sql, createParams("caseLoadId", getCurrentCaseLoad(), "offset", offset, "limit", limit), assignedInmateRowMapper);
-		return inmates;
+		try {
+			return jdbcTemplate.query(sql, createParams("caseLoadId", getCurrentCaseLoad(), "offset", offset, "limit", limit), assignedInmateRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			return Collections.emptyList();
+		}
 	}
 
 	private List<PhysicalMark> findPhysicalMarks(final Long bookingId) {
@@ -187,7 +185,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 	@Override
 	public List<Alias> findInmateAliases(final long bookingId, String orderByField, BookingResource.Order order, final int offset, final int limit) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_INMATE_ALIASES"), aliasMapping)
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_INMATE_ALIASES"), aliasMapping, preOracle12)
 											.addOrderBy("asc".equals(order.toString())?true:false, (null==orderByField || "".equals("orderByField"))?"firstName":orderByField)
 											.build();
 		final RowMapper<Alias> aliasAttributesRowMapper = Row2BeanRowMapper.makeMapping(sql, Alias.class, aliasMapping);

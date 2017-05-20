@@ -1,19 +1,17 @@
 package net.syscon.elite.service.impl;
 
-import java.util.List;
-
-import javax.inject.Inject;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import net.syscon.elite.persistence.InmateAlertRepository;
 import net.syscon.elite.service.InmatesAlertService;
 import net.syscon.elite.web.api.model.Alert;
 import net.syscon.elite.web.api.resource.BookingResource.Order;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.util.List;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class InmateAlertServiceImpl implements InmatesAlertService {
 	
 	private InmateAlertRepository inmateAlertRepository;

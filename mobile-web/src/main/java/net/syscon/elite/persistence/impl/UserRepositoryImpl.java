@@ -1,15 +1,5 @@
 package net.syscon.elite.persistence.impl;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.stereotype.Repository;
-
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.exception.EliteRuntimeException;
 import net.syscon.elite.persistence.UserRepository;
@@ -17,6 +7,15 @@ import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.web.api.model.UserDetails;
 import net.syscon.util.SQLProvider;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+import javax.sql.DataSource;
+import java.util.List;
+import java.util.Map;
 
 @Repository
 public class UserRepositoryImpl extends RepositoryBase implements UserRepository {
@@ -46,8 +45,9 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 		final String sql = getQuery("FIND_USER_BY_USERNAME");
 		final RowMapper<UserDetails> userRowMapper = Row2BeanRowMapper.makeMapping(sql, UserDetails.class, userMapping);
 		try {
-			final UserDetails userDetails = jdbcTemplate.queryForObject(sql, createParams("username", username), userRowMapper);
-			return userDetails;
+			return jdbcTemplate.queryForObject(sql, createParams("username", username), userRowMapper);
+		} catch (final EmptyResultDataAccessException ex) {
+			return null;
 		} catch (final DataAccessException ex) {
 			throw new EliteRuntimeException(ex.getMessage(), ex);
 		}
@@ -58,8 +58,9 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 		final String sql = getQuery("FIND_USER_BY_STAFF_ID");
 		final RowMapper<UserDetails> userRowMapper = Row2BeanRowMapper.makeMapping(sql, UserDetails.class, userMapping);
 		try {
-			final UserDetails userDetails = jdbcTemplate.queryForObject(sql,  createParams("staffId", staffId), userRowMapper);
-			return userDetails;
+			return jdbcTemplate.queryForObject(sql,  createParams("staffId", staffId), userRowMapper);
+		} catch (final EmptyResultDataAccessException ex) {
+			return null;
 		} catch (final DataAccessException ex) {
 			throw new EliteRuntimeException(ex.getMessage(), ex);
 		}
@@ -68,8 +69,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	@Override
 	public List<String> findRolesByUsername(final String username) {
 		final String sql = getQuery("FIND_ROLES_BY_USERNAME");
-		final List<String> result = jdbcTemplate.queryForList(sql, createParams("username", username), String.class);
-		return result;
+		return jdbcTemplate.queryForList(sql, createParams("username", username), String.class);
 	}
 
 

@@ -7,14 +7,12 @@ import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.web.api.model.CaseNote;
 import net.syscon.elite.web.api.model.UpdateCaseNote;
-import net.syscon.elite.web.api.model.UserDetails;
 import net.syscon.elite.web.api.resource.BookingResource.Order;
 import net.syscon.util.DateFormatProvider;
 import net.syscon.util.QueryBuilder;
 import oracle.sql.TIMESTAMP;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.SQLException;
@@ -42,7 +40,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	@Override
 	public List<CaseNote> getCaseNotes(String bookingId, String query, String orderByField, Order order, int offset,
 			int limit) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_CASENOTES"), caseNoteMapping)
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_CASENOTES"), caseNoteMapping, preOracle12)
 											.addRowCount()
 											.addQuery(query)
 											.addOrderBy("asc".equalsIgnoreCase(order.toString())?true:false, orderByField)
@@ -64,7 +62,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	@Override
 	public CaseNote createCaseNote(String bookingId, String CaseNoteId, CaseNote entity) {
 		GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
-		String sql = new QueryBuilder.Builder(getQuery("INSERT_CASE_NOTE"), caseNoteMapping).build();
+		String sql = new QueryBuilder.Builder(getQuery("INSERT_CASE_NOTE"), caseNoteMapping, preOracle12).build();
 		String user = UserSecurityUtils.getCurrentUsername();
 		jdbcTemplate.update(sql, createParams("bookingID", bookingId,
 												"text", entity.getText(), 
@@ -88,7 +86,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 		CaseNote caseNote = getCaseNote(bookingId, caseNoteId);
 		String updatedText = caseNote.getText() + entity.getText();
 		String user = UserSecurityUtils.getCurrentUsername();
-		String sql = new QueryBuilder.Builder(getQuery("UPDATE_CASE_NOTE"), caseNoteMapping).build();
+		String sql = new QueryBuilder.Builder(getQuery("UPDATE_CASE_NOTE"), caseNoteMapping, preOracle12).build();
 		jdbcTemplate.update(sql, createParams("modifyBy", user,
 												"caseNoteId", caseNoteId,
 												"text", updatedText));

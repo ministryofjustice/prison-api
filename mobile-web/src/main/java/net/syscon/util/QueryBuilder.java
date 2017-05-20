@@ -1,10 +1,10 @@
 package net.syscon.util;
 
+import net.syscon.elite.persistence.mapping.FieldMapper;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import net.syscon.elite.persistence.mapping.FieldMapper;
 /**
  * 
  * @author om.pandey
@@ -12,6 +12,7 @@ import net.syscon.elite.persistence.mapping.FieldMapper;
  */
 public class QueryBuilder {
 	private Builder queryBuilder;
+
 	
 	private QueryBuilder(Builder queryBuilder) {
 		this.queryBuilder = queryBuilder;
@@ -24,10 +25,12 @@ public class QueryBuilder {
 	public static class Builder {
 		private StringBuilder baseQuery;
 		private Map<String,FieldMapper> fieldMap;
+		private boolean preOracle12;
 		
-		public Builder(String baseQuery, Map<String,FieldMapper> fieldMap) {
+		public Builder(String baseQuery, Map<String, FieldMapper> fieldMap, boolean preOracle12) {
 			this.baseQuery = new StringBuilder(baseQuery);
 			this.fieldMap = fieldMap;
+			this.preOracle12 = preOracle12;
 		}
 		
 		public Builder addQuery(String query) {
@@ -55,11 +58,16 @@ public class QueryBuilder {
 		
 		public  Builder addPagedQuery() {
 			if (baseQuery.length() > 0) {
-				baseQuery.append(" OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY");
+				if (preOracle12) {
+					baseQuery.insert(0, "select * from ( select QRY_SQL.*, ROWNUM rnum from ( ");
+					baseQuery.append(" ) QRY_SQL where ROWNUM <= :limit) where rnum >= :offset");
+				} else {
+					baseQuery.append(" OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY");
+				}
 			}
 			return this;
 		}
-		
+
 		public Builder addOrderBy(boolean isAscending, String...fields) {
 			String key = fieldMap.entrySet().stream()
 								.filter(entry -> {return entry.getValue().getName().equals(fields[0]);})

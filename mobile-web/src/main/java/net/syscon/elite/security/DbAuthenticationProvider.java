@@ -30,10 +30,10 @@ public class DbAuthenticationProvider implements AuthenticationProvider {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private final SQLProvider sqlProvider = new SQLProvider();
 
-	@Value("${driver.class.name}")
+	@Value("${spring.datasource.driver-class-name}")
 	private String jdbcDriver;
 
-	@Value("${app.jdbc.url}")
+	@Value("${spring.datasource.url}")
 	private String jdbcUrl;
 
 	@PostConstruct
