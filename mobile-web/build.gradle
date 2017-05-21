@@ -9,7 +9,9 @@ project(":mobile-web") {
 		compile project(":mobile-api")
 		compile files("${rootDir}/mobile-web/src/main/configs")
 
+        compile("org.flywaydb:flyway-core")
 		compile files("${rootDir}/lib/ojdbc7-12.1.0.1.jar")
+		runtime('org.hsqldb:hsqldb')
 
 		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-aop")
@@ -17,9 +19,8 @@ project(":mobile-web") {
 		compile("org.springframework.boot:spring-boot-starter-jdbc")
 		compile("org.springframework.boot:spring-boot-starter-jetty")
 		compile("org.springframework.boot:spring-boot-starter-security")
-		compile("org.springframework.boot:spring-boot-starter-actuator")
+		compile("org.springframework.boot:spring-boot-devtools")
 		compile("org.springframework.mobile:spring-mobile-device")
-
 
 		compile("io.jsonwebtoken:jjwt:${version_jjwt}")
 		compile("com.zaxxer:HikariCP:${version_hikaricp}")
