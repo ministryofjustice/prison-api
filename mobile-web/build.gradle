@@ -8,10 +8,7 @@ project(":mobile-web") {
 
 		compile project(":mobile-api")
 		compile files("${rootDir}/mobile-web/src/main/configs")
-
-        compile("org.flywaydb:flyway-core")
 		compile files("${rootDir}/lib/ojdbc7-12.1.0.1.jar")
-		runtime('org.hsqldb:hsqldb:2.3.3')
 
 		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-aop")
@@ -34,6 +31,8 @@ project(":mobile-web") {
 		testCompile("org.springframework.security:spring-security-test:4.2.2.RELEASE")
 		testCompile("com.google.code.gson:gson:2.8.0")
 		testCompile("org.assertj:assertj-core:3.5.2")
+		testCompile("org.flywaydb:flyway-core")
+		testRuntime('org.hsqldb:hsqldb:2.3.3')
 	}
 
 	configurations {

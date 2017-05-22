@@ -2,7 +2,6 @@ package net.syscon.elite.persistence;
 
 import net.syscon.elite.web.api.model.UserDetails;
 import net.syscon.elite.web.config.PersistenceConfigs;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +18,12 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
-@ActiveProfiles("noHikari,nomis")
+@ActiveProfiles("noHikari,memdb")
 @RunWith(SpringRunner.class)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = PersistenceConfigs.class)
-@Ignore
 public class UserRepositoryTest {
 
     @Autowired
@@ -35,11 +33,13 @@ public class UserRepositoryTest {
     public final void testFindUserByUsername() {
         final UserDetails user = repository.findByUsername("MWILLIS_GEN");
         assertThat(user).isNotNull();
+        assertThat(user.getLastName()).isEqualTo("WILLIS");
+        assertThat(user.getEmail()).isEqualTo("Michael.Willis@syscon.net");
     }
 
     @Test
     public final void testFindUserByStaffId() {
-        final UserDetails user = repository.findByUsername("ITAG_USER");
+        final UserDetails user = repository.findByUsername("ELITE2_API_USER");
         assertThat(user).isNotNull();
         final UserDetails userById = repository.findByStaffId(user.getStaffId());
         assertThat(userById).isNotNull();
@@ -47,7 +47,8 @@ public class UserRepositoryTest {
 
     @Test
     public final void testFindRolesByUsername() {
-        final List<String> roles = repository.findRolesByUsername("ITAG_USER");
+        final List<String> roles = repository.findRolesByUsername("MWILLIS_GEN");
         assertThat(roles).isNotEmpty();
+        assertThat(roles).contains("WING_OFF");
     }
 }

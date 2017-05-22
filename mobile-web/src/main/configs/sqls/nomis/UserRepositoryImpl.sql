@@ -39,10 +39,9 @@ FIND_USER_BY_USERNAME {
 }
 
 
-
 FIND_ROLES_BY_USERNAME {
   select DISTINCT REPLACE(RL.ROLE_CODE, '-', '_') ROLE_CODE
-  from user_caseload_roles CLR
+  from USER_CASELOAD_ROLES CLR
     join OMS_ROLES RL on RL.ROLE_ID = CLR.ROLE_ID
   where USERNAME = :username
   ORDER BY 1

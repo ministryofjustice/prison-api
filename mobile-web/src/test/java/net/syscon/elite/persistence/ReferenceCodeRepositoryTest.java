@@ -1,9 +1,7 @@
 package net.syscon.elite.persistence;
 
 import net.syscon.elite.web.api.model.ReferenceCode;
-import net.syscon.elite.web.api.resource.ReferenceDomainsResource;
 import net.syscon.elite.web.config.PersistenceConfigs;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +13,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
@@ -26,7 +22,6 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = PersistenceConfigs.class)
-@Ignore
 public class ReferenceCodeRepositoryTest {
 
     @Autowired
@@ -34,14 +29,8 @@ public class ReferenceCodeRepositoryTest {
 
     @Test
     public final void testGetAlertTypeByCode() {
-        final ReferenceCode alertTypeCodesByAlertCode = repository.getAlertTypeCodesByAlertCode("XX", "XX");
+        final ReferenceCode alertTypeCodesByAlertCode = repository.getAlertTypesByAlertType("X");
         assertThat(alertTypeCodesByAlertCode).isNotNull();
-    }
-
-    @Test
-    public final void testGetAllAlerts() {
-        final List<ReferenceCode> alerts = repository.getAlertTypes("", "CODE", ReferenceDomainsResource.Order.asc, 0, 10);
-        assertThat(alerts).isNotEmpty();
     }
 
 }
