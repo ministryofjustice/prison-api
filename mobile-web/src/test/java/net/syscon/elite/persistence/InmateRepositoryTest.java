@@ -1,6 +1,7 @@
 package net.syscon.elite.persistence;
 
 import net.syscon.elite.web.api.model.AssignedInmate;
+import net.syscon.elite.web.api.model.InmateDetails;
 import net.syscon.elite.web.api.resource.LocationsResource;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
@@ -57,6 +58,7 @@ public class InmateRepositoryTest {
     public final void testGetOffender() {
         final List<AssignedInmate> foundInmates = repository.findAllInmates("", 0, 10, "firstName", asc);
         assertThat(foundInmates).isNotEmpty();
-        repository.findInmate(foundInmates.get(0).getBookingId());
+        final InmateDetails inmate = repository.findInmate(foundInmates.get(0).getBookingId());
+
     }
 }
