@@ -1,6 +1,7 @@
 package net.syscon.elite.persistence;
 
-import net.syscon.elite.web.api.model.UserDetails;
+import net.syscon.elite.web.api.model.ReferenceCode;
+import net.syscon.elite.web.api.resource.ReferenceDomainsResource;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -19,35 +20,28 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
-@ActiveProfiles("noHikari,nomis")
+@ActiveProfiles("noHikari,memdb")
 @RunWith(SpringRunner.class)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = PersistenceConfigs.class)
 @Ignore
-public class UserRepositoryTest {
+public class ReferenceCodeRepositoryTest {
 
     @Autowired
-    private UserRepository repository;
+    private ReferenceCodeRepository repository;
 
     @Test
-    public final void testFindUserByUsername() {
-        final UserDetails user = repository.findByUsername("MWILLIS_GEN");
-        assertThat(user).isNotNull();
+    public final void testGetAlertTypeByCode() {
+        final ReferenceCode alertTypeCodesByAlertCode = repository.getAlertTypeCodesByAlertCode("XX", "XX");
+        assertThat(alertTypeCodesByAlertCode).isNotNull();
     }
 
     @Test
-    public final void testFindUserByStaffId() {
-        final UserDetails user = repository.findByUsername("ITAG_USER");
-        assertThat(user).isNotNull();
-        final UserDetails userById = repository.findByStaffId(user.getStaffId());
-        assertThat(userById).isNotNull();
+    public final void testGetAllAlerts() {
+        final List<ReferenceCode> alerts = repository.getAlertTypes("", "CODE", ReferenceDomainsResource.Order.asc, 0, 10);
+        assertThat(alerts).isNotEmpty();
     }
 
-    @Test
-    public final void testFindRolesByUsername() {
-        final List<String> roles = repository.findRolesByUsername("ITAG_USER");
-        assertThat(roles).isNotEmpty();
-    }
 }

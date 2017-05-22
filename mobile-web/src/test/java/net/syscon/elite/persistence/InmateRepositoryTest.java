@@ -24,7 +24,7 @@ import static net.syscon.elite.web.api.resource.BookingResource.Order.asc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
-@ActiveProfiles("noHikari")
+@ActiveProfiles("noHikari,nomis")
 @RunWith(SpringRunner.class)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @JdbcTest
@@ -38,18 +38,25 @@ public class InmateRepositoryTest {
 
     @Before
     public final void setup() {
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("ITAG_USER", "password"));
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("MWILLIS_GEN", "password"));
     }
 
     @Test
-    public final void testFindAllImagesOnQueryString() {
+    public final void testFindAllImatesOnQueryString() {
         final List<AssignedInmate> foundInmates = repository.findAllInmates("", 0, 10, "firstName", asc);
         assertThat(foundInmates).isNotEmpty();
     }
 
     @Test
     public final void testFindAllImagesOnQueryStringInLocation() {
-        final List<AssignedInmate> foundInmates = repository.findInmatesByLocation(5345L, "", "firstName", LocationsResource.Order.asc, 0, 10);
+        final List<AssignedInmate> foundInmatesByLocation = repository.findInmatesByLocation(25238L, "", "firstName", LocationsResource.Order.asc, 0, 10);
+        assertThat(foundInmatesByLocation).isNotEmpty();
+    }
+
+    @Test
+    public final void testGetOffender() {
+        final List<AssignedInmate> foundInmates = repository.findAllInmates("", 0, 10, "firstName", asc);
         assertThat(foundInmates).isNotEmpty();
+        repository.findInmate(foundInmates.get(0).getBookingId());
     }
 }

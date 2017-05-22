@@ -43,7 +43,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		.put("AGY_LOC_ID", 			new FieldMapper("agencyId"))
 		.put("FIRST_NAME", 			new FieldMapper("firstName"))
 		.put("LAST_NAME", 			new FieldMapper("lastName"))
-		.put("ALERT_TYPES", 		new FieldMapper("alertsCodes", value -> Arrays.asList(value.toString().split(",")), null))
 		.put("LIVING_UNIT_ID", 		new FieldMapper("assignedLivingUnitId"))
 		.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
 		.put("BIRTH_DATE", 			new FieldMapper("birthDate", value -> DateFormatProvider.get("yyyy-MM-dd").format((Date)value), null))
@@ -157,7 +156,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	private AssignedLivingUnit findAssignedLivingUnit(final long bookingId) {
-		final String sql = getQuery("FIND_ASSINGED_LIVING_UNIT");
+		final String sql = getQuery("FIND_ASSIGNED_LIVING_UNIT");
 		final RowMapper<AssignedLivingUnit> assignedLivingUnitRowMapper = Row2BeanRowMapper.makeMapping(sql, AssignedLivingUnit.class, assignedLivingUnitMapping);
 		final AssignedLivingUnit assignedLivingUnit = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId), assignedLivingUnitRowMapper);
 		return assignedLivingUnit;
@@ -172,10 +171,11 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			final InmateDetails inmate = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "caseLoadId", getCurrentCaseLoad()), inmateDetailRowMapper);
 			if (inmate != null) {
 				inmate.setPhysicalAttributes(findPhysicalAttributes(inmate.getBookingId()));
-				inmate.setPhysicalCharacteristics(this.findPhysicalCharacteristics(inmate.getBookingId()));
+				inmate.setPhysicalCharacteristics(findPhysicalCharacteristics(inmate.getBookingId()));
 				inmate.setPhysicalMarks(this.findPhysicalMarks(inmate.getBookingId()));
 				inmate.setAssessments(findAssessments(inmate.getBookingId()));
-				inmate.setAssignedLivingUnit(this.findAssignedLivingUnit(bookingId));
+				inmate.setAssignedLivingUnit(findAssignedLivingUnit(bookingId));
+				inmate.setAlertsCodes(findActiveAlertCodes(bookingId));
 			}
 			return inmate;
 		} catch (final EmptyResultDataAccessException ex) {
@@ -183,10 +183,15 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			throw ex;
 		}
 	}
+
+	private List<String> findActiveAlertCodes(Long bookingId) {
+		return new ArrayList<>();
+	}
+
 	@Override
 	public List<Alias> findInmateAliases(final long bookingId, String orderByField, BookingResource.Order order, final int offset, final int limit) {
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_INMATE_ALIASES"), aliasMapping, preOracle12)
-											.addOrderBy("asc".equals(order.toString())?true:false, (null==orderByField || "".equals("orderByField"))?"firstName":orderByField)
+											.addOrderBy("asc".equals(order.toString()), (null==orderByField || "".equals("orderByField"))?"firstName":orderByField)
 											.build();
 		final RowMapper<Alias> aliasAttributesRowMapper = Row2BeanRowMapper.makeMapping(sql, Alias.class, aliasMapping);
 		final List<Alias> aliases = jdbcTemplate.query(sql, createParams("bookingId", bookingId, "caseLoadId", getCurrentCaseLoad()), aliasAttributesRowMapper);

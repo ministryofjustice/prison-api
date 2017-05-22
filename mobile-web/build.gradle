@@ -11,7 +11,7 @@ project(":mobile-web") {
 
         compile("org.flywaydb:flyway-core")
 		compile files("${rootDir}/lib/ojdbc7-12.1.0.1.jar")
-		runtime('org.hsqldb:hsqldb')
+		runtime('org.hsqldb:hsqldb:2.3.3')
 
 		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-aop")
