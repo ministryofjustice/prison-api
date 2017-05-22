@@ -56,7 +56,9 @@ public class InmateRepositoryTest {
 
     @Test
     public final void testGetOffender() {
-        final InmateDetails inmate = repository.findInmate(-100L);
+        final List<AssignedInmate> foundInmates = repository.findAllInmates("", 0, 10, "firstName", asc);
+        assertThat(foundInmates).isNotEmpty();
+        final InmateDetails inmate = repository.findInmate(foundInmates.get(0).getBookingId());
 
     }
 }
