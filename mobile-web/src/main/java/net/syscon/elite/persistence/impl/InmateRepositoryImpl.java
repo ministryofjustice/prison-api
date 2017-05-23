@@ -42,6 +42,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		.put("OFFENDER_ID_DISPLAY", new FieldMapper("offenderNo"))
 		.put("AGY_LOC_ID", 			new FieldMapper("agencyId"))
 		.put("FIRST_NAME", 			new FieldMapper("firstName"))
+        .put("MIDDLE_NAME", 		new FieldMapper("middleName"))
 		.put("LAST_NAME", 			new FieldMapper("lastName"))
 		.put("LIVING_UNIT_ID", 		new FieldMapper("assignedLivingUnitId"))
 		.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
@@ -91,8 +92,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("ETHNICITY",	new FieldMapper("ethinicity"))
 			.put("ALIAS_TYPE",	new FieldMapper("nameType"))
 			.build();
-
-
 
 	@Override
 	public List<AssignedInmate> findInmatesByLocation(final Long locationId, String query, String orderByField, LocationsResource.Order order, final int offset, final int limit) {
@@ -185,7 +184,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	private List<String> findActiveAlertCodes(Long bookingId) {
-		return new ArrayList<>();
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_ALERT_TYPES_FOR_OFFENDER"), null, preOracle12).build();
+        return jdbcTemplate.query(sql, createParams("bookingId", bookingId), (rs, rowNum) -> rs.getString("ALERT_TYPE"));
 	}
 
 	@Override

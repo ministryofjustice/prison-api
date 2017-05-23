@@ -48,17 +48,19 @@ public class InmateRepositoryTest {
         assertThat(foundInmates).isNotEmpty();
     }
 
-    @Test
-    public final void testFindAllImagesOnQueryStringInLocation() {
-        final List<AssignedInmate> foundInmatesByLocation = repository.findInmatesByLocation(25238L, "", "firstName", LocationsResource.Order.asc, 0, 10);
-        assertThat(foundInmatesByLocation).isNotEmpty();
-    }
 
     @Test
     public final void testGetOffender() {
-        final List<AssignedInmate> foundInmates = repository.findAllInmates("", 0, 10, "firstName", asc);
-        assertThat(foundInmates).isNotEmpty();
-        final InmateDetails inmate = repository.findInmate(foundInmates.get(0).getBookingId());
-
+        final InmateDetails inmate = repository.findInmate(48164L);
+        assertThat(inmate).isNotNull();
     }
+
+    @Test
+    public final void testFindAllImagesOnQueryStringInLocation() {
+        final InmateDetails inmate = repository.findInmate(48164L);
+        assertThat(inmate).isNotNull();
+        final List<AssignedInmate> foundInmatesByLocation = repository.findInmatesByLocation(inmate.getAssignedLivingUnit().getLocationId(), "", "firstName", LocationsResource.Order.asc, 0, 10);
+        assertThat(foundInmatesByLocation).isNotEmpty();
+    }
+
 }
