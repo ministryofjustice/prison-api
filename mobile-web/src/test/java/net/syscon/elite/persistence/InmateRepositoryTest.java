@@ -39,11 +39,11 @@ public class InmateRepositoryTest {
 
     @Before
     public final void setup() {
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("MWILLIS_GEN", "password"));
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("ITAG_USER", "password"));
     }
 
     @Test
-    public final void testFindAllImatesOnQueryString() {
+    public final void testFindAllImates() {
         final List<AssignedInmate> foundInmates = repository.findAllInmates("", 0, 10, "firstName", asc);
         assertThat(foundInmates).isNotEmpty();
     }
@@ -56,7 +56,7 @@ public class InmateRepositoryTest {
     }
 
     @Test
-    public final void testFindAllImagesOnQueryStringInLocation() {
+    public final void testFindImatesInSpecificLocation() {
         final InmateDetails inmate = repository.findInmate(48164L);
         assertThat(inmate).isNotNull();
         final List<AssignedInmate> foundInmatesByLocation = repository.findInmatesByLocation(inmate.getAssignedLivingUnit().getLocationId(), "", "firstName", LocationsResource.Order.asc, 0, 10);

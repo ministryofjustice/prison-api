@@ -171,7 +171,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			if (inmate != null) {
 				inmate.setPhysicalAttributes(findPhysicalAttributes(inmate.getBookingId()));
 				inmate.setPhysicalCharacteristics(findPhysicalCharacteristics(inmate.getBookingId()));
-				inmate.setPhysicalMarks(this.findPhysicalMarks(inmate.getBookingId()));
+				inmate.setPhysicalMarks(findPhysicalMarks(inmate.getBookingId()));
 				inmate.setAssessments(findAssessments(inmate.getBookingId()));
 				inmate.setAssignedLivingUnit(findAssignedLivingUnit(bookingId));
 				inmate.setAlertsCodes(findActiveAlertCodes(bookingId));

@@ -31,10 +31,10 @@ public class UserRepositoryTest {
 
     @Test
     public final void testFindUserByUsername() {
-        final UserDetails user = repository.findByUsername("MWILLIS_GEN");
+        final UserDetails user = repository.findByUsername("ITAG_USER");
         assertThat(user).isNotNull();
-        assertThat(user.getLastName()).isEqualTo("WILLIS");
-        assertThat(user.getEmail()).isEqualTo("Michael.Willis@syscon.net");
+        assertThat(user.getLastName()).isEqualTo("USER");
+        assertThat(user.getEmail()).isEqualTo("itaguser@syscon.net");
     }
 
     @Test
@@ -47,7 +47,7 @@ public class UserRepositoryTest {
 
     @Test
     public final void testFindRolesByUsername() {
-        final List<String> roles = repository.findRolesByUsername("MWILLIS_GEN");
+        final List<String> roles = repository.findRolesByUsername("ITAG_USER");
         assertThat(roles).isNotEmpty();
         assertThat(roles).contains("WING_OFF");
     }
