@@ -7,6 +7,7 @@ import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.web.api.model.ReferenceCode;
 import net.syscon.elite.web.api.resource.ReferenceDomainsResource.Order;
 import net.syscon.util.QueryBuilder;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -15,19 +16,19 @@ import java.util.Map;
 
 @Repository
 public class ReferenceCodeRepositoryImpl extends RepositoryBase implements ReferenceCodeRepository {
-	
+
 	private final Map<String, FieldMapper> referenceCodeMapping = new ImmutableMap.Builder<String, FieldMapper>()
-			.put("DESCRIPTION", 		new FieldMapper("description"))
-			.put("CODE", 				new FieldMapper("code"))
-			.put("DOMAIN", 				new FieldMapper("domain"))
-			.put("PARENT_DOMAIN", 		new FieldMapper("parentDomainId"))
-			.put("PARENT_CODE", 		new FieldMapper("parentCode"))
-			.put("ACTIVE_FLAG", 		new FieldMapper("activeFlag"))
+			.put("DESCRIPTION", new FieldMapper("description"))
+			.put("CODE", new FieldMapper("code"))
+			.put("DOMAIN", new FieldMapper("domain"))
+			.put("PARENT_DOMAIN", new FieldMapper("parentDomainId"))
+			.put("PARENT_CODE", new FieldMapper("parentCode"))
+			.put("ACTIVE_FLAG", new FieldMapper("activeFlag"))
 			.build();
 
 	@Override
 	public List<ReferenceCode> getCnotetypesByCaseLoad(final String caseLoad) {
-		
+
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_CNOTE_TYPES_BY_CASE_LOAD"), referenceCodeMapping, preOracle12).addRowCount().build();
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
 		return jdbcTemplate.query(sql, createParams("caseLoad", caseLoad), referenceCodeRowMapper);
@@ -69,7 +70,11 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 		final String sql = getQuery("FIND_REF_CODE_DESC");
 		String domain = "ALERT";
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
-		return jdbcTemplate.queryForObject(sql, createParams("domain", domain, "code", alertType), referenceCodeRowMapper);
+		try {
+			return jdbcTemplate.queryForObject(sql, createParams("domain", domain, "code", alertType), referenceCodeRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
 	}
 
 	@Override
@@ -79,7 +84,11 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 		boolean isAsc = order.toString().equals("asc");
 		String sqlQuery = new QueryBuilder.Builder(sql, referenceCodeMapping, preOracle12).addQuery(query).addOrderBy(isAsc, orderBy).addPagedQuery().build();
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
-		return jdbcTemplate.query(sqlQuery, createParams("domain", domain, "parentCode", alertType, "offset", offset, "limit", limit), referenceCodeRowMapper);
+		try {
+			return jdbcTemplate.query(sqlQuery, createParams("domain", domain, "parentCode", alertType, "offset", offset, "limit", limit), referenceCodeRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
 	}
 
 	@Override
@@ -87,9 +96,10 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 		final String sql = getQuery("FIND_ALERT_REF_CODE_DESC");
 		String domain = "ALERT_CODE";
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
-		return jdbcTemplate.queryForObject(sql, createParams("domain", domain, "parentCode", alertType, "code", alertCode), referenceCodeRowMapper);
+		try {
+			return jdbcTemplate.queryForObject(sql, createParams("domain", domain, "parentCode", alertType, "code", alertCode), referenceCodeRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
 	}
-
-	
-
 }

@@ -6,14 +6,6 @@ FIND_INMATE_DETAIL {
             O.FIRST_NAME,
             O.MIDDLE_NAME,
             O.LAST_NAME,
-            (
-                SELECT LISTAGG(ALERT_TYPE, ',') WITHIN GROUP (ORDER BY ALERT_TYPE)
-                  FROM (
-                            SELECT DISTINCT( ALERT_TYPE)
-                              FROM OFFENDER_ALERTS A
-                             WHERE B.OFFENDER_BOOK_ID = A.OFFENDER_BOOK_ID AND A.ALERT_STATUS = 'ACTIVE'
-                       )
-            ) AS ALERT_TYPES,
             -- CURRENT LOCATION ID (tbd)
             (
                 SELECT * FROM (
@@ -30,7 +22,7 @@ FIND_INMATE_DETAIL {
             ) AS FACE_IMAGE_ID,
             O.BIRTH_DATE,
             (SYSDATE - O.BIRTH_DATE) / 365 AS AGE,
-            S.USER_ID AS ASSIGNED_OFFEICER_ID
+            S.USER_ID AS ASSIGNED_OFFICER_ID
        FROM OFFENDER_BOOKINGS B
             INNER JOIN CASELOAD_AGENCY_LOCATIONS C ON C.CASELOAD_ID = :caseLoadId AND B.AGY_LOC_ID = C.AGY_LOC_ID
             LEFT JOIN AGENCY_INTERNAL_LOCATIONS I ON B.LIVING_UNIT_ID = I.INTERNAL_LOCATION_ID
@@ -40,7 +32,13 @@ FIND_INMATE_DETAIL {
 }
 
 
-FIND_ASSINGED_LIVING_UNIT {
+FIND_ALERT_TYPES_FOR_OFFENDER {
+   SELECT DISTINCT(ALERT_TYPE) AS ALERT_TYPE
+   FROM OFFENDER_ALERTS A
+   WHERE A.OFFENDER_BOOK_ID = :bookingId AND A.ALERT_STATUS = 'ACTIVE'
+}
+
+FIND_ASSIGNED_LIVING_UNIT {
      SELECT B.AGY_LOC_ID,
             B.LIVING_UNIT_ID,
             I.DESCRIPTION LIVING_UNIT_DESCRITION
@@ -58,14 +56,6 @@ FIND_ALL_INMATES {
             O.FIRST_NAME,
             O.MIDDLE_NAME,
             O.LAST_NAME,
-            (
-                SELECT LISTAGG(ALERT_TYPE, ',') WITHIN GROUP (ORDER BY ALERT_TYPE)
-                  FROM (
-                            SELECT DISTINCT( ALERT_TYPE)
-                              FROM OFFENDER_ALERTS OA
-                             WHERE B.OFFENDER_BOOK_ID = OA.OFFENDER_BOOK_ID AND OA.ALERT_STATUS = 'ACTIVE'
-                       )
-            ) AS ALERT_TYPES,
             B.LIVING_UNIT_ID,
             (
                 SELECT * FROM (
@@ -96,14 +86,6 @@ FIND_INMATES_BY_LOCATION {
             O.FIRST_NAME,
             O.MIDDLE_NAME,
             O.LAST_NAME,
-            (
-                SELECT LISTAGG(ALERT_TYPE, ',') WITHIN GROUP (ORDER BY ALERT_TYPE)
-                  FROM (
-                            SELECT DISTINCT( ALERT_TYPE)
-                              FROM OFFENDER_ALERTS OA
-                             WHERE B.OFFENDER_BOOK_ID = OA.OFFENDER_BOOK_ID AND OA.ALERT_STATUS = 'ACTIVE'
-                       )
-            ) AS ALERT_TYPES,
             B.LIVING_UNIT_ID,
             (
                 SELECT * FROM (

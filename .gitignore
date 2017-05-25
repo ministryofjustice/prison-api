@@ -154,3 +154,4 @@ UI/_temp
 mobile-web/hs_err_pid16052.log
 
 mobile-web/src/main/resources/static/index.html
+.DS_Store

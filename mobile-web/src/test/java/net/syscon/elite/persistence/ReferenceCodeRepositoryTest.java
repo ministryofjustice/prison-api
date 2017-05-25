@@ -1,6 +1,6 @@
 package net.syscon.elite.persistence;
 
-import net.syscon.elite.web.api.model.UserDetails;
+import net.syscon.elite.web.api.model.ReferenceCode;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,8 +13,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
@@ -24,31 +22,15 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = PersistenceConfigs.class)
-public class UserRepositoryTest {
+public class ReferenceCodeRepositoryTest {
 
     @Autowired
-    private UserRepository repository;
+    private ReferenceCodeRepository repository;
 
     @Test
-    public final void testFindUserByUsername() {
-        final UserDetails user = repository.findByUsername("ITAG_USER");
-        assertThat(user).isNotNull();
-        assertThat(user.getLastName()).isEqualTo("USER");
-        assertThat(user.getEmail()).isEqualTo("itaguser@syscon.net");
+    public final void testGetAlertTypeByCode() {
+        final ReferenceCode alertTypeCodesByAlertCode = repository.getAlertTypesByAlertType("X");
+        assertThat(alertTypeCodesByAlertCode).isNotNull();
     }
 
-    @Test
-    public final void testFindUserByStaffId() {
-        final UserDetails user = repository.findByUsername("ELITE2_API_USER");
-        assertThat(user).isNotNull();
-        final UserDetails userById = repository.findByStaffId(user.getStaffId());
-        assertThat(userById).isNotNull();
-    }
-
-    @Test
-    public final void testFindRolesByUsername() {
-        final List<String> roles = repository.findRolesByUsername("ITAG_USER");
-        assertThat(roles).isNotEmpty();
-        assertThat(roles).contains("WING_OFF");
-    }
 }

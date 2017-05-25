@@ -26,8 +26,7 @@ INSERT_CASE_NOTE {
 	      DATE_CREATION,
 	      TIME_CREATION,
 	      CREATE_USER_ID,
-	      NOTE_SOURCE_CODE,
-	      MODIFY_DATETIME
+	      NOTE_SOURCE_CODE
 	  ) VALUES (
 	      CASE_NOTE_ID.NEXTVAL,
 	      :bookingID,
@@ -40,8 +39,7 @@ INSERT_CASE_NOTE {
 	      :createDate,
 	      :createTime,
 	      :createdBy,
-	      :sourceCode,
-	      null
+	      :sourceCode
 	  )
 }
 

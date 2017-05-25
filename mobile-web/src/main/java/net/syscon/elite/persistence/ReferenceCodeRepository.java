@@ -1,18 +1,18 @@
 package net.syscon.elite.persistence;
 
-import java.util.List;
-
 import net.syscon.elite.web.api.model.ReferenceCode;
 import net.syscon.elite.web.api.resource.ReferenceDomainsResource.Order;
 
+import java.util.List;
+
 public interface ReferenceCodeRepository {
-	public List<ReferenceCode> getCnotetypesByCaseLoad(String caseLoad);
-	public List<ReferenceCode> getCnoteSubtypesByCaseNoteType(String caseNotetype);
-	public List<ReferenceCode> getReferenceCodesForDomain(String domain);
-	public ReferenceCode getReferenceCodeDescriptionForCode(String domain, String code);
+	List<ReferenceCode> getCnotetypesByCaseLoad(String caseLoad);
+	List<ReferenceCode> getCnoteSubtypesByCaseNoteType(String caseNotetype);
+	List<ReferenceCode> getReferenceCodesForDomain(String domain);
+	ReferenceCode getReferenceCodeDescriptionForCode(String domain, String code);
 	
-	public List<ReferenceCode> getAlertTypes(String query, String orderBy, Order order, int offset, int limit);
-	public ReferenceCode getAlertTypesByAlertType(String alertType);
-	public List<ReferenceCode> getAlertTypesByAlertTypeCode(String alertType, String query, String orderBy, Order order, int offset, int limit);
-	public ReferenceCode getAlertTypeCodesByAlertCode(String alertType, String alertCode);
+	List<ReferenceCode> getAlertTypes(String query, String orderBy, Order order, int offset, int limit);
+	ReferenceCode getAlertTypesByAlertType(String alertType);
+	List<ReferenceCode> getAlertTypesByAlertTypeCode(String alertType, String query, String orderBy, Order order, int offset, int limit);
+	ReferenceCode getAlertTypeCodesByAlertCode(String alertType, String alertCode);
 }

@@ -1,6 +1,7 @@
 package net.syscon.elite.persistence;
 
 import net.syscon.elite.web.api.model.AssignedInmate;
+import net.syscon.elite.web.api.model.InmateDetails;
 import net.syscon.elite.web.api.resource.LocationsResource;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
@@ -24,7 +25,7 @@ import static net.syscon.elite.web.api.resource.BookingResource.Order.asc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
-@ActiveProfiles("noHikari")
+@ActiveProfiles("noHikari,nomis")
 @RunWith(SpringRunner.class)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @JdbcTest
@@ -42,14 +43,24 @@ public class InmateRepositoryTest {
     }
 
     @Test
-    public final void testFindAllImagesOnQueryString() {
+    public final void testFindAllImates() {
         final List<AssignedInmate> foundInmates = repository.findAllInmates("", 0, 10, "firstName", asc);
         assertThat(foundInmates).isNotEmpty();
     }
 
+
     @Test
-    public final void testFindAllImagesOnQueryStringInLocation() {
-        final List<AssignedInmate> foundInmates = repository.findInmatesByLocation(5345L, "", "firstName", LocationsResource.Order.asc, 0, 10);
-        assertThat(foundInmates).isNotEmpty();
+    public final void testGetOffender() {
+        final InmateDetails inmate = repository.findInmate(48164L);
+        assertThat(inmate).isNotNull();
     }
+
+    @Test
+    public final void testFindImatesInSpecificLocation() {
+        final InmateDetails inmate = repository.findInmate(48164L);
+        assertThat(inmate).isNotNull();
+        final List<AssignedInmate> foundInmatesByLocation = repository.findInmatesByLocation(inmate.getAssignedLivingUnit().getLocationId(), "", "firstName", LocationsResource.Order.asc, 0, 10);
+        assertThat(foundInmatesByLocation).isNotEmpty();
+    }
+
 }

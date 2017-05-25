@@ -8,7 +8,6 @@ project(":mobile-web") {
 
 		compile project(":mobile-api")
 		compile files("${rootDir}/mobile-web/src/main/configs")
-
 		compile files("${rootDir}/lib/ojdbc7-12.1.0.1.jar")
 
 		compile("org.springframework.boot:spring-boot-starter-web")
@@ -17,9 +16,8 @@ project(":mobile-web") {
 		compile("org.springframework.boot:spring-boot-starter-jdbc")
 		compile("org.springframework.boot:spring-boot-starter-jetty")
 		compile("org.springframework.boot:spring-boot-starter-security")
-		compile("org.springframework.boot:spring-boot-starter-actuator")
+		compile("org.springframework.boot:spring-boot-devtools")
 		compile("org.springframework.mobile:spring-mobile-device")
-
 
 		compile("io.jsonwebtoken:jjwt:${version_jjwt}")
 		compile("com.zaxxer:HikariCP:${version_hikaricp}")
@@ -33,6 +31,8 @@ project(":mobile-web") {
 		testCompile("org.springframework.security:spring-security-test:4.2.2.RELEASE")
 		testCompile("com.google.code.gson:gson:2.8.0")
 		testCompile("org.assertj:assertj-core:3.5.2")
+		testCompile("org.flywaydb:flyway-core")
+		testRuntime('org.hsqldb:hsqldb:2.3.3')
 	}
 
 	configurations {
