@@ -6,6 +6,14 @@ FIND_INMATE_DETAIL {
             O.FIRST_NAME,
             O.MIDDLE_NAME,
             O.LAST_NAME,
+            (
+                SELECT LISTAGG(ALERT_TYPE, ',') WITHIN GROUP (ORDER BY ALERT_TYPE)
+                  FROM (
+                            SELECT DISTINCT( ALERT_TYPE)
+                              FROM OFFENDER_ALERTS A
+                             WHERE B.OFFENDER_BOOK_ID = A.OFFENDER_BOOK_ID AND A.ALERT_STATUS = 'ACTIVE'
+                       )
+            ) AS ALERT_TYPES,
             -- CURRENT LOCATION ID (tbd)
             (
                 SELECT * FROM (
