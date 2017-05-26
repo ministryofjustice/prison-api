@@ -43,7 +43,7 @@ This README is going to show how to run mobile API server.
 gradle run
 ```
 
-3) Using `java -jar` with a pakcaged version
+3) Using `java -jar` with a packaged version
 ```bash
 gradle assemble
 ...
@@ -51,17 +51,19 @@ nohup java -cp mobile-web-<VERSION>.jar:/etc/elite-mobile -Dloader.main=net.sysc
 ```
 Where `/etc/elite-mobile` is the external configuration directory. In the project this directory is `mobile-web/src/main/configs`
 
+If you need to build against Oracle 11 use:-
+```bash
+./gradlew -Poracle11 clean assemble -x integTest
+```
+
 4) In a Docker container
 
 Build Docker image and run
 
 ```bash
-docker build -t sysconjusticesystems/mobile-web .
-```
-
-Run 
-```bash
-docker run -d -p 7080:7080 -e SERVER_PORT=7080 -e SPRING_PROFILES_ACTIVE=dev --name=mobile-web sysconjusticesystems/mobile-web 
+./gradlew clean assemble
+docker build -t sysconjusticesystems/elite2-api .
+docker run -d -p 8888:8080 -e SERVER_PORT=8080 -e SPRING_PROFILES_ACTIVE=dev,nomis -e SPRING_DATASOURCE_URL=jdbc:oracle:thin:@lonlx01:1521:pvb_dev --name=elite2-api sysconjusticesystems/elite2-api 
 ```
 
 ### Using Docker compose ###
