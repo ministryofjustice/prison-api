@@ -1,49 +1,71 @@
 {
-  "front-version": "2.3.1",
+  "front-version": "2.4.0",
   "version": 3,
   "nodes": [
     {
       "type": "Project",
-      "id": "79B128B4-CD5A-4D7E-8BBC-14A7A2CFCC6D",
-      "lastModified": "2017-05-16T14:04:33.303-07:00",
+      "id": "54E9846C-08D4-4F19-B123-70DBC54E565E",
+      "lastModified": "2017-05-29T17:28:11.947-07:00",
       "name": "REST API"
     },
     {
       "type": "Scenario",
-      "id": "A9C5B1BF-036C-470E-9788-17EAECA6A83D",
-      "lastModified": "2017-05-16T14:04:33.303-07:00",
-      "name": "Bookings",
+      "id": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E",
+      "lastModified": "2017-05-29T17:26:49.517-07:00",
+      "name": "Sanity Test",
       "requestOrder": [
         "Login",
-        "Get Bookings",
-        "Get Booking Details",
-        "Get Bookings - Search",
-        "Get Bookings - OrderBy",
-        "Get Bookings - Search Like",
-        "CaseNotes",
-        "CaseNote Details",
-        "CaseNotes - Search",
-        "CaseNotes - OrderBy",
-        "Alerts",
-        "Alert Details",
-        "Alerts - Search",
-        "Alerts - OrderBy",
-        "Locations",
-        "Locations - Search",
-        "Locations - OrderBy",
-        "Location Details",
-        "Location Details - Assigned Inmates",
-        "Location Details - Assigned Inmates - Search",
-        "Location Details - Assigned Inmates - OrderBy",
-        "Get Image Meta Data",
-        "Get Image Image Data",
-        "Get Booking Aliases",
-        "Get Booking Aliases - OrderBy",
-        "Get User Details",
+        "Build Information",
+        "User - Current User",
+        "User - By UserId",
+        "User - Case Loads",
+        "User - Active Case Load 1",
+        "User - Active Case Load 2",
+        "User - Active Case Load 3",
+        "User - Active Case Load 4",
+        "Get Bookings - Search and Order By",
+        "Get Bookings - Search and Order By, desc",
+        "Get Bookings - Pagination 1",
+        "Get Bookings - Pagination 2",
+        "Get Bookings - by BookingId",
+        "Get Bookings - Case Notes - Order By, limit 3",
+        "Get Bookings - Case Notes - Pagination 1",
+        "Get Bookings - Case Notes - Pagination 2",
+        "Get Bookings - Case Notes - Search",
+        "Get Bookings - Case Notes - by CaseNoteId",
+        "Get Bookings - Case Notes - New Case Note",
+        "Get Bookings -  Case Notes - Amend Case Note",
+        "Get Bookings - Alerts",
+        "Get Bookings - Alerts - Search",
+        "Get Bookings - Alerts - Pagination 1",
+        "Get Bookings - Alerts - Pagination 2",
+        "Get Bookings - Alerts - Order By",
+        "Get Bookings - Alerts - Order By, desc",
+        "Get Bookings - Alerts - byAlertId",
+        "Get Bookings - Aliases",
+        "Get Bookings - Aliases - Order By",
+        "Get Bookings - Aliases - Order By, desc",
+        "Get Bookings - Aliases - Pagination 1",
+        "Get Locations - Order By",
+        "Get Locations - Order By, desc",
+        "Get Locations - Search",
+        "Get Locations - By LocationId",
+        "Get Locations - By LocationId - Inmates - Search and Order By",
+        "Get Locations - By LocationId - Inmates - Pagination 1",
+        "Get Locations - By LocationId - Inmates - Pagination 2",
+        "Images -  by ImageId",
+        "Images - by ImageId - Data",
+        "Reference Domains - Alert Types - Search and Order By",
+        "Reference Domains - Alert Types - Pagination 1",
+        "Reference Domains - Alert Types - Pagination 2",
+        "Reference Domains - Alert Types - by AlertType",
+        "Reference Domains - Alert Types - by AlertType - Alert Codes",
+        "Reference Domains - Alert Types - by AlertType - Alert Codes - Pagination",
+        "Reference Domains - Alert Types - by AlertType - Alert Codes - by alertCode",
         "Build information",
-        "Get Staff Details"
+        "Renew Token"
       ],
-      "parentId": "79B128B4-CD5A-4D7E-8BBC-14A7A2CFCC6D"
+      "parentId": "54E9846C-08D4-4F19-B123-70DBC54E565E"
     },
     {
       "type": "Request",
@@ -55,7 +77,7 @@
       "body": {
         "bodyType": "Text",
         "autoSetLength": true,
-        "textBody": "{\n  \"username\": \"itag_user\",\n  \"password\": \"it4g_us3r\"\n}"
+        "textBody": "{\n  \"username\": \"oms_owner\",\n  \"password\": \"oms_owner\"\n}"
       },
       "headersType": "Form",
       "uri": {
@@ -66,8 +88,8 @@
         "host": "${\"HOST\"}",
         "path": "/api/users/login"
       },
-      "id": "F2CFE483-8C84-4873-B2E9-BECBC9CE2B20",
-      "lastModified": "2017-05-16T14:04:33.303-07:00",
+      "id": "994144E8-E0F8-4E1E-9037-4070C227553B",
+      "lastModified": "2017-05-29T17:03:39.235-07:00",
       "name": "Login",
       "headers": [
         {
@@ -77,1218 +99,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/booking"
-      },
-      "id": "47EFF1C3-32B1-458A-9419-32D80F4E9E9D",
-      "lastModified": "2017-05-16T14:04:33.304-07:00",
-      "name": "Get Bookings",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/booking/18800"
-      },
-      "id": "F5A09699-26BD-43CB-AFB2-60159C755254",
-      "lastModified": "2017-05-16T14:04:33.304-07:00",
-      "name": "Get Booking Details",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        },
-        {
-          "comparison": "Equals",
-          "subject": "ResponseJsonBody",
-          "path": "$.bookingId",
-          "value": "\"18800\""
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "query": {
-          "delimiter": "&",
-          "items": [
-            {
-              "enabled": true,
-              "name": "query",
-              "value": "lastName:eq:'SMITH',and:firstName:eq:'PAUL'"
-            }
-          ]
-        },
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/booking"
-      },
-      "id": "A596726B-6B6D-43C5-AA4F-0AAF5DEA71F1",
-      "lastModified": "2017-05-16T14:04:33.304-07:00",
-      "name": "Get Bookings - Search",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        },
-        {
-          "comparison": "Equals",
-          "subject": "ResponseJsonBody",
-          "path": "$.inmatesSummaries[0].bookingId",
-          "value": "20507"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "query": {
-          "delimiter": "&",
-          "items": [
-            {
-              "enabled": true,
-              "name": "orderBy",
-              "value": "bookingId"
-            },
-            {
-              "enabled": true,
-              "name": "order",
-              "value": "asc"
-            }
-          ]
-        },
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/booking"
-      },
-      "id": "86C32773-A533-44E0-859F-7CC0D0A03BDE",
-      "lastModified": "2017-05-16T14:04:33.304-07:00",
-      "name": "Get Bookings - OrderBy",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        },
-        {
-          "comparison": "Equals",
-          "subject": "ResponseJsonBody",
-          "path": "$.inmatesSummaries[0].bookingId",
-          "value": "18756"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "query": {
-          "delimiter": "&",
-          "items": [
-            {
-              "enabled": true,
-              "name": "query",
-              "value": "firstName:like:'BILLY%'"
-            }
-          ]
-        },
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/booking"
-      },
-      "id": "F8D64433-EFDB-47EE-955A-94D31AC1B56E",
-      "lastModified": "2017-05-16T14:04:33.304-07:00",
-      "name": "Get Bookings - Search Like",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        },
-        {
-          "comparison": "Equals",
-          "subject": "ResponseJsonBody",
-          "path": "$.inmatesSummaries[0].bookingId",
-          "value": "20847"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/booking/18733/caseNotes"
-      },
-      "id": "AE0088A9-342B-40A9-AC53-621FA7F99686",
-      "lastModified": "2017-05-16T14:04:33.304-07:00",
-      "name": "CaseNotes",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/booking/18733/caseNotes/33839"
-      },
-      "id": "6E4DC435-D5A8-4092-9F26-68A752BC15D2",
-      "lastModified": "2017-05-16T14:04:33.304-07:00",
-      "name": "CaseNote Details",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "query": {
-          "delimiter": "&",
-          "items": [
-            {
-              "enabled": true,
-              "name": "query",
-              "value": "type:eq:'ALERT'"
-            }
-          ]
-        },
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/booking/18733/caseNotes"
-      },
-      "id": "6896A62D-389D-4675-98EC-6BA1400092E7",
-      "lastModified": "2017-05-16T14:04:33.304-07:00",
-      "name": "CaseNotes - Search",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        },
-        {
-          "comparison": "Equals",
-          "subject": "ResponseJsonBody",
-          "path": "$.caseNotes[0].caseNoteId",
-          "value": "33781"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "query": {
-          "delimiter": "&",
-          "items": [
-            {
-              "enabled": true,
-              "name": "orderBy",
-              "value": "creationDate"
-            },
-            {
-              "enabled": true,
-              "name": "order",
-              "value": "desc"
-            }
-          ]
-        },
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/booking/18733/caseNotes"
-      },
-      "id": "6DB84E49-1F97-461D-84DE-A3B5908A38FE",
-      "lastModified": "2017-05-16T14:04:33.304-07:00",
-      "name": "CaseNotes - OrderBy",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        },
-        {
-          "comparison": "Equals",
-          "subject": "ResponseJsonBody",
-          "path": "$.caseNotes[0].caseNoteId",
-          "value": "33758"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/booking/18733/alerts"
-      },
-      "id": "9D7CFAE8-4438-460B-A4A6-6CC372ECAB51",
-      "lastModified": "2017-05-16T14:04:33.304-07:00",
-      "name": "Alerts",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/booking/18733/alerts/2"
-      },
-      "id": "DD126BB1-3076-4D04-BBE5-3B72A98747EB",
-      "lastModified": "2017-05-16T14:04:33.304-07:00",
-      "name": "Alert Details",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        },
-        {
-          "comparison": "Equals",
-          "subject": "ResponseJsonBody",
-          "path": "$.alertId",
-          "value": "2"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "query": {
-          "delimiter": "&",
-          "items": [
-            {
-              "enabled": true,
-              "name": "query",
-              "value": "alertType:eq:'M'"
-            }
-          ]
-        },
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/booking/18733/alerts"
-      },
-      "id": "DDA6D537-6EA5-44AC-80EA-01BE26896C7E",
-      "lastModified": "2017-05-16T14:04:33.304-07:00",
-      "name": "Alerts - Search",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        },
-        {
-          "comparison": "Equals",
-          "subject": "ResponseJsonBody",
-          "path": "$.alerts[0].alertId",
-          "value": "2"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "query": {
-          "delimiter": "&",
-          "items": [
-            {
-              "enabled": true,
-              "name": "orderBy",
-              "value": "dateCreated"
-            },
-            {
-              "enabled": true,
-              "name": "order",
-              "value": "desc"
-            }
-          ]
-        },
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/booking/18733/alerts"
-      },
-      "id": "C6C86101-7016-454C-BE00-887C966C6957",
-      "lastModified": "2017-05-16T14:04:33.304-07:00",
-      "name": "Alerts - OrderBy",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        },
-        {
-          "comparison": "Equals",
-          "subject": "ResponseJsonBody",
-          "path": "$.alerts[0].alertId",
-          "value": "4"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/locations"
-      },
-      "id": "395A72CD-18A4-47BD-A490-2683F7FB6B9F",
-      "lastModified": "2017-05-16T14:04:33.304-07:00",
-      "name": "Locations",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "query": {
-          "delimiter": "&",
-          "items": [
-            {
-              "enabled": true,
-              "name": "query",
-              "value": "locationType:eq:'WING'"
-            }
-          ]
-        },
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/locations"
-      },
-      "id": "1DEE9923-61C2-4D74-8C6E-4F5E324160C6",
-      "lastModified": "2017-05-16T14:04:33.304-07:00",
-      "name": "Locations - Search",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        },
-        {
-          "comparison": "Equals",
-          "subject": "ResponseJsonBody",
-          "path": "$.locations[0].locationType",
-          "value": "WING"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "query": {
-          "delimiter": "&",
-          "items": [
-            {
-              "enabled": true,
-              "name": "query",
-              "value": "locationType:eq:'WING'"
-            },
-            {
-              "enabled": true,
-              "name": "orderBy",
-              "value": "locationId"
-            },
-            {
-              "enabled": true,
-              "name": "order",
-              "value": "desc"
-            }
-          ]
-        },
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/locations"
-      },
-      "id": "C6A34957-A0FC-48B9-A0AC-4994959DA8BD",
-      "lastModified": "2017-05-16T14:04:33.306-07:00",
-      "name": "Locations - OrderBy",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        },
-        {
-          "comparison": "Equals",
-          "subject": "ResponseJsonBody",
-          "path": "$.locations[0].locationId",
-          "value": "5573"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/locations/5573"
-      },
-      "id": "9E7B0803-B764-4978-BF80-9425A449BDDE",
-      "lastModified": "2017-05-16T14:04:33.306-07:00",
-      "name": "Location Details",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        },
-        {
-          "comparison": "Equals",
-          "subject": "ResponseJsonBody",
-          "path": "$.locationId",
-          "value": "5573"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/locations/5412/inmates"
-      },
-      "id": "1550FCD0-B085-4A04-829F-44872EBA9712",
-      "lastModified": "2017-05-16T14:04:33.306-07:00",
-      "name": "Location Details - Assigned Inmates",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        },
-        {
-          "comparison": "Greater",
-          "subject": "ResponseJsonBody",
-          "path": "$.inmatesSummaries.bookingId@length",
-          "value": "2"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "query": {
-          "delimiter": "&",
-          "items": [
-            {
-              "enabled": true,
-              "name": "query",
-              "value": "firstName:eq:'JAX'"
-            }
-          ]
-        },
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/locations/5412/inmates"
-      },
-      "id": "02B4A270-1B74-4FCF-B912-183384A7282F",
-      "lastModified": "2017-05-16T14:04:33.306-07:00",
-      "name": "Location Details - Assigned Inmates - Search",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        },
-        {
-          "comparison": "Equals",
-          "subject": "ResponseJsonBody",
-          "path": "$.inmatesSummaries[0].bookingId",
-          "value": "20185"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "query": {
-          "delimiter": "&",
-          "items": [
-            {
-              "enabled": true,
-              "name": "orderBy",
-              "value": "bookingId"
-            },
-            {
-              "enabled": true,
-              "name": "order",
-              "value": "asc"
-            }
-          ]
-        },
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/locations/5412/inmates"
-      },
-      "id": "C2C278B3-6236-4E89-886C-3832F72E5DF6",
-      "lastModified": "2017-05-16T14:04:33.306-07:00",
-      "name": "Location Details - Assigned Inmates - OrderBy",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        },
-        {
-          "comparison": "Equals",
-          "subject": "ResponseJsonBody",
-          "path": "$.inmatesSummaries[0].bookingId",
-          "value": "20026"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/images/8535"
-      },
-      "id": "D0755D37-BBFD-427D-9C0A-0880954816D3",
-      "lastModified": "2017-05-16T14:04:33.307-07:00",
-      "name": "Get Image Meta Data",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        },
-        {
-          "comparison": "Equals",
-          "subject": "ResponseJsonBody",
-          "path": "$.objectId",
-          "value": "18733"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/images/8535/data"
-      },
-      "id": "48084383-9700-4949-9107-701A2225DF39",
-      "lastModified": "2017-05-16T14:04:33.307-07:00",
-      "name": "Get Image Image Data",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        },
-        {
-          "comparison": "Equals",
-          "subject": "ResponseHeader",
-          "path": "Content-Type",
-          "value": "image/jpeg"
-        },
-        {
-          "comparison": "Greater",
-          "subject": "ResponseBody",
-          "path": "length",
-          "value": "5000"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/booking/20847/aliases"
-      },
-      "id": "7B7EB62F-B981-4CED-BFB2-27E254CCE57B",
-      "lastModified": "2017-05-16T14:04:33.307-07:00",
-      "name": "Get Booking Aliases",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        },
-        {
-          "comparison": "Equals",
-          "subject": "ResponseJsonBody",
-          "path": "$.firstName[0]",
-          "value": "BILLY JEAN"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "query": {
-          "delimiter": "&",
-          "items": [
-            {
-              "enabled": true,
-              "name": "orderBy",
-              "value": "lastName"
-            },
-            {
-              "enabled": true,
-              "name": "order",
-              "value": "asc"
-            }
-          ]
-        },
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/booking/20847/aliases"
-      },
-      "id": "39BE8E7C-CD77-432D-9DD7-3272B6CE9A93",
-      "lastModified": "2017-05-16T14:04:33.307-07:00",
-      "name": "Get Booking Aliases - OrderBy",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        },
-        {
-          "comparison": "Equals",
-          "subject": "ResponseJsonBody",
-          "path": "$.lastName[0]",
-          "value": "BOWEN"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
     },
     {
       "type": "Request",
@@ -1309,14 +120,15 @@
         "host": "${\"HOST\"}",
         "path": "/api/users/me"
       },
-      "id": "EC269F40-3D50-4B64-B404-EB925364D62F",
-      "lastModified": "2017-05-16T14:04:33.307-07:00",
-      "name": "Get User Details",
+      "description": "",
+      "id": "E10365C1-33F6-47B4-B224-09B08513743F",
+      "lastModified": "2017-05-29T17:03:39.235-07:00",
+      "name": "User - Current User",
       "headers": [
         {
           "enabled": true,
           "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
         }
       ],
       "assertions": [
@@ -1329,12 +141,2870 @@
         {
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
+          "path": "$.staffId",
+          "value": "1"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
           "path": "$.username",
-          "value": "ITAG_USER"
+          "value": "OMS_OWNER"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.firstName",
+          "value": "DAVE"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.lastName",
+          "value": "DOLAN"
         }
       ],
       "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/users/${\"REST API\".\"Sanity Test\".\"User - Current User\".\"response\".\"body\".jsonPath(\"$.username\")}"
+      },
+      "description": "",
+      "id": "A58381E7-5401-4D50-AE01-569B726E5DD5",
+      "lastModified": "2017-05-29T17:03:39.235-07:00",
+      "name": "User - By UserId",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.staffId",
+          "value": "1"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.username",
+          "value": "OMS_OWNER"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.firstName",
+          "value": "DAVE"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.lastName",
+          "value": "DOLAN"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/users/me/caseLoads"
+      },
+      "description": "",
+      "id": "286F241E-4646-4EC4-AA0C-0D0B2BEB548B",
+      "lastModified": "2017-05-29T17:03:39.235-07:00",
+      "name": "User - Case Loads",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.",
+          "value": "[{\"caseLoadId\":\"CTAG\", \"description\":\"SYSCON PROBATION & PAROLE\"},{\"caseLoadId\":\"ITAG\", \"description\":\"SYSCON COUNTY SHERIFF\"},{\"caseLoadId\":\"SDCT\", \"description\":\"SYSCON DETENTION CENTER\"}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "requestBody": true,
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.4",
+        "name": "PUT"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true,
+        "textBody": "{\n\"caseLoadId\": \"SDCT\",\n\"description\": \"SYSCON DETENTION CENTER\"\n}"
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/users/me/activeCaseLoad"
+      },
+      "description": "",
+      "id": "1BB5BDE8-8B9F-482E-8F53-FC0C69B5DEC7",
+      "lastModified": "2017-05-29T17:03:39.235-07:00",
+      "name": "User - Active Case Load 1",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        },
+        {
+          "enabled": true,
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true,
+        "textBody": "{\n\"caseLoadId\": \"SDCT\",\n\"description\": \"SYSCON DETENTION CENTER\"\n}"
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/users/me/activeCaseLoad"
+      },
+      "description": "",
+      "id": "ABCFAE6E-2F4C-4F9B-9D3E-B8AEC02DAA8A",
+      "lastModified": "2017-05-29T17:03:39.235-07:00",
+      "name": "User - Active Case Load 2",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.caseLoadId",
+          "value": "SDCT"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "requestBody": true,
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.4",
+        "name": "PUT"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true,
+        "textBody": "{\n\"caseLoadId\": \"ITAG\",\n\"description\": \"SYSCON COUNTY SHERIFF\"\n}"
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/users/me/activeCaseLoad"
+      },
+      "description": "",
+      "id": "A6047BEA-E030-41FF-8D1B-EE37E8141F8E",
+      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "name": "User - Active Case Load 3",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        },
+        {
+          "enabled": true,
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true,
+        "textBody": "{\n\"caseLoadId\": \"ITAG\",\n\"description\": \"SYSCON COUNTY SHERIFF\"\n}"
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/users/me/activeCaseLoad"
+      },
+      "description": "",
+      "id": "7A72E857-3E53-43B8-A146-EC88EE2E6ACE",
+      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "name": "User - Active Case Load 4",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.caseLoadId",
+          "value": "ITAG"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "encoded": true,
+              "name": "query",
+              "value": "lastName%3Aeq%3A'API_TEST'"
+            },
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "firstName"
+            },
+            {
+              "enabled": true,
+              "name": "order",
+              "value": "asc"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking"
+      },
+      "id": "E19E9831-E7FB-48B3-83CF-1196BA514C65",
+      "lastModified": "2017-05-29T17:15:24.873-07:00",
+      "name": "Get Bookings - Search and Order By",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.inmatesSummaries.lastName",
+          "value": "[\"API_TEST\",\"API_TEST\",\"API_TEST\"]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.inmatesSummaries.firstName",
+          "value": "[\"USER1\",\"USER2\",\"USER3\"]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.inmatesSummaries",
+          "value": "[{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"agencyId\":\"ITAG\", \"facialImageId\":10008, \"livingUnitId\":5345},{\"bookingId\":20968, \"bookingNo\":\"2017-20944\", \"offenderNo\":\"0001021394\", \"firstName\":\"USER2\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"M\",\"X\"], \"agencyId\":\"ITAG\", \"livingUnitId\":5345},{\"bookingId\":20969, \"bookingNo\":\"2017-20945\", \"offenderNo\":\"0001021395\", \"firstName\":\"USER3\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"V\"], \"agencyId\":\"ITAG\", \"livingUnitId\":5345}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "encoded": true,
+              "name": "query",
+              "value": "lastName%3Aeq%3A'API_TEST'"
+            },
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "firstName"
+            },
+            {
+              "enabled": true,
+              "name": "order",
+              "value": "desc"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking"
+      },
+      "id": "9C051F20-5FD2-449D-8F5E-F8AFD48600A1",
+      "lastModified": "2017-05-29T17:15:55.039-07:00",
+      "name": "Get Bookings - Search and Order By, desc",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.inmatesSummaries.lastName",
+          "value": "[\"API_TEST\",\"API_TEST\",\"API_TEST\"]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.inmatesSummaries.firstName",
+          "value": "[\"USER3\",\"USER2\",\"USER1\"]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.inmatesSummaries",
+          "value": "[{\"bookingId\":20969, \"bookingNo\":\"2017-20945\", \"offenderNo\":\"0001021395\", \"firstName\":\"USER3\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"V\"], \"agencyId\":\"ITAG\", \"livingUnitId\":5345},{\"bookingId\":20968, \"bookingNo\":\"2017-20944\", \"offenderNo\":\"0001021394\", \"firstName\":\"USER2\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"M\",\"X\"], \"agencyId\":\"ITAG\", \"livingUnitId\":5345},{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"agencyId\":\"ITAG\", \"facialImageId\":10008, \"livingUnitId\":5345}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "encoded": true,
+              "name": "query",
+              "value": "lastName%3Aeq%3A'API_TEST'"
+            },
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "firstName"
+            },
+            {
+              "enabled": true,
+              "name": "order",
+              "value": "asc"
+            },
+            {
+              "enabled": true,
+              "name": "limit",
+              "value": "2"
+            },
+            {
+              "enabled": true,
+              "name": "offset",
+              "value": "0"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking"
+      },
+      "id": "0D41FDB9-AE07-4067-9751-6411B0E23650",
+      "lastModified": "2017-05-29T17:16:24.059-07:00",
+      "name": "Get Bookings - Pagination 1",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.inmatesSummaries.lastName",
+          "value": "[\"API_TEST\",\"API_TEST\"]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.inmatesSummaries.firstName",
+          "value": "[\"USER1\",\"USER2\"]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.inmatesSummaries",
+          "value": "[{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"agencyId\":\"ITAG\", \"facialImageId\":10008, \"livingUnitId\":5345},{\"bookingId\":20968, \"bookingNo\":\"2017-20944\", \"offenderNo\":\"0001021394\", \"firstName\":\"USER2\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"M\",\"X\"], \"agencyId\":\"ITAG\", \"livingUnitId\":5345}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "encoded": true,
+              "name": "query",
+              "value": "lastName%3Aeq%3A'API_TEST'"
+            },
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "firstName"
+            },
+            {
+              "enabled": true,
+              "name": "order",
+              "value": "asc"
+            },
+            {
+              "enabled": true,
+              "name": "limit",
+              "value": "2"
+            },
+            {
+              "enabled": true,
+              "name": "offset",
+              "value": "2"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking"
+      },
+      "id": "DCB5DCED-CBC8-462C-A3FC-8CF19CA58B3A",
+      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "name": "Get Bookings - Pagination 2",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.inmatesSummaries.lastName",
+          "value": "[\"API_TEST\"]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.inmatesSummaries.firstName",
+          "value": "[\"USER3\"]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.inmatesSummaries",
+          "value": "[{\"bookingId\":20969, \"bookingNo\":\"2017-20945\", \"offenderNo\":\"0001021395\", \"firstName\":\"USER3\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"V\"], \"agencyId\":\"ITAG\", \"livingUnitId\":5345}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}"
+      },
+      "description": "",
+      "id": "FC9F38D1-05B9-41DC-8B0E-36ECC063E727",
+      "lastModified": "2017-05-29T17:16:47.382-07:00",
+      "name": "Get Bookings - by BookingId",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.bookingId",
+          "value": "20967"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.",
+          "value": "{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"assignedLivingUnit\":{\"agencyId\":\"ITAG\", \"locationId\":5345, \"description\":\"ITAG-A&D\"}, \"facialImageId\":10008, \"age\":33, \"physicalAttributes\":{\"gender\":\"M\", \"ethnicity\":\"AFRICAN_AMER\", \"heightInches\":0, \"heightMeters\":1.83, \"weightPounds\":190, \"weightKg\":86}, \"physicalCharacteristics\":[{\"characteristic\":\"Face\", \"imageId\":10008}], \"physicalMarks\":[{\"type\":\"Mark\", \"side\":\"Left\", \"bodyPart\":\"Arm\", \"comment\":\"2 inch circular birth mark\", \"orentiation\":\"Centre\"},{\"type\":\"Tattoo\", \"side\":\"Back\", \"bodyPart\":\"Back\", \"comment\":\"hawk in flight\", \"orentiation\":\"Upper\"}], \"assessments\":[], \"assignedOfficerUserId\":\"OMS_OWNER\"}"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "creationDateTime"
+            },
+            {
+              "enabled": true,
+              "name": "order",
+              "value": "asc"
+            },
+            {
+              "enabled": true,
+              "name": "limit",
+              "value": "3"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/caseNotes"
+      },
+      "description": "",
+      "id": "F05052A7-26CF-4495-A2E9-C2CAE495FF2D",
+      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "name": "Get Bookings - Case Notes - Order By, limit 3",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.pageMetaData.totalRecords",
+          "value": "3"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.caseNotes",
+          "value": "[{\"caseNoteId\":37125, \"type\":\"CNOTE\", \"subType\":\"GEN\", \"source\":\"INST\", \"creationDateTime\":\"05-29-2017 02:22:51\", \"occuranceDateTime\":\"05-29-2017\", \"authorUserId\":\"OMS_OWNER\", \"text\":\"Initial meeting with the inmate after they were placed in their cell. Inmate seems calm and composed.\"},{\"caseNoteId\":37126, \"type\":\"APP\", \"subType\":\"ADM\", \"source\":\"INST\", \"creationDateTime\":\"05-29-2017 02:24:25\", \"occuranceDateTime\":\"05-29-2017\", \"authorUserId\":\"OMS_OWNER\", \"text\":\"Booked appointment for inmate general orientation.\"},{\"caseNoteId\":37127, \"type\":\"CNOTE\", \"subType\":\"GEN\", \"source\":\"INST\", \"creationDateTime\":\"05-29-2017 02:26:55\", \"occuranceDateTime\":\"05-29-2017\", \"authorUserId\":\"OMS_OWNER\", \"text\":\"A antoher general note about the inmate...\"}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "creationDateTime"
+            },
+            {
+              "enabled": true,
+              "name": "order",
+              "value": "asc"
+            },
+            {
+              "enabled": true,
+              "name": "limit",
+              "value": "2"
+            },
+            {
+              "enabled": true,
+              "name": "offset",
+              "value": "0"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/caseNotes"
+      },
+      "description": "",
+      "id": "99A631E0-706E-42E9-BFDE-08E45B4FCF1A",
+      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "name": "Get Bookings - Case Notes - Pagination 1",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.pageMetaData.totalRecords",
+          "value": "3"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.caseNotes",
+          "value": "[{\"caseNoteId\":37125, \"type\":\"CNOTE\", \"subType\":\"GEN\", \"source\":\"INST\", \"creationDateTime\":\"05-29-2017 02:22:51\", \"occuranceDateTime\":\"05-29-2017\", \"authorUserId\":\"OMS_OWNER\", \"text\":\"Initial meeting with the inmate after they were placed in their cell. Inmate seems calm and composed.\"},{\"caseNoteId\":37126, \"type\":\"APP\", \"subType\":\"ADM\", \"source\":\"INST\", \"creationDateTime\":\"05-29-2017 02:24:25\", \"occuranceDateTime\":\"05-29-2017\", \"authorUserId\":\"OMS_OWNER\", \"text\":\"Booked appointment for inmate general orientation.\"}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "creationDateTime"
+            },
+            {
+              "enabled": true,
+              "name": "order",
+              "value": "asc"
+            },
+            {
+              "enabled": true,
+              "name": "limit",
+              "value": "1"
+            },
+            {
+              "enabled": true,
+              "name": "offset",
+              "value": "2"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/caseNotes"
+      },
+      "description": "",
+      "id": "8008ABCE-11C4-4115-87A1-CB6BDD1553C5",
+      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "name": "Get Bookings - Case Notes - Pagination 2",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.pageMetaData.totalRecords",
+          "value": "3"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.caseNotes",
+          "value": "[{\"caseNoteId\":37127, \"type\":\"CNOTE\", \"subType\":\"GEN\", \"source\":\"INST\", \"creationDateTime\":\"05-29-2017 02:26:55\", \"occuranceDateTime\":\"05-29-2017\", \"authorUserId\":\"OMS_OWNER\", \"text\":\"A antoher general note about the inmate...\"}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "query",
+              "value": "type:eq:'APP'"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/caseNotes"
+      },
+      "description": "",
+      "id": "EBD94309-E3DB-4FC1-94C6-B52713A82D49",
+      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "name": "Get Bookings - Case Notes - Search",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.pageMetaData.totalRecords",
+          "value": "1"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.caseNotes",
+          "value": "[{\"caseNoteId\":37126, \"type\":\"APP\", \"subType\":\"ADM\", \"source\":\"INST\", \"creationDateTime\":\"05-29-2017 02:24:25\", \"occuranceDateTime\":\"05-29-2017\", \"authorUserId\":\"OMS_OWNER\", \"text\":\"Booked appointment for inmate general orientation.\"}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/caseNotes/${\"REST API\".\"Sanity Test\".\"Get Bookings - Case Notes - Search\".\"response\".\"body\".jsonPath(\"$.caseNotes[0].caseNoteId\")}"
+      },
+      "description": "",
+      "id": "B252EB8D-3B67-4801-9160-E7C7DF914E5C",
+      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "name": "Get Bookings - Case Notes - by CaseNoteId",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.caseNoteId",
+          "value": "${\"REST API\".\"Sanity Test\".\"Get Bookings - Case Notes - Search\".\"response\".\"body\".jsonPath(\"$.caseNotes[0].caseNoteId\")}"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.",
+          "value": "{\"caseNoteId\":37126, \"type\":\"APP\", \"subType\":\"ADM\", \"source\":\"INST\", \"creationDateTime\":\"05-29-2017 02:24:25\", \"occuranceDateTime\":\"05-29-2017\", \"authorUserId\":\"OMS_OWNER\", \"text\":\"Booked appointment for inmate general orientation.\"}"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "requestBody": true,
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+        "name": "POST"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true,
+        "textBody": "{\n\"type\": \"CNOTE\",\n\"subType\": \"GEN\",\n\"text\": \"Integration test, creating a new case note\"\n}"
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/caseNotes"
+      },
+      "description": "",
+      "id": "84BB0AAE-2BDA-4AAF-8872-DA004B649C9B",
+      "lastModified": "2017-05-29T17:28:11.948-07:00",
+      "name": "Get Bookings - Case Notes - New Case Note",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        },
+        {
+          "enabled": true,
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "enabled": true,
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "enabled": true,
+          "path": "$.pageMetaData.totalRecords",
+          "value": "1"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "enabled": true,
+          "path": "$.caseNotes",
+          "value": "[{\"caseNoteId\":37126, \"type\":\"APP\", \"subType\":\"ADM\", \"source\":\"INST\", \"creationDateTime\":\"05-29-2017 02:24:25\", \"occuranceDateTime\":\"05-29-2017\", \"authorUserId\":\"OMS_OWNER\", \"text\":\"Booked appointment for inmate general orientation.\"}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        }
+      },
+      "id": "03522C60-F59E-487E-8343-80FD75328422",
+      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "name": "Get Bookings -  Case Notes - Amend Case Note",
+      "headers": [],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/alerts"
+      },
+      "description": "",
+      "id": "7D6C318B-C95F-404F-B3AF-2BAD4D31BB05",
+      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "name": "Get Bookings - Alerts",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.alerts.alertId",
+          "value": "[1,2,3]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.alerts",
+          "value": "[{\"alertId\":1, \"alertType\":\"X\", \"alertCode\":\"XHT\", \"comment\":\"See OIC #234567\", \"dateCreated\":\"2017-05-29\", \"dateExpires\":\"2017-12-31\"},{\"alertId\":2, \"alertType\":\"KA\", \"alertCode\":\"KA\", \"dateCreated\":\"2017-05-29\"},{\"alertId\":3, \"alertType\":\"X\", \"alertCode\":\"XSA\", \"dateCreated\":\"2017-05-29\"}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "query",
+              "value": "alertType:eq:'X'"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/alerts"
+      },
+      "description": "",
+      "id": "D599FBEC-E630-4885-AEE3-999D614B30DA",
+      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "name": "Get Bookings - Alerts - Search",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.alerts.alertId",
+          "value": "[1,3]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.alerts",
+          "value": "[{\"alertId\":1, \"alertType\":\"X\", \"alertCode\":\"XHT\", \"comment\":\"See OIC #234567\", \"dateCreated\":\"2017-05-29\", \"dateExpires\":\"2017-12-31\"},{\"alertId\":3, \"alertType\":\"X\", \"alertCode\":\"XSA\", \"dateCreated\":\"2017-05-29\"}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "limit",
+              "value": "2"
+            },
+            {
+              "enabled": true,
+              "name": "offset",
+              "value": "0"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/alerts"
+      },
+      "description": "",
+      "id": "67D6F824-27A9-4137-85EF-0688BB4082FD",
+      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "name": "Get Bookings - Alerts - Pagination 1",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.alerts.alertId",
+          "value": "[1,2]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.alerts",
+          "value": "[{\"alertId\":1, \"alertType\":\"X\", \"alertCode\":\"XHT\", \"comment\":\"See OIC #234567\", \"dateCreated\":\"2017-05-29\", \"dateExpires\":\"2017-12-31\"},{\"alertId\":2, \"alertType\":\"KA\", \"alertCode\":\"KA\", \"dateCreated\":\"2017-05-29\"}]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.pageMetaData.offset",
+          "value": "0"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.pageMetaData.limit",
+          "value": "2"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "limit",
+              "value": "1"
+            },
+            {
+              "enabled": true,
+              "name": "offset",
+              "value": "2"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/alerts"
+      },
+      "description": "",
+      "id": "07A78D58-A1D7-4232-BE99-014CF40B62A5",
+      "lastModified": "2017-05-29T17:03:39.239-07:00",
+      "name": "Get Bookings - Alerts - Pagination 2",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.alerts.alertId",
+          "value": "[3]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.alerts",
+          "value": "[{\"alertId\":3, \"alertType\":\"X\", \"alertCode\":\"XSA\", \"dateCreated\":\"2017-05-29\"}]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.pageMetaData.offset",
+          "value": "2"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.pageMetaData.limit",
+          "value": "1"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "alertCode"
+            },
+            {
+              "enabled": true,
+              "name": "order",
+              "value": "asc"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/alerts"
+      },
+      "description": "",
+      "id": "53E85212-736F-4E61-93FC-A1F58DE83316",
+      "lastModified": "2017-05-29T17:03:39.239-07:00",
+      "name": "Get Bookings - Alerts - Order By",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.alerts.alertId",
+          "value": "[2,1,3]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.alerts",
+          "value": "[{\"alertId\":2, \"alertType\":\"KA\", \"alertCode\":\"KA\", \"dateCreated\":\"2017-05-29\"},{\"alertId\":1, \"alertType\":\"X\", \"alertCode\":\"XHT\", \"comment\":\"See OIC #234567\", \"dateCreated\":\"2017-05-29\", \"dateExpires\":\"2017-12-31\"},{\"alertId\":3, \"alertType\":\"X\", \"alertCode\":\"XSA\", \"dateCreated\":\"2017-05-29\"}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "alertCode"
+            },
+            {
+              "enabled": true,
+              "name": "order",
+              "value": "desc"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/alerts"
+      },
+      "description": "",
+      "id": "704FD95D-AB58-48C0-97A7-DFF615C0CF92",
+      "lastModified": "2017-05-29T17:03:39.239-07:00",
+      "name": "Get Bookings - Alerts - Order By, desc",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.alerts.alertId",
+          "value": "[3,1,2]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.alerts",
+          "value": "[{\"alertId\":3, \"alertType\":\"X\", \"alertCode\":\"XSA\", \"dateCreated\":\"2017-05-29\"},{\"alertId\":1, \"alertType\":\"X\", \"alertCode\":\"XHT\", \"comment\":\"See OIC #234567\", \"dateCreated\":\"2017-05-29\", \"dateExpires\":\"2017-12-31\"},{\"alertId\":2, \"alertType\":\"KA\", \"alertCode\":\"KA\", \"dateCreated\":\"2017-05-29\"}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/alerts/2"
+      },
+      "description": "",
+      "id": "B1F3096C-E3C2-4C50-B5A4-D1A82966B722",
+      "lastModified": "2017-05-29T17:03:39.239-07:00",
+      "name": "Get Bookings - Alerts - byAlertId",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.",
+          "value": "{\"alertId\":2, \"alertType\":\"KA\", \"alertCode\":\"KA\", \"dateCreated\":\"2017-05-29\"}"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/aliases"
+      },
+      "description": "",
+      "id": "5375BB4A-88AA-4A58-A112-AAF6F985C4B1",
+      "lastModified": "2017-05-29T17:03:39.239-07:00",
+      "name": "Get Bookings - Aliases",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.",
+          "value": "[{\"firstName\":\"ALIAS1\", \"lastName\":\"API_TEST\", \"age\":33, \"ethinicity\":\"African American\", \"nameType\":\"Alias\"},{\"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"age\":33, \"ethinicity\":\"African American\", \"nameType\":\"Working Name\"}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "firstName"
+            },
+            {
+              "enabled": true,
+              "name": "order",
+              "value": "asc"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/aliases"
+      },
+      "description": "",
+      "id": "81A73F6B-553A-4628-801C-EB1D89CD0D75",
+      "lastModified": "2017-05-29T17:03:39.239-07:00",
+      "name": "Get Bookings - Aliases - Order By",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.",
+          "value": "[{\"firstName\":\"ALIAS1\", \"lastName\":\"API_TEST\", \"age\":33, \"ethinicity\":\"African American\", \"nameType\":\"Alias\"},{\"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"age\":33, \"ethinicity\":\"African American\", \"nameType\":\"Working Name\"}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "firstName"
+            },
+            {
+              "enabled": true,
+              "name": "order",
+              "value": "desc"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/aliases"
+      },
+      "description": "",
+      "id": "1AFAC443-59E4-4B7B-82DC-5BF1C110E6EA",
+      "lastModified": "2017-05-29T17:03:39.239-07:00",
+      "name": "Get Bookings - Aliases - Order By, desc",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.",
+          "value": "[{\"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"age\":33, \"ethinicity\":\"African American\", \"nameType\":\"Working Name\"},{\"firstName\":\"ALIAS1\", \"lastName\":\"API_TEST\", \"age\":33, \"ethinicity\":\"African American\", \"nameType\":\"Alias\"}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "limit",
+              "value": "1"
+            },
+            {
+              "enabled": true,
+              "name": "offset",
+              "value": "0"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/aliases"
+      },
+      "description": "",
+      "id": "6BC9C225-47FD-4EEF-96D9-5866CD204B26",
+      "lastModified": "2017-05-29T17:03:39.239-07:00",
+      "name": "Get Bookings - Aliases - Pagination 1",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.",
+          "value": ""
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "locationId"
+            },
+            {
+              "enabled": true,
+              "name": "order",
+              "value": "asc"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/locations"
+      },
+      "description": "",
+      "id": "03D6469E-55A2-4EA5-AF71-4B48FAC66CA8",
+      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "name": "Get Locations - Order By",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.locations.locationId",
+          "value": "[5345,5346,5347,5348,5349,5350,5351,5352,5353,5354]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "locationId"
+            },
+            {
+              "enabled": true,
+              "name": "order",
+              "value": "desc"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/locations"
+      },
+      "description": "",
+      "id": "EEDA7103-901E-4078-BEE7-7608CA5FF89F",
+      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "name": "Get Locations - Order By, desc",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.locations.locationId",
+          "value": "[5852,5834,5833,5832,5826,5824,5823,5822,5821,5797]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "query",
+              "value": "currentOccupancy:gt:0"
+            },
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "locationId"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/locations"
+      },
+      "description": "",
+      "id": "031D8665-1D83-426D-B06A-7F49C8CDF39E",
+      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "name": "Get Locations - Search",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.locations.locationId",
+          "value": "[5345,5351,5358,5412,5631,5672,5712,5713,5732,5772]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.locations",
+          "value": "[{\"locationId\":5345, \"locationType\":\"BLOCK\", \"description\":\"ITAG-A&D\", \"currentOccupancy\":87, \"assignedInmates\":[]},{\"locationId\":5351, \"locationType\":\"BLOCK\", \"description\":\"ITAG-BLOCK A\", \"currentOccupancy\":1, \"assignedInmates\":[]},{\"locationId\":5358, \"locationType\":\"BLOCK\", \"description\":\"ITAG-SEG\", \"currentOccupancy\":5, \"assignedInmates\":[]},{\"locationId\":5412, \"locationType\":\"WING\", \"description\":\"CCC-AD\", \"currentOccupancy\":12, \"assignedInmates\":[]},{\"locationId\":5631, \"locationType\":\"BLOCK\", \"description\":\"ITAG-BLOCK B\", \"currentOccupancy\":6, \"assignedInmates\":[]},{\"locationId\":5672, \"locationType\":\"BLOCK\", \"description\":\"ITAG-BLOCK\", \"currentOccupancy\":4, \"assignedInmates\":[]},{\"locationId\":5712, \"locationType\":\"CELL\", \"description\":\"ITAG-BLOCK A-CELL 04\", \"parentLocationId\":5351, \"currentOccupancy\":1, \"assignedInmates\":[]},{\"locationId\":5713, \"locationType\":\"BED\", \"description\":\"ITAG-BLOCK A-CELL 04-BED 01\", \"parentLocationId\":5712, \"currentOccupancy\":1, \"assignedInmates\":[]},{\"locationId\":5732, \"locationType\":\"BLOCK\", \"description\":\"ERC-RECO\", \"currentOccupancy\":3, \"assignedInmates\":[]},{\"locationId\":5772, \"locationType\":\"BLOCK\", \"description\":\"ITAG-T1\", \"currentOccupancy\":1, \"assignedInmates\":[]}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/locations/${\"REST API\".\"Sanity Test\".\"Get Locations - Search\".\"response\".\"body\".jsonPath(\"$.locations[0].locationId\")}"
+      },
+      "description": "",
+      "id": "3C16AEDB-29CC-4439-B666-3AF9CB1D94F7",
+      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "name": "Get Locations - By LocationId",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.locationId",
+          "value": "${\"REST API\".\"Sanity Test\".\"Get Locations - Search\".\"response\".\"body\".jsonPath(\"$.locations[0].locationId\")}"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.locationType",
+          "value": "BLOCK"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.description",
+          "value": "ITAG-A&D"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "query",
+              "value": "lastName:eq:'API_TEST'"
+            },
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "bookingId"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/locations/${\"REST API\".\"Sanity Test\".\"Get Locations - Search\".\"response\".\"body\".jsonPath(\"$.locations[0].locationId\")}/inmates"
+      },
+      "description": "",
+      "id": "937B98BB-DD5F-47E6-B4C8-4770A7947D03",
+      "lastModified": "2017-05-29T17:17:51.057-07:00",
+      "name": "Get Locations - By LocationId - Inmates - Search and Order By",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.inmatesSummaries",
+          "value": "[{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"agencyId\":\"ITAG\", \"facialImageId\":10008, \"livingUnitId\":5345},{\"bookingId\":20968, \"bookingNo\":\"2017-20944\", \"offenderNo\":\"0001021394\", \"firstName\":\"USER2\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"M\",\"X\"], \"agencyId\":\"ITAG\", \"livingUnitId\":5345},{\"bookingId\":20969, \"bookingNo\":\"2017-20945\", \"offenderNo\":\"0001021395\", \"firstName\":\"USER3\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"V\"], \"agencyId\":\"ITAG\", \"livingUnitId\":5345}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "query",
+              "value": "lastName:eq:'API_TEST'"
+            },
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "bookingId"
+            },
+            {
+              "enabled": true,
+              "name": "limit",
+              "value": "2"
+            },
+            {
+              "enabled": true,
+              "name": "offset",
+              "value": "0"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/locations/${\"REST API\".\"Sanity Test\".\"Get Locations - Search\".\"response\".\"body\".jsonPath(\"$.locations[0].locationId\")}/inmates"
+      },
+      "description": "",
+      "id": "7C423BCA-A970-4677-8B50-6DCE5B46F091",
+      "lastModified": "2017-05-29T17:18:12.136-07:00",
+      "name": "Get Locations - By LocationId - Inmates - Pagination 1",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.inmatesSummaries",
+          "value": "[{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"agencyId\":\"ITAG\", \"facialImageId\":10008, \"livingUnitId\":5345},{\"bookingId\":20968, \"bookingNo\":\"2017-20944\", \"offenderNo\":\"0001021394\", \"firstName\":\"USER2\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"M\",\"X\"], \"agencyId\":\"ITAG\", \"livingUnitId\":5345}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "query",
+              "value": "lastName:eq:'API_TEST'"
+            },
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "bookingId"
+            },
+            {
+              "enabled": true,
+              "name": "limit",
+              "value": "2"
+            },
+            {
+              "enabled": true,
+              "name": "offset",
+              "value": "2"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/locations/${\"REST API\".\"Sanity Test\".\"Get Locations - Search\".\"response\".\"body\".jsonPath(\"$.locations[0].locationId\")}/inmates"
+      },
+      "description": "",
+      "id": "675B601D-734B-4E3E-B78B-809361E4FA6D",
+      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "name": "Get Locations - By LocationId - Inmates - Pagination 2",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.inmatesSummaries",
+          "value": "[{\"bookingId\":20969, \"bookingNo\":\"2017-20945\", \"offenderNo\":\"0001021395\", \"firstName\":\"USER3\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"V\"], \"agencyId\":\"ITAG\", \"livingUnitId\":5345}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/images/${\"REST API\".\"Sanity Test\".\"Get Bookings - by BookingId\".\"response\".\"body\".jsonPath(\"$.facialImageId\")}"
+      },
+      "description": "",
+      "id": "26DC774F-3969-41BC-896F-787EEA213E00",
+      "lastModified": "2017-05-29T17:23:25.539-07:00",
+      "name": "Images -  by ImageId",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.imageView",
+          "value": "FACE"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.imageOrientation",
+          "value": "FRONT"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.imageType",
+          "value": "OFF_BKG"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.objectId",
+          "value": "${\"REST API\".\"Sanity Test\".\"Get Bookings - by BookingId\".\"response\".\"body\".jsonPath(\"$.bookingId\")}"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.imageId",
+          "value": "${\"REST API\".\"Sanity Test\".\"Get Bookings - by BookingId\".\"response\".\"body\".jsonPath(\"$.facialImageId\")}"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/images/${\"REST API\".\"Sanity Test\".\"Get Bookings - by BookingId\".\"response\".\"body\".jsonPath(\"$.facialImageId\")}/data"
+      },
+      "description": "",
+      "id": "2A4D6B8B-6004-4C09-82DD-812471A83155",
+      "lastModified": "2017-05-29T17:26:18.382-07:00",
+      "name": "Images - by ImageId - Data",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseHeader",
+          "path": "Content-Type",
+          "value": "image/jpeg"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseBody",
+          "path": "length",
+          "value": "7192"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "code"
+            },
+            {
+              "enabled": true,
+              "name": "query",
+              "value": "code:neq:'T'"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/referenceDomains/alertTypes"
+      },
+      "description": "",
+      "id": "454A76F3-3317-4BCB-A926-6CBADA231225",
+      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "name": "Reference Domains - Alert Types - Search and Order By",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.ReferenceCodes.code",
+          "value": "[\"KA\",\"M\",\"V\",\"X\"]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.ReferenceCodes",
+          "value": "[{\"domain\":\"ALERT\", \"code\":\"KA\", \"description\":\"Keep Away\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT\", \"code\":\"M\", \"description\":\"Medical\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT\", \"code\":\"V\", \"description\":\"Vulnerability\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT\", \"code\":\"X\", \"description\":\"Security\", \"activeFlag\":\"Y\"}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "code"
+            },
+            {
+              "enabled": true,
+              "name": "query",
+              "value": "code:neq:'T'"
+            },
+            {
+              "enabled": true,
+              "name": "order",
+              "value": "desc"
+            },
+            {
+              "enabled": true,
+              "name": "limit",
+              "value": "3"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/referenceDomains/alertTypes"
+      },
+      "description": "",
+      "id": "69C63101-36AB-4B56-BD9F-478DCD1EC2E6",
+      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "name": "Reference Domains - Alert Types - Pagination 1",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.ReferenceCodes",
+          "value": "[{\"domain\":\"ALERT\", \"code\":\"X\", \"description\":\"Security\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT\", \"code\":\"V\", \"description\":\"Vulnerability\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT\", \"code\":\"M\", \"description\":\"Medical\", \"activeFlag\":\"Y\"}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "code"
+            },
+            {
+              "enabled": true,
+              "name": "query",
+              "value": "code:neq:'T'"
+            },
+            {
+              "enabled": true,
+              "name": "order",
+              "value": "desc"
+            },
+            {
+              "enabled": true,
+              "name": "limit",
+              "value": "1"
+            },
+            {
+              "enabled": true,
+              "name": "offset",
+              "value": "3"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/referenceDomains/alertTypes"
+      },
+      "description": "",
+      "id": "2428ECCC-12B3-419B-823A-6F2BADB4DEBD",
+      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "name": "Reference Domains - Alert Types - Pagination 2",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.ReferenceCodes",
+          "value": "[{\"domain\":\"ALERT\", \"code\":\"KA\", \"description\":\"Keep Away\", \"activeFlag\":\"Y\"}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/referenceDomains/alertTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - Search and Order By\".\"response\".\"body\".jsonPath(\"$.ReferenceCodes[1].code\")}"
+      },
+      "description": "",
+      "id": "14F2DAD9-28D3-402C-9803-B541491C795B",
+      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "name": "Reference Domains - Alert Types - by AlertType",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.",
+          "value": "{\"domain\":\"ALERT\", \"code\":\"M\", \"description\":\"Medical\", \"activeFlag\":\"Y\"}"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "code"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/referenceDomains/alertTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - Search and Order By\".\"response\".\"body\".jsonPath(\"$.ReferenceCodes[1].code\")}/codes"
+      },
+      "description": "",
+      "id": "21358FDF-69F6-4403-9DB6-0ABC34C8966B",
+      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "name": "Reference Domains - Alert Types - by AlertType - Alert Codes",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.ReferenceCodes",
+          "value": "[{\"domain\":\"ALERT_CODE\", \"code\":\"BEE_ALG\", \"description\":\"Bee Sting Allergy\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"BTM_BUNK\", \"description\":\"Bottom Bunk\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"DIA\", \"description\":\"Diabetic\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"LAT_ALG\", \"description\":\"Latex Allergy\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"MAS\", \"description\":\"Asthmatic\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"MEP\", \"description\":\"Epileptic\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"MFL\", \"description\":\"False Limbs\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"MHT\", \"description\":\"Hearing Impaired\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"MSI\", \"description\":\"Sight Impaired\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"MSP\", \"description\":\"Speech Impediment\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"}]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "enabled": true,
+          "path": "$.ReferenceCodes.parentCode[0]",
+          "value": "${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - Search and Order By\".\"response\".\"body\".jsonPath(\"$.ReferenceCodes[1].code\")}"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "code"
+            },
+            {
+              "enabled": true,
+              "name": "limit",
+              "value": "3"
+            },
+            {
+              "enabled": true,
+              "name": "offset",
+              "value": "4"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/referenceDomains/alertTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - Search and Order By\".\"response\".\"body\".jsonPath(\"$.ReferenceCodes[1].code\")}/codes"
+      },
+      "description": "",
+      "id": "CB377C9A-B839-4D02-A28D-4E05BF0205DA",
+      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "name": "Reference Domains - Alert Types - by AlertType - Alert Codes - Pagination",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.ReferenceCodes",
+          "value": "[{\"domain\":\"ALERT_CODE\", \"code\":\"MAS\", \"description\":\"Asthmatic\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"MEP\", \"description\":\"Epileptic\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"MFL\", \"description\":\"False Limbs\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/referenceDomains/alertTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - Search and Order By\".\"response\".\"body\".jsonPath(\"$.ReferenceCodes[1].code\")}/codes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - by AlertType - Alert Codes\".\"response\".\"body\".jsonPath(\"$.ReferenceCodes[0].code\")}"
+      },
+      "description": "",
+      "id": "9A304E25-E163-431F-A4EA-4EE0E4F46566",
+      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "name": "Reference Domains - Alert Types - by AlertType - Alert Codes - by alertCode",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.",
+          "value": "{\"domain\":\"ALERT_CODE\", \"code\":\"BEE_ALG\", \"description\":\"Bee Sting Allergy\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"}"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
     },
     {
       "type": "Request",
@@ -1355,14 +3025,14 @@
         "host": "${\"HOST\"}",
         "path": "/api/management/dump"
       },
-      "id": "5B9225EB-B7F2-4969-8DA3-D9777C3C9EF3",
-      "lastModified": "2017-05-16T14:04:33.307-07:00",
+      "id": "81E4A99A-D1E5-4F58-ADCB-57BD8AA2D7D6",
+      "lastModified": "2017-05-29T17:03:39.235-07:00",
       "name": "Build information",
       "headers": [
         {
           "enabled": true,
           "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
         }
       ],
       "assertions": [
@@ -1374,17 +3044,19 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
     },
     {
       "type": "Request",
       "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
+        "requestBody": true,
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.3",
+        "name": "POST"
       },
       "body": {
         "bodyType": "Text",
-        "autoSetLength": true
+        "autoSetLength": true,
+        "textBody": ""
       },
       "headersType": "Form",
       "uri": {
@@ -1393,16 +3065,17 @@
           "version": "V11"
         },
         "host": "${\"HOST\"}",
-        "path": "/api/users/ITAG_USER"
+        "path": "/api/users/token"
       },
-      "id": "EC9C5B84-2F65-4EB9-B280-F95257921CC0",
-      "lastModified": "2017-05-16T14:04:33.307-07:00",
-      "name": "Get Staff Details",
+      "description": "",
+      "id": "D914E024-7E3E-4BBA-8627-4B152E2A123C",
+      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "name": "Renew Token",
       "headers": [
         {
           "enabled": true,
           "name": "Authorization",
-          "value": "${\"REST API\".\"Bookings\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"body\".jsonPath(\"$.refreshToken\")}${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"body\".jsonPath(\"$.refreshToken\")}"
         }
       ],
       "assertions": [
@@ -1415,12 +3088,12 @@
         {
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
-          "path": "$.username",
-          "value": "ITAG_USER"
+          "path": "$.caseLoadId",
+          "value": "ITAG"
         }
       ],
       "metaInfo": {},
-      "parentId": "A9C5B1BF-036C-470E-9788-17EAECA6A83D"
+      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
     },
     {
       "type": "Context",
