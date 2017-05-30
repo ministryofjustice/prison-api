@@ -1,21 +1,21 @@
 {
-  "front-version": "2.4.0",
+  "front-version": "2.4.0.1",
   "version": 3,
   "nodes": [
     {
       "type": "Project",
       "id": "54E9846C-08D4-4F19-B123-70DBC54E565E",
-      "lastModified": "2017-05-29T17:28:11.947-07:00",
+      "lastModified": "2017-05-30T14:40:50.693-07:00",
       "name": "REST API"
     },
     {
       "type": "Scenario",
-      "id": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E",
-      "lastModified": "2017-05-29T17:26:49.517-07:00",
+      "description": "",
+      "id": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90",
+      "lastModified": "2017-05-30T12:39:23.177-07:00",
       "name": "Sanity Test",
       "requestOrder": [
         "Login",
-        "Build Information",
         "User - Current User",
         "User - By UserId",
         "User - Case Loads",
@@ -88,8 +88,8 @@
         "host": "${\"HOST\"}",
         "path": "/api/users/login"
       },
-      "id": "994144E8-E0F8-4E1E-9037-4070C227553B",
-      "lastModified": "2017-05-29T17:03:39.235-07:00",
+      "id": "1805D6DE-CC2C-43EE-93FA-8449D588DDBA",
+      "lastModified": "2017-05-29T17:31:39.429-07:00",
       "name": "Login",
       "headers": [
         {
@@ -99,7 +99,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -121,8 +121,8 @@
         "path": "/api/users/me"
       },
       "description": "",
-      "id": "E10365C1-33F6-47B4-B224-09B08513743F",
-      "lastModified": "2017-05-29T17:03:39.235-07:00",
+      "id": "5DC431DB-849B-400A-972B-A0726124A3C8",
+      "lastModified": "2017-05-29T17:31:39.429-07:00",
       "name": "User - Current User",
       "headers": [
         {
@@ -164,7 +164,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -186,8 +186,8 @@
         "path": "/api/users/${\"REST API\".\"Sanity Test\".\"User - Current User\".\"response\".\"body\".jsonPath(\"$.username\")}"
       },
       "description": "",
-      "id": "A58381E7-5401-4D50-AE01-569B726E5DD5",
-      "lastModified": "2017-05-29T17:03:39.235-07:00",
+      "id": "8BE98952-93A7-4CCB-BD4B-C54145420EAA",
+      "lastModified": "2017-05-29T17:31:39.430-07:00",
       "name": "User - By UserId",
       "headers": [
         {
@@ -229,7 +229,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -251,8 +251,8 @@
         "path": "/api/users/me/caseLoads"
       },
       "description": "",
-      "id": "286F241E-4646-4EC4-AA0C-0D0B2BEB548B",
-      "lastModified": "2017-05-29T17:03:39.235-07:00",
+      "id": "A6BC978B-3E8D-4F75-AF5B-47F21CDA077F",
+      "lastModified": "2017-05-29T17:31:39.431-07:00",
       "name": "User - Case Loads",
       "headers": [
         {
@@ -276,7 +276,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -300,8 +300,8 @@
         "path": "/api/users/me/activeCaseLoad"
       },
       "description": "",
-      "id": "1BB5BDE8-8B9F-482E-8F53-FC0C69B5DEC7",
-      "lastModified": "2017-05-29T17:03:39.235-07:00",
+      "id": "EE700197-6CB3-457D-BC4C-2A0171F88CC9",
+      "lastModified": "2017-05-29T17:31:39.431-07:00",
       "name": "User - Active Case Load 1",
       "headers": [
         {
@@ -324,7 +324,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -347,8 +347,8 @@
         "path": "/api/users/me/activeCaseLoad"
       },
       "description": "",
-      "id": "ABCFAE6E-2F4C-4F9B-9D3E-B8AEC02DAA8A",
-      "lastModified": "2017-05-29T17:03:39.235-07:00",
+      "id": "25D940DB-54D7-4B14-8280-0EE90FFAA027",
+      "lastModified": "2017-05-29T17:31:39.431-07:00",
       "name": "User - Active Case Load 2",
       "headers": [
         {
@@ -372,7 +372,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -396,8 +396,8 @@
         "path": "/api/users/me/activeCaseLoad"
       },
       "description": "",
-      "id": "A6047BEA-E030-41FF-8D1B-EE37E8141F8E",
-      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "id": "35918799-A764-4864-8235-A4A3804F7A46",
+      "lastModified": "2017-05-29T17:31:39.431-07:00",
       "name": "User - Active Case Load 3",
       "headers": [
         {
@@ -420,7 +420,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -443,8 +443,8 @@
         "path": "/api/users/me/activeCaseLoad"
       },
       "description": "",
-      "id": "7A72E857-3E53-43B8-A146-EC88EE2E6ACE",
-      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "id": "B7E9BAAD-22AE-4D8A-B28A-78A08749F1D7",
+      "lastModified": "2017-05-29T17:31:39.431-07:00",
       "name": "User - Active Case Load 4",
       "headers": [
         {
@@ -468,7 +468,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -510,8 +510,8 @@
         "host": "${\"HOST\"}",
         "path": "/api/booking"
       },
-      "id": "E19E9831-E7FB-48B3-83CF-1196BA514C65",
-      "lastModified": "2017-05-29T17:15:24.873-07:00",
+      "id": "1F1462D2-75E7-4CCC-BF31-405B1F31DBA7",
+      "lastModified": "2017-05-29T17:31:39.431-07:00",
       "name": "Get Bookings - Search and Order By",
       "headers": [
         {
@@ -547,7 +547,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -589,8 +589,8 @@
         "host": "${\"HOST\"}",
         "path": "/api/booking"
       },
-      "id": "9C051F20-5FD2-449D-8F5E-F8AFD48600A1",
-      "lastModified": "2017-05-29T17:15:55.039-07:00",
+      "id": "3D6C0665-65D5-4328-9DD0-3A56A2368F24",
+      "lastModified": "2017-05-29T17:31:39.431-07:00",
       "name": "Get Bookings - Search and Order By, desc",
       "headers": [
         {
@@ -626,7 +626,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -678,8 +678,8 @@
         "host": "${\"HOST\"}",
         "path": "/api/booking"
       },
-      "id": "0D41FDB9-AE07-4067-9751-6411B0E23650",
-      "lastModified": "2017-05-29T17:16:24.059-07:00",
+      "id": "DD357585-A85D-449A-9181-7E8A43086F3D",
+      "lastModified": "2017-05-29T17:31:39.431-07:00",
       "name": "Get Bookings - Pagination 1",
       "headers": [
         {
@@ -715,7 +715,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -767,8 +767,8 @@
         "host": "${\"HOST\"}",
         "path": "/api/booking"
       },
-      "id": "DCB5DCED-CBC8-462C-A3FC-8CF19CA58B3A",
-      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "id": "1A854B1A-6C05-4B35-83E5-D855E733A225",
+      "lastModified": "2017-05-29T17:31:39.431-07:00",
       "name": "Get Bookings - Pagination 2",
       "headers": [
         {
@@ -804,7 +804,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -826,8 +826,8 @@
         "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}"
       },
       "description": "",
-      "id": "FC9F38D1-05B9-41DC-8B0E-36ECC063E727",
-      "lastModified": "2017-05-29T17:16:47.382-07:00",
+      "id": "4902FD1F-02C2-44C6-BDD2-B956D28FFAC1",
+      "lastModified": "2017-05-29T17:31:39.431-07:00",
       "name": "Get Bookings - by BookingId",
       "headers": [
         {
@@ -857,7 +857,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -899,8 +899,8 @@
         "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/caseNotes"
       },
       "description": "",
-      "id": "F05052A7-26CF-4495-A2E9-C2CAE495FF2D",
-      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "id": "A0A1FFD5-CF0C-467D-ABF5-28FE046E2E7C",
+      "lastModified": "2017-05-29T17:31:39.431-07:00",
       "name": "Get Bookings - Case Notes - Order By, limit 3",
       "headers": [
         {
@@ -930,7 +930,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -977,8 +977,8 @@
         "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/caseNotes"
       },
       "description": "",
-      "id": "99A631E0-706E-42E9-BFDE-08E45B4FCF1A",
-      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "id": "580694D6-17F2-42AD-B04D-F8468CB07E91",
+      "lastModified": "2017-05-29T17:31:39.431-07:00",
       "name": "Get Bookings - Case Notes - Pagination 1",
       "headers": [
         {
@@ -1008,7 +1008,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -1055,8 +1055,8 @@
         "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/caseNotes"
       },
       "description": "",
-      "id": "8008ABCE-11C4-4115-87A1-CB6BDD1553C5",
-      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "id": "AD1330C2-791A-47D0-9BB0-057690F0D3C1",
+      "lastModified": "2017-05-29T17:31:39.431-07:00",
       "name": "Get Bookings - Case Notes - Pagination 2",
       "headers": [
         {
@@ -1086,7 +1086,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -1118,8 +1118,8 @@
         "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/caseNotes"
       },
       "description": "",
-      "id": "EBD94309-E3DB-4FC1-94C6-B52713A82D49",
-      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "id": "CA9091AF-CC98-4296-AD33-293E190B9AFE",
+      "lastModified": "2017-05-29T17:31:39.432-07:00",
       "name": "Get Bookings - Case Notes - Search",
       "headers": [
         {
@@ -1149,7 +1149,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -1171,8 +1171,8 @@
         "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/caseNotes/${\"REST API\".\"Sanity Test\".\"Get Bookings - Case Notes - Search\".\"response\".\"body\".jsonPath(\"$.caseNotes[0].caseNoteId\")}"
       },
       "description": "",
-      "id": "B252EB8D-3B67-4801-9160-E7C7DF914E5C",
-      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "id": "B0D77738-206D-4873-A897-AE2EB9CC8B7F",
+      "lastModified": "2017-05-29T17:31:39.432-07:00",
       "name": "Get Bookings - Case Notes - by CaseNoteId",
       "headers": [
         {
@@ -1202,7 +1202,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -1226,8 +1226,8 @@
         "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/caseNotes"
       },
       "description": "",
-      "id": "84BB0AAE-2BDA-4AAF-8872-DA004B649C9B",
-      "lastModified": "2017-05-29T17:28:11.948-07:00",
+      "id": "F0F672FE-3589-4AFE-A52E-C89BC9168A79",
+      "lastModified": "2017-05-30T14:27:30.241-07:00",
       "name": "Get Bookings - Case Notes - New Case Note",
       "headers": [
         {
@@ -1265,31 +1265,46 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
       "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
+        "requestBody": true,
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.4",
+        "name": "PUT"
       },
       "body": {
         "bodyType": "Text",
-        "autoSetLength": true
+        "autoSetLength": true,
+        "textBody": "{\n  \"caseNoteId\": ${\"REST API\".\"Sanity Test\".\"Get Bookings - Case Notes - New Case Note\".\"response\".\"body\".jsonPath(\"$.caseNoteId\")},\n  \"text\": \"Integration Test, additional text\"\n}"
       },
       "headersType": "Form",
       "uri": {
         "scheme": {
           "name": "http",
           "version": "V11"
-        }
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/caseNotes/${\"REST API\".\"Sanity Test\".\"Get Bookings - Case Notes - New Case Note\".\"response\".\"body\".jsonPath(\"$.caseNoteId\")}"
       },
-      "id": "03522C60-F59E-487E-8343-80FD75328422",
-      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "id": "63B52D78-0C85-491D-B3AC-C4B382EE052F",
+      "lastModified": "2017-05-30T14:40:50.694-07:00",
       "name": "Get Bookings -  Case Notes - Amend Case Note",
-      "headers": [],
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -1311,8 +1326,8 @@
         "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/alerts"
       },
       "description": "",
-      "id": "7D6C318B-C95F-404F-B3AF-2BAD4D31BB05",
-      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "id": "EFCCD66D-0947-446D-89C7-4A414F875ADA",
+      "lastModified": "2017-05-29T17:31:39.432-07:00",
       "name": "Get Bookings - Alerts",
       "headers": [
         {
@@ -1342,7 +1357,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -1374,8 +1389,8 @@
         "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/alerts"
       },
       "description": "",
-      "id": "D599FBEC-E630-4885-AEE3-999D614B30DA",
-      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "id": "BBFEAB1C-81BB-41D5-8764-339423D470D1",
+      "lastModified": "2017-05-29T17:31:39.432-07:00",
       "name": "Get Bookings - Alerts - Search",
       "headers": [
         {
@@ -1405,7 +1420,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -1442,8 +1457,8 @@
         "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/alerts"
       },
       "description": "",
-      "id": "67D6F824-27A9-4137-85EF-0688BB4082FD",
-      "lastModified": "2017-05-29T17:03:39.236-07:00",
+      "id": "A869D7BA-D427-4628-9021-5221F54916DB",
+      "lastModified": "2017-05-29T17:31:39.432-07:00",
       "name": "Get Bookings - Alerts - Pagination 1",
       "headers": [
         {
@@ -1485,7 +1500,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -1522,8 +1537,8 @@
         "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/alerts"
       },
       "description": "",
-      "id": "07A78D58-A1D7-4232-BE99-014CF40B62A5",
-      "lastModified": "2017-05-29T17:03:39.239-07:00",
+      "id": "752A64E4-6001-4EA1-95E7-5931B6DE15B4",
+      "lastModified": "2017-05-29T17:31:39.432-07:00",
       "name": "Get Bookings - Alerts - Pagination 2",
       "headers": [
         {
@@ -1565,7 +1580,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -1602,8 +1617,8 @@
         "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/alerts"
       },
       "description": "",
-      "id": "53E85212-736F-4E61-93FC-A1F58DE83316",
-      "lastModified": "2017-05-29T17:03:39.239-07:00",
+      "id": "164248FB-7532-4775-86B6-85D40FBEF2D3",
+      "lastModified": "2017-05-29T17:31:39.432-07:00",
       "name": "Get Bookings - Alerts - Order By",
       "headers": [
         {
@@ -1633,7 +1648,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -1670,8 +1685,8 @@
         "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/alerts"
       },
       "description": "",
-      "id": "704FD95D-AB58-48C0-97A7-DFF615C0CF92",
-      "lastModified": "2017-05-29T17:03:39.239-07:00",
+      "id": "9D4F1C35-EDB3-42A9-83E8-029732B73BAE",
+      "lastModified": "2017-05-29T17:31:39.432-07:00",
       "name": "Get Bookings - Alerts - Order By, desc",
       "headers": [
         {
@@ -1701,7 +1716,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -1723,8 +1738,8 @@
         "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/alerts/2"
       },
       "description": "",
-      "id": "B1F3096C-E3C2-4C50-B5A4-D1A82966B722",
-      "lastModified": "2017-05-29T17:03:39.239-07:00",
+      "id": "C13F3860-CF0C-4D84-B1ED-4E43279E47C0",
+      "lastModified": "2017-05-29T17:31:39.432-07:00",
       "name": "Get Bookings - Alerts - byAlertId",
       "headers": [
         {
@@ -1748,7 +1763,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -1770,8 +1785,8 @@
         "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/aliases"
       },
       "description": "",
-      "id": "5375BB4A-88AA-4A58-A112-AAF6F985C4B1",
-      "lastModified": "2017-05-29T17:03:39.239-07:00",
+      "id": "67DFCC82-CDE6-44AD-8C3A-C2849523DBBF",
+      "lastModified": "2017-05-29T17:31:39.432-07:00",
       "name": "Get Bookings - Aliases",
       "headers": [
         {
@@ -1795,7 +1810,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -1832,8 +1847,8 @@
         "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/aliases"
       },
       "description": "",
-      "id": "81A73F6B-553A-4628-801C-EB1D89CD0D75",
-      "lastModified": "2017-05-29T17:03:39.239-07:00",
+      "id": "ACF67577-0719-4419-AFD8-5B5F7F742300",
+      "lastModified": "2017-05-29T17:31:39.432-07:00",
       "name": "Get Bookings - Aliases - Order By",
       "headers": [
         {
@@ -1857,7 +1872,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -1894,8 +1909,8 @@
         "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/aliases"
       },
       "description": "",
-      "id": "1AFAC443-59E4-4B7B-82DC-5BF1C110E6EA",
-      "lastModified": "2017-05-29T17:03:39.239-07:00",
+      "id": "8B86BA31-11B7-4D4E-8551-868CB8723FFC",
+      "lastModified": "2017-05-29T17:31:39.433-07:00",
       "name": "Get Bookings - Aliases - Order By, desc",
       "headers": [
         {
@@ -1919,7 +1934,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -1956,8 +1971,8 @@
         "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/aliases"
       },
       "description": "",
-      "id": "6BC9C225-47FD-4EEF-96D9-5866CD204B26",
-      "lastModified": "2017-05-29T17:03:39.239-07:00",
+      "id": "648A276A-D6A1-4C68-BB66-F1E354E28D1F",
+      "lastModified": "2017-05-29T17:31:39.433-07:00",
       "name": "Get Bookings - Aliases - Pagination 1",
       "headers": [
         {
@@ -1981,7 +1996,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -2018,8 +2033,8 @@
         "path": "/api/locations"
       },
       "description": "",
-      "id": "03D6469E-55A2-4EA5-AF71-4B48FAC66CA8",
-      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "id": "F2F08A8C-51BC-4D52-BA1D-7CEFA70806E0",
+      "lastModified": "2017-05-29T17:31:39.433-07:00",
       "name": "Get Locations - Order By",
       "headers": [
         {
@@ -2043,7 +2058,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -2080,8 +2095,8 @@
         "path": "/api/locations"
       },
       "description": "",
-      "id": "EEDA7103-901E-4078-BEE7-7608CA5FF89F",
-      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "id": "82884003-D85A-4038-BE0E-4F1952262492",
+      "lastModified": "2017-05-29T17:31:39.433-07:00",
       "name": "Get Locations - Order By, desc",
       "headers": [
         {
@@ -2105,7 +2120,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -2142,8 +2157,8 @@
         "path": "/api/locations"
       },
       "description": "",
-      "id": "031D8665-1D83-426D-B06A-7F49C8CDF39E",
-      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "id": "EE988793-36C5-4019-B016-A680BBF7B897",
+      "lastModified": "2017-05-29T17:31:39.433-07:00",
       "name": "Get Locations - Search",
       "headers": [
         {
@@ -2173,7 +2188,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -2195,8 +2210,8 @@
         "path": "/api/locations/${\"REST API\".\"Sanity Test\".\"Get Locations - Search\".\"response\".\"body\".jsonPath(\"$.locations[0].locationId\")}"
       },
       "description": "",
-      "id": "3C16AEDB-29CC-4439-B666-3AF9CB1D94F7",
-      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "id": "ECD8B48F-3268-42C0-8461-8F9064A2FC08",
+      "lastModified": "2017-05-29T17:31:39.433-07:00",
       "name": "Get Locations - By LocationId",
       "headers": [
         {
@@ -2232,7 +2247,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -2269,8 +2284,8 @@
         "path": "/api/locations/${\"REST API\".\"Sanity Test\".\"Get Locations - Search\".\"response\".\"body\".jsonPath(\"$.locations[0].locationId\")}/inmates"
       },
       "description": "",
-      "id": "937B98BB-DD5F-47E6-B4C8-4770A7947D03",
-      "lastModified": "2017-05-29T17:17:51.057-07:00",
+      "id": "B3272102-D4A6-47D4-84C2-A2AA4CE98764",
+      "lastModified": "2017-05-29T17:31:39.433-07:00",
       "name": "Get Locations - By LocationId - Inmates - Search and Order By",
       "headers": [
         {
@@ -2294,7 +2309,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -2341,8 +2356,8 @@
         "path": "/api/locations/${\"REST API\".\"Sanity Test\".\"Get Locations - Search\".\"response\".\"body\".jsonPath(\"$.locations[0].locationId\")}/inmates"
       },
       "description": "",
-      "id": "7C423BCA-A970-4677-8B50-6DCE5B46F091",
-      "lastModified": "2017-05-29T17:18:12.136-07:00",
+      "id": "D319090A-328E-4F80-B6D1-7111ACE33CCA",
+      "lastModified": "2017-05-29T17:31:39.433-07:00",
       "name": "Get Locations - By LocationId - Inmates - Pagination 1",
       "headers": [
         {
@@ -2366,7 +2381,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -2413,8 +2428,8 @@
         "path": "/api/locations/${\"REST API\".\"Sanity Test\".\"Get Locations - Search\".\"response\".\"body\".jsonPath(\"$.locations[0].locationId\")}/inmates"
       },
       "description": "",
-      "id": "675B601D-734B-4E3E-B78B-809361E4FA6D",
-      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "id": "2FB5F72F-C423-4650-B010-5B0F16541F63",
+      "lastModified": "2017-05-29T17:31:39.433-07:00",
       "name": "Get Locations - By LocationId - Inmates - Pagination 2",
       "headers": [
         {
@@ -2438,7 +2453,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -2460,8 +2475,8 @@
         "path": "/api/images/${\"REST API\".\"Sanity Test\".\"Get Bookings - by BookingId\".\"response\".\"body\".jsonPath(\"$.facialImageId\")}"
       },
       "description": "",
-      "id": "26DC774F-3969-41BC-896F-787EEA213E00",
-      "lastModified": "2017-05-29T17:23:25.539-07:00",
+      "id": "8C49BE9C-E515-4AB9-BDB0-B65B7D399874",
+      "lastModified": "2017-05-29T17:31:39.433-07:00",
       "name": "Images -  by ImageId",
       "headers": [
         {
@@ -2509,7 +2524,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -2531,8 +2546,8 @@
         "path": "/api/images/${\"REST API\".\"Sanity Test\".\"Get Bookings - by BookingId\".\"response\".\"body\".jsonPath(\"$.facialImageId\")}/data"
       },
       "description": "",
-      "id": "2A4D6B8B-6004-4C09-82DD-812471A83155",
-      "lastModified": "2017-05-29T17:26:18.382-07:00",
+      "id": "AC4DB0BF-0D0D-402B-AEDD-BD02FFA5D86D",
+      "lastModified": "2017-05-29T17:31:39.433-07:00",
       "name": "Images - by ImageId - Data",
       "headers": [
         {
@@ -2562,7 +2577,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -2599,8 +2614,8 @@
         "path": "/api/referenceDomains/alertTypes"
       },
       "description": "",
-      "id": "454A76F3-3317-4BCB-A926-6CBADA231225",
-      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "id": "FD14B1C5-1A9F-4652-8D08-402B91BFE5BC",
+      "lastModified": "2017-05-29T17:31:39.434-07:00",
       "name": "Reference Domains - Alert Types - Search and Order By",
       "headers": [
         {
@@ -2630,7 +2645,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -2677,8 +2692,8 @@
         "path": "/api/referenceDomains/alertTypes"
       },
       "description": "",
-      "id": "69C63101-36AB-4B56-BD9F-478DCD1EC2E6",
-      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "id": "A1597C2E-F160-4AD4-8E88-A540206538DF",
+      "lastModified": "2017-05-29T17:31:39.435-07:00",
       "name": "Reference Domains - Alert Types - Pagination 1",
       "headers": [
         {
@@ -2702,7 +2717,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -2754,8 +2769,8 @@
         "path": "/api/referenceDomains/alertTypes"
       },
       "description": "",
-      "id": "2428ECCC-12B3-419B-823A-6F2BADB4DEBD",
-      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "id": "FC567242-98C3-46D7-9C4F-505838AC90AD",
+      "lastModified": "2017-05-29T17:31:39.435-07:00",
       "name": "Reference Domains - Alert Types - Pagination 2",
       "headers": [
         {
@@ -2779,7 +2794,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -2801,8 +2816,8 @@
         "path": "/api/referenceDomains/alertTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - Search and Order By\".\"response\".\"body\".jsonPath(\"$.ReferenceCodes[1].code\")}"
       },
       "description": "",
-      "id": "14F2DAD9-28D3-402C-9803-B541491C795B",
-      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "id": "ADB7ED8F-FDB8-4D71-AFB4-5A4B62EC7400",
+      "lastModified": "2017-05-29T17:31:39.436-07:00",
       "name": "Reference Domains - Alert Types - by AlertType",
       "headers": [
         {
@@ -2826,7 +2841,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -2858,8 +2873,8 @@
         "path": "/api/referenceDomains/alertTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - Search and Order By\".\"response\".\"body\".jsonPath(\"$.ReferenceCodes[1].code\")}/codes"
       },
       "description": "",
-      "id": "21358FDF-69F6-4403-9DB6-0ABC34C8966B",
-      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "id": "30B7DBA5-A916-48AA-9C54-7CB31BD2E884",
+      "lastModified": "2017-05-29T17:31:39.436-07:00",
       "name": "Reference Domains - Alert Types - by AlertType - Alert Codes",
       "headers": [
         {
@@ -2890,7 +2905,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -2932,8 +2947,8 @@
         "path": "/api/referenceDomains/alertTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - Search and Order By\".\"response\".\"body\".jsonPath(\"$.ReferenceCodes[1].code\")}/codes"
       },
       "description": "",
-      "id": "CB377C9A-B839-4D02-A28D-4E05BF0205DA",
-      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "id": "AE34225D-340A-48A9-A912-54464D78D8E4",
+      "lastModified": "2017-05-29T17:31:39.436-07:00",
       "name": "Reference Domains - Alert Types - by AlertType - Alert Codes - Pagination",
       "headers": [
         {
@@ -2957,7 +2972,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -2979,8 +2994,8 @@
         "path": "/api/referenceDomains/alertTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - Search and Order By\".\"response\".\"body\".jsonPath(\"$.ReferenceCodes[1].code\")}/codes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - by AlertType - Alert Codes\".\"response\".\"body\".jsonPath(\"$.ReferenceCodes[0].code\")}"
       },
       "description": "",
-      "id": "9A304E25-E163-431F-A4EA-4EE0E4F46566",
-      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "id": "736BE451-C53B-4478-A5E6-FCC9F67500CB",
+      "lastModified": "2017-05-29T17:31:39.436-07:00",
       "name": "Reference Domains - Alert Types - by AlertType - Alert Codes - by alertCode",
       "headers": [
         {
@@ -3004,7 +3019,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -3025,8 +3040,8 @@
         "host": "${\"HOST\"}",
         "path": "/api/management/dump"
       },
-      "id": "81E4A99A-D1E5-4F58-ADCB-57BD8AA2D7D6",
-      "lastModified": "2017-05-29T17:03:39.235-07:00",
+      "id": "FEBBBD52-0AF8-4B72-A841-016C2F3E1C84",
+      "lastModified": "2017-05-29T17:31:39.436-07:00",
       "name": "Build information",
       "headers": [
         {
@@ -3044,7 +3059,7 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Request",
@@ -3068,8 +3083,8 @@
         "path": "/api/users/token"
       },
       "description": "",
-      "id": "D914E024-7E3E-4BBA-8627-4B152E2A123C",
-      "lastModified": "2017-05-29T17:03:39.240-07:00",
+      "id": "39F434DC-DAD0-4C34-B392-3BCE18ED9F57",
+      "lastModified": "2017-05-29T17:31:39.436-07:00",
       "name": "Renew Token",
       "headers": [
         {
@@ -3093,18 +3108,18 @@
         }
       ],
       "metaInfo": {},
-      "parentId": "512FC9B0-B4FA-4E34-87E0-DBA20A92E91E"
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
     },
     {
       "type": "Context",
       "id": "5448E9A4-7237-4EA9-8064-C52B91A99650",
-      "lastModified": "2017-05-05T11:31:12.947-07:00",
+      "lastModified": "2017-05-30T13:13:16.995-07:00",
       "name": "header",
       "variables": [
         {
           "enabled": true,
           "name": "HOST",
-          "value": "10.10.100.32:8080"
+          "value": "localhost:7080"
         },
         {
           "enabled": true,
