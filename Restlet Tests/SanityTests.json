@@ -3119,7 +3119,7 @@
         {
           "enabled": true,
           "name": "HOST",
-          "value": "localhost:7080"
+          "value": "10.10.100.32:7080"
         },
         {
           "enabled": true,
