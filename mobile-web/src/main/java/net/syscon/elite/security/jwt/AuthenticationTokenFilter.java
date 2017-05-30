@@ -3,6 +3,7 @@ package net.syscon.elite.security.jwt;
 import net.syscon.elite.security.DeviceFingerprint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -27,14 +28,16 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
 
 	@Inject
 	private TokenManagement tokenManagement;
-	
+
+	@Value("${security.authenication.header:Authorization}")
+	private String authenicationHeader;
 
 	@Override
 	public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
 
 		final HttpServletRequest httpRequest = (HttpServletRequest) request;
 		final DeviceFingerprint deviceFingerprint = DeviceFingerprint.setAndGet(httpRequest);
-		final String header = httpRequest.getHeader(TokenSettings.AUTHORIZATION_HEADER);
+		final String header = httpRequest.getHeader(authenicationHeader);
 
 		String token = null;
 		String username = null;

@@ -8,7 +8,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "security.jwt")
 public class TokenSettings {
 
-	public static final String AUTHORIZATION_HEADER = "Authorization";
 	public static final String BASIC_AUTHENTICATION = "Basic";
 
 	private String signingKey;
