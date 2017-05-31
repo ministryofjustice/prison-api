@@ -5,14 +5,14 @@
     {
       "type": "Project",
       "id": "54E9846C-08D4-4F19-B123-70DBC54E565E",
-      "lastModified": "2017-05-30T14:40:50.693-07:00",
+      "lastModified": "2017-05-31T09:50:01.897-07:00",
       "name": "REST API"
     },
     {
       "type": "Scenario",
       "description": "",
       "id": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90",
-      "lastModified": "2017-05-30T12:39:23.177-07:00",
+      "lastModified": "2017-05-31T09:50:28.227-07:00",
       "name": "Sanity Test",
       "requestOrder": [
         "Login",
@@ -89,7 +89,7 @@
         "path": "/api/users/login"
       },
       "id": "1805D6DE-CC2C-43EE-93FA-8449D588DDBA",
-      "lastModified": "2017-05-29T17:31:39.429-07:00",
+      "lastModified": "2017-05-31T09:45:28.030-07:00",
       "name": "Login",
       "headers": [
         {
@@ -3084,13 +3084,13 @@
       },
       "description": "",
       "id": "39F434DC-DAD0-4C34-B392-3BCE18ED9F57",
-      "lastModified": "2017-05-29T17:31:39.436-07:00",
+      "lastModified": "2017-05-31T09:50:01.898-07:00",
       "name": "Renew Token",
       "headers": [
         {
           "enabled": true,
           "name": "Authorization",
-          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"body\".jsonPath(\"$.refreshToken\")}${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"body\".jsonPath(\"$.refreshToken\")}"
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"body\".jsonPath(\"$.refreshToken\")}"
         }
       ],
       "assertions": [
@@ -3098,13 +3098,31 @@
           "comparison": "Equals",
           "subject": "ResponseStatus",
           "path": "code",
-          "value": "200"
+          "value": "201"
         },
         {
-          "comparison": "Equals",
+          "comparison": "DoesNotEqual",
           "subject": "ResponseJsonBody",
-          "path": "$.caseLoadId",
-          "value": "ITAG"
+          "path": "$.token",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"body\".jsonPath(\"$.refreshToken\")}"
+        },
+        {
+          "comparison": "DoesNotEqual",
+          "subject": "ResponseJsonBody",
+          "path": "$.token",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"body\".jsonPath(\"$.token\")}"
+        },
+        {
+          "comparison": "DoesNotEqual",
+          "subject": "ResponseJsonBody",
+          "path": "$.refreshToken",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"body\".jsonPath(\"$.refreshToken\")}"
+        },
+        {
+          "comparison": "DoesNotEqual",
+          "subject": "ResponseJsonBody",
+          "path": "$.refeshToken",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"body\".jsonPath(\"$.token\")}"
         }
       ],
       "metaInfo": {},
@@ -3113,13 +3131,13 @@
     {
       "type": "Context",
       "id": "5448E9A4-7237-4EA9-8064-C52B91A99650",
-      "lastModified": "2017-05-30T13:13:16.995-07:00",
+      "lastModified": "2017-05-30T15:36:49.141-07:00",
       "name": "header",
       "variables": [
         {
           "enabled": true,
           "name": "HOST",
-          "value": "10.10.100.32:7080"
+          "value": "10.10.100.32:8080"
         },
         {
           "enabled": true,
