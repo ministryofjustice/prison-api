@@ -6,14 +6,6 @@ FIND_INMATE_DETAIL {
             O.FIRST_NAME,
             O.MIDDLE_NAME,
             O.LAST_NAME,
-            (
-                SELECT LISTAGG(ALERT_TYPE, ',') WITHIN GROUP (ORDER BY ALERT_TYPE)
-                  FROM (
-                            SELECT DISTINCT( ALERT_TYPE)
-                              FROM OFFENDER_ALERTS A
-                             WHERE B.OFFENDER_BOOK_ID = A.OFFENDER_BOOK_ID AND A.ALERT_STATUS = 'ACTIVE'
-                       )
-            ) AS ALERT_TYPES,
             -- CURRENT LOCATION ID (tbd)
             (
                 SELECT * FROM (
@@ -43,7 +35,7 @@ FIND_INMATE_DETAIL {
 FIND_ALERT_TYPES_FOR_OFFENDER {
    SELECT DISTINCT(ALERT_TYPE) AS ALERT_TYPE
    FROM OFFENDER_ALERTS A
-   WHERE A.OFFENDER_BOOK_ID = :bookingId AND A.ALERT_STATUS = 'ACTIVE'
+   WHERE A.OFFENDER_BOOK_ID = :bookingId AND A.ALERT_STATUS = 'ACTIVE' ORDER BY ALERT_TYPE
 }
 
 FIND_ASSIGNED_LIVING_UNIT {
@@ -64,6 +56,14 @@ FIND_ALL_INMATES {
             O.FIRST_NAME,
             O.MIDDLE_NAME,
             O.LAST_NAME,
+            (
+                SELECT LISTAGG(ALERT_TYPE, ',') WITHIN GROUP (ORDER BY ALERT_TYPE)
+                  FROM (
+                            SELECT DISTINCT( ALERT_TYPE)
+                              FROM OFFENDER_ALERTS A
+                             WHERE B.OFFENDER_BOOK_ID = A.OFFENDER_BOOK_ID AND A.ALERT_STATUS = 'ACTIVE'
+                       )
+            ) AS ALERT_TYPES,
             B.LIVING_UNIT_ID,
             (
                 SELECT * FROM (
@@ -94,6 +94,14 @@ FIND_INMATES_BY_LOCATION {
             O.FIRST_NAME,
             O.MIDDLE_NAME,
             O.LAST_NAME,
+            (
+                SELECT LISTAGG(ALERT_TYPE, ',') WITHIN GROUP (ORDER BY ALERT_TYPE)
+                  FROM (
+                            SELECT DISTINCT( ALERT_TYPE)
+                              FROM OFFENDER_ALERTS A
+                             WHERE B.OFFENDER_BOOK_ID = A.OFFENDER_BOOK_ID AND A.ALERT_STATUS = 'ACTIVE'
+                       )
+            ) AS ALERT_TYPES,
             B.LIVING_UNIT_ID,
             (
                 SELECT * FROM (
