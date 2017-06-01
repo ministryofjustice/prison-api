@@ -3,6 +3,7 @@ def sourceGenDir = file("${rootDir}/mobile-api/src/main/generated")
 project(":mobile-web") {
 
 	apply plugin: "org.springframework.boot"
+	apply plugin: 'net.serenity-bdd.aggregator'
 
 	dependencies {
 
@@ -40,7 +41,15 @@ project(":mobile-web") {
 		testCompile("org.assertj:assertj-core:3.5.2")
 		testCompile("org.flywaydb:flyway-core")
 		testRuntime('org.hsqldb:hsqldb:2.3.3')
+
+		testCompile group: 'info.cukes', name: 'cucumber-java', version: '1.2.5'
+		testCompile group: 'info.cukes', name: 'cucumber-junit', version: '1.2.5'
+		testCompile group: 'info.cukes', name: 'cucumber-spring', version: '1.2.5'
+		testCompile 'net.serenity-bdd:serenity-core:1.1.42'
+		testCompile 'net.serenity-bdd:serenity-junit:1.1.42'
+		testCompile 'net.serenity-bdd:serenity-cucumber:1.0.17'
 	}
+	gradle.startParameter.continueOnFailure = true
 
 	configurations {
 		integTestCompile.extendsFrom testCompile
