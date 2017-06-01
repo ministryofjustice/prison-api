@@ -1,18 +1,18 @@
 {
-  "front-version": "2.4.0.1",
+  "front-version": "2.4.1",
   "version": 3,
   "nodes": [
     {
       "type": "Project",
       "id": "54E9846C-08D4-4F19-B123-70DBC54E565E",
-      "lastModified": "2017-05-31T09:50:01.897-07:00",
+      "lastModified": "2017-06-01T12:11:41.886-07:00",
       "name": "REST API"
     },
     {
       "type": "Scenario",
       "description": "",
       "id": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90",
-      "lastModified": "2017-05-31T09:50:28.227-07:00",
+      "lastModified": "2017-06-01T12:13:26.129-07:00",
       "name": "Sanity Test",
       "requestOrder": [
         "Login",
@@ -45,7 +45,6 @@
         "Get Bookings - Aliases",
         "Get Bookings - Aliases - Order By",
         "Get Bookings - Aliases - Order By, desc",
-        "Get Bookings - Aliases - Pagination 1",
         "Get Locations - Order By",
         "Get Locations - Order By, desc",
         "Get Locations - Search",
@@ -900,7 +899,7 @@
       },
       "description": "",
       "id": "A0A1FFD5-CF0C-467D-ABF5-28FE046E2E7C",
-      "lastModified": "2017-05-29T17:31:39.431-07:00",
+      "lastModified": "2017-06-01T12:10:22.733-07:00",
       "name": "Get Bookings - Case Notes - Order By, limit 3",
       "headers": [
         {
@@ -919,7 +918,7 @@
         {
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
-          "path": "$.pageMetaData.totalRecords",
+          "path": "$.pageMetaData.limit",
           "value": "3"
         },
         {
@@ -978,7 +977,7 @@
       },
       "description": "",
       "id": "580694D6-17F2-42AD-B04D-F8468CB07E91",
-      "lastModified": "2017-05-29T17:31:39.431-07:00",
+      "lastModified": "2017-06-01T12:11:02.412-07:00",
       "name": "Get Bookings - Case Notes - Pagination 1",
       "headers": [
         {
@@ -997,8 +996,8 @@
         {
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
-          "path": "$.pageMetaData.totalRecords",
-          "value": "3"
+          "path": "$.pageMetaData.limit",
+          "value": "2"
         },
         {
           "comparison": "Equals",
@@ -1056,7 +1055,7 @@
       },
       "description": "",
       "id": "AD1330C2-791A-47D0-9BB0-057690F0D3C1",
-      "lastModified": "2017-05-29T17:31:39.431-07:00",
+      "lastModified": "2017-06-01T12:11:41.887-07:00",
       "name": "Get Bookings - Case Notes - Pagination 2",
       "headers": [
         {
@@ -1075,14 +1074,20 @@
         {
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
-          "path": "$.pageMetaData.totalRecords",
-          "value": "3"
+          "path": "$.pageMetaData.limit",
+          "value": "1"
         },
         {
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
           "path": "$.caseNotes",
           "value": "[{\"caseNoteId\":37127, \"type\":\"CNOTE\", \"subType\":\"GEN\", \"source\":\"INST\", \"creationDateTime\":\"05-29-2017 02:26:55\", \"occuranceDateTime\":\"05-29-2017\", \"authorUserId\":\"OMS_OWNER\", \"text\":\"A antoher general note about the inmate...\"}]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.pageMetaData.offset",
+          "value": "2"
         }
       ],
       "metaInfo": {},
@@ -1227,7 +1232,7 @@
       },
       "description": "",
       "id": "F0F672FE-3589-4AFE-A52E-C89BC9168A79",
-      "lastModified": "2017-05-30T14:27:30.241-07:00",
+      "lastModified": "2017-06-01T11:35:48.927-07:00",
       "name": "Get Bookings - Case Notes - New Case Note",
       "headers": [
         {
@@ -1247,21 +1252,33 @@
           "subject": "ResponseStatus",
           "enabled": true,
           "path": "code",
-          "value": "200"
+          "value": "201"
         },
         {
-          "comparison": "Equals",
+          "comparison": "Exists",
           "subject": "ResponseJsonBody",
           "enabled": true,
-          "path": "$.pageMetaData.totalRecords",
+          "path": "$.caseNoteId",
           "value": "1"
         },
         {
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
           "enabled": true,
-          "path": "$.caseNotes",
-          "value": "[{\"caseNoteId\":37126, \"type\":\"APP\", \"subType\":\"ADM\", \"source\":\"INST\", \"creationDateTime\":\"05-29-2017 02:24:25\", \"occuranceDateTime\":\"05-29-2017\", \"authorUserId\":\"OMS_OWNER\", \"text\":\"Booked appointment for inmate general orientation.\"}]"
+          "path": "$.text",
+          "value": "${\"REST API\".\"Sanity Test\".\"Get Bookings - Case Notes - New Case Note\".\"request\".\"body\".jsonPath(\"$.text\")}"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.subType",
+          "value": "${\"REST API\".\"Sanity Test\".\"Get Bookings - Case Notes - New Case Note\".\"request\".\"body\".jsonPath(\"$.subType\")}"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.type",
+          "value": "${\"REST API\".\"Sanity Test\".\"Get Bookings - Case Notes - New Case Note\".\"request\".\"body\".jsonPath(\"$.type\")}"
         }
       ],
       "metaInfo": {},
@@ -1931,68 +1948,6 @@
           "subject": "ResponseJsonBody",
           "path": "$.",
           "value": "[{\"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"age\":33, \"ethinicity\":\"African American\", \"nameType\":\"Working Name\"},{\"firstName\":\"ALIAS1\", \"lastName\":\"API_TEST\", \"age\":33, \"ethinicity\":\"African American\", \"nameType\":\"Alias\"}]"
-        }
-      ],
-      "metaInfo": {},
-      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
-    },
-    {
-      "type": "Request",
-      "method": {
-        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
-        "name": "GET"
-      },
-      "body": {
-        "bodyType": "Text",
-        "autoSetLength": true
-      },
-      "headersType": "Form",
-      "uri": {
-        "query": {
-          "delimiter": "&",
-          "items": [
-            {
-              "enabled": true,
-              "name": "limit",
-              "value": "1"
-            },
-            {
-              "enabled": true,
-              "name": "offset",
-              "value": "0"
-            }
-          ]
-        },
-        "scheme": {
-          "name": "http",
-          "version": "V11"
-        },
-        "host": "${\"HOST\"}",
-        "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/aliases"
-      },
-      "description": "",
-      "id": "648A276A-D6A1-4C68-BB66-F1E354E28D1F",
-      "lastModified": "2017-05-29T17:31:39.433-07:00",
-      "name": "Get Bookings - Aliases - Pagination 1",
-      "headers": [
-        {
-          "enabled": true,
-          "name": "Authorization",
-          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
-        }
-      ],
-      "assertions": [
-        {
-          "comparison": "Equals",
-          "subject": "ResponseStatus",
-          "path": "code",
-          "value": "200"
-        },
-        {
-          "comparison": "Equals",
-          "subject": "ResponseJsonBody",
-          "path": "$.",
-          "value": ""
         }
       ],
       "metaInfo": {},
@@ -3131,7 +3086,7 @@
     {
       "type": "Context",
       "id": "5448E9A4-7237-4EA9-8064-C52B91A99650",
-      "lastModified": "2017-05-30T15:36:49.141-07:00",
+      "lastModified": "2017-06-01T12:19:19.326-07:00",
       "name": "header",
       "variables": [
         {
