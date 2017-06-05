@@ -13,6 +13,5 @@ deployment:
     commands:
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
       - docker build --rm=false -t sysconjusticesystems/elite2-api:$CIRCLE_BUILD_NUM -t sysconjusticesystems/elite2-api:latest .
-      - docker push sysconjusticesystems/elite2-api:$CIRCLE_BUILD_NUM
-      - docker push sysconjusticesystems/elite2-api:latest
+      - docker push sysconjusticesystems/elite2-api
 
