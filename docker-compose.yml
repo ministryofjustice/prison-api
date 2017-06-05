@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   elite2-api:
-   build: .
+   image: sysconjusticesystems/elite2-api
    networks:
      - nomis-network
    ports:
@@ -10,6 +10,6 @@ services:
      - JAVA_OPTS=-Xms256m -Xmx256m
      - SERVER_PORT=8080
      - SPRING_PROFILES_ACTIVE=dev,nomis
-     - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@lonlx01:1521:pvb_dev
+     - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@10.200.1.45:1521:pvb_dev
 networks:
   nomis-network:
