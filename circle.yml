@@ -1,20 +1,27 @@
-machine:
-  java:
-    version: openjdk8
-  services:
-    - docker
+version: 2
+jobs:
+  build:
+    working_directory: ~/circleci-elite2-api
+    docker:
+      - image: circleci/openjdk:8-jdk-browsers
+    steps:
+      - checkout
+      - run: ./gradlew -Poracle11 build
+      - store_test_results:
+          path: build/test-results
+      - store_artifacts:
+          path: build/libs/mobile-web-1.0-SNAPSHOT.jar
 
-test:
-  post:
-    - mkdir -p $CIRCLE_TEST_REPORTS/junit/
-    - find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+  build:
+    docker:
+      - image: docker:1.13.1-git
+    working_directory: ~/circleci-elite2-api
+    steps:
+      - checkout
+      - setup_remote_docker
 
-deployment:
-  mock:
-    branch: EA-72-support-docker-build-as-part-of-ci
-    commands:
-      - gradle clean assemble
-      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-      - docker build --rm=false -t sysconjusticesystems/elite2-api:$CIRCLE_BUILD_NUM -t sysconjusticesystems/elite2-api:latest .
-      - docker push sysconjusticesystems/elite2-api
-
+      - run: |
+          TAG=0.1.$CIRCLE_BUILD_NUM
+          docker build -t sysconjusticesystems/elite2-api:$TAG .
+          docker login -u $DOCKER_USER -p $DOCKER_PASS
+          docker push sysconjusticesystems/elite2-api:$TAG
