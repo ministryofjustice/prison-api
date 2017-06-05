@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  - build:
     working_directory: ~/circleci-elite2-api
     docker:
       - image: circleci/openjdk:8-jdk-browsers
@@ -12,7 +12,7 @@ jobs:
       - store_artifacts:
           path: build/libs/mobile-web-1.0-SNAPSHOT.jar
 
-  build:
+  - build:
     docker:
       - image: docker:1.13.1-git
     working_directory: ~/circleci-elite2-api
