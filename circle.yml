@@ -1,4 +1,6 @@
 machine:
+  java:
+    version: openjdk8
   services:
     - docker
 
@@ -9,8 +11,9 @@ test:
 
 deployment:
   mock:
-    branch: master
+    branch: EA-72-support-docker-build-as-part-of-ci
     commands:
+      - gradle clean assemble
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
       - docker build --rm=false -t sysconjusticesystems/elite2-api:$CIRCLE_BUILD_NUM -t sysconjusticesystems/elite2-api:latest .
       - docker push sysconjusticesystems/elite2-api
