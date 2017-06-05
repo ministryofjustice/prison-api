@@ -5,7 +5,7 @@
     {
       "type": "Project",
       "id": "54E9846C-08D4-4F19-B123-70DBC54E565E",
-      "lastModified": "2017-06-01T12:11:41.886-07:00",
+      "lastModified": "2017-06-05T13:33:05.115-07:00",
       "name": "REST API"
     },
     {
@@ -826,7 +826,7 @@
       },
       "description": "",
       "id": "4902FD1F-02C2-44C6-BDD2-B956D28FFAC1",
-      "lastModified": "2017-05-29T17:31:39.431-07:00",
+      "lastModified": "2017-06-05T12:29:17.343-07:00",
       "name": "Get Bookings - by BookingId",
       "headers": [
         {
@@ -852,7 +852,7 @@
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
           "path": "$.",
-          "value": "{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"assignedLivingUnit\":{\"agencyId\":\"ITAG\", \"locationId\":5345, \"description\":\"ITAG-A&D\"}, \"facialImageId\":10008, \"age\":33, \"physicalAttributes\":{\"gender\":\"M\", \"ethnicity\":\"AFRICAN_AMER\", \"heightInches\":0, \"heightMeters\":1.83, \"weightPounds\":190, \"weightKg\":86}, \"physicalCharacteristics\":[{\"characteristic\":\"Face\", \"imageId\":10008}], \"physicalMarks\":[{\"type\":\"Mark\", \"side\":\"Left\", \"bodyPart\":\"Arm\", \"comment\":\"2 inch circular birth mark\", \"orentiation\":\"Centre\"},{\"type\":\"Tattoo\", \"side\":\"Back\", \"bodyPart\":\"Back\", \"comment\":\"hawk in flight\", \"orentiation\":\"Upper\"}], \"assessments\":[], \"assignedOfficerUserId\":\"OMS_OWNER\"}"
+          "value": "{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"assignedLivingUnit\":{\"agencyId\":\"ITAG\", \"locationId\":5345, \"description\":\"ITAG-A&D\"}, \"facialImageId\":10008, \"age\":33, \"physicalAttributes\":{\"gender\":\"M\", \"ethnicity\":\"AFRICAN_AMER\", \"heightInches\":0, \"heightMeters\":1.83, \"weightPounds\":190, \"weightKg\":86}, \"physicalCharacteristics\":[{\"characteristic\":\"Build\", \"detail\":\"Slender\"},{\"characteristic\":\"Citizenship\", \"detail\":\"Canada\"},{\"characteristic\":\"Complexion\", \"detail\":\"Dark\"},{\"characteristic\":\"Dexterity\"},{\"characteristic\":\"Special Diet\", \"detail\":\"Voluntary - Vegan\"},{\"characteristic\":\"DNA Sample on file\", \"detail\":\"No\"},{\"characteristic\":\"Eye Color\", \"detail\":\"Blue\"},{\"characteristic\":\"Facial Hair\", \"detail\":\"Clean Shaven\", \"imageId\":10008},{\"characteristic\":\"Hair Color\", \"detail\":\"Black\"},{\"characteristic\":\"Marital Status\", \"detail\":\"Married\"},{\"characteristic\":\"Race\", \"detail\":\"Black\"},{\"characteristic\":\"Religious Preference\", \"detail\":\"Catholic\"},{\"characteristic\":\"Test for OH\"},{\"characteristic\":\"Wheelchair needed?\", \"detail\":\"No\"}], \"physicalMarks\":[{\"type\":\"Mark\", \"side\":\"Left\", \"bodyPart\":\"Arm\", \"comment\":\"2 inch circular birth mark\", \"orentiation\":\"Centre\"},{\"type\":\"Tattoo\", \"side\":\"Back\", \"bodyPart\":\"Back\", \"comment\":\"hawk in flight\", \"orentiation\":\"Upper\"}], \"assessments\":[], \"assignedOfficerUserId\":\"OMS_OWNER\"}"
         }
       ],
       "metaInfo": {},
@@ -1803,7 +1803,7 @@
       },
       "description": "",
       "id": "67DFCC82-CDE6-44AD-8C3A-C2849523DBBF",
-      "lastModified": "2017-05-29T17:31:39.432-07:00",
+      "lastModified": "2017-06-05T13:32:34.531-07:00",
       "name": "Get Bookings - Aliases",
       "headers": [
         {
@@ -1823,7 +1823,7 @@
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
           "path": "$.",
-          "value": "[{\"firstName\":\"ALIAS1\", \"lastName\":\"API_TEST\", \"age\":33, \"ethinicity\":\"African American\", \"nameType\":\"Alias\"},{\"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"age\":33, \"ethinicity\":\"African American\", \"nameType\":\"Working Name\"}]"
+          "value": "[{\"firstName\":\"ALIAS1\", \"lastName\":\"API_TEST\", \"age\":33, \"dob\":\"1984-03-02\", \"gender\":\"Male\", \"ethinicity\":\"African American\", \"nameType\":\"Alias\"},{\"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"age\":33, \"dob\":\"1984-03-02\", \"gender\":\"Male\", \"ethinicity\":\"African American\", \"nameType\":\"Working Name\"}]"
         }
       ],
       "metaInfo": {},
@@ -1865,7 +1865,7 @@
       },
       "description": "",
       "id": "ACF67577-0719-4419-AFD8-5B5F7F742300",
-      "lastModified": "2017-05-29T17:31:39.432-07:00",
+      "lastModified": "2017-06-05T13:32:54.668-07:00",
       "name": "Get Bookings - Aliases - Order By",
       "headers": [
         {
@@ -1885,7 +1885,7 @@
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
           "path": "$.",
-          "value": "[{\"firstName\":\"ALIAS1\", \"lastName\":\"API_TEST\", \"age\":33, \"ethinicity\":\"African American\", \"nameType\":\"Alias\"},{\"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"age\":33, \"ethinicity\":\"African American\", \"nameType\":\"Working Name\"}]"
+          "value": "[{\"firstName\":\"ALIAS1\", \"lastName\":\"API_TEST\", \"age\":33, \"dob\":\"1984-03-02\", \"gender\":\"Male\", \"ethinicity\":\"African American\", \"nameType\":\"Alias\"},{\"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"age\":33, \"dob\":\"1984-03-02\", \"gender\":\"Male\", \"ethinicity\":\"African American\", \"nameType\":\"Working Name\"}]"
         }
       ],
       "metaInfo": {},
@@ -1927,7 +1927,7 @@
       },
       "description": "",
       "id": "8B86BA31-11B7-4D4E-8551-868CB8723FFC",
-      "lastModified": "2017-05-29T17:31:39.433-07:00",
+      "lastModified": "2017-06-05T13:33:05.115-07:00",
       "name": "Get Bookings - Aliases - Order By, desc",
       "headers": [
         {
@@ -1947,7 +1947,7 @@
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
           "path": "$.",
-          "value": "[{\"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"age\":33, \"ethinicity\":\"African American\", \"nameType\":\"Working Name\"},{\"firstName\":\"ALIAS1\", \"lastName\":\"API_TEST\", \"age\":33, \"ethinicity\":\"African American\", \"nameType\":\"Alias\"}]"
+          "value": "[{\"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"age\":33, \"dob\":\"1984-03-02\", \"gender\":\"Male\", \"ethinicity\":\"African American\", \"nameType\":\"Working Name\"},{\"firstName\":\"ALIAS1\", \"lastName\":\"API_TEST\", \"age\":33, \"dob\":\"1984-03-02\", \"gender\":\"Male\", \"ethinicity\":\"African American\", \"nameType\":\"Alias\"}]"
         }
       ],
       "metaInfo": {},
@@ -3086,7 +3086,7 @@
     {
       "type": "Context",
       "id": "5448E9A4-7237-4EA9-8064-C52B91A99650",
-      "lastModified": "2017-06-01T12:19:19.326-07:00",
+      "lastModified": "2017-06-05T13:33:54.905-07:00",
       "name": "header",
       "variables": [
         {

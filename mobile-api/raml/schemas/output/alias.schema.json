@@ -11,8 +11,9 @@
 	  "type": "string",
 	  "format": "date-only"
 	},
+  "gender": {"type": "string"},
 	"ethinicity":  {"type": "string"},
 	"nameType":  {"type": "string"}
   },
-  "required": ["firstName", "lastName", "age", "dob", "ethinicity", "nameType"]
+  "required": ["firstName", "lastName", "age", "dob", "gender", "ethinicity", "nameType"]
 }
