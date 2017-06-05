@@ -87,7 +87,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("LAST_NAME",	new FieldMapper("lastName"))
 			.put("FIRST_NAME",	new FieldMapper("firstName"))
 			.put("MIDDLE_NAME",	new FieldMapper("middleName"))
-			.put("BIRTH_DATE",	new FieldMapper("dob"))
+			.put("BIRTH_DATE",	new FieldMapper("dob", value -> DateFormatProvider.get("yyyy-MM-dd").format((Date)value), null))
 			.put("AGE",			new FieldMapper("age"))
 			.put("ETHNICITY",	new FieldMapper("ethinicity"))
 			.put("ALIAS_TYPE",	new FieldMapper("nameType"))
