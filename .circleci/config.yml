@@ -8,13 +8,13 @@ jobs:
       - checkout
       - run: ./gradlew -Poracle11 build -x integTest
       - store_test_results:
-          path: build/test-results
+          path: mobile-web/build/test-results
       - store_artifacts:
-          path: build/libs/mobile-web-1.0-SNAPSHOT.jar
+          path: mobile-web/build/libs/mobile-web-1.0-SNAPSHOT.jar
   push_image:
+    working_directory: ~/circleci-elite2-api
     docker:
       - image: docker:1.13.1-git
-    working_directory: ~/circleci-elite2-api
     steps:
       - checkout
       - setup_remote_docker
