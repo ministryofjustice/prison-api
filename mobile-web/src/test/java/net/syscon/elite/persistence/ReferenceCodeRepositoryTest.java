@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
-@ActiveProfiles("noHikari,memdb")
+@ActiveProfiles("noHikari,nomis")
 @RunWith(SpringRunner.class)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @JdbcTest
