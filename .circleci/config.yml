@@ -1,7 +1,7 @@
 version: 2
 jobs:
   build:
-    working_directory: /circleci-elite2-api
+    working_directory: ~/circleci-elite2-api
     docker:
       - image: circleci/openjdk:8-jdk-browsers
     steps:
@@ -14,7 +14,7 @@ jobs:
   push_image:
     docker:
       - image: docker:1.13.1-git
-    working_directory: /circleci-elite2-api
+    working_directory: ~/circleci-elite2-api
     steps:
       - checkout
       - setup_remote_docker
