@@ -1,4 +1,17 @@
+machine:
+  services:
+    - docker
+
 test:
   post:
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
     - find . -type f -regex ".*/build/test-results/.*xml" -exec cp {} $CIRCLE_TEST_REPORTS/junit/ \;
+
+deployment:
+  mock:
+    branch: master
+    commands:
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - docker build --rm=false -t sysconjusticesystems/elite2-api:$CIRCLE_BUILD_NUM -t sysconjusticesystems/elite2-api:latest .
+      - docker push sysconjusticesystems/elite2-api
+
