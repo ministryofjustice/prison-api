@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 NAME=${NAME:-mobile-web}
 
 JAR=$(find . -name ${NAME}*.jar|head -1)
