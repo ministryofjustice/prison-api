@@ -20,7 +20,6 @@ spring:
       maximum-pool-size: 5
       driver-class-name: oracle.jdbc.OracleDriver
       connection-init-sql: SELECT 1 FROM DUAL
-      connection-test-query: SELECT 1 FROM DUAL
       jdbc-url: jdbc:oracle:thin:@prod-12c-dev.syscon.ca:1521:pb12cdv1
       username: oms_owner
       password: oms_owner
