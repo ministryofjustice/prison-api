@@ -9,14 +9,7 @@ project(":mobile-web") {
 
 		compile project(":mobile-api")
 		compile files("${rootDir}/mobile-web/src/main/configs")
-
-        if (project.hasProperty('oracle11')) {
-            println 'using oracle 11 driver'
-            compile files("${rootDir}/lib/ojdbc6.jar")
-        } else {
-            println 'using oracle 12 driver'
-            compile files("${rootDir}/lib/ojdbc7-12.1.0.2.jar")
-		}
+		compile files("${rootDir}/lib/ojdbc7-12.1.0.2.jar")
 
 		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-aop")
@@ -39,15 +32,13 @@ project(":mobile-web") {
 		testCompile("org.springframework.security:spring-security-test:4.2.2.RELEASE")
 		testCompile("com.google.code.gson:gson:2.8.0")
 		testCompile("org.assertj:assertj-core:3.5.2")
-		testCompile("org.flywaydb:flyway-core")
+		testCompile("org.flywaydb:flyway-core:4.2.0")
 		testRuntime('org.hsqldb:hsqldb:2.3.3')
 
-		testCompile group: 'info.cukes', name: 'cucumber-java', version: '1.2.5'
-		testCompile group: 'info.cukes', name: 'cucumber-junit', version: '1.2.5'
 		testCompile group: 'info.cukes', name: 'cucumber-spring', version: '1.2.5'
-		testCompile 'net.serenity-bdd:serenity-core:1.1.42'
-		testCompile 'net.serenity-bdd:serenity-junit:1.1.42'
-		testCompile 'net.serenity-bdd:serenity-cucumber:1.0.17'
+        testCompile 'net.serenity-bdd:serenity-core:1.1.42'
+        testCompile 'net.serenity-bdd:serenity-junit:1.1.42'
+        testCompile 'net.serenity-bdd:serenity-cucumber:1.0.17'
 	}
 	gradle.startParameter.continueOnFailure = true
 
@@ -76,11 +67,14 @@ project(":mobile-web") {
 		}
 	}
 
-
 	task integTest(type: Test) {
 		testClassesDir = sourceSets.integTest.output.classesDir
 		classpath = sourceSets.integTest.runtimeClasspath
 	}
+
+    test {
+        environment 'api.db.target', 'nomis'
+    }
 
 	check.dependsOn integTest
 	compileJava.dependsOn processResources
@@ -132,5 +126,4 @@ project(":mobile-web") {
 	}
 
 }
-
 
