@@ -7,7 +7,7 @@ jobs:
       - image: docker:1.13.1-git
     steps:
       - checkout
-      - run: ./gradlew -Poracle11 build -x integTest
+      - run: ./gradlew build -x integTest
       - store_test_results:
           path: mobile-web/build/test-results
       - store_artifacts:
