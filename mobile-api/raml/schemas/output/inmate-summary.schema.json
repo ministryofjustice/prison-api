@@ -12,7 +12,8 @@
 		"agencyId":    { "type": "string" },
 		"currentLocationId": { "type": "integer" },
 		"assignedLivingUnitId": { "type": "integer" },
-		"facialImageId": { "type": "integer" }
+		"facialImageId": { "type": "integer" },
+		"assignedOfficerUserId": { "type": "string"}
 	},
 	"required": ["inmateId", "bookingId", "offenderId", "firstName", "lastName", "agencyId", "currentLocationId"]
 }
