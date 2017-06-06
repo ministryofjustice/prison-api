@@ -39,7 +39,6 @@ public class PersistenceConfigs {
 			config.setPassword(env.getProperty("spring.datasource.hikari.password"));
 			config.setJdbcUrl(env.getProperty("spring.datasource.hikari.jdbc-url"));
 			config.setConnectionInitSql(env.getProperty("spring.datasource.hikari.connection-init-sql"));
-			config.setConnectionTestQuery(env.getProperty("spring.datasource.hikari.connection-test-query"));
 			return new HikariDataSource(config);
 		} catch (final PoolInitializationException ex) {
 			log.error(ex.getMessage(), ex);
