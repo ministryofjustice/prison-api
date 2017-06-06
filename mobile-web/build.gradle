@@ -15,7 +15,7 @@ project(":mobile-web") {
             compile files("${rootDir}/lib/ojdbc6.jar")
 		} else {
             println 'using oracle 12 driver'
-			compile files("${rootDir}/lib/ojdbc7-12.1.0.1.jar")
+			compile files("${rootDir}/lib/ojdbc7-12.1.0.2.jar")
 		}
 
 		compile("org.springframework.boot:spring-boot-starter-web")
