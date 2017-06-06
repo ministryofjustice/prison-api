@@ -79,11 +79,34 @@ project(":mobile-web") {
 		classpath = sourceSets.integTest.runtimeClasspath
 	}
 
-    test {
+    task testWithSchemaNomis(type:Test) {
+        exclude "**/persistence/*"
+        println "Running Persistence and Serenity tests against NOMIS schema..."
         environment 'api.db.target', 'nomis'
     }
 
+    task testWithSchemaElite(type:Test) {
+        exclude "**/persistence/*"
+        println "Running Persistence and Serenity tests against ELITE schema..."
+        environment 'api.db.target', 'elite'
+    }
+
 	check.dependsOn integTest
+
+    integTest.mustRunAfter test
+
+    // Disable checkstyle for test source code
+    checkstyleTest.enabled = false
+    checkstyleIntegrationTest.enabled = false
+    checkstyleIntegTest.enabled = false
+
+    // Exclude Spring-based and Serenity BDD integration tests from 'test' task so they can be controlled independently
+    test {
+        exclude "**/executableSpecification/*"
+    }
+
+    test.dependsOn testWithSchemaNomis, testWithSchemaElite
+
 	compileJava.dependsOn processResources
 
 	def configsDir = file("${rootDir}/mobile-web/src/main/configs").absolutePath
