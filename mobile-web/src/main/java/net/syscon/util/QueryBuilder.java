@@ -1,10 +1,10 @@
 package net.syscon.util;
 
-import net.syscon.elite.persistence.mapping.FieldMapper;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import net.syscon.elite.persistence.mapping.FieldMapper;
 
 public class QueryBuilder {
 	
@@ -30,6 +30,7 @@ public class QueryBuilder {
 
 		private final Map<String, FieldMapper> fieldMap;
 		private final boolean preOracle12;
+		private boolean removeSpecialChars;
 
 		public Builder(final String initialSQL, final Map<String, FieldMapper> fieldMap, final boolean preOracle12) {
 			this.initialSQL = initialSQL;
@@ -69,6 +70,23 @@ public class QueryBuilder {
 			this.includeRowCount = true;
 			return this;
 		}
+		
+		
+		public String removeSpecialCharacters(final String sql) {
+			final String stmts[] = { sql, sql.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ').replaceAll("\\ ", " ") };
+			while (!stmts[0].equals(stmts[1])) {
+				stmts[0] = stmts[1];
+				stmts[1] = stmts[1].replace('\n', ' ').replace('\r', ' ').replace('\t', ' ');
+				stmts[1] = stmts[1].replaceAll("  ", " ");
+			}
+			return stmts[0];
+		}
+		
+		
+		public Builder setRemoveSpecialChars(final boolean value) {
+			this.removeSpecialChars = value;
+			return this;
+		}
 
 		public Builder addPagedQuery() {
 			this.includePagination = true;
@@ -77,10 +95,10 @@ public class QueryBuilder {
 
 
 		private String getStatementType() {
-			String modifiedSQL = initialSQL.toUpperCase().replace('\t', ' ').replace('\r', ' ');
-			String[] lines = modifiedSQL.split("\\n");
+			final String modifiedSQL = initialSQL.toUpperCase().replace('\t', ' ').replace('\r', ' ');
+			final String[] lines = modifiedSQL.split("\\n");
 			for (int i = 0; i < lines.length; i++) {
-				String s = lines[i].trim().toUpperCase();
+				final String s = lines[i].trim().toUpperCase();
 				if (s.startsWith("SELECT")) return "SELECT";
 				if (s.startsWith("DELETE")) return "DELETE";
 				if (s.startsWith("INSERT")) return "INSERT";
@@ -98,10 +116,13 @@ public class QueryBuilder {
 			if ("SELECT".equals(getStatementType())) {
 
 				// Wrap the initial Query ...
-				if (this.includeRowCount) {
-					result.append("SELECT QRY_ALIAS.*, COUNT(*) OVER() RECORD_COUNT FROM (\n").append(initialSQL).append("\n) QRY_ALIAS\n");
-				} else {
+				if (this.includeRowCount || extraWhere.length() > 0 || extraOrderBy.length() > 0) {
 					result.append("SELECT QRY_ALIAS.* FROM (\n").append(initialSQL).append("\n) QRY_ALIAS\n");
+					if (includeRowCount) {
+						result.insert(7, "COUNT(*) OVER() RECORD_COUNT, ");
+					}
+				} else {
+					result.append(initialSQL);
 				}
 
 				// Apply the additional conditions defined by the "addQuery" method ...
@@ -125,7 +146,12 @@ public class QueryBuilder {
 			} else {
 				return initialSQL;
 			}
-			return result.toString();
+			
+			if (removeSpecialChars) {
+				return removeSpecialCharacters(result.toString());
+			} else {
+				return result.toString();
+			}
 		}
 	}
 }

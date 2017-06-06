@@ -1,13 +1,20 @@
 package net.syscon.util;
 
 
-import net.syscon.elite.exception.EliteRuntimeException;
-import org.springframework.core.io.ClassPathResource;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.CharArrayWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.core.io.ClassPathResource;
+
+import net.syscon.elite.exception.EliteRuntimeException;
 
 public class SQLProvider {
 
@@ -20,11 +27,11 @@ public class SQLProvider {
 
     public SQLProvider(final Class<?> clazz) {
         try {
-            final String resourcePath = clazz.getSimpleName() + ".sql";
-            ClassPathResource resource = new ClassPathResource(resourcePath);
+            final String resourcePath = "sqls/" + clazz.getSimpleName() + ".sql";
+            final ClassPathResource resource = new ClassPathResource(resourcePath);
             final InputStream in = resource.getInputStream();
             loadFromStream(in);
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             throw new EliteRuntimeException(ex.getMessage(), ex);
         }
     }
@@ -44,10 +51,10 @@ public class SQLProvider {
 
     public void loadFromClassLoader(final String filename) {
         try {
-            ClassPathResource resource = new ClassPathResource(filename);
+            final ClassPathResource resource = new ClassPathResource(filename);
             final InputStream in = resource.getInputStream();
             loadFromStream(in);
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             throw new EliteRuntimeException(ex.getMessage(), ex);
         }
     }
@@ -87,8 +94,8 @@ public class SQLProvider {
     }
 
 
-    private String makeString(final char[] content, int startIndex, int endIndex) {
-        StringBuilder sb = new StringBuilder();
+    private String makeString(final char[] content, final int startIndex, final int endIndex) {
+        final StringBuilder sb = new StringBuilder();
         for (int i = startIndex; i < content.length && i < endIndex; i++) {
             sb.append(content[i]);
         }
@@ -118,7 +125,7 @@ public class SQLProvider {
     }
 
 
-    private boolean in(char value, char[] elements) {
+    private boolean in(final char value, final char[] elements) {
         boolean found = false;
         for (int i = 0; !found && i < elements.length; i++) {
             found = elements[i] == value;
@@ -127,7 +134,7 @@ public class SQLProvider {
     }
 
 
-    private String removeCharsStartingWith(String text, char ... elementsToRemove) {
+    private String removeCharsStartingWith(final String text, final char ... elementsToRemove) {
         for (int i = 0; i < text.length(); i++) {
             if (!in(text.charAt(i), elementsToRemove)) {
                 return text.substring(i);
@@ -136,7 +143,7 @@ public class SQLProvider {
         return "";
     }
 
-    private String removeCharsEndingWith(String text, char ... elementsToRemove) {
+    private String removeCharsEndingWith(final String text, final char ... elementsToRemove) {
         for (int i = text.length() - 1; i > 0; i--) {
             if (!in(text.charAt(i), elementsToRemove)) {
                 return text.substring(0, i + 1);
@@ -145,13 +152,13 @@ public class SQLProvider {
         return "";
     }
 
-    private String removeSpecialChars(final String text, char ... elementsToRemove) {
-        String result = removeCharsStartingWith(text, elementsToRemove);
+    private String removeSpecialChars(final String text, final char ... elementsToRemove) {
+        final String result = removeCharsStartingWith(text, elementsToRemove);
         return removeCharsEndingWith(result, elementsToRemove);
     }
 
 
-    public String get(String name) {
+    public String get(final String name) {
         return statements.get(name);
     }
 }
