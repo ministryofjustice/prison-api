@@ -12,6 +12,7 @@ import net.syscon.util.DateFormatProvider;
 import net.syscon.util.QueryBuilder;
 import oracle.sql.TIMESTAMP;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
@@ -64,19 +65,19 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 		GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
 		String sql = new QueryBuilder.Builder(getQuery("INSERT_CASE_NOTE"), caseNoteMapping, preOracle12).build();
 		String user = UserSecurityUtils.getCurrentUsername();
-		jdbcTemplate.update(sql, createParams("bookingID", bookingId,
-												"text", entity.getText(), 
-												"type", entity.getType(),
-												"subType", entity.getSubType(),
-												"sourceCode", "AUTO",
-												"createDate", new Date(),
-												"createTime", new Date(),
-												"contactDate", new Date(),
-												"contactTime", new Date(),
-												"createdBy", user,
-												"user_Id", user
-							), generatedKeyHolder, new String[] {"CASE_NOTE_ID" }
-						 );
+		SqlParameterSource params = createParams("bookingID", bookingId,
+				"text", entity.getText(),
+				"type", entity.getType(),
+				"subType", entity.getSubType(),
+				"sourceCode", "AUTO",
+				"createDate", new Date(),
+				"createTime", new Date(),
+				"contactDate", new Date(),
+				"contactTime", new Date(),
+				"createdBy", user,
+				"userId", user
+		);
+		jdbcTemplate.update(sql, params, generatedKeyHolder, new String[] {"CASE_NOTE_ID" } );
 		entity.setCaseNoteId(generatedKeyHolder.getKey().longValue());
 		return entity;
 	}
@@ -90,7 +91,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 		jdbcTemplate.update(sql, createParams("modifyBy", user,
 												"caseNoteId", caseNoteId,
 												"text", updatedText));
-		
+
 		caseNote.setText(updatedText);
 		return caseNote;
 	}

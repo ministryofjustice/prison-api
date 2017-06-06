@@ -1,4 +1,4 @@
-Feature: Staff users can access the application
+Feature:
 
   Acceptance Criteria:
   A staff user can login to the application

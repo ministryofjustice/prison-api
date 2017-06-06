@@ -52,10 +52,10 @@ public class CaseNoteServiceImpl implements CaseNoteService{
 	}
 
 	@Override
-	public CaseNote createCaseNote(final String bookingId, final String caseNoteId, final CaseNote entity) {
+	public CaseNote createCaseNote(final String bookingId, final String caseNoteId, final CaseNote caseNote) {
 		//TODO: First - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
-		final CaseNote caseNote = this.caseNoteRepository.createCaseNote(bookingId, caseNoteId, entity);
-		return caseNote;
+		final CaseNote result = this.caseNoteRepository.createCaseNote(bookingId, caseNoteId, caseNote);
+		return result;
 	}
 
 	@Override

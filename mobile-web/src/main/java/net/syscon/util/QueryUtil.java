@@ -1,13 +1,12 @@
 package net.syscon.util;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
+import net.syscon.elite.persistence.mapping.FieldMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.syscon.elite.persistence.mapping.FieldMapper;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 /**
  * 
  * @author om.pandey
@@ -53,8 +52,8 @@ public class QueryUtil {
 		}
 		return queryBreak;
 	}
-	
-	
+
+
 	public static String prepareQuery(String queryItem, boolean isPrecedence, Map<String, FieldMapper> fieldMap) {
 		StringBuilder stringBuilder = new StringBuilder();
 		String[] fields =queryItem.split(",");
@@ -64,7 +63,7 @@ public class QueryUtil {
 			}
 			String[] operatorFieldValue = fieldItem.split(":");
 			int size = operatorFieldValue.length;
-			
+
 			String connector = size==3?"":operatorFieldValue[0];// Get Real SQL Operator From Enum
 			String fieldName = size==3?operatorFieldValue[0]:operatorFieldValue[1];// Get Field Name form Field Mapper
 			String operator = size==3?operatorFieldValue[1]:operatorFieldValue[2];// Get Real SQL Operator From Enum
@@ -74,21 +73,27 @@ public class QueryUtil {
 				value = "("+value.replaceAll("\\|", ",")+")";
 			}
 			stringBuilder.append(" ")
-			.append(!"".equals(connector)?getSqlOperator(connector):"")
-			.append(" ")
-			.append(isPrecedence && fieldItem.equals("and:"+fields[0])?"(":"")
-			.append(" ")
-			.append(getSqlFieldName(fieldMap, fieldName))
-			.append(" ")
-			.append(getSqlOperator(operator))
-			.append(" ")
-			.append(!"".equals(format)?"to_date("+value+","+format+")":value)
-			.append(" ")
-			.append(isPrecedence && fieldItem.equals(fields[fields.length-1])?")":"")
-			.append(" ");
-			
+					.append(!"".equals(connector)?getSqlOperator(connector):"")
+					.append(" ")
+					.append(isPrecedence && fieldItem.equals("and:"+fields[0])?"(":"")
+					.append(" ")
+					.append(getSqlFieldName(fieldMap, fieldName))
+					.append(" ")
+					.append(getSqlOperator(operator))
+					.append(" ")
+					.append(!"".equals(format)?"to_date("+value+","+format+")":value)
+					.append(" ")
+					.append(isPrecedence && fieldItem.equals(fields[fields.length-1])?")":"")
+					.append(" ");
+
 		});
-		return stringBuilder.toString();
+		String result = stringBuilder.toString().trim();
+		if (result.startsWith("and")) {
+			result = result.substring(3);
+		} else if (result.startsWith(" or")) {
+			result = result.substring(2);
+		}
+		return result;
 	}
 	
 	public static void main(String...strings) {
