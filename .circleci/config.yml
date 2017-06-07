@@ -14,9 +14,11 @@ jobs:
           path: mobile-web/build/libs/mobile-web-1.0-SNAPSHOT.jar
       - setup_remote_docker
       - run: |
-          TAG=0.1.$CIRCLE_BUILD_NUM
-          docker build -t sysconjusticesystems/elite2-api:$TAG .
-          docker tag sysconjusticesystems/elite2-api:$TAG sysconjusticesystems/elite2-api:latest
-          docker login -u $DOCKER_USER -p $DOCKER_PASS
-          docker push sysconjusticesystems/elite2-api:$TAG
-          docker push sysconjusticesystems/elite2-api:latest
+          if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
+            TAG=1.0.$CIRCLE_BUILD_NUM
+            docker build -t sysconjusticesystems/elite2-api:$TAG .
+            docker tag sysconjusticesystems/elite2-api:$TAG sysconjusticesystems/elite2-api:latest
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker push sysconjusticesystems/elite2-api:$TAG
+            docker push sysconjusticesystems/elite2-api:latest
+          fi

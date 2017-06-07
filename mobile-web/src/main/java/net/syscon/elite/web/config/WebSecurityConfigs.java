@@ -1,7 +1,10 @@
 package net.syscon.elite.web.config;
 
-import javax.inject.Inject;
-
+import net.syscon.elite.security.DbAuthenticationProvider;
+import net.syscon.elite.security.EntryPointUnauthorizedHandler;
+import net.syscon.elite.security.jwt.AuthenticationTokenFilter;
+import net.syscon.elite.security.jwt.TokenManagement;
+import net.syscon.elite.security.jwt.TokenSettings;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -16,11 +19,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import net.syscon.elite.security.DbAuthenticationProvider;
-import net.syscon.elite.security.EntryPointUnauthorizedHandler;
-import net.syscon.elite.security.jwt.AuthenticationTokenFilter;
-import net.syscon.elite.security.jwt.TokenManagement;
-import net.syscon.elite.security.jwt.TokenSettings;
+import javax.inject.Inject;
 
 @Configuration
 @EnableWebSecurity
@@ -77,6 +76,7 @@ public class WebSecurityConfigs extends WebSecurityConfigurerAdapter {
 				.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 				.antMatchers("/api").permitAll()
 				.antMatchers( "/api/users/login").permitAll()
+				.antMatchers("/api/management/health").permitAll()
 				.antMatchers("/api/management/info").permitAll()
 				.anyRequest().authenticated();
 
