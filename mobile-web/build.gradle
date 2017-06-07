@@ -73,8 +73,18 @@ project(":mobile-web") {
 		classpath = sourceSets.integTest.runtimeClasspath
 	}
 
-	test {
+
+	task testWithSchemaNomis(type:Test) {
+		exclude "**/persistence/*"
+		println "Running Persistence and Serenity tests against NOMIS schema..."
 		environment 'api.db.target', 'nomis'
+	}
+
+
+	task testWithSchemaElite(type:Test) {
+		exclude "**/persistence/*"
+		println "Running Persistence and Serenity tests against ELITE schema..."
+		environment 'api.db.target', 'elite'
 	}
 
 	check.dependsOn integTest

@@ -73,13 +73,14 @@ public class QueryBuilder {
 		
 		
 		public String removeSpecialCharacters(final String sql) {
-			final String stmts[] = { sql, sql.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ').replaceAll("\\ ", " ") };
+			if (sql == null) return null;
+			final String stmts[] = { sql, sql.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ') };
 			while (!stmts[0].equals(stmts[1])) {
 				stmts[0] = stmts[1];
 				stmts[1] = stmts[1].replace('\n', ' ').replace('\r', ' ').replace('\t', ' ');
 				stmts[1] = stmts[1].replaceAll("  ", " ");
 			}
-			return stmts[0];
+			return stmts[0].trim();
 		}
 		
 		
