@@ -1,17 +1,22 @@
 version: 2
 jobs:
   build:
-    working_directory: ~/circleci-elite2-api
+    working_directory: /tmp/circleci-elite2-api
     docker:
       - image: circleci/openjdk:8-jdk-browsers
-      - image: docker:1.13.1-git
     steps:
       - checkout
       - run: ./gradlew build aggregate -x integTest
       - store_test_results:
           path: mobile-web/build/test-results
+      - store_test_results:
+          path: mobile-web/target/site
       - store_artifacts:
           path: mobile-web/build/libs/mobile-web-1.0-SNAPSHOT.jar
+      - store_artifacts:
+          path: mobile-web/build/reports/tests
+      - store_artifacts:
+          path: mobile-web/target/site
       - setup_remote_docker
       - run: |
           if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
