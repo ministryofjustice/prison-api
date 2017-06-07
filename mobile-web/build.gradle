@@ -75,7 +75,6 @@ project(":mobile-web") {
 
 	test {
 		environment 'api.db.target', 'nomis'
-		classpath = sourceSets.main.output + sourceSets.test.output + configurations.testRuntime + configurations.testCompile
 	}
 
 	check.dependsOn integTest
