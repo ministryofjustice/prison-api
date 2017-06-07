@@ -33,11 +33,6 @@
 <module name="Checker">
 	<property name="severity" value="warning"/>
 
-    <!-- Suppress checkstyle for certain files - e.g. generated sources -->
-    <module name="SuppressionFilter">
-        <property name="file" value="./syscon-checkstyle-suppressions.xml"/>
-    </module>
-
     <!-- Checks that a package-info.java file exists for each package.     -->
     <!-- See http://checkstyle.sf.net/config_javadoc.html#JavadocPackage -->
 
