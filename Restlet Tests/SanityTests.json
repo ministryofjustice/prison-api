@@ -5,14 +5,14 @@
     {
       "type": "Project",
       "id": "54E9846C-08D4-4F19-B123-70DBC54E565E",
-      "lastModified": "2017-06-05T13:33:05.115-07:00",
+      "lastModified": "2017-06-06T14:20:27.099-07:00",
       "name": "REST API"
     },
     {
       "type": "Scenario",
       "description": "",
       "id": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90",
-      "lastModified": "2017-06-01T12:13:26.129-07:00",
+      "lastModified": "2017-06-06T14:20:27.102-07:00",
       "name": "Sanity Test",
       "requestOrder": [
         "Login",
@@ -28,7 +28,8 @@
         "Get Bookings - Pagination 1",
         "Get Bookings - Pagination 2",
         "Get Bookings - by BookingId",
-        "Get Bookings - Case Notes - Order By, limit 3",
+        "Get Bookings - Case Notes",
+        "Get Bookings - Case Notes - Search, Order By, limit 3",
         "Get Bookings - Case Notes - Pagination 1",
         "Get Bookings - Case Notes - Pagination 2",
         "Get Bookings - Case Notes - Search",
@@ -88,7 +89,7 @@
         "path": "/api/users/login"
       },
       "id": "1805D6DE-CC2C-43EE-93FA-8449D588DDBA",
-      "lastModified": "2017-05-31T09:45:28.030-07:00",
+      "lastModified": "2017-06-06T14:12:20.762-07:00",
       "name": "Login",
       "headers": [
         {
@@ -826,7 +827,7 @@
       },
       "description": "",
       "id": "4902FD1F-02C2-44C6-BDD2-B956D28FFAC1",
-      "lastModified": "2017-06-05T12:29:17.343-07:00",
+      "lastModified": "2017-06-06T14:20:27.102-07:00",
       "name": "Get Bookings - by BookingId",
       "headers": [
         {
@@ -882,11 +883,84 @@
               "enabled": true,
               "name": "order",
               "value": "asc"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/booking/${\"REST API\".\"Sanity Test\".\"Get Bookings - Search and Order By\".\"response\".\"body\".jsonPath(\"$.inmatesSummaries[0].bookingId\")}/caseNotes"
+      },
+      "description": "Retrieve a set of case notes that include multiple source types.",
+      "id": "ABA5DF91-C29F-4AE8-8F73-2743727BD027",
+      "lastModified": "2017-06-06T14:18:02.641-07:00",
+      "name": "Get Bookings - Case Notes",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.pageMetaData.limit",
+          "value": "10"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.caseNotes",
+          "value": "[{\"caseNoteId\":37113, \"type\":\"MOVEMENT\", \"subType\":\"TRN\", \"source\":\"AUTO\", \"creationDateTime\":\"05-29-2017 11:14:03\", \"occuranceDateTime\":\"05-29-2017\", \"authorUserId\":\"SYS\", \"text\":\"Offender admitted to Syscon Jail for reason: New Admission from Outside.\"},{\"caseNoteId\":37116, \"type\":\"ALERT\", \"subType\":\"ACTIVE\", \"source\":\"AUTO\", \"creationDateTime\":\"05-29-2017 01:32:53\", \"occuranceDateTime\":\"05-29-2017\", \"authorUserId\":\"SYS\", \"text\":\"Alert Security and Hostage taker made active.\"},{\"caseNoteId\":37117, \"type\":\"ALERT\", \"subType\":\"ACTIVE\", \"source\":\"AUTO\", \"creationDateTime\":\"05-29-2017 01:33:20\", \"occuranceDateTime\":\"05-29-2017\", \"authorUserId\":\"SYS\", \"text\":\"Alert Keep Away and Keep Away made active.\"},{\"caseNoteId\":37118, \"type\":\"ALERT\", \"subType\":\"ACTIVE\", \"source\":\"AUTO\", \"creationDateTime\":\"05-29-2017 01:33:20\", \"occuranceDateTime\":\"05-29-2017\", \"authorUserId\":\"SYS\", \"text\":\"Alert Security and Staff Assaulter made active.\"},{\"caseNoteId\":37125, \"type\":\"CNOTE\", \"subType\":\"GEN\", \"source\":\"INST\", \"creationDateTime\":\"05-29-2017 02:22:51\", \"occuranceDateTime\":\"05-29-2017\", \"authorUserId\":\"OMS_OWNER\", \"text\":\"Initial meeting with the inmate after they were placed in their cell. Inmate seems calm and composed.\"},{\"caseNoteId\":37126, \"type\":\"APP\", \"subType\":\"ADM\", \"source\":\"INST\", \"creationDateTime\":\"05-29-2017 02:24:25\", \"occuranceDateTime\":\"05-29-2017\", \"authorUserId\":\"OMS_OWNER\", \"text\":\"Booked appointment for inmate general orientation.\"},{\"caseNoteId\":37127, \"type\":\"CNOTE\", \"subType\":\"GEN\", \"source\":\"INST\", \"creationDateTime\":\"05-29-2017 02:26:55\", \"occuranceDateTime\":\"05-29-2017\", \"authorUserId\":\"OMS_OWNER\", \"text\":\"A antoher general note about the inmate...\"},{\"caseNoteId\":37175, \"type\":\"CNOTE\", \"subType\":\"GEN\", \"source\":\"AUTO\", \"creationDateTime\":\"06-01-2017 11:35:25\", \"occuranceDateTime\":\"06-01-2017\", \"authorUserId\":\"OMS_OWNER\", \"text\":\"Integration test, creating a new case note\"},{\"caseNoteId\":37176, \"type\":\"CNOTE\", \"subType\":\"GEN\", \"source\":\"AUTO\", \"creationDateTime\":\"06-01-2017 11:37:50\", \"occuranceDateTime\":\"06-01-2017\", \"authorUserId\":\"OMS_OWNER\", \"text\":\"Integration test, creating a new case noteOMS_OWNER updated the case note on Thu Jun 01 11:35:56 PDT 2017 Integration Test, additional text\"},{\"caseNoteId\":37178, \"type\":\"CNOTE\", \"subType\":\"GEN\", \"source\":\"INST\", \"creationDateTime\":\"06-01-2017 11:56:10\", \"occuranceDateTime\":\"06-01-2017\", \"authorUserId\":\"OMS_OWNER\", \"text\":\"Integration test, creating a new case note...[OMS_OWNER updated the case note on 2017/54/01 11:54:16] Integration Test, additional text\"}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "orderBy",
+              "value": "creationDateTime"
+            },
+            {
+              "enabled": true,
+              "name": "order",
+              "value": "asc"
             },
             {
               "enabled": true,
               "name": "limit",
               "value": "3"
+            },
+            {
+              "enabled": true,
+              "name": "query",
+              "value": "source:neq:'AUTO'"
             }
           ]
         },
@@ -899,8 +973,8 @@
       },
       "description": "",
       "id": "A0A1FFD5-CF0C-467D-ABF5-28FE046E2E7C",
-      "lastModified": "2017-06-01T12:10:22.733-07:00",
-      "name": "Get Bookings - Case Notes - Order By, limit 3",
+      "lastModified": "2017-06-06T14:13:24.569-07:00",
+      "name": "Get Bookings - Case Notes - Search, Order By, limit 3",
       "headers": [
         {
           "enabled": true,
@@ -965,6 +1039,11 @@
               "enabled": true,
               "name": "offset",
               "value": "0"
+            },
+            {
+              "enabled": true,
+              "name": "query",
+              "value": "source:neq:'AUTO'"
             }
           ]
         },
@@ -977,7 +1056,7 @@
       },
       "description": "",
       "id": "580694D6-17F2-42AD-B04D-F8468CB07E91",
-      "lastModified": "2017-06-01T12:11:02.412-07:00",
+      "lastModified": "2017-06-06T14:13:39.901-07:00",
       "name": "Get Bookings - Case Notes - Pagination 1",
       "headers": [
         {
@@ -1043,6 +1122,11 @@
               "enabled": true,
               "name": "offset",
               "value": "2"
+            },
+            {
+              "enabled": true,
+              "name": "query",
+              "value": "source:neq:'AUTO'"
             }
           ]
         },
@@ -1055,7 +1139,7 @@
       },
       "description": "",
       "id": "AD1330C2-791A-47D0-9BB0-057690F0D3C1",
-      "lastModified": "2017-06-01T12:11:41.887-07:00",
+      "lastModified": "2017-06-06T14:13:50.843-07:00",
       "name": "Get Bookings - Case Notes - Pagination 2",
       "headers": [
         {
@@ -2431,7 +2515,7 @@
       },
       "description": "",
       "id": "8C49BE9C-E515-4AB9-BDB0-B65B7D399874",
-      "lastModified": "2017-05-29T17:31:39.433-07:00",
+      "lastModified": "2017-06-06T14:20:20.215-07:00",
       "name": "Images -  by ImageId",
       "headers": [
         {
@@ -3086,7 +3170,7 @@
     {
       "type": "Context",
       "id": "5448E9A4-7237-4EA9-8064-C52B91A99650",
-      "lastModified": "2017-06-05T13:33:54.905-07:00",
+      "lastModified": "2017-06-06T14:21:03.603-07:00",
       "name": "header",
       "variables": [
         {

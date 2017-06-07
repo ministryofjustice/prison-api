@@ -19,7 +19,6 @@ import java.text.SimpleDateFormat;
 public class CaseNoteServiceImpl implements CaseNoteService{
 	
 	//Inject Case Note Repository.
-	private final String DEFAULT_CONDITION = "source:neq:'AUTO'";
 	private CaseNoteRepository caseNoteRepository;
 	private final String amendTextNotePrefix = "...[";
 	private final String amendTextNote = " updated the case note on ";
@@ -35,12 +34,6 @@ public class CaseNoteServiceImpl implements CaseNoteService{
 	@Transactional(readOnly = true)
 	public List<CaseNote> getCaseNotes(final String bookingId, String query, String orderBy, Order order, final int offset,
 			final int limit) {
-		//If Source filter is not available in Query then add Default filter SOURCE!="AUTO"
-		if(query==null ) {
-			query = DEFAULT_CONDITION ;
-		} else if (!"source:".contains(query)) {
-			query =  query+",and:"+DEFAULT_CONDITION;
-		}
 		if(orderBy == null) {
 			orderBy = "creationDateTime";
 			order = Order.desc;
