@@ -35,7 +35,7 @@
 
     <!-- Suppress checkstyle for certain files - e.g. generated sources -->
     <module name="SuppressionFilter">
-        <property name="file" value=".\syscon-checkstyle-suppressions.xml"/>
+        <property name="file" value="./syscon-checkstyle-suppressions.xml"/>
     </module>
 
     <!-- Checks that a package-info.java file exists for each package.     -->
