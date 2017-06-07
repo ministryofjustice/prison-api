@@ -35,13 +35,11 @@ project(":mobile-web") {
 		testCompile("org.flywaydb:flyway-core:4.2.0")
 		testRuntime('org.hsqldb:hsqldb:2.3.3')
 
-
-		testCompile 'info.cukes:cucumber-spring:1.2.5'
-        testCompile 'net.serenity-bdd:serenity-core:1.1.42'
-        testCompile 'net.serenity-bdd:serenity-junit:1.1.42'
-        testCompile 'net.serenity-bdd:serenity-cucumber:1.0.17'
 		testCompile 'com.tngtech.java:junit-dataprovider:1.12.0'
-		
+		testCompile 'info.cukes:cucumber-spring:1.2.5'
+		testCompile 'net.serenity-bdd:serenity-core:1.1.42'
+		testCompile 'net.serenity-bdd:serenity-junit:1.1.42'
+		testCompile 'net.serenity-bdd:serenity-cucumber:1.0.17'
 	}
 	gradle.startParameter.continueOnFailure = true
 
@@ -75,10 +73,10 @@ project(":mobile-web") {
 		classpath = sourceSets.integTest.runtimeClasspath
 	}
 
-    test {
-        environment 'api.db.target', 'nomis'
+	test {
+		environment 'api.db.target', 'nomis'
 		classpath = sourceSets.main.output + sourceSets.test.output + configurations.testRuntime + configurations.testCompile
-    }
+	}
 
 	check.dependsOn integTest
 	compileJava.dependsOn processResources
@@ -130,4 +128,3 @@ project(":mobile-web") {
 	}
 
 }
-
