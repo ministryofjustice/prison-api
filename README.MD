@@ -53,7 +53,7 @@ Where `/etc/elite-mobile` is the external configuration directory. In the projec
 
 If you need to build against Oracle 11 use:-
 ```bash
-./gradlew -Poracle11 clean assemble -x integTest
+./gradlew clean assemble -x integTest
 ```
 
 4) In a Docker container

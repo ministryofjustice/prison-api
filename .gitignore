@@ -151,7 +151,7 @@ UI/_temp
 /elite2-web/src/main/generated/net/syscon/elite/web/api/model
 
 # Log file
-mobile-web/hs_err_pid16052.log
+*.log
 
 mobile-web/src/main/resources/static/index.html
 .DS_Store

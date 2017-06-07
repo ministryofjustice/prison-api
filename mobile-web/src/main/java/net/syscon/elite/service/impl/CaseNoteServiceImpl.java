@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
+import java.text.SimpleDateFormat;
 
 @Transactional
 @Service
@@ -20,7 +21,9 @@ public class CaseNoteServiceImpl implements CaseNoteService{
 	//Inject Case Note Repository.
 	private final String DEFAULT_CONDITION = "source:neq:'AUTO'";
 	private CaseNoteRepository caseNoteRepository;
+	private final String amendTextNotePrefix = "...[";
 	private final String amendTextNote = " updated the case note on ";
+	private final String amendTextNoteSuffix = "] ";
 	@Inject
 	public void setCaseNoteRepository(final CaseNoteRepository caseNoteRepository) {
 		this.caseNoteRepository = caseNoteRepository;
@@ -62,10 +65,12 @@ public class CaseNoteServiceImpl implements CaseNoteService{
 	public CaseNote updateCaseNote(final String bookingId, final String caseNoteId, final UpdateCaseNote entity) {
 		//Append "...[<userId> updated the case note on <datetime>] <text provided>".
 		String  user = UserSecurityUtils.getCurrentUsername();
-		final StringBuilder textNoteBuilder = new StringBuilder(user);
+		final StringBuilder textNoteBuilder = new StringBuilder(amendTextNotePrefix);
+		textNoteBuilder.append(user);
 		textNoteBuilder.append(amendTextNote);
-		textNoteBuilder.append(new Date());
-		textNoteBuilder.append(" "+entity.getText());
+		textNoteBuilder.append(new SimpleDateFormat("yyyy/mm/dd hh:mm:ss").format(new Date()));
+		textNoteBuilder.append(amendTextNoteSuffix);
+		textNoteBuilder.append(entity.getText());
 		entity.setText(textNoteBuilder.toString());
 		
 		final CaseNote caseNote = this.caseNoteRepository.updateCaseNote(bookingId, caseNoteId, entity);
