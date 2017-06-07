@@ -1,16 +1,14 @@
-Feature: Staff users can access the application
+Feature: Authentication
 
   Acceptance Criteria:
-  A staff user can login to the application
+  A staff user can login to the API
 
-  Scenario: Login to the api
-    When I call the login endpoint with the following credentials:
+  Scenario: Login to the API
+    When API authentication is attempted with the following credentials:
     | username  | ITAG_USER  |
     | password  | password  |
-    Then I receive a JWT token response
-    And I when I lookup my details I get the following data:
+    Then a valid JWT token is generated
+    And current user details match the following:
       | username  | ITAG_USER  |
       | firstName | API  |
       | lastName  | USER  |
-
-
