@@ -1,10 +1,10 @@
 package net.syscon.util;
 
+import net.syscon.elite.persistence.mapping.FieldMapper;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import net.syscon.elite.persistence.mapping.FieldMapper;
 
 public class QueryBuilder {
 	
@@ -154,4 +154,7 @@ public class QueryBuilder {
 			}
 		}
 	}
+	
+	
+	
 }
