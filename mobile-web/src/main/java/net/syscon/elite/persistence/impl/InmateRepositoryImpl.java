@@ -23,60 +23,60 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-
 	private final Map<String, FieldMapper> assignedInmateMapping = new ImmutableMap.Builder<String, FieldMapper>()
-		.put("OFFENDER_BOOK_ID", 	new FieldMapper("bookingId"))
-		.put("BOOKING_NO", 			new FieldMapper("bookingNo"))
-		.put("OFFENDER_ID_DISPLAY", new FieldMapper("offenderNo"))
-		.put("AGY_LOC_ID", 			new FieldMapper("agencyId"))
-		.put("FIRST_NAME", 			new FieldMapper("firstName"))
-		.put("MIDDLE_NAME", 		new FieldMapper("middleName"))
-		.put("LAST_NAME", 			new FieldMapper("lastName"))
-		.put("ALERT_TYPES", 		new FieldMapper("alertsCodes", value -> Arrays.asList(value.toString().split(",")), null))
-		.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
-	.build();
+			.put("OFFENDER_BOOK_ID", 	new FieldMapper("bookingId"))
+			.put("BOOKING_NO", 			new FieldMapper("bookingNo"))
+			.put("OFFENDER_ID_DISPLAY", new FieldMapper("offenderNo"))
+			.put("AGY_LOC_ID", 			new FieldMapper("agencyId"))
+			.put("FIRST_NAME", 			new FieldMapper("firstName"))
+			.put("MIDDLE_NAME", 		new FieldMapper("middleName"))
+			.put("LAST_NAME", 			new FieldMapper("lastName"))
+			.put("ALERT_TYPES", 		new FieldMapper("alertsCodes", value -> Arrays.asList(value.toString().split(",")), null))
+			.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
+			.put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerUserId"))
+			.build();
 
 	private final Map<String, FieldMapper> inmateDetailsMapping = new ImmutableMap.Builder<String, FieldMapper>()
-		.put("OFFENDER_BOOK_ID", 	new FieldMapper("bookingId"))
-		.put("BOOKING_NO", 			new FieldMapper("bookingNo"))
-		.put("OFFENDER_ID_DISPLAY", new FieldMapper("offenderNo"))
-		.put("AGY_LOC_ID", 			new FieldMapper("agencyId"))
-		.put("FIRST_NAME", 			new FieldMapper("firstName"))
-        .put("MIDDLE_NAME", 		new FieldMapper("middleName"))
-		.put("LAST_NAME", 			new FieldMapper("lastName"))
-		.put("LIVING_UNIT_ID", 		new FieldMapper("assignedLivingUnitId"))
-		.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
-		.put("BIRTH_DATE", 			new FieldMapper("birthDate", value -> DateFormatProvider.get("yyyy-MM-dd").format((Date)value), null))
-		.put("AGE",                 new FieldMapper("age"))
-		.put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerUserId"))
-	.build();
+			.put("OFFENDER_BOOK_ID", 	new FieldMapper("bookingId"))
+			.put("BOOKING_NO", 			new FieldMapper("bookingNo"))
+			.put("OFFENDER_ID_DISPLAY", new FieldMapper("offenderNo"))
+			.put("AGY_LOC_ID", 			new FieldMapper("agencyId"))
+			.put("FIRST_NAME", 			new FieldMapper("firstName"))
+			.put("MIDDLE_NAME", 		new FieldMapper("middleName"))
+			.put("LAST_NAME", 			new FieldMapper("lastName"))
+			.put("LIVING_UNIT_ID", 		new FieldMapper("assignedLivingUnitId"))
+			.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
+			.put("BIRTH_DATE", 			new FieldMapper("birthDate", value -> DateFormatProvider.get("yyyy-MM-dd").format((Date)value), null))
+			.put("AGE",                 new FieldMapper("age"))
+			.put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerUserId"))
+			.build();
 
 	private final Map<String, FieldMapper> physicalAttributesMapping = new ImmutableMap.Builder<String, FieldMapper>()
-		.put("SEX_CODE",   new FieldMapper("gender"))
-		.put("RACE_CODE",  new FieldMapper("ethnicity"))
-		.put("HEIGHT_FT",  new FieldMapper("detail"))
-		.put("HEIGHT_IN",  new FieldMapper("heightInches"))
-		.put("HEIGHT_CM",  new FieldMapper("heightMeters", value -> ((Number) value).doubleValue() / 100.0, null))
-		.put("WEIGHT_LBS", new FieldMapper("weightPounds"))
-		.put("WEIGHT_KG",  new FieldMapper("weightKg"))
-	.build();
+			.put("SEX_CODE",   new FieldMapper("gender"))
+			.put("RACE_CODE",  new FieldMapper("ethnicity"))
+			.put("HEIGHT_FT",  new FieldMapper("detail"))
+			.put("HEIGHT_IN",  new FieldMapper("heightInches"))
+			.put("HEIGHT_CM",  new FieldMapper("heightMeters", value -> ((Number) value).doubleValue() / 100.0, null))
+			.put("WEIGHT_LBS", new FieldMapper("weightPounds"))
+			.put("WEIGHT_KG",  new FieldMapper("weightKg"))
+			.build();
 
 	private final Map<String, FieldMapper> physicalCharacteristicsMapping = new ImmutableMap.Builder<String, FieldMapper>()
-		.put("CHARACTERISTIC", 	new FieldMapper("characteristic"))
-		.put("DETAIL",          new FieldMapper("detail"))
-		.put("IMAGE_ID", new FieldMapper("imageId"))
-	.build();
+			.put("CHARACTERISTIC", 	new FieldMapper("characteristic"))
+			.put("DETAIL",          new FieldMapper("detail"))
+			.put("IMAGE_ID", new FieldMapper("imageId"))
+			.build();
 
 	private final Map<String, FieldMapper> assignedLivingUnitMapping = new ImmutableMap.Builder<String, FieldMapper>()
-		.put("AGY_LOC_ID", 	new FieldMapper("agencyId"))
-		.put("LIVING_UNIT_ID",          new FieldMapper("locationId"))
-		.put("LIVING_UNIT_DESCRITION", new FieldMapper("description"))
-	.build();
+			.put("AGY_LOC_ID", 	new FieldMapper("agencyId"))
+			.put("LIVING_UNIT_ID",          new FieldMapper("locationId"))
+			.put("LIVING_UNIT_DESCRITION", new FieldMapper("description"))
+			.build();
 
 	final Map<String, FieldMapper> physicalMarkMapping = new ImmutableMap.Builder<String, FieldMapper>()
-		.put("COMMENT_TEXT",	new FieldMapper("comment"))
-	.build();
-	
+			.put("COMMENT_TEXT",	new FieldMapper("comment"))
+			.build();
+
 	final Map<String, FieldMapper> assessmentMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("ASSESSMENT_CODE",	new FieldMapper("assessmentCode"))
 			.put("ASSESSMENT_DESCRIPTION",	new FieldMapper("assessmentDesc"))
@@ -89,18 +89,18 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("MIDDLE_NAME",	new FieldMapper("middleName"))
 			.put("BIRTH_DATE",	new FieldMapper("dob", value -> DateFormatProvider.get("yyyy-MM-dd").format((Date)value), null))
 			.put("AGE",			new FieldMapper("age"))
-			.put("SEX",         new FieldMapper("gender"))
+			.put("SEX",			new FieldMapper("gender"))
 			.put("ETHNICITY",	new FieldMapper("ethinicity"))
 			.put("ALIAS_TYPE",	new FieldMapper("nameType"))
 			.build();
 
 	@Override
 	public List<AssignedInmate> findInmatesByLocation(final Long locationId, String query, String orderByField, LocationsResource.Order order, final int offset, final int limit) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_INMATES_BY_LOCATION"), assignedInmateMapping, preOracle12).
-				addRowCount().
-				addQuery(query).
-				addOrderBy(order == LocationsResource.Order.asc, orderByField).
-				addPagedQuery()
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_INMATES_BY_LOCATION"), assignedInmateMapping, preOracle12)
+				.addRowCount()
+				.addQuery(query)
+				.addOrderBy(order == LocationsResource.Order.asc, orderByField)
+				.addPagedQuery()
 				.build();
 		final RowMapper<AssignedInmate> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, AssignedInmate.class, assignedInmateMapping);
 		try {
@@ -147,7 +147,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		final PhysicalAttributes physicalAttributes = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "caseLoadId", getCurrentCaseLoad()), physicalAttributesRowMapper);
 		return physicalAttributes;
 	}
-	
+
 	private List<Assessment> findAssessments(final long bookingId) {
 		final String sql = getQuery("FIND_ACTIVE_APPROVED_ASSESSMENT");
 		final RowMapper<Assessment> assessmentAttributesRowMapper = Row2BeanRowMapper.makeMapping(sql, Assessment.class, assessmentMapping);
@@ -186,19 +186,18 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 	private List<String> findActiveAlertCodes(Long bookingId) {
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_ALERT_TYPES_FOR_OFFENDER"), null, preOracle12).build();
-        return jdbcTemplate.query(sql, createParams("bookingId", bookingId), (rs, rowNum) -> rs.getString("ALERT_TYPE"));
+		return jdbcTemplate.query(sql, createParams("bookingId", bookingId), (rs, rowNum) -> rs.getString("ALERT_TYPE"));
 	}
 
 	@Override
 	public List<Alias> findInmateAliases(final long bookingId, String orderByField, BookingResource.Order order, final int offset, final int limit) {
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_INMATE_ALIASES"), aliasMapping, preOracle12)
-											.addOrderBy("asc".equals(order.toString()), (null==orderByField || "".equals("orderByField"))?"firstName":orderByField)
-											.build();
+				.addOrderBy("asc".equals(order.toString()), (null==orderByField || "".equals("orderByField"))?"firstName":orderByField)
+				.build();
 		final RowMapper<Alias> aliasAttributesRowMapper = Row2BeanRowMapper.makeMapping(sql, Alias.class, aliasMapping);
 		final List<Alias> aliases = jdbcTemplate.query(sql, createParams("bookingId", bookingId, "caseLoadId", getCurrentCaseLoad()), aliasAttributesRowMapper);
 		return aliases;
 	}
 
 }
-
 
