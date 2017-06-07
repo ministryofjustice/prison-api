@@ -1,6 +1,5 @@
 package net.syscon.elite.test;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ActiveProfilesResolver;
 
 import java.util.Objects;

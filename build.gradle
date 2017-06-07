@@ -51,9 +51,9 @@ subprojects {
 	apply plugin: "eclipse"
 
 
-
+	
 	sourceCompatibility = JavaVersion.VERSION_1_8
-	targetCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8	
 
 	group = "net.syscon.elite"
 	version = "1.0-SNAPSHOT"
@@ -75,7 +75,7 @@ subprojects {
 			property "sonar.exclusions", "**/generated/**"
 		}
 	}
-
+	
 	dependencies {
 		compile( "org.apache.commons:commons-lang3:3.5")
 		compile("com.google.code.findbugs:jsr305:3.0.1")

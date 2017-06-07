@@ -34,7 +34,7 @@ INSERT_CASE_NOTE {
 	      :contactTime,
 	      :type,
 	      :subType,
-	      (SELECT  STAFF_ID FROM STAFF_MEMBERS WHERE USER_ID = :userId),
+	      (SELECT  STAFF_ID FROM STAFF_MEMBERS WHERE USER_ID = :user_Id),
 	      :text,
 	      :createDate,
 	      :createTime,

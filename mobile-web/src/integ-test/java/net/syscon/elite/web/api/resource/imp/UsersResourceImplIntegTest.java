@@ -34,8 +34,8 @@ import net.syscon.elite.web.api.model.AuthLogin;
 @ActiveProfiles("integ")
 public class UsersResourceImplIntegTest {
 
-
-
+	
+	
 
 	private static final AuthLogin INVALID_CREDENTIALS = new AuthLogin("invalid", "invalid");
 	private static final AuthLogin USER_WITH_INVALID_PASSWORD = new AuthLogin("oms_owner", "invalid");
@@ -50,7 +50,7 @@ public class UsersResourceImplIntegTest {
 		RestAssured.port = this.port;
 		autenticate();
 	}
-
+	
 	@After
 	public void tearDown() {
 		System.out.println("end");
@@ -60,41 +60,41 @@ public class UsersResourceImplIntegTest {
 	@Test
 	public void getUserInfoWithoutToken() {
 		when().
-				get("/api/users/me").
-				then().
-				statusCode(HttpStatus.UNAUTHORIZED.value());
+			get("/api/users/me").
+		then().
+			statusCode(HttpStatus.UNAUTHORIZED.value());
 	}
 
 	@Test
 	public void getUserInfoRightToken() {
 		given().
-				header(new Header(AUTHORIZATION_HEADER, get(TOKEN))).
-				when().
-				get("/api/users/me").
-				then().
-				statusCode(HttpStatus.OK.value()).and().
-				body("username", equalTo (VALID_CREDENTIALS.getUsername().toUpperCase()));
+			header(new Header(AUTHORIZATION_HEADER, get(TOKEN))).
+		when().
+			get("/api/users/me").
+		then().
+			statusCode(HttpStatus.OK.value()).and().
+			body("username", equalTo (VALID_CREDENTIALS.getUsername().toUpperCase()));
 	}
 
 	@Test
 	public void getUserInfoWrongToken() {
 		given().
-				header(new Header(AUTHORIZATION_HEADER, get(REFRESH_TOKEN))).
-				when().
-				get("/api/users/me").
-				then().
-				statusCode(HttpStatus.UNAUTHORIZED.value());
+			header(new Header(AUTHORIZATION_HEADER, get(REFRESH_TOKEN))).
+		when().
+			get("/api/users/me").
+		then().
+			statusCode(HttpStatus.UNAUTHORIZED.value());
 	}
 
 
 	@Test
 	public void refreshTokenWithRightToken() {
 		given().
-				header(new Header(AUTHORIZATION_HEADER, get(REFRESH_TOKEN))).
-				when().
-				post("/api/users/token").
-				then().
-				statusCode(HttpStatus.CREATED.value());
+			header(new Header(AUTHORIZATION_HEADER, get(REFRESH_TOKEN))).
+		when().
+			post("/api/users/token").
+		then().
+			statusCode(HttpStatus.CREATED.value());
 	}
 
 
@@ -102,11 +102,11 @@ public class UsersResourceImplIntegTest {
 	@Test
 	public void refreshTokenWithWrongToken() {
 		given().
-				header(new Header(AUTHORIZATION_HEADER, get(TOKEN))).
-				when().
-				get("/api/users/token").
-				then().
-				statusCode(HttpStatus.UNAUTHORIZED.value());
+			header(new Header(AUTHORIZATION_HEADER, get(TOKEN))).
+		when().
+			get("/api/users/token").
+		then().
+			statusCode(HttpStatus.UNAUTHORIZED.value());
 	}
 
 	@Test
@@ -122,37 +122,38 @@ public class UsersResourceImplIntegTest {
 	@Test
 	public void userInfoWithInvalidToken() {
 		given().
-				header(new Header("Authorization", "Bearer " + INVALID_TOKEN)).
-				when().
-				get("/api/users/me").
-				then().
-				statusCode(HttpStatus.UNAUTHORIZED.value());
+			header(new Header("Authorization", "Bearer " + INVALID_TOKEN)).
+		when().
+			get("/api/users/me").
+		then().
+			statusCode(HttpStatus.UNAUTHORIZED.value());
 	}
 
 
 	@Test
 	public void loginInvalidCredentials() {
 		given().
-				header(new Header("Content-Type", "application/json")).
-				body(new Gson().toJson(INVALID_CREDENTIALS)).
-				when().
-				post("/api/users/login").
-				then().
-				statusCode(HttpStatus.UNAUTHORIZED.value());
+			header(new Header("Content-Type", "application/json")).
+			body(new Gson().toJson(INVALID_CREDENTIALS)).
+		when().
+			post("/api/users/login").
+		then().
+			statusCode(HttpStatus.UNAUTHORIZED.value());
 	}
 
 
 	@Test
 	public void setUserWithInvalidPassword() {
 		given().
-				header(new Header("Content-Type", "application/json")).
-				body(new Gson().toJson(USER_WITH_INVALID_PASSWORD)).
-				when().
-				post("/api/users/login").
-				then().
-				statusCode(HttpStatus.UNAUTHORIZED.value());
+			header(new Header("Content-Type", "application/json")).
+			body(new Gson().toJson(USER_WITH_INVALID_PASSWORD)).
+		when().
+			post("/api/users/login").
+		then().
+			statusCode(HttpStatus.UNAUTHORIZED.value());
 	}
 
 
 
 }
+

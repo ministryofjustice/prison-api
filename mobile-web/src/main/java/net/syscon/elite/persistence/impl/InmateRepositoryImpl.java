@@ -34,7 +34,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		.put("LAST_NAME", 			new FieldMapper("lastName"))
 		.put("ALERT_TYPES", 		new FieldMapper("alertsCodes", value -> Arrays.asList(value.toString().split(",")), null))
 		.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
-		.put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerUserId"))
 	.build();
 
 	private final Map<String, FieldMapper> inmateDetailsMapping = new ImmutableMap.Builder<String, FieldMapper>()
