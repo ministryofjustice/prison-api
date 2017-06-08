@@ -23,7 +23,7 @@ FIND_ALERT_REF_CODE_DESC {
 }
 
 FIND_CNOTE_TYPES_BY_CASE_LOAD {
-	SELECT rc.description, 
+	SELECT DISTINCT rc.description, 
        work_type code , rc.domain, rc.PARENT_DOMAIN, rc.PARENT_CODE, rc.ACTIVE_FLAG
   	FROM works w join
        reference_codes rc on rc.code = w.work_type
@@ -33,14 +33,13 @@ FIND_CNOTE_TYPES_BY_CASE_LOAD {
 		 AND   w.manual_select_flag ='Y'
 	   AND w.active_flag  = 'Y'
 	   AND rc.code  <> 'WR'
-  	order by  description ,code
 }
 
 FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE {
 	SELECT  rc.description, 
        w.work_sub_type code, rc.domain, rc.PARENT_DOMAIN, rc.PARENT_CODE, rc.ACTIVE_FLAG
 	FROM works w join
-		reference_codes rc on rc.code = w.work_type
+		reference_codes rc on rc.code = w.work_sub_type
  	WHERE workflow_type = 'CNOTE'
 	   AND rc.domain = 'TASK_SUBTYPE'
 	   AND w.work_type = :caseNoteType
