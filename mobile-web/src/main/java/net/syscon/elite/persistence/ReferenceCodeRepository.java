@@ -6,8 +6,8 @@ import net.syscon.elite.web.api.resource.ReferenceDomainsResource.Order;
 import java.util.List;
 
 public interface ReferenceCodeRepository {
-	List<ReferenceCode> getCnotetypesByCaseLoad(String caseLoad);
-	List<ReferenceCode> getCnoteSubtypesByCaseNoteType(String caseNotetype);
+	List<ReferenceCode> getCnotetypesByCaseLoad(String caseLoad, int offset, int limit);
+	List<ReferenceCode> getCnoteSubtypesByCaseNoteType(String caseNotetype, int offset, int limit);
 	List<ReferenceCode> getReferenceCodesForDomain(String domain);
 	ReferenceCode getReferenceCodeDescriptionForCode(String domain, String code);
 	

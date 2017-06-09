@@ -24,12 +24,12 @@ public class ReferenceCodeServiceImpl implements ReferenceDomainService {
 		this.referenceCodeRepository = referenceCodeRepository;
 	}
 	@Override
-	public List<ReferenceCode> getCnotetypesByCaseLoad(final String caseLoad) {
-		return referenceCodeRepository.getCnotetypesByCaseLoad(caseLoad);
+	public List<ReferenceCode> getCnotetypesByCaseLoad(final String caseLoad, final int offset, final int limit) {
+		return referenceCodeRepository.getCnotetypesByCaseLoad(caseLoad, offset, limit);
 	}
 	@Override
-	public List<ReferenceCode> getCnoteSubtypesByCaseNoteType(final String caseNotetype) {
-		return referenceCodeRepository.getCnoteSubtypesByCaseNoteType(caseNotetype);
+	public List<ReferenceCode> getCnoteSubtypesByCaseNoteType(final String caseNotetype, final int offset, final int limit) {
+		return referenceCodeRepository.getCnoteSubtypesByCaseNoteType(caseNotetype, offset, limit);
 	}
 	@Override
 	public List<ReferenceCode> getReferencecodesForDomain(final String domain) {
