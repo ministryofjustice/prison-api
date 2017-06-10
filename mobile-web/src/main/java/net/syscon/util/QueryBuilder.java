@@ -139,7 +139,7 @@ public class QueryBuilder {
 				if (this.includePagination) {
 					if (preOracle12) {
 						result.insert(0, "SELECT * FROM (SELECT QRY_PAG.*, ROWNUM rnum FROM ( ");
-						result.append(" ) QRY_PAG WHERE ROWNUM <= :limit) WHERE rnum >= :offset");
+						result.append(" ) QRY_PAG WHERE ROWNUM <= :offset+:limit) WHERE rnum >= :offset");
 					} else {
 						result.append("\nOFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY");
 					}
