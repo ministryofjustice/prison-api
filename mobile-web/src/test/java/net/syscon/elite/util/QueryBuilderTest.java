@@ -72,7 +72,7 @@ public class QueryBuilderTest {
 				.setRemoveSpecialChars(true)
 				.addPagedQuery()
 				.build();
-		final String expectedSql = String.format("SELECT * FROM (SELECT QRY_PAG.*, ROWNUM rnum FROM ( %s ) QRY_PAG WHERE ROWNUM <= (:offset+:limit)) WHERE rnum >= :offset", INITIAL_SQL);
+		final String expectedSql = String.format("SELECT * FROM (SELECT QRY_PAG.*, ROWNUM rnum FROM ( %s ) QRY_PAG WHERE ROWNUM <= (:offset+:limit)) WHERE rnum >= (:offset+1)", INITIAL_SQL);
 		assertThat(sql, equalTo(expectedSql));
 	}
 		
