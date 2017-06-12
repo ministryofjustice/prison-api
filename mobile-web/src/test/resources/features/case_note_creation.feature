@@ -1,7 +1,7 @@
-Feature: Case Notes
+Feature: Case Note Creation
 
   Acceptance Criteria:
-  A logged in staff user can create a case note for an existing offender booking
+  A logged in staff user can create a case note for an existing offender booking.
 
   Scenario: Create a case note
     Given a user has authenticated with the API

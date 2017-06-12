@@ -2,27 +2,16 @@ package net.syscon.elite.executableSpecification.steps;
 
 import net.syscon.elite.web.api.model.CaseNote;
 import net.thucydides.core.annotations.Step;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.*;
-
-import java.util.Map;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * BDD step implementations for Case Note domain.
  */
-public class CaseNoteSteps {
-    @Autowired
-    private TestRestTemplate restTemplate;
-
-    @Value("${security.authenication.header:Authorization}")
-    private String authenicationHeader;
-
-    private String token;
-
+public class CaseNoteSteps extends CommonSteps {
     private CaseNote caseNote;
     private CaseNote pendingCaseNote;
 
@@ -34,14 +23,10 @@ public class CaseNoteSteps {
         pendingCaseNote.setSubType(subType);
         pendingCaseNote.setText(text);
 
-        ResponseEntity<CaseNote> response = restTemplate.exchange("/api/booking/6000/caseNotes", HttpMethod.POST, createEntity(pendingCaseNote, null), CaseNote.class);
+        ResponseEntity<CaseNote> response = restTemplate.exchange("/api/booking/-1/caseNotes", HttpMethod.POST, createEntity(pendingCaseNote), CaseNote.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
         caseNote = response.getBody();
-    }
-
-    public void setToken(String token) {
-        this.token = token;
     }
 
     @Step("Verify case note")
@@ -51,19 +36,5 @@ public class CaseNoteSteps {
         assertThat(caseNote.getType()).isEqualTo(pendingCaseNote.getType());
         assertThat(caseNote.getSubType()).isEqualTo(pendingCaseNote.getSubType());
         assertThat(caseNote.getText()).isEqualTo(pendingCaseNote.getText());
-    }
-
-    private HttpEntity createEntity(Object entity, Map<String, String> extraHeaders) {
-        HttpHeaders headers = new HttpHeaders();
-
-        if (token != null) {
-            headers.add(authenicationHeader, token);
-        }
-
-        if (extraHeaders != null) {
-            extraHeaders.forEach(headers::add);
-        }
-
-        return new HttpEntity<>(entity, headers);
     }
 }

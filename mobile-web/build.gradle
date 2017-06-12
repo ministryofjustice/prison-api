@@ -74,13 +74,13 @@ project(":mobile-web") {
 
     task testWithSchemaNomis(type:Test) {
         exclude "**/persistence/*"
-        println "Running Persistence and Serenity tests against NOMIS schema..."
+        println "Running Serenity tests against NOMIS schema..."
         environment 'api.db.target', 'nomis'
     }
 
     task testWithSchemaElite(type:Test) {
         exclude "**/persistence/*"
-        println "Running Persistence and Serenity tests against ELITE schema..."
+        println "Running Serenity tests against ELITE schema..."
         environment 'api.db.target', 'elite'
     }
 
@@ -93,12 +93,12 @@ project(":mobile-web") {
     checkstyleIntegrationTest.enabled = false
     checkstyleIntegTest.enabled = false
 
-    // Exclude Spring-based and Serenity BDD integration tests from 'test' task so they can be controlled independently
+    // Exclude Serenity BDD integration tests from 'test' task so they can be controlled independently
     test {
         exclude "**/executableSpecification/*"
     }
 
-    test.dependsOn testWithSchemaNomis, testWithSchemaElite
+    test.dependsOn testWithSchemaNomis
 
 	compileJava.dependsOn processResources
 
