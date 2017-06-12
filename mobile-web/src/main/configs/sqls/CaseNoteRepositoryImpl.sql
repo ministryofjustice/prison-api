@@ -46,7 +46,8 @@ INSERT_CASE_NOTE {
 UPDATE_CASE_NOTE {
     UPDATE OFFENDER_CASE_NOTES SET
            CASE_NOTE_TEXT = :text,
-           MODIFY_USER_ID = :modifyBy
+           MODIFY_USER_ID = :modifyBy,
+           AMENDMENT_FLAG = 'Y'
      WHERE CASE_NOTE_ID = :caseNoteId
 }
 

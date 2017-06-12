@@ -36,7 +36,7 @@ public class CaseNoteSteps {
 
         ResponseEntity<CaseNote> response = restTemplate.exchange("/api/booking/6000/caseNotes", HttpMethod.POST, createEntity(pendingCaseNote, null), CaseNote.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-
+        response = restTemplate.exchange("/api/booking/6000/caseNotes/" + response.getBody().getCaseNoteId(), HttpMethod.GET, createEntity(null, null), CaseNote.class);
         caseNote = response.getBody();
     }
 
@@ -51,6 +51,7 @@ public class CaseNoteSteps {
         assertThat(caseNote.getType()).isEqualTo(pendingCaseNote.getType());
         assertThat(caseNote.getSubType()).isEqualTo(pendingCaseNote.getSubType());
         assertThat(caseNote.getText()).isEqualTo(pendingCaseNote.getText());
+        assertThat(caseNote.getCreationDateTime()).isNotEmpty();
     }
 
     private HttpEntity createEntity(Object entity, Map<String, String> extraHeaders) {
