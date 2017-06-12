@@ -25,6 +25,7 @@ public class CaseNoteSteps {
 
     private CaseNote caseNote;
     private CaseNote pendingCaseNote;
+    private CaseNote defaultCaseNote;
 
     @Step("Create case note")
     public void create(String type, String subType, String text) {

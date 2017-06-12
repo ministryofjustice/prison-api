@@ -58,13 +58,12 @@ public class CaseNoteServiceImpl implements CaseNoteService{
 	public CaseNote updateCaseNote(final String bookingId, final String caseNoteId, final UpdateCaseNote entity) {
 		//Append "...[<userId> updated the case note on <datetime>] <text provided>".
 		String  user = UserSecurityUtils.getCurrentUsername();
-		final StringBuilder textNoteBuilder = new StringBuilder(amendTextNotePrefix);
-		textNoteBuilder.append(user);
-		textNoteBuilder.append(amendTextNote);
-		textNoteBuilder.append(new SimpleDateFormat("yyyy/mm/dd hh:mm:ss").format(new Date()));
-		textNoteBuilder.append(amendTextNoteSuffix);
-		textNoteBuilder.append(entity.getText());
-		entity.setText(textNoteBuilder.toString());
+		String textNoteBuilder = amendTextNotePrefix + user +
+				amendTextNote +
+				new SimpleDateFormat("yyyy/mm/dd hh:mm:ss").format(new Date()) +
+				amendTextNoteSuffix +
+				entity.getText();
+		entity.setText(textNoteBuilder);
 		
 		final CaseNote caseNote = this.caseNoteRepository.updateCaseNote(bookingId, caseNoteId, entity);
 		return caseNote;

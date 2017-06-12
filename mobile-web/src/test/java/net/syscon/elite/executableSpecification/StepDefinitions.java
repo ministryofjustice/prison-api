@@ -1,6 +1,7 @@
 package net.syscon.elite.executableSpecification;
 
 import cucumber.api.DataTable;
+import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -72,6 +73,30 @@ public class StepDefinitions {
     public void caseNoteIsSuccessfullyCreated() {
         caseNote.verify();
     }
+
+    @Given("^I have created a case note text of \"([^\"]*)\"$")
+    public void iHaveCreatedACaseNoteTextOf(String caseNoteText) throws Throwable {
+        caseNote.setToken(user.getToken());
+        caseNote.create("CNOTE", "GEN", caseNoteText);
+    }
+
+    @Given("^a case note has already been created and the case note is updated with text \"([^\"]*)\"$")
+    public void aCaseNoteHasAlreadyBeenCreatedAndTheCaseNoteIsUpdatedWithText(String arg0) throws Throwable {
+
+    }
+
+    @Then("^case note is successfully updated$")
+    public void caseNoteIsSuccessfullyUpdated() throws Throwable {
+        // Write code here that turns the phrase above into concrete actions
+        throw new PendingException();
+    }
+
+    @And("^the amended flag is set$")
+    public void theAmendedFlagIsSet() throws Throwable {
+        // Write code here that turns the phrase above into concrete actions
+        throw new PendingException();
+    }
+
 
     @TestConfiguration
     static class Config {
