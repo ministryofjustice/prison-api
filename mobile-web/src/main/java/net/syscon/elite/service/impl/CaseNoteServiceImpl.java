@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.text.SimpleDateFormat;
@@ -50,23 +52,24 @@ public class CaseNoteServiceImpl implements CaseNoteService{
 	@Override
 	public CaseNote createCaseNote(final String bookingId, final String caseNoteId, final CaseNote entity) {
 		//TODO: First - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
-		final CaseNote caseNote = this.caseNoteRepository.createCaseNote(bookingId, caseNoteId, entity);
-		return caseNote;
+		return caseNoteRepository.createCaseNote(bookingId, caseNoteId, entity);
 	}
 
 	@Override
 	public CaseNote updateCaseNote(final String bookingId, final String caseNoteId, final UpdateCaseNote entity) {
 		//Append "...[<userId> updated the case note on <datetime>] <text provided>".
-		String  user = UserSecurityUtils.getCurrentUsername();
-		String textNoteBuilder = amendTextNotePrefix + user +
+		final String user = UserSecurityUtils.getCurrentUsername();
+		final LocalDateTime now = LocalDateTime.now();
+		final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+
+		final String textNoteBuilder = amendTextNotePrefix + user +
 				amendTextNote +
-				new SimpleDateFormat("yyyy/mm/dd hh:mm:ss").format(new Date()) +
+				now.format(formatter) +
 				amendTextNoteSuffix +
 				entity.getText();
 		entity.setText(textNoteBuilder);
 		
-		final CaseNote caseNote = this.caseNoteRepository.updateCaseNote(bookingId, caseNoteId, entity);
-		return caseNote;
+		return caseNoteRepository.updateCaseNote(bookingId, caseNoteId, entity);
 	}
 
 }
