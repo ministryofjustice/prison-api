@@ -27,18 +27,24 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 			.build();
 
 	@Override
-	public List<ReferenceCode> getCnotetypesByCaseLoad(final String caseLoad) {
+	public List<ReferenceCode> getCnotetypesByCaseLoad(final String caseLoad, final int offset, final int limit) {
 
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_CNOTE_TYPES_BY_CASE_LOAD"), referenceCodeMapping, preOracle12).addRowCount().build();
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_CNOTE_TYPES_BY_CASE_LOAD"), referenceCodeMapping, preOracle12)
+				.addRowCount()
+				.addPagedQuery()
+				.build();
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
-		return jdbcTemplate.query(sql, createParams("caseLoad", caseLoad), referenceCodeRowMapper);
+		return jdbcTemplate.query(sql, createParams("caseLoad", caseLoad, "offset", offset, "limit", limit), referenceCodeRowMapper);
 	}
 
 	@Override
-	public List<ReferenceCode> getCnoteSubtypesByCaseNoteType(final String caseNotetype) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE"), referenceCodeMapping, preOracle12).addRowCount().build();
+	public List<ReferenceCode> getCnoteSubtypesByCaseNoteType(final String caseNotetype, final int offset, final int limit) {
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE"), referenceCodeMapping, preOracle12)
+				.addRowCount()
+				.addPagedQuery()
+				.build();
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
-		return jdbcTemplate.query(sql, createParams("caseNoteType", caseNotetype), referenceCodeRowMapper);
+		return jdbcTemplate.query(sql, createParams("caseNoteType", caseNotetype, "offset", offset, "limit", limit), referenceCodeRowMapper);
 	}
 
 	@Override

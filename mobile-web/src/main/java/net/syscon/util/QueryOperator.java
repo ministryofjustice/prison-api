@@ -6,8 +6,8 @@ package net.syscon.util;
  */
 public enum QueryOperator {
 	
-	CONNECTOR_AND("and","and"),
-	CONNECTOR_OR("or", "or"),
+	CONNECTOR_AND("and","AND"),
+	CONNECTOR_OR("or", "OR"),
 	EQUAL("eq","="),
 	NOTEQUAL("neq","!="),
 	IS("is","IS"),
@@ -31,7 +31,7 @@ public enum QueryOperator {
 	}
 
 	public String getSqlOperator() {
-		return sqlOperator;
+		return sqlOperator.toUpperCase();
 	}
 
 }
