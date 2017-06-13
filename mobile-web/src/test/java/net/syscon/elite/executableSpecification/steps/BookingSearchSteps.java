@@ -29,6 +29,16 @@ public class BookingSearchSteps extends CommonSteps {
         inmateSummaries = response.getBody();
     }
 
+    @Step("Perform search using partial last name")
+    public void partialLastNameSearch(String criteria) {
+        String query = buildSimpleQuery("lastName", QueryOperator.LIKE, criteria);
+        ResponseEntity<InmateSummaries> response = restTemplate.exchange(query, HttpMethod.GET, createEntity(), InmateSummaries.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        inmateSummaries = response.getBody();
+    }
+
     @Step("Verify expected number of inmates returned by search")
     public void verifySearchCount(int expectedCount) {
         assertThat(inmateSummaries.getInmatesSummaries().size()).isEqualTo(expectedCount);

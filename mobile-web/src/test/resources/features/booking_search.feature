@@ -17,9 +17,13 @@ Feature: Booking Search
 
     Examples:
       | last name | number |
-      | ANDERSON  | 1      |
+      | ANDERSON  | 2      |
 
-  Scenario: Search based on partial offender last name
-    Given PENDING a user has authenticated with the API
-    When a booking search is made with partial last name of existing offender
+  Scenario Outline: Search based on partial offender last name
+    Given a user has authenticated with the API
+    When a booking search is made with partial "<last name>" of existing offender
     Then expected "<number>" of offender records are returned
+
+    Examples:
+      | last name | number |
+      | AND%      | 3      |
