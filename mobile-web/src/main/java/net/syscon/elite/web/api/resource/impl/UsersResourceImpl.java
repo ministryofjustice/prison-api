@@ -19,6 +19,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.QueryParam;
 import java.util.Base64;
 import java.util.List;
 

@@ -6,6 +6,13 @@ is: [
   pageable
 ]
 
+/assignments:
+  description: Offender Assignments for this logged in user
+  type: { get-collection: { collectionSchema: inmateAssignmentSummaries } }
+  is: [
+    pageable
+  ]
+
 /{bookingId}:
   description: The details specific to the specified inmate.
   type: { get-item: { schema: inmateDetails }}

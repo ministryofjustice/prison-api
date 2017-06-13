@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import net.syscon.elite.service.AssignmentService;
+import net.syscon.elite.web.api.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -12,41 +14,27 @@ import org.springframework.stereotype.Component;
 import net.syscon.elite.persistence.InmateRepository;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.InmatesAlertService;
-import net.syscon.elite.web.api.model.Alert;
-import net.syscon.elite.web.api.model.Alerts;
-import net.syscon.elite.web.api.model.Alias;
-import net.syscon.elite.web.api.model.AssignedInmate;
-import net.syscon.elite.web.api.model.CaseNote;
-import net.syscon.elite.web.api.model.CaseNotes;
-import net.syscon.elite.web.api.model.HttpStatus;
-import net.syscon.elite.web.api.model.InmateDetails;
-import net.syscon.elite.web.api.model.InmateSummaries;
-import net.syscon.elite.web.api.model.UpdateCaseNote;
 import net.syscon.elite.web.api.resource.BookingResource;
 import net.syscon.util.MetaDataFactory;
 
 
 @Component
 public class BookingResourceImpl implements BookingResource {
-
-
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
+	private final InmateRepository inmateRepository;
+	private final CaseNoteService caseNoteService;
+	private final InmatesAlertService inmateAlertService;
+	private final AssignmentService assignmentService;
 
-	private InmateRepository inmateRepository;
-	private CaseNoteService caseNoteService;
-	private InmatesAlertService inmateAlertService;
-	
 	@Inject
-	public void setCaseNoteService(final CaseNoteService caseNoteService) { this.caseNoteService = caseNoteService; }
-	
-	@Inject
-	public void setInmateAlertService(InmatesAlertService inmateAlertService) { this.inmateAlertService = inmateAlertService; }
-	
-	@Inject
-	public void setInmateRepository(final InmateRepository inmateRepository) { this.inmateRepository = inmateRepository; }
+	public BookingResourceImpl(InmateRepository inmateRepository, CaseNoteService caseNoteService, InmatesAlertService inmateAlertService, AssignmentService assignmentService) {
+		this.inmateRepository = inmateRepository;
+		this.caseNoteService = caseNoteService;
+		this.inmateAlertService = inmateAlertService;
+		this.assignmentService = assignmentService;
+	}
 
-	
 	@Override
 	public GetBookingResponse getBooking(String query, String orderBy, Order order, int offset, int limit)
 			throws Exception {
@@ -54,7 +42,14 @@ public class BookingResourceImpl implements BookingResource {
 		InmateSummaries inmateSummaries = new InmateSummaries(inmates, MetaDataFactory.createMetaData(limit, offset, inmates));
 		return GetBookingResponse.withJsonOK(inmateSummaries);
 	}
-	
+
+	@Override
+	public GetBookingAssignmentsResponse getBookingAssignments(int offset, int limit) throws Exception {
+		final List<InmateAssignmentSummary> assignments = assignmentService.findMyAssignments(offset, limit);
+		final InmateAssignmentSummaries assignmentSummaries = new InmateAssignmentSummaries(assignments, MetaDataFactory.createMetaData(limit, offset, assignments));
+		return GetBookingAssignmentsResponse.withJsonOK(assignmentSummaries);
+	}
+
 	@Override
 	public GetBookingByBookingIdResponse getBookingByBookingId(String bookingId) throws Exception {
 		try {
