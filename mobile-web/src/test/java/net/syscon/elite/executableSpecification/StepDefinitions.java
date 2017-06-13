@@ -1,6 +1,7 @@
 package net.syscon.elite.executableSpecification;
 
 import cucumber.api.DataTable;
+import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -8,6 +9,8 @@ import cucumber.api.java.en.When;
 import net.syscon.elite.executableSpecification.steps.CaseNoteSteps;
 import net.syscon.elite.executableSpecification.steps.UserSteps;
 import net.syscon.elite.test.DatasourceActiveProfilesResolver;
+import net.syscon.elite.web.api.model.CaseNote;
+import net.syscon.elite.web.api.model.UpdateCaseNote;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -28,13 +31,13 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 public class StepDefinitions {
 
     @Autowired
-    private TestRestTemplate restTemplate;
-
-    @Autowired
     private UserSteps user;
 
     @Autowired
     private CaseNoteSteps caseNote;
+
+    private CaseNote seededCaseNote;
+    private CaseNote updatedCaseNote;
 
     @When("^API authentication is attempted with the following credentials:$")
     public void apiAuthenticationIsAttemptedWithTheFollowingCredentials(DataTable rawData) {
@@ -72,6 +75,34 @@ public class StepDefinitions {
     public void caseNoteIsSuccessfullyCreated() {
         caseNote.verify();
     }
+
+    @Given("^I have created a case note text of \"([^\"]*)\"$")
+    public void iHaveCreatedACaseNoteTextOf(String caseNoteText) throws Throwable {
+        CaseNote newCaseNote = new CaseNote();
+        newCaseNote.setType("CHAP");
+        newCaseNote.setSubType("STUFF");
+        newCaseNote.setText(caseNoteText);
+
+        caseNote.setToken(user.getToken());
+        seededCaseNote = caseNote.createCaseNote(newCaseNote);
+    }
+
+    @Given("^the created case note is updated with text \"([^\"]*)\"$")
+    public void theCaseNoteIsUpdatedWithText(String caseNoteText) throws Throwable {
+        caseNote.setToken(user.getToken());
+        updatedCaseNote = caseNote.updateCaseNote(new UpdateCaseNote(seededCaseNote.getCaseNoteId(), caseNoteText));
+    }
+
+    @Then("^case note is successfully updated with \"([^\"]*)\"$")
+    public void caseNoteIsSuccessfullyUpdated(String caseNoteText) throws Throwable {
+        assertThat(updatedCaseNote.getText()).contains(caseNoteText);
+    }
+
+    @And("^the original text is not replaced$")
+    public void theAmendedFlagIsSet() throws Throwable {
+        assertThat(updatedCaseNote.getText()).contains(seededCaseNote.getText());
+    }
+
 
     @TestConfiguration
     static class Config {
