@@ -1,7 +1,7 @@
 Feature: Authentication
 
   Acceptance Criteria:
-  A staff user can login to the API
+  A staff user can login to the API.
 
   Scenario: Login to the API
     When API authentication is attempted with the following credentials:

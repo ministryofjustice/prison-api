@@ -8,7 +8,9 @@ import net.syscon.elite.web.api.model.*;
 import net.syscon.elite.web.api.resource.BookingResource;
 import net.syscon.elite.web.api.resource.LocationsResource;
 import net.syscon.util.DateFormatProvider;
+import net.syscon.util.IQueryBuilder;
 import net.syscon.util.QueryBuilder;
+import net.syscon.util.QueryBuilderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -111,20 +113,35 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public List<AssignedInmate> findAllInmates(final String query, final int offset, final int limit, final String orderBy, BookingResource.Order order) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_ALL_INMATES"), assignedInmateMapping, preOracle12).
-				addRowCount().
-				addQuery(query).
-				addOrderBy(order == BookingResource.Order.asc, orderBy).
-				addPagedQuery()
+	public List<AssignedInmate> findAllInmates(String query, int offset, int limit, String orderBy, BookingResource.Order order) {
+		String initialSql = getQuery("FIND_ALL_INMATES");
+		IQueryBuilder builder = QueryBuilderFactory.getQueryBuilder(initialSql, assignedInmateMapping);
+		boolean isAscendingOrder = (order == BookingResource.Order.asc);
+
+		String sql = builder
+				.addRowCount()
+				.addQuery(query)
+				.addOrderBy(isAscendingOrder, orderBy)
+				.addPagination()
 				.build();
 
-		final RowMapper<AssignedInmate> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, AssignedInmate.class, assignedInmateMapping);
+		RowMapper<AssignedInmate> assignedInmateRowMapper =
+				Row2BeanRowMapper.makeMapping(sql, AssignedInmate.class, assignedInmateMapping);
+
+		List<AssignedInmate> inmates;
+
 		try {
-			return jdbcTemplate.query(sql, createParams("caseLoadId", getCurrentCaseLoad(), "offset", offset, "limit", limit), assignedInmateRowMapper);
+			inmates = jdbcTemplate.query(
+					sql,
+					createParams("caseLoadId", getCurrentCaseLoad(),
+							"offset", offset,
+							"limit", limit),
+					assignedInmateRowMapper);
 		} catch (EmptyResultDataAccessException e) {
-			return Collections.emptyList();
+			inmates = Collections.emptyList();
 		}
+
+		return inmates;
 	}
 
 	private List<PhysicalMark> findPhysicalMarks(final Long bookingId) {
@@ -198,6 +215,5 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		final List<Alias> aliases = jdbcTemplate.query(sql, createParams("bookingId", bookingId, "caseLoadId", getCurrentCaseLoad()), aliasAttributesRowMapper);
 		return aliases;
 	}
-
 }
 
