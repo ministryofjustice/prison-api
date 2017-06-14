@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -54,13 +55,15 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	}
 
 	@Override
-	public UserDetails findByStaffId(final Long staffId) {
+	public List<UserDetails> findByStaffId(final Long staffId) {
 		final String sql = getQuery("FIND_USER_BY_STAFF_ID");
+
+
 		final RowMapper<UserDetails> userRowMapper = Row2BeanRowMapper.makeMapping(sql, UserDetails.class, userMapping);
 		try {
-			return jdbcTemplate.queryForObject(sql,  createParams("staffId", staffId), userRowMapper);
+			return jdbcTemplate.query(sql,  createParams("staffId", staffId), userRowMapper);
 		} catch (final EmptyResultDataAccessException ex) {
-			return null;
+			return Collections.emptyList();
 		} catch (final DataAccessException ex) {
 			throw new EliteRuntimeException(ex.getMessage(), ex);
 		}

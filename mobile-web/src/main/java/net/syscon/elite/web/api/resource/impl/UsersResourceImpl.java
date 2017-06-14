@@ -158,8 +158,7 @@ public class UsersResourceImpl implements UsersResource {
 	@Override
 	public GetUsersMeActiveCaseLoadResponse getUsersMeActiveCaseLoad() throws Exception {
 		try {
-			final UserDetails user = getCurrentUser();
-			final CaseLoad caseLoad = userService.getActiveCaseLoad(user.getStaffId());
+			final CaseLoad caseLoad = userService.getActiveCaseLoad(UserSecurityUtils.getCurrentUsername());
 			return GetUsersMeActiveCaseLoadResponse.withJsonOK(caseLoad);
 		} catch (final DataAccessException ex) {
 			final HttpStatus httpStatus = new HttpStatus("500",  "500", "Internal Error", "Internal Error", "");

@@ -41,8 +41,18 @@ public class UserRepositoryTest {
     public final void testFindUserByStaffId() {
         final UserDetails user = repository.findByUsername("ELITE2_API_USER");
         assertThat(user).isNotNull();
-        final UserDetails userById = repository.findByStaffId(user.getStaffId());
-        assertThat(userById).isNotNull();
+        final List<UserDetails> userByIds = repository.findByStaffId(user.getStaffId());
+        assertThat(userByIds).hasSize(1);
+        assertThat(userByIds).extracting("username").contains("ELITE2_API_USER");
+    }
+
+    @Test
+    public final void testFindUserByStaffIdWithMultipleUsers() {
+        final UserDetails user = repository.findByUsername("ITAG_USER");
+        assertThat(user).isNotNull();
+        final List<UserDetails> userByIds = repository.findByStaffId(user.getStaffId());
+        assertThat(userByIds).isNotEmpty();
+        assertThat(userByIds).extracting("username").contains("ITAG_USER", "ITAG_ADM");
     }
 
     @Test

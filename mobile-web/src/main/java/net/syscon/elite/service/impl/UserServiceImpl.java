@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public UserDetails getUserByStaffId(final Long staffId) {
+	public List<UserDetails> getUserByStaffId(final Long staffId) {
 		return userRepository.findByStaffId(staffId);
 	}
 
@@ -46,9 +46,9 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public CaseLoad getActiveCaseLoad(final Long staffId) {
-		final UserDetails userDetails = userRepository.findByStaffId(staffId);
-		Assert.notNull(userDetails, format("User with staffId %d was not found!", staffId));
+	public CaseLoad getActiveCaseLoad(final String username) {
+		final UserDetails userDetails = userRepository.findByUsername(username);
+		Assert.notNull(userDetails, format("User with username %s was not found!", username));
 		return caseLoadRepository.find(userDetails.getActiveCaseLoadId());
 	}
 
