@@ -4,10 +4,8 @@ jobs:
     working_directory: /tmp/circleci-elite2-api
     docker:
       - image: circleci/openjdk:8-jdk-browsers
-      - image: circleci/node:boron-browsers
     steps:
       - checkout
-      - run: npm i -g raml2html@3.0.1
       - run: ./gradlew build assembleSandBox aggregate -x integTest
       - store_test_results:
           path: mobile-web/build/test-results
