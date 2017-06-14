@@ -1,23 +1,23 @@
 package net.syscon.elite.web.api.resource.impl;
 
-import net.syscon.elite.persistence.InmateRepository;
-import net.syscon.elite.service.CaseNoteService;
-import net.syscon.elite.service.InmatesAlertService;
+import java.util.List;
+
+import javax.inject.Inject;
+
 import net.syscon.elite.web.api.model.*;
-import net.syscon.elite.web.api.resource.BookingResource;
-import net.syscon.util.MetaDataFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-import java.util.List;
-
+import net.syscon.elite.persistence.InmateRepository;
+import net.syscon.elite.service.CaseNoteService;
+import net.syscon.elite.service.InmatesAlertService;
+import net.syscon.elite.web.api.resource.BookingResource;
+import net.syscon.util.MetaDataFactory;
 
 @Component
 public class BookingResourceImpl implements BookingResource {
-
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final InmateRepository inmateRepository;
@@ -38,7 +38,7 @@ public class BookingResourceImpl implements BookingResource {
 		InmateSummaries inmateSummaries = new InmateSummaries(inmates, MetaDataFactory.createMetaData(limit, offset, inmates));
 		return GetBookingResponse.withJsonOK(inmateSummaries);
 	}
-	
+
 	@Override
 	public GetBookingByBookingIdResponse getBookingByBookingId(String bookingId) throws Exception {
 		try {

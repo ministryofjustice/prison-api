@@ -144,6 +144,22 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		return inmates;
 	}
 
+	@Override
+	public List<InmateAssignmentSummary> findMyAssignments(long staffId, String currentCaseLoad, int offset, int limit) {
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_MY_ASSIGNMENTS"), assignedInmateMapping, preOracle12).
+				addRowCount().
+				addOrderBy(true, "lastname", "firstname", "offenderNo").
+				addPagedQuery()
+				.build();
+
+		final RowMapper<InmateAssignmentSummary> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, InmateAssignmentSummary.class, assignedInmateMapping);
+		try {
+			return jdbcTemplate.query(sql, createParams("staffId", staffId, "caseLoadId", currentCaseLoad, "offset", offset, "limit", limit), assignedInmateRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			return Collections.emptyList();
+		}
+	}
+
 	private List<PhysicalMark> findPhysicalMarks(final Long bookingId) {
 		final String sql = getQuery("FIND_PHYSICAL_MARKS_BY_BOOKING");
 		final RowMapper<PhysicalMark> physicalMarkRowMapper = Row2BeanRowMapper.makeMapping(sql, PhysicalMark.class, physicalMarkMapping);

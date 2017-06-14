@@ -1,0 +1,13 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "InmateAssignmentSummaries",
+	"type": "object",
+	"properties": {
+		"inmateAssignmentSummaries" : {
+			"type": "array",
+			"items": { "$ref": "inmateAssignmentSummary" }
+		},
+		"pageMetaData": {"$ref": "pageMetaData"}
+	},
+	"required": ["inmateAssignmentSummaries", "pageMetaData"]
+}

@@ -4,9 +4,11 @@ import net.syscon.elite.exception.EliteRuntimeException;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.security.jwt.TokenManagement;
 import net.syscon.elite.security.jwt.TokenSettings;
+import net.syscon.elite.service.AssignmentService;
 import net.syscon.elite.service.UserService;
 import net.syscon.elite.web.api.model.*;
 import net.syscon.elite.web.api.resource.UsersResource;
+import net.syscon.util.MetaDataFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -27,18 +29,20 @@ public class UsersResourceImpl implements UsersResource {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	@Inject
-	private TokenManagement tokenManagement;
+	private final TokenManagement tokenManagement;
+	private final TokenSettings tokenSettings;
+	private final AuthenticationManager authenticationManager;
+	private final UserService userService;
+	private final AssignmentService assignmentService;
 
 	@Inject
-	private TokenSettings tokenSettings;
-
-	@Inject
-	private AuthenticationManager authenticationManager;
-	
-	@Inject
-	private UserService userService;
-
+	public UsersResourceImpl(TokenManagement tokenManagement, TokenSettings tokenSettings, AuthenticationManager authenticationManager, UserService userService, AssignmentService assignmentService) {
+		this.tokenManagement = tokenManagement;
+		this.tokenSettings = tokenSettings;
+		this.authenticationManager = authenticationManager;
+		this.userService = userService;
+		this.assignmentService = assignmentService;
+	}
 
 	@Override
 	public GetUsersByUsernameResponse getUsersByUsername(String username) throws Exception {
@@ -56,6 +60,13 @@ public class UsersResourceImpl implements UsersResource {
 	public GetUsersMeResponse getUsersMe() throws Exception {
 		final UserDetails user = getCurrentUser();
 		return GetUsersMeResponse.withJsonOK(user);
+	}
+
+	@Override
+	public GetUsersMeBookingAssignmentsResponse getUsersMeBookingAssignments(int offset, int limit) throws Exception {
+		final List<InmateAssignmentSummary> assignments = assignmentService.findMyAssignments(offset, limit);
+		final InmateAssignmentSummaries assignmentSummaries = new InmateAssignmentSummaries(assignments, MetaDataFactory.createMetaData(limit, offset, assignments));
+		return GetUsersMeBookingAssignmentsResponse.withJsonOK(assignmentSummaries);
 	}
 
 	@Override
@@ -129,8 +140,7 @@ public class UsersResourceImpl implements UsersResource {
 	}
 
 	private UserDetails getCurrentUser() {
-		final UserDetails user = userService.getUserByUsername(UserSecurityUtils.getCurrentUsername());
-		return user;
+		return userService.getUserByUsername(UserSecurityUtils.getCurrentUsername());
 	}
 
 	@Override
@@ -156,8 +166,5 @@ public class UsersResourceImpl implements UsersResource {
 			return GetUsersMeActiveCaseLoadResponse.withJsonBadRequest(httpStatus);
 		}
 	}
-
-
-	
 
 }
