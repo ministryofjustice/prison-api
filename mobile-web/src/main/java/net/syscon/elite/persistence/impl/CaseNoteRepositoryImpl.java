@@ -6,11 +6,13 @@ import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.web.api.model.CaseNote;
-import net.syscon.elite.web.api.model.UpdateCaseNote;
+import net.syscon.elite.web.api.model.NewCaseNote;
 import net.syscon.elite.web.api.resource.BookingResource.Order;
 import net.syscon.util.QueryBuilder;
 import oracle.sql.TIMESTAMP;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
@@ -20,7 +22,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -30,14 +31,16 @@ import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 @Repository
 public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRepository {
 
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
 	private final Map<String, FieldMapper> caseNoteMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("OFFENDER_BOOK_ID", 			new FieldMapper("bookingId"))
 			.put("CASE_NOTE_ID", 				new FieldMapper("caseNoteId"))
 			.put("CASE_NOTE_TYPE", 				new FieldMapper("type"))
 			.put("CASE_NOTE_SUB_TYPE", 			new FieldMapper("subType"))
 			.put("NOTE_SOURCE_CODE", 			new FieldMapper("source"))
-			.put("CONTACT_TIME", 				new FieldMapper("occurrenceDateTime", value -> convertDate(value, DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT))))
-			.put("CREATE_DATETIME", 			new FieldMapper("creationDateTime", value -> convertDate(value, DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT))))
+			.put("CONTACT_TIME", 				new FieldMapper("occurrenceDateTime", value -> convertDate(value, DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+			.put("CREATE_DATETIME", 			new FieldMapper("creationDateTime", value -> convertDate(value, DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
 			.put("CASE_NOTE_TEXT", 				new FieldMapper("text"))
 			.put("CREATE_USER_ID", 				new FieldMapper("authorUserId"))
 			.build();
@@ -56,16 +59,14 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
-	public CaseNote getCaseNote(String bookingId, String caseNoteId) {
-//		final String sql = new QueryBuilder.Builder(getQuery("FIND_CASENOTE"), caseNoteMapping)
-//								.build();
+	public CaseNote getCaseNote(String bookingId, long caseNoteId) {
 		final String sql = getQuery("FIND_CASENOTE");
 		final RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, caseNoteMapping);
 		return jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "caseNoteId", caseNoteId, "caseLoadId", getCurrentCaseLoad()), caseNoteRowMapper);
 	}
 
 	@Override
-	public CaseNote createCaseNote(String bookingId, String CaseNoteId, CaseNote entity) {
+	public Long createCaseNote(String bookingId, NewCaseNote caseNote) {
 		GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
 		String sql = new QueryBuilder.Builder(getQuery("INSERT_CASE_NOTE"), caseNoteMapping, preOracle12).build();
 		String user = UserSecurityUtils.getCurrentUsername();
@@ -77,16 +78,16 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 		Date occurrenceDate = createdDate;
 		Date occurrenceTime = createdDateTime;
 
-		if (StringUtils.isNotBlank(entity.getOccurrenceDateTime())) {
-			final LocalDateTime occurrenceDateTime = LocalDateTime.parse(entity.getOccurrenceDateTime(), ISO_LOCAL_DATE_TIME);
+		if (StringUtils.isNotBlank(caseNote.getOccurrenceDateTime())) {
+			final LocalDateTime occurrenceDateTime = LocalDateTime.parse(caseNote.getOccurrenceDateTime(), ISO_LOCAL_DATE_TIME);
 			occurrenceTime = Date.from(occurrenceDateTime.atZone(ZoneId.systemDefault()).toInstant());
 			occurrenceDate = Date.from(occurrenceDateTime.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
-
 		}
+
 		jdbcTemplate.update(sql, createParams("bookingID", bookingId,
-												"text", entity.getText(), 
-												"type", entity.getType(),
-												"subType", entity.getSubType(),
+												"text", caseNote.getText(),
+												"type", caseNote.getType(),
+												"subType", caseNote.getSubType(),
 												"sourceCode", "AUTO",
 												"createDate", createdDate,
 												"createTime", createdDateTime,
@@ -96,39 +97,32 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 												"user_Id", user
 							), generatedKeyHolder, new String[] {"CASE_NOTE_ID" }
 						 );
-		entity.setCaseNoteId(generatedKeyHolder.getKey().longValue());
-		return entity;
+		return generatedKeyHolder.getKey().longValue();
 	}
 
 	@Override
-	public CaseNote updateCaseNote(String bookingId, String caseNoteId, UpdateCaseNote entity) {
-		CaseNote caseNote = getCaseNote(bookingId, caseNoteId);
-		String updatedText = caseNote.getText() + entity.getText();
-		String user = UserSecurityUtils.getCurrentUsername();
+	public void updateCaseNote(String bookingId, long caseNoteId, String updatedText, String userId) {
+
 		String sql = new QueryBuilder.Builder(getQuery("UPDATE_CASE_NOTE"), caseNoteMapping, preOracle12).build();
-		jdbcTemplate.update(sql, createParams("modifyBy", user,
+		jdbcTemplate.update(sql, createParams("modifyBy", userId,
 												"caseNoteId", caseNoteId,
 												"text", updatedText));
-		
-		caseNote.setText(updatedText);
-		return caseNote;
 	}
 
-    private String convertDate(Object value, DateTimeFormatter dateTimeFormatter) {
-        String creationDate = "";
-        if (value != null) {
+    private String convertDate(Object datetime, DateTimeFormatter dateTimeFormatter) {
+        String creationDate = null;
+        if (datetime != null) {
             try {
                 LocalDateTime date;
-                if (value instanceof TIMESTAMP) {
-                    final Timestamp dateTimestamp = ((TIMESTAMP) value).timestampValue();
+                if (datetime instanceof TIMESTAMP) {
+                    final Timestamp dateTimestamp = ((TIMESTAMP) datetime).timestampValue();
                     date = LocalDateTime.ofInstant(dateTimestamp.toInstant(), ZoneId.systemDefault());
                 } else {
-                    date = LocalDateTime.ofInstant(((Date) value).toInstant(), ZoneId.systemDefault());
+                    date = LocalDateTime.ofInstant(((Date) datetime).toInstant(), ZoneId.systemDefault());
                 }
                 creationDate = dateTimeFormatter.format(date);
             } catch (SQLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                log.warn("Date conversion failure {}", datetime);
             }
         }
         return creationDate;

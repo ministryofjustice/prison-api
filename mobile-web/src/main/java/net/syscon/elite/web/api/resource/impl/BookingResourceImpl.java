@@ -1,52 +1,36 @@
 package net.syscon.elite.web.api.resource.impl;
 
-import java.util.List;
-
-import javax.inject.Inject;
-
+import net.syscon.elite.persistence.InmateRepository;
+import net.syscon.elite.service.CaseNoteService;
+import net.syscon.elite.service.InmatesAlertService;
+import net.syscon.elite.web.api.model.*;
+import net.syscon.elite.web.api.resource.BookingResource;
+import net.syscon.util.MetaDataFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
-import net.syscon.elite.persistence.InmateRepository;
-import net.syscon.elite.service.CaseNoteService;
-import net.syscon.elite.service.InmatesAlertService;
-import net.syscon.elite.web.api.model.Alert;
-import net.syscon.elite.web.api.model.Alerts;
-import net.syscon.elite.web.api.model.Alias;
-import net.syscon.elite.web.api.model.AssignedInmate;
-import net.syscon.elite.web.api.model.CaseNote;
-import net.syscon.elite.web.api.model.CaseNotes;
-import net.syscon.elite.web.api.model.HttpStatus;
-import net.syscon.elite.web.api.model.InmateDetails;
-import net.syscon.elite.web.api.model.InmateSummaries;
-import net.syscon.elite.web.api.model.UpdateCaseNote;
-import net.syscon.elite.web.api.resource.BookingResource;
-import net.syscon.util.MetaDataFactory;
+import javax.inject.Inject;
+import java.util.List;
 
 
 @Component
 public class BookingResourceImpl implements BookingResource {
 
-
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
+	private final InmateRepository inmateRepository;
+	private final CaseNoteService caseNoteService;
+	private final InmatesAlertService inmateAlertService;
 
-	private InmateRepository inmateRepository;
-	private CaseNoteService caseNoteService;
-	private InmatesAlertService inmateAlertService;
-	
 	@Inject
-	public void setCaseNoteService(final CaseNoteService caseNoteService) { this.caseNoteService = caseNoteService; }
-	
-	@Inject
-	public void setInmateAlertService(InmatesAlertService inmateAlertService) { this.inmateAlertService = inmateAlertService; }
-	
-	@Inject
-	public void setInmateRepository(final InmateRepository inmateRepository) { this.inmateRepository = inmateRepository; }
+	public BookingResourceImpl(InmateRepository inmateRepository, CaseNoteService caseNoteService, InmatesAlertService inmateAlertService) {
+		this.inmateRepository = inmateRepository;
+		this.caseNoteService = caseNoteService;
+		this.inmateAlertService = inmateAlertService;
+	}
 
-	
 	@Override
 	public GetBookingResponse getBooking(String query, String orderBy, Order order, int offset, int limit)
 			throws Exception {
@@ -72,29 +56,28 @@ public class BookingResourceImpl implements BookingResource {
 	public GetBookingByBookingIdCaseNotesResponse getBookingByBookingIdCaseNotes(String bookingId, String query,
 			String orderBy, Order order, int offset, int limit) throws Exception {
 		
-		List<CaseNote> caseNotes = this.caseNoteService.getCaseNotes(bookingId, query, orderBy, order, offset, limit);
+		List<CaseNote> caseNotes = caseNoteService.getCaseNotes(bookingId, query, orderBy, order, offset, limit);
 		CaseNotes cases = new CaseNotes(caseNotes, MetaDataFactory.createMetaData(limit, offset, caseNotes));
 		return GetBookingByBookingIdCaseNotesResponse.withJsonOK(cases);
 	}
-	
+
 	@Override
-	public PostBookingByBookingIdCaseNotesResponse postBookingByBookingIdCaseNotes(String bookingId, CaseNote entity)
-			throws Exception {
-		CaseNote caseNote = this.caseNoteService.createCaseNote(bookingId, "", entity);
+	public PostBookingByBookingIdCaseNotesResponse postBookingByBookingIdCaseNotes(String bookingId, NewCaseNote newCaseNote) throws Exception {
+		CaseNote caseNote = caseNoteService.createCaseNote(bookingId, newCaseNote);
 		return PostBookingByBookingIdCaseNotesResponse.withJsonCreated(caseNote);
 	}
 	
 	@Override
 	public GetBookingByBookingIdCaseNotesByCaseNoteIdResponse getBookingByBookingIdCaseNotesByCaseNoteId(
 			String bookingId, String caseNoteId) throws Exception {
-		CaseNote caseNote = this.caseNoteService.getCaseNote(bookingId, caseNoteId);
+		final CaseNote caseNote = caseNoteService.getCaseNote(bookingId, Long.valueOf(caseNoteId));
 		return GetBookingByBookingIdCaseNotesByCaseNoteIdResponse.withJsonOK(caseNote);
 	}
 	
 	@Override
 	public GetBookingByBookingIdAlertsResponse getBookingByBookingIdAlerts(String bookingId, String orderBy,
 			Order order, String query, int offset, int limit) throws Exception {
-		List<Alert> alerts = this.inmateAlertService.getInmateAlerts(bookingId, query, orderBy, order, offset, limit);
+		List<Alert> alerts = inmateAlertService.getInmateAlerts(bookingId, query, orderBy, order, offset, limit);
 		Alerts alertsObj = new Alerts(alerts, MetaDataFactory.createMetaData(limit, offset, alerts));
 		return GetBookingByBookingIdAlertsResponse.withJsonOK(alertsObj);
 	}
@@ -102,7 +85,7 @@ public class BookingResourceImpl implements BookingResource {
 	@Override
 	public GetBookingByBookingIdAlertsByAlertIdResponse getBookingByBookingIdAlertsByAlertId(String bookingId,
 			String alertId) throws Exception {
-		Alert alert = this.inmateAlertService.getInmateAlert(bookingId, alertId);
+		Alert alert = inmateAlertService.getInmateAlert(bookingId, alertId);
 		return GetBookingByBookingIdAlertsByAlertIdResponse.withJsonOK(alert);
 	}
 	
@@ -110,7 +93,7 @@ public class BookingResourceImpl implements BookingResource {
 	public GetBookingByBookingIdAliasesResponse getBookingByBookingIdAliases(String bookingId, String orderBy,
 			Order order, int offset, int limit) throws Exception {
 		try {
-			List<Alias> aliases = this.inmateRepository.findInmateAliases(Long.valueOf(bookingId), orderBy, order, offset, limit);
+			List<Alias> aliases = inmateRepository.findInmateAliases(Long.valueOf(bookingId), orderBy, order, offset, limit);
 			return GetBookingByBookingIdAliasesResponse.withJsonOK(aliases);
 		} catch (final EmptyResultDataAccessException ex) {
 			final String message = String.format("Booking \"%s\" not found", bookingId);
@@ -123,7 +106,7 @@ public class BookingResourceImpl implements BookingResource {
 	@Override
 	public PutBookingByBookingIdCaseNotesByCaseNoteIdResponse putBookingByBookingIdCaseNotesByCaseNoteId(
 			String bookingId, String caseNoteId, UpdateCaseNote entity) throws Exception {
-		CaseNote caseNote = this.caseNoteService.updateCaseNote(bookingId, caseNoteId, entity);
+		CaseNote caseNote = caseNoteService.updateCaseNote(bookingId, Long.valueOf(caseNoteId), entity.getText());
 		return PutBookingByBookingIdCaseNotesByCaseNoteIdResponse.withJsonCreated(caseNote);
 	}
 

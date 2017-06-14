@@ -61,10 +61,10 @@ public class CaseNoteSteps {
         return response.getBody();
     }
 
-    public CaseNote updateCaseNote(final UpdateCaseNote updatedCaseNote) {
-        ResponseEntity<CaseNote> response = restTemplate.exchange("/api/booking/6000/caseNotes/" + updatedCaseNote.getCaseNoteId(), HttpMethod.PUT, createEntity(updatedCaseNote, null), CaseNote.class);
+    public CaseNote updateCaseNote(final long caseNoteId, final UpdateCaseNote updatedCaseNote) {
+        ResponseEntity<CaseNote> response = restTemplate.exchange("/api/booking/6000/caseNotes/" + caseNoteId, HttpMethod.PUT, createEntity(updatedCaseNote, null), CaseNote.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        return getCaseNote(updatedCaseNote.getCaseNoteId());
+        return getCaseNote(caseNoteId);
     }
 
     private HttpEntity createEntity(Object entity, Map<String, String> extraHeaders) {

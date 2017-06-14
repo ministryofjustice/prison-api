@@ -4,7 +4,7 @@ import net.syscon.elite.persistence.CaseNoteRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.web.api.model.CaseNote;
-import net.syscon.elite.web.api.model.UpdateCaseNote;
+import net.syscon.elite.web.api.model.NewCaseNote;
 import net.syscon.elite.web.api.resource.BookingResource.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +21,7 @@ import static java.lang.String.format;
 @Service
 public class CaseNoteServiceImpl implements CaseNoteService {
 
-    private final static String AMEND_CASE_NOTE_FORMAT = " ...[%s updated the case notes on %s] %s";
+    private final static String AMEND_CASE_NOTE_FORMAT = "%s ...[%s updated the case notes on %s] %s";
 
     private final CaseNoteRepository caseNoteRepository;
 
@@ -43,24 +43,30 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public CaseNote getCaseNote(final String bookingId, final String caseNoteId) {
+	public CaseNote getCaseNote(final String bookingId, final long caseNoteId) {
 		return caseNoteRepository.getCaseNote(bookingId, caseNoteId);
 	}
 
 	@Override
-	public CaseNote createCaseNote(final String bookingId, final String caseNoteId, final CaseNote entity) {
+	public CaseNote createCaseNote(final String bookingId, final NewCaseNote caseNote) {
 		//TODO: First - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
-		return caseNoteRepository.createCaseNote(bookingId, caseNoteId, entity);
+        final Long caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote);
+        return caseNoteRepository.getCaseNote(bookingId, caseNoteId);
+
 	}
 
 	@Override
-	public CaseNote updateCaseNote(final String bookingId, final String caseNoteId, final UpdateCaseNote entity) {
-		entity.setText(format(AMEND_CASE_NOTE_FORMAT,
-				UserSecurityUtils.getCurrentUsername(),
-				LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)),
-				entity.getText()));
-		
-		return caseNoteRepository.updateCaseNote(bookingId, caseNoteId, entity);
+	public CaseNote updateCaseNote(final String bookingId, final long caseNoteId, final String newCaseNoteText) {
+
+        final CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId);
+        final String amendedText = format(AMEND_CASE_NOTE_FORMAT,
+                caseNote.getText(),
+                UserSecurityUtils.getCurrentUsername(),
+                LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)),
+                newCaseNoteText);
+
+        caseNoteRepository.updateCaseNote(bookingId, caseNoteId, amendedText, UserSecurityUtils.getCurrentUsername());
+        return caseNoteRepository.getCaseNote(bookingId, caseNoteId);
 	}
 
 }

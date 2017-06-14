@@ -1,7 +1,6 @@
 package net.syscon.elite.executableSpecification;
 
 import cucumber.api.DataTable;
-import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -14,7 +13,6 @@ import net.syscon.elite.web.api.model.UpdateCaseNote;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -90,7 +88,7 @@ public class StepDefinitions {
     @Given("^the created case note is updated with text \"([^\"]*)\"$")
     public void theCaseNoteIsUpdatedWithText(String caseNoteText) throws Throwable {
         caseNote.setToken(user.getToken());
-        updatedCaseNote = caseNote.updateCaseNote(new UpdateCaseNote(seededCaseNote.getCaseNoteId(), caseNoteText));
+        updatedCaseNote = caseNote.updateCaseNote(seededCaseNote.getCaseNoteId(), new UpdateCaseNote(caseNoteText));
     }
 
     @Then("^case note is successfully updated with \"([^\"]*)\"$")

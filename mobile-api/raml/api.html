@@ -1769,16 +1769,12 @@
 </code></pre></div><div class="tab-pane" id="booking__bookingId__caseNotes_get_securedby"><h1>Secured by jwt</h1><h3>Headers</h3><ul><li><strong>Authorization</strong>: <em>(string)</em><p>Used to send a valid JWT. Do not use query string parameter.</p><p><strong>Example</strong>:</p><pre>Authorization: Bearer eyJpc3MiOiJzY290Y2guaW8iLCJleHAiOjEzMDA4MTkzODAsIm5hbWUiOiJDaHJpcyBTZXZpbGxlamEiLCJhZG1pbiI6dHJ1ZX0</pre></li></ul></div></div></div></div></div></div><div class="modal fade" tabindex="0" id="booking__bookingId__caseNotes_post"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span> <span class="parent">/booking</span>/{bookingId}/caseNotes</h4></div><div class="modal-body"><div class="alert alert-info"><p>Entry of new case note under a booking.</p></div><div class="alert alert-warning"><span class="glyphicon glyphicon-lock" title="Authentication required"></span> Secured by <b>jwt</b><p>Elite API uses Json Web Token (JWT) to authenticate most requests</p></div><ul class="nav nav-tabs"><li class="active"><a href="#booking__bookingId__caseNotes_post_request" data-toggle="tab">Request</a></li><li><a href="#booking__bookingId__caseNotes_post_response" data-toggle="tab">Response</a></li><li><a href="#booking__bookingId__caseNotes_post_securedby" data-toggle="tab">Security</a></li></ul><div class="tab-content"><div class="tab-pane active" id="booking__bookingId__caseNotes_post_request"><h3>URI Parameters</h3><ul><li><strong>bookingId</strong>: <em>required (string)</em></li></ul><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"type": "object",
-	"title": "CaseNote",
+	"title": "NewCaseNote",
 	"properties": {
-		"caseNoteId":   { "type": "integer" },
 		"bookingId":   { "type": "string" },
 		"type":   { "type": "string" },
 		"subType": { "type": "string" },
-		"source": { "type": "string" },
-		"creationDateTime":   { "type": "string", "format": "datetime" },
-		"occurrenceDateTime":  { "type": "string", "format": "datetime" },
-		"authorUserId": { "type": "string" },
+		"occurrenceDateTime":  { "type": "string", "format": "datetime-only" },
 		"text": { "type": "string" }
 	},
 	"required": ["caseNoteId", "inmateId", "type", "subType", "text"]
@@ -1792,8 +1788,8 @@
 		"type":   { "type": "string" },
 		"subType": { "type": "string" },
 		"source": { "type": "string" },
-		"creationDateTime":   { "type": "string", "format": "datetime" },
-		"occurrenceDateTime":  { "type": "string", "format": "datetime" },
+		"creationDateTime":   { "type": "string", "format": "datetime-only" },
+		"occurrenceDateTime":  { "type": "string", "format": "datetime-only" },
 		"authorUserId": { "type": "string" },
 		"text": { "type": "string" }
 	},
@@ -1888,8 +1884,8 @@
 		"type":   { "type": "string" },
 		"subType": { "type": "string" },
 		"source": { "type": "string" },
-		"creationDateTime":   { "type": "string", "format": "datetime" },
-		"occurrenceDateTime":  { "type": "string", "format": "datetime" },
+		"creationDateTime":   { "type": "string", "format": "datetime-only" },
+		"occurrenceDateTime":  { "type": "string", "format": "datetime-only" },
 		"authorUserId": { "type": "string" },
 		"text": { "type": "string" }
 	},
@@ -1944,8 +1940,8 @@
 		"type":   { "type": "string" },
 		"subType": { "type": "string" },
 		"source": { "type": "string" },
-		"creationDateTime":   { "type": "string", "format": "datetime" },
-		"occurrenceDateTime":  { "type": "string", "format": "datetime" },
+		"creationDateTime":   { "type": "string", "format": "datetime-only" },
+		"occurrenceDateTime":  { "type": "string", "format": "datetime-only" },
 		"authorUserId": { "type": "string" },
 		"text": { "type": "string" }
 	},
@@ -2075,10 +2071,9 @@
 	"type": "object",
 	"title": "InputCaseNote",
 	"properties": {
-		"caseNoteId":   { "type": "integer" },
 		"text": { "type": "string" }
 	},
-	"required": ["caseNoteId", "text"]
+	"required": ["text"]
 }</code></pre></div><div class="tab-pane" id="booking__bookingId__caseNotes__caseNoteId__put_response"><h2>HTTP status code <a href="http://httpstatus.es/201" target="_blank">201</a></h2><p>The Case Note has been recorded. The updated object is returned including the status.</p><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"type": "object",
@@ -2089,8 +2084,8 @@
 		"type":   { "type": "string" },
 		"subType": { "type": "string" },
 		"source": { "type": "string" },
-		"creationDateTime":   { "type": "string", "format": "datetime" },
-		"occurrenceDateTime":  { "type": "string", "format": "datetime" },
+		"creationDateTime":   { "type": "string", "format": "datetime-only" },
+		"occurrenceDateTime":  { "type": "string", "format": "datetime-only" },
 		"authorUserId": { "type": "string" },
 		"text": { "type": "string" }
 	},
@@ -2185,8 +2180,8 @@
 		"type":   { "type": "string" },
 		"subType": { "type": "string" },
 		"source": { "type": "string" },
-		"creationDateTime":   { "type": "string", "format": "datetime" },
-		"occurrenceDateTime":  { "type": "string", "format": "datetime" },
+		"creationDateTime":   { "type": "string", "format": "datetime-only" },
+		"occurrenceDateTime":  { "type": "string", "format": "datetime-only" },
 		"authorUserId": { "type": "string" },
 		"text": { "type": "string" }
 	},
