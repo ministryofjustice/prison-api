@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import net.syscon.elite.service.AssignmentService;
 import net.syscon.elite.web.api.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,14 +24,12 @@ public class BookingResourceImpl implements BookingResource {
 	private final InmateRepository inmateRepository;
 	private final CaseNoteService caseNoteService;
 	private final InmatesAlertService inmateAlertService;
-	private final AssignmentService assignmentService;
 
 	@Inject
-	public BookingResourceImpl(InmateRepository inmateRepository, CaseNoteService caseNoteService, InmatesAlertService inmateAlertService, AssignmentService assignmentService) {
+	public BookingResourceImpl(InmateRepository inmateRepository, CaseNoteService caseNoteService, InmatesAlertService inmateAlertService) {
 		this.inmateRepository = inmateRepository;
 		this.caseNoteService = caseNoteService;
 		this.inmateAlertService = inmateAlertService;
-		this.assignmentService = assignmentService;
 	}
 
 	@Override
@@ -41,13 +38,6 @@ public class BookingResourceImpl implements BookingResource {
 		final List<AssignedInmate> inmates = inmateRepository.findAllInmates(query, offset, limit, orderBy, order);
 		InmateSummaries inmateSummaries = new InmateSummaries(inmates, MetaDataFactory.createMetaData(limit, offset, inmates));
 		return GetBookingResponse.withJsonOK(inmateSummaries);
-	}
-
-	@Override
-	public GetBookingAssignmentsResponse getBookingAssignments(int offset, int limit) throws Exception {
-		final List<InmateAssignmentSummary> assignments = assignmentService.findMyAssignments(offset, limit);
-		final InmateAssignmentSummaries assignmentSummaries = new InmateAssignmentSummaries(assignments, MetaDataFactory.createMetaData(limit, offset, assignments));
-		return GetBookingAssignmentsResponse.withJsonOK(assignmentSummaries);
 	}
 
 	@Override

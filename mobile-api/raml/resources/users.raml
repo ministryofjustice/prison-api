@@ -6,6 +6,12 @@
   description: Details of the current logged user
   type: { get-item: { schema: userDetails } }
 
+/me/bookingAssignments:
+  description: Offender Assignments for this logged in user
+  type: { get-collection: { collectionSchema: inmateAssignmentSummaries } }
+  is: [
+    pageable
+  ]
 
 /me/caseLoads:
   description: Returns the list of caseloads associated to the user
