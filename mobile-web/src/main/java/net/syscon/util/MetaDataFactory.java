@@ -1,14 +1,14 @@
 package net.syscon.util;
 
-import static net.syscon.elite.core.Constants.RECORD_COUNT;
-
-import java.lang.reflect.Field;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import org.springframework.util.ReflectionUtils;
 import net.syscon.elite.exception.EliteRuntimeException;
 import net.syscon.elite.web.api.model.PageMetaData;
+import org.springframework.util.ReflectionUtils;
+
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Map;
+
+import static net.syscon.elite.core.Constants.RECORD_COUNT;
 
 public class MetaDataFactory {
 	
@@ -31,7 +31,7 @@ public class MetaDataFactory {
 				@SuppressWarnings("unchecked")
 				Map<String, Object> additionalProperties = (Map<String, Object>) ReflectionUtils.getField(field, item);
 				if (additionalProperties != null) {
-					BigDecimal value = (BigDecimal) additionalProperties.get(RECORD_COUNT);
+				    Number value = (Number) additionalProperties.get(RECORD_COUNT);
 					if (value != null)  {
 						recordCount = value.longValue();
 					}
@@ -55,12 +55,9 @@ public class MetaDataFactory {
 					additionalProperties.remove(RECORD_COUNT);
 					additionalPropertiesField.setAccessible(additionalPropertiesAcessible);
 				});
-
 			}
-			
-			
 		}
+
 		return metaData;
 	}
-
 }
