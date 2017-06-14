@@ -70,16 +70,21 @@ public class QueryUtil {
 			if (value.contains("|")) {
 				value = "(" + value.replaceAll("\\|", ",") + ")";
 			}
+
+			String sqlFieldName = getSqlFieldName(fieldMap, fieldName);
+			FieldMapper fieldMapper = fieldMap.get(sqlFieldName);
+			String encodedValue = fieldMapper.getEncodedValue(value);
+
 			stringBuilder.append(" ")
 				.append(!"".equals(connector)? getSqlOperator(connector): "")
 				.append(" ")
 				.append(isPrecedence && fieldItem.equals("and:"+fields[0])? "(": "")
 				.append(" ")
-				.append(getSqlFieldName(fieldMap, fieldName))
+				.append(sqlFieldName)
 				.append(" ")
 				.append(getSqlOperator(operator))
 				.append(" ")
-				.append(!"".equals(format)? "TO_DATE("+ value + ", " + format + ")": value)
+				.append(!"".equals(format)? "TO_DATE("+ encodedValue + ", " + format + ")": encodedValue)
 				.append(" ")
 				.append(isPrecedence && fieldItem.equals(fields[fields.length-1])? ")": "")
 				.append(" ");
@@ -93,6 +98,4 @@ public class QueryUtil {
 		}
 		return result;
 	}
-	
-
 }

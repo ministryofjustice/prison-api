@@ -22,6 +22,8 @@ public class FieldMapper {
 	private Function<Field, Void> setterFunction;
 	private Function<Object, Object> decodeFunction;
 
+	// encode value for query
+	private Function<String, String> encodeFunction;
 
 	public FieldMapper(String name) {
 		this.name = name;
@@ -36,6 +38,14 @@ public class FieldMapper {
 		this.name = name;
 		this.decodeFunction = decodeFunction;
 		this.setterFunction = setterFunction;
+	}
+
+	public FieldMapper(String name,  Function<Object, Object> decodeFunction, Function<Field, Void> setterFunction,
+					   Function<String, String> encodeFunction) {
+		this.name = name;
+		this.decodeFunction = decodeFunction;
+		this.setterFunction = setterFunction;
+		this.encodeFunction = encodeFunction;
 	}
 
 	public void setSetterFunction(Function<Field, Void> setterFunction) {
@@ -126,10 +136,20 @@ public class FieldMapper {
 			logger.warn("Failure setting the field \"" + name + "\" on " + target.getClass().getName());
 		}
 	}
-	
+
+	public String getEncodedValue(String value) {
+		String encodedValue;
+
+		if (encodeFunction == null) {
+			encodedValue = value;
+		} else {
+			encodedValue = encodeFunction.apply(value);
+		}
+
+		return encodedValue;
+	}
+
 	public String getName() {
 		return name;
 	}
-
-
 }

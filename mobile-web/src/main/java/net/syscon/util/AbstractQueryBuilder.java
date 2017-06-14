@@ -44,7 +44,7 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
             List<String> queryList = QueryUtil.checkPrecdencyAndSplit(query, new ArrayList<>());
 
             queryList.stream()
-                    .filter(queryItem -> queryItem.length() > 0)
+                    .filter(StringUtils::isNotBlank)
                     .forEach(queryItem -> {
                         if (queryItem.contains("(") && queryItem.contains(")")) {
                             String modifiedQueryItem = queryItem

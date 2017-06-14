@@ -102,14 +102,24 @@ public class StepDefinitions {
         assertThat(updatedCaseNote.getText()).contains(seededCaseNote.getText());
     }
 
-    @When("^a booking search is made with full \"([^\"]*)\" of existing offender$")
+    @When("^a booking search is made with full last \"([^\"]*)\" of existing offender$")
     public void aBookingSearchIsMadeWithFullLastNameOfExistingOffender(String arg0) throws Throwable {
         booking.fullLastNameSearch(arg0);
     }
 
-    @When("^a booking search is made with partial \"([^\"]*)\" of existing offender$")
+    @When("^a booking search is made with partial last \"([^\"]*)\" of existing offender$")
     public void aBookingSearchIsMadeWithPartialLastNameOfExistingOffender(String arg0) throws Throwable {
         booking.partialLastNameSearch(arg0);
+    }
+
+    @When("^a booking search is made with full first \"([^\"]*)\" of existing offender$")
+    public void aBookingSearchIsMadeWithFullFirstNameOfExistingOffender(String arg0) throws Throwable {
+        booking.fullFirstNameSearch(arg0);
+    }
+
+    @When("^a booking search is made with partial first \"([^\"]*)\" of existing offender$")
+    public void aBookingSearchIsMadeWithPartialFirstNameOfExistingOffender(String arg0) throws Throwable {
+        booking.partialFirstNameSearch(arg0);
     }
 
     @Then("^expected \"([^\"]*)\" of offender records are returned$")
@@ -136,7 +146,12 @@ public class StepDefinitions {
 
     @Then("^all offender records are returned$")
     public void allOffenderRecordsAreReturned() throws Throwable {
-        booking.verifySearchCount(6);
+        booking.verifySearchCount(9);
+    }
+
+    @And("^offender last names match \"([^\"]*)\"$")
+    public void offenderLastNamesMatch(String arg0) throws Throwable {
+        booking.verifyLastNames(arg0);
     }
 
     @TestConfiguration
