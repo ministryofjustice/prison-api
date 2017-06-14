@@ -10,17 +10,24 @@ Feature: Booking Search
   A logged in staff user can search for bookings based on a matching first name and last name.
   A logged in staff user can search for bookings based on a matching first name or last name.
 
-  Scenario Outline: Search based on full offender last name
+  Background:
     Given a user has authenticated with the API
+
+  Scenario: Search all offenders
+    When a booking search is made without any criteria
+    Then all offender records are returned
+
+  Scenario Outline: Search based on full offender last name
     When a booking search is made with full "<last name>" of existing offender
     Then expected "<number>" of offender records are returned
+    And offender first names match "<first name list>"
+    And offender middle names match "<middle name list>"
 
     Examples:
-      | last name | number |
-      | ANDERSON  | 2      |
+      | last name | number | first name list | middle name list |
+      | ANDERSON  | 2      | ARTHUR,GILLIAN  | BORIS,EVE        |
 
   Scenario Outline: Search based on partial offender last name
-    Given a user has authenticated with the API
     When a booking search is made with partial "<last name>" of existing offender
     Then expected "<number>" of offender records are returned
 
