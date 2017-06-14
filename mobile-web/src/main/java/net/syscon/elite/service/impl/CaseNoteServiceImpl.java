@@ -12,26 +12,24 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
+import java.time.format.FormatStyle;
 import java.util.List;
-import java.text.SimpleDateFormat;
+
+import static java.lang.String.format;
 
 @Transactional
 @Service
-public class CaseNoteServiceImpl implements CaseNoteService{
-	
-	//Inject Case Note Repository.
-	private CaseNoteRepository caseNoteRepository;
-	private final String amendTextNotePrefix = "...[";
-	private final String amendTextNote = " updated the case note on ";
-	private final String amendTextNoteSuffix = "] ";
+public class CaseNoteServiceImpl implements CaseNoteService {
+
+    private final static String AMEND_CASE_NOTE_FORMAT = " ...[%s updated the case notes on %s] %s";
+
+    private final CaseNoteRepository caseNoteRepository;
+
 	@Inject
-	public void setCaseNoteRepository(final CaseNoteRepository caseNoteRepository) {
+	public CaseNoteServiceImpl(final CaseNoteRepository caseNoteRepository) {
 		this.caseNoteRepository = caseNoteRepository;
 	}
 	
-	//Inject Reference Code repository
-
 	@Override
 	@Transactional(readOnly = true)
 	public List<CaseNote> getCaseNotes(final String bookingId, String query, String orderBy, Order order, final int offset,
@@ -57,17 +55,10 @@ public class CaseNoteServiceImpl implements CaseNoteService{
 
 	@Override
 	public CaseNote updateCaseNote(final String bookingId, final String caseNoteId, final UpdateCaseNote entity) {
-		//Append "...[<userId> updated the case note on <datetime>] <text provided>".
-		final String user = UserSecurityUtils.getCurrentUsername();
-		final LocalDateTime now = LocalDateTime.now();
-		final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-
-		final String textNoteBuilder = amendTextNotePrefix + user +
-				amendTextNote +
-				now.format(formatter) +
-				amendTextNoteSuffix +
-				entity.getText();
-		entity.setText(textNoteBuilder);
+		entity.setText(format(AMEND_CASE_NOTE_FORMAT,
+				UserSecurityUtils.getCurrentUsername(),
+				LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)),
+				entity.getText()));
 		
 		return caseNoteRepository.updateCaseNote(bookingId, caseNoteId, entity);
 	}
