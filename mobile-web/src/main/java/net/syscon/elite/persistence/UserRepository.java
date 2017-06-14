@@ -1,15 +1,14 @@
 package net.syscon.elite.persistence;
 
 
+import net.syscon.elite.web.api.model.UserDetails;
 
 import java.util.List;
-
-import net.syscon.elite.web.api.model.UserDetails;
 
 public interface UserRepository {
 	
 	UserDetails findByUsername(String username);
-	UserDetails findByStaffId(Long staffId);
+	List<UserDetails> findByStaffId(Long staffId);
 	List<String> findRolesByUsername(String username);
 	int updateCurrentLoad(final Long staffId, final String caseLoadId);
 }

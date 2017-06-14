@@ -1,15 +1,15 @@
 package net.syscon.elite.service;
 
-import java.util.List;
-
 import net.syscon.elite.web.api.model.CaseLoad;
 import net.syscon.elite.web.api.model.UserDetails;
 
+import java.util.List;
+
 public interface UserService {
 	
-	UserDetails getUserByStaffId(Long staffId);
+	List<UserDetails> getUserByStaffId(Long staffId);
 	UserDetails getUserByUsername(String username);
-	CaseLoad getActiveCaseLoad(Long staffId);
+	CaseLoad getActiveCaseLoad(final String username);
 	List<CaseLoad> getCaseLoads(Long staffId);
 	void setActiveCaseLoad(Long staffId, String caseLoadId);
 
