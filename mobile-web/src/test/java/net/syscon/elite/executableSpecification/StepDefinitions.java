@@ -89,7 +89,7 @@ public class StepDefinitions {
 
     @Given("^the created case note is updated with text \"([^\"]*)\"$")
     public void theCaseNoteIsUpdatedWithText(String caseNoteText) throws Throwable {
-        updatedCaseNote = caseNote.updateCaseNote(new UpdateCaseNote(seededCaseNote.getCaseNoteId(), caseNoteText));
+        updatedCaseNote = caseNote.updateCaseNote(seededCaseNote.getCaseNoteId(), new UpdateCaseNote(caseNoteText));
     }
 
     @Then("^case note is successfully updated with \"([^\"]*)\"$")

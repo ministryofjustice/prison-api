@@ -4,7 +4,7 @@ import net.syscon.elite.persistence.CaseNoteRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.web.api.model.CaseNote;
-import net.syscon.elite.web.api.model.UpdateCaseNote;
+import net.syscon.elite.web.api.model.NewCaseNote;
 import net.syscon.elite.web.api.resource.BookingResource.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,26 +12,24 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
+import java.time.format.FormatStyle;
 import java.util.List;
-import java.text.SimpleDateFormat;
+
+import static java.lang.String.format;
 
 @Transactional
 @Service
-public class CaseNoteServiceImpl implements CaseNoteService{
-	
-	//Inject Case Note Repository.
-	private CaseNoteRepository caseNoteRepository;
-	private final String amendTextNotePrefix = "...[";
-	private final String amendTextNote = " updated the case note on ";
-	private final String amendTextNoteSuffix = "] ";
+public class CaseNoteServiceImpl implements CaseNoteService {
+
+    private final static String AMEND_CASE_NOTE_FORMAT = "%s ...[%s updated the case notes on %s] %s";
+
+    private final CaseNoteRepository caseNoteRepository;
+
 	@Inject
-	public void setCaseNoteRepository(final CaseNoteRepository caseNoteRepository) {
+	public CaseNoteServiceImpl(final CaseNoteRepository caseNoteRepository) {
 		this.caseNoteRepository = caseNoteRepository;
 	}
 	
-	//Inject Reference Code repository
-
 	@Override
 	@Transactional(readOnly = true)
 	public List<CaseNote> getCaseNotes(final String bookingId, String query, String orderBy, Order order, final int offset,
@@ -45,31 +43,30 @@ public class CaseNoteServiceImpl implements CaseNoteService{
 
 	@Override
 	@Transactional(readOnly = true)
-	public CaseNote getCaseNote(final String bookingId, final String caseNoteId) {
+	public CaseNote getCaseNote(final String bookingId, final long caseNoteId) {
 		return caseNoteRepository.getCaseNote(bookingId, caseNoteId);
 	}
 
 	@Override
-	public CaseNote createCaseNote(final String bookingId, final String caseNoteId, final CaseNote entity) {
+	public CaseNote createCaseNote(final String bookingId, final NewCaseNote caseNote) {
 		//TODO: First - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
-		return caseNoteRepository.createCaseNote(bookingId, caseNoteId, entity);
+        final Long caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote);
+        return caseNoteRepository.getCaseNote(bookingId, caseNoteId);
+
 	}
 
 	@Override
-	public CaseNote updateCaseNote(final String bookingId, final String caseNoteId, final UpdateCaseNote entity) {
-		//Append "...[<userId> updated the case note on <datetime>] <text provided>".
-		final String user = UserSecurityUtils.getCurrentUsername();
-		final LocalDateTime now = LocalDateTime.now();
-		final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+	public CaseNote updateCaseNote(final String bookingId, final long caseNoteId, final String newCaseNoteText) {
 
-		final String textNoteBuilder = amendTextNotePrefix + user +
-				amendTextNote +
-				now.format(formatter) +
-				amendTextNoteSuffix +
-				entity.getText();
-		entity.setText(textNoteBuilder);
-		
-		return caseNoteRepository.updateCaseNote(bookingId, caseNoteId, entity);
+        final CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId);
+        final String amendedText = format(AMEND_CASE_NOTE_FORMAT,
+                caseNote.getText(),
+                UserSecurityUtils.getCurrentUsername(),
+                LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)),
+                newCaseNoteText);
+
+        caseNoteRepository.updateCaseNote(bookingId, caseNoteId, amendedText, UserSecurityUtils.getCurrentUsername());
+        return caseNoteRepository.getCaseNote(bookingId, caseNoteId);
 	}
 
 }
