@@ -1,7 +1,6 @@
 package net.syscon.elite.persistence;
 
-import net.syscon.elite.web.api.model.AssignedInmate;
-import net.syscon.elite.web.api.model.InmateDetails;
+import net.syscon.elite.web.api.model.CaseLoad;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static net.syscon.elite.web.api.resource.BookingResource.Order.asc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
@@ -29,10 +27,10 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = PersistenceConfigs.class)
-public class InmateRepositoryTest {
+public class CaseLoadRepositoryTest {
 
     @Autowired
-    private InmateRepository repository;
+    private CaseLoadRepository repository;
 
     @Before
     public final void setup() {
@@ -40,16 +38,19 @@ public class InmateRepositoryTest {
     }
 
     @Test
-    public final void testFindAllImates() {
-        final List<AssignedInmate> foundInmates = repository.findAllInmates("", 0, 10, "firstName", asc);
-        assertThat(foundInmates).isNotEmpty();
+    public final void testFindCaseload() {
+        final CaseLoad caseload = repository.find("LEI");
+        assertThat(caseload).isNotNull();
+        assertThat(caseload.getDescription()).isEqualTo("LEEDS (HMP)");
     }
 
 
     @Test
     public final void testGetOffender() {
-        final InmateDetails inmate = repository.findInmate(-1L);
-        assertThat(inmate).isNotNull();
+        final List<CaseLoad> caseLoadsByStaffId = repository.findCaseLoadsByStaffId(-2L);
+        assertThat(caseLoadsByStaffId).isNotEmpty();
+        assertThat(caseLoadsByStaffId).hasSize(3);
+        assertThat(caseLoadsByStaffId).extracting("caseLoadId").contains("LEI", "BXI", "WAI");
     }
-
+    
 }
