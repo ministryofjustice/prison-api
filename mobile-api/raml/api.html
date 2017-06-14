@@ -421,140 +421,7 @@
   "developerMessage": "Unexpected server error",
   "moreInfo": ""
 }
-</code></pre></div><div class="tab-pane" id="users_me_get_securedby"><h1>Secured by jwt</h1><h3>Headers</h3><ul><li><strong>Authorization</strong>: <em>(string)</em><p>Used to send a valid JWT. Do not use query string parameter.</p><p><strong>Example</strong>:</p><pre>Authorization: Bearer eyJpc3MiOiJzY290Y2guaW8iLCJleHAiOjEzMDA4MTkzODAsIm5hbWUiOiJDaHJpcyBTZXZpbGxlamEiLCJhZG1pbiI6dHJ1ZX0</pre></li></ul></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_users_me_bookingAssignments"><span class="parent">/users</span>/me/bookingAssignments</a> <span class="methods"><a href="#users_me_bookingAssignments_get"><span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span></a></span></h4></div><div id="panel_users_me_bookingAssignments" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>Offender Assignments for this logged in user</p></div><div class="list-group"><div onclick="window.location.href = '#users_me_bookingAssignments_get'" class="list-group-item"><span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span><div class="method_description"><p>Get all bookingAssignments.</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="users_me_bookingAssignments_get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span> <span class="parent">/users</span>/me/bookingAssignments</h4></div><div class="modal-body"><div class="alert alert-info"><p>Get all bookingAssignments.</p></div><div class="alert alert-warning"><span class="glyphicon glyphicon-lock" title="Authentication required"></span> Secured by <b>jwt</b><p>Elite API uses Json Web Token (JWT) to authenticate most requests</p></div><ul class="nav nav-tabs"><li class="active"><a href="#users_me_bookingAssignments_get_request" data-toggle="tab">Request</a></li><li><a href="#users_me_bookingAssignments_get_response" data-toggle="tab">Response</a></li><li><a href="#users_me_bookingAssignments_get_securedby" data-toggle="tab">Security</a></li></ul><div class="tab-content"><div class="tab-pane active" id="users_me_bookingAssignments_get_request"><h3>Query Parameters</h3><ul><li><strong>offset</strong>: <em>(integer - default: 0)</em><p>Skip over a number of elements by specifying an offset value for the query</p><p><strong>Example</strong>:</p><pre><code>20</code></pre></li><li><strong>limit</strong>: <em>(integer - default: 10)</em><p>Limit the number of elements on the response</p><p><strong>Example</strong>:</p><pre><code>80</code></pre></li></ul></div><div class="tab-pane" id="users_me_bookingAssignments_get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><p>OK</p><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
-	"$schema": "http://json-schema.org/draft-04/schema#",
-	"title": "InmateAssignmentSummaries",
-	"type": "object",
-	"properties": {
-		"inmateAssignmentSummaries" : {
-			"type": "array",
-			"items": { "$ref": "inmateAssignmentSummary" }
-		},
-		"pageMetaData": {"$ref": "pageMetaData"}
-	},
-	"required": ["inmateAssignmentSummaries", "pageMetaData"]
-}
-</code></pre><h2>HTTP status code <a href="http://httpstatus.es/400" target="_blank">400</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "http://jsonschema.net",
-  "title": "HttpStatus",
-  "type": "object",
-  "properties": {
-    "httpStatus": {
-      "id": "http://jsonschema.net/httpStatus",
-      "type": "string"
-    },
-    "code": {
-      "id": "http://jsonschema.net/code",
-      "type": "string"
-    },
-    "message": {
-      "id": "http://jsonschema.net/message",
-      "type": "string"
-    },
-    "developerMessage": {
-      "id": "http://jsonschema.net/developerMessage",
-      "type": "string"
-    },
-    "moreInfo": {
-      "id": "http://jsonschema.net/moreInfo",
-      "type": "string"
-    }
-  },
-  "required": [
-    "httpStatus",
-    "message",
-    "developerMessage"
-  ]
-}
-</code></pre><p><strong>Example</strong>:</p><pre><code>{
-	"httpStatus": "400",
-	"code": "400",
-	"message": "Invalid request body",
-	"developerMessage": "The request could not be understood by the server due to malformed syntax. The client should not repeat the request without modifications.",
-	"moreInfo": ""
-}
-</code></pre><h2>HTTP status code <a href="http://httpstatus.es/404" target="_blank">404</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "http://jsonschema.net",
-  "title": "HttpStatus",
-  "type": "object",
-  "properties": {
-    "httpStatus": {
-      "id": "http://jsonschema.net/httpStatus",
-      "type": "string"
-    },
-    "code": {
-      "id": "http://jsonschema.net/code",
-      "type": "string"
-    },
-    "message": {
-      "id": "http://jsonschema.net/message",
-      "type": "string"
-    },
-    "developerMessage": {
-      "id": "http://jsonschema.net/developerMessage",
-      "type": "string"
-    },
-    "moreInfo": {
-      "id": "http://jsonschema.net/moreInfo",
-      "type": "string"
-    }
-  },
-  "required": [
-    "httpStatus",
-    "message",
-    "developerMessage"
-  ]
-}
-</code></pre><p><strong>Example</strong>:</p><pre><code>{
-	"httpStatus": "404",
-	"code": "404",
-	"message": "Resource not found",
-	"developerMessage": "The resource could not be found or the user does not have authorization to view the data.",
-	"moreInfo": ""
-}
-</code></pre><h2>HTTP status code <a href="http://httpstatus.es/500" target="_blank">500</a></h2><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "http://jsonschema.net",
-  "title": "HttpStatus",
-  "type": "object",
-  "properties": {
-    "httpStatus": {
-      "id": "http://jsonschema.net/httpStatus",
-      "type": "string"
-    },
-    "code": {
-      "id": "http://jsonschema.net/code",
-      "type": "string"
-    },
-    "message": {
-      "id": "http://jsonschema.net/message",
-      "type": "string"
-    },
-    "developerMessage": {
-      "id": "http://jsonschema.net/developerMessage",
-      "type": "string"
-    },
-    "moreInfo": {
-      "id": "http://jsonschema.net/moreInfo",
-      "type": "string"
-    }
-  },
-  "required": [
-    "httpStatus",
-    "message",
-    "developerMessage"
-  ]
-}
-</code></pre><p><strong>Example</strong>:</p><pre><code>{
-  "httpStatus": "500",
-  "code": "500",
-  "message": "Unexpected server error",
-  "developerMessage": "Unexpected server error",
-  "moreInfo": ""
-}
-</code></pre></div><div class="tab-pane" id="users_me_bookingAssignments_get_securedby"><h1>Secured by jwt</h1><h3>Headers</h3><ul><li><strong>Authorization</strong>: <em>(string)</em><p>Used to send a valid JWT. Do not use query string parameter.</p><p><strong>Example</strong>:</p><pre>Authorization: Bearer eyJpc3MiOiJzY290Y2guaW8iLCJleHAiOjEzMDA4MTkzODAsIm5hbWUiOiJDaHJpcyBTZXZpbGxlamEiLCJhZG1pbiI6dHJ1ZX0</pre></li></ul></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_users_me_caseLoads"><span class="parent">/users</span>/me/caseLoads</a> <span class="methods"><a href="#users_me_caseLoads_get"><span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span></a></span></h4></div><div id="panel_users_me_caseLoads" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>Returns the list of caseloads associated to the user</p></div><div class="list-group"><div onclick="window.location.href = '#users_me_caseLoads_get'" class="list-group-item"><span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span><div class="method_description"><p>Get all caseLoads.</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="users_me_caseLoads_get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span> <span class="parent">/users</span>/me/caseLoads</h4></div><div class="modal-body"><div class="alert alert-info"><p>Get all caseLoads.</p></div><div class="alert alert-warning"><span class="glyphicon glyphicon-lock" title="Authentication required"></span> Secured by <b>jwt</b><p>Elite API uses Json Web Token (JWT) to authenticate most requests</p></div><ul class="nav nav-tabs"><li class="active"><a href="#users_me_caseLoads_get_request" data-toggle="tab">Request</a></li><li><a href="#users_me_caseLoads_get_response" data-toggle="tab">Response</a></li><li><a href="#users_me_caseLoads_get_securedby" data-toggle="tab">Security</a></li></ul><div class="tab-content"><div class="tab-pane active" id="users_me_caseLoads_get_request"><h3>Query Parameters</h3><ul><li><strong>offset</strong>: <em>(integer - default: 0)</em><p>Skip over a number of elements by specifying an offset value for the query</p><p><strong>Example</strong>:</p><pre><code>20</code></pre></li><li><strong>limit</strong>: <em>(integer - default: 10)</em><p>Limit the number of elements on the response</p><p><strong>Example</strong>:</p><pre><code>80</code></pre></li></ul></div><div class="tab-pane" id="users_me_caseLoads_get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><p>OK</p><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
+</code></pre></div><div class="tab-pane" id="users_me_get_securedby"><h1>Secured by jwt</h1><h3>Headers</h3><ul><li><strong>Authorization</strong>: <em>(string)</em><p>Used to send a valid JWT. Do not use query string parameter.</p><p><strong>Example</strong>:</p><pre>Authorization: Bearer eyJpc3MiOiJzY290Y2guaW8iLCJleHAiOjEzMDA4MTkzODAsIm5hbWUiOiJDaHJpcyBTZXZpbGxlamEiLCJhZG1pbiI6dHJ1ZX0</pre></li></ul></div></div></div></div></div></div></div><div class="panel panel-white"><div class="panel-heading"><h4 class="panel-title"><a class="collapsed" data-toggle="collapse" href="#panel_users_me_caseLoads"><span class="parent">/users</span>/me/caseLoads</a> <span class="methods"><a href="#users_me_caseLoads_get"><span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span></a></span></h4></div><div id="panel_users_me_caseLoads" class="panel-collapse collapse"><div class="panel-body"><div class="resource-description"><p>Returns the list of caseloads associated to the user</p></div><div class="list-group"><div onclick="window.location.href = '#users_me_caseLoads_get'" class="list-group-item"><span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span><div class="method_description"><p>Get all caseLoads.</p></div><div class="clearfix"></div></div></div></div></div><div class="modal fade" tabindex="0" id="users_me_caseLoads_get"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_get">get <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span> <span class="parent">/users</span>/me/caseLoads</h4></div><div class="modal-body"><div class="alert alert-info"><p>Get all caseLoads.</p></div><div class="alert alert-warning"><span class="glyphicon glyphicon-lock" title="Authentication required"></span> Secured by <b>jwt</b><p>Elite API uses Json Web Token (JWT) to authenticate most requests</p></div><ul class="nav nav-tabs"><li class="active"><a href="#users_me_caseLoads_get_request" data-toggle="tab">Request</a></li><li><a href="#users_me_caseLoads_get_response" data-toggle="tab">Response</a></li><li><a href="#users_me_caseLoads_get_securedby" data-toggle="tab">Security</a></li></ul><div class="tab-content"><div class="tab-pane active" id="users_me_caseLoads_get_request"><h3>Query Parameters</h3><ul><li><strong>offset</strong>: <em>(integer - default: 0)</em><p>Skip over a number of elements by specifying an offset value for the query</p><p><strong>Example</strong>:</p><pre><code>20</code></pre></li><li><strong>limit</strong>: <em>(integer - default: 10)</em><p>Limit the number of elements on the response</p><p><strong>Example</strong>:</p><pre><code>80</code></pre></li></ul></div><div class="tab-pane" id="users_me_caseLoads_get_response"><h2>HTTP status code <a href="http://httpstatus.es/200" target="_blank">200</a></h2><p>OK</p><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"title": "caseloads",
 	"type": "array",
@@ -1902,16 +1769,12 @@
 </code></pre></div><div class="tab-pane" id="booking__bookingId__caseNotes_get_securedby"><h1>Secured by jwt</h1><h3>Headers</h3><ul><li><strong>Authorization</strong>: <em>(string)</em><p>Used to send a valid JWT. Do not use query string parameter.</p><p><strong>Example</strong>:</p><pre>Authorization: Bearer eyJpc3MiOiJzY290Y2guaW8iLCJleHAiOjEzMDA4MTkzODAsIm5hbWUiOiJDaHJpcyBTZXZpbGxlamEiLCJhZG1pbiI6dHJ1ZX0</pre></li></ul></div></div></div></div></div></div><div class="modal fade" tabindex="0" id="booking__bookingId__caseNotes_post"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button><h4 class="modal-title" id="myModalLabel"><span class="badge badge_post">post <span class="glyphicon glyphicon-lock" title="Authentication required"></span></span> <span class="parent">/booking</span>/{bookingId}/caseNotes</h4></div><div class="modal-body"><div class="alert alert-info"><p>Entry of new case note under a booking.</p></div><div class="alert alert-warning"><span class="glyphicon glyphicon-lock" title="Authentication required"></span> Secured by <b>jwt</b><p>Elite API uses Json Web Token (JWT) to authenticate most requests</p></div><ul class="nav nav-tabs"><li class="active"><a href="#booking__bookingId__caseNotes_post_request" data-toggle="tab">Request</a></li><li><a href="#booking__bookingId__caseNotes_post_response" data-toggle="tab">Response</a></li><li><a href="#booking__bookingId__caseNotes_post_securedby" data-toggle="tab">Security</a></li></ul><div class="tab-content"><div class="tab-pane active" id="booking__bookingId__caseNotes_post_request"><h3>URI Parameters</h3><ul><li><strong>bookingId</strong>: <em>required (string)</em></li></ul><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"type": "object",
-	"title": "CaseNote",
+	"title": "NewCaseNote",
 	"properties": {
-		"caseNoteId":   { "type": "integer" },
 		"bookingId":   { "type": "string" },
 		"type":   { "type": "string" },
 		"subType": { "type": "string" },
-		"source": { "type": "string" },
-		"creationDateTime":   { "type": "string", "format": "datetime" },
-		"occuranceDateTime":  { "type": "string", "format": "datetime" },
-		"authorUserId": { "type": "string" },
+		"occurrenceDateTime":  { "type": "string", "format": "datetime-only" },
 		"text": { "type": "string" }
 	},
 	"required": ["caseNoteId", "inmateId", "type", "subType", "text"]
@@ -1925,8 +1788,8 @@
 		"type":   { "type": "string" },
 		"subType": { "type": "string" },
 		"source": { "type": "string" },
-		"creationDateTime":   { "type": "string", "format": "datetime" },
-		"occuranceDateTime":  { "type": "string", "format": "datetime" },
+		"creationDateTime":   { "type": "string", "format": "datetime-only" },
+		"occurrenceDateTime":  { "type": "string", "format": "datetime-only" },
 		"authorUserId": { "type": "string" },
 		"text": { "type": "string" }
 	},
@@ -2021,8 +1884,8 @@
 		"type":   { "type": "string" },
 		"subType": { "type": "string" },
 		"source": { "type": "string" },
-		"creationDateTime":   { "type": "string", "format": "datetime" },
-		"occuranceDateTime":  { "type": "string", "format": "datetime" },
+		"creationDateTime":   { "type": "string", "format": "datetime-only" },
+		"occurrenceDateTime":  { "type": "string", "format": "datetime-only" },
 		"authorUserId": { "type": "string" },
 		"text": { "type": "string" }
 	},
@@ -2077,8 +1940,8 @@
 		"type":   { "type": "string" },
 		"subType": { "type": "string" },
 		"source": { "type": "string" },
-		"creationDateTime":   { "type": "string", "format": "datetime" },
-		"occuranceDateTime":  { "type": "string", "format": "datetime" },
+		"creationDateTime":   { "type": "string", "format": "datetime-only" },
+		"occurrenceDateTime":  { "type": "string", "format": "datetime-only" },
 		"authorUserId": { "type": "string" },
 		"text": { "type": "string" }
 	},
@@ -2208,10 +2071,9 @@
 	"type": "object",
 	"title": "InputCaseNote",
 	"properties": {
-		"caseNoteId":   { "type": "integer" },
 		"text": { "type": "string" }
 	},
-	"required": ["caseNoteId", "text"]
+	"required": ["text"]
 }</code></pre></div><div class="tab-pane" id="booking__bookingId__caseNotes__caseNoteId__put_response"><h2>HTTP status code <a href="http://httpstatus.es/201" target="_blank">201</a></h2><p>The Case Note has been recorded. The updated object is returned including the status.</p><h3>Body</h3><p><strong>Type: application/json</strong></p><p><strong>Schema</strong>:</p><pre><code>{
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"type": "object",
@@ -2222,8 +2084,8 @@
 		"type":   { "type": "string" },
 		"subType": { "type": "string" },
 		"source": { "type": "string" },
-		"creationDateTime":   { "type": "string", "format": "datetime" },
-		"occuranceDateTime":  { "type": "string", "format": "datetime" },
+		"creationDateTime":   { "type": "string", "format": "datetime-only" },
+		"occurrenceDateTime":  { "type": "string", "format": "datetime-only" },
 		"authorUserId": { "type": "string" },
 		"text": { "type": "string" }
 	},
@@ -2318,8 +2180,8 @@
 		"type":   { "type": "string" },
 		"subType": { "type": "string" },
 		"source": { "type": "string" },
-		"creationDateTime":   { "type": "string", "format": "datetime" },
-		"occuranceDateTime":  { "type": "string", "format": "datetime" },
+		"creationDateTime":   { "type": "string", "format": "datetime-only" },
+		"occurrenceDateTime":  { "type": "string", "format": "datetime-only" },
 		"authorUserId": { "type": "string" },
 		"text": { "type": "string" }
 	},
