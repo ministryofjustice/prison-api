@@ -41,19 +41,24 @@ public class StandardQueryBuilder extends AbstractQueryBuilder {
 		Optional<SQLKeyword> statementType = getStatementType();
 
 		if (Optional.of(SQLKeyword.SELECT).equals(statementType)) {
+			boolean haveQuery = StringUtils.isNotBlank(extraWhere);
+
 			if (hasWhereQueryPlaceholder) {
-				parsedQuery = parsedQuery
-						.replaceAll(SQL_PLACEHOLDER_WHERE_QUERY, SQLKeyword.WHERE + " " + extraWhere);
+				String replacement = (haveQuery ? SQLKeyword.WHERE + " " + extraWhere : "");
+
+				parsedQuery = parsedQuery.replaceAll(SQL_PLACEHOLDER_WHERE_QUERY, replacement);
 			}
 
 			if (hasAndQueryPlaceholder) {
-				parsedQuery = parsedQuery
-						.replaceAll(SQL_PLACEHOLDER_AND_QUERY, SQLKeyword.AND + " " + extraWhere);
+				String replacement = (haveQuery ? SQLKeyword.AND + " " + extraWhere : "");
+
+				parsedQuery = parsedQuery.replaceAll(SQL_PLACEHOLDER_AND_QUERY, replacement);
 			}
 
 			if (hasOrQueryPlaceholder) {
-				parsedQuery = parsedQuery
-						.replaceAll(SQL_PLACEHOLDER_OR_QUERY, SQLKeyword.OR + " " + extraWhere);
+				String replacement = (haveQuery ? SQLKeyword.WHERE + " " + extraWhere : "");
+
+				parsedQuery = parsedQuery.replaceAll(SQL_PLACEHOLDER_OR_QUERY, replacement);
 			}
 
 			String strOrderBy = (StringUtils.isBlank(extraOrderBy)) ? "" : (SQLKeyword.ORDER_BY + " " + extraOrderBy);

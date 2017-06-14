@@ -119,6 +119,26 @@ public class StepDefinitions {
         booking.verifySearchCount(expectedCount);
     }
 
+    @And("^offender first names match \"([^\"]*)\"$")
+    public void offenderFirstNamesMatch(String arg0) throws Throwable {
+        booking.verifyFirstNames(arg0);
+    }
+
+    @And("^offender middle names match \"([^\"]*)\"$")
+    public void offenderMiddleNamesMatch(String arg0) throws Throwable {
+        booking.verifyMiddleNames(arg0);
+    }
+
+    @When("^a booking search is made without any criteria$")
+    public void aBookingSearchIsMadeWithoutAnyCriteria() throws Throwable {
+        booking.findAll();
+    }
+
+    @Then("^all offender records are returned$")
+    public void allOffenderRecordsAreReturned() throws Throwable {
+        booking.verifySearchCount(6);
+    }
+
     @TestConfiguration
     static class Config {
         @Bean
