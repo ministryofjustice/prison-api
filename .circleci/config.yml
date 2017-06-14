@@ -3,10 +3,10 @@ jobs:
   build:
     working_directory: /tmp/circleci-elite2-api
     docker:
-      - image: circleci/openjdk:8-jdk-browsers
+      - image: sysconjusticesystems/ci-java-node:latest
     steps:
       - checkout
-      - run: ./gradlew build aggregate -x integTest
+      - run: sudo npm i -g raml2html@3.0.1 && ./gradlew build aggregate assembleSandbox -x integTest
       - store_test_results:
           path: mobile-web/build/test-results
       - store_test_results:
