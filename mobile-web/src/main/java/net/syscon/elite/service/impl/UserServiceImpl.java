@@ -11,8 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import javax.inject.Inject;
-import java.util.Iterator;
 import java.util.List;
+
+import static java.lang.String.format;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -47,7 +48,7 @@ public class UserServiceImpl implements UserService {
 	@Transactional(readOnly = true)
 	public CaseLoad getActiveCaseLoad(final Long staffId) {
 		final UserDetails userDetails = userRepository.findByStaffId(staffId);
-		Assert.notNull(userDetails, String.format("User with staffId %d was not found!", staffId));
+		Assert.notNull(userDetails, format("User with staffId %d was not found!", staffId));
 		return caseLoadRepository.find(userDetails.getActiveCaseLoadId());
 	}
 
@@ -60,14 +61,11 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public void setActiveCaseLoad(final Long staffId, final String caseLoadId) {
-		final Iterator<CaseLoad> it = caseLoadRepository.findCaseLoadsByStaffId(staffId).iterator();
-		boolean found = false;
-		while (!found && it.hasNext()) {
-			final CaseLoad caseLoad = it.next();
-			found = caseLoadId.equals(caseLoad.getCaseLoadId());
-		}
+		final boolean found = caseLoadRepository.findCaseLoadsByStaffId(staffId).stream()
+				.anyMatch(c -> c.getCaseLoadId().equalsIgnoreCase(caseLoadId));
+
 		if (!found) {
-			throw new AccessDeniedException(String.format("The user does not have access to the caseLoadid = %d", caseLoadId));
+			throw new AccessDeniedException(format("The user does not have access to the caseLoadid = %s", caseLoadId));
 		} else {
 			userRepository.updateCurrentLoad(staffId, caseLoadId);
 		}

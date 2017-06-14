@@ -1,16 +1,17 @@
 package net.syscon.elite.persistence.impl;
 
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Repository;
-
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.persistence.CaseLoadRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.web.api.model.CaseLoad;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 @Repository
 public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRepository {
@@ -30,10 +31,12 @@ public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRe
 	public List<CaseLoad> findCaseLoadsByStaffId(final Long staffId) {
 		final String sql = getQuery("FIND_CASE_LOADS_BY_STAFF_ID");
 		final RowMapper<CaseLoad> caseLoadRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseLoad.class, caseLoadMapping);
-		return jdbcTemplate.query(sql, createParams("staffId", staffId), caseLoadRowMapper);
+		try {
+			return jdbcTemplate.query(sql, createParams("staffId", staffId), caseLoadRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			return Collections.emptyList();
+		}
 	}
-	
-
 }
 
 
