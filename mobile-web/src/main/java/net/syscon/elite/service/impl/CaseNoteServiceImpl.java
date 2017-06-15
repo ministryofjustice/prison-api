@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.util.List;
 
 import static java.lang.String.format;
@@ -62,7 +61,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
         final String amendedText = format(AMEND_CASE_NOTE_FORMAT,
                 caseNote.getText(),
                 UserSecurityUtils.getCurrentUsername(),
-                LocalDateTime.now().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)),
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")),
                 newCaseNoteText);
 
         caseNoteRepository.updateCaseNote(bookingId, caseNoteId, amendedText, UserSecurityUtils.getCurrentUsername());
