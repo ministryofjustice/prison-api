@@ -21,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * BDD step implementations for Booking search feature.
  */
 public class BookingSearchSteps extends CommonSteps {
-    private static final String API_PREFIX = "/api/booking";
     private static final String API_QUERY_PREFIX = "/api/booking?query=";
 
     private InmateSummaries inmateSummaries;
@@ -46,9 +45,29 @@ public class BookingSearchSteps extends CommonSteps {
         inmateSummaries = response.getBody();
     }
 
+    @Step("Perform search using full first name")
+    public void fullFirstNameSearch(String criteria) {
+        String query = buildSimpleQuery("firstName", QueryOperator.EQUAL, criteria);
+        ResponseEntity<InmateSummaries> response = restTemplate.exchange(query, HttpMethod.GET, createEntity(), InmateSummaries.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        inmateSummaries = response.getBody();
+    }
+
+    @Step("Perform search using partial first name")
+    public void partialFirstNameSearch(String criteria) {
+        String query = buildSimpleQuery("firstName", QueryOperator.LIKE, criteria);
+        ResponseEntity<InmateSummaries> response = restTemplate.exchange(query, HttpMethod.GET, createEntity(), InmateSummaries.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        inmateSummaries = response.getBody();
+    }
+
     @Step("Perform search without any criteria")
     public void findAll() {
-        ResponseEntity<InmateSummaries> response = restTemplate.exchange(API_PREFIX, HttpMethod.GET, createEntity(), InmateSummaries.class);
+        ResponseEntity<InmateSummaries> response = restTemplate.exchange(API_QUERY_PREFIX, HttpMethod.GET, createEntity(), InmateSummaries.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
@@ -73,6 +92,15 @@ public class BookingSearchSteps extends CommonSteps {
     public void verifyMiddleNames(String nameList) {
         // Using List (not Set) to handle duplicate names
         List<String> queriedNames = extractMiddleNames();
+        List<String> expectedNames = csv2list(nameList);
+
+        verifyIdentical(queriedNames, expectedNames);
+    }
+
+    @Step("Verify last names of inmates returned by search")
+    public void verifyLastNames(String nameList) {
+        // Using List (not Set) to handle duplicate names
+        List<String> queriedNames = extractLastNames();
         List<String> expectedNames = csv2list(nameList);
 
         verifyIdentical(queriedNames, expectedNames);
@@ -114,12 +142,26 @@ public class BookingSearchSteps extends CommonSteps {
 
     private List<String> extractFirstNames() {
         return inmateSummaries.getInmatesSummaries()
-                .stream().map(AssignedInmate::getFirstName).collect(Collectors.toList());
+                .stream()
+                .map(AssignedInmate::getFirstName)
+                .filter(StringUtils::isNotBlank)
+                .collect(Collectors.toList());
+    }
+
+    private List<String> extractLastNames() {
+        return inmateSummaries.getInmatesSummaries()
+                .stream()
+                .map(AssignedInmate::getLastName)
+                .filter(StringUtils::isNotBlank)
+                .collect(Collectors.toList());
     }
 
     private List<String> extractMiddleNames() {
         return inmateSummaries.getInmatesSummaries()
-                .stream().map(AssignedInmate::getMiddleName).collect(Collectors.toList());
+                .stream()
+                .map(AssignedInmate::getMiddleName)
+                .filter(StringUtils::isNotBlank)
+                .collect(Collectors.toList());
     }
 
     private void verifyIdentical(List<String> listActual, List<String> listExpected) {

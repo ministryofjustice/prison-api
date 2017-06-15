@@ -11,6 +11,7 @@ import net.syscon.util.DateFormatProvider;
 import net.syscon.util.IQueryBuilder;
 import net.syscon.util.QueryBuilder;
 import net.syscon.util.QueryBuilderFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -30,10 +31,10 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("BOOKING_NO", 			new FieldMapper("bookingNo"))
 			.put("OFFENDER_ID_DISPLAY", new FieldMapper("offenderNo"))
 			.put("AGY_LOC_ID", 			new FieldMapper("agencyId"))
-			.put("FIRST_NAME", 			new FieldMapper("firstName"))
-			.put("MIDDLE_NAME", 		new FieldMapper("middleName"))
-			.put("LAST_NAME", 			new FieldMapper("lastName"))
-			.put("ALERT_TYPES", 		new FieldMapper("alertsCodes", value -> Arrays.asList(value.toString().split(",")), null))
+			.put("FIRST_NAME", 			new FieldMapper("firstName", null, null, StringUtils::upperCase))
+			.put("MIDDLE_NAME", 		new FieldMapper("middleName", null, null, StringUtils::upperCase))
+			.put("LAST_NAME", 			new FieldMapper("lastName", null, null, StringUtils::upperCase))
+			.put("ALERT_TYPES", 		new FieldMapper("alertsCodes", value -> Arrays.asList(value.toString().split(","))))
 			.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
 			.put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerUserId"))
 			.build();
@@ -48,7 +49,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("LAST_NAME", 			new FieldMapper("lastName"))
 			.put("LIVING_UNIT_ID", 		new FieldMapper("assignedLivingUnitId"))
 			.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
-			.put("BIRTH_DATE", 			new FieldMapper("birthDate", value -> DateFormatProvider.get("yyyy-MM-dd").format((Date)value), null))
+			.put("BIRTH_DATE", 			new FieldMapper("birthDate", value -> DateFormatProvider.get("yyyy-MM-dd").format((Date)value)))
 			.put("AGE",                 new FieldMapper("age"))
 			.put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerUserId"))
 			.build();
@@ -58,7 +59,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("RACE_CODE",  new FieldMapper("ethnicity"))
 			.put("HEIGHT_FT",  new FieldMapper("detail"))
 			.put("HEIGHT_IN",  new FieldMapper("heightInches"))
-			.put("HEIGHT_CM",  new FieldMapper("heightMeters", value -> ((Number) value).doubleValue() / 100.0, null))
+			.put("HEIGHT_CM",  new FieldMapper("heightMeters", value -> ((Number) value).doubleValue() / 100.0))
 			.put("WEIGHT_LBS", new FieldMapper("weightPounds"))
 			.put("WEIGHT_KG",  new FieldMapper("weightKg"))
 			.build();
@@ -89,7 +90,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("LAST_NAME",	new FieldMapper("lastName"))
 			.put("FIRST_NAME",	new FieldMapper("firstName"))
 			.put("MIDDLE_NAME",	new FieldMapper("middleName"))
-			.put("BIRTH_DATE",	new FieldMapper("dob", value -> DateFormatProvider.get("yyyy-MM-dd").format((Date)value), null))
+			.put("BIRTH_DATE",	new FieldMapper("dob", value -> DateFormatProvider.get("yyyy-MM-dd").format((Date)value)))
 			.put("AGE",			new FieldMapper("age"))
 			.put("SEX",			new FieldMapper("gender"))
 			.put("ETHNICITY",	new FieldMapper("ethinicity"))
