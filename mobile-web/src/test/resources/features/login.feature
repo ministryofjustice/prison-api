@@ -1,3 +1,4 @@
+@global
 Feature: Authentication
 
   Acceptance Criteria:

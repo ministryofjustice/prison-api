@@ -1,3 +1,4 @@
+@nomis
 Feature: Booking Search
 
   Acceptance Criteria:
@@ -13,7 +14,7 @@ Feature: Booking Search
 
   Scenario: Search all offenders
     When a booking search is made without any criteria
-    Then all offender records are returned
+    Then all "9" offender records are returned
 
   Scenario Outline: Search based on full offender last name
     When a booking search is made with full last "<name>" of existing offender

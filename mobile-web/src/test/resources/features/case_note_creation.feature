@@ -1,3 +1,4 @@
+@global
 Feature: Case Notes
 
   Acceptance Criteria:
