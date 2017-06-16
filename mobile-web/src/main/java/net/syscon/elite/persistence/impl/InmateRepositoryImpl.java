@@ -36,6 +36,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("LAST_NAME", 			new FieldMapper("lastName", null, null, StringUtils::upperCase))
 			.put("ALERT_TYPES", 		new FieldMapper("alertsCodes", value -> Arrays.asList(value.toString().split(","))))
 			.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
+			.put("LIVING_UNIT_ID",      new FieldMapper("assignedLivingUnitId"))
 			.put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerUserId"))
 			.build();
 
