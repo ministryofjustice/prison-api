@@ -1,25 +1,22 @@
 package net.syscon.elite.web.api.resource.impl;
 
-import java.util.List;
-
-import javax.inject.Inject;
-
-import org.springframework.stereotype.Component;
-
 import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.web.api.model.ReferenceCode;
 import net.syscon.elite.web.api.model.ReferenceCodes;
 import net.syscon.elite.web.api.resource.ReferenceDomainsResource;
 import net.syscon.util.MetaDataFactory;
+import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import java.util.List;
 
 @Component
 public class ReferenceDomainsResourceImpl implements ReferenceDomainsResource {
 
-
-	ReferenceDomainService refrenceCodeService;
+	private final ReferenceDomainService refrenceCodeService;
 
 	@Inject
-	public void setRefrenceCodeService(final ReferenceDomainService refrenceCodeService) {
+	public ReferenceDomainsResourceImpl(final ReferenceDomainService refrenceCodeService) {
 		this.refrenceCodeService = refrenceCodeService;
 	}
 

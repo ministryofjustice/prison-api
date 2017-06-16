@@ -18,17 +18,13 @@ import static java.lang.String.format;
 @Service
 public class UserServiceImpl implements UserService {
 	
-	private UserRepository userRepository;
-	private CaseLoadRepository caseLoadRepository;
+	private final UserRepository userRepository;
+	private final CaseLoadRepository caseLoadRepository;
 
 	@Inject
-	public void setCaseLoadRepository(final CaseLoadRepository caseLoadRepository) {
-		this.caseLoadRepository = caseLoadRepository;
-	}
-	
-	@Inject
-	public void setUserRepository(final UserRepository userRepository) {
+	public UserServiceImpl(UserRepository userRepository, CaseLoadRepository caseLoadRepository) {
 		this.userRepository = userRepository;
+		this.caseLoadRepository = caseLoadRepository;
 	}
 
 	@Override

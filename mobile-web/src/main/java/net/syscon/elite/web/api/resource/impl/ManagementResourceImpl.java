@@ -20,28 +20,16 @@ import java.lang.management.ThreadInfo;
 @Component
 public class ManagementResourceImpl {
 
-	private HealthEndpoint healthEndpoint;
-	private MetricsEndpoint metricsEndpoint;
-	private DumpEndpoint dumpEndpoint;
-	private InfoEndpoint infoEndpoint;
+	private final HealthEndpoint healthEndpoint;
+	private final MetricsEndpoint metricsEndpoint;
+	private final DumpEndpoint dumpEndpoint;
+	private final InfoEndpoint infoEndpoint;
 
 	@Inject
-	public void setHealthEndpoint(HealthEndpoint healthEndpoint) {
+	public ManagementResourceImpl(HealthEndpoint healthEndpoint, MetricsEndpoint metricsEndpoint, DumpEndpoint dumpEndpoint, InfoEndpoint infoEndpoint) {
 		this.healthEndpoint = healthEndpoint;
-	}
-
-	@Inject
-	public void setMetricsEndpoint(MetricsEndpoint metricsEndpoint) {
 		this.metricsEndpoint = metricsEndpoint;
-	}
-
-	@Inject
-	public void setDumpEndpoint(DumpEndpoint dumpEndpoint) {
 		this.dumpEndpoint = dumpEndpoint;
-	}
-
-	@Inject
-	public void setInfoEndpoint(InfoEndpoint infoEndpoint) {
 		this.infoEndpoint = infoEndpoint;
 	}
 

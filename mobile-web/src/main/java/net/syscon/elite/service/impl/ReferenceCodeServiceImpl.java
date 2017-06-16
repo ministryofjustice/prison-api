@@ -14,13 +14,15 @@ import java.util.List;
 @Service
 @Transactional(readOnly = true)
 public class ReferenceCodeServiceImpl implements ReferenceDomainService {
+	private final static String DEFAULT_ACTIVE_FLAG_QUERY = "activeFlag:eq:'Y'";
 
-	private final String DEFAULT_ACTIVE_FLAG_QUERY = "activeFlag:eq:'Y'";
-	private ReferenceCodeRepository referenceCodeRepository;
+	private final ReferenceCodeRepository referenceCodeRepository;
+
 	@Inject
-	public void setReferenceCodeRepository(final ReferenceCodeRepository referenceCodeRepository) {
+	public ReferenceCodeServiceImpl(final ReferenceCodeRepository referenceCodeRepository) {
 		this.referenceCodeRepository = referenceCodeRepository;
 	}
+
 	@Override
 	public List<ReferenceCode> getCnotetypesByCaseLoad(final String caseLoad, final int offset, final int limit) {
 		return referenceCodeRepository.getCnotetypesByCaseLoad(caseLoad, offset, limit);

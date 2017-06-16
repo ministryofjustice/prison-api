@@ -14,12 +14,12 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class InmateAlertServiceImpl implements InmatesAlertService {
 	
-	private InmateAlertRepository inmateAlertRepository;
+	private final InmateAlertRepository inmateAlertRepository;
+
 	@Inject
-	public void setInmateAlertRepository(InmateAlertRepository inmateAlertRepository) {
+	public InmateAlertServiceImpl(InmateAlertRepository inmateAlertRepository) {
 		this.inmateAlertRepository = inmateAlertRepository;
 	}
-
 
 	@Override
 	public List<Alert> getInmateAlerts(String bookingId, String query, String orderByField, Order order, int offset,
@@ -30,10 +30,8 @@ public class InmateAlertServiceImpl implements InmatesAlertService {
 		return inmateAlertRepository.getInmateAlert(bookingId, query, orderByField, order, offset, limit);
 	}
 
-
 	@Override
 	public Alert getInmateAlert(String bookingId, String alertSeqId) {
-		// TODO Auto-generated method stub
 		return inmateAlertRepository.getInmateAlert(bookingId, alertSeqId);
 	}
 	

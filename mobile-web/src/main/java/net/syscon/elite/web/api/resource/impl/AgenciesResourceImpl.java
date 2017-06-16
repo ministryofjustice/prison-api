@@ -1,9 +1,5 @@
 package net.syscon.elite.web.api.resource.impl;
 
-import java.util.Base64;
-import java.util.List;
-import javax.inject.Inject;
-import org.springframework.stereotype.Component;
 import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.web.api.model.Agencies;
 import net.syscon.elite.web.api.model.Agency;
@@ -11,14 +7,19 @@ import net.syscon.elite.web.api.model.Location;
 import net.syscon.elite.web.api.model.Locations;
 import net.syscon.elite.web.api.resource.AgenciesResource;
 import net.syscon.util.MetaDataFactory;
+import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import java.util.Base64;
+import java.util.List;
 
 @Component
 public class AgenciesResourceImpl implements AgenciesResource {
 	
-	private AgencyLocationService agencyLocationService;
+	private final AgencyLocationService agencyLocationService;
 
 	@Inject
-	public void setAgencyLocationService(final AgencyLocationService agencyLocationService) { this.agencyLocationService = agencyLocationService; }
+	public AgenciesResourceImpl(final AgencyLocationService agencyLocationService) { this.agencyLocationService = agencyLocationService; }
 
 
 	@Override

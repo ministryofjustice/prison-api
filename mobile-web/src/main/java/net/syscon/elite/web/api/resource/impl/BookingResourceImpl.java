@@ -1,32 +1,30 @@
 package net.syscon.elite.web.api.resource.impl;
 
-import java.util.List;
-
-import javax.inject.Inject;
-
+import net.syscon.elite.service.CaseNoteService;
+import net.syscon.elite.service.InmateService;
+import net.syscon.elite.service.InmatesAlertService;
 import net.syscon.elite.web.api.model.*;
+import net.syscon.elite.web.api.resource.BookingResource;
+import net.syscon.util.MetaDataFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
-import net.syscon.elite.persistence.InmateRepository;
-import net.syscon.elite.service.CaseNoteService;
-import net.syscon.elite.service.InmatesAlertService;
-import net.syscon.elite.web.api.resource.BookingResource;
-import net.syscon.util.MetaDataFactory;
+import javax.inject.Inject;
+import java.util.List;
 
 @Component
 public class BookingResourceImpl implements BookingResource {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final InmateRepository inmateRepository;
+	private final InmateService inmateService;
 	private final CaseNoteService caseNoteService;
 	private final InmatesAlertService inmateAlertService;
 
 	@Inject
-	public BookingResourceImpl(InmateRepository inmateRepository, CaseNoteService caseNoteService, InmatesAlertService inmateAlertService) {
-		this.inmateRepository = inmateRepository;
+	public BookingResourceImpl(InmateService inmateService, CaseNoteService caseNoteService, InmatesAlertService inmateAlertService) {
+		this.inmateService = inmateService;
 		this.caseNoteService = caseNoteService;
 		this.inmateAlertService = inmateAlertService;
 	}
@@ -34,7 +32,7 @@ public class BookingResourceImpl implements BookingResource {
 	@Override
 	public GetBookingResponse getBooking(String query, String orderBy, Order order, int offset, int limit)
 			throws Exception {
-		final List<AssignedInmate> inmates = inmateRepository.findAllInmates(query, offset, limit, orderBy, order);
+		final List<AssignedInmate> inmates = inmateService.findAllInmates(query, offset, limit, orderBy, order);
 		InmateSummaries inmateSummaries = new InmateSummaries(inmates, MetaDataFactory.createMetaData(limit, offset, inmates));
 		return GetBookingResponse.withJsonOK(inmateSummaries);
 	}
@@ -42,7 +40,7 @@ public class BookingResourceImpl implements BookingResource {
 	@Override
 	public GetBookingByBookingIdResponse getBookingByBookingId(String bookingId) throws Exception {
 		try {
-			final InmateDetails inmate = inmateRepository.findInmate(Long.valueOf(bookingId));
+			final InmateDetails inmate = inmateService.findInmate(Long.valueOf(bookingId));
 			return GetBookingByBookingIdResponse.withJsonOK(inmate);
 		} catch (final EmptyResultDataAccessException ex) {
 			final String message = String.format("Booking \"%s\" not found", bookingId);
@@ -93,7 +91,7 @@ public class BookingResourceImpl implements BookingResource {
 	public GetBookingByBookingIdAliasesResponse getBookingByBookingIdAliases(String bookingId, String orderBy,
 			Order order, int offset, int limit) throws Exception {
 		try {
-			List<Alias> aliases = inmateRepository.findInmateAliases(Long.valueOf(bookingId), orderBy, order, offset, limit);
+			List<Alias> aliases = inmateService.findInmateAliases(Long.valueOf(bookingId), orderBy, order, offset, limit);
 			return GetBookingByBookingIdAliasesResponse.withJsonOK(aliases);
 		} catch (final EmptyResultDataAccessException ex) {
 			final String message = String.format("Booking \"%s\" not found", bookingId);

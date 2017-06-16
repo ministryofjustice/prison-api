@@ -25,36 +25,20 @@ import java.util.List;
 @Transactional(readOnly = true)
 @Service
 public class AgencyLocationServiceImpl implements AgencyLocationService {
-
-
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private AgencyRepository agencyRepository;
-	private LocationRepository locationRepository;
-	private InmateRepository inmateRepository;
-	private UserRepository userRepository;
-
-
+	private final AgencyRepository agencyRepository;
+	private final LocationRepository locationRepository;
+	private final InmateRepository inmateRepository;
+	private final UserRepository userRepository;
 
 	@Inject
-	public void setAgencyRepository(final AgencyRepository agencyRepository) { this.agencyRepository = agencyRepository; }
-
-	@Inject
-	public void setLocationRepository(final LocationRepository locationRepository) { this.locationRepository = locationRepository; }
-
-	@Inject
-	public void setInmateRepository(final InmateRepository inmateRepository) { this.inmateRepository = inmateRepository; }
-
-	@Inject
-	public void setUserRepository(final UserRepository userRepository) { this.userRepository = userRepository; }
-
-
-	private String getCurrentCaseLoad() {
-		//  get the user data from the database
-		final UserDetails userDetails = userRepository.findByUsername(UserSecurityUtils.getCurrentUsername());
-		return userDetails.getActiveCaseLoadId();
+	public AgencyLocationServiceImpl(AgencyRepository agencyRepository, LocationRepository locationRepository, InmateRepository inmateRepository, UserRepository userRepository) {
+		this.agencyRepository = agencyRepository;
+		this.locationRepository = locationRepository;
+		this.inmateRepository = inmateRepository;
+		this.userRepository = userRepository;
 	}
-
 
 	@Override
 	public Agency getAgency(final String agencyId) {
@@ -102,5 +86,10 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 		return result;
 	}
 
+	private String getCurrentCaseLoad() {
+		//  get the user data from the database
+		final UserDetails userDetails = userRepository.findByUsername(UserSecurityUtils.getCurrentUsername());
+		return userDetails.getActiveCaseLoadId();
+	}
 
 }
