@@ -10,7 +10,6 @@ import net.syscon.util.MetaDataFactory;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
-import java.util.Base64;
 import java.util.List;
 
 @Component
@@ -42,14 +41,6 @@ public class AgenciesResourceImpl implements AgenciesResource {
 		final List<Location> result = agencyLocationService.getLocationsFromAgency(agencyId, query, offset, limit, orderBy, order.toString());
 		Locations locations = new Locations(result, MetaDataFactory.createMetaData(limit, offset, result));
 		return GetAgenciesByAgencyIdLocationsResponse.withJsonOK(locations);
-	}
-
-
-	public static void main(final String args[]) {
-		final String s = "itag_user:it4g_us3r";
-		System.out.println(Base64.getEncoder().encodeToString (s.getBytes()));
-		
-
 	}
 
 }
