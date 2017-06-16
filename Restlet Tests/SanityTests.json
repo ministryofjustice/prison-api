@@ -5,7 +5,7 @@
     {
       "type": "Project",
       "id": "54E9846C-08D4-4F19-B123-70DBC54E565E",
-      "lastModified": "2017-06-14T14:23:58.187-07:00",
+      "lastModified": "2017-06-15T23:39:13.402-07:00",
       "name": "REST API"
     },
     {
@@ -495,7 +495,7 @@
         "path": "/api/users/me/bookingAssignments"
       },
       "id": "96D5606C-1EEC-4EFC-9FDD-03AF835F6E8E",
-      "lastModified": "2017-06-14T12:35:22.193-07:00",
+      "lastModified": "2017-06-15T23:35:54.784-07:00",
       "name": "User - Booking Assignments",
       "headers": [
         {
@@ -515,7 +515,7 @@
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
           "path": "$.inmateAssignmentSummaries",
-          "value": "[{\"bookingId\":18815, \"bookingNo\":\"2013-18871\", \"offenderNo\":\"0001019090\", \"firstName\":\"TESTQM2\", \"lastName\":\"TESTQM2\", \"alertsCodes\":[], \"agencyId\":\"ITAG\", \"livingUnitId\":5345},{\"bookingId\":18814, \"bookingNo\":\"2013-18870\", \"offenderNo\":\"0001019088\", \"firstName\":\"DAVID\", \"lastName\":\"MASON\", \"alertsCodes\":[\"X\"], \"agencyId\":\"ITAG\", \"livingUnitId\":5345},{\"bookingId\":18824, \"bookingNo\":\"2013-18880\", \"offenderNo\":\"0001019095\", \"firstName\":\"BILL\", \"lastName\":\"LARSON\", \"alertsCodes\":[], \"agencyId\":\"ITAG\", \"livingUnitId\":5345},{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"agencyId\":\"ITAG\", \"facialImageId\":10008, \"livingUnitId\":5345},{\"bookingId\":20968, \"bookingNo\":\"2017-20944\", \"offenderNo\":\"0001021394\", \"firstName\":\"USER2\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"M\",\"X\"], \"agencyId\":\"ITAG\", \"livingUnitId\":5345},{\"bookingId\":20969, \"bookingNo\":\"2017-20945\", \"offenderNo\":\"0001021395\", \"firstName\":\"USER3\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"V\"], \"agencyId\":\"ITAG\", \"livingUnitId\":5345}]"
+          "value": "[{\"bookingId\":18815, \"bookingNo\":\"2013-18871\", \"offenderNo\":\"0001019090\", \"firstName\":\"TESTQM2\", \"lastName\":\"TESTQM2\", \"alertsCodes\":[], \"agencyId\":\"ITAG\", \"assignedLivingUnitId\":5345},{\"bookingId\":18814, \"bookingNo\":\"2013-18870\", \"offenderNo\":\"0001019088\", \"firstName\":\"DAVID\", \"lastName\":\"MASON\", \"alertsCodes\":[\"X\"], \"agencyId\":\"ITAG\", \"assignedLivingUnitId\":5345},{\"bookingId\":18824, \"bookingNo\":\"2013-18880\", \"offenderNo\":\"0001019095\", \"firstName\":\"BILL\", \"lastName\":\"LARSON\", \"alertsCodes\":[], \"agencyId\":\"ITAG\", \"assignedLivingUnitId\":5345},{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"agencyId\":\"ITAG\", \"assignedLivingUnitId\":5345, \"facialImageId\":10008},{\"bookingId\":20968, \"bookingNo\":\"2017-20944\", \"offenderNo\":\"0001021394\", \"firstName\":\"USER2\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"M\",\"X\"], \"agencyId\":\"ITAG\", \"assignedLivingUnitId\":5345},{\"bookingId\":20969, \"bookingNo\":\"2017-20945\", \"offenderNo\":\"0001021395\", \"firstName\":\"USER3\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"V\"], \"agencyId\":\"ITAG\", \"assignedLivingUnitId\":5345}]"
         }
       ],
       "metaInfo": {},
@@ -562,7 +562,7 @@
         "path": "/api/booking"
       },
       "id": "1F1462D2-75E7-4CCC-BF31-405B1F31DBA7",
-      "lastModified": "2017-06-06T16:22:38.139-07:00",
+      "lastModified": "2017-06-15T23:36:19.873-07:00",
       "name": "Get Bookings - Search and Order By",
       "headers": [
         {
@@ -594,7 +594,7 @@
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
           "path": "$.inmatesSummaries",
-          "value": "[{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"agencyId\":\"ITAG\", \"facialImageId\":10008, \"assignedOfficerUserId\":\"OMS_OWNER\", \"livingUnitId\":5345},{\"bookingId\":20968, \"bookingNo\":\"2017-20944\", \"offenderNo\":\"0001021394\", \"firstName\":\"USER2\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"M\",\"X\"], \"agencyId\":\"ITAG\", \"assignedOfficerUserId\":\"OMS_OWNER\", \"livingUnitId\":5345},{\"bookingId\":20969, \"bookingNo\":\"2017-20945\", \"offenderNo\":\"0001021395\", \"firstName\":\"USER3\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"V\"], \"agencyId\":\"ITAG\", \"assignedOfficerUserId\":\"OMS_OWNER\", \"livingUnitId\":5345}]"
+          "value": "[{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"agencyId\":\"ITAG\", \"assignedLivingUnitId\":5345, \"facialImageId\":10008, \"assignedOfficerUserId\":\"OMS_OWNER\"},{\"bookingId\":20968, \"bookingNo\":\"2017-20944\", \"offenderNo\":\"0001021394\", \"firstName\":\"USER2\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"M\",\"X\"], \"agencyId\":\"ITAG\", \"assignedLivingUnitId\":5345, \"assignedOfficerUserId\":\"OMS_OWNER\"},{\"bookingId\":20969, \"bookingNo\":\"2017-20945\", \"offenderNo\":\"0001021395\", \"firstName\":\"USER3\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"V\"], \"agencyId\":\"ITAG\", \"assignedLivingUnitId\":5345, \"assignedOfficerUserId\":\"OMS_OWNER\"}]"
         }
       ],
       "metaInfo": {},
@@ -641,7 +641,7 @@
         "path": "/api/booking"
       },
       "id": "3D6C0665-65D5-4328-9DD0-3A56A2368F24",
-      "lastModified": "2017-06-06T16:23:06.288-07:00",
+      "lastModified": "2017-06-15T23:36:49.882-07:00",
       "name": "Get Bookings - Search and Order By, desc",
       "headers": [
         {
@@ -673,7 +673,7 @@
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
           "path": "$.inmatesSummaries",
-          "value": "[{\"bookingId\":20969, \"bookingNo\":\"2017-20945\", \"offenderNo\":\"0001021395\", \"firstName\":\"USER3\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"V\"], \"agencyId\":\"ITAG\", \"assignedOfficerUserId\":\"OMS_OWNER\", \"livingUnitId\":5345},{\"bookingId\":20968, \"bookingNo\":\"2017-20944\", \"offenderNo\":\"0001021394\", \"firstName\":\"USER2\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"M\",\"X\"], \"agencyId\":\"ITAG\", \"assignedOfficerUserId\":\"OMS_OWNER\", \"livingUnitId\":5345},{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"agencyId\":\"ITAG\", \"facialImageId\":10008, \"assignedOfficerUserId\":\"OMS_OWNER\", \"livingUnitId\":5345}]"
+          "value": "[{\"bookingId\":20969, \"bookingNo\":\"2017-20945\", \"offenderNo\":\"0001021395\", \"firstName\":\"USER3\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"V\"], \"agencyId\":\"ITAG\", \"assignedLivingUnitId\":5345, \"assignedOfficerUserId\":\"OMS_OWNER\"},{\"bookingId\":20968, \"bookingNo\":\"2017-20944\", \"offenderNo\":\"0001021394\", \"firstName\":\"USER2\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"M\",\"X\"], \"agencyId\":\"ITAG\", \"assignedLivingUnitId\":5345, \"assignedOfficerUserId\":\"OMS_OWNER\"},{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"agencyId\":\"ITAG\", \"assignedLivingUnitId\":5345, \"facialImageId\":10008, \"assignedOfficerUserId\":\"OMS_OWNER\"}]"
         }
       ],
       "metaInfo": {},
@@ -730,7 +730,7 @@
         "path": "/api/booking"
       },
       "id": "DD357585-A85D-449A-9181-7E8A43086F3D",
-      "lastModified": "2017-06-06T16:23:27.977-07:00",
+      "lastModified": "2017-06-15T23:37:35.027-07:00",
       "name": "Get Bookings - Pagination 1",
       "headers": [
         {
@@ -762,7 +762,7 @@
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
           "path": "$.inmatesSummaries",
-          "value": "[{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"agencyId\":\"ITAG\", \"facialImageId\":10008, \"assignedOfficerUserId\":\"OMS_OWNER\", \"livingUnitId\":5345},{\"bookingId\":20968, \"bookingNo\":\"2017-20944\", \"offenderNo\":\"0001021394\", \"firstName\":\"USER2\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"M\",\"X\"], \"agencyId\":\"ITAG\", \"assignedOfficerUserId\":\"OMS_OWNER\", \"livingUnitId\":5345}]"
+          "value": "[{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"agencyId\":\"ITAG\", \"assignedLivingUnitId\":5345, \"facialImageId\":10008, \"assignedOfficerUserId\":\"OMS_OWNER\"},{\"bookingId\":20968, \"bookingNo\":\"2017-20944\", \"offenderNo\":\"0001021394\", \"firstName\":\"USER2\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"M\",\"X\"], \"agencyId\":\"ITAG\", \"assignedLivingUnitId\":5345, \"assignedOfficerUserId\":\"OMS_OWNER\"}]"
         }
       ],
       "metaInfo": {},
@@ -819,7 +819,7 @@
         "path": "/api/booking"
       },
       "id": "1A854B1A-6C05-4B35-83E5-D855E733A225",
-      "lastModified": "2017-06-06T16:23:59.114-07:00",
+      "lastModified": "2017-06-15T23:37:53.534-07:00",
       "name": "Get Bookings - Pagination 2",
       "headers": [
         {
@@ -851,7 +851,7 @@
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
           "path": "$.inmatesSummaries",
-          "value": "[{\"bookingId\":20969, \"bookingNo\":\"2017-20945\", \"offenderNo\":\"0001021395\", \"firstName\":\"USER3\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"V\"], \"agencyId\":\"ITAG\", \"assignedOfficerUserId\":\"OMS_OWNER\", \"livingUnitId\":5345}]"
+          "value": "[{\"bookingId\":20969, \"bookingNo\":\"2017-20945\", \"offenderNo\":\"0001021395\", \"firstName\":\"USER3\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"V\"], \"agencyId\":\"ITAG\", \"assignedLivingUnitId\":5345, \"assignedOfficerUserId\":\"OMS_OWNER\"}]"
         }
       ],
       "metaInfo": {},
@@ -2375,7 +2375,7 @@
       },
       "description": "",
       "id": "B3272102-D4A6-47D4-84C2-A2AA4CE98764",
-      "lastModified": "2017-05-29T17:31:39.433-07:00",
+      "lastModified": "2017-06-15T23:38:41.120-07:00",
       "name": "Get Locations - By LocationId - Inmates - Search and Order By",
       "headers": [
         {
@@ -2395,7 +2395,7 @@
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
           "path": "$.inmatesSummaries",
-          "value": "[{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"agencyId\":\"ITAG\", \"facialImageId\":10008, \"livingUnitId\":5345},{\"bookingId\":20968, \"bookingNo\":\"2017-20944\", \"offenderNo\":\"0001021394\", \"firstName\":\"USER2\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"M\",\"X\"], \"agencyId\":\"ITAG\", \"livingUnitId\":5345},{\"bookingId\":20969, \"bookingNo\":\"2017-20945\", \"offenderNo\":\"0001021395\", \"firstName\":\"USER3\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"V\"], \"agencyId\":\"ITAG\", \"livingUnitId\":5345}]"
+          "value": "[{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"agencyId\":\"ITAG\", \"assignedLivingUnitId\":5345, \"facialImageId\":10008},{\"bookingId\":20968, \"bookingNo\":\"2017-20944\", \"offenderNo\":\"0001021394\", \"firstName\":\"USER2\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"M\",\"X\"], \"agencyId\":\"ITAG\", \"assignedLivingUnitId\":5345},{\"bookingId\":20969, \"bookingNo\":\"2017-20945\", \"offenderNo\":\"0001021395\", \"firstName\":\"USER3\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"V\"], \"agencyId\":\"ITAG\", \"assignedLivingUnitId\":5345}]"
         }
       ],
       "metaInfo": {},
@@ -2447,7 +2447,7 @@
       },
       "description": "",
       "id": "D319090A-328E-4F80-B6D1-7111ACE33CCA",
-      "lastModified": "2017-05-29T17:31:39.433-07:00",
+      "lastModified": "2017-06-15T23:39:03.235-07:00",
       "name": "Get Locations - By LocationId - Inmates - Pagination 1",
       "headers": [
         {
@@ -2467,7 +2467,7 @@
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
           "path": "$.inmatesSummaries",
-          "value": "[{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"agencyId\":\"ITAG\", \"facialImageId\":10008, \"livingUnitId\":5345},{\"bookingId\":20968, \"bookingNo\":\"2017-20944\", \"offenderNo\":\"0001021394\", \"firstName\":\"USER2\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"M\",\"X\"], \"agencyId\":\"ITAG\", \"livingUnitId\":5345}]"
+          "value": "[{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"agencyId\":\"ITAG\", \"assignedLivingUnitId\":5345, \"facialImageId\":10008},{\"bookingId\":20968, \"bookingNo\":\"2017-20944\", \"offenderNo\":\"0001021394\", \"firstName\":\"USER2\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"M\",\"X\"], \"agencyId\":\"ITAG\", \"assignedLivingUnitId\":5345}]"
         }
       ],
       "metaInfo": {},
@@ -2519,7 +2519,7 @@
       },
       "description": "",
       "id": "2FB5F72F-C423-4650-B010-5B0F16541F63",
-      "lastModified": "2017-05-29T17:31:39.433-07:00",
+      "lastModified": "2017-06-15T23:39:13.402-07:00",
       "name": "Get Locations - By LocationId - Inmates - Pagination 2",
       "headers": [
         {
@@ -2539,7 +2539,7 @@
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
           "path": "$.inmatesSummaries",
-          "value": "[{\"bookingId\":20969, \"bookingNo\":\"2017-20945\", \"offenderNo\":\"0001021395\", \"firstName\":\"USER3\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"V\"], \"agencyId\":\"ITAG\", \"livingUnitId\":5345}]"
+          "value": "[{\"bookingId\":20969, \"bookingNo\":\"2017-20945\", \"offenderNo\":\"0001021395\", \"firstName\":\"USER3\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"V\"], \"agencyId\":\"ITAG\", \"assignedLivingUnitId\":5345}]"
         }
       ],
       "metaInfo": {},
@@ -3439,7 +3439,7 @@
     {
       "type": "Context",
       "id": "5448E9A4-7237-4EA9-8064-C52B91A99650",
-      "lastModified": "2017-06-14T14:24:35.896-07:00",
+      "lastModified": "2017-06-15T23:40:03.006-07:00",
       "name": "header",
       "variables": [
         {
