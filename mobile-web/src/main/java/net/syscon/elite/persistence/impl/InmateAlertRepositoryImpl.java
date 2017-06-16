@@ -23,10 +23,10 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 	private final Map<String, FieldMapper> alertMapping = new ImmutableMap.Builder<String, FieldMapper>()
 		.put("ALERT_SEQ", 			new FieldMapper("alertId"))
 		.put("ALERT_TYPE", 			new FieldMapper("alertType"))
-		.put("ALERT_CODE", 				new FieldMapper("alertCode"))
-		.put("COMMENT_TEXT", 			new FieldMapper("comment", value -> { System.out.println(value);   return value==null?"":value;}))
-		.put("ALERT_DATE", 			new FieldMapper("dateCreated", value -> {return DateFormatProvider.get("yyyy-MM-dd").format((Date)value);}))
-		.put("EXPIRY_DATE", 			new FieldMapper("dateExpires", value -> value==null?"":DateFormatProvider.get("yyyy-MM-dd").format((Date)value)))
+		.put("ALERT_CODE", 			new FieldMapper("alertCode"))
+		.put("COMMENT_TEXT", 		new FieldMapper("comment", value -> value == null ? "" : value))
+		.put("ALERT_DATE", 			new FieldMapper("dateCreated", value -> DateFormatProvider.get("yyyy-MM-dd").format((Date)value)))
+		.put("EXPIRY_DATE", 		new FieldMapper("dateExpires", value -> value == null ? "" : DateFormatProvider.get("yyyy-MM-dd").format((Date)value)))
 		.build();
 
 	@Override
@@ -35,7 +35,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_INMATE_ALERTS"), alertMapping, preOracle12)
 											.addRowCount()
 											.addQuery(query)
-											.addOrderBy("asc".equalsIgnoreCase(order.toString())?true:false, orderByField)
+											.addOrderBy("asc".equalsIgnoreCase(order.toString()), orderByField)
 											.addPagedQuery()
 											.build();
 		final RowMapper<Alert> alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);

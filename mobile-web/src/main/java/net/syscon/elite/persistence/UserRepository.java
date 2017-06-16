@@ -10,5 +10,5 @@ public interface UserRepository {
 	UserDetails findByUsername(String username);
 	List<UserDetails> findByStaffId(Long staffId);
 	List<String> findRolesByUsername(String username);
-	int updateCurrentLoad(final Long staffId, final String caseLoadId);
+	void updateCurrentLoad(final Long staffId, final String caseLoadId);
 }

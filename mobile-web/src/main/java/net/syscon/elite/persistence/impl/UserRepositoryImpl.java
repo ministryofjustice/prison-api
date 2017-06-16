@@ -37,7 +37,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 		.put("FIRST_NAME", new FieldMapper("firstName"))
 		.put("LAST_NAME", new FieldMapper("lastName"))
 		.put("EMAIL", new FieldMapper("email"))
-		.put("IMAGE_ID", new FieldMapper("imageId"))
+		.put("IMAGE_ID", new FieldMapper("thumbnailId"))
 		.put("ASSIGNED_CASELOAD_ID", new FieldMapper("activeCaseLoadId")
 	).build();
 
@@ -77,9 +77,9 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
 
 	@Override
-	public int updateCurrentLoad(final Long staffId, final String caseLoadId) {
+	public void updateCurrentLoad(final Long staffId, final String caseLoadId) {
 		final String sql = getQuery("UPDATE_STAFF_ACTIVE_CASE_LOAD");
-		return jdbcTemplate.update(sql,  createParams("caseLoadId",caseLoadId,"staffId",staffId));
+		jdbcTemplate.update(sql, createParams("caseLoadId", caseLoadId, "staffId", staffId));
 	}
 
 }

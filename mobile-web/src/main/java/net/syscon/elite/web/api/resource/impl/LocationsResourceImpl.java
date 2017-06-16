@@ -1,12 +1,6 @@
 package net.syscon.elite.web.api.resource.impl;
 
 
-import java.util.List;
-
-import javax.inject.Inject;
-
-import org.springframework.stereotype.Component;
-
 import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.InmateSummaries;
@@ -14,15 +8,19 @@ import net.syscon.elite.web.api.model.Location;
 import net.syscon.elite.web.api.model.Locations;
 import net.syscon.elite.web.api.resource.LocationsResource;
 import net.syscon.util.MetaDataFactory;
+import org.springframework.stereotype.Component;
+
+import javax.inject.Inject;
+import java.util.List;
 
 
 @Component
 public class LocationsResourceImpl implements LocationsResource {
 
-	private AgencyLocationService agencyLocationService;
+	private final AgencyLocationService agencyLocationService;
 
 	@Inject
-	public void setAgencyLocationService(final AgencyLocationService agencyLocationService) { this.agencyLocationService = agencyLocationService; }
+	public LocationsResourceImpl(final AgencyLocationService agencyLocationService) { this.agencyLocationService = agencyLocationService; }
 
 	@Override
 	public GetLocationsResponse getLocations(final String query, final String orderBy, final Order order, final int offset, final int limit) throws Exception {
