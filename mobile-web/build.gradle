@@ -74,15 +74,17 @@ project(":mobile-web") {
 	}
 
     task testWithSchemaNomis(type:Test) {
+		def nomisEnvVars = ['api.db.target':'nomis', 'cucumber.options':'--tags @global,@nomis']
+
         exclude "**/persistence/*"
-        println "Running Serenity tests against NOMIS schema..."
-        environment 'api.db.target', 'nomis'
+        environment nomisEnvVars
     }
 
     task testWithSchemaElite(type:Test) {
+		def eliteEnvVars = ['api.db.target':'elite', 'cucumber.options':'--tags @global,@elite']
+
         exclude "**/persistence/*"
-        println "Running Serenity tests against ELITE schema..."
-        environment 'api.db.target', 'elite'
+		environment eliteEnvVars
     }
 
 	check.dependsOn integTest
@@ -99,7 +101,7 @@ project(":mobile-web") {
         exclude "**/executableSpecification/*"
     }
 
-    test.dependsOn testWithSchemaNomis
+    test.dependsOn testWithSchemaElite, testWithSchemaNomis
 
 	compileJava.dependsOn processResources
 
