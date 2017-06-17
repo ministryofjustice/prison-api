@@ -1,27 +1,24 @@
 package net.syscon.elite.service;
 
-import java.util.List;
-
 import net.syscon.elite.web.api.model.ReferenceCode;
 import net.syscon.elite.web.api.resource.ReferenceDomainsResource.Order;
+
+import java.util.List;
 
 
 
 public interface ReferenceDomainService {
 	
-	public List<ReferenceCode> getCnotetypesByCaseLoad(String caseLoad, int offset, int limit);
-	public List<ReferenceCode> getCnoteSubtypesByCaseNoteType(String caseNoteType, int offset, int limit);
-	public List<ReferenceCode> getAlertTypes(String query, String orderBy, Order order, int offset, int limit);
-	public ReferenceCode getAlertTypesByAlertType(String alertType);
-	public List<ReferenceCode> getAlertTypesByAlertTypeCode(String alertType, String query, String orderBy, Order order, int offset, int limit);
-	public ReferenceCode getAlertTypeCodesByAlertCode(String alertType, String alertCode);
-	
-	
-	
-	public List<ReferenceCode> getReferencecodesForDomain(String domain);
-	public ReferenceCode getRefrenceCodeDescriptionForCode(String domain, String code);
-	
-	
-	
-	
+	List<ReferenceCode> getCaseNoteTypesByCaseLoad(String caseLoad, int offset, int limit);
+	List<ReferenceCode> getCaseNoteSubTypesByCaseNoteType(String caseNoteType, int offset, int limit);
+	List<ReferenceCode> getAlertTypes(String query, String orderBy, Order order, int offset, int limit);
+	ReferenceCode getAlertTypesByAlertType(String alertType);
+	List<ReferenceCode> getAlertTypesByAlertTypeCode(String alertType, String query, String orderBy, Order order, int offset, int limit);
+	ReferenceCode getAlertTypeCodesByAlertCode(String alertType, String alertCode);
+	List<ReferenceCode> getReferenceCodesByDomain(String domain, int offset, int limit);
+	ReferenceCode getReferenceCodeByDomainAndCode(String domain, String code);
+	ReferenceCode getCaseNoteType(String typeCode);
+	List<ReferenceCode> getCaseNoteTypes(String query, String orderBy, Order order, int offset, int limit);
+	ReferenceCode getCaseNoteSubType(String typeCode, String subTypeCode);
+	List<ReferenceCode> getCaseNoteSubTypes(String typeCode, String query, String orderBy, Order order, int offset, int limit);
 }

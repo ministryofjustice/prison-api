@@ -38,3 +38,40 @@
   is: [
     pageable
   ]
+
+/caseNoteSources:
+   description: Give all Case Note Sources
+   type: { get-collection : { collectionSchema: referenceCodes}}
+   is: [
+     pageable
+   ]
+
+/caseNoteSources/{sourceCode}:
+  description: Get the Case Note Source
+  type: { get-item : { schema: referenceCode}}
+
+/caseNoteTypes:
+   description: Give all Case Note Types
+   type: { get-collection : { collectionSchema: referenceCodes}}
+   is: [
+     searchable: {fieldsList: "code, description, activeFlag and parentCode"},
+     orderable: {fieldsList: "code"},
+     pageable
+   ]
+
+/caseNoteTypes/{typeCode}:
+  description: Get the Case Note Type
+  type: { get-item : { schema: referenceCode}}
+
+/caseNoteTypes/{typeCode}/subTypes:
+   description: Give all Case Note SubTypes
+   type: { get-collection : { collectionSchema: referenceCodes}}
+   is: [
+     searchable: {fieldsList: "code, description, activeFlag and parentCode"},
+     orderable: {fieldsList: "code"},
+     pageable
+   ]
+
+/caseNoteTypes/{typeCode}/subTypes/{subTypeCode}:
+  description: Get the Case Note SubType
+  type: { get-item : { schema: referenceCode}}
