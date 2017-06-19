@@ -166,4 +166,17 @@ public class UsersResourceImpl implements UsersResource {
 		}
 	}
 
+	@Override
+	public GetUsersMeCaseNoteTypesResponse getUsersMeCaseNoteTypes(int offset, int limit) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public GetUsersMeCaseNoteTypesByTypeCodeResponse getUsersMeCaseNoteTypesByTypeCode(String typeCode, int offset,
+			int limit) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

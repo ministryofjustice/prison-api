@@ -19,6 +19,20 @@
   is: [
     pageable
   ]
+  
+/me/caseNoteTypes:
+  description: Returns the list of case Note types associated to the user
+  type: { get-collection: { collectionSchema: referenceCodes } }
+  is: [
+    pageable
+  ] 
+  
+/me/caseNoteTypes/{typeCode}:
+  description: Returns the list of case Note types associated to the user
+  type: { get-collection: { collectionSchema: referenceCodes } }
+  is: [
+    pageable
+  ] 
 
 /me/activeCaseLoad:
   description: The active caseload associated to the user
