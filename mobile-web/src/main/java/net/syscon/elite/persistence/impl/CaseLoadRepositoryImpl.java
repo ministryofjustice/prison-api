@@ -28,11 +28,11 @@ public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRe
 	}
 	
 	@Override
-	public List<CaseLoad> findCaseLoadsByStaffId(final Long staffId) {
+	public List<CaseLoad> findCaseLoadsByUsername(final String username) {
 		final String sql = getQuery("FIND_CASE_LOADS_BY_STAFF_ID");
 		final RowMapper<CaseLoad> caseLoadRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseLoad.class, caseLoadMapping);
 		try {
-			return jdbcTemplate.query(sql, createParams("staffId", staffId), caseLoadRowMapper);
+			return jdbcTemplate.query(sql, createParams("username", username), caseLoadRowMapper);
 		} catch (EmptyResultDataAccessException e) {
 			return Collections.emptyList();
 		}
