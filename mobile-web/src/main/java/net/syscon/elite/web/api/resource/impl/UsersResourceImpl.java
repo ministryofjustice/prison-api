@@ -134,8 +134,7 @@ public class UsersResourceImpl implements UsersResource {
 
 	@Override
 	public GetUsersMeCaseLoadsResponse getUsersMeCaseLoads(final int offset, final int limit) throws Exception {
-		final UserDetails user = getCurrentUser();
-		final List<CaseLoad> caseLoads = userService.getCaseLoads(user.getStaffId());
+		final List<CaseLoad> caseLoads = userService.getCaseLoads(UserSecurityUtils.getCurrentUsername());
 		return GetUsersMeCaseLoadsResponse.withJsonOK(caseLoads);
 	}
 
@@ -146,8 +145,7 @@ public class UsersResourceImpl implements UsersResource {
 	@Override
 	public PutUsersMeActiveCaseLoadResponse putUsersMeActiveCaseLoad(final CaseLoad entity) throws Exception {
 		try {
-			final UserDetails user = getCurrentUser();
-			userService.setActiveCaseLoad(user.getStaffId(), entity.getCaseLoadId());
+			userService.setActiveCaseLoad(UserSecurityUtils.getCurrentUsername(), entity.getCaseLoadId());
 			return PutUsersMeActiveCaseLoadResponse.withOK();
 		} catch (final AccessDeniedException ex) {
 			final HttpStatus httpStatus = new HttpStatus("403",  "403", "Not Authorized", "The current user does not have acess to this CaseLoad", "");

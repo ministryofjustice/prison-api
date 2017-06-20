@@ -29,16 +29,9 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<UserDetails> getUserByStaffId(final Long staffId) {
-		return userRepository.findByStaffId(staffId);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
 	public UserDetails getUserByUsername(final String username) {
 		return userRepository.findByUsername(username);
 	}
-	
 
 	@Override
 	@Transactional(readOnly = true)
@@ -50,20 +43,21 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CaseLoad> getCaseLoads(final Long staffId) {
-		return caseLoadRepository.findCaseLoadsByStaffId(staffId);
+	public List<CaseLoad> getCaseLoads(final String username) {
+		return caseLoadRepository.findCaseLoadsByUsername(username);
 	}
 
 	@Override
 	@Transactional
-	public void setActiveCaseLoad(final Long staffId, final String caseLoadId) {
-		final boolean found = caseLoadRepository.findCaseLoadsByStaffId(staffId).stream()
+	public void setActiveCaseLoad(final String username, final String caseLoadId) {
+		final boolean found = caseLoadRepository.findCaseLoadsByUsername(username).stream()
 				.anyMatch(c -> c.getCaseLoadId().equalsIgnoreCase(caseLoadId));
 
 		if (!found) {
 			throw new AccessDeniedException(format("The user does not have access to the caseLoadid = %s", caseLoadId));
 		} else {
-			userRepository.updateCurrentLoad(staffId, caseLoadId);
+			final UserDetails userDetails = userRepository.findByUsername(username);
+			userRepository.updateCurrentLoad(userDetails.getStaffId(), caseLoadId);
 		}
 	}
 

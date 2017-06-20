@@ -7,10 +7,9 @@ import java.util.List;
 
 public interface UserService {
 	
-	List<UserDetails> getUserByStaffId(Long staffId);
 	UserDetails getUserByUsername(String username);
 	CaseLoad getActiveCaseLoad(final String username);
-	List<CaseLoad> getCaseLoads(Long staffId);
-	void setActiveCaseLoad(Long staffId, String caseLoadId);
+	List<CaseLoad> getCaseLoads(String username);
+	void setActiveCaseLoad(String username, String caseLoadId);
 
 }

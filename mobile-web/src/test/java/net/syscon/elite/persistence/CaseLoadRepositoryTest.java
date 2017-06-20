@@ -47,7 +47,7 @@ public class CaseLoadRepositoryTest {
 
     @Test
     public final void testGetOffender() {
-        final List<CaseLoad> caseLoadsByStaffId = repository.findCaseLoadsByStaffId(-2L);
+        final List<CaseLoad> caseLoadsByStaffId = repository.findCaseLoadsByUsername("ITAG_USER");
         assertThat(caseLoadsByStaffId).isNotEmpty();
         assertThat(caseLoadsByStaffId).hasSize(3);
         assertThat(caseLoadsByStaffId).extracting("caseLoadId").contains("LEI", "BXI", "WAI");
