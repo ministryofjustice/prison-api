@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,62 +22,61 @@ import static org.assertj.core.api.Assertions.assertThat;
  * BDD step implementations for Booking search feature.
  */
 public class BookingSearchSteps extends CommonSteps {
-    private static final String API_QUERY_PREFIX = "/api/booking?query=";
+    private static final String API_QUERY_PREFIX = API_PREFIX + "booking?query=";
 
     private InmateSummaries inmateSummaries;
 
     @Step("Perform search using full last name")
     public void fullLastNameSearch(String criteria) {
-        String query = buildSimpleQuery("lastName", QueryOperator.EQUAL, criteria);
-        ResponseEntity<InmateSummaries> response = restTemplate.exchange(query, HttpMethod.GET, createEntity(), InmateSummaries.class);
+        String query = buildSimpleQuery("lastName", criteria);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-        inmateSummaries = response.getBody();
+        dispatchQuery(query);
     }
 
     @Step("Perform search using partial last name")
     public void partialLastNameSearch(String criteria) {
-        String query = buildSimpleQuery("lastName", QueryOperator.LIKE, criteria);
-        ResponseEntity<InmateSummaries> response = restTemplate.exchange(query, HttpMethod.GET, createEntity(), InmateSummaries.class);
+        String query = buildSimpleQuery("lastName", criteria);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-        inmateSummaries = response.getBody();
+        dispatchQuery(query);
     }
 
     @Step("Perform search using full first name")
     public void fullFirstNameSearch(String criteria) {
-        String query = buildSimpleQuery("firstName", QueryOperator.EQUAL, criteria);
-        ResponseEntity<InmateSummaries> response = restTemplate.exchange(query, HttpMethod.GET, createEntity(), InmateSummaries.class);
+        String query = buildSimpleQuery("firstName", criteria);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-        inmateSummaries = response.getBody();
+        dispatchQuery(query);
     }
 
     @Step("Perform search using partial first name")
     public void partialFirstNameSearch(String criteria) {
-        String query = buildSimpleQuery("firstName", QueryOperator.LIKE, criteria);
-        ResponseEntity<InmateSummaries> response = restTemplate.exchange(query, HttpMethod.GET, createEntity(), InmateSummaries.class);
+        String query = buildSimpleQuery("firstName", criteria);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-        inmateSummaries = response.getBody();
+        dispatchQuery(query);
     }
 
-    @Step("Perform search without any criteria")
+    @Step("Perform search using first name and last name")
+    public void firstNameAndLastNameSearch(String firstName, String lastName) {
+        String firstNameQuery = buildSimpleQuery("firstName", firstName);
+        String lastNameQuery = buildSimpleQuery("lastName", lastName);
+
+        String query = buildAndQuery(firstNameQuery, lastNameQuery);
+
+        dispatchQuery(query);
+    }
+
+    @Step("Perform search using first name or last name")
+    public void firstNameOrLastNameSearch(String firstName, String lastName) {
+        String firstNameQuery = buildSimpleQuery("firstName", firstName);
+        String lastNameQuery = buildSimpleQuery("lastName", lastName);
+
+        String query = buildOrQuery(firstNameQuery, lastNameQuery);
+
+        dispatchQuery(query);
+    }
+
+    @Step("Perform booking search without any criteria")
     public void findAll() {
-        ResponseEntity<InmateSummaries> response = restTemplate.exchange(API_QUERY_PREFIX, HttpMethod.GET, createEntity(), InmateSummaries.class);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-        inmateSummaries = response.getBody();
-    }
-
-    @Step("Verify expected number of inmates returned by search")
-    public void verifySearchCount(int expectedCount) {
-        assertThat(inmateSummaries.getInmatesSummaries().size()).isEqualTo(expectedCount);
+        dispatchQuery(null);
     }
 
     @Step("Verify first names of inmates returned by search")
@@ -106,14 +106,48 @@ public class BookingSearchSteps extends CommonSteps {
         verifyIdentical(queriedNames, expectedNames);
     }
 
-    private String buildSimpleQuery(String fieldName, QueryOperator operator, Object criteria) {
-        StringJoiner sj = new StringJoiner(":", API_QUERY_PREFIX, "");
+    private void dispatchQuery(String query) {
+        init();
+
+        String queryUrl = API_QUERY_PREFIX + StringUtils.trimToEmpty(query);
+
+        ResponseEntity<InmateSummaries> response = restTemplate.exchange(queryUrl, HttpMethod.GET, createEntity(), InmateSummaries.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        inmateSummaries = response.getBody();
+
+        setResourceMetaData(inmateSummaries.getInmatesSummaries(), inmateSummaries.getPageMetaData());
+    }
+
+    private String buildSimpleQuery(String fieldName, Object criteria) {
+        StringJoiner sj = new StringJoiner(":");
 
         sj.add(fieldName);
-        sj.add(operator.getJsonOperator());
+        sj.add(deriveOperator(criteria).getJsonOperator());
         sj.add(parseCriteria(criteria));
 
         return sj.toString();
+    }
+
+    private String buildAndQuery(String... terms) {
+        return Stream.of(terms).collect(Collectors.joining(",and:"));
+    }
+
+    private String buildOrQuery(String... terms) {
+        return Stream.of(terms).collect(Collectors.joining(",or:"));
+    }
+
+    private QueryOperator deriveOperator(Object criteria) {
+        QueryOperator operator;
+
+        if (criteria instanceof String) {
+            operator = (((String) criteria).contains("%") ? QueryOperator.LIKE : QueryOperator.EQUAL);
+        } else {
+            operator = QueryOperator.EQUAL;
+        }
+
+        return operator;
     }
 
     private String parseCriteria(Object criteria) {
@@ -174,5 +208,9 @@ public class BookingSearchSteps extends CommonSteps {
         String expected = String.join(",", listExpected);
 
         assertThat(actual).isEqualTo(expected);
+    }
+
+    private void init() {
+        inmateSummaries = null;
     }
 }

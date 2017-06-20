@@ -42,13 +42,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         booking.partialFirstNameSearch(partialFirstName);
     }
 
-    @Then("^expected \"([^\"]*)\" of offender records are returned$")
-    public void expectedNumberOfOffenderRecordsAreReturned(String expectedCount) throws Throwable {
-        Integer expectedOffenderCount = Integer.valueOf(expectedCount);
-
-        booking.verifySearchCount(expectedOffenderCount);
-    }
-
     @And("^offender first names match \"([^\"]*)\"$")
     public void offenderFirstNamesMatch(String firstNames) throws Throwable {
         booking.verifyFirstNames(firstNames);
@@ -69,10 +62,23 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         booking.verifyLastNames(lastNames);
     }
 
-    @Then("^all \"([^\"]*)\" offender records are returned$")
-    public void allOffenderRecordsAreReturned(String expectedCount) throws Throwable {
-        Integer expectedOffenderCount = Integer.valueOf(expectedCount);
+    @When("^a booking search is made with \"([^\"]*)\" and \"([^\"]*)\" of existing offender$")
+    public void aBookingSearchIsMadeWithAndOfExistingOffender(String firstName, String lastName) throws Throwable {
+        booking.firstNameAndLastNameSearch(firstName, lastName);
+    }
 
-        booking.verifySearchCount(expectedOffenderCount);
+    @When("^a booking search is made with \"([^\"]*)\" or \"([^\"]*)\" of existing offender$")
+    public void aBookingSearchIsMadeWithOrOfExistingOffender(String firstName, String lastName) throws Throwable {
+        booking.firstNameOrLastNameSearch(firstName, lastName);
+    }
+
+    @Then("^\"([^\"]*)\" booking records are returned$")
+    public void bookingRecordsAreReturned(String expectedCount) throws Throwable {
+        booking.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
+    }
+
+    @Then("^\"([^\"]*)\" total booking records are available$")
+    public void totalBookingRecordsAreAvailable(String expectedCount) throws Throwable {
+        booking.verifyTotalResourceRecordsAvailable(Long.valueOf(expectedCount));
     }
 }

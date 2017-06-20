@@ -13,12 +13,13 @@ import net.syscon.elite.web.api.model.UserDetails;
 import net.syscon.elite.web.api.resource.LocationsResource.Order;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
+import javax.ws.rs.NotFoundException;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -40,7 +41,7 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 		this.userRepository = userRepository;
 	}
 
-	@Override
+    @Override
 	public Agency getAgency(final String agencyId) {
 		return agencyRepository.find(getCurrentCaseLoad(), agencyId);
 	}
@@ -51,8 +52,8 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 	}
 
 	@Override
-	public List<Location> getLocations(String query, String orderBy, Order order, final int offset, final int limit) {
-		return locationRepository.findLocations(getCurrentCaseLoad(), query, orderBy, order, offset, limit);
+	public List<Location> getLocations(String query, String orderBy, Order order, int offset, int limit) {
+		return locationRepository.findLocations(query, orderBy, order, offset, limit);
 	}
 	
 	@Override
@@ -61,29 +62,39 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 	}
 
 	@Override
-	public List<AssignedInmate> getInmatesFromLocation(final Long locationId, String query, String orderByField, Order order, final int offset, final int limit) {
-		List<AssignedInmate> result = new ArrayList<>();
-		if (getLocation(locationId) != null) {
-			return inmateRepository.findInmatesByLocation(locationId, query, orderByField, order, offset, limit);
+	public List<AssignedInmate> getInmatesFromLocation(Long locationId, String query, String orderByField, Order order, int offset, int limit) {
+		List<AssignedInmate> inmates;
+
+		Location location = getLocation(locationId, false);
+
+		if ( location == null) {
+			inmates = Collections.emptyList();
+		} else {
+			inmates = inmateRepository.findInmatesByLocation(locationId, query, orderByField, order, offset, limit);
 		}
-		return result;
+
+		return inmates;
 	}
 
 	@Override
-	public Location getLocation(final Long locationId) {
-		Location result = null;
+	public Location getLocation(Long locationId, boolean withInmates) {
+		Location location;
+
 		try {
-			Location location = locationRepository.findLocation(getCurrentCaseLoad(), locationId);
-			if (location != null) {
-				final List<AssignedInmate> inmates = inmateRepository.findInmatesByLocation(locationId, null, null, null, 0, 1000);
+			location = locationRepository.findLocation(locationId);
+
+			if (withInmates && (location != null)) {
+				List<AssignedInmate> inmates = inmateRepository.findInmatesByLocation(locationId, null, null, null, 0, 1000);
+
 				location.setAssignedInmates(inmates);
-				return location;
 			}
-		} catch (final DataAccessException ex) {
+		} catch (final EmptyResultDataAccessException ex) {
 			log.error(ex.getMessage(), ex);
-			throw ex;
+
+			throw new NotFoundException();
 		}
-		return result;
+
+		return location;
 	}
 
 	private String getCurrentCaseLoad() {
@@ -91,5 +102,4 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 		final UserDetails userDetails = userRepository.findByUsername(UserSecurityUtils.getCurrentUsername());
 		return userDetails.getActiveCaseLoadId();
 	}
-
 }

@@ -1,9 +1,6 @@
 package net.syscon.elite.executableSpecification;
 
-import net.syscon.elite.executableSpecification.steps.AuthenticationSteps;
-import net.syscon.elite.executableSpecification.steps.BookingSearchSteps;
-import net.syscon.elite.executableSpecification.steps.CaseNoteSteps;
-import net.syscon.elite.executableSpecification.steps.UserSteps;
+import net.syscon.elite.executableSpecification.steps.*;
 import net.syscon.elite.test.DatasourceActiveProfilesResolver;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -41,6 +38,11 @@ public abstract class AbstractStepDefinitions {
         @Bean
         BookingSearchSteps booking() {
             return new BookingSearchSteps();
+        }
+
+        @Bean
+        LocationsSteps location() {
+            return new LocationsSteps();
         }
     }
 }

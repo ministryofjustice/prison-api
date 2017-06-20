@@ -1,11 +1,13 @@
 package net.syscon.elite.executableSpecification.steps;
 
+import net.syscon.elite.web.api.model.PageMetaData;
 import net.thucydides.core.annotations.Step;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -14,11 +16,26 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Common BDD step implementations
  */
 public abstract class CommonSteps {
+    public static final String API_PREFIX = "/api/";
+
     @Autowired
     private AuthenticationSteps auth;
 
     @Autowired
     protected TestRestTemplate restTemplate;
+
+    private List<?> resources;
+    private PageMetaData pageMetaData;
+
+    @Step("Verify number of resource records returned")
+    public void verifyResourceRecordsReturned(long expectedCount) {
+        assertThat(Integer.valueOf(resources.size()).longValue()).isEqualTo(expectedCount);
+    };
+
+    @Step("Verify total number of resource records available")
+    public void verifyTotalResourceRecordsAvailable(long expectedCount) {
+        assertThat(pageMetaData.getTotalRecords()).isEqualTo(expectedCount);
+    }
 
     @Step("User {0} authenticates with password {1}")
     public void authenticates(String username, String password) {
@@ -28,6 +45,11 @@ public abstract class CommonSteps {
     @Step("Verify authentication token")
     public void verifyToken() {
         assertThat(auth.getToken()).isNotEmpty();
+    }
+
+    protected void setResourceMetaData(List<?> resources, PageMetaData pageMetaData) {
+        this.resources = resources;
+        this.pageMetaData = pageMetaData;
     }
 
     protected HttpEntity createEntity() {

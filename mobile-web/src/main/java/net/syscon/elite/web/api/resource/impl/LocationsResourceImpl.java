@@ -31,7 +31,7 @@ public class LocationsResourceImpl implements LocationsResource {
 
 	@Override
 	public GetLocationsByLocationIdResponse getLocationsByLocationId(final String locationId) throws Exception {
-		return GetLocationsByLocationIdResponse.withJsonOK(agencyLocationService.getLocation(Long.valueOf(locationId)));
+		return GetLocationsByLocationIdResponse.withJsonOK(agencyLocationService.getLocation(Long.valueOf(locationId), false));
 	}
 
 	@Override
