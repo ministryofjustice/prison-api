@@ -54,6 +54,17 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	}
 
 	@Override
+	public List<ReferenceCode> getReferenceCodesByDomain(String domain, String query, String orderBy, Order order, int offset, int limit) {
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_REF_CODES"), referenceCodeMapping, preOracle12)
+				.addQuery(query)
+				.addRowCount()
+				.addPagedQuery()
+				.build();
+		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
+		return jdbcTemplate.query(sql, createParams("domain", domain, "offset", offset, "limit", limit), referenceCodeRowMapper);
+	}
+
+	@Override
 	public ReferenceCode getReferenceCodesByDomainAndCode(String domain, String code) {
 		final String sql = getQuery("FIND_REF_CODE_DESC");
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
@@ -110,24 +121,6 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	}
 
 	@Override
-	public ReferenceCode getCaseNoteType(String typeCode) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_CASE_NOTE_TYPE_BY_CODE"), referenceCodeMapping, preOracle12).addRowCount().build();
-		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
-		return jdbcTemplate.queryForObject(sql,  createParams("typeCode", typeCode), referenceCodeRowMapper);
-	}
-
-	@Override
-	public List<ReferenceCode> getCaseNoteTypes(String query, String orderBy, Order order, int offset, int limit) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_CASE_NOTE_TYPES"), referenceCodeMapping, preOracle12)
-				.addQuery(query)
-				.addRowCount()
-				.addPagedQuery()
-				.build();
-		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
-		return jdbcTemplate.query(sql, createParams("offset", offset, "limit", limit), referenceCodeRowMapper);
-	}
-
-	@Override
 	public ReferenceCode getCaseNoteSubType(String typeCode, String subTypeCode) {
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_CNOTE_SUB_TYPES_BY_TYPECODE_AND_SUBTYPECODE"), referenceCodeMapping, preOracle12).addRowCount().build();
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
@@ -144,4 +137,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
 		return jdbcTemplate.query(sql, createParams("typeCode", typeCode, "offset", offset, "limit", limit), referenceCodeRowMapper);
 	}
+
+
+
 }

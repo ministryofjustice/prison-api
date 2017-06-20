@@ -70,12 +70,12 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 
 	@Override
 	public ReferenceCode getCaseNoteType(String typeCode) {
-		return referenceCodeRepository.getCaseNoteType(typeCode);
+		return referenceCodeRepository.getReferenceCodesByDomainAndCode("TASK_TYPE", typeCode);
 	}
 
 	@Override
 	public List<ReferenceCode> getCaseNoteTypes(String query, String orderBy, Order order, int offset, int limit) {
-		return referenceCodeRepository.getCaseNoteTypes(query,  getDefaultOrderBy(orderBy), order, offset, limit);
+		return referenceCodeRepository.getReferenceCodesByDomain("TASK_TYPE", query,  getDefaultOrderBy(orderBy), order, offset, limit);
 	}
 
 	@Override
