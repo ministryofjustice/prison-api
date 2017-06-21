@@ -40,7 +40,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	public ReferenceCode getReferenceCodeByDomainAndParentAndCode(String domain, String parentCode, String code) {
 		final String sql = getQuery("FIND_REFERENCE_CODE_BY_DOMAIN_PARENT_CODE");
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
-		return jdbcTemplate.queryForObject(sql, createParams("domain", domain, "parent", parentCode, "code", code), referenceCodeRowMapper);
+		return jdbcTemplate.queryForObject(sql, createParams("domain", domain, "parentCode", parentCode, "code", code), referenceCodeRowMapper);
 	}
 
 	@Override
@@ -64,7 +64,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 				.addPagedQuery()
 				.build();
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
-		return jdbcTemplate.query(sql, createParams("domain", domain, "parent", parentCode, "offset", offset, "limit", limit), referenceCodeRowMapper);
+		return jdbcTemplate.query(sql, createParams("domain", domain, "parentCode", parentCode, "offset", offset, "limit", limit), referenceCodeRowMapper);
 	}
 
 	@Override
