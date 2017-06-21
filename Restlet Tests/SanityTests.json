@@ -1,18 +1,18 @@
 {
-  "front-version": "2.4.1",
+  "front-version": "2.4.2",
   "version": 3,
   "nodes": [
     {
       "type": "Project",
       "id": "54E9846C-08D4-4F19-B123-70DBC54E565E",
-      "lastModified": "2017-06-15T23:39:13.402-07:00",
+      "lastModified": "2017-06-21T14:28:47.641-07:00",
       "name": "REST API"
     },
     {
       "type": "Scenario",
       "description": "",
       "id": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90",
-      "lastModified": "2017-06-14T12:32:50.337-07:00",
+      "lastModified": "2017-06-21T14:26:45.549-07:00",
       "name": "Sanity Test",
       "requestOrder": [
         "Login",
@@ -56,6 +56,12 @@
         "Get Locations - By LocationId - Inmates - Pagination 2",
         "Images -  by ImageId",
         "Images - by ImageId - Data",
+        "Reference Domains - Case Note Source",
+        "Reference Domains - Case Note Source - By SourceId",
+        "Reference Domains - Case Note Types - Search",
+        "Reference Domains - Case Note Types - By CaseNoteTypeId",
+        "Reference Domains - Case Note SubTypes - Search",
+        "Reference Domains - Case Note SubTypes - By SubTypeId",
         "Reference Domains - Alert Types - Search and Order By",
         "Reference Domains - Alert Types - Pagination 1",
         "Reference Domains - Alert Types - Pagination 2",
@@ -878,7 +884,7 @@
       },
       "description": "",
       "id": "4902FD1F-02C2-44C6-BDD2-B956D28FFAC1",
-      "lastModified": "2017-06-06T14:20:27.102-07:00",
+      "lastModified": "2017-06-16T12:27:40.254-07:00",
       "name": "Get Bookings - by BookingId",
       "headers": [
         {
@@ -904,7 +910,7 @@
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
           "path": "$.",
-          "value": "{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"assignedLivingUnit\":{\"agencyId\":\"ITAG\", \"locationId\":5345, \"description\":\"ITAG-A&D\"}, \"facialImageId\":10008, \"age\":33, \"physicalAttributes\":{\"gender\":\"M\", \"ethnicity\":\"AFRICAN_AMER\", \"heightInches\":0, \"heightMeters\":1.83, \"weightPounds\":190, \"weightKg\":86}, \"physicalCharacteristics\":[{\"characteristic\":\"Build\", \"detail\":\"Slender\"},{\"characteristic\":\"Citizenship\", \"detail\":\"Canada\"},{\"characteristic\":\"Complexion\", \"detail\":\"Dark\"},{\"characteristic\":\"Dexterity\"},{\"characteristic\":\"Special Diet\", \"detail\":\"Voluntary - Vegan\"},{\"characteristic\":\"DNA Sample on file\", \"detail\":\"No\"},{\"characteristic\":\"Eye Color\", \"detail\":\"Blue\"},{\"characteristic\":\"Facial Hair\", \"detail\":\"Clean Shaven\", \"imageId\":10008},{\"characteristic\":\"Hair Color\", \"detail\":\"Black\"},{\"characteristic\":\"Marital Status\", \"detail\":\"Married\"},{\"characteristic\":\"Race\", \"detail\":\"Black\"},{\"characteristic\":\"Religious Preference\", \"detail\":\"Catholic\"},{\"characteristic\":\"Test for OH\"},{\"characteristic\":\"Wheelchair needed?\", \"detail\":\"No\"}], \"physicalMarks\":[{\"type\":\"Mark\", \"side\":\"Left\", \"bodyPart\":\"Arm\", \"comment\":\"2 inch circular birth mark\", \"orentiation\":\"Centre\"},{\"type\":\"Tattoo\", \"side\":\"Back\", \"bodyPart\":\"Back\", \"comment\":\"hawk in flight\", \"orentiation\":\"Upper\"}], \"assessments\":[], \"assignedOfficerUserId\":\"OMS_OWNER\"}"
+          "value": "{\"bookingId\":20967, \"bookingNo\":\"2017-20943\", \"offenderNo\":\"0001021392\", \"firstName\":\"USER1\", \"lastName\":\"API_TEST\", \"alertsCodes\":[\"KA\",\"X\"], \"assignedLivingUnit\":{\"agencyId\":\"ITAG\", \"locationId\":5345, \"description\":\"ITAG-A&D\"}, \"facialImageId\":10008, \"dateOfBirth\":\"1984-03-02\", \"age\":33, \"physicalAttributes\":{\"gender\":\"M\", \"ethnicity\":\"AFRICAN_AMER\", \"heightInches\":0, \"heightMeters\":1.83, \"weightPounds\":190, \"weightKg\":86, \"heightFt\":6}, \"physicalCharacteristics\":[{\"characteristic\":\"Build\", \"detail\":\"Slender\"},{\"characteristic\":\"Citizenship\", \"detail\":\"Canada\"},{\"characteristic\":\"Complexion\", \"detail\":\"Dark\"},{\"characteristic\":\"Dexterity\"},{\"characteristic\":\"Special Diet\", \"detail\":\"Voluntary - Vegan\"},{\"characteristic\":\"DNA Sample on file\", \"detail\":\"No\"},{\"characteristic\":\"Eye Color\", \"detail\":\"Blue\"},{\"characteristic\":\"Facial Hair\", \"detail\":\"Clean Shaven\", \"imageId\":10008},{\"characteristic\":\"Hair Color\", \"detail\":\"Black\"},{\"characteristic\":\"Marital Status\", \"detail\":\"Married\"},{\"characteristic\":\"Race\", \"detail\":\"Black\"},{\"characteristic\":\"Religious Preference\", \"detail\":\"Catholic\"},{\"characteristic\":\"Test for OH\"},{\"characteristic\":\"Wheelchair needed?\", \"detail\":\"No\"}], \"physicalMarks\":[{\"type\":\"Mark\", \"side\":\"Left\", \"bodyPart\":\"Arm\", \"comment\":\"2 inch circular birth mark\", \"orentiation\":\"Centre\"},{\"type\":\"Tattoo\", \"side\":\"Back\", \"bodyPart\":\"Back\", \"comment\":\"hawk in flight\", \"orentiation\":\"Upper\"}], \"assessments\":[], \"assignedOfficerUserId\":\"OMS_OWNER\"}"
         }
       ],
       "metaInfo": {},
@@ -2681,6 +2687,346 @@
       },
       "headersType": "Form",
       "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/referenceDomains/caseNoteSources"
+      },
+      "description": "",
+      "id": "FD14B1C5-1A9F-4652-8D08-402B91BFE5BC",
+      "lastModified": "2017-06-21T14:19:03.345-07:00",
+      "name": "Reference Domains - Case Note Source",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.referenceCodes.code",
+          "value": "[\"ABC\",\"AUTO\",\"COMM\",\"INST\"]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.referenceCodes",
+          "value": "[{\"domain\":\"NOTE_SOURCE\", \"code\":\"ABC\", \"description\":\"Test\", \"activeFlag\":\"Y\"},{\"domain\":\"NOTE_SOURCE\", \"code\":\"AUTO\", \"description\":\"System\", \"activeFlag\":\"Y\"},{\"domain\":\"NOTE_SOURCE\", \"code\":\"COMM\", \"description\":\"Community\", \"activeFlag\":\"Y\"},{\"domain\":\"NOTE_SOURCE\", \"code\":\"INST\", \"description\":\"Institution\", \"activeFlag\":\"Y\"}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/referenceDomains/caseNoteSources/${\"REST API\".\"Sanity Test\".\"Reference Domains - Case Note Source\".\"response\".\"body\".jsonPath(\"$.referenceCodes[1].code\")}"
+      },
+      "description": "",
+      "id": "5CAF526D-F7AE-4AEA-9DBD-B903C0C788C3",
+      "lastModified": "2017-06-21T14:21:05.606-07:00",
+      "name": "Reference Domains - Case Note Source - By SourceId",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.code",
+          "value": "${\"REST API\".\"Sanity Test\".\"Reference Domains - Case Note Source\".\"response\".\"body\".jsonPath(\"$.referenceCodes[1].code\")}"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.",
+          "value": "{\"domain\":\"NOTE_SOURCE\", \"code\":\"AUTO\", \"description\":\"System\", \"activeFlag\":\"Y\"}"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "query": {
+          "delimiter": "&",
+          "items": [
+            {
+              "enabled": true,
+              "name": "query",
+              "value": "code:like:'C%'"
+            }
+          ]
+        },
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/referenceDomains/caseNoteTypes"
+      },
+      "description": "",
+      "id": "F63BE33B-ADFA-4B20-9796-42FADDE487C8",
+      "lastModified": "2017-06-21T14:24:12.301-07:00",
+      "name": "Reference Domains - Case Note Types - Search",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.referenceCodes.code",
+          "value": "[\"CA\",\"CLASS\",\"CNOTE\"]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.referenceCodes",
+          "value": "[{\"domain\":\"TASK_TYPE\", \"code\":\"CA\", \"description\":\"Community Activity\", \"activeFlag\":\"Y\"},{\"domain\":\"TASK_TYPE\", \"code\":\"CLASS\", \"description\":\"Classification\", \"parentDomainId\":\"AGY_LOC_TYPE\", \"activeFlag\":\"Y\"},{\"domain\":\"TASK_TYPE\", \"code\":\"CNOTE\", \"description\":\"Case Note\", \"activeFlag\":\"Y\"}]"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/referenceDomains/caseNoteTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Case Note Types - Search\".\"response\".\"body\".jsonPath(\"$.referenceCodes[0].code\")}"
+      },
+      "description": "",
+      "id": "A00D1BE0-88E6-4EA3-B5F3-6B58FAB07EB0",
+      "lastModified": "2017-06-21T14:26:14.335-07:00",
+      "name": "Reference Domains - Case Note Types - By CaseNoteTypeId",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.code",
+          "value": "${\"REST API\".\"Sanity Test\".\"Reference Domains - Case Note Types - Search\".\"response\".\"body\".jsonPath(\"$.referenceCodes[0].code\")}"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.domain",
+          "value": "TASK_TYPE"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/referenceDomains/caseNoteTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Case Note Types - Search\".\"response\".\"body\".jsonPath(\"$.referenceCodes[0].code\")}/subTypes"
+      },
+      "description": "",
+      "id": "F8361D57-77E3-4915-8A27-AB96102A0BB8",
+      "lastModified": "2017-06-21T14:18:45.265-07:00",
+      "name": "Reference Domains - Case Note SubTypes - Search",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.referenceCodes",
+          "value": "[{\"domain\":\"TASK_SUBTYPE\", \"code\":\"INIT_TRAN\", \"description\":\"Initiate Transfer\", \"parentDomainId\":\"TASK_TYPE\", \"parentCode\":\"CA\", \"activeFlag\":\"Y\"},{\"domain\":\"TASK_SUBTYPE\", \"code\":\"PTI\", \"description\":\"PTI SENT TO ANOTHER OFFICE\", \"parentDomainId\":\"TASK_TYPE\", \"parentCode\":\"CA\", \"activeFlag\":\"Y\"},{\"domain\":\"TASK_SUBTYPE\", \"code\":\"PTI_CAN\", \"description\":\"PTI REQUEST CANCELLED\", \"parentDomainId\":\"TASK_TYPE\", \"parentCode\":\"CA\", \"activeFlag\":\"Y\"},{\"domain\":\"TASK_SUBTYPE\", \"code\":\"PTI_DEC\", \"description\":\"PTI DECISION\", \"parentDomainId\":\"TASK_TYPE\", \"parentCode\":\"CA\", \"activeFlag\":\"Y\"},{\"domain\":\"TASK_SUBTYPE\", \"code\":\"PTR\", \"description\":\"PTI REQUEST\", \"parentDomainId\":\"TASK_TYPE\", \"parentCode\":\"CA\", \"activeFlag\":\"Y\"},{\"domain\":\"TASK_SUBTYPE\", \"code\":\"TRAN_CAN\", \"description\":\"Transfer Cancelled\", \"parentDomainId\":\"TASK_TYPE\", \"parentCode\":\"CA\", \"activeFlag\":\"Y\"},{\"domain\":\"TASK_SUBTYPE\", \"code\":\"TRAN_INIT\", \"description\":\"Transfer Initiated\", \"parentDomainId\":\"TASK_TYPE\", \"parentCode\":\"CA\", \"activeFlag\":\"Y\"}]"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.referenceCodes[0].domain",
+          "value": "\"TASK_SUBTYPE\""
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.referenceCodes[0].parentCode",
+          "value": "${\"REST API\".\"Sanity Test\".\"Reference Domains - Case Note Types - Search\".\"response\".\"body\".jsonPath(\"$.referenceCodes[0].code\")}"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
+        "scheme": {
+          "name": "http",
+          "version": "V11"
+        },
+        "host": "${\"HOST\"}",
+        "path": "/api/referenceDomains/caseNoteTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Case Note Types - Search\".\"response\".\"body\".jsonPath(\"$.referenceCodes[0].code\")}/subTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Case Note SubTypes - Search\".\"response\".\"body\".jsonPath(\"$.referenceCodes[0].code\")}"
+      },
+      "description": "",
+      "id": "AE46789F-0A96-461B-8150-6AD5EE48AA29",
+      "lastModified": "2017-06-21T14:28:47.641-07:00",
+      "name": "Reference Domains - Case Note SubTypes - By SubTypeId",
+      "headers": [
+        {
+          "enabled": true,
+          "name": "Authorization",
+          "value": "${\"REST API\".\"Sanity Test\".\"Login\".\"response\".\"headers\".\"authorization\"}"
+        }
+      ],
+      "assertions": [
+        {
+          "comparison": "Equals",
+          "subject": "ResponseStatus",
+          "path": "code",
+          "value": "200"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.code",
+          "value": "${\"REST API\".\"Sanity Test\".\"Reference Domains - Case Note SubTypes - Search\".\"response\".\"body\".jsonPath(\"$.referenceCodes[0].code\")}"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.parentCode",
+          "value": "${\"REST API\".\"Sanity Test\".\"Reference Domains - Case Note Types - Search\".\"response\".\"body\".jsonPath(\"$.referenceCodes[0].code\")}"
+        },
+        {
+          "comparison": "Equals",
+          "subject": "ResponseJsonBody",
+          "path": "$.domain",
+          "value": "TASK_SUBTYPE"
+        }
+      ],
+      "metaInfo": {},
+      "parentId": "DCB53502-E5B9-44EE-9AFB-9034D81D5B90"
+    },
+    {
+      "type": "Request",
+      "method": {
+        "link": "http://tools.ietf.org/html/rfc7231#section-4.3.1",
+        "name": "GET"
+      },
+      "body": {
+        "bodyType": "Text",
+        "autoSetLength": true
+      },
+      "headersType": "Form",
+      "uri": {
         "query": {
           "delimiter": "&",
           "items": [
@@ -2704,8 +3050,8 @@
         "path": "/api/referenceDomains/alertTypes"
       },
       "description": "",
-      "id": "FD14B1C5-1A9F-4652-8D08-402B91BFE5BC",
-      "lastModified": "2017-05-29T17:31:39.434-07:00",
+      "id": "3688CC22-FC09-43D3-B68A-E93369C3C609",
+      "lastModified": "2017-06-21T14:07:43.136-07:00",
       "name": "Reference Domains - Alert Types - Search and Order By",
       "headers": [
         {
@@ -2724,13 +3070,13 @@
         {
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
-          "path": "$.ReferenceCodes.code",
+          "path": "$.referenceCodes.code",
           "value": "[\"KA\",\"M\",\"V\",\"X\"]"
         },
         {
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
-          "path": "$.ReferenceCodes",
+          "path": "$.referenceCodes",
           "value": "[{\"domain\":\"ALERT\", \"code\":\"KA\", \"description\":\"Keep Away\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT\", \"code\":\"M\", \"description\":\"Medical\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT\", \"code\":\"V\", \"description\":\"Vulnerability\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT\", \"code\":\"X\", \"description\":\"Security\", \"activeFlag\":\"Y\"}]"
         }
       ],
@@ -2783,7 +3129,7 @@
       },
       "description": "",
       "id": "A1597C2E-F160-4AD4-8E88-A540206538DF",
-      "lastModified": "2017-05-29T17:31:39.435-07:00",
+      "lastModified": "2017-06-21T12:41:01.140-07:00",
       "name": "Reference Domains - Alert Types - Pagination 1",
       "headers": [
         {
@@ -2802,7 +3148,7 @@
         {
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
-          "path": "$.ReferenceCodes",
+          "path": "$.referenceCodes",
           "value": "[{\"domain\":\"ALERT\", \"code\":\"X\", \"description\":\"Security\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT\", \"code\":\"V\", \"description\":\"Vulnerability\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT\", \"code\":\"M\", \"description\":\"Medical\", \"activeFlag\":\"Y\"}]"
         }
       ],
@@ -2860,7 +3206,7 @@
       },
       "description": "",
       "id": "FC567242-98C3-46D7-9C4F-505838AC90AD",
-      "lastModified": "2017-05-29T17:31:39.435-07:00",
+      "lastModified": "2017-06-21T13:33:01.136-07:00",
       "name": "Reference Domains - Alert Types - Pagination 2",
       "headers": [
         {
@@ -2879,7 +3225,7 @@
         {
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
-          "path": "$.ReferenceCodes",
+          "path": "$.referenceCodes",
           "value": "[{\"domain\":\"ALERT\", \"code\":\"KA\", \"description\":\"Keep Away\", \"activeFlag\":\"Y\"}]"
         }
       ],
@@ -2903,11 +3249,11 @@
           "version": "V11"
         },
         "host": "${\"HOST\"}",
-        "path": "/api/referenceDomains/alertTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - Search and Order By\".\"response\".\"body\".jsonPath(\"$.ReferenceCodes[1].code\")}"
+        "path": "/api/referenceDomains/alertTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - Search and Order By\".\"response\".\"body\".jsonPath(\"$.referenceCodes[1].code\")}"
       },
       "description": "",
       "id": "ADB7ED8F-FDB8-4D71-AFB4-5A4B62EC7400",
-      "lastModified": "2017-05-29T17:31:39.436-07:00",
+      "lastModified": "2017-06-21T13:35:34.219-07:00",
       "name": "Reference Domains - Alert Types - by AlertType",
       "headers": [
         {
@@ -2960,11 +3306,11 @@
           "version": "V11"
         },
         "host": "${\"HOST\"}",
-        "path": "/api/referenceDomains/alertTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - Search and Order By\".\"response\".\"body\".jsonPath(\"$.ReferenceCodes[1].code\")}/codes"
+        "path": "/api/referenceDomains/alertTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - Search and Order By\".\"response\".\"body\".jsonPath(\"$.referenceCodes[1].code\")}/codes"
       },
       "description": "",
       "id": "30B7DBA5-A916-48AA-9C54-7CB31BD2E884",
-      "lastModified": "2017-05-29T17:31:39.436-07:00",
+      "lastModified": "2017-06-21T13:47:25.004-07:00",
       "name": "Reference Domains - Alert Types - by AlertType - Alert Codes",
       "headers": [
         {
@@ -2983,15 +3329,15 @@
         {
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
-          "path": "$.ReferenceCodes",
+          "path": "$.referenceCodes",
           "value": "[{\"domain\":\"ALERT_CODE\", \"code\":\"BEE_ALG\", \"description\":\"Bee Sting Allergy\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"BTM_BUNK\", \"description\":\"Bottom Bunk\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"DIA\", \"description\":\"Diabetic\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"LAT_ALG\", \"description\":\"Latex Allergy\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"MAS\", \"description\":\"Asthmatic\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"MEP\", \"description\":\"Epileptic\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"MFL\", \"description\":\"False Limbs\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"MHT\", \"description\":\"Hearing Impaired\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"MSI\", \"description\":\"Sight Impaired\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"MSP\", \"description\":\"Speech Impediment\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"}]"
         },
         {
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
           "enabled": true,
-          "path": "$.ReferenceCodes.parentCode[0]",
-          "value": "${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - Search and Order By\".\"response\".\"body\".jsonPath(\"$.ReferenceCodes[1].code\")}"
+          "path": "$.referenceCodes.parentCode[0]",
+          "value": "${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - Search and Order By\".\"response\".\"body\".jsonPath(\"$.referenceCodes[1].code\")}"
         }
       ],
       "metaInfo": {},
@@ -3034,11 +3380,11 @@
           "version": "V11"
         },
         "host": "${\"HOST\"}",
-        "path": "/api/referenceDomains/alertTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - Search and Order By\".\"response\".\"body\".jsonPath(\"$.ReferenceCodes[1].code\")}/codes"
+        "path": "/api/referenceDomains/alertTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - Search and Order By\".\"response\".\"body\".jsonPath(\"$.referenceCodes[1].code\")}/codes"
       },
       "description": "",
       "id": "AE34225D-340A-48A9-A912-54464D78D8E4",
-      "lastModified": "2017-05-29T17:31:39.436-07:00",
+      "lastModified": "2017-06-21T13:47:35.420-07:00",
       "name": "Reference Domains - Alert Types - by AlertType - Alert Codes - Pagination",
       "headers": [
         {
@@ -3057,7 +3403,7 @@
         {
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
-          "path": "$.ReferenceCodes",
+          "path": "$.referenceCodes",
           "value": "[{\"domain\":\"ALERT_CODE\", \"code\":\"MAS\", \"description\":\"Asthmatic\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"MEP\", \"description\":\"Epileptic\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"},{\"domain\":\"ALERT_CODE\", \"code\":\"MFL\", \"description\":\"False Limbs\", \"parentDomainId\":\"ALERT\", \"parentCode\":\"M\", \"activeFlag\":\"Y\"}]"
         }
       ],
@@ -3081,11 +3427,11 @@
           "version": "V11"
         },
         "host": "${\"HOST\"}",
-        "path": "/api/referenceDomains/alertTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - Search and Order By\".\"response\".\"body\".jsonPath(\"$.ReferenceCodes[1].code\")}/codes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - by AlertType - Alert Codes\".\"response\".\"body\".jsonPath(\"$.ReferenceCodes[0].code\")}"
+        "path": "/api/referenceDomains/alertTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - Search and Order By\".\"response\".\"body\".jsonPath(\"$.referenceCodes[1].code\")}/codes/${\"REST API\".\"Sanity Test\".\"Reference Domains - Alert Types - by AlertType - Alert Codes\".\"response\".\"body\".jsonPath(\"$.referenceCodes[0].code\")}"
       },
       "description": "",
       "id": "736BE451-C53B-4478-A5E6-FCC9F67500CB",
-      "lastModified": "2017-05-29T17:31:39.436-07:00",
+      "lastModified": "2017-06-21T13:48:03.659-07:00",
       "name": "Reference Domains - Alert Types - by AlertType - Alert Codes - by alertCode",
       "headers": [
         {
@@ -3132,7 +3478,7 @@
       },
       "description": "",
       "id": "EC2BB227-5F05-423C-9C5E-ED4F3F2002B9",
-      "lastModified": "2017-06-13T15:38:57.973-07:00",
+      "lastModified": "2017-06-21T13:48:23.757-07:00",
       "name": "Reference Domains - CaseNote - Types",
       "headers": [
         {
@@ -3151,7 +3497,7 @@
         {
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
-          "path": "$.ReferenceCodes",
+          "path": "$.referenceCodes",
           "value": "[{\"domain\":\"TASK_TYPE\", \"code\":\"APP\", \"description\":\"Appointment\", \"parentDomainId\":\"AGY_LOC_TYPE\", \"activeFlag\":\"Y\"},{\"domain\":\"TASK_TYPE\", \"code\":\"ALERT\", \"description\":\"Alert\", \"activeFlag\":\"Y\"},{\"domain\":\"TASK_TYPE\", \"code\":\"PROG_NOTE\", \"description\":\"Program Progress Note\", \"parentCode\":\"PROG_NOTE\", \"activeFlag\":\"Y\"},{\"domain\":\"TASK_TYPE\", \"code\":\"CNOTE\", \"description\":\"Case Note\", \"activeFlag\":\"Y\"}]"
         }
       ],
@@ -3194,7 +3540,7 @@
       },
       "description": "",
       "id": "65E7FF02-1B29-43D4-B527-C36EA1862E2C",
-      "lastModified": "2017-06-09T12:48:42.719-07:00",
+      "lastModified": "2017-06-21T13:48:42.165-07:00",
       "name": "Reference Domains - CaseNote - Types, Pagination",
       "headers": [
         {
@@ -3213,7 +3559,7 @@
         {
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
-          "path": "$.ReferenceCodes",
+          "path": "$.referenceCodes",
           "value": "[{\"domain\":\"TASK_TYPE\", \"code\":\"ALERT\", \"description\":\"Alert\", \"activeFlag\":\"Y\"},{\"domain\":\"TASK_TYPE\", \"code\":\"PROG_NOTE\", \"description\":\"Program Progress Note\", \"parentCode\":\"PROG_NOTE\", \"activeFlag\":\"Y\"}]"
         }
       ],
@@ -3237,11 +3583,11 @@
           "version": "V11"
         },
         "host": "${\"HOST\"}",
-        "path": "/api/referenceDomains/caseNotes/subTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - CaseNote - Types\".\"response\".\"body\".jsonPath(\"$.ReferenceCodes.code[1]\")}"
+        "path": "/api/referenceDomains/caseNotes/subTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - CaseNote - Types\".\"response\".\"body\".jsonPath(\"$.referenceCodes.code[1]\")}"
       },
       "description": "",
       "id": "BAC42187-BCD7-4DF5-B14A-493792DC157F",
-      "lastModified": "2017-06-08T12:56:27.413-07:00",
+      "lastModified": "2017-06-21T13:48:45.623-07:00",
       "name": "Reference Domains - CaseNote - SubTypes",
       "headers": [
         {
@@ -3260,7 +3606,7 @@
         {
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
-          "path": "$.ReferenceCodes",
+          "path": "$.referenceCodes",
           "value": "[{\"domain\":\"TASK_SUBTYPE\", \"code\":\"ACTIVE\", \"description\":\"Alert Activated\", \"parentDomainId\":\"TASK_TYPE\", \"parentCode\":\"ALERT\", \"activeFlag\":\"Y\"},{\"domain\":\"TASK_SUBTYPE\", \"code\":\"UPD\", \"description\":\"Update\", \"parentDomainId\":\"TASK_TYPE\", \"parentCode\":\"PROG_NOTE\", \"activeFlag\":\"Y\"}]"
         }
       ],
@@ -3299,11 +3645,11 @@
           "version": "V11"
         },
         "host": "${\"HOST\"}",
-        "path": "/api/referenceDomains/caseNotes/subTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - CaseNote - Types\".\"response\".\"body\".jsonPath(\"$.ReferenceCodes.code[3]\")}"
+        "path": "/api/referenceDomains/caseNotes/subTypes/${\"REST API\".\"Sanity Test\".\"Reference Domains - CaseNote - Types\".\"response\".\"body\".jsonPath(\"$.referenceCodes.code[3]\")}"
       },
       "description": "",
       "id": "3B95CA5E-2E7C-4FD2-9CB4-D84E1ABC71CE",
-      "lastModified": "2017-06-09T12:53:51.315-07:00",
+      "lastModified": "2017-06-21T13:48:49.430-07:00",
       "name": "Reference Domains - CaseNote - SubTypes, Pagination",
       "headers": [
         {
@@ -3322,7 +3668,7 @@
         {
           "comparison": "Equals",
           "subject": "ResponseJsonBody",
-          "path": "$.ReferenceCodes",
+          "path": "$.referenceCodes",
           "value": "[{\"domain\":\"TASK_SUBTYPE\", \"code\":\"FAMINFO\", \"description\":\"Family Information\", \"parentDomainId\":\"TASK_TYPE\", \"parentCode\":\"INT\", \"activeFlag\":\"Y\"},{\"domain\":\"TASK_SUBTYPE\", \"code\":\"GEN\", \"description\":\"General Note\", \"parentDomainId\":\"TASK_TYPE\", \"parentCode\":\"CNOTE\", \"activeFlag\":\"Y\"}]"
         }
       ],
@@ -3439,7 +3785,7 @@
     {
       "type": "Context",
       "id": "5448E9A4-7237-4EA9-8064-C52B91A99650",
-      "lastModified": "2017-06-15T23:40:03.006-07:00",
+      "lastModified": "2017-06-21T14:29:32.690-07:00",
       "name": "header",
       "variables": [
         {
