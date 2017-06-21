@@ -10,9 +10,9 @@ public interface ReferenceCodeRepository {
 	List<ReferenceCode> getCaseNoteTypesByCaseLoad(String caseLoad, int offset, int limit);
 
 	ReferenceCode getReferenceCodeByDomainAndCode(String domain, String code);
-	ReferenceCode getReferenceCodeByDomainAndParentAndCode(String domain, String code, String parent);
+	ReferenceCode getReferenceCodeByDomainAndParentAndCode(String domain, String code, String parentCode);
 	List<ReferenceCode> getReferenceCodesByDomain(String domain, String query, String orderBy, Order order, int offset, int limit);
-	List<ReferenceCode> getReferenceCodesByDomainAndParent(String domain, String parent, String query, String orderBy, Order order, int offset, int limit);
+	List<ReferenceCode> getReferenceCodesByDomainAndParent(String domain, String parentCode, String query, String orderBy, Order order, int offset, int limit);
 
 
 	// TODO: Remove this method after IG change to the new the endpoint

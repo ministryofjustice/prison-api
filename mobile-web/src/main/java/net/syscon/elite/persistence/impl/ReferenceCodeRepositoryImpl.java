@@ -37,10 +37,10 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	}
 
 	@Override
-	public ReferenceCode getReferenceCodeByDomainAndParentAndCode(String domain, String parent, String code) {
+	public ReferenceCode getReferenceCodeByDomainAndParentAndCode(String domain, String parentCode, String code) {
 		final String sql = getQuery("FIND_REFERENCE_CODE_BY_DOMAIN_PARENT_CODE");
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
-		return jdbcTemplate.queryForObject(sql, createParams("domain", domain, "parent", parent, "code", code), referenceCodeRowMapper);
+		return jdbcTemplate.queryForObject(sql, createParams("domain", domain, "parent", parentCode, "code", code), referenceCodeRowMapper);
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	}
 
 	@Override
-	public List<ReferenceCode> getReferenceCodesByDomainAndParent(String domain, String parent, String query, String orderBy, Order order, int offset, int limit) {
+	public List<ReferenceCode> getReferenceCodesByDomainAndParent(String domain, String parentCode, String query, String orderBy, Order order, int offset, int limit) {
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_REFERENCE_CODES_BY_DOMAIN_PARENT"), referenceCodeMapping, preOracle12)
 				.addQuery(query)
 				.addOrderBy(isAscending(order), orderBy.split(","))
@@ -64,7 +64,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 				.addPagedQuery()
 				.build();
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
-		return jdbcTemplate.query(sql, createParams("domain", domain, "parent", parent, "offset", offset, "limit", limit), referenceCodeRowMapper);
+		return jdbcTemplate.query(sql, createParams("domain", domain, "parent", parentCode, "offset", offset, "limit", limit), referenceCodeRowMapper);
 	}
 
 	@Override
