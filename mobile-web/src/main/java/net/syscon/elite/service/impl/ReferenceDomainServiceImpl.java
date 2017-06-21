@@ -29,14 +29,18 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 		return StringUtils.isEmpty(orderBy)? "code": orderBy;
 	}
 
-	@Override
-	public List<ReferenceCode> getCaseNoteTypesByCaseLoad(final String caseLoad, final int offset, final int limit) {
-		return referenceCodeRepository.getCaseNoteTypesByCaseLoad(caseLoad, offset, limit);
+	private String addDefaultQuery(String query) {
+		if(query==null || "".equals(query) ) {
+			query = DEFAULT_ACTIVE_FLAG_QUERY;
+		} else if(!query.contains("activeFlag")) {
+			query = query + ",and:"+ DEFAULT_ACTIVE_FLAG_QUERY;
+		}
+		return query;
 	}
 
 	@Override
-	public List<ReferenceCode> getCaseNoteSubTypesByParent(final String caseNoteType, final int offset, final int limit) {
-		return referenceCodeRepository.getReferenceCodesByDomainAndParent("TASK_SUBTYPE", caseNoteType, "", "code", Order.asc, offset, limit);
+	public List<ReferenceCode> getCaseNoteTypesByCaseLoad(final String caseLoad, final int offset, final int limit) {
+		return referenceCodeRepository.getCaseNoteTypesByCaseLoad(caseLoad, offset, limit);
 	}
 
 	@Override
@@ -89,15 +93,18 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 		return referenceCodeRepository.getReferenceCodeByDomainAndCode("NOTE_SOURCE", sourceCode);
 	}
 
-	private String addDefaultQuery(String query) {
-		if(query==null || "".equals(query) ) {
-			query = DEFAULT_ACTIVE_FLAG_QUERY;
-		} else if(!query.contains("activeFlag")) {
-			query = query + ",and:"+ DEFAULT_ACTIVE_FLAG_QUERY;
-		}
-		return query;
+
+
+
+	// TODO: Remove this method after IG change to the new the endpoint (getCnoteSubtypesByCaseNoteType => getCaseNoteSubTypesByParent)
+	@Override
+	public List<ReferenceCode> getCnoteSubtypesByCaseNoteType(String caseNoteType, int offset, int limit) {
+		return referenceCodeRepository.getCnoteSubtypesByCaseNoteType(caseNoteType, offset, limit);
 	}
 
-	
+	@Override
+	public List<ReferenceCode> getCaseNoteSubTypesByParent(final String caseNoteType, final int offset, final int limit) {
+		return referenceCodeRepository.getReferenceCodesByDomainAndParent("TASK_SUBTYPE", caseNoteType, "", "code", Order.asc, offset, limit);
+	}
 
 }

@@ -24,6 +24,7 @@ FIND_REFERENCE_CODE_BY_DOMAIN_PARENT_CODE {
 
 
 
+
 FIND_CASE_NOTE_TYPES {
     SELECT DISTINCT rc.description,
            work_type code , rc.domain, rc.PARENT_DOMAIN, rc.PARENT_CODE, rc.ACTIVE_FLAG
@@ -63,7 +64,6 @@ FIND_CNOTE_SUB_TYPES_BY_TYPECODE_AND_SUBTYPECODE {
   	order by  description ,code
 }
 
-
 FIND_CNOTE_TYPES_BY_CASELOAD {
     SELECT DISTINCT rc.description,
            work_type code , rc.domain, rc.PARENT_DOMAIN, rc.PARENT_CODE, rc.ACTIVE_FLAG
@@ -89,4 +89,3 @@ FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE {
 	   AND w.active_flag  = 'Y'
   	order by  description ,code
 }
-

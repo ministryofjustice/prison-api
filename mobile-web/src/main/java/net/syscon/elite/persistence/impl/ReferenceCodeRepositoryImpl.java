@@ -52,19 +52,8 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	}
 
 	@Override
-	public List<ReferenceCode> getReferenceCodesByDomainAndCode(String domain, String code, String query, String orderBy, Order order, int offset, int limit) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_REFERENCE_CODES_BY_DOMAIN"), referenceCodeMapping, preOracle12)
-				.addQuery(query)
-				.addRowCount()
-				.addPagedQuery()
-				.build();
-		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
-		return jdbcTemplate.query(sql, createParams("domain", domain, "code", code, "offset", offset, "limit", limit), referenceCodeRowMapper);
-	}
-
-	@Override
 	public List<ReferenceCode> getReferenceCodesByDomainAndParent(String domain, String parent, String query, String orderBy, Order order, int offset, int limit) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_REFERENCE_CODES_BY_DOMAIN"), referenceCodeMapping, preOracle12)
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_REFERENCE_CODES_BY_DOMAIN_PARENT"), referenceCodeMapping, preOracle12)
 				.addQuery(query)
 				.addRowCount()
 				.addPagedQuery()
@@ -83,6 +72,20 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 		return jdbcTemplate.query(sql, createParams("caseLoad", caseLoad, "offset", offset, "limit", limit), referenceCodeRowMapper);
 	}
 
+
+
+
+
+	// TODO: Remove this method after IG change to the new the endpoint
+	@Override
+	public List<ReferenceCode> getCnoteSubtypesByCaseNoteType(final String caseNotetype, final int offset, final int limit) {
+		final String sql = new QueryBuilder.Builder(getQuery("FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE"), referenceCodeMapping, preOracle12)
+				.addRowCount()
+				.addPagedQuery()
+				.build();
+		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
+		return jdbcTemplate.query(sql, createParams("caseNoteType", caseNotetype, "offset", offset, "limit", limit), referenceCodeRowMapper);
+	}
 
 
 }

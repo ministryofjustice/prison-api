@@ -36,7 +36,9 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainsResource {
 
 	@Override
 	public GetReferenceDomainsCaseNotesSubTypesByCaseNoteTypeResponse getReferenceDomainsCaseNotesSubTypesByCaseNoteType(final String caseNoteType, final int offset, final int limit) throws Exception {
-		List<ReferenceCode> referenceCodeList = this.referenceDomainService.getCaseNoteSubTypesByParent(caseNoteType, offset, limit);
+		// TODO: After IG change the endpoint we must switch the method getCnoteSubtypesByCaseNoteType => getCaseNoteSubTypesByParent
+		// List<ReferenceCode> referenceCodeList = this.referenceDomainService.getCaseNoteSubTypesByParent(caseNoteType, offset, limit);
+		List<ReferenceCode> referenceCodeList = this.referenceDomainService.getCnoteSubtypesByCaseNoteType(caseNoteType, offset, limit);
 		ReferenceCodes referenceCodes = new ReferenceCodes(referenceCodeList, MetaDataFactory.createMetaData(limit, offset, referenceCodeList));
 		return GetReferenceDomainsCaseNotesSubTypesByCaseNoteTypeResponse.withJsonOK(referenceCodes);
 	}
