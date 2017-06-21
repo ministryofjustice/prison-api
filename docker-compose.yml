@@ -28,5 +28,6 @@ services:
       - SPRING_DATASOURCE_PASSWORD=oms_owner
       - JWT_EXPIRATION_MINS=120
       - JWT_REFRESH_EXPIRATION_MINS=200
+      - SKIP_SET_ROLE=false
 networks:
   nomis-network:
