@@ -26,6 +26,9 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 			.put("ACTIVE_FLAG", new FieldMapper("activeFlag"))
 			.build();
 
+	private boolean isAscending(Order order) { return Order.asc.equals(order); }
+
+
 	@Override
 	public ReferenceCode getReferenceCodeByDomainAndCode(String domain, String code) {
 		final String sql = getQuery("FIND_REFERENCE_CODE_BY_DOMAIN_CODE");
@@ -44,6 +47,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	public List<ReferenceCode> getReferenceCodesByDomain(String domain, String query, String orderBy, Order order, int offset, int limit) {
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_REFERENCE_CODES_BY_DOMAIN"), referenceCodeMapping, preOracle12)
 				.addQuery(query)
+				.addOrderBy(isAscending(order), orderBy.split(","))
 				.addRowCount()
 				.addPagedQuery()
 				.build();
@@ -55,6 +59,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	public List<ReferenceCode> getReferenceCodesByDomainAndParent(String domain, String parent, String query, String orderBy, Order order, int offset, int limit) {
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_REFERENCE_CODES_BY_DOMAIN_PARENT"), referenceCodeMapping, preOracle12)
 				.addQuery(query)
+				.addOrderBy(isAscending(order), orderBy.split(","))
 				.addRowCount()
 				.addPagedQuery()
 				.build();
