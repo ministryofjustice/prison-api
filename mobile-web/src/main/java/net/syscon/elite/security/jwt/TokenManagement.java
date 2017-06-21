@@ -8,6 +8,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import net.syscon.elite.security.DeviceFingerprint;
 import net.syscon.elite.web.api.model.Token;
 import net.syscon.util.DateTimeConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.LocalDateTime;
@@ -15,6 +17,7 @@ import java.util.Date;
 
 public class TokenManagement {
 
+	private final Logger log = LoggerFactory.getLogger(getClass());
 	private static final String DEVICE_FINGERPRINT_HASH_CODE = "deviceFingerprintHashCode";
 	private static final String ALLOW_REFRESH_TOKEN = "allowRefreshToken";
 	private TokenSettings settings;
@@ -33,6 +36,7 @@ public class TokenManagement {
 
 		final LocalDateTime now = LocalDateTime.now();
 
+		log.info("Token expirection is {} mins, refresh expire is {} mins", settings.getExpiration(), settings.getRefreshExpiration());
 		final Date issuedAt = DateTimeConverter.toDate(now);
 		final Date expiration = DateTimeConverter.toDate(now.plusMinutes(settings.getExpiration()));
 		final Date refreshExpiration = DateTimeConverter.toDate(now.plusMinutes(settings.getRefreshExpiration()));
