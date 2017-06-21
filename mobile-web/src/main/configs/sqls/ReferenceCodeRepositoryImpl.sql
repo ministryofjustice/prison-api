@@ -65,16 +65,16 @@ FIND_CNOTE_SUB_TYPES_BY_TYPECODE_AND_SUBTYPECODE {
 }
 
 FIND_CNOTE_TYPES_BY_CASELOAD {
-    SELECT DISTINCT rc.description,
-           work_type code , rc.domain, rc.PARENT_DOMAIN, rc.PARENT_CODE, rc.ACTIVE_FLAG
-      FROM works w
-           JOIN reference_codes rc on rc.code = w.work_type
-     WHERE workflow_type = 'CNOTE'
-       AND rc.domain = 'TASK_TYPE'
-       AND w.caseload_type IN ( (SELECT caseload_type FROM caseloads WHERE caseload_id = :caseLoad), 'BOTH')
-       AND w.manual_select_flag ='Y'
-       AND w.active_flag  = 'Y'
-       AND rc.code  <> 'WR'
+	SELECT DISTINCT rc.description,
+       work_type code , rc.domain, rc.PARENT_DOMAIN, rc.PARENT_CODE, rc.ACTIVE_FLAG
+  	FROM works w join
+       reference_codes rc on rc.code = w.work_type
+ 	WHERE workflow_type = 'CNOTE'
+	   AND rc.domain = 'TASK_TYPE'
+	   AND w.caseload_type IN (:caseLoad, 'BOTH' )
+		 AND   w.manual_select_flag ='Y'
+	   AND w.active_flag  = 'Y'
+	   AND rc.code  <> 'WR'
 }
 
 FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE {
