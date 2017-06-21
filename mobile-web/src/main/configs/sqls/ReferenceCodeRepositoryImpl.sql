@@ -84,7 +84,7 @@ FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE {
 		reference_codes rc on rc.code = w.work_sub_type
  	WHERE workflow_type = 'CNOTE'
 	   AND rc.domain = 'TASK_SUBTYPE'
-	   AND w.work_type = :typeCode
+	   AND w.work_type = :caseNoteType
 	   AND w.manual_select_flag ='Y'
 	   AND w.active_flag  = 'Y'
   	order by  description ,code
