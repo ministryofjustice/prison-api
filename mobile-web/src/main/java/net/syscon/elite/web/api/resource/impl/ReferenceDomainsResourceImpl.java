@@ -22,6 +22,11 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainsResource {
 		this.referenceDomainService = referenceDomainService;
 	}
 
+	private HttpStatus createHttpStatus(int httpStatusCode, String message) {
+		return new HttpStatus("" + httpStatusCode, "" + httpStatusCode, message, message, "");
+	}
+
+
 	@Override
 	public GetReferenceDomainsCaseNotesTypesByCaseLoadResponse getReferenceDomainsCaseNotesTypesByCaseLoad(final String caseLoad, final int offset, final int limit) throws Exception {
 		List<ReferenceCode> referenceCodeList = this.referenceDomainService.getCaseNoteTypesByCaseLoad(caseLoad, offset, limit);
@@ -31,9 +36,26 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainsResource {
 
 	@Override
 	public GetReferenceDomainsCaseNotesSubTypesByCaseNoteTypeResponse getReferenceDomainsCaseNotesSubTypesByCaseNoteType(final String caseNoteType, final int offset, final int limit) throws Exception {
-		List<ReferenceCode> referenceCodeList = this.referenceDomainService.getCaseNoteSubTypesByCaseNoteType(caseNoteType, offset, limit);
+		List<ReferenceCode> referenceCodeList = this.referenceDomainService.getCaseNoteSubTypesByParent(caseNoteType, offset, limit);
 		ReferenceCodes referenceCodes = new ReferenceCodes(referenceCodeList, MetaDataFactory.createMetaData(limit, offset, referenceCodeList));
 		return GetReferenceDomainsCaseNotesSubTypesByCaseNoteTypeResponse.withJsonOK(referenceCodes);
+	}
+
+	@Override
+	public GetReferenceDomainsCaseNoteSourcesResponse getReferenceDomainsCaseNoteSources(String query, String orderBy, Order order,int offset, int limit) throws Exception {
+		List<ReferenceCode> referenceCodeList = this.referenceDomainService.getCaseNoteSources(query, orderBy, order, offset, limit);
+		ReferenceCodes referenceCodes = new ReferenceCodes(referenceCodeList, MetaDataFactory.createMetaData(limit, offset, referenceCodeList));
+		return GetReferenceDomainsCaseNoteSourcesResponse.withJsonOK(referenceCodes);
+	}
+
+	@Override
+	public GetReferenceDomainsCaseNoteSourcesBySourceCodeResponse getReferenceDomainsCaseNoteSourcesBySourceCode(String sourceCode) throws Exception {
+		try {
+			ReferenceCode referenceCode = this.referenceDomainService.getCaseNoteSource(sourceCode);
+			return GetReferenceDomainsCaseNoteSourcesBySourceCodeResponse.withJsonOK(referenceCode);
+		} catch (DataAccessException ex) {
+			return GetReferenceDomainsCaseNoteSourcesBySourceCodeResponse.withJsonNotFound(createHttpStatus(404, String.format("Case Note Source with code: \"%s\" was not found", sourceCode)));
+		}
 	}
 
 	@Override
@@ -45,13 +67,13 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainsResource {
 
 	@Override
 	public GetReferenceDomainsAlertTypesByAlertTypeResponse getReferenceDomainsAlertTypesByAlertType(String alertType) throws Exception {
-		ReferenceCode referenceCode = this.referenceDomainService.getAlertTypesByAlertType(alertType);
+		ReferenceCode referenceCode = this.referenceDomainService.getAlertTypeByCode(alertType);
 		return GetReferenceDomainsAlertTypesByAlertTypeResponse.withJsonOK(referenceCode);
 	}
 
 	@Override
 	public GetReferenceDomainsAlertTypesByAlertTypeCodesResponse getReferenceDomainsAlertTypesByAlertTypeCodes(String alertType, String query, String orderBy, Order order, int offset, int limit) throws Exception {
-		List<ReferenceCode> referenceCodeList = this.referenceDomainService.getAlertTypesByAlertTypeCode(alertType, query, orderBy, order, offset, limit);
+		List<ReferenceCode> referenceCodeList = this.referenceDomainService.getAlertTypesByParent(alertType, query, orderBy, order, offset, limit);
 		ReferenceCodes referenceCodes = new ReferenceCodes(referenceCodeList, MetaDataFactory.createMetaData(limit, offset, referenceCodeList));
 		return GetReferenceDomainsAlertTypesByAlertTypeCodesResponse.withJsonOK(referenceCodes);
 	}
@@ -59,32 +81,10 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainsResource {
 	@Override
 	public GetReferenceDomainsAlertTypesByAlertTypeCodesByAlertCodeResponse getReferenceDomainsAlertTypesByAlertTypeCodesByAlertCode(
 			String alertType, String alertCode) throws Exception {
-		ReferenceCode referenceCode = this.referenceDomainService.getAlertTypeCodesByAlertCode(alertType, alertCode);
+		ReferenceCode referenceCode = this.referenceDomainService.getAlertTypeByParentAndCode(alertType, alertCode);
 		return GetReferenceDomainsAlertTypesByAlertTypeCodesByAlertCodeResponse.withJsonOK(referenceCode);
 	}
 
-
-	@Override
-	public GetReferenceDomainsCaseNoteSourcesResponse getReferenceDomainsCaseNoteSources(int offset, int limit) throws Exception {
-		List<ReferenceCode> referenceCodeList = this.referenceDomainService.getReferenceCodesByDomain("NOTE_SOURCE", offset, limit);
-		ReferenceCodes referenceCodes = new ReferenceCodes(referenceCodeList, MetaDataFactory.createMetaData(limit, offset, referenceCodeList));
-		return GetReferenceDomainsCaseNoteSourcesResponse.withJsonOK(referenceCodes);
-	}
-
-	private HttpStatus createHttpStatus(int httpStatusCode, String message) {
-		return new HttpStatus("" + httpStatusCode, "" + httpStatusCode, message, message, "");
-	}
-
-
-	@Override
-	public GetReferenceDomainsCaseNoteSourcesBySourceCodeResponse getReferenceDomainsCaseNoteSourcesBySourceCode(String sourceCode) throws Exception {
-		try {
-			ReferenceCode referenceCode = this.referenceDomainService.getReferenceCodeByDomainAndCode("NOTE_SOURCE", sourceCode);
-			return GetReferenceDomainsCaseNoteSourcesBySourceCodeResponse.withJsonOK(referenceCode);
-		} catch (DataAccessException ex) {
-			return GetReferenceDomainsCaseNoteSourcesBySourceCodeResponse.withJsonNotFound(createHttpStatus(404, String.format("Case Note Source with code: \"%s\" was not found", sourceCode)));
-		}
-	}
 
 	@Override
 	public GetReferenceDomainsCaseNoteTypesResponse getReferenceDomainsCaseNoteTypes(String query, String orderBy, Order order, int offset, int limit) throws Exception {

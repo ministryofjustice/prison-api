@@ -43,6 +43,8 @@
    description: Give all Case Note Sources
    type: { get-collection : { collectionSchema: referenceCodes}}
    is: [
+     searchable: {fieldsList: "code, description, activeFlag and parentCode"},
+     orderable: {fieldsList: "code"},
      pageable
    ]
 

@@ -4,6 +4,7 @@ import net.syscon.elite.persistence.ReferenceCodeRepository;
 import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.web.api.model.ReferenceCode;
 import net.syscon.elite.web.api.resource.ReferenceDomainsResource.Order;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,53 +25,43 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 		this.referenceCodeRepository = referenceCodeRepository;
 	}
 
+	private String getDefaultOrderBy(String orderBy) {
+		return StringUtils.isEmpty(orderBy)? "code": orderBy;
+	}
+
 	@Override
 	public List<ReferenceCode> getCaseNoteTypesByCaseLoad(final String caseLoad, final int offset, final int limit) {
 		return referenceCodeRepository.getCaseNoteTypesByCaseLoad(caseLoad, offset, limit);
 	}
+
 	@Override
-	public List<ReferenceCode> getCaseNoteSubTypesByCaseNoteType(final String caseNotetype, final int offset, final int limit) {
-		return referenceCodeRepository.getCaseNoteSubTypesByCaseLoad(caseNotetype, offset, limit);
+	public List<ReferenceCode> getCaseNoteSubTypesByParent(final String caseNoteType, final int offset, final int limit) {
+		return referenceCodeRepository.getReferenceCodesByDomainAndParent("TASK_SUBTYPE", caseNoteType, "", "code", Order.asc, offset, limit);
 	}
+
 	@Override
 	public List<ReferenceCode> getAlertTypes(String query, String orderBy, Order order, int offset, int limit) {
-		orderBy = getDefaultOrderBy(orderBy);
-		return referenceCodeRepository.getAlertTypes(addDefaultQuery(query), orderBy, order, offset, limit);
-	}
-
-	private String getDefaultOrderBy(String orderBy) {
-		if(orderBy == null || "".equals(orderBy)) {
-			orderBy = "code";
-		}
-		return orderBy;
+		return referenceCodeRepository.getReferenceCodesByDomain("ALERT", query, getDefaultOrderBy(orderBy), order, offset, limit);
 	}
 
 	@Override
-	public ReferenceCode getAlertTypesByAlertType(String alertType) {
-		return referenceCodeRepository.getAlertTypesByAlertType(alertType);
-	}
-	@Override
-	public List<ReferenceCode> getAlertTypesByAlertTypeCode(String alertType, String query, String orderBy, Order order,  int offset, int limit) {
-		return referenceCodeRepository.getAlertTypesByAlertTypeCode(alertType, addDefaultQuery(query),  getDefaultOrderBy(orderBy), order, offset, limit);
-	}
-	@Override
-	public ReferenceCode getAlertTypeCodesByAlertCode(String alertType, String alertCode) {
-		return referenceCodeRepository.getAlertTypeCodesByAlertCode(alertType, alertCode);
+	public ReferenceCode getAlertTypeByCode(String alertType) {
+		return referenceCodeRepository.getReferenceCodeByDomainAndCode("ALERT", alertType);
 	}
 
 	@Override
-	public List<ReferenceCode> getReferenceCodesByDomain(String domain, int offset, int limit) {
-		return referenceCodeRepository.getReferenceCodesByDomain(domain, offset, limit);
+	public List<ReferenceCode> getAlertTypesByParent(String alertType, String query, String orderBy, Order order, int offset, int limit) {
+		return referenceCodeRepository.getReferenceCodesByDomainAndParent("ALERT_CODE", alertType, query, getDefaultOrderBy(orderBy), order, offset, limit);
 	}
 
 	@Override
-	public ReferenceCode getReferenceCodeByDomainAndCode(String domain, String code) {
-		return referenceCodeRepository.getReferenceCodesByDomainAndCode(domain, code);
+	public ReferenceCode getAlertTypeByParentAndCode(String alertType, String alertCode) {
+		return referenceCodeRepository.getReferenceCodeByDomainAndParentAndCode("ALERT_CODE", alertType, alertCode);
 	}
 
 	@Override
 	public ReferenceCode getCaseNoteType(String typeCode) {
-		return referenceCodeRepository.getReferenceCodesByDomainAndCode("TASK_TYPE", typeCode);
+		return referenceCodeRepository.getReferenceCodeByDomainAndCode("TASK_TYPE", typeCode);
 	}
 
 	@Override
@@ -80,12 +71,22 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 
 	@Override
 	public ReferenceCode getCaseNoteSubType(String typeCode, String subTypeCode) {
-		return referenceCodeRepository.getCaseNoteSubType(typeCode, subTypeCode);
+		return referenceCodeRepository.getReferenceCodeByDomainAndParentAndCode("TASK_SUBTYPE", typeCode, subTypeCode);
 	}
 
 	@Override
 	public List<ReferenceCode> getCaseNoteSubTypes(String typeCode, String query, String orderBy, Order order, int offset, int limit) {
-		return referenceCodeRepository.getCaseNoteSubTypes(typeCode, query,  getDefaultOrderBy(orderBy), order, offset, limit);
+		return referenceCodeRepository.getReferenceCodesByDomainAndParent("TASK_SUBTYPE", typeCode, query, getDefaultOrderBy(orderBy), order, offset, limit);
+	}
+
+	@Override
+	public List<ReferenceCode> getCaseNoteSources(String query, String orderBy, Order order, int offset, int limit) {
+		return referenceCodeRepository.getReferenceCodesByDomain("NOTE_SOURCE", query, getDefaultOrderBy(orderBy), order, offset, limit);
+	}
+
+	@Override
+	public ReferenceCode getCaseNoteSource(String sourceCode) {
+		return referenceCodeRepository.getReferenceCodeByDomainAndCode("NOTE_SOURCE", sourceCode);
 	}
 
 	private String addDefaultQuery(String query) {

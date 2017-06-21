@@ -8,17 +8,16 @@ import java.util.List;
 
 
 public interface ReferenceDomainService {
-	
 	List<ReferenceCode> getCaseNoteTypesByCaseLoad(String caseLoad, int offset, int limit);
-	List<ReferenceCode> getCaseNoteSubTypesByCaseNoteType(String caseNoteType, int offset, int limit);
+	List<ReferenceCode> getCaseNoteSubTypesByParent(String caseNoteType, int offset, int limit);
 	List<ReferenceCode> getAlertTypes(String query, String orderBy, Order order, int offset, int limit);
-	ReferenceCode getAlertTypesByAlertType(String alertType);
-	List<ReferenceCode> getAlertTypesByAlertTypeCode(String alertType, String query, String orderBy, Order order, int offset, int limit);
-	ReferenceCode getAlertTypeCodesByAlertCode(String alertType, String alertCode);
-	List<ReferenceCode> getReferenceCodesByDomain(String domain, int offset, int limit);
-	ReferenceCode getReferenceCodeByDomainAndCode(String domain, String code);
+	ReferenceCode getAlertTypeByCode(String alertType);
+	List<ReferenceCode> getAlertTypesByParent(String alertType, String query, String orderBy, Order order, int offset, int limit);
+	ReferenceCode getAlertTypeByParentAndCode(String alertType, String alertCode);
 	ReferenceCode getCaseNoteType(String typeCode);
 	List<ReferenceCode> getCaseNoteTypes(String query, String orderBy, Order order, int offset, int limit);
 	ReferenceCode getCaseNoteSubType(String typeCode, String subTypeCode);
 	List<ReferenceCode> getCaseNoteSubTypes(String typeCode, String query, String orderBy, Order order, int offset, int limit);
+	List<ReferenceCode> getCaseNoteSources(String query, String orderBy, Order order, int offset, int limit);
+	ReferenceCode getCaseNoteSource(String sourceCode);
 }
