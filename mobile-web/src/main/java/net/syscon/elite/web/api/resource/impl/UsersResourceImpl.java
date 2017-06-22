@@ -5,6 +5,7 @@ import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.security.jwt.TokenManagement;
 import net.syscon.elite.security.jwt.TokenSettings;
 import net.syscon.elite.service.AssignmentService;
+import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.UserService;
 import net.syscon.elite.web.api.model.*;
 import net.syscon.elite.web.api.resource.UsersResource;
@@ -34,14 +35,18 @@ public class UsersResourceImpl implements UsersResource {
 	private final AuthenticationManager authenticationManager;
 	private final UserService userService;
 	private final AssignmentService assignmentService;
+	private final ReferenceDomainService referenceDomainService;
 
 	@Inject
-	public UsersResourceImpl(TokenManagement tokenManagement, TokenSettings tokenSettings, AuthenticationManager authenticationManager, UserService userService, AssignmentService assignmentService) {
+	public UsersResourceImpl(TokenManagement tokenManagement, TokenSettings tokenSettings, 
+							AuthenticationManager authenticationManager, UserService userService, 
+							AssignmentService assignmentService, ReferenceDomainService referenceDomainService) {
 		this.tokenManagement = tokenManagement;
 		this.tokenSettings = tokenSettings;
 		this.authenticationManager = authenticationManager;
 		this.userService = userService;
 		this.assignmentService = assignmentService;
+		this.referenceDomainService = referenceDomainService;
 	}
 
 	@Override
@@ -169,13 +174,16 @@ public class UsersResourceImpl implements UsersResource {
 	@Override
 	public GetUsersMeCaseNoteTypesResponse getUsersMeCaseNoteTypes(int offset, int limit) throws Exception {
 		// TODO Auto-generated method stub
-		return null;
+		List<ReferenceCode> referenceCodes = referenceDomainService.getCaseNoteTypesByCaseLoad(null, offset, limit);
+		ReferenceCodes codes = new ReferenceCodes(referenceCodes, MetaDataFactory.createMetaData(limit, offset, referenceCodes));
+		return GetUsersMeCaseNoteTypesResponse.withJsonOK(codes);
 	}
 
 	@Override
 	public GetUsersMeCaseNoteTypesByTypeCodeResponse getUsersMeCaseNoteTypesByTypeCode(String typeCode, int offset,
 			int limit) throws Exception {
 		// TODO Auto-generated method stub
+		//referenceDomainService.getCaseNoteSubTypes(typeCode, query, orderBy, order, offset, limit);
 		return null;
 	}
 

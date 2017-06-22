@@ -25,6 +25,15 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 			.put("PARENT_CODE", new FieldMapper("parentCode"))
 			.put("ACTIVE_FLAG", new FieldMapper("activeFlag"))
 			.build();
+	
+	private final Map<String, FieldMapper> usersReferenceCodeMapping = new ImmutableMap.Builder<String, FieldMapper>()
+			.put("DESCRIPTION", new FieldMapper("description"))
+			.put("CODE", new FieldMapper("code"))
+			.put("DOMAIN", new FieldMapper("domain", null, value -> {return null;}))
+			.put("PARENT_DOMAIN", new FieldMapper("parentDomainId",null, value -> null))
+			.put("PARENT_CODE", new FieldMapper("parentCode", null, value -> null))
+			.put("ACTIVE_FLAG", new FieldMapper("activeFlag", null, value -> null))
+			.build();
 
 	private boolean isAscending(Order order) { return Order.asc.equals(order); }
 
@@ -68,12 +77,17 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	}
 
 	@Override
-	public List<ReferenceCode> getCaseNoteTypesByCaseLoad(final String caseLoad, final int offset, final int limit) {
+	public List<ReferenceCode> getCaseNoteTypesByCaseLoad(String caseLoad, final int offset, final int limit) {
+		Map<String, FieldMapper> filedMapper = referenceCodeMapping;
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_CNOTE_TYPES_BY_CASELOAD"), referenceCodeMapping, preOracle12)
 				.addRowCount()
 				.addPagedQuery()
 				.build();
-		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
+		if(null == caseLoad) {
+			caseLoad = getCurrentCaseLoad();
+			filedMapper = usersReferenceCodeMapping;
+		}
+		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, filedMapper);
 		return jdbcTemplate.query(sql, createParams("caseLoad", caseLoad, "offset", offset, "limit", limit), referenceCodeRowMapper);
 	}
 
@@ -81,7 +95,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 
 
 
-	// TODO: Remove this method after IG change to the new the endpoint
+	// TODO: Remove this method after IG change to the new the end point
 	@Override
 	public List<ReferenceCode> getCnoteSubtypesByCaseNoteType(final String caseNotetype, final int offset, final int limit) {
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE"), referenceCodeMapping, preOracle12)
