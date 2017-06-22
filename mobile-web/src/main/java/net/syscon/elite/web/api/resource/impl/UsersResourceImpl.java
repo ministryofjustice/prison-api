@@ -8,6 +8,7 @@ import net.syscon.elite.service.AssignmentService;
 import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.UserService;
 import net.syscon.elite.web.api.model.*;
+import net.syscon.elite.web.api.resource.ReferenceDomainsResource;
 import net.syscon.elite.web.api.resource.UsersResource;
 import net.syscon.util.MetaDataFactory;
 import org.slf4j.Logger;
@@ -172,19 +173,17 @@ public class UsersResourceImpl implements UsersResource {
 	}
 
 	@Override
-	public GetUsersMeCaseNoteTypesResponse getUsersMeCaseNoteTypes(int offset, int limit) throws Exception {
-		// TODO Auto-generated method stub
+	public GetUsersMeCaseNoteTypesResponse getUsersMeCaseNoteTypes(String query, String orderBy, Order order,
+			int offset, int limit) throws Exception {
+		//TODO- Include searchable and order by feature.
 		List<ReferenceCode> referenceCodes = referenceDomainService.getCaseNoteTypesByCaseLoad(null, offset, limit);
 		ReferenceCodes codes = new ReferenceCodes(referenceCodes, MetaDataFactory.createMetaData(limit, offset, referenceCodes));
 		return GetUsersMeCaseNoteTypesResponse.withJsonOK(codes);
 	}
 
 	@Override
-	public GetUsersMeCaseNoteTypesByTypeCodeResponse getUsersMeCaseNoteTypesByTypeCode(String typeCode, int offset,
-			int limit) throws Exception {
-		// TODO Auto-generated method stub
-		//referenceDomainService.getCaseNoteSubTypes(typeCode, query, orderBy, order, offset, limit);
+	public GetUsersMeCaseNoteTypesByTypeCodeResponse getUsersMeCaseNoteTypesByTypeCode(String typeCode, String query,
+			String orderBy, Order order, int offset, int limit) throws Exception {
 		return null;
 	}
-
 }

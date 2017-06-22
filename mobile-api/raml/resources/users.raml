@@ -24,6 +24,8 @@
   description: Returns the list of case Note types associated to the user
   type: { get-collection: { collectionSchema: referenceCodes } }
   is: [
+    searchable: {fieldsList : "code, type"},
+    orderable: {fieldsList : "code, type"},
     pageable
   ] 
   
@@ -31,6 +33,8 @@
   description: Returns the list of case Note types associated to the user
   type: { get-collection: { collectionSchema: referenceCodes } }
   is: [
+    searchable: {fieldsList : "code, type"},
+    orderable: {fieldsList : "code, type"},
     pageable
   ] 
 
