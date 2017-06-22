@@ -29,7 +29,7 @@ public class ReferenceCodeRepositoryTest {
 
     @Test
     public final void testGetAlertTypeByCode() {
-        final ReferenceCode alertTypeCodesByAlertCode = repository.getAlertTypesByAlertType("X");
+        final ReferenceCode alertTypeCodesByAlertCode = repository.getReferenceCodeByDomainAndCode("ALERT", "X");
         assertThat(alertTypeCodesByAlertCode).isNotNull();
     }
 

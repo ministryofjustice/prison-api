@@ -3,11 +3,12 @@
 	"title": "ResferenceCode Set",
 	"type": "object",
 	"properties": {
-		"ReferenceCodes" : {
+		"referenceCodes" : {
 			"type": "array",
 			"items": { "$ref": "referenceCode" }
 		},
 		"pageMetaData": {"$ref": "pageMetaData"}
 	},
-	"required": ["ReferenceCodes", "pageMetaData"]
+	"required": ["referenceCodes", "pageMetaData"]
 }
+
