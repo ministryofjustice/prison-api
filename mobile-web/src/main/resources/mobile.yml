@@ -30,8 +30,8 @@ security:
     header: Authorization
     signingKey: s3cre3tK3y
     schema: Bearer
-    expiration: 10 # Number of minutes
-    refreshExpiration: 60 # Number of minutes
+    expiration: ${jwt.expiration.mins} # Number of minutes
+    refreshExpiration: ${jwt.refresh.expiration.mins} # Number of minutes
     issuer: http://www.syscon.net
 
 
@@ -56,6 +56,6 @@ server:
 
 endpoints:
   cors:
-    allowed-origins: http://localhost:${server.port}
+    allowed-origins: ${cors.allowed-origins}
     allow-credentials: true
     allow-headers: Origin, X-Requested-With, Content-Type, Accept, Authorization
