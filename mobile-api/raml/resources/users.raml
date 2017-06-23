@@ -22,7 +22,7 @@
   
 /me/caseNoteTypes:
   description: Returns the list of case Note types associated to the user
-  type: { get-collection: { collectionSchema: referenceCodes } }
+  type: { get-collection: { collectionSchema: caseNoteTypes } }
   is: [
     searchable: {fieldsList : "code, type"},
     orderable: {fieldsList : "code, type"},
@@ -31,7 +31,7 @@
   
 /me/caseNoteTypes/{typeCode}:
   description: Returns the list of case Note types associated to the user
-  type: { get-collection: { collectionSchema: referenceCodes } }
+  type: { get-collection: { collectionSchema: caseNoteSubTypes } }
   is: [
     searchable: {fieldsList : "code, type"},
     orderable: {fieldsList : "code, type"},

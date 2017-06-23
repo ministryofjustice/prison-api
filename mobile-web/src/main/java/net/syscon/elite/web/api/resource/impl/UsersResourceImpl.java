@@ -173,17 +173,17 @@ public class UsersResourceImpl implements UsersResource {
 	}
 
 	@Override
-	public GetUsersMeCaseNoteTypesResponse getUsersMeCaseNoteTypes(String query, String orderBy, Order order,
-			int offset, int limit) throws Exception {
-		//TODO- Include searchable and order by feature.
-		List<ReferenceCode> referenceCodes = referenceDomainService.getCaseNoteTypesByCaseLoad(null, offset, limit);
-		ReferenceCodes codes = new ReferenceCodes(referenceCodes, MetaDataFactory.createMetaData(limit, offset, referenceCodes));
+	public GetUsersMeCaseNoteTypesResponse getUsersMeCaseNoteTypes(String query, String orderBy, Order order, int offset, int limit) throws Exception {
+		List<CaseNoteType> caseNoteTypes = referenceDomainService.getCaseNoteTypeByCurrentCaseLoad(query, orderBy, order.toString(), offset, limit);
+		CaseNoteTypes codes = new CaseNoteTypes(caseNoteTypes, MetaDataFactory.createMetaData(limit, offset, caseNoteTypes));
 		return GetUsersMeCaseNoteTypesResponse.withJsonOK(codes);
 	}
 
 	@Override
 	public GetUsersMeCaseNoteTypesByTypeCodeResponse getUsersMeCaseNoteTypesByTypeCode(String typeCode, String query,
 			String orderBy, Order order, int offset, int limit) throws Exception {
-		return null;
+		List<CaseNoteType> caseNoteTypes = referenceDomainService.getCaseNoteSubType(typeCode, query, orderBy, order.toString(), offset, limit);
+		CaseNoteSubTypes caseNoyeSubTypes = new CaseNoteSubTypes(caseNoteTypes, MetaDataFactory.createMetaData(limit, offset, caseNoteTypes));
+		return GetUsersMeCaseNoteTypesByTypeCodeResponse.withJsonOK(caseNoyeSubTypes);
 	}
 }
