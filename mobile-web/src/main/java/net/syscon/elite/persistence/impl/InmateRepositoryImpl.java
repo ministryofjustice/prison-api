@@ -224,13 +224,21 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public List<Alias> findInmateAliases(final long bookingId, String orderByField, BookingResource.Order order, final int offset, final int limit) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_INMATE_ALIASES"), aliasMapping, preOracle12)
-				.addOrderBy("asc".equals(order.toString()), (null==orderByField || "".equals("orderByField"))?"firstName":orderByField)
+	public List<Alias> findInmateAliases(Long bookingId, String orderByField, BookingResource.Order order) {
+		String initialSql = getQuery("FIND_INMATE_ALIASES");
+		IQueryBuilder builder = QueryBuilderFactory.getQueryBuilder(initialSql, aliasMapping);
+		boolean isAscendingOrder = (order == BookingResource.Order.asc);
+
+		String sql = builder
+				.addOrderBy(isAscendingOrder,
+						    StringUtils.defaultString(StringUtils.trimToNull(orderByField), "firstName"))
 				.build();
-		final RowMapper<Alias> aliasAttributesRowMapper = Row2BeanRowMapper.makeMapping(sql, Alias.class, aliasMapping);
-		final List<Alias> aliases = jdbcTemplate.query(sql, createParams("bookingId", bookingId, "caseLoadId", getCurrentCaseLoad()), aliasAttributesRowMapper);
-		return aliases;
+
+		RowMapper<Alias> aliasAttributesRowMapper = Row2BeanRowMapper.makeMapping(sql, Alias.class, aliasMapping);
+
+		return jdbcTemplate.query(
+				sql,
+				createParams("bookingId", bookingId),
+				aliasAttributesRowMapper);
 	}
 }
-

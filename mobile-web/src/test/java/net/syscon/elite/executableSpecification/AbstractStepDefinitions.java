@@ -36,13 +36,18 @@ public abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        BookingSearchSteps booking() {
+        BookingSearchSteps bookingSearch() {
             return new BookingSearchSteps();
         }
 
         @Bean
         LocationsSteps location() {
             return new LocationsSteps();
+        }
+
+        @Bean
+        BookingAliasSteps bookingAlias() {
+            return new BookingAliasSteps();
         }
     }
 }

@@ -9,8 +9,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -162,18 +160,6 @@ public class BookingSearchSteps extends CommonSteps {
         return String.format(formatter, criteria);
     }
 
-    private List<String> csv2list(String commaSeparatedList) {
-        List<String> out;
-
-        if (StringUtils.isBlank(commaSeparatedList)) {
-            out = Collections.emptyList();
-        } else {
-            out = Arrays.asList(commaSeparatedList.split("\\s*,\\s*"));
-        }
-
-        return out;
-    }
-
     private List<String> extractFirstNames() {
         return inmateSummaries.getInmatesSummaries()
                 .stream()
@@ -196,18 +182,6 @@ public class BookingSearchSteps extends CommonSteps {
                 .map(AssignedInmate::getMiddleName)
                 .filter(StringUtils::isNotBlank)
                 .collect(Collectors.toList());
-    }
-
-    private void verifyIdentical(List<String> listActual, List<String> listExpected) {
-        // Both lists are expected to be provided (i.e. non-null). Empty lists are ok.
-        // Sorting and converting back to String so that details of non-matching lists are clearly disclosed
-        Collections.sort(listActual);
-        Collections.sort(listExpected);
-
-        String actual = String.join(",", listActual);
-        String expected = String.join(",", listExpected);
-
-        assertThat(actual).isEqualTo(expected);
     }
 
     private void init() {

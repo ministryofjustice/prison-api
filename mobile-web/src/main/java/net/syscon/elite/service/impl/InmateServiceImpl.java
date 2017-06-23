@@ -41,8 +41,8 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<Alias> findInmateAliases(long inmateId, String orderByField, BookingResource.Order order, int offset, int limit) {
-        return repository.findInmateAliases(inmateId, orderByField, order, offset, limit);
+    public List<Alias> findInmateAliases(Long inmateId, String orderByField, BookingResource.Order order) {
+        return repository.findInmateAliases(inmateId, orderByField, order);
     }
 
     @Override

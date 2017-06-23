@@ -124,9 +124,8 @@ is: [
   type: { get-item: { schema: alert } }
   
 /{bookingId}/aliases:
-  description: The collection of alerts associated to the inmate.
+  description: The collection of aliases associated with the inmate.
   type: {get-collection: {collectionSchema: aliases}}
   is: [
-    orderable: {fieldsList: "firstName, lastName, age, dob, middleName, nameType"},
-    pageable
+    orderable: {fieldsList: "firstName, lastName, age, dob, middleName, nameType"}
   ]
