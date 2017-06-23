@@ -1,0 +1,13 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "ResferenceCode Set",
+	"type": "object",
+	"properties": {
+		"caseNoteTypes" : {
+			"type": "array",
+			"items": { "$ref": "typeSubtypes" }
+		},
+		"pageMetaData": {"$ref": "pageMetaData"}
+	},
+	"required": ["typeSubtypes", "pageMetaData"]
+}

@@ -5,8 +5,10 @@ import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.security.jwt.TokenManagement;
 import net.syscon.elite.security.jwt.TokenSettings;
 import net.syscon.elite.service.AssignmentService;
+import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.UserService;
 import net.syscon.elite.web.api.model.*;
+import net.syscon.elite.web.api.resource.ReferenceDomainsResource;
 import net.syscon.elite.web.api.resource.UsersResource;
 import net.syscon.util.MetaDataFactory;
 import org.slf4j.Logger;
@@ -34,14 +36,18 @@ public class UsersResourceImpl implements UsersResource {
 	private final AuthenticationManager authenticationManager;
 	private final UserService userService;
 	private final AssignmentService assignmentService;
+	private final ReferenceDomainService referenceDomainService;
 
 	@Inject
-	public UsersResourceImpl(TokenManagement tokenManagement, TokenSettings tokenSettings, AuthenticationManager authenticationManager, UserService userService, AssignmentService assignmentService) {
+	public UsersResourceImpl(TokenManagement tokenManagement, TokenSettings tokenSettings, 
+							AuthenticationManager authenticationManager, UserService userService, 
+							AssignmentService assignmentService, ReferenceDomainService referenceDomainService) {
 		this.tokenManagement = tokenManagement;
 		this.tokenSettings = tokenSettings;
 		this.authenticationManager = authenticationManager;
 		this.userService = userService;
 		this.assignmentService = assignmentService;
+		this.referenceDomainService = referenceDomainService;
 	}
 
 	@Override
@@ -164,4 +170,18 @@ public class UsersResourceImpl implements UsersResource {
 		}
 	}
 
+	@Override
+	public GetUsersMeCaseNoteTypesResponse getUsersMeCaseNoteTypes(String query, String orderBy, Order order, int offset, int limit) throws Exception {
+		List<CaseNoteType> caseNoteTypes = referenceDomainService.getCaseNoteTypeByCurrentCaseLoad(query, orderBy, order.toString(), offset, limit);
+		CaseNoteTypes codes = new CaseNoteTypes(caseNoteTypes, MetaDataFactory.createMetaData(limit, offset, caseNoteTypes));
+		return GetUsersMeCaseNoteTypesResponse.withJsonOK(codes);
+	}
+
+	@Override
+	public GetUsersMeCaseNoteTypesByTypeCodeResponse getUsersMeCaseNoteTypesByTypeCode(String typeCode, String query,
+			String orderBy, Order order, int offset, int limit) throws Exception {
+		List<CaseNoteType> caseNoteTypes = referenceDomainService.getCaseNoteSubType(typeCode, query, orderBy, order.toString(), offset, limit);
+		CaseNoteSubTypes caseNoyeSubTypes = new CaseNoteSubTypes(caseNoteTypes, MetaDataFactory.createMetaData(limit, offset, caseNoteTypes));
+		return GetUsersMeCaseNoteTypesByTypeCodeResponse.withJsonOK(caseNoyeSubTypes);
+	}
 }

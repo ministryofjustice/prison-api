@@ -1,5 +1,6 @@
 package net.syscon.elite.service;
 
+import net.syscon.elite.web.api.model.CaseNoteType;
 import net.syscon.elite.web.api.model.ReferenceCode;
 import net.syscon.elite.web.api.resource.ReferenceDomainsResource.Order;
 
@@ -24,6 +25,10 @@ public interface ReferenceDomainService {
 	// TODO: Remove this method after IG change to the new the endpoint (getCnoteSubtypesByCaseNoteType => getCaseNoteSubTypesByParent)
 	List<ReferenceCode> getCnoteSubtypesByCaseNoteType(String caseNoteType, int offset, int limit);
 	List<ReferenceCode> getCaseNoteSubTypesByParent(String caseNoteType, int offset, int limit);
+	
+	//New End point.
+	List<CaseNoteType>  getCaseNoteTypeByCurrentCaseLoad(String query, String orderBy, String order, int offset, int limit);
+	List<CaseNoteType> getCaseNoteSubType(String typeCode, String query, String orderBy, String order, int offset, int limit);
 
 
 }
