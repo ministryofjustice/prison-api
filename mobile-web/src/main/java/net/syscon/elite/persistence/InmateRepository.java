@@ -13,9 +13,9 @@ import java.util.List;
 
 public interface InmateRepository {
 
-	List<AssignedInmate> findAllInmates(final String query, final int offset, final int limit, final String orderBy, BookingResource.Order order);
-	List<AssignedInmate> findInmatesByLocation(Long locationId, String query, String orderByField, LocationsResource.Order order, final int offset, final int limit);
+	List<AssignedInmate> findAllInmates(String query, int offset, int limit, String orderBy, BookingResource.Order order);
+	List<AssignedInmate> findInmatesByLocation(Long locationId, String query, String orderByField, LocationsResource.Order order, int offset, int limit);
 	InmateDetails findInmate(Long inmateId);
-	List<Alias> findInmateAliases(final long inmateId, String orderByField, BookingResource.Order order, final int offset, final int limit);
+	List<Alias> findInmateAliases(Long inmateId, String orderByField, BookingResource.Order order);
 	List<InmateAssignmentSummary> findMyAssignments(long staffId, String currentCaseLoad, int offset, int limit);
 }

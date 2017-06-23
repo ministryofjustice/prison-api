@@ -2,11 +2,14 @@ package net.syscon.elite.executableSpecification.steps;
 
 import net.syscon.elite.web.api.model.PageMetaData;
 import net.thucydides.core.annotations.Step;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -72,5 +75,29 @@ public abstract class CommonSteps {
         }
 
         return new HttpEntity<>(entity, headers);
+    }
+
+    protected List<String> csv2list(String commaSeparatedList) {
+        List<String> out;
+
+        if (StringUtils.isBlank(commaSeparatedList)) {
+            out = Collections.emptyList();
+        } else {
+            out = Arrays.asList(commaSeparatedList.split("\\s*,\\s*"));
+        }
+
+        return out;
+    }
+
+    protected void verifyIdentical(List<String> listActual, List<String> listExpected) {
+        // Both lists are expected to be provided (i.e. non-null). Empty lists are ok.
+        // Sorting and converting back to String so that details of non-matching lists are clearly disclosed
+        Collections.sort(listActual);
+        Collections.sort(listExpected);
+
+        String actual = String.join(",", listActual);
+        String expected = String.join(",", listExpected);
+
+        assertThat(actual).isEqualTo(expected);
     }
 }

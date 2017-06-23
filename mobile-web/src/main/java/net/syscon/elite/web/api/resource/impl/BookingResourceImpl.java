@@ -89,9 +89,9 @@ public class BookingResourceImpl implements BookingResource {
 	
 	@Override
 	public GetBookingByBookingIdAliasesResponse getBookingByBookingIdAliases(String bookingId, String orderBy,
-			Order order, int offset, int limit) throws Exception {
+			Order order) throws Exception {
 		try {
-			List<Alias> aliases = inmateService.findInmateAliases(Long.valueOf(bookingId), orderBy, order, offset, limit);
+			List<Alias> aliases = inmateService.findInmateAliases(Long.valueOf(bookingId), orderBy, order);
 			return GetBookingByBookingIdAliasesResponse.withJsonOK(aliases);
 		} catch (final EmptyResultDataAccessException ex) {
 			final String message = String.format("Booking \"%s\" not found", bookingId);
