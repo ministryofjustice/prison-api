@@ -2,7 +2,6 @@ package net.syscon.elite.executableSpecification;
 
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
-import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.executableSpecification.steps.CaseNoteSteps;
@@ -42,9 +41,10 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         caseNote.verify();
     }
 
-    @Given("^I have created a case note text of \"([^\"]*)\"$")
+    @And("^I have created a case note text of \"([^\"]*)\"$")
     public void iHaveCreatedACaseNoteTextOf(String caseNoteText) throws Throwable {
         CaseNote newCaseNote = new CaseNote();
+
         newCaseNote.setType("CHAP");
         newCaseNote.setSubType("STUFF");
         newCaseNote.setText(caseNoteText);
@@ -52,7 +52,7 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         seededCaseNote = caseNote.createCaseNote(newCaseNote);
     }
 
-    @Given("^the created case note is updated with text \"([^\"]*)\"$")
+    @When("^the created case note is updated with text \"([^\"]*)\"$")
     public void theCaseNoteIsUpdatedWithText(String caseNoteText) throws Throwable {
         updatedCaseNote = caseNote.updateCaseNote(seededCaseNote.getCaseNoteId(), new UpdateCaseNote(caseNoteText));
     }
@@ -65,5 +65,10 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     @And("^the original text is not replaced$")
     public void theAmendedFlagIsSet() throws Throwable {
         assertThat(updatedCaseNote.getText()).contains(seededCaseNote.getText());
+    }
+
+    @And("^correct case note source is used$")
+    public void correctCaseNoteSourceIsUsed() throws Throwable {
+        caseNote.verifyCaseNoteSource();
     }
 }

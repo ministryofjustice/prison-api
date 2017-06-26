@@ -6,6 +6,7 @@ import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.web.api.model.CaseNote;
 import net.syscon.elite.web.api.model.NewCaseNote;
 import net.syscon.elite.web.api.resource.BookingResource.Order;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,9 @@ import static java.lang.String.format;
 @Transactional
 @Service
 public class CaseNoteServiceImpl implements CaseNoteService {
+
+	@Value("${api.caseNote.sourceCode:AUTO}")
+	private String caseNoteSource;
 
     private final static String AMEND_CASE_NOTE_FORMAT = "%s ...[%s updated the case notes on %s] %s";
 
@@ -49,7 +53,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	@Override
 	public CaseNote createCaseNote(final String bookingId, final NewCaseNote caseNote) {
 		//TODO: First - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
-        final Long caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote);
+        final Long caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote, caseNoteSource);
         return caseNoteRepository.getCaseNote(bookingId, caseNoteId);
 
 	}
