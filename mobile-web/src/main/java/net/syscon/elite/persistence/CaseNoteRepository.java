@@ -11,7 +11,7 @@ public interface CaseNoteRepository {
 	List<CaseNote> getCaseNotes(String bookingId, String query,
 			String orderBy, Order order, int offset, int limit) ;
 	CaseNote getCaseNote(String bookingId, long caseNoteId);
-	Long createCaseNote(String bookingId, NewCaseNote caseNote);
+	Long createCaseNote(String bookingId, NewCaseNote caseNote, String sourceCode);
 	void updateCaseNote(String bookingId, long caseNoteId, String additionalCaseNoteText, String userId);
 	
 }

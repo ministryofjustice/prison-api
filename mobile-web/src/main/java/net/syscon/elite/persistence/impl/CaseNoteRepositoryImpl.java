@@ -8,7 +8,9 @@ import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.web.api.model.CaseNote;
 import net.syscon.elite.web.api.model.NewCaseNote;
 import net.syscon.elite.web.api.resource.BookingResource.Order;
+import net.syscon.util.IQueryBuilder;
 import net.syscon.util.QueryBuilder;
+import net.syscon.util.QueryBuilderFactory;
 import oracle.sql.TIMESTAMP;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -66,9 +68,10 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
-	public Long createCaseNote(String bookingId, NewCaseNote caseNote) {
-		GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
-		String sql = new QueryBuilder.Builder(getQuery("INSERT_CASE_NOTE"), caseNoteMapping, preOracle12).build();
+	public Long createCaseNote(String bookingId, NewCaseNote caseNote, String sourceCode) {
+		String initialSql = getQuery("INSERT_CASE_NOTE");
+		IQueryBuilder builder = QueryBuilderFactory.getQueryBuilder(initialSql, caseNoteMapping);
+		String sql = builder.build();
 		String user = UserSecurityUtils.getCurrentUsername();
 
 		LocalDateTime now = LocalDateTime.now();
@@ -84,19 +87,24 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 			occurrenceDate = Date.from(occurrenceDateTime.toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
 		}
 
-		jdbcTemplate.update(sql, createParams("bookingID", bookingId,
-												"text", caseNote.getText(),
-												"type", caseNote.getType(),
-												"subType", caseNote.getSubType(),
-												"sourceCode", "AUTO",
-												"createDate", createdDate,
-												"createTime", createdDateTime,
-												"contactDate", occurrenceDate,
-												"contactTime", occurrenceTime,
-												"createdBy", user,
-												"user_Id", user
-							), generatedKeyHolder, new String[] {"CASE_NOTE_ID" }
-						 );
+		GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
+
+		jdbcTemplate.update(
+				sql,
+				createParams("bookingID", bookingId,
+										"text", caseNote.getText(),
+										"type", caseNote.getType(),
+										"subType", caseNote.getSubType(),
+										"sourceCode", sourceCode,
+										"createDate", createdDate,
+										"createTime", createdDateTime,
+										"contactDate", occurrenceDate,
+										"contactTime", occurrenceTime,
+										"createdBy", user,
+										"user_Id", user),
+				generatedKeyHolder,
+				new String[] {"CASE_NOTE_ID"});
+
 		return generatedKeyHolder.getKey().longValue();
 	}
 
