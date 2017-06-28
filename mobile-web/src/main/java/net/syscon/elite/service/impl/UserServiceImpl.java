@@ -17,7 +17,7 @@ import static java.lang.String.format;
 
 @Service
 public class UserServiceImpl implements UserService {
-	
+
 	private final UserRepository userRepository;
 	private final CaseLoadRepository caseLoadRepository;
 
@@ -60,5 +60,4 @@ public class UserServiceImpl implements UserService {
 			userRepository.updateCurrentLoad(userDetails.getStaffId(), caseLoadId);
 		}
 	}
-
 }
