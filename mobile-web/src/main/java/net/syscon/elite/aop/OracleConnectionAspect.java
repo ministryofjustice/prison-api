@@ -35,11 +35,9 @@ public class OracleConnectionAspect {
 	private AspectJExpressionPointcutAdvisor closeConnectionAdvisor;
 	private boolean enableProxy;
 	private String rolePassword;
-	private boolean skipSetRole;
 	
 	@Inject
 	public void setEnvironment(final Environment env) {
-		skipSetRole = env.getProperty("skip.set.role", Boolean.class, Boolean.FALSE);
 		enableProxy = env.getProperty("spring.datasource.hikari.oracle-proxy.enabled", Boolean.class);
 		final String jdbcUrl = env.getProperty("spring.datasource.hikari.jdbc-url");
 		final String username = env.getProperty("spring.datasource.hikari.username");
@@ -103,13 +101,11 @@ public class OracleConnectionAspect {
 		        proxyFactory.addAdvisor(closeConnectionAdvisor);
 		        final Connection proxyConn = (Connection) proxyFactory.getProxy();
 
-		        if (!skipSetRole) {
-					final String startSessionSQL = "SET ROLE TAG_USER IDENTIFIED BY " + rolePassword;
-					final PreparedStatement stmt = oracleConn.prepareStatement(startSessionSQL);
-					stmt.execute();
-					stmt.close();
-				}
-		        
+				final String startSessionSQL = "SET ROLE TAG_USER IDENTIFIED BY " + rolePassword;
+				final PreparedStatement stmt = oracleConn.prepareStatement(startSessionSQL);
+				stmt.execute();
+				stmt.close();
+
 		        if (log.isDebugEnabled()) {
 		        	log.debug("Exit: {}.{}() with result = {}", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(), conn);
 		        }
