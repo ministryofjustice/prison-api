@@ -2,28 +2,20 @@ package net.syscon.elite.web.api.resource.impl;
 
 import net.syscon.elite.exception.EliteRuntimeException;
 import net.syscon.elite.security.UserSecurityUtils;
-import net.syscon.elite.security.jwt.TokenManagement;
-import net.syscon.elite.security.jwt.TokenSettings;
 import net.syscon.elite.service.AssignmentService;
+import net.syscon.elite.service.AuthenticationService;
 import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.UserService;
 import net.syscon.elite.web.api.model.*;
-import net.syscon.elite.web.api.resource.ReferenceDomainsResource;
 import net.syscon.elite.web.api.resource.UsersResource;
 import net.syscon.util.MetaDataFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-import java.util.Base64;
 import java.util.List;
 
 @Component
@@ -31,24 +23,17 @@ public class UsersResourceImpl implements UsersResource {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final TokenManagement tokenManagement;
-	private final TokenSettings tokenSettings;
-	private final AuthenticationManager authenticationManager;
-	private final UserService userService;
-	private final AssignmentService assignmentService;
-	private final ReferenceDomainService referenceDomainService;
+	@Autowired
+	private AssignmentService assignmentService;
 
-	@Inject
-	public UsersResourceImpl(TokenManagement tokenManagement, TokenSettings tokenSettings, 
-							AuthenticationManager authenticationManager, UserService userService, 
-							AssignmentService assignmentService, ReferenceDomainService referenceDomainService) {
-		this.tokenManagement = tokenManagement;
-		this.tokenSettings = tokenSettings;
-		this.authenticationManager = authenticationManager;
-		this.userService = userService;
-		this.assignmentService = assignmentService;
-		this.referenceDomainService = referenceDomainService;
-	}
+	@Autowired
+	private AuthenticationService authenticationService;
+
+	@Autowired
+	private ReferenceDomainService referenceDomainService;
+
+	@Autowired
+	private UserService userService;
 
 	@Override
 	public GetUsersByUsernameResponse getUsersByUsername(String username) throws Exception {
@@ -77,63 +62,28 @@ public class UsersResourceImpl implements UsersResource {
 
 	@Override
 	public PostUsersLoginResponse postUsersLogin(final String credentials, final AuthLogin authLogin) throws Exception {
-		Token token = null;
-		try {
-			String username = null;
-			String password = null;
-			if (authLogin != null) {
-				username = authLogin.getUsername().toUpperCase();
-				password = authLogin.getPassword();
-			} else if (credentials != null) {
-				final int index = credentials.indexOf(TokenSettings.BASIC_AUTHENTICATION);
-				if (index > -1) {
-					final String ss = credentials.substring(index + TokenSettings.BASIC_AUTHENTICATION.length()).trim();
-					final String usrPwd = new String(Base64.getDecoder().decode(ss));
-					final String[] items = usrPwd.split(":");
-					if (items.length == 2) {
-						username = items[0];
-						password = items[1];
-					}
-				}
-			}
-			if (username != null && password != null) {
-				log.debug("Trying to authenticate the user ", username, " ...");
-				final Authentication authentication = this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-				SecurityContextHolder.getContext().setAuthentication(authentication);
-				token = tokenManagement.createToken(username);
-			}
-		} catch (final AuthenticationException ex) {
-			log.error(ex.getMessage(), ex);
-		}
+		Token token = authenticationService.getAuthenticationToken(credentials, authLogin);
+
 		if (token != null) {
 			return PostUsersLoginResponse.withJsonCreated(token.getToken(), token);
 		} else {
-			final String message = "Authentication Error";
-			final HttpStatus httpStatus = new HttpStatus("401", "401", message, message, "");
+			String message = "Authentication Error";
+			HttpStatus httpStatus = new HttpStatus("401", "401", message, message, "");
+
 			return PostUsersLoginResponse.withJsonUnauthorized(httpStatus);
 		}
 	}
 
 	@Override
 	public PostUsersTokenResponse postUsersToken(final String header) throws Exception {
-		Token token = null;
-		try {
-			final int index = header.indexOf(tokenSettings.getSchema());
-			if (index > -1) {
-				final String encodedToken = header.substring(index + tokenSettings.getSchema().length()).trim();
-				final String username = tokenManagement.getUsernameFromToken(encodedToken).toUpperCase();
-				token = tokenManagement.createToken(username);
-			}
-
-		} catch (final AuthenticationException ex) {
-			log.error(ex.getMessage(), ex);
-		}
+		Token token = authenticationService.refreshToken(header);
 
 		if (token != null) {
 			return PostUsersTokenResponse.withJsonCreated(token.getToken(), token);
 		} else {
-			final String message = "Authentication Error";
-			final HttpStatus httpStatus = new HttpStatus("401", "401", message, message, "");
+			String message = "Authentication Error";
+			HttpStatus httpStatus = new HttpStatus("401", "401", message, message, "");
+
 			return PostUsersTokenResponse.withJsonUnauthorized(httpStatus);
 		}
 	}

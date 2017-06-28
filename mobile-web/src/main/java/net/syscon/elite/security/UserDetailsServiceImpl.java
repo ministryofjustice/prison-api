@@ -8,7 +8,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -17,26 +16,27 @@ import java.util.stream.Collectors;
 @Service("userDetailsService")
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-	private UserRepository userRepository;
+	private final UserRepository userRepository;
 
-	@Inject
-	public void setUserRepository(final UserRepository userRepository) {
+	public UserDetailsServiceImpl(UserRepository userRepository) {
 		this.userRepository = userRepository;
 	}
 
 	@Override
 	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-		final net.syscon.elite.web.api.model.UserDetails user = this.userRepository.findByUsername(username);
+		final net.syscon.elite.web.api.model.UserDetails user = userRepository.findByUsername(username);
+
 		if (user == null) {
 			throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
 		}
+
 		List<String> roles = userRepository.findRolesByUsername(username);
+
 		Set<GrantedAuthority> authorities = roles.stream()
 				.filter(Objects::nonNull)
 				.map(name -> new SimpleGrantedAuthority(name.replace('-', '_')))
 				.collect(Collectors.toSet());
-		return new UserDetailsImpl(username, null, authorities);
+
+		return new UserDetailsImpl(username, null, authorities, user.getAdditionalProperties());
 	}
-
-
 }

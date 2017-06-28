@@ -6,33 +6,43 @@ import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import net.syscon.elite.security.DeviceFingerprint;
+import net.syscon.elite.security.UserDetailsImpl;
 import net.syscon.elite.web.api.model.Token;
 import net.syscon.util.DateTimeConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.inject.Inject;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Date;
 
 public class TokenManagement {
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
+
 	private static final String DEVICE_FINGERPRINT_HASH_CODE = "deviceFingerprintHashCode";
 	private static final String ALLOW_REFRESH_TOKEN = "allowRefreshToken";
+	private static final String USER_PRINCIPAL = "userPrincipal";
+
+	@Autowired
 	private TokenSettings settings;
 
-	@Inject
-	public void setTokenSettins(final TokenSettings settings) {
-		this.settings = settings;
+
+	public Token createToken(String username) {
+		UserDetailsImpl userDetails = new UserDetailsImpl(username, null, Collections.emptyList(), null);
+
+		return createToken(userDetails);
 	}
 
-	public Token createToken(final String username) {
-		final String usernameToken = username.toUpperCase();
+	public Token createToken(UserDetailsImpl userDetails) {
+		final String usernameToken = userDetails.getUsername().toUpperCase();
 		final Claims claims = Jwts.claims().setSubject(usernameToken);
 		final int deviceFingerprintHashCode = DeviceFingerprint.get().hashCode();
+
 		claims.put(DEVICE_FINGERPRINT_HASH_CODE, deviceFingerprintHashCode);
 		claims.put(ALLOW_REFRESH_TOKEN, Boolean.FALSE);
+		claims.put(USER_PRINCIPAL, userDetails);
 
 		final LocalDateTime now = LocalDateTime.now();
 
@@ -51,8 +61,10 @@ public class TokenManagement {
 				.signWith(SignatureAlgorithm.HS512, settings.getSigningKey());
 
 		final Claims refreshClaims = Jwts.claims().setSubject(usernameToken);
+
 		refreshClaims.put(DEVICE_FINGERPRINT_HASH_CODE, deviceFingerprintHashCode);
 		refreshClaims.put(ALLOW_REFRESH_TOKEN, Boolean.TRUE);
+		refreshClaims.put(USER_PRINCIPAL, userDetails);
 
 		final JwtBuilder refreshBuilder = Jwts.builder()
 				.setClaims(refreshClaims)
@@ -69,35 +81,29 @@ public class TokenManagement {
 		token.setExpiration(expiration.getTime());
 		token.setRefreshToken(strRefreshToken);
 		token.setRefreshExpiration(refreshExpiration.getTime());
+
 		return token;
 	}
 
+	public Object getUserPrincipalFromToken(String token) {
+		Object userPrincipal;
 
-	private Claims getClaimsFromToken(final String token) {
-		Claims claims;
 		try {
-			claims = Jwts.parser().setSigningKey(settings.getSigningKey()).parseClaimsJws(token).getBody();
-		} catch (final Exception e) {
-			claims = null;
+			Claims claims = getClaimsFromToken(token);
+
+			userPrincipal = claims.get(USER_PRINCIPAL);
+		} catch (Exception ex) {
+			userPrincipal = null;
 		}
-		return claims;
+
+		return userPrincipal;
 	}
 
-	public String getUsernameFromToken(final String token) {
-		String username;
-		try {
-			final Claims claims = getClaimsFromToken(token);
-			username = claims.getSubject();
-		} catch (final Exception e) {
-			username = null;
-		}
-		return username;
-	}
-
-	public Boolean validateToken(final String token, final String username, final DeviceFingerprint deviceFingerprint, final boolean refreshingToken) {
+	public Boolean validateToken(String token, Object userPrincipal, DeviceFingerprint deviceFingerprint, boolean refreshingToken) {
 		final Claims claims = this.getClaimsFromToken(token);
 		final Boolean allowRefreshToken = (Boolean) claims.get(ALLOW_REFRESH_TOKEN);
-		boolean valid = token != null && deviceFingerprint != null && username != null;
+
+		boolean valid = token != null && deviceFingerprint != null && userPrincipal != null;
 
 		// validate the kind of token
 		if (refreshingToken && !allowRefreshToken || !refreshingToken && allowRefreshToken) {
@@ -105,11 +111,13 @@ public class TokenManagement {
 		}
 
 		final Integer deviceFingerprintHashCode = (Integer) claims.get(DEVICE_FINGERPRINT_HASH_CODE);
+
 		if (valid && deviceFingerprint != null && deviceFingerprintHashCode != null) {
 			valid = deviceFingerprint.hashCode() == deviceFingerprintHashCode.intValue();
 		}
 
 		final Date expiration = claims.getExpiration();
+
 		if (valid && expiration != null) {
 			valid =  expiration.after(new Date());
 		}
@@ -117,6 +125,15 @@ public class TokenManagement {
 		return valid;
 	}
 
+	private Claims getClaimsFromToken(String token) {
+		Claims claims;
+
+		try {
+			claims = Jwts.parser().setSigningKey(settings.getSigningKey()).parseClaimsJws(token).getBody();
+		} catch (final Exception e) {
+			claims = null;
+		}
+
+		return claims;
+	}
 }
-
-

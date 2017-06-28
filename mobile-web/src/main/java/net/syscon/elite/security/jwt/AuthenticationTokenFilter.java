@@ -1,6 +1,8 @@
 package net.syscon.elite.security.jwt;
 
 import net.syscon.elite.security.DeviceFingerprint;
+import net.syscon.elite.security.UserDetailsImpl;
+import net.syscon.elite.security.UserSecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +27,6 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
 	@Inject
 	private TokenSettings tokenSettings;
 
-
 	@Inject
 	private TokenManagement tokenManagement;
 
@@ -40,31 +41,35 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
 		final String header = httpRequest.getHeader(authenticationHeader);
 
 		String token = null;
-		String username = null;
+		Object userPrincipal = null;
 		final String uri = httpRequest.getRequestURI();
-		
 
 		if (header != null) {
 			final int index = header.indexOf(tokenSettings.getSchema());
+
 			if (index > -1) {
 				token = header.substring(index + tokenSettings.getSchema().length()).trim();
-				username = tokenManagement.getUsernameFromToken(token);
+				userPrincipal = tokenManagement.getUserPrincipalFromToken(token);
 			}
 		}
 
-		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-			if (tokenManagement.validateToken(token, username, deviceFingerprint, uri.endsWith("/users/token"))) {
+		UserDetailsImpl userDetails = UserSecurityUtils.toUserDetails(userPrincipal);
+
+		if ((userDetails != null) && (SecurityContextHolder.getContext().getAuthentication() == null)) {
+			if (tokenManagement.validateToken(token, userDetails, deviceFingerprint, uri.endsWith("/users/token"))) {
+
 				if (log.isDebugEnabled()) {
 					log.debug("--passing control to filterChain for \"" + httpRequest.getRequestURL().toString() + "\" from \"" + request.getRemoteAddr() + "\"--");
 				}
-				final UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username, null, Collections.emptyList());
+
+				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, Collections.emptyList());
+
 				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));
+
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
 		}
 		
 		chain.doFilter(request, response);
 	}
-
-
 }
