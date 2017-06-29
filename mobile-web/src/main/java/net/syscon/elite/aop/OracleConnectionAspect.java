@@ -4,7 +4,6 @@ import net.syscon.elite.persistence.impl.UserRepositoryImpl;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.util.SQLProvider;
 import oracle.jdbc.driver.OracleConnection;
-import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -89,12 +88,12 @@ public class OracleConnectionAspect {
 	    }
 		try {
 			final Connection conn = (Connection) joinPoint.proceed();
-			final String username = UserSecurityUtils.getCurrentUsername();
-			if (enableProxy && !StringUtils.equalsIgnoreCase(username, "anonymousUser")) {
+
+			if (enableProxy && !UserSecurityUtils.isAnonymousAuthentication()) {
 				final OracleConnection oracleConn = (OracleConnection) conn.unwrap(Connection.class);
-
-
+				final String username = UserSecurityUtils.getCurrentUsername();
 				final Properties info = new Properties();
+
 			    info.put(OracleConnection.PROXY_USER_NAME, username);
 		        oracleConn.openProxySession(OracleConnection.PROXYTYPE_USER_NAME, info);
 		        

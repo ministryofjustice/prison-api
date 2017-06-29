@@ -1,6 +1,7 @@
 package net.syscon.elite.security;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -25,6 +26,12 @@ public class UserSecurityUtils {
 		}
 
 		return username;
+	}
+
+	public static boolean isAnonymousAuthentication() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+		return auth instanceof AnonymousAuthenticationToken;
 	}
 
 	public static UserDetailsImpl toUserDetails(Object userPrincipal) {
