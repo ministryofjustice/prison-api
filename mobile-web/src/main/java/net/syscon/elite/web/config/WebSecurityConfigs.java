@@ -1,16 +1,20 @@
 package net.syscon.elite.web.config;
 
-import net.syscon.elite.security.DbAuthenticationProvider;
+import net.syscon.elite.persistence.UserRepository;
+import net.syscon.elite.security.ApiAuthenticationProvider;
 import net.syscon.elite.security.EntryPointUnauthorizedHandler;
+import net.syscon.elite.security.UserDetailsServiceImpl;
 import net.syscon.elite.security.jwt.AuthenticationTokenFilter;
 import net.syscon.elite.security.jwt.TokenManagement;
 import net.syscon.elite.security.jwt.TokenSettings;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,12 +23,13 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import javax.inject.Inject;
-
 @Configuration
 @EnableWebSecurity
 @Import({PersistenceConfigs.class, ServiceConfigs.class})
 public class WebSecurityConfigs extends WebSecurityConfigurerAdapter {
+
+	@Autowired
+	private UserRepository userRepository;
 
 	@Bean
 	public TokenSettings tokenSettings() {
@@ -37,15 +42,13 @@ public class WebSecurityConfigs extends WebSecurityConfigurerAdapter {
 	}
 
 	@Bean
-	public AuthenticationProvider authenticationProvider() {
-		return new DbAuthenticationProvider();
-	}
+	public AuthenticationProvider authenticationProvider() throws Exception {
+		DaoAuthenticationProvider provider = new ApiAuthenticationProvider();
 
-	@Inject
-	public void setAuthenticationProvider(final AuthenticationManagerBuilder auth, final AuthenticationProvider authenticationProvider, final UserDetailsService userDetailsService) throws Exception {
-		auth.authenticationProvider(authenticationProvider).userDetailsService(userDetailsService);
-	}
+		provider.setUserDetailsService(userDetailsServiceBean());
 
+		return provider;
+	}
 
 	@Bean
 	@Override
@@ -53,22 +56,22 @@ public class WebSecurityConfigs extends WebSecurityConfigurerAdapter {
 		return super.authenticationManagerBean();
 	}
 
-
 	@Bean
 	public TokenManagement tokenManagement() {
 		return new TokenManagement();
 	}
 
-
 	@Bean
 	public AuthenticationTokenFilter authenticationTokenFilter() throws Exception {
-		final AuthenticationTokenFilter authenticationTokenFilter = new AuthenticationTokenFilter();
+		AuthenticationTokenFilter authenticationTokenFilter = new AuthenticationTokenFilter();
+
 		authenticationTokenFilter.setAuthenticationManager(authenticationManagerBean());
+
 		return authenticationTokenFilter;
 	}
 
 	@Override
-	protected void configure(final HttpSecurity http) throws Exception {
+	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable()
 				.exceptionHandling().authenticationEntryPoint(unauthorizedHandler())
 				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -81,6 +84,13 @@ public class WebSecurityConfigs extends WebSecurityConfigurerAdapter {
 		http.addFilterBefore(authenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 	}
 
+	@Override
+	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		auth.authenticationProvider(authenticationProvider());
+	}
 
-
+	@Override
+	public UserDetailsService userDetailsServiceBean() throws Exception {
+		return new UserDetailsServiceImpl(userRepository);
+	}
 }
