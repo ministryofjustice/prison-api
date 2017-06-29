@@ -12,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.annotation.PostConstruct;
@@ -50,6 +51,9 @@ public class ApiAuthenticationProvider extends DaoAuthenticationProvider {
 
         try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {
             logger.debug(String.format("Verified database connection for user: %s", username));
+            // Username and credentials are now validated. Must set authentication in security context now
+            // so that subsequent user details queries will work.
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (final SQLException ex) {
             logger.error(ex.getMessage(), ex);
 
