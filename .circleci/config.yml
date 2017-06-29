@@ -12,7 +12,7 @@ jobs:
       - store_test_results:
           path: mobile-web/target/site
       - store_artifacts:
-          path: mobile-web/build/libs/mobile-web-1.0-SNAPSHOT.jar
+          path: mobile-web/build/libs
       - store_artifacts:
           path: mobile-web/build/reports/tests
       - store_artifacts:
@@ -21,7 +21,7 @@ jobs:
           path: mobile-api/raml/api.html
       - setup_remote_docker
       - run: |
-          if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
+          if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
             TAG=1.0.$CIRCLE_BUILD_NUM
             docker build -t sysconjusticesystems/elite2-api:$TAG .
             docker tag sysconjusticesystems/elite2-api:$TAG sysconjusticesystems/elite2-api:latest
