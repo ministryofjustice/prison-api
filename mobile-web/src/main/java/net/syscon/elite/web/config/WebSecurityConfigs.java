@@ -8,6 +8,8 @@ import net.syscon.elite.security.jwt.AuthenticationTokenFilter;
 import net.syscon.elite.security.jwt.TokenManagement;
 import net.syscon.elite.security.jwt.TokenSettings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.health.DataSourceHealthIndicator;
+import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -23,6 +25,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import javax.sql.DataSource;
+
 @Configuration
 @EnableWebSecurity
 @Import({PersistenceConfigs.class, ServiceConfigs.class})
@@ -34,6 +38,12 @@ public class WebSecurityConfigs extends WebSecurityConfigurerAdapter {
 	@Bean
 	public TokenSettings tokenSettings() {
 		return new TokenSettings();
+	}
+
+	@Bean
+	public HealthIndicator dbHealthIndicator(DataSource dataSource) {
+		DataSourceHealthIndicator indicator = new DataSourceHealthIndicator(dataSource);
+		return indicator;
 	}
 
 	@Bean
@@ -77,11 +87,10 @@ public class WebSecurityConfigs extends WebSecurityConfigurerAdapter {
 				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and().authorizeRequests()
 				.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-				.antMatchers("/api").permitAll()
 				.antMatchers( "/api/users/login").permitAll()
 				.antMatchers("/api/management/info").permitAll()
-				.anyRequest().authenticated();
-
+				.antMatchers("/api/**").authenticated()
+				.and().anonymous().principal("ANON_USER");
 		// Custom JWT based authentication
 		http.addFilterBefore(authenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 	}
