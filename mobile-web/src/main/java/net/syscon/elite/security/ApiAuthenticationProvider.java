@@ -55,8 +55,6 @@ public class ApiAuthenticationProvider extends DaoAuthenticationProvider {
             // so that subsequent user details queries will work.
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (final SQLException ex) {
-            logger.error(ex.getMessage(), ex);
-
             throw new BadCredentialsException(ex.getMessage(), ex);
         }
 

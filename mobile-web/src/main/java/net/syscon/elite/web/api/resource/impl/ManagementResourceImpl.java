@@ -5,6 +5,7 @@ import org.springframework.boot.actuate.endpoint.DumpEndpoint;
 import org.springframework.boot.actuate.endpoint.HealthEndpoint;
 import org.springframework.boot.actuate.endpoint.InfoEndpoint;
 import org.springframework.boot.actuate.endpoint.MetricsEndpoint;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +18,7 @@ import java.lang.management.ThreadInfo;
 
 @Path("/")
 @Produces({MediaType.APPLICATION_JSON})
+@Profile("!nomis")
 @Component
 public class ManagementResourceImpl {
 
