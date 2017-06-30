@@ -1,12 +1,12 @@
 package net.syscon.elite.web.api.resource.impl;
 
-import net.syscon.elite.exception.EliteRuntimeException;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.AssignmentService;
 import net.syscon.elite.service.AuthenticationService;
 import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.UserService;
 import net.syscon.elite.web.api.model.*;
+import net.syscon.elite.web.api.resource.ResourceUtils;
 import net.syscon.elite.web.api.resource.UsersResource;
 import net.syscon.util.MetaDataFactory;
 import org.slf4j.Logger;
@@ -21,7 +21,7 @@ import java.util.List;
 @Component
 public class UsersResourceImpl implements UsersResource {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	private AssignmentService assignmentService;
@@ -37,17 +37,31 @@ public class UsersResourceImpl implements UsersResource {
 
 	@Override
 	public GetUsersByUsernameResponse getUsersByUsername(String username) throws Exception {
-		try {
-			final UserDetails user = userService.getUserByUsername(username.toUpperCase());
-			return GetUsersByUsernameResponse.withJsonOK(user);
-		} catch (final EliteRuntimeException ex) {
-			log.error(ex.getMessage());
-			final HttpStatus httpStatus = new HttpStatus("404", "404", "User Not Found", "User Not Found", "");
-			return GetUsersByUsernameResponse.withJsonNotFound(httpStatus);
+        UserDetails userDetails = userService.getUserByUsername(username.toUpperCase());
+
+        if (userDetails == null) {
+            HttpStatus httpStatus = ResourceUtils.handleNotFoundResponse(logger,"User");
+
+            return GetUsersByUsernameResponse.withJsonNotFound(httpStatus);
+        } else {
+			return GetUsersByUsernameResponse.withJsonOK(userDetails);
 		}
 	}
 
-	@Override
+    @Override
+    public GetUsersStaffByStaffIdResponse getUsersStaffByStaffId(String staffId) {
+        StaffDetails staffDetails = userService.getUserByStaffId(Long.valueOf(staffId));
+
+        if (staffDetails == null) {
+            HttpStatus httpStatus = ResourceUtils.handleNotFoundResponse(logger, "Staff");
+
+            return GetUsersStaffByStaffIdResponse.withJsonNotFound(httpStatus);
+        } else {
+            return GetUsersStaffByStaffIdResponse.withJsonOK(staffDetails);
+        }
+    }
+
+    @Override
 	public GetUsersMeResponse getUsersMe() throws Exception {
 		final UserDetails user = getCurrentUser();
 		return GetUsersMeResponse.withJsonOK(user);

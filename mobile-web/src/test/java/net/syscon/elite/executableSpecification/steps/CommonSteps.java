@@ -8,12 +8,10 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 /**
  * Common BDD step implementations
@@ -29,6 +27,7 @@ public abstract class CommonSteps {
 
     private List<?> resources;
     private PageMetaData pageMetaData;
+    private Map<String, Object> additionalProperties = new HashMap<>();
 
     @Step("Verify number of resource records returned")
     public void verifyResourceRecordsReturned(long expectedCount) {
@@ -50,9 +49,18 @@ public abstract class CommonSteps {
         assertThat(auth.getToken()).isNotEmpty();
     }
 
+    @Step("Verify HTTP status response")
+    public void verifyHttpStatusResponse(String statusCode) {
+        assertThat(additionalProperties).contains(entry("code", statusCode));
+    }
+
     protected void setResourceMetaData(List<?> resources, PageMetaData pageMetaData) {
         this.resources = resources;
         this.pageMetaData = pageMetaData;
+    }
+
+    protected void setAdditionalResponseProperties(Map<String, Object> additionalProperties) {
+        this.additionalProperties.putAll(additionalProperties);
     }
 
     protected HttpEntity createEntity() {
