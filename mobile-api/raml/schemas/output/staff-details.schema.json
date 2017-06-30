@@ -1,15 +1,13 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema#",
-	"title": "User Details",
+	"title": "Staff Details",
 	"type": "object",
 	"properties": {
 		"staffId": { "type": "integer" },
-		"username": { "type": "string" },
 		"firstName": { "type": "string" },
 		"lastName": { "type": "string" },
 		"email": { "type": "string" },
-		"thumbnailId": { "type": "integer" },
-		"activeCaseLoadId": { "type": "string" }
+		"thumbnailId": { "type": "integer" }
 	},
-	"required": ["staffId", "username", "firstName", "lastName"]
+	"required": ["staffId", "firstName", "lastName"]
 }

@@ -19,6 +19,7 @@ import java.util.Map;
  *     <li>/users/me/caseLoads</li>
  *     <li>/users/me/activeCaseLoad</li>
  *     <li>/users/login</li>
+ *     <li>/users/staff</li>
  *     <li>/users/token</li>
  * </ul>
  *
@@ -50,5 +51,30 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     @Given("^a user has authenticated with the API$")
     public void aUserHasAuthenticatedWithTheAPI() {
         user.authenticates("ITAG_USER", "password");
+    }
+
+    @When("^a staff member search is made using staff id \"([^\"]*)\"$")
+    public void aStaffMemberSearchIsMadeUsingStaffId(String staffId) throws Throwable {
+        user.findStaffDetails(Long.valueOf(staffId));
+    }
+
+    @Then("^first name of staff details returned is \"([^\"]*)\"$")
+    public void firstNameOfStaffDetailsReturnedIs(String firstName) throws Throwable {
+        user.verifyStaffFirstName(firstName);
+    }
+
+    @And("^last name of staff details returned is \"([^\"]*)\"$")
+    public void lastNameOfStaffDetailsReturnedIs(String lastName) throws Throwable {
+        user.verifyStaffLastName(lastName);
+    }
+
+    @And("^email address of staff details returned is \"([^\"]*)\"$")
+    public void emailAddressOfStaffDetailsReturnedIs(String email) throws Throwable {
+        user.verifyStaffEmail(email);
+    }
+
+    @Then("^http status \"([^\"]*)\" response is returned$")
+    public void httpStatusResponseIsReturned(String statusCode) throws Throwable {
+        user.verifyHttpStatusResponse(statusCode);
     }
 }

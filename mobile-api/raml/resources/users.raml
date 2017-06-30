@@ -1,6 +1,16 @@
 /{username}:
-  description: Returns details about the specified staffId.
+  description: Retrieve details for user having specified username.
   type: { get-item: { schema: userDetails }}
+  uriParameters:
+    username:
+      description: The username of the user.
+
+/staff/{staffId}:
+  description: Retrieve basic personal details for staff member having specified staff id.
+  type: { get-item: { schema: staffDetails }}
+  uriParameters:
+    staffId:
+      description: The staff id of the staff member.
 
 /me:
   description: Details of the current logged user

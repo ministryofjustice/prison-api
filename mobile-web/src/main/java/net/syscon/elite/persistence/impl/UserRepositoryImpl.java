@@ -1,20 +1,18 @@
 package net.syscon.elite.persistence.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
-import net.syscon.elite.exception.EliteRuntimeException;
 import net.syscon.elite.persistence.UserRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
+import net.syscon.elite.web.api.model.StaffDetails;
 import net.syscon.elite.web.api.model.UserDetails;
 import net.syscon.util.SQLProvider;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -41,34 +39,52 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 		.put("ASSIGNED_CASELOAD_ID", new FieldMapper("activeCaseLoadId")
 	).build();
 
+	private final Map<String, FieldMapper> staffMapping = new ImmutableMap.Builder<String, FieldMapper>()
+			.put("STAFF_ID", new FieldMapper("staffId"))
+			.put("FIRST_NAME", new FieldMapper("firstName"))
+			.put("LAST_NAME", new FieldMapper("lastName"))
+			.put("EMAIL", new FieldMapper("email"))
+			.put("IMAGE_ID", new FieldMapper("thumbnailId")).build();
+
+
 	@Override
 	public UserDetails findByUsername(final String username) {
-		final String sql = getQuery("FIND_USER_BY_USERNAME");
-		final RowMapper<UserDetails> userRowMapper = Row2BeanRowMapper.makeMapping(sql, UserDetails.class, userMapping);
+		String sql = getQuery("FIND_USER_BY_USERNAME");
+		RowMapper<UserDetails> userRowMapper = Row2BeanRowMapper.makeMapping(sql, UserDetails.class, userMapping);
+
+		UserDetails userDetails;
+
 		try {
-			return jdbcTemplate.queryForObject(sql, createParams("username", username), userRowMapper);
+			userDetails = jdbcTemplate.queryForObject(
+					sql,
+					createParams("username", username),
+					userRowMapper);
 		} catch (final EmptyResultDataAccessException ex) {
-			return null;
-		} catch (final DataAccessException ex) {
-			throw new EliteRuntimeException(ex.getMessage(), ex);
+			userDetails = null;
 		}
+
+		return userDetails;
 	}
 
 	@Override
-	public List<UserDetails> findByStaffId(final Long staffId) {
-		final String sql = getQuery("FIND_USER_BY_STAFF_ID");
+	public StaffDetails findByStaffId(Long staffId) {
+		String sql = getQuery("FIND_USER_BY_STAFF_ID");
+		RowMapper<StaffDetails> staffRowMapper = Row2BeanRowMapper.makeMapping(sql, StaffDetails.class, staffMapping);
 
+		StaffDetails staffDetails;
 
-		final RowMapper<UserDetails> userRowMapper = Row2BeanRowMapper.makeMapping(sql, UserDetails.class, userMapping);
 		try {
-			return jdbcTemplate.query(sql,  createParams("staffId", staffId), userRowMapper);
-		} catch (final EmptyResultDataAccessException ex) {
-			return Collections.emptyList();
-		} catch (final DataAccessException ex) {
-			throw new EliteRuntimeException(ex.getMessage(), ex);
+			staffDetails = jdbcTemplate.queryForObject(
+					sql,
+					createParams("staffId", staffId),
+					staffRowMapper);
+		} catch (EmptyResultDataAccessException ex) {
+			staffDetails = null;
 		}
+
+		return staffDetails;
 	}
-	
+
 	@Override
 	public List<String> findRolesByUsername(final String username) {
 		final String sql = getQuery("FIND_ROLES_BY_USERNAME");

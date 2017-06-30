@@ -1,5 +1,6 @@
 package net.syscon.elite.persistence;
 
+import net.syscon.elite.web.api.model.StaffDetails;
 import net.syscon.elite.web.api.model.UserDetails;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Test;
@@ -31,33 +32,43 @@ public class UserRepositoryTest {
 
     @Test
     public final void testFindUserByUsername() {
-        final UserDetails user = repository.findByUsername("ITAG_USER");
+        UserDetails user = repository.findByUsername("ITAG_USER");
+
         assertThat(user).isNotNull();
         assertThat(user.getLastName()).isEqualTo("USER");
         assertThat(user.getEmail()).isEqualTo("itaguser@syscon.net");
     }
 
     @Test
-    public final void testFindUserByStaffId() {
-        final UserDetails user = repository.findByUsername("ELITE2_API_USER");
-        assertThat(user).isNotNull();
-        final List<UserDetails> userByIds = repository.findByStaffId(user.getStaffId());
-        assertThat(userByIds).hasSize(1);
-        assertThat(userByIds).extracting("username").contains("ELITE2_API_USER");
+    public final void testFindUserByUsernameNotExists() {
+        UserDetails user = repository.findByUsername("XXXXXXXX");
+
+        assertThat(user).isNull();
     }
 
     @Test
-    public final void testFindUserByStaffIdWithMultipleUsers() {
-        final UserDetails user = repository.findByUsername("ITAG_USER");
+    public final void testFindUserByStaffId() {
+        UserDetails user = repository.findByUsername("ELITE2_API_USER");
+
         assertThat(user).isNotNull();
-        final List<UserDetails> userByIds = repository.findByStaffId(user.getStaffId());
-        assertThat(userByIds).isNotEmpty();
-        assertThat(userByIds).extracting("username").contains("ITAG_USER", "ITAG_ADM");
+
+        StaffDetails staffDetails = repository.findByStaffId(user.getStaffId());
+
+        assertThat(staffDetails.getFirstName()).isEqualTo("ELITE2");
+        assertThat(staffDetails.getEmail()).isEqualTo("elite2-api-user@syscon.net");
+    }
+
+    @Test
+    public final void testFindUserByStaffIdNotExists() {
+        StaffDetails staffDetails = repository.findByStaffId(9999999999L);
+
+        assertThat(staffDetails).isNull();
     }
 
     @Test
     public final void testFindRolesByUsername() {
-        final List<String> roles = repository.findRolesByUsername("ITAG_USER");
+        List<String> roles = repository.findRolesByUsername("ITAG_USER");
+
         assertThat(roles).isNotEmpty();
         assertThat(roles).contains("WING_OFF");
     }
