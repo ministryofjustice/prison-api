@@ -17,21 +17,21 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SuppressWarnings("SpringJavaAutowiringInspection")
 @ContextConfiguration
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-public abstract class AbstractStepDefinitions {
+abstract class AbstractStepDefinitions {
     @TestConfiguration
     static class Config {
         @Bean
-        public AuthenticationSteps auth() {
+        AuthenticationSteps auth() {
             return new AuthenticationSteps();
         }
 
         @Bean
-        public UserSteps user() {
+        UserSteps user() {
             return new UserSteps();
         }
 
         @Bean
-        public CaseNoteSteps caseNote() {
+        CaseNoteSteps caseNote() {
             return new CaseNoteSteps();
         }
 
@@ -48,6 +48,11 @@ public abstract class AbstractStepDefinitions {
         @Bean
         BookingAliasSteps bookingAlias() {
             return new BookingAliasSteps();
+        }
+
+        @Bean
+        BookingDetailSteps bookingDetails() {
+            return new BookingDetailSteps();
         }
     }
 }

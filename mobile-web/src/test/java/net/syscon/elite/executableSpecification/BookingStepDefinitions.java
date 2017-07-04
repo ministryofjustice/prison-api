@@ -4,6 +4,7 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.executableSpecification.steps.BookingAliasSteps;
+import net.syscon.elite.executableSpecification.steps.BookingDetailSteps;
 import net.syscon.elite.executableSpecification.steps.BookingSearchSteps;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -25,6 +26,9 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @Autowired
     private BookingAliasSteps bookingAlias;
+
+    @Autowired
+    private BookingDetailSteps bookingDetails;
 
     @When("^a booking search is made with full last \"([^\"]*)\" of existing offender$")
     public void aBookingSearchIsMadeWithFullLastNameOfExistingOffender(String fullLastName) throws Throwable {
@@ -109,5 +113,25 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @And("^alias ethnicities match \"([^\"]*)\"$")
     public void aliasEthnicitiesMatch(String ethnicities) throws Throwable {
         bookingAlias.verifyAliasEthnicities(ethnicities);
+    }
+
+    @When("^an offender booking request is made with booking id \"([^\"]*)\"$")
+    public void anOffenderBookingRequestIsMadeWithBookingId(String bookingId) throws Throwable {
+        bookingDetails.findBookingDetails(Long.valueOf(bookingId));
+    }
+
+    @Then("^http status \"([^\"]*)\" response is returned from booking details endpoint$")
+    public void httpStatusResponseIsReturned(String statusCode) throws Throwable {
+        bookingDetails.verifyHttpStatusResponse(statusCode);
+    }
+
+    @Then("^booking number of offender booking returned is \"([^\"]*)\"$")
+    public void bookingNumberOfOffenderBookingReturnedIs(String bookingNo) throws Throwable {
+        bookingDetails.verifyOffenderBookingBookingNo(bookingNo);
+    }
+
+    @And("^assigned officer id of offender booking returned is \"([^\"]*)\"$")
+    public void assignedOfficerIdOfOffenderBookingReturnedIs(Long assignedOfficerId) throws Throwable {
+        bookingDetails.verifyOffenderBookingAssignedOfficerId(assignedOfficerId);
     }
 }
