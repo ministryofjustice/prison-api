@@ -56,7 +56,7 @@ subprojects {
 	targetCompatibility = JavaVersion.VERSION_1_8	
 
 	group = "net.syscon.elite"
-	version = "1.0-SNAPSHOT"
+	version = "1.0.0"
 
 
 	checkstyle {
