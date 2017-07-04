@@ -21,14 +21,8 @@ public interface ReferenceDomainService {
 	List<ReferenceCode> getCaseNoteSubTypes(String typeCode, String query, String orderBy, Order order, int offset, int limit);
 	List<ReferenceCode> getCaseNoteSources(String query, String orderBy, Order order, int offset, int limit);
 	ReferenceCode getCaseNoteSource(String sourceCode);
-
-	// TODO: Remove this method after IG change to the new the endpoint (getCnoteSubtypesByCaseNoteType => getCaseNoteSubTypesByParent)
-	List<ReferenceCode> getCnoteSubtypesByCaseNoteType(String caseNoteType, int offset, int limit);
 	List<ReferenceCode> getCaseNoteSubTypesByParent(String caseNoteType, int offset, int limit);
-	
-	//New End point.
-	List<CaseNoteType>  getCaseNoteTypeByCurrentCaseLoad(String query, String orderBy, String order, int offset, int limit);
+	List<CaseNoteType> getCaseNoteTypeByCurrentCaseLoad(String query, String orderBy, String order, int offset, int limit);
 	List<CaseNoteType> getCaseNoteSubType(String typeCode, String query, String orderBy, String order, int offset, int limit);
-
 
 }
