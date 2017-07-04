@@ -9,7 +9,7 @@ public interface IQueryBuilder {
     String SQL_PLACEHOLDER_WHERE_QUERY = ":whereQuery";
     String SQL_PLACEHOLDER_ORDER_BY = ":orderBy";
 
-    IQueryBuilder addOrderBy(boolean isAscending, String... fields);
+    IQueryBuilder addOrderBy(boolean isAscending, String fields);
     IQueryBuilder addPagination();
     IQueryBuilder addQuery(String query);
     IQueryBuilder addRowCount();

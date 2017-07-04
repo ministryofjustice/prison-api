@@ -3,10 +3,8 @@ package net.syscon.util;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by andrewk on 13/06/2017.
@@ -14,6 +12,7 @@ import java.util.Optional;
 public abstract class AbstractQueryBuilder implements IQueryBuilder {
     protected final String initialSQL;
     protected final Map<String, FieldMapper> fieldMap;
+    protected final Map<String, String> fieldNameToColumnMap;
 
     protected boolean includePagination;
     protected boolean includeRowCount;
@@ -25,6 +24,9 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
     protected AbstractQueryBuilder(String initialSQL, Map<String, FieldMapper> fieldMap) {
         this.initialSQL = initialSQL;
         this.fieldMap = fieldMap;
+        this.fieldNameToColumnMap = fieldMap.entrySet().stream()
+                .collect(Collectors.toMap(v -> v.getValue().getName(),
+                        Map.Entry::getKey));
     }
 
     public IQueryBuilder addPagination() {
@@ -63,17 +65,18 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
         return this;
     }
 
-    public IQueryBuilder addOrderBy(boolean isAscending, String... fields) {
-        String key = fieldMap.entrySet().stream()
-                .filter(entry -> entry.getValue().getName().equals(fields[0]))
-                .map(Map.Entry::getKey)
-                .findAny()
-                .orElse(null);
+    public IQueryBuilder addOrderBy(boolean isAscending, String fields) {
+        final String[] colOrder = StringUtils.split(fields, ",");
+        if (colOrder != null && colOrder.length > 0) {
+            List<String> cols = Arrays.stream(colOrder)
+                    .map(fieldNameToColumnMap::get)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
 
-        if (key != null) {
-            extraOrderBy += (key + " " + (isAscending ? "" : SQLKeyword.DESC));
+            if (!cols.isEmpty()) {
+                extraOrderBy += (StringUtils.join(cols, (isAscending ? "" : SQLKeyword.DESC)+ ","));
+            }
         }
-
         return this;
     }
 
