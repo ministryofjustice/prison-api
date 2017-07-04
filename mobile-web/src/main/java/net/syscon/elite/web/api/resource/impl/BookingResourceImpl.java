@@ -5,29 +5,29 @@ import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.InmatesAlertService;
 import net.syscon.elite.web.api.model.*;
 import net.syscon.elite.web.api.resource.BookingResource;
+import net.syscon.elite.web.api.resource.ResourceUtils;
 import net.syscon.util.MetaDataFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
 import java.util.List;
 
 @Component
 public class BookingResourceImpl implements BookingResource {
-	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	private final InmateService inmateService;
-	private final CaseNoteService caseNoteService;
-	private final InmatesAlertService inmateAlertService;
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 
-	@Inject
-	public BookingResourceImpl(InmateService inmateService, CaseNoteService caseNoteService, InmatesAlertService inmateAlertService) {
-		this.inmateService = inmateService;
-		this.caseNoteService = caseNoteService;
-		this.inmateAlertService = inmateAlertService;
-	}
+	@Autowired
+	private InmateService inmateService;
+
+	@Autowired
+	private CaseNoteService caseNoteService;
+
+	@Autowired
+	private InmatesAlertService inmateAlertService;
 
 	@Override
 	public GetBookingResponse getBooking(String query, String orderBy, Order order, int offset, int limit)
@@ -39,14 +39,14 @@ public class BookingResourceImpl implements BookingResource {
 
 	@Override
 	public GetBookingByBookingIdResponse getBookingByBookingId(String bookingId) throws Exception {
-		try {
-			final InmateDetails inmate = inmateService.findInmate(Long.valueOf(bookingId));
-			return GetBookingByBookingIdResponse.withJsonOK(inmate);
-		} catch (final EmptyResultDataAccessException ex) {
-			final String message = String.format("Booking \"%s\" not found", bookingId);
-			log.info(message);
-			final HttpStatus httpStatus = new HttpStatus("404", "404", message, message, "");
+		InmateDetails inmate = inmateService.findInmate(Long.valueOf(bookingId));
+
+		if (inmate == null) {
+			HttpStatus httpStatus = ResourceUtils.handleNotFoundResponse(logger,"Inmate");
+
 			return GetBookingByBookingIdResponse.withJsonNotFound(httpStatus);
+		} else {
+			return GetBookingByBookingIdResponse.withJsonOK(inmate);
 		}
 	}
 	
@@ -95,7 +95,7 @@ public class BookingResourceImpl implements BookingResource {
 			return GetBookingByBookingIdAliasesResponse.withJsonOK(aliases);
 		} catch (final EmptyResultDataAccessException ex) {
 			final String message = String.format("Booking \"%s\" not found", bookingId);
-			log.info(message);
+			logger.info(message);
 			final HttpStatus httpStatus = new HttpStatus("404", "404", message, message, "");
 			return GetBookingByBookingIdAliasesResponse.withJsonNotFound(httpStatus);
 		}
@@ -107,7 +107,4 @@ public class BookingResourceImpl implements BookingResource {
 		CaseNote caseNote = caseNoteService.updateCaseNote(bookingId, Long.valueOf(caseNoteId), entity.getText());
 		return PutBookingByBookingIdCaseNotesByCaseNoteIdResponse.withJsonCreated(caseNote);
 	}
-
-
 }
-

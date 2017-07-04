@@ -37,7 +37,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("ALERT_TYPES", 		new FieldMapper("alertsCodes", value -> Arrays.asList(value.toString().split(","))))
 			.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
 			.put("LIVING_UNIT_ID",      new FieldMapper("assignedLivingUnitId"))
-			.put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerUserId"))
+			.put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerId"))
 			.build();
 
 	private final Map<String, FieldMapper> inmateDetailsMapping = new ImmutableMap.Builder<String, FieldMapper>()
@@ -52,7 +52,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
 			.put("BIRTH_DATE", 			new FieldMapper("dateOfBirth", value -> DateFormatProvider.get("yyyy-MM-dd").format((Date)value)))
 			.put("AGE",                 new FieldMapper("age"))
-			.put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerUserId"))
+			.put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerId"))
 			.build();
 
 	private final Map<String, FieldMapper> physicalAttributesMapping = new ImmutableMap.Builder<String, FieldMapper>()
@@ -196,13 +196,19 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		return assignedLivingUnit;
 	}
 
-
 	@Override
 	public InmateDetails findInmate(final Long bookingId) {
-		final String sql = getQuery("FIND_INMATE_DETAIL");
+		String sql = getQuery("FIND_INMATE_DETAIL");
+		RowMapper<InmateDetails> inmateRowMapper = Row2BeanRowMapper.makeMapping(sql, InmateDetails.class, inmateDetailsMapping);
+
+		InmateDetails inmate;
+
 		try {
-			final RowMapper<InmateDetails> inmateDetailRowMapper = Row2BeanRowMapper.makeMapping(sql, InmateDetails.class, inmateDetailsMapping);
-			final InmateDetails inmate = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "caseLoadId", getCurrentCaseLoad()), inmateDetailRowMapper);
+			inmate = jdbcTemplate.queryForObject(
+					sql,
+					createParams("bookingId", bookingId, "caseLoadId", getCurrentCaseLoad()),
+					inmateRowMapper);
+
 			if (inmate != null) {
 				inmate.setPhysicalAttributes(findPhysicalAttributes(inmate.getBookingId()));
 				inmate.setPhysicalCharacteristics(findPhysicalCharacteristics(inmate.getBookingId()));
@@ -211,11 +217,11 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 				inmate.setAssignedLivingUnit(findAssignedLivingUnit(bookingId));
 				inmate.setAlertsCodes(findActiveAlertCodes(bookingId));
 			}
-			return inmate;
-		} catch (final EmptyResultDataAccessException ex) {
-			log.error(ex.getMessage(), ex);
-			throw ex;
+		} catch (EmptyResultDataAccessException ex) {
+			inmate = null;
 		}
+
+		return inmate;
 	}
 
 	private List<String> findActiveAlertCodes(Long bookingId) {

@@ -83,7 +83,7 @@
 				"required": ["classification", "assessmentCode", "assessmentDesc"]
 			}
 		},
-		"assignedOfficerUserId": { "type": "string" }
+		"assignedOfficerId": { "type": "integer" }
 	},
 	"required": ["inmateId", "bookingId", "offenderId", "firstName", "middleName", "lastName", "agencyId", "currentLocationId", "age"]
 }
