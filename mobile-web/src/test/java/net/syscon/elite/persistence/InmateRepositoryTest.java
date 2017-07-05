@@ -41,7 +41,7 @@ public class InmateRepositoryTest {
 
     @Test
     public final void testFindAllImates() {
-        final List<AssignedInmate> foundInmates = repository.findAllInmates("", 0, 10, "firstName", asc);
+        final List<AssignedInmate> foundInmates = repository.findAllInmates("", 0, 10, "lastName, firstName", asc);
         assertThat(foundInmates).isNotEmpty();
     }
 

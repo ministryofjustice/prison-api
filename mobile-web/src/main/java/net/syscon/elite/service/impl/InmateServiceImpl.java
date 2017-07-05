@@ -8,6 +8,7 @@ import net.syscon.elite.web.api.model.InmateAssignmentSummary;
 import net.syscon.elite.web.api.model.InmateDetails;
 import net.syscon.elite.web.api.resource.BookingResource;
 import net.syscon.elite.web.api.resource.LocationsResource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +28,8 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     public List<AssignedInmate> findAllInmates(String query, int offset, int limit, String orderBy, BookingResource.Order order) {
-        return repository.findAllInmates(query, offset, limit, orderBy, order);
+        String colSort = StringUtils.isNotBlank(orderBy) ? orderBy : "lastName, firstName";
+        return repository.findAllInmates(query, offset, limit, colSort, order);
     }
 
     @Override
