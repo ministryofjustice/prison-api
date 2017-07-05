@@ -15,7 +15,6 @@ fi
 VERSION=$1
 RELEASE=$2
 
-docker login
 docker pull sysconjusticesystems/elite2-api:$VERSION
 docker tag sysconjusticesystems/elite2-api:$VERSION sysconjusticesystems/elite2-api:$RELEASE
 docker push sysconjusticesystems/elite2-api:$RELEASE

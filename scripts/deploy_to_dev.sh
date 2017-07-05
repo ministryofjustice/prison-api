@@ -15,6 +15,10 @@ echo Building script file...
 cat << EOF > ${TDIR}/${VERSION}/run.sh
 #!/bin/bash
 
+docker stop elite2-api
+docker rm -vf elite2-api
+docker pull sysconjusticesystems/elite2-api:$VERSION
+
 docker run -d --name elite2-api -h elite2-api \
     --restart=always \
     --env-file ./env/config_nomis_dev.env \
