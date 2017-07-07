@@ -14,7 +14,8 @@
 	"dateExpires":  {
 	  "type": "string",
 	  "format": "date-only"
-	}
+	},
+    "expired": { "type" : "boolean" }
   },
-  "required": ["alertId", "alertType", "alertCode", "comment"]
+  "required": ["alertId", "alertType", "alertCode", "comment", "expired"]
 }
