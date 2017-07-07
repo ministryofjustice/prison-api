@@ -22,14 +22,15 @@ Feature: Booking Search
     Then "<number>" booking records are returned
     And offender first names match "<first name list>"
     And offender middle names match "<middle name list>"
+    And living unit descriptions match "<living unit list>"
 
     Examples:
-      | name     | number | first name list | middle name list |
-      | ANDERSON | 2      | ARTHUR,GILLIAN  | BORIS,EVE        |
-      | anderson | 2      | ARTHUR,GILLIAN  | BORIS,EVE        |
-      | AnDersOn | 2      | ARTHUR,GILLIAN  | BORIS,EVE        |
-      | UNKNOWN  | 0      |                 |                  |
-      |          | 0      |                 |                  |
+      | name     | number | first name list | middle name list | living unit list    |
+      | ANDERSON | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5 |
+      | anderson | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5 |
+      | AnDersOn | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5 |
+      | UNKNOWN  | 0      |                 |                  |                     |
+      |          | 0      |                 |                  |                     |
 
   Scenario Outline: Search based on partial offender last name
     When a booking search is made with partial last "<name>" of existing offender

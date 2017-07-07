@@ -104,6 +104,15 @@ public class BookingSearchSteps extends CommonSteps {
         verifyIdentical(queriedNames, expectedNames);
     }
 
+    @Step("Verify living unit descriptions returned by search")
+    public void verifyLivingUnits(String livingUnitList) {
+        // Using List (not Set) to handle duplicate descriptions
+        List<String> queriedDescriptions = extractLivingUnitDescriptions();
+        List<String> expectedDescriptions = csv2list(livingUnitList);
+
+        verifyIdentical(queriedDescriptions, expectedDescriptions);
+    }
+
     private void dispatchQuery(String query) {
         init();
 
@@ -180,6 +189,14 @@ public class BookingSearchSteps extends CommonSteps {
         return inmateSummaries.getInmatesSummaries()
                 .stream()
                 .map(AssignedInmate::getMiddleName)
+                .filter(StringUtils::isNotBlank)
+                .collect(Collectors.toList());
+    }
+
+    private List<String> extractLivingUnitDescriptions() {
+        return inmateSummaries.getInmatesSummaries()
+                .stream()
+                .map(AssignedInmate::getAssignedLivingUnitDesc)
                 .filter(StringUtils::isNotBlank)
                 .collect(Collectors.toList());
     }
