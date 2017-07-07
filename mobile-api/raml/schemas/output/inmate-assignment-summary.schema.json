@@ -6,12 +6,13 @@
 		"bookingId": { "type": "integer" },
 		"bookingNo": { "type": "string" },
 		"offenderNo": { "type": "string" },
-		"firstName":    { "type": "string" },
-		"lastName":    { "type": "string" },
+		"firstName": { "type": "string" },
+		"lastName": { "type": "string" },
 		"alertsCodes": { "type": "array", "items": { "type": "string" } },
-		"agencyId":    { "type": "string" },
+		"agencyId": { "type": "string" },
 		"currentLocationId": { "type": "integer" },
 		"assignedLivingUnitId": { "type": "integer" },
+		"assignedLivingUnitDesc": { "type": "string" },
 		"facialImageId": { "type": "integer" }
 	},
 	"required": ["inmateId", "bookingId", "offenderId", "firstName", "lastName", "agencyId", "currentLocationId"]

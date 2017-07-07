@@ -91,7 +91,8 @@ project(":mobile-web") {
 
     integTest.mustRunAfter test
 
-    // Disable checkstyle for test source code
+	// TODO: Enable checkstyle once rules reviewed and agreed (but don't enable for tests).
+	checkstyleMain.enabled = false
     checkstyleTest.enabled = false
     checkstyleIntegrationTest.enabled = false
     checkstyleIntegTest.enabled = false

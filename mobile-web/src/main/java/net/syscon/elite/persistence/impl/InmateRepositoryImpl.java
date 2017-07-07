@@ -37,6 +37,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("ALERT_TYPES", 		new FieldMapper("alertsCodes", value -> Arrays.asList(value.toString().split(","))))
 			.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
 			.put("LIVING_UNIT_ID",      new FieldMapper("assignedLivingUnitId"))
+			.put("LIVING_UNIT_DESC",    new FieldMapper("assignedLivingUnitDesc"))
 			.put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerId"))
 			.build();
 
@@ -44,11 +45,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("OFFENDER_BOOK_ID", 	new FieldMapper("bookingId"))
 			.put("BOOKING_NO", 			new FieldMapper("bookingNo"))
 			.put("OFFENDER_ID_DISPLAY", new FieldMapper("offenderNo"))
-			.put("AGY_LOC_ID", 			new FieldMapper("agencyId"))
 			.put("FIRST_NAME", 			new FieldMapper("firstName"))
 			.put("MIDDLE_NAME", 		new FieldMapper("middleName"))
 			.put("LAST_NAME", 			new FieldMapper("lastName"))
-			.put("LIVING_UNIT_ID", 		new FieldMapper("assignedLivingUnitId"))
 			.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
 			.put("BIRTH_DATE", 			new FieldMapper("dateOfBirth", value -> DateFormatProvider.get("yyyy-MM-dd").format((Date)value)))
 			.put("AGE",                 new FieldMapper("age"))

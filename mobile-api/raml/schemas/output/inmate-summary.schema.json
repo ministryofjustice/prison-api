@@ -13,6 +13,7 @@
 	"agencyId": { "type": "string" },
 	"currentLocationId": { "type": "integer" },
 	"assignedLivingUnitId": { "type": "integer" },
+    "assignedLivingUnitDesc": { "type": "string" },
 	"facialImageId": { "type": "integer" },
 	"assignedOfficerUserId": { "type": "string"}
   },
