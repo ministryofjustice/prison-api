@@ -12,6 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.inject.Inject;
 import java.util.List;
 
+import static net.syscon.elite.service.impl.InmateServiceImpl.DEFAULT_OFFENDER_SORT;
+
 @Service
 @Transactional(readOnly = true)
 public class AssignmentServiceImpl implements AssignmentService {
@@ -29,7 +31,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     public List<InmateAssignmentSummary> findMyAssignments(int offset, int limit) {
         final String username = UserSecurityUtils.getCurrentUsername();
         final UserDetails loggedInUser = userRepository.findByUsername(username);
-        return inmateRepository.findMyAssignments(loggedInUser.getStaffId(), loggedInUser.getActiveCaseLoadId(), offset, limit);
+        return inmateRepository.findMyAssignments(loggedInUser.getStaffId(), loggedInUser.getActiveCaseLoadId(), DEFAULT_OFFENDER_SORT, true, offset, limit);
     }
 }
 

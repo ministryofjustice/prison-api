@@ -1,10 +1,10 @@
 package net.syscon.util;
 
 import net.syscon.elite.persistence.mapping.FieldMapper;
+import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class QueryBuilder {
 	
@@ -29,6 +29,7 @@ public class QueryBuilder {
 		private boolean includeRowCount = false;
 
 		private final Map<String, FieldMapper> fieldMap;
+		private final Map<String, String> fieldNameToColumnMap;
 		private final boolean preOracle12;
 		private boolean removeSpecialChars;
 
@@ -36,6 +37,13 @@ public class QueryBuilder {
 			this.initialSQL = initialSQL;
 			this.fieldMap = fieldMap;
 			this.preOracle12 = preOracle12;
+			if (fieldMap != null) {
+				this.fieldNameToColumnMap = fieldMap.entrySet().stream()
+						.collect(Collectors.toMap(v -> v.getValue().getName(),
+								Map.Entry::getKey));
+			} else {
+				this.fieldNameToColumnMap = new HashMap<>();
+			}
 		}
 
 		public Builder addQuery(final String query) {
@@ -54,16 +62,24 @@ public class QueryBuilder {
 			}
 			return this;
 		}
-		
-		public Builder addOrderBy(final boolean isAscending, final String... fields) {
-			final String key = fieldMap.entrySet().stream().filter(entry -> {
-				return entry.getValue().getName().equals(fields[0]);
-			}).map(Map.Entry::getKey).findAny().orElse(null);
-			final String order = isAscending ? "" : "DESC";
-			if (key != null) {
-				extraOrderBy.append(key + " " + order);
+
+		public Builder addOrderBy(boolean isAscending, String fields) {
+			final String[] colOrder = StringUtils.split(fields, ",");
+			if (colOrder != null && colOrder.length > 0) {
+				List<String> cols = Arrays.stream(colOrder)
+						.map(fieldNameToColumnMap::get)
+						.filter(Objects::nonNull)
+						.collect(Collectors.toList());
+
+				if (!cols.isEmpty()) {
+					extraOrderBy.append(StringUtils.join(cols, " " + addOrderDirection(isAscending) + ",")).append(" ").append(addOrderDirection(isAscending));
+				}
 			}
 			return this;
+		}
+
+		private SQLKeyword addOrderDirection(boolean isAscending) {
+			return isAscending ? SQLKeyword.ASC : SQLKeyword.DESC;
 		}
 
 		public Builder addRowCount() {

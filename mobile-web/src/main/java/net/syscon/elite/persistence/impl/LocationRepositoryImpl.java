@@ -66,11 +66,11 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 	}
 
 	@Override
-	public List<Location> findLocationsByAgencyId(final String caseLoadId, final String agencyId, final String query, final int offset, final int limit, final String orderByField, final String order) {
+	public List<Location> findLocationsByAgencyId(final String caseLoadId, final String agencyId, final String query, final int offset, final int limit, final String orderByField, final Order order) {
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_LOCATIONS_BY_AGENCY_ID"), locationMapping, preOracle12).
 						addRowCount().
 						addQuery(query).
-						addOrderBy("asc".equalsIgnoreCase(order)?true:false, orderByField).
+						addOrderBy(order == Order.asc, orderByField).
 						addPagedQuery()
 						.build();
 		final RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);

@@ -4,6 +4,7 @@ import net.syscon.elite.persistence.InmateAlertRepository;
 import net.syscon.elite.service.InmatesAlertService;
 import net.syscon.elite.web.api.model.Alert;
 import net.syscon.elite.web.api.resource.BookingResource.Order;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,9 +26,14 @@ public class InmateAlertServiceImpl implements InmatesAlertService {
 	}
 
 	@Override
-	public List<Alert> getInmateAlerts(String bookingId, String query, String orderByField, Order order, int offset,
+	public List<Alert> getInmateAlerts(String bookingId, final String query, final String orderByField, Order order, int offset,
 			int limit) {
-		final List<Alert> alerts = inmateAlertRepository.getInmateAlert(bookingId, query, orderByField, order, offset, limit);
+	    String colSort = orderByField;
+		if (StringUtils.isBlank(orderByField)) {
+			colSort = "dateExpires,dateCreated";
+			order = Order.desc;
+		}
+		final List<Alert> alerts = inmateAlertRepository.getInmateAlert(bookingId, query, colSort, order, offset, limit);
 		alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
 		return alerts;
 	}

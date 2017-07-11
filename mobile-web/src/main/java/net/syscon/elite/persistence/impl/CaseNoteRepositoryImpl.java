@@ -53,7 +53,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_CASENOTES"), caseNoteMapping, preOracle12)
 											.addRowCount()
 											.addQuery(query)
-											.addOrderBy("asc".equalsIgnoreCase(order.toString()), orderByField)
+											.addOrderBy(order == Order.asc, orderByField)
 											.addPagedQuery()
 											.build();
 		final RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, caseNoteMapping);

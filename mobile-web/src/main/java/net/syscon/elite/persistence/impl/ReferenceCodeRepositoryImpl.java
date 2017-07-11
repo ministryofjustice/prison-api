@@ -32,10 +32,6 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	private final Map<String, FieldMapper> noteTypesSubTypes = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("DESCRIPTION", new FieldMapper("description"))
 			.put("CODE", new FieldMapper("code"))
-			.put("DOMAIN", new FieldMapper("domain", null, value -> {return null;}))
-			.put("PARENT_DOMAIN", new FieldMapper("parentDomainId",null, value -> null))
-			.put("PARENT_CODE", new FieldMapper("parentCode", null, value -> null))
-			.put("ACTIVE_FLAG", new FieldMapper("activeFlag", null, value -> null))
 			.build();
 
 	private boolean isAscending(Order order) { return Order.asc.equals(order); }
@@ -68,7 +64,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	public List<ReferenceCode> getReferenceCodesByDomain(String domain, String query, String orderBy, Order order, int offset, int limit) {
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_REFERENCE_CODES_BY_DOMAIN"), referenceCodeMapping, preOracle12)
 				.addQuery(query)
-				.addOrderBy(isAscending(order), orderBy.split(","))
+				.addOrderBy(isAscending(order), orderBy)
 				.addRowCount()
 				.addPagedQuery()
 				.build();
@@ -84,7 +80,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	public List<ReferenceCode> getReferenceCodesByDomainAndParent(String domain, String parentCode, String query, String orderBy, Order order, int offset, int limit) {
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_REFERENCE_CODES_BY_DOMAIN_PARENT"), referenceCodeMapping, preOracle12)
 				.addQuery(query)
-				.addOrderBy(isAscending(order), orderBy.split(","))
+				.addOrderBy(isAscending(order), orderBy)
 				.addRowCount()
 				.addPagedQuery()
 				.build();
@@ -114,7 +110,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	public List<CaseNoteType> getCaseNoteTypeByCurrentCaseLoad(String query, String orderBy, String order, int offset, int limit) {
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_CNOTE_TYPES_BY_CASELOAD"), noteTypesSubTypes, preOracle12)
 				.addQuery(query)
-				.addOrderBy(isAscending(order), orderBy.split(","))
+				.addOrderBy(isAscending(order), orderBy)
 				.addRowCount()
 				.addPagedQuery()
 				.build();
@@ -130,7 +126,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 			int limit) {
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE"), noteTypesSubTypes, preOracle12)
 				.addQuery(query)
-				.addOrderBy(isAscending(order), orderBy.split(","))
+				.addOrderBy(isAscending(order), orderBy)
 				.addRowCount()
 				.addPagedQuery()
 				.build();

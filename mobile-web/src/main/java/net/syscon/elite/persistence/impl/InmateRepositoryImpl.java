@@ -145,10 +145,10 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public List<InmateAssignmentSummary> findMyAssignments(long staffId, String currentCaseLoad, int offset, int limit) {
+	public List<InmateAssignmentSummary> findMyAssignments(long staffId, String currentCaseLoad, String orderBy, boolean ascendingSort, int offset, int limit) {
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_MY_ASSIGNMENTS"), assignedInmateMapping, preOracle12).
 				addRowCount().
-				addOrderBy(true, "lastname", "firstname", "offenderNo").
+				addOrderBy(ascendingSort, orderBy).
 				addPagedQuery()
 				.build();
 
