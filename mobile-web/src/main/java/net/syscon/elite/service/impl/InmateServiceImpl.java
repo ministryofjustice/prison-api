@@ -18,6 +18,7 @@ import java.util.List;
 @Service
 @Transactional(readOnly = true)
 public class InmateServiceImpl implements InmateService {
+    static final String DEFAULT_OFFENDER_SORT = "lastName,firstName,offenderNo";
 
     private final InmateRepository repository;
 
@@ -28,13 +29,14 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     public List<AssignedInmate> findAllInmates(String query, int offset, int limit, String orderBy, BookingResource.Order order) {
-        String colSort = StringUtils.isNotBlank(orderBy) ? orderBy : "lastName, firstName";
+        String colSort = StringUtils.isNotBlank(orderBy) ? orderBy : DEFAULT_OFFENDER_SORT;
         return repository.findAllInmates(query, offset, limit, colSort, order);
     }
 
     @Override
     public List<AssignedInmate> findInmatesByLocation(Long locationId, String query, String orderByField, LocationsResource.Order order, int offset, int limit) {
-        return repository.findInmatesByLocation(locationId, query, orderByField, order, offset, limit);
+        String colSort = StringUtils.isNotBlank(orderByField) ? orderByField : DEFAULT_OFFENDER_SORT;
+        return repository.findInmatesByLocation(locationId, query, colSort, order, offset, limit);
     }
 
     @Override
@@ -49,6 +51,6 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     public List<InmateAssignmentSummary> findMyAssignments(long staffId, String currentCaseLoad, int offset, int limit) {
-        return repository.findMyAssignments(staffId, currentCaseLoad, offset, limit);
+        return repository.findMyAssignments(staffId, currentCaseLoad, DEFAULT_OFFENDER_SORT, true, offset, limit);
     }
 }

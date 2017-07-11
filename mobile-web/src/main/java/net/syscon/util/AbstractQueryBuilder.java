@@ -74,10 +74,14 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
                     .collect(Collectors.toList());
 
             if (!cols.isEmpty()) {
-                extraOrderBy += (StringUtils.join(cols, (isAscending ? "" : SQLKeyword.DESC)+ ","));
+                extraOrderBy += StringUtils.join(cols, " " + addOrderDirection(isAscending)+ ",")+ " " + addOrderDirection(isAscending);
             }
         }
         return this;
+    }
+
+    private SQLKeyword addOrderDirection(boolean isAscending) {
+        return isAscending ? SQLKeyword.ASC : SQLKeyword.DESC;
     }
 
     protected Optional<SQLKeyword> getStatementType() {

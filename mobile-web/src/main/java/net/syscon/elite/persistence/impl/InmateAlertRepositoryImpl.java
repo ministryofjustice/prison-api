@@ -35,7 +35,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 		final String sql = new QueryBuilder.Builder(getQuery("FIND_INMATE_ALERTS"), alertMapping, preOracle12)
 											.addRowCount()
 											.addQuery(query)
-											.addOrderBy("asc".equalsIgnoreCase(order.toString()), orderByField)
+											.addOrderBy(order == Order.asc, orderByField)
 											.addPagedQuery()
 											.build();
 		final RowMapper<Alert> alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);

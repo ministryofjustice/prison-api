@@ -11,6 +11,7 @@ import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.Location;
 import net.syscon.elite.web.api.model.UserDetails;
 import net.syscon.elite.web.api.resource.LocationsResource.Order;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -21,6 +22,8 @@ import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
 import java.util.Collections;
 import java.util.List;
+
+import static net.syscon.elite.service.impl.InmateServiceImpl.DEFAULT_OFFENDER_SORT;
 
 
 @Transactional(readOnly = true)
@@ -57,7 +60,7 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 	}
 	
 	@Override
-	public List<Location> getLocationsFromAgency(final String agencyId, final String query, final int offset, final int limit, final String orderByField, final String order) {
+	public List<Location> getLocationsFromAgency(final String agencyId, final String query, final int offset, final int limit, final String orderByField, final Order order) {
 		return locationRepository.findLocationsByAgencyId(getCurrentCaseLoad(), agencyId, query, offset, limit, orderByField, order);
 	}
 
@@ -67,10 +70,11 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 
 		Location location = getLocation(locationId, false);
 
+		String colSort = StringUtils.isNotBlank(orderByField) ? orderByField : DEFAULT_OFFENDER_SORT;
 		if ( location == null) {
 			inmates = Collections.emptyList();
 		} else {
-			inmates = inmateRepository.findInmatesByLocation(locationId, query, orderByField, order, offset, limit);
+			inmates = inmateRepository.findInmatesByLocation(locationId, query, colSort, order, offset, limit);
 		}
 
 		return inmates;

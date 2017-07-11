@@ -6,6 +6,7 @@ import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.web.api.model.CaseNote;
 import net.syscon.elite.web.api.model.NewCaseNote;
 import net.syscon.elite.web.api.resource.BookingResource.Order;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,13 +36,14 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	
 	@Override
 	@Transactional(readOnly = true)
-	public List<CaseNote> getCaseNotes(final String bookingId, String query, String orderBy, Order order, final int offset,
+	public List<CaseNote> getCaseNotes(final String bookingId, String query, final String orderBy, Order order, final int offset,
 			final int limit) {
-		if(orderBy == null) {
-			orderBy = "creationDateTime";
+		String colSort = orderBy;
+		if (StringUtils.isBlank(orderBy)) {
+			colSort = "occurrenceDateTime";
 			order = Order.desc;
 		}
-		return caseNoteRepository.getCaseNotes(bookingId, query, orderBy, order, offset, limit);
+		return caseNoteRepository.getCaseNotes(bookingId, query, colSort, order, offset, limit);
 	}
 
 	@Override

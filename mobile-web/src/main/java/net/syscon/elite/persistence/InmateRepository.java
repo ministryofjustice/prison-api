@@ -17,5 +17,5 @@ public interface InmateRepository {
 	List<AssignedInmate> findInmatesByLocation(Long locationId, String query, String orderByField, LocationsResource.Order order, int offset, int limit);
 	InmateDetails findInmate(Long inmateId);
 	List<Alias> findInmateAliases(Long inmateId, String orderByField, BookingResource.Order order);
-	List<InmateAssignmentSummary> findMyAssignments(long staffId, String currentCaseLoad, int offset, int limit);
+	List<InmateAssignmentSummary> findMyAssignments(long staffId, String currentCaseLoad, String orderBy, boolean ascendingSort, int offset, int limit);
 }

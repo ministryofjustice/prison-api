@@ -12,6 +12,9 @@ import org.springframework.stereotype.Component;
 import javax.inject.Inject;
 import java.util.List;
 
+import static net.syscon.elite.web.api.resource.LocationsResource.Order.asc;
+import static net.syscon.elite.web.api.resource.LocationsResource.Order.desc;
+
 @Component
 public class AgenciesResourceImpl implements AgenciesResource {
 	
@@ -38,7 +41,7 @@ public class AgenciesResourceImpl implements AgenciesResource {
 
 	@Override
 	public GetAgenciesByAgencyIdLocationsResponse getAgenciesByAgencyIdLocations(final String agencyId, final String query, final String orderBy, final Order order, final int offset, final int limit) throws Exception {
-		final List<Location> result = agencyLocationService.getLocationsFromAgency(agencyId, query, offset, limit, orderBy, order.toString());
+		final List<Location> result = agencyLocationService.getLocationsFromAgency(agencyId, query, offset, limit, orderBy, order == Order.asc ? asc : desc);
 		Locations locations = new Locations(result, MetaDataFactory.createMetaData(limit, offset, result));
 		return GetAgenciesByAgencyIdLocationsResponse.withJsonOK(locations);
 	}
