@@ -75,6 +75,11 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingSearch.verifyLivingUnits(livingUnits);
     }
 
+    @And("^image id match \"([^\"]*)\"$")
+    public void imageIdMatch(String imageIds) throws Throwable {
+       bookingSearch.verifyImageIds(imageIds);
+    }
+
     @When("^a booking search is made with \"([^\"]*)\" and \"([^\"]*)\" of existing offender$")
     public void aBookingSearchIsMadeWithAndOfExistingOffender(String firstName, String lastName) throws Throwable {
         bookingSearch.firstNameAndLastNameSearch(firstName, lastName);
