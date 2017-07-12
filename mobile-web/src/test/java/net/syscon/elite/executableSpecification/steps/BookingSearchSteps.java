@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -113,6 +114,14 @@ public class BookingSearchSteps extends CommonSteps {
         verifyIdentical(queriedDescriptions, expectedDescriptions);
     }
 
+    @Step("Verify image ids returned by search")
+    public void verifyImageIds(String imageIds) {
+        List<String> queriedImageIds = extractImageIds();
+        List<String> expectedIds = csv2list(imageIds);
+
+        verifyIdentical(queriedImageIds, expectedIds);
+    }
+
     private void dispatchQuery(String query) {
         init();
 
@@ -198,6 +207,15 @@ public class BookingSearchSteps extends CommonSteps {
                 .stream()
                 .map(AssignedInmate::getAssignedLivingUnitDesc)
                 .filter(StringUtils::isNotBlank)
+                .collect(Collectors.toList());
+    }
+
+    private List<String> extractImageIds() {
+        return inmateSummaries.getInmatesSummaries()
+                .stream()
+                .map(AssignedInmate::getFacialImageId)
+                .filter(Objects::nonNull)
+                .map(imageId -> Long.toString(imageId))
                 .collect(Collectors.toList());
     }
 
