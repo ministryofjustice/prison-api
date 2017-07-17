@@ -10,9 +10,9 @@ Feature: Case Notes
 
   Scenario: Create a case note
     When a case note is created for an existing offender booking:
-    | type  | CNOTE  |
-    | subType  | GEN  |
-    | text  | A new case note (from Serenity BDD test)  |
+    | type     | COMMS                                     |
+    | subType  | COM_IN                                    |
+    | text     | A new case note (from Serenity BDD test)  |
     Then case note is successfully created
     And correct case note source is used
 

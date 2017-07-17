@@ -46,7 +46,7 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         CaseNote newCaseNote = new CaseNote();
 
         newCaseNote.setType("CHAP");
-        newCaseNote.setSubType("STUFF");
+        newCaseNote.setSubType("FAMMAR");
         newCaseNote.setText(caseNoteText);
 
         seededCaseNote = caseNote.createCaseNote(newCaseNote);
