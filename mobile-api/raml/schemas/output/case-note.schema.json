@@ -6,12 +6,14 @@
 		"caseNoteId":   { "type": "integer" },
 		"bookingId":   { "type": "string" },
 		"type":   { "type": "string" },
+		"typeDescription":   { "type": "string" },
 		"subType": { "type": "string" },
+		"subTypeDescription": { "type": "string" },
 		"source": { "type": "string" },
 		"creationDateTime":   { "type": "string", "format": "datetime-only" },
 		"occurrenceDateTime":  { "type": "string", "format": "datetime-only" },
 		"authorUserId": { "type": "string" },
 		"text": { "type": "string" }
 	},
-	"required": ["caseNoteId", "inmateId", "type", "subType", "text"]
+	"required": ["caseNoteId", "inmateId", "type", "typeDescription", "subType", "subTypeDescription", "text"]
 }
