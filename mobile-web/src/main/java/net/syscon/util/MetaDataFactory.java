@@ -14,9 +14,9 @@ public class MetaDataFactory {
 	
 	public static <T> PageMetaData createMetaData(int limit, int offset, List<T> collection) {
 		final PageMetaData metaData = new PageMetaData();
-		metaData.setLimit(Long.valueOf(limit));
-		metaData.setOffset(Long.valueOf(offset));
-		metaData.setTotalRecords(Long.valueOf(0));
+		metaData.setLimit((long) limit);
+		metaData.setOffset((long) offset);
+		metaData.setTotalRecords(0L);
 		if (!collection.isEmpty()) {
 			
 			Long recordCount = null;

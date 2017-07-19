@@ -21,7 +21,7 @@ public enum QueryOperator {
 	private String jsonOperator;
 	private String sqlOperator;
 	
-	private QueryOperator(String jsonOperator, String sqlOperator) {
+	QueryOperator(String jsonOperator, String sqlOperator) {
 		this.jsonOperator = jsonOperator;
 		this.sqlOperator = sqlOperator;
 	}

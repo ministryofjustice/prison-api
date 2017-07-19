@@ -9,8 +9,6 @@ import net.syscon.elite.web.api.model.CaseNote;
 import net.syscon.elite.web.api.model.NewCaseNote;
 import net.syscon.elite.web.api.resource.BookingResource.Order;
 import net.syscon.util.IQueryBuilder;
-import net.syscon.util.QueryBuilder;
-import net.syscon.util.QueryBuilderFactory;
 import oracle.sql.TIMESTAMP;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -52,11 +50,11 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	@Override
 	public List<CaseNote> getCaseNotes(String bookingId, String query, String orderByField, Order order, int offset,
 			int limit) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_CASENOTES"), caseNoteMapping, preOracle12)
+		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CASENOTES"), caseNoteMapping)
 											.addRowCount()
 											.addQuery(query)
 											.addOrderBy(order == Order.asc, orderByField)
-											.addPagedQuery()
+											.addPagination()
 											.build();
 		final RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, caseNoteMapping);
 		return jdbcTemplate.query(sql, createParams("bookingId", bookingId, "caseLoadId", getCurrentCaseLoad(), "offset", offset, "limit", limit), caseNoteRowMapper);
@@ -72,7 +70,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	@Override
 	public Long createCaseNote(String bookingId, NewCaseNote caseNote, String sourceCode) {
 		String initialSql = getQuery("INSERT_CASE_NOTE");
-		IQueryBuilder builder = QueryBuilderFactory.getQueryBuilder(initialSql, caseNoteMapping);
+		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, caseNoteMapping);
 		String sql = builder.build();
 		String user = UserSecurityUtils.getCurrentUsername();
 
@@ -113,7 +111,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	@Override
 	public void updateCaseNote(String bookingId, long caseNoteId, String updatedText, String userId) {
 
-		String sql = new QueryBuilder.Builder(getQuery("UPDATE_CASE_NOTE"), caseNoteMapping, preOracle12).build();
+		String sql = queryBuilderFactory.getQueryBuilder(getQuery("UPDATE_CASE_NOTE"), caseNoteMapping).build();
 		jdbcTemplate.update(sql, createParams("modifyBy", userId,
 												"caseNoteId", caseNoteId,
 												"text", updatedText));

@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DateFormatProvider {
 
     private static final Map<String, ThreadLocal<DateFormat>> THREAD_LOCAL_MAP = new ConcurrentHashMap<>();
-    public static final String NORTH_AMERICA_DATE_FORMAT = "MM/dd/yyyy";
+    private static final String NORTH_AMERICA_DATE_FORMAT = "MM/dd/yyyy";
     
     private DateFormatProvider() {}
 

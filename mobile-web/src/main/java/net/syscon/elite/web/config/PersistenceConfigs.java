@@ -21,7 +21,7 @@ import javax.sql.DataSource;
 @EnableCaching
 @EnableAspectJAutoProxy
 @EnableTransactionManagement
-@ComponentScan(basePackages = "net.syscon.elite.persistence")
+@ComponentScan(basePackages = { "net.syscon.elite.persistence", "net.syscon.util" })
 public class PersistenceConfigs {
 	
 	private final Logger log = LoggerFactory.getLogger(getClass());

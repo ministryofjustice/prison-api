@@ -7,7 +7,6 @@ import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.web.api.model.CaseNoteType;
 import net.syscon.elite.web.api.model.ReferenceCode;
 import net.syscon.elite.web.api.resource.ReferenceDomainsResource.Order;
-import net.syscon.util.QueryBuilder;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -62,11 +61,11 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 
 	@Override
 	public List<ReferenceCode> getReferenceCodesByDomain(String domain, String query, String orderBy, Order order, int offset, int limit) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_REFERENCE_CODES_BY_DOMAIN"), referenceCodeMapping, preOracle12)
+		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_REFERENCE_CODES_BY_DOMAIN"), referenceCodeMapping)
 				.addQuery(query)
 				.addOrderBy(isAscending(order), orderBy)
 				.addRowCount()
-				.addPagedQuery()
+				.addPagination()
 				.build();
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
         try {
@@ -78,11 +77,11 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 
 	@Override
 	public List<ReferenceCode> getReferenceCodesByDomainAndParent(String domain, String parentCode, String query, String orderBy, Order order, int offset, int limit) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_REFERENCE_CODES_BY_DOMAIN_PARENT"), referenceCodeMapping, preOracle12)
+		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_REFERENCE_CODES_BY_DOMAIN_PARENT"), referenceCodeMapping)
 				.addQuery(query)
 				.addOrderBy(isAscending(order), orderBy)
 				.addRowCount()
-				.addPagedQuery()
+				.addPagination()
 				.build();
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
         try {
@@ -94,9 +93,9 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 
 	@Override
 	public List<ReferenceCode> getCaseNoteTypesByCaseLoad(String caseLoad, final int offset, final int limit) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_CNOTE_TYPES_BY_CASELOAD"), referenceCodeMapping, preOracle12)
+		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CNOTE_TYPES_BY_CASELOAD"), referenceCodeMapping)
 				.addRowCount()
-				.addPagedQuery()
+				.addPagination()
 				.build();
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
         try {
@@ -108,11 +107,11 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 
 	@Override
 	public List<CaseNoteType> getCaseNoteTypeByCurrentCaseLoad(String query, String orderBy, String order, int offset, int limit) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_CNOTE_TYPES_BY_CASELOAD"), noteTypesSubTypes, preOracle12)
+		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CNOTE_TYPES_BY_CASELOAD"), noteTypesSubTypes)
 				.addQuery(query)
 				.addOrderBy(isAscending(order), orderBy)
 				.addRowCount()
-				.addPagedQuery()
+				.addPagination()
 				.build();
 		final RowMapper<CaseNoteType> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNoteType.class, noteTypesSubTypes);
         try {
@@ -124,11 +123,11 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	@Override
 	public List<CaseNoteType> getCaseNoteSubType(String typeCode, String query, String orderBy, String order, int offset,
 			int limit) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE"), noteTypesSubTypes, preOracle12)
+		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE"), noteTypesSubTypes)
 				.addQuery(query)
 				.addOrderBy(isAscending(order), orderBy)
 				.addRowCount()
-				.addPagedQuery()
+				.addPagination()
 				.build();
 		final RowMapper<CaseNoteType> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNoteType.class, noteTypesSubTypes);
 		return jdbcTemplate.query(sql, createParams("caseNoteType", typeCode, "offset", offset, "limit", limit), referenceCodeRowMapper);

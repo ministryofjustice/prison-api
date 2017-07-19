@@ -9,8 +9,6 @@ import net.syscon.elite.web.api.resource.BookingResource;
 import net.syscon.elite.web.api.resource.LocationsResource;
 import net.syscon.util.DateFormatProvider;
 import net.syscon.util.IQueryBuilder;
-import net.syscon.util.QueryBuilder;
-import net.syscon.util.QueryBuilderFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,11 +96,11 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 	@Override
 	public List<AssignedInmate> findInmatesByLocation(final Long locationId, String query, String orderByField, LocationsResource.Order order, final int offset, final int limit) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_INMATES_BY_LOCATION"), assignedInmateMapping, preOracle12)
+		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_INMATES_BY_LOCATION"), assignedInmateMapping)
 				.addRowCount()
 				.addQuery(query)
 				.addOrderBy(order == LocationsResource.Order.asc, orderByField)
-				.addPagedQuery()
+				.addPagination()
 				.build();
 		final RowMapper<AssignedInmate> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, AssignedInmate.class, assignedInmateMapping);
 		try {
@@ -115,7 +113,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	@Override
 	public List<AssignedInmate> findAllInmates(String query, int offset, int limit, String orderBy, BookingResource.Order order) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
-		IQueryBuilder builder = QueryBuilderFactory.getQueryBuilder(initialSql, assignedInmateMapping);
+		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, assignedInmateMapping);
 		boolean isAscendingOrder = (order == BookingResource.Order.asc);
 
 		String sql = builder
@@ -129,7 +127,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 				Row2BeanRowMapper.makeMapping(sql, AssignedInmate.class, assignedInmateMapping);
 
 		List<AssignedInmate> inmates;
-
 		try {
 			inmates = jdbcTemplate.query(
 					sql,
@@ -146,10 +143,10 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 	@Override
 	public List<InmateAssignmentSummary> findMyAssignments(long staffId, String currentCaseLoad, String orderBy, boolean ascendingSort, int offset, int limit) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_MY_ASSIGNMENTS"), assignedInmateMapping, preOracle12).
+		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_MY_ASSIGNMENTS"), assignedInmateMapping).
 				addRowCount().
 				addOrderBy(ascendingSort, orderBy).
-				addPagedQuery()
+				addPagination()
 				.build();
 
 		final RowMapper<InmateAssignmentSummary> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, InmateAssignmentSummary.class, assignedInmateMapping);
@@ -224,14 +221,14 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	private List<String> findActiveAlertCodes(Long bookingId) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_ALERT_TYPES_FOR_OFFENDER"), null, preOracle12).build();
+		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_ALERT_TYPES_FOR_OFFENDER"), null).build();
 		return jdbcTemplate.query(sql, createParams("bookingId", bookingId), (rs, rowNum) -> rs.getString("ALERT_TYPE"));
 	}
 
 	@Override
 	public List<Alias> findInmateAliases(Long bookingId, String orderByField, BookingResource.Order order) {
 		String initialSql = getQuery("FIND_INMATE_ALIASES");
-		IQueryBuilder builder = QueryBuilderFactory.getQueryBuilder(initialSql, aliasMapping);
+		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, aliasMapping);
 		boolean isAscendingOrder = (order == BookingResource.Order.asc);
 
 		String sql = builder
