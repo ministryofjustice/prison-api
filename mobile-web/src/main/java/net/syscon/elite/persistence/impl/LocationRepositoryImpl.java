@@ -8,8 +8,6 @@ import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.web.api.model.Location;
 import net.syscon.elite.web.api.resource.LocationsResource.Order;
 import net.syscon.util.IQueryBuilder;
-import net.syscon.util.QueryBuilder;
-import net.syscon.util.QueryBuilderFactory;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -44,7 +42,7 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 	@Override
 	public List<Location> findLocations(String query, String orderByField, Order order, int offset, int limit) {
 		String initialSql = getQuery("FIND_ALL_LOCATIONS");
-		IQueryBuilder builder = QueryBuilderFactory.getQueryBuilder(initialSql, locationMapping);
+		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, locationMapping);
 		boolean isAscendingOrder = (order == Order.asc);
 
 		String sql = builder
@@ -67,11 +65,11 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 
 	@Override
 	public List<Location> findLocationsByAgencyId(final String caseLoadId, final String agencyId, final String query, final int offset, final int limit, final String orderByField, final Order order) {
-		final String sql = new QueryBuilder.Builder(getQuery("FIND_LOCATIONS_BY_AGENCY_ID"), locationMapping, preOracle12).
+		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_LOCATIONS_BY_AGENCY_ID"), locationMapping).
 						addRowCount().
 						addQuery(query).
 						addOrderBy(order == Order.asc, orderByField).
-						addPagedQuery()
+						addPagination()
 						.build();
 		final RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
 		return jdbcTemplate.query(sql, createParams("caseLoadId", caseLoadId, "agencyId", agencyId, "offset", offset, "limit", limit), locationRowMapper);

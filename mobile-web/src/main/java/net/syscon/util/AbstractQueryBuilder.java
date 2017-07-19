@@ -20,13 +20,25 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
     protected final StringBuilder extraWhere = new StringBuilder();
 
     protected String extraOrderBy = "";
+    protected DatabaseDialect dialect;
+    protected boolean removeSpecialChars;
 
-    protected AbstractQueryBuilder(String initialSQL, Map<String, FieldMapper> fieldMap) {
+    protected AbstractQueryBuilder(String initialSQL, Map<String, FieldMapper> fieldMap, DatabaseDialect dialect) {
         this.initialSQL = initialSQL;
+        this.dialect = dialect;
         this.fieldMap = fieldMap;
-        this.fieldNameToColumnMap = fieldMap.entrySet().stream()
-                .collect(Collectors.toMap(v -> v.getValue().getName(),
-                        Map.Entry::getKey));
+        if (fieldMap != null) {
+            this.fieldNameToColumnMap = fieldMap.entrySet().stream()
+                    .collect(Collectors.toMap(v -> v.getValue().getName(),
+                            Map.Entry::getKey));
+        } else {
+            this.fieldNameToColumnMap = Collections.EMPTY_MAP;
+        }
+    }
+
+    public IQueryBuilder removeSpecialChars() {
+        this.removeSpecialChars = true;
+        return this;
     }
 
     public IQueryBuilder addPagination() {
@@ -82,6 +94,17 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
 
     private SQLKeyword addOrderDirection(boolean isAscending) {
         return isAscending ? SQLKeyword.ASC : SQLKeyword.DESC;
+    }
+
+    protected String removeSpecialCharacters(final String sql) {
+        if (sql == null) return null;
+        final String stmts[] = { sql, sql.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ') };
+        while (!stmts[0].equals(stmts[1])) {
+            stmts[0] = stmts[1];
+            stmts[1] = stmts[1].replace('\n', ' ').replace('\r', ' ').replace('\t', ' ');
+            stmts[1] = stmts[1].replaceAll("  ", " ");
+        }
+        return stmts[0].trim();
     }
 
     protected Optional<SQLKeyword> getStatementType() {

@@ -6,12 +6,14 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.persistence.mapping.FieldMapper;
-import net.syscon.util.QueryBuilder;
+import net.syscon.util.QueryBuilderFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Map;
 
+import static net.syscon.util.DatabaseDialect.ORACLE_11;
+import static net.syscon.util.DatabaseDialect.ORACLE_12;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -24,9 +26,9 @@ public class QueryBuilderTest {
 	).build();
 	
 	private static final String INITIAL_SQL = "SELECT A.AGY_LOC_ID AGENCY_CODE, A.DESCRIPTION FROM AGENCY_LOCATIONS A";
-	
-	private static final boolean ORACLE_11 = true;
-	private static final boolean ORACLE_12 = false;
+
+	private static final QueryBuilderFactory oracle11Builder = new QueryBuilderFactory(ORACLE_11);
+	private static final QueryBuilderFactory oracle12Builder = new QueryBuilderFactory(ORACLE_12);
 
 	@DataProvider
 	public static Object[][] data() {
@@ -46,21 +48,21 @@ public class QueryBuilderTest {
 
 	@Test
 	public void buildSQL_PreOracle12WithoutPagination_ShouldReturnTheSameSQL() {
-		final String sql = new QueryBuilder.Builder(INITIAL_SQL, agencyMapping, ORACLE_11).build();
+		final String sql = oracle11Builder.getQueryBuilder(INITIAL_SQL, agencyMapping).build();
 		assertThat(sql, equalTo(INITIAL_SQL));
 	}
 	
 	@Test
 	public void buildSQL_Oracle12WithoutPagination_ShouldReturnTheSameSql() {
-		final String sql = new QueryBuilder.Builder(INITIAL_SQL, agencyMapping, ORACLE_12).build();
+		final String sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping).build();
 		assertThat(sql, equalTo(INITIAL_SQL));
 	}
 	
 	@Test
 	public void buildSQL_Oracle12AndPagination_ShouldReturnOracleNativePaginatedSql() {
-		final String sql = new QueryBuilder.Builder(INITIAL_SQL, agencyMapping, ORACLE_12)
-				.setRemoveSpecialChars(true)
-				.addPagedQuery()
+		final String sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
+				.removeSpecialChars()
+				.addPagination()
 				.build();
 		final String expectedSql = INITIAL_SQL + " OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY";
 		assertThat(sql, equalTo(expectedSql));
@@ -68,18 +70,18 @@ public class QueryBuilderTest {
 	
 	@Test
 	public void buildSQL_PreOracle12AndPagination_ShouldReturnSubQueryPaginatedSql() {
-		final String sql = new QueryBuilder.Builder(INITIAL_SQL, agencyMapping, ORACLE_11)
-				.setRemoveSpecialChars(true)
-				.addPagedQuery()
+		final String sql = oracle11Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
+				.removeSpecialChars()
+				.addPagination()
 				.build();
-		final String expectedSql = String.format("SELECT * FROM (SELECT QRY_PAG.*, ROWNUM rnum FROM ( %s ) QRY_PAG WHERE ROWNUM <= (:offset+:limit)) WHERE rnum >= (:offset+1)", INITIAL_SQL);
+		final String expectedSql = String.format("SELECT * FROM (SELECT QRY_PAG.*, ROWNUM rnum FROM ( %s ) QRY_PAG WHERE ROWNUM <= :offset+:limit) WHERE rnum >= :offset+1", INITIAL_SQL);
 		assertThat(sql, equalTo(expectedSql));
 	}
 		
 	@Test
 	public void buildSQL_UsingAliasColumnWithCondition_ShouldReturnQueryWithSubQuery() {
-		final String sql = new QueryBuilder.Builder(INITIAL_SQL, agencyMapping, ORACLE_12)
-				.setRemoveSpecialChars(true)
+		final String sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
+				.removeSpecialChars()
 				.addQuery("agencyId:eq:'ITAG'")
 				.build();
 		final String expectedSql = String.format("SELECT QRY_ALIAS.* FROM ( %s ) QRY_ALIAS WHERE AGENCY_CODE = 'ITAG'", INITIAL_SQL);
@@ -88,8 +90,8 @@ public class QueryBuilderTest {
 		
 	@Test
 	public void buildSQL_UsingAliasColumnWithConditionAndRowCounting_ShouldReturnQueryWithSubQuery() {
-		final String sql = new QueryBuilder.Builder(INITIAL_SQL, agencyMapping, ORACLE_12)
-			.setRemoveSpecialChars(true)
+		final String sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
+			.removeSpecialChars()
 			.addQuery("agencyId:eq:'ITAG'")
 			.addRowCount()
 			.build();
@@ -100,8 +102,8 @@ public class QueryBuilderTest {
 	@Test
 	@UseDataProvider("data")
 	public void buildSql_UsingQueryOperators_ShouldReturnExpectedParam(final String jsonOperator, final String sqlOperator, final String paramValue, String paramExpected) {
-		final String sql = new QueryBuilder.Builder(INITIAL_SQL, agencyMapping, ORACLE_12)
-				.setRemoveSpecialChars(true)
+		final String sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
+				.removeSpecialChars()
 				.addQuery("agencyId:" + jsonOperator + ":" + paramValue)
 				.build();
 		final String expectedSql = String.format("SELECT QRY_ALIAS.* FROM ( %s ) QRY_ALIAS WHERE AGENCY_CODE %s %s", INITIAL_SQL, sqlOperator, paramExpected);

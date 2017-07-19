@@ -1,12 +1,14 @@
 package net.syscon.util;
 
 import net.syscon.elite.persistence.mapping.FieldMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
 /**
  * 
  * @author om.pandey
@@ -19,21 +21,19 @@ public class QueryUtil {
 	}
 	
 	public static String getSqlFieldName(final Map<String,FieldMapper> fieldMap, final String jsonField) {
-		final String sqlFieldName = fieldMap.entrySet()
+		return fieldMap.entrySet()
 										.stream()
 										.filter(entry -> {return entry.getValue().getName().equals(jsonField);})
 										.map(Map.Entry::getKey)
 										.findAny()
 										.orElse(null);
-		return sqlFieldName;
 	}
 	
 	public static String getSqlOperator(final String jsonOperator) {
-		final String  sqlOperator = Arrays.stream(QueryOperator.values())
+		return Arrays.stream(QueryOperator.values())
 									.filter(queryOperator-> queryOperator.getJsonOperator().equalsIgnoreCase(jsonOperator))
-									.map(queryOperator-> queryOperator.getSqlOperator())
+									.map(QueryOperator::getSqlOperator)
 									.findAny().orElse(null);
-		return sqlOperator;
 	}
 	
 	public static List<String> checkPrecdencyAndSplit(final String queryInput, final List<String> queryBreak) {
@@ -97,5 +97,10 @@ public class QueryUtil {
 			result = result.substring(2);
 		}
 		return result;
+	}
+
+	public static String getCriteriaFromQuery(String sql) {
+		final int fromLocation = StringUtils.lastIndexOfIgnoreCase(sql, "FROM");
+		return  StringUtils.replaceAll(StringUtils.substring(sql, fromLocation),"\\s+", " ");
 	}
 }

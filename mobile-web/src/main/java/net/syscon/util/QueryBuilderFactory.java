@@ -2,6 +2,8 @@ package net.syscon.util;
 
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -14,7 +16,14 @@ import java.util.Map;
 @Component
 public class QueryBuilderFactory {
 
-    public static IQueryBuilder getQueryBuilder(String initialSql, Map<String, FieldMapper> fieldMap) {
+    private final DatabaseDialect dialect;
+
+    @Autowired
+    public QueryBuilderFactory(@Value("${schema.database.dialect}") DatabaseDialect dialect) {
+        this.dialect = dialect;
+    };
+
+    public IQueryBuilder getQueryBuilder(String initialSql, Map<String, FieldMapper> fieldMap) {
         IQueryBuilder queryBuilder;
 
         // TODO: Consider controlling this using a database type property
@@ -22,9 +31,9 @@ public class QueryBuilderFactory {
                 IQueryBuilder.SQL_PLACEHOLDER_WHERE_QUERY,
                 IQueryBuilder.SQL_PLACEHOLDER_AND_QUERY,
                 IQueryBuilder.SQL_PLACEHOLDER_OR_QUERY)) {
-            queryBuilder = new StandardQueryBuilder(initialSql, fieldMap);
+            queryBuilder = new StandardQueryBuilder(initialSql, fieldMap, dialect);
         } else {
-            queryBuilder = new OracleQueryBuilder(initialSql, fieldMap);
+            queryBuilder = new OracleQueryBuilder(initialSql, fieldMap, dialect);
         }
 
         return queryBuilder;

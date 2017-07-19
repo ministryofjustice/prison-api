@@ -1,12 +1,13 @@
 package net.syscon.elite.persistence.impl;
 
 
-import net.syscon.elite.exception.EliteRuntimeException;
 import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.util.QueryBuilderFactory;
 import net.syscon.util.SQLProvider;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -30,6 +31,9 @@ public class RepositoryBase implements ApplicationContextAware {
 
 	@Value("${schema.pre.oracle12:false}")
 	protected boolean preOracle12;
+
+	@Autowired
+	protected QueryBuilderFactory queryBuilderFactory;
 
 	// TODO: Remove UserRepository dependency using SQLFilter approach to generate the filter
 	//************************** PLEASE, FIX ME LATER!!! **************************
@@ -88,24 +92,6 @@ public class RepositoryBase implements ApplicationContextAware {
 		return params;
 	}
 
-	public String getPagedQuery(final String name) {
-		final StringBuilder sb = new StringBuilder();
-		String sql = sqlProvider.get(name);
-		int i = sql.toUpperCase().indexOf("SELECT");
-		if (i < 0) {
-			throw new EliteRuntimeException("Paged Query must have a SELECT statement!");
-		}
-
-		sb.append(sql.substring(0, i + 6));
-		sb.append(" COUNT(*) OVER() TOTAL, ");
-		sb.append(sql.substring(i + 7));
-
-
-		if (sb.length() > 0) {
-			sb.append(" OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY");
-		}
-		return sb.toString();
-	}
 
 	public String getQuery(final String name) {
 		return sqlProvider.get(name);

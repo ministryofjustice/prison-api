@@ -8,8 +8,8 @@ import java.util.Optional;
 
 public class StandardQueryBuilder extends AbstractQueryBuilder {
 
-	public StandardQueryBuilder(final String initialSQL, final Map<String, FieldMapper> fieldMap) {
-		super(initialSQL, fieldMap);
+	public StandardQueryBuilder(final String initialSQL, final Map<String, FieldMapper> fieldMap, DatabaseDialect dialect) {
+		super(initialSQL, fieldMap, dialect);
 
 		hasAndQueryPlaceholder = initialSQL.contains(SQL_PLACEHOLDER_AND_QUERY);
 		hasOrQueryPlaceholder = initialSQL.contains(SQL_PLACEHOLDER_OR_QUERY);
@@ -70,6 +70,10 @@ public class StandardQueryBuilder extends AbstractQueryBuilder {
 			}
 		} else {
 			return parsedQuery;
+		}
+
+		if (removeSpecialChars) {
+			parsedQuery = removeSpecialCharacters(parsedQuery);
 		}
 
 		return parsedQuery;

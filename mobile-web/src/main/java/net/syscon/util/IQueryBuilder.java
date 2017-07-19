@@ -13,6 +13,6 @@ public interface IQueryBuilder {
     IQueryBuilder addPagination();
     IQueryBuilder addQuery(String query);
     IQueryBuilder addRowCount();
-
+    IQueryBuilder removeSpecialChars();
     String build();
 }
