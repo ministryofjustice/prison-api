@@ -23,13 +23,7 @@ public class OracleQueryBuilder extends AbstractQueryBuilder {
 		if (Optional.of(SQLKeyword.SELECT).equals(statementType)) {
 			// Wrap the initial Query ...
 			if (includeRowCount || extraWhere.length() > 0 || extraOrderBy.length() > 0) {
-				result.append("SELECT QRY_ALIAS.* FROM (\n").append(initialSQL).append("\n) QRY_ALIAS\n");
-
-				if (includeRowCount) {
-					if (dialect != DatabaseDialect.HSQLDB) {
-						result.insert(7, "COUNT(*) OVER() RECORD_COUNT, ");
-					}
-				}
+				buildDataCountSql(result);
 			} else {
 				result.append(initialSQL);
 			}
@@ -45,27 +39,11 @@ public class OracleQueryBuilder extends AbstractQueryBuilder {
 
 			// Wrap the query with pagination parameters ...
 			if (includePagination) {
-				if (dialect == DatabaseDialect.ORACLE_12) {
-					result.append("\nOFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY");
-				} else {
-					if (dialect != DatabaseDialect.HSQLDB) {
-						result.insert(0, "SELECT * FROM ("+ ROW_NUM_SQL);
-						result.append(OFFSET_LIMIT_SQL);
-					}
-				}
+				buildPaginationSql(result);
 			}
 
 			if (includeRowCount) {
-				if (dialect == DatabaseDialect.HSQLDB) {
-					final String criteria = QueryUtil.getCriteriaFromQuery(initialSQL);
-					final StringBuilder rowCountStr = new StringBuilder(String.format(COUNT_SELECT, criteria));
-
-					if (includePagination) {
-						rowCountStr.append(ROW_NUM_SQL);
-						result.append(OFFSET_LIMIT_SQL);
-					}
-					result.insert(0, rowCountStr.toString());
-				}
+				buildAnsiDataCountSql(result);
 			}
 			if (removeSpecialChars) {
 				result = new StringBuilder(removeSpecialCharacters(result.toString()));
@@ -76,5 +54,39 @@ public class OracleQueryBuilder extends AbstractQueryBuilder {
 		}
 
 		return result.toString();
+	}
+
+	private void buildPaginationSql(StringBuilder result) {
+		if (dialect == DatabaseDialect.ORACLE_12) {
+			result.append("\nOFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY");
+		} else {
+			if (dialect != DatabaseDialect.HSQLDB) {
+				result.insert(0, "SELECT * FROM ("+ ROW_NUM_SQL);
+				result.append(OFFSET_LIMIT_SQL);
+			}
+		}
+	}
+
+	private void buildDataCountSql(StringBuilder result) {
+		result.append("SELECT QRY_ALIAS.* FROM (\n").append(initialSQL).append("\n) QRY_ALIAS\n");
+
+		if (includeRowCount) {
+            if (dialect != DatabaseDialect.HSQLDB) {
+                result.insert(7, "COUNT(*) OVER() RECORD_COUNT, ");
+            }
+        }
+	}
+
+	private void buildAnsiDataCountSql(StringBuilder result) {
+		if (dialect == DatabaseDialect.HSQLDB) {
+            final String criteria = QueryUtil.getCriteriaFromQuery(initialSQL);
+            final StringBuilder rowCountStr = new StringBuilder(String.format(COUNT_SELECT, criteria));
+
+            if (includePagination) {
+                rowCountStr.append(ROW_NUM_SQL);
+                result.append(OFFSET_LIMIT_SQL);
+            }
+            result.insert(0, rowCountStr.toString());
+        }
 	}
 }
