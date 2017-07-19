@@ -127,8 +127,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 				Row2BeanRowMapper.makeMapping(sql, AssignedInmate.class, assignedInmateMapping);
 
 		List<AssignedInmate> inmates;
-
-		log.info("Inmate Search [{}]", sql);
 		try {
 			inmates = jdbcTemplate.query(
 					sql,

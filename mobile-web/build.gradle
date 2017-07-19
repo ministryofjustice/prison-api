@@ -116,8 +116,13 @@ project(":mobile-web") {
 				rename { String fileName -> fileName.replace("mobile-dev-SAMPLE.yml", "mobile-dev.yml") }
 			}
 		}
-	}
 
+		def configFile = file("${rootDir}/mobile-web/src/main/resources/application.properties").absoluteFile
+		println "updating version to '${version}' in ${configFile}"
+		String configContent = configFile.getText('UTF-8')
+		configContent = configContent.replaceAll(/info\.app\.version=.*/, "info.app.version=${version}")
+		configFile.write(configContent, 'UTF-8')
+	}
 
 	def applicationMainClass = 'net.syscon.elite.MobileApiServer'
 	def dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
