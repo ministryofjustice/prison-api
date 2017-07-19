@@ -1,3 +1,4 @@
+@global
 Feature: Locations
 
   Acceptance Criteria:
