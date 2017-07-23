@@ -1,10 +1,9 @@
 package net.syscon.elite.web.config;
 
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.ws.rs.ApplicationPath;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import net.syscon.elite.web.api.resource.impl.AgenciesResourceImpl;
+import net.syscon.elite.web.listener.EndpointLoggingListener;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
@@ -13,11 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.*;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -32,19 +27,17 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
-import net.syscon.elite.web.api.resource.impl.AgenciesResourceImpl;
-import net.syscon.elite.web.listener.EndpointLoggingListener;
+import javax.inject.Inject;
+import javax.ws.rs.ApplicationPath;
+import java.util.Set;
 
 @Configuration
 @EnableWebMvc
 @EnableScheduling
 @EnableCaching
 @EnableAsync
-@ComponentScan(basePackages = {"net.syscon.elite.persistence", "net.syscon.elite.service"})
 @Import({ PersistenceConfigs.class, WebSecurityConfigs.class, ServiceConfigs.class, AopConfigs.class})
+@ComponentScan(basePackages = { "net.syscon.elite.web.api.resource" })
 @ApplicationPath("/api")
 public class ServletContextConfigs extends ResourceConfig {
 	

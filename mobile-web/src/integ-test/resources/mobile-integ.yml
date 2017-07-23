@@ -24,7 +24,6 @@ spring:
       username: oms_owner
       password: oms_owner
       idle-timeout: 10000
-      oracle-proxy: true
 logging:
   level:
     org.springframework.security: INFO

@@ -7,9 +7,9 @@ project(":mobile-web") {
 
 	dependencies {
 
-		compile project(":mobile-api")
-		compile files("${rootDir}/mobile-web/src/main/configs")
-		compile files("${rootDir}/lib/ojdbc7-12.1.0.2.jar")
+        compile project(":mobile-api")
+        compile files("${rootDir}/mobile-web/src/main/configs")
+        compile files("${rootDir}/lib/ojdbc7-12.1.0.2.jar")
 
 		compile("org.springframework.boot:spring-boot-starter-web")
 		compile("org.springframework.boot:spring-boot-starter-aop")

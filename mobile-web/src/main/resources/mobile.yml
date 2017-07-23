@@ -9,16 +9,19 @@ spring:
       INDENT_OUTPUT: false
 
   datasource:
-      hikari:
-        pool-name: EliteCP
-        maximum-pool-size: ${conn.pool.max.size}
-        driver-class-name: ${spring.datasource.driver-class-name}
-        connection-init-sql: SELECT 1 FROM DUAL
-        jdbc-url: ${spring.datasource.url}
-        username: ${spring.datasource.username}
-        password: ${spring.datasource.password}
-        idle-timeout: ${conn.pool.idle.timeout}
-        oracle-proxy.enabled: true
+    driver-class-name: ${app.db.driver}
+    url: ${app.url}
+    username: ${app.username}
+    password: ${app.password}
+    continueOnError: true
+    initialize: false
+    initialSize: 0
+    timeBetweenEvictionRunsMillis: ${conn.pool.idle.timeout}
+    minEvictableIdleTimeMillis: ${conn.pool.idle.timeout}
+    minIdle: 0
+    maxActive: ${conn.pool.max.size}
+    validationQuery: SELECT 1 FROM DUAL
+    maxWait: 10000
 
   application:
     index: api.html

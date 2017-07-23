@@ -2,57 +2,55 @@ package net.syscon.util;
 
 
 import net.syscon.elite.exception.EliteRuntimeException;
-import org.springframework.core.io.ClassPathResource;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class SQLProvider {
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final Map<String, String> statements = new HashMap<>();
-    private File file;
 
-    public SQLProvider() {
-    	// default constructor to be used with lazy loading ...
+	private final ApplicationContext applicationContext;
+	private final String schemaType;
+
+    @Autowired
+    public SQLProvider(ApplicationContext applicationContext, @Value("${schema.type}") String schemaType) {
+        this.applicationContext = applicationContext;
+        this.schemaType = schemaType;
+
     }
 
-    public SQLProvider(final Class<?> clazz) {
-        try {
-            final String resourcePath = clazz.getSimpleName() + ".sql";
-            ClassPathResource resource = new ClassPathResource(resourcePath);
-            final InputStream in = resource.getInputStream();
-            loadFromStream(in);
-        } catch (IOException ex) {
-            throw new EliteRuntimeException(ex.getMessage(), ex);
+    public void loadSql(final String className) {
+        loadSql(applicationContext, "classpath:sqls/" + className + ".sql");
+        if (StringUtils.isNotBlank(schemaType)) {
+            loadSql(applicationContext, "classpath:sqls/" + schemaType + "/"  + className + ".sql");
         }
     }
 
-    public SQLProvider(final File file) {
-        this.file = file;
-    }
-
-    public void loadFromFile(final File file) {
-    	try (FileInputStream in = new FileInputStream(file)) {
-            loadFromStream(in);
-            this.file = file;
-        } catch (final IOException ex) {
-            throw new EliteRuntimeException(ex.getMessage(), ex);
+    private void loadSql(ApplicationContext applicationContext, String resourcePath) {
+        final Resource resource = applicationContext.getResource(resourcePath);
+        if (resource.exists()) {
+            try {
+                loadFromStream(resource.getInputStream());
+            } catch (final IOException ex) {
+                log.error(ex.getMessage(), ex);
+            }
         }
     }
 
-    public void loadFromClassLoader(final String filename) {
-        try {
-            ClassPathResource resource = new ClassPathResource(filename);
-            final InputStream in = resource.getInputStream();
-            loadFromStream(in);
-        } catch (IOException ex) {
-            throw new EliteRuntimeException(ex.getMessage(), ex);
-        }
-    }
-
-    public void loadFromStream(final InputStream in) {
+    private void loadFromStream(final InputStream in) {
         final CharArrayWriter out = new CharArrayWriter();
         final char[] cbuf = new char[1024];
         try {
@@ -68,15 +66,6 @@ public class SQLProvider {
         }
     }
 
-    public void parse() {
-        loadFromFile(file);
-    }
-
-    public void setFile(final File file) {
-        this.file = file;
-    }
-    
-    
     private int getNext(final char[] content, final int offset, final char searchFor) {
     	if (offset >= 0) {
 	    	for (int i = offset; i < content.length; i++) {
