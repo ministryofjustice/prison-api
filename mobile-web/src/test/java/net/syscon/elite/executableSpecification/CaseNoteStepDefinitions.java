@@ -33,7 +33,7 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     public void aCaseNoteIsCreatedForAnExistingOffenderBooking(DataTable rawData) {
         Map<String, String> caseNoteData = rawData.asMap(String.class, String.class);
 
-        caseNote.create(caseNoteData.get("type"), caseNoteData.get("subType"), caseNoteData.get("text"));
+        caseNote.create(caseNoteData.get("type"), caseNoteData.get("subType"), caseNoteData.get("text"), caseNoteData.get("occurrenceDateTime"));
     }
 
     @Then("^case note is successfully created$")
