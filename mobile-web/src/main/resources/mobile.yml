@@ -9,10 +9,6 @@ spring:
       INDENT_OUTPUT: false
 
   datasource:
-    driver-class-name: ${app.db.driver}
-    url: ${app.url}
-    username: ${app.username}
-    password: ${app.password}
     continueOnError: true
     initialize: false
     initialSize: 0

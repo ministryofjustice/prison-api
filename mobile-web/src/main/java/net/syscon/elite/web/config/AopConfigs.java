@@ -21,9 +21,9 @@ public class AopConfigs {
     @Bean
 	@Profile("!noproxy")
 	public OracleConnectionAspect oracleProxyConnectionAspect(SQLProvider sqlProvider,
-                                                              @Value("${app.url}") String jdbcUrl,
-                                                              @Value("${app.username}") String username,
-                                                              @Value("${app.password}") String password
+                                                              @Value("${spring.datasource.url}") String jdbcUrl,
+                                                              @Value("${spring.datasource.username}") String username,
+                                                              @Value("${spring.datasource.password}") String password
                                                               ) {
         return new OracleConnectionAspect(sqlProvider, jdbcUrl, username, password);
 	}
