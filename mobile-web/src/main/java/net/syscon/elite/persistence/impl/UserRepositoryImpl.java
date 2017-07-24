@@ -6,28 +6,15 @@ import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.web.api.model.StaffDetails;
 import net.syscon.elite.web.api.model.UserDetails;
-import net.syscon.util.SQLProvider;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
 
 @Repository
 public class UserRepositoryImpl extends RepositoryBase implements UserRepository {
-	
-	public UserRepositoryImpl() {
-	}
-	
-	public UserRepositoryImpl(final DataSource dataSource) {
-		final String filename = "sqls/" + UserRepositoryImpl.class.getSimpleName() + ".sql";
-		this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-		this.sqlProvider = new SQLProvider() ;
-		this.sqlProvider.loadFromClassLoader(filename);
-	}
 
 	private final Map<String, FieldMapper> userMapping = new ImmutableMap.Builder<String, FieldMapper>()
 		.put("STAFF_ID", new FieldMapper("staffId"))

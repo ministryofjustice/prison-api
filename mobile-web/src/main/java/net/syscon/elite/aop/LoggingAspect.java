@@ -1,10 +1,7 @@
 package net.syscon.elite.aop;
 
 
-import java.util.Arrays;
-
-import javax.inject.Inject;
-
+import net.syscon.elite.core.Constants;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -15,7 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
-import net.syscon.elite.core.Constants;
+import javax.inject.Inject;
+import java.util.Arrays;
 
 
 @Aspect
@@ -26,7 +24,7 @@ public class LoggingAspect {
     @Inject
     private Environment env;
 
-    @Pointcut("within(net.syscon.elite.persistence..*) || within(net.syscon.elite.service..*) || within(net.syscon.web.api..*) || within(net.syscon.elite.aop..*)")
+    @Pointcut("within(net.syscon.elite.persistence..*) || within(net.syscon.elite.service..*) || within(net.syscon.elite.web.api..*) || within(net.syscon.elite.aop..*)")
     public void loggingPointcut() {
     }
 

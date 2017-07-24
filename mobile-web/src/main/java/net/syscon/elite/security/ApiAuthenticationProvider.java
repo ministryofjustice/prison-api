@@ -1,8 +1,5 @@
 package net.syscon.elite.security;
 
-import net.syscon.elite.exception.EliteRuntimeException;
-import net.syscon.elite.persistence.impl.UserRepositoryImpl;
-import net.syscon.util.SQLProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -15,7 +12,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.annotation.PostConstruct;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -24,25 +20,12 @@ import java.sql.SQLException;
 public class ApiAuthenticationProvider extends DaoAuthenticationProvider {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    private final SQLProvider sqlProvider = new SQLProvider();
 
     @Value("${spring.datasource.driver-class-name}")
     private String jdbcDriver;
 
     @Value("${spring.datasource.url}")
     private String jdbcUrl;
-
-    @PostConstruct
-    public void postConstruct() {
-        try {
-            Class.forName(jdbcDriver);
-            String filename = String.format("sqls/%s.sql", UserRepositoryImpl.class.getSimpleName());
-
-            sqlProvider.loadFromClassLoader(filename);
-        } catch (final ClassNotFoundException e) {
-            throw new EliteRuntimeException(e.getMessage(), e);
-        }
-    }
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
