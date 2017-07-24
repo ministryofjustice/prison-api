@@ -23,12 +23,13 @@ public class CaseNoteSteps extends CommonSteps {
     @Value("${api.caseNote.sourceCode:AUTO}")
     private String caseNoteSource;
 
-    public void create(String type, String subType, String text) {
+    public void create(String type, String subType, String text, String occurrenceDateTime) {
         pendingCaseNote = new CaseNote();
 
         pendingCaseNote.setType(type);
         pendingCaseNote.setSubType(subType);
         pendingCaseNote.setText(text);
+        pendingCaseNote.setOccurrenceDateTime(occurrenceDateTime);
 
         caseNote = createCaseNote(pendingCaseNote);
     }
@@ -40,6 +41,7 @@ public class CaseNoteSteps extends CommonSteps {
         assertThat(caseNote.getType()).isEqualTo(pendingCaseNote.getType());
         assertThat(caseNote.getSubType()).isEqualTo(pendingCaseNote.getSubType());
         assertThat(caseNote.getText()).isEqualTo(pendingCaseNote.getText());
+        assertThat(caseNote.getOccurrenceDateTime()).isEqualTo(pendingCaseNote.getOccurrenceDateTime());
         assertThat(caseNote.getCreationDateTime()).isNotEmpty();
     }
 
