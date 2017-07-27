@@ -1,63 +1,161 @@
+import org.apache.commons.io.FileUtils
 import org.apache.tools.ant.taskdefs.condition.Os
 
-def sourceGenDir = file("${rootDir}/mobile-api/src/main/generated")
-
 project(":mobile-api") {
+    // Project-specific properties
+    def ramlDir = new File("${rootDir}/mobile-api/raml")
+    def ramlFile = new File(ramlDir, "api.raml")
+    def htmlFile = new File(ramlDir, "api.html")
 
-	dependencies {
-		compile("org.springframework.boot:spring-boot-starter-jersey:${version_spring_boot}")
-	}
+    def raml10Dir = new File("${rootDir}/mobile-api/raml10")
+    def raml10File = new File(raml10Dir, "api.raml")
 
-	def ramlDir = new File("${rootDir}/mobile-api/raml")
-	def ramlFile = new File(ramlDir, "api.raml")
-	def htmlFile = new File(ramlDir, "api.html")
+    // RAML 0.8 documentation task
+    //
+    // The following task requires node-js installed in order to generate the API HTML version
+    // Also install raml2html after install the node-js with the following command
+    // npm i -g raml2html@3.0.1
+    def htmlGenCommand = "raml2html"
+    def htmlGenArgs = ['-i', ramlFile.absolutePath, '-o', htmlFile.absolutePath]
 
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        htmlGenCommand = "${rootDir}/mobile-api/raml/htmlgen.bat"
+        htmlGenArgs = [ramlFile.absolutePath, htmlFile.absolutePath]
+    }
 
-	// The following task requires node-js installed in order to generate the API HTML version
-	// Also install raml2html after install the node-js with the following command
-	// npm i -g raml2html@3.0.1
-	def htmlGenCommand = "raml2html"
-	def htmlGenArgs = ['-i', ramlFile.absolutePath, '-o', htmlFile.absolutePath]
-	if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-		htmlGenCommand = "${rootDir}/mobile-api/raml/htmlgen.bat"
-		htmlGenArgs = [ramlFile.absolutePath, htmlFile.absolutePath]
-	}
-	task htmlGen(type: Exec) {
-		workingDir ramlDir.absolutePath
-		commandLine htmlGenCommand
-		args htmlGenArgs
-	}
+    task htmlGen(type: Exec) {
+        workingDir ramlDir.absolutePath
+        commandLine htmlGenCommand
+        args htmlGenArgs
+    }
 
+    // Configurations
+    configurations {
+        // Ensures 'generated' source set uses main compilation classpath (dependencies)
+        generatedCompile.extendsFrom compile
 
-	sourceSets.main.java.srcDirs sourceGenDir
+        // Used to expose/share output (compiled classes) of 'generated' source set
+        generatedOutput
+    }
 
-	processResources {
-		def configs = new org.raml.jaxrs.codegen.core.Configuration()
-		sourceGenDir.listFiles().each{ f -> if (f != null) delete f }
-		sourceGenDir.mkdirs()
+    // Additional source set: 'generated'
+    sourceSets {
+        generated {
+            // Exclude 'net.syscon.elite2' package as not yet generated correctly
+            java {
+                srcDir 'src/generated/java'
+                exclude '**/elite2/**'
+            }
+        }
+    }
 
-		configs.outputDirectory = sourceGenDir
-		configs.sourceDirectory = ramlDir
-		configs.setBasePackageName("net.syscon.elite.web.api");
-		configs.setJaxrsVersion(org.raml.jaxrs.codegen.core.Configuration.JaxrsVersion.JAXRS_2_0)
-		configs.setJsonMapper(org.jsonschema2pojo.AnnotationStyle.JACKSON2)
-		configs.setUseJsr303Annotations(false)
-		configs.jsonMapperConfiguration = new HashMap<>()
-		configs.jsonMapperConfiguration["useLongIntegers"] = "true"
-		configs.jsonMapperConfiguration["includeToString"] = "true"
-		configs.jsonMapperConfiguration["includeHashcodeAndEquals"] = "true"
-		configs.jsonMapperConfiguration["includeConstructors"] = "true"
-		configs.jsonMapperConfiguration["useCommonsLang3"] = "true"
-		def sourceGenerator = new org.raml.jaxrs.codegen.core.Generator()
-		sourceGenerator.run(new FileReader(new File(ramlDir, "./api.raml")), configs, "")
-	}
+    // Main compilation dependencies
+    dependencies {
+        compile("org.springframework.boot:spring-boot-starter-jersey:${version_spring_boot}")
+        compile("io.swagger:swagger-jersey2-jaxrs:1.5.16")
 
-	compileJava.dependsOn processResources
+        generatedOutput sourceSets.generated.output
+    }
 
-	task run {
-		dependsOn jar
-		doLast() { println ">>> Source Code Generated on \"${sourceGenDir.absolutePath}\"!"}
-	}
+    // Ensure assembled JAR includes generated and main compiled classes
+    jar {
+        from sourceSets.generated.output, sourceSets.main.output
+    }
 
+    // Custom Task Definitions
+
+    // Task to clean and prepare generated source location
+    task cleanGenerated {
+        doFirst {
+            FileUtils.forceMkdir sourceGenDir
+            FileUtils.cleanDirectory sourceGenDir
+        }
+    }
+
+    // Task to generate Java code from RAML 0.8 resources
+    task generateRaml08Resources {
+        doFirst {
+            def configs = new org.raml.jaxrs.codegen.core.Configuration()
+
+            configs.outputDirectory = sourceGenDir
+            configs.sourceDirectory = ramlDir
+            configs.setBasePackageName("net.syscon.elite.web.api");
+            configs.setJaxrsVersion(org.raml.jaxrs.codegen.core.Configuration.JaxrsVersion.JAXRS_2_0)
+            configs.setJsonMapper(org.jsonschema2pojo.AnnotationStyle.JACKSON2)
+            configs.setUseJsr303Annotations(false)
+            configs.jsonMapperConfiguration = new HashMap<>()
+            configs.jsonMapperConfiguration["useLongIntegers"] = "true"
+            configs.jsonMapperConfiguration["includeToString"] = "true"
+            configs.jsonMapperConfiguration["includeHashcodeAndEquals"] = "true"
+            configs.jsonMapperConfiguration["includeConstructors"] = "true"
+            configs.jsonMapperConfiguration["useCommonsLang3"] = "true"
+
+            def sourceGenerator = new org.raml.jaxrs.codegen.core.Generator()
+
+            try {
+                sourceGenerator.run(new FileReader(new File(ramlDir, "./api.raml")), configs, "")
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    // Task to generate Java code from RAML 1.0 resources
+    task generateRaml10Resources {
+        doFirst {
+            def config = new org.raml.jaxrs.generator.Configuration()
+
+            config.setModelPackage("net.syscon.elite2.api.model")
+            config.setResourcePackage("net.syscon.elite2.api.resource")
+            config.setSupportPackage("net.syscon.elite2.api.support")
+            config.setOutputDirectory(sourceGenDir)
+            config.setTypeConfiguration((String[]) ["jackson"])
+            config.setJsonMapper(org.jsonschema2pojo.AnnotationStyle.JACKSON2)
+
+            def mapperConfiguration = new HashMap<>()
+
+            mapperConfiguration["useLongIntegers"] = "true"
+            mapperConfiguration["includeToString"] = "true"
+            mapperConfiguration["includeHashcodeAndEquals"] = "true"
+            mapperConfiguration["includeConstructors"] = "true"
+            mapperConfiguration["useCommonsLang3"] = "true"
+            mapperConfiguration["includeJsr303Annotations"] = "true"
+
+            config.jsonMapperConfiguration = mapperConfiguration
+
+            def scanner = new org.raml.jaxrs.generator.RamlScanner(config)
+
+            try {
+                scanner.handle(raml10File)
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    // TODO: Enable checkstyle once rules reviewed and agreed (but don't enable for tests).
+    checkstyleMain.enabled = false
+    checkstyleGenerated.enabled = false
+    checkstyleTest.enabled = false
+    checkstyleIntegrationTest.enabled = false
+
+    // Task Dependencies
+
+    // Ensure generated sources are removed and re-generated before they are compiled
+    compileGeneratedJava.dependsOn cleanGenerated, generateRaml08Resources, generateRaml10Resources
+
+    // Ensure compilation of generated sources occurs before main compilation
+    compileJava.dependsOn compileGeneratedJava
+
+    // Ensure project JAR only created after both main and generated classes are processed
+    jar.dependsOn classes, generatedClasses
+
+    // Main Task Definition for project
+    task run {
+        doLast {
+            println ">>> Source Code Generated on \"${sourceGenDir.absolutePath}\"!"
+        }
+    }
+
+    run.dependsOn clean, jar
 }
-

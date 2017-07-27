@@ -1,98 +1,101 @@
-def sourceGenDir = file("${rootDir}/mobile-api/src/main/generated")
-
 project(":mobile-web") {
 
-	apply plugin: "org.springframework.boot"
-	apply plugin: 'net.serenity-bdd.aggregator'
+    apply plugin: "org.springframework.boot"
+    apply plugin: 'net.serenity-bdd.aggregator'
 
-	dependencies {
-
+    dependencies {
         compile project(":mobile-api")
+        compile project(path: ":mobile-api", configuration: "generatedOutput")
+
         compile files("${rootDir}/mobile-web/src/main/configs")
         compile files("${rootDir}/lib/ojdbc7-12.1.0.2.jar")
 
-		compile("org.springframework.boot:spring-boot-starter-web")
-		compile("org.springframework.boot:spring-boot-starter-aop")
-		compile('org.springframework.boot:spring-boot-starter-actuator')
-		compile("org.springframework.boot:spring-boot-starter-jdbc")
-		compile("org.springframework.boot:spring-boot-starter-jetty")
-		compile("org.springframework.boot:spring-boot-starter-security")
-		compile("org.springframework.boot:spring-boot-devtools")
-		compile("org.springframework.mobile:spring-mobile-device")
+        compile("org.springframework.boot:spring-boot-starter-web")
+        compile("org.springframework.boot:spring-boot-starter-aop")
+        compile('org.springframework.boot:spring-boot-starter-actuator')
+        compile("org.springframework.boot:spring-boot-starter-jersey")
+        compile("org.springframework.boot:spring-boot-starter-jdbc")
+        compile("org.springframework.boot:spring-boot-starter-security")
+        compile("org.springframework.boot:spring-boot-devtools")
+        compile("org.springframework.mobile:spring-mobile-device")
 
-		compile("io.jsonwebtoken:jjwt:${version_jjwt}")
-		compile("com.zaxxer:HikariCP:${version_hikaricp}")
+        compile("io.jsonwebtoken:jjwt:${version_jjwt}")
+        compile("com.zaxxer:HikariCP:${version_hikaricp}")
 
+        compile("io.swagger:swagger-jersey2-jaxrs:1.5.16")
+        compile("io.springfox:springfox-swagger-ui:2.7.0")
+        compile("io.springfox:springfox-swagger2:2.7.0")
 
-		testCompile("org.springframework.boot:spring-boot-starter-test")
-		testCompile("org.springframework.boot:spring-boot-test-autoconfigure")
-		testCompile("io.rest-assured:rest-assured:3.0.2")
-		testCompile("io.rest-assured:json-schema-validator:3.0.2")
-		testCompile("io.rest-assured:spring-mock-mvc:3.0.2")
-		testCompile("org.springframework.security:spring-security-test:4.2.2.RELEASE")
-		testCompile("com.google.code.gson:gson:2.8.0")
-		testCompile("org.assertj:assertj-core:3.5.2")
-		testCompile("org.flywaydb:flyway-core:4.2.0")
-		testRuntime('org.hsqldb:hsqldb:2.3.3')
+        testCompile("org.springframework.boot:spring-boot-starter-test")
+        testCompile("org.springframework.boot:spring-boot-test-autoconfigure")
+        testCompile("io.rest-assured:rest-assured:3.0.2")
+        testCompile("io.rest-assured:json-schema-validator:3.0.2")
+        testCompile("io.rest-assured:spring-mock-mvc:3.0.2")
+        testCompile("org.springframework.security:spring-security-test:4.2.2.RELEASE")
+        testCompile("com.google.code.gson:gson:2.8.0")
+        testCompile("org.assertj:assertj-core:3.5.2")
+        testCompile("org.flywaydb:flyway-core:4.2.0")
+        testRuntime('org.hsqldb:hsqldb:2.3.3')
 
-		testCompile 'com.tngtech.java:junit-dataprovider:1.12.0'
-		testCompile 'info.cukes:cucumber-spring:1.2.5'
-		testCompile 'net.serenity-bdd:serenity-core:1.1.42'
-		testCompile 'net.serenity-bdd:serenity-junit:1.1.42'
-		testCompile 'net.serenity-bdd:serenity-cucumber:1.0.17'
-	}
-	gradle.startParameter.continueOnFailure = true
+        testCompile 'com.tngtech.java:junit-dataprovider:1.12.0'
+        testCompile 'info.cukes:cucumber-spring:1.2.5'
+        testCompile 'net.serenity-bdd:serenity-core:1.1.42'
+        testCompile 'net.serenity-bdd:serenity-junit:1.1.42'
+        testCompile 'net.serenity-bdd:serenity-cucumber:1.0.17'
+    }
 
-	configurations {
-		integTestCompile.extendsFrom testCompile
-		integTestRuntime.extendsFrom testRuntime
-	}
+    gradle.startParameter.continueOnFailure = true
 
-	sourceSets {
-		main {
-			java {
-				srcDirs = ['src/main/java', sourceGenDir]
-			}
-			resources {
-				srcDirs = ['src/main/configs', 'src/main/resources']
-			}
-		}
+    configurations {
+        integTestCompile.extendsFrom testCompile
+        integTestRuntime.extendsFrom testRuntime
+    }
 
-		integTest {
-			java {
-				srcDir file("${rootDir}/mobile-web/src/integ-test/java")
-				compileClasspath += main.output + test.output
-				runtimeClasspath += main.output + test.output
-			}
-			resources.srcDir file("${rootDir}/mobile-web/src/integ-test/resources")
-		}
-	}
+    sourceSets {
+        main {
+            java {
+                srcDirs = ['src/main/java']
+            }
+            resources {
+                srcDirs = ['src/main/configs', 'src/main/resources']
+            }
+        }
 
-	task integTest(type: Test) {
-		testClassesDir = sourceSets.integTest.output.classesDir
-		classpath = sourceSets.integTest.runtimeClasspath
-	}
+        integTest {
+            java {
+                srcDir file("${rootDir}/mobile-web/src/integ-test/java")
+                compileClasspath += main.output + test.output
+                runtimeClasspath += main.output + test.output
+            }
+            resources.srcDir file("${rootDir}/mobile-web/src/integ-test/resources")
+        }
+    }
+
+    task integTest(type: Test) {
+        testClassesDir = sourceSets.integTest.output.classesDir
+        classpath = sourceSets.integTest.runtimeClasspath
+    }
 
     task testWithSchemaNomis(type:Test) {
-		def nomisEnvVars = ['api.db.target':'nomis', 'cucumber.options':'--tags @global,@nomis']
+        def nomisEnvVars = ['api.db.target':'nomis', 'cucumber.options':'--tags @global,@nomis']
 
         exclude "**/persistence/*"
         environment nomisEnvVars
     }
 
     task testWithSchemaElite(type:Test) {
-		def eliteEnvVars = ['api.db.target':'elite', 'cucumber.options':'--tags @global,@elite']
+        def eliteEnvVars = ['api.db.target':'elite', 'cucumber.options':'--tags @global,@elite']
 
         exclude "**/persistence/*"
-		environment eliteEnvVars
+        environment eliteEnvVars
     }
 
-	check.dependsOn integTest
+    check.dependsOn integTest
 
     integTest.mustRunAfter test
 
-	// TODO: Enable checkstyle once rules reviewed and agreed (but don't enable for tests).
-	checkstyleMain.enabled = false
+    // TODO: Enable checkstyle once rules reviewed and agreed (but don't enable for tests).
+    checkstyleMain.enabled = false
     checkstyleTest.enabled = false
     checkstyleIntegrationTest.enabled = false
     checkstyleIntegTest.enabled = false
@@ -104,59 +107,59 @@ project(":mobile-web") {
 
     test.dependsOn testWithSchemaElite, testWithSchemaNomis
 
-	compileJava.dependsOn processResources
+    compileJava.dependsOn processResources
 
-	def configsDir = file("${rootDir}/mobile-web/src/main/configs").absolutePath
-	processResources {
-		def devConfigsFile = file("${configsDir}/mobile-dev.yml")
-		if (!devConfigsFile.exists()) {
-			copy {
-				from(configsDir) { include "mobile-dev-SAMPLE.yml" }
-				into configsDir
-				rename { String fileName -> fileName.replace("mobile-dev-SAMPLE.yml", "mobile-dev.yml") }
-			}
-		}
+    def configsDir = file("${rootDir}/mobile-web/src/main/configs").absolutePath
 
-		def configFile = file("${rootDir}/mobile-web/src/main/resources/application.properties").absoluteFile
-		println "updating version to '${version}' in ${configFile}"
-		String configContent = configFile.getText('UTF-8')
-		configContent = configContent.replaceAll(/info\.app\.version=.*/, "info.app.version=${version}")
-		configFile.write(configContent, 'UTF-8')
-	}
+    processResources {
+        def devConfigsFile = file("${configsDir}/mobile-dev.yml")
 
-	def applicationMainClass = 'net.syscon.elite.MobileApiServer'
-	def dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        if (!devConfigsFile.exists()) {
+            copy {
+                from(configsDir) { include "mobile-dev-SAMPLE.yml" }
+                into configsDir
+                rename { String fileName -> fileName.replace("mobile-dev-SAMPLE.yml", "mobile-dev.yml") }
+            }
+        }
 
-	bootRepackage {
-		mainClass = applicationMainClass
-	}
+        def configFile = file("${rootDir}/mobile-web/src/main/resources/application.properties").absoluteFile
 
-	springBoot {
-		mainClass = applicationMainClass
-		buildInfo {
-			// Generate extra build info.
-			additionalProperties = [
-					by                   : System.properties['user.name'],
-					operatingSystem      : "${System.properties['os.name']} (${System.properties['os.version']})",
-					continuousIntegration: System.getenv('CI') ? true : false,
-					machine              : InetAddress.localHost.hostName,
-					time                 : dateFormat.format(new Date()),
-					name                 : 'elite2-api'
-			]
-		}
-		executable = true
-	}
+        println "updating version to '${version}' in ${configFile}"
+        String configContent = configFile.getText('UTF-8')
+        configContent = configContent.replaceAll(/info\.app\.version=.*/, "info.app.version=${version}")
+        configFile.write(configContent, 'UTF-8')
+    }
 
-	bootRun {
-		jvmArgs("-Dspring.profiles.active=dev")
-		addResources = true
-	}
+    def applicationMainClass = 'net.syscon.elite.MobileApiServer'
+    def dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
-	task run {
-		dependsOn bootRun
-		doLast() { println "Server ready for requests ..." }
-	}
+    bootRepackage {
+        mainClass = applicationMainClass
+    }
 
+    springBoot {
+        mainClass = applicationMainClass
+        buildInfo {
+            // Generate extra build info.
+            additionalProperties = [
+                    by                   : System.properties['user.name'],
+                    operatingSystem      : "${System.properties['os.name']} (${System.properties['os.version']})",
+                    continuousIntegration: System.getenv('CI') ? true : false,
+                    machine              : InetAddress.localHost.hostName,
+                    time                 : dateFormat.format(new Date()),
+                    name                 : 'elite2-api'
+            ]
+        }
+        executable = true
+    }
+
+    bootRun {
+        jvmArgs("-Dspring.profiles.active=dev")
+        addResources = true
+    }
+
+    task run {
+        dependsOn bootRun
+        doLast() { println "Server ready for requests ..." }
+    }
 }
-
-

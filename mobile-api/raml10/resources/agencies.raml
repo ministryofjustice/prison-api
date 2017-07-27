@@ -1,0 +1,10 @@
+description: Returns list of agencies associated with current user.
+type: { readOnlyCollection: { type: Agency } }
+
+/{agencyId}:
+  description: Returns specified agency.
+  type: { readOnlyItem: { type: Agency } }
+
+/{agencyId}/locations:
+  description: Returns list of locations associated with specified agency.
+  type: { readOnlyCollection: { type: Location } }

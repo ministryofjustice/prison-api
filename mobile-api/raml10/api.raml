@@ -1,0 +1,40 @@
+#%RAML 1.0
+title: Elite2 Public API
+baseUri: http://api.elite2.syscon.net/{version}
+version: v2
+mediaType: application/json
+securedBy: [jwt]
+types:
+  Agency:        !include types/Agency.raml
+  Location:      !include types/Location.raml
+  ErrorResponse: !include types/ErrorResponse.raml
+
+securitySchemes:
+  jwt:
+    description: Elite API uses Json Web Token (JWT) to authenticate most requests
+    type: x-jwt
+    describedBy:
+      headers:
+        Authorization:
+          description: Used to send a valid JWT. Do not use  query string parameter.
+          type: string
+          example: "Authorization: Bearer eyJpc3MiOiJzY290Y2guaW8iLCJleHAiOjEzMDA4MTkzODAsIm5hbWUiOiJDaHJpcyBTZXZpbGxlamEiLCJhZG1pbiI6dHJ1ZX0"
+
+  basic:
+    description: Each request must contain the headers necessary for basic authentication
+    type: Basic Authentication
+    describedBy:
+      headers:
+        Authorization:
+          description: Used to send the Base64-encoded "username:password" credentials
+          type: string
+      responses:
+        401:
+          description: |
+            Unauthorized. Either the provided username and password
+            combination is invalid, or the user is not allowed to access
+            the content provided by the requested URL.
+
+resourceTypes: !include resourceTypes/generic-resource-types.raml
+
+/agencies: !include resources/agencies.raml

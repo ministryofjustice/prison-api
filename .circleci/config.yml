@@ -21,7 +21,7 @@ jobs:
           path: mobile-api/raml/api.html
       - setup_remote_docker
       - run: |
-          API_VERSION=$(egrep -o "^\sversion\s=\s\"(.*)\"" build.gradle | awk -F"\"" '{print $2}')
+          API_VERSION=$(egrep -o "^\s+version\s=\s\"(.*)\"" build.gradle | awk -F"\"" '{print $2}')
           if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
             TAG=ELITE2_API_${API_VERSION}
           else
