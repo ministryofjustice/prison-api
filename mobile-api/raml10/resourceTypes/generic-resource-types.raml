@@ -1,0 +1,42 @@
+base:
+  get?:
+    responses: &standardResponses
+      200:
+        description: OK
+      400:
+        body:
+          application/json:
+            type: ErrorResponse
+            example: !include ../examples/ouput/400.sample.json
+      404:
+        body:
+          application/json:
+            type: ErrorResponse
+            example:  !include ../examples/ouput/404.sample.json
+      500:
+        body:
+          application/json:
+            type: ErrorResponse
+            example: !include ../examples/ouput/500.sample.json
+
+readOnlyItem:
+  type:
+    base:
+  get:
+    description: Get the specified <<resourcePathName | !singularize>>.
+    responses:
+      200:
+        body:
+          application/json:
+            type: <<type>>
+
+readOnlyCollection:
+  type:
+    base:
+  get:
+    description: Get all <<resourcePathName | !pluralize>>.
+    responses:
+      200:
+        body:
+          application/json:
+            <<type>>[]

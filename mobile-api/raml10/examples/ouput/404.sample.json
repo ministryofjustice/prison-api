@@ -1,0 +1,5 @@
+{
+  "code": 404,
+  "reason": "Resource not foundy",
+  "detail": "The resource could not be found or the user does not have authorization to view the data."
+}
