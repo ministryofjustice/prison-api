@@ -1,6 +1,7 @@
 package net.syscon.elite.web.api.resource.impl;
 
 
+import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.InmateSummaries;
@@ -8,19 +9,17 @@ import net.syscon.elite.web.api.model.Location;
 import net.syscon.elite.web.api.model.Locations;
 import net.syscon.elite.web.api.resource.LocationsResource;
 import net.syscon.util.MetaDataFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.inject.Inject;
+import javax.ws.rs.Path;
 import java.util.List;
 
 
-@Component
+@RestResource
+@Path("/locations")
 public class LocationsResourceImpl implements LocationsResource {
-
-	private final AgencyLocationService agencyLocationService;
-
-	@Inject
-	public LocationsResourceImpl(final AgencyLocationService agencyLocationService) { this.agencyLocationService = agencyLocationService; }
+	@Autowired
+	private AgencyLocationService agencyLocationService;
 
 	@Override
 	public GetLocationsResponse getLocations(final String query, final String orderBy, final Order order, final int offset, final int limit) throws Exception {
@@ -40,7 +39,4 @@ public class LocationsResourceImpl implements LocationsResource {
 		InmateSummaries inmateSummaries = new InmateSummaries(inmates, MetaDataFactory.createMetaData(limit, offset, inmates));
 		return GetLocationsByLocationIdInmatesResponse.withJsonOK(inmateSummaries);
 	}
-
-
-
 }

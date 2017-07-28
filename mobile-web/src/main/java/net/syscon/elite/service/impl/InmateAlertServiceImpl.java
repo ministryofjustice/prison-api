@@ -5,10 +5,10 @@ import net.syscon.elite.service.InmatesAlertService;
 import net.syscon.elite.web.api.model.Alert;
 import net.syscon.elite.web.api.resource.BookingResource.Order;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -16,14 +16,9 @@ import java.util.List;
 @Service
 @Transactional(readOnly = true)
 public class InmateAlertServiceImpl implements InmatesAlertService {
-	
-	private final InmateAlertRepository inmateAlertRepository;
+	@Autowired
+	private InmateAlertRepository inmateAlertRepository;
 	private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-	@Inject
-	public InmateAlertServiceImpl(InmateAlertRepository inmateAlertRepository) {
-		this.inmateAlertRepository = inmateAlertRepository;
-	}
 
 	@Override
 	public List<Alert> getInmateAlerts(String bookingId, final String query, final String orderByField, Order order, int offset,

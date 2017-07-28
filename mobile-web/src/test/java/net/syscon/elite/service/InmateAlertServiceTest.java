@@ -1,6 +1,5 @@
 package net.syscon.elite.service;
 
-
 import net.syscon.elite.persistence.InmateAlertRepository;
 import net.syscon.elite.service.impl.InmateAlertServiceImpl;
 import net.syscon.elite.web.api.model.Alert;
@@ -8,9 +7,9 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -25,16 +24,11 @@ import static org.mockito.Matchers.eq;
 @RunWith(MockitoJUnitRunner.class)
 public class InmateAlertServiceTest {
 
-    private InmatesAlertService serviceToTest;
-
     @Mock
     private InmateAlertRepository inmateAlertRepository;
 
-    @Before
-    public void setup() {
-        serviceToTest = new InmateAlertServiceImpl(inmateAlertRepository);
-    }
-
+    @InjectMocks
+    private InmatesAlertService serviceToTest = new InmateAlertServiceImpl();
 
     @Test
     public void testCorrectNumberAlertReturned() {

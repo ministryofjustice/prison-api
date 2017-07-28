@@ -7,11 +7,11 @@ import net.syscon.elite.web.api.model.CaseNote;
 import net.syscon.elite.web.api.model.NewCaseNote;
 import net.syscon.elite.web.api.resource.BookingResource.Order;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -27,13 +27,9 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
     private final static String AMEND_CASE_NOTE_FORMAT = "%s ...[%s updated the case notes on %s] %s";
 
-    private final CaseNoteRepository caseNoteRepository;
+    @Autowired
+    private CaseNoteRepository caseNoteRepository;
 
-	@Inject
-	public CaseNoteServiceImpl(final CaseNoteRepository caseNoteRepository) {
-		this.caseNoteRepository = caseNoteRepository;
-	}
-	
 	@Override
 	@Transactional(readOnly = true)
 	public List<CaseNote> getCaseNotes(final String bookingId, String query, final String orderBy, Order order, final int offset,

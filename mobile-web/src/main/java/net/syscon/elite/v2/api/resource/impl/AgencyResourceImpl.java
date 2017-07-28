@@ -1,16 +1,18 @@
 package net.syscon.elite.v2.api.resource.impl;
 
+import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.v2.api.model.Agency;
 import net.syscon.elite.v2.api.model.AgencyImpl;
 import net.syscon.elite.v2.api.resource.AgencyResource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
+import javax.ws.rs.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@RestResource
+@Path("/v2/agencies")
 public class AgencyResourceImpl implements AgencyResource {
 
     @Autowired

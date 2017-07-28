@@ -1,5 +1,6 @@
 package net.syscon.elite.web.api.resource.impl;
 
+import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.web.api.model.Agencies;
 import net.syscon.elite.web.api.model.Agency;
@@ -7,22 +8,19 @@ import net.syscon.elite.web.api.model.Location;
 import net.syscon.elite.web.api.model.Locations;
 import net.syscon.elite.web.api.resource.AgenciesResource;
 import net.syscon.util.MetaDataFactory;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.inject.Inject;
+import javax.ws.rs.Path;
 import java.util.List;
 
 import static net.syscon.elite.web.api.resource.LocationsResource.Order.asc;
 import static net.syscon.elite.web.api.resource.LocationsResource.Order.desc;
 
-@Component
+@RestResource
+@Path("/agencies")
 public class AgenciesResourceImpl implements AgenciesResource {
-	
-	private final AgencyLocationService agencyLocationService;
-
-	@Inject
-	public AgenciesResourceImpl(final AgencyLocationService agencyLocationService) { this.agencyLocationService = agencyLocationService; }
-
+	@Autowired
+	private AgencyLocationService agencyLocationService;
 
 	@Override
 	public GetAgenciesResponse getAgencies(final int offset, final int limit) throws Exception {
@@ -45,6 +43,4 @@ public class AgenciesResourceImpl implements AgenciesResource {
 		Locations locations = new Locations(result, MetaDataFactory.createMetaData(limit, offset, result));
 		return GetAgenciesByAgencyIdLocationsResponse.withJsonOK(locations);
 	}
-
 }
-

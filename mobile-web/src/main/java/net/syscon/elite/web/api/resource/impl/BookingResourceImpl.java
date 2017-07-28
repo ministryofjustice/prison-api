@@ -1,5 +1,6 @@
 package net.syscon.elite.web.api.resource.impl;
 
+import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.InmatesAlertService;
@@ -11,11 +12,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.stereotype.Component;
 
+import javax.ws.rs.Path;
 import java.util.List;
 
-@Component
+@RestResource
+@Path("/booking")
 public class BookingResourceImpl implements BookingResource {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
