@@ -5,13 +5,13 @@ import net.syscon.elite.security.UserDetailsImpl;
 import net.syscon.elite.security.UserSecurityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 
-import javax.inject.Inject;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -24,10 +24,10 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
 
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
-	@Inject
+	@Autowired
 	private TokenSettings tokenSettings;
 
-	@Inject
+	@Autowired
 	private TokenManagement tokenManagement;
 
 	@Value("${security.authentication.header:Authorization}")

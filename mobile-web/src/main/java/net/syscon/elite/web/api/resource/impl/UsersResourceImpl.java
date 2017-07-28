@@ -1,5 +1,6 @@
 package net.syscon.elite.web.api.resource.impl;
 
+import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.AssignmentService;
 import net.syscon.elite.service.AuthenticationService;
@@ -14,11 +15,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.stereotype.Component;
 
+import javax.ws.rs.Path;
 import java.util.List;
 
-@Component
+@RestResource
+@Path("/users")
 public class UsersResourceImpl implements UsersResource {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());

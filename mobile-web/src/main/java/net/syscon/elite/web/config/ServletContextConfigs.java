@@ -11,21 +11,17 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import org.springframework.web.cors.CorsConfiguration;
@@ -34,8 +30,6 @@ import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import java.util.Set;
 
 @Configuration
 @EnableWebMvc
@@ -56,34 +50,11 @@ public class ServletContextConfigs extends ResourceConfig {
     @Value("${api.package.ext}")
     private String apiPackageExt;
 
-    @Inject
+    @Autowired
     public void setEnv(ConfigurableEnvironment env) {
-        ClassPathScanningCandidateComponentProvider provider =
-                new ClassPathScanningCandidateComponentProvider(false);
-
-        provider.addIncludeFilter(new AnnotationTypeFilter(Component.class));
-        provider.addIncludeFilter(new AnnotationTypeFilter(Service.class));
-
-        Set<BeanDefinition> resources = provider.findCandidateComponents(apiPackage);
-        Set<BeanDefinition> extResources = provider.findCandidateComponents(apiPackageExt);
-
-        resources.addAll(extResources);
-
-        String thisClassName = getClass().getName();
-
-        for (BeanDefinition beanDef : resources) {
-            String beanClassName = beanDef.getBeanClassName();
-
-            if (!beanClassName.equals(thisClassName)) {
-                try {
-                    Class<?> clazz = Class.forName(beanDef.getBeanClassName());
-
-                    register(clazz);
-                } catch (Exception ex) {
-                    log.warn(ex.getMessage(), ex);
-                }
-            }
-        }
+        // Use package scanning to identify and register Jersey REST resources - the key to this working is to ensure
+        // that the concrete implementation classes include a @Path annotation (as this is how Jersey recognises them).
+        packages(apiPackage, apiPackageExt);
 
         String contextPath = env.getProperty("server.contextPath");
 

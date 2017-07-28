@@ -1,31 +1,27 @@
 package net.syscon.elite.web.api.resource.impl;
 
+import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.web.api.model.HttpStatus;
 import net.syscon.elite.web.api.model.ReferenceCode;
 import net.syscon.elite.web.api.model.ReferenceCodes;
 import net.syscon.elite.web.api.resource.ReferenceDomainsResource;
 import net.syscon.util.MetaDataFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
+import javax.ws.rs.Path;
 import java.util.List;
 
-@Component
+@RestResource
+@Path("/referenceDomains")
 public class ReferenceDomainsResourceImpl implements ReferenceDomainsResource {
-
-	private final ReferenceDomainService referenceDomainService;
-
-	@Inject
-	public ReferenceDomainsResourceImpl(final ReferenceDomainService referenceDomainService) {
-		this.referenceDomainService = referenceDomainService;
-	}
+	@Autowired
+	private ReferenceDomainService referenceDomainService;
 
 	private HttpStatus createHttpStatus(int httpStatusCode, String message) {
 		return new HttpStatus("" + httpStatusCode, "" + httpStatusCode, message, message, "");
 	}
-
 
 	@Override
 	public GetReferenceDomainsCaseNotesTypesByCaseLoadResponse getReferenceDomainsCaseNotesTypesByCaseLoad(final String caseLoad, final int offset, final int limit) throws Exception {
@@ -119,5 +115,4 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainsResource {
 			return GetReferenceDomainsCaseNoteTypesByTypeCodeSubTypesBySubTypeCodeResponse.withJsonNotFound(createHttpStatus(404, String.format("Case Note SubType with code: \"%s\" was not found", typeCode)));
 		}
 	}
-
 }

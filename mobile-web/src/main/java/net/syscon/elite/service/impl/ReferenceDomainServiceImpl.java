@@ -6,10 +6,10 @@ import net.syscon.elite.web.api.model.CaseNoteType;
 import net.syscon.elite.web.api.model.ReferenceCode;
 import net.syscon.elite.web.api.resource.ReferenceDomainsResource.Order;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
 import java.util.List;
 
 
@@ -19,12 +19,8 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 
 	private final static String DEFAULT_ACTIVE_FLAG_QUERY = "activeFlag:eq:'Y'";
 
-	private final ReferenceCodeRepository referenceCodeRepository;
-
-	@Inject
-	public ReferenceDomainServiceImpl(final ReferenceCodeRepository referenceCodeRepository) {
-		this.referenceCodeRepository = referenceCodeRepository;
-	}
+	@Autowired
+	private ReferenceCodeRepository referenceCodeRepository;
 
 	private String getDefaultOrderBy(String orderBy) {
 		return StringUtils.isEmpty(orderBy)? "code": orderBy;
@@ -108,5 +104,4 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 	public List<CaseNoteType> getCaseNoteSubType(String typeCode, String query, String orderBy, String order, int offset, int limit) {
 		return referenceCodeRepository.getCaseNoteSubType(typeCode, query, getDefaultOrderBy(orderBy), order, offset, limit);
 	}
-
 }

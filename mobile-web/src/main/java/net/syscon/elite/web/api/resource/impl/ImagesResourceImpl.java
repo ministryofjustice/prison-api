@@ -1,24 +1,21 @@
 package net.syscon.elite.web.api.resource.impl;
 
 
+import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.ImageService;
 import net.syscon.elite.web.api.model.HttpStatus;
 import net.syscon.elite.web.api.model.ImageDetails;
 import net.syscon.elite.web.api.resource.ImagesResource;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.inject.Inject;
+import javax.ws.rs.Path;
 import javax.ws.rs.core.StreamingOutput;
 
-@Component
+@RestResource
+@Path("/images")
 public class ImagesResourceImpl implements ImagesResource {
-
-	private final ImageService imageService;
-
-	@Inject
-	public ImagesResourceImpl(ImageService imageService) {
-		this.imageService = imageService;
-	}
+	@Autowired
+	private ImageService imageService;
 
 	@Override
 	public GetImagesByImageIdResponse getImagesByImageId(final String imageId) throws Exception {
@@ -39,4 +36,3 @@ public class ImagesResourceImpl implements ImagesResource {
 		}
 	}
 }
-
