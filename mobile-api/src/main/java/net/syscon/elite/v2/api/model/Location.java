@@ -1,78 +1,43 @@
 package net.syscon.elite.v2.api.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import java.lang.Integer;
-import java.lang.Object;
-import java.lang.String;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.Map;
 
+@ApiModel(description = "Location Details")
 @JsonDeserialize(
-    as = LocationImpl.class
+        as = LocationImpl.class
 )
 public interface Location {
-  Map<String, Object> getAdditionalProperties();
+    Map<String, Object> getAdditionalProperties();
 
-  void setAdditionalProperties(Map<String, Object> additionalProperties);
+    @ApiModelProperty(hidden = true)
+    void setAdditionalProperties(Map<String, Object> additionalProperties);
 
-  int getLocationId();
+    int getLocationId();
 
-  void setLocationId(int locationId);
+    @ApiModelProperty(value = "Unique identifier for location.", required = true, position = 1)
+    void setLocationId(int locationId);
 
-  String getAgencyId();
+    String getLocationType();
 
-  void setAgencyId(String agencyId);
+    @ApiModelProperty(value = "Location type.", required = true, position = 2)
+    void setLocationType(String locationType);
 
-  String getLocationType();
+    String getDescription();
 
-  void setLocationType(String locationType);
+    @ApiModelProperty(value = "Location description.", required = true, position = 3)
+    void setDescription(String description);
 
-  String getDescription();
+    int getParentLocationId();
 
-  void setDescription(String description);
+    @ApiModelProperty(value = "Identifier of this location's parent location.", position = 4)
+    void setParentLocationId(int parentLocationId);
 
-  int getParentLocationId();
+    int getCurrentOccupancy();
 
-  void setParentLocationId(int parentLocationId);
-
-  Integer getOperationalCapacity();
-
-  void setOperationalCapacity(Integer operationalCapacity);
-
-  int getCurrentOccupancy();
-
-  void setCurrentOccupancy(int currentOccupancy);
-
-  boolean getLivingUnit();
-
-  void setLivingUnit(boolean livingUnit);
-
-  String getHousingUnitType();
-
-  void setHousingUnitType(String housingUnitType);
-
-  ActiveCountStatusCodeType getActiveCountStatusCode();
-
-  void setActiveCountStatusCode(ActiveCountStatusCodeType activeCountStatusCode);
-
-  Integer getActiveCountId();
-
-  void setActiveCountId(Integer activeCountId);
-
-  enum ActiveCountStatusCodeType {
-    @JsonProperty("I")
-    I("I"),
-
-    @JsonProperty("R")
-    R("R"),
-
-    @JsonProperty("C")
-    C("C");
-
-    private String name;
-
-    ActiveCountStatusCodeType(String name) {
-      this.name = name;
-    }
-  }
+    @ApiModelProperty(value = "Current occupancy of location.", position = 5)
+    void setCurrentOccupancy(int currentOccupancy);
 }
