@@ -8,4 +8,4 @@ docker run -d --name elite2-api -h elite2-api \
    --restart=always \
    -p 7080:8080 \
    --env-file ./config_nomis_dev.env \
-   sysconjusticesystems/elite2-api
+   sysconjusticesystems/elite2-api:latest
