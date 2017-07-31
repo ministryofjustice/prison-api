@@ -21,14 +21,14 @@ public class AgencyResourceImpl implements AgencyResource {
     @Override
     public GetAgenciesResponse getAgencies(Long offset, Long limit) {
         final List<net.syscon.elite.web.api.model.Agency> agencies =
-                agencyLocationService.getAgencies(offset.intValue(), limit.intValue());
+                agencyLocationService.getAgencies(offset != null ? offset.intValue() : 0, limit != null ? limit.intValue() : 10);
 
         return GetAgenciesResponse.respond200WithApplicationJson(convertAgencies(agencies));
     }
 
     @Override
     public GetAgencyResponse getAgency(String agencyId) {
-        return GetAgencyResponse.respond200WithApplicationJson(new AgencyImpl());
+        return GetAgencyResponse.respond200WithApplicationJson(convertAgency(agencyLocationService.getAgency(agencyId)));
     }
 
     @Override

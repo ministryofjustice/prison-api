@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static net.syscon.elite.web.api.resource.BookingResource.Order.asc;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,8 +49,8 @@ public class InmateRepositoryTest {
 
     @Test
     public final void testGetOffender() {
-        final InmateDetails inmate = repository.findInmate(-1L);
-        assertThat(inmate).isNotNull();
+        final Optional<InmateDetails> inmate = repository.findInmate(-1L);
+        assertThat(inmate).isPresent();
     }
 
 }

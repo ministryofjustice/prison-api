@@ -1,5 +1,6 @@
 package net.syscon.elite.persistence;
 
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.web.api.model.ReferenceCode;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Test;
@@ -29,7 +30,7 @@ public class ReferenceCodeRepositoryTest {
 
     @Test
     public final void testGetAlertTypeByCode() {
-        final ReferenceCode alertTypeCodesByAlertCode = repository.getReferenceCodeByDomainAndCode("ALERT", "X");
+        final ReferenceCode alertTypeCodesByAlertCode = repository.getReferenceCodeByDomainAndCode("ALERT", "X").orElseThrow(new EntityNotFoundException("not found"));
         assertThat(alertTypeCodesByAlertCode).isNotNull();
     }
 

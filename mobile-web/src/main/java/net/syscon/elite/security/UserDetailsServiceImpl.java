@@ -1,6 +1,7 @@
 package net.syscon.elite.security;
 
 import net.syscon.elite.persistence.UserRepository;
+import net.syscon.elite.service.EntityNotFoundException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,12 +25,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-		final net.syscon.elite.web.api.model.UserDetails user = userRepository.findByUsername(username);
-
-		if (user == null) {
-			throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
-		}
-
+		final net.syscon.elite.web.api.model.UserDetails userDetails = userRepository.findByUsername(username).orElseThrow(new EntityNotFoundException(username));
 		List<String> roles = userRepository.findRolesByUsername(username);
 
 		Set<GrantedAuthority> authorities = roles.stream()
@@ -37,6 +33,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 				.map(name -> new SimpleGrantedAuthority(name.replace('-', '_')))
 				.collect(Collectors.toSet());
 
-		return new UserDetailsImpl(username, null, authorities, user.getAdditionalProperties());
+		return new UserDetailsImpl(username, null, authorities, userDetails.getAdditionalProperties());
 	}
 }

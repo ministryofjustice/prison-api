@@ -1,6 +1,7 @@
 package net.syscon.elite.service.impl;
 
 import net.syscon.elite.persistence.InmateAlertRepository;
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.InmatesAlertService;
 import net.syscon.elite.web.api.model.Alert;
 import net.syscon.elite.web.api.resource.BookingResource.Order;
@@ -44,7 +45,7 @@ public class InmateAlertServiceImpl implements InmatesAlertService {
 
 	@Override
 	public Alert getInmateAlert(String bookingId, String alertSeqId) {
-        final Alert alert = inmateAlertRepository.getInmateAlert(bookingId, alertSeqId);
+        final Alert alert = inmateAlertRepository.getInmateAlert(bookingId, alertSeqId).orElseThrow(new EntityNotFoundException(String.valueOf(alertSeqId)));
         alert.setExpired(isExpiredAlert(alert));
         return alert;
 	}

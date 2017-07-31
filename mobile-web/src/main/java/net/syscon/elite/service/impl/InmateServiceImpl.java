@@ -1,6 +1,7 @@
 package net.syscon.elite.service.impl;
 
 import net.syscon.elite.persistence.InmateRepository;
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.InmateService;
 import net.syscon.elite.web.api.model.Alias;
 import net.syscon.elite.web.api.model.AssignedInmate;
@@ -41,7 +42,7 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     public InmateDetails findInmate(Long inmateId) {
-        return repository.findInmate(inmateId);
+        return repository.findInmate(inmateId).orElseThrow(new EntityNotFoundException(String.valueOf(inmateId)));
     }
 
     @Override

@@ -8,11 +8,13 @@ import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.web.api.model.Location;
 import net.syscon.elite.web.api.resource.LocationsResource.Order;
 import net.syscon.util.IQueryBuilder;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class LocationRepositoryImpl extends RepositoryBase implements LocationRepository {
@@ -27,16 +29,18 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 		.put("NO_OF_OCCUPANT", 				new FieldMapper("currentOccupancy")).build();
 
 	@Override
-	public Location findLocation(Long locationId) {
+	public Optional<Location> findLocation(Long locationId) {
 		String sql = getQuery("FIND_LOCATION");
 
 		RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
 
-		return jdbcTemplate.queryForObject(
-				sql,
-				createParams("username", UserSecurityUtils.getCurrentUsername(),
-						"locationId", locationId),
-				locationRowMapper);
+		Location location;
+		try {
+			location = jdbcTemplate.queryForObject(sql,createParams("username", UserSecurityUtils.getCurrentUsername(), "locationId", locationId), locationRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			location = null;
+		}
+		return Optional.ofNullable(location);
 	}
 
 	@Override

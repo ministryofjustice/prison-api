@@ -1,6 +1,7 @@
 package net.syscon.elite.service.impl;
 
 import net.syscon.elite.persistence.ReferenceCodeRepository;
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.web.api.model.CaseNoteType;
 import net.syscon.elite.web.api.model.ReferenceCode;
@@ -47,7 +48,7 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 
 	@Override
 	public ReferenceCode getAlertTypeByCode(String alertType) {
-		return referenceCodeRepository.getReferenceCodeByDomainAndCode("ALERT", alertType);
+		return referenceCodeRepository.getReferenceCodeByDomainAndCode("ALERT", alertType).orElseThrow(new EntityNotFoundException(alertType));
 	}
 
 	@Override
@@ -57,12 +58,12 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 
 	@Override
 	public ReferenceCode getAlertTypeByParentAndCode(String alertType, String alertCode) {
-		return referenceCodeRepository.getReferenceCodeByDomainAndParentAndCode("ALERT_CODE", alertType, alertCode);
+		return referenceCodeRepository.getReferenceCodeByDomainAndParentAndCode("ALERT_CODE", alertType, alertCode).orElseThrow(new EntityNotFoundException(alertType+"/"+alertCode));
 	}
 
 	@Override
 	public ReferenceCode getCaseNoteType(String typeCode) {
-		return referenceCodeRepository.getReferenceCodeByDomainAndCode("TASK_TYPE", typeCode);
+		return referenceCodeRepository.getReferenceCodeByDomainAndCode("TASK_TYPE", typeCode).orElseThrow(new EntityNotFoundException(typeCode));
 	}
 
 	@Override
@@ -72,7 +73,7 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 
 	@Override
 	public ReferenceCode getCaseNoteSubType(String typeCode, String subTypeCode) {
-		return referenceCodeRepository.getReferenceCodeByDomainAndParentAndCode("TASK_SUBTYPE", typeCode, subTypeCode);
+		return referenceCodeRepository.getReferenceCodeByDomainAndParentAndCode("TASK_SUBTYPE", typeCode, subTypeCode).orElseThrow(new EntityNotFoundException(typeCode+"/"+subTypeCode));
 	}
 
 	@Override
@@ -87,7 +88,7 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 
 	@Override
 	public ReferenceCode getCaseNoteSource(String sourceCode) {
-		return referenceCodeRepository.getReferenceCodeByDomainAndCode("NOTE_SOURCE", sourceCode);
+		return referenceCodeRepository.getReferenceCodeByDomainAndCode("NOTE_SOURCE", sourceCode).orElseThrow(new EntityNotFoundException(sourceCode));
 	}
 
 	@Override

@@ -6,7 +6,6 @@ import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.InmatesAlertService;
 import net.syscon.elite.web.api.model.*;
 import net.syscon.elite.web.api.resource.BookingResource;
-import net.syscon.elite.web.api.resource.ResourceUtils;
 import net.syscon.util.MetaDataFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,14 +41,7 @@ public class BookingResourceImpl implements BookingResource {
 	@Override
 	public GetBookingByBookingIdResponse getBookingByBookingId(String bookingId) throws Exception {
 		InmateDetails inmate = inmateService.findInmate(Long.valueOf(bookingId));
-
-		if (inmate == null) {
-			HttpStatus httpStatus = ResourceUtils.handleNotFoundResponse(logger,"Inmate");
-
-			return GetBookingByBookingIdResponse.withJsonNotFound(httpStatus);
-		} else {
-			return GetBookingByBookingIdResponse.withJsonOK(inmate);
-		}
+		return GetBookingByBookingIdResponse.withJsonOK(inmate);
 	}
 	
 	@Override

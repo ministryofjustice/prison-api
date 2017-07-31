@@ -130,8 +130,8 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetails.findBookingDetails(Long.valueOf(bookingId));
     }
 
-    @Then("^http status \"([^\"]*)\" response is returned from booking details endpoint$")
-    public void httpStatusResponseIsReturned(String statusCode) throws Throwable {
+    @Then("^http status (\\d+) response is returned from booking details endpoint$")
+    public void httpStatusResponseIsReturned(int statusCode) throws Throwable {
         bookingDetails.verifyHttpStatusResponse(statusCode);
     }
 

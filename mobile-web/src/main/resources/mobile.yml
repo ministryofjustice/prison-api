@@ -4,10 +4,6 @@
 
 spring:
 
-  jackson:
-    serialization:
-      INDENT_OUTPUT: false
-
   datasource:
     continueOnError: true
     initialize: false

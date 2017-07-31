@@ -193,7 +193,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public InmateDetails findInmate(final Long bookingId) {
+	public Optional<InmateDetails> findInmate(final Long bookingId) {
 		String sql = getQuery("FIND_INMATE_DETAIL");
 		RowMapper<InmateDetails> inmateRowMapper = Row2BeanRowMapper.makeMapping(sql, InmateDetails.class, inmateDetailsMapping);
 
@@ -217,7 +217,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			inmate = null;
 		}
 
-		return inmate;
+		return Optional.ofNullable(inmate);
 	}
 
 	private List<String> findActiveAlertCodes(Long bookingId) {

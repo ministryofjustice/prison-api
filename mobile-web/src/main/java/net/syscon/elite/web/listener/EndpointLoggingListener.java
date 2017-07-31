@@ -1,10 +1,7 @@
 package net.syscon.elite.web.listener;
 
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
-
+import com.fasterxml.classmate.ResolvedType;
+import com.fasterxml.classmate.TypeResolver;
 import org.glassfish.jersey.server.model.Resource;
 import org.glassfish.jersey.server.model.ResourceMethod;
 import org.glassfish.jersey.server.model.ResourceModel;
@@ -15,8 +12,10 @@ import org.glassfish.jersey.server.monitoring.RequestEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.classmate.ResolvedType;
-import com.fasterxml.classmate.TypeResolver;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class EndpointLoggingListener implements ApplicationEventListener {
 
@@ -36,7 +35,7 @@ public class EndpointLoggingListener implements ApplicationEventListener {
 		if (event.getType() == ApplicationEvent.Type.INITIALIZATION_APP_FINISHED) {
 			final ResourceModel resourceModel = event.getResourceModel();
 			final ResourceLogDetails logDetails = new ResourceLogDetails();
-			resourceModel.getResources().stream().forEach(resource ->
+			resourceModel.getResources().forEach(resource ->
 				logDetails.addEndpointLogLines(getLinesFromResource(resource))
 			);
 			logDetails.log();
@@ -72,10 +71,7 @@ public class EndpointLoggingListener implements ApplicationEventListener {
 		if (!withOptions && "OPTIONS".equalsIgnoreCase(method.getHttpMethod())) {
 			return false;
 		}
-		if (!withWadl && basePath.contains(".wadl")) {
-			return false;
-		}
-		return true;
+		return withWadl || !basePath.contains(".wadl");
 	}
 
 	private void populate(final String path, final boolean isLocator, final Resource resource, final Set<EndpointLogLine> endpointLogLines) {
@@ -136,7 +132,7 @@ public class EndpointLoggingListener implements ApplicationEventListener {
 		private final Set<EndpointLogLine> logLines = new TreeSet<>(COMPARATOR);
 		private void log() {
 			final StringBuilder sb = new StringBuilder("\nAll endpoints for Jersey application\n");
-			logLines.stream().forEach(line -> sb.append(line).append("\n"));
+			logLines.forEach(line -> sb.append(line).append("\n"));
 			logger.info(sb.toString());
 		}
 		private void addEndpointLogLines(final Set<EndpointLogLine> logLines) {
