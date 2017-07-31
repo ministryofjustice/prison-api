@@ -20,4 +20,4 @@ Feature: Users and Staff
 
   Scenario: Find staff member using staff id that does not exist
     When a staff member search is made using staff id "9999999999"
-    Then http status "404" response is returned
+    Then http status 404 response is returned

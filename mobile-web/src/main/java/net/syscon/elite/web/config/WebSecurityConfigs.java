@@ -10,7 +10,6 @@ import net.syscon.elite.security.jwt.TokenSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -25,7 +24,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@Import({PersistenceConfigs.class, ServiceConfigs.class})
 public class WebSecurityConfigs extends WebSecurityConfigurerAdapter {
 
 	@Autowired

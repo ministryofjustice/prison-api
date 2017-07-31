@@ -73,8 +73,8 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.verifyStaffEmail(email);
     }
 
-    @Then("^http status \"([^\"]*)\" response is returned$")
-    public void httpStatusResponseIsReturned(String statusCode) throws Throwable {
+    @Then("^http status (\\d+) response is returned$")
+    public void httpStatusResponseIsReturned(int statusCode) throws Throwable {
         user.verifyHttpStatusResponse(statusCode);
     }
 }

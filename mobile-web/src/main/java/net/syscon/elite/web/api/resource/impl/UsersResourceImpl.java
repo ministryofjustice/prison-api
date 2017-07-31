@@ -7,7 +7,6 @@ import net.syscon.elite.service.AuthenticationService;
 import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.UserService;
 import net.syscon.elite.web.api.model.*;
-import net.syscon.elite.web.api.resource.ResourceUtils;
 import net.syscon.elite.web.api.resource.UsersResource;
 import net.syscon.util.MetaDataFactory;
 import org.slf4j.Logger;
@@ -40,27 +39,13 @@ public class UsersResourceImpl implements UsersResource {
 	@Override
 	public GetUsersByUsernameResponse getUsersByUsername(String username) throws Exception {
         UserDetails userDetails = userService.getUserByUsername(username.toUpperCase());
-
-        if (userDetails == null) {
-            HttpStatus httpStatus = ResourceUtils.handleNotFoundResponse(logger,"User");
-
-            return GetUsersByUsernameResponse.withJsonNotFound(httpStatus);
-        } else {
-			return GetUsersByUsernameResponse.withJsonOK(userDetails);
-		}
+		return GetUsersByUsernameResponse.withJsonOK(userDetails);
 	}
 
     @Override
     public GetUsersStaffByStaffIdResponse getUsersStaffByStaffId(String staffId) {
         StaffDetails staffDetails = userService.getUserByStaffId(Long.valueOf(staffId));
-
-        if (staffDetails == null) {
-            HttpStatus httpStatus = ResourceUtils.handleNotFoundResponse(logger, "Staff");
-
-            return GetUsersStaffByStaffIdResponse.withJsonNotFound(httpStatus);
-        } else {
-            return GetUsersStaffByStaffIdResponse.withJsonOK(staffDetails);
-        }
+		return GetUsersStaffByStaffIdResponse.withJsonOK(staffDetails);
     }
 
     @Override

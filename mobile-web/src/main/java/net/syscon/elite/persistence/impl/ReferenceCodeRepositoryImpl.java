@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 @Repository
@@ -38,24 +39,24 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 
 
 	@Override
-	public ReferenceCode getReferenceCodeByDomainAndCode(String domain, String code) {
+	public Optional<ReferenceCode> getReferenceCodeByDomainAndCode(String domain, String code) {
 		final String sql = getQuery("FIND_REFERENCE_CODE_BY_DOMAIN_CODE");
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
 		try {
-			return jdbcTemplate.queryForObject(sql, createParams("domain", domain, "code", code), referenceCodeRowMapper);
+			return Optional.ofNullable(jdbcTemplate.queryForObject(sql, createParams("domain", domain, "code", code), referenceCodeRowMapper));
 		} catch (EmptyResultDataAccessException e) {
-			return null;
+			return Optional.empty();
 		}
 	}
 
 	@Override
-	public ReferenceCode getReferenceCodeByDomainAndParentAndCode(String domain, String parentCode, String code) {
+	public Optional<ReferenceCode> getReferenceCodeByDomainAndParentAndCode(String domain, String parentCode, String code) {
 		final String sql = getQuery("FIND_REFERENCE_CODE_BY_DOMAIN_PARENT_CODE");
 		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
         try {
-            return jdbcTemplate.queryForObject(sql, createParams("domain", domain, "parentCode", parentCode, "code", code), referenceCodeRowMapper);
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, createParams("domain", domain, "parentCode", parentCode, "code", code), referenceCodeRowMapper));
         } catch (EmptyResultDataAccessException e) {
-            return null;
+            return Optional.empty();
         }
 	}
 

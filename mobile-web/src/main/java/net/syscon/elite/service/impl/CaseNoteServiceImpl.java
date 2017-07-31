@@ -3,6 +3,7 @@ package net.syscon.elite.service.impl;
 import net.syscon.elite.persistence.CaseNoteRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.CaseNoteService;
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.web.api.model.CaseNote;
 import net.syscon.elite.web.api.model.NewCaseNote;
 import net.syscon.elite.web.api.resource.BookingResource.Order;
@@ -45,21 +46,21 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	@Override
 	@Transactional(readOnly = true)
 	public CaseNote getCaseNote(final String bookingId, final long caseNoteId) {
-		return caseNoteRepository.getCaseNote(bookingId, caseNoteId);
+		return caseNoteRepository.getCaseNote(bookingId, caseNoteId).orElseThrow(new EntityNotFoundException(String.valueOf(caseNoteId)));
 	}
 
 	@Override
 	public CaseNote createCaseNote(final String bookingId, final NewCaseNote caseNote) {
 		//TODO: First - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
         final Long caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote, caseNoteSource);
-        return caseNoteRepository.getCaseNote(bookingId, caseNoteId);
+        return getCaseNote(bookingId, caseNoteId);
 
 	}
 
 	@Override
 	public CaseNote updateCaseNote(final String bookingId, final long caseNoteId, final String newCaseNoteText) {
 
-        final CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId);
+        final CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId).orElseThrow(new EntityNotFoundException(String.valueOf(caseNoteId)));
         final String amendedText = format(AMEND_CASE_NOTE_FORMAT,
                 caseNote.getText(),
                 UserSecurityUtils.getCurrentUsername(),
@@ -67,7 +68,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
                 newCaseNoteText);
 
         caseNoteRepository.updateCaseNote(bookingId, caseNoteId, amendedText, UserSecurityUtils.getCurrentUsername());
-        return caseNoteRepository.getCaseNote(bookingId, caseNoteId);
+        return getCaseNote(bookingId, caseNoteId);
 	}
 
 }

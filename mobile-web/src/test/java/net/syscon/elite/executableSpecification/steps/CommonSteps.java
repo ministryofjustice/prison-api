@@ -7,11 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 
 /**
  * Common BDD step implementations
@@ -28,6 +28,7 @@ public abstract class CommonSteps {
     private List<?> resources;
     private PageMetaData pageMetaData;
     private Map<String, Object> additionalProperties = new HashMap<>();
+    private ResponseEntity receievedResponse;
 
     @Step("Verify number of resource records returned")
     public void verifyResourceRecordsReturned(long expectedCount) {
@@ -50,8 +51,8 @@ public abstract class CommonSteps {
     }
 
     @Step("Verify HTTP status response")
-    public void verifyHttpStatusResponse(String statusCode) {
-        assertThat(additionalProperties).contains(entry("code", statusCode));
+    public void verifyHttpStatusResponse(int statusCode) {
+        assertThat(receievedResponse.getStatusCode().value()).isEqualTo(statusCode);
     }
 
     protected void setResourceMetaData(List<?> resources, PageMetaData pageMetaData) {
@@ -61,6 +62,10 @@ public abstract class CommonSteps {
 
     protected void setAdditionalResponseProperties(Map<String, Object> additionalProperties) {
         this.additionalProperties.putAll(additionalProperties);
+    }
+
+    protected void setReceivedResponse(ResponseEntity receievedResponse) {
+        this.receievedResponse = receievedResponse;
     }
 
     protected HttpEntity createEntity() {

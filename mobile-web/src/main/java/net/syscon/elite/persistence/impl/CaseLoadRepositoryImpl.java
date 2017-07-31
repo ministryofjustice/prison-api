@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRepository {
@@ -21,10 +22,17 @@ public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRe
 		.put("DESCRIPTION", 			new FieldMapper("description")).build();
 
 	@Override
-	public CaseLoad find(final String caseLoadId) {
+	public Optional<CaseLoad> find(final String caseLoadId) {
 		final String sql = getQuery("FIND_CASE_LOAD_BY_ID");
 		final RowMapper<CaseLoad> caseLoadRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseLoad.class, caseLoadMapping);
-		return jdbcTemplate.queryForObject(sql, createParams("caseLoadId", caseLoadId), caseLoadRowMapper);
+
+		CaseLoad caseload;
+		try {
+			caseload = jdbcTemplate.queryForObject(sql, createParams("caseLoadId", caseLoadId), caseLoadRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			caseload = null;
+		}
+		return Optional.ofNullable(caseload);
 	}
 	
 	@Override

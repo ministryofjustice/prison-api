@@ -1,5 +1,6 @@
 package net.syscon.elite.persistence;
 
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.web.api.model.StaffDetails;
 import net.syscon.elite.web.api.model.UserDetails;
 import net.syscon.elite.web.config.PersistenceConfigs;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -32,27 +34,23 @@ public class UserRepositoryTest {
 
     @Test
     public final void testFindUserByUsername() {
-        UserDetails user = repository.findByUsername("ITAG_USER");
+        UserDetails user = repository.findByUsername("ITAG_USER").orElseThrow(new EntityNotFoundException("not found"));
 
-        assertThat(user).isNotNull();
         assertThat(user.getLastName()).isEqualTo("USER");
         assertThat(user.getEmail()).isEqualTo("itaguser@syscon.net");
     }
 
     @Test
     public final void testFindUserByUsernameNotExists() {
-        UserDetails user = repository.findByUsername("XXXXXXXX");
-
-        assertThat(user).isNull();
+        Optional<UserDetails> user = repository.findByUsername("XXXXXXXX");
+        assertThat(user).isNotPresent();
     }
 
     @Test
     public final void testFindUserByStaffId() {
-        UserDetails user = repository.findByUsername("ELITE2_API_USER");
+        UserDetails user = repository.findByUsername("ELITE2_API_USER").orElseThrow(new EntityNotFoundException("not found"));
 
-        assertThat(user).isNotNull();
-
-        StaffDetails staffDetails = repository.findByStaffId(user.getStaffId());
+        final StaffDetails staffDetails = repository.findByStaffId(user.getStaffId()).orElseThrow(new EntityNotFoundException("not found"));
 
         assertThat(staffDetails.getFirstName()).isEqualTo("ELITE2");
         assertThat(staffDetails.getEmail()).isEqualTo("elite2-api-user@syscon.net");
@@ -60,7 +58,7 @@ public class UserRepositoryTest {
 
     @Test
     public final void testFindUserByStaffIdNotExists() {
-        StaffDetails staffDetails = repository.findByStaffId(9999999999L);
+        Optional<StaffDetails> staffDetails = repository.findByStaffId(9999999999L);
 
         assertThat(staffDetails).isNull();
     }

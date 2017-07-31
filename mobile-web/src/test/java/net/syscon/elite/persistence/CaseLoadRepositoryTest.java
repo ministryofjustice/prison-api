@@ -1,5 +1,6 @@
 package net.syscon.elite.persistence;
 
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.web.api.model.CaseLoad;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
@@ -39,7 +40,7 @@ public class CaseLoadRepositoryTest {
 
     @Test
     public final void testFindCaseload() {
-        final CaseLoad caseload = repository.find("LEI");
+        final CaseLoad caseload = repository.find("LEI").orElseThrow(new EntityNotFoundException("not found"));
         assertThat(caseload).isNotNull();
         assertThat(caseload.getDescription()).isEqualTo("LEEDS (HMP)");
     }

@@ -1,28 +1,28 @@
 package net.syscon.elite.web.config;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import net.syscon.elite.v2.api.resource.impl.AgencyResourceImpl;
 import net.syscon.elite.v2.api.resource.impl.UserResourceImpl;
 import net.syscon.elite.web.api.resource.impl.*;
+import net.syscon.elite.web.handler.ResourceExceptionHandler;
 import net.syscon.elite.web.listener.EndpointLoggingListener;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -34,20 +34,17 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.annotation.PostConstruct;
 
+import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
+
 @Configuration
 @EnableWebMvc
 @EnableScheduling
 @EnableCaching
 @EnableAsync
-@Import({PersistenceConfigs.class, WebSecurityConfigs.class, ServiceConfigs.class, AopConfigs.class})
 public class ServletContextConfigs extends ResourceConfig {
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Value("${spring.jersey.application-path:/}")
     private String apiPath;
-
-
 
     @Autowired
     public void setEnv(ConfigurableEnvironment env) {
@@ -60,6 +57,7 @@ public class ServletContextConfigs extends ResourceConfig {
         register(ReferenceDomainsResourceImpl.class);
         register(UsersResourceImpl.class);
 
+        register(ResourceExceptionHandler.class);
         // v2 Endpoints
         register(AgencyResourceImpl.class);
         register(UserResourceImpl.class);
@@ -71,15 +69,13 @@ public class ServletContextConfigs extends ResourceConfig {
         register(LoggingFeature.class);
     }
 
-    @Bean
-    public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
-        ObjectMapper mapper = new ObjectMapper();
-
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-
-        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter(mapper);
-
-        return converter;
+    @Autowired
+    public ServletContextConfigs(ObjectMapper objectMapper) {
+        objectMapper.setDateFormat(new ISO8601DateFormat());
+        objectMapper.disable(SerializationFeature.INDENT_OUTPUT);
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        objectMapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
     }
 
     @Bean
@@ -138,5 +134,10 @@ public class ServletContextConfigs extends ResourceConfig {
         config.setResourcePackage("net.syscon.elite.v2.api");
         config.setPrettyPrint(true);
         config.setScan(true);
+    }
+
+    @Bean
+    Logger getLogger() {
+        return org.slf4j.LoggerFactory.getLogger("net.syscon.elite");
     }
 }

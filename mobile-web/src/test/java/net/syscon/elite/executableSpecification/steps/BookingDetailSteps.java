@@ -30,6 +30,7 @@ public class BookingDetailSteps extends CommonSteps {
 
         if (response.getStatusCode() != HttpStatus.OK) {
             setAdditionalResponseProperties(inmateDetails.getAdditionalProperties());
+            setReceivedResponse(response);
         }
     }
 

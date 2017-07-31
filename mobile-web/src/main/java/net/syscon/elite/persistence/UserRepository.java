@@ -5,12 +5,13 @@ import net.syscon.elite.web.api.model.StaffDetails;
 import net.syscon.elite.web.api.model.UserDetails;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserRepository {
 
-	StaffDetails findByStaffId(Long staffId);
+	Optional<StaffDetails> findByStaffId(Long staffId);
 
-	UserDetails findByUsername(String username);
+	Optional<UserDetails> findByUsername(String username);
 
 	List<String> findRolesByUsername(String username);
 

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Repository
 public class UserRepositoryImpl extends RepositoryBase implements UserRepository {
@@ -35,12 +36,11 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
 
 	@Override
-	public UserDetails findByUsername(final String username) {
+	public Optional<UserDetails> findByUsername(final String username) {
 		String sql = getQuery("FIND_USER_BY_USERNAME");
 		RowMapper<UserDetails> userRowMapper = Row2BeanRowMapper.makeMapping(sql, UserDetails.class, userMapping);
 
 		UserDetails userDetails;
-
 		try {
 			userDetails = jdbcTemplate.queryForObject(
 					sql,
@@ -49,12 +49,11 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 		} catch (final EmptyResultDataAccessException ex) {
 			userDetails = null;
 		}
-
-		return userDetails;
+		return Optional.ofNullable(userDetails);
 	}
 
 	@Override
-	public StaffDetails findByStaffId(Long staffId) {
+	public Optional<StaffDetails> findByStaffId(Long staffId) {
 		String sql = getQuery("FIND_USER_BY_STAFF_ID");
 		RowMapper<StaffDetails> staffRowMapper = Row2BeanRowMapper.makeMapping(sql, StaffDetails.class, staffMapping);
 
@@ -69,7 +68,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 			staffDetails = null;
 		}
 
-		return staffDetails;
+		return Optional.ofNullable(staffDetails);
 	}
 
 	@Override

@@ -50,6 +50,7 @@ public class UserSteps extends CommonSteps {
 
         if (response.getStatusCode() != HttpStatus.OK) {
             setAdditionalResponseProperties(staffDetails.getAdditionalProperties());
+            setReceivedResponse(response);
         }
     }
 

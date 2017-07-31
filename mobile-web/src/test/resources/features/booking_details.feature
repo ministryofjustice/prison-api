@@ -19,4 +19,4 @@ Feature: Booking Details
 
   Scenario: Request for specific offender booking record that does not exist
     When an offender booking request is made with booking id "9999999999"
-    Then http status "404" response is returned from booking details endpoint
+    Then http status 404 response is returned from booking details endpoint
