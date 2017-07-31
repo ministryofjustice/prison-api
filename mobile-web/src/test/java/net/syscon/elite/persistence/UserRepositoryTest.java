@@ -60,7 +60,7 @@ public class UserRepositoryTest {
     public final void testFindUserByStaffIdNotExists() {
         Optional<StaffDetails> staffDetails = repository.findByStaffId(9999999999L);
 
-        assertThat(staffDetails).isNull();
+        assertThat(staffDetails).isNotPresent();
     }
 
     @Test
