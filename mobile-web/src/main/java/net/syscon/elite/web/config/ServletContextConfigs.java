@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
+import net.syscon.elite.v2.api.resource.impl.AgencyResourceImpl;
+import net.syscon.elite.v2.api.resource.impl.UserResourceImpl;
+import net.syscon.elite.web.api.resource.impl.*;
 import net.syscon.elite.web.listener.EndpointLoggingListener;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -44,17 +47,22 @@ public class ServletContextConfigs extends ResourceConfig {
     @Value("${spring.jersey.application-path:/}")
     private String apiPath;
 
-    @Value("${api.package}")
-    private String apiPackage;
 
-    @Value("${api.package.ext}")
-    private String apiPackageExt;
 
     @Autowired
     public void setEnv(ConfigurableEnvironment env) {
         // Use package scanning to identify and register Jersey REST resources - the key to this working is to ensure
         // that the concrete implementation classes include a @Path annotation (as this is how Jersey recognises them).
-        packages(apiPackage, apiPackageExt);
+        register(AgenciesResourceImpl.class);
+        register(BookingResourceImpl.class);
+        register(ImagesResourceImpl.class);
+        register(LocationsResourceImpl.class);
+        register(ReferenceDomainsResourceImpl.class);
+        register(UsersResourceImpl.class);
+
+        // v2 Endpoints
+        register(AgencyResourceImpl.class);
+        register(UserResourceImpl.class);
 
         String contextPath = env.getProperty("server.contextPath");
 
