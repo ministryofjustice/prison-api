@@ -44,7 +44,6 @@ project(":mobile-api") {
             // Exclude 'net.syscon.elite2' package as not yet generated correctly
             java {
                 srcDir 'src/generated/java'
-                exclude '**/elite2/**'
             }
         }
     }
@@ -142,7 +141,7 @@ project(":mobile-api") {
     // Task Dependencies
 
     // Ensure generated sources are removed and re-generated before they are compiled
-    compileGeneratedJava.dependsOn cleanGenerated, generateRaml08Resources, generateRaml10Resources
+    compileGeneratedJava.dependsOn cleanGenerated, generateRaml08Resources
 
     // Ensure compilation of generated sources occurs before main compilation
     compileJava.dependsOn compileGeneratedJava
