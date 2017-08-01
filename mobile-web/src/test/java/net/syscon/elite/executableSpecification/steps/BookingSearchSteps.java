@@ -122,6 +122,14 @@ public class BookingSearchSteps extends CommonSteps {
         verifyIdentical(queriedImageIds, expectedIds);
     }
 
+    @Step("Verify dobs returned by search")
+    public void verifyDobs(String dobs) {
+        List<String> queriedDobs = extractDobs();
+        List<String> expectedDobs = csv2list(dobs);
+
+        verifyIdentical(queriedDobs, expectedDobs);
+    }
+
     private void dispatchQuery(String query) {
         init();
 
@@ -216,6 +224,14 @@ public class BookingSearchSteps extends CommonSteps {
                 .map(AssignedInmate::getFacialImageId)
                 .filter(Objects::nonNull)
                 .map(imageId -> Long.toString(imageId))
+                .collect(Collectors.toList());
+    }
+
+    private List<String> extractDobs() {
+        return inmateSummaries.getInmatesSummaries()
+                .stream()
+                .map(AssignedInmate::getDateOfBirth)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
