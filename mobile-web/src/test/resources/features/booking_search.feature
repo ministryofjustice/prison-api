@@ -24,15 +24,16 @@ Feature: Booking Search
     And offender middle names match "<middle name list>"
     And living unit descriptions match "<living unit list>"
     And image id match "<image ids>"
+    And their dob match "<DOB>"
 
     Examples:
-      | name     | number | first name list | middle name list | living unit list    |  image ids   |
-      | ANDERSON | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5 | -1,-2        |
-      | DUCK     | 1      | DONALD          |                  | LEI-A-1-10          | -6           |
-      | anderson | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5 | -1,-2        |
-      | AnDersOn | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5 | -1,-2        |
-      | UNKNOWN  | 0      |                 |                  |                     |              |
-      |          | 0      |                 |                  |                     |              |
+      | name     | number | first name list | middle name list | living unit list    |  image ids   | DOB                   |
+      | ANDERSON | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5 | -1,-2        | 1969-12-30,1998-08-28 |
+      | DUCK     | 1      | DONALD          |                  | LEI-A-1-10          | -6           | 1956-02-28            |
+      | anderson | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5 | -1,-2        | 1969-12-30,1998-08-28 |
+      | AnDersOn | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5 | -1,-2        | 1969-12-30,1998-08-28 |
+      | UNKNOWN  | 0      |                 |                  |                     |              |                       |
+      |          | 0      |                 |                  |                     |              |                       |
 
   Scenario Outline: Search based on partial offender last name
     When a booking search is made with partial last "<name>" of existing offender

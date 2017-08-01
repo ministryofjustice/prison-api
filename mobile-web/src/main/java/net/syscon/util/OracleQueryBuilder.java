@@ -49,6 +49,9 @@ public class OracleQueryBuilder extends AbstractQueryBuilder {
 				result = new StringBuilder(removeSpecialCharacters(result.toString()));
 			}
 
+			if (dialect == DatabaseDialect.HSQLDB) {
+				result = new StringBuilder(StringUtils.replaceAll(result.toString(), "WM_CONCAT", "GROUP_CONCAT"));
+			}
 		} else {
 			return initialSQL;
 		}

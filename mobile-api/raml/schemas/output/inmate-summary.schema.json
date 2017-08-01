@@ -9,13 +9,16 @@
 	"firstName": { "type": "string" },
 	"middleName": { "type": "string" },
 	"lastName": { "type": "string" },
+    "dateOfBirth":  { "type": "string" },
+    "age":   { "type": "integer" },
 	"alertsCodes": { "type": "array", "items": { "type": "string" } },
 	"agencyId": { "type": "string" },
 	"currentLocationId": { "type": "integer" },
 	"assignedLivingUnitId": { "type": "integer" },
     "assignedLivingUnitDesc": { "type": "string" },
 	"facialImageId": { "type": "integer" },
-	"assignedOfficerUserId": { "type": "string"}
+	"assignedOfficerUserId": { "type": "string"},
+    "aliases": { "type": "array", "items": { "type": "string" } }
   },
-  "required": ["inmateId", "bookingId", "offenderId", "firstName", "lastName", "agencyId", "currentLocationId"]
+  "required": ["inmateId", "bookingId", "offenderId", "firstName", "lastName", "dateOfBirth", "agencyId", "currentLocationId"]
 }
