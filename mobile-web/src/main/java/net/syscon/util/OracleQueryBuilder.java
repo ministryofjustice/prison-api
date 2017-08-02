@@ -60,13 +60,15 @@ public class OracleQueryBuilder extends AbstractQueryBuilder {
 	}
 
 	private void buildPaginationSql(StringBuilder result) {
-		if (dialect == DatabaseDialect.ORACLE_12) {
-			result.append("\nOFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY");
-		} else {
-			if (dialect != DatabaseDialect.HSQLDB) {
-				result.insert(0, "SELECT * FROM ("+ ROW_NUM_SQL);
-				result.append(OFFSET_LIMIT_SQL);
+		if (dialect != DatabaseDialect.ORACLE_11) {
+			if (dialect == DatabaseDialect.POSTGRES) {
+				result.append("\nOFFSET (:offset) ROWS FETCH NEXT (:limit) ROWS ONLY");
+			} else {
+				result.append("\nOFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY");
 			}
+		} else {
+			result.insert(0, "SELECT * FROM ("+ ROW_NUM_SQL);
+			result.append(OFFSET_LIMIT_SQL);
 		}
 	}
 
@@ -83,13 +85,11 @@ public class OracleQueryBuilder extends AbstractQueryBuilder {
 	private void buildAnsiDataCountSql(StringBuilder result) {
 		if (dialect == DatabaseDialect.HSQLDB) {
             final String criteria = QueryUtil.getCriteriaFromQuery(initialSQL);
-            final StringBuilder rowCountStr = new StringBuilder(String.format(COUNT_SELECT, criteria));
+			result.insert(0, String.format(COUNT_SELECT, criteria));
 
-            if (includePagination) {
-                rowCountStr.append(ROW_NUM_SQL);
-                result.append(OFFSET_LIMIT_SQL);
-            }
-            result.insert(0, rowCountStr.toString());
-        }
+			if (includePagination) {
+				result.append(")");
+			}
+		}
 	}
 }

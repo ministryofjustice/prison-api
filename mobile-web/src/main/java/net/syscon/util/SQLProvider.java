@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,16 +34,18 @@ public class SQLProvider {
     }
 
     public void loadSql(final String className) {
-        loadSql(applicationContext, "classpath:sqls/" + className + ".sql");
-        if (StringUtils.isNotBlank(schemaType)) {
-            loadSql(applicationContext, "classpath:sqls/" + schemaType + "/"  + className + ".sql");
+        loadSqlResource("classpath:sqls/" + className + ".sql");
+        final String[] schemas = StringUtils.split(schemaType, ",");
+        if (schemas != null) {
+            Arrays.asList(schemas).forEach(schema -> loadSqlResource("classpath:sqls/" + schema + "/"  + className + ".sql"));
         }
     }
 
-    private void loadSql(ApplicationContext applicationContext, String resourcePath) {
+    private void loadSqlResource(String resourcePath) {
         final Resource resource = applicationContext.getResource(resourcePath);
         if (resource.exists()) {
             try {
+                log.debug("Loading resource {}", resourcePath);
                 loadFromStream(resource.getInputStream());
             } catch (final IOException ex) {
                 log.error(ex.getMessage(), ex);

@@ -1,0 +1,28 @@
+CREATE TABLE OFFENDER_ALERTS
+(
+  ALERT_DATE                    DATE              DEFAULT now(),
+  OFFENDER_BOOK_ID              DECIMAL(10, 0),
+  ROOT_OFFENDER_ID              DECIMAL(10, 0),
+  ALERT_SEQ                     DECIMAL(6, 0),
+  ALERT_TYPE                    VARCHAR(12),
+  ALERT_CODE                    VARCHAR(12),
+  AUTHORIZE_PERSON_TEXT         VARCHAR(40),
+  CREATE_DATE                   DATE,
+  ALERT_STATUS                  VARCHAR(12),
+  VERIFIED_FLAG                 VARCHAR(1)  DEFAULT 'N',
+  EXPIRY_DATE                   DATE,
+  COMMENT_TEXT                  VARCHAR(1000),
+  CASELOAD_ID                   VARCHAR(6),
+  MODIFY_USER_ID                VARCHAR(32),
+  MODIFY_DATETIME               TIMESTAMP(6),
+  CASELOAD_TYPE                 VARCHAR(12),
+  CREATE_DATETIME               TIMESTAMP(6)      DEFAULT now(),
+  CREATE_USER_ID                VARCHAR(32) DEFAULT USER,
+  AUDIT_TIMESTAMP               TIMESTAMP(6),
+  AUDIT_USER_ID                 VARCHAR(32),
+  AUDIT_MODULE_NAME             VARCHAR(65),
+  AUDIT_CLIENT_USER_ID          VARCHAR(64),
+  AUDIT_CLIENT_IP_ADDRESS       VARCHAR(39),
+  AUDIT_CLIENT_WORKSTATION_NAME VARCHAR(64),
+  AUDIT_ADDITIONAL_INFO         VARCHAR(256)
+);

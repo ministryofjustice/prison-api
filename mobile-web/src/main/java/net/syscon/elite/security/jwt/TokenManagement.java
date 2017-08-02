@@ -11,11 +11,12 @@ import net.syscon.elite.web.api.model.Token;
 import net.syscon.util.DateTimeConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Date;
+
 
 public class TokenManagement {
 
@@ -25,18 +26,21 @@ public class TokenManagement {
 	private static final String ALLOW_REFRESH_TOKEN = "allowRefreshToken";
 	private static final String USER_PRINCIPAL = "userPrincipal";
 
-	@Autowired
-	private TokenSettings settings;
+	private final TokenSettings settings;
+	private final boolean upperCaseUsername;
 
+	public TokenManagement(TokenSettings settings, 	@Value("${token.username.stored.caps:true}") boolean upperCaseUsername) {
+		this.settings = settings;
+		this.upperCaseUsername = upperCaseUsername;
+	}
 
 	public Token createToken(String username) {
 		UserDetailsImpl userDetails = new UserDetailsImpl(username, null, Collections.emptyList(), null);
-
 		return createToken(userDetails);
 	}
 
 	public Token createToken(UserDetailsImpl userDetails) {
-		final String usernameToken = userDetails.getUsername().toUpperCase();
+		final String usernameToken = upperCaseUsername ? userDetails.getUsername().toUpperCase() : userDetails.getUsername();
 		final Claims claims = Jwts.claims().setSubject(usernameToken);
 		final int deviceFingerprintHashCode = DeviceFingerprint.get().hashCode();
 
@@ -112,8 +116,8 @@ public class TokenManagement {
 
 		final Integer deviceFingerprintHashCode = (Integer) claims.get(DEVICE_FINGERPRINT_HASH_CODE);
 
-		if (valid && deviceFingerprint != null && deviceFingerprintHashCode != null) {
-			valid = deviceFingerprint.hashCode() == deviceFingerprintHashCode.intValue();
+		if (valid && deviceFingerprintHashCode != null) {
+			valid = deviceFingerprint.hashCode() == deviceFingerprintHashCode;
 		}
 
 		final Date expiration = claims.getExpiration();
