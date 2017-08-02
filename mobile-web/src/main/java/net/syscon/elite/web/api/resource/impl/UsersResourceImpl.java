@@ -9,9 +9,8 @@ import net.syscon.elite.service.UserService;
 import net.syscon.elite.web.api.model.*;
 import net.syscon.elite.web.api.resource.UsersResource;
 import net.syscon.util.MetaDataFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 
@@ -21,8 +20,6 @@ import java.util.List;
 @RestResource
 @Path("/users")
 public class UsersResourceImpl implements UsersResource {
-
-	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	private AssignmentService assignmentService;
@@ -36,9 +33,12 @@ public class UsersResourceImpl implements UsersResource {
 	@Autowired
 	private UserService userService;
 
+	@Value("${token.username.stored.caps:true}")
+	private boolean upperCaseUsername;
+
 	@Override
 	public GetUsersByUsernameResponse getUsersByUsername(String username) throws Exception {
-        UserDetails userDetails = userService.getUserByUsername(username.toUpperCase());
+        UserDetails userDetails = userService.getUserByUsername(upperCaseUsername ? username.toUpperCase() : username);
 		return GetUsersByUsernameResponse.withJsonOK(userDetails);
 	}
 

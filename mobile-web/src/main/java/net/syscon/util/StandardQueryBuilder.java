@@ -68,7 +68,7 @@ public class StandardQueryBuilder extends AbstractQueryBuilder {
 			} else {
 				parsedQuery += extraOrderBy;
 			}
-			if (dialect == DatabaseDialect.HSQLDB) {
+			if (dialect == DatabaseDialect.HSQLDB || dialect == DatabaseDialect.POSTGRES) {
 				parsedQuery = StringUtils.replaceAll(parsedQuery, "WM_CONCAT", "GROUP_CONCAT");
 			}
 		} else {

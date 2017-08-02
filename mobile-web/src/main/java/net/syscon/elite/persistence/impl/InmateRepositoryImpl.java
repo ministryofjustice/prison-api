@@ -163,36 +163,31 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	private List<PhysicalMark> findPhysicalMarks(final Long bookingId) {
 		final String sql = getQuery("FIND_PHYSICAL_MARKS_BY_BOOKING");
 		final RowMapper<PhysicalMark> physicalMarkRowMapper = Row2BeanRowMapper.makeMapping(sql, PhysicalMark.class, physicalMarkMapping);
-		final List<PhysicalMark> physicalMarks = jdbcTemplate.query(sql, createParams("bookingId", bookingId, "caseLoadId", getCurrentCaseLoad()), physicalMarkRowMapper);
-		return physicalMarks;
+		return jdbcTemplate.query(sql, createParams("bookingId", bookingId, "caseLoadId", getCurrentCaseLoad()), physicalMarkRowMapper);
 	}
 
 	private List<PhysicalCharacteristic> findPhysicalCharacteristics(final Long bookingId) {
 		final String sql = getQuery("FIND_PHYSICAL_CHARACTERISTICS_BY_BOOKING");
 		final RowMapper<PhysicalCharacteristic> physicalCharacteristicsRowMapper = Row2BeanRowMapper.makeMapping(sql, PhysicalCharacteristic.class, physicalCharacteristicsMapping);
-		final List<PhysicalCharacteristic> physicalCharacteristics = jdbcTemplate.query(sql, createParams("bookingId", bookingId, "caseLoadId", getCurrentCaseLoad()), physicalCharacteristicsRowMapper);
-		return physicalCharacteristics;
+		return jdbcTemplate.query(sql, createParams("bookingId", bookingId, "caseLoadId", getCurrentCaseLoad()), physicalCharacteristicsRowMapper);
 	}
 
 	private PhysicalAttributes findPhysicalAttributes(final Long bookingId) {
 		final String sql = getQuery("FIND_PHYSICAL_ATTRIBUTES_BY_BOOKING");
 		final RowMapper<PhysicalAttributes> physicalAttributesRowMapper = Row2BeanRowMapper.makeMapping(sql, PhysicalAttributes.class, physicalAttributesMapping);
-		final PhysicalAttributes physicalAttributes = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "caseLoadId", getCurrentCaseLoad()), physicalAttributesRowMapper);
-		return physicalAttributes;
+		return jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "caseLoadId", getCurrentCaseLoad()), physicalAttributesRowMapper);
 	}
 
 	private List<Assessment> findAssessments(final long bookingId) {
 		final String sql = getQuery("FIND_ACTIVE_APPROVED_ASSESSMENT");
 		final RowMapper<Assessment> assessmentAttributesRowMapper = Row2BeanRowMapper.makeMapping(sql, Assessment.class, assessmentMapping);
-		final List<Assessment> assessments = jdbcTemplate.query(sql, createParams("bookingId", bookingId, "caseLoadId", getCurrentCaseLoad()), assessmentAttributesRowMapper);
-		return assessments;
+		return jdbcTemplate.query(sql, createParams("bookingId", bookingId, "caseLoadId", getCurrentCaseLoad()), assessmentAttributesRowMapper);
 	}
 
 	private AssignedLivingUnit findAssignedLivingUnit(final long bookingId) {
 		final String sql = getQuery("FIND_ASSIGNED_LIVING_UNIT");
 		final RowMapper<AssignedLivingUnit> assignedLivingUnitRowMapper = Row2BeanRowMapper.makeMapping(sql, AssignedLivingUnit.class, assignedLivingUnitMapping);
-		final AssignedLivingUnit assignedLivingUnit = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId), assignedLivingUnitRowMapper);
-		return assignedLivingUnit;
+		return jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId), assignedLivingUnitRowMapper);
 	}
 
 	@Override

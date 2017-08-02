@@ -27,9 +27,12 @@ public class ApiAuthenticationProvider extends DaoAuthenticationProvider {
     @Value("${spring.datasource.url}")
     private String jdbcUrl;
 
+    @Value("${token.username.stored.caps:true}")
+    private boolean upperCaseUsername;
+
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        String username = authentication.getName().toUpperCase();
+        String username = upperCaseUsername ? authentication.getName().toUpperCase() : authentication.getName();
         String password = authentication.getCredentials().toString();
 
         try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {

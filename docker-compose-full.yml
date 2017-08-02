@@ -1,5 +1,19 @@
 version: '3.1'
 services:
+  elite2-web:
+    image: sysconjusticesystems/elite2-web:latest
+    networks:
+      - nomis-network
+    container_name: elite2-web
+    depends_on:
+      - elite2-api
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - API_ENDPOINT_URL=http://elite2-api:8080/api/
+      - USE_API_GATEWAY_AUTH=no
+
   elite2-api:
     image: sysconjusticesystems/elite2-api:latest
     networks:
@@ -21,10 +35,15 @@ services:
     networks:
       - nomis-network
     hostname: "db"
+    volumes:
+      - dbdata:/dbdata
     environment:
       - POSTGRES_USER=oms_owner
       - POSTGRES_PASSWORD=oms_owner
+      - PGDATA=/dbdata
     ports:
       - "5432:5432"
 networks:
   nomis-network:
+volumes:
+  dbdata: {}

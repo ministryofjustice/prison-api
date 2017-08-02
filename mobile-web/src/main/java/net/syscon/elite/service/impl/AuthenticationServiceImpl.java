@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -33,6 +34,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     private TokenSettings tokenSettings;
 
+    @Value("${token.username.stored.caps:true}")
+    private boolean upperCaseUsername;
+
     @Override
     public Token getAuthenticationToken(String credentials, AuthLogin authLogin) {
         Token token;
@@ -41,7 +45,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String password = null;
 
         if (authLogin != null) {
-            username = authLogin.getUsername().toUpperCase();
+            username = upperCaseUsername ? authLogin.getUsername().toUpperCase() : authLogin.getUsername();
             password = authLogin.getPassword();
         } else if (credentials != null) {
             int index = credentials.indexOf(TokenSettings.BASIC_AUTHENTICATION);

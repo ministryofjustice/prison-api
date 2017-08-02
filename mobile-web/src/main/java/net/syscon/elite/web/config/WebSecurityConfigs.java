@@ -8,6 +8,7 @@ import net.syscon.elite.security.jwt.AuthenticationTokenFilter;
 import net.syscon.elite.security.jwt.TokenManagement;
 import net.syscon.elite.security.jwt.TokenSettings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -55,8 +56,8 @@ public class WebSecurityConfigs extends WebSecurityConfigurerAdapter {
 	}
 
 	@Bean
-	public TokenManagement tokenManagement() {
-		return new TokenManagement();
+	public TokenManagement tokenManagement(TokenSettings settings, 	@Value("${token.username.stored.caps:true}") boolean upperCaseUsername) {
+		return new TokenManagement(settings, upperCaseUsername);
 	}
 
 	@Bean
