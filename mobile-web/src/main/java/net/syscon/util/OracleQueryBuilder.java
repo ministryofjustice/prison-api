@@ -33,7 +33,7 @@ public class OracleQueryBuilder extends AbstractQueryBuilder {
 				result.append("WHERE ").append(extraWhere);
 			}
 
-			String strOrderBy = (StringUtils.isBlank(extraOrderBy)) ? "" : (SQLKeyword.ORDER_BY + " " + extraOrderBy);
+			String strOrderBy = (StringUtils.isBlank(extraOrderBy)) ? " " : " " + (SQLKeyword.ORDER_BY + " " + extraOrderBy);
 
 			result.append(strOrderBy);
 

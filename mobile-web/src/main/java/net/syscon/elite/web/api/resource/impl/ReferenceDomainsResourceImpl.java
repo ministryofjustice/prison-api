@@ -2,13 +2,11 @@ package net.syscon.elite.web.api.resource.impl;
 
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.ReferenceDomainService;
-import net.syscon.elite.web.api.model.HttpStatus;
 import net.syscon.elite.web.api.model.ReferenceCode;
 import net.syscon.elite.web.api.model.ReferenceCodes;
 import net.syscon.elite.web.api.resource.ReferenceDomainsResource;
 import net.syscon.util.MetaDataFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 
 import javax.ws.rs.Path;
 import java.util.List;
@@ -16,19 +14,9 @@ import java.util.List;
 @RestResource
 @Path("/referenceDomains")
 public class ReferenceDomainsResourceImpl implements ReferenceDomainsResource {
+
 	@Autowired
 	private ReferenceDomainService referenceDomainService;
-
-	private HttpStatus createHttpStatus(int httpStatusCode, String message) {
-		return new HttpStatus("" + httpStatusCode, "" + httpStatusCode, message, message, "");
-	}
-
-	@Override
-	public GetReferenceDomainsCaseNotesTypesByCaseLoadResponse getReferenceDomainsCaseNotesTypesByCaseLoad(final String caseLoad, final int offset, final int limit) throws Exception {
-		List<ReferenceCode> referenceCodeList = this.referenceDomainService.getCaseNoteTypesByCaseLoad(caseLoad, offset, limit);
-		ReferenceCodes referenceCodes = new ReferenceCodes(referenceCodeList, MetaDataFactory.createMetaData(limit, offset, referenceCodeList));
-		return GetReferenceDomainsCaseNotesTypesByCaseLoadResponse.withJsonOK(referenceCodes);
-	}
 
 	@Override
 	public GetReferenceDomainsCaseNotesSubTypesByCaseNoteTypeResponse getReferenceDomainsCaseNotesSubTypesByCaseNoteType(final String caseNoteType, final int offset, final int limit) throws Exception {
@@ -46,12 +34,8 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainsResource {
 
 	@Override
 	public GetReferenceDomainsCaseNoteSourcesBySourceCodeResponse getReferenceDomainsCaseNoteSourcesBySourceCode(String sourceCode) throws Exception {
-		try {
-			ReferenceCode referenceCode = this.referenceDomainService.getCaseNoteSource(sourceCode);
-			return GetReferenceDomainsCaseNoteSourcesBySourceCodeResponse.withJsonOK(referenceCode);
-		} catch (DataAccessException ex) {
-			return GetReferenceDomainsCaseNoteSourcesBySourceCodeResponse.withJsonNotFound(createHttpStatus(404, String.format("Case Note Source with code: \"%s\" was not found", sourceCode)));
-		}
+		ReferenceCode referenceCode = this.referenceDomainService.getCaseNoteSource(sourceCode);
+		return GetReferenceDomainsCaseNoteSourcesBySourceCodeResponse.withJsonOK(referenceCode);
 	}
 
 	@Override
@@ -81,8 +65,7 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainsResource {
 		return GetReferenceDomainsAlertTypesByAlertTypeCodesByAlertCodeResponse.withJsonOK(referenceCode);
 	}
 
-
-	@Override
+    @Override
 	public GetReferenceDomainsCaseNoteTypesResponse getReferenceDomainsCaseNoteTypes(String query, String orderBy, Order order, int offset, int limit) throws Exception {
 		List<ReferenceCode> referenceCodeList = this.referenceDomainService.getCaseNoteTypes(query, orderBy, order, offset, limit);
 		ReferenceCodes referenceCodes = new ReferenceCodes(referenceCodeList, MetaDataFactory.createMetaData(limit, offset, referenceCodeList));
@@ -91,12 +74,8 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainsResource {
 
 	@Override
 	public GetReferenceDomainsCaseNoteTypesByTypeCodeResponse getReferenceDomainsCaseNoteTypesByTypeCode(String typeCode) throws Exception {
-		try {
-			ReferenceCode referenceCode = this.referenceDomainService.getCaseNoteType(typeCode);
-			return GetReferenceDomainsCaseNoteTypesByTypeCodeResponse.withJsonOK(referenceCode);
-		} catch (DataAccessException ex) {
-			return GetReferenceDomainsCaseNoteTypesByTypeCodeResponse.withJsonNotFound(createHttpStatus(404, String.format("Case Note Type with code: \"%s\" was not found", typeCode)));
-		}
+        ReferenceCode referenceCode = this.referenceDomainService.getCaseNoteType(typeCode);
+        return GetReferenceDomainsCaseNoteTypesByTypeCodeResponse.withJsonOK(referenceCode);
 	}
 
 	@Override
@@ -108,11 +87,7 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainsResource {
 
 	@Override
 	public GetReferenceDomainsCaseNoteTypesByTypeCodeSubTypesBySubTypeCodeResponse getReferenceDomainsCaseNoteTypesByTypeCodeSubTypesBySubTypeCode(String typeCode, String subTypeCode) throws Exception {
-		try {
-			ReferenceCode referenceCode = referenceDomainService.getCaseNoteSubType(typeCode, subTypeCode);
-			return GetReferenceDomainsCaseNoteTypesByTypeCodeSubTypesBySubTypeCodeResponse.withJsonOK(referenceCode);
-		} catch (DataAccessException ex) {
-			return GetReferenceDomainsCaseNoteTypesByTypeCodeSubTypesBySubTypeCodeResponse.withJsonNotFound(createHttpStatus(404, String.format("Case Note SubType with code: \"%s\" was not found", typeCode)));
-		}
+        ReferenceCode referenceCode = referenceDomainService.getCaseNoteSubType(typeCode, subTypeCode);
+        return GetReferenceDomainsCaseNoteTypesByTypeCodeSubTypesBySubTypeCodeResponse.withJsonOK(referenceCode);
 	}
 }
