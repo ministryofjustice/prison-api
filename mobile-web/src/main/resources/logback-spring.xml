@@ -6,7 +6,7 @@
     <springProperty scope="context" name="appName" source="info.app.name"/>
     <springProperty scope="context" name="appVersion" source="info.app.version"/>
 
-    <springProfile name="logtoconsole">
+    <springProfile name="!logstash">
         <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
             <layout class="ch.qos.logback.classic.PatternLayout">
                 <Pattern>${CONSOLE_LOG_PATTERN}</Pattern>
@@ -14,7 +14,7 @@
         </appender>
     </springProfile>
 
-    <springProfile name="!logtoconsole">
+    <springProfile name="logstash">
         <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
             <encoder class="net.logstash.logback.encoder.LogstashEncoder">
                 <includeCallerInfo>true</includeCallerInfo>

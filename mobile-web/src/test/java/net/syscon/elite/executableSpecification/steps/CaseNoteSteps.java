@@ -52,17 +52,17 @@ public class CaseNoteSteps extends CommonSteps {
 
     @Step("Create case note")
     public CaseNote createCaseNote(CaseNote newCaseNote) {
-        Long caseNoteId = dispatchCreateRequest(6000L, newCaseNote);
+        Long caseNoteId = dispatchCreateRequest(-1L, newCaseNote);
 
-        dispatchGetRequest(6000L, caseNoteId);
+        dispatchGetRequest(-1L, caseNoteId);
 
         return caseNote;
     }
 
     @Step("Update case note")
     public CaseNote updateCaseNote(Long caseNoteId, UpdateCaseNote updatedCaseNote) {
-        dispatchUpdateRequest(6000L, caseNoteId, updatedCaseNote);
-        dispatchGetRequest(6000L, caseNoteId);
+        dispatchUpdateRequest(-1L, caseNoteId, updatedCaseNote);
+        dispatchGetRequest(-1L, caseNoteId);
 
         return caseNote;
     }

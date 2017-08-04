@@ -14,8 +14,8 @@ Feature: Booking Details
 
     Examples:
       | bookingId | bookingNo | assignedOfficerId |
-      | -1        | A00111    | -3                |
-      | -8        | A00118    |                   |
+      | -1        | A00111    | -2                |
+      | -8        | A00118    | -2                |
 
   Scenario: Request for specific offender booking record that does not exist
     When an offender booking request is made with booking id "9999999999"

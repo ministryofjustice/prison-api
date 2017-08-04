@@ -31,7 +31,7 @@ public class UserSteps extends CommonSteps {
 
         UserDetails userDetails = response.getBody();
 
-        assertThat(userDetails).hasFieldOrPropertyWithValue("username", username);
+        assertThat(userDetails.getUsername()).isEqualToIgnoringCase(username);
         assertThat(userDetails).hasFieldOrPropertyWithValue("firstName", firstName);
         assertThat(userDetails).hasFieldOrPropertyWithValue("lastName", lastName);
     }
