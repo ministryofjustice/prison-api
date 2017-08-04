@@ -22,9 +22,17 @@
         </appender>
     </springProfile>
 
-    <logger name="net.syscon" additivity="false" level="DEBUG">
-        <appender-ref ref="consoleAppender"/>
-    </logger>
+    <springProfile name="dev">
+        <logger name="net.syscon" additivity="false" level="DEBUG">
+            <appender-ref ref="consoleAppender"/>
+        </logger>
+    </springProfile>
+
+    <springProfile name="!dev">
+        <logger name="net.syscon" additivity="false" level="INFO">
+            <appender-ref ref="consoleAppender"/>
+        </logger>
+    </springProfile>
 
     <logger name="org.springframework" additivity="false" level="INFO" >
         <appender-ref ref="consoleAppender"/>
