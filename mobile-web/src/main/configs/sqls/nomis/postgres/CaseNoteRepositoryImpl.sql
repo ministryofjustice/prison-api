@@ -12,12 +12,12 @@ INSERT_CASE_NOTE {
 	      CREATE_USER_ID,
 	      NOTE_SOURCE_CODE
 	  ) VALUES (
-	      :bookingID,
+	      :bookingId,
 	      :contactDate,
 	      :contactTime,
 	      :type,
 	      :subType,
-	      (SELECT STAFF_ID FROM STAFF_USER_ACCOUNTS WHERE USERNAME = :user_Id),
+	      (SELECT STAFF_ID FROM STAFF_USER_ACCOUNTS WHERE USERNAME = :userId),
 	      :text,
 	      :createDate,
 	      :createTime,

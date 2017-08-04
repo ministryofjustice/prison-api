@@ -33,12 +33,12 @@ INSERT_CASE_NOTE {
 	      NOTE_SOURCE_CODE
 	  ) VALUES (
 	      CASE_NOTE_ID.NEXTVAL,
-	      :bookingID,
+	      :bookingId,
 	      :contactDate,
 	      :contactTime,
 	      :type,
 	      :subType,
-	      (SELECT  STAFF_ID FROM STAFF_MEMBERS WHERE USER_ID = :user_Id),
+	      (SELECT  STAFF_ID FROM STAFF_MEMBERS WHERE USER_ID = :userId),
 	      :text,
 	      :createDate,
 	      :createTime,

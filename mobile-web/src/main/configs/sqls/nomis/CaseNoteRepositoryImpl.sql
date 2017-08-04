@@ -14,12 +14,12 @@ INSERT INTO OFFENDER_CASE_NOTES (
 	NOTE_SOURCE_CODE
 ) VALUES (
 	CASE_NOTE_ID.NEXTVAL,
-	:bookingID,
+	:bookingId,
 	:contactDate,
 	:contactTime,
 	:type,
 	:subType,
-	(SELECT STAFF_ID FROM STAFF_USER_ACCOUNTS WHERE USERNAME = :user_Id),
+	(SELECT STAFF_ID FROM STAFF_USER_ACCOUNTS WHERE USERNAME = :userId),
 	:text,
 	:createDate,
 	:createTime,
