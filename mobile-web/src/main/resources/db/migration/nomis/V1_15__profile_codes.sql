@@ -1,0 +1,23 @@
+CREATE TABLE PROFILE_CODES
+(
+  PROFILE_TYPE                  VARCHAR(12),
+  PROFILE_CODE                  VARCHAR(12),
+  DESCRIPTION                   VARCHAR(40),
+  LIST_SEQ                      DECIMAL(6, 0),
+  UPDATE_ALLOWED_FLAG           VARCHAR(1)  DEFAULT 'Y',
+  ACTIVE_FLAG                   VARCHAR(1)  DEFAULT 'Y',
+  EXPIRY_DATE                   DATE,
+  USER_ID                       VARCHAR(32),
+  MODIFIED_DATE                 DATE,
+  CREATE_DATETIME               TIMESTAMP(6)      DEFAULT now(),
+  CREATE_USER_ID                VARCHAR(32) DEFAULT USER,
+  MODIFY_DATETIME               TIMESTAMP(6),
+  MODIFY_USER_ID                VARCHAR(32),
+  AUDIT_TIMESTAMP               TIMESTAMP(6),
+  AUDIT_USER_ID                 VARCHAR(32),
+  AUDIT_MODULE_NAME             VARCHAR(65),
+  AUDIT_CLIENT_USER_ID          VARCHAR(64),
+  AUDIT_CLIENT_IP_ADDRESS       VARCHAR(39),
+  AUDIT_CLIENT_WORKSTATION_NAME VARCHAR(64),
+  AUDIT_ADDITIONAL_INFO         VARCHAR(256)
+);

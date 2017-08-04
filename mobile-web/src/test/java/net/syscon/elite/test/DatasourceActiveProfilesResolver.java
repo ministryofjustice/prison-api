@@ -15,6 +15,6 @@ public class DatasourceActiveProfilesResolver implements ActiveProfilesResolver 
 
         Objects.requireNonNull(datasourceProfile, "'api.db.target' environment variable must be specified.");
 
-        return new String[] {"noproxy", datasourceProfile};
+        return new String[] {"noproxy", datasourceProfile, datasourceProfile + "-hsqldb"};
     }
 }

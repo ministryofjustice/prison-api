@@ -37,11 +37,6 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 	}
 
 	@Override
-	public List<ReferenceCode> getCaseNoteTypesByCaseLoad(final String caseLoad, final int offset, final int limit) {
-		return referenceCodeRepository.getCaseNoteTypesByCaseLoad(caseLoad, offset, limit);
-	}
-
-	@Override
 	public List<ReferenceCode> getAlertTypes(String query, String orderBy, Order order, int offset, int limit) {
 		return referenceCodeRepository.getReferenceCodesByDomain("ALERT", query, getDefaultOrderBy(orderBy), order, offset, limit);
 	}

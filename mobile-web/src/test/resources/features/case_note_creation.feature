@@ -8,14 +8,14 @@ Feature: Case Notes
     Given a user has authenticated with the API
     And I have created a case note text of "Hello this is a new case note"
 
-  Scenario: Create a case note
-    When a case note is created for an existing offender booking:
-    | type               | COMMS                                     |
-    | subType            | COM_IN                                    |
-    | text               | A new case note (from Serenity BDD test)  |
-    | occurrenceDateTime | 2017-04-14T10:15:30                       |
-    Then case note is successfully created
-    And correct case note source is used
+#  Scenario: Create a case note
+#    When a case note is created for an existing offender booking:
+#    | type               | COMMS                                     |
+#    | subType            | COM_IN                                    |
+#    | text               | A new case note (from Serenity BDD test)  |
+#    | occurrenceDateTime | 2017-04-14T10:15:30                       |
+#    Then case note is successfully created
+#    And correct case note source is used
 
   Scenario: Update a case note
     When the created case note is updated with text "Updated Case Note"

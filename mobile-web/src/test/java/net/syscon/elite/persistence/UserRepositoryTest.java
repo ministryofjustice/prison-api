@@ -21,7 +21,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
-@ActiveProfiles("nomis")
+@ActiveProfiles("nomis,nomis-hsqldb")
 @RunWith(SpringRunner.class)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @JdbcTest
@@ -34,9 +34,9 @@ public class UserRepositoryTest {
 
     @Test
     public final void testFindUserByUsername() {
-        UserDetails user = repository.findByUsername("ITAG_USER").orElseThrow(new EntityNotFoundException("not found"));
+        UserDetails user = repository.findByUsername("itag_user").orElseThrow(new EntityNotFoundException("not found"));
 
-        assertThat(user.getLastName()).isEqualTo("USER");
+        assertThat(user.getLastName()).isEqualTo("User");
         assertThat(user.getEmail()).isEqualTo("itaguser@syscon.net");
     }
 
@@ -48,11 +48,11 @@ public class UserRepositoryTest {
 
     @Test
     public final void testFindUserByStaffId() {
-        UserDetails user = repository.findByUsername("ELITE2_API_USER").orElseThrow(new EntityNotFoundException("not found"));
+        UserDetails user = repository.findByUsername("elite2_api_user").orElseThrow(new EntityNotFoundException("not found"));
 
         final StaffDetails staffDetails = repository.findByStaffId(user.getStaffId()).orElseThrow(new EntityNotFoundException("not found"));
 
-        assertThat(staffDetails.getFirstName()).isEqualTo("ELITE2");
+        assertThat(staffDetails.getFirstName()).isEqualTo("Elite2");
         assertThat(staffDetails.getEmail()).isEqualTo("elite2-api-user@syscon.net");
     }
 
@@ -65,7 +65,7 @@ public class UserRepositoryTest {
 
     @Test
     public final void testFindRolesByUsername() {
-        List<String> roles = repository.findRolesByUsername("ITAG_USER");
+        List<String> roles = repository.findRolesByUsername("itag_user");
 
         assertThat(roles).isNotEmpty();
         assertThat(roles).contains("WING_OFF");

@@ -50,13 +50,13 @@ public class QueryBuilderTest {
 
 	@Test
 	public void buildSQL_PreOracle12WithoutPagination_ShouldReturnTheSameSQL() {
-		final String sql = oracle11Builder.getQueryBuilder(INITIAL_SQL, agencyMapping).build();
+		final String sql = oracle11Builder.getQueryBuilder(INITIAL_SQL, agencyMapping).removeSpecialChars().build();
 		assertThat(sql, equalTo(INITIAL_SQL));
 	}
 	
 	@Test
 	public void buildSQL_Oracle12WithoutPagination_ShouldReturnTheSameSql() {
-		final String sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping).build();
+		final String sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping).removeSpecialChars().build();
 		assertThat(sql, equalTo(INITIAL_SQL));
 	}
 
@@ -126,7 +126,7 @@ public class QueryBuilderTest {
 				.removeSpecialChars()
 				.addPagination()
 				.build();
-		final String expectedSql = String.format("SELECT * FROM (SELECT QRY_PAG.*, ROWNUM rnum FROM ( %s ) QRY_PAG WHERE ROWNUM <= :offset+:limit) WHERE rnum >= :offset+1", INITIAL_SQL);
+		final String expectedSql = String.format("SELECT * FROM (SELECT QRY_PAG.*, ROWNUM rnum FROM ( %s  ) QRY_PAG WHERE ROWNUM <= :offset+:limit) WHERE rnum >= :offset+1", INITIAL_SQL);
 		assertThat(sql, equalTo(expectedSql));
 	}
 		

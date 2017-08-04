@@ -10,7 +10,6 @@ import java.util.List;
 
 public interface ReferenceDomainService {
 
-	List<ReferenceCode> getCaseNoteTypesByCaseLoad(String caseLoad, int offset, int limit);
 	List<ReferenceCode> getAlertTypes(String query, String orderBy, Order order, int offset, int limit);
 	ReferenceCode getAlertTypeByCode(String alertType);
 	List<ReferenceCode> getAlertTypesByParent(String alertType, String query, String orderBy, Order order, int offset, int limit);

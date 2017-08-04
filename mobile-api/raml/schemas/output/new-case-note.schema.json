@@ -3,11 +3,10 @@
 	"type": "object",
 	"title": "NewCaseNote",
 	"properties": {
-		"bookingId":   { "type": "string" },
 		"type":   { "type": "string" },
 		"subType": { "type": "string" },
 		"occurrenceDateTime":  { "type": "string", "format": "datetime-only" },
 		"text": { "type": "string" }
 	},
-	"required": ["caseNoteId", "inmateId", "type", "subType", "text"]
+	"required": ["type", "subType", "text"]
 }

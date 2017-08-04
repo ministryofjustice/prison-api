@@ -59,7 +59,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 											.addPagination()
 											.build();
 		final RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, caseNoteMapping);
-		return jdbcTemplate.query(sql, createParams("bookingId", bookingId, "caseLoadId", getCurrentCaseLoad(), "offset", offset, "limit", limit), caseNoteRowMapper);
+		return jdbcTemplate.query(sql, createParams("bookingId", bookingId, "offset", offset, "limit", limit), caseNoteRowMapper);
 	}
 
 	@Override
@@ -69,7 +69,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 
 		CaseNote caseNote;
 		try {
-			caseNote = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "caseNoteId", caseNoteId, "caseLoadId", getCurrentCaseLoad()), caseNoteRowMapper);
+			caseNote = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "caseNoteId", caseNoteId), caseNoteRowMapper);
 		} catch (EmptyResultDataAccessException e) {
 			caseNote = null;
 		}
@@ -100,7 +100,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 
 		jdbcTemplate.update(
 				sql,
-				createParams("bookingID", bookingId,
+				createParams("bookingId", bookingId,
 										"text", caseNote.getText(),
 										"type", caseNote.getType(),
 										"subType", caseNote.getSubType(),
@@ -110,7 +110,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 										"contactDate", occurrenceDate,
 										"contactTime", occurrenceTime,
 										"createdBy", user,
-										"user_Id", user),
+										"userId", user),
 				generatedKeyHolder,
 				new String[] {"CASE_NOTE_ID"});
 

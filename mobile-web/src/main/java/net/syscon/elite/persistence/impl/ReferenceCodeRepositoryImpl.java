@@ -4,6 +4,7 @@ import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.persistence.ReferenceCodeRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
+import net.syscon.elite.web.api.model.CaseLoad;
 import net.syscon.elite.web.api.model.CaseNoteType;
 import net.syscon.elite.web.api.model.ReferenceCode;
 import net.syscon.elite.web.api.resource.ReferenceDomainsResource.Order;
@@ -93,20 +94,6 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	}
 
 	@Override
-	public List<ReferenceCode> getCaseNoteTypesByCaseLoad(String caseLoad, final int offset, final int limit) {
-		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CNOTE_TYPES_BY_CASELOAD"), referenceCodeMapping)
-				.addRowCount()
-				.addPagination()
-				.build();
-		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
-        try {
-            return jdbcTemplate.query(sql, createParams("caseLoad", caseLoad, "offset", offset, "limit", limit), referenceCodeRowMapper);
-        } catch (EmptyResultDataAccessException e) {
-            return Collections.emptyList();
-        }
-	}
-
-	@Override
 	public List<CaseNoteType> getCaseNoteTypeByCurrentCaseLoad(String query, String orderBy, String order, int offset, int limit) {
 		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CNOTE_TYPES_BY_CASELOAD"), noteTypesSubTypes)
 				.addQuery(query)
@@ -116,14 +103,15 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 				.build();
 		final RowMapper<CaseNoteType> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNoteType.class, noteTypesSubTypes);
         try {
-            return jdbcTemplate.query(sql, createParams("caseLoad", getCurrentCaseLoad(), "offset", offset, "limit", limit), referenceCodeRowMapper);
+			final Optional<CaseLoad> caseLoad = getCurrentCaseLoadDetail();
+			final String caseLoadType = caseLoad.isPresent() ? caseLoad.get().getType() : "BOTH";
+			return jdbcTemplate.query(sql, createParams("caseLoadType", caseLoadType, "offset", offset, "limit", limit), referenceCodeRowMapper);
         } catch (EmptyResultDataAccessException e) {
             return Collections.emptyList();
         }
 	}
 	@Override
-	public List<CaseNoteType> getCaseNoteSubType(String typeCode, String query, String orderBy, String order, int offset,
-			int limit) {
+	public List<CaseNoteType> getCaseNoteSubType(String typeCode, String query, String orderBy, String order, int offset, int limit) {
 		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE"), noteTypesSubTypes)
 				.addQuery(query)
 				.addOrderBy(isAscending(order), orderBy)

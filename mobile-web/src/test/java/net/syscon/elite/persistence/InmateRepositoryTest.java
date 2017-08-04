@@ -24,7 +24,7 @@ import static net.syscon.elite.web.api.resource.BookingResource.Order.asc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
-@ActiveProfiles("nomis")
+@ActiveProfiles("nomis,nomis-hsqldb")
 @RunWith(SpringRunner.class)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @JdbcTest
@@ -37,7 +37,7 @@ public class InmateRepositoryTest {
 
     @Before
     public final void setup() {
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("ITAG_USER", "password"));
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
     }
 
     @Test

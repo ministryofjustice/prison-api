@@ -25,13 +25,6 @@
   type: { get-item : { schema: referenceCode}}
   
 
-/caseNotes/types/{caseLoad}:
-  description: Case note type reference codes related to specified case load. Case load can either be 'COMM' or 'INST'
-  type: { get-collection : { collectionSchema: referenceCodes}}
-  is: [
-    pageable
-  ]
-
 /caseNotes/subTypes/{caseNoteType}:
   description: Case note sub type reference codes related to specified case note type.
   type: { get-collection : { collectionSchema: referenceCodes}}

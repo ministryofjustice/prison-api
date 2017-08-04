@@ -61,7 +61,7 @@ public class StandardQueryBuilder extends AbstractQueryBuilder {
 				parsedQuery = parsedQuery.replaceAll(SQL_PLACEHOLDER_OR_QUERY, replacement);
 			}
 
-			String strOrderBy = (StringUtils.isBlank(extraOrderBy)) ? "" : (SQLKeyword.ORDER_BY + " " + extraOrderBy);
+			String strOrderBy = (StringUtils.isBlank(extraOrderBy)) ? " " : " " + (SQLKeyword.ORDER_BY + " " + extraOrderBy);
 
 			if (hasOrderByPlaceholder) {
 				parsedQuery = parsedQuery.replaceAll(SQL_PLACEHOLDER_ORDER_BY, strOrderBy);

@@ -1,12 +1,16 @@
 package net.syscon.elite.executableSpecification.steps;
 
 import net.syscon.elite.web.api.model.CaseNote;
+import net.syscon.elite.web.api.model.CaseNotes;
+import net.syscon.elite.web.api.model.NewCaseNote;
 import net.syscon.elite.web.api.model.UpdateCaseNote;
 import net.thucydides.core.annotations.Step;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,21 +22,10 @@ public class CaseNoteSteps extends CommonSteps {
     private static final String API_REQUEST_FOR_CASENOTE = API_REQUEST_BASE_URL + "/{caseNoteId}";
 
     private CaseNote caseNote;
-    private CaseNote pendingCaseNote;
+    private NewCaseNote pendingCaseNote;
 
     @Value("${api.caseNote.sourceCode:AUTO}")
     private String caseNoteSource;
-
-    public void create(String type, String subType, String text, String occurrenceDateTime) {
-        pendingCaseNote = new CaseNote();
-
-        pendingCaseNote.setType(type);
-        pendingCaseNote.setSubType(subType);
-        pendingCaseNote.setText(text);
-        pendingCaseNote.setOccurrenceDateTime(occurrenceDateTime);
-
-        caseNote = createCaseNote(pendingCaseNote);
-    }
 
     @Step("Verify case note")
     public void verify() {
@@ -51,23 +44,27 @@ public class CaseNoteSteps extends CommonSteps {
     }
 
     @Step("Create case note")
-    public CaseNote createCaseNote(CaseNote newCaseNote) {
-        Long caseNoteId = dispatchCreateRequest(6000L, newCaseNote);
-
-        dispatchGetRequest(6000L, caseNoteId);
-
+    public CaseNote createCaseNote(NewCaseNote newCaseNote) {
+        pendingCaseNote = newCaseNote;
+        Long caseNoteId = dispatchCreateRequest(-1L, newCaseNote);
+        dispatchGetRequest(-1L, caseNoteId);
         return caseNote;
     }
 
     @Step("Update case note")
     public CaseNote updateCaseNote(Long caseNoteId, UpdateCaseNote updatedCaseNote) {
-        dispatchUpdateRequest(6000L, caseNoteId, updatedCaseNote);
-        dispatchGetRequest(6000L, caseNoteId);
+        dispatchUpdateRequest(-1L, caseNoteId, updatedCaseNote);
+        dispatchGetRequest(-1L, caseNoteId);
 
         return caseNote;
     }
 
-    private Long dispatchCreateRequest(Long bookingId, CaseNote caseNote) {
+    @Step("Get all case notes for booking ID (\\d+)")
+    public List<CaseNote> getAllCaseNotesForBooking(Long bookingId) {
+        return dispatchGetCaseNotes(bookingId);
+    }
+
+    private Long dispatchCreateRequest(Long bookingId, NewCaseNote caseNote) {
         ResponseEntity<CaseNote> response = restTemplate.exchange(API_REQUEST_BASE_URL, HttpMethod.POST, createEntity(caseNote),
                 CaseNote.class, bookingId);
 
@@ -83,6 +80,14 @@ public class CaseNoteSteps extends CommonSteps {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         caseNote = response.getBody();
+    }
+
+    private List<CaseNote> dispatchGetCaseNotes(Long bookingId) {
+        ResponseEntity<CaseNotes> response = restTemplate.exchange(API_REQUEST_BASE_URL, HttpMethod.GET, createEntity(),
+                CaseNotes.class, bookingId);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        return response.getBody().getCaseNotes();
     }
 
     private void dispatchUpdateRequest(Long bookingId, Long caseNoteId, UpdateCaseNote caseNote) {

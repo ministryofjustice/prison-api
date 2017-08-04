@@ -4,7 +4,7 @@
 	"title": "CaseNote",
 	"properties": {
 		"caseNoteId":   { "type": "integer" },
-		"bookingId":   { "type": "string" },
+		"bookingId":   { "type": "integer" },
 		"type":   { "type": "string" },
 		"typeDescription":   { "type": "string" },
 		"subType": { "type": "string" },
@@ -15,5 +15,5 @@
 		"authorUserId": { "type": "string" },
 		"text": { "type": "string" }
 	},
-	"required": ["caseNoteId", "inmateId", "type", "typeDescription", "subType", "subTypeDescription", "text"]
+	"required": ["caseNoteId", "bookingId", "type", "typeDescription", "subType", "subTypeDescription", "text"]
 }

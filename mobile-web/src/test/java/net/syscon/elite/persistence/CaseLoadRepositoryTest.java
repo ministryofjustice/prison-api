@@ -22,7 +22,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
-@ActiveProfiles("nomis")
+@ActiveProfiles("nomis,nomis-hsqldb")
 @RunWith(SpringRunner.class)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @JdbcTest
@@ -35,7 +35,7 @@ public class CaseLoadRepositoryTest {
 
     @Before
     public final void setup() {
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("ITAG_USER", "password"));
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
     }
 
     @Test
@@ -48,7 +48,7 @@ public class CaseLoadRepositoryTest {
 
     @Test
     public final void testGetOffender() {
-        final List<CaseLoad> caseLoadsByStaffId = repository.findCaseLoadsByUsername("ITAG_USER");
+        final List<CaseLoad> caseLoadsByStaffId = repository.findCaseLoadsByUsername("itag_user");
         assertThat(caseLoadsByStaffId).isNotEmpty();
         assertThat(caseLoadsByStaffId).hasSize(3);
         assertThat(caseLoadsByStaffId).extracting("caseLoadId").contains("LEI", "BXI", "WAI");

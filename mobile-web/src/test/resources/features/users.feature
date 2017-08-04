@@ -15,8 +15,8 @@ Feature: Users and Staff
 
     Examples:
       | staffId | firstName | lastName | email                      |
-      | -1      | ELITE2    | USER     | elite2-api-user@syscon.net |
-      | -2      | API       | USER     | itaguser@syscon.net        |
+      | -1      | Elite2    | User     | elite2-api-user@syscon.net |
+      | -2      | API       | User     | itaguser@syscon.net        |
 
   Scenario: Find staff member using staff id that does not exist
     When a staff member search is made using staff id "9999999999"

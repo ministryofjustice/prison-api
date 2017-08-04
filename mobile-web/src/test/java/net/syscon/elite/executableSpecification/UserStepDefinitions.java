@@ -50,7 +50,7 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
 
     @Given("^a user has authenticated with the API$")
     public void aUserHasAuthenticatedWithTheAPI() {
-        user.authenticates("ITAG_USER", "password");
+        user.authenticates("itag_user", "password");
     }
 
     @When("^a staff member search is made using staff id \"([^\"]*)\"$")

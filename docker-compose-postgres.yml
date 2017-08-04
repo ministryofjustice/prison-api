@@ -1,0 +1,30 @@
+version: '3.1'
+services:
+  elite2-api:
+    image: sysconjusticesystems/elite2-api:latest
+    networks:
+      - nomis-network
+    container_name: elite2-api
+    ports:
+      - "7080:8080"
+    depends_on:
+      - db
+    environment:
+      - JAVA_OPTS=-Xms128m -Xmx128m
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=nomis,nomis-postgres,noproxy
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres?currentSchema=oms_owner&stringtype=unspecified
+      - SPRING_DATASOURCE_USERNAME=oms_owner
+      - SPRING_DATASOURCE_PASSWORD=oms_owner
+  db:
+    image: postgres
+    networks:
+      - nomis-network
+    hostname: "db"
+    environment:
+      - POSTGRES_USER=oms_owner
+      - POSTGRES_PASSWORD=oms_owner
+    ports:
+      - "5432:5432"
+networks:
+  nomis-network:

@@ -9,8 +9,6 @@ import java.util.Optional;
 
 public interface ReferenceCodeRepository {
 
-	List<ReferenceCode> getCaseNoteTypesByCaseLoad(String caseLoad, int offset, int limit);
-
 	Optional<ReferenceCode> getReferenceCodeByDomainAndCode(String domain, String code);
 	Optional<ReferenceCode> getReferenceCodeByDomainAndParentAndCode(String domain, String code, String parentCode);
 	List<ReferenceCode> getReferenceCodesByDomain(String domain, String query, String orderBy, Order order, int offset, int limit);

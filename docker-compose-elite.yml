@@ -1,0 +1,31 @@
+version: '3.1'
+services:
+  elite2-web:
+    image: sysconjusticesystems/elite2-web:latest
+    networks:
+      - nomis-network
+    container_name: elite2-web
+    depends_on:
+      - elite2-api
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - API_ENDPOINT_URL=http://elite2-api:8080/api/
+      - USE_API_GATEWAY_AUTH=no
+
+  elite2-api:
+    image: sysconjusticesystems/elite2-api:latest
+    networks:
+      - nomis-network
+    container_name: elite2-api
+    ports:
+      - "7080:8080"
+    depends_on:
+      - db
+    environment:
+      - JAVA_OPTS=-Xms128m -Xmx128m
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=elite,elite-hsqldb,noproxy
+networks:
+  nomis-network:
