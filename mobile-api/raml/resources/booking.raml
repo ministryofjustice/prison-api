@@ -1,8 +1,8 @@
 description:  The collection of inmates within the system.
 type: { get-collection: { collectionSchema: inmateSummaries } }
 is: [
-  searchable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, agencyId, currentLocationId, assignedLivingUnitId, or assignedOfficerUserId"},
-  orderable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, agencyId, currentLocationId, or assignedLivingUnitId"},
+  searchable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, agencyId, assignedLivingUnitId, or assignedOfficerUserId"},
+  orderable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, agencyId, or assignedLivingUnitId"},
   pageable
 ]
 

@@ -10,10 +10,9 @@
 		"lastName": { "type": "string" },
 		"alertsCodes": { "type": "array", "items": { "type": "string" } },
 		"agencyId": { "type": "string" },
-		"currentLocationId": { "type": "integer" },
 		"assignedLivingUnitId": { "type": "integer" },
 		"assignedLivingUnitDesc": { "type": "string" },
 		"facialImageId": { "type": "integer" }
 	},
-	"required": ["inmateId", "bookingId", "offenderId", "firstName", "lastName", "agencyId", "currentLocationId"]
+	"required": ["inmateId", "bookingId", "offenderId", "firstName", "lastName", "agencyId"]
 }

@@ -1,4 +1,4 @@
-@nomis
+@global
 Feature: Booking Search
 
   Acceptance Criteria:

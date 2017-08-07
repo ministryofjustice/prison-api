@@ -1,0 +1,31 @@
+#%RAML 1.0 DataType
+properties:
+  bookingId:
+    type: number
+    required: true
+  bookingNo:
+   type: string
+  offenderNo:
+    type: string
+    required: true
+  firstName:
+    type: string
+    required: true
+  middleName:
+    type: string
+  lastName:
+    type: string
+    required: true
+  dateOfBirth:
+    type: date-only
+    required: true
+  age:
+    type: integer
+    required: true
+  alertsCodes: string[]
+  agencyId: string
+  assignedLivingUnitId: number
+  assignedLivingUnitDesc: string
+  facialImageId: number
+  assignedOfficerUserId: string
+  aliases: string[]

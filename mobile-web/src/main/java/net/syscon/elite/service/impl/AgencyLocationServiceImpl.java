@@ -7,6 +7,7 @@ import net.syscon.elite.persistence.UserRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.v2.api.model.LocationImpl;
 import net.syscon.elite.web.api.model.Agency;
 import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.Location;
@@ -15,12 +16,14 @@ import net.syscon.elite.web.api.resource.LocationsResource.Order;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static net.syscon.elite.service.impl.InmateServiceImpl.DEFAULT_OFFENDER_SORT;
 
@@ -78,6 +81,19 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 
 		return inmates;
 	}
+
+	@Override
+	public List<net.syscon.elite.v2.api.model.Location> getUserLocations(String username, Long offset, Long limit) {
+		final List<Location> locations = locationRepository.findLocations(null, "locationId", Order.asc, offset != null ? offset.intValue() : 0, limit != null ? limit.intValue() : Integer.MAX_VALUE);
+		return locations.stream().map(this::convert).collect(Collectors.toList());
+	}
+
+	private net.syscon.elite.v2.api.model.Location convert(Location location) {
+		final net.syscon.elite.v2.api.model.Location target = new LocationImpl();
+		BeanUtils.copyProperties(location, target);
+		return target;
+	}
+
 
 	@Override
 	public Location getLocation(Long locationId, boolean withInmates) {
