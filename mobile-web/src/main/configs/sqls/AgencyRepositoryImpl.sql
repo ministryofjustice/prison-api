@@ -9,7 +9,6 @@ FIND_AGENCY {
            AND A.AGY_LOC_ID NOT IN ('OUT', 'TRN')
            AND A.AGY_LOC_ID = :agencyId
            AND C.CASELOAD_ID = :caseLoadId
-  ORDER BY A.AGY_LOC_ID
 }
 
 FIND_ALL_AGENCIES {
@@ -21,6 +20,5 @@ FIND_ALL_AGENCIES {
      WHERE A.ACTIVE_FLAG = 'Y'
            AND A.AGY_LOC_ID NOT IN ('OUT', 'TRN')
            AND C.CASELOAD_ID = :caseLoadId
-  ORDER BY A.AGY_LOC_ID
 }
 

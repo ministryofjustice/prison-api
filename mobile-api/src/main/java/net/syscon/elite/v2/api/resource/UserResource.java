@@ -40,8 +40,12 @@ public interface UserResource {
             super(response);
         }
 
-        public static GetUsersMeLocationsResponse respond200WithApplicationJson(List<Location> entity) {
-            Response.ResponseBuilder responseBuilder = Response.status(200).header("Content-Type", "application/json");
+        public static GetUsersMeLocationsResponse respond200WithApplicationJson(List<Location> entity, Long offset, Long limit, Long totalRecords) {
+            Response.ResponseBuilder responseBuilder = Response.status(200)
+                    .header("Content-Type", "application/json")
+                    .header("Total-Records", totalRecords)
+                    .header("Page-Offset", offset)
+                    .header("Page-Limit", limit);
             responseBuilder.entity(entity);
             return new GetUsersMeLocationsResponse(responseBuilder.build(), entity);
         }
