@@ -53,4 +53,5 @@ endpoints:
   cors:
     allowed-origins: ${cors.allowed-origins}
     allow-credentials: true
-    allow-headers: Origin, X-Requested-With, Content-Type, Accept, Authorization
+    allow-headers: Origin,X-Requested-With,Content-Type,Accept,Authorization
+    allow-methods: GET,PUT,POST,DELETE

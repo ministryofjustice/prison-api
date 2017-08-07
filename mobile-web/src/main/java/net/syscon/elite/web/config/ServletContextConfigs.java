@@ -13,6 +13,7 @@ import net.syscon.elite.v2.api.resource.impl.UserResourceImpl;
 import net.syscon.elite.web.api.resource.impl.*;
 import net.syscon.elite.web.handler.ResourceExceptionHandler;
 import net.syscon.elite.web.listener.EndpointLoggingListener;
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
@@ -34,6 +35,7 @@ import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.annotation.PostConstruct;
+import java.util.Arrays;
 
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 
@@ -95,20 +97,10 @@ public class ServletContextConfigs extends ResourceConfig {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         final CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(env.getProperty("endpoints.cors.allow-credentials", Boolean.class));
-        final String origins = env.getProperty("endpoints.cors.allowed-origins");
-        if (origins == null || origins.trim().length() == 0) {
-            config.addAllowedOrigin("*");
-        } else {
-            final String[] allowedOrigins = origins.split(",");
-            for (final String allowedOrigin: allowedOrigins) {
-                if (allowedOrigin.trim().length() > 0) {
-                    config.addAllowedOrigin(allowedOrigin);
-                }
-            }
-        }
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-
+        Arrays.asList(StringUtils.split(env.getProperty("endpoints.cors.allowed-origins"), ",")).forEach(config::addAllowedOrigin);
+        Arrays.asList(StringUtils.split(env.getProperty("endpoints.cors.allow-headers"), ",")).forEach(config::addAllowedHeader);
+        Arrays.asList(StringUtils.split(env.getProperty("endpoints.cors.allow-methods"), ",")).forEach(config::addAllowedMethod);
+        config.setMaxAge(0L);
         source.registerCorsConfiguration("/**", config);
         final FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
         bean.setOrder(0);
