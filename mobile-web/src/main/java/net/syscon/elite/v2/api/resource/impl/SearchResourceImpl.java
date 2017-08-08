@@ -10,7 +10,7 @@ import javax.ws.rs.Path;
 import java.util.List;
 
 @RestResource
-@Path("/v2/search-offenders")
+@Path("v2/search-offenders")
 public class SearchResourceImpl implements SearchResource {
 
     private final InmateService inmateService;

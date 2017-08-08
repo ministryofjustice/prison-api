@@ -12,7 +12,6 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Api(value = "Agency Resource", produces = MediaType.APPLICATION_JSON)
-@Path("/v2/agencies")
 public interface AgencyResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)

@@ -14,7 +14,6 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Api(value = "User Resource", produces = MediaType.APPLICATION_JSON)
-@Path("/v2/users")
 public interface UserResource {
     @GET
     @Path("/me/locations")
