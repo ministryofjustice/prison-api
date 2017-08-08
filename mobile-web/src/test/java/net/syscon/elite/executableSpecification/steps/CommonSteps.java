@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Common BDD step implementations
  */
 public abstract class CommonSteps {
-    public static final String API_PREFIX = "/api/";
+    public static final String API_PREFIX = "/";
 
     @Autowired
     private AuthenticationSteps auth;
