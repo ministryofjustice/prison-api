@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestResource
-@Path("/v2/agencies")
+@Path("v2/agencies")
 public class AgencyResourceImpl implements AgencyResource {
 
     @Autowired

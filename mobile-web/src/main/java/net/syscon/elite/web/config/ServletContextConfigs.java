@@ -128,6 +128,7 @@ public class ServletContextConfigs extends ResourceConfig {
         config.setResourcePackage("net.syscon.elite.v2.api");
         config.setPrettyPrint(true);
         config.setScan(true);
+        config.setBasePath("/api");
     }
 
     @Bean

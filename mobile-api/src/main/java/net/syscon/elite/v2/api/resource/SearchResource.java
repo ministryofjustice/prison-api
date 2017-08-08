@@ -11,7 +11,6 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Api(value = "Offender Search", produces = MediaType.APPLICATION_JSON)
-@Path("/v2/search-offenders")
 public interface SearchResource {
     @GET
     @Path("/{locationId}")

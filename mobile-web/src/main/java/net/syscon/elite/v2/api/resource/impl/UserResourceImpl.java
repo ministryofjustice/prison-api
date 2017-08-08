@@ -11,7 +11,7 @@ import javax.ws.rs.Path;
 import java.util.List;
 
 @RestResource
-@Path("/v2/users")
+@Path("v2/users")
 public class UserResourceImpl implements UserResource {
 
     private final AgencyLocationService locationService;
