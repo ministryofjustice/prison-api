@@ -10,6 +10,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import static net.syscon.elite.executableSpecification.steps.CommonSteps.API_PREFIX;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -28,7 +29,7 @@ public class AuthenticationSteps {
         AuthLogin credentials = new AuthLogin(username, password);
 
         ResponseEntity<Token> response =
-                restTemplate.exchange("/api/users/login", HttpMethod.POST, new HttpEntity<>(credentials), Token.class);
+                restTemplate.exchange(API_PREFIX + "users/login", HttpMethod.POST, new HttpEntity<>(credentials), Token.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 

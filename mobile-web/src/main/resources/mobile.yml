@@ -47,7 +47,7 @@ logging:
     cache-seconds: 1
 
 server:
-    contextPath: /
+    contextPath: /api
 
 endpoints:
   cors:

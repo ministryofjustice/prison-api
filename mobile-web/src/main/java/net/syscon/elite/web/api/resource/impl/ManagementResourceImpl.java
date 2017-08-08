@@ -65,39 +65,33 @@ public class ManagementResourceImpl {
 	@Path("management/dump")
 	@Produces(MediaType.TEXT_PLAIN)
 	public Object getThreadDump() {
-		return new StreamingOutput() {
-			@Override
-			public void write(java.io.OutputStream out) throws IOException, WebApplicationException {
-				final Writer writer = new BufferedWriter(new OutputStreamWriter(out));
-				for (final ThreadInfo thread : dumpEndpoint.invoke()) {
-					writer.write(thread.toString());
-				}
-				writer.flush();
-			}
-		};
+		return (StreamingOutput) out -> {
+            final Writer writer = new BufferedWriter(new OutputStreamWriter(out));
+            for (final ThreadInfo thread : dumpEndpoint.invoke()) {
+                writer.write(thread.toString());
+            }
+            writer.flush();
+        };
 	}
 
 	@GET
 	@Path("management/apis")
 	@Produces(MediaType.TEXT_HTML)
 	public Object apiIndex() {
-		return new StreamingOutput() {
-			@Override
-			public void write(java.io.OutputStream out) throws IOException, WebApplicationException {
-				final Writer writer = new BufferedWriter(new OutputStreamWriter(out));
-				ClassPathResource resource = new ClassPathResource("static/index.html");
-				InputStream in = resource.getInputStream();
-				if (in != null) {
-					try (BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
-						String s;
-						while ((s = br.readLine()) != null) {
-							writer.write(s);
-							writer.write("\n");
-						}
-					}
-				}
-				writer.flush();
-			}
-		};
+		return (StreamingOutput) out -> {
+            final Writer writer = new BufferedWriter(new OutputStreamWriter(out));
+            ClassPathResource resource = new ClassPathResource("static/index.html");
+            InputStream in = resource.getInputStream();
+            if (in != null) {
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
+                    String s;
+                    while ((s = br.readLine()) != null) {
+                        writer.write(s);
+                        writer.write("\n");
+                    }
+                }
+            }
+            writer.flush();
+        };
 	}
 }
