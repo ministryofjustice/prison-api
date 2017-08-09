@@ -12,7 +12,7 @@ services:
     environment:
       - JAVA_OPTS=-Xms128m -Xmx128m
       - SERVER_PORT=8080
-      - SPRING_PROFILES_ACTIVE=nomis,nomis-postgres,noproxy
+      - SPRING_PROFILES_ACTIVE=nomis,nomis-postgres,noproxy,dev
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres?currentSchema=oms_owner&stringtype=unspecified
       - SPRING_DATASOURCE_USERNAME=oms_owner
       - SPRING_DATASOURCE_PASSWORD=oms_owner

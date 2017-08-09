@@ -10,6 +10,6 @@ services:
     environment:
       - JAVA_OPTS=-Xms128m -Xmx128m
       - SERVER_PORT=8080
-      - SPRING_PROFILES_ACTIVE=nomis,nomis-hsqldb,noproxy
+      - SPRING_PROFILES_ACTIVE=nomis,nomis-hsqldb,noproxy,dev
 networks:
   nomis-network:
