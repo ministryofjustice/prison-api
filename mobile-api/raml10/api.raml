@@ -8,6 +8,7 @@ types:
   Agency:          !include types/Agency.raml
   Location:        !include types/Location.raml
   OffenderBooking: !include types/OffenderBooking.raml
+  PrisonerDetail:  !include types/PrisonerDetail.raml
   ErrorResponse:   !include types/ErrorResponse.raml
 
 securitySchemes:
@@ -41,3 +42,4 @@ resourceTypes: !include resourceTypes/generic-resource-types.raml
 /agencies: !include resources/agencies.raml
 /users:    !include resources/users.raml
 /search-offenders:   !include resources/search-offenders.raml
+/prisoners: !include resources/prisoners.raml

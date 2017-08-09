@@ -8,6 +8,7 @@ import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import net.syscon.elite.v2.api.resource.impl.AgencyResourceImpl;
+import net.syscon.elite.v2.api.resource.impl.PrisonerResourceImpl;
 import net.syscon.elite.v2.api.resource.impl.SearchResourceImpl;
 import net.syscon.elite.v2.api.resource.impl.UserResourceImpl;
 import net.syscon.elite.web.api.resource.impl.*;
@@ -65,6 +66,7 @@ public class ServletContextConfigs extends ResourceConfig {
         register(AgencyResourceImpl.class);
         register(UserResourceImpl.class);
         register(SearchResourceImpl.class);
+        register(PrisonerResourceImpl.class);
 
         String contextPath = env.getProperty("server.contextPath");
 
