@@ -139,9 +139,7 @@ public class InmateServiceImpl implements InmateService {
                 .assignedLivingUnitId(new BigDecimal(inmate.getAssignedLivingUnitId()))
                 .assignedLivingUnitDesc(inmate.getAssignedLivingUnitDesc())
                 .assignedOfficerUserId(inmate.getAssignedOfficerUserId())
-                .additionalProperties(inmate.getAdditionalProperties())
                 .build();
-
     }
 
     private PrisonerDetail convertToPrisonerDetail(AssignedInmate inmate) {
@@ -155,6 +153,5 @@ public class InmateServiceImpl implements InmateService {
                 .lastName(inmate.getLastName())
                 .dateOfBirth(dobDateFmt)
                 .build();
-
     }
 }
