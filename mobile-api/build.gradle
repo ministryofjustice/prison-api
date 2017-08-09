@@ -52,6 +52,7 @@ project(":mobile-api") {
     dependencies {
         compile("org.springframework.boot:spring-boot-starter-jersey:${version_spring_boot}")
         compile("io.swagger:swagger-jersey2-jaxrs:1.5.16")
+        compileOnly 'org.projectlombok:lombok:1.16.18'
 
         generatedOutput sourceSets.generated.output
     }

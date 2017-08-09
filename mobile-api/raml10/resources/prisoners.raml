@@ -1,0 +1,28 @@
+description:  Find Prisoners held in system
+type: { readOnlyCollection: { type: PrisonerDetail } }
+get:
+  queryParameters:
+    firstName:
+      description: The first name of the prisoner (wildcarded)
+      type: string
+    middleNames:
+      description: The middle names of the prisoner (wildcarded)
+      type: string
+    lastName:
+      description: The last name of the prisoner (wildcarded)
+      type: string
+    pncNumber:
+      description: Prisoner with the specified PNC number
+      type: string
+    croNumber:
+      description: Prisoner with the specified CRO number
+      type: string
+    dob:
+      description: Prisoner with the specified date of birth
+      type: date-only
+    dobFrom:
+      description: start date to search for DOB (max ten years)
+      type: date-only
+    dobTo:
+      description: end date to search for DOB
+      type: date-only

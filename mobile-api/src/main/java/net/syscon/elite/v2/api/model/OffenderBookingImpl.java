@@ -1,6 +1,9 @@
 package net.syscon.elite.v2.api.model;
 
 import com.fasterxml.jackson.annotation.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -26,6 +29,9 @@ import java.util.Map;
         "assignedOfficerUserId",
         "aliases"
 })
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class OffenderBookingImpl implements OffenderBooking {
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
