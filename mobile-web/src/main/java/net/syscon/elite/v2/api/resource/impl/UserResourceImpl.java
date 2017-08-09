@@ -2,9 +2,9 @@ package net.syscon.elite.v2.api.resource.impl;
 
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.UserSecurityUtils;
-import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.v2.api.model.Location;
 import net.syscon.elite.v2.api.resource.UserResource;
+import net.syscon.elite.v2.service.LocationService;
 import net.syscon.util.MetaDataFactory;
 
 import javax.ws.rs.Path;
@@ -14,9 +14,9 @@ import java.util.List;
 @Path("v2/users")
 public class UserResourceImpl implements UserResource {
 
-    private final AgencyLocationService locationService;
+    private final LocationService locationService;
 
-    public UserResourceImpl(AgencyLocationService locationService) {
+    public UserResourceImpl(LocationService locationService) {
         this.locationService = locationService;
     }
 
