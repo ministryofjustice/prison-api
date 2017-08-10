@@ -139,6 +139,7 @@ public class InmateServiceImpl implements InmateService {
                 .assignedLivingUnitId(new BigDecimal(inmate.getAssignedLivingUnitId()))
                 .assignedLivingUnitDesc(inmate.getAssignedLivingUnitDesc())
                 .assignedOfficerUserId(inmate.getAssignedOfficerUserId())
+                .additionalProperties(inmate.getAdditionalProperties())
                 .build();
     }
 

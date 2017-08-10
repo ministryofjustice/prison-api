@@ -33,7 +33,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class PrisonerDetailImpl implements PrisonerDetail {
   @JsonIgnore
-  private final Map<String, Object> additionalProperties = new HashMap<>();
+  private Map<String, Object> additionalProperties;
 
   @JsonProperty("nomsId")
   private String nomsId;
@@ -90,13 +90,12 @@ public class PrisonerDetailImpl implements PrisonerDetail {
 
   @JsonAnyGetter
   public Map<String, Object> getAdditionalProperties() {
-    return additionalProperties;
+    return additionalProperties == null ? new HashMap<>() : additionalProperties;
   }
 
   @JsonAnySetter
   public void setAdditionalProperties(Map<String, Object> additionalProperties) {
-    this.additionalProperties.clear();
-    this.additionalProperties.putAll(additionalProperties);
+    this.additionalProperties = additionalProperties;
   }
 
   @JsonProperty("nomsId")
