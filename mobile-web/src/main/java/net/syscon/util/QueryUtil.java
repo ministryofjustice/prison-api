@@ -95,8 +95,9 @@ public class QueryUtil {
 		return result;
 	}
 
-	public static String getCriteriaFromQuery(String sql) {
-		final int fromLocation = StringUtils.lastIndexOfIgnoreCase(sql, "FROM ");
+	public static String getCriteriaFromQuery(final String sql) {
+		String cleanedSql = StringUtils.replaceAll(StringUtils.trim(sql),"\n", " ");
+		final int fromLocation = StringUtils.lastIndexOfIgnoreCase(cleanedSql, "FROM ");
 		return  StringUtils.replaceAll(StringUtils.substring(sql, fromLocation),"\\s+", " ");
 	}
 }
