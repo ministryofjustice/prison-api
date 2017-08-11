@@ -1,6 +1,9 @@
 package net.syscon.elite.v2.api.model;
 
 import com.fasterxml.jackson.annotation.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,15 +13,19 @@ import java.util.Map;
         "locationId",
         "locationType",
         "description",
+        "agencyId",
         "parentLocationId",
         "currentOccupancy"
 })
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class LocationImpl implements Location {
     @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    private final Map<String, Object> additionalProperties = new HashMap<>();
 
     @JsonProperty("locationId")
-    private int locationId;
+    private Long locationId;
 
     @JsonProperty("locationType")
     private String locationType;
@@ -26,11 +33,14 @@ public class LocationImpl implements Location {
     @JsonProperty("description")
     private String description;
 
+    @JsonProperty("agencyId")
+    private String agencyId;
+
     @JsonProperty("parentLocationId")
-    private int parentLocationId;
+    private Long parentLocationId;
 
     @JsonProperty("currentOccupancy")
-    private int currentOccupancy;
+    private Integer currentOccupancy;
 
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
@@ -39,16 +49,17 @@ public class LocationImpl implements Location {
 
     @JsonAnySetter
     public void setAdditionalProperties(Map<String, Object> additionalProperties) {
-        this.additionalProperties = additionalProperties;
+        this.additionalProperties.clear();
+        this.additionalProperties.putAll(additionalProperties);
     }
 
     @JsonProperty("locationId")
-    public int getLocationId() {
+    public Long getLocationId() {
         return this.locationId;
     }
 
     @JsonProperty("locationId")
-    public void setLocationId(int locationId) {
+    public void setLocationId(Long locationId) {
         this.locationId = locationId;
     }
 
@@ -72,23 +83,33 @@ public class LocationImpl implements Location {
         this.description = description;
     }
 
+    @JsonProperty("agencyId")
+    public String getAgencyId() {
+        return this.agencyId;
+    }
+
+    @JsonProperty("agencyId")
+    public void setAgencyId(String agencyId) {
+        this.agencyId = agencyId;
+    }
+
     @JsonProperty("parentLocationId")
-    public int getParentLocationId() {
+    public Long getParentLocationId() {
         return this.parentLocationId;
     }
 
     @JsonProperty("parentLocationId")
-    public void setParentLocationId(int parentLocationId) {
+    public void setParentLocationId(Long parentLocationId) {
         this.parentLocationId = parentLocationId;
     }
 
     @JsonProperty("currentOccupancy")
-    public int getCurrentOccupancy() {
+    public Integer getCurrentOccupancy() {
         return this.currentOccupancy;
     }
 
     @JsonProperty("currentOccupancy")
-    public void setCurrentOccupancy(int currentOccupancy) {
+    public void setCurrentOccupancy(Integer currentOccupancy) {
         this.currentOccupancy = currentOccupancy;
     }
 }

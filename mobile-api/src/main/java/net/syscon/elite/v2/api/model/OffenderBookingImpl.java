@@ -34,7 +34,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class OffenderBookingImpl implements OffenderBooking {
     @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    private Map<String, Object> additionalProperties;
 
     @JsonProperty("bookingId")
     private BigDecimal bookingId;
@@ -87,7 +87,7 @@ public class OffenderBookingImpl implements OffenderBooking {
 
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
-        return additionalProperties;
+        return additionalProperties == null ? new HashMap<>() : additionalProperties;
     }
 
     @JsonAnySetter
