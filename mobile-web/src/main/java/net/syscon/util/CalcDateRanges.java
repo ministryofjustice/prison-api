@@ -2,28 +2,28 @@ package net.syscon.util;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
+import static java.time.temporal.ChronoUnit.YEARS;
+
 public class CalcDateRanges {
-    private static final int MAX_YEARS = 10;
     private final Date dobDateFrom;
     private final Date dobDateTo;
 
-    public CalcDateRanges(Date dob, Date dobFrom, Date dobTo) {
+    public CalcDateRanges(Date dob, Date dobFrom, Date dobTo, int maxYears) {
         if (dob != null) {
             dobDateFrom = dob;
             dobDateTo = dob;
         } else if (dobFrom != null && dobTo == null) {
             dobDateFrom = dobFrom;
-            dobDateTo = adjustYears(dobFrom, MAX_YEARS);
+            dobDateTo = adjustYears(dobFrom, maxYears);
         } else if (dobFrom == null && dobTo != null) {
-            dobDateFrom = adjustYears(dobTo, -MAX_YEARS);
+            dobDateFrom = adjustYears(dobTo, maxYears * -1);
             dobDateTo = dobTo;
         } else if (dobFrom != null) {
             dobDateFrom = dobFrom;
-            if (isGreaterThanYearSpan(dobFrom, dobTo, MAX_YEARS)) {
-                dobDateTo = adjustYears(dobFrom, MAX_YEARS);
+            if (isGreaterThanYearSpan(dobFrom, dobTo, maxYears)) {
+                dobDateTo = adjustYears(dobFrom, maxYears);
             } else {
                 dobDateTo = dobTo;
             }
@@ -31,6 +31,10 @@ public class CalcDateRanges {
             dobDateFrom = null;
             dobDateTo = null;
         }
+    }
+
+    private LocalDate toLocalDate(Date date) {
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     public Date getDobDateFrom() {
@@ -42,14 +46,13 @@ public class CalcDateRanges {
     }
 
     private boolean isGreaterThanYearSpan(Date fromDate, Date toDate, int maxYearSpan) {
-        final LocalDate fromLocal = LocalDate.ofEpochDay(fromDate.getTime());
-        final LocalDate toLocal = LocalDate.ofEpochDay(toDate.getTime());
-        return fromLocal.until(toLocal, ChronoUnit.YEARS) > maxYearSpan;
+        long years = YEARS.between(toLocalDate(fromDate), toLocalDate(toDate));
+        return years > maxYearSpan;
     }
 
     private Date adjustYears(Date startDate, int years) {
-        final LocalDate fromLocal = LocalDate.ofEpochDay(startDate.getTime());
-        final LocalDate toLocal = years < 0 ? fromLocal.minusYears(years) : fromLocal.plusYears(years);
+        final LocalDate fromLocal = toLocalDate(startDate);
+        final LocalDate toLocal = years < 0 ? fromLocal.minusYears(Math.abs(years)) : fromLocal.plusYears(Math.abs(years));
         return Date.from(toLocal.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 

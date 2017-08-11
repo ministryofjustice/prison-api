@@ -1,76 +1,250 @@
 package net.syscon.elite.v2.api.model;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.annotation.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@JsonDeserialize(
-    as = PrisonerDetailImpl.class
-)
-public interface PrisonerDetail {
-  Map<String, Object> getAdditionalProperties();
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({
+    "nomsId",
+    "firstName",
+    "middleNames",
+    "lastName",
+    "dateOfBirth",
+    "gender",
+    "nationalities",
+    "pncNumber",
+    "croNumber",
+    "paroleNumbers",
+    "ethnicity",
+    "birthCountry",
+    "religion",
+    "receptionDate",
+    "maritalStatus"
+})
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class PrisonerDetail {
+  @JsonIgnore
+  private Map<String, Object> additionalProperties;
 
-  void setAdditionalProperties(Map<String, Object> additionalProperties);
+  @JsonProperty("nomsId")
+  private String nomsId;
 
-  String getNomsId();
+  @JsonProperty("firstName")
+  private String firstName;
 
-  void setNomsId(String nomsId);
+  @JsonProperty("middleNames")
+  private String middleNames;
 
-  String getFirstName();
+  @JsonProperty("lastName")
+  private String lastName;
 
-  void setFirstName(String firstName);
+  @JsonProperty("dateOfBirth")
+  @JsonFormat(
+      shape = JsonFormat.Shape.STRING,
+      pattern = "yyyy-MM-dd"
+  )
+  private Date dateOfBirth;
 
-  String getMiddleNames();
+  @JsonProperty("gender")
+  private String gender;
 
-  void setMiddleNames(String middleNames);
+  @JsonProperty("nationalities")
+  private List<String> nationalities;
 
-  String getLastName();
+  @JsonProperty("pncNumber")
+  private String pncNumber;
 
-  void setLastName(String lastName);
+  @JsonProperty("croNumber")
+  private String croNumber;
 
-  Date getDateOfBirth();
+  @JsonProperty("paroleNumbers")
+  private String paroleNumbers;
 
-  void setDateOfBirth(Date dateOfBirth);
+  @JsonProperty("ethnicity")
+  private String ethnicity;
 
-  String getGender();
+  @JsonProperty("birthCountry")
+  private String birthCountry;
 
-  void setGender(String gender);
+  @JsonProperty("religion")
+  private String religion;
 
-  List<String> getNationalities();
+  @JsonProperty("receptionDate")
+  @JsonFormat(
+      shape = JsonFormat.Shape.STRING,
+      pattern = "yyyy-MM-dd"
+  )
+  private Date receptionDate;
 
-  void setNationalities(List<String> nationalities);
+  @JsonProperty("maritalStatus")
+  private String maritalStatus;
 
-  String getPncNumber();
+  @JsonAnyGetter
+  public Map<String, Object> getAdditionalProperties() {
+    return additionalProperties == null ? new HashMap<>() : additionalProperties;
+  }
 
-  void setPncNumber(String pncNumber);
+  @JsonAnySetter
+  public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    this.additionalProperties = additionalProperties;
+  }
 
-  String getCroNumber();
+  @JsonProperty("nomsId")
+  public String getNomsId() {
+    return this.nomsId;
+  }
 
-  void setCroNumber(String croNumber);
+  @JsonProperty("nomsId")
+  public void setNomsId(String nomsId) {
+    this.nomsId = nomsId;
+  }
 
-  String getParoleNumbers();
+  @JsonProperty("firstName")
+  public String getFirstName() {
+    return this.firstName;
+  }
 
-  void setParoleNumbers(String paroleNumbers);
+  @JsonProperty("firstName")
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
 
-  String getEthnicity();
+  @JsonProperty("middleNames")
+  public String getMiddleNames() {
+    return this.middleNames;
+  }
 
-  void setEthnicity(String ethnicity);
+  @JsonProperty("middleNames")
+  public void setMiddleNames(String middleNames) {
+    this.middleNames = middleNames;
+  }
 
-  String getBirthCountry();
+  @JsonProperty("lastName")
+  public String getLastName() {
+    return this.lastName;
+  }
 
-  void setBirthCountry(String birthCountry);
+  @JsonProperty("lastName")
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
 
-  String getReligion();
+  @JsonProperty("dateOfBirth")
+  public Date getDateOfBirth() {
+    return this.dateOfBirth;
+  }
 
-  void setReligion(String religion);
+  @JsonProperty("dateOfBirth")
+  public void setDateOfBirth(Date dateOfBirth) {
+    this.dateOfBirth = dateOfBirth;
+  }
 
-  Date getReceptionDate();
+  @JsonProperty("gender")
+  public String getGender() {
+    return this.gender;
+  }
 
-  void setReceptionDate(Date receptionDate);
+  @JsonProperty("gender")
+  public void setGender(String gender) {
+    this.gender = gender;
+  }
 
-  String getMaritalStatus();
+  @JsonProperty("nationalities")
+  public List<String> getNationalities() {
+    return this.nationalities;
+  }
 
-  void setMaritalStatus(String maritalStatus);
+  @JsonProperty("nationalities")
+  public void setNationalities(List<String> nationalities) {
+    this.nationalities = nationalities;
+  }
+
+  @JsonProperty("pncNumber")
+  public String getPncNumber() {
+    return this.pncNumber;
+  }
+
+  @JsonProperty("pncNumber")
+  public void setPncNumber(String pncNumber) {
+    this.pncNumber = pncNumber;
+  }
+
+  @JsonProperty("croNumber")
+  public String getCroNumber() {
+    return this.croNumber;
+  }
+
+  @JsonProperty("croNumber")
+  public void setCroNumber(String croNumber) {
+    this.croNumber = croNumber;
+  }
+
+  @JsonProperty("paroleNumbers")
+  public String getParoleNumbers() {
+    return this.paroleNumbers;
+  }
+
+  @JsonProperty("paroleNumbers")
+  public void setParoleNumbers(String paroleNumbers) {
+    this.paroleNumbers = paroleNumbers;
+  }
+
+  @JsonProperty("ethnicity")
+  public String getEthnicity() {
+    return this.ethnicity;
+  }
+
+  @JsonProperty("ethnicity")
+  public void setEthnicity(String ethnicity) {
+    this.ethnicity = ethnicity;
+  }
+
+  @JsonProperty("birthCountry")
+  public String getBirthCountry() {
+    return this.birthCountry;
+  }
+
+  @JsonProperty("birthCountry")
+  public void setBirthCountry(String birthCountry) {
+    this.birthCountry = birthCountry;
+  }
+
+  @JsonProperty("religion")
+  public String getReligion() {
+    return this.religion;
+  }
+
+  @JsonProperty("religion")
+  public void setReligion(String religion) {
+    this.religion = religion;
+  }
+
+  @JsonProperty("receptionDate")
+  public Date getReceptionDate() {
+    return this.receptionDate;
+  }
+
+  @JsonProperty("receptionDate")
+  public void setReceptionDate(Date receptionDate) {
+    this.receptionDate = receptionDate;
+  }
+
+  @JsonProperty("maritalStatus")
+  public String getMaritalStatus() {
+    return this.maritalStatus;
+  }
+
+  @JsonProperty("maritalStatus")
+  public void setMaritalStatus(String maritalStatus) {
+    this.maritalStatus = maritalStatus;
+  }
 }

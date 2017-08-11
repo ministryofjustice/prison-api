@@ -2,8 +2,10 @@ package net.syscon.elite.v2.api.resource.impl;
 
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.InmateService;
-import net.syscon.elite.v2.api.model.PrisonerDetailImpl;
+import net.syscon.elite.service.PrisonerDetailSearchCriteria;
+import net.syscon.elite.v2.api.model.PrisonerDetail;
 import net.syscon.elite.v2.api.resource.PrisonerResource;
+import net.syscon.util.MetaDataFactory;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.ws.rs.Path;
@@ -26,9 +28,23 @@ public class PrisonerResourceImpl implements PrisonerResource {
     }
 
     @Override
-    public GetPrisonersResponse getPrisoners(String firstName, String middleNames, String lastName, String pncNumber, String croNumber, String dob, String dobFrom, String dobTo, String sortFields) {
-        List<PrisonerDetailImpl> prisoners = inmateService.findPrisoners(firstName, middleNames, lastName, pncNumber, croNumber, convertToDate(dob), convertToDate(dobFrom), convertToDate(dobTo), sortFields);
-        return GetPrisonersResponse.respond200WithApplicationJson(prisoners);
+    public GetPrisonersResponse getPrisoners(String firstName, String middleNames, String lastName, String pncNumber, String croNumber, String dob, String dobFrom, String dobTo, String sortFields, Long limit) {
+
+        final PrisonerDetailSearchCriteria criteria = PrisonerDetailSearchCriteria.builder()
+                .firstName(firstName)
+                .middleNames(middleNames)
+                .lastName(lastName)
+                .pncNumber(pncNumber)
+                .croNumber(croNumber)
+                .dob(convertToDate(dob))
+                .dobFrom(convertToDate(dobFrom))
+                .dobTo(convertToDate(dobTo))
+                .build();
+
+        final List<PrisonerDetail> prisoners = inmateService.findPrisoners(criteria, sortFields, limit);
+
+
+        return GetPrisonersResponse.respond200WithApplicationJson(prisoners, limit, MetaDataFactory.getTotalRecords(prisoners));
     }
 
     private Date convertToDate(String theDate) {

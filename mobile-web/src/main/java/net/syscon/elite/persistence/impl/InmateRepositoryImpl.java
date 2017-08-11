@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.persistence.InmateRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
-import net.syscon.elite.v2.api.model.OffenderBookingImpl;
-import net.syscon.elite.v2.api.model.PrisonerDetailImpl;
+import net.syscon.elite.v2.api.model.OffenderBooking;
+import net.syscon.elite.v2.api.model.PrisonerDetail;
 import net.syscon.elite.web.api.model.*;
 import net.syscon.elite.web.api.resource.BookingResource;
 import net.syscon.elite.web.api.resource.LocationsResource;
@@ -181,7 +181,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public List<OffenderBookingImpl> searchForOffenderBookings(String keywords, String locationId, int offset, int limit, String orderBy, boolean ascendingOrder) {
+	public List<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String keywords, String locationId, int offset, int limit, String orderBy, boolean ascendingOrder) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
         final String keywordSearch = StringUtils.upperCase(StringUtils.trimToEmpty(keywords));
 
@@ -195,14 +195,14 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 				.addPagination()
 				.build();
 
-		RowMapper<OffenderBookingImpl> offenderBookingRowMapper = Row2BeanRowMapper.makeMapping(sql, OffenderBookingImpl.class, OFFENDER_BOOKING_MAPPING);
+		RowMapper<OffenderBooking> offenderBookingRowMapper = Row2BeanRowMapper.makeMapping(sql, OffenderBooking.class, OFFENDER_BOOKING_MAPPING);
 
-		List<OffenderBookingImpl> offenderBookings;
+		List<OffenderBooking> offenderBookings;
 		try {
 			offenderBookings = jdbcTemplate.query(sql,
 					createParams("keywords", keywordSearch + "%",
                             "locationId", StringUtils.trimToEmpty(locationId) + "%",
-                            "caseLoadId", getCurrentCaseLoad(),
+                            "caseLoadId", caseloads,
                             "offset", offset, "limit", limit),
 					offenderBookingRowMapper);
 		} catch (EmptyResultDataAccessException e) {
@@ -229,7 +229,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
     @Override
-    public List<PrisonerDetailImpl> searchForOffenders(String query, Date fromDobDate, Date toDobDate, String sortFields, boolean ascendingOrder) {
+    public List<PrisonerDetail> searchForOffenders(String query, Date fromDobDate, Date toDobDate, String sortFields, boolean ascendingOrder, long limit) {
         String initialSql = getQuery("FIND_PRISONERS");
 
         final boolean hasDateRange = fromDobDate != null && toDobDate != null;
@@ -241,16 +241,18 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
         String sql = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_MAPPING)
                 .addQuery(query)
+                .addRowCount()
+                .addPagination()
                 .addOrderBy(ascendingOrder, sortFields)
                 .build();
 
-        RowMapper<PrisonerDetailImpl> prisonerDetailRowMapper =
-                Row2BeanRowMapper.makeMapping(sql, PrisonerDetailImpl.class, OFFENDER_MAPPING);
+        RowMapper<PrisonerDetail> prisonerDetailRowMapper =
+                Row2BeanRowMapper.makeMapping(sql, PrisonerDetail.class, OFFENDER_MAPPING);
 
-        List<PrisonerDetailImpl> prisonerDetails;
+        List<PrisonerDetail> prisonerDetails;
         try {
             prisonerDetails = jdbcTemplate.query(sql,
-                    hasDateRange ? createParams("fromDob", fromDobDate, "toDob", toDobDate) : null,
+                    hasDateRange ? createParams("limit", limit, "offset", 0, "fromDob", fromDobDate, "toDob", toDobDate) : createParams("limit", limit, "offset", 0),
                     prisonerDetailRowMapper);
         } catch (EmptyResultDataAccessException e) {
             prisonerDetails = Collections.emptyList();
