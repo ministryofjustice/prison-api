@@ -24,7 +24,7 @@ import java.util.*;
 @Slf4j
 public class InmateRepositoryImpl extends RepositoryBase implements InmateRepository {
 
-    private static final String LOCATION_FILTER = " AND AIL.DESCRIPTION LIKE :locationId ";
+    private static final String LOCATION_FILTER = " AND AIL.DESCRIPTION LIKE :locationPrefix ";
     private static final String CRITERIA_SEARCH_SQL =
             " AND (UPPER(concat(O.FIRST_NAME, concat(' ', O.LAST_NAME))) LIKE :keywords " +
             "  OR UPPER(concat(O.LAST_NAME, concat(' ', O.FIRST_NAME))) LIKE :keywords" +
@@ -181,11 +181,14 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public List<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String keywords, String locationId, int offset, int limit, String orderBy, boolean ascendingOrder) {
+	public List<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String keywords, String locationPrefix, int offset, int limit, String orderBy, boolean ascendingOrder) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
         final String keywordSearch = StringUtils.upperCase(StringUtils.trimToEmpty(keywords));
 
-        initialSql += LOCATION_FILTER;
+        if (StringUtils.isNotBlank(locationPrefix)) {
+            initialSql += LOCATION_FILTER;
+        }
+
         if (StringUtils.isNotBlank(keywordSearch)) {
             initialSql += CRITERIA_SEARCH_SQL;
         }
@@ -201,7 +204,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		try {
 			offenderBookings = jdbcTemplate.query(sql,
 					createParams("keywords", keywordSearch + "%",
-                            "locationId", StringUtils.trimToEmpty(locationId) + "%",
+                            "locationPrefix", StringUtils.trimToEmpty(locationPrefix) + "%",
                             "caseLoadId", caseloads,
                             "offset", offset, "limit", limit),
 					offenderBookingRowMapper);

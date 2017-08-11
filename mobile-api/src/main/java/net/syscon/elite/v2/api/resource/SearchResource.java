@@ -13,7 +13,7 @@ import java.util.List;
 @Api(value = "Offender Search", produces = MediaType.APPLICATION_JSON)
 public interface SearchResource {
     @GET
-    @Path("/{locationId}")
+    @Path("/{locationPrefix: .*}")
     @Produces("application/json")
     @ApiOperation(value = "Returns a list offenders matching locations", nickname = "searchForOffendersLocationOnly")
     @ApiResponses(value = {
@@ -24,14 +24,14 @@ public interface SearchResource {
                             @ResponseHeader(name = "Page-Limit", description = "Limit for number of records returned", response = Long.class)
                     })
     })
-    SearchResource.GetSearchResponse searchForOffendersLocationOnly(@ApiParam(value = "Location area to search for offenders") @PathParam("locationId") String locationId,
+    SearchResource.GetSearchResponse searchForOffendersLocationOnly(@ApiParam(value = "Location area to search for offenders") @PathParam("locationPrefix") String locationPrefix,
                                                                     @ApiParam(value = "Comma seperated list of fields to sort") @HeaderParam("Sort-Fields") String sortFields,
                                                                     @ApiParam(value = "Sort Order asc or desc") @HeaderParam("Sort-Order") String sortOrder,
                                                                     @ApiParam(value = "Offset of first returned record") @HeaderParam("Page-Offset") Long offset,
                                                                     @ApiParam(value = "Limit for number of records returned") @HeaderParam("Page-Limit") Long limit);
 
     @GET
-    @Path("/{locationId}/{keywords}")
+    @Path("/{locationPrefix: .*}/{keywords: .*}")
     @Produces("application/json")
     @ApiOperation(value = "Returns a list offenders matching keywords and locations", nickname = "searchForOffendersLocationAndKeyword")
     @ApiResponses(value = {
@@ -42,7 +42,7 @@ public interface SearchResource {
                             @ResponseHeader(name = "Page-Limit", description = "Limit for number of records returned", response = Long.class)
                     })
     })
-    SearchResource.GetSearchResponse searchForOffendersLocationAndKeyword(@ApiParam(value = "Location area to search for offenders") @PathParam("locationId") String locationId,
+    SearchResource.GetSearchResponse searchForOffendersLocationAndKeyword(@ApiParam(value = "Location area to search for offenders") @PathParam("locationPrefix") String locationPrefix,
                                                                           @ApiParam(value = "Keywords to search for offenders") @PathParam("keywords") String keywords,
                                                                           @ApiParam(value = "Comma seperated list of fields to sort") @HeaderParam("Sort-Fields") String sortFields,
                                                                           @ApiParam(value = "Sort Order asc or desc") @HeaderParam("Sort-Order") String sortOrder,

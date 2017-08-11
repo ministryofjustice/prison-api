@@ -20,6 +20,6 @@ public interface InmateService {
 	InmateDetails findInmate(Long inmateId);
 	List<Alias> findInmateAliases(Long inmateId, String orderByField, BookingResource.Order order);
 	List<InmateAssignmentSummary> findMyAssignments(long staffId, String currentCaseLoad, int offset, int limit);
-    List<OffenderBooking> findOffenders(String keywords, String locationId, String sortFields, String sortOrder, Long offset, Long limit);
+    List<OffenderBooking> findOffenders(String keywords, String locationPrefix, String sortFields, String sortOrder, Long offset, Long limit);
     List<PrisonerDetail> findPrisoners(PrisonerDetailSearchCriteria criteria, String sortFields, Long limit);
 }

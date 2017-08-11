@@ -68,11 +68,11 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<OffenderBooking> findOffenders(String keywords, String locationId, String sortFields, String sortOrder, Long offset, Long limit) {
+    public List<OffenderBooking> findOffenders(String keywords, String locationPrefix, String sortFields, String sortOrder, Long offset, Long limit) {
 
         final Set<String> caseloads = caseLoadRepository.findCaseLoadsByUsername(UserSecurityUtils.getCurrentUsername()).stream().map(CaseLoad::getCaseLoadId).collect(Collectors.toSet());
         final boolean descendingOrder = StringUtils.equalsIgnoreCase(sortOrder, "desc");
-        return repository.searchForOffenderBookings(caseloads, keywords, locationId,
+        return repository.searchForOffenderBookings(caseloads, keywords, locationPrefix,
                 offset != null ? offset.intValue() : 0,
                 limit != null ? limit.intValue() : Integer.MAX_VALUE, StringUtils.isNotBlank(sortFields) ? sortFields : DEFAULT_OFFENDER_SORT, !descendingOrder);
     }
