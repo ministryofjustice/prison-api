@@ -1,49 +1,47 @@
 package net.syscon.elite.service.impl;
 
+import net.syscon.elite.persistence.CaseLoadRepository;
 import net.syscon.elite.persistence.InmateRepository;
+import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.InmateService;
+import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import net.syscon.elite.v2.api.model.OffenderBooking;
-import net.syscon.elite.v2.api.model.OffenderBookingImpl;
 import net.syscon.elite.v2.api.model.PrisonerDetail;
-import net.syscon.elite.v2.api.model.PrisonerDetailImpl;
-import net.syscon.elite.web.api.model.Alias;
-import net.syscon.elite.web.api.model.AssignedInmate;
-import net.syscon.elite.web.api.model.InmateAssignmentSummary;
-import net.syscon.elite.web.api.model.InmateDetails;
-import net.syscon.elite.web.api.resource.BookingResource;
+import net.syscon.elite.web.api.model.*;
+import net.syscon.elite.web.api.resource.BookingResource.Order;
 import net.syscon.elite.web.api.resource.LocationsResource;
+import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
-import static net.syscon.elite.web.api.resource.BookingResource.Order.asc;
 
 @Service
 @Transactional(readOnly = true)
 public class InmateServiceImpl implements InmateService {
     static final String DEFAULT_OFFENDER_SORT = "lastName,firstName,offenderNo";
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private final InmateRepository repository;
+    private final CaseLoadRepository caseLoadRepository;
+    private final int maxYears;
 
-    @Inject
-    public InmateServiceImpl(InmateRepository repository) {
+    @Autowired
+    public InmateServiceImpl(InmateRepository repository, CaseLoadRepository caseLoadRepository, @Value("${offender.dob.max.range.years:10}") int maxYears) {
         this.repository = repository;
+        this.caseLoadRepository = caseLoadRepository;
+        this.maxYears = maxYears;
     }
 
     @Override
-    public List<AssignedInmate> findAllInmates(String query, int offset, int limit, String orderBy, BookingResource.Order order) {
+    public List<AssignedInmate> findAllInmates(String query, int offset, int limit, String orderBy, Order order) {
         String colSort = StringUtils.isNotBlank(orderBy) ? orderBy : DEFAULT_OFFENDER_SORT;
         return repository.findAllInmates(query, offset, limit, colSort, order);
     }
@@ -60,7 +58,7 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<Alias> findInmateAliases(Long inmateId, String orderByField, BookingResource.Order order) {
+    public List<Alias> findInmateAliases(Long inmateId, String orderByField, Order order) {
         return repository.findInmateAliases(inmateId, orderByField, order);
     }
 
@@ -70,47 +68,50 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<OffenderBooking> findOffenders(String keywords, String locationId, String sortFields, String sortOrder, Long offset, Long limit) {
+    public List<OffenderBooking> findOffenders(String keywords, String locationPrefix, String sortFields, String sortOrder, Long offset, Long limit) {
 
-        final String query = StringUtils.isNotBlank(keywords) ? format("lastName:like:'%s%%'", keywords) : null;
-        final List<AssignedInmate> inmates = repository.findAllInmates(query, offset != null ? offset.intValue() : 0, limit != null ? limit.intValue() : Integer.MAX_VALUE, DEFAULT_OFFENDER_SORT, StringUtils.equalsIgnoreCase(sortOrder, "desc") ? BookingResource.Order.desc : asc);
-        return inmates.stream().map(this::convertToOffenderBooking).collect(Collectors.toList());
+        final Set<String> caseloads = caseLoadRepository.findCaseLoadsByUsername(UserSecurityUtils.getCurrentUsername()).stream().map(CaseLoad::getCaseLoadId).collect(Collectors.toSet());
+        final boolean descendingOrder = StringUtils.equalsIgnoreCase(sortOrder, "desc");
+        return repository.searchForOffenderBookings(caseloads, keywords, locationPrefix,
+                offset != null ? offset.intValue() : 0,
+                limit != null ? limit.intValue() : Integer.MAX_VALUE, StringUtils.isNotBlank(sortFields) ? sortFields : DEFAULT_OFFENDER_SORT, !descendingOrder);
     }
 
     @Override
-    public List<PrisonerDetail> findPrisoners(String firstName, String middleNames, String lastName, String pncNumber, String croNumber, Date dob, Date dobFrom, Date dobTo, String sortFields) {
-        final StringBuilder query = new StringBuilder();
-
-        if (StringUtils.isNotBlank(firstName)) {
-            query.append(format("firstName:like:'%s%%'", firstName));
-        }
-        if (StringUtils.isNotBlank(middleNames)) {
-            addAnd(query);
-            query.append(format("middleName:like:'%s%%'", middleNames));
-        }
-        if (StringUtils.isNotBlank(lastName)) {
-            addAnd(query);
-            query.append(format("lastName:like:'%s%%'", lastName));
-        }
-        if (StringUtils.isNotBlank(pncNumber)) {
-            addAnd(query);
-            query.append(format("pncNumber:eq:'%s'", pncNumber));
-        }
-        if (StringUtils.isNotBlank(croNumber)) {
-            addAnd(query);
-            query.append(format("croNumber:eq:'%s'", croNumber));
-        }
-        if (dob != null) {
-            addAnd(query);
-            LocalDate localDob = dob.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            query.append(format("dateOfBirth:eq:'%s'", localDob.format(DATE_FORMAT)));
-        }
-
-        if (query.length() > 0) {
-            final List<AssignedInmate> inmates = repository.findAllInmates(query.toString(), 0, Integer.MAX_VALUE, DEFAULT_OFFENDER_SORT, asc);
-            return inmates.stream().map(this::convertToPrisonerDetail).collect(Collectors.toList());
+    public List<PrisonerDetail> findPrisoners(PrisonerDetailSearchCriteria criteria, String sortFields, Long limit) {
+        final String query = generateQuery(criteria);
+        CalcDateRanges calcDates = new CalcDateRanges(criteria.getDob(), criteria.getDobFrom(), criteria.getDobTo(), maxYears);
+        if (query != null || calcDates.hasDobRange()) {
+            long rowLimit = (limit != null ? limit : 50L);
+            return repository.searchForOffenders(query, calcDates.getDobDateFrom(), calcDates.getDobDateTo(),
+                    StringUtils.isNotBlank(sortFields) ? sortFields : DEFAULT_OFFENDER_SORT, true, rowLimit);
         }
         return null;
+    }
+
+    private String generateQuery(PrisonerDetailSearchCriteria criteria) {
+        final StringBuilder query = new StringBuilder();
+
+        if (StringUtils.isNotBlank(criteria.getFirstName())) {
+            query.append(format("firstName:like:'%s%%'", criteria.getFirstName()));
+        }
+        if (StringUtils.isNotBlank(criteria.getMiddleNames())) {
+            addAnd(query);
+            query.append(format("middleName:like:'%s%%'", criteria.getMiddleNames()));
+        }
+        if (StringUtils.isNotBlank(criteria.getLastName())) {
+            addAnd(query);
+            query.append(format("lastName:like:'%s%%'", criteria.getLastName()));
+        }
+        if (StringUtils.isNotBlank(criteria.getPncNumber())) {
+            addAnd(query);
+            query.append(format("pncNumber:eq:'%s'", criteria.getPncNumber()));
+        }
+        if (StringUtils.isNotBlank(criteria.getCroNumber())) {
+            addAnd(query);
+            query.append(format("croNumber:eq:'%s'", criteria.getCroNumber()));
+        }
+        return StringUtils.trimToNull(query.toString());
     }
 
     private void addAnd(StringBuilder query) {
@@ -119,40 +120,5 @@ public class InmateServiceImpl implements InmateService {
         }
     }
 
-    private OffenderBooking convertToOffenderBooking(AssignedInmate inmate) {
-        final LocalDate dob = LocalDate.parse(inmate.getDateOfBirth(), DATE_FORMAT);
-        final Date dobDateFmt = Date.from(dob.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-        return OffenderBookingImpl.builder()
-                .bookingId(inmate.getBookingId() != null ? new BigDecimal(inmate.getBookingId()) : null)
-                .bookingNo(inmate.getBookingNo())
-                .offenderNo(inmate.getOffenderNo())
-                .firstName(inmate.getFirstName())
-                .middleName(inmate.getMiddleName())
-                .lastName(inmate.getLastName())
-                .age(inmate.getAge() != null ? inmate.getAge().intValue() : 0)
-                .dateOfBirth(dobDateFmt)
-                .agencyId(inmate.getAgencyId())
-                .facialImageId(inmate.getFacialImageId() != null ? new BigDecimal(inmate.getFacialImageId()) : null)
-                .alertsCodes(inmate.getAlertsCodes())
-                .aliases(inmate.getAliases())
-                .assignedLivingUnitId(new BigDecimal(inmate.getAssignedLivingUnitId()))
-                .assignedLivingUnitDesc(inmate.getAssignedLivingUnitDesc())
-                .assignedOfficerUserId(inmate.getAssignedOfficerUserId())
-                .additionalProperties(inmate.getAdditionalProperties())
-                .build();
-    }
-
-    private PrisonerDetail convertToPrisonerDetail(AssignedInmate inmate) {
-        final LocalDate dob = LocalDate.parse(inmate.getDateOfBirth(), DATE_FORMAT);
-        final Date dobDateFmt = Date.from(dob.atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-        return PrisonerDetailImpl.builder()
-                .nomsId(inmate.getOffenderNo())
-                .firstName(inmate.getFirstName())
-                .middleNames(inmate.getMiddleName())
-                .lastName(inmate.getLastName())
-                .dateOfBirth(dobDateFmt)
-                .build();
-    }
 }

@@ -2,8 +2,6 @@ package net.syscon.util;
 
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,8 +13,6 @@ import java.util.Map;
  *
  */
 public class QueryUtil {
-	public static final Logger LOG = LoggerFactory.getLogger(QueryUtil.class);
-	
 	private QueryUtil() {
 	}
 	
@@ -99,8 +95,9 @@ public class QueryUtil {
 		return result;
 	}
 
-	public static String getCriteriaFromQuery(String sql) {
-		final int fromLocation = StringUtils.lastIndexOfIgnoreCase(sql, "FROM");
-		return  StringUtils.replaceAll(StringUtils.substring(sql, fromLocation),"\\s+", " ");
+	public static String getCriteriaFromQuery(final String sql) {
+		String cleanedSql = StringUtils.replaceAll(StringUtils.trim(sql),"\n", " ");
+		final int fromLocation = StringUtils.lastIndexOfIgnoreCase(cleanedSql, "FROM ");
+		return  StringUtils.replaceAll(StringUtils.substring(cleanedSql, fromLocation),"\\s+", " ");
 	}
 }

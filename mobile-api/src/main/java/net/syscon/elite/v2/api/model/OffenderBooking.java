@@ -1,96 +1,247 @@
 package net.syscon.elite.v2.api.model;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import com.fasterxml.jackson.annotation.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@ApiModel(description = "Offender Bookings")
-@JsonDeserialize(
-        as = OffenderBookingImpl.class
-)
-public interface OffenderBooking {
-    Map<String, Object> getAdditionalProperties();
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonPropertyOrder({
+        "bookingId",
+        "bookingNo",
+        "offenderNo",
+        "firstName",
+        "middleName",
+        "lastName",
+        "dateOfBirth",
+        "age",
+        "alertsCodes",
+        "agencyId",
+        "assignedLivingUnitId",
+        "assignedLivingUnitDesc",
+        "facialImageId",
+        "assignedOfficerUserId",
+        "aliases"
+})
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class OffenderBooking {
+    @JsonIgnore
+    private Map<String, Object> additionalProperties;
 
-    @ApiModelProperty(hidden = true)
-    void setAdditionalProperties(Map<String, Object> additionalProperties);
+    @JsonProperty("bookingId")
+    private BigDecimal bookingId;
 
-    BigDecimal getBookingId();
+    @JsonProperty("bookingNo")
+    private String bookingNo;
 
-    @ApiModelProperty(value = "Unique identifier offender booking.", required = true, position = 1)
-    void setBookingId(BigDecimal bookingId);
+    @JsonProperty("offenderNo")
+    private String offenderNo;
 
-    String getBookingNo();
+    @JsonProperty("firstName")
+    private String firstName;
 
-    @ApiModelProperty(value = "A Booking Number for this offender", position = 2)
-    void setBookingNo(String bookingNo);
+    @JsonProperty("middleName")
+    private String middleName;
 
-    String getOffenderNo();
+    @JsonProperty("lastName")
+    private String lastName;
 
-    @ApiModelProperty(value = "Unique business identifier for an offender", required = true, position = 3)
-    void setOffenderNo(String offenderNo);
+    @JsonProperty("dateOfBirth")
+    @JsonFormat(
+            shape = JsonFormat.Shape.STRING,
+            pattern = "yyyy-MM-dd"
+    )
+    private Date dateOfBirth;
 
-    String getFirstName();
+    @JsonProperty("age")
+    private int age;
 
-    @ApiModelProperty(value = "Offender's first name used in this booking", required = true, position = 4)
-    void setFirstName(String firstName);
+    @JsonProperty("alertsCodes")
+    private List<String> alertsCodes;
 
-    String getMiddleName();
+    @JsonProperty("agencyId")
+    private String agencyId;
 
-    @ApiModelProperty(value = "Offender's middle name used in this booking", position = 5)
-    void setMiddleName(String middleName);
+    @JsonProperty("assignedLivingUnitId")
+    private BigDecimal assignedLivingUnitId;
 
-    String getLastName();
+    @JsonProperty("assignedLivingUnitDesc")
+    private String assignedLivingUnitDesc;
 
-    @ApiModelProperty(value = "Offender's last name used in this booking.", required = true, position = 6)
-    void setLastName(String lastName);
+    @JsonProperty("facialImageId")
+    private BigDecimal facialImageId;
 
-    Date getDateOfBirth();
+    @JsonProperty("assignedOfficerUserId")
+    private String assignedOfficerUserId;
 
-    @ApiModelProperty(value = "Offender's date of birth used in this booking", required = true, position = 7)
-    void setDateOfBirth(Date dateOfBirth);
+    @JsonProperty("aliases")
+    private List<String> aliases;
 
-    int getAge();
+    @JsonAnyGetter
+    public Map<String, Object> getAdditionalProperties() {
+        return additionalProperties == null ? new HashMap<>() : additionalProperties;
+    }
 
-    @ApiModelProperty(value = "Offender's age based on their date of birth", position = 8)
-    void setAge(int age);
+    @JsonAnySetter
+    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+        this.additionalProperties = additionalProperties;
+    }
 
-    List<String> getAlertsCodes();
+    @JsonProperty("bookingId")
+    public BigDecimal getBookingId() {
+        return this.bookingId;
+    }
 
-    @ApiModelProperty(value = "List of active alert codes for this offender booking", position = 9)
-    void setAlertsCodes(List<String> alertsCodes);
+    @JsonProperty("bookingId")
+    public void setBookingId(BigDecimal bookingId) {
+        this.bookingId = bookingId;
+    }
 
-    String getAgencyId();
+    @JsonProperty("bookingNo")
+    public String getBookingNo() {
+        return this.bookingNo;
+    }
 
-    @ApiModelProperty(value = "Related agency ID for this offender booking", position = 10)
-    void setAgencyId(String agencyId);
+    @JsonProperty("bookingNo")
+    public void setBookingNo(String bookingNo) {
+        this.bookingNo = bookingNo;
+    }
 
-    BigDecimal getAssignedLivingUnitId();
+    @JsonProperty("offenderNo")
+    public String getOffenderNo() {
+        return this.offenderNo;
+    }
 
-    @ApiModelProperty(value = "Offenders assigned living unit for this booking", position = 11)
-    void setAssignedLivingUnitId(BigDecimal assignedLivingUnitId);
+    @JsonProperty("offenderNo")
+    public void setOffenderNo(String offenderNo) {
+        this.offenderNo = offenderNo;
+    }
 
-    String getAssignedLivingUnitDesc();
+    @JsonProperty("firstName")
+    public String getFirstName() {
+        return this.firstName;
+    }
 
-    @ApiModelProperty(value = "A textual description of the offenders living unit", position = 12)
-    void setAssignedLivingUnitDesc(String assignedLivingUnitDesc);
+    @JsonProperty("firstName")
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
 
-    BigDecimal getFacialImageId();
+    @JsonProperty("middleName")
+    public String getMiddleName() {
+        return this.middleName;
+    }
 
-    @ApiModelProperty(value = "The ID if the active offender image", position = 13)
-    void setFacialImageId(BigDecimal facialImageId);
+    @JsonProperty("middleName")
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
+    }
 
-    String getAssignedOfficerUserId();
+    @JsonProperty("lastName")
+    public String getLastName() {
+        return this.lastName;
+    }
 
-    @ApiModelProperty(value = "The ID of the staff member assigned to this offender", position = 14)
-    void setAssignedOfficerUserId(String assignedOfficerUserId);
+    @JsonProperty("lastName")
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
-    List<String> getAliases();
+    @JsonProperty("dateOfBirth")
+    public Date getDateOfBirth() {
+        return this.dateOfBirth;
+    }
 
-    @ApiModelProperty(value = "List of aliases for the offender, displayed lastname, firstname", required = true, position = 15)
-    void setAliases(List<String> aliases);
+    @JsonProperty("dateOfBirth")
+    public void setDateOfBirth(Date dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    @JsonProperty("age")
+    public int getAge() {
+        return this.age;
+    }
+
+    @JsonProperty("age")
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    @JsonProperty("alertsCodes")
+    public List<String> getAlertsCodes() {
+        return this.alertsCodes;
+    }
+
+    @JsonProperty("alertsCodes")
+    public void setAlertsCodes(List<String> alertsCodes) {
+        this.alertsCodes = alertsCodes;
+    }
+
+    @JsonProperty("agencyId")
+    public String getAgencyId() {
+        return this.agencyId;
+    }
+
+    @JsonProperty("agencyId")
+    public void setAgencyId(String agencyId) {
+        this.agencyId = agencyId;
+    }
+
+    @JsonProperty("assignedLivingUnitId")
+    public BigDecimal getAssignedLivingUnitId() {
+        return this.assignedLivingUnitId;
+    }
+
+    @JsonProperty("assignedLivingUnitId")
+    public void setAssignedLivingUnitId(BigDecimal assignedLivingUnitId) {
+        this.assignedLivingUnitId = assignedLivingUnitId;
+    }
+
+    @JsonProperty("assignedLivingUnitDesc")
+    public String getAssignedLivingUnitDesc() {
+        return this.assignedLivingUnitDesc;
+    }
+
+    @JsonProperty("assignedLivingUnitDesc")
+    public void setAssignedLivingUnitDesc(String assignedLivingUnitDesc) {
+        this.assignedLivingUnitDesc = assignedLivingUnitDesc;
+    }
+
+    @JsonProperty("facialImageId")
+    public BigDecimal getFacialImageId() {
+        return this.facialImageId;
+    }
+
+    @JsonProperty("facialImageId")
+    public void setFacialImageId(BigDecimal facialImageId) {
+        this.facialImageId = facialImageId;
+    }
+
+    @JsonProperty("assignedOfficerUserId")
+    public String getAssignedOfficerUserId() {
+        return this.assignedOfficerUserId;
+    }
+
+    @JsonProperty("assignedOfficerUserId")
+    public void setAssignedOfficerUserId(String assignedOfficerUserId) {
+        this.assignedOfficerUserId = assignedOfficerUserId;
+    }
+
+    @JsonProperty("aliases")
+    public List<String> getAliases() {
+        return this.aliases;
+    }
+
+    @JsonProperty("aliases")
+    public void setAliases(List<String> aliases) {
+        this.aliases = aliases;
+    }
 }

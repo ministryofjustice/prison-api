@@ -20,14 +20,14 @@ public class SearchResourceImpl implements SearchResource {
     }
 
     @Override
-    public GetSearchResponse searchForOffendersLocationOnly(String locationId, String sortFields, String sortOrder, Long offset, Long limit) {
-        List<OffenderBooking> offenders = inmateService.findOffenders(null, locationId, sortFields, sortOrder, offset, limit);
+    public GetSearchResponse searchForOffendersLocationOnly(String locationPrefix, String sortFields, String sortOrder, Long offset, Long limit) {
+        List<OffenderBooking> offenders = inmateService.findOffenders(null, locationPrefix, sortFields, sortOrder, offset, limit);
         return GetSearchResponse.respond200WithApplicationJson(offenders, offset, limit, MetaDataFactory.getTotalRecords(offenders));
     }
 
     @Override
-    public GetSearchResponse searchForOffendersLocationAndKeyword(String locationId, String keywords, String sortFields, String sortOrder, Long offset, Long limit) {
-        List<OffenderBooking> offenders = inmateService.findOffenders(keywords, locationId, sortFields, sortOrder, offset, limit);
+    public GetSearchResponse searchForOffendersLocationAndKeyword(String locationPrefix, String keywords, String sortFields, String sortOrder, Long offset, Long limit) {
+        List<OffenderBooking> offenders = inmateService.findOffenders(keywords, locationPrefix, sortFields, sortOrder, offset, limit);
         return GetSearchResponse.respond200WithApplicationJson(offenders, offset, limit, MetaDataFactory.getTotalRecords(offenders));
     }
 }
