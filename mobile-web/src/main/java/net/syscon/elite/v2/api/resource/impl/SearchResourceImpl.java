@@ -2,7 +2,7 @@ package net.syscon.elite.v2.api.resource.impl;
 
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.InmateService;
-import net.syscon.elite.v2.api.model.OffenderBooking;
+import net.syscon.elite.v2.api.model.OffenderBookingImpl;
 import net.syscon.elite.v2.api.resource.SearchResource;
 import net.syscon.util.MetaDataFactory;
 
@@ -21,13 +21,13 @@ public class SearchResourceImpl implements SearchResource {
 
     @Override
     public GetSearchResponse searchForOffendersLocationOnly(String locationId, String sortFields, String sortOrder, Long offset, Long limit) {
-        List<OffenderBooking> offenders = inmateService.findOffenders(null, locationId, sortFields, sortOrder, offset, limit);
+        List<OffenderBookingImpl> offenders = inmateService.findOffenders(null, locationId, sortFields, sortOrder, offset, limit);
         return GetSearchResponse.respond200WithApplicationJson(offenders, offset, limit, MetaDataFactory.getTotalRecords(offenders));
     }
 
     @Override
     public GetSearchResponse searchForOffendersLocationAndKeyword(String locationId, String keywords, String sortFields, String sortOrder, Long offset, Long limit) {
-        List<OffenderBooking> offenders = inmateService.findOffenders(keywords, locationId, sortFields, sortOrder, offset, limit);
+        List<OffenderBookingImpl> offenders = inmateService.findOffenders(keywords, locationId, sortFields, sortOrder, offset, limit);
         return GetSearchResponse.respond200WithApplicationJson(offenders, offset, limit, MetaDataFactory.getTotalRecords(offenders));
     }
 }

@@ -3,6 +3,7 @@ package net.syscon.elite.v2.api.resource;
 import io.swagger.annotations.*;
 import net.syscon.elite.v2.api.model.ErrorResponse;
 import net.syscon.elite.v2.api.model.PrisonerDetail;
+import net.syscon.elite.v2.api.model.PrisonerDetailImpl;
 import net.syscon.elite.v2.api.support.ResponseDelegate;
 
 import javax.ws.rs.GET;
@@ -42,7 +43,7 @@ public interface PrisonerResource {
       super(response);
     }
 
-    public static GetPrisonersResponse respond200WithApplicationJson(List<PrisonerDetail> entity) {
+    public static GetPrisonersResponse respond200WithApplicationJson(List<PrisonerDetailImpl> entity) {
       Response.ResponseBuilder responseBuilder = Response.status(200).header("Content-Type", "application/json");
       responseBuilder.entity(entity);
       return new GetPrisonersResponse(responseBuilder.build(), entity);

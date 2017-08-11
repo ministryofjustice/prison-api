@@ -2,7 +2,7 @@ package net.syscon.elite.v2.api.resource.impl;
 
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.InmateService;
-import net.syscon.elite.v2.api.model.PrisonerDetail;
+import net.syscon.elite.v2.api.model.PrisonerDetailImpl;
 import net.syscon.elite.v2.api.resource.PrisonerResource;
 import org.apache.commons.lang3.StringUtils;
 
@@ -27,7 +27,7 @@ public class PrisonerResourceImpl implements PrisonerResource {
 
     @Override
     public GetPrisonersResponse getPrisoners(String firstName, String middleNames, String lastName, String pncNumber, String croNumber, String dob, String dobFrom, String dobTo, String sortFields) {
-        List<PrisonerDetail> prisoners = inmateService.findPrisoners(firstName, middleNames, lastName, pncNumber, croNumber, convertToDate(dob), convertToDate(dobFrom), convertToDate(dobTo), sortFields);
+        List<PrisonerDetailImpl> prisoners = inmateService.findPrisoners(firstName, middleNames, lastName, pncNumber, croNumber, convertToDate(dob), convertToDate(dobFrom), convertToDate(dobTo), sortFields);
         return GetPrisonersResponse.respond200WithApplicationJson(prisoners);
     }
 

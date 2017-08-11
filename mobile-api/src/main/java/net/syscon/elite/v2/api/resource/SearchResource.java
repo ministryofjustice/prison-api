@@ -3,6 +3,7 @@ package net.syscon.elite.v2.api.resource;
 import io.swagger.annotations.*;
 import net.syscon.elite.v2.api.model.ErrorResponse;
 import net.syscon.elite.v2.api.model.OffenderBooking;
+import net.syscon.elite.v2.api.model.OffenderBookingImpl;
 import net.syscon.elite.v2.api.support.ResponseDelegate;
 
 import javax.ws.rs.*;
@@ -59,7 +60,7 @@ public interface SearchResource {
             super(response);
         }
 
-        public static GetSearchResponse respond200WithApplicationJson(List<OffenderBooking> entity, Long offset, Long limit, Long totalRecords) {
+        public static GetSearchResponse respond200WithApplicationJson(List<OffenderBookingImpl> entity, Long offset, Long limit, Long totalRecords) {
             Response.ResponseBuilder responseBuilder = Response.status(200)
                     .header("Content-Type", "application/json")
                     .header("Total-Records", totalRecords)
