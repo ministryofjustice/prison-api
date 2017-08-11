@@ -98,6 +98,6 @@ public class QueryUtil {
 	public static String getCriteriaFromQuery(final String sql) {
 		String cleanedSql = StringUtils.replaceAll(StringUtils.trim(sql),"\n", " ");
 		final int fromLocation = StringUtils.lastIndexOfIgnoreCase(cleanedSql, "FROM ");
-		return  StringUtils.replaceAll(StringUtils.substring(sql, fromLocation),"\\s+", " ");
+		return  StringUtils.replaceAll(StringUtils.substring(cleanedSql, fromLocation),"\\s+", " ");
 	}
 }
