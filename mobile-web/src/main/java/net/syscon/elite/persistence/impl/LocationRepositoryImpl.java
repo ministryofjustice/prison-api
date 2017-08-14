@@ -21,7 +21,7 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 
 	private final Map<String, FieldMapper> locationMapping = new ImmutableMap.Builder<String, FieldMapper>()
 		.put("INTERNAL_LOCATION_ID", 		new FieldMapper("locationId"))
-		.put("AGENCY_ID", 					new FieldMapper("agencyId"))
+		.put("AGY_LOC_ID", 					new FieldMapper("agencyId"))
 		.put("INTERNAL_LOCATION_TYPE", 		new FieldMapper("locationType"))
 		.put("DESCRIPTION", 				new FieldMapper("description"))
 		.put("AGENCY_LOCATION_TYPE", 		new FieldMapper("agencyType"))

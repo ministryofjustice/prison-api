@@ -1,12 +1,14 @@
 package net.syscon.elite.v2.api.resource;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import net.syscon.elite.v2.api.model.ErrorResponse;
 import net.syscon.elite.v2.api.model.Location;
 import net.syscon.elite.v2.api.support.ResponseDelegate;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -20,15 +22,9 @@ public interface UserResource {
     @Produces("application/json")
     @ApiOperation(value = "Gets list of locations applicable for user.", nickname = "getUserLocations")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Locations successfully retrieved.", response = Location.class, responseContainer = "List",
-                    responseHeaders = {
-                            @ResponseHeader(name = "Total-Records", description = "Total number of records available", response = Long.class),
-                            @ResponseHeader(name = "Page-Offset", description = "Offset of first returned record", response = Long.class),
-                            @ResponseHeader(name = "Page-Limit", description = "Limit for number of records returned", response = Long.class)
-                    })
+            @ApiResponse(code = 200, message = "Locations successfully retrieved.", response = Location.class, responseContainer = "List")
     })
-    GetUsersMeLocationsResponse getUsersMeLocations(@ApiParam(value = "Offset of first returned record") @HeaderParam("Page-Offset") Long offset,
-                                                    @ApiParam(value = "Limit for number of records returned") @HeaderParam("Page-Limit") Long limit);
+    GetUsersMeLocationsResponse getUsersMeLocations();
 
     class GetUsersMeLocationsResponse extends ResponseDelegate {
         private GetUsersMeLocationsResponse(Response response, Object entity) {
@@ -39,12 +35,9 @@ public interface UserResource {
             super(response);
         }
 
-        public static GetUsersMeLocationsResponse respond200WithApplicationJson(List<Location> entity, Long offset, Long limit, Long totalRecords) {
+        public static GetUsersMeLocationsResponse respond200WithApplicationJson(List<Location> entity) {
             Response.ResponseBuilder responseBuilder = Response.status(200)
-                    .header("Content-Type", "application/json")
-                    .header("Total-Records", totalRecords)
-                    .header("Page-Offset", offset)
-                    .header("Page-Limit", limit);
+                    .header("Content-Type", "application/json");
             responseBuilder.entity(entity);
             return new GetUsersMeLocationsResponse(responseBuilder.build(), entity);
         }

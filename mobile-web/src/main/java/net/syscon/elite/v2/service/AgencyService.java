@@ -10,4 +10,5 @@ import java.util.List;
 public interface AgencyService {
     Agency getAgency(String agencyId);
     List<Agency> findAgenciesByCaseLoad(String caseLoadId, Long offset, Long limit);
+    List<Agency> findAgenciesByUsername(String username, Long offset, Long limit);
 }

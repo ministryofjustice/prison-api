@@ -21,6 +21,7 @@ import java.util.Map;
  *     <li>/users/login</li>
  *     <li>/users/staff</li>
  *     <li>/users/token</li>
+ *     <li>/v2/users/me/locations</li>
  * </ul>
  *
  * NB: Not all API endpoints have associated tests at this point in time.
@@ -53,6 +54,11 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.authenticates("itag_user", "password");
     }
 
+    @Given("^user \"([^\"]*)\" with password \"([^\"]*)\" has authenticated with the API$")
+    public void userWithPasswordHasAuthenticatedWithTheAPI(String username, String password) throws Throwable {
+        user.authenticates(username, password);
+    }
+
     @When("^a staff member search is made using staff id \"([^\"]*)\"$")
     public void aStaffMemberSearchIsMadeUsingStaffId(String staffId) throws Throwable {
         user.findStaffDetails(Long.valueOf(staffId));
@@ -76,5 +82,30 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     @Then("^http status (\\d+) response is returned$")
     public void httpStatusResponseIsReturned(int statusCode) throws Throwable {
         user.verifyHttpStatusResponse(statusCode);
+    }
+
+    @When("^a request is made to retrieve user locations$")
+    public void aRequestIsMadeToRetrieveUserLocations() throws Throwable {
+        user.retrieveUserLocations();
+    }
+
+    @Then("^\"([^\"]*)\" user locations are returned$")
+    public void userLocationsAreReturned(String expectedCount) throws Throwable {
+        user.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
+    }
+
+    @And("^user location agency ids are \"([^\"]*)\"$")
+    public void userLocationAgencyIdsAre(String expectedAgencies) throws Throwable {
+        user.verifyLocationAgencies(expectedAgencies);
+    }
+
+    @And("^user location descriptions are \"([^\"]*)\"$")
+    public void userLocationDescriptionsAre(String expectedDescriptions) throws Throwable {
+        user.verifyLocationDescriptions(expectedDescriptions);
+    }
+
+    @And("^user location prefixes are \"([^\"]*)\"$")
+    public void userLocationPrefixesAre(String expectedPrefixes) throws Throwable {
+        user.verifyLocationPrefixes(expectedPrefixes);
     }
 }
