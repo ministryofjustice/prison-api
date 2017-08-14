@@ -5,7 +5,6 @@ import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.v2.api.model.Location;
 import net.syscon.elite.v2.api.resource.UserResource;
 import net.syscon.elite.v2.service.LocationService;
-import net.syscon.util.MetaDataFactory;
 
 import javax.ws.rs.Path;
 import java.util.List;
@@ -21,8 +20,10 @@ public class UserResourceImpl implements UserResource {
     }
 
     @Override
-    public GetUsersMeLocationsResponse getUsersMeLocations(Long offset, Long limit) {
-        List<Location> userLocations = locationService.getUserLocations(UserSecurityUtils.getCurrentUsername(), offset, limit);
-        return GetUsersMeLocationsResponse.respond200WithApplicationJson(userLocations, offset, limit, MetaDataFactory.getTotalRecords(userLocations));
+    public GetUsersMeLocationsResponse getUsersMeLocations() {
+        List<Location> userLocations =
+                locationService.getUserLocations(UserSecurityUtils.getCurrentUsername());
+
+        return GetUsersMeLocationsResponse.respond200WithApplicationJson(userLocations);
     }
 }

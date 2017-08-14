@@ -1,5 +1,6 @@
 package net.syscon.elite.executableSpecification.steps;
 
+import net.syscon.elite.v2.api.model.Location;
 import net.syscon.elite.web.api.model.PageMetaData;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
@@ -10,6 +11,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public abstract class CommonSteps {
     public static final String API_PREFIX = "/";
+    public static final String V2_API_PREFIX = "/v2/";
 
     @Autowired
     private AuthenticationSteps auth;
@@ -112,5 +116,26 @@ public abstract class CommonSteps {
         String expected = String.join(",", listExpected);
 
         assertThat(actual).isEqualTo(expected);
+    }
+
+    protected <T> List<String> extractPropertyValues(Collection<T> actualCollection, Function<T, String> mapper) {
+        List<String> extractedVals = new ArrayList<>();
+
+        if (actualCollection != null) {
+            extractedVals.addAll(
+                    actualCollection.stream().map(mapper).filter(StringUtils::isNotBlank).collect(Collectors.toList())
+            );
+        }
+
+        return extractedVals;
+    }
+
+    protected <T> void verifyPropertyValues(Collection<T> actualCollection,
+                                            Function<T, String> mapper,
+                                            String expectedValues) {
+        List<String> actualValList = extractPropertyValues(actualCollection, mapper);
+        List<String> expectedValList = csv2list(expectedValues);
+
+        verifyIdentical(actualValList, expectedValList);
     }
 }

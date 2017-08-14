@@ -11,7 +11,7 @@ import java.util.Map;
 import static net.syscon.elite.core.Constants.RECORD_COUNT;
 
 public class MetaDataFactory {
-	
+
 	public static <T> PageMetaData createMetaData(int limit, int offset, List<T> collection) {
 		final PageMetaData metaData = new PageMetaData();
 		metaData.setLimit((long) limit);
@@ -20,20 +20,33 @@ public class MetaDataFactory {
 		return metaData;
 	}
 
-	public static <T> Long getTotalRecords(List<T> collection) {
-		Long recordCount = null;
-		if (!collection.isEmpty()) {
-			final T item = collection.get(0);
-			recordCount = findRecordCount(item);
-			if (recordCount == null) {
-				throw new EliteRuntimeException(String.format("There is no \"additionalProperties\" field on the class %s", item.getClass().getName()));
-			} else {
-				removeRecordCountFromAttr(collection);
-			}
-		}
-
-		return recordCount;
+    public static <T> Long peekTotalRecords(List<T> collection) {
+        return getTotalRecords(collection, false);
 	}
+
+	public static <T> Long getTotalRecords(List<T> collection) {
+		return getTotalRecords(collection, true);
+	}
+
+    public static <T> Long getTotalRecords(List<T> collection, boolean removeRecordCountAttr) {
+        Long recordCount = null;
+
+        if (!collection.isEmpty()) {
+            final T item = collection.get(0);
+
+            recordCount = findRecordCount(item);
+
+            if (recordCount == null) {
+                throw new EliteRuntimeException(
+                        String.format("There is no \"additionalProperties\" field on the class %s",
+                                item.getClass().getName()));
+            } else if (removeRecordCountAttr) {
+                removeRecordCountFromAttr(collection);
+            }
+        }
+
+        return recordCount;
+    }
 
 	private static <T> void removeRecordCountFromAttr(List<T> collection) {
 		collection.forEach(element -> {

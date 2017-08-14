@@ -8,5 +8,5 @@ import java.util.List;
  * Location API (v2) service interface.
  */
 public interface LocationService {
-    List<Location> getUserLocations(String username, Long offset, Long limit);
+    List<Location> getUserLocations(String username);
 }

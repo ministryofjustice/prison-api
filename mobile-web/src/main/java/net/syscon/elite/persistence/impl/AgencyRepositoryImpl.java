@@ -37,13 +37,11 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
 
 	@Override
 	public List<Agency> findAgencies(String caseLoadId, int offset, int limit) {
-		String sql =  queryBuilderFactory.getQueryBuilder(getQuery("FIND_ALL_AGENCIES"), agencyMapping)
+		String sql =  queryBuilderFactory.getQueryBuilder(getQuery("FIND_AGENCIES_BY_CASELOAD"), agencyMapping)
 									.addRowCount()
 									.addPagination()
-									.build();//getPagedQuery("FIND_ALL_AGENCIES");
+									.build();
 		RowMapper<Agency> agencyRowMapper = Row2BeanRowMapper.makeMapping(sql, Agency.class, agencyMapping);
 		return jdbcTemplate.query(sql, createParams("caseLoadId", caseLoadId, "offset", offset, "limit", limit), agencyRowMapper);
 	}
 }
-
-
