@@ -1,41 +1,68 @@
 package net.syscon.util;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.concurrent.ConcurrentHashMap;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
+/**
+ * Date format helper.
+ */
 public class DateFormatProvider {
 
-    private static final Map<String, ThreadLocal<DateFormat>> THREAD_LOCAL_MAP = new ConcurrentHashMap<>();
-    private static final String NORTH_AMERICA_DATE_FORMAT = "MM/dd/yyyy";
-    
     private DateFormatProvider() {}
 
+    /**
+     * Formats date and time represented by provided dateTime object to an ISO-8601 dateTime representation.
+     *
+     * @param dateTime an instance of {@code java.sql.Timestamp} or {@code java.util.Date}.
+     * @return formatted dateTime or {@code null} if provided dateTime object is {@code null}.
+     * @throws IllegalArgumentException if provided dateTime object is not of a supported type.
+     */
+    public static String toISO8601DateTime(Object dateTime) {
+        String dateTimeStr = null;
 
-    public static DateFormat get() {
-    	return get(NORTH_AMERICA_DATE_FORMAT);
-    }
+        LocalDateTime localDateTime;
 
-    public static DateFormat get(final String pattern) {
-        return get(pattern, TimeZone.getDefault());
-    }
-
-    public static DateFormat get(final String pattern, final TimeZone timeZone) {
-        final String key = pattern + timeZone.getID();
-        ThreadLocal<DateFormat> threadLocal = THREAD_LOCAL_MAP.get(key);
-        if (threadLocal == null) {
-            threadLocal = new ThreadLocal<>();
-            THREAD_LOCAL_MAP.put(key, threadLocal);
+        if (dateTime instanceof java.sql.Timestamp) {
+            localDateTime = ((java.sql.Timestamp) dateTime).toLocalDateTime();
+        } else if (dateTime instanceof java.util.Date) {
+            localDateTime = ((java.util.Date) dateTime).toInstant().atOffset(ZoneOffset.UTC).toLocalDateTime();
+        } else {
+            throw new IllegalArgumentException("Cannot convert [" + dateTime.getClass().getName() + "] to a LocalDateTime.");
         }
-        DateFormat dateFormat = threadLocal.get();
-        if (dateFormat == null) {
-            dateFormat = new SimpleDateFormat(pattern);
-            dateFormat.setTimeZone(timeZone);
-            threadLocal.set(dateFormat);
-        }
-        return dateFormat;
+
+        dateTimeStr = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(localDateTime);
+
+        return dateTimeStr;
     }
 
+    /**
+     * Formats date represented by provided date object to an ISO-8601 date representation (i.e. yyyy-MM-dd).
+     * By definition, this method ignores timezone information, if any, that might exist in provided date object.
+     *
+     * @param date an instance of {@code java.sql.Date} or {@code java.util.Date}.
+     * @return formatted date or {@code null} if provided date object is {@code null}.
+     * @throws IllegalArgumentException if provided date object is not of a supported type.
+     */
+    public static String toISO8601Date(Object date) {
+        String dateStr = null;
+
+        if (date != null) {
+            LocalDate localDate;
+
+            if (date instanceof java.sql.Date) {
+                localDate = ((java.sql.Date) date).toLocalDate();
+            } else if (date instanceof java.util.Date) {
+                localDate = ((java.util.Date) date).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            } else {
+                throw new IllegalArgumentException("Cannot convert [" + date.getClass().getName() + "] to a LocalDate.");
+            }
+
+            dateStr = DateTimeFormatter.ISO_LOCAL_DATE.format(localDate);
+        }
+
+        return dateStr;
+    }
 }

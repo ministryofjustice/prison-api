@@ -5,6 +5,7 @@ import net.syscon.elite.persistence.ImageRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.web.api.model.ImageDetails;
+import net.syscon.util.DateFormatProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -25,7 +26,7 @@ public class ImageRepositoryImpl extends RepositoryBase implements ImageReposito
 
 	private final Map<String, FieldMapper> imageSummaryMapping = new ImmutableMap.Builder<String, FieldMapper>()
 		.put("IMAGE_ID",            new FieldMapper("imageId"))
-		.put("CAPTURE_DATE",        new FieldMapper("captureDate"))
+		.put("CAPTURE_DATE",        new FieldMapper("captureDate", DateFormatProvider::toISO8601DateTime))
 		.put("IMAGE_VIEW_TYPE",     new FieldMapper("imageView"))
 		.put("ORIENTATION_TYPE",    new FieldMapper("imageOrientation"))
 		.put("IMAGE_OBJECT_TYPE",   new FieldMapper("imageType"))
@@ -62,5 +63,3 @@ public class ImageRepositoryImpl extends RepositoryBase implements ImageReposito
 		}
 	}
 }
-
-
