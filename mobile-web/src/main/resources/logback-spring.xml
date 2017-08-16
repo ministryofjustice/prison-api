@@ -46,7 +46,11 @@
         <appender-ref ref="consoleAppender"/>
     </logger>
 
-    <logger name="com.zaxxer.hikari.HikariDataSource" additivity="false" level="INFO" >
+    <logger name="com.zaxxer.hikari" additivity="false" level="INFO" >
+        <appender-ref ref="consoleAppender"/>
+    </logger>
+
+    <logger name="org.flywaydb" additivity="false" level="INFO" >
         <appender-ref ref="consoleAppender"/>
     </logger>
 

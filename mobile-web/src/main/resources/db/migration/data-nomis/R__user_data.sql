@@ -1,7 +1,3 @@
-CREATE USER "itag_user" PASSWORD 'password';
-CREATE USER "elite2_api_user" PASSWORD 'password';
-CREATE USER "api_test_user" PASSWORD 'password';
-
 INSERT INTO OMS_ROLES (ROLE_ID, ROLE_NAME, ROLE_SEQ, ROLE_CODE, PARENT_ROLE_CODE) VALUES ( -1, 'Administrator', 1, 'ADMIN', null);
 INSERT INTO OMS_ROLES (ROLE_ID, ROLE_NAME, ROLE_SEQ, ROLE_CODE, PARENT_ROLE_CODE) VALUES ( -2, 'Wing Officer', 1, 'WING_OFF', null);
 

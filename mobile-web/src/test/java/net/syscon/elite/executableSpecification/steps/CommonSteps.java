@@ -1,6 +1,5 @@
 package net.syscon.elite.executableSpecification.steps;
 
-import net.syscon.elite.v2.api.model.Location;
 import net.syscon.elite.web.api.model.PageMetaData;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;

@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,23 +34,19 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     private CaseNote seededCaseNote;
     private CaseNote updatedCaseNote;
 
+    private Long caseNoteBookingId = -1L;
+
     @When("^a case note is created for an existing offender booking:$")
     public void aCaseNoteIsCreatedForAnExistingOffenderBooking(DataTable rawData) {
         Map<String, String> caseNoteData = rawData.asMap(String.class, String.class);
 
-        NewCaseNote newCaseNote = new NewCaseNote();
-        newCaseNote.setType(caseNoteData.get("type"));
-        newCaseNote.setSubType(caseNoteData.get("subType"));
-        newCaseNote.setText(caseNoteData.get("text"));
-        newCaseNote.setOccurrenceDateTime(caseNoteData.get("occurrenceDateTime"));
-        caseNote.createCaseNote(newCaseNote);
+        NewCaseNote newCaseNote =
+                buildNewCaseNote(caseNoteData.get("type"),
+                        caseNoteData.get("subType"),
+                        caseNoteData.get("text"),
+                        caseNoteData.get("occurrenceDateTime"));
 
-
-        final List<CaseNote> allCaseNotesForBooking = caseNote.getAllCaseNotesForBooking(-1L);
-        assertThat(allCaseNotesForBooking).hasSize(1);
-        seededCaseNote = allCaseNotesForBooking.get(0);
-        log.debug("Case Note ID {}",seededCaseNote.getCaseNoteId());
-
+        caseNote.createCaseNote(caseNoteBookingId, newCaseNote, true);
     }
 
     @Then("^case note is successfully created$")
@@ -59,22 +54,12 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         caseNote.verify();
     }
 
-    @And("^I have created a case note text of \"([^\"]*)\"$")
+    @And("^I have created a case note with text of \"([^\"]*)\"$")
     public void iHaveCreatedACaseNoteTextOf(String caseNoteText) throws Throwable {
-        NewCaseNote newCaseNote = new NewCaseNote();
+        NewCaseNote newCaseNote =
+                buildNewCaseNote("CHAP","FAMMAR", caseNoteText, null);
 
-        newCaseNote.setType("CHAP");
-        newCaseNote.setSubType("FAMMAR");
-        newCaseNote.setText(caseNoteText);
-
-        seededCaseNote = caseNote.createCaseNote(newCaseNote);
-
-    }
-
-    @And("^I have (\\d+) case notes for my booking$")
-    public void theCorectNumberOfCasesExist(int numCases) {
-        final List<CaseNote> allCaseNotesForBooking = caseNote.getAllCaseNotesForBooking(-1L);
-        assertThat(allCaseNotesForBooking).hasSize(numCases);
+        seededCaseNote = caseNote.createCaseNote(caseNoteBookingId, newCaseNote, true);
     }
 
     @When("^the created case note is updated with text \"([^\"]*)\"$")
@@ -95,5 +80,34 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     @And("^correct case note source is used$")
     public void correctCaseNoteSourceIsUsed() throws Throwable {
         caseNote.verifyCaseNoteSource();
+    }
+
+    @When("^a case note is created for an existing offender booking with incorrectly formatted occurrence dateTime:$")
+    public void aCaseNoteIsCreatedForAnExistingOffenderBookingWithIncorrectlyFormattedOccurrenceDateTime(DataTable rawData) throws Throwable {
+        Map<String, String> caseNoteData = rawData.asMap(String.class, String.class);
+
+        NewCaseNote newCaseNote =
+                buildNewCaseNote(caseNoteData.get("type"),
+                                 caseNoteData.get("subType"),
+                                 caseNoteData.get("text"),
+                                 caseNoteData.get("occurrenceDateTime"));
+
+        caseNote.createCaseNote(caseNoteBookingId, newCaseNote, false);
+    }
+
+    @Then("^case note is not created$")
+    public void caseNoteIsNotCreated() throws Throwable {
+        caseNote.verifyNotCreated();
+    }
+
+    private NewCaseNote buildNewCaseNote(String type, String subType, String text, String occurrenceDateTime) {
+        NewCaseNote newCaseNote = new NewCaseNote();
+
+        newCaseNote.setType(type);
+        newCaseNote.setSubType(subType);
+        newCaseNote.setText(text);
+        newCaseNote.setOccurrenceDateTime(occurrenceDateTime);
+
+        return newCaseNote;
     }
 }

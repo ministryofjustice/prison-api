@@ -11,23 +11,20 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-
 @Repository
 public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateAlertRepository {
-
 
 	private final Map<String, FieldMapper> alertMapping = new ImmutableMap.Builder<String, FieldMapper>()
 		.put("ALERT_SEQ", 			new FieldMapper("alertId"))
 		.put("ALERT_TYPE", 			new FieldMapper("alertType"))
 		.put("ALERT_CODE", 			new FieldMapper("alertCode"))
 		.put("COMMENT_TEXT", 		new FieldMapper("comment", value -> value == null ? "" : value))
-		.put("ALERT_DATE", 			new FieldMapper("dateCreated", value -> DateFormatProvider.get("yyyy-MM-dd").format((Date)value)))
-		.put("EXPIRY_DATE", 		new FieldMapper("dateExpires", value -> value == null ? "" : DateFormatProvider.get("yyyy-MM-dd").format((Date)value)))
+		.put("ALERT_DATE", 			new FieldMapper("dateCreated", DateFormatProvider::toISO8601Date))
+		.put("EXPIRY_DATE", 		new FieldMapper("dateExpires", value -> value == null ? "" : DateFormatProvider.toISO8601Date(value)))
 		.build();
 
 	@Override
@@ -57,7 +54,4 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 		}
 		return Optional.ofNullable(alert);
 	}
-	
-	
-
 }
