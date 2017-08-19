@@ -8,6 +8,10 @@
 		"offenderNo": { "type": "string" },
 		"firstName": { "type": "string" },
 		"lastName": { "type": "string" },
+		"dateOfBirth": {
+			"type": "string",
+			"format": "date-only"
+		},
 		"alertsCodes": { "type": "array", "items": { "type": "string" } },
 		"agencyId": { "type": "string" },
 		"assignedLivingUnitId": { "type": "integer" },
