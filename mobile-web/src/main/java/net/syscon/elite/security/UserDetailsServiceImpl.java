@@ -2,6 +2,7 @@ package net.syscon.elite.security;
 
 import net.syscon.elite.persistence.UserRepository;
 import net.syscon.elite.service.EntityNotFoundException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,7 +31,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 		Set<GrantedAuthority> authorities = roles.stream()
 				.filter(Objects::nonNull)
-				.map(name -> new SimpleGrantedAuthority(name.replace('-', '_')))
+				.map(name -> new SimpleGrantedAuthority("ROLE_" + StringUtils.upperCase(StringUtils.replaceAll(name,"-", "_"))))
 				.collect(Collectors.toSet());
 
 		return new UserDetailsImpl(username, null, authorities, userDetails.getAdditionalProperties());

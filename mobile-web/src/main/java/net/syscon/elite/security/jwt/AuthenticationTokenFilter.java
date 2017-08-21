@@ -18,7 +18,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.Collections;
 
 public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -59,13 +58,12 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
 			if (tokenManagement.validateToken(token, userDetails, deviceFingerprint, uri.endsWith("/users/token"))) {
 
 				if (log.isDebugEnabled()) {
-					log.debug("--passing control to filterChain for \"" + httpRequest.getRequestURL().toString() + "\" from \"" + request.getRemoteAddr() + "\"--");
+					log.debug("--passing control to filterChain for \"{}\" from \"{}\"--", httpRequest.getRequestURL(), request.getRemoteAddr());
+					log.debug("User {} has roles {}", userDetails.getUsername(), userDetails.getAuthorities());
 				}
 
-				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, Collections.emptyList());
-
+				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));
-
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
 		}
