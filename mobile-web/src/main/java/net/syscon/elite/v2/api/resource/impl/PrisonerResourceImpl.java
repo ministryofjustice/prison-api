@@ -7,6 +7,7 @@ import net.syscon.elite.v2.api.model.PrisonerDetail;
 import net.syscon.elite.v2.api.resource.PrisonerResource;
 import net.syscon.util.MetaDataFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.ws.rs.Path;
 import java.time.LocalDate;
@@ -28,6 +29,7 @@ public class PrisonerResourceImpl implements PrisonerResource {
     }
 
     @Override
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public GetPrisonersResponse getPrisoners(String firstName, String middleNames, String lastName, String pncNumber, String croNumber, String dob, String dobFrom, String dobTo, String sortFields, Long limit) {
 
         final PrisonerDetailSearchCriteria criteria = PrisonerDetailSearchCriteria.builder()

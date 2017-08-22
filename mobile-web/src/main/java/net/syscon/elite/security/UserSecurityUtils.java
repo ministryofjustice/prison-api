@@ -3,12 +3,16 @@ package net.syscon.elite.security;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class UserSecurityUtils {
 
@@ -34,6 +38,7 @@ public class UserSecurityUtils {
 		return auth instanceof AnonymousAuthenticationToken;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static UserDetailsImpl toUserDetails(Object userPrincipal) {
 		UserDetailsImpl userDetails;
 
@@ -45,12 +50,11 @@ public class UserSecurityUtils {
 			Map userPrincipalMap = (Map) userPrincipal;
 
 			String username = (String) userPrincipalMap.get("username");
-			List authorities = (List) userPrincipalMap.get("authorities");
-			Map additionalProperties = (Map) userPrincipalMap.get("additionalProperties");
+			Map<String, Object> additionalProperties = (Map) userPrincipalMap.get("additionalProperties");
 
 			if (StringUtils.isNotBlank(username)) {
 				userDetails = new UserDetailsImpl(username, null,
-						(authorities == null) ? Collections.emptyList() : authorities,
+						getAuthorities((List)userPrincipalMap.get("authorities")),
 						additionalProperties);
 			} else {
 				userDetails = null;
@@ -60,6 +64,13 @@ public class UserSecurityUtils {
 		}
 
 		return userDetails;
+	}
+
+	private static Set<GrantedAuthority> getAuthorities(List<Map<String, Object>> authorities) {
+		if (authorities != null) {
+			return authorities.stream().map(a -> new SimpleGrantedAuthority(a.get("authority").toString())).collect(Collectors.toSet());
+		}
+		return Collections.emptySet();
 	}
 
 	private static Object getUserPrincipal() {
