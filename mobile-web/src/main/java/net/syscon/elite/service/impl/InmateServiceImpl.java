@@ -43,7 +43,7 @@ public class InmateServiceImpl implements InmateService {
     @Override
     public List<AssignedInmate> findAllInmates(String query, int offset, int limit, String orderBy, Order order) {
         String colSort = StringUtils.isNotBlank(orderBy) ? orderBy : DEFAULT_OFFENDER_SORT;
-        return repository.findAllInmates(query, offset, limit, colSort, order);
+        return repository.findAllInmates(getUserCaseloadIds(), query, offset, limit, colSort, order);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     public InmateDetails findInmate(Long inmateId) {
-        return repository.findInmate(inmateId).orElseThrow(new EntityNotFoundException(String.valueOf(inmateId)));
+        return repository.findInmate(inmateId, getUserCaseloadIds()).orElseThrow(new EntityNotFoundException(String.valueOf(inmateId)));
     }
 
     @Override
@@ -70,9 +70,8 @@ public class InmateServiceImpl implements InmateService {
     @Override
     public List<OffenderBooking> findOffenders(String keywords, String locationPrefix, String sortFields, String sortOrder, Long offset, Long limit) {
 
-        final Set<String> caseloads = caseLoadRepository.findCaseLoadsByUsername(UserSecurityUtils.getCurrentUsername()).stream().map(CaseLoad::getCaseLoadId).collect(Collectors.toSet());
         final boolean descendingOrder = StringUtils.equalsIgnoreCase(sortOrder, "desc");
-        return repository.searchForOffenderBookings(caseloads, keywords, locationPrefix,
+        return repository.searchForOffenderBookings(getUserCaseloadIds(), keywords, locationPrefix,
                 offset != null ? offset.intValue() : 0,
                 limit != null ? limit.intValue() : Integer.MAX_VALUE, StringUtils.isNotBlank(sortFields) ? sortFields : DEFAULT_OFFENDER_SORT, !descendingOrder);
     }
@@ -120,5 +119,8 @@ public class InmateServiceImpl implements InmateService {
         }
     }
 
+    private Set<String> getUserCaseloadIds() {
+        return caseLoadRepository.findCaseLoadsByUsername(UserSecurityUtils.getCurrentUsername()).stream().map(CaseLoad::getCaseLoadId).collect(Collectors.toSet());
+    }
 
 }
