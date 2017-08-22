@@ -16,9 +16,11 @@ project(":mobile-web") {
         compile("org.springframework.boot:spring-boot-starter-jersey")
         compile("org.springframework.boot:spring-boot-starter-jdbc")
         compile("org.springframework.boot:spring-boot-starter-security")
+        compile("org.springframework.boot:spring-boot-starter-cache")
         compile("org.springframework.boot:spring-boot-devtools")
         compile("org.springframework.mobile:spring-mobile-device")
 
+        compile("net.sf.ehcache:ehcache-core:2.6.11")
         compile("io.jsonwebtoken:jjwt:${version_jjwt}")
         compile("com.zaxxer:HikariCP:${version_hikaricp}")
 

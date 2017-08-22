@@ -33,9 +33,6 @@ security:
 logging:
   level:
     org.springframework.security: INFO
-  cache:
-    jcache:
-      config: ehcache.xml
       
   mail:
     host: localhost
