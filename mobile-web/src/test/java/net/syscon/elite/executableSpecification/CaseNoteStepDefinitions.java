@@ -34,7 +34,12 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     private CaseNote seededCaseNote;
     private CaseNote updatedCaseNote;
 
-    private Long caseNoteBookingId = -1L;
+    private Long caseNoteBookingId = -99L;
+
+    @And("^case note test harness initialized$")
+    public void caseNoteTestHarnessInitialized() throws Throwable {
+        caseNote.init();
+    }
 
     @When("^a case note is created for an existing offender booking:$")
     public void aCaseNoteIsCreatedForAnExistingOffenderBooking(DataTable rawData) {
@@ -64,7 +69,7 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
 
     @When("^the created case note is updated with text \"([^\"]*)\"$")
     public void theCaseNoteIsUpdatedWithText(String caseNoteText) throws Throwable {
-        updatedCaseNote = caseNote.updateCaseNote(seededCaseNote.getCaseNoteId(), new UpdateCaseNote(caseNoteText));
+        updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, new UpdateCaseNote(caseNoteText));
     }
 
     @Then("^case note is successfully updated with \"([^\"]*)\"$")
@@ -109,5 +114,50 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         newCaseNote.setOccurrenceDateTime(occurrenceDateTime);
 
         return newCaseNote;
+    }
+
+    @When("^case notes are requested for offender booking \"([^\"]*)\"$")
+    public void caseNotesAreRequestedForOffenderBooking(String bookingId) throws Throwable {
+        caseNote.getCaseNotes(Long.valueOf(bookingId));
+    }
+
+    @Then("^\"([^\"]*)\" case notes are returned$")
+    public void caseNotesAreReturned(String count) throws Throwable {
+        caseNote.verifyResourceRecordsReturned(Long.valueOf(count));
+    }
+
+    @And("^case note types match \"([^\"]*)\"$")
+    public void caseNoteTypesMatch(String caseNoteTypes) throws Throwable {
+        caseNote.verifyCaseNoteTypes(caseNoteTypes);
+    }
+
+    @And("^case note sub types match \"([^\"]*)\"$")
+    public void caseNoteSubTypesMatch(String caseNoteSubTypes) throws Throwable {
+        caseNote.verifyCaseNoteSubTypes(caseNoteSubTypes);
+    }
+
+    @And("^case note type \"([^\"]*)\" filter applied$")
+    public void caseNoteTypeFilterApplied(String caseNoteType) throws Throwable {
+        caseNote.applyCaseNoteTypeFilter(caseNoteType);
+    }
+
+    @And("^case note sub type \"([^\"]*)\" filter applied$")
+    public void caseNoteSubTypeFilterApplied(String caseNoteSubType) throws Throwable {
+        caseNote.applyCaseNoteSubTypeFilter(caseNoteSubType);
+    }
+
+    @And("^date from \"([^\"]*)\" filter applied$")
+    public void dateFromFilterApplied(String dateFrom) throws Throwable {
+        caseNote.applyDateFromFilter(dateFrom);
+    }
+
+    @And("^date to \"([^\"]*)\" filter applied$")
+    public void dateToFilterApplied(String dateTo) throws Throwable {
+        caseNote.applyDateToFilter(dateTo);
+    }
+
+    @And("^filtered case notes are requested for offender booking \"([^\"]*)\"$")
+    public void filteredCaseNotesAreRequestedForOffenderBooking(String bookingId) throws Throwable {
+        caseNote.getCaseNotes(Long.valueOf(bookingId));
     }
 }

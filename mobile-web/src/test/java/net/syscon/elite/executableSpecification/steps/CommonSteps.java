@@ -137,4 +137,8 @@ public abstract class CommonSteps {
 
         verifyIdentical(actualValList, expectedValList);
     }
+
+    protected String buildQueryParam(String query) {
+        return StringUtils.isBlank(query) ? "" : "?query=" + StringUtils.trim(query);
+    }
 }
