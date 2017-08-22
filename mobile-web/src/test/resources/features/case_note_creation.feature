@@ -1,5 +1,5 @@
 @global
-Feature: Case Notes
+Feature: Case Note Creation and Update
 
   Acceptance Criteria:
   A logged in staff user can create and update case notes for an existing offender booking

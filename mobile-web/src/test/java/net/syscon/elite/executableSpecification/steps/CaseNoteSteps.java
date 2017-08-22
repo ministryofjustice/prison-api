@@ -1,9 +1,11 @@
 package net.syscon.elite.executableSpecification.steps;
 
 import net.syscon.elite.web.api.model.CaseNote;
+import net.syscon.elite.web.api.model.CaseNotes;
 import net.syscon.elite.web.api.model.NewCaseNote;
 import net.syscon.elite.web.api.model.UpdateCaseNote;
 import net.thucydides.core.annotations.Step;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -19,10 +21,20 @@ public class CaseNoteSteps extends CommonSteps {
     private static final String API_REQUEST_FOR_CASENOTE = API_REQUEST_BASE_URL + "/{caseNoteId}";
 
     private CaseNote caseNote;
+    private CaseNotes caseNotes;
     private NewCaseNote pendingCaseNote;
+    private String caseNoteFilter;
 
     @Value("${api.caseNote.sourceCode:AUTO}")
     private String caseNoteSource;
+
+    @Step("Initialisation")
+    public void init() {
+        caseNote = null;
+        caseNotes = null;
+        pendingCaseNote = null;
+        caseNoteFilter = "";
+    }
 
     @Step("Verify case note")
     public void verify() {
@@ -60,11 +72,70 @@ public class CaseNoteSteps extends CommonSteps {
     }
 
     @Step("Update case note")
-    public CaseNote updateCaseNote(Long caseNoteId, UpdateCaseNote updatedCaseNote) {
-        dispatchUpdateRequest(-1L, caseNoteId, updatedCaseNote);
-        dispatchGetRequest(-1L, caseNoteId);
+    public CaseNote updateCaseNote(CaseNote originalCaseNote, UpdateCaseNote updatedCaseNote) {
+        dispatchUpdateRequest(originalCaseNote.getBookingId(), originalCaseNote.getCaseNoteId(), updatedCaseNote);
+        dispatchGetRequest(originalCaseNote.getBookingId(), originalCaseNote.getCaseNoteId());
 
         return caseNote;
+    }
+
+    @Step("Get case notes")
+    public void getCaseNotes(Long bookingId) {
+        dispatchQueryRequest(bookingId);
+    }
+
+    @Step("Verify case note types")
+    public void verifyCaseNoteTypes(String caseNoteTypes) {
+        verifyPropertyValues(caseNotes.getCaseNotes(), CaseNote::getType, caseNoteTypes);
+    }
+
+    @Step("Verify case note sub types")
+    public void verifyCaseNoteSubTypes(String caseNoteSubTypes) {
+        verifyPropertyValues(caseNotes.getCaseNotes(), CaseNote::getSubType, caseNoteSubTypes);
+    }
+
+    @Step("Apply case note type filter")
+    public void applyCaseNoteTypeFilter(String caseNoteType) {
+        if (StringUtils.isNotBlank(caseNoteType)) {
+            if (StringUtils.isNotBlank(caseNoteFilter)) {
+                caseNoteFilter += ",and:";
+            }
+
+            caseNoteFilter += String.format("type:in:'%s'", caseNoteType);
+        }
+    }
+
+    @Step("Apply case note sub type filter")
+    public void applyCaseNoteSubTypeFilter(String caseNoteSubType) {
+        if (StringUtils.isNotBlank(caseNoteSubType)) {
+            if (StringUtils.isNotBlank(caseNoteFilter)) {
+                caseNoteFilter += ",and:";
+            }
+
+            caseNoteFilter += String.format("subType:in:'%s'", caseNoteSubType);
+        }
+    }
+
+    @Step("Apply date from filter")
+    public void applyDateFromFilter(String dateFrom) {
+        if (StringUtils.isNotBlank(dateFrom)) {
+            if (StringUtils.isNotBlank(caseNoteFilter)) {
+                caseNoteFilter += ",and:";
+            }
+
+            caseNoteFilter += String.format("occurrenceDateTime:gteq:'%s'", dateFrom);
+        }
+    }
+
+    @Step("Apply date to filter")
+    public void applyDateToFilter(String dateTo) {
+        if (StringUtils.isNotBlank(dateTo)) {
+            if (StringUtils.isNotBlank(caseNoteFilter)) {
+                caseNoteFilter += ",and:";
+            }
+
+            caseNoteFilter += String.format("occurrenceDateTime:lteq:'%s'", dateTo);
+        }
     }
 
     private Long dispatchCreateRequest(Long bookingId, NewCaseNote caseNote, boolean creationExpected) {
@@ -92,5 +163,20 @@ public class CaseNoteSteps extends CommonSteps {
                 CaseNote.class, bookingId, caseNoteId);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    }
+
+    private void dispatchQueryRequest(Long bookingId) {
+        caseNotes = null;
+
+        String queryUrl = API_REQUEST_BASE_URL + buildQueryParam(caseNoteFilter);
+
+        ResponseEntity<CaseNotes> response =
+                restTemplate.exchange(queryUrl, HttpMethod.GET, createEntity(), CaseNotes.class, bookingId);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        caseNotes = response.getBody();
+
+        setResourceMetaData(caseNotes.getCaseNotes(), caseNotes.getPageMetaData());
     }
 }
