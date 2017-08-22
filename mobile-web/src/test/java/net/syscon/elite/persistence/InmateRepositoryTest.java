@@ -17,8 +17,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static net.syscon.elite.web.api.resource.BookingResource.Order.asc;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,14 +41,14 @@ public class InmateRepositoryTest {
 
     @Test
     public final void testFindAllImates() {
-        final List<AssignedInmate> foundInmates = repository.findAllInmates("", 0, 10, "lastName, firstName", asc);
+        final List<AssignedInmate> foundInmates = repository.findAllInmates(new HashSet<>(Arrays.asList("LEI", "BXI")), "", 0, 10, "lastName, firstName", asc);
         assertThat(foundInmates).isNotEmpty();
     }
 
 
     @Test
     public final void testGetOffender() {
-        final Optional<InmateDetails> inmate = repository.findInmate(-1L);
+        final Optional<InmateDetails> inmate = repository.findInmate(-1L, Collections.singleton("LEI"));
         assertThat(inmate).isPresent();
     }
 
