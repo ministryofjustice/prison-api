@@ -23,7 +23,7 @@ public class QueryUtilTest {
     @Test
     public void testExtractCriteriaFromSqlWithlowercase() {
         final String criteriaResult = QueryUtil.getCriteriaFromQuery("SELECT 1, (SELECT COUNT(*) FROM TEMP) from   DUAL WHERE 1 = 1");
-        assertThat(criteriaResult).isEqualTo("from DUAL WHERE 1 = 1");
+        assertThat(criteriaResult).isEqualTo("FROM DUAL WHERE 1 = 1");
     }
 
     @Test
@@ -31,7 +31,7 @@ public class QueryUtilTest {
         final String criteriaResult = QueryUtil.getCriteriaFromQuery("SELECT 1, (SELECT COUNT(*) FROM\n" +
                 "TEMP) from\n" +
                 "DUAL WHERE 1 = 1");
-        assertThat(criteriaResult).isEqualTo("from DUAL WHERE 1 = 1");
+        assertThat(criteriaResult).isEqualTo("FROM DUAL WHERE 1 = 1");
     }
 
     @Test
@@ -39,6 +39,20 @@ public class QueryUtilTest {
         final String criteriaResult = QueryUtil.getCriteriaFromQuery("SELECT 1, (SELECT COUNT(*) FROM\n" +
                 "TEMP) From\n" +
                 "DUAL WHERE caseLoadId = :myId");
-        assertThat(criteriaResult).isEqualTo("From DUAL WHERE caseLoadId = :myId");
+        assertThat(criteriaResult).isEqualTo("FROM DUAL WHERE caseLoadId = :myId");
+    }
+
+    @Test
+    public void testExtractCriteriaFromSqlEmbeddedFrom() {
+        final String criteriaResult = QueryUtil.getCriteriaFromQuery("SELECT 1, (SELECT COUNT(*) FROM\n" +
+                "TEMP) From\n" +
+                "DUAL WHERE exists (select 1 from DUAL)");
+        assertThat(criteriaResult).isEqualTo("FROM DUAL WHERE EXISTS (SELECT 1 FROM DUAL)");
+    }
+
+    @Test
+    public void testExtractCriteriaFromInnerJoins() {
+        final String criteriaResult = QueryUtil.getCriteriaFromQuery("SELECT t1.ID FROM TMP1 t1 INNER JOIN TMP2 t2 ON t1.ID = t2.ID LEFT JOIN TMP3 t3 on t3.ID = t2.ID");
+        assertThat(criteriaResult).isEqualTo("FROM TMP1 t1 INNER JOIN TMP2 t2 ON t1.ID = t2.ID LEFT JOIN TMP3 t3 ON t3.ID = t2.ID");
     }
 }
