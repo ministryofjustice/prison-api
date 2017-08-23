@@ -1,5 +1,13 @@
 package net.syscon.util;
 
+import lombok.extern.slf4j.Slf4j;
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.statement.select.FromItem;
+import net.sf.jsqlparser.statement.select.Join;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.Select;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import org.apache.commons.lang3.StringUtils;
 
@@ -12,6 +20,7 @@ import java.util.Map;
  * @author om.pandey
  *
  */
+@Slf4j
 public class QueryUtil {
 	private QueryUtil() {
 	}
@@ -96,8 +105,27 @@ public class QueryUtil {
 	}
 
 	public static String getCriteriaFromQuery(final String sql) {
-		String cleanedSql = StringUtils.replaceAll(StringUtils.trim(sql),"\n", " ");
-		final int fromLocation = StringUtils.lastIndexOfIgnoreCase(cleanedSql, "FROM ");
-		return  StringUtils.replaceAll(StringUtils.substring(cleanedSql, fromLocation),"\\s+", " ");
+		try {
+            Select select = (Select) CCJSqlParserUtil.parse(sql);
+            PlainSelect pl = (PlainSelect) select.getSelectBody();
+
+            StringBuilder criteria = new StringBuilder();
+            final FromItem fromItem = pl.getFromItem();
+            criteria.append("FROM ").append(fromItem.toString());
+
+            final List<Join> joins = pl.getJoins();
+            if (joins != null) {
+                criteria.append(" ").append(StringUtils.join(joins, " "));
+            }
+
+            final Expression whereExp = pl.getWhere();
+            if (whereExp != null) {
+                criteria.append(" WHERE ").append(whereExp.toString());
+            }
+            return criteria.toString();
+
+        } catch (JSQLParserException e) {
+		    throw new RuntimeException(e);
+        }
 	}
 }

@@ -20,6 +20,7 @@ project(":mobile-web") {
         compile("org.springframework.boot:spring-boot-devtools")
         compile("org.springframework.mobile:spring-mobile-device")
 
+        compile("com.github.jsqlparser:jsqlparser:1.1")
         compile("net.sf.ehcache:ehcache-core:2.6.11")
         compile("io.jsonwebtoken:jjwt:${version_jjwt}")
         compile("com.zaxxer:HikariCP:${version_hikaricp}")
