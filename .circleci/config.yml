@@ -1,12 +1,12 @@
 defaults: &defaults
   working_directory: /tmp/circleci-elite2-api
-  docker:
-    - image: sysconjusticesystems/ci-java-node:latest
 
 version: 2
 jobs:
   build:
     <<: *defaults
+    docker:
+      - image: sysconjusticesystems/ci-java-node:latest
     steps:
       - checkout
       - run: sudo npm i -g raml2html@3.0.1 && ./gradlew build aggregate assembleSandbox -x integTest
@@ -29,6 +29,8 @@ jobs:
 
   build_docker:
     <<: *defaults
+    docker:
+      - image: circleci/python:latest-browsers
     steps:
       - checkout
       - attach_workspace:
@@ -50,32 +52,35 @@ jobs:
 
   build_docker_nomis:
     <<: *defaults
+    docker:
+      - image: circleci/python:latest-browsers
     steps:
-      - checkout
       - setup_remote_docker:
           exclusive: true
       - run:
           command: |
             API_VERSION=$(egrep -o "^\s+version\s=\s\"(.*)\"" build.gradle | awk -F"\"" '{print $2}')
-            TAG=ELITE2_API_${API_VERSION}
+            TAG=${API_VERSION}.${CIRCLE_BRANCH}.${CIRCLE_BUILD_NUM}
+            RELEASE_TAG=ELITE2_API_${API_VERSION}
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker pull sysconjusticesystems/elite2-api:$TAG
+            docker tag sysconjusticesystems/elite2-api:$TAG sysconjusticesystems/elite2-api:$RELEASE_TAG
             docker tag sysconjusticesystems/elite2-api:$TAG sysconjusticesystems/elite2-api:latest
+            docker push sysconjusticesystems/elite2-api:$RELEASE_TAG
             docker push sysconjusticesystems/elite2-api:latest
 
   build_docker_stage_nomis:
     <<: *defaults
+    docker:
+      - image: circleci/python:latest-browsers
     steps:
-      - checkout
       - setup_remote_docker:
           exclusive: true
       - run:
           command: |
-            API_VERSION=$(egrep -o "^\s+version\s=\s\"(.*)\"" build.gradle | awk -F"\"" '{print $2}')
-            TAG=ELITE2_API_${API_VERSION}
             docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker pull sysconjusticesystems/elite2-api:$TAG
-            docker tag sysconjusticesystems/elite2-api:$TAG sysconjusticesystems/elite2-api:stage-latest
+            docker pull sysconjusticesystems/elite2-api:latest
+            docker tag sysconjusticesystems/elite2-api:latest sysconjusticesystems/elite2-api:stage-latest
             docker push sysconjusticesystems/elite2-api:stage-latest
 
 workflows:
@@ -96,10 +101,8 @@ workflows:
             branches:
               only: nomis-api
       - build_docker_stage_nomis:
-          requires:
-            - build_docker_nomis
           filters:
-            branches:
-              only: nomis-api
             tags:
               only: /^stage-release.*/
+            branches:
+              ignore: /.*/
