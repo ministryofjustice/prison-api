@@ -26,6 +26,7 @@ jobs:
           root: .
           paths:
             - mobile-web/build/libs
+            - build.gradle
 
   build_docker:
     <<: *defaults
@@ -55,6 +56,8 @@ jobs:
     docker:
       - image: circleci/python:latest-browsers
     steps:
+      - attach_workspace:
+          at: /tmp/circleci-elite2-api/
       - setup_remote_docker:
           exclusive: true
       - run:
