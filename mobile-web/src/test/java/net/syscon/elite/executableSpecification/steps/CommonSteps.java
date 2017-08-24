@@ -32,6 +32,8 @@ public abstract class CommonSteps {
     private PageMetaData pageMetaData;
     private Map<String, Object> additionalProperties = new HashMap<>();
     private ResponseEntity receievedResponse;
+    private long paginationLimit;
+    private long paginationOffset;
 
     @Step("Verify number of resource records returned")
     public void verifyResourceRecordsReturned(long expectedCount) {
@@ -56,6 +58,26 @@ public abstract class CommonSteps {
     @Step("Verify HTTP status response")
     public void verifyHttpStatusResponse(int statusCode) {
         assertThat(receievedResponse.getStatusCode().value()).isEqualTo(statusCode);
+    }
+
+    @Step("Apply pagination")
+    public void applyPagination(String limit, String offset) {
+        if (StringUtils.isBlank(limit)) {
+            paginationLimit = 0;
+        } else {
+            paginationLimit = Long.valueOf(limit);
+        }
+
+        if (StringUtils.isBlank(offset)) {
+            paginationOffset = 0;
+        } else {
+            paginationOffset = Long.valueOf(offset);
+        }
+    }
+
+    protected void init() {
+        paginationLimit = 0;
+        paginationOffset = 0;
     }
 
     protected void setResourceMetaData(List<?> resources, PageMetaData pageMetaData) {
@@ -122,7 +144,28 @@ public abstract class CommonSteps {
 
         if (actualCollection != null) {
             extractedVals.addAll(
-                    actualCollection.stream().map(mapper).filter(StringUtils::isNotBlank).collect(Collectors.toList())
+                    actualCollection
+                            .stream()
+                            .map(mapper)
+                            .filter(StringUtils::isNotBlank)
+                            .collect(Collectors.toList())
+            );
+        }
+
+        return extractedVals;
+    }
+
+    protected <T> List<String> extractLongValues(Collection<T> actualCollection, Function<T, Long> mapper) {
+        List<String> extractedVals = new ArrayList<>();
+
+        if (actualCollection != null) {
+            extractedVals.addAll(
+                    actualCollection
+                            .stream()
+                            .map(mapper)
+                            .filter(Objects::nonNull)
+                            .map(String::valueOf)
+                            .collect(Collectors.toList())
             );
         }
 
@@ -138,7 +181,31 @@ public abstract class CommonSteps {
         verifyIdentical(actualValList, expectedValList);
     }
 
-    protected String buildQueryParam(String query) {
-        return StringUtils.isBlank(query) ? "" : "?query=" + StringUtils.trim(query);
+    protected <T> void verifyLongValues(Collection<T> actualCollection,
+                                        Function<T, Long> mapper,
+                                        String expectedValues) {
+        List<String> actualValList = extractLongValues(actualCollection, mapper);
+        List<String> expectedValList = csv2list(expectedValues);
+
+        verifyIdentical(actualValList, expectedValList);
+    }
+
+    protected String buildQuery(String queryParam) {
+        return addPaginationParams("?query=" + StringUtils.trimToEmpty(queryParam));
+    }
+
+    private String addPaginationParams(String query) {
+        StringBuilder params = new StringBuilder(StringUtils.trimToEmpty(query));
+
+        if ((paginationLimit > 0 ) || (paginationOffset > 0)) {
+            params.append(StringUtils.isBlank(query) ? "?" : "&")
+                    .append("limit=")
+                    .append(paginationLimit)
+                    .append("&")
+                    .append("offset=")
+                    .append(paginationOffset);
+        }
+
+        return params.toString();
     }
 }

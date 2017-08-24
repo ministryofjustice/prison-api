@@ -156,8 +156,18 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         caseNote.applyDateToFilter(dateTo);
     }
 
+    @And("^pagination with limit \"([^\"]*)\" and offset \"([^\"]*)\" applied$")
+    public void paginationWithLimitAndOffsetApplied(String limit, String offset) throws Throwable {
+        caseNote.applyPagination(limit, offset);
+    }
+
     @And("^filtered case notes are requested for offender booking \"([^\"]*)\"$")
     public void filteredCaseNotesAreRequestedForOffenderBooking(String bookingId) throws Throwable {
         caseNote.getCaseNotes(Long.valueOf(bookingId));
+    }
+
+    @And("^\"([^\"]*)\" case notes are available$")
+    public void caseNotesAreAvailable(String count) throws Throwable {
+        caseNote.verifyTotalResourceRecordsAvailable(Long.valueOf(count));
     }
 }

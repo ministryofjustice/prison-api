@@ -83,7 +83,9 @@ public class LocationsSteps extends CommonSteps {
         setResourceMetaData(resources, null);
     }
 
-    private void init() {
+    protected void init() {
+        super.init();
+
         locations = null;
         location = null;
     }

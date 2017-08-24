@@ -7,6 +7,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Date;
 
 public class DateTimeConverter {
+	public static final String ISO_LOCAL_DATE_FORMAT_PATTERN = "YYYY-MM-DD";
 
 	public static Date toDate(LocalDateTime localDateTime) {
 		Date result = null;

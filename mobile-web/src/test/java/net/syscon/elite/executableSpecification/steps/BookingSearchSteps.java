@@ -9,8 +9,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.List;
-import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -80,54 +78,32 @@ public class BookingSearchSteps extends CommonSteps {
 
     @Step("Verify first names of inmates returned by search")
     public void verifyFirstNames(String nameList) {
-        // Using List (not Set) to handle duplicate names
-        List<String> queriedNames = extractFirstNames();
-        List<String> expectedNames = csv2list(nameList);
-
-        verifyIdentical(queriedNames, expectedNames);
+        verifyPropertyValues(inmateSummaries.getInmatesSummaries(), AssignedInmate::getFirstName, nameList);
     }
 
     @Step("Verify middle names of inmates returned by search")
     public void verifyMiddleNames(String nameList) {
-        // Using List (not Set) to handle duplicate names
-        List<String> queriedNames = extractMiddleNames();
-        List<String> expectedNames = csv2list(nameList);
-
-        verifyIdentical(queriedNames, expectedNames);
+        verifyPropertyValues(inmateSummaries.getInmatesSummaries(), AssignedInmate::getMiddleName, nameList);
     }
 
     @Step("Verify last names of inmates returned by search")
     public void verifyLastNames(String nameList) {
-        // Using List (not Set) to handle duplicate names
-        List<String> queriedNames = extractLastNames();
-        List<String> expectedNames = csv2list(nameList);
-
-        verifyIdentical(queriedNames, expectedNames);
+        verifyPropertyValues(inmateSummaries.getInmatesSummaries(), AssignedInmate::getLastName, nameList);
     }
 
     @Step("Verify living unit descriptions returned by search")
     public void verifyLivingUnits(String livingUnitList) {
-        // Using List (not Set) to handle duplicate descriptions
-        List<String> queriedDescriptions = extractLivingUnitDescriptions();
-        List<String> expectedDescriptions = csv2list(livingUnitList);
-
-        verifyIdentical(queriedDescriptions, expectedDescriptions);
+        verifyPropertyValues(inmateSummaries.getInmatesSummaries(), AssignedInmate::getAssignedLivingUnitDesc, livingUnitList);
     }
 
     @Step("Verify image ids returned by search")
     public void verifyImageIds(String imageIds) {
-        List<String> queriedImageIds = extractImageIds();
-        List<String> expectedIds = csv2list(imageIds);
-
-        verifyIdentical(queriedImageIds, expectedIds);
+        verifyLongValues(inmateSummaries.getInmatesSummaries(), AssignedInmate::getFacialImageId, imageIds);
     }
 
     @Step("Verify dobs returned by search")
     public void verifyDobs(String dobs) {
-        List<String> queriedDobs = extractDobs();
-        List<String> expectedDobs = csv2list(dobs);
-
-        verifyIdentical(queriedDobs, expectedDobs);
+        verifyPropertyValues(inmateSummaries.getInmatesSummaries(), AssignedInmate::getDateOfBirth, dobs);
     }
 
     private void dispatchQuery(String query) {
@@ -186,56 +162,9 @@ public class BookingSearchSteps extends CommonSteps {
         return String.format(formatter, criteria);
     }
 
-    private List<String> extractFirstNames() {
-        return inmateSummaries.getInmatesSummaries()
-                .stream()
-                .map(AssignedInmate::getFirstName)
-                .filter(StringUtils::isNotBlank)
-                .collect(Collectors.toList());
-    }
+    protected void init() {
+        super.init();
 
-    private List<String> extractLastNames() {
-        return inmateSummaries.getInmatesSummaries()
-                .stream()
-                .map(AssignedInmate::getLastName)
-                .filter(StringUtils::isNotBlank)
-                .collect(Collectors.toList());
-    }
-
-    private List<String> extractMiddleNames() {
-        return inmateSummaries.getInmatesSummaries()
-                .stream()
-                .map(AssignedInmate::getMiddleName)
-                .filter(StringUtils::isNotBlank)
-                .collect(Collectors.toList());
-    }
-
-    private List<String> extractLivingUnitDescriptions() {
-        return inmateSummaries.getInmatesSummaries()
-                .stream()
-                .map(AssignedInmate::getAssignedLivingUnitDesc)
-                .filter(StringUtils::isNotBlank)
-                .collect(Collectors.toList());
-    }
-
-    private List<String> extractImageIds() {
-        return inmateSummaries.getInmatesSummaries()
-                .stream()
-                .map(AssignedInmate::getFacialImageId)
-                .filter(Objects::nonNull)
-                .map(imageId -> Long.toString(imageId))
-                .collect(Collectors.toList());
-    }
-
-    private List<String> extractDobs() {
-        return inmateSummaries.getInmatesSummaries()
-                .stream()
-                .map(AssignedInmate::getDateOfBirth)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-    }
-
-    private void init() {
         inmateSummaries = null;
     }
 }
