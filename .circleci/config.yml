@@ -1,9 +1,12 @@
+defaults: &defaults
+  working_directory: /tmp/circleci-elite2-api
+  docker:
+    - image: sysconjusticesystems/ci-java-node:latest
+
 version: 2
 jobs:
   build:
-    working_directory: /tmp/circleci-elite2-api
-    docker:
-      - image: sysconjusticesystems/ci-java-node:latest
+    <<: *defaults
     steps:
       - checkout
       - run: sudo npm i -g raml2html@3.0.1 && ./gradlew build aggregate assembleSandbox -x integTest
@@ -19,22 +22,84 @@ jobs:
           path: mobile-web/target/site
       - store_artifacts:
           path: mobile-api/raml/api.html
-      - setup_remote_docker
-      - run: |
-          API_VERSION=$(egrep -o "^\s+version\s=\s\"(.*)\"" build.gradle | awk -F"\"" '{print $2}')
-          if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
-            TAG=ELITE2_API_${API_VERSION}
-          else
-            TAG=${API_VERSION}.${CIRCLE_BRANCH}.${CIRCLE_BUILD_NUM}
-          fi
+      - persist_to_workspace:
+          root: .
+          paths:
+            - mobile-web/build/libs
 
-          if [[ -n $TAG ]]; then
-            docker build -t sysconjusticesystems/elite2-api:$TAG .
+  build_docker:
+    <<: *defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp/circleci-elite2-api/
+      - setup_remote_docker:
+          exclusive: true
+      - run:
+          command: |
+            API_VERSION=$(egrep -o "^\s+version\s=\s\"(.*)\"" build.gradle | awk -F"\"" '{print $2}')
+            TAG=${API_VERSION}.${CIRCLE_BRANCH}.${CIRCLE_BUILD_NUM}
+            docker build --rm=false . \
+               --tag "sysconjusticesystems/elite2-api:$TAG" \
+               --label "maintainer=michael.willis@syscon.net" \
+               --label "build.number=$CIRCLE_BUILD_NUM" \
+               --label "build.url=$CIRCLE_BUILD_URL" \
+               --label "build.gitref=$CIRCLE_SHA1"
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker push sysconjusticesystems/elite2-api:$TAG
 
-            if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
-              docker tag sysconjusticesystems/elite2-api:$TAG sysconjusticesystems/elite2-api:latest
-              docker push sysconjusticesystems/elite2-api:latest
-            fi
-          fi
+  build_docker_nomis:
+    <<: *defaults
+    steps:
+      - checkout
+      - setup_remote_docker:
+          exclusive: true
+      - run:
+          command: |
+            API_VERSION=$(egrep -o "^\s+version\s=\s\"(.*)\"" build.gradle | awk -F"\"" '{print $2}')
+            TAG=ELITE2_API_${API_VERSION}
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker pull sysconjusticesystems/elite2-api:$TAG
+            docker tag sysconjusticesystems/elite2-api:$TAG sysconjusticesystems/elite2-api:latest
+            docker push sysconjusticesystems/elite2-api:latest
+
+  build_docker_stage_nomis:
+    <<: *defaults
+    steps:
+      - checkout
+      - setup_remote_docker:
+          exclusive: true
+      - run:
+          command: |
+            API_VERSION=$(egrep -o "^\s+version\s=\s\"(.*)\"" build.gradle | awk -F"\"" '{print $2}')
+            TAG=ELITE2_API_${API_VERSION}
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker pull sysconjusticesystems/elite2-api:$TAG
+            docker tag sysconjusticesystems/elite2-api:$TAG sysconjusticesystems/elite2-api:stage-latest
+            docker push sysconjusticesystems/elite2-api:stage-latest
+
+workflows:
+  version: 2
+  build-test-and-deploy:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /^stage-release-.*/
+      - build_docker:
+          requires:
+            - build
+      - build_docker_nomis:
+          requires:
+            - build_docker
+          filters:
+            branches:
+              only: nomis-api
+      - build_docker_stage_nomis:
+          requires:
+            - build_docker_nomis
+          filters:
+            branches:
+              only: nomis-api
+            tags:
+              only: /^stage-release.*/
