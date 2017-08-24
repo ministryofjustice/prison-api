@@ -42,6 +42,11 @@ jobs:
           command: |
             API_VERSION=$(egrep -o "^\s+version\s=\s\"(.*)\"" build.gradle | awk -F"\"" '{print $2}')
             TAG=${API_VERSION}.${CIRCLE_BRANCH}.${CIRCLE_BUILD_NUM}
+            if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
+              TAG=ELITE2_API_${API_VERSION}
+            else
+              TAG=${API_VERSION}.${CIRCLE_BRANCH}.${CIRCLE_BUILD_NUM}
+            fi
             docker build --rm=false . \
                --tag "sysconjusticesystems/elite2-api:$TAG" \
                --label "maintainer=michael.willis@syscon.net" \
@@ -51,28 +56,12 @@ jobs:
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker push sysconjusticesystems/elite2-api:$TAG
 
-  build_docker_nomis:
-    <<: *defaults
-    docker:
-      - image: circleci/python:latest-browsers
-    steps:
-      - attach_workspace:
-          at: /tmp/circleci-elite2-api/
-      - setup_remote_docker:
-          exclusive: true
-      - run:
-          command: |
-            API_VERSION=$(egrep -o "^\s+version\s=\s\"(.*)\"" build.gradle | awk -F"\"" '{print $2}')
-            TAG=${API_VERSION}.${CIRCLE_BRANCH}.${CIRCLE_BUILD_NUM}
-            RELEASE_TAG=ELITE2_API_${API_VERSION}
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker pull sysconjusticesystems/elite2-api:$TAG
-            docker tag sysconjusticesystems/elite2-api:$TAG sysconjusticesystems/elite2-api:$RELEASE_TAG
-            docker tag sysconjusticesystems/elite2-api:$TAG sysconjusticesystems/elite2-api:latest
-            docker push sysconjusticesystems/elite2-api:$RELEASE_TAG
-            docker push sysconjusticesystems/elite2-api:latest
+            if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
+              docker tag sysconjusticesystems/elite2-api:$TAG sysconjusticesystems/elite2-api:latest
+              docker push sysconjusticesystems/elite2-api:latest
+            fi
 
-  build_docker_stage_nomis:
+  build_docker_stage:
     <<: *defaults
     docker:
       - image: circleci/python:latest-browsers
@@ -97,13 +86,7 @@ workflows:
       - build_docker:
           requires:
             - build
-      - build_docker_nomis:
-          requires:
-            - build_docker
-          filters:
-            branches:
-              only: nomis-api
-      - build_docker_stage_nomis:
+      - build_docker_stage:
           filters:
             tags:
               only: /^stage-release.*/
