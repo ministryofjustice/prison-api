@@ -82,7 +82,7 @@ workflows:
       - build:
           filters:
             tags:
-              only: /^stage-release-.*/
+              ignore: /.*/
       - build_docker:
           requires:
             - build
