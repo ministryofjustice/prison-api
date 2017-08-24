@@ -55,7 +55,6 @@ public class QueryUtil {
 		return queryBreak;
 	}
 
-
 	public static String prepareQuery(final String queryItem, final boolean isPrecedence, final Map<String, FieldMapper> fieldMap) {
 		final StringBuilder stringBuilder = new StringBuilder();
 		final String[] fields = queryItem.split(",");
@@ -89,7 +88,7 @@ public class QueryUtil {
 				.append(" ")
 				.append(getSqlOperator(operator))
 				.append(" ")
-				.append(!"".equals(format)? "TO_DATE("+ encodedValue + ", " + format + ")": encodedValue)
+                .append(applyFormat(encodedValue, format))
 				.append(" ")
 				.append(isPrecedence && fieldItem.equals(fields[fields.length-1])? ")": "")
 				.append(" ");
@@ -127,5 +126,37 @@ public class QueryUtil {
         } catch (JSQLParserException e) {
 		    throw new RuntimeException(e);
         }
+	}
+
+	/**
+	 * Applies SQL TO_DATE conversion to specified date string using ISO-8601 date pattern (YYYY-MM-DD).
+	 *
+	 * @param dateValue ISO-8601 string representation of date - e.g. '2017-04-23'.
+	 * @return SQL conversion of date string to date type - e.g. {@code TO_DATE('2017-04-23', 'YYYY-MM-DD')}.
+	 */
+	public static String convertToDate(String dateValue) {
+		return convertToDate(dateValue, DateTimeConverter.ISO_LOCAL_DATE_FORMAT_PATTERN);
+	}
+
+	// Assumes use for date formatting only - with proposed deprecation of API that uses generic query format, a more
+	// sophisticated implementation is not worthwhile.
+	private static String applyFormat(String value, String format) {
+		// If value already 'converted' to date or there is no format specified, just return value, otherwise apply format.
+		return (value.startsWith("TO_DATE") || StringUtils.isBlank(format)) ? value : convertToDate(value, format);
+	}
+
+	private static String convertToDate(String dateValue, String dateFormat) {
+		if (StringUtils.isBlank(dateValue)) {
+			throw new IllegalArgumentException("dateValue must be provided");
+		}
+
+		if (StringUtils.isBlank(dateFormat)) {
+			throw new IllegalArgumentException("dateFormat must be provided");
+		}
+
+		String quotedDateValue = StringUtils.appendIfMissing(StringUtils.prependIfMissing(dateValue, "'"), "'");
+		String quotedDateFormat = StringUtils.appendIfMissing(StringUtils.prependIfMissing(dateFormat, "'"), "'");
+
+		return "TO_DATE("+ quotedDateValue + ", " + quotedDateFormat + ")";
 	}
 }

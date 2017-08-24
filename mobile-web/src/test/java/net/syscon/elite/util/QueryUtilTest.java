@@ -55,4 +55,16 @@ public class QueryUtilTest {
         final String criteriaResult = QueryUtil.getCriteriaFromQuery("SELECT t1.ID FROM TMP1 t1 INNER JOIN TMP2 t2 ON t1.ID = t2.ID LEFT JOIN TMP3 t3 on t3.ID = t2.ID");
         assertThat(criteriaResult).isEqualTo("FROM TMP1 t1 INNER JOIN TMP2 t2 ON t1.ID = t2.ID LEFT JOIN TMP3 t3 ON t3.ID = t2.ID");
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testConvertToDateNullDateValue() {
+        QueryUtil.convertToDate(null);
+    }
+
+    @Test
+    public void testConvertToDate() {
+        String convertedDate = QueryUtil.convertToDate("2017-04-15");
+
+        assertThat(convertedDate).isEqualTo("TO_DATE('2017-04-15', 'YYYY-MM-DD')");
+    }
 }

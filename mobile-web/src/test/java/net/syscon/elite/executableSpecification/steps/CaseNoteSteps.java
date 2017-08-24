@@ -30,6 +30,8 @@ public class CaseNoteSteps extends CommonSteps {
 
     @Step("Initialisation")
     public void init() {
+        super.init();
+
         caseNote = null;
         caseNotes = null;
         pendingCaseNote = null;
@@ -168,7 +170,7 @@ public class CaseNoteSteps extends CommonSteps {
     private void dispatchQueryRequest(Long bookingId) {
         caseNotes = null;
 
-        String queryUrl = API_REQUEST_BASE_URL + buildQueryParam(caseNoteFilter);
+        String queryUrl = API_REQUEST_BASE_URL + buildQuery(caseNoteFilter);
 
         ResponseEntity<CaseNotes> response =
                 restTemplate.exchange(queryUrl, HttpMethod.GET, createEntity(), CaseNotes.class, bookingId);

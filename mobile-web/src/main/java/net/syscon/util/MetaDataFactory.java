@@ -31,7 +31,9 @@ public class MetaDataFactory {
     public static <T> Long getTotalRecords(List<T> collection, boolean removeRecordCountAttr) {
         Long recordCount = null;
 
-        if (!collection.isEmpty()) {
+        if (collection.isEmpty()) {
+            recordCount = 0L;
+        } else {
             final T item = collection.get(0);
 
             recordCount = findRecordCount(item);

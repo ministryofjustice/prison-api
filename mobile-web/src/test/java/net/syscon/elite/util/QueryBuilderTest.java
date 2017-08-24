@@ -86,7 +86,7 @@ public class QueryBuilderTest {
 				.removeSpecialChars()
 				.addRowCount()
 				.build();
-		final String expectedSql = "WITH TOTAL_COUNT AS ( SELECT COUNT(*) AS RECORD_COUNT " + FROM_AGENCY_LOCATIONS + " ) SELECT * FROM TOTAL_COUNT, (SELECT QRY_ALIAS.* FROM ( " + INITIAL_SQL + " ) QRY_ALIAS";
+		final String expectedSql = "WITH TOTAL_COUNT AS ( SELECT COUNT(*) AS RECORD_COUNT FROM (" + INITIAL_SQL + ") QRY_ALIAS ) SELECT * FROM TOTAL_COUNT, (SELECT QRY_ALIAS.* FROM (" + INITIAL_SQL + ") QRY_ALIAS";
 		assertThat(sql, equalTo(expectedSql));
 	}
 
@@ -116,7 +116,7 @@ public class QueryBuilderTest {
 				.removeSpecialChars()
 				.addPagination()
 				.build();
-		final String expectedSql = INITIAL_SQL + " OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY";
+		final String expectedSql = INITIAL_SQL + "  OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY";
 		assertThat(sql, equalTo(expectedSql));
 	}
 
@@ -161,7 +161,4 @@ public class QueryBuilderTest {
 		final String expectedSql = String.format("SELECT QRY_ALIAS.* FROM ( %s ) QRY_ALIAS WHERE AGENCY_CODE %s %s", INITIAL_SQL, sqlOperator, paramExpected);
 		assertThat(sql, equalTo(expectedSql));
 	}
-
-
-
 }

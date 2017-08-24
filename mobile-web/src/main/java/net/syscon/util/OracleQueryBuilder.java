@@ -10,7 +10,6 @@ public class OracleQueryBuilder extends AbstractQueryBuilder {
 
 	private static final String ROW_NUM_SQL = "SELECT QRY_PAG.*, ROWNUM rnum FROM ( ";
 	private static final String OFFSET_LIMIT_SQL = " ) QRY_PAG WHERE ROWNUM <= :offset+:limit) WHERE rnum >= :offset+1";
-	private static final String COUNT_SELECT = "WITH TOTAL_COUNT AS ( SELECT COUNT(*) AS RECORD_COUNT %s ) SELECT * FROM TOTAL_COUNT, (";
 
 	public OracleQueryBuilder(final String initialSQL, final Map<String, FieldMapper> fieldMap, DatabaseDialect dialect) {
 		super(initialSQL, fieldMap, dialect);
@@ -42,17 +41,10 @@ public class OracleQueryBuilder extends AbstractQueryBuilder {
 				buildPaginationSql(result);
 			}
 
-			if (includeRowCount) {
-				buildAnsiDataCountSql(result);
-			}
 			if (removeSpecialChars) {
 				result = new StringBuilder(removeSpecialCharacters(result.toString()));
 			}
-
-			if (dialect == DatabaseDialect.HSQLDB) {
-				result = new StringBuilder(StringUtils.replaceAll(result.toString(), "WM_CONCAT", "GROUP_CONCAT"));
-			}
-		} else {
+        } else {
 			return initialSQL;
 		}
 
@@ -76,20 +68,7 @@ public class OracleQueryBuilder extends AbstractQueryBuilder {
 		result.append("SELECT QRY_ALIAS.* FROM (\n").append(initialSQL).append("\n) QRY_ALIAS\n");
 
 		if (includeRowCount) {
-            if (dialect != DatabaseDialect.HSQLDB) {
-                result.insert(7, "COUNT(*) OVER() RECORD_COUNT, ");
-            }
+            result.insert(7, "COUNT(*) OVER() RECORD_COUNT, ");
         }
-	}
-
-	private void buildAnsiDataCountSql(StringBuilder result) {
-		if (dialect == DatabaseDialect.HSQLDB) {
-            final String criteria = QueryUtil.getCriteriaFromQuery(initialSQL);
-			result.insert(0, String.format(COUNT_SELECT, criteria));
-
-			if (includePagination) {
-				result.append(")");
-			}
-		}
 	}
 }

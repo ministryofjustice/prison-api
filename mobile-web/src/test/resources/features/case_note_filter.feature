@@ -16,33 +16,42 @@ Feature: Case Note Retrieval and Filtering
     And case note sub types match "<case note sub types>"
 
     Examples:
-      | bookingId | number | case note types     | case note sub types           |
-      | -1        | 1      | CHAP                | FAMMAR                        |
-      | -2        | 4      | COMMS,APP,ETE,COMMS | COM_IN,OUTCOME,ETERTO,COM_OUT |
-      | -3        | 0      |                     |                               |
+      | bookingId | number | case note types                                                 | case note sub types                                             |
+      | -1        | 1      | CHAP                                                            | FAMMAR                                                          |
+      | -2        | 4      | COMMS,APP,ETE,COMMS                                             | COM_IN,OUTCOME,ETERTO,COM_OUT                                   |
+      | -3        | 8      | OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE | OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN |
+      | -999      | 0      |                                                                 |                                                                 |
 
   Scenario Outline: Retrieve filtered case notes
     When case note type "<case note type>" filter applied
     And case note sub type "<case note sub type>" filter applied
     And date from "<date from>" filter applied
     And date to "<date to>" filter applied
+    And pagination with limit "<limit>" and offset "<offset>" applied
     And filtered case notes are requested for offender booking "<bookingId>"
     Then "<number>" case notes are returned
+    And "<total>" case notes are available
 
     Examples:
-      | bookingId | case note type | case note sub type | date from  | date to    | number |
-      | -1        | CHAP           |                    |            |            | 1      |
-      | -2        | COMMS          |                    |            |            | 2      |
-      | -1        |                | FAMMAR             |            |            | 1      |
-      | -2        |                | OUTCOME            |            |            | 1      |
-      | -2        | ETE            | ETERTO             |            |            | 1      |
-      | -2        | ETE            | OUTCOME            |            |            | 0      |
-      | -2        |                |                    |            |            | 4      |
-      | -2        |                |                    | 2017-04-06 |            | 3      |
-      | -2        |                |                    | 2017-04-05 |            | 4      |
-      | -2        |                |                    |            | 2017-04-10 | 1      |
-      | -2        |                |                    |            | 2017-04-11 | 2      |
-      | -2        |                |                    | 2017-04-06 | 2017-05-05 | 2      |
-      | -2        |                |                    | 2017-04-05 | 2017-05-06 | 4      |
-      | -2        | COMMS          |                    | 2017-04-05 | 2017-05-06 | 2      |
-      | -2        | COMMS          | COM_IN             | 2017-04-05 | 2017-05-06 | 1      |
+      | bookingId | case note type | case note sub type | date from  | date to    | limit | offset | number | total |
+      | -1        | CHAP           |                    |            |            |       |        | 1      | 1     |
+      | -2        | COMMS          |                    |            |            |       |        | 2      | 2     |
+      | -1        |                | FAMMAR             |            |            |       |        | 1      | 1     |
+      | -2        |                | OUTCOME            |            |            |       |        | 1      | 1     |
+      | -2        | ETE            | ETERTO             |            |            |       |        | 1      | 1     |
+      | -2        | ETE            | OUTCOME            |            |            |       |        | 0      | 0     |
+      | -2        |                |                    |            |            |       |        | 4      | 4     |
+      | -2        |                |                    | 2017-04-06 |            |       |        | 3      | 3     |
+      | -2        |                |                    | 2017-04-05 |            |       |        | 4      | 4     |
+      | -2        |                |                    |            | 2017-04-10 |       |        | 1      | 1     |
+      | -2        |                |                    |            | 2017-04-11 |       |        | 2      | 2     |
+      | -2        |                |                    | 2017-04-06 | 2017-05-05 |       |        | 2      | 2     |
+      | -2        |                |                    | 2017-04-05 | 2017-05-06 |       |        | 4      | 4     |
+      | -2        | COMMS          |                    | 2017-04-05 | 2017-05-06 |       |        | 2      | 2     |
+      | -2        | COMMS          | COM_IN             | 2017-04-05 | 2017-05-06 |       |        | 1      | 1     |
+      | -3        |                |                    |            |            | 2     | 0      | 2      | 8     |
+      | -3        |                |                    |            |            | 4     | 2      | 4      | 8     |
+      | -3        |                |                    |            |            | 10    | 5      | 3      | 8     |
+      | -3        |                |                    | 2017-05-10 |            | 10    | 0      | 4      | 4     |
+      | -3        |                |                    |            | 2017-05-09 | 2     | 0      | 2      | 4     |
+      | -3        |                |                    | 2017-05-07 | 2017-05-12 | 3     | 3      | 3      | 6     |

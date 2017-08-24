@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,26 +27,17 @@ public class BookingAliasSteps extends CommonSteps {
 
     @Step("Verify returned offender alias first names")
     public void verifyAliasFirstNames(String firstNames) {
-        List<String> queriedNames = extractFirstNames();
-        List<String> expectedNames = csv2list(firstNames);
-
-        verifyIdentical(queriedNames, expectedNames);
+        verifyPropertyValues(aliases, Alias::getFirstName, firstNames);
     }
 
     @Step("Verify returned offender alias last names")
     public void verifyAliasLastNames(String lastNames) {
-        List<String> queriedNames = extractLastNames();
-        List<String> expectedNames = csv2list(lastNames);
-
-        verifyIdentical(queriedNames, expectedNames);
+        verifyPropertyValues(aliases, Alias::getLastName, lastNames);
     }
 
     @Step("Verify returned offender alias ethnicities")
     public void verifyAliasEthnicities(String ethnicities) {
-        List<String> queriedEthnicities = extractEthnicities();
-        List<String> expectedEthnicities = csv2list(ethnicities);
-
-        verifyIdentical(queriedEthnicities, expectedEthnicities);
+        verifyPropertyValues(aliases, Alias::getEthinicity, ethnicities);
     }
 
     private void dispatchRequest(Long bookingId, String query) {
@@ -65,31 +55,9 @@ public class BookingAliasSteps extends CommonSteps {
         setResourceMetaData(aliases, null);
     }
 
-    private List<String> extractFirstNames() {
-        return aliases
-                .stream()
-                .map(Alias::getFirstName)
-                .filter(StringUtils::isNotBlank)
-                .collect(Collectors.toList());
-    }
+    protected void init() {
+        super.init();
 
-    private List<String> extractLastNames() {
-        return aliases
-                .stream()
-                .map(Alias::getLastName)
-                .filter(StringUtils::isNotBlank)
-                .collect(Collectors.toList());
-    }
-
-    private List<String> extractEthnicities() {
-        return aliases
-                .stream()
-                .map(Alias::getEthinicity)
-                .filter(StringUtils::isNotBlank)
-                .collect(Collectors.toList());
-    }
-
-    private void init() {
         aliases = null;
     }
 }

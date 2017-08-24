@@ -11,6 +11,7 @@ import net.syscon.elite.web.api.resource.BookingResource.Order;
 import net.syscon.util.DateFormatProvider;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
+import net.syscon.util.QueryUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +41,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 			.put("CASE_NOTE_SUB_TYPE", 			new FieldMapper("subType"))
 			.put("CASE_NOTE_SUB_TYPE_DESC", 	new FieldMapper("subTypeDescription"))
 			.put("NOTE_SOURCE_CODE", 			new FieldMapper("source"))
-			.put("CONTACT_TIME", 				new FieldMapper("occurrenceDateTime", DateFormatProvider::toISO8601DateTime))
+			.put("CONTACT_TIME", 				new FieldMapper("occurrenceDateTime", DateFormatProvider::toISO8601DateTime, null, QueryUtil::convertToDate))
 			.put("CREATE_DATETIME", 			new FieldMapper("creationDateTime", DateFormatProvider::toISO8601DateTime))
 			.put("CASE_NOTE_TEXT", 				new FieldMapper("text"))
 			.put("CREATE_USER_ID", 				new FieldMapper("authorUserId"))
