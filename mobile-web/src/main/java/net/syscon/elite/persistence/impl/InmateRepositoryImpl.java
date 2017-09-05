@@ -24,16 +24,6 @@ import java.util.*;
 @Slf4j
 public class InmateRepositoryImpl extends RepositoryBase implements InmateRepository {
 
-    private static final String LOCATION_FILTER = " AND AIL.DESCRIPTION LIKE :locationPrefix ";
-    private static final String CRITERIA_SEARCH_SQL =
-            " AND (UPPER(concat(O.FIRST_NAME, concat(' ', O.LAST_NAME))) LIKE :keywords " +
-            "  OR UPPER(concat(O.LAST_NAME, concat(' ', O.FIRST_NAME))) LIKE :keywords" +
-            "  OR UPPER(concat(O.FIRST_NAME, concat(' ', concat(O.MIDDLE_NAME, concat(' ', O.LAST_NAME))))) LIKE :keywords" +
-            "  OR OFFENDER_ID_DISPLAY LIKE :keywords)" +
-			"  OR EXISTS (SELECT 1 FROM OFFENDERS ALO WHERE ALO.ROOT_OFFENDER_ID = B.ROOT_OFFENDER_ID AND ALO.OFFENDER_ID != B.OFFENDER_ID AND " +
-					"      (UPPER(concat(ALO.FIRST_NAME, concat(' ', ALO.LAST_NAME))) LIKE :keywords" +
-					"        OR UPPER(concat(ALO.LAST_NAME, concat(' ', ALO.FIRST_NAME))) LIKE :keywords))";
-
 	private final Map<String, FieldMapper> assignedInmateMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("OFFENDER_BOOK_ID", 	new FieldMapper("bookingId"))
 			.put("BOOKING_NO", 			new FieldMapper("bookingNo"))
@@ -186,14 +176,14 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	@Override
 	public List<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String keywords, String locationPrefix, int offset, int limit, String orderBy, boolean ascendingOrder) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
-        final String keywordSearch = StringUtils.upperCase(StringUtils.trimToEmpty(keywords));
 
         if (StringUtils.isNotBlank(locationPrefix)) {
-            initialSql += LOCATION_FILTER;
+            initialSql += " AND " + getQuery("LOCATION_FILTER_SQL");
         }
 
+		final String keywordSearch = StringUtils.upperCase(StringUtils.trimToEmpty(keywords));
         if (StringUtils.isNotBlank(keywordSearch)) {
-            initialSql += CRITERIA_SEARCH_SQL;
+            initialSql += " AND " + getQuery("NAME_AND_ID_FILTER_SQL");
         }
 		String sql = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_BOOKING_MAPPING)
 				.addRowCount()
