@@ -20,14 +20,17 @@ Feature: Offender Search V2
     And location name match "<living unit list>"
 
     Examples:
-      | keywords | number | first name list         | middle name list | living unit list        |
-      | ANDERSON | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5     |
-      | DUCK     | 1      | DONALD                  |                  | LEI-A-1-10              |
-      | anderson | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5     |
-      | AnDersOn | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5     |
-      | UNKNOWN  | 0      |                         |                  |                         |
-      | CHESNEY  | 3      | CHARLEY,CHESTER,CHESNEY | JAMES            | LEI-H,LEI-A-1-5,LEI-H-1 |
-
+      | keywords             | number | first name list         | middle name list | living unit list        |
+      | ANDERSON             | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5     |
+      | DUCK                 | 1      | DONALD                  |                  | LEI-A-1-10              |
+      | anderson             | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5     |
+      | AnDersOn             | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5     |
+      | UNKNOWN              | 0      |                         |                  |                         |
+      | CHESNEY              | 3      | CHARLEY,CHESTER,CHESNEY | JAMES            | LEI-H,LEI-A-1-5,LEI-H-1 |
+      | A1234AB              | 1      | GILLIAN                 | EVE              | LEI-H-1-5               |
+      | GILLIAN EVE          | 1      | GILLIAN                 | EVE              | LEI-H-1-5               |
+      | GILLIAN EVE ANDERSON | 1      | GILLIAN                 | EVE              | LEI-H-1-5               |
+      | ANDERSON GILLIAN     | 1      | GILLIAN                 | EVE              | LEI-H-1-5               |
 
   Scenario Outline: Search all offenders across a specified locations
     When an offender search is made for location "<location>"
@@ -54,3 +57,16 @@ Feature: Offender Search V2
       | ANDERSON | LEI-H    | 1      | GILLIAN                 | LEI-H-1-5                     |
       | anderson | LEI-RECP | 0      |                         |                               |
       | AN       | LEI      | 3      | ANTHONY,ARTHUR,GILLIAN  | LEI-A-1-1,LEI-A-1-2,LEI-H-1-5 |
+      | A1234AB  | LEI-H    | 1      | GILLIAN                 | LEI-H-1-5                     |
+      | A1234A   | LEI-H    | 3      | CHARLEY,CHESNEY,GILLIAN | LEI-H,LEI-H-1,LEI-H-1-5       |
+
+  Scenario Outline: Search all offenders across a specified locations and keywords
+    When an offender search is made with keywords "<keywords>" in location "<location>"
+    Then "<number>" total offender records are available
+
+    Examples:
+      | keywords  | location  | number |
+      | A1234     | LEI-A     | 12     |
+      | A1234A    | LEI-H     | 3      |
+      | ANDERSON  | LEI-H     | 1      |
+
