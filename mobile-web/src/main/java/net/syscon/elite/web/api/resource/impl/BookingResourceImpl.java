@@ -33,7 +33,7 @@ public class BookingResourceImpl implements BookingResource {
 	@Override
 	public GetBookingResponse getBooking(String query, String orderBy, Order order, int offset, int limit)
 			throws Exception {
-		final List<AssignedInmate> inmates = inmateService.findAllInmates(query, offset, limit, orderBy, order);
+		final List<InmatesSummary> inmates = inmateService.findAllInmates(query, offset, limit, orderBy, order);
 		InmateSummaries inmateSummaries = new InmateSummaries(inmates, MetaDataFactory.createMetaData(limit, offset, inmates));
 		return GetBookingResponse.withJsonOK(inmateSummaries);
 	}

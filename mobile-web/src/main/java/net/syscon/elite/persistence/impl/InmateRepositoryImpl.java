@@ -24,7 +24,7 @@ import java.util.*;
 @Slf4j
 public class InmateRepositoryImpl extends RepositoryBase implements InmateRepository {
 
-	private final Map<String, FieldMapper> assignedInmateMapping = new ImmutableMap.Builder<String, FieldMapper>()
+	private final Map<String, FieldMapper> INMATE_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("OFFENDER_BOOK_ID", 	new FieldMapper("bookingId"))
 			.put("BOOKING_NO", 			new FieldMapper("bookingNo"))
 			.put("OFFENDER_ID_DISPLAY", new FieldMapper("offenderNo"))
@@ -127,14 +127,14 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.build();
 
 	@Override
-	public List<AssignedInmate> findInmatesByLocation(final Long locationId, String query, String orderByField, LocationsResource.Order order, final int offset, final int limit) {
-		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_INMATES_BY_LOCATION"), assignedInmateMapping)
+	public List<InmatesSummary> findInmatesByLocation(final Long locationId, String query, String orderByField, LocationsResource.Order order, final int offset, final int limit) {
+		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_INMATES_BY_LOCATION"), INMATE_MAPPING)
 				.addRowCount()
 				.addQuery(query)
 				.addOrderBy(order == LocationsResource.Order.asc, orderByField)
 				.addPagination()
 				.build();
-		final RowMapper<AssignedInmate> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, AssignedInmate.class, assignedInmateMapping);
+		final RowMapper<InmatesSummary> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, InmatesSummary.class, INMATE_MAPPING);
 		try {
 			return jdbcTemplate.query(sql, createParams("locationId", locationId, "caseLoadId", getCurrentCaseLoad(), "offset", offset, "limit", limit), assignedInmateRowMapper);
 		} catch (EmptyResultDataAccessException e) {
@@ -143,9 +143,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public List<AssignedInmate> findAllInmates(Set<String> caseloads, String query, int offset, int limit, String orderBy, BookingResource.Order order) {
+	public List<InmatesSummary> findAllInmates(Set<String> caseloads, String query, int offset, int limit, String orderBy, BookingResource.Order order) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
-		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, assignedInmateMapping);
+		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, INMATE_MAPPING);
 		boolean isAscendingOrder = (order == BookingResource.Order.asc);
 
 		String sql = builder
@@ -155,10 +155,10 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 				.addPagination()
 				.build();
 
-		RowMapper<AssignedInmate> assignedInmateRowMapper =
-				Row2BeanRowMapper.makeMapping(sql, AssignedInmate.class, assignedInmateMapping);
+		RowMapper<InmatesSummary> assignedInmateRowMapper =
+				Row2BeanRowMapper.makeMapping(sql, InmatesSummary.class, INMATE_MAPPING);
 
-		List<AssignedInmate> inmates;
+		List<InmatesSummary> inmates;
 		try {
 			inmates = jdbcTemplate.query(
 					sql,
@@ -209,14 +209,14 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public List<InmateAssignmentSummary> findMyAssignments(long staffId, String currentCaseLoad, String orderBy, boolean ascendingSort, int offset, int limit) {
-		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_MY_ASSIGNMENTS"), assignedInmateMapping).
+	public List<InmatesSummary> findMyAssignments(long staffId, String currentCaseLoad, String orderBy, boolean ascendingSort, int offset, int limit) {
+		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_MY_ASSIGNMENTS"), INMATE_MAPPING).
 				addRowCount().
 				addOrderBy(ascendingSort, orderBy).
 				addPagination()
 				.build();
 
-		final RowMapper<InmateAssignmentSummary> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, InmateAssignmentSummary.class, assignedInmateMapping);
+		final RowMapper<InmatesSummary> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, InmatesSummary.class, INMATE_MAPPING);
 		try {
 			return jdbcTemplate.query(sql, createParams("staffId", staffId, "caseLoadId", currentCaseLoad, "offset", offset, "limit", limit), assignedInmateRowMapper);
 		} catch (EmptyResultDataAccessException e) {

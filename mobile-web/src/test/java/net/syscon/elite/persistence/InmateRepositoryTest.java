@@ -1,7 +1,7 @@
 package net.syscon.elite.persistence;
 
-import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.InmateDetails;
+import net.syscon.elite.web.api.model.InmatesSummary;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +41,7 @@ public class InmateRepositoryTest {
 
     @Test
     public final void testFindAllImates() {
-        final List<AssignedInmate> foundInmates = repository.findAllInmates(new HashSet<>(Arrays.asList("LEI", "BXI")), "", 0, 10, "lastName, firstName", asc);
+        final List<InmatesSummary> foundInmates = repository.findAllInmates(new HashSet<>(Arrays.asList("LEI", "BXI")), "", 0, 10, "lastName, firstName", asc);
         assertThat(foundInmates).isNotEmpty();
     }
 

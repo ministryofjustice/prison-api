@@ -56,8 +56,8 @@ public class UsersResourceImpl implements UsersResource {
 
 	@Override
 	public GetUsersMeBookingAssignmentsResponse getUsersMeBookingAssignments(int offset, int limit) throws Exception {
-		final List<InmateAssignmentSummary> assignments = assignmentService.findMyAssignments(offset, limit);
-		final InmateAssignmentSummaries assignmentSummaries = new InmateAssignmentSummaries(assignments, MetaDataFactory.createMetaData(limit, offset, assignments));
+		final List<InmatesSummary> assignments = assignmentService.findMyAssignments(offset, limit);
+		final InmateSummaries assignmentSummaries = new InmateSummaries(assignments, MetaDataFactory.createMetaData(limit, offset, assignments));
 		return GetUsersMeBookingAssignmentsResponse.withJsonOK(assignmentSummaries);
 	}
 

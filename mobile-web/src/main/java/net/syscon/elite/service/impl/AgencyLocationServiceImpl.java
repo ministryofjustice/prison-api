@@ -8,7 +8,7 @@ import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.web.api.model.Agency;
-import net.syscon.elite.web.api.model.AssignedInmate;
+import net.syscon.elite.web.api.model.InmatesSummary;
 import net.syscon.elite.web.api.model.Location;
 import net.syscon.elite.web.api.model.UserDetails;
 import net.syscon.elite.web.api.resource.LocationsResource.Order;
@@ -63,8 +63,8 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 	}
 
 	@Override
-	public List<AssignedInmate> getInmatesFromLocation(Long locationId, String query, String orderByField, Order order, int offset, int limit) {
-		List<AssignedInmate> inmates;
+	public List<InmatesSummary> getInmatesFromLocation(Long locationId, String query, String orderByField, Order order, int offset, int limit) {
+		List<InmatesSummary> inmates;
 
 		Location location = getLocation(locationId, false);
 
@@ -82,7 +82,7 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 	public Location getLocation(Long locationId, boolean withInmates) {
 		Location location = locationRepository.findLocation(locationId).orElseThrow(new EntityNotFoundException(String.valueOf(locationId)));
 		if (withInmates) {
-			List<AssignedInmate> inmates = inmateRepository.findInmatesByLocation(locationId, null, null, null, 0, 1000);
+			List<InmatesSummary> inmates = inmateRepository.findInmatesByLocation(locationId, null, null, null, 0, 1000);
 			location.setAssignedInmates(inmates);
 		}
 		return location;

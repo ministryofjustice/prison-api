@@ -14,7 +14,7 @@ is: [
   description: The collection of inmates present at the specified location.
   type: { get-collection: { collectionSchema: inmateSummaries } }
   is: [
-    searchable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, agencyId, or assignedLivingUnitId"},
-    orderable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, agencyId, or assignedLivingUnitId"},
+    searchable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId"},
+    orderable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId"},
     pageable
   ]

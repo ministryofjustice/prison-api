@@ -1,7 +1,7 @@
 package net.syscon.elite.executableSpecification.steps;
 
-import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.InmateSummaries;
+import net.syscon.elite.web.api.model.InmatesSummary;
 import net.syscon.util.QueryOperator;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
@@ -78,32 +78,32 @@ public class BookingSearchSteps extends CommonSteps {
 
     @Step("Verify first names of inmates returned by search")
     public void verifyFirstNames(String nameList) {
-        verifyPropertyValues(inmateSummaries.getInmatesSummaries(), AssignedInmate::getFirstName, nameList);
+        verifyPropertyValues(inmateSummaries.getInmatesSummaries(), InmatesSummary::getFirstName, nameList);
     }
 
     @Step("Verify middle names of inmates returned by search")
     public void verifyMiddleNames(String nameList) {
-        verifyPropertyValues(inmateSummaries.getInmatesSummaries(), AssignedInmate::getMiddleName, nameList);
+        verifyPropertyValues(inmateSummaries.getInmatesSummaries(), InmatesSummary::getMiddleName, nameList);
     }
 
     @Step("Verify last names of inmates returned by search")
     public void verifyLastNames(String nameList) {
-        verifyPropertyValues(inmateSummaries.getInmatesSummaries(), AssignedInmate::getLastName, nameList);
+        verifyPropertyValues(inmateSummaries.getInmatesSummaries(), InmatesSummary::getLastName, nameList);
     }
 
     @Step("Verify living unit descriptions returned by search")
     public void verifyLivingUnits(String livingUnitList) {
-        verifyPropertyValues(inmateSummaries.getInmatesSummaries(), AssignedInmate::getAssignedLivingUnitDesc, livingUnitList);
+        verifyPropertyValues(inmateSummaries.getInmatesSummaries(), InmatesSummary::getAssignedLivingUnitDesc, livingUnitList);
     }
 
     @Step("Verify image ids returned by search")
     public void verifyImageIds(String imageIds) {
-        verifyLongValues(inmateSummaries.getInmatesSummaries(), AssignedInmate::getFacialImageId, imageIds);
+        verifyLongValues(inmateSummaries.getInmatesSummaries(), InmatesSummary::getFacialImageId, imageIds);
     }
 
     @Step("Verify dobs returned by search")
     public void verifyDobs(String dobs) {
-        verifyPropertyValues(inmateSummaries.getInmatesSummaries(), AssignedInmate::getDateOfBirth, dobs);
+        verifyPropertyValues(inmateSummaries.getInmatesSummaries(), InmatesSummary::getDateOfBirth, dobs);
     }
 
     private void dispatchQuery(String query) {
