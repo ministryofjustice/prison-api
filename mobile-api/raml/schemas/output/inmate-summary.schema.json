@@ -19,5 +19,5 @@
 	"assignedOfficerUserId": { "type": "string"},
     "aliases": { "type": "array", "items": { "type": "string" } }
   },
-  "required": ["inmateId", "bookingId", "offenderId", "firstName", "lastName", "dateOfBirth", "agencyId"]
+  "required": ["bookingNo", "bookingId", "offenderNo", "firstName", "lastName", "dateOfBirth", "agencyId"]
 }

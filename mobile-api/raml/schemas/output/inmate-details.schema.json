@@ -84,5 +84,5 @@
 		},
 		"assignedOfficerId": { "type": "integer" }
 	},
-	"required": ["inmateId", "bookingId", "offenderId", "firstName", "middleName", "lastName", "agencyId", "age"]
+	"required": ["bookingNo", "bookingId", "offenderNo", "firstName", "middleName", "lastName", "agencyId", "age"]
 }

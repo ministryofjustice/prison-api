@@ -3,8 +3,8 @@ package net.syscon.elite.web.api.resource.impl;
 
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.AgencyLocationService;
-import net.syscon.elite.web.api.model.AssignedInmate;
 import net.syscon.elite.web.api.model.InmateSummaries;
+import net.syscon.elite.web.api.model.InmatesSummary;
 import net.syscon.elite.web.api.model.Location;
 import net.syscon.elite.web.api.model.Locations;
 import net.syscon.elite.web.api.resource.LocationsResource;
@@ -35,7 +35,7 @@ public class LocationsResourceImpl implements LocationsResource {
 
 	@Override
 	public GetLocationsByLocationIdInmatesResponse getLocationsByLocationIdInmates(final String locationId, final String query, final String orderBy, final Order order, final int offset, final int limit) throws Exception {
-		final List<AssignedInmate> inmates = agencyLocationService.getInmatesFromLocation(Long.valueOf(locationId), query, orderBy, order, offset, limit);
+		final List<InmatesSummary> inmates = agencyLocationService.getInmatesFromLocation(Long.valueOf(locationId), query, orderBy, order, offset, limit);
 		InmateSummaries inmateSummaries = new InmateSummaries(inmates, MetaDataFactory.createMetaData(limit, offset, inmates));
 		return GetLocationsByLocationIdInmatesResponse.withJsonOK(inmateSummaries);
 	}

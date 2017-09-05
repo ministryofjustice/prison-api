@@ -8,9 +8,11 @@ import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import net.syscon.elite.v2.api.model.OffenderBooking;
 import net.syscon.elite.v2.api.model.PrisonerDetail;
-import net.syscon.elite.web.api.model.*;
+import net.syscon.elite.web.api.model.Alias;
+import net.syscon.elite.web.api.model.CaseLoad;
+import net.syscon.elite.web.api.model.InmateDetails;
+import net.syscon.elite.web.api.model.InmatesSummary;
 import net.syscon.elite.web.api.resource.BookingResource.Order;
-import net.syscon.elite.web.api.resource.LocationsResource;
 import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,15 +43,9 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<AssignedInmate> findAllInmates(String query, int offset, int limit, String orderBy, Order order) {
+    public List<InmatesSummary> findAllInmates(String query, int offset, int limit, String orderBy, Order order) {
         String colSort = StringUtils.isNotBlank(orderBy) ? orderBy : DEFAULT_OFFENDER_SORT;
         return repository.findAllInmates(getUserCaseloadIds(), query, offset, limit, colSort, order);
-    }
-
-    @Override
-    public List<AssignedInmate> findInmatesByLocation(Long locationId, String query, String orderByField, LocationsResource.Order order, int offset, int limit) {
-        String colSort = StringUtils.isNotBlank(orderByField) ? orderByField : DEFAULT_OFFENDER_SORT;
-        return repository.findInmatesByLocation(locationId, query, colSort, order, offset, limit);
     }
 
     @Override
@@ -60,11 +56,6 @@ public class InmateServiceImpl implements InmateService {
     @Override
     public List<Alias> findInmateAliases(Long inmateId, String orderByField, Order order) {
         return repository.findInmateAliases(inmateId, orderByField, order);
-    }
-
-    @Override
-    public List<InmateAssignmentSummary> findMyAssignments(long staffId, String currentCaseLoad, int offset, int limit) {
-        return repository.findMyAssignments(staffId, currentCaseLoad, DEFAULT_OFFENDER_SORT, true, offset, limit);
     }
 
     @Override
