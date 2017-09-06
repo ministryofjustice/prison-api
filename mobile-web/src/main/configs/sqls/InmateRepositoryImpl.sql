@@ -256,19 +256,77 @@ FIND_MY_ASSIGNMENTS {
 
 FIND_PRISONERS {
 SELECT
-  O.OFFENDER_ID_DISPLAY AS NOMSID,
+  O.OFFENDER_ID_DISPLAY,
+  O.TITLE,
+  O.SUFFIX,
   O.FIRST_NAME,
-  O.MIDDLE_NAME,
+  CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL
+    THEN concat(' ', O.middle_name_2)
+                   ELSE NULL END) MIDDLE_NAMES,
   O.LAST_NAME,
   O.BIRTH_DATE,
-  RCE.DESCRIPTION AS ETHNICITY,
-  RCS.DESCRIPTION AS SEX,
-  O.BIRTH_COUNTRY_CODE
+  RCE.DESCRIPTION       AS       ETHNICITY,
+  RCS.DESCRIPTION       AS       SEX,
+  RCC.DESCRIPTION       AS       BIRTH_COUNTRY,
+  ob.booking_begin_date,
+  ob.active_flag,
+  ob.agy_loc_id,
+  al.description                 AGY_LOC_DESC,
+  nvl(ord.release_date, ord.auto_release_date) RELEASE_DATE,
+  CASE WHEN ist.band_code <= 8
+    THEN 'Convicted'
+  WHEN ist.band_code > 8
+    THEN 'Remand'
+  ELSE NULL END                  CONVICTED_STATUS,
+  CASE WHEN opd2.profile_code IS NOT NULL
+    THEN opd2.profile_code
+  ELSE pc.description END        NATIONALITIES,
+  pc3.description                RELIGION,
+  ois.imprisonment_status,
+  (SELECT oi1.identifier
+   FROM offender_identifiers oi1
+   WHERE oi1.offender_id = ob.offender_id
+         AND oi1.identifier_type = 'PNC'
+         AND rownum = 1)         PNC_NUMBER,
+  (SELECT oi2.identifier
+   FROM offender_identifiers oi2
+   WHERE oi2.offender_id = ob.offender_id
+         AND oi2.identifier_type = 'CRO'
+         AND rownum = 1)         CRO_NUMBER
 FROM OFFENDERS O
+  JOIN OFFENDER_BOOKINGS OB
+    ON OB.offender_id = o.offender_id
+       AND OB.booking_seq = 1
+  join agency_locations al
+    on al.agy_loc_id = ob.agy_loc_id
+  left join offender_release_details ord
+    on ord.offender_book_id = ob.offender_book_id
+  LEFT JOIN offender_imprison_statuses ois
+    ON ois.offender_book_id = OB.offender_book_id
+       AND ois.latest_status = 'Y'
+  LEFT JOIN imprisonment_statuses ist
+    ON ist.imprisonment_status = ois.imprisonment_status
   LEFT JOIN REFERENCE_CODES RCE ON O.RACE_CODE = RCE.CODE
                                    AND RCE.DOMAIN = 'ETHNICITY'
   LEFT JOIN REFERENCE_CODES RCS ON O.SEX_CODE = RCS.CODE
                                    AND RCS.DOMAIN = 'SEX'
+  LEFT JOIN REFERENCE_CODES RCC ON O.BIRTH_COUNTRY_CODE = RCC.CODE
+                                   AND RCC.DOMAIN = 'COUNTRY'
+  LEFT JOIN offender_profile_details opd1
+    ON opd1.offender_book_id = ob.offender_book_id
+       AND opd1.profile_type = 'NAT'
+  LEFT JOIN offender_profile_details opd2
+    ON opd2.offender_book_id = ob.offender_book_id
+       AND opd2.profile_type = 'NATIO'
+  LEFT JOIN offender_profile_details opd3
+    ON opd3.offender_book_id = ob.offender_book_id
+       AND opd3.profile_type = 'RELF'
+  LEFT JOIN profile_codes pc
+    ON pc.profile_type = opd1.profile_type
+       AND pc.profile_code = opd1.profile_code
+  LEFT JOIN profile_codes pc3
+    ON pc3.profile_type = opd3.profile_type
+       AND pc3.profile_code = opd3.profile_code
 }
 
 
