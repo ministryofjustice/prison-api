@@ -333,16 +333,6 @@ public class PrisonerDetail {
         this.receptionDate = receptionDate;
     }
 
-    @JsonProperty("sentenceEndDate")
-    public Date getSentenceEndDate() {
-        return this.sentenceEndDate;
-    }
-
-    @JsonProperty("sentenceEndDate")
-    public void setSentenceEndDate(Date sentenceEndDate) {
-        this.sentenceEndDate = sentenceEndDate;
-    }
-
     @JsonProperty("releaseDate")
     public Date getReleaseDate() {
         return this.releaseDate;
