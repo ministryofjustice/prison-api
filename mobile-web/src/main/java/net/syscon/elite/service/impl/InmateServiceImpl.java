@@ -87,7 +87,7 @@ public class InmateServiceImpl implements InmateService {
         }
         if (StringUtils.isNotBlank(criteria.getMiddleNames())) {
             addAnd(query);
-            query.append(format("middleName:like:'%s%%'", criteria.getMiddleNames()));
+            query.append(format("middleNames:like:'%s%%'", criteria.getMiddleNames()));
         }
         if (StringUtils.isNotBlank(criteria.getLastName())) {
             addAnd(query);
