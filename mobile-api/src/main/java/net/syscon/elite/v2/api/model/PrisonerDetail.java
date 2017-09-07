@@ -33,7 +33,6 @@ import java.util.Map;
         "imprisonmentStatus",
         "receptionDate",
         "releaseDate",
-        "paroleNumbers",
         "maritalStatus"
 })
 @Builder
@@ -118,9 +117,6 @@ public class PrisonerDetail {
             pattern = "yyyy-MM-dd"
     )
     private Date releaseDate;
-
-    @JsonProperty("paroleNumbers")
-    private String paroleNumbers;
 
     @JsonProperty("maritalStatus")
     private String maritalStatus;
@@ -343,16 +339,6 @@ public class PrisonerDetail {
     @JsonProperty("releaseDate")
     public void setReleaseDate(Date releaseDate) {
         this.releaseDate = releaseDate;
-    }
-
-    @JsonProperty("paroleNumbers")
-    public String getParoleNumbers() {
-        return this.paroleNumbers;
-    }
-
-    @JsonProperty("paroleNumbers")
-    public void setParoleNumbers(String paroleNumbers) {
-        this.paroleNumbers = paroleNumbers;
     }
 
     @JsonProperty("maritalStatus")

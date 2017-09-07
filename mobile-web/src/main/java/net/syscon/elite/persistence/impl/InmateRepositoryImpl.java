@@ -74,6 +74,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("CONVICTED_STATUS", 	new FieldMapper("convictedStatus"))
 			.put("NATIONALITIES", 		new FieldMapper("nationalities"))
 			.put("RELIGION", 	        new FieldMapper("religion"))
+			.put("MARITAL_STATUS", 	    new FieldMapper("maritalStatus"))
 			.put("IMPRISONMENT_STATUS", new FieldMapper("imprisonmentStatus"))
 			.put("PNC_NUMBER", 			new FieldMapper("pncNumber"))
 			.put("CRO_NUMBER", 			new FieldMapper("croNumber"))

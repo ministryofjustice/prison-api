@@ -135,9 +135,10 @@ FIND_PHYSICAL_CHARACTERISTICS_BY_BOOKING {
                                              AND IMAGE_VIEW_TYPE = P.PROFILE_TYPE) ) AS IMAGE_ID
   from OFFENDER_PROFILE_DETAILS P
     JOIN OFFENDER_BOOKINGS B ON B.OFFENDER_BOOK_ID = P.OFFENDER_BOOK_ID
-    JOIN PROFILE_TYPES PT ON PT.PROFILE_TYPE = P.PROFILE_TYPE AND PROFILE_CATEGORY = 'PA'
+    JOIN PROFILE_TYPES PT ON PT.PROFILE_TYPE = P.PROFILE_TYPE AND PROFILE_CATEGORY IN ('PA', 'PI')
     LEFT JOIN PROFILE_CODES PC ON PC.PROFILE_TYPE = PT.PROFILE_TYPE AND PC.PROFILE_CODE = P.PROFILE_CODE
   where P.OFFENDER_BOOK_ID = :bookingId and P.PROFILE_CODE is not null
+    ORDER BY PROFILE_CATEGORY
 }
 
 FIND_PHYSICAL_MARKS_BY_BOOKING {
@@ -254,6 +255,7 @@ FIND_PRISONERS {
       THEN opd2.profile_code
     ELSE pc.description END        NATIONALITIES,
     pc3.description                RELIGION,
+    pc2.description                MARITAL_STATUS,
     ois.imprisonment_status,
     (SELECT oi1.identifier
      FROM offender_identifiers oi1
@@ -293,9 +295,15 @@ FIND_PRISONERS {
     LEFT JOIN offender_profile_details opd3
       ON opd3.offender_book_id = ob.offender_book_id
          AND opd3.profile_type = 'RELF'
+    LEFT JOIN offender_profile_details opd4
+      ON opd4.offender_book_id = ob.offender_book_id
+         AND opd4.profile_type = 'MARITAL'
     LEFT JOIN profile_codes pc
       ON pc.profile_type = opd1.profile_type
          AND pc.profile_code = opd1.profile_code
+    LEFT JOIN profile_codes pc2
+      ON pc2.profile_type = opd4.profile_type
+         AND pc2.profile_code = opd4.profile_code
     LEFT JOIN profile_codes pc3
       ON pc3.profile_type = opd3.profile_type
          AND pc3.profile_code = opd3.profile_code
