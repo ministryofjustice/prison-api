@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -38,6 +39,7 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class PrisonerDetail {
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();

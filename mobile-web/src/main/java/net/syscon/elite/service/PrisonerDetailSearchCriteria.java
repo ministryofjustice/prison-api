@@ -3,12 +3,14 @@ package net.syscon.elite.service;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.Date;
 
 @Getter
 @Builder
 @AllArgsConstructor
+@ToString
 public class PrisonerDetailSearchCriteria {
     private String firstName;
     private String middleNames;
