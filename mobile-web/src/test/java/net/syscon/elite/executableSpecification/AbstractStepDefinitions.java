@@ -59,5 +59,10 @@ abstract class AbstractStepDefinitions {
         OffenderSearchSteps offenderSearch() {
             return new OffenderSearchSteps();
         }
+
+        @Bean
+        PrisonerSearchSteps prisonerSearch() {
+            return new PrisonerSearchSteps();
+        }
     }
 }
