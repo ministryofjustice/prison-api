@@ -9,6 +9,7 @@ Feature: Keyworker assignments
 
   Scenario: A staff user views their assignments for a specified caseload
     When I view my assignments
+    Then "10" keyworker assignments records are returned
     Then "15" total keyworker assignments records are returned
 
 

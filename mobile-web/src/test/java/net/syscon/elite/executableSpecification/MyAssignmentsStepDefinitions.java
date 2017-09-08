@@ -1,6 +1,5 @@
 package net.syscon.elite.executableSpecification;
 
-
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.executableSpecification.steps.MyAssignmentsSteps;
@@ -27,5 +26,10 @@ public class MyAssignmentsStepDefinitions extends AbstractStepDefinitions {
     @Then("^\"([^\"]*)\" total keyworker assignments records are returned$")
     public void totalKeyworkerAssignmentsRecordsAreReturned(String expectedCount) throws Throwable {
         myAssignments.verifyTotalResourceRecordsAvailable(Long.valueOf(expectedCount));
+    }
+
+    @Then("^\"([^\"]*)\" keyworker assignments records are returned$")
+    public void keyworkerAssignmentsRecordsAreReturned(String expectedCount) throws Throwable {
+        myAssignments.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
     }
 }
