@@ -262,7 +262,7 @@ FIND_PRISONERS {
     O.FIRST_NAME,
     CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL
       THEN concat(' ', O.middle_name_2)
-                          ELSE NULL END) MIDDLE_NAMES,
+                          ELSE '' END) MIDDLE_NAMES,
     O.LAST_NAME,
     O.BIRTH_DATE,
     RCE.DESCRIPTION       AS       ETHNICITY,

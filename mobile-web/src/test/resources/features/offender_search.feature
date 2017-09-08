@@ -22,7 +22,7 @@ Feature: Offender Search V2
     Examples:
       | keywords             | number | first name list         | middle name list | living unit list        |
       | ANDERSON             | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5     |
-      | DUCK                 | 1      | DONALD                  |                  | LEI-A-1-10              |
+      | DUCK                 | 1      | DONALD                  | JEFFREY          | LEI-A-1-10              |
       | anderson             | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5     |
       | AnDersOn             | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5     |
       | UNKNOWN              | 0      |                         |                  |                         |

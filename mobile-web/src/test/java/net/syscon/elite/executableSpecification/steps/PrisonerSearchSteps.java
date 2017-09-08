@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.v2.api.model.PrisonerDetail;
 import net.syscon.elite.web.api.model.PageMetaData;
 import net.thucydides.core.annotations.Step;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,24 +39,36 @@ public class PrisonerSearchSteps extends CommonSteps {
         verifyPropertyValues(prisonerDetails, PrisonerDetail::getLastName, nameList);
     }
 
-    public void search(String queryName, String queryValue, int offset, int limit) {
+    @Step("Verify dobs of prisoner returned by search")
+    public void verifyDobs(String dobs) {
+        verifyDateValues(prisonerDetails, PrisonerDetail::getDateOfBirth, dobs);
+    }
+
+    public void search(Map<String, String> queryParams, int offset, int limit, HttpStatus expectedStatus) {
         init();
-        String queryUrl = String.format(PRISONER_SEARCH, String.format("%s=%s",queryName, queryValue) );
+        StringBuilder params = new StringBuilder();
+        queryParams.forEach((key, value) -> params.append(String.format("%s=%s&", key, value)));
 
-        final ImmutableMap<String, String> inputHeaders = ImmutableMap.of("Page-Offset", String.valueOf(offset), "Record-Limit", String.valueOf(limit));
+        final String query = params.toString();
+        String queryUrl = String.format(PRISONER_SEARCH, StringUtils.substring(query, 0, query.length() - 1));
+        final ImmutableMap<String, String> inputHeaders = ImmutableMap.of("Page-Offset", String.valueOf(offset), "Page-Limit", String.valueOf(limit));
 
+        if (expectedStatus.is4xxClientError() || expectedStatus.is5xxServerError()) {
+            final ResponseEntity<Object> response = restTemplate.exchange(queryUrl, HttpMethod.GET, createEntity(null, inputHeaders), Object.class);
+            assertThat(response.getStatusCode()).isEqualTo(expectedStatus);
+        } else {
+            ResponseEntity<List<PrisonerDetail>> responseEntity = restTemplate.exchange(queryUrl,
+                    HttpMethod.GET, createEntity(null, inputHeaders), new ParameterizedTypeReference<List<PrisonerDetail>>() {
+                    });
+            assertThat(responseEntity.getStatusCode()).isEqualTo(expectedStatus);
 
-        ResponseEntity<List<PrisonerDetail>> responseEntity = restTemplate.exchange(queryUrl,
-                HttpMethod.GET, createEntity(null, inputHeaders), new ParameterizedTypeReference<List<PrisonerDetail>>() {});
-
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-        final HttpHeaders headers = responseEntity.getHeaders();
-        final Long totalRecords = Long.valueOf(headers.get("Total-Records").get(0));
-        //final Long returnedOffset = Long.valueOf(headers.get("Page-Offset").get(0));
-        final Long returnedLimit = Long.valueOf(headers.get("Record-Limit").get(0));
-        prisonerDetails = responseEntity.getBody();
-        setResourceMetaData(prisonerDetails, new PageMetaData(0L, returnedLimit, totalRecords, "prisoners"));
+            final HttpHeaders headers = responseEntity.getHeaders();
+            final Long totalRecords = Long.valueOf(headers.get("Total-Records").get(0));
+            final Long returnedOffset = Long.valueOf(headers.get("Page-Offset").get(0));
+            final Long returnedLimit = Long.valueOf(headers.get("Page-Limit").get(0));
+            prisonerDetails = responseEntity.getBody();
+            setResourceMetaData(prisonerDetails, new PageMetaData(returnedOffset, returnedLimit, totalRecords, "prisoners"));
+        }
     }
 
 

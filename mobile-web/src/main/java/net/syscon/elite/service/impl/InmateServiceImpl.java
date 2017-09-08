@@ -68,13 +68,14 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<PrisonerDetail> findPrisoners(PrisonerDetailSearchCriteria criteria, String sortFields, Long limit) {
+    public List<PrisonerDetail> findPrisoners(PrisonerDetailSearchCriteria criteria, String sortFields, Long offset, Long limit) {
         final String query = generateQuery(criteria);
         CalcDateRanges calcDates = new CalcDateRanges(criteria.getDob(), criteria.getDobFrom(), criteria.getDobTo(), maxYears);
         if (query != null || calcDates.hasDobRange()) {
             long rowLimit = (limit != null ? limit : 50L);
+            long startOffset = (offset != null ? offset : 0L);
             return repository.searchForOffenders(query, calcDates.getDobDateFrom(), calcDates.getDobDateTo(),
-                    StringUtils.isNotBlank(sortFields) ? sortFields : DEFAULT_OFFENDER_SORT, true, rowLimit);
+                    StringUtils.isNotBlank(sortFields) ? sortFields : DEFAULT_OFFENDER_SORT, true, startOffset, rowLimit);
         }
         return null;
     }

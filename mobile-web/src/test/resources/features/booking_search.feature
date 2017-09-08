@@ -29,7 +29,7 @@ Feature: Booking Search
     Examples:
       | name     | number | first name list | middle name list | living unit list    |  image ids   | DOB                   |
       | ANDERSON | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5 | -1,-2        | 1969-12-30,1998-08-28 |
-      | DUCK     | 1      | DONALD          |                  | LEI-A-1-10          | -6           | 1956-02-28            |
+      | DUCK     | 1      | DONALD          | JEFFREY          | LEI-A-1-10          | -6           | 1956-02-28            |
       | anderson | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5 | -1,-2        | 1969-12-30,1998-08-28 |
       | AnDersOn | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5 | -1,-2        | 1969-12-30,1998-08-28 |
       | UNKNOWN  | 0      |                 |                  |                     |              |                       |
@@ -57,9 +57,9 @@ Feature: Booking Search
 
     Examples:
       | name    | number | last name list | middle name list |
-      | DONALD  | 2      | DUCK,TRUMP     |                  |
-      | donald  | 2      | DUCK,TRUMP     |                  |
-      | DoNAld  | 2      | DUCK,TRUMP     |                  |
+      | DONALD  | 2      | DUCK,TRUMP     | JEFFREY          |
+      | donald  | 2      | DUCK,TRUMP     | JEFFREY          |
+      | DoNAld  | 2      | DUCK,TRUMP     | JEFFREY          |
       | UNKNOWN | 0      |                |                  |
       |         | 0      |                |                  |
 

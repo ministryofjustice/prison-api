@@ -240,7 +240,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
     @Override
-    public List<PrisonerDetail> searchForOffenders(String query, Date fromDobDate, Date toDobDate, String sortFields, boolean ascendingOrder, long limit) {
+    public List<PrisonerDetail> searchForOffenders(String query, Date fromDobDate, Date toDobDate, String sortFields, boolean ascendingOrder, long offset, long limit) {
         String initialSql = getQuery("FIND_PRISONERS");
 
         final boolean hasDateRange = fromDobDate != null && toDobDate != null;
@@ -263,7 +263,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         List<PrisonerDetail> prisonerDetails;
         try {
             prisonerDetails = jdbcTemplate.query(sql,
-                    hasDateRange ? createParams("limit", limit, "offset", 0, "fromDob", fromDobDate, "toDob", toDobDate) : createParams("limit", limit, "offset", 0),
+                    hasDateRange ? createParams("limit", limit, "offset", offset, "fromDob", fromDobDate, "toDob", toDobDate) : createParams("limit", limit, "offset", offset),
                     prisonerDetailRowMapper);
         } catch (EmptyResultDataAccessException e) {
             prisonerDetails = Collections.emptyList();

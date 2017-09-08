@@ -47,7 +47,7 @@ public class CalcDateRanges {
 
     private boolean isGreaterThanYearSpan(Date fromDate, Date toDate, int maxYearSpan) {
         long years = YEARS.between(toLocalDate(fromDate), toLocalDate(toDate));
-        return years > maxYearSpan;
+        return years >= maxYearSpan;
     }
 
     private Date adjustYears(Date startDate, int years) {
