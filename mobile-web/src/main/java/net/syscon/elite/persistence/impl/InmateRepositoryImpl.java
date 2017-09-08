@@ -61,14 +61,29 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             .build();
 
     private static final Map<String, FieldMapper> OFFENDER_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
-            .put("NOMSID",              new FieldMapper("nomsId"))
+			.put("OFFENDER_ID_DISPLAY", new FieldMapper("offenderNo"))
+			.put("TITLE", 				new FieldMapper("title", null, null, StringUtils::upperCase))
+			.put("SUFFIX", 				new FieldMapper("suffix", null, null, StringUtils::upperCase))
             .put("FIRST_NAME", 			new FieldMapper("firstName", null, null, StringUtils::upperCase))
-            .put("MIDDLE_NAME", 		new FieldMapper("middleNames", null, null, StringUtils::upperCase))
+            .put("MIDDLE_NAMES", 		new FieldMapper("middleNames", null, null, StringUtils::upperCase))
             .put("LAST_NAME", 			new FieldMapper("lastName", null, null, StringUtils::upperCase))
             .put("BIRTH_DATE", 			new FieldMapper("dateOfBirth"))
             .put("ETHNICITY", 			new FieldMapper("ethnicity"))
             .put("SEX", 			    new FieldMapper("gender"))
-            .put("BIRTH_COUNTRY_CODE", 	new FieldMapper("birthCountry"))
+            .put("BIRTH_COUNTRY", 		new FieldMapper("birthCountry"))
+			.put("CONVICTED_STATUS", 	new FieldMapper("convictedStatus"))
+			.put("NATIONALITIES", 		new FieldMapper("nationalities"))
+			.put("RELIGION", 	        new FieldMapper("religion"))
+			.put("MARITAL_STATUS", 	    new FieldMapper("maritalStatus"))
+			.put("IMPRISONMENT_STATUS", new FieldMapper("imprisonmentStatus"))
+			.put("PNC_NUMBER", 			new FieldMapper("pncNumber"))
+			.put("CRO_NUMBER", 			new FieldMapper("croNumber"))
+			.put("ACTIVE_FLAG", 		new FieldMapper("currentlyInPrison"))
+			.put("BOOKING_BEGIN_DATE", 	new FieldMapper("receptionDate"))
+			.put("RELEASE_DATE",    	new FieldMapper("releaseDate"))
+			.put("AGY_LOC_ID", 			new FieldMapper("latestLocationId"))
+			.put("AGY_LOC_DESC", 		new FieldMapper("latestLocation"))
+
             .build();
 
     private final Map<String, FieldMapper> inmateDetailsMapping = new ImmutableMap.Builder<String, FieldMapper>()
@@ -225,7 +240,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
     @Override
-    public List<PrisonerDetail> searchForOffenders(String query, Date fromDobDate, Date toDobDate, String sortFields, boolean ascendingOrder, long limit) {
+    public List<PrisonerDetail> searchForOffenders(String query, Date fromDobDate, Date toDobDate, String sortFields, boolean ascendingOrder, long offset, long limit) {
         String initialSql = getQuery("FIND_PRISONERS");
 
         final boolean hasDateRange = fromDobDate != null && toDobDate != null;
@@ -248,7 +263,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         List<PrisonerDetail> prisonerDetails;
         try {
             prisonerDetails = jdbcTemplate.query(sql,
-                    hasDateRange ? createParams("limit", limit, "offset", 0, "fromDob", fromDobDate, "toDob", toDobDate) : createParams("limit", limit, "offset", 0),
+                    hasDateRange ? createParams("limit", limit, "offset", offset, "fromDob", fromDobDate, "toDob", toDobDate) : createParams("limit", limit, "offset", offset),
                     prisonerDetailRowMapper);
         } catch (EmptyResultDataAccessException e) {
             prisonerDetails = Collections.emptyList();

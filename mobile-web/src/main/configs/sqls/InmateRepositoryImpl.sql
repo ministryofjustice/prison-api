@@ -255,20 +255,43 @@ FIND_MY_ASSIGNMENTS {
 }
 
 FIND_PRISONERS {
-SELECT
-  O.OFFENDER_ID_DISPLAY AS NOMSID,
-  O.FIRST_NAME,
-  O.MIDDLE_NAME,
-  O.LAST_NAME,
-  O.BIRTH_DATE,
-  RCE.DESCRIPTION AS ETHNICITY,
-  RCS.DESCRIPTION AS SEX,
-  O.BIRTH_COUNTRY_CODE
-FROM OFFENDERS O
-  LEFT JOIN REFERENCE_CODES RCE ON O.RACE_CODE = RCE.CODE
-                                   AND RCE.DOMAIN = 'ETHNICITY'
-  LEFT JOIN REFERENCE_CODES RCS ON O.SEX_CODE = RCS.CODE
-                                   AND RCS.DOMAIN = 'SEX'
+  SELECT
+    O.OFFENDER_ID_DISPLAY,
+    O.TITLE,
+    O.SUFFIX,
+    O.FIRST_NAME,
+    CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL
+      THEN concat(' ', O.middle_name_2)
+                          ELSE '' END) MIDDLE_NAMES,
+    O.LAST_NAME,
+    O.BIRTH_DATE,
+    RCE.DESCRIPTION       AS       ETHNICITY,
+    RCS.DESCRIPTION       AS       SEX,
+    RCC.DESCRIPTION       AS       BIRTH_COUNTRY,
+    ob.booking_begin_date,
+    ob.active_flag,
+    ob.agy_loc_id,
+    al.description                 AGY_LOC_DESC,
+    nvl(ord.release_date, ord.auto_release_date) RELEASE_DATE,
+    ois.imprisonment_status,
+    NULL PNC_NUMBER,
+    NULL CRO_NUMBVER
+  FROM OFFENDERS O
+    JOIN OFFENDER_BOOKINGS OB
+      ON OB.offender_id = o.offender_id
+    join agency_locations al
+      on al.agy_loc_id = ob.agy_loc_id
+    left join offender_release_details ord
+      on ord.offender_book_id = ob.offender_book_id
+    LEFT JOIN offender_imprison_statuses ois
+      ON ois.offender_book_id = OB.offender_book_id
+         AND ois.IMPRISON_STATUS_SEQ = (select MAX(IMPRISON_STATUS_SEQ) FROM offender_imprison_statuses ois1 WHERE ois1.OFFENDER_BOOK_ID = ois.OFFENDER_BOOK_ID)
+    LEFT JOIN REFERENCE_CODES RCE ON O.RACE_CODE = RCE.CODE
+                                     AND RCE.DOMAIN = 'ETHNICITY'
+    LEFT JOIN REFERENCE_CODES RCS ON O.SEX_CODE = RCS.CODE
+                                     AND RCS.DOMAIN = 'SEX'
+    LEFT JOIN REFERENCE_CODES RCC ON O.BIRTH_COUNTRY_CODE = RCC.CODE
+                                     AND RCC.DOMAIN = 'COUNTRY'
 }
 
 

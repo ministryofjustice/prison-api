@@ -33,8 +33,12 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     @When("^API authentication is attempted with the following credentials:$")
     public void apiAuthenticationIsAttemptedWithTheFollowingCredentials(DataTable rawData) {
         final Map<String, String> loginCredentials = rawData.asMap(String.class, String.class);
-
         user.authenticates(loginCredentials.get("username"), loginCredentials.get("password"));
+    }
+
+    @Given("^a user has logged in with username \"([^\"]*)\" and password \"([^\"]*)\"$")
+    public void aUserHasLoggedInWithUsernameAndPassword(String username, String password) throws Throwable {
+        user.authenticates(username, password);
     }
 
     @Then("^a valid JWT token is generated$")

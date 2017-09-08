@@ -9,6 +9,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -155,6 +157,24 @@ public abstract class CommonSteps {
         return extractedVals;
     }
 
+    protected <T> List<String> extractDateValues(Collection<T> actualCollection, Function<T, Date> mapper) {
+        List<String> extractedVals = new ArrayList<>();
+        final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        if (actualCollection != null) {
+            extractedVals.addAll(
+                    actualCollection
+                            .stream()
+                            .map(mapper)
+                            .filter(Objects::nonNull)
+                            .map(date -> date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().format(dateTimeFormatter))
+                            .collect(Collectors.toList())
+            );
+        }
+
+        return extractedVals;
+    }
+
     protected <T> List<String> extractLongValues(Collection<T> actualCollection, Function<T, Long> mapper) {
         List<String> extractedVals = new ArrayList<>();
 
@@ -185,6 +205,15 @@ public abstract class CommonSteps {
                                         Function<T, Long> mapper,
                                         String expectedValues) {
         List<String> actualValList = extractLongValues(actualCollection, mapper);
+        List<String> expectedValList = csv2list(expectedValues);
+
+        verifyIdentical(actualValList, expectedValList);
+    }
+
+    protected <T> void verifyDateValues(Collection<T> actualCollection,
+                                            Function<T, Date> mapper,
+                                            String expectedValues) {
+        List<String> actualValList = extractDateValues(actualCollection, mapper);
         List<String> expectedValList = csv2list(expectedValues);
 
         verifyIdentical(actualValList, expectedValList);

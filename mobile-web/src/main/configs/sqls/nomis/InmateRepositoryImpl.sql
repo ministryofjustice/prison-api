@@ -135,9 +135,10 @@ FIND_PHYSICAL_CHARACTERISTICS_BY_BOOKING {
                                              AND IMAGE_VIEW_TYPE = P.PROFILE_TYPE) ) AS IMAGE_ID
   from OFFENDER_PROFILE_DETAILS P
     JOIN OFFENDER_BOOKINGS B ON B.OFFENDER_BOOK_ID = P.OFFENDER_BOOK_ID
-    JOIN PROFILE_TYPES PT ON PT.PROFILE_TYPE = P.PROFILE_TYPE AND PROFILE_CATEGORY = 'PA'
+    JOIN PROFILE_TYPES PT ON PT.PROFILE_TYPE = P.PROFILE_TYPE AND PROFILE_CATEGORY IN ('PA', 'PI')
     LEFT JOIN PROFILE_CODES PC ON PC.PROFILE_TYPE = PT.PROFILE_TYPE AND PC.PROFILE_CODE = P.PROFILE_CODE
   where P.OFFENDER_BOOK_ID = :bookingId and P.PROFILE_CODE is not null
+    ORDER BY PROFILE_CATEGORY
 }
 
 FIND_PHYSICAL_MARKS_BY_BOOKING {
@@ -224,4 +225,86 @@ FIND_INMATE_ALIASES {
          LEFT JOIN REFERENCE_CODES RCNT ON O.ALIAS_NAME_TYPE = RCNT.CODE
            AND RCNT.DOMAIN = 'NAME_TYPE'
   WHERE OB.OFFENDER_BOOK_ID = :bookingId
+}
+
+FIND_PRISONERS {
+  SELECT
+    O.OFFENDER_ID_DISPLAY,
+    O.TITLE,
+    O.SUFFIX,
+    O.FIRST_NAME,
+    CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL
+      THEN concat(' ', O.middle_name_2)
+                          ELSE '' END) MIDDLE_NAMES,
+    O.LAST_NAME,
+    O.BIRTH_DATE,
+    RCE.DESCRIPTION       AS       ETHNICITY,
+    RCS.DESCRIPTION       AS       SEX,
+    RCC.DESCRIPTION       AS       BIRTH_COUNTRY,
+    ob.booking_begin_date,
+    ob.active_flag,
+    ob.agy_loc_id,
+    al.description                 AGY_LOC_DESC,
+    nvl(ord.release_date, ord.auto_release_date) RELEASE_DATE,
+    CASE WHEN ist.band_code <= 8
+      THEN 'Convicted'
+    WHEN ist.band_code > 8
+      THEN 'Remand'
+    ELSE NULL END                  CONVICTED_STATUS,
+    CASE WHEN opd2.profile_code IS NOT NULL
+      THEN opd2.profile_code
+    ELSE pc.description END        NATIONALITIES,
+    pc3.description                RELIGION,
+    pc2.description                MARITAL_STATUS,
+    ois.imprisonment_status,
+    (SELECT oi1.identifier
+     FROM offender_identifiers oi1
+     WHERE oi1.offender_id = ob.offender_id
+           AND oi1.identifier_type = 'PNC'
+           AND oi1.OFFENDER_ID_SEQ = (SELECT MAX(OFFENDER_ID_SEQ)  FROM offender_identifiers oi11 where oi11.OFFENDER_ID = oi1.offender_id AND oi11.identifier_type = oi1.identifier_type )) PNC_NUMBER,
+    (SELECT oi2.identifier
+     FROM offender_identifiers oi2
+     WHERE oi2.offender_id = ob.offender_id
+           AND oi2.identifier_type = 'CRO'
+           AND oi2.OFFENDER_ID_SEQ = (SELECT MAX(OFFENDER_ID_SEQ)  FROM offender_identifiers oi21 where oi21.OFFENDER_ID = oi2.offender_id AND oi21.identifier_type = oi2.identifier_type )) CRO_NUMBER
+  FROM OFFENDERS O
+    JOIN OFFENDER_BOOKINGS OB
+      ON OB.offender_id = o.offender_id
+         AND OB.booking_seq = 1
+    join agency_locations al
+      on al.agy_loc_id = ob.agy_loc_id
+    left join offender_release_details ord
+      on ord.offender_book_id = ob.offender_book_id
+    LEFT JOIN offender_imprison_statuses ois
+      ON ois.offender_book_id = OB.offender_book_id
+         AND ois.latest_status = 'Y'
+    LEFT JOIN imprisonment_statuses ist
+      ON ist.imprisonment_status = ois.imprisonment_status
+    LEFT JOIN REFERENCE_CODES RCE ON O.RACE_CODE = RCE.CODE
+                                     AND RCE.DOMAIN = 'ETHNICITY'
+    LEFT JOIN REFERENCE_CODES RCS ON O.SEX_CODE = RCS.CODE
+                                     AND RCS.DOMAIN = 'SEX'
+    LEFT JOIN REFERENCE_CODES RCC ON O.BIRTH_COUNTRY_CODE = RCC.CODE
+                                     AND RCC.DOMAIN = 'COUNTRY'
+    LEFT JOIN offender_profile_details opd1
+      ON opd1.offender_book_id = ob.offender_book_id
+         AND opd1.profile_type = 'NAT'
+    LEFT JOIN offender_profile_details opd2
+      ON opd2.offender_book_id = ob.offender_book_id
+         AND opd2.profile_type = 'NATIO'
+    LEFT JOIN offender_profile_details opd3
+      ON opd3.offender_book_id = ob.offender_book_id
+         AND opd3.profile_type = 'RELF'
+    LEFT JOIN offender_profile_details opd4
+      ON opd4.offender_book_id = ob.offender_book_id
+         AND opd4.profile_type = 'MARITAL'
+    LEFT JOIN profile_codes pc
+      ON pc.profile_type = opd1.profile_type
+         AND pc.profile_code = opd1.profile_code
+    LEFT JOIN profile_codes pc2
+      ON pc2.profile_type = opd4.profile_type
+         AND pc2.profile_code = opd4.profile_code
+    LEFT JOIN profile_codes pc3
+      ON pc3.profile_type = opd3.profile_type
+         AND pc3.profile_code = opd3.profile_code
 }

@@ -29,8 +29,8 @@ public class PrisonerResourceImpl implements PrisonerResource {
     }
 
     @Override
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public GetPrisonersResponse getPrisoners(String firstName, String middleNames, String lastName, String pncNumber, String croNumber, String dob, String dobFrom, String dobTo, String sortFields, Long limit) {
+    @PreAuthorize("hasAnyRole('ROLE_GLOBAL_SEARCH')")
+    public GetPrisonersResponse getPrisoners(String firstName, String middleNames, String lastName, String pncNumber, String croNumber, String dob, String dobFrom, String dobTo, String sortFields, Long offset, Long limit) {
 
         final PrisonerDetailSearchCriteria criteria = PrisonerDetailSearchCriteria.builder()
                 .firstName(firstName)
@@ -43,10 +43,10 @@ public class PrisonerResourceImpl implements PrisonerResource {
                 .dobTo(convertToDate(dobTo))
                 .build();
 
-        final List<PrisonerDetail> prisoners = inmateService.findPrisoners(criteria, sortFields, limit);
+        final List<PrisonerDetail> prisoners = inmateService.findPrisoners(criteria, sortFields, offset, limit);
 
 
-        return GetPrisonersResponse.respond200WithApplicationJson(prisoners, limit, MetaDataFactory.getTotalRecords(prisoners));
+        return GetPrisonersResponse.respond200WithApplicationJson(prisoners, offset, limit, MetaDataFactory.getTotalRecords(prisoners));
     }
 
     private Date convertToDate(String theDate) {
