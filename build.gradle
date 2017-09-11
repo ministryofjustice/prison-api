@@ -18,14 +18,15 @@ buildscript {
 subprojects {
 
     ext {
+        resourceGenDir = file("${rootDir}/mobile-api/src/generated/resources")
         sourceGenDir = file("${rootDir}/mobile-api/src/generated/java")
         elite2ApiDir = file("${rootDir}/mobile-api/src/main/java")
     }
 
     repositories {
+        mavenCentral()
         maven { url "${artifactory_url}/libs-release" }
         maven { url "${artifactory_url}/third-party" }
-        mavenCentral()
     }
 
     configurations {
@@ -46,12 +47,11 @@ subprojects {
     targetCompatibility = JavaVersion.VERSION_1_8
 
     group = "net.syscon.elite"
-    version = "1.0.9"
+    version = "1.0.10"
 
     checkstyle {
         configFile = new File(rootDir, "syscon-checkstyle.xml")
     }
-
 
     dependencies {
         compile("org.apache.commons:commons-lang3:3.5")

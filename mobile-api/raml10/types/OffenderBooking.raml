@@ -1,31 +1,48 @@
 #%RAML 1.0 DataType
+description: Offender Booking Summary
 properties:
   bookingId:
     type: number
-    required: true
-  bookingNo:
+    description: Unique, numeric booking id.
+  bookingNo?:
    type: string
+   description: Booking number.
   offenderNo:
     type: string
-    required: true
+    description: Offender number (e.g. NOMS Number).
   firstName:
     type: string
-    required: true
-  middleName:
+    description: Offender first name.
+  middleName?:
     type: string
+    description: Offender middle name.
   lastName:
     type: string
-    required: true
+    description: Offender last name.
   dateOfBirth:
     type: date-only
-    required: true
+    description: Offender date of birth.
   age:
     type: integer
-    required: true
-  alertsCodes: string[]
-  agencyId: string
-  assignedLivingUnitId: number
-  assignedLivingUnitDesc: string
-  facialImageId: number
-  assignedOfficerUserId: string
-  aliases: string[]
+    description: Offender's current age.
+  alertsCodes:
+   type: string[]
+   description: List of offender's current alert codes.
+  agencyId:
+   type: string
+   description: Identifier of agency that offender is associated with.
+  assignedLivingUnitId?:
+   type: number
+   description: Identifier of living unit (e.g. cell) that offender is assigned to.
+  assignedLivingUnitDesc?:
+   type: string
+   description: Description of living unit (e.g. cell) that offender is assigned to.
+  facialImageId?:
+   type: number
+   description: Identifier of facial image of offender.
+  assignedOfficerUserId?:
+   type: string
+   description: Identifier of officer (key worker) to which offender is assigned.
+  aliases?:
+   type: string[]
+   description: List of offender's alias names.

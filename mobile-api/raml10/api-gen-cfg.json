@@ -1,0 +1,9 @@
+{
+  "apiPackage": "net.syscon.elite.v2.api.resource",
+  "modelPackage": "net.syscon.elite.v2.api.model",
+  "library": "jersey2",
+  "dateLibrary": "legacy",
+  "groupId": "net.syscon",
+  "artifactId": "elite2-api",
+  "artifactVersion": "1.10"
+}
