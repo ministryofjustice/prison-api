@@ -5,7 +5,7 @@ CREATE TABLE OFFENDER_RELEASE_DETAILS
   COMMENT_TEXT                  VARCHAR(240),
   MOVEMENT_TYPE                 VARCHAR(12)                    NOT NULL,
   MOVEMENT_REASON_CODE          VARCHAR(12),
-  EVENT_ID                      DECIMAL(10, 0) DEFAULT NULL    NOT NULL,
+  EVENT_ID                      DECIMAL(10, 0),
   EVENT_STATUS                  VARCHAR(12) DEFAULT 'SCH'      NOT NULL,
   APPROVED_RELEASE_DATE         TIMESTAMP(7),
   AUTO_RELEASE_DATE             TIMESTAMP(7),

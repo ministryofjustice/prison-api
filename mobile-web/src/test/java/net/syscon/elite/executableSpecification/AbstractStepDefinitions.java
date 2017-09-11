@@ -64,5 +64,8 @@ abstract class AbstractStepDefinitions {
         PrisonerSearchSteps prisonerSearch() {
             return new PrisonerSearchSteps();
         }
+
+        @Bean
+        MyAssignmentsSteps myAssignments() { return new MyAssignmentsSteps(); }
     }
 }
