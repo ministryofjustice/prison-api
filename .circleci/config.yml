@@ -9,7 +9,7 @@ jobs:
       - image: sysconjusticesystems/ci-java-node:latest
     steps:
       - checkout
-      - run: sudo npm i -g raml2html@3.0.1 && ./gradlew build aggregate assembleSandbox -x integTest
+      - run: sudo npm i -g raml2html@3.0.1 && sudo npm i -g oas-raml-converter && ./gradlew build aggregate assembleSandbox -x integTest
       - store_test_results:
           path: mobile-web/build/test-results
       - store_test_results:
