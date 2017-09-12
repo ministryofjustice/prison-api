@@ -1,5 +1,12 @@
 #%RAML 1.0 DataType
+description: General Error Response
 properties:
-  code: integer
-  reason: string
-  detail: string
+  code:
+   type: integer
+   description: Numeric error code.
+  reason:
+   type: string
+   description: Concise error reason.
+  detail:
+   type: string
+   description: Detailed error description.

@@ -1,5 +1,4 @@
 rootProject.name = 'mobile'
 
-include "mobile-api", "mobile-web"
-
+include 'mobile-api-codegen', 'mobile-api', 'mobile-web'
 

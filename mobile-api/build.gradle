@@ -10,6 +10,8 @@ project(":mobile-api") {
     def raml10Dir = new File("${rootDir}/mobile-api/raml10")
     def raml10File = new File(raml10Dir, "api.raml")
 
+    def oas20File = new File("${resourceGenDir}/api.json")
+
     // RAML 0.8 documentation task
     //
     // The following task requires node-js installed in order to generate the API HTML version
@@ -29,13 +31,39 @@ project(":mobile-api") {
         args htmlGenArgs
     }
 
+    // RAML 1.0 to OAS 2.0 Conversion Task
+    //
+    // The following task requires node-js installed in order to use oas-raml-converter to convert the RAML 1.0 API
+    // specification to OAS 2.0 (Swagger 2). After installing node-js, use the following command to install
+    // oas-raml-coverter:
+    //   npm i -g oas-raml-converter
+    def raml2oasCommand = "${rootDir}/mobile-api/raml10/raml2oas.sh"
+    def raml2oasArgs = ['-f', 'RAML', '-t', 'OAS20', raml10File.absolutePath]
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        raml2oasCommand = "${rootDir}/mobile-api/raml10/raml2oas.bat"
+        raml2oasArgs = [raml10File.absolutePath]
+    }
+
+    task raml2oas(type: Exec) {
+        doFirst {
+            println "Generating OAS 2.0 API specification from RAML 1.0 ..."
+
+            oas20File.createNewFile()
+            standardOutput = new FileOutputStream(oas20File)
+            environment 'PATH', '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
+            workingDir raml10Dir.absolutePath
+            commandLine raml2oasCommand
+            args raml2oasArgs
+        }
+    }
+
     // Configurations
     configurations {
-        // Ensures 'generated' source set uses main compilation classpath (dependencies)
-        generatedCompile.extendsFrom compile
-
         // Used to expose/share output (compiled classes) of 'generated' source set
         generatedOutput
+
+        codeGenerator
     }
 
     // Additional source set: 'generated'
@@ -50,11 +78,19 @@ project(":mobile-api") {
 
     // Main compilation dependencies
     dependencies {
-        compile("org.springframework.boot:spring-boot-starter-jersey:${version_spring_boot}")
-        compile("io.swagger:swagger-jersey2-jaxrs:1.5.16")
+        compile project(path: project.path, configuration:'generatedOutput')
+        compile "org.springframework.boot:spring-boot-starter-jersey:${version_spring_boot}"
+        compile "io.swagger:swagger-jersey2-jaxrs:1.5.16"
         compileOnly 'org.projectlombok:lombok:1.16.18'
 
+        generatedCompile "org.springframework.boot:spring-boot-starter-jersey:${version_spring_boot}"
+        generatedCompile "io.swagger:swagger-jersey2-jaxrs:1.5.16"
+        generatedCompileOnly 'org.projectlombok:lombok:1.16.18'
+
         generatedOutput sourceSets.generated.output
+
+        codeGenerator project(":mobile-api-codegen")
+        codeGenerator "io.swagger:swagger-codegen-cli:2.2.3"
     }
 
     // Ensure assembled JAR includes generated and main compiled classes
@@ -67,7 +103,11 @@ project(":mobile-api") {
     // Task to clean and prepare generated source location
     task cleanGenerated {
         doFirst {
+            println "Cleaning generated sources ..."
+
+            FileUtils.forceMkdir resourceGenDir
             FileUtils.forceMkdir sourceGenDir
+            FileUtils.cleanDirectory resourceGenDir
             FileUtils.cleanDirectory sourceGenDir
         }
     }
@@ -75,6 +115,8 @@ project(":mobile-api") {
     // Task to generate Java code from RAML 0.8 resources
     task generateRaml08Resources {
         doFirst {
+            println "Generating JAXRS API model and interfaces from RAML 0.8 ..."
+
             def configs = new org.raml.jaxrs.codegen.core.Configuration()
 
             configs.outputDirectory = sourceGenDir
@@ -103,6 +145,8 @@ project(":mobile-api") {
     // Task to generate Java code from RAML 1.0 resources
     task generateRaml10Resources {
         doFirst {
+            println "Generating JAXRS API model and interfaces from RAML 0.8 ..."
+
             def config = new org.raml.jaxrs.generator.Configuration()
 
             config.setModelPackage("net.syscon.elite2.api.model")
@@ -133,6 +177,22 @@ project(":mobile-api") {
         }
     }
 
+    def codegenConfig = "${rootDir}/mobile-api/raml10/api-gen-cfg.json"
+    def jaxrsCodegenArgs = ['generate', '-c', codegenConfig, '-i', oas20File.absolutePath, '-l', 'jaxrsinterfaces',
+                            '-o', sourceGenDir, '--type-mappings', 'integer=Long',
+                            '-D', 'modelDocs=false,apiDocs=false,modelTests=false,apiTests=false']
+
+    // Task to generate JAXRS code from OAS 2.0 specification (converted from RAML 1.0 using raml2oas task).
+    task generateOas20Resources(type:JavaExec) {
+        doFirst {
+            println "Generating JAXRS API model and interfaces from OAS 2.0 specification ..."
+
+            main = 'io.swagger.codegen.SwaggerCodegen'
+            classpath = configurations.codeGenerator
+            args jaxrsCodegenArgs
+        }
+    }
+
     // TODO: Enable checkstyle once rules reviewed and agreed (but don't enable for tests).
     checkstyleMain.enabled = false
     checkstyleGenerated.enabled = false
@@ -142,10 +202,12 @@ project(":mobile-api") {
     // Task Dependencies
 
     // Ensure generated sources are removed and re-generated before they are compiled
-    compileGeneratedJava.dependsOn cleanGenerated, generateRaml08Resources
+    compileGeneratedJava.dependsOn generateRaml08Resources, generateOas20Resources
 
-    // Ensure compilation of generated sources occurs before main compilation
-    compileJava.dependsOn compileGeneratedJava
+    generateOas20Resources.dependsOn cleanGenerated, raml2oas, ':mobile-api-codegen:jar'
+    generateOas20Resources.mustRunAfter cleanGenerated
+
+    generateRaml08Resources.dependsOn cleanGenerated
 
     // Ensure project JAR only created after both main and generated classes are processed
     jar.dependsOn classes, generatedClasses

@@ -1,14 +1,24 @@
 #%RAML 1.0 DataType
+description: Location Details
 properties:
   locationId:
     type: integer
+    description: Location identifier.
   locationType:
     type: string
+    description: Location type.
   description:
     type: string
+    description: Location description.
   agencyId:
     type: string
-  parentLocationId:
+    description: Identifier of Agency this location is associated with.
+  parentLocationId?:
     type: integer
-  currentOccupancy:
+    description: Identifier of this location's parent location.
+  currentOccupancy?:
     type: integer
+    description: Current occupancy of location.
+  locationPrefix?:
+    type: string
+    description: Location prefix. Defines search prefix that will constrain search to this location and its subordinate locations.
