@@ -303,7 +303,7 @@ NAME_AND_ID_FILTER_SQL {
  (UPPER(concat(O.FIRST_NAME, concat(' ', O.LAST_NAME))) LIKE :keywords
   OR UPPER(concat(O.LAST_NAME, concat(' ', O.FIRST_NAME))) LIKE :keywords
   OR UPPER(concat(O.FIRST_NAME, concat(' ', concat(O.MIDDLE_NAME, concat(' ', O.LAST_NAME))))) LIKE :keywords
-  OR O.OFFENDER_ID_DISPLAY LIKE :keywords)
+  OR O.OFFENDER_ID_DISPLAY LIKE :keywords
   OR EXISTS (SELECT 1 FROM OFFENDERS ALO WHERE ALO.ROOT_OFFENDER_ID = B.ROOT_OFFENDER_ID AND ALO.OFFENDER_ID != B.OFFENDER_ID AND
-      (UPPER(concat(ALO.FIRST_NAME, concat(' ', ALO.LAST_NAME))) LIKE :keywords OR UPPER(concat(ALO.LAST_NAME, concat(' ', ALO.FIRST_NAME))) LIKE :keywords))
+      (UPPER(concat(ALO.FIRST_NAME, concat(' ', ALO.LAST_NAME))) LIKE :keywords OR UPPER(concat(ALO.LAST_NAME, concat(' ', ALO.FIRST_NAME))) LIKE :keywords)))
 }
