@@ -37,7 +37,7 @@ project(":mobile-api") {
     // specification to OAS 2.0 (Swagger 2). After installing node-js, use the following command to install
     // oas-raml-coverter:
     //   npm i -g oas-raml-converter
-    def raml2oasCommand = "oas-raml-converter"
+    def raml2oasCommand = "${rootDir}/mobile-api/raml10/raml2oas.sh"
     def raml2oasArgs = ['-f', 'RAML', '-t', 'OAS20', raml10File.absolutePath]
 
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
