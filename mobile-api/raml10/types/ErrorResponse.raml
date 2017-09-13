@@ -1,12 +1,18 @@
 #%RAML 1.0 DataType
-description: General Error Response
+description: General API Error Response
 properties:
-  code:
-   type: integer
-   description: Numeric error code.
-  reason:
-   type: string
-   description: Concise error reason.
-  detail:
-   type: string
-   description: Detailed error description.
+  status:
+    type: integer
+    description: Response status code (will typically mirror HTTP status code).
+  errorCode?:
+    type: integer
+    description: An (optional) application-specific error code.
+  userMessage:
+    type: string
+    description: Concise error reason for end-user consumption.
+  developerMessage?:
+    type: string
+    description: Detailed description of problem with remediation hints aimed at application developer.
+  moreInfo?:
+    type: string
+    description: Provision for further information about the problem (e.g. a link to a FAQ or knowledge base article).

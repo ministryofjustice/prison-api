@@ -1,43 +1,53 @@
 package {{package}};
 
-import {{modelPackage}}.*;
-
-import io.swagger.annotations.ApiParam;
-import io.swagger.jaxrs.*;
+import io.swagger.annotations.*;
 
 {{#imports}}import {{import}};
 {{/imports}}
 
-import java.util.List;
-import {{package}}.NotFoundException;
+import {{supportPackage}}.ResponseDelegate;
 
-import java.io.InputStream;
-
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.FormDataParam;
-
-import javax.ws.rs.core.Response;
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.List;
 
-@Path("{{vendorExtensions.basePath}}/{{baseName}}")
-@io.swagger.annotations.Api(value = "/{{baseName}}", description = "the {{baseName}} API")
+//@Path("{{vendorExtensions.basePath}}/{{baseName}}")
+@Api(value = "/{{baseName}}")
 {{#operations}}
 public interface {{classname}} {
-  {{#operation}}
-  @{{httpMethod}}
-  {{#subresourceOperation}}@Path("{{path}}"){{/subresourceOperation}}
-  {{#hasConsumes}}@Consumes({ {{#consumes}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }){{/hasConsumes}}
-  {{#hasProduces}}@Produces({ {{#produces}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }){{/hasProduces}}
-  // {{returnType}}
-  @io.swagger.annotations.ApiOperation(value = "{{{summary}}}", notes = "{{{notes}}}", response = {{{returnType}}}.class{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}})
-  @io.swagger.annotations.ApiResponses(value = { {{#responses}}
-    @io.swagger.annotations.ApiResponse(code = {{{code}}}, message = "{{{message}}}"){{#hasMore}},
-    {{/hasMore}}{{/responses}} })
+    {{#operation}}
+    @{{httpMethod}}
+    {{#subresourceOperation}}@Path("{{path}}"){{/subresourceOperation}}
+    {{#hasConsumes}}@Consumes({ {{#consumes}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }){{/hasConsumes}}
+    {{#hasProduces}}@Produces({ {{#produces}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }){{/hasProduces}}
+    // {{returnType}}
+    @ApiOperation(value = "{{{summary}}}"{{#notes}}, notes = "{{{notes}}}"{{/notes}}, nickname="{{{nickname}}}", response = {{{returnType}}}.class{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}})
+    @ApiResponses(value = { {{#responses}}
+        @ApiResponse(code = {{{code}}}, message = "{{{message}}}", response = {{{dataType}}}.class){{#hasMore}},{{/hasMore}}{{/responses}} })
+    public {{operationIdCamelCase}}Response {{nickname}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},
+        {{/hasMore}}{{/allParams}});
+    {{/operation}}
 
-  public Response {{nickname}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},
-    {{/hasMore}}{{/allParams}})
-      throws NotFoundException;
-
-  {{/operation}}
-}
 {{/operations}}
+{{#operations}}
+    {{#operation}}
+    class {{operationIdCamelCase}}Response extends ResponseDelegate {
+        private {{operationIdCamelCase}}Response(Response response, Object entity) {
+            super(response, entity);
+        }
+
+        {{#responses}}
+        public static {{operationIdCamelCase}}Response respond{{{code}}}WithApplicationJson({{{returnType}}} entity) {
+            Response.ResponseBuilder responseBuilder = Response.status({{{code}}}).header("Content-Type", MediaType.APPLICATION_JSON);
+
+            responseBuilder.entity(entity);
+
+            return new {{operationIdCamelCase}}Response(responseBuilder.build(), entity);
+        }
+
+        {{/responses}}
+    }
+    {{/operation}}
+{{/operations}}
+}

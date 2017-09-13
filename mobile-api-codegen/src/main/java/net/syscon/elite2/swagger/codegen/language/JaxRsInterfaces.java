@@ -15,28 +15,21 @@
  */
 package net.syscon.elite2.swagger.codegen.language;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-
-import io.swagger.models.Model;
-import net.syscon.elite2.swagger.codegen.ConfigurableCodegenConfig;
-
-import io.swagger.codegen.CodegenConfig;
-import io.swagger.codegen.CodegenModel;
-import io.swagger.codegen.CodegenOperation;
-import io.swagger.codegen.CodegenProperty;
-import io.swagger.codegen.CodegenType;
-import io.swagger.codegen.SupportingFile;
+import io.swagger.codegen.*;
 import io.swagger.codegen.languages.JavaClientCodegen;
+import io.swagger.models.Model;
 import io.swagger.models.Operation;
+import io.swagger.models.Path;
 import io.swagger.models.Swagger;
 import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.MapProperty;
 import io.swagger.models.properties.Property;
+import net.syscon.elite2.swagger.codegen.ConfigurableCodegenConfig;
+import net.syscon.elite2.swagger.codegen.Inflector;
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.File;
+import java.util.*;
 
 /**
  * https://github.com/swagger-api/swagger-codegen/blob/master/modules/swagger-codegen/src/main/java/com/wordnik/swagger/codegen/languages/JaxRSServerCodegen.java.
@@ -44,16 +37,25 @@ import io.swagger.models.properties.Property;
  * @author jbellmann
  */
 public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig, ConfigurableCodegenConfig {
+    // Additional CLI options
+    public static final String SUPPORT_PACKAGE = "supportPackage";
+
+    // Vendor extension constants.
+    public static final String VENDOR_EXTENSION_JAVA_OPERATION_NAME = "x-annotation-javaOperationName";
 
     protected String sourceFolder = "";
+    protected String supportPackage = "";
 
+    @Override
     public CodegenType getTag() {
         return CodegenType.SERVER;
     }
 
+    @Override
     public String getName() {
         return "jaxrsinterfaces";
     }
+
 
     @Override
     public void preprocessSwagger(Swagger swagger) {
@@ -61,6 +63,7 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
         super.preprocessSwagger(swagger);
     }
 
+    @Override
     public String getHelp() {
         return "Generates JAXRS-Interfaces.";
     }
@@ -70,19 +73,22 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
         embeddedTemplateDir = templateDir = "JaxRsInterfaces";
         modelTemplateFiles.put("model.mustache", ".java");
         apiTemplateFiles.put("api.mustache", ".java");
+
+        cliOptions.add(CliOption.newString(SUPPORT_PACKAGE, "Package for supporting files (defaults to API package if not specified)."));
     }
 
     @Override
     public List<SupportingFile> supportingFiles() {
         supportingFiles.clear();
-        supportingFiles.add(new SupportingFile("ApiException.mustache", (apiPackage()).replace(".", File.separator),
-                "ApiException.java"));
-        supportingFiles.add(new SupportingFile("ApiOriginFilter.mustache", (apiPackage()).replace(".", File.separator),
+
+        supportingFiles.add(new SupportingFile("ApiOriginFilter.mustache", (supportPackage()).replace(".", File.separator),
                 "ApiOriginFilter.java"));
+
         supportingFiles.add(new SupportingFile("ApiResponseMessage.mustache",
-                (apiPackage()).replace(".", File.separator), "ApiResponseMessage.java"));
-        supportingFiles.add(new SupportingFile("NotFoundException.mustache",
-                (apiPackage()).replace(".", File.separator), "NotFoundException.java"));
+                (supportPackage()).replace(".", File.separator), "ApiResponseMessage.java"));
+
+        supportingFiles.add(new SupportingFile("ResponseDelegate.mustache",
+                (supportPackage()).replace(".", File.separator), "ResponseDelegate.java"));
 
         languageSpecificPrimitives = new HashSet<String>(
                 Arrays.asList("String", "boolean", "Boolean", "Double", "Integer", "Long", "Float"));
@@ -95,6 +101,7 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
         return outputFolder + "/" + apiPackage().replace('.', File.separatorChar);
     }
 
+    @Override
     public String modelFileFolder() {
         return outputFolder + "/" + modelPackage().replace('.', File.separatorChar);
     }
@@ -171,6 +178,11 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
     public void processOpts() {
         super.processOpts();
 
+        // support package
+        if (additionalProperties.containsKey(SUPPORT_PACKAGE)) {
+            this.setSupportPackage((String) additionalProperties.get(SUPPORT_PACKAGE));
+        }
+
         // some additional Jackson imports
         importMapping.put("JsonAnyGetter", "com.fasterxml.jackson.annotation.JsonAnyGetter");
         importMapping.put("JsonAnySetter", "com.fasterxml.jackson.annotation.JsonAnySetter");
@@ -179,7 +191,6 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
 
         // we do not want to have (or need)
         importMapping.remove("SerializedName");
-//        importMapping.remove("JsonValue");
 
         // Prevents recursive addition of 'JsonCreator' import during post-processing
         importMapping.remove("com.fasterxml.jackson.annotation.JsonProperty");
@@ -205,11 +216,6 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
         model.imports.remove("SerializedName");
         model.imports.remove("JsonValue");
 
-        // Convert integer 'id' properties to Long type - not very robust but should do for now.
-//        if ("Integer".equals(property.datatype) && property.name.endsWith("Id")) {
-//            property.datatype = "Long";
-//        }
-
         // Handle defaultValue = "null" - if property default value is "null" string,
         // actually set to 'null' so that template can conditionally render default
         // value.
@@ -218,16 +224,78 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
         }
     }
 
+    @Override
+    public CodegenOperation fromOperation(String path, String httpMethod, Operation operation, Map<String, Model> definitions, Swagger swagger) {
+        CodegenOperation op = super.fromOperation(path, httpMethod, operation, definitions, swagger);
+
+        // First, apply any vendor extensions defined in Swagger spec for operation.
+        applyOperationVendorExtensions(path, operation, swagger);
+
+        // Adjust operation id (and dependent properties), if necessary.
+        applyOperationId(op, operation);
+
+        // Move 'notes' property to 'summary' property (no RAML 1.0 attribute maps to OAS 2.0 operation summary).
+        op.summary = op.notes;
+        op.notes = null;
+
+        return op;
+    }
+
+    // Extracts any vendor extensions present in Swagger specification (derived from custom annotations in RAML 1.0 spec).
+    private void applyOperationVendorExtensions(String path, Operation operation, Swagger swagger) {
+        if (swagger == null) {
+            return;
+        }
+
+        Map<String, Path> paths = swagger.getPaths();
+        Path operationPath = paths.get(path);
+
+        if (operationPath != null) {
+            operation.getVendorExtensions().putAll(operationPath.getVendorExtensions());
+        }
+    }
+
+    private void applyOperationId(CodegenOperation codegenOperation, Operation operation) {
+        // First check if the 'javaOperationName' annotation has been applied as vendor extension.
+        String javaOperationName = (String) operation.getVendorExtensions().get(VENDOR_EXTENSION_JAVA_OPERATION_NAME);
+
+        // If a 'javaOperationName' has been provided, use it, otherwise use a sanitized version of current operation id.
+        String revisedOperationId =
+                StringUtils.defaultIfBlank(javaOperationName, sanitizeOperationId(codegenOperation.operationId));
+
+        codegenOperation.nickname = revisedOperationId;
+        codegenOperation.operationIdCamelCase = StringUtils.capitalize(revisedOperationId);
+    }
+
+    private String sanitizeOperationId(String operationId) {
+        String sanitizedOperationId;
+
+        if (StringUtils.startsWithIgnoreCase(operationId, "get")) {
+            return "get" + operationId.substring(3);
+        } else if (StringUtils.startsWithIgnoreCase(operationId, "post")) {
+            return "post" + operationId.substring(4);
+        }
+        else {
+            sanitizedOperationId = operationId;
+        }
+
+        return sanitizedOperationId;
+    }
+
+    @Override
     public Map<String, Object> postProcessOperations(final Map<String, Object> objs) {
         Map<String, Object> operations = (Map<String, Object>) objs.get("operations");
+
         if (operations != null) {
             List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
+
             for (CodegenOperation operation : ops) {
                 if (operation.returnType == null) {
                     operation.returnType = "void";
                 } else if (operation.returnType.startsWith("List")) {
                     String rt = operation.returnType;
                     int end = rt.lastIndexOf(">");
+
                     if (end > 0) {
                         operation.returnType = rt.substring("List<".length(), end);
                         operation.returnContainer = "List";
@@ -235,6 +303,7 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
                 } else if (operation.returnType.startsWith("Map")) {
                     String rt = operation.returnType;
                     int end = rt.lastIndexOf(">");
+
                     if (end > 0) {
                         operation.returnType = rt.substring("Map<".length(), end);
                         operation.returnContainer = "Map";
@@ -242,6 +311,7 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
                 } else if (operation.returnType.startsWith("Set")) {
                     String rt = operation.returnType;
                     int end = rt.lastIndexOf(">");
+
                     if (end > 0) {
                         operation.returnType = rt.substring("Set<".length(), end);
                         operation.returnContainer = "Set";
@@ -253,10 +323,12 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
         return objs;
     }
 
+    @Override
     public void setApiPackage(final String apiPackage) {
         this.apiPackage = apiPackage;
     }
 
+    @Override
     public void setModelPackage(final String modelPackage) {
         this.modelPackage = modelPackage;
     }
@@ -284,12 +356,21 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
 
     @Override
     public String toApiName(String name) {
-        if (name.length() == 0) {
-            return "DefaultResource";
+        String apiName;
+
+        if (StringUtils.isBlank(name)) {
+            apiName = "DefaultResource";
+        } else {
+            Inflector inflector = Inflector.getInstance();
+
+            apiName = sanitizeName(name);
+            apiName = inflector.singularize(apiName);
+            apiName = inflector.upperCamelCase(apiName);
+
+            apiName += "Resource";
         }
 
-        name = sanitizeName(name);
-        return camelize(name) + "Resource";
+        return apiName;
     }
 
     @Override
@@ -304,4 +385,11 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
 
     }
 
+    public String supportPackage() {
+        return StringUtils.defaultIfBlank(supportPackage, apiPackage());
+    }
+
+    public void setSupportPackage(String supportPackage) {
+        this.supportPackage = supportPackage;
+    }
 }
