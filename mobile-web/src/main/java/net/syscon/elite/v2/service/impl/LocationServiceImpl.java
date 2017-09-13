@@ -25,7 +25,7 @@ public class LocationServiceImpl implements LocationService {
     private final AgencyRepository agencyRepository;
     private final LocationRepository locationRepository;
 
-    @Value("${api.users.me.locations.locationType}")
+    @Value("${api.users.me.locations.locationType:WING}")
     private String locationTypeGranularity;
 
     @Value("${api.users.me.locations.depth:1}")

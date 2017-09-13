@@ -41,7 +41,7 @@ public class InmateRepositoryTest {
 
     @Test
     public final void testFindAllImates() {
-        final List<InmatesSummary> foundInmates = repository.findAllInmates(new HashSet<>(Arrays.asList("LEI", "BXI")), "", 0, 10, "lastName, firstName", asc);
+        final List<InmatesSummary> foundInmates = repository.findAllInmates(new HashSet<>(Arrays.asList("LEI", "BXI")), "WING", "", 0, 10, "lastName, firstName", asc);
         assertThat(foundInmates).isNotEmpty();
     }
 
