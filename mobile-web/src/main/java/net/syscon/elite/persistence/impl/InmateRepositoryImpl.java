@@ -178,6 +178,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			inmates = jdbcTemplate.query(
 					sql,
 					createParams("caseLoadId", caseloads,
+							"locationTypeRoot", "WING",
 							"offset", offset,
 							"limit", limit),
 					assignedInmateRowMapper);
@@ -214,6 +215,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 					createParams("keywords", keywordSearch + "%",
                             "locationPrefix", StringUtils.trimToEmpty(locationPrefix) + "%",
                             "caseLoadId", caseloads,
+                            "locationTypeRoot", "WING",
                             "offset", offset, "limit", limit),
 					offenderBookingRowMapper);
 		} catch (EmptyResultDataAccessException e) {
