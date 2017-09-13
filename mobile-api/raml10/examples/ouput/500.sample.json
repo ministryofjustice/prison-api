@@ -1,5 +1,6 @@
 {
-  "code": 500,
-  "reason": "Unexpected server error",
-  "detail": "Unexpected server error"
+  "status": 500,
+  "errorCode": 23966,
+  "userMessage": "An unexpected error occurred - please wait a few minutes and try again.",
+  "developerMessage": "Database took too long to respond to connection request"
 }

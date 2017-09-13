@@ -3,13 +3,18 @@ title: Elite2 Public API
 baseUri: http://api.elite2.syscon.net/{version}
 version: v2
 mediaType: application/json
+annotationTypes:
+  javaOperationName:
+    type: string
+    description: Hint to downstream code generator of name to use for Java method that implements operation.
 securedBy: [jwt]
 types:
   Agency:          !include types/Agency.raml
+  ErrorResponse:   !include types/ErrorResponse.raml
   Location:        !include types/Location.raml
   OffenderBooking: !include types/OffenderBooking.raml
   PrisonerDetail:  !include types/PrisonerDetail.raml
-  ErrorResponse:   !include types/ErrorResponse.raml
+  SentenceDetail:  !include types/SentenceDetail.raml
 
 securitySchemes:
   jwt:
@@ -39,7 +44,8 @@ securitySchemes:
 
 resourceTypes: !include resourceTypes/generic-resource-types.raml
 
-/agencies: !include resources/agencies.raml
-/users:    !include resources/users.raml
-/search-offenders:   !include resources/search-offenders.raml
-/prisoners: !include resources/prisoners.raml
+#/agencies:          !include resources/agencies.raml
+/bookings:          !include resources/bookings.raml
+#/prisoners:         !include resources/prisoners.raml
+#/search-offenders:  !include resources/search-offenders.raml
+#/users:             !include resources/users.raml

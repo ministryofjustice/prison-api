@@ -1,6 +1,7 @@
 {
   "apiPackage": "net.syscon.elite.v2.api.resource",
   "modelPackage": "net.syscon.elite.v2.api.model",
+  "supportPackage": "net.syscon.elite.v2.api.support",
   "library": "jersey2",
   "dateLibrary": "legacy",
   "groupId": "net.syscon",

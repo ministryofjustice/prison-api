@@ -1,0 +1,30 @@
+#%RAML 1.0 DataType
+description: Sentence Details
+properties:
+  bookingId:
+    type: integer
+    description: Offender booking id.
+  sentenceStartDate:
+    type: date-only
+    description: Sentence start date.
+  additionalDaysAdded:
+    type: integer
+    description: ADA - days added to sentence term due to adjustments.
+  sentenceEndDate:
+    type: date-only
+    description: SED - sentence end date.
+  daysRemaining:
+    type: integer
+    description: Number of days remaining to release (from current date).
+  conditionalReleaseDate:
+    type: date-only
+    description: CRD - date on which offender can be release under condition.
+  paroleEligibilityDate:
+    type: date-only
+    description: PED - date on which offender is eligible for parole.
+  licenseExpiryDate:
+    type: date-only
+    description: LED - date on which offender license expires.
+  homeDetentionCurfewEligibilityDate:
+    type: date-only
+    description: HDCED - date on which offender will be eligible for home detention curfew.

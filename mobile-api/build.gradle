@@ -178,9 +178,18 @@ project(":mobile-api") {
     }
 
     def codegenConfig = "${rootDir}/mobile-api/raml10/api-gen-cfg.json"
+
     def jaxrsCodegenArgs = ['generate', '-c', codegenConfig, '-i', oas20File.absolutePath, '-l', 'jaxrsinterfaces',
-                            '-o', sourceGenDir, '--type-mappings', 'integer=Long',
-                            '-D', 'modelDocs=false,apiDocs=false,modelTests=false,apiTests=false']
+                            '-o', sourceGenDir, '--type-mappings', 'integer=Long']
+
+    def jaxrsCodegenSystemProps = ['modelDocs':'false',
+                                   'apiDocs':'false',
+                                   'apiDocs':'false',
+                                   'modelTests':'false',
+                                   'apiTests':'false',
+                                   'apis':'bookings',
+                                   'models':'Agency,ErrorResponse,Location,OffenderBooking,PrisonerDetail,SentenceDetail',
+                                   'supportingFiles':'ResponseDelegate.java']
 
     // Task to generate JAXRS code from OAS 2.0 specification (converted from RAML 1.0 using raml2oas task).
     task generateOas20Resources(type:JavaExec) {
@@ -189,6 +198,7 @@ project(":mobile-api") {
 
             main = 'io.swagger.codegen.SwaggerCodegen'
             classpath = configurations.codeGenerator
+            systemProperties jaxrsCodegenSystemProps
             args jaxrsCodegenArgs
         }
     }

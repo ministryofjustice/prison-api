@@ -7,23 +7,26 @@ base:
         body:
           application/json:
             type: ErrorResponse
+            description: Invalid request.
             example: !include ../examples/ouput/400.sample.json
       404:
         body:
           application/json:
             type: ErrorResponse
+            description: Requested resource not found.
             example:  !include ../examples/ouput/404.sample.json
       500:
         body:
           application/json:
             type: ErrorResponse
+            description: Unrecoverable error occurred whilst processing request.
             example: !include ../examples/ouput/500.sample.json
 
 readOnlyItem:
   type:
     base:
   get:
-    description: Get the specified <<resourcePathName | !singularize>>.
+    description: <<description>>
     responses:
       200:
         body:
