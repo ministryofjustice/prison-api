@@ -18,10 +18,6 @@ schemas:
 - inmateDetails: !include schemas/output/inmate-details.schema.json
 - location: !include schemas/output/location.schema.json
 - locations: !include schemas/output/locations.schema.json
-- imageSummary: !include schemas/output/image-summary.schema.json
-- imageSummaries: !include schemas/output/image-summaries.schema.json
-- imageDetails: !include schemas/output/image-details.schema.json
-- imageData: !include schemas/output/image-data.schema.json
 - updateCaseNote: !include schemas/input/update-case-note.schema.json
 - caseNote: !include schemas/output/case-note.schema.json
 - newCaseNote: !include schemas/output/new-case-note.schema.json
@@ -75,5 +71,4 @@ traits: !include traits/generic-traits.raml
 /agencies: !include resources/agencies.raml
 /booking: !include resources/booking.raml
 /locations: !include resources/locations.raml
-/images: !include resources/images.raml
 /referenceDomains: !include resources/reference-domains.raml

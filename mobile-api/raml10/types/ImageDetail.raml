@@ -1,0 +1,25 @@
+#%RAML 1.0 DataType
+description: Image Detail
+properties:
+  imageId:
+    type: integer
+    description: Image ID
+  captureDate:
+    type: datetime
+    description: Date of image capture
+    example: 2016-02-28T16:41:41.090Z
+  imageView:
+    type: string
+    description: Image view information
+  imageOrientation:
+    type: string
+    description: Orientation of the image
+  imageType:
+    type: string
+    description: Image Type
+  objectId?:
+    type: integer
+    description: Object ID
+  imageData?:
+    type: string
+    description: Bytes of Image

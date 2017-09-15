@@ -4,8 +4,7 @@ import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.persistence.ImageRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
-import net.syscon.elite.web.api.model.ImageDetails;
-import net.syscon.util.DateFormatProvider;
+import net.syscon.elite.v2.api.model.ImageDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -26,17 +25,17 @@ public class ImageRepositoryImpl extends RepositoryBase implements ImageReposito
 
 	private final Map<String, FieldMapper> imageSummaryMapping = new ImmutableMap.Builder<String, FieldMapper>()
 		.put("IMAGE_ID",            new FieldMapper("imageId"))
-		.put("CAPTURE_DATE",        new FieldMapper("captureDate", DateFormatProvider::toISO8601Date))
+		.put("CAPTURE_DATE",        new FieldMapper("captureDate"))
 		.put("IMAGE_VIEW_TYPE",     new FieldMapper("imageView"))
 		.put("ORIENTATION_TYPE",    new FieldMapper("imageOrientation"))
 		.put("IMAGE_OBJECT_TYPE",   new FieldMapper("imageType"))
 		.put("IMAGE_OBJECT_ID",     new FieldMapper("objectId")).build();
 
 	@Override
-	public Optional<ImageDetails> findImageDetail(final Long imageId) {
+	public Optional<ImageDetail> findImageDetail(final Long imageId) {
 		final String sql = getQuery("FIND_IMAGE_DETAIL");
-		final RowMapper<ImageDetails> imageRowMapper = Row2BeanRowMapper.makeMapping(sql, ImageDetails.class, imageSummaryMapping);
-		ImageDetails imageDetail;
+		final RowMapper<ImageDetail> imageRowMapper = Row2BeanRowMapper.makeMapping(sql, ImageDetail.class, imageSummaryMapping);
+		ImageDetail imageDetail;
 		try {
 			imageDetail = jdbcTemplate.queryForObject(sql, createParams("imageId", imageId), imageRowMapper);
 		} catch (EmptyResultDataAccessException e) {
