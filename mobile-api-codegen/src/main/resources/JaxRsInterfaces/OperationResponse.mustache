@@ -1,0 +1,58 @@
+package {{supportPackage}};
+
+import net.syscon.elite.v2.api.model.ErrorResponse;
+
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.apache.commons.lang3.StringUtils;
+
+public class OperationResponse extends ResponseDelegate {
+    private OperationResponse(Response response, Object entity) {
+        super(response, entity);
+    }
+
+    public static OperationResponse respond400WithApplicationJson(ErrorResponse errorResponse) {
+        Response.ResponseBuilder responseBuilder = Response.status(400).header("Content-Type", MediaType.APPLICATION_JSON);
+
+        responseBuilder.entity(errorResponse);
+
+        return new OperationResponse(responseBuilder.build(), errorResponse);
+    }
+
+    public static OperationResponse respond404WithApplicationJson(ErrorResponse errorResponse) {
+        Response.ResponseBuilder responseBuilder = Response.status(404).header("Content-Type", MediaType.APPLICATION_JSON);
+
+        responseBuilder.entity(errorResponse);
+
+        return new OperationResponse(responseBuilder.build(), errorResponse);
+    }
+
+    public static OperationResponse respond500WithApplicationJson(ErrorResponse errorResponse) {
+        Response.ResponseBuilder responseBuilder = Response.status(500).header("Content-Type", MediaType.APPLICATION_JSON);
+
+        responseBuilder.entity(errorResponse);
+
+        return new OperationResponse(responseBuilder.build(), errorResponse);
+    }
+
+    public static OperationResponse respondErrorWithApplicationJson(ErrorResponse errorResponse) {
+        switch(Response.Status.fromStatusCode(errorResponse.getStatus().intValue())) {
+            case BAD_REQUEST:
+                return respond400WithApplicationJson(errorResponse);
+
+            case NOT_FOUND:
+                return respond404WithApplicationJson(errorResponse);
+
+            case INTERNAL_SERVER_ERROR:
+                return respond500WithApplicationJson(errorResponse);
+
+            default:
+                if (StringUtils.isBlank(errorResponse.getDeveloperMessage())) {
+                    errorResponse.setDeveloperMessage("To assist with problem diagnosis, refer to original response status and error code, if provided.");
+                }
+
+                return respond500WithApplicationJson(errorResponse);
+        }
+    }
+}

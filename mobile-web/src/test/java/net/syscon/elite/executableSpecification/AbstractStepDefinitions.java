@@ -51,8 +51,13 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        BookingDetailSteps bookingDetails() {
+        BookingDetailSteps bookingDetail() {
             return new BookingDetailSteps();
+        }
+
+        @Bean
+        BookingSentenceDetailSteps bookingSentenceDetail() {
+            return new BookingSentenceDetailSteps();
         }
 
         @Bean

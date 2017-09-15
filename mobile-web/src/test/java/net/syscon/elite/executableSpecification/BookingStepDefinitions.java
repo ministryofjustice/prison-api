@@ -6,16 +6,18 @@ import cucumber.api.java.en.When;
 import net.syscon.elite.executableSpecification.steps.BookingAliasSteps;
 import net.syscon.elite.executableSpecification.steps.BookingDetailSteps;
 import net.syscon.elite.executableSpecification.steps.BookingSearchSteps;
+import net.syscon.elite.executableSpecification.steps.BookingSentenceDetailSteps;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * BDD step definitions for the following Booking API endpoints:
  * <ul>
- *     <li>/bookingSearch</li>
- *     <li>/bookingSearch/{bookingId}</li>
- *     <li>/bookingSearch/{bookingId}/alerts</li>
- *     <li>/bookingSearch/{bookingId}/alerts/{alertId}</li>
- *     <li>/bookingSearch/{bookingId}/aliases</li>
+ *     <li>/booking</li>
+ *     <li>/booking/{bookingId}</li>
+ *     <li>/booking/{bookingId}/alerts</li>
+ *     <li>/booking/{bookingId}/alerts/{alertId}</li>
+ *     <li>/booking/{bookingId}/aliases</li>
+ *     <li>/bookings/{bookingId}/sentenceDetail</li>
  * </ul>
  *
  * NB: Not all API endpoints have associated tests at this point in time.
@@ -28,7 +30,10 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     private BookingAliasSteps bookingAlias;
 
     @Autowired
-    private BookingDetailSteps bookingDetails;
+    private BookingDetailSteps bookingDetail;
+
+    @Autowired
+    private BookingSentenceDetailSteps bookingSentenceDetail;
 
     @When("^a booking search is made with full last \"([^\"]*)\" of existing offender$")
     public void aBookingSearchIsMadeWithFullLastNameOfExistingOffender(String fullLastName) throws Throwable {
@@ -132,21 +137,36 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @When("^an offender booking request is made with booking id \"([^\"]*)\"$")
     public void anOffenderBookingRequestIsMadeWithBookingId(String bookingId) throws Throwable {
-        bookingDetails.findBookingDetails(Long.valueOf(bookingId));
+        bookingDetail.findBookingDetails(Long.valueOf(bookingId));
     }
 
-    @Then("^http status (\\d+) response is returned from booking details endpoint$")
-    public void httpStatusResponseIsReturned(int statusCode) throws Throwable {
-        bookingDetails.verifyHttpStatusResponse(statusCode);
+    @Then("^resource not found response is received from bookings API$")
+    public void resourceNotFoundResponseIsReceivedFromBookingsAPI() throws Throwable {
+        bookingDetail.verifyResourceNotFound();
     }
 
     @Then("^booking number of offender booking returned is \"([^\"]*)\"$")
     public void bookingNumberOfOffenderBookingReturnedIs(String bookingNo) throws Throwable {
-        bookingDetails.verifyOffenderBookingBookingNo(bookingNo);
+        bookingDetail.verifyOffenderBookingBookingNo(bookingNo);
     }
 
     @And("^assigned officer id of offender booking returned is \"([^\"]*)\"$")
     public void assignedOfficerIdOfOffenderBookingReturnedIs(Long assignedOfficerId) throws Throwable {
-        bookingDetails.verifyOffenderBookingAssignedOfficerId(assignedOfficerId);
+        bookingDetail.verifyOffenderBookingAssignedOfficerId(assignedOfficerId);
+    }
+
+    @When("^sentence details are requested for an offender with booking id \"([^\"]*)\"$")
+    public void sentenceDetailsAreRequestedForAnOffenderWithBookingId(String bookingId) throws Throwable {
+        bookingSentenceDetail.getBookingSentenceDetail(Long.valueOf(bookingId));
+    }
+
+    @Then("^sentence start date matches \"([^\"]*)\"$")
+    public void sentenceStartDateMatches(String sentenceStartDate) throws Throwable {
+        bookingSentenceDetail.verifySentenceStartDate(sentenceStartDate);
+    }
+
+    @And("^sentence end date matches \"([^\"]*)\"$")
+    public void sentenceEndDateMatches(String sentenceEndDate) throws Throwable {
+        bookingSentenceDetail.verifySentenceEndDate(sentenceEndDate);
     }
 }

@@ -1,9 +1,9 @@
 package net.syscon.elite.executableSpecification.steps;
 
+import net.syscon.elite.test.EliteClientException;
 import net.syscon.elite.web.api.model.InmateDetails;
 import net.thucydides.core.annotations.Step;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,19 +18,20 @@ public class BookingDetailSteps extends CommonSteps {
 
     @Step("Retrieve offender booking details record")
     public void findBookingDetails(Long bookingId) {
-        ResponseEntity<InmateDetails> response =
-                restTemplate.exchange(
-                        API_BOOKING_REQUEST_URL,
-                        HttpMethod.GET,
-                        createEntity(),
-                        InmateDetails.class,
-                        bookingId);
+        ResponseEntity<InmateDetails> response;
 
-        inmateDetails = response.getBody();
+        try {
+            response =
+                    restTemplate.exchange(
+                            API_BOOKING_REQUEST_URL,
+                            HttpMethod.GET,
+                            createEntity(),
+                            InmateDetails.class,
+                            bookingId);
 
-        if (response.getStatusCode() != HttpStatus.OK) {
-            setAdditionalResponseProperties(inmateDetails.getAdditionalProperties());
-            setReceivedResponse(response);
+            inmateDetails = response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
         }
     }
 

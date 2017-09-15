@@ -1,5 +1,7 @@
 package net.syscon.elite.executableSpecification.steps;
 
+import net.syscon.elite.test.ErrorResponseErrorHandler;
+import net.syscon.elite.v2.api.model.ErrorResponse;
 import net.syscon.elite.web.api.model.PageMetaData;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
@@ -9,6 +11,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 
+import javax.annotation.PostConstruct;
+import javax.ws.rs.core.Response;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -33,9 +37,15 @@ public abstract class CommonSteps {
     private List<?> resources;
     private PageMetaData pageMetaData;
     private Map<String, Object> additionalProperties = new HashMap<>();
-    private ResponseEntity receievedResponse;
+    private ResponseEntity receivedResponse;
+    private ErrorResponse errorResponse;
     private long paginationLimit;
     private long paginationOffset;
+
+    @PostConstruct
+    private void postConstruct() {
+        restTemplate.getRestTemplate().setErrorHandler(new ErrorResponseErrorHandler());
+    }
 
     @Step("Verify number of resource records returned")
     public void verifyResourceRecordsReturned(long expectedCount) {
@@ -57,9 +67,19 @@ public abstract class CommonSteps {
         assertThat(auth.getToken()).isNotEmpty();
     }
 
-    @Step("Verify HTTP status response")
-    public void verifyHttpStatusResponse(int statusCode) {
-        assertThat(receievedResponse.getStatusCode().value()).isEqualTo(statusCode);
+    @Step("Verify resource not found")
+    public void verifyResourceNotFound() {
+        assertThat(errorResponse).isNotNull();
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+
+        // If developerMessage is not empty, test is calling incorrect path/uri.
+        assertThat(errorResponse.getDeveloperMessage()).isEmpty();
+    }
+
+    @Step("Verify access denied")
+    public void verifyAccessDenied() {
+        assertThat(errorResponse).isNotNull();
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.FORBIDDEN.getStatusCode());
     }
 
     @Step("Apply pagination")
@@ -80,6 +100,8 @@ public abstract class CommonSteps {
     protected void init() {
         paginationLimit = 0;
         paginationOffset = 0;
+        errorResponse = null;
+        receivedResponse = null;
     }
 
     protected void setResourceMetaData(List<?> resources, PageMetaData pageMetaData) {
@@ -87,12 +109,18 @@ public abstract class CommonSteps {
         this.pageMetaData = pageMetaData;
     }
 
+    @Deprecated
     protected void setAdditionalResponseProperties(Map<String, Object> additionalProperties) {
         this.additionalProperties.putAll(additionalProperties);
     }
 
-    protected void setReceivedResponse(ResponseEntity receievedResponse) {
-        this.receievedResponse = receievedResponse;
+    @Deprecated
+    protected void setReceivedResponse(ResponseEntity receivedResponse) {
+        this.receivedResponse = receivedResponse;
+    }
+
+    protected void setErrorResponse(ErrorResponse errorResponse) {
+        this.errorResponse = errorResponse;
     }
 
     protected HttpEntity createEntity() {

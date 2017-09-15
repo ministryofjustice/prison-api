@@ -83,11 +83,6 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.verifyStaffEmail(email);
     }
 
-    @Then("^http status (\\d+) response is returned$")
-    public void httpStatusResponseIsReturned(int statusCode) throws Throwable {
-        user.verifyHttpStatusResponse(statusCode);
-    }
-
     @When("^a request is made to retrieve user locations$")
     public void aRequestIsMadeToRetrieveUserLocations() throws Throwable {
         user.retrieveUserLocations();
@@ -111,5 +106,10 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     @And("^user location prefixes are \"([^\"]*)\"$")
     public void userLocationPrefixesAre(String expectedPrefixes) throws Throwable {
         user.verifyLocationPrefixes(expectedPrefixes);
+    }
+
+    @Then("^resource not found response is received from users API$")
+    public void resourceNotFoundResponseIsReceivedFromUsersAPI() throws Throwable {
+        user.verifyResourceNotFound();
     }
 }

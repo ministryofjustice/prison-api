@@ -21,7 +21,6 @@ public interface {{classname}} {
     {{#subresourceOperation}}@Path("{{path}}"){{/subresourceOperation}}
     {{#hasConsumes}}@Consumes({ {{#consumes}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }){{/hasConsumes}}
     {{#hasProduces}}@Produces({ {{#produces}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }){{/hasProduces}}
-    // {{returnType}}
     @ApiOperation(value = "{{{summary}}}"{{#notes}}, notes = "{{{notes}}}"{{/notes}}, nickname="{{{nickname}}}", response = {{{returnType}}}.class{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}})
     @ApiResponses(value = { {{#responses}}
         @ApiResponse(code = {{{code}}}, message = "{{{message}}}", response = {{{dataType}}}.class){{#hasMore}},{{/hasMore}}{{/responses}} })
@@ -38,7 +37,7 @@ public interface {{classname}} {
         }
 
         {{#responses}}
-        public static {{operationIdCamelCase}}Response respond{{{code}}}WithApplicationJson({{{returnType}}} entity) {
+        public static {{operationIdCamelCase}}Response respond{{{code}}}WithApplicationJson({{{dataType}}} entity) {
             Response.ResponseBuilder responseBuilder = Response.status({{{code}}}).header("Content-Type", MediaType.APPLICATION_JSON);
 
             responseBuilder.entity(entity);
