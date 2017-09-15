@@ -15,6 +15,7 @@ types:
   OffenderBooking: !include types/OffenderBooking.raml
   PrisonerDetail:  !include types/PrisonerDetail.raml
   SentenceDetail:  !include types/SentenceDetail.raml
+  ImageDetail:     !include types/ImageDetail.raml
 
 securitySchemes:
   jwt:
@@ -45,7 +46,9 @@ securitySchemes:
 resourceTypes: !include resourceTypes/generic-resource-types.raml
 
 #/agencies:          !include resources/agencies.raml
+/images:            !include resources/images.raml
 /bookings:          !include resources/bookings.raml
 #/prisoners:         !include resources/prisoners.raml
 #/search-offenders:  !include resources/search-offenders.raml
 #/users:             !include resources/users.raml
+

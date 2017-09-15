@@ -1,11 +1,11 @@
 package net.syscon.elite.service;
 
 
-import net.syscon.elite.web.api.model.ImageDetails;
+import net.syscon.elite.v2.api.model.ImageDetail;
 
 public interface ImageService {
 
-	ImageDetails findImageDetail(Long imageId);
+	ImageDetail findImageDetail(Long imageId);
 	byte[] getImageContent(Long imageId);
 
 

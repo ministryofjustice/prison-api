@@ -1,0 +1,16 @@
+/{imageId}:
+  (javaOperationName): getImage
+  type: {
+    readOnlyItem: {
+      type: ImageDetail,
+      description: Details about the specified image including the image itself.
+    }
+  }
+
+/{imageId}/data:
+  (javaOperationName): getImageData
+  type: {
+    userPicture: {
+      description: Image as bytes.
+    }
+  }

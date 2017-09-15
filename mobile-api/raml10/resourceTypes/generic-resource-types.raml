@@ -60,3 +60,16 @@ readOnlyCollection:
         body:
           application/json:
             <<type>>[]
+
+userPicture:
+  type:
+    base:
+  get:
+    description: <<description>>
+    responses:
+      200:
+        body:
+          image/jpeg:
+            type: file
+            fileTypes: ['image/jpeg']
+            maxLength: 307200
