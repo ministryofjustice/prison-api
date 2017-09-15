@@ -3,6 +3,7 @@ package net.syscon.elite.web.api.resource.impl;
 
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.ImageService;
+import net.syscon.elite.v2.api.model.ErrorResponse;
 import net.syscon.elite.v2.api.model.ImageDetail;
 import net.syscon.elite.v2.api.resource.ImageResource;
 import org.apache.commons.io.FileUtils;
@@ -28,10 +29,18 @@ public class ImagesResourceImpl implements ImageResource {
                 FileUtils.copyInputStreamToFile(new ByteArrayInputStream(data), temp);
                 return GetImageDataResponse.respond200WithApplicationJson(temp);
 			} catch (IOException e) {
-                return GetImageDataResponse.respond500WithApplicationJson(null);
+                final ErrorResponse errorResponse = ErrorResponse.builder()
+                        .errorCode(500)
+                        .userMessage("An error occurred loading the image ID "+ imageId)
+                        .build();
+                return GetImageDataResponse.respond500WithApplicationJson(errorResponse);
 			}
 		} else {
-			return GetImageDataResponse.respond404WithApplicationJson(null);
+            final ErrorResponse errorResponse = ErrorResponse.builder()
+                    .errorCode(404)
+                    .userMessage("No image was found with ID "+ imageId)
+                    .build();
+            return GetImageDataResponse.respond404WithApplicationJson(errorResponse);
 		}
 	}
 
