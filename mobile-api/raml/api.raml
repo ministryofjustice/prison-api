@@ -11,8 +11,6 @@ schemas:
 - authLogin: !include schemas/input/auth-login.schema.json
 - authToken: !include schemas/input/auth-token.schema.json
 - token: !include schemas/output/token.schema.json
-- agency: !include schemas/output/agency.schema.json
-- agencies: !include schemas/output/agencies.schema.json
 - inmateSummary: !include schemas/output/inmate-summary.schema.json
 - inmateSummaries: !include schemas/output/inmate-summaries.schema.json
 - inmateDetails: !include schemas/output/inmate-details.schema.json
@@ -68,7 +66,6 @@ resourceTypes: !include resourceTypes/generic-resource-types.raml
 traits: !include traits/generic-traits.raml
 
 /users: !include resources/users.raml
-/agencies: !include resources/agencies.raml
 /booking: !include resources/booking.raml
 /locations: !include resources/locations.raml
 /referenceDomains: !include resources/reference-domains.raml

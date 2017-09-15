@@ -1,6 +1,6 @@
 package net.syscon.elite.service;
 
-import net.syscon.elite.web.api.model.Agency;
+import net.syscon.elite.v2.api.model.Agency;
 import net.syscon.elite.web.api.model.InmatesSummary;
 import net.syscon.elite.web.api.model.Location;
 import net.syscon.elite.web.api.resource.LocationsResource.Order;
