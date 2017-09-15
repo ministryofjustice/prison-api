@@ -1,6 +1,7 @@
 package net.syscon.elite.executableSpecification.steps;
 
 import com.google.common.collect.ImmutableMap;
+import net.syscon.elite.test.EliteClientException;
 import net.syscon.elite.v2.api.model.PrisonerDetail;
 import net.syscon.elite.web.api.model.PageMetaData;
 import net.thucydides.core.annotations.Step;
@@ -53,23 +54,27 @@ public class PrisonerSearchSteps extends CommonSteps {
         String queryUrl = String.format(PRISONER_SEARCH, StringUtils.substring(query, 0, query.length() - 1));
         final ImmutableMap<String, String> inputHeaders = ImmutableMap.of("Page-Offset", String.valueOf(offset), "Page-Limit", String.valueOf(limit));
 
-        if (expectedStatus.is4xxClientError() || expectedStatus.is5xxServerError()) {
-            final ResponseEntity<Object> response = restTemplate.exchange(queryUrl, HttpMethod.GET, createEntity(null, inputHeaders), Object.class);
-            assertThat(response.getStatusCode()).isEqualTo(expectedStatus);
-        } else {
+        boolean isErrorExpected = expectedStatus.is4xxClientError() || expectedStatus.is5xxServerError();
+
+        try {
             ResponseEntity<List<PrisonerDetail>> responseEntity = restTemplate.exchange(queryUrl,
                     HttpMethod.GET, createEntity(null, inputHeaders), new ParameterizedTypeReference<List<PrisonerDetail>>() {
                     });
+
             assertThat(responseEntity.getStatusCode()).isEqualTo(expectedStatus);
+            assertThat(isErrorExpected).isFalse();
 
             final HttpHeaders headers = responseEntity.getHeaders();
             final Long totalRecords = Long.valueOf(headers.get("Total-Records").get(0));
             final Long returnedOffset = Long.valueOf(headers.get("Page-Offset").get(0));
             final Long returnedLimit = Long.valueOf(headers.get("Page-Limit").get(0));
+
             prisonerDetails = responseEntity.getBody();
+
             setResourceMetaData(prisonerDetails, new PageMetaData(returnedOffset, returnedLimit, totalRecords, "prisoners"));
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+            assertThat(isErrorExpected).isTrue();
         }
     }
-
-
 }

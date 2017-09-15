@@ -15,7 +15,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.eq;
 
 /**
@@ -53,25 +54,6 @@ public class LocationServiceImplTest {
         assertEquals(location.getAgencyId(), returnedLocation.getAgencyId());
         assertEquals(location.getLocationType(), returnedLocation.getLocationType());
         assertEquals(location.getDescription(), returnedLocation.getDescription());
-    }
-
-    @Test
-    @Ignore
-    public void newLocation() throws Exception {
-        net.syscon.elite.v2.api.model.Location location = new net.syscon.elite.v2.api.model.Location();
-
-        assertNotNull(location.getAdditionalProperties());
-        assertTrue(location.getAdditionalProperties().isEmpty());
-
-        location = new net.syscon.elite.v2.api.model.Location(null, 1L, "WING", "LEI-A", "LEI", null, null, "LEI-A");
-
-        assertNotNull(location.getAdditionalProperties());
-        assertTrue(location.getAdditionalProperties().isEmpty());
-
-        location = net.syscon.elite.v2.api.model.Location.builder().locationId(1L).locationType("WING").description("LEI-A").agencyId("LEI").build();
-
-        assertNotNull(location.getAdditionalProperties());
-        assertTrue(location.getAdditionalProperties().isEmpty());
     }
 
     private Location createTestLocation() {

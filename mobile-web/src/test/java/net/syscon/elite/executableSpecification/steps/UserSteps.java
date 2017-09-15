@@ -1,5 +1,6 @@
 package net.syscon.elite.executableSpecification.steps;
 
+import net.syscon.elite.test.EliteClientException;
 import net.syscon.elite.v2.api.model.Location;
 import net.syscon.elite.web.api.model.StaffDetails;
 import net.syscon.elite.web.api.model.UserDetails;
@@ -44,19 +45,20 @@ public class UserSteps extends CommonSteps {
 
     @Step("Find staff details")
     public void findStaffDetails(Long staffId) {
-        ResponseEntity<StaffDetails> response =
-                restTemplate.exchange(
-                        API_STAFF_REQUEST_URL,
-                        HttpMethod.GET,
-                        createEntity(),
-                        StaffDetails.class,
-                        staffId);
+        ResponseEntity<StaffDetails> response;
 
-        staffDetails = response.getBody();
+        try {
+            response =
+                    restTemplate.exchange(
+                            API_STAFF_REQUEST_URL,
+                            HttpMethod.GET,
+                            createEntity(),
+                            StaffDetails.class,
+                            staffId);
 
-        if (response.getStatusCode() != HttpStatus.OK) {
-            setAdditionalResponseProperties(staffDetails.getAdditionalProperties());
-            setReceivedResponse(response);
+            staffDetails = response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
         }
     }
 

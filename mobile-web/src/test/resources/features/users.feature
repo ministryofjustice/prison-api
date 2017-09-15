@@ -19,5 +19,5 @@ Feature: Users and Staff
       | -2      | API       | User     | itaguser@syscon.net        |
 
   Scenario: Find staff member using staff id that does not exist
-    When a staff member search is made using staff id "9999999999"
-    Then http status 404 response is returned
+    When a staff member search is made using staff id "-9999"
+    Then resource not found response is received from users API

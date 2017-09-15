@@ -6,7 +6,8 @@ Feature: Prisoner Search
 
   Scenario: Cannot perform global search without correct role
     Given a user has logged in with username "itag_user" and password "password"
-    Then a search is made for prisoners access is denied
+    When a search is made for prisoners
+    Then access is denied
 
   Scenario: Search prisoners within a date of birth range
     Given a user has logged in with username "hpa_user" and password "password"
