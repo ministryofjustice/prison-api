@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestResource
-@Path("v2/agencies")
+@Path("/agencies")
 public class AgencyResourceImpl implements AgencyResource {
     // TODO: Fully implement /v2/agencies endpoint as exact requirements become clearer.
     private final AgencyService agencyService;

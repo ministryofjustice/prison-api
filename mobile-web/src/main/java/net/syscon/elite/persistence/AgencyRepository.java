@@ -1,7 +1,8 @@
 package net.syscon.elite.persistence;
 
 
-import net.syscon.elite.web.api.model.Agency;
+
+import net.syscon.elite.v2.api.model.Agency;
 
 import java.util.List;
 import java.util.Optional;

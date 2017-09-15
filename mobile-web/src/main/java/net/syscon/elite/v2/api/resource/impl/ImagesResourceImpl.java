@@ -1,4 +1,4 @@
-package net.syscon.elite.web.api.resource.impl;
+package net.syscon.elite.v2.api.resource.impl;
 
 
 import net.syscon.elite.core.RestResource;

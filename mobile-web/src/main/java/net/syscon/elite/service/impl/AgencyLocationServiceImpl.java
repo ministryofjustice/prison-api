@@ -7,7 +7,7 @@ import net.syscon.elite.persistence.UserRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.web.api.model.Agency;
+import net.syscon.elite.v2.api.model.Agency;
 import net.syscon.elite.web.api.model.InmatesSummary;
 import net.syscon.elite.web.api.model.Location;
 import net.syscon.elite.web.api.model.UserDetails;
