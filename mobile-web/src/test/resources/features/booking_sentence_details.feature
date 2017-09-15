@@ -1,4 +1,4 @@
-@global @wip
+@wip
 Feature: Booking Sentence Details
 
   Acceptence Criteria
@@ -7,5 +7,11 @@ Feature: Booking Sentence Details
   Background:
     Given a user has authenticated with the API
 
-  Scenario: Retrieve sentence details for an offender
+  Scenario Outline: Retrieve sentence details for an offender
     When sentence details are requested for an offender with booking id "<bookingId>"
+    Then sentence start date matches "<ssd>"
+    And sentence end date matches "<sed>"
+
+    Examples:
+      | bookingId | ssd        | sed        |
+      | -1        | 2017-03-25 | 2017-09-24 |

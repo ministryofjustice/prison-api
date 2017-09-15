@@ -6,6 +6,7 @@ Feature: Case Note Creation and Update
 
   Background:
     Given a user has authenticated with the API
+    And case note test harness initialized
     And I have created a case note with text of "Hello this is a new case note"
 
   Scenario: Create a case note

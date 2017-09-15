@@ -49,4 +49,9 @@ public class LocationsStepDefinitions extends AbstractStepDefinitions {
     public void descriptionIs(String description) throws Throwable {
         location.verifyLocationDescription(description);
     }
+
+    @Then("^resource not found response is received from locations API$")
+    public void resourceNotFoundResponseIsReceivedFromLocationsAPI() throws Throwable {
+        location.verifyResourceNotFound();
+    }
 }

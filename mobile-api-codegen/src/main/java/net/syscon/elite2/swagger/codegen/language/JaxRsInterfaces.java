@@ -90,6 +90,9 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
         supportingFiles.add(new SupportingFile("ResponseDelegate.mustache",
                 (supportPackage()).replace(".", File.separator), "ResponseDelegate.java"));
 
+        supportingFiles.add(new SupportingFile("OperationResponse.mustache",
+                (supportPackage()).replace(".", File.separator), "OperationResponse.java"));
+
         languageSpecificPrimitives = new HashSet<String>(
                 Arrays.asList("String", "boolean", "Boolean", "Double", "Integer", "Long", "Float"));
 
@@ -213,8 +216,16 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
     public void postProcessModelProperty(CodegenModel model, CodegenProperty property) {
         super.postProcessModelProperty(model, property);
 
+        // We don't need these imports in every model
         model.imports.remove("SerializedName");
         model.imports.remove("JsonValue");
+
+        // Convert integer types that end in 'Id' to Long
+        if (!model.isEnum && property.name.endsWith("Id") && "Integer".equals(property.datatype)) {
+            property.datatype = "Long";
+            property.baseType = property.datatype;
+            property.datatypeWithEnum = property.datatype;
+        }
 
         // Handle defaultValue = "null" - if property default value is "null" string,
         // actually set to 'null' so that template can conditionally render default

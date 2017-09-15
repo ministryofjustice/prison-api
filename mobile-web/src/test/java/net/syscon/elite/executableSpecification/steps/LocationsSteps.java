@@ -1,5 +1,6 @@
 package net.syscon.elite.executableSpecification.steps;
 
+import net.syscon.elite.test.EliteClientException;
 import net.syscon.elite.web.api.model.Location;
 import net.syscon.elite.web.api.model.Locations;
 import net.thucydides.core.annotations.Step;
@@ -65,22 +66,21 @@ public class LocationsSteps extends CommonSteps {
 
         String queryUrl = API_LOCATIONS + StringUtils.trimToEmpty(query);
 
-        ResponseEntity<Location> response = restTemplate.exchange(queryUrl, HttpMethod.GET, createEntity(), Location.class);
+        ResponseEntity<Location> response;
 
-        HttpStatus httpStatus = response.getStatusCode();
+        try {
+            response = restTemplate.exchange(queryUrl, HttpMethod.GET, createEntity(), Location.class);
 
-        List<?> resources;
+            HttpStatus httpStatus = response.getStatusCode();
 
-        if (httpStatus == HttpStatus.OK) {
             location = response.getBody();
-            resources = Collections.singletonList(location);
-        } else if (httpStatus == HttpStatus.NOT_FOUND) {
-            resources = Collections.emptyList();
-        } else {
-            resources = null;
-        }
 
-        setResourceMetaData(resources, null);
+            List<?> resources = Collections.singletonList(location);
+
+            setResourceMetaData(resources, null);
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
     }
 
     protected void init() {

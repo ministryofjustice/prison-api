@@ -72,10 +72,9 @@ public class PrisonerSearchStepDefinitions extends AbstractStepDefinitions {
         prisonerSearch.search(params, offset, limit, HttpStatus.OK);
     }
 
-
-    @Then("^a search is made for prisoners access is denied$")
-    public void aSearchIsMadeForPrisonersAccessIsDenied() throws Throwable {
-        prisonerSearch.search(ImmutableMap.of("firstName", "DUMMY"), 0, 100, HttpStatus.INTERNAL_SERVER_ERROR);
+    @When("^a search is made for prisoners$")
+    public void aSearchIsMadeForPrisoners() throws Throwable {
+        prisonerSearch.search(ImmutableMap.of("firstName", "DUMMY"), 0, 100, HttpStatus.FORBIDDEN);
     }
 
     @When("^a search is made for prisoners with first name \"([^\"]*)\", middle names \"([^\"]*)\" and last name \"([^\"]*)\"$")
@@ -108,5 +107,10 @@ public class PrisonerSearchStepDefinitions extends AbstractStepDefinitions {
             params.put("croNumber", cro);
         }
         prisonerSearch.search(params, 0, 100, HttpStatus.OK);
+    }
+
+    @Then("^access is denied$")
+    public void accessIsDenied() throws Throwable {
+        prisonerSearch.verifyAccessDenied();
     }
 }

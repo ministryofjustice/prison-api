@@ -10,13 +10,13 @@ Feature: Locations
     Given a user has authenticated with the API
 
   @nomis
-  Scenario: Retrieve all available locations
+  Scenario: Retrieve all available location records
     When a request is made to retrieve all locations available to the user
     Then "10" location records are returned
     And "24" total location records are available
 
   @global
-  Scenario Outline: Retrieve a specific location
+  Scenario Outline: Retrieve a specific location record
     When a request is made to retrieve location with locationId of "<locationId>"
     Then "<number>" location records are returned
     And location type is "<type>"
@@ -27,4 +27,7 @@ Feature: Locations
       | -1         | 1      | WING | LEI-A       |
       | -2         | 1      | LAND | LEI-A-1     |
       | -3         | 1      | CELL | LEI-A-1-1   |
-      | -9999      | 0      |      |             |
+
+  Scenario: Request for specific location record that does not exist
+    When a request is made to retrieve location with locationId of "-9999"
+    Then resource not found response is received from locations API

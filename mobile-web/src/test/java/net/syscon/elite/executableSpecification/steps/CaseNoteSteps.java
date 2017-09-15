@@ -1,5 +1,6 @@
 package net.syscon.elite.executableSpecification.steps;
 
+import net.syscon.elite.test.EliteClientException;
 import net.syscon.elite.web.api.model.CaseNote;
 import net.syscon.elite.web.api.model.CaseNotes;
 import net.syscon.elite.web.api.model.NewCaseNote;
@@ -141,14 +142,24 @@ public class CaseNoteSteps extends CommonSteps {
     }
 
     private Long dispatchCreateRequest(Long bookingId, NewCaseNote caseNote, boolean creationExpected) {
-        ResponseEntity<CaseNote> response = restTemplate.exchange(API_REQUEST_BASE_URL, HttpMethod.POST, createEntity(caseNote),
-                CaseNote.class, bookingId);
+        Long caseNoteId;
 
-        if (creationExpected) {
+        try {
+            ResponseEntity<CaseNote> response = restTemplate.exchange(API_REQUEST_BASE_URL, HttpMethod.POST, createEntity(caseNote),
+                    CaseNote.class, bookingId);
+
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+            assertThat(creationExpected).isTrue();
+
+            caseNoteId = response.getBody().getCaseNoteId();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+            assertThat(creationExpected).isFalse();
+
+            caseNoteId = null;
         }
 
-        return response.getBody().getCaseNoteId();
+        return caseNoteId;
     }
 
     private void dispatchGetRequest(Long bookingId, Long caseNoteId) {
