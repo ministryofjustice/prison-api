@@ -28,7 +28,7 @@ public class LocationServiceImpl implements LocationService {
     @Value("${api.users.me.locations.locationType:WING}")
     private String locationTypeGranularity;
 
-    @Value("${api.users.me.locations.depth:1}")
+    @Value("${api.users.me.locations.depth:2}")
     private Integer locationDepth;
 
     public LocationServiceImpl(AgencyRepository agencyRepository, LocationRepository locationRepository) {
@@ -57,7 +57,7 @@ public class LocationServiceImpl implements LocationService {
             locations.add(convertToLocation(agency));
 
             // Then retrieve all associated internal locations at configured level of granularity.
-            final List<Location> agencyLocations = locationRepository.findLocationsByAgency(
+            final List<Location> agencyLocations = locationRepository.findLocationsByAgencyAndType(
                     agency.getAgencyId(), locationTypeGranularity, locationDepth
             );
 
