@@ -25,8 +25,11 @@ public class LocationServiceImpl implements LocationService {
     private final AgencyRepository agencyRepository;
     private final LocationRepository locationRepository;
 
-    @Value("${api.users.me.locations.locationType}")
+    @Value("${api.users.me.locations.locationType:WING}")
     private String locationTypeGranularity;
+
+    @Value("${api.users.me.locations.depth:1}")
+    private Integer locationDepth;
 
     public LocationServiceImpl(AgencyRepository agencyRepository, LocationRepository locationRepository) {
         this.agencyRepository = agencyRepository;
@@ -35,7 +38,7 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public List<Location> getUserLocations(String username) {
-        List<Location> locations = new ArrayList<>();
+        final List<Location> locations = new ArrayList<>();
 
         // Step 1 - Get all agencies associated with user
         List<Agency> agencies = agencyRepository.findAgenciesByUsername(username, "agencyId", Order.ASC);
@@ -47,27 +50,27 @@ public class LocationServiceImpl implements LocationService {
         if (agencyCount == 1) {
             // User has one agency so the agency will be used as a main location together with associated internal
             // locations of a granularity (e.g. 'WING') as determined by configuration setting.
-            log.debug(String.format("User [%s] is associated with one agency.", username));
+            log.debug("User [{}] is associated with one agency.", username);
             Agency agency = agencies.get(0);
 
             // Start with agency converted to location
             locations.add(convertToLocation(agency));
 
             // Then retrieve all associated internal locations at configured level of granularity.
-            List<Location> agencyLocations = locationRepository.findLocationsByAgency(
-                    agency.getAgencyId(), locationTypeGranularity, "description", Order.ASC,
-                    0, Integer.MAX_VALUE);
+            final List<Location> agencyLocations = locationRepository.findLocationsByAgency(
+                    agency.getAgencyId(), locationTypeGranularity, locationDepth
+            );
 
-            locations.addAll(agencyLocations.stream().map(this::populateLocationPrefix).collect(Collectors.toList()));
+            locations.addAll(agencyLocations);
         } else if (agencyCount > 1) {
             // User has multiple agencies so these will be used directly as locations.
-            log.debug(String.format("User [%s] is associated with %d agencies.", username, agencyCount));
+            log.debug("User [{}] is associated with {} agencies.", username, agencyCount);
 
             // Add retrieved agencies converted to locations
             locations.addAll(agencies.stream().map(this::convertToLocation).collect(Collectors.toList()));
         } else {
             // TODO: Decide what to do if no agencies associated with current user - is this even possible?
-            log.debug(String.format("User [%s] is not associated with any agencies.", username));
+            log.debug("User [{}] is not associated with any agencies.", username);
         }
 
         return locations;
@@ -83,9 +86,4 @@ public class LocationServiceImpl implements LocationService {
                 .build();
     }
 
-    private Location populateLocationPrefix(Location location) {
-        location.setLocationPrefix(location.getDescription());
-
-        return location;
-    }
 }

@@ -34,18 +34,21 @@ public class InmateServiceImpl implements InmateService {
     private final InmateRepository repository;
     private final CaseLoadRepository caseLoadRepository;
     private final int maxYears;
+    private final String locationTypeGranularity;
 
     @Autowired
-    public InmateServiceImpl(InmateRepository repository, CaseLoadRepository caseLoadRepository, @Value("${offender.dob.max.range.years:10}") int maxYears) {
+    public InmateServiceImpl(InmateRepository repository, CaseLoadRepository caseLoadRepository, @Value("${offender.dob.max.range.years:10}") int maxYears,
+                             @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity ) {
         this.repository = repository;
         this.caseLoadRepository = caseLoadRepository;
         this.maxYears = maxYears;
+        this.locationTypeGranularity = locationTypeGranularity;
     }
 
     @Override
     public List<InmatesSummary> findAllInmates(String query, int offset, int limit, String orderBy, Order order) {
         String colSort = StringUtils.isNotBlank(orderBy) ? orderBy : DEFAULT_OFFENDER_SORT;
-        return repository.findAllInmates(getUserCaseloadIds(), query, offset, limit, colSort, order);
+        return repository.findAllInmates(getUserCaseloadIds(), locationTypeGranularity, query, offset, limit, colSort, order);
     }
 
     @Override
@@ -63,7 +66,7 @@ public class InmateServiceImpl implements InmateService {
 
         final boolean descendingOrder = StringUtils.equalsIgnoreCase(sortOrder, "desc");
         return repository.searchForOffenderBookings(getUserCaseloadIds(), keywords, locationPrefix,
-                offset != null ? offset.intValue() : 0,
+                locationTypeGranularity, offset != null ? offset.intValue() : 0,
                 limit != null ? limit.intValue() : Integer.MAX_VALUE, StringUtils.isNotBlank(sortFields) ? sortFields : DEFAULT_OFFENDER_SORT, !descendingOrder);
     }
 

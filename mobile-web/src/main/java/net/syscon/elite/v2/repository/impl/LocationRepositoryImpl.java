@@ -30,8 +30,10 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
                     .put("AGENCY_LOCATION_TYPE", new FieldMapper("agencyType"))
                     .put("PARENT_INTERNAL_LOCATION_ID", new FieldMapper("parentLocationId"))
                     .put("NO_OF_OCCUPANT", new FieldMapper("currentOccupancy"))
+                    .put("LOCATION_PREFIX", new FieldMapper("locationPrefix"))
+                    .put("LEVEL", new FieldMapper("level"))
+                    .put("LIST_SEQ", new FieldMapper("listSequence"))
                     .build();
-
     @Deprecated
     @Override
     public List<Location> findLocations(String query, String orderByField, Order order, long offset, long limit) {
@@ -57,16 +59,11 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
     }
 
     @Override
-    public List<Location> findLocationsByAgency(String agencyId, String locationType, String orderByField, Order order, long offset, long limit) {
+    public List<Location> findLocationsByAgency(String agencyId, String locationType, int depthAllowed) {
         String initialSql = getQuery(StringUtils.isBlank(locationType) ? "FIND_LOCATIONS_BY_AGENCY" : "FIND_LOCATIONS_BY_AGENCY_AND_TYPE");
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, locationMapping);
-        boolean isAscendingOrder = (order == Order.ASC);
 
-        String sql = builder
-                .addRowCount()
-                .addOrderBy(isAscendingOrder, orderByField)
-                .addPagination()
-                .build();
+        String sql = builder.build();
 
         RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
 
@@ -75,8 +72,7 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
                 createParams(
                         "agencyId", agencyId,
                         "locationType", locationType,
-                        "offset", offset,
-                        "limit", limit),
+                        "depth", depthAllowed),
                 locationRowMapper);
     }
 }
