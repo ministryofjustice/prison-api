@@ -17,8 +17,8 @@ import java.util.Set;
 
 public interface InmateRepository {
 
-	List<InmatesSummary> findAllInmates(Set<String> caseloads, String query, int offset, int limit, String orderBy, BookingResource.Order order);
-	List<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String keywords, String locationPrefix, int offset, int limit, String orderBy, boolean isAscendingOrder);
+	List<InmatesSummary> findAllInmates(Set<String> caseloads, String locationTypeRoot, String query, int offset, int limit, String orderBy, BookingResource.Order order);
+	List<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String keywords, String locationPrefix, String locationTypeRoot, int offset, int limit, String orderBy, boolean isAscendingOrder);
 	List<InmatesSummary> findInmatesByLocation(Long locationId, String query, String orderByField, LocationsResource.Order order, int offset, int limit);
 	Optional<InmateDetails> findInmate(Long inmateId, Set<String> caseloads);
 	List<Alias> findInmateAliases(Long inmateId, String orderByField, BookingResource.Order order);

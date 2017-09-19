@@ -11,6 +11,6 @@ import java.util.List;
 public interface LocationRepository {
     @Deprecated
     List<Location> findLocations(String query, String orderByField, Order order, long offset, long limit);
-
-    List<Location> findLocationsByAgency(String agencyId, String locationType, String orderByField, Order order, long offset, long limit);
+    List<Location> findLocationsByAgency(String agencyId, String orderByField, Order order, long offset, long limit);
+    List<Location> findLocationsByAgencyAndType(String agencyId, String locationType, int depthAllowed);
 }

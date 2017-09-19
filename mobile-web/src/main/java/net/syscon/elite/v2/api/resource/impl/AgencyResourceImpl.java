@@ -13,20 +13,18 @@ import java.util.List;
 @RestResource
 @Path("/agencies")
 public class AgencyResourceImpl implements AgencyResource {
-    // TODO: Fully implement /v2/agencies endpoint as exact requirements become clearer.
     private final AgencyService agencyService;
 
     public AgencyResourceImpl(AgencyService agencyService) {
         this.agencyService = agencyService;
     }
-
     @Override
-    public GetAgenciesResponse getAgencies(Long offset, Long limit) {
-        final List<Agency> agencies =
-                agencyService.findAgenciesByUsername(
-                        UserSecurityUtils.getCurrentUsername(),
-                        offset != null ? offset : 0,
-                        limit != null ? limit : 10);
+    public GetAgenciesResponse getAgencies(Integer pageOffset, Integer pageLimit) {
+
+        final List<Agency> agencies = agencyService.findAgenciesByUsername(
+                UserSecurityUtils.getCurrentUsername(),
+                pageOffset != null ? new Long(pageOffset) : 0,
+                pageLimit != null ? new Long(pageLimit) : 10);
 
         return GetAgenciesResponse.respond200WithApplicationJson(agencies);
     }
@@ -37,7 +35,7 @@ public class AgencyResourceImpl implements AgencyResource {
     }
 
     @Override
-    public GetAgencyLocationsResponse getAgencyLocations(String agencyId, Long offset, Long limit) {
+    public GetAgencyLocationsResponse getAgencyLocations(String agencyId, Integer pageOffset, Integer pageLimit) {
         return GetAgencyLocationsResponse.respond200WithApplicationJson(new ArrayList<>());
     }
 }

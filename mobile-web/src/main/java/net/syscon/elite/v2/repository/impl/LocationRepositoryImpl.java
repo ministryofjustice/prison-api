@@ -9,7 +9,6 @@ import net.syscon.elite.v2.api.model.Location;
 import net.syscon.elite.v2.api.support.Order;
 import net.syscon.elite.v2.repository.LocationRepository;
 import net.syscon.util.IQueryBuilder;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -30,8 +29,10 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
                     .put("AGENCY_LOCATION_TYPE", new FieldMapper("agencyType"))
                     .put("PARENT_INTERNAL_LOCATION_ID", new FieldMapper("parentLocationId"))
                     .put("NO_OF_OCCUPANT", new FieldMapper("currentOccupancy"))
+                    .put("LOCATION_PREFIX", new FieldMapper("locationPrefix"))
+                    .put("LEVEL", new FieldMapper("level"))
+                    .put("LIST_SEQ", new FieldMapper("listSequence"))
                     .build();
-
     @Deprecated
     @Override
     public List<Location> findLocations(String query, String orderByField, Order order, long offset, long limit) {
@@ -57,8 +58,8 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
     }
 
     @Override
-    public List<Location> findLocationsByAgency(String agencyId, String locationType, String orderByField, Order order, long offset, long limit) {
-        String initialSql = getQuery(StringUtils.isBlank(locationType) ? "FIND_LOCATIONS_BY_AGENCY" : "FIND_LOCATIONS_BY_AGENCY_AND_TYPE");
+    public List<Location> findLocationsByAgency(String agencyId, String orderByField, Order order, long offset, long limit) {
+        String initialSql = getQuery("FIND_LOCATIONS_BY_AGENCY");
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, locationMapping);
         boolean isAscendingOrder = (order == Order.ASC);
 
@@ -74,9 +75,24 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
                 sql,
                 createParams(
                         "agencyId", agencyId,
-                        "locationType", locationType,
                         "offset", offset,
                         "limit", limit),
+                locationRowMapper);
+    }
+
+    @Override
+    public List<Location> findLocationsByAgencyAndType(String agencyId, String locationType, int depthAllowed) {
+        String initialSql = getQuery("FIND_LOCATIONS_BY_AGENCY_AND_TYPE");
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, locationMapping);
+        String sql = builder.build();
+        RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
+
+        return jdbcTemplate.query(
+                sql,
+                createParams(
+                        "agencyId", agencyId,
+                        "locationType", locationType,
+                        "depth", depthAllowed),
                 locationRowMapper);
     }
 }

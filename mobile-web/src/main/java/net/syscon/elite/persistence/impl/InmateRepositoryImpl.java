@@ -158,7 +158,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public List<InmatesSummary> findAllInmates(Set<String> caseloads, String query, int offset, int limit, String orderBy, BookingResource.Order order) {
+	public List<InmatesSummary> findAllInmates(Set<String> caseloads, String locationTypeRoot, String query, int offset, int limit, String orderBy, BookingResource.Order order) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, INMATE_MAPPING);
 		boolean isAscendingOrder = (order == BookingResource.Order.asc);
@@ -178,6 +178,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			inmates = jdbcTemplate.query(
 					sql,
 					createParams("caseLoadId", caseloads,
+							"locationTypeRoot", locationTypeRoot,
 							"offset", offset,
 							"limit", limit),
 					assignedInmateRowMapper);
@@ -189,7 +190,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public List<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String keywords, String locationPrefix, int offset, int limit, String orderBy, boolean ascendingOrder) {
+	public List<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String keywords, String locationPrefix, String locationTypeRoot, int offset, int limit, String orderBy, boolean ascendingOrder) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
 
         if (StringUtils.isNotBlank(locationPrefix)) {
@@ -214,6 +215,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 					createParams("keywords", keywordSearch + "%",
                             "locationPrefix", StringUtils.trimToEmpty(locationPrefix) + "%",
                             "caseLoadId", caseloads,
+                            "locationTypeRoot", locationTypeRoot,
                             "offset", offset, "limit", limit),
 					offenderBookingRowMapper);
 		} catch (EmptyResultDataAccessException e) {
