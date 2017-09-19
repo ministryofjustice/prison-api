@@ -169,4 +169,14 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     public void sentenceEndDateMatches(String sentenceEndDate) throws Throwable {
         bookingSentenceDetail.verifySentenceEndDate(sentenceEndDate);
     }
+
+    @And("^conditional release date matches \"([^\"]*)\"$")
+    public void conditionalReleaseDateMatches(String conditionalReleaseDate) throws Throwable {
+        bookingSentenceDetail.verifyConditionalReleaseDate(conditionalReleaseDate);
+    }
+
+    @And("^release date matches \"([^\"]*)\"$")
+    public void releaseDateMatches(String releaseDate) throws Throwable {
+        bookingSentenceDetail.verifyReleaseDate(releaseDate);
+    }
 }

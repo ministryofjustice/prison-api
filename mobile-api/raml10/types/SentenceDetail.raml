@@ -7,24 +7,42 @@ properties:
   sentenceStartDate:
     type: date-only
     description: Sentence start date.
-  additionalDaysAdded:
+  additionalDaysAdded?:
     type: integer
     description: ADA - days added to sentence term due to adjustments.
-  sentenceEndDate:
+  sentenceEndDate?:
     type: date-only
     description: SED - sentence end date.
   daysRemaining:
     type: integer
     description: Number of days remaining to release (from current date).
-  conditionalReleaseDate:
+  conditionalReleaseDate?:
     type: date-only
-    description: CRD - date on which offender can be release under condition.
-  paroleEligibilityDate:
+    description: CRD - conditional release date for offender.
+  automaticReleaseDate?:
+    type: date-only
+    description: ARD - automatic (unconditional) release date for offender.
+  nonParoleDate?:
+    type: date-only
+    description: NPD - non-parole date for offender.
+  paroleEligibilityDate?:
     type: date-only
     description: PED - date on which offender is eligible for parole.
-  licenseExpiryDate:
+  licenceExpiryDate?:
     type: date-only
-    description: LED - date on which offender license expires.
-  homeDetentionCurfewEligibilityDate:
+    description: LED - date on which offender licence expires.
+  homeDetentionCurfewEligibilityDate?:
     type: date-only
     description: HDCED - date on which offender will be eligible for home detention curfew.
+  earlyTermDate?:
+    type: date-only
+    description: ETD - early term date for offender.
+  midTermDate?:
+    type: date-only
+    description: MTD - mid term date for offender.
+  lateTermDate?:
+    type: date-only
+    description: LTD - late term date for offender.
+  releaseDate:
+    type: date-only
+    description: release date for offender (one of ARD, CRD, NPD, ETD, MTD or LTD).

@@ -20,6 +20,14 @@ public class OperationResponse extends ResponseDelegate {
         return new OperationResponse(responseBuilder.build(), errorResponse);
     }
 
+    public static OperationResponse respond403WithApplicationJson(ErrorResponse errorResponse) {
+        Response.ResponseBuilder responseBuilder = Response.status(403).header("Content-Type", MediaType.APPLICATION_JSON);
+
+        responseBuilder.entity(errorResponse);
+
+        return new OperationResponse(responseBuilder.build(), errorResponse);
+    }
+
     public static OperationResponse respond404WithApplicationJson(ErrorResponse errorResponse) {
         Response.ResponseBuilder responseBuilder = Response.status(404).header("Content-Type", MediaType.APPLICATION_JSON);
 
@@ -40,6 +48,9 @@ public class OperationResponse extends ResponseDelegate {
         switch(Response.Status.fromStatusCode(errorResponse.getStatus().intValue())) {
             case BAD_REQUEST:
                 return respond400WithApplicationJson(errorResponse);
+
+            case FORBIDDEN:
+                return respond403WithApplicationJson(errorResponse);
 
             case NOT_FOUND:
                 return respond404WithApplicationJson(errorResponse);
