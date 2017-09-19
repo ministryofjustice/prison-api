@@ -1,11 +1,13 @@
 package net.syscon.elite.executableSpecification.steps;
 
-import net.serenitybdd.core.PendingStepException;
 import net.syscon.elite.test.EliteClientException;
 import net.syscon.elite.v2.api.model.SentenceDetail;
 import net.thucydides.core.annotations.Step;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * BDD step implementations for Booking Sentence Detail feature.
@@ -22,12 +24,22 @@ public class BookingSentenceDetailSteps extends CommonSteps {
 
     @Step("Verify sentence start date")
     public void verifySentenceStartDate(String sentenceStartDate) {
-        throw new PendingStepException("Pending implementation.");
+        assertThat(sentenceDetail.getSentenceStartDate()).isEqualTo(sentenceStartDate);
     }
 
     @Step("Verify sentence end date")
     public void verifySentenceEndDate(String sentenceEndDate) {
-        throw new PendingStepException("Pending implementation.");
+        assertThat(sentenceDetail.getSentenceEndDate()).isEqualTo(StringUtils.trimToNull(sentenceEndDate));
+    }
+
+    @Step("Verify conditional release date")
+    public void verifyConditionalReleaseDate(String conditionalReleaseDate) {
+        assertThat(sentenceDetail.getConditionalReleaseDate()).isEqualTo(StringUtils.trimToNull(conditionalReleaseDate));
+    }
+
+    @Step("Verify release date")
+    public void verifyReleaseDate(String releaseDate) {
+        assertThat(sentenceDetail.getReleaseDate()).isEqualTo(releaseDate);
     }
 
     private void dispatchRequest(Long bookingId) {

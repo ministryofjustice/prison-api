@@ -1,4 +1,4 @@
-@wip
+@global @wip
 Feature: Booking Sentence Details
 
   Acceptence Criteria
@@ -11,7 +11,10 @@ Feature: Booking Sentence Details
     When sentence details are requested for an offender with booking id "<bookingId>"
     Then sentence start date matches "<ssd>"
     And sentence end date matches "<sed>"
+    And conditional release date matches "<crd>"
+    And release date matches "<releaseDate>"
 
     Examples:
-      | bookingId | ssd        | sed        |
-      | -1        | 2017-03-25 | 2017-09-24 |
+      | bookingId | ssd        | sed        | crd        | releaseDate |
+      | -1        | 2017-03-25 | 2020-03-24 | 2019-03-24 | 2019-03-24  |
+      | -2        | 2016-11-22 | 2019-05-21 |            | 2018-04-21  |
