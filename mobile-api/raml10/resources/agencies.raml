@@ -1,10 +1,13 @@
 description: Returns list of agencies associated with current user.
+(javaOperationName): getAgencies
 type: { readOnlyCollection: { type: Agency } }
 
 /{agencyId}:
+  (javaOperationName): getAgency
   description: Returns specified agency.
   type: { readOnlyItem: { type: Agency } }
 
 /{agencyId}/locations:
+  (javaOperationName): getAgencyLocations
   description: Returns list of locations associated with specified agency.
   type: { readOnlyCollection: { type: Location } }
