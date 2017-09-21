@@ -180,7 +180,7 @@ project(":mobile-api") {
     def codegenConfig = "${rootDir}/mobile-api/raml10/api-gen-cfg.json"
 
     def jaxrsCodegenArgs = ['generate', '-c', codegenConfig, '-i', oas20File.absolutePath, '-l', 'jaxrsinterfaces',
-                            '-o', sourceGenDir, '--verbose']
+                            '-o', sourceGenDir]
 
     def jaxrsCodegenSystemProps = ['modelDocs':'false',
                                    'apiDocs':'false',
