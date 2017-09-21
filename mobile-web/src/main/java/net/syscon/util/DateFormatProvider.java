@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 /**
  * Date format helper.
@@ -13,30 +12,6 @@ import java.util.Date;
 public class DateFormatProvider {
 
     private DateFormatProvider() {}
-
-    /**
-     * Convert a {@code java.time.LocalDate} to Date
-     * @param localDate date only
-     * @return Date with date only information
-     */
-    public static Date localDateToDate(LocalDate localDate) {
-        if (localDate != null) {
-            return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        }
-        return null;
-    }
-
-    /**
-     * Convert a {@code java.time.LocalDateTime} to Date
-     * @param localDateTime Date time
-     * @return Date with date and time information
-     */
-    public static Date localDateToDateTime(LocalDateTime localDateTime) {
-        if (localDateTime != null) {
-            return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
-        }
-        return null;
-    }
 
     /**
      * Formats date and time represented by provided dateTime object to an ISO-8601 dateTime representation.

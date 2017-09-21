@@ -11,6 +11,7 @@ import net.syscon.elite.web.api.model.*;
 import net.syscon.elite.web.api.resource.BookingResource;
 import net.syscon.elite.web.api.resource.LocationsResource;
 import net.syscon.util.DateFormatProvider;
+import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -266,7 +267,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         List<PrisonerDetail> prisonerDetails;
         try {
             prisonerDetails = jdbcTemplate.query(sql,
-                    hasDateRange ? createParams("limit", limit, "offset", offset, "fromDob", DateFormatProvider.localDateToDate(fromDobDate), "toDob", DateFormatProvider.localDateToDate(toDobDate)) : createParams("limit", limit, "offset", offset),
+                    hasDateRange ? createParams("limit", limit, "offset", offset, "fromDob", DateTimeConverter.toDate(fromDobDate), "toDob", DateTimeConverter.toDate(toDobDate)) : createParams("limit", limit, "offset", offset),
                     prisonerDetailRowMapper);
         } catch (EmptyResultDataAccessException e) {
             prisonerDetails = Collections.emptyList();
