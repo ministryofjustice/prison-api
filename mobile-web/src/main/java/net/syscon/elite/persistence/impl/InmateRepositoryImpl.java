@@ -17,6 +17,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.*;
 
 
@@ -50,7 +51,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             .put("FIRST_NAME", 			new FieldMapper("firstName", null, null, StringUtils::upperCase))
             .put("MIDDLE_NAME", 		new FieldMapper("middleName", null, null, StringUtils::upperCase))
             .put("LAST_NAME", 			new FieldMapper("lastName", null, null, StringUtils::upperCase))
-            .put("BIRTH_DATE", 			new FieldMapper("dateOfBirth"))
+            .put("BIRTH_DATE", 			new FieldMapper("dateOfBirth", DateFormatProvider::toISO8601LocalDate))
             .put("AGE",                 new FieldMapper("age"))
             .put("ALERT_TYPES", 		new FieldMapper("alertsCodes", value -> Arrays.asList(value.toString().split(","))))
             .put("ALIASES", 		    new FieldMapper("aliases", value -> Arrays.asList(value.toString().split(","))))
@@ -67,7 +68,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             .put("FIRST_NAME", 			new FieldMapper("firstName", null, null, StringUtils::upperCase))
             .put("MIDDLE_NAMES", 		new FieldMapper("middleNames", null, null, StringUtils::upperCase))
             .put("LAST_NAME", 			new FieldMapper("lastName", null, null, StringUtils::upperCase))
-            .put("BIRTH_DATE", 			new FieldMapper("dateOfBirth"))
+            .put("BIRTH_DATE", 			new FieldMapper("dateOfBirth", DateFormatProvider::toISO8601LocalDate))
             .put("ETHNICITY", 			new FieldMapper("ethnicity"))
             .put("SEX", 			    new FieldMapper("gender"))
             .put("BIRTH_COUNTRY", 		new FieldMapper("birthCountry"))
@@ -79,8 +80,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("PNC_NUMBER", 			new FieldMapper("pncNumber"))
 			.put("CRO_NUMBER", 			new FieldMapper("croNumber"))
 			.put("ACTIVE_FLAG", 		new FieldMapper("currentlyInPrison"))
-			.put("BOOKING_BEGIN_DATE", 	new FieldMapper("receptionDate"))
-			.put("RELEASE_DATE",    	new FieldMapper("releaseDate"))
+			.put("BOOKING_BEGIN_DATE", 	new FieldMapper("receptionDate", DateFormatProvider::toISO8601LocalDate))
+			.put("RELEASE_DATE",    	new FieldMapper("releaseDate", DateFormatProvider::toISO8601LocalDate))
 			.put("AGY_LOC_ID", 			new FieldMapper("latestLocationId"))
 			.put("AGY_LOC_DESC", 		new FieldMapper("latestLocation"))
 
@@ -242,7 +243,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
     @Override
-    public List<PrisonerDetail> searchForOffenders(String query, Date fromDobDate, Date toDobDate, String sortFields, boolean ascendingOrder, long offset, long limit) {
+    public List<PrisonerDetail> searchForOffenders(String query, LocalDate fromDobDate, LocalDate toDobDate, String sortFields, boolean ascendingOrder, long offset, long limit) {
         String initialSql = getQuery("FIND_PRISONERS");
 
         final boolean hasDateRange = fromDobDate != null && toDobDate != null;
@@ -265,7 +266,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         List<PrisonerDetail> prisonerDetails;
         try {
             prisonerDetails = jdbcTemplate.query(sql,
-                    hasDateRange ? createParams("limit", limit, "offset", offset, "fromDob", fromDobDate, "toDob", toDobDate) : createParams("limit", limit, "offset", offset),
+                    hasDateRange ? createParams("limit", limit, "offset", offset, "fromDob", DateFormatProvider.localDateToDate(fromDobDate), "toDob", DateFormatProvider.localDateToDate(toDobDate)) : createParams("limit", limit, "offset", offset),
                     prisonerDetailRowMapper);
         } catch (EmptyResultDataAccessException e) {
             prisonerDetails = Collections.emptyList();

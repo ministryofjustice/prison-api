@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Getter
 @Builder
@@ -17,7 +17,7 @@ public class PrisonerDetailSearchCriteria {
     private String lastName;
     private String pncNumber;
     private String croNumber;
-    private Date dob;
-    private Date dobFrom;
-    private Date dobTo;
+    private LocalDate dob;
+    private LocalDate dobFrom;
+    private LocalDate dobTo;
 }

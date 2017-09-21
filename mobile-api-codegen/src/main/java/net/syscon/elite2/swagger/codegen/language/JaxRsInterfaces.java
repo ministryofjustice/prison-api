@@ -42,8 +42,9 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
 
     // Vendor extension constants.
     public static final String VENDOR_EXTENSION_JAVA_OPERATION_NAME = "x-annotation-javaOperationName";
+    private static final String X_ANNOTATION_JAVA_TYPE = "x-annotation-javaType";
+    private static final String X_ANNOTATION_TYPE_HEADERS = "x-annotation-headersWithType_";
 
-    protected String sourceFolder = "";
     protected String supportPackage = "";
 
     @Override
@@ -81,11 +82,8 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
     public List<SupportingFile> supportingFiles() {
         supportingFiles.clear();
 
-        supportingFiles.add(new SupportingFile("ApiOriginFilter.mustache", (supportPackage()).replace(".", File.separator),
-                "ApiOriginFilter.java"));
-
-        supportingFiles.add(new SupportingFile("ApiResponseMessage.mustache",
-                (supportPackage()).replace(".", File.separator), "ApiResponseMessage.java"));
+        supportingFiles.add(new SupportingFile("order.mustache",
+                (supportPackage()).replace(".", File.separator), "Order.java"));
 
         supportingFiles.add(new SupportingFile("ResponseDelegate.mustache",
                 (supportPackage()).replace(".", File.separator), "ResponseDelegate.java"));
@@ -93,7 +91,7 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
         supportingFiles.add(new SupportingFile("OperationResponse.mustache",
                 (supportPackage()).replace(".", File.separator), "OperationResponse.java"));
 
-        languageSpecificPrimitives = new HashSet<String>(
+        languageSpecificPrimitives = new HashSet<>(
                 Arrays.asList("String", "boolean", "Boolean", "Double", "Integer", "Long", "Float"));
 
         return supportingFiles;
@@ -157,7 +155,7 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
             basePath = basePath.substring(0, pos);
         }
 
-        if (basePath == "") {
+        if (Objects.equals(basePath, "")) {
             basePath = "default";
         } else {
             if (co.path.startsWith("/" + basePath)) {
@@ -167,11 +165,7 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
             co.subresourceOperation = !co.path.isEmpty();
         }
 
-        List<CodegenOperation> opList = operations.get(basePath);
-        if (opList == null) {
-            opList = new ArrayList<CodegenOperation>();
-            operations.put(basePath, opList);
-        }
+        List<CodegenOperation> opList = operations.computeIfAbsent(basePath, k -> new ArrayList<>());
 
         opList.add(co);
         co.baseName = basePath;
@@ -220,12 +214,8 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
         model.imports.remove("SerializedName");
         model.imports.remove("JsonValue");
 
-        // Convert integer types that end in 'Id' to Long
-        if (!model.isEnum && property.name.endsWith("Id") && "Integer".equals(property.datatype)) {
-            property.datatype = "Long";
-            property.baseType = property.datatype;
-            property.datatypeWithEnum = property.datatype;
-        }
+        // Convert to use java type where specified
+        applyJavaTypesToModel(property);
 
         // Handle defaultValue = "null" - if property default value is "null" string,
         // actually set to 'null' so that template can conditionally render default
@@ -245,11 +235,51 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
         // Adjust operation id (and dependent properties), if necessary.
         applyOperationId(op, operation);
 
+        applyJavaTypesToParams(op);
+        applyJavaTypesToResponseHeaders(op);
+
         // Move 'notes' property to 'summary' property (no RAML 1.0 attribute maps to OAS 2.0 operation summary).
         op.summary = op.notes;
         op.notes = null;
 
         return op;
+    }
+
+    private void applyJavaTypesToModel(CodegenProperty property) {
+        final String javaType = (String)property.vendorExtensions.get(X_ANNOTATION_JAVA_TYPE);
+        if (javaType != null) {
+            property.datatype = javaType;
+            property.baseType = property.datatype;
+            property.datatypeWithEnum = property.datatype;
+        }
+    }
+
+    private void applyJavaTypesToResponseHeaders(CodegenOperation op) {
+        op.responses.forEach(response -> {
+            response.vendorExtensions.forEach((key, headerNamesList) -> {
+                if (key.startsWith(X_ANNOTATION_TYPE_HEADERS)) {
+                    final String baseType = StringUtils.substringAfter(key, X_ANNOTATION_TYPE_HEADERS);
+                    List<String> headerNames = Arrays.asList(StringUtils.split((String)headerNamesList, ","));
+                    op.responses.forEach(r -> r.headers.forEach(h -> {
+                        if (headerNames.contains(h.baseName)) {
+                            h.baseType = baseType;
+                        }
+                    }));
+                }
+            });
+        });
+    }
+
+    private void applyJavaTypesToParams(CodegenOperation op) {
+        op.allParams.forEach(param -> {
+            final String javaType = (String)param.vendorExtensions.get(X_ANNOTATION_JAVA_TYPE);
+            if (javaType != null) {
+                param.dataType = javaType;
+                param.baseType = param.dataType;
+                param.datatypeWithEnum = param.dataType;
+                param.isPrimitiveType = false;
+            }
+        });
     }
 
     // Extracts any vendor extensions present in Swagger specification (derived from custom annotations in RAML 1.0 spec).

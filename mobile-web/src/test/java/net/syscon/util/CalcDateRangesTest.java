@@ -3,90 +3,76 @@ package net.syscon.util;
 import org.junit.Test;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
 public class CalcDateRangesTest {
 
+    private static final int TEN_YEARS = 10;
     private CalcDateRanges testClass;
 
     @Test
     public void testDateRangeIsNullForNoDates() {
-        testClass = new CalcDateRanges(null, null,null, 10);
+        testClass = new CalcDateRanges(null, null,null, TEN_YEARS);
         assertThat(testClass.getDobDateFrom()).isNull();
         assertThat(testClass.getDobDateTo()).isNull();
     }
 
     @Test
     public void testFromAndToDateSetForDobOnly() {
-        final Date dob = new Date();
-        testClass = new CalcDateRanges(dob, null,null, 10);
+        final LocalDate dob = LocalDate.now().atStartOfDay().toLocalDate();
+        testClass = new CalcDateRanges(dob, null,null, TEN_YEARS);
         assertThat(testClass.getDobDateFrom()).isEqualTo(dob);
         assertThat(testClass.getDobDateTo()).isEqualTo(dob);
     }
 
     @Test
     public void testDateRangeCalcLessThan10Years() {
-        LocalDate fromDate = LocalDate.now();
+        LocalDate fromDate = LocalDate.now().atStartOfDay().toLocalDate();
         LocalDate toDate = fromDate.plusYears(3);
 
-        final Date dobFrom = Date.from(fromDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        final Date dobTo = Date.from(toDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-        testClass = new CalcDateRanges(null, dobFrom, dobTo, 10);
-        assertThat(testClass.getDobDateFrom()).isEqualTo(dobFrom);
-        assertThat(testClass.getDobDateTo()).isEqualTo(dobTo);
+        testClass = new CalcDateRanges(null, fromDate, toDate, TEN_YEARS);
+        assertThat(testClass.getDobDateFrom()).isEqualTo(fromDate);
+        assertThat(testClass.getDobDateTo()).isEqualTo(toDate);
     }
 
     @Test
     public void testDateRangeCalcEqual10Years() {
-        LocalDate fromDate = LocalDate.now();
-        LocalDate toDate = fromDate.plusYears(10);
+        LocalDate fromDate = LocalDate.now().atStartOfDay().toLocalDate();
+        LocalDate toDate = fromDate.plusYears(TEN_YEARS);
 
-        final Date dobFrom = Date.from(fromDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        final Date dobTo = Date.from(toDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-        testClass = new CalcDateRanges(null, dobFrom, dobTo, 10);
-        assertThat(testClass.getDobDateFrom()).isEqualTo(dobFrom);
-        assertThat(testClass.getDobDateTo()).isEqualTo(dobTo);
+        testClass = new CalcDateRanges(null, fromDate, toDate, TEN_YEARS);
+        assertThat(testClass.getDobDateFrom()).isEqualTo(fromDate);
+        assertThat(testClass.getDobDateTo()).isEqualTo(toDate);
     }
 
     @Test
     public void testDateRangeCalcMoreThan10Years() {
-        LocalDate fromDate = LocalDate.now();
+        LocalDate fromDate = LocalDate.now().atStartOfDay().toLocalDate();
         LocalDate toDate = fromDate.plusYears(30);
 
-        final Date dobFrom = Date.from(fromDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-        final Date dobTo = Date.from(toDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-        testClass = new CalcDateRanges(null, dobFrom, dobTo, 10);
-        assertThat(testClass.getDobDateFrom()).isEqualTo(dobFrom);
-        assertThat(testClass.getDobDateTo()).isNotEqualTo(dobTo);
-        assertThat(testClass.getDobDateTo()).isEqualTo(Date.from(fromDate.plusYears(10).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        testClass = new CalcDateRanges(null, fromDate, toDate, TEN_YEARS);
+        assertThat(testClass.getDobDateFrom()).isEqualTo(fromDate);
+        assertThat(testClass.getDobDateTo()).isNotEqualTo(toDate);
+        assertThat(testClass.getDobDateTo()).isEqualTo(fromDate.plusYears(TEN_YEARS));
     }
 
 
     @Test
     public void testDateRangeCalcOnlyFromSpecified() {
-        LocalDate fromDate = LocalDate.now();
+        LocalDate fromDate = LocalDate.now().atStartOfDay().toLocalDate();
 
-        final Date dobFrom = Date.from(fromDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-        testClass = new CalcDateRanges(null, dobFrom, null, 10);
-        assertThat(testClass.getDobDateFrom()).isEqualTo(dobFrom);
-        assertThat(testClass.getDobDateTo()).isEqualTo(Date.from(fromDate.plusYears(10).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        testClass = new CalcDateRanges(null, fromDate, null, TEN_YEARS);
+        assertThat(testClass.getDobDateFrom()).isEqualTo(fromDate);
+        assertThat(testClass.getDobDateTo()).isEqualTo(fromDate.plusYears(TEN_YEARS));
     }
 
     @Test
     public void testDateRangeCalcOnlyToSpecified() {
-        LocalDate toDate = LocalDate.now();
+        LocalDate toDate = LocalDate.now().atStartOfDay().toLocalDate();
 
-        final Date dobTo = Date.from(toDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-        testClass = new CalcDateRanges(null, null, dobTo, 10);
-        assertThat(testClass.getDobDateTo()).isEqualTo(dobTo);
-        assertThat(testClass.getDobDateFrom()).isEqualTo(Date.from(toDate.minusYears(10).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        testClass = new CalcDateRanges(null, null, toDate, TEN_YEARS);
+        assertThat(testClass.getDobDateTo()).isEqualTo(toDate);
+        assertThat(testClass.getDobDateFrom()).isEqualTo(toDate.minusYears(TEN_YEARS));
     }
 }

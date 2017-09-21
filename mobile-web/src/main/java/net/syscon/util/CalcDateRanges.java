@@ -1,16 +1,14 @@
 package net.syscon.util;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
 
 import static java.time.temporal.ChronoUnit.YEARS;
 
 public class CalcDateRanges {
-    private final Date dobDateFrom;
-    private final Date dobDateTo;
+    private final LocalDate dobDateFrom;
+    private final LocalDate dobDateTo;
 
-    public CalcDateRanges(Date dob, Date dobFrom, Date dobTo, int maxYears) {
+    public CalcDateRanges(LocalDate dob, LocalDate dobFrom, LocalDate dobTo, int maxYears) {
         if (dob != null) {
             dobDateFrom = dob;
             dobDateTo = dob;
@@ -33,27 +31,21 @@ public class CalcDateRanges {
         }
     }
 
-    private LocalDate toLocalDate(Date date) {
-        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-    }
-
-    public Date getDobDateFrom() {
+    public LocalDate getDobDateFrom() {
         return dobDateFrom;
     }
 
-    public Date getDobDateTo() {
+    public LocalDate getDobDateTo() {
         return dobDateTo;
     }
 
-    private boolean isGreaterThanYearSpan(Date fromDate, Date toDate, int maxYearSpan) {
-        long years = YEARS.between(toLocalDate(fromDate), toLocalDate(toDate));
+    private boolean isGreaterThanYearSpan(LocalDate fromDate, LocalDate toDate, int maxYearSpan) {
+        long years = YEARS.between(fromDate, toDate);
         return years >= maxYearSpan;
     }
 
-    private Date adjustYears(Date startDate, int years) {
-        final LocalDate fromLocal = toLocalDate(startDate);
-        final LocalDate toLocal = years < 0 ? fromLocal.minusYears(Math.abs(years)) : fromLocal.plusYears(Math.abs(years));
-        return Date.from(toLocal.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    private LocalDate adjustYears(LocalDate fromLocal, int years) {
+        return years < 0 ? fromLocal.minusYears(Math.abs(years)) : fromLocal.plusYears(Math.abs(years));
     }
 
     public boolean hasDobRange() {

@@ -62,23 +62,23 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<OffenderBooking> findOffenders(String keywords, String locationPrefix, String sortFields, String sortOrder, Long offset, Long limit) {
+    public List<OffenderBooking> findOffenders(String keywords, String locationPrefix, String sortFields, net.syscon.elite.v2.api.support.Order sortOrder, Long offset, Long limit) {
 
-        final boolean descendingOrder = StringUtils.equalsIgnoreCase(sortOrder, "desc");
+        final boolean descendingOrder = net.syscon.elite.v2.api.support.Order.DESC == sortOrder;
         return repository.searchForOffenderBookings(getUserCaseloadIds(), keywords, locationPrefix,
                 locationTypeGranularity, offset != null ? offset.intValue() : 0,
                 limit != null ? limit.intValue() : Integer.MAX_VALUE, StringUtils.isNotBlank(sortFields) ? sortFields : DEFAULT_OFFENDER_SORT, !descendingOrder);
     }
 
     @Override
-    public List<PrisonerDetail> findPrisoners(PrisonerDetailSearchCriteria criteria, String sortFields, Long offset, Long limit) {
+    public List<PrisonerDetail> findPrisoners(PrisonerDetailSearchCriteria criteria, String sortFields, net.syscon.elite.v2.api.support.Order sortOrder, Long offset, Long limit) {
         final String query = generateQuery(criteria);
         CalcDateRanges calcDates = new CalcDateRanges(criteria.getDob(), criteria.getDobFrom(), criteria.getDobTo(), maxYears);
         if (query != null || calcDates.hasDobRange()) {
             long rowLimit = (limit != null ? limit : 50L);
             long startOffset = (offset != null ? offset : 0L);
             return repository.searchForOffenders(query, calcDates.getDobDateFrom(), calcDates.getDobDateTo(),
-                    StringUtils.isNotBlank(sortFields) ? sortFields : DEFAULT_OFFENDER_SORT, true, startOffset, rowLimit);
+                    StringUtils.isNotBlank(sortFields) ? sortFields : DEFAULT_OFFENDER_SORT, net.syscon.elite.v2.api.support.Order.ASC == sortOrder, startOffset, rowLimit);
         }
         return null;
     }

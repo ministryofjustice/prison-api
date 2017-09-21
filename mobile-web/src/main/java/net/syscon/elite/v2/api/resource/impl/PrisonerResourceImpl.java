@@ -5,15 +5,14 @@ import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import net.syscon.elite.v2.api.model.PrisonerDetail;
 import net.syscon.elite.v2.api.resource.PrisonerResource;
+import net.syscon.elite.v2.api.support.Order;
 import net.syscon.util.MetaDataFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.ws.rs.Path;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.List;
 
 @RestResource
@@ -30,7 +29,7 @@ public class PrisonerResourceImpl implements PrisonerResource {
 
     @Override
     @PreAuthorize("hasAnyRole('ROLE_GLOBAL_SEARCH')")
-    public GetPrisonersResponse getPrisoners(String firstName, String middleNames, String lastName, String pncNumber, String croNumber, String dob, String dobFrom, String dobTo, String sortFields, Long offset, Long limit) {
+    public GetPrisonersResponse getPrisoners(String firstName, String middleNames, String lastName, String pncNumber, String croNumber, String dob, String dobFrom, String dobTo, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
 
         final PrisonerDetailSearchCriteria criteria = PrisonerDetailSearchCriteria.builder()
                 .firstName(firstName)
@@ -43,18 +42,15 @@ public class PrisonerResourceImpl implements PrisonerResource {
                 .dobTo(convertToDate(dobTo))
                 .build();
 
-        final List<PrisonerDetail> prisoners = inmateService.findPrisoners(criteria, sortFields, offset, limit);
+        final List<PrisonerDetail> prisoners = inmateService.findPrisoners(criteria, sortFields, sortOrder, pageOffset, pageLimit);
 
-
-        return GetPrisonersResponse.respond200WithApplicationJson(prisoners, offset, limit, MetaDataFactory.getTotalRecords(prisoners));
+        return GetPrisonersResponse.respond200WithApplicationJson(prisoners, MetaDataFactory.getTotalRecords(prisoners), pageOffset, pageLimit);
     }
 
-    private Date convertToDate(String theDate) {
+    private LocalDate convertToDate(String theDate) {
         if (StringUtils.isNotBlank(theDate)) {
-            final LocalDate dobLocal = LocalDate.parse(theDate, DATE_FORMAT);
-            return Date.from(dobLocal.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            return LocalDate.parse(theDate, DATE_FORMAT);
         }
         return null;
     }
-
 }
