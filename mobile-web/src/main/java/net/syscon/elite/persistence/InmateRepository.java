@@ -9,7 +9,7 @@ import net.syscon.elite.web.api.model.InmatesSummary;
 import net.syscon.elite.web.api.resource.BookingResource;
 import net.syscon.elite.web.api.resource.LocationsResource;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -23,5 +23,5 @@ public interface InmateRepository {
 	Optional<InmateDetails> findInmate(Long inmateId, Set<String> caseloads);
 	List<Alias> findInmateAliases(Long inmateId, String orderByField, BookingResource.Order order);
 	List<InmatesSummary> findMyAssignments(long staffId, String currentCaseLoad, String orderBy, boolean ascendingSort, int offset, int limit);
-	List<PrisonerDetail> searchForOffenders(String query, Date fromDobDate, Date toDobDate, String sortFields, boolean ascendingOrder, long offset, long limit);
+	List<PrisonerDetail> searchForOffenders(String query, LocalDate fromDobDate, LocalDate toDobDate, String sortFields, boolean ascendingOrder, long offset, long limit);
 }

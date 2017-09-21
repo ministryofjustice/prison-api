@@ -5,6 +5,7 @@ import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.v2.api.model.Agency;
 import net.syscon.elite.v2.api.resource.AgencyResource;
 import net.syscon.elite.v2.service.AgencyService;
+import net.syscon.util.MetaDataFactory;
 
 import javax.ws.rs.Path;
 import java.util.ArrayList;
@@ -19,14 +20,14 @@ public class AgencyResourceImpl implements AgencyResource {
         this.agencyService = agencyService;
     }
     @Override
-    public GetAgenciesResponse getAgencies(Integer pageOffset, Integer pageLimit) {
+    public GetAgenciesResponse getAgencies(Long pageOffset, Long pageLimit) {
 
         final List<Agency> agencies = agencyService.findAgenciesByUsername(
                 UserSecurityUtils.getCurrentUsername(),
-                pageOffset != null ? new Long(pageOffset) : 0,
-                pageLimit != null ? new Long(pageLimit) : 10);
+                pageOffset,
+                pageLimit);
 
-        return GetAgenciesResponse.respond200WithApplicationJson(agencies);
+        return GetAgenciesResponse.respond200WithApplicationJson(agencies, MetaDataFactory.getTotalRecords(agencies), pageOffset, pageLimit);
     }
 
     @Override
@@ -35,7 +36,7 @@ public class AgencyResourceImpl implements AgencyResource {
     }
 
     @Override
-    public GetAgencyLocationsResponse getAgencyLocations(String agencyId, Integer pageOffset, Integer pageLimit) {
-        return GetAgencyLocationsResponse.respond200WithApplicationJson(new ArrayList<>());
+    public GetAgencyLocationsResponse getAgencyLocations(String agencyId, Long pageOffset, Long pageLimit) {
+        return GetAgencyLocationsResponse.respond200WithApplicationJson(new ArrayList<>(), 0L, pageOffset, pageLimit);
     }
 }

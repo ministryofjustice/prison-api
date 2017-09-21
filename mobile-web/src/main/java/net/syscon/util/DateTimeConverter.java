@@ -9,6 +9,23 @@ import java.util.Date;
 public class DateTimeConverter {
 	public static final String ISO_LOCAL_DATE_FORMAT_PATTERN = "YYYY-MM-DD";
 
+	/**
+	 * Convert a {@code java.time.LocalDate} to Date
+	 * @param localDate date only
+	 * @return Date with date only information
+	 */
+	public static Date toDate(LocalDate localDate) {
+		if (localDate != null) {
+			return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+		}
+		return null;
+	}
+
+	/**
+	 * Convert a {@code java.time.LocalDateTime} to Date
+	 * @param localDateTime Date time
+	 * @return Date with date and time information
+	 */
 	public static Date toDate(LocalDateTime localDateTime) {
 		Date result = null;
 		if (localDateTime != null) {

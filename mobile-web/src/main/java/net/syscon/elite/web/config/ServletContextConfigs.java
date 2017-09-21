@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
@@ -78,6 +79,7 @@ public class ServletContextConfigs extends ResourceConfig {
     @Autowired
     public ServletContextConfigs(ObjectMapper objectMapper) {
         objectMapper.setDateFormat(new ISO8601DateFormat());
+        objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.INDENT_OUTPUT);
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);

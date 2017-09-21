@@ -42,7 +42,7 @@ public class PrisonerSearchSteps extends CommonSteps {
 
     @Step("Verify dobs of prisoner returned by search")
     public void verifyDobs(String dobs) {
-        verifyDateValues(prisonerDetails, PrisonerDetail::getDateOfBirth, dobs);
+        verifyLocalDateValues(prisonerDetails, PrisonerDetail::getDateOfBirth, dobs);
     }
 
     public void search(Map<String, String> queryParams, int offset, int limit, HttpStatus expectedStatus) {

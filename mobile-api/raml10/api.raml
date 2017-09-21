@@ -7,6 +7,12 @@ annotationTypes:
   javaOperationName:
     type: string
     description: Hint to downstream code generator of name to use for Java method that implements operation.
+  javaType:
+    type: string
+    description: override type to specified java type
+  headersWithType:
+    type: string
+    description: override the type used in a reponse headers (e.g. headersWithType_Long: Page-Offset,Page-Limit will apply a Long to the listed headers)
 securedBy: [jwt]
 types:
   Agency:          !include types/Agency.raml
@@ -43,12 +49,13 @@ securitySchemes:
             combination is invalid, or the user is not allowed to access
             the content provided by the requested URL.
 
+traits: !include traits/traits.raml
 resourceTypes: !include resourceTypes/generic-resource-types.raml
 
 /agencies:          !include resources/agencies.raml
 /images:            !include resources/images.raml
 /bookings:          !include resources/bookings.raml
-#/prisoners:         !include resources/prisoners.raml
-#/search-offenders:  !include resources/search-offenders.raml
-#/users:             !include resources/users.raml
+/prisoners:         !include resources/prisoners.raml
+/search-offenders:  !include resources/search-offenders.raml
+/users:             !include resources/users.raml
 

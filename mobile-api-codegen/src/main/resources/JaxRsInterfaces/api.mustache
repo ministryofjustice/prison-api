@@ -5,7 +5,7 @@ import io.swagger.annotations.*;
 {{#imports}}import {{import}};
 {{/imports}}
 
-import {{supportPackage}}.ResponseDelegate;
+import {{supportPackage}}.*;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -23,8 +23,11 @@ public interface {{classname}} {
     {{#hasProduces}}@Produces({ {{#produces}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }){{/hasProduces}}
     @ApiOperation(value = "{{{summary}}}"{{#notes}}, notes = "{{{notes}}}"{{/notes}}, nickname="{{{nickname}}}")
     @ApiResponses(value = { {{#responses}}
-        @ApiResponse(code = {{{code}}}, message = "{{{message}}}", response = {{{baseType}}}.class{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}){{#hasMore}},{{/hasMore}}{{/responses}} })
-    public {{operationIdCamelCase}}Response {{nickname}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},
+        @ApiResponse(code = {{{code}}}, message = "{{{message}}}", response = {{{baseType}}}.class{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#hasHeaders}},
+        responseHeaders = { {{#headers}}
+            @ResponseHeader(name = "{{baseName}}", description = "{{unescapedDescription}}", response = {{baseType}}.class),{{/headers}}
+        }{{/hasHeaders}}){{#hasMore}},{{/hasMore}}{{/responses}} })
+    {{operationIdCamelCase}}Response {{nickname}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},
         {{/hasMore}}{{/allParams}});
     {{/operation}}
 
@@ -37,9 +40,10 @@ public interface {{classname}} {
         }
 
         {{#responses}}
-        public static {{operationIdCamelCase}}Response respond{{{code}}}WithApplicationJson({{{dataType}}} entity) {
-            Response.ResponseBuilder responseBuilder = Response.status({{{code}}}).header("Content-Type", MediaType.APPLICATION_JSON);
-
+            public static {{operationIdCamelCase}}Response respond{{{code}}}WithApplicationJson({{{dataType}}} entity{{#hasHeaders}}{{#headers}}, {{baseType}} {{name}}{{/headers}}{{/hasHeaders}}) {
+            Response.ResponseBuilder responseBuilder = Response.status({{{code}}})
+                    .header("Content-Type", MediaType.APPLICATION_JSON){{#hasHeaders}}{{#headers}}
+                    .header("{{baseName}}", {{name}}){{/headers}}{{/hasHeaders}};
             responseBuilder.entity(entity);
 
             return new {{operationIdCamelCase}}Response(responseBuilder.build(), entity);

@@ -3,7 +3,7 @@
   "modelPackage": "net.syscon.elite.v2.api.model",
   "supportPackage": "net.syscon.elite.v2.api.support",
   "library": "jersey2",
-  "dateLibrary": "legacy",
+  "dateLibrary": "java8",
   "groupId": "net.syscon",
   "artifactId": "elite2-api",
   "artifactVersion": "1.10"

@@ -1,6 +1,6 @@
 description: Returns list of agencies associated with current user.
 (javaOperationName): getAgencies
-type: { readOnlyCollection: { type: Agency } }
+type: { readOnlyCollectionPaged: { type: Agency } }
 
 /{agencyId}:
   (javaOperationName): getAgency
@@ -10,4 +10,4 @@ type: { readOnlyCollection: { type: Agency } }
 /{agencyId}/locations:
   (javaOperationName): getAgencyLocations
   description: Returns list of locations associated with specified agency.
-  type: { readOnlyCollection: { type: Location } }
+  type: { readOnlyCollectionPaged: { type: Location } }

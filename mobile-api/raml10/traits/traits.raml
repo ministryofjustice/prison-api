@@ -1,0 +1,46 @@
+pageable:
+  usage: Apply this to any endpoint that needs pagination
+  description: Some requests the ability to supply a sort order
+  headers:
+    Page-Offset:
+      displayName: Page Offset
+      description: Requested offset of first record in returned collection of <<resourcePathName>> records.
+      type: integer
+      (javaType): Long
+      required: false
+      example: 20
+      default: 0
+    Page-Limit:
+      displayName: Page Limit
+      description: Requested limit to number of <<resourcePathName>> records returned.
+      type: integer
+      (javaType): Long
+      required: false
+      example: 80
+      default: 10
+
+hasResponsePagination:
+  responses:
+    200:
+      (headersWithType_Long): Total-Records,Page-Offset,Page-Limit
+      headers:
+        Total-Records:
+          description: Total number of <<resourcePathName>> records available.
+        Page-Offset:
+          description: Offset of first record in returned page of <<resourcePathName>> records.
+        Page-Limit:
+          description: Maximum number of <<resourcePathName>> records in returned page.
+
+sortable:
+  usage: Apply this to any endpoint that needs to be sortable
+  description: Some requests the ability to supply a sort order
+  headers:
+    Sort-Fields:
+      description: comma seperated list of fields: <<fieldsList>>
+      type: string
+      required: false
+    Sort-Order:
+      description: the sort order
+      (javaType): Order
+      required: false
+
