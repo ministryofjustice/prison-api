@@ -1,5 +1,5 @@
 description:  Find Prisoners held in system
-type: { readOnlyCollection: { type: PrisonerDetail } }
+type: { readOnlyCollectionPaged: { type: PrisonerDetail } }
 get:
   queryParameters:
     firstName:
@@ -19,10 +19,11 @@ get:
       type: string
     dob:
       description: Prisoner with the specified date of birth
-      type: date-only
+      type: string
     dobFrom:
       description: start date to search for DOB (max ten years)
-      type: date-only
+      type: string
     dobTo:
       description: end date to search for DOB
-      type: date-only
+      type: string
+  is: [ sortable ]

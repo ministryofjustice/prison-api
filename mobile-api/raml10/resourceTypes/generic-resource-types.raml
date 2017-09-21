@@ -38,25 +38,20 @@ readOnlyCollection:
     base:
   get:
     description: Get all <<resourcePathName | !pluralize>>.
-    headers:
-      Page-Offset:
-        description: Requested offset of first record in returned collection of <<resourcePathName>> records.
-        type: integer
-      Page-Limit:
-        description: Requested limit to number of <<resourcePathName>> records returned.
-        type: integer
     responses:
       200:
-        headers:
-          Total-Records:
-            description: Total number of <<resourcePathName>> records available.
-            type: integer
-          Page-Offset:
-            description: Offset of first record in returned 'page' of <<resourcePathName>> records.
-            type: integer
-          Page-Limit:
-            description: Maximum number of <<resourcePathName>> records in returned 'page'.
-            type: integer
+        body:
+          application/json:
+            <<type>>[]
+
+readOnlyCollectionPaged:
+  type:
+    readOnlyCollection:
+  is: [ pageable, hasResponsePagination ]
+  get:
+    description: Get paged results <<resourcePathName | !pluralize>>.
+    responses:
+      200:
         body:
           application/json:
             <<type>>[]

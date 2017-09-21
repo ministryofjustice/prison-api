@@ -3,6 +3,7 @@ description: Location Details
 properties:
   locationId:
     type: integer
+    (javaType): Long
     description: Location identifier.
   locationType:
     type: string
@@ -15,6 +16,7 @@ properties:
     description: Identifier of Agency this location is associated with.
   parentLocationId?:
     type: integer
+    (javaType): Long
     description: Identifier of this location's parent location.
   currentOccupancy?:
     type: integer
