@@ -32,9 +32,13 @@ project(":mobile-web") {
         compile("net.logstash.logback:logstash-logback-encoder:4.8")
 
         compileOnly 'org.projectlombok:lombok:1.16.18'
+
         runtime("org.postgresql:postgresql:42.1.3")
         runtime('org.hsqldb:hsqldb:2.4.0')
         runtime("org.flywaydb:flyway-core:4.2.0")
+
+        testCompile project(":mobile-api")
+        testCompile project(path: ":mobile-api", configuration: "generatedOutput")
 
         testCompile("org.springframework.boot:spring-boot-starter-test")
         testCompile("org.springframework.boot:spring-boot-test-autoconfigure")
@@ -50,6 +54,9 @@ project(":mobile-web") {
         testCompile 'net.serenity-bdd:serenity-core:1.1.42'
         testCompile 'net.serenity-bdd:serenity-junit:1.1.42'
         testCompile 'net.serenity-bdd:serenity-cucumber:1.0.17'
+
+        testRuntime files("${rootDir}/mobile-web/src/main/configs")
+        testRuntime files("${rootDir}/mobile-web/src/main/resources")
     }
 
     gradle.startParameter.continueOnFailure = true
@@ -68,14 +75,16 @@ project(":mobile-web") {
                 srcDirs = ['src/main/configs', 'src/main/resources']
             }
         }
-
         integTest {
             java {
                 srcDir file("${rootDir}/mobile-web/src/integ-test/java")
+                outputDir = file('build/classes/integTest')
                 compileClasspath += main.output + test.output
                 runtimeClasspath += main.output + test.output
             }
-            resources.srcDir file("${rootDir}/mobile-web/src/integ-test/resources")
+            resources {
+                srcDir file("${rootDir}/mobile-web/src/integ-test/resources")
+            }
         }
     }
 
@@ -105,7 +114,6 @@ project(":mobile-web") {
     // TODO: Enable checkstyle once rules reviewed and agreed (but don't enable for tests).
     checkstyleMain.enabled = false
     checkstyleTest.enabled = false
-    checkstyleIntegrationTest.enabled = false
     checkstyleIntegTest.enabled = false
 
     // Exclude Serenity BDD integration tests from 'test' task so they can be controlled independently
