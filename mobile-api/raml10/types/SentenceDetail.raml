@@ -2,39 +2,56 @@
 description: Sentence Details
 properties:
   bookingId:
-    type: integer
     (javaType): Long
     description: Offender booking id.
-  sentenceStartDate:
+  sentenceStartDate?:
     type: date-only
     description: Sentence start date.
-  additionalDaysAdded?:
+  additionalDaysAwarded?:
     type: integer
     description: ADA - days added to sentence term due to adjustments.
-  sentenceEndDate?:
+  sentenceExpiryDate?:
     type: date-only
-    description: SED - sentence end date.
-  daysRemaining:
-    type: integer
+    description: SED - date on which sentence expires.
+  daysRemaining?:
+    (javaType): Long
     description: Number of days remaining to release (from current date).
-  conditionalReleaseDate?:
-    type: date-only
-    description: CRD - conditional release date for offender.
   automaticReleaseDate?:
     type: date-only
     description: ARD - automatic (unconditional) release date for offender.
+  automaticReleaseOverrideDate?:
+    type: date-only
+    description: ARD (override) - automatic (unconditional) release override date for offender.
+  conditionalReleaseDate?:
+    type: date-only
+    description: CRD - conditional release date for offender.
+  conditionalReleaseOverrideDate?:
+    type: date-only
+    description: CRD (override) - conditional release override date for offender.
   nonParoleDate?:
     type: date-only
     description: NPD - non-parole date for offender.
-  paroleEligibilityDate?:
+  nonParoleOverrideDate?:
     type: date-only
-    description: PED - date on which offender is eligible for parole.
+    description: NPD (override) - non-parole override date for offender.
+  postRecallReleaseDate?:
+    type: date-only
+    description: PRRD - post-recall release date for offender.
+  postRecallReleaseOverrideDate?:
+    type: date-only
+    description: PRRD (override) - post-recall release override date for offender.
+  nonDtoReleaseDate?:
+    type: date-only
+    description: Release date for non-DTO sentence (if applicable). This will be based on one of ARD, CRD, NPD or PRRD.
   licenceExpiryDate?:
     type: date-only
     description: LED - date on which offender licence expires.
   homeDetentionCurfewEligibilityDate?:
     type: date-only
     description: HDCED - date on which offender will be eligible for home detention curfew.
+  paroleEligibilityDate?:
+    type: date-only
+    description: PED - date on which offender is eligible for parole.
   earlyTermDate?:
     type: date-only
     description: ETD - early term date for offender.
@@ -44,6 +61,3 @@ properties:
   lateTermDate?:
     type: date-only
     description: LTD - late term date for offender.
-  releaseDate:
-    type: date-only
-    description: release date for offender (one of ARD, CRD, NPD, ETD, MTD or LTD).

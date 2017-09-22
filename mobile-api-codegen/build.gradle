@@ -1,13 +1,4 @@
 project(":mobile-api-codegen") {
-    version '0.1'
-
-    configurations {
-        codeGenArchive.extendsFrom runtime
-    }
-
-    artifacts {
-        codeGenArchive jar
-    }
 
     dependencies {
         compile group: 'io.swagger', name: 'swagger-codegen', version: '2.2.3'
@@ -21,5 +12,4 @@ project(":mobile-api-codegen") {
     // TODO: Enable checkstyle once rules reviewed and agreed (but don't enable for tests).
     checkstyleMain.enabled = false
     checkstyleTest.enabled = false
-    checkstyleIntegrationTest.enabled = false
 }

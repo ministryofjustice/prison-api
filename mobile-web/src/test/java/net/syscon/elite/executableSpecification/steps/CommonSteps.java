@@ -275,6 +275,14 @@ public abstract class CommonSteps {
         verifyIdentical(actualValList, expectedValList);
     }
 
+    protected void verifyLocalDate(LocalDate actual, String expected) {
+        if (Objects.nonNull(actual)) {
+            assertThat(actual).isEqualTo(expected);
+        } else {
+            assertThat(StringUtils.EMPTY).isEqualTo(StringUtils.trimToEmpty(expected));
+        }
+    }
+
     protected String buildQuery(String queryParam) {
         return addPaginationParams("?query=" + StringUtils.trimToEmpty(queryParam));
     }
