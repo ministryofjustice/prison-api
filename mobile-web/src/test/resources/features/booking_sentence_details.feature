@@ -25,14 +25,10 @@ Feature: Booking Sentence Details
   Background:
     Given a user has authenticated with the API
 
-  Scenario Outline: Retrieve sentence details for an offender
+  Scenario Outline: Retrieve sentence details for an offender, check non-DTO sentence details only
     When sentence details are requested for an offender with booking id "<bookingId>"
     Then sentence start date matches "<ssd>"
     And sentence expiry date matches "<sed>"
-    And additional days awarded matches "<ada>"
-    And early term date matches "<etd>"
-    And mid term date matches "<mtd>"
-    And late term date matches "<ltd>"
     And automatic release date matches "<ard>"
     And override automatic release date matches "<ardOverride>"
     And conditional release date matches "<crd>"
@@ -41,25 +37,51 @@ Feature: Booking Sentence Details
     And override non-parole date matches "<npdOverride>"
     And post-recall release date matches "<prrd>"
     And override post-recall release date matches "<prrdOverride>"
-    And home detention curfew eligibility date matches "<hdced>"
-    And parole eligibility date matches "<ped>"
-    And licence expiry date matches "<led>"
     And release date matches "<releaseDate>"
     And days remaining is correct for release date of "<releaseDate>"
 
     Examples:
-      | bookingId | ssd        | sed        | ada | etd        | mtd        | ltd        | ard        | ardOverride | crd        | crdOverride | npd        | npdOverride | prrd       | prrdOverride | hdced      | ped        | led        | releaseDate |
-      | -1        | 2017-03-25 | 2020-03-24 | 12  |            |            |            |            |             | 2019-03-24 |             |            |             |            |              |            |            |            | 2019-03-24  |
-      | -2        | 2016-11-22 | 2019-05-21 |     |            |            |            | 2018-05-21 | 2018-04-21  |            |             |            |             |            |              |            |            |            | 2018-04-21  |
-      | -3        | 2015-03-16 | 2020-03-15 |     |            |            | 2018-09-15 |            |             |            |             |            |             |            |              |            |            |            |             |
-      | -4        | 2007-10-16 | 2022-10-20 | 5   |            |            |            | 2021-05-06 |             |            |             |            |             | 2021-08-29 | 2021-08-31   |            |            |            | 2021-08-31  |
-      | -5        | 2017-02-08 | 2023-08-07 | 14  |            |            |            |            |             | 2023-02-07 |             | 2022-02-15 | 2022-02-02  |            |              |            |            |            | 2023-02-07  |
-      | -6        | 2017-09-01 | 2018-05-31 | 17  |            |            |            | 2018-02-28 |             | 2018-01-31 |             |            |             |            |              |            |            |            | 2018-02-28  |
-      | -7        | 2017-09-01 | 2018-05-31 |     |            |            |            | 2018-02-28 |             |            |             | 2017-12-31 |             |            |              |            |            |            | 2018-02-28  |
-      | -8        | 2017-09-01 | 2018-05-31 |     |            |            |            | 2018-02-28 |             |            |             |            |             | 2018-03-31 |              |            |            |            | 2018-03-31  |
-      | -9        | 2017-09-01 | 2018-05-31 |     |            |            |            |            |             | 2018-01-31 |             | 2017-12-31 |             |            |              |            |            |            | 2018-01-31  |
-      | -10       | 2017-09-01 | 2018-05-31 |     |            |            |            |            |             | 2018-01-31 |             |            |             | 2018-03-31 |              |            |            |            | 2018-03-31  |
-      | -11       | 2017-09-01 | 2018-05-31 |     |            |            |            |            |             |            |             | 2017-12-31 |             | 2018-03-31 |              |            |            |            | 2018-03-31  |
-      | -12       | 2017-09-01 | 2018-05-31 |     |            |            |            |            |             |            |             |            |             | 2018-03-31 |              |            |            |            | 2018-03-31  |
-      | -13       | 2017-02-08 | 2023-08-07 |     |            |            |            |            |             |            |             |            |             |            |              |            | 2021-05-05 | 2020-08-07 |             |
-      | -14       | 2007-10-16 | 2022-10-20 |     | 2021-02-28 | 2021-03-25 |            |            |             |            |             |            |             |            |              | 2020-12-30 |            | 2021-09-24 |             |
+      | bookingId | ssd        | sed        | ard        | ardOverride | crd        | crdOverride | npd        | npdOverride | prrd       | prrdOverride | releaseDate |
+      | -1        | 2017-03-25 | 2020-03-24 |            |             | 2019-03-24 |             |            |             |            |              | 2019-03-24  |
+      | -2        | 2016-11-22 | 2019-05-21 | 2018-05-21 | 2018-04-21  |            |             |            |             |            |              | 2018-04-21  |
+      | -3        | 2015-03-16 | 2020-03-15 |            |             |            |             |            |             |            |              |             |
+      | -4        | 2007-10-16 | 2022-10-20 | 2021-05-06 |             |            |             |            |             | 2021-08-29 | 2021-08-31   | 2021-08-31  |
+      | -5        | 2017-02-08 | 2023-08-07 |            |             | 2023-02-07 |             | 2022-02-15 | 2022-02-02  |            |              | 2023-02-07  |
+      | -6        | 2017-09-01 | 2018-05-31 | 2018-02-28 |             | 2018-01-31 |             |            |             |            |              | 2018-02-28  |
+      | -7        | 2017-09-01 | 2018-05-31 | 2018-02-28 |             |            |             | 2017-12-31 |             |            |              | 2018-02-28  |
+      | -8        | 2017-09-01 | 2018-05-31 | 2018-02-28 |             |            |             |            |             | 2018-03-31 |              | 2018-03-31  |
+      | -9        | 2017-09-01 | 2018-05-31 |            |             | 2018-01-31 |             | 2017-12-31 |             |            |              | 2018-01-31  |
+      | -10       | 2017-09-01 | 2018-05-31 |            |             | 2018-01-31 |             |            |             | 2018-03-31 |              | 2018-03-31  |
+      | -11       | 2017-09-01 | 2018-05-31 |            |             |            |             | 2017-12-31 |             | 2018-03-31 |              | 2018-03-31  |
+      | -12       | 2017-09-01 | 2018-05-31 |            |             |            |             |            |             | 2018-03-31 |              | 2018-03-31  |
+      | -13       | 2017-02-08 | 2023-08-07 |            |             |            |             |            |             |            |              |             |
+      | -14       | 2007-10-16 | 2022-10-20 |            |             |            |             |            |             |            |              |             |
+
+  Scenario Outline: Retrieve sentence details for an offender, check DTO sentence details and parole eligibility dates
+    When sentence details are requested for an offender with booking id "<bookingId>"
+    Then sentence start date matches "<ssd>"
+    And sentence expiry date matches "<sed>"
+    And additional days awarded matches "<ada>"
+    And early term date matches "<etd>"
+    And mid term date matches "<mtd>"
+    And late term date matches "<ltd>"
+    And home detention curfew eligibility date matches "<hdced>"
+    And parole eligibility date matches "<ped>"
+    And licence expiry date matches "<led>"
+
+    Examples:
+      | bookingId | ssd        | sed        | ada | etd        | mtd        | ltd        | hdced      | ped        | led        |
+      | -1        | 2017-03-25 | 2020-03-24 | 12  |            |            |            |            |            |            |
+      | -2        | 2016-11-22 | 2019-05-21 |     |            |            |            |            |            |            |
+      | -3        | 2015-03-16 | 2020-03-15 |     |            |            | 2018-09-15 |            |            |            |
+      | -4        | 2007-10-16 | 2022-10-20 | 5   |            |            |            |            |            |            |
+      | -5        | 2017-02-08 | 2023-08-07 | 14  |            |            |            |            |            |            |
+      | -6        | 2017-09-01 | 2018-05-31 | 17  |            |            |            |            |            |            |
+      | -7        | 2017-09-01 | 2018-05-31 |     |            |            |            |            |            |            |
+      | -8        | 2017-09-01 | 2018-05-31 |     |            |            |            |            |            |            |
+      | -9        | 2017-09-01 | 2018-05-31 |     |            |            |            |            |            |            |
+      | -10       | 2017-09-01 | 2018-05-31 |     |            |            |            |            |            |            |
+      | -11       | 2017-09-01 | 2018-05-31 |     |            |            |            |            |            |            |
+      | -12       | 2017-09-01 | 2018-05-31 |     |            |            |            |            |            |            |
+      | -13       | 2017-02-08 | 2023-08-07 |     |            |            |            |            | 2021-05-05 | 2020-08-07 |
+      | -14       | 2007-10-16 | 2022-10-20 |     | 2021-02-28 | 2021-03-25 |            | 2020-12-30 |            | 2021-09-24 |
