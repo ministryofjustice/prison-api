@@ -123,7 +123,7 @@ public class UsersResourceImpl implements UsersResource {
 
 	@Override
 	public GetUsersMeCaseNoteTypesResponse getUsersMeCaseNoteTypes(String query, String orderBy, Order order, int offset, int limit) throws Exception {
-		List<CaseNoteType> caseNoteTypes = referenceDomainService.getCaseNoteTypeByCurrentCaseLoad(query, orderBy, order.toString(), offset, limit);
+		List<CaseNoteType> caseNoteTypes = referenceDomainService.getCaseNoteTypeByCurrentCaseLoad(query, orderBy, getOrder(order), offset, limit);
 		CaseNoteTypes codes = new CaseNoteTypes(caseNoteTypes, MetaDataFactory.createMetaData(limit, offset, caseNoteTypes));
 		return GetUsersMeCaseNoteTypesResponse.withJsonOK(codes);
 	}
@@ -131,8 +131,12 @@ public class UsersResourceImpl implements UsersResource {
 	@Override
 	public GetUsersMeCaseNoteTypesByTypeCodeResponse getUsersMeCaseNoteTypesByTypeCode(String typeCode, String query,
 			String orderBy, Order order, int offset, int limit) throws Exception {
-		List<CaseNoteType> caseNoteTypes = referenceDomainService.getCaseNoteSubType(typeCode, query, orderBy, order.toString(), offset, limit);
+		List<CaseNoteType> caseNoteTypes = referenceDomainService.getCaseNoteSubType(typeCode, query, orderBy, getOrder(order), offset, limit);
 		CaseNoteSubTypes caseNoyeSubTypes = new CaseNoteSubTypes(caseNoteTypes, MetaDataFactory.createMetaData(limit, offset, caseNoteTypes));
 		return GetUsersMeCaseNoteTypesByTypeCodeResponse.withJsonOK(caseNoyeSubTypes);
+	}
+
+	private net.syscon.elite.v2.api.support.Order getOrder(Order order) {
+		return Order.asc == order ? net.syscon.elite.v2.api.support.Order.ASC : net.syscon.elite.v2.api.support.Order.DESC;
 	}
 }

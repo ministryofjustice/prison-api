@@ -4,10 +4,10 @@ import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.persistence.ReferenceCodeRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
+import net.syscon.elite.v2.api.model.ReferenceCode;
+import net.syscon.elite.v2.api.support.Order;
 import net.syscon.elite.web.api.model.CaseLoad;
 import net.syscon.elite.web.api.model.CaseNoteType;
-import net.syscon.elite.web.api.model.ReferenceCode;
-import net.syscon.elite.web.api.resource.ReferenceDomainsResource.Order;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
 
 @Repository
 public class ReferenceCodeRepositoryImpl extends RepositoryBase implements ReferenceCodeRepository {
@@ -35,8 +34,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 			.put("CODE", new FieldMapper("code"))
 			.build();
 
-	private boolean isAscending(Order order) { return Order.asc.equals(order); }
-	private boolean isAscending(String order) {return "asc".equalsIgnoreCase(order);}
+	private boolean isAscending(Order order) { return Order.ASC == order; }
 
 
 	@Override
@@ -62,7 +60,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	}
 
 	@Override
-	public List<ReferenceCode> getReferenceCodesByDomain(String domain, String query, String orderBy, Order order, int offset, int limit) {
+	public List<ReferenceCode> getReferenceCodesByDomain(String domain, String query, String orderBy, Order order, long offset, long limit) {
 		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_REFERENCE_CODES_BY_DOMAIN"), referenceCodeMapping)
 				.addQuery(query)
 				.addOrderBy(isAscending(order), orderBy)
@@ -78,7 +76,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	}
 
 	@Override
-	public List<ReferenceCode> getReferenceCodesByDomainAndParent(String domain, String parentCode, String query, String orderBy, Order order, int offset, int limit) {
+	public List<ReferenceCode> getReferenceCodesByDomainAndParent(String domain, String parentCode, String query, String orderBy, Order order, long offset, long limit) {
 		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_REFERENCE_CODES_BY_DOMAIN_PARENT"), referenceCodeMapping)
 				.addQuery(query)
 				.addOrderBy(isAscending(order), orderBy)
@@ -94,7 +92,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	}
 
 	@Override
-	public List<CaseNoteType> getCaseNoteTypeByCurrentCaseLoad(String query, String orderBy, String order, int offset, int limit) {
+	public List<CaseNoteType> getCaseNoteTypeByCurrentCaseLoad(String query, String orderBy, Order order, long offset, long limit) {
 		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CNOTE_TYPES_BY_CASELOAD"), noteTypesSubTypes)
 				.addQuery(query)
 				.addOrderBy(isAscending(order), orderBy)
@@ -111,7 +109,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
         }
 	}
 	@Override
-	public List<CaseNoteType> getCaseNoteSubType(String typeCode, String query, String orderBy, String order, int offset, int limit) {
+	public List<CaseNoteType> getCaseNoteSubType(String typeCode, String query, String orderBy, Order order, long offset, long limit) {
 		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE"), noteTypesSubTypes)
 				.addQuery(query)
 				.addOrderBy(isAscending(order), orderBy)
@@ -121,6 +119,5 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 		final RowMapper<CaseNoteType> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNoteType.class, noteTypesSubTypes);
 		return jdbcTemplate.query(sql, createParams("caseNoteType", typeCode, "offset", offset, "limit", limit), referenceCodeRowMapper);
 	}
-
 
 }
