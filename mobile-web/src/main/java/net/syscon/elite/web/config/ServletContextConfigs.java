@@ -11,7 +11,6 @@ import io.swagger.jaxrs.listing.SwaggerSerializers;
 import net.syscon.elite.v2.api.resource.impl.*;
 import net.syscon.elite.web.api.resource.impl.BookingResourceImpl;
 import net.syscon.elite.web.api.resource.impl.LocationsResourceImpl;
-import net.syscon.elite.web.api.resource.impl.ReferenceDomainsResourceImpl;
 import net.syscon.elite.web.api.resource.impl.UsersResourceImpl;
 import net.syscon.elite.web.handler.ResourceExceptionHandler;
 import net.syscon.elite.web.listener.EndpointLoggingListener;
