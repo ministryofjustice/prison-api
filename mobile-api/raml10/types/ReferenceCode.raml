@@ -4,21 +4,19 @@ properties:
   domain:
     type: string
     description: Unique Domain name for reference data
-    required: true
   code:
     type: string
     description: Identifying code for this reference data
-    required: true
   description:
     type: string
     description: Description of the reference data
-    required: true
-  parentDomainId:
+  parentDomainId?:
     type: string
     description: Parent domain Id for this reference data
-  parentCode:
+  parentCode?:
     type: string
     description: Parent Code for this reference data
   activeFlag:
     type: string
     description: Y / N indicating active or not active
+
