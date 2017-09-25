@@ -4,6 +4,14 @@ FIND_REFERENCE_CODES_BY_DOMAIN {
 	   WHERE domain = :domain
 }
 
+FIND_REFERENCE_CODES_BY_DOMAIN_PLUS_SUBTYPES {
+	SELECT rc.code, rc.domain, rc.description, rc.parent_domain, rc.parent_code, rc.active_flag,
+		rcsub.code SUB_CODE, rcsub.domain SUB_DOMAIN, rcsub.description SUB_DESCRIPTION, rcsub.active_flag SUB_ACTIVE_FLAG
+	FROM reference_codes rc left join REFERENCE_CODES rcsub on rcsub.PARENT_CODE = rc.CODE and rcsub.PARENT_DOMAIN = rc.DOMAIN
+	where rc.DOMAIN = :domain
+	order by rc.code, rcsub.code
+}
+
 FIND_REFERENCE_CODES_BY_DOMAIN_PARENT {
 	SELECT code, domain, description, parent_domain, parent_code, active_flag
 	FROM reference_codes

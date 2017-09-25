@@ -23,9 +23,17 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
 
 	@Override
 	@Cacheable("alertTypes")
-	public GetAlertTypesResponse getAlertTypes(String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-		List<ReferenceCode> referenceCodes = referenceDomainService.getAlertTypes(query, sortFields, sortOrder, nvl(pageOffset, 0L), nvl(pageLimit, 10L));
-		return GetAlertTypesResponse.respond200WithApplicationJson(referenceCodes,  MetaDataFactory.getTotalRecords(referenceCodes), nvl(pageOffset, 0L), nvl(pageLimit, 10L));
+	public GetAlertTypesResponse getAlertTypes(Boolean includeSubTypes, String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+        final boolean subTypedNeeded = Boolean.TRUE == includeSubTypes;
+        final long offset = nvl(pageOffset, 0L);
+        final long limit = nvl(pageLimit, 10L);
+		List<ReferenceCode> referenceCodes = referenceDomainService.getAlertTypes(query, sortFields, sortOrder, offset, limit, subTypedNeeded);
+
+        if (subTypedNeeded) {
+            return GetAlertTypesResponse.respond200WithApplicationJson(referenceCodes, (long)referenceCodes.size(),  0L, (long)referenceCodes.size());
+        } else {
+            return GetAlertTypesResponse.respond200WithApplicationJson(referenceCodes, MetaDataFactory.getTotalRecords(referenceCodes),  offset, limit);
+        }
 	}
 
     @Override
@@ -66,9 +74,17 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
 
 	@Override
 	@Cacheable("caseNoteTypes")
-	public GetCaseNoteTypesResponse getCaseNoteTypes(String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-		final List<ReferenceCode> caseNoteTypes = referenceDomainService.getCaseNoteTypes(query, sortFields, sortOrder, nvl(pageOffset, 0L), nvl(pageLimit, 10L));
-		return GetCaseNoteTypesResponse.respond200WithApplicationJson(caseNoteTypes, MetaDataFactory.getTotalRecords(caseNoteTypes), nvl(pageOffset, 0L), nvl(pageLimit, 10L));
+	public GetCaseNoteTypesResponse getCaseNoteTypes(Boolean includeSubTypes, String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+		final boolean subTypedNeeded = Boolean.TRUE == includeSubTypes;
+		final long offset = nvl(pageOffset, 0L);
+		final long limit = nvl(pageLimit, 10L);
+		final List<ReferenceCode> caseNoteTypes = referenceDomainService.getCaseNoteTypes(query, sortFields, sortOrder, offset, limit, subTypedNeeded);
+
+		if (subTypedNeeded) {
+			return GetCaseNoteTypesResponse.respond200WithApplicationJson(caseNoteTypes, (long) caseNoteTypes.size(), 0L, (long)caseNoteTypes.size());
+		} else {
+			return GetCaseNoteTypesResponse.respond200WithApplicationJson(caseNoteTypes, MetaDataFactory.getTotalRecords(caseNoteTypes), offset, limit);
+		}
 	}
 
 	@Override
