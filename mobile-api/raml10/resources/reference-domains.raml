@@ -9,8 +9,8 @@
 
 /alertTypes/{alertType}:
   (javaOperationName): getAlertType
-  description: Give all Alerts for specific Alert type
-  type: { readOnlyItem : { type: ReferenceCode }}
+  description: Return Alert Type for specific Alert type
+  type: { readOnlyItem : { type: ReferenceCode, description: Get Alert Type for specified type }}
   
 /alertTypes/{alertType}/codes:
   (javaOperationName): getAlertTypesByType
@@ -24,7 +24,7 @@
 /alertTypes/{alertType}/codes/{alertCode}:
   (javaOperationName): getAlertTypeCode
   description: Give specific code details of alerts.
-  type: { readOnlyItem : { type: ReferenceCode }}
+  type: { readOnlyItem : { type: ReferenceCode, description: Get Alert Types  for specified parent alert code }}
 
 /caseNoteSources:
   (javaOperationName): getCaseNoteSources
@@ -38,7 +38,7 @@
 /caseNoteSources/{sourceCode}:
   (javaOperationName): getCaseNoteSource
   description: Get the Case Note Source
-  type: { readOnlyItem : { type: ReferenceCode }}
+  type: { readOnlyItem : { type: ReferenceCode, description: Get Case Note Source for specified source }}
 
 /caseNoteTypes:
   (javaOperationName): getCaseNoteTypes
@@ -52,7 +52,7 @@
 /caseNoteTypes/{typeCode}:
   (javaOperationName): getCaseNoteType
   description: Get the Case Note Type
-  type: { readOnlyItem : { type: ReferenceCode } }
+  type: { readOnlyItem : { type: ReferenceCode, description: Get Case Note Type for specified note type } }
 
 /caseNoteSubTypes/{typeCode}:
   (javaOperationName): getCaseNoteSubTypes
@@ -62,4 +62,4 @@
 /caseNoteSubTypes/{typeCode}/subTypes/{subTypeCode}:
   (javaOperationName): getCaseNoteSubType
   description: Get the Case Note SubType
-  type: { readOnlyItem : { type: ReferenceCode }}
+  type: { readOnlyItem : { type: ReferenceCode, description: Get Case Note Subtype for specified type and subtype }}
