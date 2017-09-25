@@ -18,8 +18,6 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 
-	private final static String DEFAULT_ACTIVE_FLAG_QUERY = "activeFlag:eq:'Y'";
-
 	@Autowired
 	private ReferenceCodeRepository referenceCodeRepository;
 
@@ -27,18 +25,9 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 		return StringUtils.isEmpty(orderBy)? "code": orderBy;
 	}
 
-	private String addDefaultQuery(String query) {
-		if(query==null || "".equals(query) ) {
-			query = DEFAULT_ACTIVE_FLAG_QUERY;
-		} else if(!query.contains("activeFlag")) {
-			query = query + ",and:"+ DEFAULT_ACTIVE_FLAG_QUERY;
-		}
-		return query;
-	}
-
 	@Override
-	public List<ReferenceCode> getAlertTypes(String query, String orderBy, Order order, long offset, long limit) {
-		return referenceCodeRepository.getReferenceCodesByDomain("ALERT", query, getDefaultOrderBy(orderBy), order, offset, limit);
+	public List<ReferenceCode> getAlertTypes(String query, String orderBy, Order order, long offset, long limit, boolean includeSubTypes) {
+		return referenceCodeRepository.getReferenceCodesByDomain("ALERT", query, getDefaultOrderBy(orderBy), order, offset, limit, includeSubTypes);
 	}
 
 	@Override
@@ -62,8 +51,8 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 	}
 
 	@Override
-	public List<ReferenceCode> getCaseNoteTypes(String query, String orderBy, Order order, long offset, long limit) {
-		return referenceCodeRepository.getReferenceCodesByDomain("TASK_TYPE", query,  getDefaultOrderBy(orderBy), order, offset, limit);
+	public List<ReferenceCode> getCaseNoteTypes(String query, String orderBy, Order order, long offset, long limit, boolean includeSubTypes) {
+		return referenceCodeRepository.getReferenceCodesByDomain("TASK_TYPE", query,  getDefaultOrderBy(orderBy), order, offset, limit, includeSubTypes);
 	}
 
 	@Override
@@ -78,7 +67,7 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 
 	@Override
 	public List<ReferenceCode> getCaseNoteSources(String query, String orderBy, Order order, long offset, long limit) {
-		return referenceCodeRepository.getReferenceCodesByDomain("NOTE_SOURCE", query, getDefaultOrderBy(orderBy), order, offset, limit);
+		return referenceCodeRepository.getReferenceCodesByDomain("NOTE_SOURCE", query, getDefaultOrderBy(orderBy), order, offset, limit, false);
 	}
 
 	@Override

@@ -2,6 +2,12 @@
   (javaOperationName): getAlertTypes
   description: Give all Alert types
   type: { readOnlyCollectionPaged: { type: ReferenceCode } }
+  get:
+    queryParameters:
+      includeSubTypes:
+        description: Include the Subtypes in the response
+        type: boolean
+        default: false
   is: [
     searchable: {fieldsList: "code, description, activeFlag and parentCode"},
     sortable: {fieldsList: "code"}
@@ -44,6 +50,12 @@
   (javaOperationName): getCaseNoteTypes
   description: Give all Case Note Types
   type: { readOnlyCollectionPaged : { type: ReferenceCode }}
+  get:
+    queryParameters:
+      includeSubTypes:
+        description: Include the Subtypes in the response
+        type: boolean
+        default: false
   is: [
     searchable: {fieldsList: "code, description, activeFlag and parentCode"},
     sortable: {fieldsList: "code"}
