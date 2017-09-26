@@ -3,6 +3,7 @@ package net.syscon.elite.v2.api.resource.impl;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.v2.api.model.CaseNote;
 import net.syscon.elite.v2.api.model.NewCaseNote;
+import net.syscon.elite.v2.api.model.PrivilegeSummary;
 import net.syscon.elite.v2.api.model.SentenceDetail;
 import net.syscon.elite.v2.api.model.UpdateCaseNote;
 import net.syscon.elite.v2.api.resource.BookingResource;
@@ -64,6 +65,13 @@ public class BookingResourceImpl implements BookingResource {
         SentenceDetail sentenceDetail = bookingService.getBookingSentenceDetail(bookingId);
 
         return GetBookingSentenceDetailResponse.respond200WithApplicationJson(sentenceDetail);
+    }
+
+    @Override
+    public GetBookingIEPSummaryResponse getBookingIEPSummary(String bookingId, boolean withDetails) {
+        PrivilegeSummary privilegeSummary = bookingService.getBookingIEPSummary(Long.valueOf(bookingId), withDetails);
+
+        return GetBookingIEPSummaryResponse.respond200WithApplicationJson(privilegeSummary);
     }
 
     @Override

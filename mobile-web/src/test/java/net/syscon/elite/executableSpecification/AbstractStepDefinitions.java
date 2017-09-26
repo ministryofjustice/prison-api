@@ -61,6 +61,11 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
+        BookingIEPSteps bookingIEPSteps() {
+            return new BookingIEPSteps();
+        }
+
+        @Bean
         OffenderSearchSteps offenderSearch() {
             return new OffenderSearchSteps();
         }

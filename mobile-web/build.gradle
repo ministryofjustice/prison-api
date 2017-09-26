@@ -8,6 +8,7 @@ project(":mobile-web") {
         compile project(path: ":mobile-api", configuration: "generatedOutput")
 
         compile files("${rootDir}/mobile-web/src/main/configs")
+        compile files("${rootDir}/mobile-web/src/main/resources")
         compile files("${rootDir}/lib/ojdbc7-12.1.0.2.jar")
 
         compile("org.springframework.boot:spring-boot-starter-web")

@@ -1,5 +1,6 @@
 package net.syscon.elite.v2.service;
 
+import net.syscon.elite.v2.api.model.PrivilegeSummary;
 import net.syscon.elite.v2.api.model.SentenceDetail;
 
 /**
@@ -7,4 +8,6 @@ import net.syscon.elite.v2.api.model.SentenceDetail;
  */
 public interface BookingService {
     SentenceDetail getBookingSentenceDetail(Long bookingId);
+
+    PrivilegeSummary getBookingIEPSummary(Long bookingId, boolean withDetails);
 }

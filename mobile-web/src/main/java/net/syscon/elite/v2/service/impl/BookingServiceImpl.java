@@ -2,6 +2,8 @@ package net.syscon.elite.v2.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.v2.api.model.PrivilegeDetail;
+import net.syscon.elite.v2.api.model.PrivilegeSummary;
 import net.syscon.elite.v2.api.model.SentenceDetail;
 import net.syscon.elite.v2.repository.BookingRepository;
 import net.syscon.elite.v2.service.BookingService;
@@ -61,6 +63,33 @@ public class BookingServiceImpl implements BookingService {
         }
 
         return sentenceDetail;
+    }
+
+    @Override
+    public PrivilegeSummary getBookingIEPSummary(Long bookingId, boolean withDetails) {
+        List<PrivilegeDetail> iepDetails = bookingRepository.getBookingIEPDetails(bookingId);
+
+        // TODO: Can a 'default' IEP Summary be assumed if there are no IEP details?
+        // If no IEP details exist for offender, cannot derive an IEP summary.
+        if (iepDetails.isEmpty()) {
+            throw new EntityNotFoundException(bookingId.toString());
+        }
+
+        // Extract most recent detail from list
+        PrivilegeDetail currentDetail = iepDetails.get(0);
+
+        // Determine number of days since current detail became effective
+        long daysSinceReview = DAYS.between(currentDetail.getIepDate(), now());
+
+        // Construct and return IEP summary.
+        return PrivilegeSummary.builder()
+                .bookingId(bookingId)
+                .iepDate(currentDetail.getIepDate())
+                .iepTime(currentDetail.getIepTime())
+                .iepLevel(currentDetail.getIepLevel())
+                .daysSinceReview(Long.valueOf(daysSinceReview).intValue())
+                .iepDetails(withDetails ? iepDetails : Collections.EMPTY_LIST)
+                .build();
     }
 
     private NonDtoReleaseDate deriveNonDtoReleaseDate(SentenceDetail sentenceDetail) {

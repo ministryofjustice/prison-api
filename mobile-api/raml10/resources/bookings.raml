@@ -124,3 +124,21 @@
     bookingId:
       (javaType): Long
       description: The booking id of offender
+
+/{bookingId}/iepSummary:
+  (javaOperationName): getBookingIEPSummary
+  type: {
+    readOnlyItem: {
+      type: PrivilegeSummary,
+      description: Gets IEP (Incentives & Earned Privileges) summary for offender booking.
+    }
+  }
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The booking id of offender
+  get:
+    queryParameters:
+      withDetails:
+        description: Toggle to return IEP detail entries in response (or not).
+        type: boolean

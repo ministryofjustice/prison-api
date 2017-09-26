@@ -223,6 +223,13 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
         if ("null".equals(property.defaultValue)) {
             property.defaultValue = null;
         }
+
+        // If property is a List but is not required, ensure default value is null.
+        // Current behaviour is to set default value to an empty list.
+        // (This is a 'fix' that is actually proposed for future release of swagger-codegen).
+        if (property.isListContainer && !property.required) {
+            property.defaultValue = null;
+        }
     }
 
     @Override

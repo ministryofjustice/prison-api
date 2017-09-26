@@ -58,6 +58,9 @@ project(":mobile-api") {
 
     // Configurations
     configurations {
+        generatedCompile.extendsFrom compile
+        generatedCompileOnly.extendsFrom compileOnly
+
         // Used to expose/share output (compiled classes) of 'generated' source set
         generatedOutput
 
@@ -76,9 +79,10 @@ project(":mobile-api") {
 
     // Main compilation dependencies
     dependencies {
-        generatedCompile "org.springframework.boot:spring-boot-starter-jersey:${version_spring_boot}"
-        generatedCompile "io.swagger:swagger-jersey2-jaxrs:1.5.16"
-        generatedCompileOnly 'org.projectlombok:lombok:1.16.18'
+        compile "org.springframework.boot:spring-boot-starter-jersey:${version_spring_boot}"
+        compile "io.swagger:swagger-jersey2-jaxrs:1.5.16"
+
+        compileOnly 'org.projectlombok:lombok:1.16.18'
 
         generatedOutput sourceSets.generated.output
 
@@ -144,7 +148,7 @@ project(":mobile-api") {
     def codegenConfig = "${rootDir}/mobile-api/raml10/api-gen-cfg.json"
 
     def jaxrsCodegenArgs = ['generate', '-c', codegenConfig, '-i', oas20File.absolutePath, '-l', 'jaxrsinterfaces',
-                            '-o', sourceGenDir]
+                            '-o', sourceGenDir, '--type-mappings', 'Boolean=boolean']
 
     def jaxrsCodegenSystemProps = ['modelDocs':'false',
                                    'apiDocs':'false',

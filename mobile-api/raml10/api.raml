@@ -15,13 +15,15 @@ annotationTypes:
     description: override the type used in a reponse headers (e.g. headersWithType_Long: Page-Offset,Page-Limit will apply a Long to the listed headers)
 securedBy: [jwt]
 types:
-  Agency:          !include types/Agency.raml
-  ErrorResponse:   !include types/ErrorResponse.raml
-  Location:        !include types/Location.raml
-  OffenderBooking: !include types/OffenderBooking.raml
-  PrisonerDetail:  !include types/PrisonerDetail.raml
-  SentenceDetail:  !include types/SentenceDetail.raml
-  ImageDetail:     !include types/ImageDetail.raml
+  Agency:           !include types/Agency.raml
+  ErrorResponse:    !include types/ErrorResponse.raml
+  Location:         !include types/Location.raml
+  OffenderBooking:  !include types/OffenderBooking.raml
+  PrisonerDetail:   !include types/PrisonerDetail.raml
+  SentenceDetail:   !include types/SentenceDetail.raml
+  ImageDetail:      !include types/ImageDetail.raml
+  PrivilegeDetail:  !include types/PrivilegeDetail.raml
+  PrivilegeSummary: !include types/PrivilegeSummary.raml
   ReferenceCode:   !include types/ReferenceCode.raml
   UserDetail:      !include types/UserDetail.raml
   StaffDetail:     !include types/StaffDetail.raml
