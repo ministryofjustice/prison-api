@@ -3,10 +3,7 @@ package net.syscon.elite.executableSpecification;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import net.syscon.elite.executableSpecification.steps.BookingAliasSteps;
-import net.syscon.elite.executableSpecification.steps.BookingDetailSteps;
-import net.syscon.elite.executableSpecification.steps.BookingSearchSteps;
-import net.syscon.elite.executableSpecification.steps.BookingSentenceDetailSteps;
+import net.syscon.elite.executableSpecification.steps.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -35,6 +32,9 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @Autowired
     private BookingSentenceDetailSteps bookingSentenceDetail;
+
+    @Autowired
+    private BookingIEPSteps bookingIEPSteps;
 
     @When("^a booking search is made with full last \"([^\"]*)\" of existing offender$")
     public void aBookingSearchIsMadeWithFullLastNameOfExistingOffender(String fullLastName) throws Throwable {
@@ -256,5 +256,35 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     public void additionalDaysAwardedMatches(String additionalDaysAwarded) throws Throwable {
         bookingSentenceDetail.verifyAdditionalDaysAwarded(
                 StringUtils.isBlank(additionalDaysAwarded) ? null : Integer.valueOf(additionalDaysAwarded));
+    }
+
+    @When("^an IEP summary only is requested for an offender with booking id \"([^\"]*)\"$")
+    public void anIEPSummaryOnlyIsRequestedForAnOffenderWithBookingId(String bookingId) throws Throwable {
+        bookingIEPSteps.getBookingIEPSummary(Long.valueOf(bookingId), false);
+    }
+
+    @When("^an IEP summary, with details, is requested for an offender with booking id \"([^\"]*)\"$")
+    public void anIEPSummaryWithDetailsIsRequestedForAnOffenderWithBookingId(String bookingId) throws Throwable {
+        bookingIEPSteps.getBookingIEPSummary(Long.valueOf(bookingId), true);
+    }
+
+    @Then("^IEP summary is returned with IEP level of \"([^\"]*)\"$")
+    public void iepSummaryIsReturnedWithIEPLevelOf(String iepLevel) throws Throwable {
+        bookingIEPSteps.verifyCurrentIEPLevel(iepLevel);
+    }
+
+    @And("^IEP summary contains \"([^\"]*)\" detail records$")
+    public void iepSummaryContainsDetailRecords(String detailRecordCount) throws Throwable {
+        bookingIEPSteps.verifyIEPDetailRecordCount(Integer.parseInt(detailRecordCount));
+    }
+
+    @And("^IEP days since review is correct for IEP date of \"([^\"]*)\"$")
+    public void iepDaysSinceReviewIsCorrectForIEPDateOf(String iepDate) throws Throwable {
+        bookingIEPSteps.verifyDaysSinceReview(iepDate);
+    }
+
+    @Then("^resource not found response is received from bookings IEP summary API$")
+    public void resourceNotFoundResponseIsReceivedFromBookingsIEPSummaryAPI() throws Throwable {
+        bookingIEPSteps.verifyResourceNotFound();
     }
 }
