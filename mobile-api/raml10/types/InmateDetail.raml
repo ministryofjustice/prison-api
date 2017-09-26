@@ -1,88 +1,51 @@
-{
-	"$schema": "http://json-schema.org/draft-04/schema#",
-	"title": "Inmate Details",
-	"type": "object",
-	"properties": {
-		"bookingId": { "type": "integer" },
-		"bookingNo": { "type": "string" },
-		"offenderNo": { "type": "string" },
-		"firstName": { "type": "string" },
-		"middleName": {"type": "string" },
-		"lastName":    {"type": "string" },
-		"alertsCodes": {
-			"type": "array",
-			"items": { "type": "string" }
-		},
-		"assignedLivingUnit": {
-			"type": "object",
-			"properties": {
-				"agencyId": { "type": "string" },
-				"locationId": { "type": "integer" },
-				"description": { "type": "string" }
-			},
-			"required": ["agencyId", "locationId", "description"]
-		},
-		"facialImageId": { "type": "integer" },
-		"dateOfBirth":  {
-			"type": "string",
-			"format": "date-only"
-		},
-		"age":   { "type": "integer" },
-		"physicalAttributes": {
-			"type": "object",
-			"properties": {
-				"gender": { "type": "string" },
-				"ethnicity": { "type": "string" },
-				"heightInches": { "type": "number" },
-				"heightMeters": { "type": "number" },
-				"weightPounds": { "type": "number" },
-				"weightKg": { "type": "number" }
-			},
-			"required": ["gender", "ethnicity", "heightInches", "heightMeters", "weightPounds", "weightKg"]
-		},
-		"physicalCharacteristics": {
-			"type": "array",
-			"items": {
-				"title": "physicalCharacteristic",
-				"type": "object",
-				"properties": {
-					"characteristic": { "type": "string" },
-					"detail": { "type": "string" },
-					"imageId": { "type": "integer" }
-				},
-				"required": ["characteristic", "detail"]
-			}
-		},
-		"physicalMarks": {
-			"type": "array",
-			"items": {
-				"title": "physicalMark",
-				"type": "object",
-				"properties": {
-					"type": { "type": "string" },
-					"side": { "type": "string" },
-					"bodyPart": { "type": "string" },
-					"orientation": { "type": "string" },
-					"comment": { "type": "string" },
-					"imageId": { "type": "integer" }
-				},
-				"required": ["type", "side", "bodyPart", "orientation", "comment"]
-			}
-		},
-		"assessments":{
-			"type":"array",
-			"items": {
-				"title":"assessment",
-				"type":"object",
-				"properties": {
-					"classification": { "type": "string" },
-					"assessmentCode": { "type": "string" },
-					"assessmentDesc": { "type": "string" }
-				},
-				"required": ["classification", "assessmentCode", "assessmentDesc"]
-			}
-		},
-		"assignedOfficerId": { "type": "integer" }
-	},
-	"required": ["bookingNo", "bookingId", "offenderNo", "firstName", "middleName", "lastName", "agencyId", "age"]
-}
+#%RAML 1.0 DataType
+description: Inmate Detail
+properties:
+  bookingId:
+    (javaType): Long
+    description: Offender Booking Id
+  bookingNo:
+    type: string
+    description: Booking Number
+  offenderNo:
+    type: string
+    description: Offender Unique Reference
+  firstName:
+    type: string
+    description: First Name
+  middleName:
+    type: string
+    description: Middle Name(s)
+  lastName:
+    type: string
+    description: Last Name
+  alertsCodes?:
+    type: string[]
+    description: List of Alerts
+  assignedLivingUnit?:
+    type: AssignedLivingUnit
+    description: Where the offender is staying
+  facialImageId?:
+    (javaType): Long
+    description: Image Id Ref of Offender
+  dateOfBirth:
+    type: date-only
+    description: Date of Birth of offender
+  age:
+    type: integer
+    description: Age of offender
+  physicalAttributes?:
+    type: PhysicalAttributes
+    description: A set of physical attributes
+  physicalCharacteristics?:
+    type: PhysicalCharacteristic[]
+    description: List of physical characteristics
+  physicalMarks?:
+    type: PhysicalMark[]
+    description: List of physical marks
+  assessments?:
+    type: Assessment[]
+    description: List of assessments
+  assignedOfficerId?:
+    (javaType): Long
+    description: Staff Id reference for assigned officer / keyworker

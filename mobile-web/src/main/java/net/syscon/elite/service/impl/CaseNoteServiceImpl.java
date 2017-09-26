@@ -36,8 +36,8 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CaseNote> getCaseNotes(final String bookingId, String query, final String orderBy, Order order, final int offset,
-									   final int limit) {
+	public List<CaseNote> getCaseNotes(final String bookingId, String query, final String orderBy, Order order, final long offset,
+									   final long limit) {
 		String colSort = orderBy;
 		if (StringUtils.isBlank(orderBy)) {
 			colSort = "occurrenceDateTime";
@@ -51,12 +51,12 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public CaseNote getCaseNote(final String bookingId, final long caseNoteId) {
+	public CaseNote getCaseNote(final long bookingId, final long caseNoteId) {
 		return caseNoteRepository.getCaseNote(bookingId, caseNoteId).orElseThrow(new EntityNotFoundException(String.valueOf(caseNoteId)));
 	}
 
 	@Override
-	public CaseNote createCaseNote(final String bookingId, final NewCaseNote caseNote) {
+	public CaseNote createCaseNote(final long bookingId, final NewCaseNote caseNote) {
 		//TODO: First - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
         final Long caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote, caseNoteSource);
         return getCaseNote(bookingId, caseNoteId);
@@ -64,7 +64,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	}
 
 	@Override
-	public CaseNote updateCaseNote(final String bookingId, final long caseNoteId, final String newCaseNoteText) {
+	public CaseNote updateCaseNote(final long bookingId, final long caseNoteId, final String newCaseNoteText) {
 
         final CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId).orElseThrow(new EntityNotFoundException(String.valueOf(caseNoteId)));
         final String amendedText = format(AMEND_CASE_NOTE_FORMAT,

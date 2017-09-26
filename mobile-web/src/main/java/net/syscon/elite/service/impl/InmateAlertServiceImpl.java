@@ -20,8 +20,8 @@ public class InmateAlertServiceImpl implements InmatesAlertService {
 	private InmateAlertRepository inmateAlertRepository;
 
 	@Override
-	public List<Alert> getInmateAlerts(String bookingId, final String query, final String orderByField, Order order, int offset,
-									   int limit) {
+	public List<Alert> getInmateAlerts(long bookingId, final String query, final String orderByField, Order order, long offset,
+									   long limit) {
 	    String colSort = orderByField;
 		if (StringUtils.isBlank(orderByField)) {
 			colSort = "dateExpires,dateCreated";
@@ -41,7 +41,7 @@ public class InmateAlertServiceImpl implements InmatesAlertService {
 	}
 
 	@Override
-	public Alert getInmateAlert(String bookingId, String alertSeqId) {
+	public Alert getInmateAlert(long bookingId, long alertSeqId) {
         final Alert alert = inmateAlertRepository.getInmateAlert(bookingId, alertSeqId).orElseThrow(new EntityNotFoundException(String.valueOf(alertSeqId)));
         alert.setExpired(isExpiredAlert(alert));
         return alert;

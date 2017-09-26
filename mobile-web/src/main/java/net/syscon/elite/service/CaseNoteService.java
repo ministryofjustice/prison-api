@@ -8,10 +8,10 @@ import java.util.List;
 
 public interface CaseNoteService {
 	
-	List<CaseNote> getCaseNotes(String bookingId, String query,
-								String orderBy, Order order, int offset, int limit) ;
-	CaseNote getCaseNote(String bookingId, long caseNoteId);
-	CaseNote createCaseNote(String bookingId, NewCaseNote caseNote);
-	CaseNote updateCaseNote(String bookingId, long caseNoteId, String newCaseNoteText);
+	List<CaseNote> getCaseNotes(long bookingId, String query,
+								String orderBy, Order order, long offset, long limit) ;
+	CaseNote getCaseNote(long bookingId, long caseNoteId);
+	CaseNote createCaseNote(long bookingId, NewCaseNote caseNote);
+	CaseNote updateCaseNote(long bookingId, long caseNoteId, String newCaseNoteText);
 
 }

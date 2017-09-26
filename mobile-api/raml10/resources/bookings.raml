@@ -65,6 +65,9 @@
     bookingId:
       (javaType): Long
       description: The booking id of offender
+    caseNoteId:
+      (javaType): Long
+      description: The case note id
   put:
     description: It will update text note of specified case note. Text will not be replaced but it will be appended by provided text.
     body:
@@ -99,11 +102,14 @@
     bookingId:
       (javaType): Long
       description: The booking id of offender
+    alertId:
+      (javaType): Long
+      description: The Alert Id
 
 /{bookingId}/aliases:
   (javaOperationName): getOffenderAliases
   description: The collection of aliases associated with the inmate.
-  type: {readOnlyCollectionPaged: {type: Alias}}
+  type: {readOnlyCollection: {type: Alias}}
   uriParameters:
     bookingId:
       (javaType): Long

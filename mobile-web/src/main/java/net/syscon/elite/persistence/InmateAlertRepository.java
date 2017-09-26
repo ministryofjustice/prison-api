@@ -8,6 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface InmateAlertRepository {
-	List<Alert> getInmateAlert(String bookingId, String query, String orderByField, Order order, int offset, int limit);
-	Optional<Alert> getInmateAlert(String bookingId, String alertSeqId);
+	List<Alert> getInmateAlert(long bookingId, String query, String orderByField, Order order, long offset, long limit);
+	Optional<Alert> getInmateAlert(long bookingId, long alertSeqId);
 }

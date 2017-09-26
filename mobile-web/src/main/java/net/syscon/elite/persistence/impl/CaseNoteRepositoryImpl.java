@@ -48,8 +48,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 			.build();
 
 	@Override
-	public List<CaseNote> getCaseNotes(String bookingId, String query, String orderByField, Order order, int offset,
-									   int limit) {
+	public List<CaseNote> getCaseNotes(String bookingId, String query, String orderByField, Order order, long offset, long limit) {
 		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CASENOTES"), caseNoteMapping)
 											.addRowCount()
 											.addQuery(query)
@@ -61,7 +60,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
-	public Optional<CaseNote> getCaseNote(String bookingId, long caseNoteId) {
+	public Optional<CaseNote> getCaseNote(long bookingId, long caseNoteId) {
 		final String sql = getQuery("FIND_CASENOTE");
 		final RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, caseNoteMapping);
 
@@ -75,7 +74,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
-	public Long createCaseNote(String bookingId, NewCaseNote newCaseNote, String sourceCode) {
+	public Long createCaseNote(long bookingId, NewCaseNote newCaseNote, String sourceCode) {
 		String initialSql = getQuery("INSERT_CASE_NOTE");
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, caseNoteMapping);
 		String sql = builder.build();
@@ -118,7 +117,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
-	public void updateCaseNote(String bookingId, long caseNoteId, String updatedText, String userId) {
+	public void updateCaseNote(long bookingId, long caseNoteId, String updatedText, String userId) {
 		String sql = queryBuilderFactory.getQueryBuilder(getQuery("UPDATE_CASE_NOTE"), caseNoteMapping).build();
 
 		jdbcTemplate.update(sql, createParams("modifyBy", userId,

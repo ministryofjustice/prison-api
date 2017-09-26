@@ -28,8 +28,8 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 		.build();
 
 	@Override
-	public List<Alert> getInmateAlert(String bookingId, String query, String orderByField, Order order, int offset,
-									  int limit) {
+	public List<Alert> getInmateAlert(long bookingId, String query, String orderByField, Order order, long offset,
+									  long limit) {
 		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_INMATE_ALERTS"), alertMapping)
 											.addRowCount()
 											.addQuery(query)
@@ -41,7 +41,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 	}
 
 	@Override
-	public Optional<Alert> getInmateAlert(String bookingId, String alertSeqId) {
+	public Optional<Alert> getInmateAlert(long bookingId, long alertSeqId) {
 		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_INMATE_ALERT"), alertMapping)
 											.build();
 		final RowMapper<Alert> alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);

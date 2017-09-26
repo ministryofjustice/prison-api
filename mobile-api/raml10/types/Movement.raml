@@ -1,18 +1,28 @@
-{
-	"$schema": "http://json-schema.org/draft-04/schema#",
-	"title": "Movement",
-	"type": "object",
-	"properties": {
-		"moveCategory": { "enum": [ "external", "internal" ]},
-		"inmateId": { "type": "integer"},
-		"moveDateTime": { "type": "string", "format": "datetime" },
-		"fromAgencyId": { "type": "string" },
-		"toAgencyId": { "type": "string" },
-		"moveType": { "type": "string" },
-		"moveReason": { "type": "string" },
-		"fromLocationId": { "type": "string" },
-		"toLocationId": { "type": "string" }
-	},
-	"required": ["moveCategory", "inmateId", "moveDate"]
-}
+#%RAML 1.0 DataType
+description: Movement
+properties:
+  bookingId:
+    (javaType): Long
+    description: Booking Id
+  moveCategory:
+    enum: [ "external", "internal" ]
+    description: Movement Category
+  moveDateTime:
+    type: datetime-only
+    description: Time of movement
+  fromAgencyId:
+    type: string
+    description: Agency Location Id
+  moveType:
+    type: datetime-only
+    description: Type of movement
+  moveReason?:
+    type: string
+    description: Reason for moving
+  fromLocationId?:
+    (javaType): Long
+    description: Move From location
+  toLocationId?:
+    (javaType): Long
+    description: Move to Location
 
