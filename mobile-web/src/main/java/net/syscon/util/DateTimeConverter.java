@@ -79,8 +79,8 @@ public class DateTimeConverter {
 		if (date != null) {
 			if (date instanceof java.sql.Date) {
 				localDate = ((java.sql.Date) date).toLocalDate();
-			} else if (date instanceof java.util.Date) {
-				localDate = ((java.util.Date) date).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+			} else if (date instanceof Date) {
+				localDate = ((Date) date).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 			} else {
 				throw new IllegalArgumentException("Cannot convert [" + date.getClass().getName() + "] to a LocalDate.");
 			}
@@ -100,10 +100,10 @@ public class DateTimeConverter {
 		LocalDateTime localDateTime = null;
 
 		if (dateTime != null) {
-			if (dateTime instanceof java.sql.Timestamp) {
-				localDateTime = ((java.sql.Timestamp) dateTime).toLocalDateTime();
-			} else if (dateTime instanceof java.util.Date) {
-				localDateTime = ((java.util.Date) dateTime).toInstant().atOffset(ZoneOffset.UTC).toLocalDateTime();
+			if (dateTime instanceof Timestamp) {
+				localDateTime = ((Timestamp) dateTime).toLocalDateTime();
+			} else if (dateTime instanceof Date) {
+				localDateTime = ((Date) dateTime).toInstant().atOffset(ZoneOffset.UTC).toLocalDateTime();
 			} else {
 				throw new IllegalArgumentException("Cannot convert [" + dateTime.getClass().getName() + "] to a LocalDateTime.");
 			}
