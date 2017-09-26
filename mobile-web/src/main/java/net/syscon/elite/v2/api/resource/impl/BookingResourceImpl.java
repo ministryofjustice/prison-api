@@ -1,6 +1,7 @@
 package net.syscon.elite.v2.api.resource.impl;
 
 import net.syscon.elite.core.RestResource;
+import net.syscon.elite.v2.api.model.PrivilegeSummary;
 import net.syscon.elite.v2.api.model.SentenceDetail;
 import net.syscon.elite.v2.api.resource.BookingResource;
 import net.syscon.elite.v2.service.BookingService;
@@ -24,5 +25,12 @@ public class BookingResourceImpl implements BookingResource {
         SentenceDetail sentenceDetail = bookingService.getBookingSentenceDetail(Long.valueOf(bookingId));
 
         return GetBookingSentenceDetailResponse.respond200WithApplicationJson(sentenceDetail);
+    }
+
+    @Override
+    public GetBookingIEPSummaryResponse getBookingIEPSummary(String bookingId, boolean withDetails) {
+        PrivilegeSummary privilegeSummary = bookingService.getBookingIEPSummary(Long.valueOf(bookingId), withDetails);
+
+        return GetBookingIEPSummaryResponse.respond200WithApplicationJson(privilegeSummary);
     }
 }

@@ -23,13 +23,12 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
 
 	@Override
 	@Cacheable("alertTypes")
-	public GetAlertTypesResponse getAlertTypes(Boolean includeSubTypes, String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-        final boolean subTypedNeeded = Boolean.TRUE == includeSubTypes;
+	public GetAlertTypesResponse getAlertTypes(boolean includeSubTypes, String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         final long offset = nvl(pageOffset, 0L);
         final long limit = nvl(pageLimit, 10L);
-		List<ReferenceCode> referenceCodes = referenceDomainService.getAlertTypes(query, sortFields, sortOrder, offset, limit, subTypedNeeded);
+		List<ReferenceCode> referenceCodes = referenceDomainService.getAlertTypes(query, sortFields, sortOrder, offset, limit, includeSubTypes);
 
-        if (subTypedNeeded) {
+        if (includeSubTypes) {
             return GetAlertTypesResponse.respond200WithApplicationJson(referenceCodes, (long)referenceCodes.size(),  0L, (long)referenceCodes.size());
         } else {
             return GetAlertTypesResponse.respond200WithApplicationJson(referenceCodes, MetaDataFactory.getTotalRecords(referenceCodes),  offset, limit);
@@ -71,16 +70,14 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
 		return GetCaseNoteSourceResponse.respond200WithApplicationJson(caseNoteSource);
 	}
 
-
 	@Override
 	@Cacheable("caseNoteTypes")
-	public GetCaseNoteTypesResponse getCaseNoteTypes(Boolean includeSubTypes, String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-		final boolean subTypedNeeded = Boolean.TRUE == includeSubTypes;
+	public GetCaseNoteTypesResponse getCaseNoteTypes(boolean includeSubTypes, String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
 		final long offset = nvl(pageOffset, 0L);
 		final long limit = nvl(pageLimit, 10L);
-		final List<ReferenceCode> caseNoteTypes = referenceDomainService.getCaseNoteTypes(query, sortFields, sortOrder, offset, limit, subTypedNeeded);
+		final List<ReferenceCode> caseNoteTypes = referenceDomainService.getCaseNoteTypes(query, sortFields, sortOrder, offset, limit, includeSubTypes);
 
-		if (subTypedNeeded) {
+		if (includeSubTypes) {
 			return GetCaseNoteTypesResponse.respond200WithApplicationJson(caseNoteTypes, (long) caseNoteTypes.size(), 0L, (long)caseNoteTypes.size());
 		} else {
 			return GetCaseNoteTypesResponse.respond200WithApplicationJson(caseNoteTypes, MetaDataFactory.getTotalRecords(caseNoteTypes), offset, limit);
@@ -100,7 +97,6 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
 		final List<ReferenceCode> caseNoteSubTypes = referenceDomainService.getCaseNoteSubTypesByParent(typeCode, nvl(pageOffset, 0L), nvl(pageLimit, 10L));
 		return GetCaseNoteSubTypesResponse.respond200WithApplicationJson(caseNoteSubTypes, MetaDataFactory.getTotalRecords(caseNoteSubTypes), nvl(pageOffset, 0L), nvl(pageLimit, 10L));
 	}
-
 
 	@Override
 	@Cacheable("caseNoteTypesByTypeSubType")

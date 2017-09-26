@@ -1,0 +1,54 @@
+create table IEP_LEVELS
+(
+	IEP_LEVEL                       VARCHAR(12)                NOT NULL,
+	AGY_LOC_ID                      VARCHAR(6)                 NOT NULL,
+	ACTIVE_FLAG                     VARCHAR(1)                 NOT NULL,
+	EXPIRY_DATE                     DATE,
+	USER_ID                         VARCHAR(40),
+	DEFAULT_FLAG                    VARCHAR(1)                 NOT NULL,
+	CREATE_DATETIME                 TIMESTAMP(9) DEFAULT now() NOT NULL,
+	CREATE_USER_ID                  VARCHAR(32)  DEFAULT USER  NOT NULL,
+	MODIFY_DATETIME                 TIMESTAMP(9),
+	MODIFY_USER_ID                  VARCHAR(32),
+	REMAND_TRANSFER_LIMIT           DECIMAL(12,2),
+	REMAND_SPEND_LIMIT              DECIMAL(12,2),
+	CONVICTED_TRANSFER_LIMIT        DECIMAL(12,2),
+	CONVICTED_SPEND_LIMIT           DECIMAL(12,2),
+	RECORD_USER_ID                  VARCHAR(30)  DEFAULT USER,
+	AUDIT_TIMESTAMP                 TIMESTAMP(9),
+	AUDIT_USER_ID                   VARCHAR(32),
+	AUDIT_MODULE_NAME               VARCHAR(65),
+	AUDIT_CLIENT_USER_ID            VARCHAR(64),
+	AUDIT_CLIENT_IP_ADDRESS         VARCHAR(39),
+	AUDIT_CLIENT_WORKSTATION_NAME   VARCHAR(64),
+	AUDIT_ADDITIONAL_INFO           VARCHAR(256),
+	CONSTRAINT IEP_LEVELS_PK
+		PRIMARY KEY (IEP_LEVEL, AGY_LOC_ID)
+)
+
+CREATE TABLE OFFENDER_IEP_LEVELS
+(
+	OFFENDER_BOOK_ID                DECIMAL(10)                NOT NULL,
+	IEP_LEVEL_SEQ                   DECIMAL(10)                NOT NULL,
+	IEP_DATE                        DATE                       NOT NULL,
+	IEP_TIME                        TIMESTAMP(9),
+	AGY_LOC_ID                      VARCHAR(6)                 NOT NULL,
+	IEP_LEVEL                       VARCHAR(12)                NOT NULL,
+	COMMENT_TEXT                    VARCHAR(240),
+	USER_ID                         VARCHAR(40),
+	CREATE_DATETIME                 TIMESTAMP(9) DEFAULT now() NOT NULL,
+	CREATE_USER_ID                  VARCHAR(32)  DEFAULT USER  NOT NULL,
+	MODIFY_DATETIME                 TIMESTAMP(9),
+	MODIFY_USER_ID                  VARCHAR(32),
+	AUDIT_TIMESTAMP                 TIMESTAMP(9),
+	AUDIT_USER_ID                   VARCHAR(32),
+	AUDIT_MODULE_NAME               VARCHAR(65),
+	AUDIT_CLIENT_USER_ID            VARCHAR(64),
+	AUDIT_CLIENT_IP_ADDRESS         VARCHAR(39),
+	AUDIT_CLIENT_WORKSTATION_NAME   VARCHAR(64),
+	AUDIT_ADDITIONAL_INFO           VARCHAR(256),
+	CONSTRAINT OFFENDER_IEP_LEVELS_PK
+		PRIMARY KEY (OFFENDER_BOOK_ID, IEP_LEVEL_SEQ),
+	CONSTRAINT OFF_IEP_LEVELS_IEP_LEVEL_FK
+		FOREIGN KEY (IEP_LEVEL, AGY_LOC_ID) references IEP_LEVELS
+)

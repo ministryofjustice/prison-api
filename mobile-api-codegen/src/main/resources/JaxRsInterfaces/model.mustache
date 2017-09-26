@@ -29,7 +29,9 @@ public class {{classname}}{{#parent}} extends {{{parent}}}{{/parent}} {
         {{#allowableValues}}{{#values}} {{.}}, {{/values}}{{/allowableValues}}
     };
     private {{{datatypeWithEnum}}} {{name}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}};{{/isEnum}}{{^isEnum}}
-    private {{{datatype}}} {{name}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}};{{/isEnum}}{{/vars}}
+    {{#required}}{{#isListContainer}}{{#defaultValue}}@Builder.Default
+    {{/defaultValue}}{{/isListContainer}}{{/required}}private {{{datatype}}} {{name}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}};{{/isEnum}}
+    {{/vars}}
 
     {{^isEnum}}
     @JsonAnyGetter

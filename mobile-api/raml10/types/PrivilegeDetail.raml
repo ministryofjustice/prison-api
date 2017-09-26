@@ -1,0 +1,28 @@
+#%RAML 1.0 DataType
+description: Incentive & Earned Privilege Details
+properties:
+  bookingId:
+    (javaType): Long
+    description: Offender booking identifier.
+  iepDate:
+    type: date-only
+    description: Effective date of IEP level.
+    example: 2016-02-28
+  iepTime?:
+    type: datetime
+    description: Effective date & time of IEP level.
+    example: 2016-02-28T16:41:41
+  agencyId:
+    type: string
+    description: Identifier of Agency this privilege entry is associated with.
+    example: BXI
+  iepLevel:
+    type: string
+    description: The IEP level (e.g. Basic, Standard or Enhanced).
+    example: STD
+  comments?:
+    type: string
+    description: Further details relating to this privilege entry.
+  userId?:
+    type: string
+    description: Identifier of user related to this privilege entry.

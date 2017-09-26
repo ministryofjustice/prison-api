@@ -1,0 +1,25 @@
+#%RAML 1.0 DataType
+description: Incentive & Earned Privilege Summary
+properties:
+  bookingId:
+    (javaType): Long
+    description: Offender booking identifier.
+  iepDate:
+    type: date-only
+    description: Effective date of current IEP level.
+    example: 2016-02-28
+  iepTime?:
+    type: datetime
+    description: Effective date & time of current IEP level.
+    example: 2016-02-28T16:41:41.090Z
+  iepLevel:
+    type: string
+    description: The current IEP level (e.g. Basic, Standard or Enhanced).
+    example: ENH
+  daysSinceReview:
+    type: integer
+    description: The number of days since last review (or entry, if new offender).
+  iepDetails?:
+    type: PrivilegeDetail[]
+    description: All IEP detail entries for the offender.
+    uniqueItems: true

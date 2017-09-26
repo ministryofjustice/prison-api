@@ -12,11 +12,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-//@Path("{{vendorExtensions.basePath}}/{{baseName}}")
-@Api(value = "/{{baseName}}")
+@Api(tags = {"/{{baseName}}"})
 {{#operations}}
 public interface {{classname}} {
     {{#operation}}
+
     @{{httpMethod}}
     {{#subresourceOperation}}@Path("{{path}}"){{/subresourceOperation}}
     {{#hasConsumes}}@Consumes({ {{#consumes}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }){{/hasConsumes}}
@@ -30,17 +30,18 @@ public interface {{classname}} {
     {{operationIdCamelCase}}Response {{nickname}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},
         {{/hasMore}}{{/allParams}});
     {{/operation}}
-
 {{/operations}}
 {{#operations}}
     {{#operation}}
+
     class {{operationIdCamelCase}}Response extends ResponseDelegate {
+
         private {{operationIdCamelCase}}Response(Response response, Object entity) {
             super(response, entity);
         }
-
         {{#responses}}
-            public static {{operationIdCamelCase}}Response respond{{{code}}}WithApplicationJson({{{dataType}}} entity{{#hasHeaders}}{{#headers}}, {{baseType}} {{name}}{{/headers}}{{/hasHeaders}}) {
+
+        public static {{operationIdCamelCase}}Response respond{{{code}}}WithApplicationJson({{{dataType}}} entity{{#hasHeaders}}{{#headers}}, {{baseType}} {{name}}{{/headers}}{{/hasHeaders}}) {
             Response.ResponseBuilder responseBuilder = Response.status({{{code}}})
                     .header("Content-Type", MediaType.APPLICATION_JSON){{#hasHeaders}}{{#headers}}
                     .header("{{baseName}}", {{name}}){{/headers}}{{/hasHeaders}};
@@ -48,7 +49,6 @@ public interface {{classname}} {
 
             return new {{operationIdCamelCase}}Response(responseBuilder.build(), entity);
         }
-
         {{/responses}}
     }
     {{/operation}}

@@ -64,4 +64,65 @@ public class DateTimeConverter {
 
 		return Timestamp.valueOf(ldt);
 	}
+
+	/**
+	 * Converts date represented by provided date object to a {@link LocalDate}. Any time component in provided date
+	 * object is assumed to be at UTC offset.
+	 *
+	 * @param date an instance of {@code java.sql.Timestamp} or {@code java.util.Date}
+	 * @return LocalDate or {@code null} if provided date object is {@code null}.
+	 * @throws IllegalArgumentException if provided date object is not of a supported type.
+	 */
+	public static LocalDate toISO8601LocalDate(Object date) {
+		LocalDate localDate = null;
+
+		if (date != null) {
+			if (date instanceof java.sql.Date) {
+				localDate = ((java.sql.Date) date).toLocalDate();
+			} else if (date instanceof java.util.Date) {
+				localDate = ((java.util.Date) date).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+			} else {
+				throw new IllegalArgumentException("Cannot convert [" + date.getClass().getName() + "] to a LocalDate.");
+			}
+		}
+
+		return localDate;
+	}
+
+	/**
+	 * Converts date and time represented by provided dateTime object to a {@link LocalDateTime}.
+	 *
+	 * @param dateTime an instance of {@code java.sql.Timestamp} or {@code java.util.Date}.
+	 * @return a {@link LocalDateTime} or {@code null} if provided dateTime object is {@code null}.
+	 * @throws IllegalArgumentException if provided dateTime object is not of a supported type.
+	 */
+	public static LocalDateTime toISO8601LocalDateTime(Object dateTime) {
+		LocalDateTime localDateTime = null;
+
+		if (dateTime != null) {
+			if (dateTime instanceof java.sql.Timestamp) {
+				localDateTime = ((java.sql.Timestamp) dateTime).toLocalDateTime();
+			} else if (dateTime instanceof java.util.Date) {
+				localDateTime = ((java.util.Date) dateTime).toInstant().atOffset(ZoneOffset.UTC).toLocalDateTime();
+			} else {
+				throw new IllegalArgumentException("Cannot convert [" + dateTime.getClass().getName() + "] to a LocalDateTime.");
+			}
+		}
+
+		return localDateTime;
+	}
+
+	/**
+	 * Converts date and time represented by provided dateTime object to an {@link OffsetDateTime}. Treats
+	 * provided dateTime as a local UTC dateTime.
+	 *
+	 * @param dateTime an instance of {@code java.sql.Timestamp} or {@code java.util.Date}.
+	 * @return an {@link OffsetDateTime} or {@code null} if provided dateTime object is {@code null}.
+	 * @throws IllegalArgumentException if provided dateTime object is not of a supported type.
+	 */
+	public static OffsetDateTime toISO8601OffsetDateTime(Object dateTime) {
+		LocalDateTime ldt = toISO8601LocalDateTime(dateTime);
+
+		return OffsetDateTime.of(ldt, ZoneOffset.UTC);
+	}
 }

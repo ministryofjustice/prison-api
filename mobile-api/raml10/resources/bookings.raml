@@ -6,3 +6,17 @@
       description: Gets sentence details (e.g. key dates) for offender booking.
     }
   }
+
+/{bookingId}/iepSummary:
+  (javaOperationName): getBookingIEPSummary
+  type: {
+    readOnlyItem: {
+      type: PrivilegeSummary,
+      description: Gets IEP (Incentives & Earned Privileges) summary for offender booking.
+    }
+  }
+  get:
+    queryParameters:
+      withDetails:
+        description: Toggle to return IEP detail entries in response (or not).
+        type: boolean

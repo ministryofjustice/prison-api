@@ -21,20 +21,24 @@ public class DateFormatProvider {
      * @throws IllegalArgumentException if provided dateTime object is not of a supported type.
      */
     public static String toISO8601DateTime(Object dateTime) {
-        LocalDateTime localDateTime = toISO8601LocalDateTime(dateTime);
+        LocalDateTime localDateTime = DateTimeConverter.toISO8601LocalDateTime(dateTime);
+
         if (localDateTime != null) {
             return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(localDateTime);
         }
+
         return null;
     }
 
     /**
-     * Formats date and time represented by provided dateTime object to an ISO-8601 dateTime representation.
+     * Formats date and time represented by provided dateTime object to an ISO-8601 datetime representation.
      *
      * @param dateTime an instance of {@code java.sql.Timestamp} or {@code java.util.Date}.
-     * @return localDateTime or {@code null} if provided dateTime object is {@code null}.
+     * @return a {@link LocalDateTime} or {@code null} if provided dateTime object is {@code null}.
      * @throws IllegalArgumentException if provided dateTime object is not of a supported type.
+     * @deprecated Use {@link DateTimeConverter#toISO8601LocalDateTime(Object)} instead.
      */
+    @Deprecated
     public static LocalDateTime toISO8601LocalDateTime(Object dateTime) {
         LocalDateTime localDateTime = null;
         if (dateTime != null) {
@@ -58,13 +62,14 @@ public class DateFormatProvider {
      * @throws IllegalArgumentException if provided date object is not of a supported type.
      */
     public static String toISO8601Date(Object date) {
-        LocalDate localDate = toISO8601LocalDate(date);
+        LocalDate localDate = DateTimeConverter.toISO8601LocalDate(date);
+
         if (localDate != null) {
             return DateTimeFormatter.ISO_LOCAL_DATE.format(localDate);
         }
+
         return null;
     }
-
     /**
      * Formats date represented by provided date object to an ISO-8601 date representation (i.e. yyyy-MM-dd).
      * By definition, this method ignores timezone information, if any, that might exist in provided date object.
@@ -72,7 +77,9 @@ public class DateFormatProvider {
      * @param date an instance of {@code java.sql.Timestamp} or {@code java.util.Date}
      * @return LocalDate or {@code null} if provided date object is {@code null}.
      * @throws IllegalArgumentException if provided date object is not of a supported type.
+     * @deprecated Use {@link DateTimeConverter#toISO8601LocalDate(Object)} instead.
      */
+    @Deprecated
     public static LocalDate toISO8601LocalDate(Object date) {
         LocalDate localDate = null;
         if (date != null) {
