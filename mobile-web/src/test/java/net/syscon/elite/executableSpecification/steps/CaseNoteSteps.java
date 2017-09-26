@@ -1,10 +1,9 @@
 package net.syscon.elite.executableSpecification.steps;
 
 import net.syscon.elite.test.EliteClientException;
-import net.syscon.elite.web.api.model.CaseNote;
-import net.syscon.elite.web.api.model.CaseNotes;
-import net.syscon.elite.web.api.model.NewCaseNote;
-import net.syscon.elite.web.api.model.UpdateCaseNote;
+import net.syscon.elite.v2.api.model.CaseNote;
+import net.syscon.elite.v2.api.model.NewCaseNote;
+import net.syscon.elite.v2.api.model.UpdateCaseNote;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +21,6 @@ public class CaseNoteSteps extends CommonSteps {
     private static final String API_REQUEST_FOR_CASENOTE = API_REQUEST_BASE_URL + "/{caseNoteId}";
 
     private CaseNote caseNote;
-    private CaseNotes caseNotes;
     private NewCaseNote pendingCaseNote;
     private String caseNoteFilter;
 
@@ -34,7 +32,6 @@ public class CaseNoteSteps extends CommonSteps {
         super.init();
 
         caseNote = null;
-        caseNotes = null;
         pendingCaseNote = null;
         caseNoteFilter = "";
     }

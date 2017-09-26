@@ -34,10 +34,9 @@ public class CaseNoteServiceImpl implements CaseNoteService {
     @Autowired
     private CaseNoteRepository caseNoteRepository;
 
-	@Override
 	@Transactional(readOnly = true)
-	public List<CaseNote> getCaseNotes(final String bookingId, String query, final String orderBy, Order order, final long offset,
-									   final long limit) {
+	@Override
+	public List<CaseNote> getCaseNotes(long bookingId, String query, String orderBy, Order order, long offset, long limit) {
 		String colSort = orderBy;
 		if (StringUtils.isBlank(orderBy)) {
 			colSort = "occurrenceDateTime";

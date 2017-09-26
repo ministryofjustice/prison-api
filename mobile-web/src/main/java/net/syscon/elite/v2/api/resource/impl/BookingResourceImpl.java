@@ -64,11 +64,15 @@ public class BookingResourceImpl implements BookingResource {
         return GetOffenderAliasesResponse.respond200WithApplicationJson(aliases);
     }
 
+    @Override
+    public GetOffenderCaseNotesResponse getOffenderCaseNotes(Long bookingId, String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+        List<CaseNote> caseNotes = caseNoteService.getCaseNotes(bookingId, query, sortFields, sortOrder, nvl(pageOffset, 0L), nvl(pageLimit, 10L));
+        return GetOffenderCaseNotesResponse.respond200WithApplicationJson(caseNotes, MetaDataFactory.getTotalRecords(caseNotes), nvl(pageOffset, 0L), nvl(pageLimit, 10L));
+    }
 
     @Override
-    public GetBookingSentenceDetailResponse getBookingSentenceDetail(Long bookingId) {
-        SentenceDetail sentenceDetail = bookingService.getBookingSentenceDetail(bookingId);
-        return GetBookingSentenceDetailResponse.respond200WithApplicationJson(sentenceDetail);
+    public GetOffenderCaseNoteResponse getOffenderCaseNote(Long bookingId, Long caseNoteId) {
+        return GetOffenderCaseNoteResponse.respond200WithApplicationJson(caseNoteService.getCaseNote(bookingId, caseNoteId));
     }
 
     @Override
@@ -78,27 +82,21 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public BookingResource.GetOffenderCaseNotesResponse getOffenderCaseNotes(Long bookingId, List<CaseNote> body, String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-        List<CaseNote> caseNotes = caseNoteService.getCaseNotes(bookingId, query, sortFields, sortOrder, nvl(pageOffset, 0L), nvl(pageLimit, 10L));
-        return null;
+    public GetBookingSentenceDetailResponse getBookingSentenceDetail(Long bookingId) {
+        SentenceDetail sentenceDetail = bookingService.getBookingSentenceDetail(bookingId);
+        return GetBookingSentenceDetailResponse.respond200WithApplicationJson(sentenceDetail);
     }
 
     @Override
-    public BookingResource.GetOffenderCaseNoteResponse getOffenderCaseNote(Long bookingId, Long caseNoteId) {
-        caseNoteService.getCaseNote(bookingId, caseNoteId);
-        return null;
+    public SaveOffenderCaseNotesResponse saveOffenderCaseNotes(Long bookingId, NewCaseNote body) {
+        final CaseNote caseNote = caseNoteService.createCaseNote(bookingId, body);
+        return SaveOffenderCaseNotesResponse.respond201WithApplicationJson(caseNote);
     }
 
     @Override
-    public BookingResource.GetOffenderCaseNotesResponse getOffenderCaseNotes_1(Long bookingId, NewCaseNote newCaseNote) {
-        final CaseNote caseNote = caseNoteService.createCaseNote(bookingId, newCaseNote);
-        return null;
-    }
-
-    @Override
-    public BookingResource.GetOffenderCaseNoteResponse getOffenderCaseNote_2(Long bookingId, Long caseNoteId, UpdateCaseNote updateCaseNote) {
-        final CaseNote caseNote = caseNoteService.updateCaseNote(bookingId, caseNoteId, updateCaseNote.getText());
-        return null;
+    public UpdateOffenderCaseNoteResponse updateOffenderCaseNote(Long bookingId, Long caseNoteId, UpdateCaseNote body) {
+        final CaseNote caseNote = caseNoteService.updateCaseNote(bookingId, caseNoteId, body.getText());
+        return UpdateOffenderCaseNoteResponse.respond201WithApplicationJson(caseNote);
     }
 
 }

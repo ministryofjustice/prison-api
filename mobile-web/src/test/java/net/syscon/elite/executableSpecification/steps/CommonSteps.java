@@ -2,7 +2,7 @@ package net.syscon.elite.executableSpecification.steps;
 
 import net.syscon.elite.test.ErrorResponseErrorHandler;
 import net.syscon.elite.v2.api.model.ErrorResponse;
-import net.syscon.elite.web.api.model.PageMetaData;
+import net.syscon.elite.v2.api.model.PageMetaData;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

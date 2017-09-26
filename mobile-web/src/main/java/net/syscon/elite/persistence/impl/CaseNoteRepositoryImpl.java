@@ -48,7 +48,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 			.build();
 
 	@Override
-	public List<CaseNote> getCaseNotes(String bookingId, String query, String orderByField, Order order, long offset, long limit) {
+	public List<CaseNote> getCaseNotes(long bookingId, String query, String orderByField, Order order, long offset, long limit) {
 		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CASENOTES"), caseNoteMapping)
 											.addRowCount()
 											.addQuery(query)

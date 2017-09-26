@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface CaseNoteRepository {
 	
-	List<CaseNote> getCaseNotes(String bookingId, String query,
+	List<CaseNote> getCaseNotes(long bookingId, String query,
 								String orderBy, Order order, long offset, long limit) ;
 	Optional<CaseNote> getCaseNote(long bookingId, long caseNoteId);
 	Long createCaseNote(long bookingId, NewCaseNote caseNote, String sourceCode);

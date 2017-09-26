@@ -2,7 +2,7 @@ package net.syscon.elite.service;
 
 import net.syscon.elite.persistence.InmateAlertRepository;
 import net.syscon.elite.service.impl.InmateAlertServiceImpl;
-import net.syscon.elite.web.api.model.Alert;
+import net.syscon.elite.v2.api.model.Alert;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -17,7 +17,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.List;
 
-import static net.syscon.elite.web.api.resource.BookingResource.Order.asc;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 

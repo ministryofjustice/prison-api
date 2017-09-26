@@ -2,8 +2,8 @@ package net.syscon.elite.executableSpecification.steps;
 
 import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.test.EliteClientException;
+import net.syscon.elite.v2.api.model.PageMetaData;
 import net.syscon.elite.v2.api.model.PrisonerDetail;
-import net.syscon.elite.web.api.model.PageMetaData;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
