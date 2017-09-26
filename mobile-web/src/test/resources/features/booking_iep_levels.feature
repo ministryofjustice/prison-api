@@ -17,8 +17,8 @@ Feature: Booking Incentives & Earned Privileges
 
     Examples:
       | bookingId | iepLevel | iepDetailCount | iepDate    |
-      | -1        | STD      | 0              | 2017-08-15 |
-      | -2        | BAS      | 0              | 2017-09-06 |
+      | -1        | Standard | 0              | 2017-08-15 |
+      | -2        | Basic    | 0              | 2017-09-06 |
 
   Scenario Outline: Retrieve IEP summary for an offender (with IEP details).
     When an IEP summary, with details, is requested for an offender with booking id "<bookingId>"
@@ -28,8 +28,8 @@ Feature: Booking Incentives & Earned Privileges
 
     Examples:
       | bookingId | iepLevel | iepDetailCount | iepDate    |
-      | -1        | STD      | 1              | 2017-08-15 |
-      | -2        | BAS      | 2              | 2017-09-06 |
+      | -1        | Standard | 1              | 2017-08-15 |
+      | -2        | Basic    | 2              | 2017-09-06 |
 
   Scenario: Retrieve IEP summary for an existing offender that does not have any IEP detail records.
     When an IEP summary, with details, is requested for an offender with booking id "-9"
