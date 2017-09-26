@@ -3,30 +3,28 @@ import org.apache.tools.ant.taskdefs.condition.Os
 
 project(":mobile-api") {
     // Project-specific properties
-    def ramlDir = new File("${rootDir}/mobile-api/raml")
-    def ramlFile = new File(ramlDir, "api.raml")
-    def htmlFile = new File(ramlDir, "api.html")
 
     def raml10Dir = new File("${rootDir}/mobile-api/raml10")
     def raml10File = new File(raml10Dir, "api.raml")
+    def htmlFile = new File(raml10Dir, "api.html")
 
     def oas20File = new File("${resourceGenDir}/api.json")
 
-    // RAML 0.8 documentation task
+    // RAML 1.0 documentation task
     //
     // The following task requires node-js installed in order to generate the API HTML version
     // Also install raml2html after install the node-js with the following command
-    // npm i -g raml2html@3.0.1
+    // npm i -g raml2html
     def htmlGenCommand = "raml2html"
-    def htmlGenArgs = ['-i', ramlFile.absolutePath, '-o', htmlFile.absolutePath]
+    def htmlGenArgs = ['-i', raml10File.absolutePath, '-o', htmlFile.absolutePath]
 
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        htmlGenCommand = "${rootDir}/mobile-api/raml/htmlgen.bat"
-        htmlGenArgs = [ramlFile.absolutePath, htmlFile.absolutePath]
+        htmlGenCommand = "${rootDir}/mobile-api/raml10/htmlgen.bat"
+        htmlGenArgs = [raml10File.absolutePath, htmlFile.absolutePath]
     }
 
     task htmlGen(type: Exec) {
-        workingDir ramlDir.absolutePath
+        workingDir raml10Dir.absolutePath
         commandLine htmlGenCommand
         args htmlGenArgs
     }
@@ -107,35 +105,6 @@ project(":mobile-api") {
         }
     }
 
-    // Task to generate Java code from RAML 0.8 resources
-    task generateRaml08Resources {
-        doFirst {
-            println "Generating JAXRS API model and interfaces from RAML 0.8 ..."
-
-            def configs = new org.raml.jaxrs.codegen.core.Configuration()
-
-            configs.outputDirectory = sourceGenDir
-            configs.sourceDirectory = ramlDir
-            configs.setBasePackageName("net.syscon.elite.web.api");
-            configs.setJaxrsVersion(org.raml.jaxrs.codegen.core.Configuration.JaxrsVersion.JAXRS_2_0)
-            configs.setJsonMapper(org.jsonschema2pojo.AnnotationStyle.JACKSON2)
-            configs.setUseJsr303Annotations(false)
-            configs.jsonMapperConfiguration = new HashMap<>()
-            configs.jsonMapperConfiguration["useLongIntegers"] = "true"
-            configs.jsonMapperConfiguration["includeToString"] = "true"
-            configs.jsonMapperConfiguration["includeHashcodeAndEquals"] = "true"
-            configs.jsonMapperConfiguration["includeConstructors"] = "true"
-            configs.jsonMapperConfiguration["useCommonsLang3"] = "true"
-
-            def sourceGenerator = new org.raml.jaxrs.codegen.core.Generator()
-
-            try {
-                sourceGenerator.run(new FileReader(new File(ramlDir, "./api.raml")), configs, "")
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     // Task to generate Java code from RAML 1.0 resources
     task generateRaml10Resources {
@@ -203,12 +172,10 @@ project(":mobile-api") {
     // Task Dependencies
 
     // Ensure generated sources are removed and re-generated before they are compiled
-    compileGeneratedJava.dependsOn generateRaml08Resources, generateOas20Resources
+    compileGeneratedJava.dependsOn generateOas20Resources
 
     generateOas20Resources.dependsOn cleanGenerated, raml2oas, ':mobile-api-codegen:jar'
     generateOas20Resources.mustRunAfter cleanGenerated
-
-    generateRaml08Resources.dependsOn cleanGenerated
 
     // Ensure project JAR only created after generated classes are processed
     jar.dependsOn generatedClasses

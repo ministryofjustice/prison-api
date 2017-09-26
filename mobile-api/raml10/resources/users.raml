@@ -1,3 +1,137 @@
 /me/locations:
+  (javaOperationName): getMyLocations
   description: Returns list of locations associated with current user.
   type: { readOnlyCollection: { type: Location } }
+  
+/{username}:
+  (javaOperationName): getUserDetails
+  description: Retrieve details for user having specified username.
+  type: { readOnlyItem: { type: UserDetail }}
+  uriParameters:
+    username:
+      description: The username of the user.
+
+/staff/{staffId}:
+  (javaOperationName): getStaffDetail
+  description: Retrieve basic personal details for staff member having specified staff id.
+  type: { readOnlyItem: { type: StaffDetail }}
+  uriParameters:
+    staffId:
+      (javaType): Long
+      description: The staff id of the staff member.
+
+/me:
+  (javaOperationName): getMyUserInformation
+  description: Details of the current logged user
+  type: { readOnlyItem: { type: UserDetail } }
+
+/me/bookingAssignments:
+  (javaOperationName): getMyAssignments
+  description: Offender Assignments for this logged in user
+  type: { readOnlyCollectionPaged: { type: OffenderBooking } }
+
+
+/me/caseLoads:
+  (javaOperationName): getMyCaseLoads
+  description: Returns the list of caseloads associated to the user
+  type: { readOnlyCollection: { type: CaseLoad } }
+  
+/me/caseNoteTypes:
+  (javaOperationName): getMyCaseNoteTypes
+  description: Returns the list of case Note types associated to the user
+  type: { readOnlyCollectionPaged: { type: ReferenceCode } }
+  get:
+    queryParameters:
+      includeSubTypes:
+        description: Include the Subtypes in the response
+        type: boolean
+        default: false
+  is: [
+    searchable: {fieldsList : "code, activeFlag and description"},
+    sortable: {fieldsList : "code, activeFlag and description"},
+  ] 
+  
+
+/me/activeCaseLoad:
+  (javaOperationName): updateMyActiveCaseLoad
+  description: The active caseload associated to the user
+  put:
+    description: Set the active caseload associated to the user.
+    body:
+      application/json:
+        type: CaseLoad
+    responses:
+      401:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: Invalid username or password
+            example:  !include ../examples/ouput/401.sample.json
+      403:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: the user does not have permission to view the caseload.
+            example:  !include ../examples/ouput/403.sample.json
+
+/login:
+  (javaOperationName): login
+  post:
+    securedBy: [basic]
+    description: Login using Username and Password
+    body:
+      application/json:
+        type: AuthLogin
+        example: !include ../examples/input/login-auth.sample.json
+    headers:
+      Authorization:
+        description: Used for Basic authentication
+        required: false
+        example: Basic aXRhZ191c2VyOml0NGdfdXMzcg==
+    responses:
+      201:
+        description: If the login has been completed with success. The token object is returned including the status.
+        body:
+          application/json:
+            type: Token
+            example: !include ../examples/output/login-success.sample.json
+        headers:
+          Authorization:
+            description: Generated token
+            required: true
+            example: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJpdGFnX3VzZXIiLCJhdWRpZW5jZSI6InVua25vd24iLCJjcmVhdGVkIjoxNDkyMTIwOTE1MDgzLCJleHAiOjE0OTIxMjE5MTV9.9gX_NzwtD2gHPZ9PJwClHuLxEohZBlKaeGWYJBL2nY1ydjlT7PQ2xjsWPsDusebpSozdbUCnm8H3fpKE7yWRZg
+
+      401:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: Invalid username or password
+            example:  !include ../examples/ouput/401.sample.json
+
+/token:
+  (javaOperationName): tokenRefresh
+  post:
+    description: Renew the JWT to keep as a authenticated user
+    headers:
+      Authorization:
+        description: Current Token
+        required: true
+        example: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJpdGFnX3VzZXIiLCJhdWRpZW5jZSI6InVua25vd24iLCJjcmVhdGVkIjoxNDkyMTIwOTE1MDgzLCJleHAiOjE0OTIxMjE5MTV9.9gX_NzwtD2gHPZ9PJwClHuLxEohZBlKaeGWYJBL2nY1ydjlT7PQ2xjsWPsDusebpSozdbUCnm8H3fpKE7yWRZg
+    responses:
+      201:
+        description: If the login has been completed with success. The token object is returned including the status.
+        body:
+          application/json:
+            type: Token
+            example: !include ../examples/output/login-success.sample.json
+        headers:
+          Authorization:
+            description: Generated token
+            required: true
+            example: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJpdGFnX3VzZXIiLCJhdWRpZW5jZSI6InVua25vd24iLCJjcmVhdGVkIjoxNDkyMTIwOTE1MDgzLCJleHAiOjE0OTIxMjE5MTV9.9gX_NzwtD2gHPZ9PJwClHuLxEohZBlKaeGWYJBL2nY1ydjlT7PQ2xjsWPsDusebpSozdbUCnm8H3fpKE7yWRZg
+      401:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: Invalid Token
+            example:  !include ../examples/ouput/401.sample.json

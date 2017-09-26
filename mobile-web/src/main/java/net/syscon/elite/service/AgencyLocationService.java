@@ -1,9 +1,9 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.v2.api.model.Agency;
-import net.syscon.elite.web.api.model.InmatesSummary;
-import net.syscon.elite.web.api.model.Location;
-import net.syscon.elite.web.api.resource.LocationsResource.Order;
+import net.syscon.elite.v2.api.model.Location;
+import net.syscon.elite.v2.api.model.OffenderBooking;
+import net.syscon.elite.v2.api.support.Order;
 
 import java.util.List;
 
@@ -12,8 +12,8 @@ public interface AgencyLocationService {
 	Agency getAgency(String agencyId);
 	List<Agency> getAgencies(final int offset, final int limit);
 
-	Location getLocation(Long locationId, boolean withInmates);
-	List<Location> getLocations(final String query, final String orderBy, final Order order, final int offset, final int limit);
-	List<Location> getLocationsFromAgency(String agencyId, final String query, final int offset, final int limit,final String orderByField, final Order order);
-	List<InmatesSummary> getInmatesFromLocation(Long locationId, String query, String orderByField, Order order, int offset, int limit);
+	Location getLocation(long locationId, boolean withInmates);
+	List<Location> getLocations(final String query, final String orderBy, final Order order, final long offset, final long limit);
+	List<Location> getLocationsFromAgency(String agencyId, final String query, final long offset, final long limit,final String orderByField, final Order order);
+	List<OffenderBooking> getInmatesFromLocation(long locationId, String query, String orderByField, Order order, long offset, long limit);
 }

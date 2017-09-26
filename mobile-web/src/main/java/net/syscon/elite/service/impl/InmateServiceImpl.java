@@ -6,13 +6,11 @@ import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
+import net.syscon.elite.v2.api.model.Alias;
+import net.syscon.elite.v2.api.model.CaseLoad;
 import net.syscon.elite.v2.api.model.OffenderBooking;
 import net.syscon.elite.v2.api.model.PrisonerDetail;
-import net.syscon.elite.web.api.model.Alias;
-import net.syscon.elite.web.api.model.CaseLoad;
-import net.syscon.elite.web.api.model.InmateDetails;
-import net.syscon.elite.web.api.model.InmatesSummary;
-import net.syscon.elite.web.api.resource.BookingResource.Order;
+import net.syscon.elite.v2.api.support.Order;
 import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +44,7 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<InmatesSummary> findAllInmates(String query, int offset, int limit, String orderBy, Order order) {
+    public List<OffenderBooking> findAllInmates(String query, int offset, int limit, String orderBy, Order order) {
         String colSort = StringUtils.isNotBlank(orderBy) ? orderBy : DEFAULT_OFFENDER_SORT;
         return repository.findAllInmates(getUserCaseloadIds(), locationTypeGranularity, query, offset, limit, colSort, order);
     }

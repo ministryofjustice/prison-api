@@ -9,9 +9,6 @@ import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import net.syscon.elite.v2.api.resource.impl.*;
-import net.syscon.elite.web.api.resource.impl.BookingResourceImpl;
-import net.syscon.elite.web.api.resource.impl.LocationsResourceImpl;
-import net.syscon.elite.web.api.resource.impl.UsersResourceImpl;
 import net.syscon.elite.web.handler.ResourceExceptionHandler;
 import net.syscon.elite.web.listener.EndpointLoggingListener;
 import org.apache.commons.lang3.StringUtils;
@@ -54,11 +51,9 @@ public class ServletContextConfigs extends ResourceConfig {
     public void setEnv(ConfigurableEnvironment env) {
         // Use package scanning to identify and register Jersey REST resources - the key to this working is to ensure
         // that the concrete implementation classes include a @Path annotation (as this is how Jersey recognises them).
-        register(BookingResourceImpl.class);
         register(ImagesResourceImpl.class);
         register(LocationsResourceImpl.class);
         register(ReferenceDomainsResourceImpl.class);
-        register(UsersResourceImpl.class);
 
         register(ResourceExceptionHandler.class);
         // v2 Endpoints

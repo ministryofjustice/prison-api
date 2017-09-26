@@ -5,11 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.persistence.InmateRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
+import net.syscon.elite.v2.api.model.Alias;
 import net.syscon.elite.v2.api.model.OffenderBooking;
 import net.syscon.elite.v2.api.model.PrisonerDetail;
-import net.syscon.elite.web.api.model.*;
-import net.syscon.elite.web.api.resource.BookingResource;
-import net.syscon.elite.web.api.resource.LocationsResource;
+import net.syscon.elite.v2.api.support.Order;
 import net.syscon.util.DateFormatProvider;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
@@ -144,14 +143,14 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.build();
 
 	@Override
-	public List<InmatesSummary> findInmatesByLocation(final Long locationId, String query, String orderByField, LocationsResource.Order order, final int offset, final int limit) {
-		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_INMATES_BY_LOCATION"), INMATE_MAPPING)
+	public List<OffenderBooking> findInmatesByLocation(final Long locationId, String query, String orderByField, Order order, final long offset, final long limit) {
+		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_INMATES_BY_LOCATION"), OFFENDER_BOOKING_MAPPING)
 				.addRowCount()
 				.addQuery(query)
-				.addOrderBy(order == LocationsResource.Order.asc, orderByField)
+				.addOrderBy(order == Order.ASC, orderByField)
 				.addPagination()
 				.build();
-		final RowMapper<InmatesSummary> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, InmatesSummary.class, INMATE_MAPPING);
+		final RowMapper<OffenderBooking> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, OffenderBooking.class, OFFENDER_BOOKING_MAPPING);
 		try {
 			return jdbcTemplate.query(sql, createParams("locationId", locationId, "caseLoadId", getCurrentCaseLoad(), "offset", offset, "limit", limit), assignedInmateRowMapper);
 		} catch (EmptyResultDataAccessException e) {
@@ -160,10 +159,10 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public List<InmatesSummary> findAllInmates(Set<String> caseloads, String locationTypeRoot, String query, int offset, int limit, String orderBy, BookingResource.Order order) {
+	public List<OffenderBooking> findAllInmates(Set<String> caseloads, String locationTypeRoot, String query, long offset, long limit, String orderBy, Order order) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, INMATE_MAPPING);
-		boolean isAscendingOrder = (order == BookingResource.Order.asc);
+		boolean isAscendingOrder = (order == Order.ASC);
 
 		String sql = builder
 				.addRowCount()
@@ -172,10 +171,10 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 				.addPagination()
 				.build();
 
-		RowMapper<InmatesSummary> assignedInmateRowMapper =
-				Row2BeanRowMapper.makeMapping(sql, InmatesSummary.class, INMATE_MAPPING);
+		RowMapper<OffenderBooking> assignedInmateRowMapper =
+				Row2BeanRowMapper.makeMapping(sql, OffenderBooking.class, OFFENDER_BOOKING_MAPPING);
 
-		List<InmatesSummary> inmates;
+		List<OffenderBooking> inmates;
 		try {
 			inmates = jdbcTemplate.query(
 					sql,
@@ -192,7 +191,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public List<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String keywords, String locationPrefix, String locationTypeRoot, int offset, int limit, String orderBy, boolean ascendingOrder) {
+	public List<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String keywords, String locationPrefix, String locationTypeRoot, long offset, long limit, String orderBy, boolean ascendingOrder) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
 
         if (StringUtils.isNotBlank(locationPrefix)) {
@@ -228,14 +227,14 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public List<InmatesSummary> findMyAssignments(long staffId, String currentCaseLoad, String orderBy, boolean ascendingSort, int offset, int limit) {
-		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_MY_ASSIGNMENTS"), INMATE_MAPPING).
+	public List<OffenderBooking> findMyAssignments(long staffId, String currentCaseLoad, String orderBy, boolean ascendingSort, long offset, long limit) {
+		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_MY_ASSIGNMENTS"), OFFENDER_BOOKING_MAPPING).
 				addRowCount().
 				addOrderBy(ascendingSort, orderBy).
 				addPagination()
 				.build();
 
-		final RowMapper<InmatesSummary> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, InmatesSummary.class, INMATE_MAPPING);
+		final RowMapper<OffenderBooking> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, OffenderBooking.class, OFFENDER_BOOKING_MAPPING);
 		try {
 			return jdbcTemplate.query(sql, createParams("staffId", staffId, "caseLoadId", currentCaseLoad, "offset", offset, "limit", limit), assignedInmateRowMapper);
 		} catch (EmptyResultDataAccessException e) {
@@ -340,10 +339,10 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public List<Alias> findInmateAliases(Long bookingId, String orderByField, BookingResource.Order order) {
+	public List<Alias> findInmateAliases(Long bookingId, String orderByField, Order order) {
 		String initialSql = getQuery("FIND_INMATE_ALIASES");
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, aliasMapping);
-		boolean isAscendingOrder = (order == BookingResource.Order.asc);
+		boolean isAscendingOrder = (order == Order.ASC);
 
 		String sql = builder
 				.addOrderBy(isAscendingOrder,

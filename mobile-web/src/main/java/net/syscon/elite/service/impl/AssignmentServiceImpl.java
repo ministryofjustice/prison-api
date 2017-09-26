@@ -5,8 +5,8 @@ import net.syscon.elite.persistence.UserRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.AssignmentService;
 import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.web.api.model.InmatesSummary;
-import net.syscon.elite.web.api.model.UserDetails;
+import net.syscon.elite.v2.api.model.OffenderBooking;
+import net.syscon.elite.v2.api.model.UserDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,9 +25,9 @@ public class AssignmentServiceImpl implements AssignmentService {
     private InmateRepository inmateRepository;
 
     @Override
-    public List<InmatesSummary> findMyAssignments(int offset, int limit) {
+    public List<OffenderBooking> findMyAssignments(long offset, long limit) {
         final String username = UserSecurityUtils.getCurrentUsername();
-        final UserDetails loggedInUser = userRepository.findByUsername(username).orElseThrow(new EntityNotFoundException(username));
+        final UserDetail loggedInUser = userRepository.findByUsername(username).orElseThrow(new EntityNotFoundException(username));
         return inmateRepository.findMyAssignments(loggedInUser.getStaffId(), loggedInUser.getActiveCaseLoadId(), DEFAULT_OFFENDER_SORT, true, offset, limit);
     }
 }

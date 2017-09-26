@@ -5,7 +5,6 @@ import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.v2.api.model.ReferenceCode;
 import net.syscon.elite.v2.api.support.Order;
-import net.syscon.elite.web.api.model.CaseNoteType;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -81,12 +80,12 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 	}
 
 	@Override
-	public List<CaseNoteType> getCaseNoteTypeByCurrentCaseLoad(String query, String orderBy, Order order, long offset, long limit) {
+	public List<ReferenceCode> getCaseNoteTypeByCurrentCaseLoad(String query, String orderBy, Order order, long offset, long limit) {
 		return referenceCodeRepository.getCaseNoteTypeByCurrentCaseLoad(query, getDefaultOrderBy(orderBy), order, offset, limit);
 	}
 
 	@Override
-	public List<CaseNoteType> getCaseNoteSubType(String typeCode, String query, String orderBy, Order order, long offset, long limit) {
+	public List<ReferenceCode> getCaseNoteSubType(String typeCode, String query, String orderBy, Order order, long offset, long limit) {
 		return referenceCodeRepository.getCaseNoteSubType(typeCode, query, getDefaultOrderBy(orderBy), order, offset, limit);
 	}
 }

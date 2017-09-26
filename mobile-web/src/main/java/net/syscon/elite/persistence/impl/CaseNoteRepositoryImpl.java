@@ -5,9 +5,9 @@ import net.syscon.elite.persistence.CaseNoteRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.security.UserSecurityUtils;
-import net.syscon.elite.web.api.model.CaseNote;
-import net.syscon.elite.web.api.model.NewCaseNote;
-import net.syscon.elite.web.api.resource.BookingResource.Order;
+import net.syscon.elite.v2.api.model.CaseNote;
+import net.syscon.elite.v2.api.model.NewCaseNote;
+import net.syscon.elite.v2.api.support.Order;
 import net.syscon.util.DateFormatProvider;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
@@ -49,11 +49,11 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 
 	@Override
 	public List<CaseNote> getCaseNotes(String bookingId, String query, String orderByField, Order order, int offset,
-			int limit) {
+									   int limit) {
 		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CASENOTES"), caseNoteMapping)
 											.addRowCount()
 											.addQuery(query)
-											.addOrderBy(order == Order.asc, orderByField)
+											.addOrderBy(order == Order.ASC, orderByField)
 											.addPagination()
 											.build();
 		final RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, caseNoteMapping);

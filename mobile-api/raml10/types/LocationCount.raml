@@ -1,0 +1,14 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "Location Count",
+  "type": "object",
+	"properties": {
+		"physicalCountId": { "type": "integer" },
+		"locationId": {"type": "integer" },
+		"enteredByUserId": { "type": "integer" },
+		"initialCount": { "$ref": "locationCountDetails"},
+		"recount": { "$ref": "locationCountDetails"},
+		"countStatusCode": { "enum": ["I", "R", "C"] }
+	},
+	"required": ["physicalCountId", "enteredByUserId", "initialCount"]
+}

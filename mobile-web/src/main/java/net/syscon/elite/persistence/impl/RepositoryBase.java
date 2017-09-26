@@ -5,7 +5,7 @@ import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.security.UserSecurityUtils;
-import net.syscon.elite.web.api.model.CaseLoad;
+import net.syscon.elite.v2.api.model.CaseLoad;
 import net.syscon.util.QueryBuilderFactory;
 import net.syscon.util.SQLProvider;
 import org.springframework.beans.factory.annotation.Autowired;

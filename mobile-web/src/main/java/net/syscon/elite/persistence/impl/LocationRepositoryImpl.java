@@ -5,8 +5,8 @@ import net.syscon.elite.persistence.LocationRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.security.UserSecurityUtils;
-import net.syscon.elite.web.api.model.Location;
-import net.syscon.elite.web.api.resource.LocationsResource.Order;
+import net.syscon.elite.v2.api.model.Location;
+import net.syscon.elite.v2.api.support.Order;
 import net.syscon.util.IQueryBuilder;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
@@ -29,7 +29,7 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 		.put("NO_OF_OCCUPANT", 				new FieldMapper("currentOccupancy")).build();
 
 	@Override
-	public Optional<Location> findLocation(Long locationId) {
+	public Optional<Location> findLocation(long locationId) {
 		String sql = getQuery("FIND_LOCATION");
 
 		RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
@@ -44,10 +44,10 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 	}
 
 	@Override
-	public List<Location> findLocations(String query, String orderByField, Order order, int offset, int limit) {
+	public List<Location> findLocations(String query, String orderByField, Order order, long offset, long limit) {
 		String initialSql = getQuery("FIND_ALL_LOCATIONS");
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, locationMapping);
-		boolean isAscendingOrder = (order == Order.asc);
+		boolean isAscendingOrder = (order == Order.ASC);
 
 		String sql = builder
 				.addRowCount()
@@ -68,11 +68,11 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 	}
 
 	@Override
-	public List<Location> findLocationsByAgencyId(final String caseLoadId, final String agencyId, final String query, final int offset, final int limit, final String orderByField, final Order order) {
+	public List<Location> findLocationsByAgencyId(final String caseLoadId, final String agencyId, final String query, final long offset, final long limit, final String orderByField, final Order order) {
 		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_LOCATIONS_BY_AGENCY_ID"), locationMapping).
 						addRowCount().
 						addQuery(query).
-						addOrderBy(order == Order.asc, orderByField).
+						addOrderBy(order == Order.ASC, orderByField).
 						addPagination()
 						.build();
 		final RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);

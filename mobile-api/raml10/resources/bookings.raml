@@ -1,3 +1,117 @@
+/:
+  (javaOperationName): getOffenderBookings
+  description:  The collection of inmates within the system.
+  type: { readOnlyCollectionPaged: { type: OffenderBooking } }
+  is: [
+    searchable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, assignedLivingUnitId, or assignedOfficerUserId"},
+    sortable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId"},
+  ]
+
+/{bookingId}:
+  (javaOperationName): getOffenderBooking
+  description: The details specific to the specified inmate.
+  type: { readOnlyItem: { type: InmateDetail }}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The booking id of offender
+
+/{bookingId}/caseNotes:
+  (javaOperationName): getOffenderCaseNotes
+  description: Offender Case Notes
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The booking id of offender
+  get:
+    description: Get paged results <<resourcePathName | !pluralize>>.
+    body:
+        application/json:
+          type: CaseNote[]
+    responses:
+      200:
+        body:
+          application/json:
+            <<type>>[]
+    is: [
+      pageable, hasResponsePagination,
+      searchable: {fieldsList : "creationDateTime, type, subType, source"},
+      sortable: {fieldsList : "creationDateTime, type, subType, source"},
+    ]
+
+  post:
+    (javaOperationName): saveOffenderCaseNote
+    description: Entry of new case note under a booking.
+    body:
+      application/json:
+        type: NewCaseNote
+    responses:
+      201:
+        body:
+          application/json:
+            type: CaseNote
+            description: The Case Note has been recorded. The updated object is returned including the status.
+      409:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: The case note has already been recorded under the booking. The current unmodified object (including status) is returned.
+
+/{bookingId}/caseNotes/{caseNoteId}:
+  (javaOperationName): getOffenderCaseNote
+  description: The specific case note of a booking.
+  type: { readOnlyItem: { type: CaseNote } }
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The booking id of offender
+  put:
+    description: It will update text note of specified case note. Text will not be replaced but it will be appended by provided text.
+    body:
+      application/json:
+        type: UpdateCaseNote
+    responses:
+      201:
+        body:
+          application/json:
+            type: CaseNote
+            description: The Case Note has been recorded. The updated object is returned including the status.
+
+
+/{bookingId}/alerts:
+  (javaOperationName): getOffenderAlerts
+  description: The collection of alerts associated to the inmate.
+  type: {readOnlyCollectionPaged: {type: Alert}}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The booking id of offender
+  is: [
+    sortable: {fieldsList: "alertType, alertCode, createDate, expireDate"},
+    searchable: {fieldsList: "alertType, alertCode, createDate, expireDate"},
+  ]
+
+/{bookingId}/alerts/{alertId}:
+  (javaOperationName): getOffenderAlert
+  description: A specific alert associated to the booking.
+  type: { readOnlyItem: { type: Alert } }
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The booking id of offender
+
+/{bookingId}/aliases:
+  (javaOperationName): getOffenderAliases
+  description: The collection of aliases associated with the inmate.
+  type: {readOnlyCollectionPaged: {type: Alias}}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The booking id of offender
+  is: [
+    sortable: {fieldsList: "firstName, lastName, age, dob, middleName, nameType"}
+  ]
+
 /{bookingId}/sentenceDetail:
   (javaOperationName): getBookingSentenceDetail
   type: {
@@ -6,3 +120,7 @@
       description: Gets sentence details (e.g. key dates) for offender booking.
     }
   }
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The booking id of offender

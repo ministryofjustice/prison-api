@@ -6,6 +6,10 @@
       description: Details about the specified image including the image itself.
     }
   }
+  uriParameters:
+    imageId:
+      (javaType): Long
+      description: The image id of offender
 
 /{imageId}/data:
   (javaOperationName): getImageData
@@ -14,3 +18,7 @@
       description: Image as bytes.
     }
   }
+  uriParameters:
+    imageId:
+      (javaType): Long
+      description: The image id of offender

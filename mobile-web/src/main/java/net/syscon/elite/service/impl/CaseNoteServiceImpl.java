@@ -4,9 +4,9 @@ import net.syscon.elite.persistence.CaseNoteRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.web.api.model.CaseNote;
-import net.syscon.elite.web.api.model.NewCaseNote;
-import net.syscon.elite.web.api.resource.BookingResource.Order;
+import net.syscon.elite.v2.api.model.CaseNote;
+import net.syscon.elite.v2.api.model.NewCaseNote;
+import net.syscon.elite.v2.api.support.Order;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,11 +37,11 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<CaseNote> getCaseNotes(final String bookingId, String query, final String orderBy, Order order, final int offset,
-			final int limit) {
+									   final int limit) {
 		String colSort = orderBy;
 		if (StringUtils.isBlank(orderBy)) {
 			colSort = "occurrenceDateTime";
-			order = Order.desc;
+			order = Order.DESC;
 		}
 
 		String processedQuery = processQuery(query);

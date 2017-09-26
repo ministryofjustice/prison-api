@@ -23,6 +23,18 @@ types:
   SentenceDetail:  !include types/SentenceDetail.raml
   ImageDetail:     !include types/ImageDetail.raml
   ReferenceCode:   !include types/ReferenceCode.raml
+  UserDetail:      !include types/UserDetail.raml
+  StaffDetail:     !include types/StaffDetail.raml
+  CaseLoad:        !include types/CaseLoad.raml
+  AuthLogin:       !include types/AuthLogin.raml
+  Token:           !include types/Token.raml
+  CaseNote:        !include types/CaseNote.raml
+  NewCaseNote:     !include types/NewCaseNote.raml
+  UpdateCaseNote:  !include types/UpdateCaseNote.raml
+  Alert:           !include types/Alert.raml
+  Alias:           !include types/Alias.raml
+  PageMetaData:    !include types/PageMetaData.raml
+  InmateDetail:    !include types/InmateDetail.raml
 
 securitySchemes:
   jwt:
@@ -55,11 +67,10 @@ resourceTypes: !include resourceTypes/generic-resource-types.raml
 
 /agencies:          !include resources/agencies.raml
 /images:            !include resources/images.raml
-#/booking:           !include resources/booking.raml
 /bookings:          !include resources/bookings.raml
 /prisoners:         !include resources/prisoners.raml
 /search-offenders:  !include resources/search-offenders.raml
 /users:             !include resources/users.raml
-#/locations:         !include resources/locations.raml
 /referenceDomains:  !include resources/reference-domains.raml
+/locations:         !include resources/locations.raml
 

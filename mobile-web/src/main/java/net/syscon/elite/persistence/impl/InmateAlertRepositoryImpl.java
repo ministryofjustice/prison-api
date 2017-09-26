@@ -4,8 +4,8 @@ import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.persistence.InmateAlertRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
-import net.syscon.elite.web.api.model.Alert;
-import net.syscon.elite.web.api.resource.BookingResource.Order;
+import net.syscon.elite.v2.api.model.Alert;
+import net.syscon.elite.v2.api.support.Order;
 import net.syscon.util.DateFormatProvider;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
@@ -29,11 +29,11 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 
 	@Override
 	public List<Alert> getInmateAlert(String bookingId, String query, String orderByField, Order order, int offset,
-			int limit) {
+									  int limit) {
 		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_INMATE_ALERTS"), alertMapping)
 											.addRowCount()
 											.addQuery(query)
-											.addOrderBy(order == Order.asc, orderByField)
+											.addOrderBy(order == Order.ASC, orderByField)
 											.addPagination()
 											.build();
 		final RowMapper<Alert> alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);

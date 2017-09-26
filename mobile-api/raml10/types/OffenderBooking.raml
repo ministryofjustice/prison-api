@@ -2,7 +2,6 @@
 description: Offender Booking Summary
 properties:
   bookingId:
-    type: integer
     (javaType): Long
     description: Unique, numeric booking id.
   bookingNo?:
@@ -33,14 +32,12 @@ properties:
     type: string
     description: Identifier of agency that offender is associated with.
   assignedLivingUnitId?:
-    type: integer
     (javaType): Long
     description: Identifier of living unit (e.g. cell) that offender is assigned to.
   assignedLivingUnitDesc?:
     type: string
     description: Description of living unit (e.g. cell) that offender is assigned to.
   facialImageId?:
-    type: integer
     (javaType): Long
     description: Identifier of facial image of offender.
   assignedOfficerUserId?:

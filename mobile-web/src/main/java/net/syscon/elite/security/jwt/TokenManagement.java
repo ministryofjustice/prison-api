@@ -7,7 +7,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import net.syscon.elite.security.DeviceFingerprint;
 import net.syscon.elite.security.UserDetailsImpl;
-import net.syscon.elite.web.api.model.Token;
+import net.syscon.elite.v2.api.model.Token;
 import net.syscon.util.DateTimeConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,7 +103,7 @@ public class TokenManagement {
 		return userPrincipal;
 	}
 
-	public Boolean validateToken(String token, Object userPrincipal, DeviceFingerprint deviceFingerprint, boolean refreshingToken) {
+	Boolean validateToken(String token, Object userPrincipal, DeviceFingerprint deviceFingerprint, boolean refreshingToken) {
 		final Claims claims = this.getClaimsFromToken(token);
 		final Boolean allowRefreshToken = (Boolean) claims.get(ALLOW_REFRESH_TOKEN);
 
