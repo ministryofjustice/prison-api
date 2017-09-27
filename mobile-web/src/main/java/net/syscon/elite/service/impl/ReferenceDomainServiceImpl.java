@@ -1,8 +1,11 @@
 package net.syscon.elite.service.impl;
 
+import net.syscon.elite.persistence.CaseLoadRepository;
 import net.syscon.elite.persistence.ReferenceCodeRepository;
+import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.ReferenceDomainService;
+import net.syscon.elite.v2.api.model.CaseLoad;
 import net.syscon.elite.v2.api.model.ReferenceCode;
 import net.syscon.elite.v2.api.support.Order;
 import org.apache.commons.lang3.StringUtils;
@@ -11,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -19,6 +23,9 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 
 	@Autowired
 	private ReferenceCodeRepository referenceCodeRepository;
+
+	@Autowired
+	private CaseLoadRepository caseLoadRepository;
 
 	private String getDefaultOrderBy(String orderBy) {
 		return StringUtils.isEmpty(orderBy)? "code": orderBy;
@@ -80,8 +87,11 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 	}
 
 	@Override
-	public List<ReferenceCode> getCaseNoteTypeByCurrentCaseLoad(String query, String orderBy, Order order, long offset, long limit) {
-		return referenceCodeRepository.getCaseNoteTypeByCurrentCaseLoad(query, getDefaultOrderBy(orderBy), order, offset, limit);
+	public List<ReferenceCode> getCaseNoteTypeByCurrentCaseLoad(String query, String orderBy, Order order, long offset, long limit, boolean includeSubTypes) {
+		final Optional<CaseLoad> caseLoad = caseLoadRepository.getCurrentCaseLoadDetail(UserSecurityUtils.getCurrentUsername());
+		final String caseLoadType = caseLoad.isPresent() ? caseLoad.get().getType() : "BOTH";
+
+		return referenceCodeRepository.getCaseNoteTypeByCurrentCaseLoad(caseLoadType, includeSubTypes, query, getDefaultOrderBy(orderBy), order, offset, limit);
 	}
 
 	@Override

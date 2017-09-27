@@ -5,16 +5,14 @@
   
 /{username}:
   (javaOperationName): getUserDetails
-  description: Retrieve details for user having specified username.
-  type: { readOnlyItem: { type: UserDetail }}
+  type: { readOnlyItem: { type: UserDetail,  description: Retrieve details for user having specified username. }}
   uriParameters:
     username:
       description: The username of the user.
 
 /staff/{staffId}:
   (javaOperationName): getStaffDetail
-  description: Retrieve basic personal details for staff member having specified staff id.
-  type: { readOnlyItem: { type: StaffDetail }}
+  type: { readOnlyItem: { type: StaffDetail, description: Retrieve basic personal details for staff member having specified staff id. }}
   uriParameters:
     staffId:
       (javaType): Long
@@ -22,8 +20,7 @@
 
 /me:
   (javaOperationName): getMyUserInformation
-  description: Details of the current logged user
-  type: { readOnlyItem: { type: UserDetail } }
+  type: { readOnlyItem: { type: UserDetail, description: Details of the current logged user } }
 
 /me/bookingAssignments:
   (javaOperationName): getMyAssignments

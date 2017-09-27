@@ -9,8 +9,7 @@
 
 /{bookingId}:
   (javaOperationName): getOffenderBooking
-  description: The details specific to the specified inmate.
-  type: { readOnlyItem: { type: InmateDetail }}
+  type: { readOnlyItem: { type: InmateDetail, description: The details specific to the specified inmate }}
   uriParameters:
     bookingId:
       (javaType): Long
@@ -23,7 +22,7 @@
       (javaType): Long
       description: The booking id of offender
   get:
-    description: Get paged results <<resourcePathName | !pluralize>>.
+    description: Get a paged list of case notes for offender
     responses:
       200:
         body:
@@ -69,7 +68,7 @@
             CaseNote
 
   put:
-    description: It will update text note of specified case note. Text will not be replaced but it will be appended by provided text.
+    description: Updates text note of specified case note. Text will not be replaced but it will be appended by provided text.
     body:
       application/json:
         type: UpdateCaseNote
@@ -82,8 +81,7 @@
 
 /{bookingId}/alerts:
   (javaOperationName): getOffenderAlerts
-  description: The collection of alerts associated to the inmate.
-  type: {readOnlyCollectionPaged: {type: Alert}}
+  type: {readOnlyCollectionPaged: {type: Alert, description: The collection of alerts associated to the inmate. }}
   uriParameters:
     bookingId:
       (javaType): Long
@@ -95,8 +93,7 @@
 
 /{bookingId}/alerts/{alertId}:
   (javaOperationName): getOffenderAlert
-  description: A specific alert associated to the booking.
-  type: { readOnlyItem: { type: Alert } }
+  type: { readOnlyItem: { type: Alert, description: A specific alert associated to the booking. } }
   uriParameters:
     bookingId:
       (javaType): Long

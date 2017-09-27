@@ -1,7 +1,6 @@
 /:
   (javaOperationName): getLocations
-  description: Returns the list of locations viewable by the user
-  type: { readOnlyCollectionPaged: { type: Location } }
+  type: { readOnlyCollectionPaged: { type: Location, description: Returns the list of locations viewable by the user } }
   is: [
     searchable: {fieldsList : "locationId, agencyId, locationType, and parentLocationId"},
     sortable: {fieldsList : "locationId, agencyId, locationType, and parentLocationId"},
@@ -9,21 +8,19 @@
 
 /{locationId}:
   (javaOperationName): getLocation
-  description: Returns details about the specified location
   uriParameters:
     locationId:
       (javaType): Long
       description: The location id of location
-  type: { readOnlyItem: { type: Location }}
+  type: { readOnlyItem: { type: Location, description: Returns details about the specified location }}
 
 /{locationId}/inmates:
   (javaOperationName): getOffendersAtLocation
-  description: The collection of inmates present at the specified location.
   uriParameters:
     locationId:
       (javaType): Long
       description: The location id of location
-  type: { readOnlyCollectionPaged: { type: OffenderBooking } }
+  type: { readOnlyCollectionPaged: { type: OffenderBooking, description: The collection of inmates present at the specified location. } }
   is: [
     searchable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId"},
     sortable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId"},

@@ -4,7 +4,6 @@ import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.persistence.ReferenceCodeRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
-import net.syscon.elite.v2.api.model.CaseLoad;
 import net.syscon.elite.v2.api.model.ReferenceCode;
 import net.syscon.elite.v2.api.support.Order;
 import org.apache.commons.lang3.StringUtils;
@@ -136,21 +135,32 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	}
 
 	@Override
-	public List<ReferenceCode> getCaseNoteTypeByCurrentCaseLoad(String query, String orderBy, Order order, long offset, long limit) {
-		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CNOTE_TYPES_BY_CASELOAD"), referenceCodeMapping)
-				.addQuery(query)
-				.addOrderBy(isAscending(order), orderBy)
-				.addRowCount()
-				.addPagination()
-				.build();
-		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
-        try {
-			final Optional<CaseLoad> caseLoad = getCurrentCaseLoadDetail();
-			final String caseLoadType = caseLoad.isPresent() ? caseLoad.get().getType() : "BOTH";
-			return jdbcTemplate.query(sql, createParams("caseLoadType", caseLoadType, "offset", offset, "limit", limit), referenceCodeRowMapper);
-        } catch (EmptyResultDataAccessException e) {
-            return Collections.emptyList();
-        }
+	public List<ReferenceCode> getCaseNoteTypeByCurrentCaseLoad(String caseLoadType, boolean includeSubTypes, String query, String orderBy, Order order, long offset, long limit) {
+
+		try {
+			if (includeSubTypes) {
+				final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CNOTE_TYPES_AND_SUBTYPES_BY_CASELOAD"), masterDetailReferenceMapper)
+						.build();
+
+				final RowMapper<ReferenceCodeDetail> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCodeDetail.class, masterDetailReferenceMapper);
+				final List<ReferenceCodeDetail> results = jdbcTemplate.query(sql, createParams("caseLoadType", caseLoadType), referenceCodeRowMapper);
+				return convertToReferenceCodes(results);
+
+			} else {
+				final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CNOTE_TYPES_BY_CASELOAD"), referenceCodeMapping)
+						.addQuery(query)
+						.addOrderBy(isAscending(order), orderBy)
+						.addRowCount()
+						.addPagination()
+						.build();
+				final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
+				return jdbcTemplate.query(sql, createParams("caseLoadType", caseLoadType, "offset", offset, "limit", limit), referenceCodeRowMapper);
+			}
+		} catch (EmptyResultDataAccessException e) {
+			return Collections.emptyList();
+		}
+
+
 	}
 	@Override
 	public List<ReferenceCode> getCaseNoteSubType(String typeCode, String query, String orderBy, Order order, long offset, long limit) {

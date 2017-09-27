@@ -62,8 +62,15 @@ public class UserResourceImpl implements UserResource {
 
     @Override
     public GetMyCaseNoteTypesResponse getMyCaseNoteTypes(boolean includeSubTypes, String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-        List<ReferenceCode> caseNoteTypes = referenceDomainService.getCaseNoteTypeByCurrentCaseLoad(query, sortFields, sortOrder, nvl(pageOffset, 0L), nvl(pageLimit, 10L));
-        return GetMyCaseNoteTypesResponse.respond200WithApplicationJson(caseNoteTypes, MetaDataFactory.getTotalRecords(caseNoteTypes), nvl(pageOffset, 0L), nvl(pageLimit, 10L));
+        final long offset = nvl(pageOffset, 0L);
+        final long limit = nvl(pageLimit, 10L);
+        List<ReferenceCode> caseNoteTypes = referenceDomainService.getCaseNoteTypeByCurrentCaseLoad(query, sortFields, sortOrder, offset, limit, includeSubTypes);
+
+        if (includeSubTypes) {
+            return GetMyCaseNoteTypesResponse.respond200WithApplicationJson(caseNoteTypes, (long)caseNoteTypes.size(),  0L, (long)caseNoteTypes.size());
+        } else {
+            return GetMyCaseNoteTypesResponse.respond200WithApplicationJson(caseNoteTypes, MetaDataFactory.getTotalRecords(caseNoteTypes), nvl(pageOffset, 0L), nvl(pageLimit, 10L));
+        }
     }
 
     @Override
