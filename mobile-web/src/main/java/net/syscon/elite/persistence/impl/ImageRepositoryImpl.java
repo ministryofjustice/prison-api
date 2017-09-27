@@ -26,7 +26,7 @@ public class ImageRepositoryImpl extends RepositoryBase implements ImageReposito
 
 	private final Map<String, FieldMapper> imageSummaryMapping = new ImmutableMap.Builder<String, FieldMapper>()
 		.put("IMAGE_ID",            new FieldMapper("imageId"))
-		.put("CAPTURE_DATE",        new FieldMapper("captureDate", DateTimeConverter::toISO8601LocalDateTime))
+		.put("CAPTURE_DATE",        new FieldMapper("captureDate", DateTimeConverter::toISO8601LocalDate))
 		.put("IMAGE_VIEW_TYPE",     new FieldMapper("imageView"))
 		.put("ORIENTATION_TYPE",    new FieldMapper("imageOrientation"))
 		.put("IMAGE_OBJECT_TYPE",   new FieldMapper("imageType"))
