@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * BDD step implementations for Booking alias feature.
  */
 public class BookingDetailSteps extends CommonSteps {
-    private static final String API_BOOKING_REQUEST_URL = API_PREFIX + "booking/{bookingId}";
+    private static final String API_BOOKING_REQUEST_URL = API_PREFIX + "bookings/{bookingId}";
 
     private InmateDetail inmateDetail;
 

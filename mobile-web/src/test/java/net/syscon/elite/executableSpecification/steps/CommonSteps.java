@@ -1,5 +1,6 @@
 package net.syscon.elite.executableSpecification.steps;
 
+import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.test.ErrorResponseErrorHandler;
 import net.syscon.elite.v2.api.model.ErrorResponse;
 import net.syscon.elite.v2.api.model.PageMetaData;
@@ -84,30 +85,30 @@ public abstract class CommonSteps {
     }
 
     @Step("Apply pagination")
-    public void applyPagination(String limit, String offset) {
-        if (StringUtils.isBlank(limit)) {
+    public void applyPagination(Long offset, Long limit) {
+        if (limit == null) {
             paginationLimit = 0;
         } else {
-            paginationLimit = Long.valueOf(limit);
+            paginationLimit = limit;
         }
 
-        if (StringUtils.isBlank(offset)) {
+        if (offset == null) {
             paginationOffset = 0;
         } else {
-            paginationOffset = Long.valueOf(offset);
+            paginationOffset = offset;
         }
     }
 
     protected void init() {
-        paginationLimit = 0;
+        paginationLimit = 10;
         paginationOffset = 0;
         errorResponse = null;
         receivedResponse = null;
     }
 
-    protected <T> void buildResourceData(ResponseEntity<List<T>> receivedResponse) {
+    protected <T> void buildResourceData(ResponseEntity<List<T>> receivedResponse, String name) {
         this.receivedResponse = receivedResponse;
-        final PageMetaData pageMetaData = buildPageMetaData(receivedResponse.getHeaders());
+        final PageMetaData pageMetaData = buildPageMetaData(receivedResponse.getHeaders(), name);
         setResourceMetaData(receivedResponse.getBody(), pageMetaData);
     }
 
@@ -290,31 +291,23 @@ public abstract class CommonSteps {
     }
 
     protected String buildQuery(String queryParam) {
-        return addPaginationParams("?query=" + StringUtils.trimToEmpty(queryParam));
+        return "?query=" + StringUtils.trimToEmpty(queryParam);
     }
 
-    private String addPaginationParams(String query) {
-        StringBuilder params = new StringBuilder(StringUtils.trimToEmpty(query));
-
-        if ((paginationLimit > 0 ) || (paginationOffset > 0)) {
-            params.append(StringUtils.isBlank(query) ? "?" : "&")
-                    .append("limit=")
-                    .append(paginationLimit)
-                    .append("&")
-                    .append("offset=")
-                    .append(paginationOffset);
-        }
-
-        return params.toString();
+    protected Map<String, String> addPaginationHeaders() {
+        return ImmutableMap.of("Page-Offset", String.valueOf(paginationOffset), "Page-Limit", String.valueOf(paginationLimit));
     }
 
-    private PageMetaData buildPageMetaData(HttpHeaders headers) {
-        final Long totalRecords = Long.valueOf(headers.get("Total-Records").get(0));
-        final Long returnedOffset = Long.valueOf(headers.get("Page-Offset").get(0));
-        final Long returnedLimit = Long.valueOf(headers.get("Page-Limit").get(0));
+    private PageMetaData buildPageMetaData(HttpHeaders headers, String name) {
+        final List<String> totals = headers.get("Total-Records");
+        final Long totalRecords = totals == null || totals.isEmpty() ? null : Long.valueOf(totals.get(0));
+        final List<String> offsets = headers.get("Page-Offset");
+        final Long returnedOffset = offsets == null || offsets.isEmpty() ? null : Long.valueOf(offsets.get(0));
+        final List<String> limits = headers.get("Page-Limit");
+        final Long returnedLimit = limits == null || limits.isEmpty() ? null : Long.valueOf(limits.get(0));
 
         return PageMetaData.builder()
-                .name("prisoners")
+                .name(name)
                 .totalRecords(totalRecords)
                 .offset(returnedOffset)
                 .limit(returnedLimit)

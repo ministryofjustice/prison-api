@@ -1,6 +1,5 @@
 package net.syscon.elite.executableSpecification.steps;
 
-import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.v2.api.model.OffenderBooking;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
@@ -56,13 +55,12 @@ public class OffenderSearchSteps extends CommonSteps {
         } else {
             queryUrl = String.format(LOCATION_SEARCH, StringUtils.isNotBlank(locationPrefix) ? locationPrefix.trim() : "_");
         }
-        final ImmutableMap<String, String> inputHeaders = ImmutableMap.of("Page-Offset", "0", "Page-Limit", "10");
-
         ResponseEntity<List<OffenderBooking>> responseEntity = restTemplate.exchange(queryUrl,
-                HttpMethod.GET, createEntity(null, inputHeaders), new ParameterizedTypeReference<List<OffenderBooking>>() {});
+                HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<OffenderBooking>>() {});
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        buildResourceData(responseEntity);
+        offenderBookings = responseEntity.getBody();
+        buildResourceData(responseEntity, "offenders");
     }
 
 

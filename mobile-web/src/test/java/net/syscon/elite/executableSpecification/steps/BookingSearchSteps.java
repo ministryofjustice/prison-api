@@ -1,6 +1,5 @@
 package net.syscon.elite.executableSpecification.steps;
 
-import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.v2.api.model.OffenderBooking;
 import net.syscon.util.QueryOperator;
 import net.thucydides.core.annotations.Step;
@@ -21,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * BDD step implementations for Booking search feature.
  */
 public class BookingSearchSteps extends CommonSteps {
-    private static final String API_QUERY_PREFIX = API_PREFIX + "booking?query=";
+    private static final String API_QUERY_PREFIX = API_PREFIX + "bookings?query=";
 
     private List<OffenderBooking> inmateSummaries;
 
@@ -113,14 +112,12 @@ public class BookingSearchSteps extends CommonSteps {
 
         String queryUrl = API_QUERY_PREFIX + StringUtils.trimToEmpty(query);
 
-        final ImmutableMap<String, String> inputHeaders = ImmutableMap.of("Page-Offset", "0", "Page-Limit", "10");
-
         ResponseEntity<List<OffenderBooking>> response = restTemplate.exchange(queryUrl,
-                HttpMethod.GET, createEntity(null, inputHeaders), new ParameterizedTypeReference<List<OffenderBooking>>() {});
+                HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<OffenderBooking>>() {});
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         inmateSummaries = response.getBody();
-        buildResourceData(response);
+        buildResourceData(response, "offenders");
     }
 
     private String buildSimpleQuery(String fieldName, Object criteria) {

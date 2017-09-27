@@ -155,9 +155,9 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         caseNote.applyDateToFilter(dateTo);
     }
 
-    @And("^pagination with limit \"([^\"]*)\" and offset \"([^\"]*)\" applied$")
-    public void paginationWithLimitAndOffsetApplied(String limit, String offset) throws Throwable {
-        caseNote.applyPagination(limit, offset);
+    @And("^pagination with limit \"([0-9]*)\" and offset \"([0-9]*)\" applied$")
+    public void paginationWithLimitAndOffsetApplied(long limit, long offset) throws Throwable {
+        caseNote.applyPagination(offset, limit);
     }
 
     @And("^filtered case notes are requested for offender booking \"([^\"]*)\"$")

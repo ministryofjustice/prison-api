@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * BDD step implementations for Booking alias feature.
  */
 public class BookingAliasSteps extends CommonSteps {
-    private static final String API_REQUEST_BASE_URL = API_PREFIX + "booking/{bookingId}/aliases";
+    private static final String API_REQUEST_BASE_URL = API_PREFIX + "bookings/{bookingId}/aliases";
 
     private List<Alias> aliases;
 
@@ -44,15 +44,12 @@ public class BookingAliasSteps extends CommonSteps {
         init();
 
         String requestUrl = API_REQUEST_BASE_URL + StringUtils.trimToEmpty(query);
-
         ResponseEntity<List<Alias>> response = restTemplate.exchange(requestUrl, HttpMethod.GET, createEntity(),
                 new ParameterizedTypeReference<List<Alias>>() {}, bookingId.toString());
-
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         aliases = response.getBody();
-
-        buildResourceData(response);
+        buildResourceData(response, "aliases");
     }
 
     protected void init() {

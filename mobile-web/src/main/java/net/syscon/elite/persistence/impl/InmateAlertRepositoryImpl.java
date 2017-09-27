@@ -6,7 +6,7 @@ import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.v2.api.model.Alert;
 import net.syscon.elite.v2.api.support.Order;
-import net.syscon.util.DateFormatProvider;
+import net.syscon.util.DateTimeConverter;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -23,8 +23,8 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 		.put("ALERT_TYPE", 			new FieldMapper("alertType"))
 		.put("ALERT_CODE", 			new FieldMapper("alertCode"))
 		.put("COMMENT_TEXT", 		new FieldMapper("comment", value -> value == null ? "" : value))
-		.put("ALERT_DATE", 			new FieldMapper("dateCreated", DateFormatProvider::toISO8601Date))
-		.put("EXPIRY_DATE", 		new FieldMapper("dateExpires", value -> value == null ? "" : DateFormatProvider.toISO8601Date(value)))
+		.put("ALERT_DATE", 			new FieldMapper("dateCreated", DateTimeConverter::toISO8601LocalDate))
+		.put("EXPIRY_DATE", 		new FieldMapper("dateExpires", DateTimeConverter::toISO8601LocalDate))
 		.build();
 
 	@Override

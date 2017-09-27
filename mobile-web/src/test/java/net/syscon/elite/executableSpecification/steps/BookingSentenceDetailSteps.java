@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * BDD step implementations for Booking Sentence Detail feature.
  */
 public class BookingSentenceDetailSteps extends CommonSteps {
-    private static final String BOOKING_SENTENCE_DETAIL_API_URL = V2_API_PREFIX + "bookings/{bookingId}/sentenceDetail";
+    private static final String BOOKING_SENTENCE_DETAIL_API_URL = API_PREFIX + "bookings/{bookingId}/sentenceDetail";
 
     private SentenceDetail sentenceDetail;
 

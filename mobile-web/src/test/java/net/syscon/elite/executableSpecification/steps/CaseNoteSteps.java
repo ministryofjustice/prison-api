@@ -1,6 +1,5 @@
 package net.syscon.elite.executableSpecification.steps;
 
-import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.test.EliteClientException;
 import net.syscon.elite.v2.api.model.CaseNote;
 import net.syscon.elite.v2.api.model.NewCaseNote;
@@ -21,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * BDD step implementations for Case Note domain.
  */
 public class CaseNoteSteps extends CommonSteps {
-    private static final String API_REQUEST_BASE_URL = API_PREFIX + "booking/{bookingId}/caseNotes";
+    private static final String API_REQUEST_BASE_URL = API_PREFIX + "bookings/{bookingId}/caseNotes";
     private static final String API_REQUEST_FOR_CASENOTE = API_REQUEST_BASE_URL + "/{caseNoteId}";
 
     private CaseNote caseNote;
@@ -185,14 +184,12 @@ public class CaseNoteSteps extends CommonSteps {
 
         String queryUrl = API_REQUEST_BASE_URL + buildQuery(caseNoteFilter);
 
-        final ImmutableMap<String, String> inputHeaders = ImmutableMap.of("Page-Offset", "0", "Page-Limit", "10");
-
         ResponseEntity<List<CaseNote>> response = restTemplate.exchange(queryUrl,
-                HttpMethod.GET, createEntity(null, inputHeaders), new ParameterizedTypeReference<List<CaseNote>>() {}, bookingId);
+                HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<CaseNote>>() {}, bookingId);
 
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        buildResourceData(response);
+        buildResourceData(response, "caseNotes");
         caseNotes = response.getBody();
     }
 }

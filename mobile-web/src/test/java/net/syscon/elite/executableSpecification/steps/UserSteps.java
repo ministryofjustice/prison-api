@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserSteps extends CommonSteps {
     private static final String API_USERS_ME_REQUEST_URL = API_PREFIX + "users/me";
     private static final String API_STAFF_REQUEST_URL = API_PREFIX + "users/staff/{staffId}";
-    private static final String API_USERS_ME_LOCATIONS_REQUEST_URL = V2_API_PREFIX + "users/me/locations";
+    private static final String API_USERS_ME_LOCATIONS_REQUEST_URL = API_PREFIX + "users/me/locations";
 
     private StaffDetail staffDetail;
     private List<Location> userLocations;
@@ -108,6 +108,6 @@ public class UserSteps extends CommonSteps {
 
         userLocations = response.getBody();
 
-        setResourceMetaData(userLocations, null);
+        buildResourceData(response, "locations");
     }
 }

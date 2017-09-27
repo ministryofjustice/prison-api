@@ -1,6 +1,5 @@
 package net.syscon.elite.executableSpecification.steps;
 
-import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.test.EliteClientException;
 import net.syscon.elite.v2.api.model.Location;
 import net.thucydides.core.annotations.Step;
@@ -52,13 +51,11 @@ public class LocationsSteps extends CommonSteps {
 
         String queryUrl = API_LOCATIONS + StringUtils.trimToEmpty(query);
 
-        final ImmutableMap<String, String> inputHeaders = ImmutableMap.of("Page-Offset", "0", "Page-Limit", "10");
-
         ResponseEntity<List<Location>> response = restTemplate.exchange(queryUrl,
-                HttpMethod.GET, createEntity(null, inputHeaders), new ParameterizedTypeReference<List<Location>>() {});
+                HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<Location>>() {});
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        buildResourceData(response);
+        buildResourceData(response, "locations");
     }
 
     private void dispatchQueryForObject(String query) {
