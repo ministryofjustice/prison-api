@@ -3,10 +3,6 @@ package net.syscon.elite.service;
 import net.syscon.elite.persistence.InmateAlertRepository;
 import net.syscon.elite.service.impl.InmateAlertServiceImpl;
 import net.syscon.elite.v2.api.model.Alert;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -14,9 +10,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
+import static java.lang.String.format;
+import static net.syscon.elite.v2.api.support.Order.ASC;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 
@@ -32,30 +31,42 @@ public class InmateAlertServiceTest {
     @Test
     public void testCorrectNumberAlertReturned() {
         List<Alert> alerts = createAlerts();
-        Mockito.when(inmateAlertRepository.getInmateAlert(eq("bookingId"), eq(""), eq("alertCode"), eq(asc), eq(0), eq(10))
+        Mockito.when(inmateAlertRepository.getInmateAlert(eq(-1L), eq(""), eq("alertCode"), eq(ASC), eq(0), eq(10))
         ).thenReturn(alerts);
-        final List<Alert> returnedAlerts = serviceToTest.getInmateAlerts("bookingId", "", "alertCode", asc, 0, 10);
+        final List<Alert> returnedAlerts = serviceToTest.getInmateAlerts(-1L, "", "alertCode", ASC, 0, 10);
         assertThat(returnedAlerts).hasSize(alerts.size());
     }
 
     @Test
     public void testCorrectExpiredAlerts() {
         List<Alert> alerts = createAlerts();
-        Mockito.when(inmateAlertRepository.getInmateAlert(eq("bookingId"), eq(""), eq("alertCode"), eq(asc), eq(0), eq(10))
+        Mockito.when(inmateAlertRepository.getInmateAlert(eq(-1L), eq(""), eq("alertCode"), eq(ASC), eq(0), eq(10))
         ).thenReturn(alerts);
-        final List<Alert> returnedAlerts = serviceToTest.getInmateAlerts("bookingId", "", "alertCode", asc, 0, 10);
+        final List<Alert> returnedAlerts = serviceToTest.getInmateAlerts(-1L, "", "alertCode", ASC, 0, 10);
         assertThat(returnedAlerts).extracting("expired").containsSequence(false, false, true, true, false);
     }
 
     private List<Alert> createAlerts() {
-        List<Alert> alerts = new ArrayList<>();
-        DateTime now = new DateTime(DateTimeZone.UTC).withTimeAtStartOfDay();
-        DateTimeFormatter dtf = DateTimeFormat.forPattern("yyyy-MM-dd");
-        alerts.add(new Alert(1L, "ALERTYPE1", "ALERTCODE1", "This is a comment 1", now.minusMonths(1).toString(dtf), now.plusDays(2).toString(dtf), null));
-        alerts.add(new Alert(2L, "ALERTYPE2", "ALERTCODE2", "This is a comment 2", now.minusMonths(2).toString(dtf), now.plusDays(1).toString(dtf), null));
-        alerts.add(new Alert(3L, "ALERTYPE3", "ALERTCODE3", "This is a comment 3", now.minusMonths(3).toString(dtf), now.toString(dtf), null));
-        alerts.add(new Alert(4L, "ALERTYPE4", "ALERTCODE4", "This is a comment 4", now.minusMonths(4).toString(dtf), now.minusDays(1).toString(dtf), null));
-        alerts.add(new Alert(5L, "ALERTYPE5", "ALERTCODE5", "This is a comment 5", now.minusMonths(5).toString(dtf), null, null));
-        return alerts;
+        LocalDateTime now = LocalDateTime.now();
+
+        return Arrays.asList(
+                buildAlert(-1L, now.minusMonths(1), now.plusDays(2)),
+                buildAlert(-2L, now.minusMonths(2), now.plusDays(1)),
+                buildAlert(-3L, now.minusMonths(3), now),
+                buildAlert(-4L, now.minusMonths(4), now.minusDays(1)),
+                buildAlert(-5L, now.minusMonths(5), null)
+            );
     }
+
+    private Alert buildAlert(long id, LocalDateTime dateCreated, LocalDateTime dateExpires) {
+        return Alert.builder()
+                .alertId(id)
+                .alertType(format("ALERTYPE%d", id))
+                .alertCode(format("ALERTCODE%d", id))
+                .comment(format("This is a comment %d", id))
+                .dateCreated(dateCreated)
+                .dateExpires(dateExpires)
+                .build();
+    }
+
 }

@@ -1,7 +1,7 @@
 package net.syscon.elite.executableSpecification.steps;
 
 import net.syscon.elite.test.EliteClientException;
-import net.syscon.elite.web.api.model.InmateDetails;
+import net.syscon.elite.v2.api.model.InmateDetail;
 import net.thucydides.core.annotations.Step;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +14,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BookingDetailSteps extends CommonSteps {
     private static final String API_BOOKING_REQUEST_URL = API_PREFIX + "booking/{bookingId}";
 
-    private InmateDetails inmateDetails;
+    private InmateDetail inmateDetail;
 
     @Step("Retrieve offender booking details record")
     public void findBookingDetails(Long bookingId) {
-        ResponseEntity<InmateDetails> response;
+        ResponseEntity<InmateDetail> response;
 
         try {
             response =
@@ -26,10 +26,10 @@ public class BookingDetailSteps extends CommonSteps {
                             API_BOOKING_REQUEST_URL,
                             HttpMethod.GET,
                             createEntity(),
-                            InmateDetails.class,
+                            InmateDetail.class,
                             bookingId);
 
-            inmateDetails = response.getBody();
+            inmateDetail = response.getBody();
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
@@ -37,11 +37,11 @@ public class BookingDetailSteps extends CommonSteps {
 
     @Step("Verify offender booking - booking number")
     public void verifyOffenderBookingBookingNo(String bookingNo) {
-        assertThat(inmateDetails.getBookingNo()).isEqualTo(bookingNo);
+        assertThat(inmateDetail.getBookingNo()).isEqualTo(bookingNo);
     }
 
     @Step("Verify offender booking - assigned officer id")
     public void verifyOffenderBookingAssignedOfficerId(Long assignedOfficerId) {
-        assertThat(inmateDetails.getAssignedOfficerId()).isEqualTo(assignedOfficerId);
+        assertThat(inmateDetail.getAssignedOfficerId()).isEqualTo(assignedOfficerId);
     }
 }

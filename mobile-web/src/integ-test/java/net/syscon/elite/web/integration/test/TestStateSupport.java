@@ -3,7 +3,7 @@ package net.syscon.elite.web.integration.test;
 import com.google.gson.Gson;
 import io.restassured.http.Header;
 import io.restassured.response.Response;
-import net.syscon.elite.web.api.model.AuthLogin;
+import net.syscon.elite.v2.api.model.AuthLogin;
 import org.springframework.http.HttpStatus;
 
 import java.util.Map;
@@ -13,7 +13,7 @@ import static io.restassured.RestAssured.given;
 
 public class TestStateSupport {
 
-	public static final AuthLogin VALID_CREDENTIALS = new AuthLogin("itag_user", "it4g_us3r");
+	public static final AuthLogin VALID_CREDENTIALS = AuthLogin.builder().username("itag_user").password("it4g_us3r").build();
 	
 	public static final String TOKEN = "token";
 	public static final String REFRESH_TOKEN = "refreshToken";

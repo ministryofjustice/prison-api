@@ -1,10 +1,11 @@
 package net.syscon.elite.executableSpecification.steps;
 
+import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.test.EliteClientException;
-import net.syscon.elite.web.api.model.Location;
-import net.syscon.elite.web.api.model.Locations;
+import net.syscon.elite.v2.api.model.Location;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class LocationsSteps extends CommonSteps {
     private static final String API_LOCATIONS = API_PREFIX + "locations";
 
-    private Locations locations;
     private Location location;
 
     @Step("Perform locations search without any criteria")
@@ -52,13 +52,13 @@ public class LocationsSteps extends CommonSteps {
 
         String queryUrl = API_LOCATIONS + StringUtils.trimToEmpty(query);
 
-        ResponseEntity<Locations> response = restTemplate.exchange(queryUrl, HttpMethod.GET, createEntity(), Locations.class);
+        final ImmutableMap<String, String> inputHeaders = ImmutableMap.of("Page-Offset", "0", "Page-Limit", "10");
+
+        ResponseEntity<List<Location>> response = restTemplate.exchange(queryUrl,
+                HttpMethod.GET, createEntity(null, inputHeaders), new ParameterizedTypeReference<List<Location>>() {});
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-        locations = response.getBody();
-
-        setResourceMetaData(locations.getLocations(), locations.getPageMetaData());
+        buildResourceData(response);
     }
 
     private void dispatchQueryForObject(String query) {
@@ -85,8 +85,6 @@ public class LocationsSteps extends CommonSteps {
 
     protected void init() {
         super.init();
-
-        locations = null;
         location = null;
     }
 }

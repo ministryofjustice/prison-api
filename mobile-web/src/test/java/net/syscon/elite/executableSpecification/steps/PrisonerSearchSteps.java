@@ -2,12 +2,10 @@ package net.syscon.elite.executableSpecification.steps;
 
 import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.test.EliteClientException;
-import net.syscon.elite.v2.api.model.PageMetaData;
 import net.syscon.elite.v2.api.model.PrisonerDetail;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,17 +62,13 @@ public class PrisonerSearchSteps extends CommonSteps {
             assertThat(responseEntity.getStatusCode()).isEqualTo(expectedStatus);
             assertThat(isErrorExpected).isFalse();
 
-            final HttpHeaders headers = responseEntity.getHeaders();
-            final Long totalRecords = Long.valueOf(headers.get("Total-Records").get(0));
-            final Long returnedOffset = Long.valueOf(headers.get("Page-Offset").get(0));
-            final Long returnedLimit = Long.valueOf(headers.get("Page-Limit").get(0));
+            buildResourceData(responseEntity);
 
-            prisonerDetails = responseEntity.getBody();
-
-            setResourceMetaData(prisonerDetails, new PageMetaData(returnedOffset, returnedLimit, totalRecords, "prisoners"));
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
             assertThat(isErrorExpected).isTrue();
         }
     }
+
+
 }

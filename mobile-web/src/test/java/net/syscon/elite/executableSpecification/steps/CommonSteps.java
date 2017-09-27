@@ -105,6 +105,12 @@ public abstract class CommonSteps {
         receivedResponse = null;
     }
 
+    protected <T> void buildResourceData(ResponseEntity<List<T>> receivedResponse) {
+        this.receivedResponse = receivedResponse;
+        final PageMetaData pageMetaData = buildPageMetaData(receivedResponse.getHeaders());
+        setResourceMetaData(receivedResponse.getBody(), pageMetaData);
+    }
+
     protected void setResourceMetaData(List<?> resources, PageMetaData pageMetaData) {
         this.resources = resources;
         this.pageMetaData = pageMetaData;
@@ -301,4 +307,18 @@ public abstract class CommonSteps {
 
         return params.toString();
     }
+
+    private PageMetaData buildPageMetaData(HttpHeaders headers) {
+        final Long totalRecords = Long.valueOf(headers.get("Total-Records").get(0));
+        final Long returnedOffset = Long.valueOf(headers.get("Page-Offset").get(0));
+        final Long returnedLimit = Long.valueOf(headers.get("Page-Limit").get(0));
+
+        return PageMetaData.builder()
+                .name("prisoners")
+                .totalRecords(totalRecords)
+                .offset(returnedOffset)
+                .limit(returnedLimit)
+                .build();
+    }
+
 }

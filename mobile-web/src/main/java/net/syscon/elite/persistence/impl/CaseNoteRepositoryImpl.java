@@ -12,7 +12,6 @@ import net.syscon.util.DateFormatProvider;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import net.syscon.util.QueryUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -87,10 +86,10 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 
 		Timestamp occurrenceTime;
 
-		if (StringUtils.isBlank(newCaseNote.getOccurrenceDateTime())) {
+		if (newCaseNote.getOccurrenceDateTime() != null) {
 			occurrenceTime = DateTimeConverter.fromLocalDateTime(now);
 		} else {
-			occurrenceTime = DateTimeConverter.fromISO8601DateTime(newCaseNote.getOccurrenceDateTime(), ZoneOffset.UTC);
+			occurrenceTime = DateTimeConverter.fromLocalDateTime(newCaseNote.getOccurrenceDateTime());
 		}
 
         java.sql.Date occurrenceDate = DateTimeConverter.fromTimestamp(occurrenceTime);

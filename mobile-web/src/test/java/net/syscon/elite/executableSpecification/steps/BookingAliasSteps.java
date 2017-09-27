@@ -1,6 +1,6 @@
 package net.syscon.elite.executableSpecification.steps;
 
-import net.syscon.elite.web.api.model.Alias;
+import net.syscon.elite.v2.api.model.Alias;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
@@ -52,7 +52,7 @@ public class BookingAliasSteps extends CommonSteps {
 
         aliases = response.getBody();
 
-        setResourceMetaData(aliases, null);
+        buildResourceData(response);
     }
 
     protected void init() {

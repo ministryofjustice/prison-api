@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -35,7 +35,7 @@ public class InmateAlertServiceImpl implements InmatesAlertService {
 	private boolean isExpiredAlert(Alert alert) {
 		boolean expiredAlert = false;
 		if (alert.getDateExpires() != null) {
-            expiredAlert = alert.getDateExpires().compareTo(LocalDate.now()) <= 0;
+            expiredAlert = alert.getDateExpires().compareTo(LocalDateTime.now()) <= 0;
         }
 		return expiredAlert;
 	}

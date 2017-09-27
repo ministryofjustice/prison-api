@@ -2,8 +2,8 @@ package net.syscon.elite.executableSpecification.steps;
 
 import net.syscon.elite.test.EliteClientException;
 import net.syscon.elite.v2.api.model.Location;
-import net.syscon.elite.web.api.model.StaffDetails;
-import net.syscon.elite.web.api.model.UserDetails;
+import net.syscon.elite.v2.api.model.StaffDetail;
+import net.syscon.elite.v2.api.model.UserDetail;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -22,21 +22,21 @@ public class UserSteps extends CommonSteps {
     private static final String API_STAFF_REQUEST_URL = API_PREFIX + "users/staff/{staffId}";
     private static final String API_USERS_ME_LOCATIONS_REQUEST_URL = V2_API_PREFIX + "users/me/locations";
 
-    private StaffDetails staffDetails;
+    private StaffDetail staffDetail;
     private List<Location> userLocations;
 
     @Step("Verify current user details")
     public void verifyDetails(String username, String firstName, String lastName) {
-        ResponseEntity<UserDetails> response =
+        ResponseEntity<UserDetail> response =
                 restTemplate.exchange(
                         API_USERS_ME_REQUEST_URL,
                         HttpMethod.GET,
                         createEntity(),
-                        UserDetails.class);
+                        UserDetail.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        UserDetails userDetails = response.getBody();
+        UserDetail userDetails = response.getBody();
 
         assertThat(userDetails.getUsername()).isEqualToIgnoringCase(username);
         assertThat(userDetails).hasFieldOrPropertyWithValue("firstName", firstName);
@@ -45,7 +45,7 @@ public class UserSteps extends CommonSteps {
 
     @Step("Find staff details")
     public void findStaffDetails(Long staffId) {
-        ResponseEntity<StaffDetails> response;
+        ResponseEntity<StaffDetail> response;
 
         try {
             response =
@@ -53,10 +53,10 @@ public class UserSteps extends CommonSteps {
                             API_STAFF_REQUEST_URL,
                             HttpMethod.GET,
                             createEntity(),
-                            StaffDetails.class,
+                            StaffDetail.class,
                             staffId);
 
-            staffDetails = response.getBody();
+            staffDetail = response.getBody();
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
@@ -64,17 +64,17 @@ public class UserSteps extends CommonSteps {
 
     @Step("Verify staff details - first name")
     public void verifyStaffFirstName(String firstName) {
-        assertThat(staffDetails.getFirstName()).isEqualTo(firstName);
+        assertThat(staffDetail.getFirstName()).isEqualTo(firstName);
     }
 
     @Step("Verify staff details - last name")
     public void verifyStaffLastName(String lastName) {
-        assertThat(staffDetails.getLastName()).isEqualTo(lastName);
+        assertThat(staffDetail.getLastName()).isEqualTo(lastName);
     }
 
     @Step("Verify staff details - email")
     public void verifyStaffEmail(String email) {
-        assertThat(staffDetails.getEmail()).isEqualTo(email);
+        assertThat(staffDetail.getEmail()).isEqualTo(email);
     }
 
     @Step("Retrieve user locations")
