@@ -9,6 +9,7 @@ import net.syscon.elite.v2.api.model.CaseNote;
 import net.syscon.elite.v2.api.model.NewCaseNote;
 import net.syscon.elite.v2.api.model.UpdateCaseNote;
 import net.syscon.util.DateTimeConverter;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.ZoneOffset;
@@ -110,7 +111,9 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         newCaseNote.setType(type);
         newCaseNote.setSubType(subType);
         newCaseNote.setText(text);
-        newCaseNote.setOccurrenceDateTime(DateTimeConverter.fromISO8601DateTimeToLocalDateTime(occurrenceDateTime, ZoneOffset.UTC));
+        if (StringUtils.isNotBlank(occurrenceDateTime)) {
+            newCaseNote.setOccurrenceDateTime(DateTimeConverter.fromISO8601DateTimeToLocalDateTime(occurrenceDateTime, ZoneOffset.UTC));
+        }
 
         return newCaseNote;
     }
@@ -156,7 +159,7 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     }
 
     @And("^pagination with limit \"([0-9]*)\" and offset \"([0-9]*)\" applied$")
-    public void paginationWithLimitAndOffsetApplied(long limit, long offset) throws Throwable {
+    public void paginationWithLimitAndOffsetApplied(Long limit, Long offset) throws Throwable {
         caseNote.applyPagination(offset, limit);
     }
 

@@ -8,12 +8,8 @@ import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.v2.api.model.CaseNote;
 import net.syscon.elite.v2.api.model.NewCaseNote;
 import net.syscon.elite.v2.api.support.Order;
-import net.syscon.util.DateFormatProvider;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
-import net.syscon.util.QueryUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -30,8 +26,6 @@ import java.util.Optional;
 @Repository
 public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRepository {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
 	private final Map<String, FieldMapper> caseNoteMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("OFFENDER_BOOK_ID", 			new FieldMapper("bookingId"))
 			.put("CASE_NOTE_ID", 				new FieldMapper("caseNoteId"))
@@ -40,8 +34,8 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 			.put("CASE_NOTE_SUB_TYPE", 			new FieldMapper("subType"))
 			.put("CASE_NOTE_SUB_TYPE_DESC", 	new FieldMapper("subTypeDescription"))
 			.put("NOTE_SOURCE_CODE", 			new FieldMapper("source"))
-			.put("CONTACT_TIME", 				new FieldMapper("occurrenceDateTime", DateFormatProvider::toISO8601DateTime, null, QueryUtil::convertToDate))
-			.put("CREATE_DATETIME", 			new FieldMapper("creationDateTime", DateFormatProvider::toISO8601DateTime))
+			.put("CONTACT_TIME", 				new FieldMapper("occurrenceDateTime", DateTimeConverter::toISO8601LocalDateTime))
+			.put("CREATE_DATETIME", 			new FieldMapper("creationDateTime", DateTimeConverter::toISO8601LocalDateTime))
 			.put("CASE_NOTE_TEXT", 				new FieldMapper("text"))
 			.put("CREATE_USER_ID", 				new FieldMapper("authorUserId"))
 			.build();
@@ -86,7 +80,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 
 		Timestamp occurrenceTime;
 
-		if (newCaseNote.getOccurrenceDateTime() != null) {
+		if (newCaseNote.getOccurrenceDateTime() == null) {
 			occurrenceTime = DateTimeConverter.fromLocalDateTime(now);
 		} else {
 			occurrenceTime = DateTimeConverter.fromLocalDateTime(newCaseNote.getOccurrenceDateTime());

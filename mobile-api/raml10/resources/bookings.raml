@@ -16,28 +16,26 @@
       (javaType): Long
       description: The booking id of offender
 
-/{bookingId}/caseNotes2:
-  (javaOperationName): getOffenderCaseNotes
-  description: Offender Case Notes
-  type: { readOnlyCollectionPaged: { type: CaseNote } }
-  uriParameters:
-    bookingId:
-      (javaType): Long
-      description: The booking id of offender
-  is: [
-    searchable: {fieldsList : "creationDateTime, type, subType, source"},
-    sortable: {fieldsList : "creationDateTime, type, subType, source"},
-  ]
-
 /{bookingId}/caseNotes:
-  (javaOperationName): saveOffenderCaseNotes
   description: Offender Case Notes
   uriParameters:
     bookingId:
       (javaType): Long
       description: The booking id of offender
+  get:
+    description: Get paged results <<resourcePathName | !pluralize>>.
+    responses:
+      200:
+        body:
+          application/json:
+            CaseNote[]
+    is: [
+      pageable, hasResponsePagination,
+      searchable: {fieldsList : "creationDateTime, type, subType, source"},
+      sortable: {fieldsList : "creationDateTime, type, subType, source"},
+    ]
+
   post:
-    (javaOperationName): saveOffenderCaseNote
     description: Entry of new case note under a booking.
     body:
       application/json:
@@ -54,21 +52,7 @@
             type: ErrorResponse
             description: The case note has already been recorded under the booking. The current unmodified object (including status) is returned.
 
-/{bookingId}/caseNotes2/{caseNoteId}:
-  (javaOperationName): getOffenderCaseNote
-  description: The specific case note of a booking.
-  type: { readOnlyItem: { type: CaseNote } }
-  uriParameters:
-    bookingId:
-      (javaType): Long
-      description: The booking id of offender
-    caseNoteId:
-      (javaType): Long
-      description: The case note id
-
 /{bookingId}/caseNotes/{caseNoteId}:
-  (javaOperationName): updateOffenderCaseNote
-  description: The specific case note of a booking.
   uriParameters:
     bookingId:
       (javaType): Long
@@ -76,6 +60,14 @@
     caseNoteId:
       (javaType): Long
       description: The case note id
+  get:
+    description: The specific case note of a booking
+    responses:
+      200:
+        body:
+          application/json:
+            CaseNote
+
   put:
     description: It will update text note of specified case note. Text will not be replaced but it will be appended by provided text.
     body:

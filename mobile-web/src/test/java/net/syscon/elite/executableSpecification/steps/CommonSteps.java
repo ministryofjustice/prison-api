@@ -87,7 +87,7 @@ public abstract class CommonSteps {
     @Step("Apply pagination")
     public void applyPagination(Long offset, Long limit) {
         if (limit == null) {
-            paginationLimit = 0;
+            paginationLimit = 10L;
         } else {
             paginationLimit = limit;
         }
