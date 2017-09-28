@@ -2,5 +2,5 @@ FROM circleci/openjdk:8-jdk-browsers
 RUN curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - && \
     sudo apt-get install -y nodejs && \
     sudo apt-get install -y build-essential && \
-    sudo npm i -g raml2html@3.0.1 && \
+    sudo npm i -g raml2html && \
     sudo npm i -g oas-raml-converter

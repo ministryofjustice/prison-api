@@ -1,5 +1,6 @@
 {
   "status": 404,
+  "errorCode": 404,
   "userMessage": "Resource not found",
   "developerMessage": "The request is well-formed but the requested resource does not exist",
   "moreInfo": "The resource could not be found or the user does not have authorization to view the data."

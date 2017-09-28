@@ -1,7 +1,7 @@
 {
-	"httpStatus": "403",
-	"code": "403",
-	"message": "Forbidden",
+	"status": 403,
+	"errorCode": 403,
+	"userMessage": "Forbidden",
 	"developerMessage": "The server understood the request, but is refusing to fulfill it.",
 	"moreInfo": ""
 }
