@@ -15,7 +15,7 @@ import java.util.List;
 import static net.syscon.util.ResourceUtils.nvl;
 
 @RestResource
-@Path("/referenceDomains")
+@Path("/reference-domains")
 public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
 
 	@Autowired
