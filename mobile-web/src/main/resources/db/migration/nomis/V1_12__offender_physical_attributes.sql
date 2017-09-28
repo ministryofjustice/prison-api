@@ -1,17 +1,17 @@
 CREATE TABLE OFFENDER_PHYSICAL_ATTRIBUTES
 (
-  OFFENDER_BOOK_ID              DECIMAL(10, 0),
-  ATTRIBUTE_SEQ                 DECIMAL(6, 0),
-  HEIGHT_FT                     DECIMAL(6, 0),
-  HEIGHT_IN                     DECIMAL(6, 0),
-  HEIGHT_CM                     DECIMAL(6, 0),
-  WEIGHT_LBS                    DECIMAL(6, 0),
-  WEIGHT_KG                     DECIMAL(6, 0),
-  CREATE_DATETIME               TIMESTAMP(6)      DEFAULT now(),
-  CREATE_USER_ID                VARCHAR(32) DEFAULT USER,
-  MODIFY_DATETIME               TIMESTAMP(6),
+  OFFENDER_BOOK_ID              BIGINT                      NOT NULL,
+  ATTRIBUTE_SEQ                 INTEGER                     NOT NULL,
+  HEIGHT_FT                     INTEGER,
+  HEIGHT_IN                     INTEGER,
+  HEIGHT_CM                     INTEGER,
+  WEIGHT_LBS                    INTEGER,
+  WEIGHT_KG                     INTEGER,
+  CREATE_DATETIME               TIMESTAMP     DEFAULT now() NOT NULL,
+  CREATE_USER_ID                VARCHAR(32)   DEFAULT USER  NOT NULL,
+  MODIFY_DATETIME               TIMESTAMP,
   MODIFY_USER_ID                VARCHAR(32),
-  AUDIT_TIMESTAMP               TIMESTAMP(6),
+  AUDIT_TIMESTAMP               TIMESTAMP,
   AUDIT_USER_ID                 VARCHAR(32),
   AUDIT_MODULE_NAME             VARCHAR(65),
   AUDIT_CLIENT_USER_ID          VARCHAR(64),
@@ -19,3 +19,5 @@ CREATE TABLE OFFENDER_PHYSICAL_ATTRIBUTES
   AUDIT_CLIENT_WORKSTATION_NAME VARCHAR(64),
   AUDIT_ADDITIONAL_INFO         VARCHAR(256)
 );
+
+ALTER TABLE OFFENDER_PHYSICAL_ATTRIBUTES ADD PRIMARY KEY (OFFENDER_BOOK_ID, ATTRIBUTE_SEQ);

@@ -1,20 +1,20 @@
 CREATE TABLE WORKS
 (
-  WORK_ID                       DECIMAL(10, 0),
-  WORKFLOW_TYPE                 VARCHAR(12),
-  WORK_TYPE                     VARCHAR(12),
-  WORK_SUB_TYPE                 VARCHAR(12),
-  MANUAL_CLOSE_FLAG             VARCHAR(1)  DEFAULT 'N',
+  WORK_ID                       BIGSERIAL     PRIMARY KEY   NOT NULL,
+  WORKFLOW_TYPE                 VARCHAR(12)                 NOT NULL,
+  WORK_TYPE                     VARCHAR(12)                 NOT NULL,
+  WORK_SUB_TYPE                 VARCHAR(12)                 NOT NULL,
+  MANUAL_CLOSE_FLAG             VARCHAR(1)    DEFAULT 'N'   NOT NULL,
   MODULE_NAME                   VARCHAR(20),
-  ACTIVE_FLAG                   VARCHAR(1)  DEFAULT 'Y',
-  EXPIRY_DATE                   DATE,
+  ACTIVE_FLAG                   VARCHAR(1)    DEFAULT 'Y'   NOT NULL,
+  EXPIRY_DATE                   TIMESTAMP,
   CASELOAD_TYPE                 VARCHAR(12),
-  MANUAL_SELECT_FLAG            VARCHAR(1)  DEFAULT NULL,
-  CREATE_DATETIME               TIMESTAMP(6)      DEFAULT now(),
-  CREATE_USER_ID                VARCHAR(32) DEFAULT USER,
-  MODIFY_DATETIME               TIMESTAMP(6),
+  MANUAL_SELECT_FLAG            VARCHAR(1)    DEFAULT NULL,
+  CREATE_DATETIME               TIMESTAMP     DEFAULT now() NOT NULL,
+  CREATE_USER_ID                VARCHAR(32)   DEFAULT USER  NOT NULL,
+  MODIFY_DATETIME               TIMESTAMP,
   MODIFY_USER_ID                VARCHAR(32),
-  AUDIT_TIMESTAMP               TIMESTAMP(6),
+  AUDIT_TIMESTAMP               TIMESTAMP,
   AUDIT_USER_ID                 VARCHAR(32),
   AUDIT_MODULE_NAME             VARCHAR(65),
   AUDIT_CLIENT_USER_ID          VARCHAR(64),
@@ -22,3 +22,5 @@ CREATE TABLE WORKS
   AUDIT_CLIENT_WORKSTATION_NAME VARCHAR(64),
   AUDIT_ADDITIONAL_INFO         VARCHAR(256)
 );
+
+ALTER TABLE WORKS ADD UNIQUE (WORKFLOW_TYPE, WORK_TYPE, WORK_SUB_TYPE, CASELOAD_TYPE);

@@ -84,7 +84,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("GENDER",   new FieldMapper("gender"))
 			.put("ETHNICITY",  new FieldMapper("ethnicity"))
 			.put("HEIGHT_IN",  new FieldMapper("heightInches"))
-			.put("HEIGHT_CM",  new FieldMapper("heightMeters", value -> ((BigDecimal) value).divide(new BigDecimal("100.00"), BigDecimal.ROUND_HALF_UP).setScale(2, BigDecimal.ROUND_HALF_UP)))
+			.put("HEIGHT_CM",  new FieldMapper("heightMeters", value -> (value instanceof BigDecimal ? ((BigDecimal) value) : BigDecimal.valueOf((Integer) value)).movePointLeft(2)))
 			.put("WEIGHT_LBS", new FieldMapper("weightPounds"))
 			.put("WEIGHT_KG",  new FieldMapper("weightKg"))
 			.build();

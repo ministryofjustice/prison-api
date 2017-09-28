@@ -1,20 +1,20 @@
 CREATE TABLE REFERENCE_CODES
 (
-  DOMAIN                        VARCHAR(12),
-  CODE                          VARCHAR(12),
-  DESCRIPTION                   VARCHAR(40),
-  LIST_SEQ                      DECIMAL(6, 0),
-  ACTIVE_FLAG                   VARCHAR(1)  DEFAULT 'Y',
-  SYSTEM_DATA_FLAG              VARCHAR(1)  DEFAULT 'Y',
+  DOMAIN                        VARCHAR(12)                 NOT NULL,
+  CODE                          VARCHAR(12)                 NOT NULL,
+  DESCRIPTION                   VARCHAR(40)                 NOT NULL,
+  LIST_SEQ                      INTEGER,
+  ACTIVE_FLAG                   VARCHAR(1)    DEFAULT 'Y'   NOT NULL,
+  SYSTEM_DATA_FLAG              VARCHAR(1)    DEFAULT 'Y'   NOT NULL,
   MODIFY_USER_ID                VARCHAR(32),
   EXPIRED_DATE                  DATE,
   NEW_CODE                      VARCHAR(12),
   PARENT_CODE                   VARCHAR(12),
   PARENT_DOMAIN                 VARCHAR(12),
-  CREATE_DATETIME               TIMESTAMP(6)      DEFAULT now(),
-  CREATE_USER_ID                VARCHAR(32) DEFAULT user,
-  MODIFY_DATETIME               TIMESTAMP(6),
-  AUDIT_TIMESTAMP               TIMESTAMP(6),
+  CREATE_DATETIME               TIMESTAMP     DEFAULT now() NOT NULL,
+  CREATE_USER_ID                VARCHAR(32)   DEFAULT user  NOT NULL,
+  MODIFY_DATETIME               TIMESTAMP,
+  AUDIT_TIMESTAMP               TIMESTAMP,
   AUDIT_USER_ID                 VARCHAR(32),
   AUDIT_MODULE_NAME             VARCHAR(65),
   AUDIT_CLIENT_USER_ID          VARCHAR(64),
@@ -22,3 +22,6 @@ CREATE TABLE REFERENCE_CODES
   AUDIT_CLIENT_WORKSTATION_NAME VARCHAR(64),
   AUDIT_ADDITIONAL_INFO         VARCHAR(256)
 );
+
+ALTER TABLE REFERENCE_CODES ADD PRIMARY KEY (DOMAIN, CODE);
+ALTER TABLE REFERENCE_CODES ADD UNIQUE (DOMAIN, CODE, DESCRIPTION, ACTIVE_FLAG);

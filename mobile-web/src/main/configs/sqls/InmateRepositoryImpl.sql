@@ -272,7 +272,7 @@ FIND_PRISONERS {
     ob.active_flag,
     ob.agy_loc_id,
     al.description                 AGY_LOC_DESC,
-    nvl(ord.release_date, ord.auto_release_date) RELEASE_DATE,
+    COALESCE(ord.release_date, ord.auto_release_date) RELEASE_DATE,
     ois.imprisonment_status,
     NULL PNC_NUMBER,
     NULL CRO_NUMBVER
