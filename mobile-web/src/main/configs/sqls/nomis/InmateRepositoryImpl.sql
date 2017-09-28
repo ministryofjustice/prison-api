@@ -249,10 +249,10 @@ FIND_PRISONERS {
     ob.active_flag,
     ob.agy_loc_id,
     al.description                 AGY_LOC_DESC,
-    nvl(ord.release_date, ord.auto_release_date) RELEASE_DATE,
-    CASE WHEN ist.band_code <= 8
+    COALESCE(ord.release_date, ord.auto_release_date) RELEASE_DATE,
+    CASE WHEN CAST(ist.band_code AS BIGINT) <= 8
       THEN 'Convicted'
-    WHEN ist.band_code > 8
+    WHEN CAST(ist.band_code AS BIGINT) > 8
       THEN 'Remand'
     ELSE NULL END                  CONVICTED_STATUS,
     CASE WHEN opd2.profile_code IS NOT NULL
