@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.Path;
 import java.util.List;
 
+import static net.syscon.util.ResourceUtils.nvl;
+
 @RestResource
 @Path("v2/search-offenders")
 public class SearchResourceImpl implements SearchOffenderResource {
@@ -24,13 +26,13 @@ public class SearchResourceImpl implements SearchOffenderResource {
 
     @Override
     public SearchForOffendersLocationOnlyResponse searchForOffendersLocationOnly(String locationPrefix, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-        List<OffenderBooking> offenders = inmateService.findOffenders(null, locationPrefix, sortFields, sortOrder, pageOffset, pageLimit);
-        return SearchForOffendersLocationOnlyResponse.respond200WithApplicationJson(offenders, MetaDataFactory.getTotalRecords(offenders), pageOffset, pageLimit);
+        List<OffenderBooking> offenders = inmateService.findOffenders(null, locationPrefix, sortFields, sortOrder, nvl(pageOffset, 0L), nvl(pageLimit, 10L));
+        return SearchForOffendersLocationOnlyResponse.respond200WithApplicationJson(offenders, MetaDataFactory.getTotalRecords(offenders), nvl(pageOffset, 0L), nvl(pageLimit, 10L));
     }
 
     @Override
     public SearchForOffendersLocationAndKeywordResponse searchForOffendersLocationAndKeyword(String locationPrefix, String keywords, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-        List<OffenderBooking> offenders = inmateService.findOffenders(keywords, locationPrefix, sortFields, sortOrder, pageOffset, pageLimit);
-        return SearchForOffendersLocationAndKeywordResponse.respond200WithApplicationJson(offenders, MetaDataFactory.getTotalRecords(offenders), pageOffset, pageLimit);
+        List<OffenderBooking> offenders = inmateService.findOffenders(keywords, locationPrefix, sortFields, sortOrder, nvl(pageOffset, 0L), nvl(pageLimit, 10L));
+        return SearchForOffendersLocationAndKeywordResponse.respond200WithApplicationJson(offenders, MetaDataFactory.getTotalRecords(offenders), nvl(pageOffset, 0L), nvl(pageLimit, 10L));
     }
 }

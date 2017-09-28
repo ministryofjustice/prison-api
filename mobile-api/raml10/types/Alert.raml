@@ -1,0 +1,30 @@
+#%RAML 1.0 DataType
+description: Alert
+properties:
+  alertId:
+    (javaType): Long
+    description: Alert Id
+  alertType:
+    type: string
+    description: Alert Type
+  alertTypeDescription:
+    type: string
+    description: Alert Type Description
+  alertCode:
+    type: string
+    description: Alert Code
+  alertCodeDescription:
+    type: string
+    description: Alert Code Description
+  comment:
+    type: string
+    description: Alert comments
+  dateCreated:
+    type: date-only
+    description: Date Alert created
+  dateExpires?:
+    type: date-only
+    description: Date the alert expires
+  expired:
+    type: boolean
+    description: True / False indicated expired

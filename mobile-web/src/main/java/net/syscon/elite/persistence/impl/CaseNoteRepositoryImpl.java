@@ -5,16 +5,11 @@ import net.syscon.elite.persistence.CaseNoteRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.security.UserSecurityUtils;
-import net.syscon.elite.web.api.model.CaseNote;
-import net.syscon.elite.web.api.model.NewCaseNote;
-import net.syscon.elite.web.api.resource.BookingResource.Order;
-import net.syscon.util.DateFormatProvider;
+import net.syscon.elite.v2.api.model.CaseNote;
+import net.syscon.elite.v2.api.model.NewCaseNote;
+import net.syscon.elite.v2.api.support.Order;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
-import net.syscon.util.QueryUtil;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -31,8 +26,6 @@ import java.util.Optional;
 @Repository
 public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRepository {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
 	private final Map<String, FieldMapper> caseNoteMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("OFFENDER_BOOK_ID", 			new FieldMapper("bookingId"))
 			.put("CASE_NOTE_ID", 				new FieldMapper("caseNoteId"))
@@ -41,19 +34,18 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 			.put("CASE_NOTE_SUB_TYPE", 			new FieldMapper("subType"))
 			.put("CASE_NOTE_SUB_TYPE_DESC", 	new FieldMapper("subTypeDescription"))
 			.put("NOTE_SOURCE_CODE", 			new FieldMapper("source"))
-			.put("CONTACT_TIME", 				new FieldMapper("occurrenceDateTime", DateFormatProvider::toISO8601DateTime, null, QueryUtil::convertToDate))
-			.put("CREATE_DATETIME", 			new FieldMapper("creationDateTime", DateFormatProvider::toISO8601DateTime))
+			.put("CONTACT_TIME", 				new FieldMapper("occurrenceDateTime", DateTimeConverter::toISO8601LocalDateTime))
+			.put("CREATE_DATETIME", 			new FieldMapper("creationDateTime", DateTimeConverter::toISO8601LocalDateTime))
 			.put("CASE_NOTE_TEXT", 				new FieldMapper("text"))
 			.put("CREATE_USER_ID", 				new FieldMapper("authorUserId"))
 			.build();
 
 	@Override
-	public List<CaseNote> getCaseNotes(String bookingId, String query, String orderByField, Order order, int offset,
-			int limit) {
+	public List<CaseNote> getCaseNotes(long bookingId, String query, String orderByField, Order order, long offset, long limit) {
 		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CASENOTES"), caseNoteMapping)
 											.addRowCount()
 											.addQuery(query)
-											.addOrderBy(order == Order.asc, orderByField)
+											.addOrderBy(order == Order.ASC, orderByField)
 											.addPagination()
 											.build();
 		final RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, caseNoteMapping);
@@ -61,7 +53,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
-	public Optional<CaseNote> getCaseNote(String bookingId, long caseNoteId) {
+	public Optional<CaseNote> getCaseNote(long bookingId, long caseNoteId) {
 		final String sql = getQuery("FIND_CASENOTE");
 		final RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, caseNoteMapping);
 
@@ -75,7 +67,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
-	public Long createCaseNote(String bookingId, NewCaseNote newCaseNote, String sourceCode) {
+	public Long createCaseNote(long bookingId, NewCaseNote newCaseNote, String sourceCode) {
 		String initialSql = getQuery("INSERT_CASE_NOTE");
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, caseNoteMapping);
 		String sql = builder.build();
@@ -88,10 +80,10 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 
 		Timestamp occurrenceTime;
 
-		if (StringUtils.isBlank(newCaseNote.getOccurrenceDateTime())) {
+		if (newCaseNote.getOccurrenceDateTime() == null) {
 			occurrenceTime = DateTimeConverter.fromLocalDateTime(now);
 		} else {
-			occurrenceTime = DateTimeConverter.fromISO8601DateTime(newCaseNote.getOccurrenceDateTime(), ZoneOffset.UTC);
+			occurrenceTime = DateTimeConverter.fromLocalDateTime(newCaseNote.getOccurrenceDateTime());
 		}
 
         java.sql.Date occurrenceDate = DateTimeConverter.fromTimestamp(occurrenceTime);
@@ -118,7 +110,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
-	public void updateCaseNote(String bookingId, long caseNoteId, String updatedText, String userId) {
+	public void updateCaseNote(long bookingId, long caseNoteId, String updatedText, String userId) {
 		String sql = queryBuilderFactory.getQueryBuilder(getQuery("UPDATE_CASE_NOTE"), caseNoteMapping).build();
 
 		jdbcTemplate.update(sql, createParams("modifyBy", userId,

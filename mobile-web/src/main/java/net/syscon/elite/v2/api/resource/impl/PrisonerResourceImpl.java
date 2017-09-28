@@ -15,6 +15,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static net.syscon.util.ResourceUtils.nvl;
+
 @RestResource
 @Path("v2/prisoners")
 public class PrisonerResourceImpl implements PrisonerResource {
@@ -42,9 +44,9 @@ public class PrisonerResourceImpl implements PrisonerResource {
                 .dobTo(convertToDate(dobTo))
                 .build();
 
-        final List<PrisonerDetail> prisoners = inmateService.findPrisoners(criteria, sortFields, sortOrder, pageOffset, pageLimit);
+        final List<PrisonerDetail> prisoners = inmateService.findPrisoners(criteria, sortFields, sortOrder, nvl(pageOffset, 0L), nvl(pageLimit, 10L));
 
-        return GetPrisonersResponse.respond200WithApplicationJson(prisoners, MetaDataFactory.getTotalRecords(prisoners), pageOffset, pageLimit);
+        return GetPrisonersResponse.respond200WithApplicationJson(prisoners, MetaDataFactory.getTotalRecords(prisoners), nvl(pageOffset, 0L), nvl(pageLimit, 10L));
     }
 
     private LocalDate convertToDate(String theDate) {

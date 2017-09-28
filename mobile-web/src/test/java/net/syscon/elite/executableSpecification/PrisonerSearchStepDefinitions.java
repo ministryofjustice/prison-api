@@ -57,7 +57,7 @@ public class PrisonerSearchStepDefinitions extends AbstractStepDefinitions {
     }
 
     @When("^a search is made for prisoners with DOB on or after (\\d+-\\d+-\\d+) for range ([0-9]*) -> ([0-9]*)$")
-    public void aSearchIsMadeForPrisonersWithDOBOnOrAfterForRange(String dobFrom, int offset, int limit) throws Throwable {
+    public void aSearchIsMadeForPrisonersWithDOBOnOrAfterForRange(String dobFrom, long offset, long limit) throws Throwable {
         prisonerSearch.search(ImmutableMap.of("dobFrom", dobFrom), offset, limit, HttpStatus.OK);
     }
     @When("^a search is made for prisoners with DOB between \"([^\"]*)\" and \"([^\"]*)\" for range ([0-9]*) -> ([0-9]*)$")

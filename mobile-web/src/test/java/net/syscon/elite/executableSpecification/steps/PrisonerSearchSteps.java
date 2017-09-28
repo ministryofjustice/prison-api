@@ -1,13 +1,10 @@
 package net.syscon.elite.executableSpecification.steps;
 
-import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.test.EliteClientException;
 import net.syscon.elite.v2.api.model.PrisonerDetail;
-import net.syscon.elite.web.api.model.PageMetaData;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,36 +42,31 @@ public class PrisonerSearchSteps extends CommonSteps {
         verifyLocalDateValues(prisonerDetails, PrisonerDetail::getDateOfBirth, dobs);
     }
 
-    public void search(Map<String, String> queryParams, int offset, int limit, HttpStatus expectedStatus) {
+    public void search(Map<String, String> queryParams, long offset, long limit, HttpStatus expectedStatus) {
         init();
+        applyPagination(offset, limit);
         StringBuilder params = new StringBuilder();
         queryParams.forEach((key, value) -> params.append(String.format("%s=%s&", key, value)));
 
         final String query = params.toString();
         String queryUrl = String.format(PRISONER_SEARCH, StringUtils.substring(query, 0, query.length() - 1));
-        final ImmutableMap<String, String> inputHeaders = ImmutableMap.of("Page-Offset", String.valueOf(offset), "Page-Limit", String.valueOf(limit));
-
         boolean isErrorExpected = expectedStatus.is4xxClientError() || expectedStatus.is5xxServerError();
 
         try {
             ResponseEntity<List<PrisonerDetail>> responseEntity = restTemplate.exchange(queryUrl,
-                    HttpMethod.GET, createEntity(null, inputHeaders), new ParameterizedTypeReference<List<PrisonerDetail>>() {
+                    HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<PrisonerDetail>>() {
                     });
 
             assertThat(responseEntity.getStatusCode()).isEqualTo(expectedStatus);
             assertThat(isErrorExpected).isFalse();
-
-            final HttpHeaders headers = responseEntity.getHeaders();
-            final Long totalRecords = Long.valueOf(headers.get("Total-Records").get(0));
-            final Long returnedOffset = Long.valueOf(headers.get("Page-Offset").get(0));
-            final Long returnedLimit = Long.valueOf(headers.get("Page-Limit").get(0));
-
             prisonerDetails = responseEntity.getBody();
+            buildResourceData(responseEntity, "prisoners");
 
-            setResourceMetaData(prisonerDetails, new PageMetaData(returnedOffset, returnedLimit, totalRecords, "prisoners"));
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
             assertThat(isErrorExpected).isTrue();
         }
     }
+
+
 }

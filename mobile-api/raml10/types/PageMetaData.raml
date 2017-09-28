@@ -1,0 +1,16 @@
+#%RAML 1.0 DataType
+description: Page Meta Data
+properties:
+  name?:
+    type: string
+    description: Name of data
+  offset:
+    (javaType): Long
+    description: Page offset
+  limit:
+    (javaType): Long
+    description: Page limit
+  totalRecords:
+    (javaType): Long
+    description: Total Number of records
+

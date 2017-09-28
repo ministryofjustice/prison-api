@@ -4,9 +4,9 @@ import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.persistence.InmateAlertRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
-import net.syscon.elite.web.api.model.Alert;
-import net.syscon.elite.web.api.resource.BookingResource.Order;
-import net.syscon.util.DateFormatProvider;
+import net.syscon.elite.v2.api.model.Alert;
+import net.syscon.elite.v2.api.support.Order;
+import net.syscon.util.DateTimeConverter;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -21,19 +21,21 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 	private final Map<String, FieldMapper> alertMapping = new ImmutableMap.Builder<String, FieldMapper>()
 		.put("ALERT_SEQ", 			new FieldMapper("alertId"))
 		.put("ALERT_TYPE", 			new FieldMapper("alertType"))
+		.put("ALERT_TYPE_DESC", 	new FieldMapper("alertTypeDescription"))
 		.put("ALERT_CODE", 			new FieldMapper("alertCode"))
+		.put("ALERT_CODE_DESC", 	new FieldMapper("alertCodeDescription"))
 		.put("COMMENT_TEXT", 		new FieldMapper("comment", value -> value == null ? "" : value))
-		.put("ALERT_DATE", 			new FieldMapper("dateCreated", DateFormatProvider::toISO8601Date))
-		.put("EXPIRY_DATE", 		new FieldMapper("dateExpires", value -> value == null ? "" : DateFormatProvider.toISO8601Date(value)))
+		.put("ALERT_DATE", 			new FieldMapper("dateCreated", DateTimeConverter::toISO8601LocalDate))
+		.put("EXPIRY_DATE", 		new FieldMapper("dateExpires", DateTimeConverter::toISO8601LocalDate))
 		.build();
 
 	@Override
-	public List<Alert> getInmateAlert(String bookingId, String query, String orderByField, Order order, int offset,
-			int limit) {
+	public List<Alert> getInmateAlert(long bookingId, String query, String orderByField, Order order, long offset,
+									  long limit) {
 		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_INMATE_ALERTS"), alertMapping)
 											.addRowCount()
 											.addQuery(query)
-											.addOrderBy(order == Order.asc, orderByField)
+											.addOrderBy(order == Order.ASC, orderByField)
 											.addPagination()
 											.build();
 		final RowMapper<Alert> alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);
@@ -41,7 +43,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 	}
 
 	@Override
-	public Optional<Alert> getInmateAlert(String bookingId, String alertSeqId) {
+	public Optional<Alert> getInmateAlert(long bookingId, long alertSeqId) {
 		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_INMATE_ALERT"), alertMapping)
 											.build();
 		final RowMapper<Alert> alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);

@@ -1,14 +1,15 @@
 package net.syscon.elite.executableSpecification.steps;
 
-import net.syscon.elite.web.api.model.InmateSummaries;
-import net.syscon.elite.web.api.model.InmatesSummary;
+import net.syscon.elite.v2.api.model.OffenderBooking;
 import net.syscon.util.QueryOperator;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,9 +20,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * BDD step implementations for Booking search feature.
  */
 public class BookingSearchSteps extends CommonSteps {
-    private static final String API_QUERY_PREFIX = API_PREFIX + "booking?query=";
+    private static final String API_QUERY_PREFIX = API_PREFIX + "bookings?query=";
 
-    private InmateSummaries inmateSummaries;
+    private List<OffenderBooking> inmateSummaries;
 
     @Step("Perform search using full last name")
     public void fullLastNameSearch(String criteria) {
@@ -78,32 +79,32 @@ public class BookingSearchSteps extends CommonSteps {
 
     @Step("Verify first names of inmates returned by search")
     public void verifyFirstNames(String nameList) {
-        verifyPropertyValues(inmateSummaries.getInmatesSummaries(), InmatesSummary::getFirstName, nameList);
+        verifyPropertyValues(inmateSummaries, OffenderBooking::getFirstName, nameList);
     }
 
     @Step("Verify middle names of inmates returned by search")
     public void verifyMiddleNames(String nameList) {
-        verifyPropertyValues(inmateSummaries.getInmatesSummaries(), InmatesSummary::getMiddleName, nameList);
+        verifyPropertyValues(inmateSummaries, OffenderBooking::getMiddleName, nameList);
     }
 
     @Step("Verify last names of inmates returned by search")
     public void verifyLastNames(String nameList) {
-        verifyPropertyValues(inmateSummaries.getInmatesSummaries(), InmatesSummary::getLastName, nameList);
+        verifyPropertyValues(inmateSummaries, OffenderBooking::getLastName, nameList);
     }
 
     @Step("Verify living unit descriptions returned by search")
     public void verifyLivingUnits(String livingUnitList) {
-        verifyPropertyValues(inmateSummaries.getInmatesSummaries(), InmatesSummary::getAssignedLivingUnitDesc, livingUnitList);
+        verifyPropertyValues(inmateSummaries, OffenderBooking::getAssignedLivingUnitDesc, livingUnitList);
     }
 
     @Step("Verify image ids returned by search")
     public void verifyImageIds(String imageIds) {
-        verifyLongValues(inmateSummaries.getInmatesSummaries(), InmatesSummary::getFacialImageId, imageIds);
+        verifyLongValues(inmateSummaries, OffenderBooking::getFacialImageId, imageIds);
     }
 
     @Step("Verify dobs returned by search")
     public void verifyDobs(String dobs) {
-        verifyPropertyValues(inmateSummaries.getInmatesSummaries(), InmatesSummary::getDateOfBirth, dobs);
+        verifyLocalDateValues(inmateSummaries, OffenderBooking::getDateOfBirth, dobs);
     }
 
     private void dispatchQuery(String query) {
@@ -111,13 +112,12 @@ public class BookingSearchSteps extends CommonSteps {
 
         String queryUrl = API_QUERY_PREFIX + StringUtils.trimToEmpty(query);
 
-        ResponseEntity<InmateSummaries> response = restTemplate.exchange(queryUrl, HttpMethod.GET, createEntity(), InmateSummaries.class);
+        ResponseEntity<List<OffenderBooking>> response = restTemplate.exchange(queryUrl,
+                HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<OffenderBooking>>() {});
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
         inmateSummaries = response.getBody();
-
-        setResourceMetaData(inmateSummaries.getInmatesSummaries(), inmateSummaries.getPageMetaData());
+        buildResourceData(response, "offenders");
     }
 
     private String buildSimpleQuery(String fieldName, Object criteria) {

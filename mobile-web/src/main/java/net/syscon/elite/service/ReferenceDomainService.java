@@ -2,7 +2,6 @@ package net.syscon.elite.service;
 
 import net.syscon.elite.v2.api.model.ReferenceCode;
 import net.syscon.elite.v2.api.support.Order;
-import net.syscon.elite.web.api.model.CaseNoteType;
 
 import java.util.List;
 
@@ -20,7 +19,7 @@ public interface ReferenceDomainService {
 	List<ReferenceCode> getCaseNoteSources(String query, String orderBy, Order order, long offset, long limit);
 	ReferenceCode getCaseNoteSource(String sourceCode);
 	List<ReferenceCode> getCaseNoteSubTypesByParent(String caseNoteType, long offset, long limit);
-	List<CaseNoteType> getCaseNoteTypeByCurrentCaseLoad(String query, String orderBy, Order order, long offset, long limit);
-	List<CaseNoteType> getCaseNoteSubType(String typeCode, String query, String orderBy, Order order, long offset, long limit);
+	List<ReferenceCode> getCaseNoteTypeByCurrentCaseLoad(String query, String orderBy, Order order, long offset, long limit, boolean includeSubTypes);
+	List<ReferenceCode> getCaseNoteSubType(String typeCode, String query, String orderBy, Order order, long offset, long limit);
 
 }

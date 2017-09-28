@@ -1,0 +1,36 @@
+#%RAML 1.0 DataType
+description: Case Note
+properties:
+  caseNoteId:
+    (javaType): Long
+    description: Case Note Id (unique)
+  bookingId:
+    (javaType): Long
+    description: Booking Id of offender
+  type:
+    type: string
+    description: Case Note Type
+  typeDescription:
+    type: string
+    description: Case Note Type Description
+  subType:
+    type: string
+    description: Case Note Sub Type
+  subTypeDescription:
+    type: string
+    description: Case Note Sub Type Description
+  source:
+    type: string
+    description: Source Type
+  creationDateTime:
+    type: datetime
+    description: Date and Time of Case Note creation
+  occurrenceDateTime:
+    type: datetime
+    description: Date and Time of when case note contact with offender was made
+  authorUserId:
+    type: string
+    description: Username of the user entering the case note
+  text:
+    type: string
+    description: Case Note Text

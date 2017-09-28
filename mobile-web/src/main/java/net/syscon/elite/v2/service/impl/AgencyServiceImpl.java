@@ -30,12 +30,12 @@ public class AgencyServiceImpl implements AgencyService {
     }
 
     @Override
-    public List<Agency> findAgenciesByCaseLoad(String caseLoadId, Long offset, Long limit) {
+    public List<Agency> findAgenciesByCaseLoad(String caseLoadId, long offset, long limit) {
         return agencyRepository.findAgenciesByCaseLoad(caseLoadId, "agencyId", Order.ASC);
     }
 
     @Override
-    public List<Agency> findAgenciesByUsername(String username, Long offset, Long limit) {
+    public List<Agency> findAgenciesByUsername(String username, long offset, long limit) {
         return agencyRepository.findAgenciesByUsername(username, "agencyId", Order.ASC);
     }
 }

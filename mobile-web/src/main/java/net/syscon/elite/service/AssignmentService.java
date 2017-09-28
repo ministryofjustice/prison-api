@@ -1,6 +1,6 @@
 package net.syscon.elite.service;
 
-import net.syscon.elite.web.api.model.InmatesSummary;
+import net.syscon.elite.v2.api.model.OffenderBooking;
 
 import java.util.List;
 
@@ -8,5 +8,5 @@ import java.util.List;
  * AssignmentService
  */
 public interface AssignmentService {
-    List<InmatesSummary> findMyAssignments(int offset, int limit);
+    List<OffenderBooking> findMyAssignments(long offset, long limit);
 }

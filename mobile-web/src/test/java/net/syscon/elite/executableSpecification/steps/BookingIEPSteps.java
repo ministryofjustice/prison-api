@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * BDD step implementations for Booking IEP Summary feature.
  */
 public class BookingIEPSteps extends CommonSteps {
-    private static final String BOOKING_IEP_SUMMARY_API_URL = V2_API_PREFIX + "bookings/{bookingId}/iepSummary";
+    private static final String BOOKING_IEP_SUMMARY_API_URL = API_PREFIX + "bookings/{bookingId}/iepSummary";
     private static final String BOOKING_IEP_SUMMARY_WITH_DETAILS_QUERY = "?withDetails=true";
 
     private PrivilegeSummary privilegeSummary;

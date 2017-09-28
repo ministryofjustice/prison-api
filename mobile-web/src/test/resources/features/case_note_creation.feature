@@ -23,10 +23,3 @@ Feature: Case Note Creation and Update
     Then case note is successfully updated with "Updated Case Note"
     And the original text is not replaced
 
-  Scenario: Create a case note with incorrectly formatted occurrence dateTime
-    When a case note is created for an existing offender booking with incorrectly formatted occurrence dateTime:
-      | type               | COMMS                                     |
-      | subType            | COM_IN                                    |
-      | text               | A new case note (from Serenity BDD test)  |
-      | occurrenceDateTime | 14/04/2017 10:15:30                       |
-    Then case note is not created

@@ -4,7 +4,7 @@ package net.syscon.elite.web.api.resource.imp;
 import com.google.gson.Gson;
 import io.restassured.RestAssured;
 import io.restassured.http.Header;
-import net.syscon.elite.web.api.model.AuthLogin;
+import net.syscon.elite.v2.api.model.AuthLogin;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,8 +27,8 @@ import static org.hamcrest.Matchers.equalTo;
 @ActiveProfiles("integ")
 public class UsersResourceImplIntegTest {
 
-	private static final AuthLogin INVALID_CREDENTIALS = new AuthLogin("invalid", "invalid");
-	private static final AuthLogin USER_WITH_INVALID_PASSWORD = new AuthLogin("oms_owner", "invalid");
+	private static final AuthLogin INVALID_CREDENTIALS = AuthLogin.builder().username("invalid").password("invalid").build();
+	private static final AuthLogin USER_WITH_INVALID_PASSWORD = AuthLogin.builder().username("oms_owner").password("invalid").build();
 	private static final String INVALID_TOKEN = Base64.getEncoder().encodeToString("xhfjaksdffsd99895sdc8893q2re7w".getBytes());
 
 	@Value("${local.server.port}")

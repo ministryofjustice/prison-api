@@ -1,0 +1,51 @@
+#%RAML 1.0 DataType
+description: Inmate Detail
+properties:
+  bookingId:
+    (javaType): Long
+    description: Offender Booking Id
+  bookingNo:
+    type: string
+    description: Booking Number
+  offenderNo:
+    type: string
+    description: Offender Unique Reference
+  firstName:
+    type: string
+    description: First Name
+  middleName:
+    type: string
+    description: Middle Name(s)
+  lastName:
+    type: string
+    description: Last Name
+  alertsCodes?:
+    type: string[]
+    description: List of Alerts
+  assignedLivingUnit?:
+    type: AssignedLivingUnit
+    description: Where the offender is staying
+  facialImageId?:
+    (javaType): Long
+    description: Image Id Ref of Offender
+  dateOfBirth:
+    type: date-only
+    description: Date of Birth of offender
+  age:
+    type: integer
+    description: Age of offender
+  physicalAttributes?:
+    type: PhysicalAttributes
+    description: A set of physical attributes
+  physicalCharacteristics?:
+    type: PhysicalCharacteristic[]
+    description: List of physical characteristics
+  physicalMarks?:
+    type: PhysicalMark[]
+    description: List of physical marks
+  assessments?:
+    type: Assessment[]
+    description: List of assessments
+  assignedOfficerId?:
+    (javaType): Long
+    description: Staff Id reference for assigned officer / keyworker

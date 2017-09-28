@@ -53,6 +53,12 @@ public class DateTimeConverter {
 	public static Timestamp fromISO8601DateTime(String iso8601DateTime, ZoneOffset zoneOffset) {
 		LocalDateTime ldt;
 
+		ldt = fromISO8601DateTimeToLocalDateTime(iso8601DateTime, zoneOffset);
+		return Timestamp.valueOf(ldt);
+	}
+
+	public static LocalDateTime fromISO8601DateTimeToLocalDateTime(String iso8601DateTime, ZoneOffset zoneOffset) {
+		LocalDateTime ldt;
 		try {
 			OffsetDateTime odt = OffsetDateTime.parse(iso8601DateTime);
 
@@ -61,8 +67,7 @@ public class DateTimeConverter {
 			// Perhaps input lacks offset-from-UTC. Try parsing as a local date-time.
 			ldt = LocalDateTime.parse(iso8601DateTime);
 		}
-
-		return Timestamp.valueOf(ldt);
+		return ldt;
 	}
 
 	/**

@@ -1,9 +1,9 @@
 package net.syscon.elite.v2.service.impl;
 
 import net.syscon.elite.persistence.LocationRepository;
+import net.syscon.elite.v2.api.model.Location;
+import net.syscon.elite.v2.api.support.Order;
 import net.syscon.elite.v2.service.LocationService;
-import net.syscon.elite.web.api.model.Location;
-import net.syscon.elite.web.api.resource.LocationsResource;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class LocationServiceImplTest {
 
         locations.add(location);
 
-        Mockito.when(locationRepository.findLocations(eq(null), eq("locationId"), eq(LocationsResource.Order.asc), eq(0), eq(10))).thenReturn(locations);
+        Mockito.when(locationRepository.findLocations(eq(null), eq("locationId"), eq(Order.ASC), eq(0), eq(10))).thenReturn(locations);
 
         List<net.syscon.elite.v2.api.model.Location> returnedLocations = locationService.getUserLocations("");
 

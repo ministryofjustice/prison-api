@@ -5,13 +5,14 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.executableSpecification.steps.CaseNoteSteps;
-import net.syscon.elite.web.api.model.CaseNote;
-import net.syscon.elite.web.api.model.NewCaseNote;
-import net.syscon.elite.web.api.model.UpdateCaseNote;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.syscon.elite.v2.api.model.CaseNote;
+import net.syscon.elite.v2.api.model.NewCaseNote;
+import net.syscon.elite.v2.api.model.UpdateCaseNote;
+import net.syscon.util.DateTimeConverter;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.ZoneOffset;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,7 +27,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * NB: Not all API endpoints have associated tests at this point in time.
  */
 public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
-    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired
     private CaseNoteSteps caseNote;
@@ -69,7 +69,7 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
 
     @When("^the created case note is updated with text \"([^\"]*)\"$")
     public void theCaseNoteIsUpdatedWithText(String caseNoteText) throws Throwable {
-        updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, new UpdateCaseNote(caseNoteText));
+        updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
     }
 
     @Then("^case note is successfully updated with \"([^\"]*)\"$")
@@ -111,7 +111,9 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         newCaseNote.setType(type);
         newCaseNote.setSubType(subType);
         newCaseNote.setText(text);
-        newCaseNote.setOccurrenceDateTime(occurrenceDateTime);
+        if (StringUtils.isNotBlank(occurrenceDateTime)) {
+            newCaseNote.setOccurrenceDateTime(DateTimeConverter.fromISO8601DateTimeToLocalDateTime(occurrenceDateTime, ZoneOffset.UTC));
+        }
 
         return newCaseNote;
     }
@@ -156,9 +158,9 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         caseNote.applyDateToFilter(dateTo);
     }
 
-    @And("^pagination with limit \"([^\"]*)\" and offset \"([^\"]*)\" applied$")
-    public void paginationWithLimitAndOffsetApplied(String limit, String offset) throws Throwable {
-        caseNote.applyPagination(limit, offset);
+    @And("^pagination with limit \"([0-9]*)\" and offset \"([0-9]*)\" applied$")
+    public void paginationWithLimitAndOffsetApplied(Long limit, Long offset) throws Throwable {
+        caseNote.applyPagination(offset, limit);
     }
 
     @And("^filtered case notes are requested for offender booking \"([^\"]*)\"$")

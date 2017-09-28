@@ -1,16 +1,16 @@
 package net.syscon.elite.service;
 
-import net.syscon.elite.web.api.model.CaseLoad;
-import net.syscon.elite.web.api.model.StaffDetails;
-import net.syscon.elite.web.api.model.UserDetails;
+import net.syscon.elite.v2.api.model.CaseLoad;
+import net.syscon.elite.v2.api.model.StaffDetail;
+import net.syscon.elite.v2.api.model.UserDetail;
 
 import java.util.List;
 
 public interface UserService {
 
-	StaffDetails getUserByStaffId(Long staffId);
+	StaffDetail getUserByStaffId(Long staffId);
 
-	UserDetails getUserByUsername(String username);
+	UserDetail getUserByUsername(String username);
 
 	CaseLoad getActiveCaseLoad(String username);
 

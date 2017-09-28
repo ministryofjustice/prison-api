@@ -1,0 +1,28 @@
+#%RAML 1.0 DataType
+description: Movement
+properties:
+  bookingId:
+    (javaType): Long
+    description: Booking Id
+  moveCategory:
+    enum: [ "external", "internal" ]
+    description: Movement Category
+  moveDateTime:
+    type: datetime
+    description: Time of movement
+  fromAgencyId:
+    type: string
+    description: Agency Location Id
+  moveType:
+    type: datetime
+    description: Type of movement
+  moveReason?:
+    type: string
+    description: Reason for moving
+  fromLocationId?:
+    (javaType): Long
+    description: Move From location
+  toLocationId?:
+    (javaType): Long
+    description: Move to Location
+

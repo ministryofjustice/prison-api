@@ -32,6 +32,32 @@ FIND_REFERENCE_CODE_BY_DOMAIN_PARENT_CODE {
 }
 
 
+FIND_CNOTE_TYPES_AND_SUBTYPES_BY_CASELOAD {
+	SELECT DISTINCT rc.description,
+		w.work_type code,
+		rc.domain,
+		rc.PARENT_DOMAIN,
+		rc.PARENT_CODE,
+		rc.ACTIVE_FLAG,
+		rcsub.DOMAIN as SUB_DOMAIN,
+		wsub.work_type as SUB_CODE,
+		rcSub.DESCRIPTION as SUB_DESCRIPTION,
+		rcSub.ACTIVE_FLAG as SUB_ACTIVE_FLAG
+	FROM works w JOIN reference_codes rc on rc.code = w.work_type
+		LEFT JOIN reference_codes rcsub on rcsub.DOMAIN = 'TASK_SUBTYPE'
+		JOIN works wsub on rcSub.code = wsub.work_sub_type AND wsub.workflow_type = 'CNOTE'
+											 AND wsub.work_type = w.WORK_TYPE
+											 AND wsub.manual_select_flag ='Y'
+											 AND wsub.active_flag  = 'Y'
+	WHERE w.workflow_type = 'CNOTE'
+				AND rc.domain = 'TASK_TYPE'
+				AND w.caseload_type IN ( (:caseLoadType), 'BOTH')
+				AND w.manual_select_flag ='Y'
+				AND w.active_flag  = 'Y'
+				AND rc.code <> 'WR'
+	order by w.work_type, wsub.work_type
+}
+
 FIND_CNOTE_TYPES_BY_CASELOAD {
 	SELECT DISTINCT rc.description, 
 					work_type code, 

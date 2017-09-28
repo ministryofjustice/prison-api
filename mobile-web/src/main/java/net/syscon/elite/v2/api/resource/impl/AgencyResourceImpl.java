@@ -11,6 +11,8 @@ import javax.ws.rs.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.syscon.util.ResourceUtils.nvl;
+
 @RestResource
 @Path("/agencies")
 public class AgencyResourceImpl implements AgencyResource {
@@ -24,10 +26,9 @@ public class AgencyResourceImpl implements AgencyResource {
 
         final List<Agency> agencies = agencyService.findAgenciesByUsername(
                 UserSecurityUtils.getCurrentUsername(),
-                pageOffset,
-                pageLimit);
+                nvl(pageOffset, 0L), nvl(pageLimit, 10L));
 
-        return GetAgenciesResponse.respond200WithApplicationJson(agencies, MetaDataFactory.getTotalRecords(agencies), pageOffset, pageLimit);
+        return GetAgenciesResponse.respond200WithApplicationJson(agencies, MetaDataFactory.getTotalRecords(agencies), nvl(pageOffset, 0L), nvl(pageLimit, 10L));
     }
 
     @Override
@@ -37,6 +38,6 @@ public class AgencyResourceImpl implements AgencyResource {
 
     @Override
     public GetAgencyLocationsResponse getAgencyLocations(String agencyId, Long pageOffset, Long pageLimit) {
-        return GetAgencyLocationsResponse.respond200WithApplicationJson(new ArrayList<>(), 0L, pageOffset, pageLimit);
+        return GetAgencyLocationsResponse.respond200WithApplicationJson(new ArrayList<>(), 0L, nvl(pageOffset, 0L), nvl(pageLimit, 10L));
     }
 }

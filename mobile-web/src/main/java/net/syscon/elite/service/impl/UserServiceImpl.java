@@ -4,9 +4,9 @@ import net.syscon.elite.persistence.CaseLoadRepository;
 import net.syscon.elite.persistence.UserRepository;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.UserService;
-import net.syscon.elite.web.api.model.CaseLoad;
-import net.syscon.elite.web.api.model.StaffDetails;
-import net.syscon.elite.web.api.model.UserDetails;
+import net.syscon.elite.v2.api.model.CaseLoad;
+import net.syscon.elite.v2.api.model.StaffDetail;
+import net.syscon.elite.v2.api.model.UserDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -27,20 +27,20 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public StaffDetails getUserByStaffId(Long staffId) {
+	public StaffDetail getUserByStaffId(Long staffId) {
 		return userRepository.findByStaffId(staffId).orElseThrow(new EntityNotFoundException(String.valueOf(staffId)));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public UserDetails getUserByUsername(String username) {
+	public UserDetail getUserByUsername(String username) {
 		return userRepository.findByUsername(username).orElseThrow(new EntityNotFoundException(username));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public CaseLoad getActiveCaseLoad(final String username) {
-		final UserDetails userDetails = getUserByUsername(username);
+		final UserDetail userDetails = getUserByUsername(username);
 		return caseLoadRepository.find(userDetails.getActiveCaseLoadId()).orElseThrow(new EntityNotFoundException(userDetails.getActiveCaseLoadId()));
 	}
 
@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
 		if (!found) {
 			throw new AccessDeniedException(format("The user does not have access to the caseLoadid = %s", caseLoadId));
 		} else {
-			final UserDetails userDetails = getUserByUsername(username);
+			final UserDetail userDetails = getUserByUsername(username);
 			userRepository.updateCurrentLoad(userDetails.getStaffId(), caseLoadId);
 		}
 	}

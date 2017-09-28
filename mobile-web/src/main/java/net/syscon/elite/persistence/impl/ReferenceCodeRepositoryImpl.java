@@ -6,8 +6,7 @@ import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.v2.api.model.ReferenceCode;
 import net.syscon.elite.v2.api.support.Order;
-import net.syscon.elite.web.api.model.CaseLoad;
-import net.syscon.elite.web.api.model.CaseNoteType;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -37,11 +36,6 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 			.put("SUB_CODE", new FieldMapper("subCode"))
 			.put("SUB_DESCRIPTION", new FieldMapper("subDescription"))
 			.put("SUB_ACTIVE_FLAG", new FieldMapper("subActiveFlag"))
-			.build();
-
-	private final Map<String, FieldMapper> noteTypesSubTypes = new ImmutableMap.Builder<String, FieldMapper>()
-			.put("DESCRIPTION", new FieldMapper("description"))
-			.put("CODE", new FieldMapper("code"))
 			.build();
 
 	private boolean isAscending(Order order) { return Order.ASC == order; }
@@ -112,12 +106,14 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
                         .build();
                 referenceCodes.add(activeRef);
             }
-            activeRef.getSubCodes().add(ReferenceCode.builder()
-                    .code(ref.getSubCode())
-                    .domain(ref.getSubDomain())
-                    .description(ref.getSubDescription())
-                    .activeFlag(ref.getSubActiveFlag())
-                    .build());
+            if (StringUtils.isNotBlank(ref.getSubCode())) {
+				activeRef.getSubCodes().add(ReferenceCode.builder()
+						.code(ref.getSubCode())
+						.domain(ref.getSubDomain())
+						.description(ref.getSubDescription())
+						.activeFlag(ref.getSubActiveFlag())
+						.build());
+			}
         }
 		return referenceCodes;
 	}
@@ -139,31 +135,42 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	}
 
 	@Override
-	public List<CaseNoteType> getCaseNoteTypeByCurrentCaseLoad(String query, String orderBy, Order order, long offset, long limit) {
-		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CNOTE_TYPES_BY_CASELOAD"), noteTypesSubTypes)
-				.addQuery(query)
-				.addOrderBy(isAscending(order), orderBy)
-				.addRowCount()
-				.addPagination()
-				.build();
-		final RowMapper<CaseNoteType> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNoteType.class, noteTypesSubTypes);
-        try {
-			final Optional<CaseLoad> caseLoad = getCurrentCaseLoadDetail();
-			final String caseLoadType = caseLoad.isPresent() ? caseLoad.get().getType() : "BOTH";
-			return jdbcTemplate.query(sql, createParams("caseLoadType", caseLoadType, "offset", offset, "limit", limit), referenceCodeRowMapper);
-        } catch (EmptyResultDataAccessException e) {
-            return Collections.emptyList();
-        }
+	public List<ReferenceCode> getCaseNoteTypeByCurrentCaseLoad(String caseLoadType, boolean includeSubTypes, String query, String orderBy, Order order, long offset, long limit) {
+
+		try {
+			if (includeSubTypes) {
+				final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CNOTE_TYPES_AND_SUBTYPES_BY_CASELOAD"), masterDetailReferenceMapper)
+						.build();
+
+				final RowMapper<ReferenceCodeDetail> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCodeDetail.class, masterDetailReferenceMapper);
+				final List<ReferenceCodeDetail> results = jdbcTemplate.query(sql, createParams("caseLoadType", caseLoadType), referenceCodeRowMapper);
+				return convertToReferenceCodes(results);
+
+			} else {
+				final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CNOTE_TYPES_BY_CASELOAD"), referenceCodeMapping)
+						.addQuery(query)
+						.addOrderBy(isAscending(order), orderBy)
+						.addRowCount()
+						.addPagination()
+						.build();
+				final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
+				return jdbcTemplate.query(sql, createParams("caseLoadType", caseLoadType, "offset", offset, "limit", limit), referenceCodeRowMapper);
+			}
+		} catch (EmptyResultDataAccessException e) {
+			return Collections.emptyList();
+		}
+
+
 	}
 	@Override
-	public List<CaseNoteType> getCaseNoteSubType(String typeCode, String query, String orderBy, Order order, long offset, long limit) {
-		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE"), noteTypesSubTypes)
+	public List<ReferenceCode> getCaseNoteSubType(String typeCode, String query, String orderBy, Order order, long offset, long limit) {
+		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE"), referenceCodeMapping)
 				.addQuery(query)
 				.addOrderBy(isAscending(order), orderBy)
 				.addRowCount()
 				.addPagination()
 				.build();
-		final RowMapper<CaseNoteType> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNoteType.class, noteTypesSubTypes);
+		final RowMapper<ReferenceCode> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCode.class, referenceCodeMapping);
 		return jdbcTemplate.query(sql, createParams("caseNoteType", typeCode, "offset", offset, "limit", limit), referenceCodeRowMapper);
 	}
 

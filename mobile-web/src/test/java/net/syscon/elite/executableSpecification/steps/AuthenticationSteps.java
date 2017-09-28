@@ -1,7 +1,7 @@
 package net.syscon.elite.executableSpecification.steps;
 
-import net.syscon.elite.web.api.model.AuthLogin;
-import net.syscon.elite.web.api.model.Token;
+import net.syscon.elite.v2.api.model.AuthLogin;
+import net.syscon.elite.v2.api.model.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -26,7 +26,8 @@ public class AuthenticationSteps {
     private String token;
 
     public void authenticate(String username, String password) {
-        AuthLogin credentials = new AuthLogin(username, password);
+        AuthLogin credentials =
+                AuthLogin.builder().username(username).password(password).build();
 
         ResponseEntity<Token> response =
                 restTemplate.exchange(API_PREFIX + "users/login", HttpMethod.POST, new HttpEntity<>(credentials), Token.class);

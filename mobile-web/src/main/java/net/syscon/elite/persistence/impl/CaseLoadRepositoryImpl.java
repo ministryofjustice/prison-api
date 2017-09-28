@@ -2,7 +2,7 @@ package net.syscon.elite.persistence.impl;
 
 import net.syscon.elite.persistence.CaseLoadRepository;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
-import net.syscon.elite.web.api.model.CaseLoad;
+import net.syscon.elite.v2.api.model.CaseLoad;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -37,6 +37,19 @@ public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRe
 		} catch (EmptyResultDataAccessException e) {
 			return Collections.emptyList();
 		}
+	}
+
+	public Optional<CaseLoad> getCurrentCaseLoadDetail(final String username) {
+		final String sql = getQuery("FIND_ACTIVE_CASE_LOAD_BY_USERNAME");
+		final RowMapper<CaseLoad> caseLoadRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseLoad.class, caseLoadMapping);
+
+		CaseLoad caseload;
+		try {
+			caseload = jdbcTemplate.queryForObject(sql, createParams("username", username), caseLoadRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			caseload = null;
+		}
+		return Optional.ofNullable(caseload);
 	}
 }
 

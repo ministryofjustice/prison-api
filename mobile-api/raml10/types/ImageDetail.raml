@@ -2,11 +2,10 @@
 description: Image Detail
 properties:
   imageId:
-    type: integer
     (javaType): Long
     description: Image ID
   captureDate:
-    type: datetime
+    type: date-only
     description: Date of image capture
     example: 2016-02-28T16:41:41.090Z
   imageView:
@@ -19,7 +18,6 @@ properties:
     type: string
     description: Image Type
   objectId?:
-    type: integer
     (javaType): Long
     description: Object ID
   imageData?:

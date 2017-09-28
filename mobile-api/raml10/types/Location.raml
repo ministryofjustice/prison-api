@@ -2,7 +2,6 @@
 description: Location Details
 properties:
   locationId:
-    type: integer
     (javaType): Long
     description: Location identifier.
   locationType:
@@ -15,7 +14,6 @@ properties:
     type: string
     description: Identifier of Agency this location is associated with.
   parentLocationId?:
-    type: integer
     (javaType): Long
     description: Identifier of this location's parent location.
   currentOccupancy?:
@@ -30,3 +28,21 @@ properties:
   listSequence:
     type: integer
     description: walk sequence of the cells
+  assignedInmates:
+    type: OffenderBooking[]
+    description: list of offenders at this location
+  operationalCapacity:
+    type: integer
+    description: capacity of a location
+  livingUnit:
+    type: boolean
+    description: indicates a living unit
+  housingUnitType:
+    type: integer
+    description: Housing Unit Type
+  activeCountStatusCode:
+    type: { "enum": ["I", "R", "C"] }
+    description: Active Count Status Code
+  activeCountId:
+    type: integer
+    description: Count of active offenders

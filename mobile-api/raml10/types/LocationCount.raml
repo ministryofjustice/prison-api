@@ -1,0 +1,21 @@
+#%RAML 1.0 DataType
+description: Location Count
+properties:
+  physicalCountId:
+    (javaType): Long
+    description: Phyical Count Id
+  locationId:
+    (javaType): Long
+    description: Location Id
+  enteredByUserId?:
+    (javaType): Long
+    description: Staff Id
+  initialCount:
+    type: LocationCountDetail
+    description: Initial Count Details
+  recount?:
+    type: LocationCountDetail
+    description: Recount Details
+  countStatusCode?:
+    enum: ["I", "R", "C"]
+    description: Status of count

@@ -4,8 +4,8 @@ import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.persistence.UserRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
-import net.syscon.elite.web.api.model.StaffDetails;
-import net.syscon.elite.web.api.model.UserDetails;
+import net.syscon.elite.v2.api.model.StaffDetail;
+import net.syscon.elite.v2.api.model.UserDetail;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -36,11 +36,11 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
 
 	@Override
-	public Optional<UserDetails> findByUsername(final String username) {
+	public Optional<UserDetail> findByUsername(final String username) {
 		String sql = getQuery("FIND_USER_BY_USERNAME");
-		RowMapper<UserDetails> userRowMapper = Row2BeanRowMapper.makeMapping(sql, UserDetails.class, userMapping);
+		RowMapper<UserDetail> userRowMapper = Row2BeanRowMapper.makeMapping(sql, UserDetail.class, userMapping);
 
-		UserDetails userDetails;
+		UserDetail userDetails;
 		try {
 			userDetails = jdbcTemplate.queryForObject(
 					sql,
@@ -53,11 +53,11 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	}
 
 	@Override
-	public Optional<StaffDetails> findByStaffId(Long staffId) {
+	public Optional<StaffDetail> findByStaffId(Long staffId) {
 		String sql = getQuery("FIND_USER_BY_STAFF_ID");
-		RowMapper<StaffDetails> staffRowMapper = Row2BeanRowMapper.makeMapping(sql, StaffDetails.class, staffMapping);
+		RowMapper<StaffDetail> staffRowMapper = Row2BeanRowMapper.makeMapping(sql, StaffDetail.class, staffMapping);
 
-		StaffDetails staffDetails;
+		StaffDetail staffDetails;
 
 		try {
 			staffDetails = jdbcTemplate.queryForObject(

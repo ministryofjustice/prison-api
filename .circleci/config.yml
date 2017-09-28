@@ -9,7 +9,7 @@ jobs:
       - image: sysconjusticesystems/ci-java-node:latest
     steps:
       - checkout
-      - run: ./gradlew build aggregate assembleSandbox -x integTest
+      - run: ./gradlew build aggregate -x integTest
       - store_test_results:
           path: mobile-web/build/test-results
       - store_test_results:
@@ -21,7 +21,7 @@ jobs:
       - store_artifacts:
           path: mobile-web/target/site
       - store_artifacts:
-          path: mobile-api/raml/api.html
+          path: mobile-api/raml10/api.html
       - persist_to_workspace:
           root: .
           paths:

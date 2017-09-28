@@ -1,16 +1,18 @@
 package net.syscon.elite.executableSpecification.steps;
 
 import net.syscon.elite.test.EliteClientException;
-import net.syscon.elite.web.api.model.CaseNote;
-import net.syscon.elite.web.api.model.CaseNotes;
-import net.syscon.elite.web.api.model.NewCaseNote;
-import net.syscon.elite.web.api.model.UpdateCaseNote;
+import net.syscon.elite.v2.api.model.CaseNote;
+import net.syscon.elite.v2.api.model.NewCaseNote;
+import net.syscon.elite.v2.api.model.UpdateCaseNote;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,13 +20,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  * BDD step implementations for Case Note domain.
  */
 public class CaseNoteSteps extends CommonSteps {
-    private static final String API_REQUEST_BASE_URL = API_PREFIX + "booking/{bookingId}/caseNotes";
+    private static final String API_REQUEST_BASE_URL = API_PREFIX + "bookings/{bookingId}/caseNotes";
     private static final String API_REQUEST_FOR_CASENOTE = API_REQUEST_BASE_URL + "/{caseNoteId}";
 
     private CaseNote caseNote;
-    private CaseNotes caseNotes;
     private NewCaseNote pendingCaseNote;
     private String caseNoteFilter;
+    private List<CaseNote> caseNotes;
 
     @Value("${api.caseNote.sourceCode:AUTO}")
     private String caseNoteSource;
@@ -34,7 +36,6 @@ public class CaseNoteSteps extends CommonSteps {
         super.init();
 
         caseNote = null;
-        caseNotes = null;
         pendingCaseNote = null;
         caseNoteFilter = "";
     }
@@ -47,7 +48,7 @@ public class CaseNoteSteps extends CommonSteps {
         assertThat(caseNote.getSubType()).isEqualTo(pendingCaseNote.getSubType());
         assertThat(caseNote.getText()).isEqualTo(pendingCaseNote.getText());
         assertThat(caseNote.getOccurrenceDateTime()).isEqualTo(pendingCaseNote.getOccurrenceDateTime());
-        assertThat(caseNote.getCreationDateTime()).isNotEmpty();
+        assertThat(caseNote.getCreationDateTime()).isNotNull();
     }
 
     @Step("Verify case note not created")
@@ -89,12 +90,12 @@ public class CaseNoteSteps extends CommonSteps {
 
     @Step("Verify case note types")
     public void verifyCaseNoteTypes(String caseNoteTypes) {
-        verifyPropertyValues(caseNotes.getCaseNotes(), CaseNote::getType, caseNoteTypes);
+        verifyPropertyValues(caseNotes, CaseNote::getType, caseNoteTypes);
     }
 
     @Step("Verify case note sub types")
     public void verifyCaseNoteSubTypes(String caseNoteSubTypes) {
-        verifyPropertyValues(caseNotes.getCaseNotes(), CaseNote::getSubType, caseNoteSubTypes);
+        verifyPropertyValues(caseNotes, CaseNote::getSubType, caseNoteSubTypes);
     }
 
     @Step("Apply case note type filter")
@@ -183,13 +184,12 @@ public class CaseNoteSteps extends CommonSteps {
 
         String queryUrl = API_REQUEST_BASE_URL + buildQuery(caseNoteFilter);
 
-        ResponseEntity<CaseNotes> response =
-                restTemplate.exchange(queryUrl, HttpMethod.GET, createEntity(), CaseNotes.class, bookingId);
+        ResponseEntity<List<CaseNote>> response = restTemplate.exchange(queryUrl,
+                HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<CaseNote>>() {}, bookingId);
+
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
+        buildResourceData(response, "caseNotes");
         caseNotes = response.getBody();
-
-        setResourceMetaData(caseNotes.getCaseNotes(), caseNotes.getPageMetaData());
     }
 }

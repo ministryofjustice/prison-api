@@ -21,8 +21,8 @@ public class ImagesResourceImpl implements ImageResource {
 	private ImageService imageService;
 
 	@Override
-	public GetImageDataResponse getImageData(final String imageId) {
-		final byte[] data = imageService.getImageContent(Long.valueOf(imageId));
+	public GetImageDataResponse getImageData(final Long imageId) {
+		final byte[] data = imageService.getImageContent(imageId);
 		if (data != null) {
 			try {
                 File temp = File.createTempFile("userimage", ".tmp");
@@ -45,8 +45,8 @@ public class ImagesResourceImpl implements ImageResource {
 	}
 
 	@Override
-	public GetImageResponse getImage(String imageId) {
-		final ImageDetail imageDetail = imageService.findImageDetail(Long.valueOf(imageId));
+	public GetImageResponse getImage(Long imageId) {
+		final ImageDetail imageDetail = imageService.findImageDetail(imageId);
 		return GetImageResponse.respond200WithApplicationJson(imageDetail);
 
 	}

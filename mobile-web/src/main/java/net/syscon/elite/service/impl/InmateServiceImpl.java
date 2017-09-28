@@ -6,13 +6,8 @@ import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
-import net.syscon.elite.v2.api.model.OffenderBooking;
-import net.syscon.elite.v2.api.model.PrisonerDetail;
-import net.syscon.elite.web.api.model.Alias;
-import net.syscon.elite.web.api.model.CaseLoad;
-import net.syscon.elite.web.api.model.InmateDetails;
-import net.syscon.elite.web.api.model.InmatesSummary;
-import net.syscon.elite.web.api.resource.BookingResource.Order;
+import net.syscon.elite.v2.api.model.*;
+import net.syscon.elite.v2.api.support.Order;
 import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,13 +41,13 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<InmatesSummary> findAllInmates(String query, int offset, int limit, String orderBy, Order order) {
+    public List<OffenderBooking> findAllInmates(String query, long offset, long limit, String orderBy, Order order) {
         String colSort = StringUtils.isNotBlank(orderBy) ? orderBy : DEFAULT_OFFENDER_SORT;
         return repository.findAllInmates(getUserCaseloadIds(), locationTypeGranularity, query, offset, limit, colSort, order);
     }
 
     @Override
-    public InmateDetails findInmate(Long inmateId) {
+    public InmateDetail findInmate(Long inmateId) {
         return repository.findInmate(inmateId, getUserCaseloadIds()).orElseThrow(new EntityNotFoundException(String.valueOf(inmateId)));
     }
 
@@ -62,23 +57,22 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<OffenderBooking> findOffenders(String keywords, String locationPrefix, String sortFields, net.syscon.elite.v2.api.support.Order sortOrder, Long offset, Long limit) {
+    public List<OffenderBooking> findOffenders(String keywords, String locationPrefix, String sortFields, Order sortOrder, long offset, long limit) {
 
-        final boolean descendingOrder = net.syscon.elite.v2.api.support.Order.DESC == sortOrder;
+        final boolean descendingOrder = Order.DESC == sortOrder;
         return repository.searchForOffenderBookings(getUserCaseloadIds(), keywords, locationPrefix,
-                locationTypeGranularity, offset != null ? offset.intValue() : 0,
-                limit != null ? limit.intValue() : Integer.MAX_VALUE, StringUtils.isNotBlank(sortFields) ? sortFields : DEFAULT_OFFENDER_SORT, !descendingOrder);
+                locationTypeGranularity, offset,
+                limit, StringUtils.isNotBlank(sortFields) ? sortFields : DEFAULT_OFFENDER_SORT, !descendingOrder);
     }
 
     @Override
-    public List<PrisonerDetail> findPrisoners(PrisonerDetailSearchCriteria criteria, String sortFields, net.syscon.elite.v2.api.support.Order sortOrder, Long offset, Long limit) {
+    public List<PrisonerDetail> findPrisoners(PrisonerDetailSearchCriteria criteria, String sortFields, Order sortOrder, long offset, long limit) {
         final String query = generateQuery(criteria);
         CalcDateRanges calcDates = new CalcDateRanges(criteria.getDob(), criteria.getDobFrom(), criteria.getDobTo(), maxYears);
         if (query != null || calcDates.hasDobRange()) {
-            long rowLimit = (limit != null ? limit : 50L);
-            long startOffset = (offset != null ? offset : 0L);
+
             return repository.searchForOffenders(query, calcDates.getDobDateFrom(), calcDates.getDobDateTo(),
-                    StringUtils.isNotBlank(sortFields) ? sortFields : DEFAULT_OFFENDER_SORT, net.syscon.elite.v2.api.support.Order.ASC == sortOrder, startOffset, rowLimit);
+                    StringUtils.isNotBlank(sortFields) ? sortFields : DEFAULT_OFFENDER_SORT, Order.ASC == sortOrder, offset, limit);
         }
         return null;
     }
