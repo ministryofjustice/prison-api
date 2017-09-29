@@ -4,9 +4,9 @@ import org.apache.tools.ant.taskdefs.condition.Os
 project(":mobile-api") {
     // Project-specific properties
 
-    def raml10Dir = new File("${rootDir}/mobile-api/raml10")
-    def raml10File = new File(raml10Dir, "api.raml")
-    def htmlFile = new File(raml10Dir, "api.html")
+    def ramlDir = new File("${rootDir}/mobile-api/raml")
+    def ramlFile = new File(ramlDir, "api.raml")
+    def htmlFile = new File(ramlDir, "api.html")
 
     def oas20File = new File("${resourceGenDir}/api.json")
 
@@ -16,15 +16,15 @@ project(":mobile-api") {
     // Also install raml2html after install the node-js with the following command
     // npm i -g raml2html
     def htmlGenCommand = "raml2html"
-    def htmlGenArgs = ['-i', raml10File.absolutePath, '-o', htmlFile.absolutePath]
+    def htmlGenArgs = ['-i', ramlFile.absolutePath, '-o', htmlFile.absolutePath]
 
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        htmlGenCommand = "${rootDir}/mobile-api/raml10/htmlgen.bat"
-        htmlGenArgs = [raml10File.absolutePath, htmlFile.absolutePath]
+        htmlGenCommand = "${rootDir}/mobile-api/raml/htmlgen.bat"
+        htmlGenArgs = [ramlFile.absolutePath, htmlFile.absolutePath]
     }
 
     task htmlGen(type: Exec) {
-        workingDir raml10Dir.absolutePath
+        workingDir ramlDir.absolutePath
         commandLine htmlGenCommand
         args htmlGenArgs
     }
@@ -35,12 +35,12 @@ project(":mobile-api") {
     // specification to OAS 2.0 (Swagger 2). After installing node-js, use the following command to install
     // oas-raml-coverter:
     //   npm i -g oas-raml-converter
-    def raml2oasCommand = "${rootDir}/mobile-api/raml10/raml2oas.sh"
-    def raml2oasArgs = ['-f', 'RAML', '-t', 'OAS20', raml10File.absolutePath]
+    def raml2oasCommand = "${rootDir}/mobile-api/raml/raml2oas.sh"
+    def raml2oasArgs = ['-f', 'RAML', '-t', 'OAS20', ramlFile.absolutePath]
 
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        raml2oasCommand = "${rootDir}/mobile-api/raml10/raml2oas.bat"
-        raml2oasArgs = [raml10File.absolutePath]
+        raml2oasCommand = "${rootDir}/mobile-api/raml/raml2oas.bat"
+        raml2oasArgs = [ramlFile.absolutePath]
     }
 
     task raml2oas(type: Exec) {
@@ -50,7 +50,7 @@ project(":mobile-api") {
             oas20File.createNewFile()
             standardOutput = new FileOutputStream(oas20File)
             environment 'PATH', '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
-            workingDir raml10Dir.absolutePath
+            workingDir ramlDir.absolutePath
             commandLine raml2oasCommand
             args raml2oasArgs
         }
@@ -111,7 +111,7 @@ project(":mobile-api") {
 
 
     // Task to generate Java code from RAML 1.0 resources
-    task generateRaml10Resources {
+    task generateRamlResources {
         doFirst {
             println "Generating JAXRS API model and interfaces from RAML 0.8 ..."
 
@@ -138,14 +138,14 @@ project(":mobile-api") {
             def scanner = new org.raml.jaxrs.generator.RamlScanner(config)
 
             try {
-                scanner.handle(raml10File)
+                scanner.handle(ramlFile)
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    def codegenConfig = "${rootDir}/mobile-api/raml10/api-gen-cfg.json"
+    def codegenConfig = "${rootDir}/mobile-api/raml/api-gen-cfg.json"
 
     def jaxrsCodegenArgs = ['generate', '-c', codegenConfig, '-i', oas20File.absolutePath, '-l', 'jaxrsinterfaces',
                             '-o', sourceGenDir, '--type-mappings', 'Boolean=boolean']
