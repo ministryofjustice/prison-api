@@ -247,15 +247,35 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingSentenceDetail.verifyNonDtoReleaseDate(releaseDate);
     }
 
-    @And("^days remaining is correct for release date of \"([^\"]*)\"$")
-    public void daysRemainingIsCorrectAccordingTo(String releaseDate) throws Throwable {
-        bookingSentenceDetail.verifyDaysRemaining(releaseDate);
-    }
-
     @And("^additional days awarded matches \"([^\"]*)\"$")
     public void additionalDaysAwardedMatches(String additionalDaysAwarded) throws Throwable {
         bookingSentenceDetail.verifyAdditionalDaysAwarded(
                 StringUtils.isBlank(additionalDaysAwarded) ? null : Integer.valueOf(additionalDaysAwarded));
+    }
+
+    @And("^release date type matches \"([^\"]*)\"$")
+    public void releaseDateTypeMatches(String releaseDateType) throws Throwable {
+        bookingSentenceDetail.verifyNonDtoReleaseDateType(releaseDateType);
+    }
+
+    @And("^home detention curfew approved date matches \"([^\"]*)\"$")
+    public void homeDetentionCurfewApprovedDateMatches(String homeDetentionCurfewApprovedDate) throws Throwable {
+        bookingSentenceDetail.verifyHomeDetentionCurfewApprovedDate(homeDetentionCurfewApprovedDate);
+    }
+
+    @And("^approved parole date matches \"([^\"]*)\"$")
+    public void approvedParoleDateMatches(String approvedParoleDate) throws Throwable {
+        bookingSentenceDetail.verifyApprovedParoleDate(approvedParoleDate);
+    }
+
+    @And("^release on temporary licence date matches \"([^\"]*)\"$")
+    public void releaseOnTemporaryLicenceDateMatches(String releaseOnTemporaryLicenceDate) throws Throwable {
+        bookingSentenceDetail.verifyReleaseOnTemporaryLicenceDate(releaseOnTemporaryLicenceDate);
+    }
+
+    @And("^early release scheme eligibility date matches \"([^\"]*)\"$")
+    public void earlyReleaseSchemeEligibilityDateMatches(String earlyReleaseSchemeEligibilityDate) throws Throwable {
+        bookingSentenceDetail.verifyEarlyReleaseSchemeEligibilityDate(earlyReleaseSchemeEligibilityDate);
     }
 
     @When("^an IEP summary only is requested for an offender with booking id \"([^\"]*)\"$")

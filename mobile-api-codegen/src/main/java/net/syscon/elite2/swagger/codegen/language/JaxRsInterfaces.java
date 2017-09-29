@@ -217,6 +217,12 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
         // Convert to use java type where specified
         applyJavaTypesToModel(property);
 
+        // Tidy up enum property name (i.e. remove 'Enum' suffix)
+        if (property.isEnum) {
+            property.enumName = property.nameInCamelCase;
+            property.datatypeWithEnum = property.enumName;
+        }
+
         // Handle defaultValue = "null" - if property default value is "null" string,
         // actually set to 'null' so that template can conditionally render default
         // value.

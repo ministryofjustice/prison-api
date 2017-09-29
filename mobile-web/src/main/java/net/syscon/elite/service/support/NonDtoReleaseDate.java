@@ -3,6 +3,7 @@ package net.syscon.elite.service.support;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import net.syscon.elite.api.model.SentenceDetail;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -14,11 +15,11 @@ import java.util.Objects;
 @Getter
 @ToString
 public final class NonDtoReleaseDate implements Comparable<NonDtoReleaseDate> {
-    private final ReleaseDateType releaseDateType;
+    private final SentenceDetail.NonDtoReleaseDateType releaseDateType;
     private final LocalDate releaseDate;
     private final boolean isOverride;
 
-    public NonDtoReleaseDate(ReleaseDateType releaseDateType, LocalDate releaseDate, boolean isOverride) {
+    public NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType releaseDateType, LocalDate releaseDate, boolean isOverride) {
         Objects.requireNonNull(releaseDateType, "A release date type must be defined.");
         Objects.requireNonNull(releaseDate, "A release date must be defined.");
 
