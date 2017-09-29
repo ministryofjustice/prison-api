@@ -1,4 +1,4 @@
-@global @wip
+@global
 Feature: Booking Sentence Details
 
   Acceptence Criteria
