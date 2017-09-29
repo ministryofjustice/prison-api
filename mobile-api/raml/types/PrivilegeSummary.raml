@@ -4,6 +4,7 @@ properties:
   bookingId:
     (javaType): Long
     description: Offender booking identifier.
+    example: 48765
   iepDate:
     type: date-only
     description: Effective date of current IEP level.
@@ -11,15 +12,16 @@ properties:
   iepTime?:
     type: datetime
     description: Effective date & time of current IEP level.
-    example: 2016-02-28T16:41:41.090Z
+    example: 2016-02-28T16:41:41
   iepLevel:
     type: string
     description: The current IEP level (e.g. Basic, Standard or Enhanced).
-    example: ENH
+    example: Enhanced
   daysSinceReview:
     type: integer
-    description: The number of days since last review (or entry, if new offender).
+    description: The number of days since last review.
+    example: 22
   iepDetails?:
     type: PrivilegeDetail[]
-    description: All IEP detail entries for the offender.
+    description: All IEP detail entries for the offender (most recent first).
     uniqueItems: true

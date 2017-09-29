@@ -28,6 +28,7 @@ public class {{classname}}{{#parent}} extends {{{parent}}}{{/parent}} {
     public enum {{datatypeWithEnum}} {
         {{#allowableValues}}{{#values}} {{.}}, {{/values}}{{/allowableValues}}
     };
+
     private {{{datatypeWithEnum}}} {{name}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}};{{/isEnum}}{{^isEnum}}
     {{#required}}{{#isListContainer}}{{#defaultValue}}@Builder.Default
     {{/defaultValue}}{{/isListContainer}}{{/required}}private {{{datatype}}} {{name}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}};{{/isEnum}}

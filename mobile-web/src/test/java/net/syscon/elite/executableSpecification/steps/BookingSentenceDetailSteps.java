@@ -3,15 +3,9 @@ package net.syscon.elite.executableSpecification.steps;
 import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-
-import static java.time.LocalDate.now;
-import static java.time.temporal.ChronoUnit.DAYS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -102,6 +96,26 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         verifyLocalDate(sentenceDetail.getParoleEligibilityDate(), paroleEligibilityDate);
     }
 
+    @Step("Verify home detention curfew approved date")
+    public void verifyHomeDetentionCurfewApprovedDate(String homeDetentionCurfewApprovedDate) {
+        verifyLocalDate(sentenceDetail.getHomeDetentionCurfewApprovedDate(), homeDetentionCurfewApprovedDate);
+    }
+
+    @Step("Verify parole approved date")
+    public void verifyApprovedParoleDate(String approvedParoleDate) {
+        verifyLocalDate(sentenceDetail.getApprovedParoleDate(), approvedParoleDate);
+    }
+
+    @Step("Verify release on temporary licence date")
+    public void verifyReleaseOnTemporaryLicenceDate(String releaseOnTemporaryLicenceDate) {
+        verifyLocalDate(sentenceDetail.getReleaseOnTemporaryLicenceDate(), releaseOnTemporaryLicenceDate);
+    }
+
+    @Step("Verify early release scheme eligibility date")
+    public void verifyEarlyReleaseSchemeEligibilityDate(String earlyReleaseSchemeEligilityDate) {
+        verifyLocalDate(sentenceDetail.getEarlyReleaseSchemeEligibilityDate(), earlyReleaseSchemeEligilityDate);
+    }
+
     @Step("Verify licence expiry date")
     public void verifyLicenceExpiryDate(String licenceExpiryDate) {
         verifyLocalDate(sentenceDetail.getLicenceExpiryDate(), licenceExpiryDate);
@@ -112,19 +126,9 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         verifyLocalDate(sentenceDetail.getNonDtoReleaseDate(), releaseDate);
     }
 
-    @Step("Verify days remaining")
-    public void verifyDaysRemaining(String releaseDate) {
-        if (StringUtils.isNotBlank(releaseDate)) {
-            // When there is a release date, days remaining is expected to be logical days between release date and
-            // current system date (or zero if release date already passed).
-            LocalDate ldReleaseDate = LocalDate.parse(releaseDate, DateTimeFormatter.ISO_LOCAL_DATE);
-            long expectedDaysRemaining = Math.max(0, DAYS.between(now(), ldReleaseDate));
-
-            assertThat(sentenceDetail.getDaysRemaining()).isEqualTo(expectedDaysRemaining);
-        } else {
-            // When there is no release date, days remaining is expected to be null.
-            assertThat(sentenceDetail.getDaysRemaining()).isNull();
-        }
+    @Step("verify non-DTO release date type")
+    public void verifyNonDtoReleaseDateType(String releaseDateType) {
+        verifyEnum(sentenceDetail.getNonDtoReleaseDateType(), releaseDateType);
     }
 
     @Step("Verify additional days awarded")

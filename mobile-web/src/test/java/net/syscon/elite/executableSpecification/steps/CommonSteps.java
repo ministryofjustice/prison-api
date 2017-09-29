@@ -289,6 +289,14 @@ public abstract class CommonSteps {
         }
     }
 
+    protected void verifyEnum(Enum<?> actual, String expected) {
+        if (Objects.nonNull(actual)) {
+            assertThat(actual.toString()).isEqualTo(expected);
+        } else {
+            assertThat(StringUtils.EMPTY).isEqualTo(StringUtils.trimToEmpty(expected));
+        }
+    }
+
     protected String buildQuery(String queryParam) {
         return "?query=" + StringUtils.trimToEmpty(queryParam);
     }

@@ -95,14 +95,14 @@ project(":mobile-web") {
     }
 
     task testWithSchemaNomis(type:Test) {
-        def nomisEnvVars = ['api.db.target':'nomis', 'cucumber.options':'--tags @global,@nomis']
+        def nomisEnvVars = ['api.db.target':'nomis', 'cucumber.options':'--tags @global,@nomis --tags ~@elite']
 
         exclude "**/persistence/*"
         environment nomisEnvVars
     }
 
     task testWithSchemaElite(type:Test) {
-        def eliteEnvVars = ['api.db.target':'elite', 'cucumber.options':'--tags @global,@elite']
+        def eliteEnvVars = ['api.db.target':'elite', 'cucumber.options':'--tags @global,@elite --tags ~@nomis']
 
         exclude "**/persistence/*"
         environment eliteEnvVars
