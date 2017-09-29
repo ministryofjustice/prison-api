@@ -1,9 +1,9 @@
 package net.syscon.elite.executableSpecification.steps;
 
+import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.StaffDetail;
+import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.test.EliteClientException;
-import net.syscon.elite.v2.api.model.Location;
-import net.syscon.elite.v2.api.model.StaffDetail;
-import net.syscon.elite.v2.api.model.UserDetail;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;

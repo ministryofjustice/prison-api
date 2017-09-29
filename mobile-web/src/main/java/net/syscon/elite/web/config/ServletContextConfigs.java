@@ -8,7 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
-import net.syscon.elite.v2.api.resource.impl.*;
+import net.syscon.elite.api.resource.impl.*;
 import net.syscon.elite.web.handler.ResourceExceptionHandler;
 import net.syscon.elite.web.listener.EndpointLoggingListener;
 import org.apache.commons.lang3.StringUtils;
@@ -61,7 +61,7 @@ public class ServletContextConfigs extends ResourceConfig {
         register(UserResourceImpl.class);
         register(SearchResourceImpl.class);
         register(PrisonerResourceImpl.class);
-        register(net.syscon.elite.v2.api.resource.impl.BookingResourceImpl.class);
+        register(net.syscon.elite.api.resource.impl.BookingResourceImpl.class);
 
         String contextPath = env.getProperty("server.contextPath");
 
@@ -123,7 +123,7 @@ public class ServletContextConfigs extends ResourceConfig {
         config.setContact("Syscon Sheffield Studio Development Team");
         config.setSchemes(new String[] { "http", "https" });
         config.setBasePath(this.apiPath);
-        config.setResourcePackage("net.syscon.elite.v2.api");
+        config.setResourcePackage("net.syscon.elite.api");
         config.setPrettyPrint(true);
         config.setScan(true);
         config.setBasePath("/api");

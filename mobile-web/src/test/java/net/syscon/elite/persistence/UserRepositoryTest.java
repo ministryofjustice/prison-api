@@ -1,8 +1,8 @@
 package net.syscon.elite.persistence;
 
+import net.syscon.elite.api.model.StaffDetail;
+import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.v2.api.model.StaffDetail;
-import net.syscon.elite.v2.api.model.UserDetail;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Test;
 import org.junit.runner.RunWith;

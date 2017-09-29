@@ -1,8 +1,8 @@
 package net.syscon.elite.persistence;
 
-import net.syscon.elite.v2.api.model.InmateDetail;
-import net.syscon.elite.v2.api.model.OffenderBooking;
-import net.syscon.elite.v2.api.support.Order;
+import net.syscon.elite.api.model.InmateDetail;
+import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,6 +1,6 @@
 package net.syscon.elite.executableSpecification.steps;
 
-import net.syscon.elite.v2.api.model.OffenderBooking;
+import net.syscon.elite.api.model.OffenderBooking;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
@@ -16,8 +16,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * BDD step implementations for Offender search feature.
  */
 public class OffenderSearchSteps extends CommonSteps {
-    private static final String LOCATION_SEARCH = V2_API_PREFIX + "search-offenders/%s";
-    private static final String LOCATION_KEYWORD_SEARCH = V2_API_PREFIX + "search-offenders/%s/%s";
+    private static final String LOCATION_SEARCH = API_PREFIX + "search-offenders/%s";
+    private static final String LOCATION_KEYWORD_SEARCH = API_PREFIX + "search-offenders/%s/%s";
 
     private List<OffenderBooking> offenderBookings;
 

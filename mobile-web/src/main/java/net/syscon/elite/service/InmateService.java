@@ -1,11 +1,11 @@
 package net.syscon.elite.service;
 
 
-import net.syscon.elite.v2.api.model.Alias;
-import net.syscon.elite.v2.api.model.InmateDetail;
-import net.syscon.elite.v2.api.model.OffenderBooking;
-import net.syscon.elite.v2.api.model.PrisonerDetail;
-import net.syscon.elite.v2.api.support.Order;
+import net.syscon.elite.api.model.Alias;
+import net.syscon.elite.api.model.InmateDetail;
+import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.model.PrisonerDetail;
+import net.syscon.elite.api.support.Order;
 
 import java.util.List;
 

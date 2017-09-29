@@ -1,10 +1,10 @@
 package net.syscon.elite.persistence.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
+import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.persistence.AgencyRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
-import net.syscon.elite.v2.api.model.Agency;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;

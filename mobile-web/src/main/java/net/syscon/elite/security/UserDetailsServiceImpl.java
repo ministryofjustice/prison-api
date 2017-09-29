@@ -1,8 +1,8 @@
 package net.syscon.elite.security;
 
+import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.persistence.UserRepository;
 import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.v2.api.model.UserDetail;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

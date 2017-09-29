@@ -1,6 +1,6 @@
 package net.syscon.elite.executableSpecification.steps;
 
-import net.syscon.elite.v2.api.model.OffenderBooking;
+import net.syscon.elite.api.model.OffenderBooking;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;

@@ -1,7 +1,7 @@
 package net.syscon.elite.persistence;
 
 
-import net.syscon.elite.v2.api.model.CaseLoad;
+import net.syscon.elite.api.model.CaseLoad;
 
 import java.util.List;
 import java.util.Optional;

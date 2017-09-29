@@ -1,8 +1,8 @@
 package net.syscon.elite.service;
 
 
-import net.syscon.elite.v2.api.model.Alert;
-import net.syscon.elite.v2.api.support.Order;
+import net.syscon.elite.api.model.Alert;
+import net.syscon.elite.api.support.Order;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package net.syscon.elite.service;
 
 
-import net.syscon.elite.v2.api.model.ImageDetail;
+import net.syscon.elite.api.model.ImageDetail;
 
 public interface ImageService {
 

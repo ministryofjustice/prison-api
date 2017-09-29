@@ -1,7 +1,7 @@
 package net.syscon.elite.executableSpecification.steps;
 
+import net.syscon.elite.api.model.Location;
 import net.syscon.elite.test.EliteClientException;
-import net.syscon.elite.v2.api.model.Location;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;

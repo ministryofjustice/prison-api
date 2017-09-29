@@ -1,12 +1,12 @@
 package net.syscon.elite.service.impl;
 
+import net.syscon.elite.api.model.AuthLogin;
+import net.syscon.elite.api.model.Token;
 import net.syscon.elite.security.UserDetailsImpl;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.security.jwt.TokenManagement;
 import net.syscon.elite.security.jwt.TokenSettings;
 import net.syscon.elite.service.AuthenticationService;
-import net.syscon.elite.v2.api.model.AuthLogin;
-import net.syscon.elite.v2.api.model.Token;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

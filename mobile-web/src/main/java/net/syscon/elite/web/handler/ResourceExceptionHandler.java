@@ -1,9 +1,9 @@
 package net.syscon.elite.web.handler;
 
 import lombok.extern.slf4j.Slf4j;
+import net.syscon.elite.api.model.ErrorResponse;
+import net.syscon.elite.api.support.OperationResponse;
 import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.v2.api.model.ErrorResponse;
-import net.syscon.elite.v2.api.support.OperationResponse;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 

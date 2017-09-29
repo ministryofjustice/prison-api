@@ -1,6 +1,6 @@
 package net.syscon.elite.service;
 
-import net.syscon.elite.v2.api.model.OffenderBooking;
+import net.syscon.elite.api.model.OffenderBooking;
 
 import java.util.List;
 

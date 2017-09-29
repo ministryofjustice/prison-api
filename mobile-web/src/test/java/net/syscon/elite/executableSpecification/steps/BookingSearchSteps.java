@@ -1,6 +1,6 @@
 package net.syscon.elite.executableSpecification.steps;
 
-import net.syscon.elite.v2.api.model.OffenderBooking;
+import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.util.QueryOperator;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;

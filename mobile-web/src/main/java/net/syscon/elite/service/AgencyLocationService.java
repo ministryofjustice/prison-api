@@ -1,9 +1,9 @@
 package net.syscon.elite.service;
 
-import net.syscon.elite.v2.api.model.Agency;
-import net.syscon.elite.v2.api.model.Location;
-import net.syscon.elite.v2.api.model.OffenderBooking;
-import net.syscon.elite.v2.api.support.Order;
+import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.support.Order;
 
 import java.util.List;
 

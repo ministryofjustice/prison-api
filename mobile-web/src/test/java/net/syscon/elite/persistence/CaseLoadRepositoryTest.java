@@ -1,7 +1,7 @@
 package net.syscon.elite.persistence;
 
+import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.v2.api.model.CaseLoad;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
 import org.junit.Test;

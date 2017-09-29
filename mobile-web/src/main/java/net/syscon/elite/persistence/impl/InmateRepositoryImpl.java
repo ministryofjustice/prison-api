@@ -2,11 +2,11 @@ package net.syscon.elite.persistence.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
+import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.persistence.InmateRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
-import net.syscon.elite.v2.api.model.*;
-import net.syscon.elite.v2.api.support.Order;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;

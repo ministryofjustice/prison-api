@@ -1,8 +1,8 @@
 package net.syscon.elite.persistence.impl;
 
+import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.persistence.CaseLoadRepository;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
-import net.syscon.elite.v2.api.model.CaseLoad;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;

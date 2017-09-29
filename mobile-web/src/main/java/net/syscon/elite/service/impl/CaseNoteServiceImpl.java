@@ -1,12 +1,12 @@
 package net.syscon.elite.service.impl;
 
+import net.syscon.elite.api.model.CaseNote;
+import net.syscon.elite.api.model.NewCaseNote;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.persistence.CaseNoteRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.v2.api.model.CaseNote;
-import net.syscon.elite.v2.api.model.NewCaseNote;
-import net.syscon.elite.v2.api.support.Order;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

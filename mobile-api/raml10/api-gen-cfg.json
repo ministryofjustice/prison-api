@@ -1,7 +1,7 @@
 {
-  "apiPackage": "net.syscon.elite.v2.api.resource",
-  "modelPackage": "net.syscon.elite.v2.api.model",
-  "supportPackage": "net.syscon.elite.v2.api.support",
+  "apiPackage": "net.syscon.elite.api.resource",
+  "modelPackage": "net.syscon.elite.api.model",
+  "supportPackage": "net.syscon.elite.api.support",
   "library": "jersey2",
   "java8": "true",
   "dateLibrary": "java8-localdatetime",

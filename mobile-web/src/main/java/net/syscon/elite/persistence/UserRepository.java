@@ -1,8 +1,8 @@
 package net.syscon.elite.persistence;
 
 
-import net.syscon.elite.v2.api.model.StaffDetail;
-import net.syscon.elite.v2.api.model.UserDetail;
+import net.syscon.elite.api.model.StaffDetail;
+import net.syscon.elite.api.model.UserDetail;
 
 import java.util.List;
 import java.util.Optional;
