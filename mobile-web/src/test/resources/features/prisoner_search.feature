@@ -9,6 +9,11 @@ Feature: Prisoner Search
     When a search is made for prisoners
     Then access is denied
 
+  Scenario: Can perform global search with ADMIN role
+    Given a user has logged in with username "elite2_api_user" and password "password"
+    When a search is made for prisoners with DOB on or after 1970-01-01 for range 0 -> 15
+    Then "4" prisoner records are returned
+
   Scenario: Search prisoners within a date of birth range
     Given a user has logged in with username "hpa_user" and password "password"
     When a search is made for prisoners with DOB on or after 1970-01-01 for range 0 -> 2
