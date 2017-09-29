@@ -68,6 +68,6 @@ public class UserRepositoryTest {
         List<String> roles = repository.findRolesByUsername("itag_user");
 
         assertThat(roles).isNotEmpty();
-        assertThat(roles).contains("WING_OFF");
+        assertThat(roles).contains("LEI_WING_OFF");
     }
 }
