@@ -1,5 +1,10 @@
 package net.syscon.elite.service.impl;
 
+import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.model.UserDetail;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.persistence.AgencyRepository;
 import net.syscon.elite.persistence.InmateRepository;
 import net.syscon.elite.persistence.LocationRepository;
@@ -7,11 +12,6 @@ import net.syscon.elite.persistence.UserRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.v2.api.model.Agency;
-import net.syscon.elite.v2.api.model.Location;
-import net.syscon.elite.v2.api.model.OffenderBooking;
-import net.syscon.elite.v2.api.model.UserDetail;
-import net.syscon.elite.v2.api.support.Order;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

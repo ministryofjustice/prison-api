@@ -1,6 +1,6 @@
 package net.syscon.elite.test;
 
-import net.syscon.elite.v2.api.model.ErrorResponse;
+import net.syscon.elite.api.model.ErrorResponse;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;

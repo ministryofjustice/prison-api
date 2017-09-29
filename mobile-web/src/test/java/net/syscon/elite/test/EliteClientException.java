@@ -1,6 +1,6 @@
 package net.syscon.elite.test;
 
-import net.syscon.elite.v2.api.model.ErrorResponse;
+import net.syscon.elite.api.model.ErrorResponse;
 
 /**
  * A client-side exception which includes {@link ErrorResponse} payload.

@@ -1,13 +1,13 @@
 package net.syscon.elite.service.impl;
 
+import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.persistence.CaseLoadRepository;
 import net.syscon.elite.persistence.InmateRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
-import net.syscon.elite.v2.api.model.*;
-import net.syscon.elite.v2.api.support.Order;
 import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

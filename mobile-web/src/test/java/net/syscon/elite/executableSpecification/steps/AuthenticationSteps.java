@@ -1,7 +1,7 @@
 package net.syscon.elite.executableSpecification.steps;
 
-import net.syscon.elite.v2.api.model.AuthLogin;
-import net.syscon.elite.v2.api.model.Token;
+import net.syscon.elite.api.model.AuthLogin;
+import net.syscon.elite.api.model.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.web.client.TestRestTemplate;

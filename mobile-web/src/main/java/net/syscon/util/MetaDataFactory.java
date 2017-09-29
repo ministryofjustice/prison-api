@@ -1,7 +1,7 @@
 package net.syscon.util;
 
+import net.syscon.elite.api.model.PageMetaData;
 import net.syscon.elite.exception.EliteRuntimeException;
-import net.syscon.elite.v2.api.model.PageMetaData;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;

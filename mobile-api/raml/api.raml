@@ -1,0 +1,87 @@
+#%RAML 1.0
+title: Elite2 Public API
+baseUri: http://api.elite2.syscon.net/api
+version: v2
+mediaType: application/json
+annotationTypes:
+  javaOperationName:
+    type: string
+    description: Hint to downstream code generator of name to use for Java method that implements operation.
+  javaType:
+    type: string
+    description: override type to specified java type
+  headersWithType:
+    type: string
+    description: override the type used in a reponse headers (e.g. headersWithType_Long: Page-Offset,Page-Limit will apply a Long to the listed headers)
+securedBy: [jwt]
+types:
+  Agency:               !include types/Agency.raml
+  ErrorResponse:        !include types/ErrorResponse.raml
+  Location:             !include types/Location.raml
+  OffenderBooking:      !include types/OffenderBooking.raml
+  PrisonerDetail:       !include types/PrisonerDetail.raml
+  SentenceDetail:       !include types/SentenceDetail.raml
+  ImageDetail:          !include types/ImageDetail.raml
+  PrivilegeDetail:      !include types/PrivilegeDetail.raml
+  PrivilegeSummary:     !include types/PrivilegeSummary.raml
+  ReferenceCode:        !include types/ReferenceCode.raml
+  UserDetail:           !include types/UserDetail.raml
+  StaffDetail:          !include types/StaffDetail.raml
+  CaseLoad:             !include types/CaseLoad.raml
+  AuthLogin:            !include types/AuthLogin.raml
+  Token:                !include types/Token.raml
+  CaseNote:             !include types/CaseNote.raml
+  NewCaseNote:          !include types/NewCaseNote.raml
+  UpdateCaseNote:       !include types/UpdateCaseNote.raml
+  Alert:                !include types/Alert.raml
+  Alias:                !include types/Alias.raml
+  PageMetaData:         !include types/PageMetaData.raml
+  Movement:             !include types/Movement.raml
+  LocationCountDetail:  !include types/LocationCountDetail.raml
+  LocationCount:        !include types/LocationCount.raml
+  Assessment:           !include types/Assessment.raml
+  AssignedLivingUnit:   !include types/AssignedLivingUnit.raml
+  PhysicalAttributes:   !include types/PhysicalAttributes.raml
+  PhysicalCharacteristic: !include types/PhysicalCharacteristic.raml
+  PhysicalMark:         !include types/PhysicalMark.raml
+  InmateDetail:         !include types/InmateDetail.raml
+
+
+securitySchemes:
+  jwt:
+    description: Elite API uses Json Web Token (JWT) to authenticate most requests
+    type: x-jwt
+    describedBy:
+      headers:
+        Authorization:
+          description: Used to send a valid JWT. Do not use  query string parameter.
+          type: string
+          example: "Authorization: Bearer eyJpc3MiOiJzY290Y2guaW8iLCJleHAiOjEzMDA4MTkzODAsIm5hbWUiOiJDaHJpcyBTZXZpbGxlamEiLCJhZG1pbiI6dHJ1ZX0"
+
+  basic:
+    description: Each request must contain the headers necessary for basic authentication
+    type: Basic Authentication
+    describedBy:
+      headers:
+        Authorization:
+          description: Used to send the Base64-encoded "username:password" credentials
+          type: string
+      responses:
+        401:
+          description: |
+            Unauthorized. Either the provided username and password
+            combination is invalid, or the user is not allowed to access
+            the content provided by the requested URL.
+
+traits: !include traits/traits.raml
+resourceTypes: !include resourceTypes/generic-resource-types.raml
+
+/agencies:          !include resources/agencies.raml
+/images:            !include resources/images.raml
+/bookings:          !include resources/bookings.raml
+/prisoners:         !include resources/prisoners.raml
+/search-offenders:  !include resources/search-offenders.raml
+/users:             !include resources/users.raml
+/reference-domains: !include resources/reference-domains.raml
+/locations:         !include resources/locations.raml
+

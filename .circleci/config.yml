@@ -21,7 +21,7 @@ jobs:
       - store_artifacts:
           path: mobile-web/target/site
       - store_artifacts:
-          path: mobile-api/raml10/api.html
+          path: mobile-api/raml/api.html
       - persist_to_workspace:
           root: .
           paths:

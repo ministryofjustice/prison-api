@@ -1,9 +1,9 @@
 package net.syscon.elite.executableSpecification.steps;
 
+import net.syscon.elite.api.model.CaseNote;
+import net.syscon.elite.api.model.NewCaseNote;
+import net.syscon.elite.api.model.UpdateCaseNote;
 import net.syscon.elite.test.EliteClientException;
-import net.syscon.elite.v2.api.model.CaseNote;
-import net.syscon.elite.v2.api.model.NewCaseNote;
-import net.syscon.elite.v2.api.model.UpdateCaseNote;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;

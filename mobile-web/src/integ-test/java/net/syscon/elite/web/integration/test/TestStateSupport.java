@@ -3,7 +3,7 @@ package net.syscon.elite.web.integration.test;
 import com.google.gson.Gson;
 import io.restassured.http.Header;
 import io.restassured.response.Response;
-import net.syscon.elite.v2.api.model.AuthLogin;
+import net.syscon.elite.api.model.AuthLogin;
 import org.springframework.http.HttpStatus;
 
 import java.util.Map;

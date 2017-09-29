@@ -122,7 +122,7 @@ subprojects {
             }
 
             copy {
-                from ("${rootDir}/mobile-api/raml10") { include "api.html" }
+                from ("${rootDir}/mobile-api/raml") { include "api.html" }
                 into (staticDir.absolutePath)
                 rename { String fileName -> "index.html" }
             }

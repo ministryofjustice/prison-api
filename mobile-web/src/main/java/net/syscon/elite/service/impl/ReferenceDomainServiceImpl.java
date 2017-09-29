@@ -1,13 +1,13 @@
 package net.syscon.elite.service.impl;
 
+import net.syscon.elite.api.model.CaseLoad;
+import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.persistence.CaseLoadRepository;
 import net.syscon.elite.persistence.ReferenceCodeRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.ReferenceDomainService;
-import net.syscon.elite.v2.api.model.CaseLoad;
-import net.syscon.elite.v2.api.model.ReferenceCode;
-import net.syscon.elite.v2.api.support.Order;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,13 +1,13 @@
 package net.syscon.elite.persistence.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
+import net.syscon.elite.api.model.CaseNote;
+import net.syscon.elite.api.model.NewCaseNote;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.persistence.CaseNoteRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.security.UserSecurityUtils;
-import net.syscon.elite.v2.api.model.CaseNote;
-import net.syscon.elite.v2.api.model.NewCaseNote;
-import net.syscon.elite.v2.api.support.Order;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.springframework.dao.EmptyResultDataAccessException;

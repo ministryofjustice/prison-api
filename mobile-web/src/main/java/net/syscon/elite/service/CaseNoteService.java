@@ -1,8 +1,8 @@
 package net.syscon.elite.service;
 
-import net.syscon.elite.v2.api.model.CaseNote;
-import net.syscon.elite.v2.api.model.NewCaseNote;
-import net.syscon.elite.v2.api.support.Order;
+import net.syscon.elite.api.model.CaseNote;
+import net.syscon.elite.api.model.NewCaseNote;
+import net.syscon.elite.api.support.Order;
 
 import java.util.List;
 

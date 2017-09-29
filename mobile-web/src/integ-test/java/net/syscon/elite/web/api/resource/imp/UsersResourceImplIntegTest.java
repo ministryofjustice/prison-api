@@ -4,7 +4,7 @@ package net.syscon.elite.web.api.resource.imp;
 import com.google.gson.Gson;
 import io.restassured.RestAssured;
 import io.restassured.http.Header;
-import net.syscon.elite.v2.api.model.AuthLogin;
+import net.syscon.elite.api.model.AuthLogin;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

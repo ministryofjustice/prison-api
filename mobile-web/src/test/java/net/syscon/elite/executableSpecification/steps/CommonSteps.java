@@ -1,9 +1,9 @@
 package net.syscon.elite.executableSpecification.steps;
 
 import com.google.common.collect.ImmutableMap;
+import net.syscon.elite.api.model.ErrorResponse;
+import net.syscon.elite.api.model.PageMetaData;
 import net.syscon.elite.test.ErrorResponseErrorHandler;
-import net.syscon.elite.v2.api.model.ErrorResponse;
-import net.syscon.elite.v2.api.model.PageMetaData;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public abstract class CommonSteps {
     public static final String API_PREFIX = "/";
-    public static final String V2_API_PREFIX = "/v2/";
 
     @Autowired
     private AuthenticationSteps auth;

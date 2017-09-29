@@ -1,12 +1,12 @@
 package net.syscon.elite.service.impl;
 
+import net.syscon.elite.api.model.CaseLoad;
+import net.syscon.elite.api.model.StaffDetail;
+import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.persistence.CaseLoadRepository;
 import net.syscon.elite.persistence.UserRepository;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.UserService;
-import net.syscon.elite.v2.api.model.CaseLoad;
-import net.syscon.elite.v2.api.model.StaffDetail;
-import net.syscon.elite.v2.api.model.UserDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;

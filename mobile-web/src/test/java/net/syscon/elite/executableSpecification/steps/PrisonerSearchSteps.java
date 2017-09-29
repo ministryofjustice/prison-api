@@ -1,7 +1,7 @@
 package net.syscon.elite.executableSpecification.steps;
 
+import net.syscon.elite.api.model.PrisonerDetail;
 import net.syscon.elite.test.EliteClientException;
-import net.syscon.elite.v2.api.model.PrisonerDetail;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * BDD step implementations for Prisoner search feature.
  */
 public class PrisonerSearchSteps extends CommonSteps {
-    private static final String PRISONER_SEARCH = V2_API_PREFIX + "prisoners?%s";
+    private static final String PRISONER_SEARCH = API_PREFIX + "prisoners?%s";
 
     private List<PrisonerDetail> prisonerDetails;
 
