@@ -1,4 +1,4 @@
-@nomis
+@global
 Feature: Prisoner Search
 
   Acceptance Criteria:
@@ -67,6 +67,7 @@ Feature: Prisoner Search
       | 1999-10-27 | 1             |  BATES           |
       | 1959-10-28 | 0             |                  |
 
+  @nomis
   Scenario Outline: Search prisoners for a CRO or PNC number
     Given a user has logged in with username "hpa_user" and password "password"
     When a search is made for prisoners with PNC number of "<pnc>" and/or CRO number of "<cro>"

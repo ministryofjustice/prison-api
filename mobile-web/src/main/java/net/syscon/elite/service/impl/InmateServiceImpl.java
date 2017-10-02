@@ -48,7 +48,7 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     public InmateDetail findInmate(Long inmateId) {
-        return repository.findInmate(inmateId, getUserCaseloadIds()).orElseThrow(new EntityNotFoundException(String.valueOf(inmateId)));
+        return repository.findInmate(inmateId, getUserCaseloadIds(), locationTypeGranularity).orElseThrow(new EntityNotFoundException(String.valueOf(inmateId)));
     }
 
     @Override

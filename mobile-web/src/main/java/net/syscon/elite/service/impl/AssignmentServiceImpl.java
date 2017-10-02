@@ -8,6 +8,7 @@ import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.AssignmentService;
 import net.syscon.elite.service.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,16 +19,23 @@ import static net.syscon.elite.service.impl.InmateServiceImpl.DEFAULT_OFFENDER_S
 @Service
 @Transactional(readOnly = true)
 public class AssignmentServiceImpl implements AssignmentService {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    private final InmateRepository inmateRepository;
+
+    private final String locationTypeGranularity;
 
     @Autowired
-    private InmateRepository inmateRepository;
+    public AssignmentServiceImpl(InmateRepository inmateRepository, UserRepository userRepository, @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity ) {
+        this.userRepository = userRepository;
+        this.inmateRepository = inmateRepository;
+        this.locationTypeGranularity = locationTypeGranularity;
+    }
 
     @Override
     public List<OffenderBooking> findMyAssignments(long offset, long limit) {
         final String username = UserSecurityUtils.getCurrentUsername();
         final UserDetail loggedInUser = userRepository.findByUsername(username).orElseThrow(new EntityNotFoundException(username));
-        return inmateRepository.findMyAssignments(loggedInUser.getStaffId(), loggedInUser.getActiveCaseLoadId(), DEFAULT_OFFENDER_SORT, true, offset, limit);
+        return inmateRepository.findMyAssignments(loggedInUser.getStaffId(), loggedInUser.getActiveCaseLoadId(), locationTypeGranularity, DEFAULT_OFFENDER_SORT, true, offset, limit);
     }
 }

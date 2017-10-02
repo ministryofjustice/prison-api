@@ -48,7 +48,7 @@ public class InmateRepositoryTest {
 
     @Test
     public final void testGetOffender() {
-        final Optional<InmateDetail> inmate = repository.findInmate(-1L, Collections.singleton("LEI"));
+        final Optional<InmateDetail> inmate = repository.findInmate(-1L, Collections.singleton("LEI"), "WING");
         assertThat(inmate).isPresent();
     }
 
