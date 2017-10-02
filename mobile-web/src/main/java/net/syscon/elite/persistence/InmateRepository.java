@@ -17,9 +17,9 @@ public interface InmateRepository {
 
 	List<OffenderBooking> findAllInmates(Set<String> caseloads, String locationTypeRoot, String query, long offset, long limit, String orderBy, Order order);
 	List<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String keywords, String locationPrefix, String locationTypeRoot, long offset, long limit, String orderBy, boolean isAscendingOrder);
-	List<OffenderBooking> findInmatesByLocation(Long locationId, String query, String orderByField, Order order, long offset, long limit);
-	Optional<InmateDetail> findInmate(Long inmateId, Set<String> caseloads);
+	List<OffenderBooking> findInmatesByLocation(Long locationId, String locationTypeRoot, String query, String orderByField, Order order, long offset, long limit);
+	Optional<InmateDetail> findInmate(Long inmateId, Set<String> caseloads, String locationTypeRoot);
 	List<Alias> findInmateAliases(Long inmateId, String orderByField, Order order);
-	List<OffenderBooking> findMyAssignments(long staffId, String currentCaseLoad, String orderBy, boolean ascendingSort, long offset, long limit);
+	List<OffenderBooking> findMyAssignments(long staffId, String currentCaseLoad, String locationTypeRoot, String orderBy, boolean ascendingSort, long offset, long limit);
 	List<PrisonerDetail> searchForOffenders(String query, LocalDate fromDobDate, LocalDate toDobDate, String sortFields, boolean ascendingOrder, long offset, long limit);
 }

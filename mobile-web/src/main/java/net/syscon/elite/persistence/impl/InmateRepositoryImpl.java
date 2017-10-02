@@ -39,6 +39,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             .put("LIVING_UNIT_ID",      new FieldMapper("assignedLivingUnitId"))
             .put("LIVING_UNIT_DESC",    new FieldMapper("assignedLivingUnitDesc"))
             .put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerId"))
+			.put("IEP_LEVEL", new FieldMapper("iepLevel"))
             .build();
 
     private static final Map<String, FieldMapper> OFFENDER_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
@@ -98,7 +99,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	private final Map<String, FieldMapper> assignedLivingUnitMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("AGY_LOC_ID", 	new FieldMapper("agencyId"))
 			.put("LIVING_UNIT_ID",          new FieldMapper("locationId"))
-			.put("LIVING_UNIT_DESCRITION", new FieldMapper("description"))
+			.put("LIVING_UNIT_DESCRIPTION", new FieldMapper("description"))
+			.put("AGENCY_NAME", new FieldMapper("agencyName"))
 			.build();
 
 	private final Map<String, FieldMapper> physicalMarkMapping = new ImmutableMap.Builder<String, FieldMapper>()
@@ -123,7 +125,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.build();
 
 	@Override
-	public List<OffenderBooking> findInmatesByLocation(final Long locationId, String query, String orderByField, Order order, final long offset, final long limit) {
+	public List<OffenderBooking> findInmatesByLocation(final Long locationId, String locationTypeRoot, String query, String orderByField, Order order, final long offset, final long limit) {
 		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_INMATES_BY_LOCATION"), OFFENDER_BOOKING_MAPPING)
 				.addRowCount()
 				.addQuery(query)
@@ -132,7 +134,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 				.build();
 		final RowMapper<OffenderBooking> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, OffenderBooking.class, OFFENDER_BOOKING_MAPPING);
 		try {
-			return jdbcTemplate.query(sql, createParams("locationId", locationId, "caseLoadId", getCurrentCaseLoad(), "offset", offset, "limit", limit), assignedInmateRowMapper);
+			return jdbcTemplate.query(sql, createParams("locationId", locationId, "locationTypeRoot", locationTypeRoot, "caseLoadId", getCurrentCaseLoad(), "offset", offset, "limit", limit), assignedInmateRowMapper);
 		} catch (EmptyResultDataAccessException e) {
 			return Collections.emptyList();
 		}
@@ -207,7 +209,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public List<OffenderBooking> findMyAssignments(long staffId, String currentCaseLoad, String orderBy, boolean ascendingSort, long offset, long limit) {
+	public List<OffenderBooking> findMyAssignments(long staffId, String currentCaseLoad, String locationTypeRoot, String orderBy, boolean ascendingSort, long offset, long limit) {
 		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_MY_ASSIGNMENTS"), OFFENDER_BOOKING_MAPPING).
 				addRowCount().
 				addOrderBy(ascendingSort, orderBy).
@@ -216,7 +218,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 		final RowMapper<OffenderBooking> assignedInmateRowMapper = Row2BeanRowMapper.makeMapping(sql, OffenderBooking.class, OFFENDER_BOOKING_MAPPING);
 		try {
-			return jdbcTemplate.query(sql, createParams("staffId", staffId, "caseLoadId", currentCaseLoad, "offset", offset, "limit", limit), assignedInmateRowMapper);
+			return jdbcTemplate.query(sql, createParams("staffId", staffId, "caseLoadId", currentCaseLoad, "locationTypeRoot", locationTypeRoot, "offset", offset, "limit", limit), assignedInmateRowMapper);
 		} catch (EmptyResultDataAccessException e) {
 			return Collections.emptyList();
 		}
@@ -279,14 +281,14 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		return jdbcTemplate.query(sql, createParams("bookingId", bookingId), assessmentAttributesRowMapper);
 	}
 
-	private AssignedLivingUnit findAssignedLivingUnit(final long bookingId) {
+	private AssignedLivingUnit findAssignedLivingUnit(final long bookingId, String locationTypeRoot) {
 		final String sql = getQuery("FIND_ASSIGNED_LIVING_UNIT");
 		final RowMapper<AssignedLivingUnit> assignedLivingUnitRowMapper = Row2BeanRowMapper.makeMapping(sql, AssignedLivingUnit.class, assignedLivingUnitMapping);
-		return jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId), assignedLivingUnitRowMapper);
+		return jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "locationTypeRoot", locationTypeRoot), assignedLivingUnitRowMapper);
 	}
 
 	@Override
-	public Optional<InmateDetail> findInmate(final Long bookingId, Set<String> caseloads) {
+	public Optional<InmateDetail> findInmate(final Long bookingId, Set<String> caseloads, String locationTypeRoot) {
 		String sql = getQuery("FIND_INMATE_DETAIL");
 		RowMapper<InmateDetail> inmateRowMapper = Row2BeanRowMapper.makeMapping(sql, InmateDetail.class, inmateDetailsMapping);
 
@@ -303,7 +305,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 				inmate.setPhysicalCharacteristics(findPhysicalCharacteristics(inmate.getBookingId()));
 				inmate.setPhysicalMarks(findPhysicalMarks(inmate.getBookingId()));
 				inmate.setAssessments(findAssessments(inmate.getBookingId()));
-				inmate.setAssignedLivingUnit(findAssignedLivingUnit(bookingId));
+				inmate.setAssignedLivingUnit(findAssignedLivingUnit(bookingId, locationTypeRoot));
 				inmate.setAlertsCodes(findActiveAlertCodes(bookingId));
 			}
 		} catch (EmptyResultDataAccessException ex) {

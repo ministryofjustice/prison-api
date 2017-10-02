@@ -13,8 +13,7 @@ import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.AgencyLocationService;
 import net.syscon.elite.service.EntityNotFoundException;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,19 +26,21 @@ import static net.syscon.elite.service.impl.InmateServiceImpl.DEFAULT_OFFENDER_S
 @Transactional(readOnly = true)
 @Service
 public class AgencyLocationServiceImpl implements AgencyLocationService {
-	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	private final AgencyRepository agencyRepository;
 	private final LocationRepository locationRepository;
 	private final InmateRepository inmateRepository;
 	private final UserRepository userRepository;
+	private final String locationTypeGranularity;
 
 	@Inject
-	public AgencyLocationServiceImpl(AgencyRepository agencyRepository, LocationRepository locationRepository, InmateRepository inmateRepository, UserRepository userRepository) {
+	public AgencyLocationServiceImpl(AgencyRepository agencyRepository, LocationRepository locationRepository, InmateRepository inmateRepository, UserRepository userRepository,
+									 @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity) {
 		this.agencyRepository = agencyRepository;
 		this.locationRepository = locationRepository;
 		this.inmateRepository = inmateRepository;
 		this.userRepository = userRepository;
+		this.locationTypeGranularity = locationTypeGranularity;
 	}
 
     @Override
@@ -72,7 +73,7 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 		if ( location == null) {
 			inmates = Collections.emptyList();
 		} else {
-			inmates = inmateRepository.findInmatesByLocation(locationId, query, colSort, order, offset, limit);
+			inmates = inmateRepository.findInmatesByLocation(locationId, locationTypeGranularity, query, colSort, order, offset, limit);
 		}
 
 		return inmates;
@@ -82,7 +83,7 @@ public class AgencyLocationServiceImpl implements AgencyLocationService {
 	public Location getLocation(long locationId, boolean withInmates) {
 		Location location = locationRepository.findLocation(locationId).orElseThrow(new EntityNotFoundException(String.valueOf(locationId)));
 		if (withInmates) {
-			List<OffenderBooking> inmates = inmateRepository.findInmatesByLocation(locationId, null, null, null, 0, 1000);
+			List<OffenderBooking> inmates = inmateRepository.findInmatesByLocation(locationId, locationTypeGranularity, null, null, null, 0, 1000);
 			location.setAssignedInmates(inmates);
 		}
 		return location;
