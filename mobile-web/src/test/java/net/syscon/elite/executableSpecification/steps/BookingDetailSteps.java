@@ -6,6 +6,8 @@ import net.thucydides.core.annotations.Step;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
+import java.math.BigDecimal;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -35,13 +37,53 @@ public class BookingDetailSteps extends CommonSteps {
         }
     }
 
-    @Step("Verify offender booking - booking number")
-    public void verifyOffenderBookingBookingNo(String bookingNo) {
+    @Step("Verify offender booking number")
+    public void verifyOffenderBookingNo(String bookingNo) {
         assertThat(inmateDetail.getBookingNo()).isEqualTo(bookingNo);
     }
 
-    @Step("Verify offender booking - assigned officer id")
-    public void verifyOffenderBookingAssignedOfficerId(Long assignedOfficerId) {
+    @Step("Verify offender assigned officer id")
+    public void verifyOffenderAssignedOfficerId(Long assignedOfficerId) {
         assertThat(inmateDetail.getAssignedOfficerId()).isEqualTo(assignedOfficerId);
+    }
+
+    @Step("Verify offender gender")
+    public void verifyOffenderGender(String gender) {
+        assertThat(inmateDetail.getPhysicalAttributes().getGender()).isEqualTo(gender);
+    }
+
+    @Step("Verify offender ethnicity")
+    public void verifyOffenderEthnicity(String ethnicity) {
+        assertThat(inmateDetail.getPhysicalAttributes().getEthnicity()).isEqualTo(ethnicity);
+    }
+
+    @Step("Verify offender height in feet")
+    public void verifyOffenderHeightInFeet(Integer heightInFeet) {
+        assertThat(inmateDetail.getPhysicalAttributes().getHeightFeet()).isEqualTo(heightInFeet);
+    }
+
+    @Step("Verify offender height in inches")
+    public void verifyOffenderHeightInInches(Integer heightInInches) {
+        assertThat(inmateDetail.getPhysicalAttributes().getHeightInches()).isEqualTo(heightInInches);
+    }
+
+    @Step("Verify offender height in centimetres")
+    public void verifyOffenderHeightInCentimetres(Integer heightInCentimetres) {
+        assertThat(inmateDetail.getPhysicalAttributes().getHeightCentimetres()).isEqualTo(heightInCentimetres);
+    }
+
+    @Step("Verify offender height in metres")
+    public void verifyOffenderHeightInMetres(BigDecimal heightInMetres) {
+        assertThat(inmateDetail.getPhysicalAttributes().getHeightMetres()).isEqualTo(heightInMetres);
+    }
+
+    @Step("Verify offender weight in pounds")
+    public void verifyOffenderWeightInPounds(Integer weightInPounds) {
+        assertThat(inmateDetail.getPhysicalAttributes().getWeightPounds()).isEqualTo(weightInPounds);
+    }
+
+    @Step("Verify offender weight in kilograms")
+    public void verifyOffenderWeightInKilograms(Integer weightInKilograms) {
+        assertThat(inmateDetail.getPhysicalAttributes().getWeightKilograms()).isEqualTo(weightInKilograms);
     }
 }

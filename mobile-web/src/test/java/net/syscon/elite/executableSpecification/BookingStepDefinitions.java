@@ -4,8 +4,11 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.executableSpecification.steps.*;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.math.BigDecimal;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * BDD step definitions for the following Booking API endpoints:
@@ -148,12 +151,12 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^booking number of offender booking returned is \"([^\"]*)\"$")
     public void bookingNumberOfOffenderBookingReturnedIs(String bookingNo) throws Throwable {
-        bookingDetail.verifyOffenderBookingBookingNo(bookingNo);
+        bookingDetail.verifyOffenderBookingNo(bookingNo);
     }
 
     @And("^assigned officer id of offender booking returned is \"([^\"]*)\"$")
     public void assignedOfficerIdOfOffenderBookingReturnedIs(Long assignedOfficerId) throws Throwable {
-        bookingDetail.verifyOffenderBookingAssignedOfficerId(assignedOfficerId);
+        bookingDetail.verifyOffenderAssignedOfficerId(assignedOfficerId);
     }
 
     // Sentence Detail Step Definitions (for testing of /bookings/{bookingId}/sentenceDetail endpoint)
@@ -250,7 +253,7 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @And("^additional days awarded matches \"([^\"]*)\"$")
     public void additionalDaysAwardedMatches(String additionalDaysAwarded) throws Throwable {
         bookingSentenceDetail.verifyAdditionalDaysAwarded(
-                StringUtils.isBlank(additionalDaysAwarded) ? null : Integer.valueOf(additionalDaysAwarded));
+                isBlank(additionalDaysAwarded) ? null : Integer.valueOf(additionalDaysAwarded));
     }
 
     @And("^release date type matches \"([^\"]*)\"$")
@@ -306,5 +309,45 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @Then("^resource not found response is received from bookings IEP summary API$")
     public void resourceNotFoundResponseIsReceivedFromBookingsIEPSummaryAPI() throws Throwable {
         bookingIEPSteps.verifyResourceNotFound();
+    }
+
+    @And("^gender matches \"([^\"]*)\"$")
+    public void genderMatches(String gender) throws Throwable {
+        bookingDetail.verifyOffenderGender(gender);
+    }
+
+    @And("^ethnicity matches \"([^\"]*)\"$")
+    public void ethnicityMatches(String ethnicity) throws Throwable {
+        bookingDetail.verifyOffenderEthnicity(ethnicity);
+    }
+
+    @And("^height in feet matches \"([^\"]*)\"$")
+    public void heightInFeetMatches(String feet) throws Throwable {
+        bookingDetail.verifyOffenderHeightInFeet(isBlank(feet) ? null : Integer.parseInt(feet));
+    }
+
+    @And("^height in inches matches \"([^\"]*)\"$")
+    public void heightInInchesMatches(String inches) throws Throwable {
+        bookingDetail.verifyOffenderHeightInInches(isBlank(inches) ? null : Integer.parseInt(inches));
+    }
+
+    @And("^height in centimetres matches \"([^\"]*)\"$")
+    public void heightInCentimetresMatches(String centimetres) throws Throwable {
+        bookingDetail.verifyOffenderHeightInCentimetres(isBlank(centimetres) ? null : Integer.parseInt(centimetres));
+    }
+
+    @And("^height in metres matches \"([^\"]*)\"$")
+    public void heightInMetresMatches(String metres) throws Throwable {
+        bookingDetail.verifyOffenderHeightInMetres(isBlank(metres) ? null : new BigDecimal(metres));
+    }
+
+    @And("^weight in pounds matches \"([^\"]*)\"$")
+    public void weightInPoundsMatches(String pounds) throws Throwable {
+        bookingDetail.verifyOffenderWeightInPounds(isBlank(pounds) ? null : Integer.parseInt(pounds));
+    }
+
+    @And("^weight in kilograms matches \"([^\"]*)\"$")
+    public void weightInKilogramsMatches(String kilograms) throws Throwable {
+        bookingDetail.verifyOffenderWeightInKilograms(isBlank(kilograms) ? null : Integer.parseInt(kilograms));
     }
 }

@@ -84,10 +84,11 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	private final Map<String, FieldMapper> physicalAttributesMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("GENDER",   new FieldMapper("gender"))
 			.put("ETHNICITY",  new FieldMapper("ethnicity"))
+			.put("HEIGHT_FT",  new FieldMapper("heightFeet"))
 			.put("HEIGHT_IN",  new FieldMapper("heightInches"))
-			.put("HEIGHT_CM",  new FieldMapper("heightMeters", value -> (value instanceof BigDecimal ? ((BigDecimal) value) : BigDecimal.valueOf((Integer) value)).movePointLeft(2)))
+			.put("HEIGHT_CM",  new FieldMapper("heightCentimetres"))
 			.put("WEIGHT_LBS", new FieldMapper("weightPounds"))
-			.put("WEIGHT_KG",  new FieldMapper("weightKg"))
+			.put("WEIGHT_KG",  new FieldMapper("weightKilograms"))
 			.build();
 
 	private final Map<String, FieldMapper> physicalCharacteristicsMapping = new ImmutableMap.Builder<String, FieldMapper>()
@@ -301,10 +302,16 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 					inmateRowMapper);
 
 			if (inmate != null) {
-				inmate.setPhysicalAttributes(findPhysicalAttributes(inmate.getBookingId()));
-				inmate.setPhysicalCharacteristics(findPhysicalCharacteristics(inmate.getBookingId()));
-				inmate.setPhysicalMarks(findPhysicalMarks(inmate.getBookingId()));
-				inmate.setAssessments(findAssessments(inmate.getBookingId()));
+				PhysicalAttributes physicalAttributes = findPhysicalAttributes(bookingId);
+
+				if (physicalAttributes.getHeightCentimetres() != null) {
+					physicalAttributes.setHeightMetres(BigDecimal.valueOf(physicalAttributes.getHeightCentimetres()).movePointLeft(2));
+				}
+
+				inmate.setPhysicalAttributes(physicalAttributes);
+				inmate.setPhysicalCharacteristics(findPhysicalCharacteristics(bookingId));
+				inmate.setPhysicalMarks(findPhysicalMarks(bookingId));
+				inmate.setAssessments(findAssessments(bookingId));
 				inmate.setAssignedLivingUnit(findAssignedLivingUnit(bookingId, locationTypeRoot));
 				inmate.setAlertsCodes(findActiveAlertCodes(bookingId));
 			}
