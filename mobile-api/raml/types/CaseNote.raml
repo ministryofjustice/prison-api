@@ -28,9 +28,16 @@ properties:
   occurrenceDateTime:
     type: datetime
     description: Date and Time of when case note contact with offender was made
-  authorUserId:
+  authorName:
     type: string
-    description: Username of the user entering the case note
+    description: Name of the user entering the case note (lastname, firstname)
   text:
     type: string
     description: Case Note Text
+  originalNoteText:
+    type: string
+    description: The initial case note information that was entered
+  ammendments:
+    type: CaseNoteAmendment[]
+    description: Ordered list of amendments to the case note (oldest first)
+
