@@ -10,6 +10,8 @@ import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -26,7 +28,7 @@ import java.util.Optional;
 @Repository
 public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRepository {
 
-	private final Map<String, FieldMapper> caseNoteMapping = new ImmutableMap.Builder<String, FieldMapper>()
+	private final Map<String, FieldMapper> CASE_NOTE_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("OFFENDER_BOOK_ID", 			new FieldMapper("bookingId"))
 			.put("CASE_NOTE_ID", 				new FieldMapper("caseNoteId"))
 			.put("CASE_NOTE_TYPE", 				new FieldMapper("type"))
@@ -37,29 +39,38 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 			.put("CONTACT_TIME", 				new FieldMapper("occurrenceDateTime", DateTimeConverter::toISO8601LocalDateTime))
 			.put("CREATE_DATETIME", 			new FieldMapper("creationDateTime", DateTimeConverter::toISO8601LocalDateTime))
 			.put("CASE_NOTE_TEXT", 				new FieldMapper("text"))
-			.put("CREATE_USER_ID", 				new FieldMapper("authorUserId"))
+			.put("STAFF_NAME", 				    new FieldMapper("authorName"))
 			.build();
 
 	@Override
 	public List<CaseNote> getCaseNotes(long bookingId, String query, String orderByField, Order order, long offset, long limit) {
-		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CASENOTES"), caseNoteMapping)
+		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CASENOTES"), CASE_NOTE_MAPPING)
 											.addRowCount()
 											.addQuery(query)
 											.addOrderBy(order == Order.ASC, orderByField)
 											.addPagination()
 											.build();
-		final RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, caseNoteMapping);
-		return jdbcTemplate.query(sql, createParams("bookingId", bookingId, "offset", offset, "limit", limit), caseNoteRowMapper);
+		final RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, CASE_NOTE_MAPPING);
+		final List<CaseNote> caseNoteList = jdbcTemplate.query(sql, createParams("bookingId", bookingId, "offset", offset, "limit", limit), caseNoteRowMapper);
+        caseNoteList.forEach(this::transform);
+        return caseNoteList;
 	}
 
-	@Override
+    private CaseNote transform(final CaseNote caseNote) {
+	    if (caseNote != null) {
+            caseNote.setAuthorName(WordUtils.capitalize(StringUtils.lowerCase(caseNote.getAuthorName())));
+        }
+        return caseNote;
+    }
+
+    @Override
 	public Optional<CaseNote> getCaseNote(long bookingId, long caseNoteId) {
 		final String sql = getQuery("FIND_CASENOTE");
-		final RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, caseNoteMapping);
+		final RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, CASE_NOTE_MAPPING);
 
 		CaseNote caseNote;
 		try {
-			caseNote = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "caseNoteId", caseNoteId), caseNoteRowMapper);
+			caseNote = transform(jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "caseNoteId", caseNoteId), caseNoteRowMapper));
 		} catch (EmptyResultDataAccessException e) {
 			caseNote = null;
 		}
@@ -69,7 +80,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	@Override
 	public Long createCaseNote(long bookingId, NewCaseNote newCaseNote, String sourceCode) {
 		String initialSql = getQuery("INSERT_CASE_NOTE");
-		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, caseNoteMapping);
+		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, CASE_NOTE_MAPPING);
 		String sql = builder.build();
 		String user = UserSecurityUtils.getCurrentUsername();
 
@@ -111,7 +122,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 
 	@Override
 	public void updateCaseNote(long bookingId, long caseNoteId, String updatedText, String userId) {
-		String sql = queryBuilderFactory.getQueryBuilder(getQuery("UPDATE_CASE_NOTE"), caseNoteMapping).build();
+		String sql = queryBuilderFactory.getQueryBuilder(getQuery("UPDATE_CASE_NOTE"), CASE_NOTE_MAPPING).build();
 
 		jdbcTemplate.update(sql, createParams("modifyBy", userId,
 												"caseNoteId", caseNoteId,
