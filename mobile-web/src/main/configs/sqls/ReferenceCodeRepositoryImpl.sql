@@ -49,11 +49,13 @@ FIND_CNOTE_TYPES_AND_SUBTYPES_BY_CASELOAD {
 											 AND wsub.work_type = w.WORK_TYPE
 											 AND wsub.manual_select_flag ='Y'
 											 AND wsub.active_flag  = 'Y'
+											 AND rcsub.ACTIVE_FLAG = 'Y'
 	WHERE w.workflow_type = 'CNOTE'
 				AND rc.domain = 'TASK_TYPE'
 				AND w.caseload_type IN ( (:caseLoadType), 'BOTH')
 				AND w.manual_select_flag ='Y'
 				AND w.active_flag  = 'Y'
+		    AND rc.ACTIVE_FLAG = 'Y'
 				AND rc.code <> 'WR'
 	order by w.work_type, wsub.work_type
 }

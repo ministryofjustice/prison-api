@@ -95,6 +95,9 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 
 		for (ReferenceCodeDetail ref : results) {
             if (activeRef == null || !activeRef.getCode().equalsIgnoreCase(ref.getCode())) {
+            	if (activeRef != null && activeRef.getSubCodes().isEmpty()) {
+					referenceCodes.remove(activeRef);
+				}
                 activeRef = ReferenceCode.builder()
                         .code(ref.getCode())
                         .domain(ref.getDomain())
