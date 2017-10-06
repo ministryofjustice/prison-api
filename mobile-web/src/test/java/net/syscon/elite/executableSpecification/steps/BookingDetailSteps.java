@@ -1,6 +1,7 @@
 package net.syscon.elite.executableSpecification.steps;
 
 import net.syscon.elite.api.model.InmateDetail;
+import net.syscon.elite.api.model.PhysicalCharacteristic;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.http.HttpMethod;
@@ -85,5 +86,11 @@ public class BookingDetailSteps extends CommonSteps {
     @Step("Verify offender weight in kilograms")
     public void verifyOffenderWeightInKilograms(Integer weightInKilograms) {
         assertThat(inmateDetail.getPhysicalAttributes().getWeightKilograms()).isEqualTo(weightInKilograms);
+    }
+
+    @Step("Verify offender physical characteristics")
+    public void verifyOffenderPhysicalCharacteristics(String characteristicsList) {
+        verifyPropertyMapValues(inmateDetail.getPhysicalCharacteristics(),
+                PhysicalCharacteristic::getCharacteristic, PhysicalCharacteristic::getDetail, characteristicsList);
     }
 }

@@ -19,6 +19,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +38,7 @@ public abstract class CommonSteps {
 
     private List<?> resources;
     private PageMetaData pageMetaData;
-    private Map<String, Object> additionalProperties = new HashMap<>();
+    private Map<String,Object> additionalProperties = new HashMap<>();
     private ResponseEntity receivedResponse;
     private ErrorResponse errorResponse;
     private long paginationLimit;
@@ -117,7 +118,7 @@ public abstract class CommonSteps {
     }
 
     @Deprecated
-    protected void setAdditionalResponseProperties(Map<String, Object> additionalProperties) {
+    protected void setAdditionalResponseProperties(Map<String,Object> additionalProperties) {
         this.additionalProperties.putAll(additionalProperties);
     }
 
@@ -152,6 +153,21 @@ public abstract class CommonSteps {
         return new HttpEntity<>(entity, headers);
     }
 
+    protected Map<String,String> csv2map(String commaSeparatedList) {
+        Map<String,String> out;
+
+        if (StringUtils.isBlank(commaSeparatedList)) {
+            out = Collections.emptyMap();
+        } else {
+            out = Pattern.compile("\\s*,\\s*")
+                    .splitAsStream(commaSeparatedList.trim())
+                    .map(s -> s.split("=", 2))
+                    .collect(Collectors.toMap(a -> a[0], a -> a.length > 1 ? a[1]: ""));
+        }
+
+        return out;
+    }
+
     protected List<String> csv2list(String commaSeparatedList) {
         List<String> out;
 
@@ -176,7 +192,25 @@ public abstract class CommonSteps {
         assertThat(actual).isEqualTo(expected);
     }
 
-    protected <T> List<String> extractPropertyValues(Collection<T> actualCollection, Function<T, String> mapper) {
+    protected void verifyIdentical(Map<String,String> mapActual, Map<String,String> mapExpected) {
+        // Both maps are expected to be provided (i.e. non-null). Empty maps are ok.
+        // Key/Value pairs converted to String so that details of non-matching entries are clearly disclosed
+        for (Map.Entry<String,String> entry : mapExpected.entrySet()) {
+            assertThat(StringUtils.join(entry.getKey(), " = ", mapActual.remove(entry.getKey())))
+                    .isEqualTo(StringUtils.join(entry.getKey(), " = ", entry.getValue()));
+        }
+
+        // Finally, assert that there are no entries left in actual map (which indicates map contents are identical)
+        // Again, using String comparison so any discrepancies are made clear
+        String actualRemaining =
+                mapActual.entrySet().stream()
+                        .map(entry -> entry.getKey() + " = " + entry.getValue())
+                        .collect(Collectors.joining(", "));
+
+        assertThat(actualRemaining).isEqualTo("");
+    }
+
+    protected <T> List<String> extractPropertyValues(Collection<T> actualCollection, Function<T,String> mapper) {
         List<String> extractedVals = new ArrayList<>();
 
         if (actualCollection != null) {
@@ -192,7 +226,19 @@ public abstract class CommonSteps {
         return extractedVals;
     }
 
-    protected <T> List<String> extractLocalDateValues(Collection<T> actualCollection, Function<T, LocalDate> mapper) {
+    protected <T> Map<String,String> extractPropertyValuesToMap(Collection<T> actualCollection,
+                                                                 Function<T,String> keyMapper,
+                                                                 Function<T,String> valMapper) {
+        Map<String,String> extractedPropMap = new HashMap<>();
+
+        if (actualCollection != null) {
+            extractedPropMap.putAll(actualCollection.stream().collect(Collectors.toMap(keyMapper, valMapper)));
+        }
+
+        return extractedPropMap;
+    }
+
+    protected <T> List<String> extractLocalDateValues(Collection<T> actualCollection, Function<T,LocalDate> mapper) {
         List<String> extractedVals = new ArrayList<>();
         final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -210,7 +256,7 @@ public abstract class CommonSteps {
         return extractedVals;
     }
 
-    protected <T> List<String> extractDateValues(Collection<T> actualCollection, Function<T, Date> mapper) {
+    protected <T> List<String> extractDateValues(Collection<T> actualCollection, Function<T,Date> mapper) {
         List<String> extractedVals = new ArrayList<>();
         final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -228,7 +274,7 @@ public abstract class CommonSteps {
         return extractedVals;
     }
 
-    protected <T> List<String> extractLongValues(Collection<T> actualCollection, Function<T, Long> mapper) {
+    protected <T> List<String> extractLongValues(Collection<T> actualCollection, Function<T,Long> mapper) {
         List<String> extractedVals = new ArrayList<>();
 
         if (actualCollection != null) {
@@ -246,7 +292,7 @@ public abstract class CommonSteps {
     }
 
     protected <T> void verifyPropertyValues(Collection<T> actualCollection,
-                                            Function<T, String> mapper,
+                                            Function<T,String> mapper,
                                             String expectedValues) {
         List<String> actualValList = extractPropertyValues(actualCollection, mapper);
         List<String> expectedValList = csv2list(expectedValues);
@@ -255,7 +301,7 @@ public abstract class CommonSteps {
     }
 
     protected <T> void verifyLongValues(Collection<T> actualCollection,
-                                        Function<T, Long> mapper,
+                                        Function<T,Long> mapper,
                                         String expectedValues) {
         List<String> actualValList = extractLongValues(actualCollection, mapper);
         List<String> expectedValList = csv2list(expectedValues);
@@ -264,7 +310,7 @@ public abstract class CommonSteps {
     }
 
     protected <T> void verifyLocalDateValues(Collection<T> actualCollection,
-                                        Function<T, LocalDate> mapper,
+                                        Function<T,LocalDate> mapper,
                                         String expectedValues) {
         List<String> actualValList = extractLocalDateValues(actualCollection, mapper);
         List<String> expectedValList = csv2list(expectedValues);
@@ -273,12 +319,22 @@ public abstract class CommonSteps {
     }
 
     protected <T> void verifyDateValues(Collection<T> actualCollection,
-                                            Function<T, Date> mapper,
+                                            Function<T,Date> mapper,
                                             String expectedValues) {
         List<String> actualValList = extractDateValues(actualCollection, mapper);
         List<String> expectedValList = csv2list(expectedValues);
 
         verifyIdentical(actualValList, expectedValList);
+    }
+
+    protected <T> void verifyPropertyMapValues(Collection<T> actualCollection,
+                                               Function<T,String> keyMapper,
+                                               Function<T,String> valMapper,
+                                               String expectedMapValues) {
+        Map<String,String> actualPropertyMap = extractPropertyValuesToMap(actualCollection, keyMapper, valMapper);
+        Map<String,String> expectedPropertyMap = csv2map(expectedMapValues);
+
+        verifyIdentical(actualPropertyMap, expectedPropertyMap);
     }
 
     protected void verifyLocalDate(LocalDate actual, String expected) {
@@ -301,7 +357,7 @@ public abstract class CommonSteps {
         return "?query=" + StringUtils.trimToEmpty(queryParam);
     }
 
-    protected Map<String, String> addPaginationHeaders() {
+    protected Map<String,String> addPaginationHeaders() {
         return ImmutableMap.of("Page-Offset", String.valueOf(paginationOffset), "Page-Limit", String.valueOf(paginationLimit));
     }
 

@@ -42,6 +42,26 @@ Feature: Booking Details
       | -9        | A00119    | Male   | Mixed: White and Black African | 5  | 10 | 178 | 1.78 | 185 | 84  |
       | -10       | A00120    | Male   | White: British                 | 6  | 6  | 198 | 1.98 | 235 | 107 |
 
+  Scenario Outline: Request for specific offender booking record (physical characteristics)
+    When an offender booking request is made with booking id "<bookingId>"
+    Then booking number of offender booking returned is "<bookingNo>"
+    And characteristics match "<characteristicsList>"
+
+    Examples:
+      | bookingId | bookingNo | characteristicsList                      |
+      | -1        | A00111    | Right Eye Colour=Blue,Shape of Face=Oval |
+      | -2        | A00112    | Shape of Face=Round                      |
+      | -3        | A00113    | Shoe Size=8                              |
+      | -4        | A00114    | Shoe Size=10                             |
+      | -5        | A00115    |                                          |
+      | -7        | A00117    | Left Eye Colour=Hazel                    |
+      | -10       | A00120    | Complexion=Fair                          |
+      | -11       | A00121    | Hair Colour=Brunette,Complexion=Blotched |
+      | -12       | A00122    | Hair Colour=Bald                         |
+      | -13       | A00123    | Hair Colour=Ginger                       |
+      | -14       | A00124    | Hair Colour=Dyed,Build=Slight            |
+      | -15       | A00125    | Facial Hair=Sideburns,Build=Heavy        |
+
   Scenario: Request for specific offender booking record that does not exist
     When an offender booking request is made with booking id "-9999"
     Then resource not found response is received from bookings API
