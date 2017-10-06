@@ -350,4 +350,9 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     public void weightInKilogramsMatches(String kilograms) throws Throwable {
         bookingDetail.verifyOffenderWeightInKilograms(isBlank(kilograms) ? null : Integer.parseInt(kilograms));
     }
+
+    @And("^characteristics match \"([^\"]*)\"$")
+    public void characteristicsMatch(String characteristicsList) throws Throwable {
+        bookingDetail.verifyOffenderPhysicalCharacteristics(characteristicsList);
+    }
 }
