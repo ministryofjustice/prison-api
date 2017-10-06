@@ -95,7 +95,8 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 
 		for (ReferenceCodeDetail ref : results) {
             if (activeRef == null || !activeRef.getCode().equalsIgnoreCase(ref.getCode())) {
-                activeRef = ReferenceCode.builder()
+				removeWhereSubTypesAreEmpty(referenceCodes, activeRef);
+				activeRef = ReferenceCode.builder()
                         .code(ref.getCode())
                         .domain(ref.getDomain())
                         .description(ref.getDescription())
@@ -115,7 +116,14 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 						.build());
 			}
         }
+		removeWhereSubTypesAreEmpty(referenceCodes, activeRef);
 		return referenceCodes;
+	}
+
+	private void removeWhereSubTypesAreEmpty(List<ReferenceCode> referenceCodes, ReferenceCode activeRef) {
+		if (activeRef != null && activeRef.getSubCodes().isEmpty()) {
+			referenceCodes.remove(activeRef);
+		}
 	}
 
 	@Override
