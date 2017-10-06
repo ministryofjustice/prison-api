@@ -10,8 +10,6 @@ import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -51,17 +49,8 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 											.addPagination()
 											.build();
 		final RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, CASE_NOTE_MAPPING);
-		final List<CaseNote> caseNoteList = jdbcTemplate.query(sql, createParams("bookingId", bookingId, "offset", offset, "limit", limit), caseNoteRowMapper);
-        caseNoteList.forEach(this::transform);
-        return caseNoteList;
+		return jdbcTemplate.query(sql, createParams("bookingId", bookingId, "offset", offset, "limit", limit), caseNoteRowMapper);
 	}
-
-    private CaseNote transform(final CaseNote caseNote) {
-	    if (caseNote != null) {
-            caseNote.setAuthorName(WordUtils.capitalize(StringUtils.lowerCase(caseNote.getAuthorName())));
-        }
-        return caseNote;
-    }
 
     @Override
 	public Optional<CaseNote> getCaseNote(long bookingId, long caseNoteId) {
@@ -70,7 +59,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 
 		CaseNote caseNote;
 		try {
-			caseNote = transform(jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "caseNoteId", caseNoteId), caseNoteRowMapper));
+			caseNote = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "caseNoteId", caseNoteId), caseNoteRowMapper);
 		} catch (EmptyResultDataAccessException e) {
 			caseNote = null;
 		}

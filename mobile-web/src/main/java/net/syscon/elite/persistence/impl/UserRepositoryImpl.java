@@ -6,6 +6,7 @@ import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.persistence.UserRepository;
 import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -36,6 +37,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
 
 	@Override
+	@Cacheable("findByUsername")
 	public Optional<UserDetail> findByUsername(final String username) {
 		String sql = getQuery("FIND_USER_BY_USERNAME");
 		RowMapper<UserDetail> userRowMapper = Row2BeanRowMapper.makeMapping(sql, UserDetail.class, userMapping);
@@ -53,6 +55,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	}
 
 	@Override
+	@Cacheable("findByStaffId")
 	public Optional<StaffDetail> findByStaffId(Long staffId) {
 		String sql = getQuery("FIND_USER_BY_STAFF_ID");
 		RowMapper<StaffDetail> staffRowMapper = Row2BeanRowMapper.makeMapping(sql, StaffDetail.class, staffMapping);
@@ -72,6 +75,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	}
 
 	@Override
+	@Cacheable("findRolesByUsername")
 	public List<String> findRolesByUsername(final String username) {
 		final String sql = getQuery("FIND_ROLES_BY_USERNAME");
 		return jdbcTemplate.queryForList(sql, createParams("username", username), String.class);

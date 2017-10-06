@@ -3,6 +3,7 @@ package net.syscon.util;
 
 import java.sql.Timestamp;
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
 
@@ -66,6 +67,17 @@ public class DateTimeConverter {
 		} catch (DateTimeParseException dtpex) {
 			// Perhaps input lacks offset-from-UTC. Try parsing as a local date-time.
 			ldt = LocalDateTime.parse(iso8601DateTime);
+		}
+		return ldt;
+	}
+
+	public static LocalDateTime fromStringToLocalDateTime(String strLocalDate, String localDateTimeFormat) {
+		LocalDateTime ldt;
+		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(localDateTimeFormat);
+			ldt = LocalDateTime.parse(strLocalDate, formatter);
+		} catch (DateTimeParseException dtpex) {
+			ldt = null;
 		}
 		return ldt;
 	}
