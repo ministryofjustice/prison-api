@@ -40,7 +40,7 @@ FIND_CNOTE_TYPES_AND_SUBTYPES_BY_CASELOAD {
 		rc.PARENT_CODE,
 		rc.ACTIVE_FLAG,
 		rcsub.DOMAIN as SUB_DOMAIN,
-		wsub.work_type as SUB_CODE,
+		wsub.work_sub_type as SUB_CODE,
 		rcSub.DESCRIPTION as SUB_DESCRIPTION,
 		rcSub.ACTIVE_FLAG as SUB_ACTIVE_FLAG
 	FROM works w JOIN reference_codes rc on rc.code = w.work_type
@@ -57,7 +57,7 @@ FIND_CNOTE_TYPES_AND_SUBTYPES_BY_CASELOAD {
 				AND w.active_flag  = 'Y'
 		    AND rc.ACTIVE_FLAG = 'Y'
 				AND rc.code <> 'WR'
-	order by w.work_type, wsub.work_type
+	order by w.work_type, wsub.work_sub_type
 }
 
 FIND_CNOTE_TYPES_BY_CASELOAD {

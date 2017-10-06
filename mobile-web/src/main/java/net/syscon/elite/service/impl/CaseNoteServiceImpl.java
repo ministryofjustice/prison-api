@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -34,6 +35,9 @@ public class CaseNoteServiceImpl implements CaseNoteService {
     @Autowired
     private CaseNoteRepository caseNoteRepository;
 
+	@Autowired
+    private CaseNoteTransformer transformer;
+
 	@Transactional(readOnly = true)
 	@Override
 	public List<CaseNote> getCaseNotes(long bookingId, String query, String orderBy, Order order, long offset, long limit) {
@@ -44,14 +48,15 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 		}
 
 		String processedQuery = processQuery(query);
-
-		return caseNoteRepository.getCaseNotes(bookingId, processedQuery, colSort, order, offset, limit);
+		final List<CaseNote> caseNotes = caseNoteRepository.getCaseNotes(bookingId, processedQuery, colSort, order, offset, limit);
+		return caseNotes.stream().map(cn -> transformer.transform(cn)).collect(Collectors.toList());
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public CaseNote getCaseNote(final long bookingId, final long caseNoteId) {
-		return caseNoteRepository.getCaseNote(bookingId, caseNoteId).orElseThrow(new EntityNotFoundException(String.valueOf(caseNoteId)));
+		final CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId).orElseThrow(new EntityNotFoundException(String.valueOf(caseNoteId)));
+		return transformer.transform(caseNote);
 	}
 
 	@Override
