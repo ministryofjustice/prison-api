@@ -3,29 +3,36 @@ services:
   elite2-web:
     image: sysconjusticesystems/elite2-web:latest
     networks:
-      - nomis-network
+      - elite
     container_name: elite2-web
     depends_on:
       - elite2-api
     ports:
       - "3000:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
     environment:
       - PORT=3000
       - API_ENDPOINT_URL=http://elite2-api:8080/api/
       - USE_API_GATEWAY_AUTH=no
+      - GOOGLE_ANALYTICS_ID=UA-106741063-1
+      - WEB_SESSION_TIMEOUT_IN_MINUTES=20
+      - NOMS_TOKEN=secret_token
 
   elite2-api:
     image: sysconjusticesystems/elite2-api:latest
     networks:
-      - nomis-network
+      - elite
     container_name: elite2-api
     ports:
       - "7080:8080"
-    depends_on:
-      - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/info/health"]
     environment:
-      - JAVA_OPTS=-Xms128m -Xmx128m
+      - JAVA_OPTS=-Xms256m -Xmx256m
       - SERVER_PORT=8080
       - SPRING_PROFILES_ACTIVE=elite,elite-hsqldb,noproxy
+      - JWT_EXPIRATION_MINS=5
+      - JWT_REFRESH_EXPIRATION_MINS=25
 networks:
-  nomis-network:
+  elite:
