@@ -1,4 +1,5 @@
 FROM openjdk:8-jdk-alpine
+RUN apk update && apk upgrade && apk add --update curl && rm -rf /var/cache/apk/*
 
 ENV NAME mobile-web
 ENV JAR_PATH mobile-web/build/libs
