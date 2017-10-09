@@ -174,17 +174,22 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public List<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String keywords, String locationPrefix, String locationTypeRoot, long offset, long limit, String orderBy, boolean ascendingOrder) {
+	public List<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String lastName, String firstName, String locationPrefix, String locationTypeRoot, long offset, long limit, String orderBy, boolean ascendingOrder) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
 
-        if (StringUtils.isNotBlank(locationPrefix)) {
-            initialSql += " AND " + getQuery("LOCATION_FILTER_SQL");
-        }
+		if (StringUtils.isNotBlank(locationPrefix)) {
+			initialSql += " AND " + getQuery("LOCATION_FILTER_SQL");
+		}
+		if (StringUtils.isNotBlank(offenderNo)) {
+			initialSql += " AND O.OFFENDER_ID_DISPLAY = :offenderNo ";
+		}
+		if (StringUtils.isNotBlank(lastName)) {
+			initialSql += " AND O.LAST_NAME like :lastName ";
+		}
+		if (StringUtils.isNotBlank(firstName)) {
+			initialSql += " AND O.FIRST_NAME like :firstName ";
+		}
 
-		final String keywordSearch = StringUtils.upperCase(StringUtils.trimToEmpty(keywords));
-        if (StringUtils.isNotBlank(keywordSearch)) {
-            initialSql += " AND " + getQuery("NAME_AND_ID_FILTER_SQL");
-        }
 		String sql = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_BOOKING_MAPPING)
 				.addRowCount()
 				.addOrderBy(ascendingOrder, orderBy)
@@ -193,10 +198,13 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 		RowMapper<OffenderBooking> offenderBookingRowMapper = Row2BeanRowMapper.makeMapping(sql, OffenderBooking.class, OFFENDER_BOOKING_MAPPING);
 
+		log.info("sql = [{}]", sql);
 		List<OffenderBooking> offenderBookings;
 		try {
 			offenderBookings = jdbcTemplate.query(sql,
-					createParams("keywords", keywordSearch + "%",
+					createParams("offenderNo", offenderNo,
+                            "lastName", StringUtils.trimToEmpty(lastName) + "%",
+							"firstName", StringUtils.trimToEmpty(firstName) + "%",
                             "locationPrefix", StringUtils.trimToEmpty(locationPrefix) + "%",
                             "caseLoadId", caseloads,
                             "locationTypeRoot", locationTypeRoot,
