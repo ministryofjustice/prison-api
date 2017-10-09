@@ -198,7 +198,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 		RowMapper<OffenderBooking> offenderBookingRowMapper = Row2BeanRowMapper.makeMapping(sql, OffenderBooking.class, OFFENDER_BOOKING_MAPPING);
 
-		log.info("sql = [{}]", sql);
 		List<OffenderBooking> offenderBookings;
 		try {
 			offenderBookings = jdbcTemplate.query(sql,
