@@ -72,7 +72,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 
 				final RowMapper<ReferenceCodeDetail> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCodeDetail.class, masterDetailReferenceMapper);
 				final List<ReferenceCodeDetail> results = jdbcTemplate.query(sql, createParams("domain", domain), referenceCodeRowMapper);
-				return convertToReferenceCodes(results);
+				return convertToReferenceCodes(results, false);
 
 			} else {
 				final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_REFERENCE_CODES_BY_DOMAIN"), referenceCodeMapping)
@@ -89,13 +89,15 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 		}
 	}
 
-	private List<ReferenceCode> convertToReferenceCodes(List<ReferenceCodeDetail> results) {
+	private List<ReferenceCode> convertToReferenceCodes(List<ReferenceCodeDetail> results, boolean suppressEmptySubTypes) {
 		final List<ReferenceCode> referenceCodes = new ArrayList<>();
 		ReferenceCode activeRef = null;
 
 		for (ReferenceCodeDetail ref : results) {
             if (activeRef == null || !activeRef.getCode().equalsIgnoreCase(ref.getCode())) {
-				removeWhereSubTypesAreEmpty(referenceCodes, activeRef);
+				if (suppressEmptySubTypes) {
+					removeWhereSubTypesAreEmpty(referenceCodes, activeRef);
+				}
 				activeRef = ReferenceCode.builder()
                         .code(ref.getCode())
                         .domain(ref.getDomain())
@@ -116,7 +118,9 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 						.build());
 			}
         }
-		removeWhereSubTypesAreEmpty(referenceCodes, activeRef);
+		if (suppressEmptySubTypes) {
+			removeWhereSubTypesAreEmpty(referenceCodes, activeRef);
+		}
 		return referenceCodes;
 	}
 
@@ -152,7 +156,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 
 				final RowMapper<ReferenceCodeDetail> referenceCodeRowMapper = Row2BeanRowMapper.makeMapping(sql, ReferenceCodeDetail.class, masterDetailReferenceMapper);
 				final List<ReferenceCodeDetail> results = jdbcTemplate.query(sql, createParams("caseLoadType", caseLoadType), referenceCodeRowMapper);
-				return convertToReferenceCodes(results);
+				return convertToReferenceCodes(results, true);
 
 			} else {
 				final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CNOTE_TYPES_BY_CASELOAD"), referenceCodeMapping)

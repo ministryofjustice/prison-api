@@ -1,11 +1,10 @@
 package net.syscon.elite.executableSpecification;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.executableSpecification.steps.ReferenceDomainsSteps;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * BDD step definitions for reference domains endpoints:
@@ -34,7 +33,7 @@ public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^all types are returned$")
     public void allTypesAreReturned() {
-        referenceDomainsSteps.verifyAllTypes();
+        referenceDomainsSteps.verifySomeSampleTypeData();
     }
 
     @When("^all types with subtypes are requested$")
@@ -44,7 +43,7 @@ public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^all types with subtypes are returned$")
     public void allTypesAndSubTypesAreReturned() {
-        referenceDomainsSteps.verifyAllTypesAndSubtypes();
+        referenceDomainsSteps.verifySomeTypesAndSubtypes();
     }
 
     @When("^all alert types are requested$")
@@ -54,7 +53,7 @@ public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^all alert types are returned$")
     public void allAlertTypesAreReturned() {
-        referenceDomainsSteps.verifyAllAlertTypes();
+        referenceDomainsSteps.verifySomeAlertTypes();
     }
 
     @When("^all sources are requested$")
@@ -92,7 +91,7 @@ public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
         referenceDomainsSteps.getSource(code);
     }
 
-    @Then("^the .+ returned ([^\"]+) is \"([^\"]+)\"$")
+    @Then("^the .+ returned ([^\"]+) is \"([^\"]*)\"$")
     public void theFieldIs(String field, String value) throws ReflectiveOperationException {
         referenceDomainsSteps.verifyField(field, value);
     }
@@ -107,7 +106,7 @@ public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
         referenceDomainsSteps.getAlertCodeList(code);
     }
 
-    @Then("^the list size is ([0-9]+)$")
+    @Then("^the list size is \"([0-9]+)\"$")
     public void listSize(int size) {
         referenceDomainsSteps.verifyListSize(size);
     }
@@ -126,4 +125,6 @@ public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
     public void listfirstDescription(String description) {
         referenceDomainsSteps.verifyListFirstDescription(description);
     }
+
+
 }
