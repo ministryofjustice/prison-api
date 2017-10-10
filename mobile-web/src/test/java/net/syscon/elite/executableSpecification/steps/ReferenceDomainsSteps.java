@@ -1,12 +1,8 @@
 package net.syscon.elite.executableSpecification.steps;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
-import java.util.List;
-import java.util.StringJoiner;
-
+import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.util.QueryOperator;
+import net.thucydides.core.annotations.Step;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
@@ -14,9 +10,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import net.syscon.elite.api.model.ReferenceCode;
-import net.syscon.util.QueryOperator;
-import net.thucydides.core.annotations.Step;
+import java.util.List;
+import java.util.StringJoiner;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * BDD step implementations for Reference Domains service.
@@ -63,7 +62,7 @@ public class ReferenceDomainsSteps extends CommonSteps {
     }
 
     @Step("Verify reference domain type data without subtypes")
-    public void verifyAllTypes() {
+    public void verifySomeSampleTypeData() {
         assertEquals(52, results.size());
         assertEquals("VICTIM", results.get(0).getCode());
         assertEquals("Victim", results.get(0).getDescription());
@@ -73,19 +72,9 @@ public class ReferenceDomainsSteps extends CommonSteps {
         assertEquals("Accredited Programme", results.get(51).getDescription());
     }
 
-    public void verifySubTypeList() {
-        assertEquals(31, results.size());
-        assertEquals("???", results.get(0).getCode());
-        assertEquals("Victim", results.get(0).getDescription());
-        assertEquals("TASK_TYPE", results.get(0).getDomain());
-        assertEquals("Y", results.get(0).getActiveFlag());
-        assertEquals("RR", results.get(10).getCode());
-        assertEquals("Accredited Programme", results.get(51).getDescription());
-    }
-
-    public void verifyAllTypesAndSubtypes() {
-        // verifyAllTypes(); different order !
-        assertEquals(44, results.size());
+    public void verifySomneTypesAndSubtypes() {
+        // verifySomeSampleTypeData(); different order !
+        assertEquals(52, results.size());
         assertEquals("ACP", results.get(0).getCode());
         assertEquals(16, results.get(0).getSubCodes().size());
         assertEquals("CPS", results.get(0).getSubCodes().get(0).getCode());
@@ -94,7 +83,7 @@ public class ReferenceDomainsSteps extends CommonSteps {
         assertEquals("Y", results.get(0).getSubCodes().get(0).getActiveFlag());
     }
 
-    public void verifyAllAlertTypes() {
+    public void verifySomeAlertTypes() {
         assertEquals(13, results.size());
         assertEquals("X", results.get(0).getCode());
         assertEquals("Security", results.get(0).getDescription());
