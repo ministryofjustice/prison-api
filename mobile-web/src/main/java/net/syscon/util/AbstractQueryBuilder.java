@@ -55,7 +55,7 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
 
     public IQueryBuilder addQuery(final String query) {
         if (StringUtils.isNotBlank(query)) {
-            List<String> queryList = QueryUtil.checkPrecdencyAndSplit(query, new ArrayList<>());
+            List<String> queryList = QueryUtil.checkPrecedencyAndSplit(query, new ArrayList<>());
 
             queryList.stream()
                     .filter(StringUtils::isNotBlank)

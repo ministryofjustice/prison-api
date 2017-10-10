@@ -41,14 +41,14 @@ public class QueryUtil {
 									.findAny().orElse(null);
 	}
 	
-	public static List<String> checkPrecdencyAndSplit(final String queryInput, final List<String> queryBreak) {
+	public static List<String> checkPrecedencyAndSplit(final String queryInput, final List<String> queryBreak) {
 		if(queryInput.contains("(") && queryInput.contains(")")) {
 			final String beforePrecedence = queryInput.substring(0,queryInput.indexOf('(')); //It will never have precedence.
 			queryBreak.add(beforePrecedence);
 			final String precedenceString = queryInput.substring(queryInput.indexOf('(') ,queryInput.indexOf(')')+1);// It has and identified.
 			queryBreak.add(precedenceString);
 			final String afterPrecedence = queryInput.substring(queryInput.indexOf(')')+1, queryInput.length());// Check it again.
-			checkPrecdencyAndSplit(afterPrecedence, queryBreak);
+			checkPrecedencyAndSplit(afterPrecedence, queryBreak);
 		} else {
 			queryBreak.add(queryInput);
 		}

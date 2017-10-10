@@ -1,7 +1,7 @@
 @global
 Feature: Booking Incentives & Earned Privileges
 
-  Acceptence Criteria
+  Acceptance Criteria
   A logged on staff user can retrieve an IEP summary for an offender booking:
     - with IEP details.
     - without IEP details.
