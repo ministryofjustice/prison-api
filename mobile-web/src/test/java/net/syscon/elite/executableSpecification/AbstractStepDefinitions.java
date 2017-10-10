@@ -76,6 +76,11 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
+        ReferenceDomainsSteps referenceDomainsSteps() {
+            return new ReferenceDomainsSteps();
+        }
+
+        @Bean
         MyAssignmentsSteps myAssignments() { return new MyAssignmentsSteps(); }
     }
 }
