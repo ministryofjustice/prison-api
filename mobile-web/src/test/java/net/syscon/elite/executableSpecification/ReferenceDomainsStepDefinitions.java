@@ -43,7 +43,7 @@ public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^all types with subtypes are returned$")
     public void allTypesAndSubTypesAreReturned() {
-        referenceDomainsSteps.verifySomneTypesAndSubtypes();
+        referenceDomainsSteps.verifySomeTypesAndSubtypes();
     }
 
     @When("^all alert types are requested$")
