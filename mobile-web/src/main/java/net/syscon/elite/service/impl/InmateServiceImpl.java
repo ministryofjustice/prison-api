@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -30,14 +32,18 @@ public class InmateServiceImpl implements InmateService {
     private final CaseLoadRepository caseLoadRepository;
     private final int maxYears;
     private final String locationTypeGranularity;
+    private final Pattern offenderNoRegex;
 
     @Autowired
     public InmateServiceImpl(InmateRepository repository, CaseLoadRepository caseLoadRepository, @Value("${offender.dob.max.range.years:10}") int maxYears,
-                             @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity ) {
+                             @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity,
+                             @Value("${api.offender.no.regex.pattern:^[A-Za-z]\\d{4}[A-Za-z]{2}$}") String offenderNoRegex) {
         this.repository = repository;
         this.caseLoadRepository = caseLoadRepository;
         this.maxYears = maxYears;
         this.locationTypeGranularity = locationTypeGranularity;
+
+        this.offenderNoRegex = Pattern.compile(offenderNoRegex);
     }
 
     @Override
@@ -60,9 +66,33 @@ public class InmateServiceImpl implements InmateService {
     public List<OffenderBooking> findOffenders(String keywords, String locationPrefix, String sortFields, Order sortOrder, long offset, long limit) {
 
         final boolean descendingOrder = Order.DESC == sortOrder;
-        return repository.searchForOffenderBookings(getUserCaseloadIds(), keywords, locationPrefix,
+
+        final String keywordSearch = StringUtils.upperCase(StringUtils.trimToEmpty(keywords));
+        String offenderNo = null;
+        String lastName = null;
+        String firstName = null;
+
+        if (StringUtils.isNotBlank(keywordSearch)) {
+            if (isOffenderNo(keywordSearch)) {
+                offenderNo = keywordSearch;
+            } else {
+                String [] nameSplit = StringUtils.splitByWholeSeparatorPreserveAllTokens(keywordSearch, ",");
+                lastName = nameSplit[0];
+
+                if (nameSplit.length > 1) {
+                    firstName = nameSplit[1];
+                }
+            }
+        }
+
+        return repository.searchForOffenderBookings(getUserCaseloadIds(), offenderNo, lastName, firstName, StringUtils.replaceAll(locationPrefix, "_", ""),
                 locationTypeGranularity, offset,
                 limit, StringUtils.isNotBlank(sortFields) ? sortFields : DEFAULT_OFFENDER_SORT, !descendingOrder);
+    }
+
+    private boolean isOffenderNo(String potentialOffenderNumber) {
+        Matcher m = offenderNoRegex.matcher(potentialOffenderNumber);
+        return m.find();
     }
 
     @Override
