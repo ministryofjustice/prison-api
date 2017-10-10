@@ -72,7 +72,7 @@ public class ReferenceDomainsSteps extends CommonSteps {
         assertEquals("Accredited Programme", results.get(51).getDescription());
     }
 
-    public void verifySomneTypesAndSubtypes() {
+    public void verifySomeTypesAndSubtypes() {
         // verifySomeSampleTypeData(); different order !
         assertEquals(52, results.size());
         assertEquals("ACP", results.get(0).getCode());
