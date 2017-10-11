@@ -82,4 +82,5 @@ docker-compose up -d
 ### Project related links ###
 * [SonarQube](http://chronos.syscon.ca:9000/sonar)
 * [Artifactory](http://chronos.syscon.ca:8081/artifactory)
-* [Jenkins](http://chronos.syscon.ca:7080)
+* [BitBucket](https://bitbucket.org/cool_syscon_team/mobile)
+* [CircleCi](https://circleci.com/bb/cool_syscon_team)
