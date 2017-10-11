@@ -35,9 +35,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 			.put("EMAIL", new FieldMapper("email"))
 			.put("IMAGE_ID", new FieldMapper("thumbnailId")).build();
 
-
 	@Override
-	@Cacheable("findByUsername")
 	public Optional<UserDetail> findByUsername(final String username) {
 		String sql = getQuery("FIND_USER_BY_USERNAME");
 		RowMapper<UserDetail> userRowMapper = Row2BeanRowMapper.makeMapping(sql, UserDetail.class, userMapping);
