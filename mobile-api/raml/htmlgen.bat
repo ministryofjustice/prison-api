@@ -1,2 +1,2 @@
-@echo off
-./node_modules/.bin/spectacle -t %2 %1
+@echo on
+node_modules\.bin\spectacle.cmd -t %2 %1

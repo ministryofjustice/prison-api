@@ -13,14 +13,18 @@ project(":mobile-api") {
     def npmCommand = 'npm'
     def npmArgs = ['i', 'oas-raml-converter@1.0.13', 'spectacle-docs']
 
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        npmCommand = "${rootDir}/mobile-api/raml/npmrunner.bat"
+        npmArgs = ['oas-raml-converter@1.0.13', 'spectacle-docs']
+    }
+
     task npmInstall(type: Exec) {
         doFirst {
-            workingDir ramlDir.absolutePath
-
             println "Install OAS RAML Converter and RAML2HTML Dependencies ..."
-            commandLine npmCommand
-            args npmArgs
         }
+        workingDir ramlDir.absolutePath
+        commandLine npmCommand
+        args npmArgs
     }
 
     // RAML 1.0 documentation task
@@ -36,6 +40,7 @@ project(":mobile-api") {
         htmlGenArgs = [ramlFile.absolutePath, htmlFile.absolutePath]
     }
 
+    // not currently required as we use swagger
     task htmlGen(type: Exec) {
         workingDir ramlDir.absolutePath
         commandLine htmlGenCommand
@@ -62,7 +67,6 @@ project(":mobile-api") {
 
             oas20File.createNewFile()
             standardOutput = new FileOutputStream(oas20File)
-            environment 'PATH', '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
             workingDir ramlDir.absolutePath
             commandLine raml2oasCommand
             args raml2oasArgs
@@ -191,7 +195,10 @@ project(":mobile-api") {
     // Ensure generated sources are removed and re-generated before they are compiled
     compileGeneratedJava.dependsOn generateOas20Resources
 
-    generateOas20Resources.dependsOn cleanGenerated, npmInstall, raml2oas, htmlGen, ':mobile-api-codegen:jar'
+    raml2oas.dependsOn npmInstall
+    htmlGen.dependsOn npmInstall
+
+    generateOas20Resources.dependsOn cleanGenerated, npmInstall, raml2oas, ':mobile-api-codegen:jar'
     generateOas20Resources.mustRunAfter cleanGenerated
 
     // Ensure project JAR only created after generated classes are processed
