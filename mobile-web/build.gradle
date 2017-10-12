@@ -170,12 +170,7 @@ project(":mobile-web") {
     }
 
     bootRun {
-        jvmArgs("-Dspring.profiles.active=dev")
+        systemProperties System.properties
         addResources = true
-    }
-
-    task run {
-        dependsOn bootRun
-        doLast() { println "Server ready for requests ..." }
     }
 }
