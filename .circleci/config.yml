@@ -9,7 +9,7 @@ jobs:
       - image: sysconjusticesystems/ci-java-node:latest
     steps:
       - checkout
-      - run: ./gradlew build aggregate -x integTest --stacktrace
+      - run: ./gradlew build aggregate -x integTest --stacktrace --debug
       - store_test_results:
           path: mobile-web/build/test-results
       - store_test_results:
