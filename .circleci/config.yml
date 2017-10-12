@@ -2,6 +2,9 @@ defaults: &defaults
   working_directory: /tmp/circleci-elite2-api
 
 version: 2
+machine:
+  environment:
+    _JAVA_OPTIONS: "-Xms1024m -Xmx1024m"
 jobs:
   build:
     <<: *defaults
