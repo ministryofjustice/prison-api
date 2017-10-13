@@ -2,9 +2,6 @@ defaults: &defaults
   working_directory: /tmp/circleci-elite2-api
 
 version: 2
-machine:
-  environment:
-    _JAVA_OPTIONS: "-Xms2g -Xmx2g"
 jobs:
   build:
     <<: *defaults
@@ -12,7 +9,7 @@ jobs:
       - image: sysconjusticesystems/ci-java-node:latest
     steps:
       - checkout
-      - run: ./gradlew build aggregate -x integTest --stacktrace
+      - run: ./gradlew build aggregate -x integTest --info --stacktrace
       - store_test_results:
           path: mobile-web/build/test-results
       - store_test_results:
