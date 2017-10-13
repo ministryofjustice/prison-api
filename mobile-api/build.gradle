@@ -22,6 +22,7 @@ project(":mobile-api") {
         doFirst {
             println "Install OAS RAML Converter and RAML2HTML Dependencies ..."
         }
+        environment 'PATH', '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
         workingDir ramlDir.absolutePath
         commandLine npmCommand
         args npmArgs
@@ -42,6 +43,7 @@ project(":mobile-api") {
 
     // not currently required as we use swagger
     task htmlGen(type: Exec) {
+        environment 'PATH', '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
         workingDir ramlDir.absolutePath
         commandLine htmlGenCommand
         args htmlGenArgs
@@ -67,6 +69,7 @@ project(":mobile-api") {
 
             oas20File.createNewFile()
             standardOutput = new FileOutputStream(oas20File)
+            environment 'PATH', '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
             workingDir ramlDir.absolutePath
             commandLine raml2oasCommand
             args raml2oasArgs
