@@ -22,7 +22,6 @@ project(":mobile-api") {
         doFirst {
             println "Install OAS RAML Converter and RAML2HTML Dependencies ..."
         }
-        environment 'PATH', '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
         workingDir ramlDir.absolutePath
         commandLine npmCommand
         args npmArgs
@@ -43,7 +42,6 @@ project(":mobile-api") {
 
     // not currently required as we use swagger
     task htmlGen(type: Exec) {
-        environment 'PATH', '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
         workingDir ramlDir.absolutePath
         commandLine htmlGenCommand
         args htmlGenArgs
@@ -55,7 +53,7 @@ project(":mobile-api") {
     // specification to OAS 2.0 (Swagger 2). After installing node-js, use the following command to install
     // oas-raml-coverter:
     //   npm i -g oas-raml-converter
-    def raml2oasCommand = "./node_modules/.bin/oas-raml-converter"
+    def raml2oasCommand = "${rootDir}/mobile-api/raml/raml2oas.sh"
     def raml2oasArgs = ['-f', 'RAML', '-t', 'OAS20', ramlFile.absolutePath]
 
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
