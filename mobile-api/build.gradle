@@ -6,23 +6,41 @@ project(":mobile-api") {
 
     def ramlDir = new File("${rootDir}/mobile-api/raml")
     def ramlFile = new File(ramlDir, "api.raml")
-    def htmlFile = new File(ramlDir, "api.html")
 
+    def htmlFile = new File("${resourceGenDir}/docs")
     def oas20File = new File("${resourceGenDir}/api.json")
+
+    def npmCommand = 'npm'
+    def npmArgs = ['i', 'oas-raml-converter@1.0.13', 'spectacle-docs']
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        npmCommand = "${rootDir}/mobile-api/raml/npmrunner.bat"
+        npmArgs = ['oas-raml-converter@1.0.13', 'spectacle-docs']
+    }
+
+    task npmInstall(type: Exec) {
+        doFirst {
+            println "Install OAS RAML Converter and RAML2HTML Dependencies ..."
+        }
+        workingDir ramlDir.absolutePath
+        commandLine npmCommand
+        args npmArgs
+    }
 
     // RAML 1.0 documentation task
     //
     // The following task requires node-js installed in order to generate the API HTML version
     // Also install raml2html after install the node-js with the following command
     // npm i -g raml2html
-    def htmlGenCommand = "raml2html"
-    def htmlGenArgs = ['-i', ramlFile.absolutePath, '-o', htmlFile.absolutePath]
+    def htmlGenCommand = "./node_modules/.bin/spectacle"
+    def htmlGenArgs = ['-t', htmlFile.absolutePath, ramlFile.absolutePath]
 
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
         htmlGenCommand = "${rootDir}/mobile-api/raml/htmlgen.bat"
         htmlGenArgs = [ramlFile.absolutePath, htmlFile.absolutePath]
     }
 
+    // not currently required as we use swagger
     task htmlGen(type: Exec) {
         workingDir ramlDir.absolutePath
         commandLine htmlGenCommand
@@ -178,7 +196,10 @@ project(":mobile-api") {
     // Ensure generated sources are removed and re-generated before they are compiled
     compileGeneratedJava.dependsOn generateOas20Resources
 
-    generateOas20Resources.dependsOn cleanGenerated, raml2oas, ':mobile-api-codegen:jar'
+    raml2oas.dependsOn npmInstall
+    htmlGen.dependsOn npmInstall
+
+    generateOas20Resources.dependsOn cleanGenerated, npmInstall, raml2oas, ':mobile-api-codegen:jar'
     generateOas20Resources.mustRunAfter cleanGenerated
 
     // Ensure project JAR only created after generated classes are processed
