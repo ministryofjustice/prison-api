@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.persistence.LocationRepository;
 import net.syscon.elite.repository.AgencyRepository;
-import net.syscon.elite.repository.LocationRepository;
 import net.syscon.elite.service.LocationService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ public class LocationServiceImpl implements LocationService {
     @Value("${api.users.me.locations.locationType:WING}")
     private String locationTypeGranularity;
 
-    @Value("${api.users.me.locations.depth:2}")
+    @Value("${api.users.me.locations.depth:1}")
     private Integer locationDepth;
 
     public LocationServiceImpl(AgencyRepository agencyRepository, LocationRepository locationRepository) {

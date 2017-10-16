@@ -37,6 +37,7 @@ public class CacheConfig implements CachingConfigurer {
         config.addCache(config("findByUsername", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("findByStaffId", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("findRolesByUsername", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("findLocationsByAgencyAndType", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         return net.sf.ehcache.CacheManager.newInstance(config);
     }

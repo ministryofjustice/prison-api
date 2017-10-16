@@ -8,6 +8,7 @@ import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.util.IQueryBuilder;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -19,14 +20,19 @@ import java.util.Optional;
 @Repository
 public class LocationRepositoryImpl extends RepositoryBase implements LocationRepository {
 
-	private final Map<String, FieldMapper> locationMapping = new ImmutableMap.Builder<String, FieldMapper>()
-		.put("INTERNAL_LOCATION_ID", 		new FieldMapper("locationId"))
-		.put("AGY_LOC_ID", 					new FieldMapper("agencyId"))
-		.put("INTERNAL_LOCATION_TYPE", 		new FieldMapper("locationType"))
-		.put("DESCRIPTION", 				new FieldMapper("description"))
-		.put("AGENCY_LOCATION_TYPE", 		new FieldMapper("agencyType"))
-		.put("PARENT_INTERNAL_LOCATION_ID", new FieldMapper("parentLocationId"))
-		.put("NO_OF_OCCUPANT", 				new FieldMapper("currentOccupancy")).build();
+	private final Map<String, FieldMapper> locationMapping  =
+			new ImmutableMap.Builder<String, FieldMapper>()
+					.put("INTERNAL_LOCATION_ID", new FieldMapper("locationId"))
+					.put("AGY_LOC_ID", new FieldMapper("agencyId"))
+					.put("INTERNAL_LOCATION_TYPE", new FieldMapper("locationType"))
+					.put("DESCRIPTION", new FieldMapper("description"))
+					.put("AGENCY_LOCATION_TYPE", new FieldMapper("agencyType"))
+					.put("PARENT_INTERNAL_LOCATION_ID", new FieldMapper("parentLocationId"))
+					.put("NO_OF_OCCUPANT", new FieldMapper("currentOccupancy"))
+					.put("LOCATION_PREFIX", new FieldMapper("locationPrefix"))
+					.put("LEVEL", new FieldMapper("level"))
+					.put("LIST_SEQ", new FieldMapper("listSequence"))
+					.build();
 
 	@Override
 	public Optional<Location> findLocation(long locationId) {
@@ -77,5 +83,24 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 						.build();
 		final RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
 		return jdbcTemplate.query(sql, createParams("caseLoadId", caseLoadId, "agencyId", agencyId, "offset", offset, "limit", limit), locationRowMapper);
+	}
+
+
+
+	@Override
+    @Cacheable("findLocationsByAgencyAndType")
+	public List<Location> findLocationsByAgencyAndType(String agencyId, String locationType, int depthAllowed) {
+		String initialSql = getQuery("FIND_LOCATIONS_BY_AGENCY_AND_TYPE");
+		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, locationMapping);
+		String sql = builder.build();
+		RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
+
+		return jdbcTemplate.query(
+				sql,
+				createParams(
+						"agencyId", agencyId,
+						"locationType", locationType,
+						"depth", depthAllowed),
+				locationRowMapper);
 	}
 }
