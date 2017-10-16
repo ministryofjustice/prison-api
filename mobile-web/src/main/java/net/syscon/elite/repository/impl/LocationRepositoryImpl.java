@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Location API (v2) repository implementation.
+ * Location API repository implementation.
  */
 @Repository(value = "locationRepositoryV2")
 public class LocationRepositoryImpl extends RepositoryBase implements LocationRepository {

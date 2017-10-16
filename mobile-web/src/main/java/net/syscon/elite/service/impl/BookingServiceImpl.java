@@ -2,9 +2,10 @@ package net.syscon.elite.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
-import net.syscon.elite.persistence.CaseLoadRepository;
+import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.support.NonDtoReleaseDate;
@@ -18,18 +19,18 @@ import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 /**
- * Bookings API (v2) service implementation.
+ * Bookings API service implementation.
  */
 @Service
 @Transactional(readOnly = true)
 @Slf4j
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
-    private final CaseLoadRepository caseLoadRepository;
+    private final AgencyService agencyService;
 
-    public BookingServiceImpl(BookingRepository bookingRepository, CaseLoadRepository caseLoadRepository) {
+    public BookingServiceImpl(BookingRepository bookingRepository, AgencyService agencyService) {
         this.bookingRepository = bookingRepository;
-        this.caseLoadRepository = caseLoadRepository;
+        this.agencyService = agencyService;
     }
 
     @Override
@@ -128,17 +129,16 @@ public class BookingServiceImpl implements BookingService {
     }
 
     /**
-     * Gets set of CaseLoad ids accessible to current authenticated user. This governs access to bookings - a user
-     * cannot have access to an offender unless they are in a location associated with a caseload that the authenticated
-     * user is also associated with.
+     * Gets set of agency location ids accessible to current authenticated user. This governs access to bookings - a user
+     * cannot have access to an offender unless they are in a location that the authenticated user is also associated with.
      *
-     * @return set of caseLoad ids accessible to current authenticated user.
+     * @return set of agency location ids accessible to current authenticated user.
      */
-    private Set<String> getUserCaseloadIds() {
-        return caseLoadRepository
-                .findCaseLoadsByUsername(UserSecurityUtils.getCurrentUsername())
+    private Set<String> getAgencyIds() {
+        return agencyService
+                .findAgenciesByUsername(UserSecurityUtils.getCurrentUsername())
                 .stream()
-                .map(CaseLoad::getCaseLoadId)
+                .map(Agency::getAgencyId)
                 .collect(Collectors.toSet());
     }
 
@@ -151,7 +151,7 @@ public class BookingServiceImpl implements BookingService {
      * @throws EntityNotFoundException if current user does not have access to specified booking.
      */
     private void verifyBookingAccess(Long bookingId) {
-        if (!bookingRepository.verifyBookingAccess(bookingId, getUserCaseloadIds())) {
+        if (!bookingRepository.verifyBookingAccess(bookingId, getAgencyIds())) {
             throw new EntityNotFoundException(bookingId.toString());
         }
     }

@@ -7,7 +7,7 @@ import net.syscon.elite.api.model.SentenceDetail;
 import java.util.List;
 
 /**
- * Bookings API (v2) service interface.
+ * Bookings API service interface.
  */
 public interface BookingService {
     SentenceDetail getBookingSentenceDetail(Long bookingId);

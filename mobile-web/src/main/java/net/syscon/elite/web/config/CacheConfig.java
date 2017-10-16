@@ -24,6 +24,9 @@ public class CacheConfig implements CachingConfigurer {
     @Value("${cache.timeout.seconds.caseload:3600}")
     private int caseLoadTimeoutSeconds;
 
+    @Value("${cache.timeout.seconds.agency:3600}")
+    private int agencyTimeoutSeconds;
+
     @Value("${cache.timeout.seconds.booking:3600}")
     private int bookingTimeoutSeconds;
 
@@ -47,6 +50,8 @@ public class CacheConfig implements CachingConfigurer {
         config.addCache(config("findRolesByUsername", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config("findCaseLoadsByUsername", 1000, caseLoadTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+
+        config.addCache(config("findAgenciesByUsername", 1000, agencyTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config("verifyBookingAccess", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 

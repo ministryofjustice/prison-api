@@ -18,7 +18,7 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 
 /**
- * Bookings API (v2) repository implementation.
+ * Bookings API repository implementation.
  */
 @Repository
 @Slf4j
@@ -106,20 +106,20 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
 
     @Override
     @Cacheable("verifyBookingAccess")
-    public boolean verifyBookingAccess(Long bookingId, Set<String> caseLoadIds) {
+    public boolean verifyBookingAccess(Long bookingId, Set<String> agencyIds) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
-        Objects.requireNonNull(caseLoadIds, "caseLoadIds is a required parameter");
+        Objects.requireNonNull(agencyIds, "agencyIds is a required parameter");
 
-        String initialSql = getQuery("CHECK_BOOKING_CASELOADS");
+        String initialSql = getQuery("CHECK_BOOKING_AGENCIES");
 
         Long response;
 
         try {
-            log.debug("Verifying access for booking [{}] in caseloads {}", bookingId, caseLoadIds);
+            log.debug("Verifying access for booking [{}] in caseloads {}", bookingId, agencyIds);
 
             response = jdbcTemplate.queryForObject(
                     initialSql,
-                    createParams("bookingId", bookingId, "caseLoadIds", caseLoadIds),
+                    createParams("bookingId", bookingId, "agencyIds", agencyIds),
                     Long.class);
         } catch (EmptyResultDataAccessException ex) {
             response = null;
