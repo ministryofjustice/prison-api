@@ -59,6 +59,11 @@ public abstract class CommonSteps {
         assertThat(pageMetaData.getTotalRecords()).isEqualTo(expectedCount);
     }
 
+    @Step("Verify no resource records returned")
+    public void verifyNoResourceRecordsReturned() {
+        assertThat(resources.isEmpty()).isTrue();
+    }
+
     @Step("User {0} authenticates with password {1}")
     public void authenticates(String username, String password) {
         auth.authenticate(username, password);

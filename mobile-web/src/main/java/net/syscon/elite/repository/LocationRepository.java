@@ -6,7 +6,7 @@ import net.syscon.elite.api.support.Order;
 import java.util.List;
 
 /**
- * Location API (v2) repository interface.
+ * Location API repository interface.
  */
 public interface LocationRepository {
     @Deprecated

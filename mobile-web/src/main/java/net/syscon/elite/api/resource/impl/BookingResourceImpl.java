@@ -9,7 +9,6 @@ import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.InmatesAlertService;
 import net.syscon.util.MetaDataFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.Path;
 import java.util.List;
@@ -27,7 +26,6 @@ public class BookingResourceImpl implements BookingResource {
     private final CaseNoteService caseNoteService;
     private final InmatesAlertService inmateAlertService;
 
-    @Autowired
     public BookingResourceImpl(BookingService bookingService, InmateService inmateService, CaseNoteService caseNoteService, InmatesAlertService inmateAlertService) {
         this.bookingService = bookingService;
         this.inmateService = inmateService;
@@ -45,6 +43,11 @@ public class BookingResourceImpl implements BookingResource {
     public GetOffenderBookingResponse getOffenderBooking(Long bookingId) {
         final InmateDetail inmate = inmateService.findInmate(bookingId);
         return GetOffenderBookingResponse.respond200WithApplicationJson(inmate);
+    }
+
+    @Override
+    public GetBookingActivitiesResponse getBookingActivities(Long bookingId) {
+        return GetBookingActivitiesResponse.respond200WithApplicationJson(bookingService.getBookingActivities(bookingId));
     }
 
     @Override
@@ -98,5 +101,4 @@ public class BookingResourceImpl implements BookingResource {
         final CaseNote caseNote = caseNoteService.updateCaseNote(bookingId, caseNoteId, body.getText());
         return PUTBookingsBookingIdCaseNotesCaseNoteIdResponse.respond201WithApplicationJson(caseNote);
     }
-
 }

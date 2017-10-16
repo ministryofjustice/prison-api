@@ -17,8 +17,8 @@ import java.util.List;
 public interface {{classname}} {
     {{#operation}}
 
-    @{{httpMethod}}
-    {{#subresourceOperation}}@Path("{{path}}"){{/subresourceOperation}}
+    @{{httpMethod}}{{#subresourceOperation}}
+    @Path("{{path}}"){{/subresourceOperation}}
     {{#hasConsumes}}@Consumes({ {{#consumes}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }){{/hasConsumes}}
     {{#hasProduces}}@Produces({ {{#produces}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }){{/hasProduces}}
     @ApiOperation(value = "{{{summary}}}"{{#notes}}, notes = "{{{notes}}}"{{/notes}}, nickname="{{{nickname}}}")

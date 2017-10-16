@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Agency API (v2) repository interface.
+ * Agency API repository interface.
  */
 public interface AgencyRepository {
-    List<Agency> findAgenciesByCaseLoad(String caseLoadId, String orderByField, Order order);
-    List<Agency> findAgenciesByUsername(String username, String orderByField, Order order);
+    List<Agency> getAgencies(String orderByField, Order order, long offset, long limit);
+    List<Agency> findAgenciesByUsername(String username);
     Optional<Agency> getAgency(String agencyId);
 }
