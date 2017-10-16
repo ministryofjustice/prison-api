@@ -3,6 +3,7 @@ package net.syscon.elite.persistence.impl;
 import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.persistence.CaseLoadRepository;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -29,6 +30,7 @@ public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRe
 	}
 	
 	@Override
+	@Cacheable("findCaseLoadsByUsername")
 	public List<CaseLoad> findCaseLoadsByUsername(final String username) {
 		final String sql = getQuery("FIND_CASE_LOADS_BY_USERNAME");
 		final RowMapper<CaseLoad> caseLoadRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseLoad.class, caseLoadMapping);

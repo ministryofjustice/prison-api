@@ -1,6 +1,7 @@
 package net.syscon.elite.repository.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
+import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.PrivilegeDetail;
 import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.persistence.impl.RepositoryBase;
@@ -9,18 +10,18 @@ import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Bookings API (v2) repository implementation.
  */
 @Repository
+@Slf4j
 public class BookingRepositoryImpl extends RepositoryBase implements BookingRepository {
     private final Map<String, FieldMapper> sentenceDetailMapping =
             new ImmutableMap.Builder<String, FieldMapper>()
@@ -61,6 +62,8 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
 
     @Override
     public Optional<SentenceDetail> getBookingSentenceDetail(Long bookingId) {
+        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
+
         String initialSql = getQuery("GET_BOOKING_SENTENCE_DETAIL");
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, sentenceDetailMapping);
         String sql = builder.build();
@@ -86,6 +89,8 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
 
     @Override
     public List<PrivilegeDetail> getBookingIEPDetails(Long bookingId) {
+        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
+
         String initialSql = getQuery("GET_BOOKING_IEP_DETAILS");
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, privilegeDetailMapping);
         String sql = builder.build();
@@ -97,5 +102,29 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                 sql,
                 createParams("bookingId", bookingId),
                 privilegeDetailRowMapper);
+    }
+
+    @Override
+    @Cacheable("verifyBookingAccess")
+    public boolean verifyBookingAccess(Long bookingId, Set<String> caseLoadIds) {
+        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
+        Objects.requireNonNull(caseLoadIds, "caseLoadIds is a required parameter");
+
+        String initialSql = getQuery("CHECK_BOOKING_CASELOADS");
+
+        Long response;
+
+        try {
+            log.debug("Verifying access for booking [{}] in caseloads {}", bookingId, caseLoadIds);
+
+            response = jdbcTemplate.queryForObject(
+                    initialSql,
+                    createParams("bookingId", bookingId, "caseLoadIds", caseLoadIds),
+                    Long.class);
+        } catch (EmptyResultDataAccessException ex) {
+            response = null;
+        }
+
+        return bookingId.equals(response);
     }
 }
