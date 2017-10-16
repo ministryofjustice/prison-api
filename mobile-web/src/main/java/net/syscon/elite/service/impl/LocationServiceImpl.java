@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Location API (v2) service implementation.
+ * Location API service implementation.
  */
 @Service
 @Transactional(readOnly = true)
@@ -41,7 +41,7 @@ public class LocationServiceImpl implements LocationService {
         final List<Location> locations = new ArrayList<>();
 
         // Step 1 - Get all agencies associated with user
-        List<Agency> agencies = agencyRepository.findAgenciesByUsername(username, "agencyId", Order.ASC);
+        List<Agency> agencies = agencyRepository.findAgenciesByUsername(username);
 
         // Step 2 - Evaluate number of agencies to determine next step
         int agencyCount = agencies.size();

@@ -18,6 +18,18 @@ public class CacheConfig implements CachingConfigurer {
     @Value("${cache.timeout.seconds.reference-data:3600}")
     private int referenceDataTimeoutSeconds;
 
+    @Value("${cache.timeout.seconds.user:3600}")
+    private int userTimeoutSeconds;
+
+    @Value("${cache.timeout.seconds.caseload:3600}")
+    private int caseLoadTimeoutSeconds;
+
+    @Value("${cache.timeout.seconds.agency:3600}")
+    private int agencyTimeoutSeconds;
+
+    @Value("${cache.timeout.seconds.booking:3600}")
+    private int bookingTimeoutSeconds;
+
     @Bean(destroyMethod="shutdown")
     public net.sf.ehcache.CacheManager ehCacheManager() {
         net.sf.ehcache.config.Configuration config = new net.sf.ehcache.config.Configuration();
@@ -34,9 +46,15 @@ public class CacheConfig implements CachingConfigurer {
         config.addCache(config("caseNoteTypesByCodeFiltered", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("caseNoteTypesByTypeSubType", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
-        config.addCache(config("findByUsername", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("findByStaffId", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("findRolesByUsername", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("findByStaffId", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("findRolesByUsername", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+
+        config.addCache(config("findCaseLoadsByUsername", 1000, caseLoadTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+
+        config.addCache(config("findAgenciesByUsername", 1000, agencyTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+
+        config.addCache(config("verifyBookingAccess", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+
         config.addCache(config("findLocationsByAgencyAndType", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         return net.sf.ehcache.CacheManager.newInstance(config);

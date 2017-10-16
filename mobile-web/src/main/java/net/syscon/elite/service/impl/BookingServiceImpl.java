@@ -1,35 +1,36 @@
 package net.syscon.elite.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.PrivilegeDetail;
-import net.syscon.elite.api.model.PrivilegeSummary;
-import net.syscon.elite.api.model.SentenceDetail;
+import net.syscon.elite.api.model.*;
+import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.BookingRepository;
+import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.support.NonDtoReleaseDate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 /**
- * Bookings API (v2) service implementation.
+ * Bookings API service implementation.
  */
 @Service
 @Transactional(readOnly = true)
 @Slf4j
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
+    private final AgencyService agencyService;
 
-    public BookingServiceImpl(BookingRepository bookingRepository) {
+    public BookingServiceImpl(BookingRepository bookingRepository, AgencyService agencyService) {
         this.bookingRepository = bookingRepository;
+        this.agencyService = agencyService;
     }
 
     @Override
@@ -70,6 +71,13 @@ public class BookingServiceImpl implements BookingService {
                 .daysSinceReview(Long.valueOf(daysSinceReview).intValue())
                 .iepDetails(withDetails ? iepDetails : Collections.EMPTY_LIST)
                 .build();
+    }
+
+    @Override
+    public List<ScheduledEvent> getBookingActivities(Long bookingId) {
+        verifyBookingAccess(bookingId);
+
+        return new ArrayList<>();
     }
 
     private NonDtoReleaseDate deriveNonDtoReleaseDate(SentenceDetail sentenceDetail) {
@@ -118,5 +126,33 @@ public class BookingServiceImpl implements BookingService {
         Collections.sort(nonDtoReleaseDates);
 
         return nonDtoReleaseDates.isEmpty() ? null : nonDtoReleaseDates.get(0);
+    }
+
+    /**
+     * Gets set of agency location ids accessible to current authenticated user. This governs access to bookings - a user
+     * cannot have access to an offender unless they are in a location that the authenticated user is also associated with.
+     *
+     * @return set of agency location ids accessible to current authenticated user.
+     */
+    private Set<String> getAgencyIds() {
+        return agencyService
+                .findAgenciesByUsername(UserSecurityUtils.getCurrentUsername())
+                .stream()
+                .map(Agency::getAgencyId)
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Verifies that current user is authorised to access specified offender booking. If offender booking is in an
+     * agency location that is not part of any caseload accessible to the current user, a 'Resource Not Found'
+     * exception is thrown.
+     *
+     * @param bookingId offender booking id.
+     * @throws EntityNotFoundException if current user does not have access to specified booking.
+     */
+    private void verifyBookingAccess(Long bookingId) {
+        if (!bookingRepository.verifyBookingAccess(bookingId, getAgencyIds())) {
+            throw new EntityNotFoundException(bookingId.toString());
+        }
     }
 }

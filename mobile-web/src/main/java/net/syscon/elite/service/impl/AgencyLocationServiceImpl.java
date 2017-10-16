@@ -1,11 +1,9 @@
 package net.syscon.elite.service.impl;
 
-import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.support.Order;
-import net.syscon.elite.persistence.AgencyRepository;
 import net.syscon.elite.persistence.InmateRepository;
 import net.syscon.elite.persistence.LocationRepository;
 import net.syscon.elite.persistence.UserRepository;
@@ -27,30 +25,18 @@ import static net.syscon.elite.service.impl.InmateServiceImpl.DEFAULT_OFFENDER_S
 @Service
 public class AgencyLocationServiceImpl implements AgencyLocationService {
 
-	private final AgencyRepository agencyRepository;
 	private final LocationRepository locationRepository;
 	private final InmateRepository inmateRepository;
 	private final UserRepository userRepository;
 	private final String locationTypeGranularity;
 
 	@Inject
-	public AgencyLocationServiceImpl(AgencyRepository agencyRepository, LocationRepository locationRepository, InmateRepository inmateRepository, UserRepository userRepository,
+	public AgencyLocationServiceImpl(LocationRepository locationRepository, InmateRepository inmateRepository, UserRepository userRepository,
 									 @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity) {
-		this.agencyRepository = agencyRepository;
 		this.locationRepository = locationRepository;
 		this.inmateRepository = inmateRepository;
 		this.userRepository = userRepository;
 		this.locationTypeGranularity = locationTypeGranularity;
-	}
-
-    @Override
-	public Agency getAgency(final String agencyId) {
-		return agencyRepository.find(getCurrentCaseLoad(), agencyId).orElseThrow(new EntityNotFoundException(agencyId));
-	}
-
-	@Override
-	public List<Agency> getAgencies(final int offset, final int limit) {
-		return agencyRepository.findAgencies(getCurrentCaseLoad(), offset, limit);
 	}
 
 	@Override
