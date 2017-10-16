@@ -1,36 +1,39 @@
 package net.syscon.elite.executableSpecification;
 
-import cucumber.api.java.en.And;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import net.syscon.elite.executableSpecification.steps.ReferenceDomainsSteps;
-import org.springframework.beans.factory.annotation.Autowired;
+import net.syscon.elite.executableSpecification.steps.FinanceSteps;
 
 /**
  * BDD step definitions for finance endpoints:
  * <ul>
- * <li>/prison/{prison_id}/offenders/{noms_id}/accounts</li>
- * /bookings/{booking_id}/balances
- * 
- * noms_id string (required) Example: A1404AE
-prison_id  string (required) Example: BMI
-
-agencyid = prison, on offender_bookings, has agency id
-
-returned (eg):
-
-{
-  "spends": 5343,
-  "cash": 0,
-  "savings": 0
-}
+ * <li>/bookings/{booking_id}/balances</li>
  * </ul>
  */
 public class FinanceStepDefinitions extends AbstractStepDefinitions {
 
     @Autowired
-    private ReferenceDomainsSteps referenceDomainsSteps;
+    private FinanceSteps financeSteps;
 
- 
+    @When("^an account with booking id ([0-9-]+) is requested$")
+    public void anAccountIsRequested(Long id) {
+        financeSteps.getAccount(id);
+    }
 
+    @Then("^the returned ([^\"]+) is ([0-9\\.]+)$")
+    public void theFieldIs(String field, String value) throws ReflectiveOperationException {
+        financeSteps.verifyField(field, value);
+    }
+
+    @When("^an account with nonexistent booking id is requested$")
+    public void anNonexistentAccountIsRequested() {
+        financeSteps.getNonexistentAccount();
+    }
+    
+    @Then("^resource not found response is received from finance API$")
+    public void resourceNotFoundResponseIsReceivedFromBookingsAPI() throws Throwable {
+        financeSteps.verifyResourceNotFound();
+    }
 }

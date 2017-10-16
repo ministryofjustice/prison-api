@@ -1,14 +1,13 @@
 GET_ACCOUNT {
-    select max(cash) cash_balance, max(spends) spends_balance, max(savings) savings_balance
-    from (select case when ac.sub_account_type = 'REG'  then balance*100 else null end cash,
-                 case when ac.sub_account_type = 'SPND' then balance*100 else null end spends,
-                 case when ac.sub_account_type = 'SAV'  then balance*100 else null end savings
-          from offender_bookings ob
-            join offender_sub_accounts osa on osa.offender_id = ob.root_offender_id
-            join account_codes ac          on ac.account_code = osa.trust_account_code
-          where --osa.caseload_id = :agencyId and
-            ob.offender_book_id = :bookingId
-           and ac.sub_account_type in ('REG','SPND','SAV')
-           AND EXISTS (select 1 from CASELOAD_AGENCY_LOCATIONS C WHERE ob.AGY_LOC_ID = C.AGY_LOC_ID AND C.CASELOAD_ID IN (:caseLoadIds))
+    SELECT MAX(cash) cash_balance, MAX(spends) spends_balance, MAX(savings) savings_balance
+    FROM (SELECT CASE WHEN ac.sub_account_type = 'REG'  THEN balance ELSE NULL END cash,
+                 CASE WHEN ac.sub_account_type = 'SPND' THEN balance ELSE NULL END spends,
+                 CASE WHEN ac.sub_account_type = 'SAV'  THEN balance ELSE NULL END savings
+          FROM offender_bookings ob
+            JOIN offender_sub_accounts osa ON osa.offender_id = ob.root_offender_id
+            JOIN account_codes ac          ON ac.account_code = osa.trust_account_code
+          WHERE ob.offender_book_id = :bookingId
+           AND ac.sub_account_type IN ('REG','SPND','SAV')
+           AND EXISTS (SELECT 1 FROM caseload_agency_locations c WHERE ob.agy_loc_id = c.agy_loc_id AND c.caseload_id IN (:caseLoadIds))
          )
 }

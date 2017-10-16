@@ -44,9 +44,9 @@ public class FinanceRepositoryTest {
     public final void testGetAccount() {
         final Optional<Account> account = repository.getAccount(-1L, Collections.singleton("LEI"));
         assertThat(account).isPresent();
-        assertEquals(124L, account.get().getCash().longValue());
-        assertEquals(250L, account.get().getSpends().longValue());
-        assertEquals(20050L, account.get().getSavings().longValue());
+        assertEquals("1.24", account.get().getCash().toString());
+        assertEquals("2.50", account.get().getSpends().toString());
+        assertEquals("200.50", account.get().getSavings().toString());
     }
 
     @Test

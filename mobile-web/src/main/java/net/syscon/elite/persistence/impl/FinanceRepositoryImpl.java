@@ -34,5 +34,4 @@ public class FinanceRepositoryImpl extends RepositoryBase implements FinanceRepo
         }
         return Optional.ofNullable(account);
     }
-
 }

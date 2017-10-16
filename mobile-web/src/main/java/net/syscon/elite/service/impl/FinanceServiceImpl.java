@@ -19,10 +19,14 @@ import net.syscon.elite.service.FinanceService;
 @Transactional(readOnly = true)
 public class FinanceServiceImpl implements FinanceService {
 
+    private final FinanceRepository financeRepository;
+    private final CaseLoadRepository caseLoadRepository;
+
     @Autowired
-    private FinanceRepository financeRepository;
-    @Autowired
-    private CaseLoadRepository caseLoadRepository;
+    public FinanceServiceImpl(FinanceRepository financeRepository, CaseLoadRepository caseLoadRepository) {
+        this.financeRepository = financeRepository;
+        this.caseLoadRepository = caseLoadRepository;
+    }
 
     @Override
     public Account getAccount(final long bookingId) {
@@ -30,10 +34,8 @@ public class FinanceServiceImpl implements FinanceService {
                 .orElseThrow(new EntityNotFoundException(String.valueOf(bookingId)));
     }
 
-    // TODO move this to a base service class ?
     protected Set<String> getUserCaseloadIds() {
         return caseLoadRepository.findCaseLoadsByUsername(UserSecurityUtils.getCurrentUsername()).stream()
                 .map(CaseLoad::getCaseLoadId).collect(Collectors.toSet());
     }
-
 }
