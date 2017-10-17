@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * Agency API (v2) service implementation.
+ * Agency API service implementation.
  */
 @Service
 @Transactional(readOnly = true)
@@ -30,12 +30,12 @@ public class AgencyServiceImpl implements AgencyService {
     }
 
     @Override
-    public List<Agency> findAgenciesByCaseLoad(String caseLoadId, long offset, long limit) {
-        return agencyRepository.findAgenciesByCaseLoad(caseLoadId, "agencyId", Order.ASC);
+    public List<Agency> getAgencies(long offset, long limit) {
+        return agencyRepository.getAgencies("agencyId", Order.ASC, offset, limit);
     }
 
     @Override
-    public List<Agency> findAgenciesByUsername(String username, long offset, long limit) {
-        return agencyRepository.findAgenciesByUsername(username, "agencyId", Order.ASC);
+    public List<Agency> findAgenciesByUsername(String username) {
+        return agencyRepository.findAgenciesByUsername(username);
     }
 }

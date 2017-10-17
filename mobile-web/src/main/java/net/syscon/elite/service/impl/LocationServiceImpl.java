@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.persistence.LocationRepository;
 import net.syscon.elite.repository.AgencyRepository;
-import net.syscon.elite.repository.LocationRepository;
 import net.syscon.elite.service.LocationService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Location API (v2) service implementation.
+ * Location API service implementation.
  */
 @Service
 @Transactional(readOnly = true)
@@ -28,7 +28,7 @@ public class LocationServiceImpl implements LocationService {
     @Value("${api.users.me.locations.locationType:WING}")
     private String locationTypeGranularity;
 
-    @Value("${api.users.me.locations.depth:2}")
+    @Value("${api.users.me.locations.depth:1}")
     private Integer locationDepth;
 
     public LocationServiceImpl(AgencyRepository agencyRepository, LocationRepository locationRepository) {
@@ -41,7 +41,7 @@ public class LocationServiceImpl implements LocationService {
         final List<Location> locations = new ArrayList<>();
 
         // Step 1 - Get all agencies associated with user
-        List<Agency> agencies = agencyRepository.findAgenciesByUsername(username, "agencyId", Order.ASC);
+        List<Agency> agencies = agencyRepository.findAgenciesByUsername(username);
 
         // Step 2 - Evaluate number of agencies to determine next step
         int agencyCount = agencies.size();

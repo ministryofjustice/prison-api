@@ -1,2 +1,2 @@
-@echo off
-raml2html -i %1 -o %2
+@echo on
+node_modules\.bin\spectacle.cmd -t %2 %1

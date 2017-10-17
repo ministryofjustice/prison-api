@@ -1,28 +1,14 @@
 package net.syscon.elite.executableSpecification;
 
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-
+import net.syscon.elite.executableSpecification.steps.*;
+import net.syscon.elite.test.DatasourceActiveProfilesResolver;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
-import net.syscon.elite.executableSpecification.steps.AuthenticationSteps;
-import net.syscon.elite.executableSpecification.steps.BookingAliasSteps;
-import net.syscon.elite.executableSpecification.steps.BookingDetailSteps;
-import net.syscon.elite.executableSpecification.steps.BookingIEPSteps;
-import net.syscon.elite.executableSpecification.steps.BookingSearchSteps;
-import net.syscon.elite.executableSpecification.steps.BookingSentenceDetailSteps;
-import net.syscon.elite.executableSpecification.steps.CaseNoteSteps;
-import net.syscon.elite.executableSpecification.steps.FinanceSteps;
-import net.syscon.elite.executableSpecification.steps.LocationsSteps;
-import net.syscon.elite.executableSpecification.steps.MyAssignmentsSteps;
-import net.syscon.elite.executableSpecification.steps.OffenderSearchSteps;
-import net.syscon.elite.executableSpecification.steps.PrisonerSearchSteps;
-import net.syscon.elite.executableSpecification.steps.ReferenceDomainsSteps;
-import net.syscon.elite.executableSpecification.steps.UserSteps;
-import net.syscon.elite.test.DatasourceActiveProfilesResolver;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
 /**
  * Abstract base class for Serenity/Cucumber BDD step definitions.
@@ -77,6 +63,11 @@ abstract class AbstractStepDefinitions {
         @Bean
         BookingIEPSteps bookingIEPSteps() {
             return new BookingIEPSteps();
+        }
+
+        @Bean
+        BookingActivitySteps bookingActivitySteps() {
+            return new BookingActivitySteps();
         }
 
         @Bean

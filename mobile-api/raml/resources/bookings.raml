@@ -153,3 +153,11 @@
     bookingId:
       (javaType): Long
       description: The booking id of offender
+
+/{bookingId}/activities:
+  (javaOperationName): getBookingActivities
+  type: {readOnlyCollection: {type: ScheduledEvent}}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id

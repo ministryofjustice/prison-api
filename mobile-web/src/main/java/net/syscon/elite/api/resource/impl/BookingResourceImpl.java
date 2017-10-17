@@ -1,23 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
-import static net.syscon.util.ResourceUtils.nvl;
-
-import java.util.List;
-
-import javax.ws.rs.Path;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import net.syscon.elite.api.model.Account;
-import net.syscon.elite.api.model.Alert;
-import net.syscon.elite.api.model.Alias;
-import net.syscon.elite.api.model.CaseNote;
-import net.syscon.elite.api.model.InmateDetail;
-import net.syscon.elite.api.model.NewCaseNote;
-import net.syscon.elite.api.model.OffenderBooking;
-import net.syscon.elite.api.model.PrivilegeSummary;
-import net.syscon.elite.api.model.SentenceDetail;
-import net.syscon.elite.api.model.UpdateCaseNote;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.resource.BookingResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.core.RestResource;
@@ -27,6 +10,11 @@ import net.syscon.elite.service.FinanceService;
 import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.InmatesAlertService;
 import net.syscon.util.MetaDataFactory;
+
+import javax.ws.rs.Path;
+import java.util.List;
+
+import static net.syscon.util.ResourceUtils.nvl;
 
 /**
  * Implementation of Booking (/bookings) endpoint.
@@ -40,7 +28,6 @@ public class BookingResourceImpl implements BookingResource {
     private final InmatesAlertService inmateAlertService;
     private final FinanceService financeService;
 
-    @Autowired
     public BookingResourceImpl(BookingService bookingService, InmateService inmateService,
             CaseNoteService caseNoteService, InmatesAlertService inmateAlertService, FinanceService financeService) {
         this.bookingService = bookingService;
@@ -60,6 +47,11 @@ public class BookingResourceImpl implements BookingResource {
     public GetOffenderBookingResponse getOffenderBooking(Long bookingId) {
         final InmateDetail inmate = inmateService.findInmate(bookingId);
         return GetOffenderBookingResponse.respond200WithApplicationJson(inmate);
+    }
+
+    @Override
+    public GetBookingActivitiesResponse getBookingActivities(Long bookingId) {
+        return GetBookingActivitiesResponse.respond200WithApplicationJson(bookingService.getBookingActivities(bookingId));
     }
 
     @Override
@@ -113,12 +105,10 @@ public class BookingResourceImpl implements BookingResource {
         final CaseNote caseNote = caseNoteService.updateCaseNote(bookingId, caseNoteId, body.getText());
         return PUTBookingsBookingIdCaseNotesCaseNoteIdResponse.respond201WithApplicationJson(caseNote);
     }
-    
-  
+
     @Override
     public GetAccountResponse getAccount(Long bookingId) {
         final Account account = financeService.getAccount(bookingId);
         return GetAccountResponse.respond200WithApplicationJson(account);
     }
-
 }
