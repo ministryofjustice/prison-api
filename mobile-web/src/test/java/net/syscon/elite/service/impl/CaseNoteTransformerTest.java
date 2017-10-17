@@ -26,7 +26,7 @@ public class CaseNoteTransformerTest {
     private CaseNote caseNote;
 
     @Before
-    public void setup() {
+    public void init() {
         transformer = new CaseNoteTransformer(userService, "yyyy/MM/dd HH:mm:ss");
         caseNote = CaseNote.builder().amendments(new ArrayList<>()).build();
 

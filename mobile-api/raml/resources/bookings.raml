@@ -145,6 +145,15 @@
         description: Toggle to return IEP detail entries in response (or not).
         type: boolean
 
+/{bookingId}/balances:
+  (javaOperationName): getBalances
+  description: Returns specified booking account balances.
+  type: { readOnlyItem: { type: Account } }
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The booking id of offender
+
 /{bookingId}/activities:
   (javaOperationName): getBookingActivities
   type: {readOnlyCollection: {type: ScheduledEvent}}

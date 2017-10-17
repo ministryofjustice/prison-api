@@ -6,6 +6,7 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.CaseNoteService;
+import net.syscon.elite.service.FinanceService;
 import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.InmatesAlertService;
 import net.syscon.util.MetaDataFactory;
@@ -25,12 +26,15 @@ public class BookingResourceImpl implements BookingResource {
     private final InmateService inmateService;
     private final CaseNoteService caseNoteService;
     private final InmatesAlertService inmateAlertService;
+    private final FinanceService financeService;
 
-    public BookingResourceImpl(BookingService bookingService, InmateService inmateService, CaseNoteService caseNoteService, InmatesAlertService inmateAlertService) {
+    public BookingResourceImpl(BookingService bookingService, InmateService inmateService,
+            CaseNoteService caseNoteService, InmatesAlertService inmateAlertService, FinanceService financeService) {
         this.bookingService = bookingService;
         this.inmateService = inmateService;
         this.caseNoteService = caseNoteService;
         this.inmateAlertService = inmateAlertService;
+        this.financeService = financeService;
     }
 
     @Override
@@ -100,5 +104,11 @@ public class BookingResourceImpl implements BookingResource {
     public PUTBookingsBookingIdCaseNotesCaseNoteIdResponse pUTBookingsBookingIdCaseNotesCaseNoteId(Long bookingId, Long caseNoteId, UpdateCaseNote body) {
         final CaseNote caseNote = caseNoteService.updateCaseNote(bookingId, caseNoteId, body.getText());
         return PUTBookingsBookingIdCaseNotesCaseNoteIdResponse.respond201WithApplicationJson(caseNote);
+    }
+
+    @Override
+    public GetBalancesResponse getBalances(Long bookingId) {
+        final Account account = financeService.getBalances(bookingId);
+        return GetBalancesResponse.respond200WithApplicationJson(account);
     }
 }

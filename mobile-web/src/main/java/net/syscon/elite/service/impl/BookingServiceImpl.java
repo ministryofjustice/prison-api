@@ -150,7 +150,7 @@ public class BookingServiceImpl implements BookingService {
      * @param bookingId offender booking id.
      * @throws EntityNotFoundException if current user does not have access to specified booking.
      */
-    private void verifyBookingAccess(Long bookingId) {
+    public void verifyBookingAccess(Long bookingId) {
         if (!bookingRepository.verifyBookingAccess(bookingId, getAgencyIds())) {
             throw new EntityNotFoundException(bookingId.toString());
         }

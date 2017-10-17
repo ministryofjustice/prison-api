@@ -36,7 +36,7 @@ public class UsersResourceImplIntegTest {
 
 
 	@Before
-	public void setup() {
+	public void init() {
 		RestAssured.port = this.port;
 		autenticate();
 	}
