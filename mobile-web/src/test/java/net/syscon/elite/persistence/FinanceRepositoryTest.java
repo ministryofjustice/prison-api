@@ -1,28 +1,20 @@
 package net.syscon.elite.persistence;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
-
-import java.util.Collections;
-import java.util.Optional;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import net.syscon.elite.api.model.Account;
 import net.syscon.elite.web.config.PersistenceConfigs;
+
+import org.junit.*;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.*;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.context.*;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.*;
 
 @ActiveProfiles("nomis,nomis-hsqldb")
 @RunWith(SpringRunner.class)
@@ -36,28 +28,25 @@ public class FinanceRepositoryTest {
     private FinanceRepository repository;
 
     @Before
-    public final void setup() {
+    public final void init() {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
     }
 
     @Test
     public final void testGetAccount() {
-        final Optional<Account> account = repository.getAccount(-1L, Collections.singleton("LEI"));
-        assertThat(account).isPresent();
-        assertEquals("1.24", account.get().getCash().toString());
-        assertEquals("2.50", account.get().getSpends().toString());
-        assertEquals("200.50", account.get().getSavings().toString());
+        final Account account = repository.getBalances(-1L);
+        assertNotNull(account);
+        assertEquals("1.24", account.getCash().toString());
+        assertEquals("2.50", account.getSpends().toString());
+        assertEquals("200.50", account.getSavings().toString());
     }
 
     @Test
-    public final void testGetAccount_no_booking_id() {
-        final Optional<Account> account = repository.getAccount(1001L, Collections.singleton("LEI"));
-        assertThat(account).isEmpty();
-    }
-
-    @Test
-    public final void testGetAccount_no_caseload() {
-        final Optional<Account> account = repository.getAccount(1L, Collections.singleton("madeup"));
-        assertThat(account).isEmpty();
+    public final void testGetAccountInvalidBookingId() {
+        final Account account = repository.getBalances(1001L);
+        assertNotNull(account);
+        assertNull(account.getCash());
+        assertNull(account.getSpends());
+        assertNull(account.getSavings());
     }
 }

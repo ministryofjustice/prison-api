@@ -1,10 +1,10 @@
 package net.syscon.elite.executableSpecification;
 
+import net.syscon.elite.executableSpecification.steps.FinanceSteps;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
-import net.syscon.elite.executableSpecification.steps.FinanceSteps;
+import cucumber.api.java.en.*;
 
 /**
  * BDD step definitions for finance endpoints:
@@ -31,9 +31,14 @@ public class FinanceStepDefinitions extends AbstractStepDefinitions {
     public void anNonexistentAccountIsRequested() {
         financeSteps.getNonexistentAccount();
     }
-    
+
     @Then("^resource not found response is received from finance API$")
     public void resourceNotFoundResponseIsReceivedFromBookingsAPI() throws Throwable {
         financeSteps.verifyResourceNotFound();
+    }
+
+    @When("^an account with booking id in different caseload is requested$")
+    public void anAccountInDifferentCaseloadIsRequested() {
+        financeSteps.getAccountInDifferentCaseload();
     }
 }

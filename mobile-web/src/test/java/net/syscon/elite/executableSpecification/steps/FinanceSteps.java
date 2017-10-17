@@ -1,18 +1,15 @@
 package net.syscon.elite.executableSpecification.steps;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
+
+import net.syscon.elite.api.model.Account;
+import net.syscon.elite.test.EliteClientException;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
-import net.syscon.elite.api.model.Account;
-import net.syscon.elite.test.EliteClientException;
+import org.springframework.http.*;
 
 /**
  * BDD step implementations for Reference Domains service.
@@ -36,6 +33,7 @@ public class FinanceSteps extends CommonSteps {
     }
 
     private void doSingleResultApiCall(String url) {
+        init();
         try {
             ResponseEntity<Account> response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
                     new ParameterizedTypeReference<Account>() {
@@ -50,9 +48,14 @@ public class FinanceSteps extends CommonSteps {
     protected void init() {
         super.init();
         result = null;
+        setErrorResponse(null);
     }
 
     public void getNonexistentAccount() {
         doSingleResultApiCall(API_BOOKING_PREFIX + "-100000000001/balances");
+    }
+
+    public void getAccountInDifferentCaseload() {
+        doSingleResultApiCall(API_BOOKING_PREFIX + "-16/balances");
     }
 }

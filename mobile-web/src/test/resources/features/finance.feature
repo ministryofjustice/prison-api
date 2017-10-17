@@ -16,3 +16,7 @@ Feature: Finances
   Scenario: Booking id does not exist
     When an account with nonexistent booking id is requested
     Then resource not found response is received from finance API
+
+  Scenario: The logged on staff user's caseload does not include the booking id
+    When an account with booking id in different caseload is requested
+    Then resource not found response is received from finance API

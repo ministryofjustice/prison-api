@@ -107,8 +107,8 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetAccountResponse getAccount(Long bookingId) {
-        final Account account = financeService.getAccount(bookingId);
-        return GetAccountResponse.respond200WithApplicationJson(account);
+    public GetBalancesResponse getBalances(Long bookingId) {
+        final Account account = financeService.getBalances(bookingId);
+        return GetBalancesResponse.respond200WithApplicationJson(account);
     }
 }
