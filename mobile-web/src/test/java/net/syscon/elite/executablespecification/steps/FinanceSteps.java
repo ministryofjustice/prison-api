@@ -1,4 +1,4 @@
-package net.syscon.elite.executableSpecification.steps;
+package net.syscon.elite.executablespecification.steps;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;

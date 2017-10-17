@@ -1,4 +1,4 @@
-package net.syscon.elite.executableSpecification.steps;
+package net.syscon.elite.executablespecification.steps;
 
 import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.ErrorResponse;

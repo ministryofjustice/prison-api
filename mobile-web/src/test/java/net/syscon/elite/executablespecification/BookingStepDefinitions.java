@@ -1,14 +1,16 @@
-package net.syscon.elite.executableSpecification;
+package net.syscon.elite.executablespecification;
 
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import net.syscon.elite.executableSpecification.steps.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+
+import net.syscon.elite.executablespecification.steps.*;
 
 /**
  * BDD step definitions for the following Booking API endpoints:

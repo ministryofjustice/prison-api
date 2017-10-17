@@ -1,4 +1,4 @@
-package net.syscon.elite.executableSpecification;
+package net.syscon.elite.executablespecification;
 
 import cucumber.api.CucumberOptions;
 import net.serenitybdd.cucumber.CucumberWithSerenity;

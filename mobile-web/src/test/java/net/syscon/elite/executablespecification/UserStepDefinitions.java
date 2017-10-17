@@ -1,11 +1,13 @@
-package net.syscon.elite.executableSpecification;
+package net.syscon.elite.executablespecification;
 
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import net.syscon.elite.executableSpecification.steps.UserSteps;
+
+import net.syscon.elite.executablespecification.steps.UserSteps;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;

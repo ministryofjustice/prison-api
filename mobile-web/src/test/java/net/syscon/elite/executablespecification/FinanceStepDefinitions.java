@@ -1,6 +1,6 @@
-package net.syscon.elite.executableSpecification;
+package net.syscon.elite.executablespecification;
 
-import net.syscon.elite.executableSpecification.steps.FinanceSteps;
+import net.syscon.elite.executablespecification.steps.FinanceSteps;
 
 import org.springframework.beans.factory.annotation.Autowired;
 

@@ -1,4 +1,4 @@
-package net.syscon.elite.executableSpecification;
+package net.syscon.elite.executablespecification;
 
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
@@ -7,7 +7,7 @@ import cucumber.api.java.en.When;
 import net.syscon.elite.api.model.CaseNote;
 import net.syscon.elite.api.model.NewCaseNote;
 import net.syscon.elite.api.model.UpdateCaseNote;
-import net.syscon.elite.executableSpecification.steps.CaseNoteSteps;
+import net.syscon.elite.executablespecification.steps.CaseNoteSteps;
 import net.syscon.util.DateTimeConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

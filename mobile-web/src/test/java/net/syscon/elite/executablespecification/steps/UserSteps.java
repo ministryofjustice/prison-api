@@ -1,4 +1,4 @@
-package net.syscon.elite.executableSpecification.steps;
+package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.StaffDetail;

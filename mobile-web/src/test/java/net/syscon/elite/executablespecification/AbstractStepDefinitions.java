@@ -1,6 +1,6 @@
-package net.syscon.elite.executableSpecification;
+package net.syscon.elite.executablespecification;
 
-import net.syscon.elite.executableSpecification.steps.*;
+import net.syscon.elite.executablespecification.steps.*;
 import net.syscon.elite.test.DatasourceActiveProfilesResolver;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;

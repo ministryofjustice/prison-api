@@ -1,8 +1,10 @@
-package net.syscon.elite.executableSpecification;
+package net.syscon.elite.executablespecification;
 
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import net.syscon.elite.executableSpecification.steps.MyAssignmentsSteps;
+
+import net.syscon.elite.executablespecification.steps.MyAssignmentsSteps;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

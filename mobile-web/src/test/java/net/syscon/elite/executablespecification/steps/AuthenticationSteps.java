@@ -1,4 +1,4 @@
-package net.syscon.elite.executableSpecification.steps;
+package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.AuthLogin;
 import net.syscon.elite.api.model.Token;
@@ -10,7 +10,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import static net.syscon.elite.executableSpecification.steps.CommonSteps.API_PREFIX;
+import static net.syscon.elite.executablespecification.steps.CommonSteps.API_PREFIX;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
