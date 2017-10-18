@@ -2,8 +2,8 @@ package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
-import net.syscon.elite.persistence.CaseLoadRepository;
-import net.syscon.elite.persistence.InmateRepository;
+import net.syscon.elite.repository.CaseLoadRepository;
+import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.InmateService;

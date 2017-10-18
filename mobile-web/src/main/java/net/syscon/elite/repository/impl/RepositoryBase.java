@@ -1,8 +1,8 @@
-package net.syscon.elite.persistence.impl;
+package net.syscon.elite.repository.impl;
 
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
-import net.syscon.elite.persistence.mapping.FieldMapper;
+import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.util.QueryBuilderFactory;
 import net.syscon.util.SQLProvider;

@@ -8,7 +8,7 @@ import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
-import net.syscon.elite.persistence.mapping.FieldMapper;
+import net.syscon.elite.repository.mapping.FieldMapper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;

@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableAspectJAutoProxy
 @EnableTransactionManagement
-@ComponentScan(basePackages = { "net.syscon.elite.persistence", "net.syscon.util" })
+@ComponentScan(basePackages = { "net.syscon.elite.repository", "net.syscon.util" })
 public class PersistenceConfigs {
 
 }

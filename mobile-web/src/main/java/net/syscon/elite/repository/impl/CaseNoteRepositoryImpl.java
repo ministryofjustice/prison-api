@@ -1,12 +1,12 @@
-package net.syscon.elite.persistence.impl;
+package net.syscon.elite.repository.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.CaseNote;
 import net.syscon.elite.api.model.NewCaseNote;
 import net.syscon.elite.api.support.Order;
-import net.syscon.elite.persistence.CaseNoteRepository;
-import net.syscon.elite.persistence.mapping.FieldMapper;
-import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
+import net.syscon.elite.repository.CaseNoteRepository;
+import net.syscon.elite.repository.mapping.FieldMapper;
+import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;

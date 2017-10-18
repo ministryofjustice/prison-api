@@ -1,6 +1,6 @@
 package net.syscon.util;
 
-import net.syscon.elite.persistence.mapping.FieldMapper;
+import net.syscon.elite.repository.mapping.FieldMapper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;

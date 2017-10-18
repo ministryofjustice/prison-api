@@ -5,7 +5,7 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
-import net.syscon.elite.persistence.mapping.FieldMapper;
+import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.util.QueryBuilderFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
