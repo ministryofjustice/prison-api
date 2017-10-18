@@ -127,7 +127,7 @@ project(":mobile-web") {
 
     // Exclude Serenity BDD integration tests from 'test' task so they can be controlled independently
     test {
-        exclude "**/executableSpecification/*"
+        exclude "**/executablespecification/*"
     }
 
     test.dependsOn testWithSchemaElite, testWithSchemaNomis

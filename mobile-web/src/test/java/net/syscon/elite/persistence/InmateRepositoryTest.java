@@ -35,7 +35,7 @@ public class InmateRepositoryTest {
     private InmateRepository repository;
 
     @Before
-    public final void setup() {
+    public final void init() {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
     }
 

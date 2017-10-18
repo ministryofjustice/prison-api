@@ -15,4 +15,6 @@ public interface BookingService {
     PrivilegeSummary getBookingIEPSummary(Long bookingId, boolean withDetails);
 
     List<ScheduledEvent> getBookingActivities(Long bookingId);
+
+    void verifyBookingAccess(Long bookingId);
 }
