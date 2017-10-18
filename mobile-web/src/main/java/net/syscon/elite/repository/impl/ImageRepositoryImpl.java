@@ -1,10 +1,10 @@
-package net.syscon.elite.persistence.impl;
+package net.syscon.elite.repository.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.ImageDetail;
-import net.syscon.elite.persistence.ImageRepository;
-import net.syscon.elite.persistence.mapping.FieldMapper;
-import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
+import net.syscon.elite.repository.ImageRepository;
+import net.syscon.elite.repository.mapping.FieldMapper;
+import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.util.DateTimeConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -2,8 +2,8 @@ package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.api.model.UserDetail;
-import net.syscon.elite.persistence.InmateRepository;
-import net.syscon.elite.persistence.UserRepository;
+import net.syscon.elite.repository.InmateRepository;
+import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.AssignmentService;
 import net.syscon.elite.service.EntityNotFoundException;

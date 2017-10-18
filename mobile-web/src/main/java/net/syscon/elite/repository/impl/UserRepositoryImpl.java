@@ -1,11 +1,11 @@
-package net.syscon.elite.persistence.impl;
+package net.syscon.elite.repository.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.UserDetail;
-import net.syscon.elite.persistence.UserRepository;
-import net.syscon.elite.persistence.mapping.FieldMapper;
-import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
+import net.syscon.elite.repository.UserRepository;
+import net.syscon.elite.repository.mapping.FieldMapper;
+import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;

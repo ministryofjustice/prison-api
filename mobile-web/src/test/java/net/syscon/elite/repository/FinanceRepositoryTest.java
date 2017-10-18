@@ -1,8 +1,6 @@
-package net.syscon.elite.persistence;
+package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.InmateDetail;
-import net.syscon.elite.api.model.OffenderBooking;
-import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.model.Account;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,9 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("nomis,nomis-hsqldb")
@@ -29,10 +25,10 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = PersistenceConfigs.class)
-public class InmateRepositoryTest {
+public class FinanceRepositoryTest {
 
     @Autowired
-    private InmateRepository repository;
+    private FinanceRepository repository;
 
     @Before
     public final void init() {
@@ -40,16 +36,20 @@ public class InmateRepositoryTest {
     }
 
     @Test
-    public final void testFindAllImates() {
-        final List<OffenderBooking> foundInmates = repository.findAllInmates(new HashSet<>(Arrays.asList("LEI", "BXI")), "WING", "", 0, 10, "lastName, firstName", Order.ASC);
-        assertThat(foundInmates).isNotEmpty();
+    public final void testGetAccount() {
+        final Account account = repository.getBalances(-1L);
+        assertNotNull(account);
+        assertEquals("1.24", account.getCash().toString());
+        assertEquals("2.50", account.getSpends().toString());
+        assertEquals("200.50", account.getSavings().toString());
     }
-
 
     @Test
-    public final void testGetOffender() {
-        final Optional<InmateDetail> inmate = repository.findInmate(-1L, Collections.singleton("LEI"), "WING");
-        assertThat(inmate).isPresent();
+    public final void testGetAccountInvalidBookingId() {
+        final Account account = repository.getBalances(1001L);
+        assertNotNull(account);
+        assertNull(account.getCash());
+        assertNull(account.getSpends());
+        assertNull(account.getSavings());
     }
-
 }

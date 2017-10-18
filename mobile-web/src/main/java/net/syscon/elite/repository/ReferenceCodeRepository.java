@@ -1,4 +1,4 @@
-package net.syscon.elite.persistence;
+package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.support.Order;

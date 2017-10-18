@@ -3,7 +3,7 @@ package net.syscon.elite.service.impl;
 import net.syscon.elite.api.model.CaseNote;
 import net.syscon.elite.api.model.NewCaseNote;
 import net.syscon.elite.api.support.Order;
-import net.syscon.elite.persistence.CaseNoteRepository;
+import net.syscon.elite.repository.CaseNoteRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.EntityNotFoundException;

@@ -1,4 +1,4 @@
-package net.syscon.elite.persistence.impl;
+package net.syscon.elite.repository.impl;
 
 import lombok.Data;
 
