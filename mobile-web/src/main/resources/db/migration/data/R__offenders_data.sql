@@ -45,3 +45,14 @@ VALUES (-15, 'SEQ', 'THOMPSON', null, 'CHARLEY', 'M', now(), 'THOMPSON', 'A1234A
 
 INSERT INTO OFFENDERS (OFFENDER_ID, ID_SOURCE_CODE, LAST_NAME, MIDDLE_NAME, FIRST_NAME, SEX_CODE, CREATE_DATE, LAST_NAME_KEY, OFFENDER_ID_DISPLAY, ROOT_OFFENDER_ID, RACE_CODE, ALIAS_NAME_TYPE, BIRTH_DATE, BIRTH_COUNTRY_CODE)
 VALUES (-16, 'SEQ', 'SCISSORHANDS', null, 'EDWARD', 'M', now(), 'SCISSORHANDS', 'A1234AP', -16, 'W1', 'A', '1977-07-07', 'UK');
+
+INSERT INTO OFFENDERS (OFFENDER_ID, ID_SOURCE_CODE, LAST_NAME, MIDDLE_NAME, FIRST_NAME, SEX_CODE, CREATE_DATE, LAST_NAME_KEY, OFFENDER_ID_DISPLAY, ROOT_OFFENDER_ID, RACE_CODE, ALIAS_NAME_TYPE, BIRTH_DATE, BIRTH_COUNTRY_CODE)
+    VALUES  (-17, 'SEQ', 'JACKSON', null, 'MICHEAL', 'M', now(), 'JACKSON', 'Z0017ZZ', -17, 'W1', 'A', '1972-01-01', 'UK'),
+            (-18, 'SEQ', 'TALBOT', null, 'NICK', 'M', now(), 'TALBOT', 'Z0018ZZ', -18, 'W1', 'A', '1970-01-01', 'UK'),
+            (-19, 'SEQ', 'STRUDWICK', null, 'STEPHEN', 'M', now(), 'STRUDWICK', 'Z0019ZZ', -19, 'W1', 'A', '1968-01-01', 'UK'),
+            (-20, 'SEQ', 'REYNOLDS', null, 'BURT', 'M', now(), 'REYNOLDS', 'Z0020ZZ', -20, 'W1', 'A', '1966-01-01', 'UK'),
+            (-21, 'SEQ', 'DICKENSON', null, 'DAVID', 'M', now(), 'DICKENSON', 'Z0021ZZ', -21, 'W1', 'A', '1964-01-01', 'UK'),
+            (-22, 'SEQ', 'WEINSTEIN', null, 'HARVEY', 'M', now(), 'WEINSTEIN', 'Z0022ZZ', -22, 'W1', 'A', '1962-01-01', 'UK'),
+            (-23, 'SEQ', 'GRAYSON', null, 'RICHARD', 'M', now(), 'GRAYSON', 'Z0023ZZ', -23, 'W1', 'A', '1960-01-01', 'UK'),
+            (-24, 'SEQ', 'FOX', null, 'LUCIUS', 'M', now(), 'FOX', 'Z0024ZZ', -24, 'W1', 'A', '1958-01-01', 'UK'),
+            (-25, 'SEQ', 'SMITH', 'DAVID', 'MATTHEW', 'M', now(), 'SMITH', 'Z0016ZZ', -25, 'W1', 'A', '1974-01-01', 'UK');
