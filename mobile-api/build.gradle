@@ -198,7 +198,7 @@ project(":mobile-api") {
     // Ensure generated sources are removed and re-generated before they are compiled
     compileGeneratedJava.dependsOn generateOas20Resources
 
-    raml2oas.dependsOn npmInstall
+    //raml2oas.dependsOn npmInstall
     htmlGen.dependsOn npmInstall
 
     generateOas20Resources.dependsOn cleanGenerated, npmInstall, raml2oas, ':mobile-api-codegen:jar'
