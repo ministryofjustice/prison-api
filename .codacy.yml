@@ -2,5 +2,5 @@
 engines:
  rubocop:
  enabled: true
- exclude_paths:
-   - mobile-web/src/main/configs
+exclude_paths:
+  - mobile-web/src/main/configs/**
