@@ -1,10 +1,3 @@
------------------------------
--- OFFENDER_SENTENCE_TERMS --
------------------------------
-
--- Single 'IMP' record
-INSERT INTO OFFENDER_SENTENCE_TERMS (OFFENDER_BOOK_ID, SENTENCE_SEQ, TERM_SEQ, SENTENCE_TERM_CODE, YEARS, MONTHS, START_DATE, END_DATE, LIFE_SENTENCE_FLAG)
-VALUES (-1, 1, 1, 'IMP', 3, null, '2017-03-25', '2020-03-24', 'N');
 
 --------------------------------
 -- OFFENDER_SENT_CALCULATIONS --
