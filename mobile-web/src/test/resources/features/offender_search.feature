@@ -21,14 +21,14 @@ Feature: Offender Search V2
 
     Examples:
       | keywords             | number | first name list         | middle name list | living unit list        |
-      | ANDERSON             | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5     |
-      | DUCK                 | 1      | DONALD                  | JEFFREY          | LEI-A-1-10              |
-      | anderson             | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5     |
-      | AnDersOn             | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | LEI-A-1-1,LEI-H-1-5     |
+      | ANDERSON             | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | A-1-1,H-1-5     |
+      | DUCK                 | 1      | DONALD                  | JEFFREY          | A-1-10              |
+      | anderson             | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | A-1-1,H-1-5     |
+      | AnDersOn             | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | A-1-1,H-1-5     |
       | UNKNOWN              | 0      |                         |                  |                         |
-      | ,CHESNEY             | 1      | CHESNEY                 |                  | LEI-H                   |
-      | A1234AB              | 1      | GILLIAN                 | EVE              | LEI-H-1-5               |
-      | ANDERSON, GILLIAN    | 1      | GILLIAN                 | EVE              | LEI-H-1-5               |
+      | ,CHESNEY             | 1      | CHESNEY                 |                  | H                   |
+      | A1234AB              | 1      | GILLIAN                 | EVE              | H-1-5               |
+      | ANDERSON, GILLIAN    | 1      | GILLIAN                 | EVE              | H-1-5               |
 
   Scenario Outline: Search all offenders across a specified locations
     When an offender search is made for location "<location>"
@@ -49,13 +49,13 @@ Feature: Offender Search V2
     And location name match "<living unit list>"
 
     Examples:
-      | keywords | location | number | first name list         | living unit list              |
-      | ANDERSON | LEI-A    | 1      | ARTHUR                  | LEI-A-1-1                     |
-      | DUCK     | LEI-A-1  | 1      | DONALD                  | LEI-A-1-10                    |
-      | ANDERSON | LEI-H    | 1      | GILLIAN                 | LEI-H-1-5                     |
-      | anderson | LEI-RECP | 0      |                         |                               |
-      | AN       | LEI      | 3      | ANTHONY,ARTHUR,GILLIAN  | LEI-A-1-1,LEI-A-1-2,LEI-H-1-5 |
-      | A1234AB  | LEI-H    | 1      | GILLIAN                 | LEI-H-1-5                     |
+      | keywords | location | number | first name list         | living unit list          |
+      | ANDERSON | LEI-A    | 1      | ARTHUR                  | A-1-1                     |
+      | DUCK     | LEI-A-1  | 1      | DONALD                  | A-1-10                    |
+      | ANDERSON | LEI-H    | 1      | GILLIAN                 | H-1-5                     |
+      | anderson | LEI-RECP | 0      |                         |                           |
+      | AN       | LEI      | 3      | ANTHONY,ARTHUR,GILLIAN  | A-1-1,A-1-2,H-1-5         |
+      | A1234AB  | LEI-H    | 1      | GILLIAN                 | H-1-5                     |
 
   Scenario Outline: Search all offenders across a specified locations and keywords
     When an offender search is made with keywords "<keywords>" in location "<location>"

@@ -24,9 +24,9 @@ Feature: Locations
 
     Examples:
       | locationId | number | type | description |
-      | -1         | 1      | WING | LEI-A       |
-      | -2         | 1      | LAND | LEI-A-1     |
-      | -3         | 1      | CELL | LEI-A-1-1   |
+      | -1         | 1      | WING | A           |
+      | -2         | 1      | LAND | A-1         |
+      | -3         | 1      | CELL | A-1-1       |
 
   Scenario: Request for specific location record that does not exist
     When a request is made to retrieve location with locationId of "-9999"

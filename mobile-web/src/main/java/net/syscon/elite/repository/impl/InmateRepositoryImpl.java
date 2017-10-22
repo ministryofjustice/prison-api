@@ -37,7 +37,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             .put("ALIASES", 		    new FieldMapper("aliases", value -> Arrays.asList(value.toString().split(","))))
             .put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
             .put("LIVING_UNIT_ID",      new FieldMapper("assignedLivingUnitId"))
-            .put("LIVING_UNIT_DESC",    new FieldMapper("assignedLivingUnitDesc"))
+            .put("LIVING_UNIT_DESC",    new FieldMapper("assignedLivingUnitDesc", value -> StringUtils.replaceFirst((String)value, "^[A-Z|a-z|0-9]+\\-", "")))
             .put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerId"))
 			.put("IEP_LEVEL", new FieldMapper("iepLevel"))
             .build();
@@ -100,7 +100,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	private final Map<String, FieldMapper> assignedLivingUnitMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("AGY_LOC_ID", 	new FieldMapper("agencyId"))
 			.put("LIVING_UNIT_ID",          new FieldMapper("locationId"))
-			.put("LIVING_UNIT_DESCRIPTION", new FieldMapper("description"))
+			.put("LIVING_UNIT_DESCRIPTION", new FieldMapper("description", value -> StringUtils.replaceFirst((String)value, "^[A-Z|a-z|0-9]+\\-", "")))
 			.put("AGENCY_NAME", new FieldMapper("agencyName"))
 			.build();
 
