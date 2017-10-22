@@ -8,6 +8,7 @@ import net.syscon.elite.persistence.mapping.FieldMapper;
 import net.syscon.elite.persistence.mapping.Row2BeanRowMapper;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.util.IQueryBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
@@ -25,7 +26,7 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 					.put("INTERNAL_LOCATION_ID", new FieldMapper("locationId"))
 					.put("AGY_LOC_ID", new FieldMapper("agencyId"))
 					.put("INTERNAL_LOCATION_TYPE", new FieldMapper("locationType"))
-					.put("DESCRIPTION", new FieldMapper("description"))
+					.put("DESCRIPTION", new FieldMapper("description", value -> StringUtils.replaceFirst((String)value, "^[A-Z|a-z|0-9]+\\-", "")))
 					.put("AGENCY_LOCATION_TYPE", new FieldMapper("agencyType"))
 					.put("PARENT_INTERNAL_LOCATION_ID", new FieldMapper("parentLocationId"))
 					.put("NO_OF_OCCUPANT", new FieldMapper("currentOccupancy"))
