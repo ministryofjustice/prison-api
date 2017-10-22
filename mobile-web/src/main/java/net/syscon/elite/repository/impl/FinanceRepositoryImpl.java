@@ -1,15 +1,14 @@
-package net.syscon.elite.persistence.impl;
+package net.syscon.elite.repository.impl;
 
-import java.util.Map;
-
+import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.Account;
-import net.syscon.elite.persistence.FinanceRepository;
-import net.syscon.elite.persistence.mapping.*;
-
+import net.syscon.elite.repository.FinanceRepository;
+import net.syscon.elite.repository.mapping.FieldMapper;
+import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import jersey.repackaged.com.google.common.collect.ImmutableMap;
+import java.util.Map;
 
 @Repository
 public class FinanceRepositoryImpl extends RepositoryBase implements FinanceRepository {

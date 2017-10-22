@@ -1,6 +1,6 @@
 package net.syscon.elite.web.config;
 
-import net.syscon.elite.persistence.UserRepository;
+import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.security.ApiAuthenticationProvider;
 import net.syscon.elite.security.EntryPointUnauthorizedHandler;
 import net.syscon.elite.security.UserDetailsServiceImpl;

@@ -1,6 +1,6 @@
 package net.syscon.util;
 
-import net.syscon.elite.persistence.mapping.FieldMapper;
+import net.syscon.elite.repository.mapping.FieldMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,4 @@
-package net.syscon.elite.persistence.mapping;
+package net.syscon.elite.repository.mapping;
 
 
 import org.slf4j.Logger;
