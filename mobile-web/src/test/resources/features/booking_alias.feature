@@ -15,7 +15,7 @@ Feature: Booking Aliases
     And alias ethnicities match "<alias ethnicity list>"
 
     Examples:
-       | booking id | number | alias first name list | alias last name list | alias ethnicity list                          |
-       | -9999      | 0      |                       |                      |                                               |
-       | -12        | 1      | DANNY                 | SMILEY               | White: Irish                                  |
-       | -9         | 2      | CHESNEY,CHARLEY       | THOMPSON,THOMSON     | White: British,Mixed: White and Black African |
+       | booking id | number | alias first name list           | alias last name list               | alias ethnicity list                                                       |
+       | -9999      | 0      |                                 |                                    |                                                                            |
+       | -12        | 1      | DANNY                           | SMILEY                             | White: Irish                                                               |
+       | -9         | 5      | CHARLEY,MARK,PAUL,SANJAY,TREVOR | BASIS,DEMUNK,SIMONS,SMITH,THOMPSON | White: British,White: British,White: British,White: British,White: British |

@@ -26,7 +26,7 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 					.put("INTERNAL_LOCATION_ID", new FieldMapper("locationId"))
 					.put("AGY_LOC_ID", new FieldMapper("agencyId"))
 					.put("INTERNAL_LOCATION_TYPE", new FieldMapper("locationType"))
-					.put("DESCRIPTION", new FieldMapper("description", value -> StringUtils.replaceFirst((String)value, "^[A-Z|a-z|0-9]+\\-", "")))
+					.put("DESCRIPTION", new FieldMapper("description", value -> "Block " + StringUtils.replaceFirst((String)value, "^[A-Z|a-z|0-9]+\\-", "")))
 					.put("AGENCY_LOCATION_TYPE", new FieldMapper("agencyType"))
 					.put("PARENT_INTERNAL_LOCATION_ID", new FieldMapper("parentLocationId"))
 					.put("NO_OF_OCCUPANT", new FieldMapper("currentOccupancy"))
