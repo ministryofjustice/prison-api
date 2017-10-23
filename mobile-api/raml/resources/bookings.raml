@@ -105,13 +105,13 @@
 /{bookingId}/aliases:
   (javaOperationName): getOffenderAliases
   description: The collection of aliases associated with the inmate.
-  type: {readOnlyCollection: {type: Alias}}
+  type: {readOnlyCollectionPaged: {type: Alias}}
   uriParameters:
     bookingId:
       (javaType): Long
       description: The booking id of offender
   is: [
-    sortable: {fieldsList: "firstName, lastName, age, dob, middleName, nameType"}
+    sortable: {fieldsList: "firstName, lastName, age, dob, middleName, nameType, createDate"}
   ]
 
 /{bookingId}/sentenceDetail:

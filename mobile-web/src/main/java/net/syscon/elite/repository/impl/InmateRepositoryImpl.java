@@ -115,14 +115,15 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.build();
 
 	private final Map<String, FieldMapper> aliasMapping = new ImmutableMap.Builder<String, FieldMapper>()
-			.put("LAST_NAME",	new FieldMapper("lastName"))
-			.put("FIRST_NAME",	new FieldMapper("firstName"))
-			.put("MIDDLE_NAME",	new FieldMapper("middleName"))
-			.put("BIRTH_DATE",	new FieldMapper("dob", DateTimeConverter::toISO8601LocalDate))
-			.put("AGE",			new FieldMapper("age"))
-			.put("SEX",			new FieldMapper("gender"))
-			.put("ETHNICITY",	new FieldMapper("ethinicity"))
-			.put("ALIAS_TYPE",	new FieldMapper("nameType"))
+			.put("LAST_NAME",		new FieldMapper("lastName"))
+			.put("FIRST_NAME",		new FieldMapper("firstName"))
+			.put("MIDDLE_NAME",		new FieldMapper("middleName"))
+			.put("BIRTH_DATE",		new FieldMapper("dob", DateTimeConverter::toISO8601LocalDate))
+			.put("AGE",				new FieldMapper("age"))
+			.put("SEX",				new FieldMapper("gender"))
+			.put("ETHNICITY",		new FieldMapper("ethinicity"))
+			.put("ALIAS_TYPE",		new FieldMapper("nameType"))
+			.put("CREATE_DATE", new FieldMapper("createDate", DateTimeConverter::toISO8601LocalDate))
 			.build();
 
 	@Override
@@ -335,21 +336,22 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public List<Alias> findInmateAliases(Long bookingId, String orderByField, Order order) {
+	public List<Alias> findInmateAliases(Long bookingId, String orderByFields, Order order, long offset, long limit) {
 		String initialSql = getQuery("FIND_INMATE_ALIASES");
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, aliasMapping);
 		boolean isAscendingOrder = (order == Order.ASC);
 
 		String sql = builder
-				.addOrderBy(isAscendingOrder,
-						    StringUtils.defaultString(StringUtils.trimToNull(orderByField), "firstName"))
+				.addRowCount()
+				.addPagination()
+				.addOrderBy(isAscendingOrder, orderByFields)
 				.build();
 
 		RowMapper<Alias> aliasAttributesRowMapper = Row2BeanRowMapper.makeMapping(sql, Alias.class, aliasMapping);
 
 		return jdbcTemplate.query(
 				sql,
-				createParams("bookingId", bookingId),
+				createParams("bookingId", bookingId, "offset", offset, "limit", limit),
 				aliasAttributesRowMapper);
 	}
 
