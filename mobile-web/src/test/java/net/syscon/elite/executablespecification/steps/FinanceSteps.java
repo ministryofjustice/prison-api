@@ -1,15 +1,14 @@
 package net.syscon.elite.executablespecification.steps;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
-
 import net.syscon.elite.api.model.Account;
 import net.syscon.elite.test.EliteClientException;
 
-import org.apache.commons.beanutils.BeanUtilsBean;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * BDD step implementations for Reference Domains service.
@@ -21,15 +20,6 @@ public class FinanceSteps extends CommonSteps {
 
     public void getAccount(Long bookingId) {
         doSingleResultApiCall(API_BOOKING_PREFIX + bookingId + "/balances");
-    }
-
-    public void verifyField(String fieldName, String expected) throws ReflectiveOperationException {
-        final String actual = BeanUtilsBean.getInstance().getProperty(result, fieldName);
-        if (StringUtils.isBlank(expected)) {
-            assertNull(actual);
-        } else {
-            assertEquals(expected, actual);
-        }
     }
 
     private void doSingleResultApiCall(String url) {
@@ -48,7 +38,10 @@ public class FinanceSteps extends CommonSteps {
     protected void init() {
         super.init();
         result = null;
-        setErrorResponse(null);
+    }
+
+    public void verifyField(String field, String value) throws ReflectiveOperationException {
+        super.verifyField(result, field, value);
     }
 
     public void getNonexistentAccount() {

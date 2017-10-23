@@ -152,11 +152,19 @@
   uriParameters:
     bookingId:
       (javaType): Long
-      description: The booking id of offender
+      description: The offender booking id
 
 /{bookingId}/activities:
   (javaOperationName): getBookingActivities
   type: {readOnlyCollection: {type: ScheduledEvent}}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+
+/{bookingId}/mainSentence:
+  (javaOperationName): getMainSentence
+  type: { readOnlyItem: { type: MainSentence } }
   uriParameters:
     bookingId:
       (javaType): Long
