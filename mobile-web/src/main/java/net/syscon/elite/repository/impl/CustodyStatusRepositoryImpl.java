@@ -18,7 +18,15 @@ import java.util.Optional;
 @Repository
 public class CustodyStatusRepositoryImpl extends RepositoryBase implements CustodyStatusRepository {
     private final Map<String, FieldMapper> custodyStatusRecordMapping =
-            new ImmutableMap.Builder<String, FieldMapper>().build();
+            new ImmutableMap.Builder<String, FieldMapper>()
+                    .put("offender_id_display", new FieldMapper("offender_id_display"))
+                    .put("agy_loc_id", new FieldMapper("agy_loc_id"))
+                    .put("booking_status", new FieldMapper("booking_status"))
+                    .put("active_flag", new FieldMapper("active_flag"))
+                    .put("direction_code", new FieldMapper("direction_code"))
+                    .put("movement_reason_code", new FieldMapper("movement_reason_code"))
+                    .put("movement_type", new FieldMapper("movement_type"))
+                    .build();
 
     @Override
     public List<CustodyStatusRecord> listCustodyStatusRecords(String query, String orderByField, Order order) {

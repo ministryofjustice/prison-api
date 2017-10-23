@@ -30,10 +30,10 @@ LIST_CUSTODY_STATUSES {
 
 GET_CUSTODY_STATUS {
   SELECT
-    O.OFFENDER_ID_DISPLAY   AS OFFENDER_NO,
-    OB.agy_loc_id           AS LOCATION_ID,
-    OB.booking_status       AS BOOKING_STATUS,
-    OB.active_flag          AS ACTIVE_FLAG,
+    O.OFFENDER_ID_DISPLAY,
+    OB.agy_loc_id,
+    OB.booking_status,
+    OB.active_flag,
     (SELECT OEM.direction_code
          FROM offender_external_movements OEM
          WHERE OEM.offender_book_id = OB.offender_book_id

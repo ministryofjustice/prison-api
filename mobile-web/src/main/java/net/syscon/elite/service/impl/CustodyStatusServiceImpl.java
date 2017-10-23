@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 public class CustodyStatusServiceImpl implements CustodyStatusService {
     private final CustodyStatusRepository custodyStatusRepository;
 
+    private CustodyStatusCalculator calculator = new CustodyStatusCalculator();
+
     public CustodyStatusServiceImpl(CustodyStatusRepository custodyStatusRepository) {
         this.custodyStatusRepository = custodyStatusRepository;
     }
@@ -44,7 +46,7 @@ public class CustodyStatusServiceImpl implements CustodyStatusService {
                 .builder()
                 .offenderNo(record.getOffender_id_display())
                 .locationId(record.getAgy_loc_id())
-                .custodyStatus(CustodyStatusCalculator.custodyStatusOf(record))
+                .custodyStatus(calculator.custodyStatusOf(record))
                 .build();
     }
 }
