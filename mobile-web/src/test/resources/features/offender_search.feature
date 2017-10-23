@@ -20,15 +20,15 @@ Feature: Offender Search V2
     And location name match "<living unit list>"
 
     Examples:
-      | keywords             | number | first name list         | middle name list | living unit list        |
-      | ANDERSON             | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | A-1-1,H-1-5     |
-      | DUCK                 | 1      | DONALD                  | JEFFREY          | A-1-10              |
-      | anderson             | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | A-1-1,H-1-5     |
-      | AnDersOn             | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | A-1-1,H-1-5     |
-      | UNKNOWN              | 0      |                         |                  |                         |
-      | ,CHESNEY             | 1      | CHESNEY                 |                  | H                   |
-      | A1234AB              | 1      | GILLIAN                 | EVE              | H-1-5               |
-      | ANDERSON, GILLIAN    | 1      | GILLIAN                 | EVE              | H-1-5               |
+      | keywords             | number | first name list         | middle name list | living unit list   |
+      | ANDERSON             | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | A-1-1,H-1-5        |
+      | DUCK                 | 1      | DONALD                  | JEFFREY          | A-1-10             |
+      | anderson             | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | A-1-1,H-1-5        |
+      | AnDersOn             | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | A-1-1,H-1-5        |
+      | UNKNOWN              | 0      |                         |                  |                    |
+      | ,CHESNEY             | 1      | CHESNEY                 |                  | H                  |
+      | A1234AB              | 1      | GILLIAN                 | EVE              | H-1-5              |
+      | ANDERSON, GILLIAN    | 1      | GILLIAN                 | EVE              | H-1-5              |
 
   Scenario Outline: Search all offenders across a specified locations
     When an offender search is made for location "<location>"

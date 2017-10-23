@@ -28,10 +28,10 @@ Feature: Booking Search
 
     Examples:
       | name     | number | first name list | middle name list | living unit list    |  image ids   | DOB                   |
-      | ANDERSON | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | A-1-1,H-1-5 | -1,-2        | 1969-12-30,1998-08-28 |
-      | DUCK     | 1      | DONALD          | JEFFREY          | A-1-10          | -6           | 1956-02-28            |
-      | anderson | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | A-1-1,H-1-5 | -1,-2        | 1969-12-30,1998-08-28 |
-      | AnDersOn | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | A-1-1,H-1-5 | -1,-2        | 1969-12-30,1998-08-28 |
+      | ANDERSON | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | A-1-1,H-1-5         | -1,-2        | 1969-12-30,1998-08-28 |
+      | DUCK     | 1      | DONALD          | JEFFREY          | A-1-10              | -6           | 1956-02-28            |
+      | anderson | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | A-1-1,H-1-5         | -1,-2        | 1969-12-30,1998-08-28 |
+      | AnDersOn | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | A-1-1,H-1-5         | -1,-2        | 1969-12-30,1998-08-28 |
       | UNKNOWN  | 0      |                 |                  |                     |              |                       |
       |          | 0      |                 |                  |                     |              |                       |
 
