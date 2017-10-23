@@ -1,6 +1,4 @@
 ---
-engines:
- rubocop:
- enabled: true
 exclude_paths:
-  - mobile-web/src/main/configs/**
+  - mobile-web/src/main/configs
+  - '**.sql'
