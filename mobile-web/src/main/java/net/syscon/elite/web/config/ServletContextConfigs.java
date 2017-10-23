@@ -62,6 +62,7 @@ public class ServletContextConfigs extends ResourceConfig {
         register(SearchResourceImpl.class);
         register(PrisonerResourceImpl.class);
         register(net.syscon.elite.api.resource.impl.BookingResourceImpl.class);
+        register(CustodyStatusResourceImpl.class);
 
         String contextPath = env.getProperty("server.contextPath");
 

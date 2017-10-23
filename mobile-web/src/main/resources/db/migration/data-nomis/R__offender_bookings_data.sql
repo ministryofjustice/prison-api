@@ -45,3 +45,14 @@ VALUES (-15, now(),  'A00125', -15, 'N', 'IN', 'Y', 'N', 'LEI', 1, -9, -14);
 
 INSERT INTO OFFENDER_BOOKINGS (OFFENDER_BOOK_ID, BOOKING_BEGIN_DATE, BOOKING_NO, OFFENDER_ID, DISCLOSURE_FLAG, IN_OUT_STATUS, ACTIVE_FLAG, YOUTH_ADULT_CODE, AGY_LOC_ID, BOOKING_SEQ, ROOT_OFFENDER_ID, LIVING_UNIT_ID)
 VALUES (-16, now(),  'A00126', -16, 'N', 'IN', 'Y', 'N', 'MUL', 1, -16, -15);
+
+INSERT INTO OFFENDER_BOOKINGS (OFFENDER_BOOK_ID, BOOKING_BEGIN_DATE, BOOKING_NO, OFFENDER_ID, DISCLOSURE_FLAG, IN_OUT_STATUS, ACTIVE_FLAG, YOUTH_ADULT_CODE, AGY_LOC_ID, BOOKING_SEQ, ROOT_OFFENDER_ID, LIVING_UNIT_ID, BOOKING_STATUS)
+    VALUES  (-17, now(), 'Z00017', -17, 'N', 'IN',  'Y', 'N', 'LEI', 1, -9, -14, 'O'),
+            (-18, now(), 'Z00018', -18, 'N', 'IN',  'Y', 'N', 'LEI', 1, -9, -14, 'O'),
+            (-19, now(), 'Z00019', -19, 'N', 'IN',  'N', 'N', 'LEI', 1, -9, -14, 'O'),
+            (-20, now(), 'Z00020', -20, 'N', 'OUT', 'N', 'N', 'LEI', 1, -9, -14, 'O'),
+            (-21, now(), 'Z00021', -21, 'N', 'OUT', 'N', 'N', 'LEI', 1, -9, -14, 'O'),
+            (-22, now(), 'Z00022', -22, 'N', 'OUT', 'N', 'N', 'LEI', 1, -9, -14, 'O'),
+            (-23, now(), 'Z00023', -23, 'N', 'OUT', 'N', 'N', 'LEI', 1, -9, -14, 'O'),
+            (-24, now(), 'Z00024', -24, 'N', 'IN',  'Y', 'N', 'LEI', 1, -9, -14, 'O'),
+            (-25, now(), 'Z00025', -25, 'N', 'IN',  'Y', 'N', 'LEI', 1, -9, -14, 'O');

@@ -43,14 +43,3 @@ VALUES (-14, systimestamp,  'A00124', -14, 'N', 'IN', 'Y', 'N', 'LEI', -9, -4, -
 INSERT INTO OFFENDER_BOOKINGS (OFFENDER_BOOK_ID, BOOKING_BEGIN_DATE, BOOKING_NO, OFFENDER_ID, DISCLOSURE_FLAG, IN_OUT_STATUS, ACTIVE_FLAG, YOUTH_ADULT_CODE, AGY_LOC_ID, ROOT_OFFENDER_ID, ASSIGNED_STAFF_ID, LIVING_UNIT_ID)
 VALUES (-15, systimestamp,  'A00125', -15, 'N', 'IN', 'Y', 'N', 'LEI', -9, -4, -14);
 
-INSERT INTO OFFENDER_BOOKINGS (OFFENDER_BOOK_ID, BOOKING_BEGIN_DATE, BOOKING_NO, OFFENDER_ID, DISCLOSURE_FLAG, IN_OUT_STATUS, ACTIVE_FLAG, YOUTH_ADULT_CODE, AGY_LOC_ID, BOOKING_SEQ, ROOT_OFFENDER_ID, LIVING_UNIT_ID, BOOKING_STATUS)
-    VALUES  (-17, systimestamp, 'Z00017', -17, 'N', 'IN',  'Y', 'N', 'LEI', 1, -9, -14, 'O'),
-            (-18, systimestamp, 'Z00018', -18, 'N', 'IN',  'Y', 'N', 'LEI', 1, -9, -14, 'O'),
-            (-19, systimestamp, 'Z00019', -19, 'N', 'IN',  'N', 'N', 'LEI', 1, -9, -14, 'O'),
-            (-20, systimestamp, 'Z00020', -20, 'N', 'OUT', 'N', 'N', 'LEI', 1, -9, -14, 'O'),
-            (-21, systimestamp, 'Z00021', -21, 'N', 'OUT', 'N', 'N', 'LEI', 1, -9, -14, 'O'),
-            (-22, systimestamp, 'Z00022', -22, 'N', 'OUT', 'N', 'N', 'LEI', 1, -9, -14, 'O'),
-            (-23, systimestamp, 'Z00023', -23, 'N', 'OUT', 'N', 'N', 'LEI', 1, -9, -14, 'O'),
-            (-24, systimestamp, 'Z00024', -24, 'N', 'IN',  'Y', 'N', 'LEI', 1, -9, -14, 'O'),
-            (-25, systimestamp, 'Z00016', -25, 'N', 'IN',  'Y', 'N', 'LEI', 1, -9, -14, 'O');
-
