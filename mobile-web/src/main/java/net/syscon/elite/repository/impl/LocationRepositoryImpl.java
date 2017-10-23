@@ -26,7 +26,7 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 					.put("INTERNAL_LOCATION_ID", new FieldMapper("locationId"))
 					.put("AGY_LOC_ID", new FieldMapper("agencyId"))
 					.put("INTERNAL_LOCATION_TYPE", new FieldMapper("locationType"))
-					.put("DESCRIPTION", new FieldMapper("description", value -> "Block " + StringUtils.replaceFirst((String)value, "^[A-Z|a-z|0-9]+\\-", "")))
+					.put("DESCRIPTION", new FieldMapper("description"))
 					.put("AGENCY_LOCATION_TYPE", new FieldMapper("agencyType"))
 					.put("PARENT_INTERNAL_LOCATION_ID", new FieldMapper("parentLocationId"))
 					.put("NO_OF_OCCUPANT", new FieldMapper("currentOccupancy"))
@@ -44,6 +44,7 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 		Location location;
 		try {
 			location = jdbcTemplate.queryForObject(sql,createParams("username", UserSecurityUtils.getCurrentUsername(), "locationId", locationId), locationRowMapper);
+			location.setDescription(removeAgencyId(location.getDescription(), location.getAgencyId()));
 		} catch (EmptyResultDataAccessException e) {
 			location = null;
 		}
@@ -66,12 +67,12 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 		final RowMapper<Location> locationRowMapper =
 				Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
 
-		return jdbcTemplate.query(
+		return removeAgencyId(jdbcTemplate.query(
 				sql,
 				createParams("username", UserSecurityUtils.getCurrentUsername(),
 						"offset", offset,
 						"limit", limit),
-				locationRowMapper);
+				locationRowMapper));
 	}
 
 	@Override
@@ -83,7 +84,7 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 						addPagination()
 						.build();
 		final RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
-		return jdbcTemplate.query(sql, createParams("caseLoadId", caseLoadId, "agencyId", agencyId, "offset", offset, "limit", limit), locationRowMapper);
+		return removeAgencyId(jdbcTemplate.query(sql, createParams("caseLoadId", caseLoadId, "agencyId", agencyId, "offset", offset, "limit", limit), locationRowMapper));
 	}
 
 
@@ -96,12 +97,23 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 		String sql = builder.build();
 		RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
 
-		return jdbcTemplate.query(
+		return removeAgencyId(jdbcTemplate.query(
 				sql,
 				createParams(
 						"agencyId", agencyId,
 						"locationType", locationType,
 						"depth", depthAllowed),
-				locationRowMapper);
+				locationRowMapper));
+	}
+
+	private List<Location> removeAgencyId(final List<Location> locations) {
+		if (locations != null) {
+			locations.forEach(l -> l.setDescription(removeAgencyId(l.getDescription(), l.getAgencyId())));
+		}
+		return locations;
+	}
+
+	private String removeAgencyId(final String description, final String agencyId) {
+		return StringUtils.replaceFirst(description,StringUtils.trimToEmpty(agencyId)+"-", "");
 	}
 }

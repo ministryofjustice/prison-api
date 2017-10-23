@@ -25,8 +25,8 @@ Feature: Locations
     Examples:
       | locationId | number | type | description |
       | -1         | 1      | WING | Block A     |
-      | -2         | 1      | LAND | Block A-1   |
-      | -3         | 1      | CELL | Block A-1-1 |
+      | -2         | 1      | LAND | Landing A/1 |
+      | -3         | 1      | CELL | A-1-1       |
 
   Scenario: Request for specific location record that does not exist
     When a request is made to retrieve location with locationId of "-9999"
