@@ -14,7 +14,7 @@ public interface InmateService {
 
 	List<OffenderBooking> findAllInmates(String query, long offset, long limit, String orderBy, Order order);
 	InmateDetail findInmate(Long inmateId);
-	List<Alias> findInmateAliases(Long inmateId, String orderByField, Order order);
+	List<Alias> findInmateAliases(Long inmateId, String orderByField, Order order, long offset, long limit);
     List<OffenderBooking> findOffenders(String keywords, String locationPrefix, String sortFields, Order sortOrder, long offset, long limit);
     List<PrisonerDetail> findPrisoners(PrisonerDetailSearchCriteria criteria, String sortFields, Order sortOrder, long offset, long limit);
 }

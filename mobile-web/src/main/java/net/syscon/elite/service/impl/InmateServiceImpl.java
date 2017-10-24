@@ -2,13 +2,14 @@ package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
-import net.syscon.elite.persistence.CaseLoadRepository;
-import net.syscon.elite.persistence.InmateRepository;
+import net.syscon.elite.repository.CaseLoadRepository;
+import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import net.syscon.util.CalcDateRanges;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,8 +59,10 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<Alias> findInmateAliases(Long inmateId, String orderByField, Order order) {
-        return repository.findInmateAliases(inmateId, orderByField, order);
+    public List<Alias> findInmateAliases(Long inmateId, final String orderByFields, final Order order, long offset, long limit) {
+        String orderBy = StringUtils.defaultString(StringUtils.trimToNull(orderByFields), "createDate");
+        Order sortOrder = ObjectUtils.defaultIfNull(order, Order.DESC);
+        return repository.findInmateAliases(inmateId, orderBy, sortOrder, offset, limit);
     }
 
     @Override

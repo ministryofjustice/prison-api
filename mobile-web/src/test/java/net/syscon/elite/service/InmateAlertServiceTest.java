@@ -1,7 +1,7 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.Alert;
-import net.syscon.elite.persistence.InmateAlertRepository;
+import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.service.impl.InmateAlertServiceImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;

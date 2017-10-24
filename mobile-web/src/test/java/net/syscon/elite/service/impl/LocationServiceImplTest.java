@@ -2,7 +2,7 @@ package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.support.Order;
-import net.syscon.elite.persistence.LocationRepository;
+import net.syscon.elite.repository.LocationRepository;
 import net.syscon.elite.service.LocationService;
 import org.junit.Before;
 import org.junit.Ignore;

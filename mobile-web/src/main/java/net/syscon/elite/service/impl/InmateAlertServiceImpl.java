@@ -2,7 +2,7 @@ package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.support.Order;
-import net.syscon.elite.persistence.InmateAlertRepository;
+import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.InmatesAlertService;
 import org.apache.commons.lang3.StringUtils;

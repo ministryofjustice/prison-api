@@ -1,7 +1,7 @@
 package net.syscon.elite.repository.impl;
 
 import net.syscon.elite.api.model.MainSentence;
-import net.syscon.elite.persistence.impl.RepositoryBase;
+import net.syscon.elite.repository.impl.RepositoryBase;
 import net.syscon.elite.repository.SentenceRepository;
 
 import org.springframework.dao.EmptyResultDataAccessException;

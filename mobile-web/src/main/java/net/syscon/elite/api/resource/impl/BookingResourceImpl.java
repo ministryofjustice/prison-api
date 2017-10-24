@@ -4,11 +4,7 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.resource.BookingResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.core.RestResource;
-import net.syscon.elite.service.BookingService;
-import net.syscon.elite.service.CaseNoteService;
-import net.syscon.elite.service.FinanceService;
-import net.syscon.elite.service.InmateService;
-import net.syscon.elite.service.InmatesAlertService;
+import net.syscon.elite.service.*;
 import net.syscon.util.MetaDataFactory;
 
 import javax.ws.rs.Path;
@@ -66,9 +62,9 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetOffenderAliasesResponse getOffenderAliases(Long bookingId, String sortFields, Order sortOrder) {
-        final List<Alias> aliases = inmateService.findInmateAliases(bookingId, sortFields, sortOrder);
-        return GetOffenderAliasesResponse.respond200WithApplicationJson(aliases);
+    public GetOffenderAliasesResponse getOffenderAliases(Long bookingId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+        final List<Alias> aliases = inmateService.findInmateAliases(bookingId, sortFields, sortOrder, nvl(pageOffset, 0L), nvl(pageLimit, 5L));
+        return GetOffenderAliasesResponse.respond200WithApplicationJson(aliases, MetaDataFactory.getTotalRecords(aliases), nvl(pageOffset, 0L), nvl(pageLimit, 5L));
     }
 
     @Override

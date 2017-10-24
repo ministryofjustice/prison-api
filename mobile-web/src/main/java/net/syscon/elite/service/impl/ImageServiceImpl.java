@@ -1,7 +1,7 @@
 package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.ImageDetail;
-import net.syscon.elite.persistence.ImageRepository;
+import net.syscon.elite.repository.ImageRepository;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
