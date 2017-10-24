@@ -34,6 +34,10 @@ public class SentenceRepositoryImpl extends RepositoryBase implements SentenceRe
         } catch (EmptyResultDataAccessException e) {
             // leave as null if not found
         }
-        return new MainSentence(null, description, length, date);
+        return MainSentence.builder()//
+                .mainOffenceDescription(description)//
+                .sentenceLength(length)//
+                .releaseDate(date)//
+                .build();
     }
 }

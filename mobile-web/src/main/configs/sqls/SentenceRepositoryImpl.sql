@@ -1,6 +1,6 @@
 GET_CASE {
   -- not currently used, this gets a case id for the query below
-select ocs.case_id,
+SELECT ocs.case_id,
        ocs.case_info_number,
        ocs.begin_date,
        ocs.case_status,
@@ -8,16 +8,16 @@ select ocs.case_id,
         al.description court_desc,
        ocs.case_type case_type_code,
        rc.description case_type_desc
-  from offender_cases ocs
-       join agency_locations al on al.agy_loc_id = ocs.agy_loc_id
-  left join reference_codes rc  on rc.code = ocs.case_type and rc.domain = 'LEG_CASE_TYP'
- where ocs.offender_book_id = :offenderBookingId
- order by ocs.case_status asc, ocs.begin_date desc
+  FROM offender_cases ocs
+       JOIN agency_locations al ON al.agy_loc_id = ocs.agy_loc_id
+  LEFT JOIN reference_codes rc  ON rc.code = ocs.case_type AND rc.domain = 'LEG_CASE_TYP'
+ WHERE ocs.offender_book_id = :offenderBookingId
+ ORDER BY ocs.case_status asc, ocs.begin_date desc
 }
 
 GET_CHARGES {
   -- not currently used, this services the 'old API' /offenders/<noms_id>/charges call
-select och.offender_charge_id,
+SELECT och.offender_charge_id,
        och.statute_code,
        och.offence_code,
        och.no_of_offences,
@@ -35,16 +35,16 @@ select och.offender_charge_id,
        ist.description imprisonment_status_desc,
        ist.band_code,
        r2.description band_desc
-  from offender_charges och
-       join offences offs                on offs.offence_code = och.offence_code and offs.statute_code = och.statute_code
-       join statutes s                   on s.statute_code = offs.statute_code
-  left join offence_result_codes orc     on och.result_code_1 = orc.result_code
-  left join reference_codes r1           on r1.code = orc.disposition_code and r1.domain = 'OFF_RESULT'
-  left join imprison_status_mappings ism on ism.offence_result_code = orc.result_code
-  left join imprisonment_statuses ist    on ist.imprisonment_status_id = ism.imprisonment_status_id
-  left join reference_codes r2           on r2.code = ist.band_code and r2.domain = 'IMPSBAND'
- where och.case_id = :caseId
- order by och.charge_status asc, och.most_serious_flag desc, offs.severity_ranking
+  FROM offender_charges och
+       JOIN offences offs                ON offs.offence_code = och.offence_code AND offs.statute_code = och.statute_code
+       JOIN statutes s                   ON s.statute_code = offs.statute_code
+  LEFT JOIN offence_result_codes orc     ON och.result_code_1 = orc.result_code
+  LEFT JOIN reference_codes r1           ON r1.code = orc.disposition_code AND r1.domain = 'OFF_RESULT'
+  LEFT JOIN imprison_status_mappings ism ON ism.offence_result_code = orc.result_code
+  LEFT JOIN imprisonment_statuses ist    ON ist.imprisonment_status_id = ism.imprisonment_status_id
+  LEFT JOIN reference_codes r2           ON r2.code = ist.band_code AND r2.domain = 'IMPSBAND'
+ WHERE och.case_id = :caseId
+ ORDER BY och.charge_status asc, och.most_serious_flag desc, offs.severity_ranking
 }
 
 GET_MAIN_OFFENCE {
@@ -60,6 +60,6 @@ GET_SENTENCE_LENGTH {
 }
 
 GET_RELEASE_DATE {  
-  SELECT CASE WHEN release_date is null THEN auto_release_date ELSE release_date END release_date FROM offender_release_details
-  WHERE offender_book_id = :bookingId  
+  SELECT COALESCE(auto_release_date, release_date) AS release_date FROM offender_release_details
+  WHERE offender_book_id = :bookingId
 }

@@ -13,17 +13,18 @@ CREATE TABLE OFFENCES (
   ACTIVE_FLAG VARCHAR2(1) DEFAULT 'Y' NOT NULL,               --' The flag derives whether Offence is active or not';
   LIST_SEQ NUMBER(6),
   EXPIRY_DATE DATE,
-  CREATE_USER_ID VARCHAR2(32) DEFAULT USER NOT NULL,          --'The user who creates the record';
   CHECK_BOX1 VARCHAR2(1) DEFAULT 'N',
   CHECK_BOX2 VARCHAR2(1) DEFAULT 'N',
   CHECK_BOX3 VARCHAR2(1) DEFAULT 'N',
   OFFENSE_DEGREE VARCHAR2(12),
   MAX_GOOD_TIME_PERC NUMBER(3),
   CREATE_DATE DATE DEFAULT SYSDATE NOT NULL,                  --'The date when Offence gets Created';
-  MODIFY_USER_ID VARCHAR2(32),                                --'The user who modifies the record';
-  MODIFY_DATETIME TIMESTAMP (9),                              --'The timestamp when the record is modified ';
   HO_CODE VARCHAR2(12),                                       --'This column stores the value of Home Office Class and Home Office sub class';
+  SEAL_FLAG VARCHAR2(1), 
   CREATE_DATETIME TIMESTAMP (9) DEFAULT systimestamp NOT NULL,--'The timestamp when the record is created';
+  CREATE_USER_ID VARCHAR2(32) DEFAULT USER NOT NULL,          --'The user who creates the record';
+  MODIFY_DATETIME TIMESTAMP (9),                              --'The timestamp when the record is modified ';
+  MODIFY_USER_ID VARCHAR2(32),                                --'The user who modifies the record';
   CONSTRAINT OFFENCES_PK PRIMARY KEY (OFFENCE_CODE, STATUTE_CODE)
 );
 
@@ -45,20 +46,22 @@ CREATE TABLE OFFENDER_CHARGES (
   CJIT_OFFENCE_CODE_1 VARCHAR2(21),
   CJIT_OFFENCE_CODE_2 VARCHAR2(8),
   CJIT_OFFENCE_CODE_3 VARCHAR2(3),
-  CHARGE_STATUS VARCHAR2(12),
+  CHARGE_STATUS VARCHAR2(12),                                 --'The charge status.  Reference Code(CHARGE_STS)'
   CREATE_USER_ID VARCHAR2(32) DEFAULT USER NOT NULL,
   MODIFY_USER_ID VARCHAR2(32),
   MODIFY_DATETIME TIMESTAMP (9),                              --'The timestamp when the record is modified ';
   CREATE_DATETIME TIMESTAMP (9) DEFAULT systimestamp NOT NULL,--'The timestamp when the record is created';
-  RESULT_CODE_1 VARCHAR2(12),
+  RESULT_CODE_1 VARCHAR2(12),                                 --'The result code 1 of the offender';
   RESULT_CODE_2 VARCHAR2(12),                                 --'The result code 2 of the offender';
   RESULT_CODE_1_INDICATOR VARCHAR2(12),                       --'The indicator of the result code 1';
   RESULT_CODE_2_INDICATOR VARCHAR2(12),                       --'The indicator of the result code 2';
   CASE_ID NUMBER(10) NOT NULL,                                --'The Offender Cases';
   MOST_SERIOUS_FLAG VARCHAR2(1) DEFAULT 'N' NOT NULL,         --'?The most serious offence out of all offences';
   CHARGE_SEQ NUMBER(6),
-  ORDER_ID NUMBER(10),
-  LIDS_OFFENCE_NUMBER NUMBER(6)
+  ORDER_ID NUMBER(6),
+  LIDS_OFFENCE_NUMBER NUMBER(6),
+  OFFENCE_TYPE VARCHAR2(12), 
+  SEAL_FLAG VARCHAR2(1)
 );
 
 CREATE INDEX OFFENDER_CHARGES_FK2 ON OFFENDER_CHARGES (RESULT_CODE_2);

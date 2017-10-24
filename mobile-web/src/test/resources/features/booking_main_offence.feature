@@ -1,4 +1,4 @@
-@global
+@nomis
 Feature: Booking Main Sentence Summary
 
 Acceptence Criteria
