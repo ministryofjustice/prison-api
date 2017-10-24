@@ -107,4 +107,10 @@ public class BookingResourceImpl implements BookingResource {
         final Account account = financeService.getBalances(bookingId);
         return GetBalancesResponse.respond200WithApplicationJson(account);
     }
+
+    @Override
+    public GetMainSentenceResponse getMainSentence(Long bookingId) {
+        final MainSentence mainSentence = bookingService.getMainSentence(bookingId);
+        return GetMainSentenceResponse.respond200WithApplicationJson(mainSentence);
+    }
 }

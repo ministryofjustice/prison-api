@@ -1,8 +1,6 @@
 package net.syscon.elite.service;
 
-import net.syscon.elite.api.model.PrivilegeSummary;
-import net.syscon.elite.api.model.ScheduledEvent;
-import net.syscon.elite.api.model.SentenceDetail;
+import net.syscon.elite.api.model.*;
 
 import java.util.List;
 
@@ -17,4 +15,8 @@ public interface BookingService {
     List<ScheduledEvent> getBookingActivities(Long bookingId);
 
     void verifyBookingAccess(Long bookingId);
+
+    MainSentence getMainSentence(Long bookingId);
+
+    List<OffenderRelease> getReleases(List<String> offenderNos, long offset, long limit);
 }

@@ -1,0 +1,7 @@
+description:  Find release date for offenders
+type: { readOnlyCollectionPaged: { type: OffenderRelease } }
+get:
+  queryParameters:
+    offenderNo?:
+      type: array
+      description: a list of offender numbers to search.

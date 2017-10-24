@@ -50,7 +50,9 @@ types:
   PhysicalCharacteristic: !include types/PhysicalCharacteristic.raml
   PhysicalMark:           !include types/PhysicalMark.raml
   InmateDetail:           !include types/InmateDetail.raml
+  MainSentence:           !include types/MainSentence.raml
   ScheduledEvent:         !include types/ScheduledEvent.raml
+  OffenderRelease:        !include types/OffenderRelease.raml
 
 securitySchemes:
   jwt:
@@ -86,6 +88,7 @@ resourceTypes: !include resourceTypes/generic-resource-types.raml
 /bookings:          !include resources/bookings.raml
 /prisoners:         !include resources/prisoners.raml
 /search-offenders:  !include resources/search-offenders.raml
+/offender-releases: !include resources/offender-releases.raml
 /users:             !include resources/users.raml
 /reference-domains: !include resources/reference-domains.raml
 /locations:         !include resources/locations.raml

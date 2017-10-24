@@ -8,11 +8,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class UserSecurityUtils {
 
@@ -44,18 +42,17 @@ public class UserSecurityUtils {
 
 		if (userPrincipal instanceof String) {
 			userDetails = new UserDetailsImpl((String) userPrincipal, null, Collections.emptyList(), null);
-		} else if (userPrincipal instanceof UserDetailsImpl) {
-			userDetails = (UserDetailsImpl) userPrincipal;
+
+		} else if (userPrincipal instanceof UserPrincipalForToken) {
+			final Set<GrantedAuthority> authorities = getGrantedAuthorities(((UserPrincipalForToken) userPrincipal).getRoles().stream());
+			userDetails = new UserDetailsImpl(((UserPrincipalForToken) userPrincipal).getUsername(), null, authorities, null);
+
 		} else if (userPrincipal instanceof Map) {
 			Map userPrincipalMap = (Map) userPrincipal;
-
-			String username = (String) userPrincipalMap.get("username");
-			Map<String, Object> additionalProperties = (Map) userPrincipalMap.get("additionalProperties");
-
+			final String username = (String) userPrincipalMap.get("username");
 			if (StringUtils.isNotBlank(username)) {
-				userDetails = new UserDetailsImpl(username, null,
-						getAuthorities((List)userPrincipalMap.get("authorities")),
-						additionalProperties);
+				final Set<GrantedAuthority> authorities = getGrantedAuthorities(((List<String>) userPrincipalMap.get("roles")).stream());
+				userDetails = new UserDetailsImpl(username, null, authorities, null);
 			} else {
 				userDetails = null;
 			}
@@ -66,11 +63,10 @@ public class UserSecurityUtils {
 		return userDetails;
 	}
 
-	private static Set<GrantedAuthority> getAuthorities(List<Map<String, Object>> authorities) {
-		if (authorities != null) {
-			return authorities.stream().map(a -> new SimpleGrantedAuthority(a.get("authority").toString())).collect(Collectors.toSet());
-		}
-		return Collections.emptySet();
+	private static Set<GrantedAuthority> getGrantedAuthorities(Stream<String> roles) {
+		return roles.filter(Objects::nonNull)
+				.map(value -> new SimpleGrantedAuthority("ROLE_" + value))
+				.collect(Collectors.toSet());
 	}
 
 	private static Object getUserPrincipal() {

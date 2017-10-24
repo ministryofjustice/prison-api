@@ -1,0 +1,24 @@
+#%RAML 1.0 DataType
+description: Offender Release Detail
+properties:
+  bookingId:
+    (javaType): Long
+    description: Offender Booking Id
+  offenderNo:
+    type: string
+    description: Offender Unique Reference
+  firstName:
+    type: string
+    description: First Name
+  middleName:
+    type: string
+    description: Middle Name(s)
+  lastName:
+    type: string
+    description: Last Name
+  assignedLivingUnit?:
+    type: AssignedLivingUnit
+    description: Where the offender is located
+  releaseDate?:
+    type: date-only
+    description: Release date for the offender
