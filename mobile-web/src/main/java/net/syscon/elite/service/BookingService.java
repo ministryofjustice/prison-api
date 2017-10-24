@@ -1,5 +1,6 @@
 package net.syscon.elite.service;
 
+import net.syscon.elite.api.model.MainSentence;
 import net.syscon.elite.api.model.PrivilegeSummary;
 import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.model.SentenceDetail;
@@ -17,4 +18,6 @@ public interface BookingService {
     List<ScheduledEvent> getBookingActivities(Long bookingId);
 
     void verifyBookingAccess(Long bookingId);
+
+    MainSentence getMainSentence(Long bookingId);
 }

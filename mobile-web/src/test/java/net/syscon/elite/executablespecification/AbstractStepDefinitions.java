@@ -94,5 +94,10 @@ abstract class AbstractStepDefinitions {
         FinanceSteps financeSteps() {
             return new FinanceSteps();
         }
+
+        @Bean
+        BookingSentenceSteps bookingSentenceSteps() {
+            return new BookingSentenceSteps();
+        }
     }
 }

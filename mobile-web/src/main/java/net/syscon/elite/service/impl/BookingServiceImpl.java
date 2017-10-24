@@ -2,8 +2,7 @@ package net.syscon.elite.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
-import net.syscon.elite.repository.AgencyRepository;
-import net.syscon.elite.repository.BookingRepository;
+import net.syscon.elite.repository.*;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.BookingService;
@@ -26,10 +25,14 @@ import static java.time.temporal.ChronoUnit.DAYS;
 @Slf4j
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
+    private final SentenceRepository sentenceRepository;
+    
     private final AgencyService agencyService;
 
-    public BookingServiceImpl(BookingRepository bookingRepository, AgencyService agencyService) {
+    public BookingServiceImpl(BookingRepository bookingRepository, SentenceRepository sentenceRepository,
+            AgencyService agencyService) {
         this.bookingRepository = bookingRepository;
+        this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
     }
 
@@ -154,5 +157,11 @@ public class BookingServiceImpl implements BookingService {
         if (!bookingRepository.verifyBookingAccess(bookingId, getAgencyIds())) {
             throw new EntityNotFoundException(bookingId.toString());
         }
+    }
+
+    @Override
+    public MainSentence getMainSentence(Long bookingId) {
+        verifyBookingAccess(bookingId);
+        return sentenceRepository.getMainSentence(bookingId);
     }
 }
