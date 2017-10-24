@@ -1,6 +1,7 @@
 package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.test.EliteClientException;
 import net.syscon.util.QueryOperator;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.beanutils.BeanUtilsBean;
@@ -157,11 +158,16 @@ public class ReferenceDomainsSteps extends CommonSteps {
     }
 
     private void doSingleResultApiCall(String url) {
-        ResponseEntity<ReferenceCode> response = restTemplate.exchange(url, HttpMethod.GET,
-                createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<ReferenceCode>() {
-                });
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        result = response.getBody();
+        init();
+        try {
+            ResponseEntity<ReferenceCode> response = restTemplate.exchange(url, HttpMethod.GET,
+                    createEntity(null, null), new ParameterizedTypeReference<ReferenceCode>() {
+                    });
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            result = response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
     }
 
     private String buildSimpleQuery(String fieldName, Object criteria) {
