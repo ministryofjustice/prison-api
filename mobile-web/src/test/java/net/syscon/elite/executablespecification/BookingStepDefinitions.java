@@ -41,6 +41,9 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @Autowired
     private BookingIEPSteps bookingIEPSteps;
 
+    @Autowired
+    private BookingAlertSteps bookingAlerts;
+
     @When("^a booking search is made with full last \"([^\"]*)\" of existing offender$")
     public void aBookingSearchIsMadeWithFullLastNameOfExistingOffender(String fullLastName) throws Throwable {
         bookingSearch.fullLastNameSearch(fullLastName);
@@ -283,6 +286,21 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingSentenceDetail.verifyEarlyReleaseSchemeEligibilityDate(earlyReleaseSchemeEligibilityDate);
     }
 
+    @When("^sentence details with nonexistent booking id is requested$")
+    public void aNonexistentIdIsRequested() {
+        bookingSentenceDetail.getNonexistentSentenceDetails();
+    }
+
+    @When("^sentence details with booking id in different caseload is requested$")
+    public void anIdInDifferentCaseloadIsRequested() {
+        bookingSentenceDetail.getSentenceDetailsInDifferentCaseload();
+    }
+
+    @Then("^resource not found response is received from sentence details API$")
+    public void resourceNotFoundResponseIsReceivedFromSentenceDetailsAPI() throws Throwable {
+        bookingSentenceDetail.verifyResourceNotFound();
+    }
+
     @When("^an IEP summary only is requested for an offender with booking id \"([^\"]*)\"$")
     public void anIEPSummaryOnlyIsRequestedForAnOffenderWithBookingId(String bookingId) throws Throwable {
         bookingIEPSteps.getBookingIEPSummary(Long.valueOf(bookingId), false);
@@ -357,4 +375,69 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     public void characteristicsMatch(String characteristicsList) throws Throwable {
         bookingDetail.verifyOffenderPhysicalCharacteristics(characteristicsList);
     }
+
+    @When("^alerts are requested for an offender booking \"([^\"]*)\"$")
+    public void alertsAreRequestedForOffenderBooking(Long bookingId) throws Throwable {
+        bookingAlerts.getAlerts(bookingId);
+    }
+
+    @Then("^\"([^\"]*)\" alerts are returned$")
+    public void numberAlertsAreReturned(int number) throws Throwable {
+        bookingAlerts.verifyNumber(number);
+    }
+
+    @And("alerts codes match ^\"([^\"]*)\"$")
+    public void alertsCodesMatch(String codes) throws Throwable {
+        bookingAlerts.verifyCodeList(codes);
+    }
+
+    @When("^alert is requested for an offender booking \"([^\"]*)\" and alert id \"([^\"]*)\"$")
+    public void alertIsRequestedForOffenderBooking(Long bookingId, Long alertId) throws Throwable {
+        bookingAlerts.getAlert(bookingId, alertId);
+    }
+
+    @Then("^alert ^\"([^\"]*)\" is ^\"([^\"]*)\"$")
+    public void alertValueIs(String field, String value) throws Throwable {
+        bookingAlerts.verifyAlertField(field, value);
+    }
+
+  /*  @And("alert Type is ^\"([^\"]*)\"$")
+    public void alertTypeIs(String value) throws Throwable {
+        BookingAlerts.verifyAlertType(value);
+    }
+
+    @And("alert Type Description is ^\"([^\"]*)\"$")
+    public void alertTypeDescriptionIs(String value) throws Throwable {
+        BookingAlerts.verifyAlertTypeDescription(value);
+    }
+
+    @And("alert Code is ^\"([^\"]*)\"$")
+    public void alertCodeIs(String value) throws Throwable {
+        BookingAlerts.verifyAlertCode(value);
+    }
+
+    @And("alert Code Description is ^\"([^\"]*)\"$")
+    public void alertCodeDescriptionIs(String value) throws Throwable {
+        BookingAlerts.verifyAlertCodeDescription(value);
+    }
+
+    @And("alert comment is ^\"([^\"]*)\"$")
+    public void alertCommentIs(String value) throws Throwable {
+        BookingAlerts.verifyAlertComment(value);
+    }
+
+    @And("alert date Created is ^\"([^\"]*)\"$")
+    public void alertDateCreatedIs(String value) throws Throwable {
+        BookingAlerts.verifyAlertDateCreated(value);
+    }
+
+    @And("alert date Expires is ^\"([^\"]*)\"$")
+    public void alertDateExpiresIs(String value) throws Throwable {
+        BookingAlerts.verifyAlertDateExpires(value);
+    }
+
+    @And("alert expired is ^\"([^\"]*)\"$")
+    public void alertExpiredIs(Boolean value) throws Throwable {
+        BookingAlerts.verifyAlertExpired(value);
+    }*/
 }

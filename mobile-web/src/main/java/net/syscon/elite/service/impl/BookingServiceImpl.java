@@ -2,7 +2,6 @@ package net.syscon.elite.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
-import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.AgencyService;
@@ -35,6 +34,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public SentenceDetail getBookingSentenceDetail(Long bookingId) {
+        verifyBookingAccess(bookingId);
         SentenceDetail sentenceDetail = bookingRepository.getBookingSentenceDetail(bookingId).orElseThrow(new EntityNotFoundException(bookingId.toString()));
 
         NonDtoReleaseDate nonDtoReleaseDate = deriveNonDtoReleaseDate(sentenceDetail);
