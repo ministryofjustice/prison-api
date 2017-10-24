@@ -2,11 +2,14 @@ package net.syscon.elite.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
-import net.syscon.elite.repository.*;
+import net.syscon.elite.api.support.Order;
+import net.syscon.elite.repository.BookingRepository;
+import net.syscon.elite.repository.SentenceRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.support.NonDtoReleaseDate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,14 +29,16 @@ import static java.time.temporal.ChronoUnit.DAYS;
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final SentenceRepository sentenceRepository;
-    
+
     private final AgencyService agencyService;
+    private final InmateService inmateService;
 
     public BookingServiceImpl(BookingRepository bookingRepository, SentenceRepository sentenceRepository,
-            AgencyService agencyService) {
+            AgencyService agencyService, InmateService inmateService) {
         this.bookingRepository = bookingRepository;
         this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
+        this.inmateService = inmateService;
     }
 
     @Override
@@ -163,5 +168,42 @@ public class BookingServiceImpl implements BookingService {
     public MainSentence getMainSentence(Long bookingId) {
         verifyBookingAccess(bookingId);
         return sentenceRepository.getMainSentence(bookingId);
+    }
+
+    @Override
+    public List<OffenderRelease> getReleases(List<String> offenderNos, long offset, long limit) {
+
+        final String query = buildOffenderInQuery(offenderNos);
+        final List<OffenderBooking> bookings = inmateService.findAllInmates(query, offset, limit, "offenderNo", Order.ASC);
+
+        final List<OffenderRelease> offenderReleases = new ArrayList<>();
+        bookings.forEach(booking -> {
+            final SentenceDetail bookingSentenceDetail = getBookingSentenceDetail(booking.getBookingId());
+            offenderReleases.add(OffenderRelease.builder()
+                    .firstName(booking.getFirstName())
+                    .middleName(booking.getMiddleName())
+                    .lastName(booking.getLastName())
+                    .assignedLivingUnit(AssignedLivingUnit.builder()
+                            .agencyId(booking.getAgencyId())
+                            .locationId(booking.getAssignedLivingUnitId())
+                            .description(booking.getAssignedLivingUnitDesc())
+                            .build())
+                    .bookingId(booking.getBookingId())
+                    .offenderNo(booking.getOffenderNo())
+                    .releaseDate(bookingSentenceDetail.getConditionalReleaseDate())  //TODO We know this isn't right, its just a placeholder
+                    .additionalProperties(booking.getAdditionalProperties())
+                    .build());
+        });
+
+        return offenderReleases;
+    }
+
+    private String buildOffenderInQuery(List<String> offenderNos) {
+        String query = null;
+        if (!offenderNos.isEmpty()) {
+            final String ids = offenderNos.stream().map(offenderNo -> "'"+offenderNo+"'").collect(Collectors.joining("|"));
+            query = "offenderNo:in:" + ids + "";
+        }
+        return query;
     }
 }
