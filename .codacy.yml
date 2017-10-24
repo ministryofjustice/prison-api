@@ -1,8 +1,4 @@
 ---
-engines:
-languages:
 exclude_paths:
   - mobile-web/src/main/configs
   - '**.sql'
-this_should_error:
-  sfsdfsd
