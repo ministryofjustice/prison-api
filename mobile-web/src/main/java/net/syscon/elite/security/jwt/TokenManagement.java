@@ -8,7 +8,9 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import net.syscon.elite.api.model.Token;
 import net.syscon.elite.security.DeviceFingerprint;
 import net.syscon.elite.security.UserDetailsImpl;
+import net.syscon.elite.security.UserPrincipalForToken;
 import net.syscon.util.DateTimeConverter;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +18,8 @@ import org.springframework.beans.factory.annotation.Value;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class TokenManagement {
@@ -46,7 +50,9 @@ public class TokenManagement {
 
 		claims.put(DEVICE_FINGERPRINT_HASH_CODE, deviceFingerprintHashCode);
 		claims.put(ALLOW_REFRESH_TOKEN, Boolean.FALSE);
-		claims.put(USER_PRINCIPAL, userDetails);
+
+		final List<String> roles = userDetails.getAuthorities().stream().map(auth -> StringUtils.replaceFirst(auth.getAuthority(), "^ROLE_", "")).collect(Collectors.toList());
+		claims.put(USER_PRINCIPAL, new UserPrincipalForToken(usernameToken, roles));
 
 		final LocalDateTime now = LocalDateTime.now();
 
