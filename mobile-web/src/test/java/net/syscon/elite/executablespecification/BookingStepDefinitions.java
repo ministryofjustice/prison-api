@@ -381,6 +381,8 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.verifyOffenderPhysicalCharacteristics(characteristicsList);
     }
 
+    // ----------------------------- Alerts --------------------------
+
     @When("^alerts are requested for an offender booking \"([^\"]*)\"$")
     public void alertsAreRequestedForOffenderBooking(Long bookingId) throws Throwable {
         bookingAlerts.getAlerts(bookingId);
@@ -391,7 +393,7 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAlerts.verifyNumber(number);
     }
 
-    @And("alerts codes match ^\"([^\"]*)\"$")
+    @And("alerts codes match \"([^\"]*)\"$")
     public void alertsCodesMatch(String codes) throws Throwable {
         bookingAlerts.verifyCodeList(codes);
     }
@@ -401,50 +403,25 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAlerts.getAlert(bookingId, alertId);
     }
 
-    @Then("^alert ^\"([^\"]*)\" is ^\"([^\"]*)\"$")
+    @Then("^alert (\\w+) is \"([^\"]*)\"$")
     public void alertValueIs(String field, String value) throws Throwable {
         bookingAlerts.verifyAlertField(field, value);
     }
 
-  /*  @And("alert Type is ^\"([^\"]*)\"$")
-    public void alertTypeIs(String value) throws Throwable {
-        BookingAlerts.verifyAlertType(value);
+    @When("^an alert list with booking id in different caseload is requested$")
+    public void anAlertListInDifferentCaseloadIsRequested() {
+        bookingAlerts.getAlertsInDifferentCaseload();
     }
 
-    @And("alert Type Description is ^\"([^\"]*)\"$")
-    public void alertTypeDescriptionIs(String value) throws Throwable {
-        BookingAlerts.verifyAlertTypeDescription(value);
+    @When("^an alert with booking id in different caseload is requested$")
+    public void anAlertInDifferentCaseloadIsRequested() {
+        bookingAlerts.getAlertInDifferentCaseload();
     }
 
-    @And("alert Code is ^\"([^\"]*)\"$")
-    public void alertCodeIs(String value) throws Throwable {
-        BookingAlerts.verifyAlertCode(value);
+    @Then("^resource not found response is received from alert API$")
+    public void resourceNotFoundResponseIsReceivedFromAlertAPI() throws Throwable {
+        bookingAlerts.verifyResourceNotFound();
     }
-
-    @And("alert Code Description is ^\"([^\"]*)\"$")
-    public void alertCodeDescriptionIs(String value) throws Throwable {
-        BookingAlerts.verifyAlertCodeDescription(value);
-    }
-
-    @And("alert comment is ^\"([^\"]*)\"$")
-    public void alertCommentIs(String value) throws Throwable {
-        BookingAlerts.verifyAlertComment(value);
-    }
-
-    @And("alert date Created is ^\"([^\"]*)\"$")
-    public void alertDateCreatedIs(String value) throws Throwable {
-        BookingAlerts.verifyAlertDateCreated(value);
-    }
-
-    @And("alert date Expires is ^\"([^\"]*)\"$")
-    public void alertDateExpiresIs(String value) throws Throwable {
-        BookingAlerts.verifyAlertDateExpires(value);
-    }
-
-    @And("alert expired is ^\"([^\"]*)\"$")
-    public void alertExpiredIs(Boolean value) throws Throwable {
-        BookingAlerts.verifyAlertExpired(value);
-    }*/
 
     // ----------------------------- Main Sentence --------------------------
 

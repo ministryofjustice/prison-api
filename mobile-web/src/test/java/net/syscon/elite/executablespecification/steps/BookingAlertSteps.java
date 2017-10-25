@@ -20,6 +20,7 @@ import java.util.List;
  */
 public class BookingAlertSteps extends CommonSteps {
     private static final String API_REQUEST_BASE_URL = API_PREFIX + "bookings/{bookingId}/alerts";
+    private static final String API_REQUEST_ALERT_URL = API_PREFIX + "bookings/{bookingId}/alerts/{alertId}";
 
     private List<Alert> alerts;
     private Alert alert;
@@ -53,12 +54,12 @@ public class BookingAlertSteps extends CommonSteps {
         }
     }
 
-    private void doSingleResultApiCall(String url) {
+    private void doSingleResultApiCall(Long bookingId, Long alertId) {
         init();
         try {
-            ResponseEntity<Alert> response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
-                    new ParameterizedTypeReference<Alert>() {
-                    });
+            ResponseEntity<Alert> response = restTemplate.exchange(API_REQUEST_ALERT_URL, HttpMethod.GET,
+                    createEntity(null, null), new ParameterizedTypeReference<Alert>() {
+                    }, bookingId, alertId);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             alert = response.getBody();
         } catch (EliteClientException ex) {
@@ -73,10 +74,18 @@ public class BookingAlertSteps extends CommonSteps {
     }
 
     public void getAlert(Long bookingId, Long alertId) {
-        doSingleResultApiCall(API_REQUEST_BASE_URL + '/' + alertId);
+        doSingleResultApiCall(bookingId, alertId);
     }
 
-    public void verifyAlertField(String field, String value) {
+    public void verifyAlertField(String field, String value) throws ReflectiveOperationException {
         verifyField(alert, field, value);
+    }
+
+    public void getAlertsInDifferentCaseload() {
+        doListApiCall(-16L, null);
+    }
+
+    public void getAlertInDifferentCaseload() {
+        doSingleResultApiCall(-16L, 1L);
     }
 }
