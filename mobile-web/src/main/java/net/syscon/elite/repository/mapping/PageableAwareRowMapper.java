@@ -3,6 +3,7 @@ package net.syscon.elite.repository.mapping;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.jdbc.core.RowMapper;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -20,7 +21,11 @@ public class PageableAwareRowMapper<T> implements RowMapper<T> {
         if (!recordCountSet) {
             Object val = rs.getObject("RECORD_COUNT");
 
-            recordCount = (Long) ObjectUtils.defaultIfNull(val, 0);
+            if (val instanceof Number) {
+                recordCount = ((BigDecimal) ObjectUtils.defaultIfNull(val, BigDecimal.ZERO)).longValue();
+            } else {
+                recordCount = (Long) ObjectUtils.defaultIfNull(val, 0);
+            }
             recordCountSet = true;
         }
 

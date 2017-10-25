@@ -1,5 +1,6 @@
 package net.syscon.elite.repository;
 
+import net.syscon.elite.api.model.OffenderRelease;
 import net.syscon.elite.api.model.PrivilegeDetail;
 import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.model.SentenceDetail;
@@ -21,4 +22,6 @@ public interface BookingRepository {
     boolean verifyBookingAccess(Long bookingId, Set<String> agencyIds);
 
     Page<ScheduledEvent> getBookingActivities(Long bookingId, long offset, long limit, String orderByFields, Order order);
+
+    Page<OffenderRelease> getOffenderReleaseSummary(String query, long offset, long limit, String orderByFields, Order order);
 }

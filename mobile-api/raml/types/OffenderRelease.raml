@@ -7,18 +7,36 @@ properties:
   offenderNo:
     type: string
     description: Offender Unique Reference
+  title?:
+    type: string
+    description: Title
+  suffix?:
+    type: string
+    description: Suffix
   firstName:
     type: string
     description: First Name
-  middleName:
+  middleNames?:
     type: string
     description: Middle Name(s)
   lastName:
     type: string
     description: Last Name
-  assignedLivingUnit?:
-    type: AssignedLivingUnit
-    description: Where the offender is located
+  currentlyInPrison:
+    type: string
+    description: Flag Y to indicate if the person is currently in prison
+  agencyLocationId:
+    type: string
+    description: Agency Id
+  agencyLocationDesc:
+    type: string
+    description: Agency Description
+  internalLocationId:
+    type: string
+    description: Current ID of the location of the offender in the prison
+  internalLocationDesc:
+    type: string
+    description: Description of the location within the prison
   releaseDate?:
     type: date-only
     description: Release date for the offender

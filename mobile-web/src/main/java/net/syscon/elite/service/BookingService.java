@@ -20,5 +20,5 @@ public interface BookingService {
 
     MainSentence getMainSentence(Long bookingId);
 
-    List<OffenderRelease> getReleases(List<String> offenderNos, long offset, long limit);
+    Page<OffenderRelease> getOffenderReleaseSummary(List<String> offenderNos, long offset, long limit);
 }
