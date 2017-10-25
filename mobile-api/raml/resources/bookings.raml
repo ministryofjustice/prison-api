@@ -156,11 +156,14 @@
 
 /{bookingId}/activities:
   (javaOperationName): getBookingActivities
-  type: {readOnlyCollection: {type: ScheduledEvent}}
+  type: {readOnlyCollectionPaged: {type: ScheduledEvent, description: Scheduled activities for the offender. }}
   uriParameters:
     bookingId:
       (javaType): Long
       description: The offender booking id
+  is: [
+    sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
+  ]
 
 /{bookingId}/mainSentence:
   (javaOperationName): getMainSentence

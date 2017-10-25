@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import javax.annotation.PostConstruct;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -364,6 +365,14 @@ public abstract class CommonSteps {
         }
     }
 
+    protected void verifyLocalDateTime(LocalDateTime actual, String expected) {
+        if (Objects.nonNull(actual)) {
+            assertThat(actual).isEqualTo(StringUtils.replaceFirst(expected, "\\s{1}", "T"));
+        } else {
+            assertThat(StringUtils.EMPTY).isEqualTo(StringUtils.trimToEmpty(expected));
+        }
+    }
+
     protected void verifyEnum(Enum<?> actual, String expected) {
         if (Objects.nonNull(actual)) {
             assertThat(actual.toString()).isEqualTo(expected);
@@ -378,6 +387,11 @@ public abstract class CommonSteps {
 
     protected Map<String,String> addPaginationHeaders() {
         return ImmutableMap.of("Page-Offset", String.valueOf(paginationOffset), "Page-Limit", String.valueOf(paginationLimit));
+    }
+
+    protected void validateResourcesIndex(int index) {
+        assertThat(index).isGreaterThan(-1);
+        assertThat(index).isLessThan(resources.size());
     }
 
     private PageMetaData buildPageMetaData(HttpHeaders headers, String name) {

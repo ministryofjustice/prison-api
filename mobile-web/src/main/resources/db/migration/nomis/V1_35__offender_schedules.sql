@@ -1,3 +1,307 @@
+-----------------------------------------------------------------------
+-- Source tables for Prison Activities (PRISON_ACT) Scheduled Events --
+-----------------------------------------------------------------------
+CREATE TABLE ADDRESSES
+(
+	ADDRESS_ID                      BIGSERIAL   PRIMARY KEY       NOT NULL,
+	OWNER_CLASS                     VARCHAR(12)                   NOT NULL,
+	OWNER_ID                        BIGINT,
+	OWNER_SEQ                       INTEGER,
+	OWNER_CODE                      VARCHAR(12),
+	ADDRESS_TYPE                    VARCHAR(12),
+	FLAT                            VARCHAR(30),
+	PREMISE                         VARCHAR(50),
+	STREET                          VARCHAR(160),
+	LOCALITY                        VARCHAR(70),
+	CITY_CODE                       VARCHAR(12),
+	COUNTY_CODE                     VARCHAR(12),
+	POSTAL_CODE                     VARCHAR(12),
+	COUNTRY_CODE                    VARCHAR(12),
+	VALIDATED_PAF_FLAG              VARCHAR(1)  DEFAULT 'N',
+	PRIMARY_FLAG                    VARCHAR(1)                    NOT NULL,
+	MAIL_FLAG                       VARCHAR(1)                    NOT NULL,
+	CAPACITY                        INTEGER,
+	COMMENT_TEXT                    VARCHAR(240),
+	CREATE_DATETIME                 TIMESTAMP   DEFAULT now()     NOT NULL,
+	CREATE_USER_ID                  VARCHAR(32) DEFAULT USER      NOT NULL,
+	MODIFY_DATETIME                 TIMESTAMP,
+	MODIFY_USER_ID                  VARCHAR(32),
+	NO_FIXED_ADDRESS_FLAG           VARCHAR(1)  DEFAULT 'N',
+	SERVICES_FLAG                   VARCHAR(1)  DEFAULT 'N',
+	SPECIAL_NEEDS_CODE              VARCHAR(12),
+	CONTACT_PERSON_NAME             VARCHAR(40),
+	BUSINESS_HOUR                   VARCHAR(60),
+	START_DATE                      DATE,
+	END_DATE                        DATE,
+	CITY_NAME                       VARCHAR(40),
+	AUDIT_TIMESTAMP                 TIMESTAMP,
+	AUDIT_USER_ID                   VARCHAR(32),
+	AUDIT_MODULE_NAME               VARCHAR(65),
+	AUDIT_CLIENT_USER_ID            VARCHAR(64),
+	AUDIT_CLIENT_IP_ADDRESS         VARCHAR(39),
+	AUDIT_CLIENT_WORKSTATION_NAME   VARCHAR(64),
+	AUDIT_ADDITIONAL_INFO           VARCHAR(256)
+);
+
+
+CREATE TABLE COURSE_ACTIVITIES
+(
+	CRS_ACTY_ID                     BIGSERIAL   PRIMARY KEY       NOT NULL,
+	CASELOAD_ID                     VARCHAR(6),
+	AGY_LOC_ID                      VARCHAR(6),
+	DESCRIPTION                     VARCHAR(40),
+	CAPACITY                        SMALLINT    DEFAULT 99,
+	ACTIVE_FLAG                     VARCHAR(1)  DEFAULT 'Y'       NOT NULL,
+	EXPIRY_DATE                     DATE,
+	SCHEDULE_START_DATE             DATE,
+	SCHEDULE_END_DATE               DATE,
+	CASELOAD_TYPE                   VARCHAR(12),
+	SERVICES_ADDRESS_ID             BIGINT,
+	PROGRAM_ID                      BIGINT                        NOT NULL,
+	PARENT_CRS_ACTY_ID              BIGINT,
+	INTERNAL_LOCATION_ID            BIGINT,
+	PROVIDER_PARTY_CLASS            VARCHAR(12),
+	PROVIDER_PARTY_ID               BIGINT,
+	PROVIDER_PARTY_CODE             VARCHAR(6),
+	BENEFICIARY_NAME                VARCHAR(80),
+	BENEFICIARY_CONTACT             VARCHAR(80),
+	LIST_SEQ                        INTEGER,
+	PLACEMENT_CORPORATE_ID          BIGINT,
+	COMMENT_TEXT                    VARCHAR(240),
+	AGENCY_LOCATION_TYPE            VARCHAR(12),
+	PROVIDER_TYPE                   VARCHAR(12),
+	BENEFICIARY_TYPE                VARCHAR(12),
+	PLACEMENT_TEXT                  VARCHAR(240),
+	CODE                            VARCHAR(20),
+	HOLIDAY_FLAG                    VARCHAR(1)  DEFAULT 'N',
+	COURSE_CLASS                    VARCHAR(12) DEFAULT 'COURSE'  NOT NULL,
+	COURSE_ACTIVITY_TYPE            VARCHAR(12),
+	CREATE_DATETIME                 TIMESTAMP   DEFAULT now()     NOT NULL,
+	CREATE_USER_ID                  VARCHAR(32) DEFAULT USER      NOT NULL,
+	MODIFY_DATETIME                 TIMESTAMP,
+	MODIFY_USER_ID                  VARCHAR(32),
+	IEP_LEVEL                       VARCHAR(12),
+	AUDIT_TIMESTAMP                 TIMESTAMP,
+	AUDIT_USER_ID                   VARCHAR(32),
+	AUDIT_MODULE_NAME               VARCHAR(65),
+	AUDIT_CLIENT_USER_ID            VARCHAR(64),
+	AUDIT_CLIENT_IP_ADDRESS         VARCHAR(39),
+	AUDIT_CLIENT_WORKSTATION_NAME   VARCHAR(64),
+	AUDIT_ADDITIONAL_INFO           VARCHAR(256),
+	NO_OF_SESSIONS                  INTEGER,
+	SESSION_LENGTH                  INTEGER,
+	MULTI_PHASE_SCHEDULING_FLAG     VARCHAR(12),
+	SCHEDULE_NOTES                  VARCHAR(240),
+	OUTSIDE_WORK_FLAG               VARCHAR(1)  DEFAULT 'N',
+	PAY_PER_SESSION                 VARCHAR(1)  DEFAULT 'H',
+	PIECE_WORK_FLAG                 VARCHAR(1)  DEFAULT 'N'
+);
+
+--ALTER TABLE COURSE_ACTIVITIES ADD FOREIGN KEY (AGY_LOC_ID) REFERENCES AGENCY_LOCATIONS;
+ALTER TABLE COURSE_ACTIVITIES ADD FOREIGN KEY (SERVICES_ADDRESS_ID) REFERENCES ADDRESSES;
+--ALTER TABLE COURSE_ACTIVITIES ADD FOREIGN KEY (PROGRAM_ID) REFERENCES PROGRAM_SERVICES;
+ALTER TABLE COURSE_ACTIVITIES ADD FOREIGN KEY (PARENT_CRS_ACTY_ID) REFERENCES COURSE_ACTIVITIES;
+--ALTER TABLE COURSE_ACTIVITIES ADD FOREIGN KEY (PLACEMENT_CORPORATE_ID) REFERENCES CORPORATES;
+ALTER TABLE COURSE_ACTIVITIES ADD CHECK (COURSE_CLASS IN ('COURSE','CRS_MOD','CRS_PH'));
+
+
+CREATE TABLE COURSE_SCHEDULES
+(
+	CRS_SCH_ID                      BIGSERIAL   PRIMARY KEY       NOT NULL,
+  CRS_ACTY_ID                     BIGINT                        NOT NULL,
+	WEEKDAY                         VARCHAR(12),
+	SCHEDULE_DATE                   DATE                          NOT NULL,
+	START_TIME                      TIMESTAMP                     NOT NULL,
+	END_TIME                        TIMESTAMP,
+	SESSION_NO                      INTEGER,
+	DETAILS                         VARCHAR(40),
+	CREATE_DATETIME                 TIMESTAMP   DEFAULT now()     NOT NULL,
+	CREATE_USER_ID                  VARCHAR(32) DEFAULT USER      NOT NULL,
+	MODIFY_DATETIME                 TIMESTAMP,
+	MODIFY_USER_ID                  VARCHAR(32),
+	AUDIT_TIMESTAMP                 TIMESTAMP,
+	AUDIT_USER_ID                   VARCHAR(32),
+	AUDIT_MODULE_NAME               VARCHAR(65),
+	AUDIT_CLIENT_USER_ID            VARCHAR(64),
+	AUDIT_CLIENT_IP_ADDRESS         VARCHAR(39),
+	AUDIT_CLIENT_WORKSTATION_NAME   VARCHAR(64),
+	AUDIT_ADDITIONAL_INFO           VARCHAR(256),
+	SCHEDULE_STATUS                 VARCHAR(12) DEFAULT 'SCH',
+	CATCH_UP_CRS_SCH_ID             BIGINT,
+	VIDEO_REFERENCE_ID              VARCHAR(20),
+	SLOT_CATEGORY_CODE              VARCHAR(12)
+);
+
+ALTER TABLE COURSE_SCHEDULES ADD FOREIGN KEY (CRS_ACTY_ID) REFERENCES COURSE_ACTIVITIES;
+ALTER TABLE COURSE_SCHEDULES ADD FOREIGN KEY (CATCH_UP_CRS_SCH_ID) REFERENCES COURSE_SCHEDULES;
+
+
+CREATE TABLE OFFENDER_PROGRAM_PROFILES
+(
+	OFF_PRGREF_ID                   BIGSERIAL   PRIMARY KEY     NOT NULL,
+	OFFENDER_BOOK_ID                BIGINT                      NOT NULL,
+	PROGRAM_ID                      BIGINT                      NOT NULL,
+	OFFENDER_START_DATE             DATE,
+	OFFENDER_PROGRAM_STATUS         VARCHAR(12) DEFAULT 'PLAN'  NOT NULL,
+	CRS_ACTY_ID                     BIGINT,
+	REFERRAL_PRIORITY               VARCHAR(12),
+	REFERRAL_DATE                   DATE,
+	REFERRAL_COMMENT_TEXT           VARCHAR(1000),
+	OFFENDER_END_REASON             VARCHAR(12),
+	AGREED_TRAVEL_FARE              DECIMAL(11,2),
+	AGREED_TRAVEL_HOUR              DECIMAL(6,2),
+	OFFENDER_END_COMMENT_TEXT       VARCHAR(240),
+	REJECT_DATE                     DATE,
+	WAITLIST_DECISION_CODE          VARCHAR(12),
+	REFERRAL_STAFF_ID               BIGINT,
+	OFFENDER_END_DATE               DATE,
+	CREDIT_WORK_HOURS               DECIMAL(8,2),
+	CREDIT_OTHER_HOURS              DECIMAL(8,2),
+	SUSPENDED_FLAG                  VARCHAR(1)  DEFAULT 'N',
+	REJECT_REASON_CODE              VARCHAR(12),
+	AGY_LOC_ID                      VARCHAR(6),
+	CREATE_DATETIME                 TIMESTAMP   DEFAULT now()   NOT NULL,
+	CREATE_USER_ID                  VARCHAR(32) DEFAULT USER    NOT NULL,
+	MODIFY_DATETIME                 TIMESTAMP,
+	MODIFY_USER_ID                  VARCHAR(32),
+	REVIEWED_BY                     VARCHAR(32),
+	AUDIT_TIMESTAMP                 TIMESTAMP,
+	AUDIT_USER_ID                   VARCHAR(32),
+	AUDIT_MODULE_NAME               VARCHAR(65),
+	AUDIT_CLIENT_USER_ID            VARCHAR(64),
+	AUDIT_CLIENT_IP_ADDRESS         VARCHAR(39),
+	AUDIT_CLIENT_WORKSTATION_NAME   VARCHAR(64),
+	AUDIT_ADDITIONAL_INFO           VARCHAR(256),
+	OFFENDER_SENT_CONDITION_ID      BIGINT,
+	SENTENCE_SEQ                    INTEGER,
+	HOLIDAY_FLAG                    VARCHAR(1)  DEFAULT 'N',
+	START_SESSION_NO                INTEGER,
+	PARENT_OFF_PRGREF_ID            BIGINT,
+	OFFENDER_PRG_OBLIGATION_ID      BIGINT,
+	PROGRAM_OFF_PRGREF_ID           BIGINT,
+	PROFILE_CLASS                   VARCHAR(12) DEFAULT 'PRG',
+	COMPLETION_DATE                 DATE,
+	NEEDED_FLAG                     VARCHAR(1)  DEFAULT 'N',
+	COMMENT_TEXT                    VARCHAR(240),
+	EARLY_END_REASON                VARCHAR(12)
+);
+
+--ALTER TABLE OFFENDER_PROGRAM_PROFILES ADD FOREIGN KEY (OFFENDER_BOOK_ID) REFERENCES OFFENDER_BOOKINGS;
+--ALTER TABLE OFFENDER_PROGRAM_PROFILES ADD FOREIGN KEY (PROGRAM_ID) REFERENCES PROGRAM_SERVICES;
+ALTER TABLE OFFENDER_PROGRAM_PROFILES ADD FOREIGN KEY (CRS_ACTY_ID) REFERENCES COURSE_ACTIVITIES;
+--ALTER TABLE OFFENDER_PROGRAM_PROFILES ADD FOREIGN KEY (REFERRAL_STAFF_ID) REFERENCES STAFF_MEMBERS;
+--ALTER TABLE OFFENDER_PROGRAM_PROFILES ADD FOREIGN KEY (OFFENDER_PRG_OBLIGATION_ID) REFERENCES OFFENDER_PRG_OBLIGATIONS;
+--ALTER TABLE OFFENDER_PROGRAM_PROFILES ADD FOREIGN KEY (PROGRAM_OFF_PRGREF_ID) REFERENCES OFFENDER_PROGRAM_PROFILES;
+
+-- Inclusion of DECODE function within UNIQUE index declaration not supported in HSQLDB.
+--ALTER TABLE OFFENDER_PROGRAM_PROFILES ADD UNIQUE (OFFENDER_BOOK_ID, CRS_ACTY_ID, DECODE(OFFENDER_PROGRAM_STATUS,'ALLOC','ALLOC',TO_CHAR(OFF_PRGREF_ID)));
+
+
+CREATE TABLE OFFENDER_COURSE_ATTENDANCES
+(
+	EVENT_ID                        BIGSERIAL   PRIMARY KEY       NOT NULL,
+	OFFENDER_BOOK_ID                BIGINT                        NOT NULL,
+	EVENT_DATE                      DATE                          NOT NULL,
+	START_TIME                      DATE,
+	END_TIME                        DATE,
+	EVENT_SUB_TYPE                  VARCHAR(12)                   NOT NULL,
+	EVENT_STATUS                    VARCHAR(12) DEFAULT 'SCH'     NOT NULL,
+	COMMENT_TEXT                    VARCHAR(4000),
+	HIDDEN_COMMENT_TEXT             VARCHAR(240),
+	TO_INTERNAL_LOCATION_ID         BIGINT,
+	CRS_SCH_ID                      BIGINT,
+	OUTCOME_REASON_CODE             VARCHAR(12),
+	PIECE_WORK                      DECIMAL(11,2),
+	ENGAGEMENT_CODE                 VARCHAR(12),
+	UNDERSTANDING_CODE              VARCHAR(12),
+	DETAILS                         VARCHAR(40),
+	CREDITED_HOURS                  DECIMAL(6,2),
+	AGREED_TRAVEL_HOUR              DECIMAL(6,2),
+	SUPERVISOR_NAME                 VARCHAR(30),
+	BEHAVIOUR_CODE                  VARCHAR(12),
+	ACTION_CODE                     VARCHAR(12),
+	SICK_NOTE_RECEIVED_DATE         DATE,
+	SICK_NOTE_EXPIRY_DATE           DATE,
+	OFF_PRGREF_ID                   BIGINT,
+	IN_TIME                         DATE,
+	OUT_TIME                        DATE,
+	PERFORMANCE_CODE                VARCHAR(12),
+	REFERENCE_ID                    BIGINT,
+	TO_ADDRESS_OWNER_CLASS          VARCHAR(12),
+	TO_ADDRESS_ID                   BIGINT,
+	EVENT_OUTCOME                   VARCHAR(12),
+	OFF_CRS_SCH_REF_ID              BIGINT,
+	SUPERVISOR_STAFF_ID             BIGINT,
+	CRS_APPT_ID                     BIGINT,
+	OFFENDER_COURSE_APPT_RULE_ID    BIGINT,
+	CRS_ACTY_ID                     BIGINT,
+	EVENT_TYPE                      VARCHAR(12)                   NOT NULL,
+	CREATE_DATETIME                 TIMESTAMP   DEFAULT now()     NOT NULL,
+	CREATE_USER_ID                  VARCHAR(32) DEFAULT USER      NOT NULL,
+	MODIFY_DATETIME                 TIMESTAMP,
+	MODIFY_USER_ID                  VARCHAR(32),
+	AGY_LOC_ID                      VARCHAR(6),
+	EVENT_CLASS                     VARCHAR(12)                   NOT NULL,
+	AUDIT_TIMESTAMP                 TIMESTAMP,
+	AUDIT_USER_ID                   VARCHAR(32),
+	AUDIT_MODULE_NAME               VARCHAR(65),
+	AUDIT_CLIENT_USER_ID            VARCHAR(64),
+	AUDIT_CLIENT_IP_ADDRESS         VARCHAR(39),
+	AUDIT_CLIENT_WORKSTATION_NAME   VARCHAR(64),
+	AUDIT_ADDITIONAL_INFO           VARCHAR(256),
+	UNEXCUSED_ABSENCE_FLAG          VARCHAR(1)  DEFAULT 'N',
+	TO_AGY_LOC_ID                   VARCHAR(6),
+	SESSION_NO                      INTEGER,
+	OFFENDER_PRG_OBLIGATION_ID      BIGINT,
+	PROGRAM_ID                      BIGINT,
+	BONUS_PAY                       DECIMAL(11,3),
+	TXN_ID                          BIGINT,
+	TXN_ENTRY_SEQ                   INTEGER,
+	PAY_FLAG                        VARCHAR(1)  DEFAULT 'N',
+	AUTHORISED_ABSENCE_FLAG         VARCHAR(1)  DEFAULT 'N'
+);
+
+--ALTER TABLE OFFENDER_COURSE_ATTENDANCES ADD FOREIGN KEY (OFFENDER_BOOK_ID) REFERENCES OFFENDER_BOOKINGS;
+--ALTER TABLE OFFENDER_COURSE_ATTENDANCES ADD FOREIGN KEY (OFF_PRGREF_ID) REFERENCES OFFENDER_PROGRAM_PROFILES;
+ALTER TABLE OFFENDER_COURSE_ATTENDANCES ADD FOREIGN KEY (CRS_ACTY_ID) REFERENCES COURSE_ACTIVITIES;
+--ALTER TABLE OFFENDER_COURSE_ATTENDANCES ADD FOREIGN KEY (OFFENDER_PRG_OBLIGATION_ID) REFERENCES OFFENDER_PRG_OBLIGATIONS;
+--ALTER TABLE OFFENDER_COURSE_ATTENDANCES ADD FOREIGN KEY (PROGRAM_ID) REFERENCES PROGRAM_SERVICES;
+--ALTER TABLE OFFENDER_COURSE_ATTENDANCES ADD FOREIGN KEY (TXN_ID, TXN_ENTRY_SEQ) REFERENCES OFFENDER_TRANSACTIONS;
+
+ALTER TABLE OFFENDER_COURSE_ATTENDANCES ADD CHECK (EVENT_CLASS IN ('INT_MOV','COMM','EXT_MOV'));
+
+
+CREATE TABLE OFFENDER_EXCLUDE_ACTS_SCHDS
+(
+	OFFENDER_EXCLUDE_ACT_SCHD_ID    BIGSERIAL   PRIMARY KEY       NOT NULL,
+	OFFENDER_BOOK_ID                BIGINT                        NOT NULL,
+	OFF_PRGREF_ID                   BIGINT                        NOT NULL,
+	SLOT_CATEGORY_CODE              VARCHAR(12),
+	EXCLUDE_DAY                     VARCHAR(12)                   NOT NULL,
+	CRS_ACTY_ID                     BIGINT                        NOT NULL,
+	CREATE_DATETIME                 TIMESTAMP   DEFAULT now()     NOT NULL,
+	CREATE_USER_ID                  VARCHAR(32) DEFAULT USER      NOT NULL,
+	MODIFY_DATETIME                 TIMESTAMP,
+	MODIFY_USER_ID                  VARCHAR(32),
+	AUDIT_TIMESTAMP                 TIMESTAMP,
+	AUDIT_USER_ID                   VARCHAR(32),
+	AUDIT_MODULE_NAME               VARCHAR(65),
+	AUDIT_CLIENT_USER_ID            VARCHAR(64),
+	AUDIT_CLIENT_IP_ADDRESS         VARCHAR(39),
+	AUDIT_CLIENT_WORKSTATION_NAME   VARCHAR(64),
+	AUDIT_ADDITIONAL_INFO           VARCHAR(256)
+);
+
+--ALTER TABLE OFFENDER_EXCLUDE_ACTS_SCHDS ADD FOREIGN KEY (OFFENDER_BOOK_ID) REFERENCES OFFENDER_BOOKINGS;
+--ALTER TABLE OFFENDER_EXCLUDE_ACTS_SCHDS ADD FOREIGN KEY (OFF_PRGREF_ID) REFERENCES OFFENDER_PROGRAM_PROFILES;
+ALTER TABLE OFFENDER_EXCLUDE_ACTS_SCHDS ADD FOREIGN KEY (CRS_ACTY_ID) REFERENCES COURSE_ACTIVITIES;
+
+ALTER TABLE OFFENDER_EXCLUDE_ACTS_SCHDS ADD UNIQUE (OFF_PRGREF_ID, EXCLUDE_DAY, SLOT_CATEGORY_CODE);
+
+
+-----------------------------------------------------------
+-- Source tables for Appointments (APP) Scheduled Events --
+-----------------------------------------------------------
 CREATE TABLE OFFENDER_IND_SCHEDULES
 (
 	EVENT_ID                        BIGSERIAL   PRIMARY KEY   NOT NULL,
@@ -82,348 +386,190 @@ CREATE TABLE OFFENDER_IND_SCHEDULES
 ALTER TABLE OFFENDER_IND_SCHEDULES ADD CHECK (EVENT_CLASS IN ('EXT_MOV','INT_MOV','COMM'));
 
 
--- CREATE VIEW V_OFFENDER_ALL_SCHEDULES_2
---   AS SELECT
---     EVENT_ID,
---     OFFENDER_BOOK_ID,
---     AGY_LOC_ID,
---     EVENT_DATE,
---     START_TIME,
---     END_TIME,
---     EVENT_CLASS,
---     EVENT_TYPE,
---     EVENT_SUB_TYPE,
---     EVENT_STATUS,
---     EVENT_OUTCOME,
---     CONFIRM_FLAG,
---     OUTCOME_REASON_CODE,
---     COMMENT_TEXT,
---     REFERENCE_ID,
---     APPLICATION_DATE,
---     APPLICATION_TIME,
---     RETURN_DATE,
---     RETURN_TIME,
---     TO_AGY_LOC_ID,
---     ESCORT_CODE,
---     DIRECTION_CODE,
---     TO_INTERNAL_LOCATION_ID,
---     FROM_CITY_CODE,
---     TO_CITY_CODE,
---     CREDITED_HOURS,
---     PIECE_WORK,
---     ENGAGEMENT_CODE,
---     UNDERSTANDING_CODE,
---     DETAILS,
---     UNPAID_WORK_BEHAVIOUR,
---     UNPAID_WORK_ACTION,
---     SICK_NOTE_RECEIVED_DATE,
---     SICK_NOTE_EXPIRY_DATE,
---     UNEXCUSED_ABSENCE_FLAG,
---     IN_TIME,
---     OUT_TIME,
---     TRANSPORT_CODE,
---     PERFORMANCE_CODE,
---     OJ_LOCATION_CODE,
---     TO_COUNTRY_CODE,
---     AGREED_TRAVEL_HOUR,
---     CHECK_BOX_1,
---     CHECK_BOX_2,
---     HIDDEN_COMMENT_TEXT,
---     IN_CHARGE_STAFF_ID,
---     OFF_PRGREF_ID,
---     CONTACT_PERSON_NAME,
---     TO_ADDRESS_OWNER_CLASS,
---     TO_ADDRESS_ID,
---     TO_CORPORATE_ID,
---     UNPAID_WORK_SUPERVISOR,
---     TA_ID,
---     'SCH',
---     0,
---     OFFENDER_PRG_OBLIGATION_ID,
---     SENTENCE_SEQ,
---     CREATE_DATETIME,
---     CREATE_USER_ID,
---     TO_NUMBER(NULL),
---     TO_NUMBER(NULL),
---     TO_NUMBER(NULL),
---     NULL COURSE_CODE,
---     NULL COURSE_DESCRIPTION
---   FROM OFFENDER_IND_SCHEDULES
---   WHERE EVENT_STATUS <> 'DEL';
 
 
--- CREATE FUNCTION event_type_desc(p_event_class VARCHAR(12), p_event_type VARCHAR(12))
---   RETURNS VARCHAR(40)
---   READS SQL DATA
---   BEGIN ATOMIC
---     DECLARE lv_desc VARCHAR(40) DEFAULT 'Not Specified';
---     DECLARE lv_domain VARCHAR(12);
---     IF p_event_type IS NOT NULL
---     THEN
---       CASE p_event_class
---         WHEN 'EXT_MOV'
---         THEN
---           SET lv_domain = 'MOVE_TYPE';
---         WHEN 'INT_MOV'
---         THEN
---           SET lv_domain = 'INT_SCH_TYPE';
---         WHEN 'COMM'
---         THEN
---           SET lv_domain = 'EVENTS';
---         ELSE
---           SET lv_domain = 'EVENTS';
---       END CASE;
---
---       SELECT COALESCE(DESCRIPTION, 'Not Specified')
---         INTO lv_desc
---         FROM REFERENCE_CODES
---        WHERE CODE = p_event_type
---          AND DOMAIN = lv_domain;
---     END IF;
---
---     RETURN lv_desc;
---   END;
---
--- CREATE FUNCTION event_sub_type_desc(p_event_class VARCHAR(12), p_event_type VARCHAR(12), p_event_sub_type VARCHAR(12))
---   RETURNS VARCHAR(40)
---   BEGIN ATOMIC
---     RETURN 'Not Specified';
---   END;
---
--- CREATE FUNCTION getdesccode(p_code_type VARCHAR(12), p_code_value VARCHAR(12))
---   RETURNS VARCHAR(40)
---   BEGIN ATOMIC
---     RETURN 'Not Specified';
---   END;
---
--- CREATE FUNCTION level_code(p_description VARCHAR(240), p_level INTEGER)
---   RETURNS VARCHAR(40)
---   BEGIN ATOMIC
---     RETURN 'X';
---   END;
---
--- CREATE FUNCTION get_corporate_name(p_code_type VARCHAR(6))
---   RETURNS VARCHAR(40)
---   BEGIN ATOMIC
---     RETURN 'Not Specified';
---   END;
---
--- CREATE FUNCTION active_flag(p_location_id BIGINT)
---   RETURNS VARCHAR(1)
---   BEGIN ATOMIC
---     RETURN 'N';
---   END;
---
--- CREATE FUNCTION operation_flag(p_location_id BIGINT)
---   RETURNS VARCHAR(1)
---   BEGIN ATOMIC
---     RETURN 'N';
---   END;
---
---
--- CREATE VIEW LIVING_UNITS
---   AS SELECT
---     INTERNAL_LOCATION_ID LIVING_UNIT_ID,
---     AGY_LOC_ID,
---     INTERNAL_LOCATION_TYPE LIVING_UNIT_TYPE,
---     INTERNAL_LOCATION_CODE LIVING_UNIT_CODE,
---     DESCRIPTION,
---     substr(level_code(DESCRIPTION,1),1,40),
---     substr(level_code(DESCRIPTION,2),1,40),
---     substr(level_code(DESCRIPTION,3),1,40),
---     substr(level_code(DESCRIPTION,4),1,40),
---     USER_DESC,
---     ACA_CAP_RATING,
---     SECURITY_LEVEL_CODE,
---     LIST_SEQ,
---     PARENT_INTERNAL_LOCATION_ID PARENT_LIVING_UNIT_ID,
---     UNIT_TYPE,
---     ACTIVE_FLAG,
---     substr(active_flag(INTERNAL_LOCATION_ID),1,1),
---     CNA_NO,
---     CAPACITY,
---     OPERATION_CAPACITY,
---     CERTIFIED_FLAG,
---     DEACTIVATE_DATE,
---     REACTIVATE_DATE,
---     DEACTIVATE_REASON_CODE,
---     COMMENT_TEXT,
---     (SELECT DECODE(COUNT(*), 0, 'Y', 'N')
---      FROM AGENCY_INTERNAL_LOCATIONS AIL2
---      WHERE AIL2.PARENT_INTERNAL_LOCATION_ID = AIL.INTERNAL_LOCATION_ID
---      AND AIL2.UNIT_TYPE IS NOT NULL),
---     substr(operation_flag(INTERNAL_LOCATION_ID),1,1),
---     NO_OF_OCCUPANT
---   FROM AGENCY_INTERNAL_LOCATIONS AIL
---   WHERE UNIT_TYPE IS NOT NULL;
---
---
--- CREATE VIEW V_OFFENDER_ALL_SCHEDULES
---   AS SELECT
---     SCH.EVENT_ID,
---     SCH.OFFENDER_BOOK_ID,
---     BKG.IN_OUT_STATUS,
---     BKG.BOOKING_NO,
---     BKG.ACTIVE_FLAG,
---     BKG.OFFENDER_ID,
---     OFF.OFFENDER_ID_DISPLAY,
---     OFF.LAST_NAME,
---     OFF.FIRST_NAME,
---     SCH.EVENT_DATE,
---     CASE
--- 	    WHEN SCH.EVENT_TYPE IN ('UW','DRR')
---    		THEN
--- 		    SCH.IN_TIME
--- 		  ELSE
--- 	  	  SCH.START_TIME
---     END START_TIME,
---     CASE
--- 	    WHEN SCH.EVENT_TYPE IN ('UW','DRR')
---    		THEN
--- 	 	    SCH.OUT_TIME
--- 		  ELSE
--- 		    SCH.END_TIME
---     END END_TIME,
---     SCH.EVENT_CLASS,
---     SCH.EVENT_TYPE,
---     SUBSTR(event_type_desc(SCH.EVENT_CLASS, SCH.EVENT_TYPE), 1, 40),
---     SCH.EVENT_SUB_TYPE,
---     SUBSTR(event_sub_type_desc(SCH.EVENT_CLASS, SCH.EVENT_TYPE, SCH.EVENT_SUB_TYPE), 1, 40),
---     DECODE(EVENT_STATUS, 'SCH', 'Y', 'N'),
---     EVENT_STATUS,
---     SUBSTR(getdesccode('EVENT_STS', SCH.EVENT_STATUS), 1, 40),
---     EVENT_OUTCOME,
---     SUBSTR(getdesccode('OUTCOMES', SCH.EVENT_OUTCOME), 1, 40),
---     SCH.OUTCOME_REASON_CODE,
---     SCH.REFERENCE_ID,
---     SCH.APPLICATION_DATE,
---     SCH.APPLICATION_TIME,
---     SCH.RETURN_DATE,
---     SCH.RETURN_TIME,
---     SCH.COMMENT_TEXT,
---     SCH.DETAILS,
---     SCH.AGY_LOC_ID,
---     AGY.DESCRIPTION,
---     BKG.LIVING_UNIT_ID,
---     LU.DESCRIPTION,
---     LU.LEVEL_1_CODE,
---     LU.LEVEL_2_CODE,
---     LU.LEVEL_3_CODE,
---     LU.LEVEL_4_CODE,
---     BKG.AGENCY_IML_ID,
---     AIL2.DESCRIPTION,
---     SUBSTR(level_code(AIL2.DESCRIPTION, 1), 1, 40),
---     SUBSTR(level_code(AIL2.DESCRIPTION, 2), 1, 40),
---     SUBSTR(level_code(AIL2.DESCRIPTION, 3), 1, 40),
---     SCH.TO_AGY_LOC_ID,
--- 	  CASE
--- 		  WHEN SCH.EVENT_TYPE IN ('DRR','UW') AND SCH.RECORD_SOURCE != 'SCH'
--- 		  THEN
--- 		    get_corporate_name(SCH.TO_AGY_LOC_ID)
--- 		  ELSE
--- 		    AGY2.DESCRIPTION
---     END,
---     nvl(sch.to_agy_loc_id, oj_location_code),
---     NVL(AGY2.DESCRIPTION, SUBSTR(getdesccode('OJ_LOCATION', OJ_LOCATION_CODE), 1, 40)),
---     SCH.ESCORT_CODE,
---     SUBSTR(getdesccode('ESCORT', SCH.ESCORT_CODE), 1, 40),
---     SCH.DIRECTION_CODE,
---     SCH.FROM_CITY_CODE,
---     CASE
---       WHEN SCH.FROM_CITY_CODE IS NOT NULL
---       THEN
---         SUBSTR(getdesccode('CITY', SCH.FROM_CITY_CODE), 1, 40)
---       ELSE
--- 	      ' '
--- 	  END,
---     SCH.TO_CITY_CODE,
---     CASE
---       WHEN SCH.TO_CITY_CODE IS NOT NULL
---       THEN
---         SUBSTR(getdesccode('CITY', SCH.TO_CITY_CODE), 1, 40)
---       ELSE
---         ' '
---     END,
---     SCH.TO_INTERNAL_LOCATION_ID,
---     AIL.DESCRIPTION,
---     SUBSTR(level_code(AIL.DESCRIPTION, 1), 1, 40),
---     SUBSTR(level_code(AIL.DESCRIPTION, 2), 1, 40),
---     SUBSTR(level_code(AIL.DESCRIPTION, 3), 1, 40),
---     AIL.USER_DESC,
---     SCH.CREDITED_HOURS,
---     SCH.ENGAGEMENT_CODE,
---     SCH.UNDERSTANDING_CODE,
---     SCH.PIECE_WORK,
---     SCH.IN_TIME,
---     SCH.OUT_TIME,
---     SCH.PERFORMANCE_CODE,
---     SCH.TRANSPORT_CODE,
---     SCH.OJ_LOCATION_CODE,
---     CASE
--- 	    WHEN OJ_LOCATION_CODE IS NOT NULL
---       THEN
---         SUBSTR(getdesccode('OJ_LOCATION', OJ_LOCATION_CODE), 1, 40)
---       ELSE
---         ' '
--- 	  END,
---     SCH.TO_COUNTRY_CODE,
---     CASE
---       WHEN TO_COUNTRY_CODE IS NOT NULL
---       THEN
---         SUBSTR(getdesccode('COUNTRY', TO_COUNTRY_CODE), 1, 40)
---       ELSE
---         ' '
---     END,
---     SCH.SICK_NOTE_EXPIRY_DATE,
---     SCH.SICK_NOTE_RECEIVED_DATE,
---     SCH.UNEXCUSED_ABSENCE_FLAG,
---     SCH.UNPAID_WORK_ACTION,
---     SCH.UNPAID_WORK_BEHAVIOUR,
---     SCH.AGREED_TRAVEL_HOUR,
---     SCH.CHECK_BOX_1,
---     SCH.CHECK_BOX_2,
---     SCH.HIDDEN_COMMENT_TEXT,
---     SCH.IN_CHARGE_STAFF_ID,
---     SUBSTR(DECODE(IN_CHARGE_STAFF_ID, NULL, ' ', (STF.LAST_NAME || ', ' || STF.FIRST_NAME)), 1, 40),
---     SCH.OFF_PRGREF_ID,
---     SCH.CONTACT_PERSON_NAME,
---     SCH.TO_ADDRESS_OWNER_CLASS,
---     SCH.TO_ADDRESS_ID,
---     SCH.UNPAID_WORK_SUPERVISOR,
---     SCH.TA_ID,
---     SCH.RECORD_SOURCE,
---     SCH.CHECK_SUM,
---     SCH.CREATE_DATETIME,
---     SCH.CREATE_USER_ID,
---     SCH.PROGRAM_ID,
---     SCH.CRS_ACTY_ID,
---     SCH.SESSION_NO,
---     SCH.OFFENDER_PRG_OBLIGATION_ID,
--- 	  SCH.COURSE_CODE,
--- 		SCH.COURSE_DESCRIPTION
---   FROM V_OFFENDER_ALL_SCHEDULES_2 SCH
---     INNER JOIN OFFENDER_BOOKINGS BKG ON SCH.OFFENDER_BOOK_ID = BKG.OFFENDER_BOOK_ID
---     INNER JOIN OFFENDERS OFF ON BKG.OFFENDER_ID = OFF.OFFENDER_ID
---     LEFT JOIN AGENCY_LOCATIONS AGY ON SCH.AGY_LOC_ID = AGY.AGY_LOC_ID
---     LEFT JOIN AGENCY_LOCATIONS AGY2 ON SCH.TO_AGY_LOC_ID = AGY.AGY_LOC_ID
---     LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON SCH.TO_INTERNAL_LOCATION_ID = AIL.INTERNAL_LOCATION_ID
---     LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL2 ON BKG.AGENCY_IML_ID = AIL2.INTERNAL_LOCATION_ID
---     LEFT JOIN STAFF_MEMBERS STF ON SCH.IN_CHARGE_STAFF_ID = STF.STAFF_ID
---     LEFT JOIN LIVING_UNITS LU ON BKG.LIVING_UNIT_ID = LU.LIVING_UNIT_ID;
---
---      agency_locations agy,
---      offender_bookings bkg,
---      offenders OFF,
---      agency_internal_locations ail,
---      agency_locations agy2,
---      staff_members stf,
---      living_units lu,
---      agency_internal_locations ail2
---  WHERE sch.agy_loc_id = agy.agy_loc_id(+)
---    AND sch.to_agy_loc_id = agy2.agy_loc_id(+)
---    AND sch.to_internal_location_id = ail.internal_location_id(+)
---    AND bkg.agency_iml_id = ail2.internal_location_id(+)
---    AND sch.offender_book_id = bkg.offender_book_id
---    AND bkg.offender_id = OFF.offender_id
---    AND sch.in_charge_staff_id = stf.staff_id(+)
---    AND bkg.living_unit_id = lu.living_unit_id(+);
+-- CREATE OR REPLACE VIEW V_OIISCHED_ALL_SCHEDULES
+-- (OFFENDER_ID, OFFENDER_ID_DISPLAY, OFFENDER_LAST_NAME, OFFENDER_FIRST_NAME, OFFENDER_BOOK_ID,
+--  EVENT_CLASS, EVENT_STATUS, EVENT_TYPE, EVENT_SUB_TYPE, EVENT_DATE,
+--  START_TIME, EVENT_TYPE_DESC, EVENT_SUB_TYPE_DESC, TO_INTERNAL_LOCATION_DESC, AGY_LOC_ID,
+--  TO_AGY_LOC_DESC, TO_LOC_DESC, TO_AGY_LOC_ID, TO_ADDRESS_ID, TO_CITY_CODE,
+--  SOURCE)
+-- AS
+-- SELECT
+--        off.offender_id,
+--        off.offender_id_display,
+--        off.last_name offender_last_name,
+--        off.first_name offender_first_name,
+--        sch.offender_book_id,
+--        sch.event_class,
+--        sch.event_status,
+--        sch.event_type,
+--        sch.event_sub_type,
+--        sch.event_date,
+--        sch.start_time,
+--        rd1.description event_type_desc,
+--        rd2.description event_sub_type_desc,
+--        SUBSTR(COALESCE(ail.description,
+--                        agy.description,
+--                        tag_reports.get_full_address_details (sch.to_address_id),
+--                        tag_reference_codes.getdesccode ('CITY',sch.to_city_code)),1,40) to_internal_location_desc,
+--        bkg.agy_loc_id agy_loc_id,
+--        agy.description to_agy_loc_desc,
+--        agy.description to_loc_desc,
+-- 	    sch.to_agy_loc_id,
+--        sch.to_address_id,
+--        sch.to_city_code,
+--        sch.source
+--   FROM (SELECT ind.offender_book_id,
+-- 	            ind.agy_loc_id,                     <-- not used
+-- 	            ind.event_class,
+-- 	            ind.event_status,
+-- 	            ind.event_type,
+-- 	            ind.event_sub_type,
+-- 	            ind.event_date,
+-- 	            ind.start_time,
+-- 	            ind.to_address_id,
+-- 	            ind.to_city_code,
+-- 	            ind.to_agy_loc_id,
+--                ind.to_internal_location_id,      <-- not used
+--                'APP' source
+--              FROM offender_ind_schedules ind
+--             WHERE event_status = 'SCH'
+--             UNION ALL
+--            SELECT ce.offender_book_id,
+-- 	               NULL,                            <-- not used
+--                   'EXT_MOV',
+--                   'SCH',
+-- 	               'CRT',
+-- 	               ce.court_event_type,
+--                   ce.event_date,
+-- 	               ce.start_time,
+-- 	               NULL,
+-- 	               NULL,
+--                   ce.agy_loc_id,
+--                   NULL,                          <-- not used
+--                   'CRT'
+--              FROM court_events ce
+--             WHERE NVL(ce.event_status,'SCH') = 'SCH'
+--             UNION ALL
+--            SELECT ord.offender_book_id,
+-- 	               NULL,                            <-- not used
+-- 	               'EXT_MOV',
+-- 	               'SCH',
+-- 	               ord.movement_type,
+-- 	               ord.movement_reason_code,
+-- 	               ord.release_date,
+-- 	               NULL,
+-- 	               NULL,
+-- 	               NULL,
+-- 	               NULL,
+--                   NULL,
+--                   'REL'
+--              FROM offender_release_details ord
+--             WHERE ord.event_status = 'SCH'
+--             UNION ALL
+--            SELECT opp.offender_book_id,
+--                   opp.agy_loc_id,                <-- not used
+-- 	               'INT_MOV',
+-- 	               'SCH',
+--                   'PRISON_ACT',
+-- 	               ca.course_activity_type,
+-- 	               cs.schedule_date,
+-- 	               cs.start_time,
+-- 	               ca.services_address_id,
+-- 	               NULL,
+--                   ca.agy_loc_id,
+--                   ca.internal_location_id,       <-- not used
+--                   'PA'
+--              FROM offender_program_profiles opp
+--              JOIN course_activities ca
+--                ON ca.crs_acty_id = opp.crs_acty_id
+--              JOIN course_schedules cs
+--                ON opp.crs_acty_id = cs.crs_acty_id
+--                   AND opp.offender_start_date <= cs.schedule_date
+--                   AND COALESCE(opp.offender_end_date,
+--                                ca.schedule_end_date,
+--                                cs.schedule_date) >= cs.schedule_date
+--             WHERE opp.offender_program_status = 'ALLOC'
+--               AND NVL(opp.suspended_flag,'N') = 'N'
+--               AND ca.active_flag = 'Y'
+--               AND ca.course_activity_type IS NOT NULL
+--               AND cs.catch_up_crs_sch_id IS NULL
+--               AND NOT EXISTS ( SELECT 'x'
+--                                  FROM offender_course_attendances oca
+--                                 WHERE oca.offender_book_id = opp.offender_book_id
+--                                   AND oca.event_date = cs.schedule_date
+--                                   AND oca.crs_sch_id = cs.crs_sch_id)
+--               AND (TO_CHAR(cs.schedule_date, 'DY'), cs.slot_category_code) NOT IN
+-- 	               (SELECT oe.exclude_day, NVL(oe.slot_category_code, cs.slot_category_code)
+--                      FROM offender_exclude_acts_schds oe
+--                     WHERE oe.off_prgref_id = opp.off_prgref_id)
+--             UNION ALL
+--            SELECT oca.offender_book_id,
+--                   oca.agy_loc_id,                <-- not used
+-- 	               'INT_MOV',
+-- 	               'SCH',
+-- 	               oca.event_type,
+-- 	               oca.event_sub_type,
+-- 	               oca.event_date,
+-- 	               oca.start_time,
+-- 	               oca.to_address_id,
+-- 	               NULL,
+-- 	               oca.to_agy_loc_id,
+--                   oca.to_internal_location_id,   <-- not used
+--                   'PA'
+--              FROM offender_course_attendances oca
+--             WHERE oca.event_status = 'SCH'
+--             UNION ALL
+--            SELECT ov.offender_book_id,
+-- 	               ov.agy_loc_id,                   <-- not used
+-- 	               'INT_MOV',
+-- 	               'SCH',
+-- 	               'VISIT',
+-- 	               'VISIT',
+-- 	               ov.visit_date,
+-- 	               ov.end_time,
+-- 	               null,
+-- 	               null,
+-- 	               ov.agy_loc_id,
+--                   visit_internal_location_id,    <-- not used
+--                   'VIS'
+--              FROM offender_visits ov
+--             WHERE visit_status = 'SCH'
+--             UNION ALL
+--            SELECT aip.offender_book_id,
+--                   ai.agy_loc_id,                 <-- not used
+--                   'INT_MOV',
+--                   'SCH',
+--                   'OIC',
+--                   'OIC',
+--                   oh.hearing_date,
+--                   null,
+--                   null,
+--                   null,
+--                   ai.agy_loc_id,
+--                   oh.internal_location_id,       <-- not used
+--                   'OIC'
+--              FROM agency_incident_parties aip
+--              JOIN oic_hearings oh
+--                ON oh.oic_incident_id = aip.oic_incident_id
+--              JOIN agency_incidents ai
+--                ON ai.agency_incident_id = aip.agency_incident_id
+--             WHERE oh.hearing_date IS NOT NULL
+--               AND aip.offender_book_id IS NOT NULL
+--               AND oh.event_status = 'SCH') sch
+--   JOIN offender_bookings bkg
+--     ON sch.offender_book_id = bkg.offender_book_id
+--        AND bkg.active_flag  = 'Y'
+--   JOIN offenders off
+--     ON bkg.offender_id = off.offender_id
+--   LEFT JOIN agency_internal_locations   ail
+--     ON sch.to_internal_location_id = ail.internal_location_id
+--   LEFT JOIN agency_locations agy
+--     ON sch.to_agy_loc_id = agy.agy_loc_id
+--   LEFT JOIN reference_codes rd1
+--     ON rd1.code = sch.event_type
+--        AND rd1.domain = DECODE (sch.event_class, 'EXT_MOV', 'MOVE_TYPE', 'INT_SCH_TYPE')
+--   LEFT JOIN reference_codes rd2
+--     ON rd2.code = sch.event_sub_type
+--        AND rd2.domain = DECODE (sch.event_class, 'EXT_MOV', 'MOVE_RSN', 'INT_SCH_RSN');

@@ -3,10 +3,11 @@ package net.syscon.elite.repository.impl;
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.PrivilegeDetail;
+import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.model.SentenceDetail;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.BookingRepository;
-import net.syscon.elite.repository.mapping.FieldMapper;
-import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
+import net.syscon.elite.repository.mapping.*;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.springframework.cache.annotation.Cacheable;
@@ -59,6 +60,32 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                     .put("USER_ID", new FieldMapper("userId"))
                     .build();
 
+    private final StandardBeanPropertyRowMapper<ScheduledEvent> scheduledEventMapper = new StandardBeanPropertyRowMapper<>(ScheduledEvent.class);
+
+    @Override
+    @Cacheable("verifyBookingAccess")
+    public boolean verifyBookingAccess(Long bookingId, Set<String> agencyIds) {
+        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
+        Objects.requireNonNull(agencyIds, "agencyIds is a required parameter");
+
+        String initialSql = getQuery("CHECK_BOOKING_AGENCIES");
+
+        Long response;
+
+        try {
+            log.debug("Verifying access for booking [{}] in caseloads {}", bookingId, agencyIds);
+
+            response = jdbcTemplate.queryForObject(
+                    initialSql,
+                    createParams("bookingId", bookingId, "agencyIds", agencyIds),
+                    Long.class);
+        } catch (EmptyResultDataAccessException ex) {
+            response = null;
+        }
+
+        return bookingId.equals(response);
+    }
+
     @Override
     public Optional<SentenceDetail> getBookingSentenceDetail(Long bookingId) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
@@ -104,26 +131,26 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    @Cacheable("verifyBookingAccess")
-    public boolean verifyBookingAccess(Long bookingId, Set<String> agencyIds) {
+    public Page<ScheduledEvent> getBookingActivities(Long bookingId, long offset, long limit, String orderByFields, Order order) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
-        Objects.requireNonNull(agencyIds, "agencyIds is a required parameter");
 
-        String initialSql = getQuery("CHECK_BOOKING_AGENCIES");
+        String initialSql = getQuery("GET_BOOKING_ACTIVITIES");
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, scheduledEventMapper.getFieldMap());
+        boolean isAscendingOrder = (order == Order.ASC);
 
-        Long response;
+        String sql = builder
+                .addRowCount()
+                .addOrderBy(isAscendingOrder, orderByFields)
+                .addPagination()
+                .build();
 
-        try {
-            log.debug("Verifying access for booking [{}] in caseloads {}", bookingId, agencyIds);
+        PageableAwareRowMapper<ScheduledEvent> paRowMapper = new PageableAwareRowMapper<>(scheduledEventMapper);
 
-            response = jdbcTemplate.queryForObject(
-                    initialSql,
-                    createParams("bookingId", bookingId, "agencyIds", agencyIds),
-                    Long.class);
-        } catch (EmptyResultDataAccessException ex) {
-            response = null;
-        }
+        List<ScheduledEvent> activities = jdbcTemplate.query(
+                sql,
+                createParams("bookingId", bookingId, "offset", offset, "limit", limit),
+                paRowMapper);
 
-        return bookingId.equals(response);
+        return new Page<>(activities, paRowMapper.getRecordCount(), offset, limit);
     }
 }
