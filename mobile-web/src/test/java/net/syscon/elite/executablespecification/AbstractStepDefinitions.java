@@ -2,6 +2,7 @@ package net.syscon.elite.executablespecification;
 
 import net.syscon.elite.executablespecification.steps.*;
 import net.syscon.elite.test.DatasourceActiveProfilesResolver;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -99,5 +100,18 @@ abstract class AbstractStepDefinitions {
         BookingSentenceSteps bookingSentenceSteps() {
             return new BookingSentenceSteps();
         }
+    }
+
+    protected int ord2idx(String ordinal) {
+        String numberOnly = StringUtils.trimToEmpty(ordinal).replaceAll("[^0-9]", "");
+        int index;
+
+        try {
+            index = Integer.parseInt(numberOnly) - 1;
+        } catch (NumberFormatException ex) {
+            index = -1;
+        }
+
+        return index;
     }
 }

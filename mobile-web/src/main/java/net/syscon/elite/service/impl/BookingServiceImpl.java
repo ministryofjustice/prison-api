@@ -2,6 +2,10 @@ package net.syscon.elite.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.repository.*;
+import net.syscon.elite.api.support.Order;
+import net.syscon.elite.repository.BookingRepository;
+import net.syscon.elite.repository.mapping.Page;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
@@ -11,6 +15,8 @@ import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.support.NonDtoReleaseDate;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,10 +88,15 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<ScheduledEvent> getBookingActivities(Long bookingId) {
+    public Page<ScheduledEvent> getBookingActivities(Long bookingId, long offset, long limit, String orderByFields, Order order) {
+        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
+
         verifyBookingAccess(bookingId);
 
-        return new ArrayList<>();
+        String sortFields = StringUtils.defaultString(orderByFields, "startTime");
+        Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
+
+        return bookingRepository.getBookingActivities(bookingId, offset, limit, sortFields, sortOrder);
     }
 
     private NonDtoReleaseDate deriveNonDtoReleaseDate(SentenceDetail sentenceDetail) {
@@ -159,6 +170,8 @@ public class BookingServiceImpl implements BookingService {
      * @throws EntityNotFoundException if current user does not have access to specified booking.
      */
     public void verifyBookingAccess(Long bookingId) {
+        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
+
         if (!bookingRepository.verifyBookingAccess(bookingId, getAgencyIds())) {
             throw new EntityNotFoundException(bookingId.toString());
         }

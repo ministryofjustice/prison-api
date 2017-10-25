@@ -1,6 +1,8 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.support.Order;
+import net.syscon.elite.repository.mapping.Page;
 
 import java.util.List;
 
@@ -12,7 +14,7 @@ public interface BookingService {
 
     PrivilegeSummary getBookingIEPSummary(Long bookingId, boolean withDetails);
 
-    List<ScheduledEvent> getBookingActivities(Long bookingId);
+    Page<ScheduledEvent> getBookingActivities(Long bookingId, long offset, long limit, String orderByFields, Order order);
 
     void verifyBookingAccess(Long bookingId);
 
