@@ -21,7 +21,7 @@ public class PageableAwareRowMapper<T> implements RowMapper<T> {
         if (!recordCountSet) {
             Object val = rs.getObject("RECORD_COUNT");
 
-            if (val instanceof Number) {
+            if (val instanceof BigDecimal) {
                 recordCount = ((BigDecimal) ObjectUtils.defaultIfNull(val, BigDecimal.ZERO)).longValue();
             } else {
                 recordCount = (Long) ObjectUtils.defaultIfNull(val, 0);
