@@ -2,6 +2,7 @@ package net.syscon.elite.repository.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
+import net.syscon.elite.api.model.OffenderRelease;
 import net.syscon.elite.api.model.PrivilegeDetail;
 import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.model.SentenceDetail;
@@ -61,6 +62,8 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                     .build();
 
     private final StandardBeanPropertyRowMapper<ScheduledEvent> scheduledEventMapper = new StandardBeanPropertyRowMapper<>(ScheduledEvent.class);
+
+    private final StandardBeanPropertyRowMapper<OffenderRelease> offenderReleaseMapper = new StandardBeanPropertyRowMapper<>(OffenderRelease.class);
 
     @Override
     @Cacheable("verifyBookingAccess")
@@ -152,5 +155,28 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                 paRowMapper);
 
         return new Page<>(activities, paRowMapper.getRecordCount(), offset, limit);
+    }
+
+    public Page<OffenderRelease> getOffenderReleaseSummary(String query, long offset, long limit, String orderByFields, Order order) {
+        String initialSql = getQuery("OFFENDER_SUMMARY");
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, offenderReleaseMapper.getFieldMap());
+        boolean isAscendingOrder = (order == Order.ASC);
+
+        String sql = builder
+                .addRowCount()
+                .addOrderBy(isAscendingOrder, orderByFields)
+                .addPagination()
+                .addQuery(query)
+                .build();
+
+        PageableAwareRowMapper<OffenderRelease> paRowMapper = new PageableAwareRowMapper<>(offenderReleaseMapper);
+
+        List<OffenderRelease> offenderReleases = jdbcTemplate.query(
+                sql,
+                createParams("offset", offset, "limit", limit),
+                paRowMapper);
+
+        offenderReleases.forEach(or -> or.setInternalLocationDesc(LocationRepositoryImpl.removeAgencyId(or.getInternalLocationDesc(), or.getAgencyLocationId())));
+        return new Page<>(offenderReleases, paRowMapper.getRecordCount(), offset, limit);
     }
 }

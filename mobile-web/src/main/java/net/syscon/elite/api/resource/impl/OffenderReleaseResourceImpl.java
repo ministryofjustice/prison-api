@@ -3,8 +3,8 @@ package net.syscon.elite.api.resource.impl;
 import net.syscon.elite.api.model.OffenderRelease;
 import net.syscon.elite.api.resource.OffenderReleaseResource;
 import net.syscon.elite.core.RestResource;
+import net.syscon.elite.repository.mapping.Page;
 import net.syscon.elite.service.BookingService;
-import net.syscon.util.MetaDataFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -27,7 +27,7 @@ public class OffenderReleaseResourceImpl implements OffenderReleaseResource {
     @Override
     @PreAuthorize("authentication.authorities.?[authority.contains('_ADMIN')].size() != 0")
     public GetOffenderReleasesResponse getOffenderReleases(Long pageOffset, Long pageLimit, List<String> offenderNos) {
-        final List<OffenderRelease> releaseResponse = bookingService.getReleases(offenderNos, nvl(pageOffset, 0L), nvl(pageLimit, 10L));
-        return GetOffenderReleasesResponse.respond200WithApplicationJson(releaseResponse, MetaDataFactory.getTotalRecords(releaseResponse), nvl(pageOffset, 0L), nvl(pageLimit, 10L));
+        final Page<OffenderRelease> releaseResponse = bookingService.getOffenderReleaseSummary(offenderNos, nvl(pageOffset, 0L), nvl(pageLimit, 10L));
+        return GetOffenderReleasesResponse.respond200WithApplicationJson(releaseResponse.getItems(), releaseResponse.getRecordCount(), releaseResponse.getOffset(), releaseResponse.getLimit());
     }
 }

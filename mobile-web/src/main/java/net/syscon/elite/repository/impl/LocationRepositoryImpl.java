@@ -113,7 +113,7 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 		return locations;
 	}
 
-	private String removeAgencyId(final String description, final String agencyId) {
+	public static String removeAgencyId(final String description, final String agencyId) {
 		return StringUtils.replaceFirst(description,StringUtils.trimToEmpty(agencyId)+"-", "");
 	}
 }

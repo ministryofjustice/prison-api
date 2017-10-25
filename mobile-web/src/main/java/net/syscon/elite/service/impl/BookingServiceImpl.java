@@ -2,13 +2,10 @@ package net.syscon.elite.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
-import net.syscon.elite.repository.*;
-import net.syscon.elite.api.support.Order;
-import net.syscon.elite.repository.BookingRepository;
-import net.syscon.elite.repository.mapping.Page;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
+import net.syscon.elite.repository.mapping.Page;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.BookingService;
@@ -35,7 +32,6 @@ import static java.time.temporal.ChronoUnit.DAYS;
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final SentenceRepository sentenceRepository;
-
     private final AgencyService agencyService;
     private final InmateService inmateService;
 
@@ -184,31 +180,10 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<OffenderRelease> getReleases(List<String> offenderNos, long offset, long limit) {
+    public Page<OffenderRelease> getOffenderReleaseSummary(List<String> offenderNos, long offset, long limit) {
 
         final String query = buildOffenderInQuery(offenderNos);
-        final List<OffenderBooking> bookings = inmateService.findAllInmates(query, offset, limit, "offenderNo", Order.ASC);
-
-        final List<OffenderRelease> offenderReleases = new ArrayList<>();
-        bookings.forEach(booking -> {
-            final SentenceDetail bookingSentenceDetail = getBookingSentenceDetail(booking.getBookingId());
-            offenderReleases.add(OffenderRelease.builder()
-                    .firstName(booking.getFirstName())
-                    .middleName(booking.getMiddleName())
-                    .lastName(booking.getLastName())
-                    .assignedLivingUnit(AssignedLivingUnit.builder()
-                            .agencyId(booking.getAgencyId())
-                            .locationId(booking.getAssignedLivingUnitId())
-                            .description(booking.getAssignedLivingUnitDesc())
-                            .build())
-                    .bookingId(booking.getBookingId())
-                    .offenderNo(booking.getOffenderNo())
-                    .releaseDate(bookingSentenceDetail.getConditionalReleaseDate())  //TODO We know this isn't right, its just a placeholder
-                    .additionalProperties(booking.getAdditionalProperties())
-                    .build());
-        });
-
-        return offenderReleases;
+        return bookingRepository.getOffenderReleaseSummary(query, offset, limit, "offenderNo", Order.ASC);
     }
 
     private String buildOffenderInQuery(List<String> offenderNos) {
