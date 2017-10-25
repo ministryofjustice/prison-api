@@ -331,6 +331,11 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingIEPSteps.verifyDaysSinceReview(iepDate);
     }
 
+    @When("^an IEP summary with booking id in different caseload is requested$")
+    public void IEPSummaryWithBookingIdInDifferentCaseload() throws Throwable {
+        bookingIEPSteps.getIdInDifferentCaseload();
+    }
+
     @Then("^resource not found response is received from bookings IEP summary API$")
     public void resourceNotFoundResponseIsReceivedFromBookingsIEPSummaryAPI() throws Throwable {
         bookingIEPSteps.verifyResourceNotFound();
