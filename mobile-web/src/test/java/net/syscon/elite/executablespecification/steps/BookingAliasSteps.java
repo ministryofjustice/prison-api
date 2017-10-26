@@ -49,7 +49,7 @@ public class BookingAliasSteps extends CommonSteps {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         aliases = response.getBody();
-        buildResourceData(response, "aliases");
+        buildResourceData(response);
     }
 
     protected void init() {

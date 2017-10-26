@@ -2,12 +2,11 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.resource.AgencyResource;
+import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.AgencyService;
-import net.syscon.util.MetaDataFactory;
 
 import javax.ws.rs.Path;
-import java.util.List;
 
 import static net.syscon.util.ResourceUtils.nvl;
 
@@ -22,17 +21,15 @@ public class AgencyResourceImpl implements AgencyResource {
 
     @Override
     public GetAgenciesResponse getAgencies(Long pageOffset, Long pageLimit) {
-        long offset = nvl(pageOffset, 0L);
-        long limit = nvl(pageLimit, 10L);
+        Page<Agency> agencies = agencyService.getAgencies(nvl(pageOffset, 0L), nvl(pageLimit, 10L));
 
-        List<Agency> agencies = agencyService.getAgencies(offset, limit);
-
-        return GetAgenciesResponse.respond200WithApplicationJson(agencies,
-                MetaDataFactory.getTotalRecords(agencies), offset, limit);
+        return GetAgenciesResponse.respond200WithApplicationJson(agencies);
     }
 
     @Override
     public GetAgencyResponse getAgency(String agencyId) {
-        return GetAgencyResponse.respond200WithApplicationJson(agencyService.getAgency(agencyId));
+        Agency agency = agencyService.getAgency(agencyId);
+
+        return GetAgencyResponse.respond200WithApplicationJson(agency);
     }
 }

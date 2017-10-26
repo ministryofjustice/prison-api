@@ -1,12 +1,10 @@
 package net.syscon.elite.executablespecification.steps;
 
 import com.google.common.collect.ImmutableMap;
-
 import net.syscon.elite.api.model.ErrorResponse;
-import net.syscon.elite.api.model.PageMetaData;
+import net.syscon.elite.api.support.Page;
 import net.syscon.elite.test.ErrorResponseErrorHandler;
 import net.thucydides.core.annotations.Step;
-
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +41,7 @@ public abstract class CommonSteps {
     protected TestRestTemplate restTemplate;
 
     private List<?> resources;
-    private PageMetaData pageMetaData;
-    private Map<String,Object> additionalProperties = new HashMap<>();
-    private ResponseEntity receivedResponse;
+    private Page pageMetaData;
     private ErrorResponse errorResponse;
     private long paginationLimit;
     private long paginationOffset;
@@ -114,28 +110,15 @@ public abstract class CommonSteps {
         paginationLimit = 10;
         paginationOffset = 0;
         errorResponse = null;
-        receivedResponse = null;
     }
 
-    protected <T> void buildResourceData(ResponseEntity<List<T>> receivedResponse, String name) {
-        this.receivedResponse = receivedResponse;
-        final PageMetaData pageMetaData = buildPageMetaData(receivedResponse.getHeaders(), name);
-        setResourceMetaData(receivedResponse.getBody(), pageMetaData);
+    protected <T> void buildResourceData(ResponseEntity<List<T>> receivedResponse) {
+        this.pageMetaData = buildPageMetaData(receivedResponse.getHeaders());
+        this.resources = receivedResponse.getBody();
     }
 
-    protected void setResourceMetaData(List<?> resources, PageMetaData pageMetaData) {
+    protected void setResourceMetaData(List<?> resources) {
         this.resources = resources;
-        this.pageMetaData = pageMetaData;
-    }
-
-    @Deprecated
-    protected void setAdditionalResponseProperties(Map<String,Object> additionalProperties) {
-        this.additionalProperties.putAll(additionalProperties);
-    }
-
-    @Deprecated
-    protected void setReceivedResponse(ResponseEntity receivedResponse) {
-        this.receivedResponse = receivedResponse;
     }
 
     protected void setErrorResponse(ErrorResponse errorResponse) {
@@ -394,20 +377,23 @@ public abstract class CommonSteps {
         assertThat(index).isLessThan(resources.size());
     }
 
-    private PageMetaData buildPageMetaData(HttpHeaders headers, String name) {
-        final List<String> totals = headers.get("Total-Records");
-        final Long totalRecords = totals == null || totals.isEmpty() ? null : Long.valueOf(totals.get(0));
-        final List<String> offsets = headers.get("Page-Offset");
-        final Long returnedOffset = offsets == null || offsets.isEmpty() ? null : Long.valueOf(offsets.get(0));
-        final List<String> limits = headers.get("Page-Limit");
-        final Long returnedLimit = limits == null || limits.isEmpty() ? null : Long.valueOf(limits.get(0));
+    private Page<?> buildPageMetaData(HttpHeaders headers) {
+        Page<?> pageMetaData;
 
-        return PageMetaData.builder()
-                .name(name)
-                .totalRecords(totalRecords)
-                .offset(returnedOffset)
-                .limit(returnedLimit)
-                .build();
+        List<String> totals = headers.get("Total-Records");
+
+        if ((totals != null) && !totals.isEmpty()) {
+            Long totalRecords = Long.valueOf(totals.get(0));
+            List<String> offsets = headers.get("Page-Offset");
+            Long returnedOffset = Long.valueOf(offsets.get(0));
+            List<String> limits = headers.get("Page-Limit");
+            Long returnedLimit = Long.valueOf(limits.get(0));
+
+            pageMetaData = new Page<>(null, totalRecords, returnedOffset, returnedLimit);
+        } else {
+            pageMetaData = null;
+        }
+
+        return pageMetaData;
     }
-
 }

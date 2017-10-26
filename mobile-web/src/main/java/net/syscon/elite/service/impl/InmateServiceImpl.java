@@ -2,6 +2,7 @@ package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.CaseLoadRepository;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.security.UserSecurityUtils;
@@ -16,7 +17,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,7 +48,7 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<OffenderBooking> findAllInmates(String query, long offset, long limit, String orderBy, Order order) {
+    public Page<OffenderBooking> findAllInmates(String query, long offset, long limit, String orderBy, Order order) {
         String colSort = StringUtils.isNotBlank(orderBy) ? orderBy : DEFAULT_OFFENDER_SORT;
         return repository.findAllInmates(getUserCaseloadIds(), locationTypeGranularity, query, offset, limit, colSort, order);
     }
@@ -59,14 +59,14 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<Alias> findInmateAliases(Long inmateId, final String orderByFields, final Order order, long offset, long limit) {
+    public Page<Alias> findInmateAliases(Long inmateId, final String orderByFields, final Order order, long offset, long limit) {
         String orderBy = StringUtils.defaultString(StringUtils.trimToNull(orderByFields), "createDate");
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.DESC);
         return repository.findInmateAliases(inmateId, orderBy, sortOrder, offset, limit);
     }
 
     @Override
-    public List<OffenderBooking> findOffenders(String keywords, String locationPrefix, String sortFields, Order sortOrder, long offset, long limit) {
+    public Page<OffenderBooking> findOffenders(String keywords, String locationPrefix, String sortFields, Order sortOrder, long offset, long limit) {
 
         final boolean descendingOrder = Order.DESC == sortOrder;
 
@@ -99,7 +99,7 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<PrisonerDetail> findPrisoners(PrisonerDetailSearchCriteria criteria, String sortFields, Order sortOrder, long offset, long limit) {
+    public Page<PrisonerDetail> findPrisoners(PrisonerDetailSearchCriteria criteria, String sortFields, Order sortOrder, long offset, long limit) {
         final String query = generateQuery(criteria);
         CalcDateRanges calcDates = new CalcDateRanges(criteria.getDob(), criteria.getDobFrom(), criteria.getDobTo(), maxYears);
         if (query != null || calcDates.hasDobRange()) {
@@ -144,5 +144,4 @@ public class InmateServiceImpl implements InmateService {
     private Set<String> getUserCaseloadIds() {
         return caseLoadRepository.findCaseLoadsByUsername(UserSecurityUtils.getCurrentUsername()).stream().map(CaseLoad::getCaseLoadId).collect(Collectors.toSet());
     }
-
 }

@@ -3,16 +3,15 @@ package net.syscon.elite.repository.mapping;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.jdbc.core.RowMapper;
 
-import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class PageableAwareRowMapper<T> implements RowMapper<T> {
+public class PageAwareRowMapper<T> implements RowMapper<T> {
     private RowMapper<T> wrappedRowMapper;
-    private long recordCount;
+    private long totalRecords;
     private boolean recordCountSet;
 
-    public PageableAwareRowMapper(RowMapper<T> wrappedRowMapper) {
+    public PageAwareRowMapper(RowMapper<T> wrappedRowMapper) {
         this.wrappedRowMapper = wrappedRowMapper;
     }
 
@@ -21,18 +20,15 @@ public class PageableAwareRowMapper<T> implements RowMapper<T> {
         if (!recordCountSet) {
             Object val = rs.getObject("RECORD_COUNT");
 
-            if (val instanceof BigDecimal) {
-                recordCount = ((BigDecimal) ObjectUtils.defaultIfNull(val, BigDecimal.ZERO)).longValue();
-            } else {
-                recordCount = (Long) ObjectUtils.defaultIfNull(val, 0);
-            }
+            totalRecords = ((Number) ObjectUtils.defaultIfNull(val, 0)).longValue();
+
             recordCountSet = true;
         }
 
         return wrappedRowMapper.mapRow(rs, rowNum);
     }
 
-    public long getRecordCount() {
-        return recordCount;
+    public long getTotalRecords() {
+        return totalRecords;
     }
 }

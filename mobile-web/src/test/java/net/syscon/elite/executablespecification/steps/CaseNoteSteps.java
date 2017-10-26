@@ -199,7 +199,7 @@ public class CaseNoteSteps extends CommonSteps {
                     }, bookingId);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            buildResourceData(response, "caseNotes");
+            buildResourceData(response);
             caseNotes = response.getBody();
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());

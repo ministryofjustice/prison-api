@@ -48,7 +48,7 @@ public class BookingAlertSteps extends CommonSteps {
                     }, bookingId.toString());
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             alerts = response.getBody();
-            buildResourceData(response, "alerts");
+            buildResourceData(response);
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }

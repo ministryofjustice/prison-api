@@ -2,7 +2,7 @@ package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
-import net.syscon.elite.repository.mapping.Page;
+import net.syscon.elite.api.support.Page;
 
 import java.util.List;
 

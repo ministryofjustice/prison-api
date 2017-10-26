@@ -60,7 +60,7 @@ public class PrisonerSearchSteps extends CommonSteps {
             assertThat(responseEntity.getStatusCode()).isEqualTo(expectedStatus);
             assertThat(isErrorExpected).isFalse();
             prisonerDetails = responseEntity.getBody();
-            buildResourceData(responseEntity, "prisoners");
+            buildResourceData(responseEntity);
 
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());

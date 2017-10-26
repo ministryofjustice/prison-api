@@ -7,6 +7,7 @@ import net.syscon.elite.api.model.PrivilegeDetail;
 import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.mapping.*;
 import net.syscon.util.DateTimeConverter;
@@ -147,14 +148,14 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                 .addPagination()
                 .build();
 
-        PageableAwareRowMapper<ScheduledEvent> paRowMapper = new PageableAwareRowMapper<>(scheduledEventMapper);
+        PageAwareRowMapper<ScheduledEvent> paRowMapper = new PageAwareRowMapper<>(scheduledEventMapper);
 
         List<ScheduledEvent> activities = jdbcTemplate.query(
                 sql,
                 createParams("bookingId", bookingId, "offset", offset, "limit", limit),
                 paRowMapper);
 
-        return new Page<>(activities, paRowMapper.getRecordCount(), offset, limit);
+        return new Page<>(activities, paRowMapper.getTotalRecords(), offset, limit);
     }
 
     public Page<OffenderRelease> getOffenderReleaseSummary(String query, long offset, long limit, String orderByFields, Order order) {
@@ -169,7 +170,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                 .addQuery(query)
                 .build();
 
-        PageableAwareRowMapper<OffenderRelease> paRowMapper = new PageableAwareRowMapper<>(offenderReleaseMapper);
+        PageAwareRowMapper<OffenderRelease> paRowMapper = new PageAwareRowMapper<>(offenderReleaseMapper);
 
         List<OffenderRelease> offenderReleases = jdbcTemplate.query(
                 sql,
@@ -177,6 +178,6 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                 paRowMapper);
 
         offenderReleases.forEach(or -> or.setInternalLocationDesc(LocationRepositoryImpl.removeAgencyId(or.getInternalLocationDesc(), or.getAgencyLocationId())));
-        return new Page<>(offenderReleases, paRowMapper.getRecordCount(), offset, limit);
+        return new Page<>(offenderReleases, paRowMapper.getTotalRecords(), offset, limit);
     }
 }
