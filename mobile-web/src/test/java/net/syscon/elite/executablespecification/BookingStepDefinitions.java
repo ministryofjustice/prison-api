@@ -44,6 +44,9 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     private BookingIEPSteps bookingIEPSteps;
 
     @Autowired
+    private BookingAlertSteps bookingAlerts;
+
+    @Autowired
     private BookingSentenceSteps bookingSentenceSteps;
 
     @When("^a booking search is made with full last \"([^\"]*)\" of existing offender$")
@@ -288,6 +291,21 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingSentenceDetail.verifyEarlyReleaseSchemeEligibilityDate(earlyReleaseSchemeEligibilityDate);
     }
 
+    @When("^sentence details with nonexistent booking id is requested$")
+    public void aNonexistentIdIsRequested() {
+        bookingSentenceDetail.getNonexistentSentenceDetails();
+    }
+
+    @When("^sentence details with booking id in different caseload is requested$")
+    public void anIdInDifferentCaseloadIsRequested() {
+        bookingSentenceDetail.getSentenceDetailsInDifferentCaseload();
+    }
+
+    @Then("^resource not found response is received from sentence details API$")
+    public void resourceNotFoundResponseIsReceivedFromSentenceDetailsAPI() throws Throwable {
+        bookingSentenceDetail.verifyResourceNotFound();
+    }
+
     @When("^an IEP summary only is requested for an offender with booking id \"([^\"]*)\"$")
     public void anIEPSummaryOnlyIsRequestedForAnOffenderWithBookingId(String bookingId) throws Throwable {
         bookingIEPSteps.getBookingIEPSummary(Long.valueOf(bookingId), false);
@@ -311,6 +329,11 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @And("^IEP days since review is correct for IEP date of \"([^\"]*)\"$")
     public void iepDaysSinceReviewIsCorrectForIEPDateOf(String iepDate) throws Throwable {
         bookingIEPSteps.verifyDaysSinceReview(iepDate);
+    }
+
+    @When("^an IEP summary with booking id in different caseload is requested$")
+    public void IEPSummaryWithBookingIdInDifferentCaseload() throws Throwable {
+        bookingIEPSteps.getIdInDifferentCaseload();
     }
 
     @Then("^resource not found response is received from bookings IEP summary API$")
@@ -361,6 +384,48 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @And("^characteristics match \"([^\"]*)\"$")
     public void characteristicsMatch(String characteristicsList) throws Throwable {
         bookingDetail.verifyOffenderPhysicalCharacteristics(characteristicsList);
+    }
+
+    // ----------------------------- Alerts --------------------------
+
+    @When("^alerts are requested for an offender booking \"([^\"]*)\"$")
+    public void alertsAreRequestedForOffenderBooking(Long bookingId) throws Throwable {
+        bookingAlerts.getAlerts(bookingId);
+    }
+
+    @Then("^\"([^\"]*)\" alerts are returned$")
+    public void numberAlertsAreReturned(int number) throws Throwable {
+        bookingAlerts.verifyNumber(number);
+    }
+
+    @And("alerts codes match \"([^\"]*)\"$")
+    public void alertsCodesMatch(String codes) throws Throwable {
+        bookingAlerts.verifyCodeList(codes);
+    }
+
+    @When("^alert is requested for an offender booking \"([^\"]*)\" and alert id \"([^\"]*)\"$")
+    public void alertIsRequestedForOffenderBooking(Long bookingId, Long alertId) throws Throwable {
+        bookingAlerts.getAlert(bookingId, alertId);
+    }
+
+    @Then("^alert (\\w+) is \"([^\"]*)\"$")
+    public void alertValueIs(String field, String value) throws Throwable {
+        bookingAlerts.verifyAlertField(field, value);
+    }
+
+    @When("^an alert list with booking id in different caseload is requested$")
+    public void anAlertListInDifferentCaseloadIsRequested() {
+        bookingAlerts.getAlertsInDifferentCaseload();
+    }
+
+    @When("^an alert with booking id in different caseload is requested$")
+    public void anAlertInDifferentCaseloadIsRequested() {
+        bookingAlerts.getAlertInDifferentCaseload();
+    }
+
+    @Then("^resource not found response is received from alert API$")
+    public void resourceNotFoundResponseIsReceivedFromAlertAPI() throws Throwable {
+        bookingAlerts.verifyResourceNotFound();
     }
 
     // ----------------------------- Main Sentence --------------------------

@@ -5,6 +5,7 @@ import net.syscon.elite.api.model.NewCaseNote;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.CaseNoteRepository;
 import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.EntityNotFoundException;
 import org.apache.commons.lang3.StringUtils;
@@ -32,16 +33,24 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
     private final static String AMEND_CASE_NOTE_FORMAT = "%s ...[%s updated the case notes on %s] %s";
 
+    private final CaseNoteRepository caseNoteRepository;
+    private final CaseNoteTransformer transformer;
+    private final BookingService bookingService;
+
     @Autowired
-    private CaseNoteRepository caseNoteRepository;
+    public CaseNoteServiceImpl(CaseNoteRepository caseNoteRepository, CaseNoteTransformer transformer,
+            BookingService bookingService) {
+        super();
+        this.caseNoteRepository = caseNoteRepository;
+        this.transformer = transformer;
+        this.bookingService = bookingService;
+    }
 
-	@Autowired
-    private CaseNoteTransformer transformer;
-
-	@Transactional(readOnly = true)
+    @Transactional(readOnly = true)
 	@Override
 	public List<CaseNote> getCaseNotes(long bookingId, String query, String orderBy, Order order, long offset, long limit) {
-		String colSort = orderBy;
+        bookingService.verifyBookingAccess(bookingId);
+        String colSort = orderBy;
 		if (StringUtils.isBlank(orderBy)) {
 			colSort = "occurrenceDateTime";
 			order = Order.DESC;
@@ -55,12 +64,14 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	@Override
 	@Transactional(readOnly = true)
 	public CaseNote getCaseNote(final long bookingId, final long caseNoteId) {
+        bookingService.verifyBookingAccess(bookingId);
 		final CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId).orElseThrow(new EntityNotFoundException(String.valueOf(caseNoteId)));
 		return transformer.transform(caseNote);
 	}
 
 	@Override
 	public CaseNote createCaseNote(final long bookingId, final NewCaseNote caseNote) {
+        bookingService.verifyBookingAccess(bookingId);
 		//TODO: First - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
         final Long caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote, caseNoteSource);
         return getCaseNote(bookingId, caseNoteId);
@@ -70,6 +81,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	@Override
 	public CaseNote updateCaseNote(final long bookingId, final long caseNoteId, final String newCaseNoteText) {
 
+        bookingService.verifyBookingAccess(bookingId);
         final CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId).orElseThrow(new EntityNotFoundException(String.valueOf(caseNoteId)));
         final String amendedText = format(AMEND_CASE_NOTE_FORMAT,
                 caseNote.getText(),

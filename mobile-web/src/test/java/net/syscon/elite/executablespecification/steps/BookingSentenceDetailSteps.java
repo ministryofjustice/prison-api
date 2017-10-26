@@ -148,17 +148,20 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         ResponseEntity<SentenceDetail> response;
 
         try {
-            response =
-                    restTemplate.exchange(
-                            BOOKING_SENTENCE_DETAIL_API_URL,
-                            HttpMethod.GET,
-                            createEntity(),
-                            SentenceDetail.class,
-                            bookingId);
+            response = restTemplate.exchange(BOOKING_SENTENCE_DETAIL_API_URL, HttpMethod.GET, createEntity(),
+                    SentenceDetail.class, bookingId);
 
             sentenceDetail = response.getBody();
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
+    }
+
+    public void getNonexistentSentenceDetails() {
+        dispatchRequest(-100000000001L);
+    }
+
+    public void getSentenceDetailsInDifferentCaseload() {
+        dispatchRequest(-16L);
     }
 }

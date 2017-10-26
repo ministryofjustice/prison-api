@@ -23,3 +23,10 @@ Feature: Case Note Creation and Update
     Then case note is successfully updated with "Updated Case Note"
     And the original text is not replaced
 
+  Scenario: The logged on staff user's caseload does not include the booking id - create
+    When a case note with booking id in different caseload is created
+    Then resource not found response is received from caseload API
+
+  Scenario: The logged on staff user's caseload does not include the booking id - update
+    When a case note with booking id in different caseload is updated
+    Then resource not found response is received from caseload API

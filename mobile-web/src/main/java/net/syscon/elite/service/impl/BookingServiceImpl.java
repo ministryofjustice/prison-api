@@ -45,6 +45,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public SentenceDetail getBookingSentenceDetail(Long bookingId) {
+        verifyBookingAccess(bookingId);
         SentenceDetail sentenceDetail = bookingRepository.getBookingSentenceDetail(bookingId).orElseThrow(new EntityNotFoundException(bookingId.toString()));
 
         NonDtoReleaseDate nonDtoReleaseDate = deriveNonDtoReleaseDate(sentenceDetail);
@@ -59,6 +60,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public PrivilegeSummary getBookingIEPSummary(Long bookingId, boolean withDetails) {
+        verifyBookingAccess(bookingId);
         List<PrivilegeDetail> iepDetails = bookingRepository.getBookingIEPDetails(bookingId);
 
         // If no IEP details exist for offender, cannot derive an IEP summary.
@@ -79,7 +81,7 @@ public class BookingServiceImpl implements BookingService {
                 .iepTime(currentDetail.getIepTime())
                 .iepLevel(currentDetail.getIepLevel())
                 .daysSinceReview(Long.valueOf(daysSinceReview).intValue())
-                .iepDetails(withDetails ? iepDetails : Collections.EMPTY_LIST)
+                .iepDetails(withDetails ? iepDetails : Collections.emptyList())
                 .build();
     }
 
