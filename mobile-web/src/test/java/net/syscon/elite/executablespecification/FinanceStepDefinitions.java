@@ -22,7 +22,7 @@ public class FinanceStepDefinitions extends AbstractStepDefinitions {
         financeSteps.getAccount(id);
     }
 
-    @Then("^the returned account ([^\"]+) is ([0-9-\\.]+)$")
+    @Then("^the returned account ([^\"]+) is ([\\w-\\.]+)$")
     public void theFieldIs(String field, String value) throws ReflectiveOperationException {
         financeSteps.verifyField(field, value);
     }
