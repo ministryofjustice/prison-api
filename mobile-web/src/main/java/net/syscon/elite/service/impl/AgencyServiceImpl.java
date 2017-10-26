@@ -3,6 +3,7 @@ package net.syscon.elite.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -30,7 +31,7 @@ public class AgencyServiceImpl implements AgencyService {
     }
 
     @Override
-    public List<Agency> getAgencies(long offset, long limit) {
+    public Page<Agency> getAgencies(long offset, long limit) {
         return agencyRepository.getAgencies("agencyId", Order.ASC, offset, limit);
     }
 

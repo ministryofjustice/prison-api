@@ -144,7 +144,7 @@ public class ReferenceDomainsSteps extends CommonSteps {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         results = response.getBody();
-        buildResourceData(response, "offenders");
+        buildResourceData(response);
     }
 
     private void doListApiCall(String url) {

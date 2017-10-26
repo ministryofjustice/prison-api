@@ -26,10 +26,14 @@ import io.swagger.models.properties.MapProperty;
 import io.swagger.models.properties.Property;
 import net.syscon.elite2.swagger.codegen.ConfigurableCodegenConfig;
 import net.syscon.elite2.swagger.codegen.Inflector;
+import net.syscon.elite2.swagger.codegen.PageCodegenResponse;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 /**
  * https://github.com/swagger-api/swagger-codegen/blob/master/modules/swagger-codegen/src/main/java/com/wordnik/swagger/codegen/languages/JaxRSServerCodegen.java.
@@ -39,6 +43,7 @@ import java.util.*;
 public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig, ConfigurableCodegenConfig {
     // Additional CLI options
     public static final String SUPPORT_PACKAGE = "supportPackage";
+    public static final String PAGINATION_HEADERS = "paginationHeaders";
 
     // Vendor extension constants.
     public static final String VENDOR_EXTENSION_JAVA_OPERATION_NAME = "x-annotation-javaOperationName";
@@ -46,6 +51,7 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
     private static final String X_ANNOTATION_TYPE_HEADERS = "x-annotation-headersWithType_";
 
     protected String supportPackage = "";
+    protected List<String> paginationHeaders = new ArrayList<>();
 
     @Override
     public CodegenType getTag() {
@@ -75,7 +81,8 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
         modelTemplateFiles.put("model.mustache", ".java");
         apiTemplateFiles.put("api.mustache", ".java");
 
-        cliOptions.add(CliOption.newString(SUPPORT_PACKAGE, "Package for supporting files (defaults to API package if not specified)."));
+        cliOptions.add(CliOption.newString(SUPPORT_PACKAGE, "Option. Package for supporting files (defaults to API package if not specified)."));
+        cliOptions.add(CliOption.newString(PAGINATION_HEADERS, "Option. Comma-separated list of pagination header names to be replaced with Page type."));
     }
 
     @Override
@@ -90,6 +97,9 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
 
         supportingFiles.add(new SupportingFile("OperationResponse.mustache",
                 (supportPackage()).replace(".", File.separator), "OperationResponse.java"));
+
+        supportingFiles.add(new SupportingFile("Page.mustache",
+                (supportPackage()).replace(".", File.separator), "Page.java"));
 
         languageSpecificPrimitives = new HashSet<>(
                 Arrays.asList("String", "boolean", "Boolean", "Double", "Integer", "Long", "Float"));
@@ -180,6 +190,11 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
             this.setSupportPackage((String) additionalProperties.get(SUPPORT_PACKAGE));
         }
 
+        // pagination header names
+        if (additionalProperties.containsKey(PAGINATION_HEADERS)) {
+            setPaginationHeaders(StringUtils.split((String) additionalProperties.get(PAGINATION_HEADERS), ","));
+        }
+
         // some additional Jackson imports
         importMapping.put("JsonAnyGetter", "com.fasterxml.jackson.annotation.JsonAnyGetter");
         importMapping.put("JsonAnySetter", "com.fasterxml.jackson.annotation.JsonAnySetter");
@@ -248,8 +263,11 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
         // Adjust operation id (and dependent properties), if necessary.
         applyOperationId(op, operation);
 
+        // Process Java type annotations (defined in RAML) for operation parameters.
         applyJavaTypesToParams(op);
-        applyJavaTypesToResponseHeaders(op);
+
+        // Process operation responses
+        processOperationResponses(op);
 
         // Move 'notes' property to 'summary' property (no RAML 1.0 attribute maps to OAS 2.0 operation summary).
         op.summary = op.notes;
@@ -267,20 +285,47 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
         }
     }
 
-    private void applyJavaTypesToResponseHeaders(CodegenOperation op) {
-        op.responses.forEach(response -> {
-            response.vendorExtensions.forEach((key, headerNamesList) -> {
-                if (key.startsWith(X_ANNOTATION_TYPE_HEADERS)) {
-                    final String baseType = StringUtils.substringAfter(key, X_ANNOTATION_TYPE_HEADERS);
-                    List<String> headerNames = Arrays.asList(StringUtils.split((String)headerNamesList, ","));
-                    op.responses.forEach(r -> r.headers.forEach(h -> {
-                        if (headerNames.contains(h.baseName)) {
-                            h.baseType = baseType;
-                        }
-                    }));
-                }
-            });
+    // Process operation responses
+    private void processOperationResponses(CodegenOperation op) {
+        List<CodegenResponse> processedResponses = op.responses.stream().map(resp -> {
+            applyJavaTypesToResponseHeaders(resp);
+
+            if (processResponseForPagination(resp)) {
+                return new PageCodegenResponse(resp, paginationHeaders);
+            } else {
+                return resp;
+            }
+        }).collect(toList());
+
+        op.responses = processedResponses;
+    }
+
+    // Process Java type annotations (defined in RAML) for response headers.
+    private void applyJavaTypesToResponseHeaders(CodegenResponse resp) {
+        resp.vendorExtensions.forEach((key, value) -> {
+            if (key.startsWith(X_ANNOTATION_TYPE_HEADERS)) {
+                String baseType = StringUtils.substringAfter(key, X_ANNOTATION_TYPE_HEADERS);
+                List<String> headerNames = Arrays.asList(StringUtils.split((String) value, ","));
+
+                resp.headers.forEach(h -> {
+                    if (headerNames.contains(h.baseName)) {
+                        h.baseType = baseType;
+                    }
+                });
+            }
         });
+    }
+
+    private boolean processResponseForPagination(CodegenResponse resp) {
+        boolean convertForPagination = false;
+
+        if (resp.isListContainer) {
+            List<String> headerPropertyNames = resp.headers.stream().map(cp -> cp.name).collect(toList());
+
+            convertForPagination = headerPropertyNames.containsAll(paginationHeaders);
+        }
+
+        return convertForPagination;
     }
 
     private void applyJavaTypesToParams(CodegenOperation op) {
@@ -325,11 +370,14 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
         String sanitizedOperationId;
 
         if (StringUtils.startsWithIgnoreCase(operationId, "get")) {
-            return "get" + operationId.substring(3);
+            sanitizedOperationId = "get" + operationId.substring(3);
         } else if (StringUtils.startsWithIgnoreCase(operationId, "post")) {
-            return "post" + operationId.substring(4);
-        }
-        else {
+            sanitizedOperationId = "post" + operationId.substring(4);
+        } else if (StringUtils.startsWithIgnoreCase(operationId, "put")) {
+            sanitizedOperationId = "put" + operationId.substring(3);
+        } else if (StringUtils.startsWithIgnoreCase(operationId, "delete")) {
+            sanitizedOperationId = "delete" + operationId.substring(6);
+        } else {
             sanitizedOperationId = operationId;
         }
 
@@ -445,5 +493,23 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
 
     public void setSupportPackage(String supportPackage) {
         this.supportPackage = supportPackage;
+    }
+
+    public void setPaginationHeaders(String[] paginationHeaders) {
+        Objects.requireNonNull(paginationHeaders, "paginationHeaders is a required parameter");
+
+        setPaginationHeaders(Arrays.asList(paginationHeaders));
+    }
+
+    public void setPaginationHeaders(List<String> paginationHeaders) {
+        Objects.requireNonNull(paginationHeaders, "paginationHeaders is a required parameter");
+
+        if (this.paginationHeaders == null) {
+            this.paginationHeaders = new ArrayList<>();
+        } else {
+            this.paginationHeaders.clear();
+        }
+
+        this.paginationHeaders.addAll(paginationHeaders);
     }
 }

@@ -108,6 +108,6 @@ public class UserSteps extends CommonSteps {
 
         userLocations = response.getBody();
 
-        buildResourceData(response, "locations");
+        buildResourceData(response);
     }
 }

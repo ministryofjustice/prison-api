@@ -1,6 +1,7 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.support.Page;
 
 import java.util.List;
 
@@ -9,6 +10,6 @@ import java.util.List;
  */
 public interface AgencyService {
     Agency getAgency(String agencyId);
-    List<Agency> getAgencies(long offset, long limit);
+    Page<Agency> getAgencies(long offset, long limit);
     List<Agency> findAgenciesByUsername(String username);
 }

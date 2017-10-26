@@ -3,8 +3,10 @@ package net.syscon.elite.repository.impl;
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.LocationRepository;
 import net.syscon.elite.repository.mapping.FieldMapper;
+import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.util.IQueryBuilder;
@@ -42,52 +44,76 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 		RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
 
 		Location location;
+
 		try {
-			location = jdbcTemplate.queryForObject(sql,createParams("username", UserSecurityUtils.getCurrentUsername(), "locationId", locationId), locationRowMapper);
+			location = jdbcTemplate.queryForObject(
+					sql,
+					createParams("username", UserSecurityUtils.getCurrentUsername(),
+							"locationId", locationId),
+					locationRowMapper);
+
 			location.setDescription(removeAgencyId(location.getDescription(), location.getAgencyId()));
 		} catch (EmptyResultDataAccessException e) {
 			location = null;
 		}
+
 		return Optional.ofNullable(location);
 	}
 
 	@Override
-	public List<Location> findLocations(String query, String orderByField, Order order, long offset, long limit) {
+	public Page<Location> findLocations(String query, String orderByField, Order order, long offset, long limit) {
 		String initialSql = getQuery("FIND_ALL_LOCATIONS");
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, locationMapping);
-		boolean isAscendingOrder = (order == Order.ASC);
 
 		String sql = builder
 				.addRowCount()
 				.addQuery(query)
-				.addOrderBy(isAscendingOrder, orderByField)
+				.addOrderBy(order, orderByField)
 				.addPagination()
 				.build();
 
-		final RowMapper<Location> locationRowMapper =
+		RowMapper<Location> locationRowMapper =
 				Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
 
-		return removeAgencyId(jdbcTemplate.query(
+		PageAwareRowMapper<Location> paRowMapper = new PageAwareRowMapper<>(locationRowMapper);
+
+		List<Location> locations = removeAgencyId(jdbcTemplate.query(
 				sql,
 				createParams("username", UserSecurityUtils.getCurrentUsername(),
 						"offset", offset,
 						"limit", limit),
-				locationRowMapper));
+				paRowMapper));
+
+		return new Page<>(locations, paRowMapper.getTotalRecords(), offset, limit);
 	}
 
 	@Override
-	public List<Location> findLocationsByAgencyId(final String caseLoadId, final String agencyId, final String query, final long offset, final long limit, final String orderByField, final Order order) {
-		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_LOCATIONS_BY_AGENCY_ID"), locationMapping).
-						addRowCount().
-						addQuery(query).
-						addOrderBy(order == Order.ASC, orderByField).
-						addPagination()
-						.build();
-		final RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
-		return removeAgencyId(jdbcTemplate.query(sql, createParams("caseLoadId", caseLoadId, "agencyId", agencyId, "offset", offset, "limit", limit), locationRowMapper));
+	public Page<Location> findLocationsByAgencyId(String caseLoadId, String agencyId, String query, long offset, long limit, String orderByField, Order order) {
+		String initialSql = getQuery("FIND_LOCATIONS_BY_AGENCY_ID");
+		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, locationMapping);
+
+		String sql = builder
+				.addRowCount()
+				.addQuery(query)
+				.addOrderBy(order, orderByField)
+				.addPagination()
+				.build();
+
+		RowMapper<Location> locationRowMapper =
+				Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
+
+		PageAwareRowMapper<Location> paRowMapper = new PageAwareRowMapper<>(locationRowMapper);
+
+		List<Location> locations = removeAgencyId(jdbcTemplate.query(
+				sql,
+				createParams("caseLoadId", caseLoadId,
+						"agencyId", agencyId,
+						"offset", offset,
+						"limit", limit),
+				paRowMapper));
+
+		return new Page<>(locations, paRowMapper.getTotalRecords(), offset, limit);
 	}
-
-
 
 	@Override
 	@Cacheable("findLocationsByAgencyAndType")

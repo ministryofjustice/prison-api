@@ -24,6 +24,6 @@ public class MyAssignmentsSteps extends CommonSteps {
                 HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<OffenderBooking>>() {});
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        buildResourceData(response, "assignments");
+        buildResourceData(response);
     }
 }

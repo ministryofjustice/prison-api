@@ -60,7 +60,7 @@ public class OffenderSearchSteps extends CommonSteps {
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         offenderBookings = responseEntity.getBody();
-        buildResourceData(responseEntity, "offenders");
+        buildResourceData(responseEntity);
     }
 
 

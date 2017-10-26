@@ -1,6 +1,7 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.Alert;
+import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.service.impl.InmateAlertServiceImpl;
 
@@ -22,7 +23,6 @@ import static org.mockito.Matchers.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InmateAlertServiceTest {
-
     @Mock
     private InmateAlertRepository inmateAlertRepository;
     @Mock
@@ -32,18 +32,24 @@ public class InmateAlertServiceTest {
 
     @Test
     public void testCorrectNumberAlertReturned() {
-        List<Alert> alerts = createAlerts();
+        Page<Alert> alerts = createAlerts();
+
         Mockito.when(inmateAlertRepository.getInmateAlert(anyLong(), anyString(), anyString(), any(), anyLong(), anyLong())).thenReturn(alerts);
-        final List<Alert> returnedAlerts = serviceToTest.getInmateAlerts(-1, null, null, null, 0, 10);
-        assertThat(returnedAlerts).hasSize(alerts.size());
+
+        Page<Alert> returnedAlerts = serviceToTest.getInmateAlerts(-1, null, null, null, 0, 10);
+
+        assertThat(returnedAlerts.getItems()).hasSize(alerts.getItems().size());
     }
 
     @Test
     public void testCorrectExpiredAlerts() {
-        List<Alert> alerts = createAlerts();
+        Page<Alert> alerts = createAlerts();
+
         Mockito.when(inmateAlertRepository.getInmateAlert(anyLong(), anyString(), anyString(), any(), anyLong(), anyLong())).thenReturn(alerts);
-        final List<Alert> returnedAlerts = serviceToTest.getInmateAlerts(-1, null, null, null, 0, 10);
-        assertThat(returnedAlerts).extracting("expired").containsSequence(false, false, true, true, false);
+
+        Page<Alert> returnedAlerts = serviceToTest.getInmateAlerts(-1, null, null, null, 0, 10);
+
+        assertThat(returnedAlerts.getItems()).extracting("expired").containsSequence(false, false, true, true, false);
     }
 
     @Test
@@ -68,16 +74,18 @@ public class InmateAlertServiceTest {
         }
     }
 
-    private List<Alert> createAlerts() {
+    private Page<Alert> createAlerts() {
         LocalDate now = LocalDate.now();
 
-        return Arrays.asList(
+        List<Alert> alerts = Arrays.asList(
                 buildAlert(-1L, now.minusMonths(1), now.plusDays(2)),
                 buildAlert(-2L, now.minusMonths(2), now.plusDays(1)),
                 buildAlert(-3L, now.minusMonths(3), now),
                 buildAlert(-4L, now.minusMonths(4), now.minusDays(1)),
                 buildAlert(-5L, now.minusMonths(5), null)
             );
+
+        return new Page<>(alerts, 5, 0, 10);
     }
 
     private Alert buildAlert(long id, LocalDate dateCreated, LocalDate dateExpires) {

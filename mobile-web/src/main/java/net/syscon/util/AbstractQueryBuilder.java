@@ -1,5 +1,6 @@
 package net.syscon.util;
 
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.mapping.FieldMapper;
 import org.apache.commons.lang3.StringUtils;
 
@@ -90,6 +91,10 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
             }
         }
         return this;
+    }
+
+    public IQueryBuilder addOrderBy(Order order, String fields) {
+        return addOrderBy(Order.ASC == order, fields);
     }
 
     private SQLKeyword addOrderDirection(boolean isAscending) {

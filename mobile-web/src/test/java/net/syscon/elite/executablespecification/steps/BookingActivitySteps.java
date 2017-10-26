@@ -136,7 +136,7 @@ public class BookingActivitySteps extends CommonSteps {
 
             scheduledEvents = response.getBody();
 
-            buildResourceData(response, "scheduledEvents");
+            buildResourceData(response);
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
