@@ -44,8 +44,8 @@ public class CustodyStatusRepositoryImplTest {
         assertEquals("O", custodyStatusRecord.getBooking_status());
         assertEquals("N", custodyStatusRecord.getActive_flag());
         assertEquals("OUT", custodyStatusRecord.getDirection_code());
-        assertEquals("ESCP", custodyStatusRecord.getMovement_reason_code());
         assertEquals("REL", custodyStatusRecord.getMovement_type());
+        assertEquals("ESCP", custodyStatusRecord.getMovement_reason_code());
     }
 
     @Test
@@ -57,8 +57,8 @@ public class CustodyStatusRepositoryImplTest {
         assertEquals("O", custodyStatusRecord.getBooking_status());
         assertEquals("N", custodyStatusRecord.getActive_flag());
         assertNull(custodyStatusRecord.getDirection_code());
-        assertNull(custodyStatusRecord.getMovement_reason_code());
         assertNull(custodyStatusRecord.getMovement_type());
+        assertNull(custodyStatusRecord.getMovement_reason_code());
     }
 
 }

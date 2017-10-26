@@ -33,6 +33,11 @@ public class CustodyStatusCalculatorTest {
                 {   null,    null,    null,   "REL",     null,        "Inactive-Out"        },
                 {  "C",      "N",     null,    null,     null,        "Other"               },
                 {   null,    null,    null,    null,     null,        "Other"               },
+                {  "O",     "Y",     "IN",    "ADM",    "N",          "Active-In"           },
+                {  "O",     "N",     "OUT",   "TRN",    "NOTR",       "In-Transit"          },
+                {  "O",     "Y",     "IN",    "ADM",    "RECA",       "Active-In"           },
+                {  "O",     "Y",     "OUT",   "CRT",    "CRT",        "Active-Out (CRT)"    },
+                {  "O",     "Y",     "OUT",   "TAP",    "C6",         "Active-Out (TAP)"    },
         };
     }
 
