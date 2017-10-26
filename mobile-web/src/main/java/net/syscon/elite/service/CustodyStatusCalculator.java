@@ -12,22 +12,22 @@ public class CustodyStatusCalculator {
     public String custodyStatusOf(CustodyStatusRecord record) {
         logger.info(record.toString());
 
-        if (record.getBooking_status() == "O") {
-            if (record.getActive_flag() == "Y") {
-                if (record.getDirection_code() == "OUT") {
+        if ("O".equals(record.getBooking_status())) {
+            if ("Y".equals(record.getActive_flag())) {
+                if ("OUT".equals(record.getDirection_code())) {
                     return "Active-Out ("+ record.getMovement_type() +")";
                 }
 
                 return "Active-In";
             }
 
-            if (record.getActive_flag() == "N" && record.getMovement_type() == "TRN") {
+            if ("N".equals(record.getActive_flag())  && "TRN".equals(record.getMovement_type())) {
                 return "In-Transit";
             }
         }
 
         return Optional.ofNullable(record.getMovement_type())
-                .filter(mt -> mt.equals("REL"))
+                .filter("REL"::equals)
                 .map(mt -> Optional.ofNullable(record.getMovement_reason_code())
                         .map(mrc -> {
                             switch (mrc) {
