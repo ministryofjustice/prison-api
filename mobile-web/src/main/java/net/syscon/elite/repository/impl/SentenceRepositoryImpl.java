@@ -2,6 +2,7 @@ package net.syscon.elite.repository.impl;
 
 import net.syscon.elite.api.model.MainSentence;
 import net.syscon.elite.repository.impl.RepositoryBase;
+import net.syscon.util.DateTimeConverter;
 import net.syscon.elite.repository.SentenceRepository;
 
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -30,7 +31,7 @@ public class SentenceRepositoryImpl extends RepositoryBase implements SentenceRe
             // leave as null if not found
         }
         try {
-            date = jdbcTemplate.queryForObject(getQuery("GET_RELEASE_DATE"), params, LocalDate.class);
+            date = DateTimeConverter.toISO8601LocalDate(jdbcTemplate.queryForObject(getQuery("GET_RELEASE_DATE"), params, Object.class));
         } catch (EmptyResultDataAccessException e) {
             // leave as null if not found
         }
