@@ -33,7 +33,7 @@ public class CaseNoteTransformer {
 
     CaseNote transform(final CaseNote in) {
         CaseNote out = null;
-        if (in != null) {
+        if (in != null && in.getText() != null) {
             out = CaseNote.builder()
                     .caseNoteId(in.getCaseNoteId())
                     .bookingId(in.getBookingId())
