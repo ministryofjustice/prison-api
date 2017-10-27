@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -100,4 +101,9 @@ public class CaseNoteTransformerTest {
         assertThat(firstAmendment.getCreationDateTime()).isEqualTo(LocalDateTime.of(2017, 1, 31, 12, 23, 43));
     }
 
+    @Test
+    public void emptyCaseNoteTest() {
+        assertNull(transformer.transform(null));
+        assertNull(transformer.transform(new CaseNote()));
+    }
 }
