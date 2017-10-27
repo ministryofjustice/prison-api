@@ -11,10 +11,10 @@ Feature: Case Note Creation and Update
 
   Scenario: Create a case note
     When a case note is created for an existing offender booking:
-      | type               | COMMS                                     |
-      | subType            | COM_IN                                    |
-      | text               | A new case note (from Serenity BDD test)  |
-      | occurrenceDateTime | 2017-04-14T10:15:30                       |
+      | type               | COMMS                                       |
+      | subType            | COM_IN                                      |
+      | text               | A new case note (from Serenity BDD test **) |
+      | occurrenceDateTime | 2017-04-14T10:15:30                         |
     Then case note is successfully created
     And correct case note source is used
 
