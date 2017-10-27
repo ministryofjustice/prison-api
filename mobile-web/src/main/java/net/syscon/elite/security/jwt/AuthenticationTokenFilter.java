@@ -1,16 +1,16 @@
 package net.syscon.elite.security.jwt;
 
+import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.security.DeviceFingerprint;
-import net.syscon.elite.security.UserDetailsImpl;
-import net.syscon.elite.security.UserSecurityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.syscon.elite.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -19,9 +19,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
+@Slf4j
 public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFilter {
-
-	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	private TokenSettings tokenSettings;
@@ -31,6 +30,9 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
 
 	@Value("${security.authentication.header:Authorization}")
 	private String authenticationHeader;
+
+	@Autowired
+	private AuthenticationService authenticationService;
 
 	@Override
 	public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain) throws IOException, ServletException {
@@ -49,12 +51,16 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
 			if (index > -1) {
 				token = header.substring(index + tokenSettings.getSchema().length()).trim();
 				userPrincipal = tokenManagement.getUserPrincipalFromToken(token);
-			}
+                SecurityContextHolder.getContext().setAuthentication(new PreAuthenticatedAuthenticationToken(userPrincipal, null));
+            }
 		}
 
-		UserDetailsImpl userDetails = UserSecurityUtils.toUserDetails(userPrincipal);
+        UserDetails userDetails = authenticationService.toUserDetails(userPrincipal);
+		if (SecurityContextHolder.getContext().getAuthentication() instanceof PreAuthenticatedAuthenticationToken) {
+            SecurityContextHolder.getContext().setAuthentication(null);
+        }
 
-		if ((userDetails != null) && (SecurityContextHolder.getContext().getAuthentication() == null)) {
+        if ((userDetails != null) && (SecurityContextHolder.getContext().getAuthentication() == null)) {
 			if (tokenManagement.validateToken(token, userDetails, deviceFingerprint, uri.endsWith("/users/token"))) {
 
 				if (log.isDebugEnabled()) {

@@ -3,7 +3,7 @@ package net.syscon.elite.service.impl;
 import net.syscon.elite.api.model.AuthLogin;
 import net.syscon.elite.api.model.Token;
 import net.syscon.elite.security.UserDetailsImpl;
-import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.security.UserPrincipalForToken;
 import net.syscon.elite.security.jwt.TokenManagement;
 import net.syscon.elite.security.jwt.TokenSettings;
 import net.syscon.elite.service.AuthenticationService;
@@ -16,9 +16,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import java.util.Base64;
+import java.util.Collections;
+import java.util.Map;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -36,6 +40,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Value("${token.username.stored.caps:true}")
     private boolean upperCaseUsername;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     @Override
     public Token getAuthenticationToken(String credentials, AuthLogin authLogin) {
@@ -96,11 +103,37 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             String encodedToken = header.substring(index + tokenSettings.getSchema().length()).trim();
 
             Object userPrincipal = tokenManagement.getUserPrincipalFromToken(encodedToken);
-            UserDetailsImpl userDetails = UserSecurityUtils.toUserDetails(userPrincipal);
-
-            token = tokenManagement.createToken(userDetails);
+            token = tokenManagement.createToken((String) userPrincipal);
         }
 
         return token;
+    }
+
+    @SuppressWarnings("unchecked")
+    public UserDetails toUserDetails(Object userPrincipal) {
+        UserDetails userDetails;
+
+        if (userPrincipal instanceof String) {
+            userDetails = userDetailsService.loadUserByUsername((String)userPrincipal);
+            if (userDetails == null) {
+                userDetails = new UserDetailsImpl((String) userPrincipal, null, Collections.emptyList(), null);
+            }
+
+        } else if (userPrincipal instanceof UserPrincipalForToken) {
+            userDetails = userDetailsService.loadUserByUsername(((UserPrincipalForToken)userPrincipal).getUsername());
+
+        } else if (userPrincipal instanceof Map) {
+            Map userPrincipalMap = (Map) userPrincipal;
+            final String username = (String) userPrincipalMap.get("username");
+            if (StringUtils.isNotBlank(username)) {
+                userDetails = userDetailsService.loadUserByUsername(username);
+            } else {
+                userDetails = null;
+            }
+        } else {
+            userDetails = null;
+        }
+
+        return userDetails;
     }
 }

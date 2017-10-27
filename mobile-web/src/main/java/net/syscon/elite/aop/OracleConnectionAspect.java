@@ -64,7 +64,7 @@ public class OracleConnectionAspect {
             final String username = UserSecurityUtils.getCurrentUsername();
             assignRolePassword();
 
-            if (!UserSecurityUtils.isAnonymousAuthentication() && username != null) {
+            if ((!UserSecurityUtils.isAnonymousAuthentication() && username != null) || UserSecurityUtils.isPreAuthenticatedAuthenticationToken()) {
                 final OracleConnection oracleConn = (OracleConnection) conn.unwrap(Connection.class);
 
                 final Properties info = new Properties();
