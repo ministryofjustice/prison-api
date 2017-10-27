@@ -4,7 +4,7 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import net.syscon.elite.api.model.PrisonerCustodyStatus;
-import net.syscon.elite.api.support.CustodyStatus;
+import net.syscon.elite.api.support.CustodyStatusCode;
 import net.syscon.elite.repository.CustodyStatusRecord;
 import net.syscon.elite.repository.CustodyStatusRepository;
 import net.syscon.elite.service.CustodyStatusCalculatorTest;
@@ -36,7 +36,7 @@ public class CustodyStatusServiceImplTest {
 
     @Test
     @UseDataProvider("custodyStatusRecords")
-    public void asAService(String booking_status, String active_flag, String direction_code, String movement_type, String movement_reason_code, CustodyStatus expectedCustodyStatus) {
+    public void asAService(String booking_status, String active_flag, String direction_code, String movement_type, String movement_reason_code, CustodyStatusCode expectedCustodyStatus) {
         String randomOffenderNo = UUID.randomUUID().toString();
         String randomLocationId = UUID.randomUUID().toString();
 
@@ -56,7 +56,7 @@ public class CustodyStatusServiceImplTest {
 
         assertEquals("has the correct offenderNo", custodyStatus.getOffenderNo(), randomOffenderNo);
         assertEquals("has the correct locationId", custodyStatus.getLocationId(), randomLocationId);
-        assertEquals("identifies correct custody status", custodyStatus.getCustodyStatus(), expectedCustodyStatus);
+        assertEquals("identifies correct custody status", custodyStatus.getCustodyStatusCode(), expectedCustodyStatus);
     }
 
 }

@@ -11,6 +11,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,8 +31,17 @@ public class CustodyStatusRepositoryImpl extends RepositoryBase implements Custo
 
     @Override
     public List<CustodyStatusRecord> listCustodyStatusRecords(String query, String orderByField, Order order) {
-        String sql = getQueryBuilder("LIST_CUSTODY_STATUSES", orderByField, order).build();
-        return jdbcTemplate.query(sql, getCustodyStatusRowMapper(sql));
+        String sql = getQueryBuilder("LIST_CUSTODY_STATUSES")
+                        .addQuery(query)
+                        .build();
+
+        List<CustodyStatusRecord> results = jdbcTemplate.query(sql, getCustodyStatusRowMapper(sql));
+
+        if ("locationId".equals(orderByField)) {
+            results.sort(new CustodyStatusRecordLocationComparator(order));
+        }
+
+        return results;
     }
 
     @Override
@@ -53,12 +63,24 @@ public class CustodyStatusRepositoryImpl extends RepositoryBase implements Custo
         return Row2BeanRowMapper.makeMapping(sql, CustodyStatusRecord.class, custodyStatusRecordMapping);
     }
 
-    private IQueryBuilder getQueryBuilder(String query) {
-        return queryBuilderFactory.getQueryBuilder(getQuery(query), custodyStatusRecordMapping);
+    private IQueryBuilder getQueryBuilder(String queryName) {
+        return queryBuilderFactory.getQueryBuilder(getQuery(queryName), custodyStatusRecordMapping);
     }
 
-    private IQueryBuilder getQueryBuilder(String query, String orderByField, Order order) {
-        return getQueryBuilder(query).addOrderBy((order == Order.ASC), orderByField);
+    private class CustodyStatusRecordLocationComparator implements Comparator<CustodyStatusRecord> {
+
+        private final Order order;
+
+        public CustodyStatusRecordLocationComparator(Order order) {
+            this.order = order;
+        }
+
+        @Override
+        public int compare(CustodyStatusRecord a, CustodyStatusRecord b) {
+            return order == Order.ASC ?
+                    a.getAgy_loc_id().compareTo(b.getAgy_loc_id()) :
+                    b.getAgy_loc_id().compareTo(a.getAgy_loc_id());
+        }
     }
 }
 
