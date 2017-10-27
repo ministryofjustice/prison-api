@@ -10,16 +10,14 @@ import net.syscon.elite.security.DeviceFingerprint;
 import net.syscon.elite.security.UserDetailsImpl;
 import net.syscon.elite.security.UserPrincipalForToken;
 import net.syscon.util.DateTimeConverter;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class TokenManagement {
@@ -39,20 +37,18 @@ public class TokenManagement {
 	}
 
 	public Token createToken(String username) {
-		UserDetailsImpl userDetails = new UserDetailsImpl(username, null, Collections.emptyList(), null);
+		UserDetails userDetails = new UserDetailsImpl(username, null, Collections.emptyList(), null);
 		return createToken(userDetails);
 	}
 
-	public Token createToken(UserDetailsImpl userDetails) {
+	public Token createToken(UserDetails userDetails) {
 		final String usernameToken = upperCaseUsername ? userDetails.getUsername().toUpperCase() : userDetails.getUsername();
 		final Claims claims = Jwts.claims().setSubject(usernameToken);
 		final int deviceFingerprintHashCode = DeviceFingerprint.get().hashCode();
 
 		claims.put(DEVICE_FINGERPRINT_HASH_CODE, deviceFingerprintHashCode);
 		claims.put(ALLOW_REFRESH_TOKEN, Boolean.FALSE);
-
-		final List<String> roles = userDetails.getAuthorities().stream().map(auth -> StringUtils.replaceFirst(auth.getAuthority(), "^ROLE_", "")).collect(Collectors.toList());
-		claims.put(USER_PRINCIPAL, new UserPrincipalForToken(usernameToken, roles));
+		claims.put(USER_PRINCIPAL, new UserPrincipalForToken(usernameToken));
 
 		final LocalDateTime now = LocalDateTime.now();
 
@@ -74,7 +70,7 @@ public class TokenManagement {
 
 		refreshClaims.put(DEVICE_FINGERPRINT_HASH_CODE, deviceFingerprintHashCode);
 		refreshClaims.put(ALLOW_REFRESH_TOKEN, Boolean.TRUE);
-		refreshClaims.put(USER_PRINCIPAL, userDetails);
+		refreshClaims.put(USER_PRINCIPAL, new UserPrincipalForToken(usernameToken));
 
 		final JwtBuilder refreshBuilder = Jwts.builder()
 				.setClaims(refreshClaims)

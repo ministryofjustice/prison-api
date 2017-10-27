@@ -1,16 +1,12 @@
 package net.syscon.elite.security;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Map;
 
 public class UserSecurityUtils {
 
@@ -23,6 +19,9 @@ public class UserSecurityUtils {
 			username = ((UserDetails)userPrincipal).getUsername();
 		} else if (userPrincipal instanceof String) {
 			username = (String) userPrincipal;
+		} else if (userPrincipal instanceof Map) {
+			Map userPrincipalMap = (Map) userPrincipal;
+			username = (String) userPrincipalMap.get("username");
 		} else {
 			username = null;
 		}
@@ -36,38 +35,12 @@ public class UserSecurityUtils {
 		return auth instanceof AnonymousAuthenticationToken;
 	}
 
-	@SuppressWarnings("unchecked")
-	public static UserDetailsImpl toUserDetails(Object userPrincipal) {
-		UserDetailsImpl userDetails;
+	public static boolean isPreAuthenticatedAuthenticationToken() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-		if (userPrincipal instanceof String) {
-			userDetails = new UserDetailsImpl((String) userPrincipal, null, Collections.emptyList(), null);
-
-		} else if (userPrincipal instanceof UserPrincipalForToken) {
-			final Set<GrantedAuthority> authorities = getGrantedAuthorities(((UserPrincipalForToken) userPrincipal).getRoles().stream());
-			userDetails = new UserDetailsImpl(((UserPrincipalForToken) userPrincipal).getUsername(), null, authorities, null);
-
-		} else if (userPrincipal instanceof Map) {
-			Map userPrincipalMap = (Map) userPrincipal;
-			final String username = (String) userPrincipalMap.get("username");
-			if (StringUtils.isNotBlank(username)) {
-				final Set<GrantedAuthority> authorities = getGrantedAuthorities(((List<String>) userPrincipalMap.get("roles")).stream());
-				userDetails = new UserDetailsImpl(username, null, authorities, null);
-			} else {
-				userDetails = null;
-			}
-		} else {
-			userDetails = null;
-		}
-
-		return userDetails;
+		return auth instanceof PreAuthenticatedAuthenticationToken;
 	}
 
-	private static Set<GrantedAuthority> getGrantedAuthorities(Stream<String> roles) {
-		return roles.filter(Objects::nonNull)
-				.map(value -> new SimpleGrantedAuthority("ROLE_" + value))
-				.collect(Collectors.toSet());
-	}
 
 	private static Object getUserPrincipal() {
 		Object userPrincipal;
