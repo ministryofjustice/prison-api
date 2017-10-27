@@ -1,6 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.CustodyStatus;
+import net.syscon.elite.api.model.PrisonerCustodyStatus;
 import net.syscon.elite.api.resource.CustodyStatusResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.core.RestResource;
@@ -23,15 +23,15 @@ public class CustodyStatusResourceImpl implements CustodyStatusResource {
 
     @Override
     @PreAuthorize("authentication.authorities.?[authority.contains('_ADMIN')].size() != 0 || authentication.authorities.?[authority.contains('GLOBAL_SEARCH')].size() != 0")
-    public GetCustodyStatusesResponse getCustodyStatuses(String query, String sortFields, Order sortOrder) {
-        final List<CustodyStatus> custodyStatuses = custodyStatusService.listCustodyStatuses(query, sortFields, sortOrder);
-        return GetCustodyStatusesResponse.respond200WithApplicationJson(custodyStatuses);
+    public GetPrisonerCustodyStatusesResponse getPrisonerCustodyStatuses(String query, String sortFields, Order sortOrder) {
+        final List<PrisonerCustodyStatus> custodyStatuses = custodyStatusService.listCustodyStatuses(query, sortFields, sortOrder);
+        return GetPrisonerCustodyStatusesResponse.respond200WithApplicationJson(custodyStatuses);
     }
 
     @Override
     @PreAuthorize("authentication.authorities.?[authority.contains('_ADMIN')].size() != 0 || authentication.authorities.?[authority.contains('GLOBAL_SEARCH')].size() != 0")
-    public GetCustodyStatusResponse getCustodyStatus(String offenderNo) {
-        final CustodyStatus custodyStatus = custodyStatusService.getCustodyStatus(offenderNo);
-        return GetCustodyStatusResponse.respond200WithApplicationJson(custodyStatus);
+    public GetPrisonerCustodyStatusResponse getPrisonerCustodyStatus(String offenderNo) {
+        final PrisonerCustodyStatus custodyStatus = custodyStatusService.getCustodyStatus(offenderNo);
+        return GetPrisonerCustodyStatusResponse.respond200WithApplicationJson(custodyStatus);
     }
 }

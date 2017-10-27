@@ -1,28 +1,29 @@
 package net.syscon.elite.service;
 
+import net.syscon.elite.api.support.CustodyStatusCode;
 import net.syscon.elite.repository.CustodyStatusRecord;
-import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
 public class CustodyStatusCalculator {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(CustodyStatusCalculator.class);
-
-    public String custodyStatusOf(CustodyStatusRecord record) {
-        logger.info(record.toString());
-
+    public CustodyStatusCode CustodyStatusCodeOf(CustodyStatusRecord record) {
         if ("O".equals(record.getBooking_status())) {
             if ("Y".equals(record.getActive_flag())) {
                 if ("OUT".equals(record.getDirection_code())) {
-                    return "Active-Out ("+ record.getMovement_type() +")";
+                    if ("CRT".equals(record.getMovement_type())) {
+                        return CustodyStatusCode.ACTIVE_OUT_CRT;
+                    }
+                    if ("TAP".equals(record.getMovement_type())) {
+                        return CustodyStatusCode.ACTIVE_OUT_TAP;
+                    }
                 }
 
-                return "Active-In";
+                return CustodyStatusCode.ACTIVE_IN;
             }
 
             if ("N".equals(record.getActive_flag())  && "TRN".equals(record.getMovement_type())) {
-                return "In-Transit";
+                return CustodyStatusCode.IN_TRANSIT;
             }
         }
 
@@ -32,14 +33,18 @@ public class CustodyStatusCalculator {
                         .map(mrc -> {
                             switch (mrc) {
                                 case "UAL":
+                                    return CustodyStatusCode.ACTIVE_UAL;
                                 case "UAL_ECL":
+                                    return CustodyStatusCode.ACTIVE_UAL_ECL;
                                 case "ESCP":
-                                    return "Active ("+ mrc +")";
+                                    return CustodyStatusCode.ACTIVE_ESCP;
                                 default:
-                                    return "Inactive-Out";
+                                    return CustodyStatusCode.IN_ACTIVE_OUT;
                             }
-                        }).orElse("Inactive-Out")
-                ).orElse("Other");
+                        })
+                        .orElse(CustodyStatusCode.IN_ACTIVE_OUT)
+                )
+                .orElse(CustodyStatusCode.OTHER);
     }
 
 }
