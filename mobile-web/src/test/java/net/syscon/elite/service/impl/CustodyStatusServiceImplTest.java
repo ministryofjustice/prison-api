@@ -3,16 +3,14 @@ package net.syscon.elite.service.impl;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import net.syscon.elite.api.model.CustodyStatus;
+import net.syscon.elite.api.model.PrisonerCustodyStatus;
+import net.syscon.elite.api.support.CustodyStatus;
 import net.syscon.elite.repository.CustodyStatusRecord;
 import net.syscon.elite.repository.CustodyStatusRepository;
 import net.syscon.elite.service.CustodyStatusCalculatorTest;
 import net.syscon.elite.service.CustodyStatusService;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -38,7 +36,7 @@ public class CustodyStatusServiceImplTest {
 
     @Test
     @UseDataProvider("custodyStatusRecords")
-    public void asAService(String booking_status, String active_flag, String direction_code, String movement_type, String movement_reason_code, String expectedCustodyStatus) {
+    public void asAService(String booking_status, String active_flag, String direction_code, String movement_type, String movement_reason_code, CustodyStatus expectedCustodyStatus) {
         String randomOffenderNo = UUID.randomUUID().toString();
         String randomLocationId = UUID.randomUUID().toString();
 
@@ -54,7 +52,7 @@ public class CustodyStatusServiceImplTest {
                         .movement_reason_code(movement_reason_code)
                         .build()));
 
-        CustodyStatus custodyStatus = service.getCustodyStatus(randomOffenderNo);
+        PrisonerCustodyStatus custodyStatus = service.getCustodyStatus(randomOffenderNo);
 
         assertEquals("has the correct offenderNo", custodyStatus.getOffenderNo(), randomOffenderNo);
         assertEquals("has the correct locationId", custodyStatus.getLocationId(), randomLocationId);
