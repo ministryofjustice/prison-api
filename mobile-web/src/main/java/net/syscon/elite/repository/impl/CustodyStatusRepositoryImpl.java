@@ -7,10 +7,15 @@ import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.CustodyStatusRepository;
 import net.syscon.elite.repository.CustodyStatusRecord;
 import net.syscon.util.IQueryBuilder;
+import net.syscon.util.QueryUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +23,9 @@ import java.util.Optional;
 
 @Repository
 public class CustodyStatusRepositoryImpl extends RepositoryBase implements CustodyStatusRepository {
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
+
     private final Map<String, FieldMapper> custodyStatusRecordMapping =
             new ImmutableMap.Builder<String, FieldMapper>()
                     .put("offender_id_display", new FieldMapper("offender_id_display"))
@@ -34,6 +42,8 @@ public class CustodyStatusRepositoryImpl extends RepositoryBase implements Custo
         String sql = getQueryBuilder("LIST_CUSTODY_STATUSES")
                         .addQuery(query)
                         .build();
+
+        logger.info(sql);
 
         List<CustodyStatusRecord> results = jdbcTemplate.query(sql, getCustodyStatusRowMapper(sql));
 

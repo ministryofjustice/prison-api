@@ -76,7 +76,7 @@ public class CustodyStatusRepositoryImplTest {
     }
 
     @Test
-    public final void retrieveAListOfRecordsOrderedByLocationDecending() {
+    public final void retrieveAListOfRecordsOrderedByLocationDescending() {
         final List<CustodyStatusRecord> results = repository.listCustodyStatusRecords(null, "locationId", Order.DESC);
 
         assertTrue(results.size() > 0);
@@ -84,6 +84,14 @@ public class CustodyStatusRepositoryImplTest {
         for (int i = 1; i < results.size() - 1; i++) {
             assertTrue(results.get(i - 1).getAgy_loc_id().compareTo(results.get(i).getAgy_loc_id()) != -1);
         }
+    }
+
+    @Test
+    public final void retrieveAListOfRecordsLimitedToASpecificLocation() {
+        final List<CustodyStatusRecord> all = repository.listCustodyStatusRecords(null, null, Order.ASC);
+        final List<CustodyStatusRecord> results = repository.listCustodyStatusRecords("agy_loc_id:eq:'MUL'", null, Order.ASC);
+
+        assertNotEquals("should be a smaller results set", all.size(), results.size());
     }
 
 }
