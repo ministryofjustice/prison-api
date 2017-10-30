@@ -22,12 +22,27 @@ VALUES ('ENH', 'LEI', 'Y', 'N', 60.00, 600.00, 25.00, 250.00);
 INSERT INTO OFFENDER_IEP_LEVELS (OFFENDER_BOOK_ID, IEP_LEVEL_SEQ, IEP_DATE, IEP_TIME, AGY_LOC_ID, IEP_LEVEL, COMMENT_TEXT, USER_ID)
 VALUES (-1, 1, '2017-08-15', '2017-08-15 16:04:35', 'LEI', 'STD', null, null);
 
--- Multiple detail records for offender - IEP level and date will come from latest record (one with highest IEP_LEVEL_SEQ value)
+-- Multiple detail records (with different IEP dates) for offender
+--  IEP level and date will come from latest record (one with most recent IEP_DATE value)
 INSERT INTO OFFENDER_IEP_LEVELS (OFFENDER_BOOK_ID, IEP_LEVEL_SEQ, IEP_DATE, IEP_TIME, AGY_LOC_ID, IEP_LEVEL, COMMENT_TEXT, USER_ID)
 VALUES (-2, 1, '2017-07-04', '2017-07-04 12:15:42', 'LEI', 'ENT', null, null);
 
 INSERT INTO OFFENDER_IEP_LEVELS (OFFENDER_BOOK_ID, IEP_LEVEL_SEQ, IEP_DATE, IEP_TIME, AGY_LOC_ID, IEP_LEVEL, COMMENT_TEXT, USER_ID)
 VALUES (-2, 2, '2017-09-06', '2017-09-06 09:44:01', 'LEI', 'BAS', 'Assaulted another inmate.', 'ITAG_USER');
+
+-- Multiple detail records (most recent with same IEP date) for offender
+--  IEP level and date will come from latest record (one with most recent IEP_DATE value and highest IEP_LEVEL_SEQ)
+INSERT INTO OFFENDER_IEP_LEVELS (OFFENDER_BOOK_ID, IEP_LEVEL_SEQ, IEP_DATE, IEP_TIME, AGY_LOC_ID, IEP_LEVEL, COMMENT_TEXT, USER_ID)
+VALUES (-3, 1, '2017-07-04', '2017-07-04 12:15:42', 'LEI', 'ENT', null, null);
+
+INSERT INTO OFFENDER_IEP_LEVELS (OFFENDER_BOOK_ID, IEP_LEVEL_SEQ, IEP_DATE, IEP_TIME, AGY_LOC_ID, IEP_LEVEL, COMMENT_TEXT, USER_ID)
+VALUES (-3, 2, '2017-10-12', '2017-10-12 09:44:01', 'LEI', 'BAS', 'Assaulted another inmate.', 'ITAG_USER');
+
+INSERT INTO OFFENDER_IEP_LEVELS (OFFENDER_BOOK_ID, IEP_LEVEL_SEQ, IEP_DATE, IEP_TIME, AGY_LOC_ID, IEP_LEVEL, COMMENT_TEXT, USER_ID)
+VALUES (-3, 3, '2017-10-12', '2017-10-12 07:53:45', 'LEI', 'ENH', 'Did not assault another inmate - data entry error.', 'ITAG_USER');
+
+INSERT INTO OFFENDER_IEP_LEVELS (OFFENDER_BOOK_ID, IEP_LEVEL_SEQ, IEP_DATE, IEP_TIME, AGY_LOC_ID, IEP_LEVEL, COMMENT_TEXT, USER_ID)
+VALUES (-3, 4, '2017-08-22', '2017-08-22 18:42:35', 'LEI', 'STD', 'He has been a very good boy.', 'ITAG_USER');
 
 INSERT INTO OFFENDER_IEP_LEVELS (OFFENDER_BOOK_ID, IEP_LEVEL_SEQ, IEP_DATE, IEP_TIME, AGY_LOC_ID, IEP_LEVEL, COMMENT_TEXT, USER_ID)
 VALUES (-16, 2, '2017-09-06', '2017-09-06 09:44:01', 'LEI', 'BAS', 'Assaulted another inmate.', 'ITAG_USER');
