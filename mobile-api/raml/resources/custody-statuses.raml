@@ -4,14 +4,11 @@
   type: { readOnlyCollection: { type: PrisonerCustodyStatus } }
   get:
     queryParameters:
-      locationId:
-        description: A location to limit the results to
-        type: string
       custodyStatusCode:
         description: Prisoner with the specified Custody Status
         (JavaType): CustodyStatusCode
     is: [
-      sortable: { fieldsList : "locationId, custodyStatusCode" },
+      sortable: { fieldsList : "custodyStatusCode" },
     ]
 
 /{offenderNo}:

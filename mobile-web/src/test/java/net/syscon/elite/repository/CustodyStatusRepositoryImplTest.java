@@ -1,6 +1,5 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.support.Order;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,8 +14,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -43,7 +40,6 @@ public class CustodyStatusRepositoryImplTest {
         assertNotNull(custodyStatusRecord);
 
         assertEquals("Z0023ZZ", custodyStatusRecord.getOffender_id_display());
-        assertEquals("LEI", custodyStatusRecord.getAgy_loc_id());
         assertEquals("O", custodyStatusRecord.getBooking_status());
         assertEquals("N", custodyStatusRecord.getActive_flag());
         assertEquals("OUT", custodyStatusRecord.getDirection_code());
@@ -56,42 +52,11 @@ public class CustodyStatusRepositoryImplTest {
         final CustodyStatusRecord custodyStatusRecord = repository.getCustodyStatusRecord("Z0022ZZ").orElse(null);
         assertNotNull(custodyStatusRecord);
         assertEquals("Z0022ZZ", custodyStatusRecord.getOffender_id_display());
-        assertEquals("LEI", custodyStatusRecord.getAgy_loc_id());
         assertEquals("O", custodyStatusRecord.getBooking_status());
         assertEquals("N", custodyStatusRecord.getActive_flag());
         assertNull(custodyStatusRecord.getDirection_code());
         assertNull(custodyStatusRecord.getMovement_type());
         assertNull(custodyStatusRecord.getMovement_reason_code());
-    }
-
-    @Test
-    public final void retrieveAListOfRecordsOrderedByLocationAscending() {
-        final List<CustodyStatusRecord> results = repository.listCustodyStatusRecords(null, "locationId", Order.ASC);
-
-        assertTrue(results.size() > 0);
-        assertTrue(results.get(0).getAgy_loc_id().compareTo(results.get(results.size() - 1).getAgy_loc_id()) != 1);
-        for (int i = 1; i < results.size() - 1; i++) {
-            assertTrue(results.get(i - 1).getAgy_loc_id().compareTo(results.get(i).getAgy_loc_id()) != 1);
-        }
-    }
-
-    @Test
-    public final void retrieveAListOfRecordsOrderedByLocationDescending() {
-        final List<CustodyStatusRecord> results = repository.listCustodyStatusRecords(null, "locationId", Order.DESC);
-
-        assertTrue(results.size() > 0);
-        assertTrue(results.get(0).getAgy_loc_id().compareTo(results.get(results.size() - 1).getAgy_loc_id()) != -1);
-        for (int i = 1; i < results.size() - 1; i++) {
-            assertTrue(results.get(i - 1).getAgy_loc_id().compareTo(results.get(i).getAgy_loc_id()) != -1);
-        }
-    }
-
-    @Test
-    public final void retrieveAListOfRecordsLimitedToASpecificLocation() {
-        final List<CustodyStatusRecord> all = repository.listCustodyStatusRecords(null, null, Order.ASC);
-        final List<CustodyStatusRecord> results = repository.listCustodyStatusRecords("agy_loc_id:eq:'MUL'", null, Order.ASC);
-
-        assertNotEquals("should be a smaller results set", all.size(), results.size());
     }
 
 }

@@ -29,7 +29,6 @@ public class CustodyStatusRepositoryImpl extends RepositoryBase implements Custo
     private final Map<String, FieldMapper> custodyStatusRecordMapping =
             new ImmutableMap.Builder<String, FieldMapper>()
                     .put("offender_id_display", new FieldMapper("offender_id_display"))
-                    .put("agy_loc_id", new FieldMapper("agy_loc_id"))
                     .put("booking_status", new FieldMapper("booking_status"))
                     .put("active_flag", new FieldMapper("active_flag"))
                     .put("direction_code", new FieldMapper("direction_code"))
@@ -38,18 +37,9 @@ public class CustodyStatusRepositoryImpl extends RepositoryBase implements Custo
                     .build();
 
     @Override
-    public List<CustodyStatusRecord> listCustodyStatusRecords(String locationId, String orderByField, Order order) {
-        String sql = getQueryBuilder("LIST_CUSTODY_STATUSES")
-                        .addQuery(buildLocationQuery(locationId))
-                        .build();
-
-        List<CustodyStatusRecord> results = jdbcTemplate.query(sql, getCustodyStatusRowMapper(sql));
-
-        if ("locationId".equals(orderByField)) {
-            results.sort(new CustodyStatusRecordLocationComparator(order));
-        }
-
-        return results;
+    public List<CustodyStatusRecord> listCustodyStatusRecords() {
+        String sql = getQueryBuilder("LIST_CUSTODY_STATUSES").build();
+        return jdbcTemplate.query(sql, getCustodyStatusRowMapper(sql));
     }
 
     @Override
@@ -73,30 +63,6 @@ public class CustodyStatusRepositoryImpl extends RepositoryBase implements Custo
 
     private IQueryBuilder getQueryBuilder(String queryName) {
         return queryBuilderFactory.getQueryBuilder(getQuery(queryName), custodyStatusRecordMapping);
-    }
-
-    private String buildLocationQuery(String locationId) {
-        if (StringUtils.isNotBlank(locationId)) {
-            return "agy_loc_id:eq:'" + locationId + "'";
-        }
-
-        return null;
-    }
-
-    private class CustodyStatusRecordLocationComparator implements Comparator<CustodyStatusRecord> {
-
-        private final Order order;
-
-        public CustodyStatusRecordLocationComparator(Order order) {
-            this.order = order;
-        }
-
-        @Override
-        public int compare(CustodyStatusRecord a, CustodyStatusRecord b) {
-            return order == Order.ASC ?
-                    a.getAgy_loc_id().compareTo(b.getAgy_loc_id()) :
-                    b.getAgy_loc_id().compareTo(a.getAgy_loc_id());
-        }
     }
 }
 
