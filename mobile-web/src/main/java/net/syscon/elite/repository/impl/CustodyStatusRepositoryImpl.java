@@ -38,12 +38,10 @@ public class CustodyStatusRepositoryImpl extends RepositoryBase implements Custo
                     .build();
 
     @Override
-    public List<CustodyStatusRecord> listCustodyStatusRecords(String query, String orderByField, Order order) {
+    public List<CustodyStatusRecord> listCustodyStatusRecords(String locationId, String orderByField, Order order) {
         String sql = getQueryBuilder("LIST_CUSTODY_STATUSES")
-                        .addQuery(query)
+                        .addQuery(buildLocationQuery(locationId))
                         .build();
-
-        logger.info(sql);
 
         List<CustodyStatusRecord> results = jdbcTemplate.query(sql, getCustodyStatusRowMapper(sql));
 
@@ -75,6 +73,14 @@ public class CustodyStatusRepositoryImpl extends RepositoryBase implements Custo
 
     private IQueryBuilder getQueryBuilder(String queryName) {
         return queryBuilderFactory.getQueryBuilder(getQuery(queryName), custodyStatusRecordMapping);
+    }
+
+    private String buildLocationQuery(String locationId) {
+        if (StringUtils.isNotBlank(locationId)) {
+            return "agy_loc_id:eq:'" + locationId + "'";
+        }
+
+        return null;
     }
 
     private class CustodyStatusRecordLocationComparator implements Comparator<CustodyStatusRecord> {
