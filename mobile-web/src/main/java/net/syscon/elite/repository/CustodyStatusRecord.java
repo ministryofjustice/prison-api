@@ -16,7 +16,6 @@ import java.util.Map;
 public class CustodyStatusRecord {
     private Map<String, Object> additionalProperties;
     private String offender_id_display;
-    private String agy_loc_id;
     private String booking_status;
     private String active_flag;
     private String direction_code;
@@ -30,7 +29,6 @@ public class CustodyStatusRecord {
         sb.append("class CustodyStatusRecord {\n");
 
         sb.append("  offender_id_display: ").append(offender_id_display).append("\n");
-        sb.append("  agy_loc_id: ").append(agy_loc_id).append("\n");
         sb.append("  booking_status: ").append(booking_status).append("\n");
         sb.append("  active_flag: ").append(active_flag).append("\n");
         sb.append("  direction_code: ").append(direction_code).append("\n");

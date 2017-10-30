@@ -11,7 +11,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.ws.rs.Path;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @RestResource
 @Path("/custody-statuses")
@@ -25,8 +28,8 @@ public class CustodyStatusResourceImpl implements CustodyStatusResource {
 
     @Override
     @PreAuthorize("authentication.authorities.?[authority.contains('_ADMIN')].size() != 0 || authentication.authorities.?[authority.contains('GLOBAL_SEARCH')].size() != 0")
-    public GetPrisonerCustodyStatusesResponse getPrisonerCustodyStatuses(String locationId, String custodyStatusCode, String sortFields, Order sortOrder) {
-        final List<PrisonerCustodyStatus> custodyStatuses = custodyStatusService.listCustodyStatuses(locationId, asValidCustodyStatusCode(custodyStatusCode), sortFields, sortOrder);
+    public GetPrisonerCustodyStatusesResponse getPrisonerCustodyStatuses(String custodyStatusCodes, String sortFields, Order sortOrder) {
+        final List<PrisonerCustodyStatus> custodyStatuses = custodyStatusService.listCustodyStatuses(asValidCustodyStatusCode(custodyStatusCodes), sortOrder);
         return GetPrisonerCustodyStatusesResponse.respond200WithApplicationJson(custodyStatuses);
     }
 
@@ -37,11 +40,9 @@ public class CustodyStatusResourceImpl implements CustodyStatusResource {
         return GetPrisonerCustodyStatusResponse.respond200WithApplicationJson(custodyStatus);
     }
 
-    private CustodyStatusCode asValidCustodyStatusCode(String custodyStatus) {
-        if (StringUtils.isNotBlank(custodyStatus)) {
-            return CustodyStatusCode.valueOf(custodyStatus);
-        }
-
-        return null;
+    private List<CustodyStatusCode> asValidCustodyStatusCode(String codes) {
+        return StringUtils.isNotBlank(codes) ?
+                Arrays.stream(codes.split(",")).map(CustodyStatusCode::valueOf).collect(Collectors.toList()) :
+                Arrays.asList();
     }
 }
