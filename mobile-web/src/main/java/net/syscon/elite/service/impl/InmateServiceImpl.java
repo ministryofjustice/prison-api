@@ -9,15 +9,18 @@ import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
+import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Set;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -54,8 +57,67 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
+    @Cacheable("findInmate")
     public InmateDetail findInmate(Long inmateId) {
-        return repository.findInmate(inmateId, getUserCaseloadIds(), locationTypeGranularity).orElseThrow(new EntityNotFoundException(String.valueOf(inmateId)));
+        final InmateDetail inmate = repository.findInmate(inmateId, getUserCaseloadIds(), locationTypeGranularity).orElseThrow(new EntityNotFoundException(String.valueOf(inmateId)));
+
+        PhysicalAttributes physicalAttributes = repository.findPhysicalAttributes(inmateId).orElse(null);
+        if (physicalAttributes != null && physicalAttributes.getHeightCentimetres() != null) {
+            physicalAttributes.setHeightMetres(BigDecimal.valueOf(physicalAttributes.getHeightCentimetres()).movePointLeft(2));
+        }
+
+        inmate.setPhysicalAttributes(physicalAttributes);
+        inmate.setPhysicalCharacteristics(repository.findPhysicalCharacteristics(inmateId));
+        inmate.setPhysicalMarks(repository.findPhysicalMarks(inmateId));
+        inmate.setAssignedLivingUnit(repository.findAssignedLivingUnit(inmateId, locationTypeGranularity).orElse(null));
+        inmate.setAlertsCodes(repository.findActiveAlertCodes(inmateId));
+
+        final Map<String, List<AssessmentDto>> mapOfAssessments = getAssessmentsAsMap(inmateId);
+        final List<Assessment> assessments = new ArrayList<>();
+        mapOfAssessments.forEach((assessmentCode, assessment) -> assessments.add(createAssessment(assessment.get(0))));
+        inmate.setAssessments(assessments);
+
+        return inmate;
+    }
+
+    @Override
+    @Cacheable("getInmateAssessmentByCode")
+    public Optional<Assessment> getInmateAssessmentByCode(long bookingId, final String assessmentCode) {
+
+        // This stops people looking up offenders they cannot access.
+        repository.findInmate(bookingId, getUserCaseloadIds(), locationTypeGranularity).orElseThrow(new EntityNotFoundException(String.valueOf(bookingId)));
+
+        final Map<String, List<AssessmentDto>> mapOfAssessments = getAssessmentsAsMap(bookingId);
+        final List<AssessmentDto> assessmentForCodeType = mapOfAssessments.get(assessmentCode);
+        Assessment assessment = null;
+        if (assessmentForCodeType != null && !assessmentForCodeType.isEmpty()) {
+            assessment = createAssessment(assessmentForCodeType.get(0));
+        }
+        return Optional.ofNullable(assessment);
+    }
+
+    private Map<String, List<AssessmentDto>> getAssessmentsAsMap(Long inmateId) {
+        final List<AssessmentDto> assessmentsDto = repository.findAssessments(inmateId);
+        return assessmentsDto.stream()
+                .collect(Collectors.groupingBy(AssessmentDto::getAssessmentCode));
+    }
+
+    private Assessment createAssessment(AssessmentDto assessmentDto) {
+        return Assessment.builder()
+                .assessmentCode(assessmentDto.getAssessmentCode())
+                .assessmentDescription(assessmentDto.getAssessmentDescription())
+                .classification(deriveClassification(assessmentDto))
+                .assessmentDate(assessmentDto.getAssessmentDate())
+                .cellSharingAlertFlag(assessmentDto.isCellSharingAlertFlag())
+                .build();
+    }
+
+    private String deriveClassification(AssessmentDto assessmentDto) {
+        final String classCode = StringUtils.defaultIfBlank(assessmentDto.getReviewSupLevelType(), StringUtils.defaultIfBlank(assessmentDto.getOverridedSupLevelType(), assessmentDto.getCalcSupLevelType()));
+        if (!"PEND".equalsIgnoreCase(classCode)) {
+            return StringUtils.defaultIfBlank(assessmentDto.getReviewSupLevelTypeDesc(), StringUtils.defaultIfBlank(assessmentDto.getOverridedSupLevelTypeDesc(), assessmentDto.getCalcSupLevelTypeDesc()));
+        }
+        return null;
     }
 
     @Override

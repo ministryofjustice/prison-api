@@ -9,14 +9,16 @@ import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
+import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -108,11 +110,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("COMMENT_TEXT",	new FieldMapper("comment"))
 			.build();
 
-	private final Map<String, FieldMapper> assessmentMapping = new ImmutableMap.Builder<String, FieldMapper>()
-			.put("ASSESSMENT_CODE",	new FieldMapper("assessmentCode"))
-			.put("ASSESSMENT_DESCRIPTION",	new FieldMapper("assessmentDesc"))
-			.put("CLASSIFICATION", 	new FieldMapper("classification"))
-			.build();
+	private final StandardBeanPropertyRowMapper<AssessmentDto> ASSESSMENT_MAPPER = new StandardBeanPropertyRowMapper<>(AssessmentDto.class);
 
 	private final Map<String, FieldMapper> aliasMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("LAST_NAME",		new FieldMapper("lastName"))
@@ -184,6 +182,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
+	@Cacheable("searchForOffenderBookings")
 	public Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String lastName, String firstName, String locationPrefix, String locationTypeRoot, long offset, long limit, String orderBy, boolean sortAscending) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
 
@@ -296,7 +295,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         return new Page<>(prisonerDetails, paRowMapper.getTotalRecords(), offset, limit);
     }
 
-    private List<PhysicalMark> findPhysicalMarks(long bookingId) {
+	public List<PhysicalMark> findPhysicalMarks(long bookingId) {
 		String sql = getQuery("FIND_PHYSICAL_MARKS_BY_BOOKING");
 
 		RowMapper<PhysicalMark> physicalMarkRowMapper =
@@ -308,7 +307,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 				physicalMarkRowMapper);
 	}
 
-	private List<PhysicalCharacteristic> findPhysicalCharacteristics(long bookingId) {
+	public List<PhysicalCharacteristic> findPhysicalCharacteristics(long bookingId) {
 		String sql = getQuery("FIND_PHYSICAL_CHARACTERISTICS_BY_BOOKING");
 
 		RowMapper<PhysicalCharacteristic> physicalCharacteristicsRowMapper =
@@ -320,71 +319,63 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 				physicalCharacteristicsRowMapper);
 	}
 
-	private PhysicalAttributes findPhysicalAttributes(long bookingId) {
+	public Optional<PhysicalAttributes> findPhysicalAttributes(long bookingId) {
 		String sql = getQuery("FIND_PHYSICAL_ATTRIBUTES_BY_BOOKING");
 
 		RowMapper<PhysicalAttributes> physicalAttributesRowMapper =
 				Row2BeanRowMapper.makeMapping(sql, PhysicalAttributes.class, physicalAttributesMapping);
 
-		return jdbcTemplate.queryForObject(
-				sql,
-				createParams("bookingId", bookingId),
-				physicalAttributesRowMapper);
+		PhysicalAttributes physicalAttributes;
+		try {
+			physicalAttributes = jdbcTemplate.queryForObject(
+					sql,
+					createParams("bookingId", bookingId),
+					physicalAttributesRowMapper);
+		} catch (EmptyResultDataAccessException e) {
+			physicalAttributes = null;
+		}
+		return Optional.ofNullable(physicalAttributes);
 	}
 
-	private List<Assessment> findAssessments(long bookingId) {
+	public List<AssessmentDto> findAssessments(long bookingId) {
 		String sql = getQuery("FIND_ACTIVE_APPROVED_ASSESSMENT");
-
-		RowMapper<Assessment> assessmentAttributesRowMapper =
-				Row2BeanRowMapper.makeMapping(sql, Assessment.class, assessmentMapping);
 
 		return jdbcTemplate.query(
 				sql,
 				createParams("bookingId", bookingId),
-				assessmentAttributesRowMapper);
+				ASSESSMENT_MAPPER);
 	}
 
-	private AssignedLivingUnit findAssignedLivingUnit(long bookingId, String locationTypeRoot) {
+	public Optional<AssignedLivingUnit> findAssignedLivingUnit(long bookingId, String locationTypeRoot) {
 		String sql = getQuery("FIND_ASSIGNED_LIVING_UNIT");
 
 		RowMapper<AssignedLivingUnit> assignedLivingUnitRowMapper =
 				Row2BeanRowMapper.makeMapping(sql, AssignedLivingUnit.class, assignedLivingUnitMapping);
 
-		return jdbcTemplate.queryForObject(
-				sql,
-				createParams("bookingId", bookingId, "locationTypeRoot", locationTypeRoot),
-				assignedLivingUnitRowMapper);
+		AssignedLivingUnit assignedLivingUnit;
+		try {
+			assignedLivingUnit = jdbcTemplate.queryForObject(
+					sql,
+					createParams("bookingId", bookingId, "locationTypeRoot", locationTypeRoot),
+					assignedLivingUnitRowMapper);
+		} catch (EmptyResultDataAccessException ex) {
+			assignedLivingUnit = null;
+		}
+
+		return Optional.ofNullable(assignedLivingUnit);
 	}
 
 	@Override
 	public Optional<InmateDetail> findInmate(Long bookingId, Set<String> caseloads, String locationTypeRoot) {
 		String sql = getQuery("FIND_INMATE_DETAIL");
 
-		RowMapper<InmateDetail> inmateRowMapper =
-				Row2BeanRowMapper.makeMapping(sql, InmateDetail.class, inmateDetailsMapping);
-
+		RowMapper<InmateDetail> inmateRowMapper =Row2BeanRowMapper.makeMapping(sql, InmateDetail.class, inmateDetailsMapping);
 		InmateDetail inmate;
-
 		try {
 			inmate = jdbcTemplate.queryForObject(
 					sql,
 					createParams("bookingId", bookingId, "caseLoadId", caseloads),
 					inmateRowMapper);
-
-			if (inmate != null) {
-				PhysicalAttributes physicalAttributes = findPhysicalAttributes(bookingId);
-
-				if (physicalAttributes.getHeightCentimetres() != null) {
-					physicalAttributes.setHeightMetres(BigDecimal.valueOf(physicalAttributes.getHeightCentimetres()).movePointLeft(2));
-				}
-
-				inmate.setPhysicalAttributes(physicalAttributes);
-				inmate.setPhysicalCharacteristics(findPhysicalCharacteristics(bookingId));
-				inmate.setPhysicalMarks(findPhysicalMarks(bookingId));
-				inmate.setAssessments(findAssessments(bookingId));
-				inmate.setAssignedLivingUnit(findAssignedLivingUnit(bookingId, locationTypeRoot));
-				inmate.setAlertsCodes(findActiveAlertCodes(bookingId));
-			}
 		} catch (EmptyResultDataAccessException ex) {
 			inmate = null;
 		}
@@ -392,7 +383,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		return Optional.ofNullable(inmate);
 	}
 
-	private List<String> findActiveAlertCodes(long bookingId) {
+	public List<String> findActiveAlertCodes(long bookingId) {
 		String sql = getQuery("FIND_ALERT_TYPES_FOR_OFFENDER");
 
 		return jdbcTemplate.query(
