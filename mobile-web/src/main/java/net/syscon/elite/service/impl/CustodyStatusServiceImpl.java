@@ -8,6 +8,7 @@ import net.syscon.elite.repository.CustodyStatusRecord;
 import net.syscon.elite.service.CustodyStatusCalculator;
 import net.syscon.elite.service.CustodyStatusService;
 import net.syscon.elite.service.EntityNotFoundException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,11 +34,20 @@ public class CustodyStatusServiceImpl implements CustodyStatusService {
     }
 
     @Override
-    public List<PrisonerCustodyStatus> listCustodyStatuses(String query, String orderBy, Order order) {
-        return custodyStatusRepository.listCustodyStatusRecords(query, orderBy, order)
+    public List<PrisonerCustodyStatus> listCustodyStatuses(String locationId, CustodyStatusCode custodyStatusCode, String orderBy, Order order) {
+        return custodyStatusRepository.listCustodyStatusRecords(locationId, orderBy, order)
                 .stream()
                 .map(this::toCustodyStatus)
+                .filter(x -> filterOnCustodyStatus(x, custodyStatusCode))
                 .collect(Collectors.toList());
+    }
+
+    private boolean filterOnCustodyStatus(PrisonerCustodyStatus record, CustodyStatusCode custodyStatusCode) {
+        if (custodyStatusCode != null) {
+            return custodyStatusCode.equals(record.getCustodyStatusCode());
+        }
+
+        return true;
     }
 
     private PrisonerCustodyStatus toCustodyStatus(CustodyStatusRecord record) {

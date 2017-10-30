@@ -2,9 +2,11 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.PrisonerCustodyStatus;
 import net.syscon.elite.api.resource.CustodyStatusResource;
+import net.syscon.elite.api.support.CustodyStatusCode;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.CustodyStatusService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.ws.rs.Path;
@@ -23,8 +25,8 @@ public class CustodyStatusResourceImpl implements CustodyStatusResource {
 
     @Override
     @PreAuthorize("authentication.authorities.?[authority.contains('_ADMIN')].size() != 0 || authentication.authorities.?[authority.contains('GLOBAL_SEARCH')].size() != 0")
-    public GetPrisonerCustodyStatusesResponse getPrisonerCustodyStatuses(String query, String sortFields, Order sortOrder) {
-        final List<PrisonerCustodyStatus> custodyStatuses = custodyStatusService.listCustodyStatuses(query, sortFields, sortOrder);
+    public GetPrisonerCustodyStatusesResponse getPrisonerCustodyStatuses(String locationId, String custodyStatusCode, String sortFields, Order sortOrder) {
+        final List<PrisonerCustodyStatus> custodyStatuses = custodyStatusService.listCustodyStatuses(locationId, asValidCustodyStatusCode(custodyStatusCode), sortFields, sortOrder);
         return GetPrisonerCustodyStatusesResponse.respond200WithApplicationJson(custodyStatuses);
     }
 
@@ -33,5 +35,13 @@ public class CustodyStatusResourceImpl implements CustodyStatusResource {
     public GetPrisonerCustodyStatusResponse getPrisonerCustodyStatus(String offenderNo) {
         final PrisonerCustodyStatus custodyStatus = custodyStatusService.getCustodyStatus(offenderNo);
         return GetPrisonerCustodyStatusResponse.respond200WithApplicationJson(custodyStatus);
+    }
+
+    private CustodyStatusCode asValidCustodyStatusCode(String custodyStatus) {
+        if (StringUtils.isNotBlank(custodyStatus)) {
+            return CustodyStatusCode.valueOf(custodyStatus);
+        }
+
+        return null;
     }
 }
