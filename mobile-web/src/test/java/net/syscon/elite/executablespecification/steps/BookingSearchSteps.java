@@ -117,7 +117,7 @@ public class BookingSearchSteps extends CommonSteps {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         inmateSummaries = response.getBody();
-        buildResourceData(response, "offenders");
+        buildResourceData(response);
     }
 
     private String buildSimpleQuery(String fieldName, Object criteria) {

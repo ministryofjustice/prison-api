@@ -3,6 +3,7 @@ package net.syscon.elite.repository;
 import net.syscon.elite.api.model.InmateDetail;
 import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.Page;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +19,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -41,15 +45,25 @@ public class InmateRepositoryTest {
 
     @Test
     public final void testFindAllImates() {
-        final List<OffenderBooking> foundInmates = repository.findAllInmates(new HashSet<>(Arrays.asList("LEI", "BXI")), "WING", "", 0, 10, "lastName, firstName", Order.ASC);
-        assertThat(foundInmates).isNotEmpty();
-    }
+        Page<OffenderBooking> foundInmates = repository.findAllInmates(
+                new HashSet<>(Arrays.asList("LEI", "BXI")),
+                "WING",
+                "",
+                0,
+                10,
+                "lastName, firstName",
+                Order.ASC);
 
+        assertThat(foundInmates.getItems()).isNotEmpty();
+    }
 
     @Test
     public final void testGetOffender() {
-        final Optional<InmateDetail> inmate = repository.findInmate(-1L, Collections.singleton("LEI"), "WING");
+        Optional<InmateDetail> inmate = repository.findInmate(
+                -1L,
+                Collections.singleton("LEI"),
+                "WING");
+
         assertThat(inmate).isPresent();
     }
-
 }

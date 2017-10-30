@@ -4,8 +4,10 @@ import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.CaseNote;
 import net.syscon.elite.api.model.NewCaseNote;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.CaseNoteRepository;
 import net.syscon.elite.repository.mapping.FieldMapper;
+import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.util.DateTimeConverter;
@@ -41,15 +43,26 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 			.build();
 
 	@Override
-	public List<CaseNote> getCaseNotes(long bookingId, String query, String orderByField, Order order, long offset, long limit) {
-		final String sql = queryBuilderFactory.getQueryBuilder(getQuery("FIND_CASENOTES"), CASE_NOTE_MAPPING)
-											.addRowCount()
-											.addQuery(query)
-											.addOrderBy(order == Order.ASC, orderByField)
-											.addPagination()
-											.build();
-		final RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, CASE_NOTE_MAPPING);
-		return jdbcTemplate.query(sql, createParams("bookingId", bookingId, "offset", offset, "limit", limit), caseNoteRowMapper);
+	public Page<CaseNote> getCaseNotes(long bookingId, String query, String orderByField, Order order, long offset, long limit) {
+		String initialSql = getQuery("FIND_CASENOTES");
+		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, CASE_NOTE_MAPPING);
+
+		String sql = builder
+				.addRowCount()
+				.addQuery(query)
+				.addOrderBy(order == Order.ASC, orderByField)
+				.addPagination()
+				.build();
+
+		RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, CASE_NOTE_MAPPING);
+		PageAwareRowMapper<CaseNote> paRowMapper = new PageAwareRowMapper<>(caseNoteRowMapper);
+
+		List<CaseNote> caseNotes = jdbcTemplate.query(
+				sql,
+				createParams("bookingId", bookingId, "offset", offset, "limit", limit),
+				paRowMapper);
+
+		return new Page<>(caseNotes, paRowMapper.getTotalRecords(), offset, limit);
 	}
 
     @Override

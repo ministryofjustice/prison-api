@@ -41,13 +41,14 @@ public interface {{classname}} {
         }
         {{#responses}}
 
-        public static {{operationIdCamelCase}}Response respond{{{code}}}WithApplicationJson({{{dataType}}} entity{{#hasHeaders}}{{#headers}}, {{baseType}} {{name}}{{/headers}}{{/hasHeaders}}) {
+        public static {{operationIdCamelCase}}Response respond{{{code}}}WithApplicationJson({{{dataType}}} {{#isPageable}}page{{/isPageable}}{{^isPageable}}entity{{/isPageable}}{{#hasHeaders}}{{#headers}}, {{baseType}} {{name}}{{/headers}}{{/hasHeaders}}) {
             Response.ResponseBuilder responseBuilder = Response.status({{{code}}})
                     .header("Content-Type", MediaType.APPLICATION_JSON){{#hasHeaders}}{{#headers}}
-                    .header("{{baseName}}", {{name}}){{/headers}}{{/hasHeaders}};
-            responseBuilder.entity(entity);
+                    .header("{{baseName}}", {{name}}){{/headers}}{{/hasHeaders}}{{#isPageable}}{{#paginationHeaders}}
+                    .header("{{baseName}}", page.{{name}}){{/paginationHeaders}}{{/isPageable}};
+            responseBuilder.entity({{#isPageable}}page.getItems(){{/isPageable}}{{^isPageable}}entity{{/isPageable}});
 
-            return new {{operationIdCamelCase}}Response(responseBuilder.build(), entity);
+            return new {{operationIdCamelCase}}Response(responseBuilder.build(), {{#isPageable}}page.getItems(){{/isPageable}}{{^isPageable}}entity{{/isPageable}});
         }
         {{/responses}}
     }

@@ -55,7 +55,8 @@ public class LocationsSteps extends CommonSteps {
                 HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<Location>>() {});
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        buildResourceData(response, "locations");
+
+        buildResourceData(response);
     }
 
     private void dispatchQueryForObject(String query) {
@@ -68,13 +69,11 @@ public class LocationsSteps extends CommonSteps {
         try {
             response = restTemplate.exchange(queryUrl, HttpMethod.GET, createEntity(), Location.class);
 
-            HttpStatus httpStatus = response.getStatusCode();
-
             location = response.getBody();
 
             List<?> resources = Collections.singletonList(location);
 
-            setResourceMetaData(resources, null);
+            setResourceMetaData(resources);
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
@@ -82,6 +81,7 @@ public class LocationsSteps extends CommonSteps {
 
     protected void init() {
         super.init();
+
         location = null;
     }
 }

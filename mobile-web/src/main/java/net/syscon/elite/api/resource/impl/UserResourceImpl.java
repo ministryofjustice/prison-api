@@ -3,11 +3,10 @@ package net.syscon.elite.api.resource.impl;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.resource.UserResource;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.*;
-import net.syscon.util.MetaDataFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 
@@ -19,25 +18,22 @@ import static net.syscon.util.ResourceUtils.nvl;
 @RestResource
 @Path("/users")
 public class UserResourceImpl implements UserResource {
-
-    @Autowired
-    private LocationService locationService;
-
-    @Autowired
-    private AssignmentService assignmentService;
-
-    @Autowired
-    private AuthenticationService authenticationService;
-
-    @Autowired
-    private ReferenceDomainService referenceDomainService;
-
-    @Autowired
-    private UserService userService;
+    private final LocationService locationService;
+    private final AssignmentService assignmentService;
+    private final AuthenticationService authenticationService;
+    private final ReferenceDomainService referenceDomainService;
+    private final UserService userService;
 
     @Value("${token.username.stored.caps:true}")
     private boolean upperCaseUsername;
 
+    public UserResourceImpl(LocationService locationService, AssignmentService assignmentService, AuthenticationService authenticationService, ReferenceDomainService referenceDomainService, UserService userService) {
+        this.locationService = locationService;
+        this.assignmentService = assignmentService;
+        this.authenticationService = authenticationService;
+        this.referenceDomainService = referenceDomainService;
+        this.userService = userService;
+    }
 
     @Override
     public GetMyUserInformationResponse getMyUserInformation() {
@@ -46,32 +42,37 @@ public class UserResourceImpl implements UserResource {
 
     @Override
     public GetMyAssignmentsResponse getMyAssignments(Long pageOffset, Long pageLimit) {
-        final List<OffenderBooking> assignments = assignmentService.findMyAssignments(nvl(pageOffset, 0L), nvl(pageLimit, 10L));
-        return GetMyAssignmentsResponse.respond200WithApplicationJson(assignments, MetaDataFactory.getTotalRecords(assignments), nvl(pageOffset, 0L), nvl(pageLimit, 10L));
+        Page<OffenderBooking> assignments = assignmentService.findMyAssignments(
+                nvl(pageOffset, 0L),
+                nvl(pageLimit, 10L));
+
+        return GetMyAssignmentsResponse.respond200WithApplicationJson(assignments);
     }
 
     @Override
     public GetMyCaseLoadsResponse getMyCaseLoads() {
-        final List<CaseLoad> caseLoads = userService.getCaseLoads(UserSecurityUtils.getCurrentUsername());
+        List<CaseLoad> caseLoads = userService.getCaseLoads(UserSecurityUtils.getCurrentUsername());
+
         return GetMyCaseLoadsResponse.respond200WithApplicationJson(caseLoads);
     }
 
     @Override
     public GetMyCaseNoteTypesResponse getMyCaseNoteTypes(boolean includeSubTypes, String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-        final long offset = nvl(pageOffset, 0L);
-        final long limit = nvl(pageLimit, 10L);
-        List<ReferenceCode> caseNoteTypes = referenceDomainService.getCaseNoteTypeByCurrentCaseLoad(query, sortFields, sortOrder, offset, limit, includeSubTypes);
+        Page<ReferenceCode> caseNoteTypes = referenceDomainService.getCaseNoteTypeByCurrentCaseLoad(
+                query,
+                sortFields,
+                sortOrder,
+                nvl(pageOffset, 0L),
+                nvl(pageLimit, 10L),
+                includeSubTypes);
 
-        if (includeSubTypes) {
-            return GetMyCaseNoteTypesResponse.respond200WithApplicationJson(caseNoteTypes, (long)caseNoteTypes.size(),  0L, (long)caseNoteTypes.size());
-        } else {
-            return GetMyCaseNoteTypesResponse.respond200WithApplicationJson(caseNoteTypes, MetaDataFactory.getTotalRecords(caseNoteTypes), nvl(pageOffset, 0L), nvl(pageLimit, 10L));
-        }
+        return GetMyCaseNoteTypesResponse.respond200WithApplicationJson(caseNoteTypes);
     }
 
     @Override
     public GetMyLocationsResponse getMyLocations() {
         List<Location> userLocations = locationService.getUserLocations(UserSecurityUtils.getCurrentUsername());
+
         return GetMyLocationsResponse.respond200WithApplicationJson(userLocations);
     }
 
@@ -85,6 +86,7 @@ public class UserResourceImpl implements UserResource {
                     .developerMessage("The current user does not have acess to this CaseLoad")
                     .build());
         }
+
         return null;
     }
 
@@ -95,7 +97,8 @@ public class UserResourceImpl implements UserResource {
 
     @Override
     public GetUserDetailsResponse getUserDetails(String username) {
-        final UserDetail userByUsername = userService.getUserByUsername(upperCaseUsername ? username.toUpperCase() : username);
+        UserDetail userByUsername = userService.getUserByUsername(upperCaseUsername ? username.toUpperCase() : username);
+
         return GetUserDetailsResponse.respond200WithApplicationJson(userByUsername);
     }
 
@@ -113,6 +116,7 @@ public class UserResourceImpl implements UserResource {
     @Override
     public TokenRefreshResponse tokenRefresh(String authorization) {
         Token token = authenticationService.refreshToken(authorization);
+
         if (token != null) {
             return TokenRefreshResponse.respond201WithApplicationJson(token, authorization);
         } else {

@@ -88,6 +88,10 @@ public class CaseNoteSteps extends CommonSteps {
         dispatchQueryRequest(bookingId);
     }
 
+    public void getCaseNote(long bookingId, long caseNoteId) {
+        dispatchGetRequest(bookingId, caseNoteId);
+    }
+
     @Step("Verify case note types")
     public void verifyCaseNoteTypes(String caseNoteTypes) {
         verifyPropertyValues(caseNotes, CaseNote::getType, caseNoteTypes);
@@ -164,19 +168,24 @@ public class CaseNoteSteps extends CommonSteps {
     }
 
     private void dispatchGetRequest(Long bookingId, Long caseNoteId) {
-        ResponseEntity<CaseNote> response = restTemplate.exchange(API_REQUEST_FOR_CASENOTE, HttpMethod.GET, createEntity(),
-                CaseNote.class, bookingId, caseNoteId);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-        caseNote = response.getBody();
+        try {
+            ResponseEntity<CaseNote> response = restTemplate.exchange(API_REQUEST_FOR_CASENOTE, HttpMethod.GET,
+                    createEntity(), CaseNote.class, bookingId, caseNoteId);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            caseNote = response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
     }
 
     private void dispatchUpdateRequest(Long bookingId, Long caseNoteId, UpdateCaseNote caseNote) {
-        ResponseEntity<CaseNote> response = restTemplate.exchange(API_REQUEST_FOR_CASENOTE, HttpMethod.PUT, createEntity(caseNote),
-                CaseNote.class, bookingId, caseNoteId);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        try {
+            ResponseEntity<CaseNote> response = restTemplate.exchange(API_REQUEST_FOR_CASENOTE, HttpMethod.PUT,
+                    createEntity(caseNote), CaseNote.class, bookingId, caseNoteId);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
     }
 
     private void dispatchQueryRequest(Long bookingId) {
@@ -184,12 +193,16 @@ public class CaseNoteSteps extends CommonSteps {
 
         String queryUrl = API_REQUEST_BASE_URL + buildQuery(caseNoteFilter);
 
-        ResponseEntity<List<CaseNote>> response = restTemplate.exchange(queryUrl,
-                HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<CaseNote>>() {}, bookingId);
+        try {
+            ResponseEntity<List<CaseNote>> response = restTemplate.exchange(queryUrl, HttpMethod.GET,
+                    createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<CaseNote>>() {
+                    }, bookingId);
 
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        buildResourceData(response, "caseNotes");
-        caseNotes = response.getBody();
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            buildResourceData(response);
+            caseNotes = response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
     }
 }

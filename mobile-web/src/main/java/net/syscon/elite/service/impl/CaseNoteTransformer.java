@@ -33,7 +33,7 @@ public class CaseNoteTransformer {
 
     CaseNote transform(final CaseNote in) {
         CaseNote out = null;
-        if (in != null) {
+        if (in != null && in.getText() != null) {
             out = CaseNote.builder()
                     .caseNoteId(in.getCaseNoteId())
                     .bookingId(in.getBookingId())
@@ -67,7 +67,8 @@ public class CaseNoteTransformer {
 
             if (amendmentCount == 0) {
                 caseNote.setOriginalNoteText(caseNoteText.trim());
-                workingText = StringUtils.removeFirst(workingText, caseNoteText);
+                // Careful not to use a util which treats caseNoteText as a pattern
+                workingText = StringUtils.replace(workingText, caseNoteText, StringUtils.EMPTY, 1);
             } else {
                 // split up string
                 final int firstOcc = StringUtils.indexOf(workingText, caseNoteText);

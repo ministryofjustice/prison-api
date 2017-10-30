@@ -1,6 +1,8 @@
 package net.syscon.util;
 
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.sql.Timestamp;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -80,6 +82,24 @@ public class DateTimeConverter {
 			ldt = null;
 		}
 		return ldt;
+	}
+
+    /**
+     * Converts an ISO8601 formatted date string (YYYY-MM-DD) to a {@link LocalDate}.
+     *
+     * @param iso8601DateString date string to convert.
+     * @return LocalDate or {@code null} if provided date string is blank or {@code null}.
+     */
+	public static LocalDate fromISO8601DateString(String iso8601DateString) {
+		LocalDate outDate;
+
+		if (StringUtils.isNotBlank(iso8601DateString)) {
+			outDate = LocalDate.parse(iso8601DateString, DateTimeFormatter.ISO_LOCAL_DATE);
+		} else {
+			outDate = null;
+		}
+
+		return outDate;
 	}
 
 	/**

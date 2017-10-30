@@ -2,13 +2,18 @@ package net.syscon.elite.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
-import net.syscon.elite.repository.AgencyRepository;
+import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
+import net.syscon.elite.repository.SentenceRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.support.NonDtoReleaseDate;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,15 +31,21 @@ import static java.time.temporal.ChronoUnit.DAYS;
 @Slf4j
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
+    private final SentenceRepository sentenceRepository;
     private final AgencyService agencyService;
+    private final InmateService inmateService;
 
-    public BookingServiceImpl(BookingRepository bookingRepository, AgencyService agencyService) {
+    public BookingServiceImpl(BookingRepository bookingRepository, SentenceRepository sentenceRepository,
+            AgencyService agencyService, InmateService inmateService) {
         this.bookingRepository = bookingRepository;
+        this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
+        this.inmateService = inmateService;
     }
 
     @Override
     public SentenceDetail getBookingSentenceDetail(Long bookingId) {
+        verifyBookingAccess(bookingId);
         SentenceDetail sentenceDetail = bookingRepository.getBookingSentenceDetail(bookingId).orElseThrow(new EntityNotFoundException(bookingId.toString()));
 
         NonDtoReleaseDate nonDtoReleaseDate = deriveNonDtoReleaseDate(sentenceDetail);
@@ -49,6 +60,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public PrivilegeSummary getBookingIEPSummary(Long bookingId, boolean withDetails) {
+        verifyBookingAccess(bookingId);
         List<PrivilegeDetail> iepDetails = bookingRepository.getBookingIEPDetails(bookingId);
 
         // If no IEP details exist for offender, cannot derive an IEP summary.
@@ -69,15 +81,20 @@ public class BookingServiceImpl implements BookingService {
                 .iepTime(currentDetail.getIepTime())
                 .iepLevel(currentDetail.getIepLevel())
                 .daysSinceReview(Long.valueOf(daysSinceReview).intValue())
-                .iepDetails(withDetails ? iepDetails : Collections.EMPTY_LIST)
+                .iepDetails(withDetails ? iepDetails : Collections.emptyList())
                 .build();
     }
 
     @Override
-    public List<ScheduledEvent> getBookingActivities(Long bookingId) {
+    public Page<ScheduledEvent> getBookingActivities(Long bookingId, long offset, long limit, String orderByFields, Order order) {
+        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
+
         verifyBookingAccess(bookingId);
 
-        return new ArrayList<>();
+        String sortFields = StringUtils.defaultString(orderByFields, "startTime");
+        Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
+
+        return bookingRepository.getBookingActivities(bookingId, offset, limit, sortFields, sortOrder);
     }
 
     private NonDtoReleaseDate deriveNonDtoReleaseDate(SentenceDetail sentenceDetail) {
@@ -151,8 +168,32 @@ public class BookingServiceImpl implements BookingService {
      * @throws EntityNotFoundException if current user does not have access to specified booking.
      */
     public void verifyBookingAccess(Long bookingId) {
+        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
+
         if (!bookingRepository.verifyBookingAccess(bookingId, getAgencyIds())) {
             throw new EntityNotFoundException(bookingId.toString());
         }
+    }
+
+    @Override
+    public MainSentence getMainSentence(Long bookingId) {
+        verifyBookingAccess(bookingId);
+        return sentenceRepository.getMainSentence(bookingId);
+    }
+
+    @Override
+    public Page<OffenderRelease> getOffenderReleaseSummary(List<String> offenderNos, long offset, long limit) {
+
+        final String query = buildOffenderInQuery(offenderNos);
+        return bookingRepository.getOffenderReleaseSummary(query, offset, limit, "offenderNo", Order.ASC);
+    }
+
+    private String buildOffenderInQuery(List<String> offenderNos) {
+        String query = null;
+        if (!offenderNos.isEmpty()) {
+            final String ids = offenderNos.stream().map(offenderNo -> "'"+offenderNo+"'").collect(Collectors.joining("|"));
+            query = "offenderNo:in:" + ids + "";
+        }
+        return query;
     }
 }

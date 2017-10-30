@@ -122,3 +122,12 @@ Feature: Booking Sentence Details
       | bookingId | ssd        | rotl       | ersed      |
       | -2        | 2016-11-22 | 2018-02-25 |            |
       | -4        | 2007-10-16 |            | 2019-09-01 |
+
+  Scenario: Booking id does not exist
+    When sentence details with nonexistent booking id is requested
+    Then resource not found response is received from sentence details API
+
+  Scenario: The logged on staff user's caseload does not include the booking id
+    When sentence details with booking id in different caseload is requested
+    Then resource not found response is received from sentence details API
+

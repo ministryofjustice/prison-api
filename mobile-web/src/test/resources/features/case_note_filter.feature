@@ -20,7 +20,7 @@ Feature: Case Note Retrieval and Filtering
       | -1        | 1      | CHAP                                                            | FAMMAR                                                          |
       | -2        | 4      | COMMS,APP,ETE,COMMS                                             | COM_IN,OUTCOME,ETERTO,COM_OUT                                   |
       | -3        | 8      | OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE | OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN |
-      | -999      | 0      |                                                                 |                                                                 |
+      | -14       | 0      |                                                                 |                                                                 |
 
   Scenario Outline: Retrieve filtered case notes
     When case note type "<case note type>" filter applied
@@ -55,3 +55,11 @@ Feature: Case Note Retrieval and Filtering
       | -3        |                |                    | 2017-05-10 |            | 10    | 0      | 4      | 4     |
       | -3        |                |                    |            | 2017-05-09 | 2     | 0      | 2      | 4     |
       | -3        |                |                    | 2017-05-07 | 2017-05-12 | 3     | 3      | 3      | 6     |
+
+  Scenario: The logged on staff user's caseload does not include the booking id - get single
+    When a case note with booking id in different caseload is retrieved
+    Then resource not found response is received from caseload API
+
+  Scenario: The logged on staff user's caseload does not include the booking id - get list
+    When a case note list with booking id in different caseload is retrieved
+    Then resource not found response is received from caseload API

@@ -9,9 +9,10 @@ Feature: Finances
 
   Scenario: Retrieve balances
     When an account with booking id -1 is requested
-    Then the returned cash is 1.24
-    And the returned spends is 2.50
-    And the returned savings is 200.50
+    Then the returned account cash is 1.24
+    And the returned account spends is 2.50
+    And the returned account savings is 200.50
+    And the returned account currency is GBP
 
   Scenario: Booking id does not exist
     When an account with nonexistent booking id is requested

@@ -3,8 +3,10 @@ package net.syscon.elite.repository.impl;
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.mapping.FieldMapper;
+import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.util.IQueryBuilder;
 import org.springframework.cache.annotation.Cacheable;
@@ -29,23 +31,25 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
                     .build();
 
     @Override
-    public List<Agency> getAgencies(String orderByField, Order order, long offset, long limit) {
+    public Page<Agency> getAgencies(String orderByField, Order order, long offset, long limit) {
         String initialSql = getQuery("GET_AGENCIES");
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, agencyMapping);
-        boolean isAscendingOrder = (order == Order.ASC);
 
         String sql = builder
                 .addRowCount()
-                .addOrderBy(isAscendingOrder, orderByField)
+                .addOrderBy(order, orderByField)
                 .addPagination()
                 .build();
 
         RowMapper<Agency> agencyRowMapper = Row2BeanRowMapper.makeMapping(sql, Agency.class, agencyMapping);
+        PageAwareRowMapper<Agency> paRowMapper = new PageAwareRowMapper<>(agencyRowMapper);
 
-        return jdbcTemplate.query(
+        List<Agency> agencies = jdbcTemplate.query(
                 sql,
                 createParams("offset", offset, "limit", limit),
-                agencyRowMapper);
+                paRowMapper);
+
+        return new Page<>(agencies, paRowMapper.getTotalRecords(), offset, limit);
     }
 
     @Override

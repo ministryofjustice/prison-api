@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.service.EntityNotFoundException;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,6 +27,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	}
 
 	@Override
+	@Cacheable("loadUserByUsername")
 	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
 		final UserDetail userDetail = userRepository.findByUsername(username).orElseThrow(new EntityNotFoundException(username));
 		List<String> roles = userRepository.findRolesByUsername(username);

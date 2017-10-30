@@ -40,7 +40,6 @@ types:
   UpdateCaseNote:         !include types/UpdateCaseNote.raml
   Alert:                  !include types/Alert.raml
   Alias:                  !include types/Alias.raml
-  PageMetaData:           !include types/PageMetaData.raml
   Movement:               !include types/Movement.raml
   LocationCountDetail:    !include types/LocationCountDetail.raml
   LocationCount:          !include types/LocationCount.raml
@@ -50,7 +49,9 @@ types:
   PhysicalCharacteristic: !include types/PhysicalCharacteristic.raml
   PhysicalMark:           !include types/PhysicalMark.raml
   InmateDetail:           !include types/InmateDetail.raml
+  MainSentence:           !include types/MainSentence.raml
   ScheduledEvent:         !include types/ScheduledEvent.raml
+  OffenderRelease:        !include types/OffenderRelease.raml
 
 securitySchemes:
   jwt:
@@ -86,6 +87,7 @@ resourceTypes: !include resourceTypes/generic-resource-types.raml
 /bookings:          !include resources/bookings.raml
 /prisoners:         !include resources/prisoners.raml
 /search-offenders:  !include resources/search-offenders.raml
+/offender-releases: !include resources/offender-releases.raml
 /users:             !include resources/users.raml
 /reference-domains: !include resources/reference-domains.raml
 /locations:         !include resources/locations.raml

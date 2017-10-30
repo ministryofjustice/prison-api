@@ -34,7 +34,7 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     private CaseNote seededCaseNote;
     private CaseNote updatedCaseNote;
 
-    private Long caseNoteBookingId = -99L;
+    private Long caseNoteBookingId = -15L; // this must exist
 
     @And("^case note test harness initialized$")
     public void caseNoteTestHarnessInitialized() throws Throwable {
@@ -171,5 +171,35 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     @And("^\"([^\"]*)\" case notes are available$")
     public void caseNotesAreAvailable(String count) throws Throwable {
         caseNote.verifyTotalResourceRecordsAvailable(Long.valueOf(count));
+    }
+
+    @When("^a case note with booking id in different caseload is created")
+    public void caseNotesDifferentCaseloadCreated() throws Throwable {
+        NewCaseNote newCaseNote = buildNewCaseNote("CHAP", "FAMMAR", "dummy text", null);
+        caseNote.createCaseNote(-16L, newCaseNote, false);
+    }
+
+    @When("^a case note with booking id in different caseload is updated")
+    public void caseNotesDifferentCaseloadUpdated() throws Throwable {
+        NewCaseNote newCaseNote = buildNewCaseNote("CHAP", "FAMMAR", "dummy text", null);
+        seededCaseNote = caseNote.createCaseNote(-15L, newCaseNote, true);
+        // Force booking id as its impossible to create this id
+        seededCaseNote.setBookingId(-16L);
+        caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text("Updated text").build());
+    }
+
+    @When("^a case note list with booking id in different caseload is retrieved")
+    public void caseNotesDifferentCaseloadGetList() throws Throwable {
+        caseNote.getCaseNotes(-16L);
+    }
+    
+    @When("^a case note with booking id in different caseload is retrieved")
+    public void caseNotesDifferentCaseloadGet() throws Throwable {
+        caseNote.getCaseNote(-16L, -14L);
+    }
+
+    @Then("^resource not found response is received from caseload API")
+    public void caseNotesVerifyResourceNotFound() throws Throwable {
+        caseNote.verifyResourceNotFound();
     }
 }

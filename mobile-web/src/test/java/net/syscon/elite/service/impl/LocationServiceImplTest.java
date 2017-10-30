@@ -2,6 +2,7 @@ package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.LocationRepository;
 import net.syscon.elite.service.LocationService;
 import org.junit.Before;
@@ -29,11 +30,6 @@ public class LocationServiceImplTest {
 
     private LocationService locationService;
 
-    @Before
-    public void setUp() throws Exception {
-//        locationService = new LocationServiceImpl(locationRepository);
-    }
-
     @Test
     @Ignore
     public void getUserLocations() throws Exception {
@@ -42,7 +38,12 @@ public class LocationServiceImplTest {
 
         locations.add(location);
 
-        Mockito.when(locationRepository.findLocations(eq(null), eq("locationId"), eq(Order.ASC), eq(0), eq(10))).thenReturn(locations);
+        Mockito.when(locationRepository.findLocations(
+                eq(null),
+                eq("locationId"),
+                eq(Order.ASC),
+                eq(0),
+                eq(10))).thenReturn(new Page<>(locations, 1, 0, 10));
 
         List<net.syscon.elite.api.model.Location> returnedLocations = locationService.getUserLocations("");
 

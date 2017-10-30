@@ -79,3 +79,32 @@ CHECK_BOOKING_AGENCIES {
   AND OFFENDER_BOOK_ID = :bookingId
   AND AGY_LOC_ID IN (:agencyIds)
 }
+
+
+OFFENDER_SUMMARY {
+  SELECT
+    OB.OFFENDER_BOOK_ID   AS                          booking_id,
+    O.OFFENDER_ID_DISPLAY AS                          offender_no,
+    O.TITLE,
+    O.SUFFIX,
+    O.FIRST_NAME,
+    CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL
+      THEN concat(' ', O.middle_name_2)
+                          ELSE '' END)                MIDDLE_NAMES,
+    O.LAST_NAME,
+    OB.ACTIVE_FLAG        AS                          currently_in_prison,
+    ob.agy_loc_id         AS                          agency_location_id,
+    al.description                                    agency_location_desc,
+    OB.LIVING_UNIT_ID     AS                          internal_location_id,
+    AIL.DESCRIPTION       AS                          internal_location_desc,
+    COALESCE(ord.release_date, ord.auto_release_date) RELEASE_DATE
+  FROM OFFENDERS O
+    JOIN OFFENDER_BOOKINGS OB
+      ON OB.offender_id = o.offender_id
+         AND OB.booking_seq = 1
+    JOIN agency_locations al
+      ON al.agy_loc_id = ob.agy_loc_id
+    LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
+    LEFT JOIN offender_release_details ord
+      ON ord.offender_book_id = ob.offender_book_id
+}

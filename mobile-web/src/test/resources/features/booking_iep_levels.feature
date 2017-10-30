@@ -34,3 +34,7 @@ Feature: Booking Incentives & Earned Privileges
   Scenario: Retrieve IEP summary for an existing offender that does not have any IEP detail records.
     When an IEP summary, with details, is requested for an offender with booking id "-9"
     Then resource not found response is received from bookings IEP summary API
+
+  Scenario: The logged on staff user's caseload does not include the booking id
+    When an IEP summary with booking id in different caseload is requested
+    Then resource not found response is received from bookings IEP summary API

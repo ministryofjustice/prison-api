@@ -96,13 +96,17 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 		try {
 			final T bean = type.newInstance();
 			loadColumns(rs);
+
 			for (final String columnName: sqlToCollumns) {
-				if (rs.getObject(columnName) != null) {
-					final Object value = rs.getObject(columnName);
+				final Object value = rs.getObject(columnName);
+
+				if (value != null) {
 					final FieldMapper fieldMapper = getFieldMapper(bean, columnName, value);
+
 					fieldMapper.setValue(bean, value);
 				}
 			}
+
 			return bean;
 		} catch (final Exception ex) {
 			throw new RowMappingException(ex.getMessage(), ex);

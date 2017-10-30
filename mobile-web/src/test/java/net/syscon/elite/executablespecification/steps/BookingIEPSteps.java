@@ -53,6 +53,10 @@ public class BookingIEPSteps extends CommonSteps {
         }
     }
 
+    public void getIdInDifferentCaseload() {
+        dispatchRequest(-16L, false);
+    }
+
     protected void init() {
         super.init();
 
