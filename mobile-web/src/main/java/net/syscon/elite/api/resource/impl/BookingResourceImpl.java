@@ -6,6 +6,7 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.*;
+import net.syscon.util.DateTimeConverter;
 
 import javax.ws.rs.Path;
 
@@ -96,10 +97,13 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetBookingsBookingIdCaseNotesResponse getBookingsBookingIdCaseNotes(Long bookingId, String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+    public GetBookingsBookingIdCaseNotesResponse getBookingsBookingIdCaseNotes(Long bookingId, String from, String to,
+            String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         Page<CaseNote> caseNotes = caseNoteService.getCaseNotes(
                 bookingId,
                 query,
+                DateTimeConverter.fromISO8601DateString(from),
+                DateTimeConverter.fromISO8601DateString(to),
                 sortFields,
                 sortOrder,
                 nvl(pageOffset, 0L),
