@@ -23,6 +23,13 @@
       description: The booking id of offender
   get:
     description: Get a paged list of case notes for offender
+    queryParameters:
+      from:
+        description: start contact date to search from
+        type: string
+      to:
+        description: end contact date to search up to (including this date)
+        type: string
     responses:
       200:
         body:

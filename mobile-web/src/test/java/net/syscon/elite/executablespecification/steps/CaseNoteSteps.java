@@ -30,6 +30,8 @@ public class CaseNoteSteps extends CommonSteps {
 
     @Value("${api.caseNote.sourceCode:AUTO}")
     private String caseNoteSource;
+    private String fromDate;
+    private String toDate;
 
     @Step("Initialisation")
     public void init() {
@@ -38,6 +40,8 @@ public class CaseNoteSteps extends CommonSteps {
         caseNote = null;
         pendingCaseNote = null;
         caseNoteFilter = "";
+        fromDate = null;
+        toDate = null;
     }
 
     @Step("Verify case note")
@@ -127,22 +131,14 @@ public class CaseNoteSteps extends CommonSteps {
     @Step("Apply date from filter")
     public void applyDateFromFilter(String dateFrom) {
         if (StringUtils.isNotBlank(dateFrom)) {
-            if (StringUtils.isNotBlank(caseNoteFilter)) {
-                caseNoteFilter += ",and:";
-            }
-
-            caseNoteFilter += String.format("occurrenceDateTime:gteq:'%s'", dateFrom);
+            fromDate = dateFrom;
         }
     }
 
     @Step("Apply date to filter")
     public void applyDateToFilter(String dateTo) {
         if (StringUtils.isNotBlank(dateTo)) {
-            if (StringUtils.isNotBlank(caseNoteFilter)) {
-                caseNoteFilter += ",and:";
-            }
-
-            caseNoteFilter += String.format("occurrenceDateTime:lteq:'%s'", dateTo);
+            toDate = dateTo;
         }
     }
 
@@ -192,7 +188,12 @@ public class CaseNoteSteps extends CommonSteps {
         caseNotes = null;
 
         String queryUrl = API_REQUEST_BASE_URL + buildQuery(caseNoteFilter);
-
+        if (fromDate != null) {
+            queryUrl += "&from=" + fromDate;
+        }
+        if (toDate != null) {
+            queryUrl += "&to=" + toDate;
+        }
         try {
             ResponseEntity<List<CaseNote>> response = restTemplate.exchange(queryUrl, HttpMethod.GET,
                     createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<CaseNote>>() {
