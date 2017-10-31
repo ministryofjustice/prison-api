@@ -33,6 +33,9 @@ public class CacheConfig implements CachingConfigurer {
     @Value("${cache.timeout.seconds.location:3600}")
     private int locationTimeoutSeconds;
 
+    @Value("${cache.timeout.seconds.offender.search:300}")
+    private int offenderSearchTimeoutSeconds;
+
     @Bean(destroyMethod="shutdown")
     public net.sf.ehcache.CacheManager ehCacheManager() {
         net.sf.ehcache.config.Configuration config = new net.sf.ehcache.config.Configuration();
@@ -60,6 +63,9 @@ public class CacheConfig implements CachingConfigurer {
         config.addCache(config("verifyBookingAccess", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config("findLocationsByAgencyAndType", 1000, locationTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("searchForOffenderBookings", 1000, offenderSearchTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("findInmate", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("getInmateAssessmentByCode", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         return net.sf.ehcache.CacheManager.newInstance(config);
     }

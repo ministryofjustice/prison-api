@@ -97,6 +97,12 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    public GetAssessmentByCodeResponse getAssessmentByCode(Long bookingId, String assessmentCode) {
+        final Assessment inmateAssessmentByCode = inmateService.getInmateAssessmentByCode(bookingId, assessmentCode).orElseThrow(new EntityNotFoundException(assessmentCode));
+        return GetAssessmentByCodeResponse.respond200WithApplicationJson(inmateAssessmentByCode);
+    }
+
+    @Override
     public GetBookingsBookingIdCaseNotesResponse getBookingsBookingIdCaseNotes(Long bookingId, String from, String to,
             String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         Page<CaseNote> caseNotes = caseNoteService.getCaseNotes(

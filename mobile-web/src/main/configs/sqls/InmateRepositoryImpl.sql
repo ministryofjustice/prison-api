@@ -187,20 +187,34 @@ FIND_PHYSICAL_ATTRIBUTES_BY_BOOKING {
 }
 
 FIND_ACTIVE_APPROVED_ASSESSMENT {
-    SELECT ASSESSMENTS.ASSESSMENT_CODE,
-           ASSESSMENTS.DESCRIPTION AS ASSESSMENT_DESCRIPTION,
-           REF_CD_SUP_LVL_TYPE.DESCRIPTION AS CLASSIFICATION
-      FROM OFFENDER_ASSESSMENTS,
-           ASSESSMENTS,
-           REFERENCE_CODES REF_CD_SUP_LVL_TYPE
-     WHERE OFFENDER_ASSESSMENTS.ASSESSMENT_TYPE_ID = ASSESSMENTS.ASSESSMENT_ID
-           AND ASSESSMENTS.ASSESSMENT_CLASS = 'TYPE'
-           AND OFFENDER_ASSESSMENTS.OFFENDER_BOOK_ID = :bookingId
-           AND OFFENDER_ASSESSMENTS.REVIEW_SUP_LEVEL_TYPE = REF_CD_SUP_LVL_TYPE.CODE
-           AND REF_CD_SUP_LVL_TYPE.DOMAIN = 'SUP_LVL_TYPE'
-           AND OFFENDER_ASSESSMENTS.ASSESS_STATUS = 'A'
-           AND OFFENDER_ASSESSMENTS.EVALUATION_RESULT_CODE = 'APP'
-}
+  SELECT
+    ass.ASSESSMENT_CODE,
+    ass.DESCRIPTION          AS ASSESSMENT_DESCRIPTION,
+    off_ass.review_sup_level_type,
+    ref_review.DESCRIPTION   AS review_sup_level_type_desc,
+    off_ass.overrided_sup_level_type,
+    ref_override.DESCRIPTION AS overrided_sup_level_type_desc,
+    off_ass.calc_sup_level_type,
+    ref_cal_sup.DESCRIPTION  AS calc_sup_level_type_desc,
+    ass.caseload_type,
+    ass.cell_sharing_alert_flag,
+    off_ass.assess_status,
+    off_ass.assessment_date,
+    off_ass.assessment_seq
+  FROM OFFENDER_ASSESSMENTS off_ass
+    JOIN ASSESSMENTS ass ON off_ass.ASSESSMENT_TYPE_ID = ass.ASSESSMENT_ID
+    LEFT JOIN REFERENCE_CODES ref_review
+      ON off_ass.review_sup_level_type = ref_review.CODE AND ref_review.DOMAIN = 'SUP_LVL_TYPE'
+    LEFT JOIN REFERENCE_CODES ref_override
+      ON off_ass.overrided_sup_level_type = ref_override.CODE AND ref_override.DOMAIN = 'SUP_LVL_TYPE'
+    LEFT JOIN REFERENCE_CODES ref_cal_sup
+      ON off_ass.calc_sup_level_type = ref_cal_sup.CODE AND ref_cal_sup.DOMAIN = 'SUP_LVL_TYPE'
+  WHERE ass.ASSESSMENT_CLASS = 'TYPE'
+        AND off_ass.ASSESS_STATUS = 'A'
+        AND off_ass.EVALUATION_RESULT_CODE = 'APP'
+        AND off_ass.OFFENDER_BOOK_ID = :bookingId
+  ORDER BY ASSESSMENT_CODE, ASSESSMENT_DATE desc, ASSESSMENT_SEQ desc
+  }
 
 FIND_INMATE_ALIASES {
   SELECT O.LAST_NAME,

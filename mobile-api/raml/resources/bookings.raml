@@ -109,6 +109,17 @@
       (javaType): Long
       description: The Alert Id
 
+/{bookingId}/assessment/{assessmentCode}:
+  (javaOperationName): getAssessmentByCode
+  type: { readOnlyItem: { type: Assessment, description: A specific assessment associated to the booking by assessment type code. } }
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The booking id of offender
+    assessmentCode:
+      type: string
+      description: Assessment Type Code
+
 /{bookingId}/aliases:
   (javaOperationName): getOffenderAliases
   description: The collection of aliases associated with the inmate.

@@ -33,14 +33,12 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final SentenceRepository sentenceRepository;
     private final AgencyService agencyService;
-    private final InmateService inmateService;
 
     public BookingServiceImpl(BookingRepository bookingRepository, SentenceRepository sentenceRepository,
             AgencyService agencyService, InmateService inmateService) {
         this.bookingRepository = bookingRepository;
         this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
-        this.inmateService = inmateService;
     }
 
     @Override
