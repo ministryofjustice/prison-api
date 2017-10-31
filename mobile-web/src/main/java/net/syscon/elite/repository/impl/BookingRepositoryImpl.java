@@ -9,7 +9,10 @@ import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
-import net.syscon.elite.repository.mapping.*;
+import net.syscon.elite.repository.mapping.FieldMapper;
+import net.syscon.elite.repository.mapping.PageAwareRowMapper;
+import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
+import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.springframework.cache.annotation.Cacheable;
@@ -51,16 +54,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                     .put("ADDITIONAL_DAYS_AWARDED", new FieldMapper("additionalDaysAwarded"))
                     .build();
 
-    private final Map<String, FieldMapper> privilegeDetailMapping =
-            new ImmutableMap.Builder<String, FieldMapper>()
-                    .put("OFFENDER_BOOK_ID", new FieldMapper("bookingId"))
-                    .put("AGY_LOC_ID", new FieldMapper("agencyId"))
-                    .put("IEP_DATE", new FieldMapper("iepDate", DateTimeConverter::toISO8601LocalDate))
-                    .put("IEP_TIME", new FieldMapper("iepTime", DateTimeConverter::toISO8601LocalDateTime))
-                    .put("IEP_LEVEL", new FieldMapper("iepLevel"))
-                    .put("COMMENTS", new FieldMapper("comments"))
-                    .put("USER_ID", new FieldMapper("userId"))
-                    .build();
+    private final StandardBeanPropertyRowMapper<PrivilegeDetail> privilegeDetailMapper = new StandardBeanPropertyRowMapper<>(PrivilegeDetail.class);
 
     private final StandardBeanPropertyRowMapper<ScheduledEvent> scheduledEventMapper = new StandardBeanPropertyRowMapper<>(ScheduledEvent.class);
 
@@ -122,16 +116,13 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
         String initialSql = getQuery("GET_BOOKING_IEP_DETAILS");
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, privilegeDetailMapping);
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, privilegeDetailMapper.getFieldMap());
         String sql = builder.build();
-
-        RowMapper<PrivilegeDetail> privilegeDetailRowMapper =
-                Row2BeanRowMapper.makeMapping(sql, PrivilegeDetail.class, privilegeDetailMapping);
 
         return jdbcTemplate.query(
                 sql,
                 createParams("bookingId", bookingId),
-                privilegeDetailRowMapper);
+                privilegeDetailMapper);
     }
 
     @Override

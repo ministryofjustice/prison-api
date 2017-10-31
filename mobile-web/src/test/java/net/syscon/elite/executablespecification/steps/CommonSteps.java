@@ -41,7 +41,7 @@ public abstract class CommonSteps {
     protected TestRestTemplate restTemplate;
 
     private List<?> resources;
-    private Page pageMetaData;
+    private Page<?> pageMetaData;
     private ErrorResponse errorResponse;
     private long paginationLimit;
     private long paginationOffset;
@@ -110,6 +110,8 @@ public abstract class CommonSteps {
         paginationLimit = 10;
         paginationOffset = 0;
         errorResponse = null;
+        resources = null;
+        pageMetaData = null;
     }
 
     protected <T> void buildResourceData(ResponseEntity<List<T>> receivedResponse) {

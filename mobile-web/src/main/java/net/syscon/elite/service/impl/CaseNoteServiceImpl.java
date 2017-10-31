@@ -45,7 +45,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
     @Transactional(readOnly = true)
 	@Override
-	public Page<CaseNote> getCaseNotes(long bookingId, String query, String orderBy, Order order, long offset, long limit) {
+	public Page<CaseNote> getCaseNotes(long bookingId, String query, LocalDate from, LocalDate to, String orderBy, Order order, long offset, long limit) {
         bookingService.verifyBookingAccess(bookingId);
 
         String colSort = orderBy;
@@ -60,6 +60,8 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 		Page<CaseNote> caseNotePage = caseNoteRepository.getCaseNotes(
 				bookingId,
 				processedQuery,
+				from,
+				to,
 				colSort,
 				order,
 				offset,
