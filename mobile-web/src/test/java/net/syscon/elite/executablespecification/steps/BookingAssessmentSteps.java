@@ -28,7 +28,7 @@ public class BookingAssessmentSteps extends CommonSteps {
             assessment = response.getBody();
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
-        };
+        }
     }
 
     protected void init() {
