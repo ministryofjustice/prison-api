@@ -1,15 +1,14 @@
 package net.syscon.elite.executablespecification.steps;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
-
 import net.syscon.elite.api.model.MainSentence;
 import net.syscon.elite.test.EliteClientException;
-
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
 
 public class BookingSentenceSteps extends CommonSteps {
     private static final String API_BOOKING_PREFIX = API_PREFIX + "bookings/";
@@ -30,7 +29,7 @@ public class BookingSentenceSteps extends CommonSteps {
             mainSentence = response.getBody();
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
-        };
+        }
     }
 
     protected void init() {

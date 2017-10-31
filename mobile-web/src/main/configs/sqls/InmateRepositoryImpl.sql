@@ -197,7 +197,7 @@ FIND_ACTIVE_APPROVED_ASSESSMENT {
     off_ass.calc_sup_level_type,
     ref_cal_sup.DESCRIPTION  AS calc_sup_level_type_desc,
     ass.caseload_type,
-    ass.cell_sharing_alert_flag,
+    CASE WHEN ass.cell_sharing_alert_flag = 'Y' THEN 1 ELSE 0 END as cell_sharing_alert_flag,
     off_ass.assess_status,
     off_ass.assessment_date,
     off_ass.assessment_seq
