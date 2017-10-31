@@ -1,5 +1,6 @@
 package net.syscon.elite.executablespecification;
 
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.executablespecification.steps.*;
 import net.syscon.elite.test.DatasourceActiveProfilesResolver;
 import org.apache.commons.lang3.StringUtils;
@@ -118,5 +119,19 @@ abstract class AbstractStepDefinitions {
         }
 
         return index;
+    }
+
+    protected Order parseSortOrder(String sortOrder) {
+        Order order;
+
+        if (StringUtils.startsWithIgnoreCase(sortOrder, "DESC")) {
+            order = Order.DESC;
+        } else if (StringUtils.startsWithIgnoreCase(sortOrder, "ASC")) {
+            order = Order.ASC;
+        } else {
+            order = null;
+        }
+
+        return order;
     }
 }

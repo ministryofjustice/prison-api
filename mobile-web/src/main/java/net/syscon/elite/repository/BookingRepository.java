@@ -7,6 +7,7 @@ import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -21,7 +22,7 @@ public interface BookingRepository {
 
     boolean verifyBookingAccess(Long bookingId, Set<String> agencyIds);
 
-    Page<ScheduledEvent> getBookingActivities(Long bookingId, long offset, long limit, String orderByFields, Order order);
+    Page<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);
 
     Page<OffenderRelease> getOffenderReleaseSummary(String query, long offset, long limit, String orderByFields, Order order);
 }

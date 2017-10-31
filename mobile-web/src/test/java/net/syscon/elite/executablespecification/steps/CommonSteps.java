@@ -2,6 +2,7 @@ package net.syscon.elite.executablespecification.steps;
 
 import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.ErrorResponse;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.test.ErrorResponseErrorHandler;
 import net.thucydides.core.annotations.Step;
@@ -83,6 +84,13 @@ public abstract class CommonSteps {
 
         // If developerMessage is not empty, test is calling incorrect path/uri.
         assertThat(errorResponse.getDeveloperMessage()).isEmpty();
+    }
+
+    @Step("Verify bad request")
+    public void verifyBadRequest(String expectedUserMessage) {
+        assertThat(errorResponse).isNotNull();
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(errorResponse.getUserMessage()).isEqualTo(expectedUserMessage);
     }
 
     @Step("Verify access denied")
@@ -372,6 +380,20 @@ public abstract class CommonSteps {
 
     protected Map<String,String> addPaginationHeaders() {
         return ImmutableMap.of("Page-Offset", String.valueOf(paginationOffset), "Page-Limit", String.valueOf(paginationLimit));
+    }
+
+    protected Map<String,String> buildSortHeaders(String sortFields, Order sortOrder) {
+        Map<String,String> sortHeaders = new HashMap<>();
+
+        if (StringUtils.isNotBlank(sortFields)) {
+            sortHeaders.put("Sort-Fields", sortFields);
+        }
+
+        if (Objects.nonNull(sortOrder)) {
+            sortHeaders.put("Sort-Order", sortOrder.toString());
+        }
+
+        return sortHeaders.isEmpty() ? null : ImmutableMap.copyOf(sortHeaders);
     }
 
     protected void validateResourcesIndex(int index) {

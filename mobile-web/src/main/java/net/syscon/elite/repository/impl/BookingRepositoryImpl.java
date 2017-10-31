@@ -20,6 +20,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -126,16 +127,15 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    public Page<ScheduledEvent> getBookingActivities(Long bookingId, long offset, long limit, String orderByFields, Order order) {
+    public Page<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
         String initialSql = getQuery("GET_BOOKING_ACTIVITIES");
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, scheduledEventMapper.getFieldMap());
-        boolean isAscendingOrder = (order == Order.ASC);
 
         String sql = builder
                 .addRowCount()
-                .addOrderBy(isAscendingOrder, orderByFields)
+                .addOrderBy(order, orderByFields)
                 .addPagination()
                 .build();
 
@@ -143,7 +143,11 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
 
         List<ScheduledEvent> activities = jdbcTemplate.query(
                 sql,
-                createParams("bookingId", bookingId, "offset", offset, "limit", limit),
+                createParams("bookingId", bookingId,
+                        "fromDate", DateTimeConverter.toDate(fromDate),
+                        "toDate", DateTimeConverter.toDate(toDate),
+                        "offset", offset,
+                        "limit", limit),
                 paRowMapper);
 
         return new Page<>(activities, paRowMapper.getTotalRecords(), offset, limit);
@@ -152,11 +156,10 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     public Page<OffenderRelease> getOffenderReleaseSummary(String query, long offset, long limit, String orderByFields, Order order) {
         String initialSql = getQuery("OFFENDER_SUMMARY");
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, offenderReleaseMapper.getFieldMap());
-        boolean isAscendingOrder = (order == Order.ASC);
 
         String sql = builder
                 .addRowCount()
-                .addOrderBy(isAscendingOrder, orderByFields)
+                .addOrderBy(order, orderByFields)
                 .addPagination()
                 .addQuery(query)
                 .build();

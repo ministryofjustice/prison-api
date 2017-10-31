@@ -20,7 +20,7 @@ public class BookingActivitiesStepDefinitions extends AbstractStepDefinitions {
 
     @When("^scheduled activities are requested for an offender with booking id \"([^\"]*)\"$")
     public void scheduledActivitiesAreRequestedForAnOffenderWithBookingId(String bookingId) throws Throwable {
-        bookingActivities.getBookingActivities(Long.valueOf(bookingId));
+        bookingActivities.getBookingActivities(Long.valueOf(bookingId), null, null, null, null);
     }
 
     @Then("^response is an empty list$")
@@ -106,5 +106,40 @@ public class BookingActivitiesStepDefinitions extends AbstractStepDefinitions {
     @And("^event source description for \"([^\"]*)\" returned activity is \"([^\"]*)\"$")
     public void eventSourceDescriptionForReturnedActivityIs(String ordinal, String expectedSourceDescription) throws Throwable {
         bookingActivities.verifyEventSourceDescription(ord2idx(ordinal), expectedSourceDescription);
+    }
+
+    @When("^scheduled activities for current day are requested for an offender with booking id \"([^\"]*)\"$")
+    public void scheduledActivitiesForCurrentDayAreRequestedForAnOffenderWithBookingId(String bookingId) throws Throwable {
+        bookingActivities.getBookingActivitiesForCurrentDay(Long.valueOf(bookingId));
+    }
+
+    @When("^scheduled activities from \"([^\"]*)\" are requested for an offender with booking id \"([^\"]*)\"$")
+    public void scheduledActivitiesFromAreRequestedForAnOffenderWithBookingId(String fromDate, String bookingId) throws Throwable {
+        bookingActivities.getBookingActivities(Long.valueOf(bookingId), fromDate, null, null, null);
+    }
+
+    @When("^scheduled activities to \"([^\"]*)\" are requested for an offender with booking id \"([^\"]*)\"$")
+    public void scheduledActivitiesToAreRequestedForAnOffenderWithBookingId(String toDate, String bookingId) throws Throwable {
+        bookingActivities.getBookingActivities(Long.valueOf(bookingId), null, toDate, null, null);
+    }
+
+    @When("^scheduled activities between \"([^\"]*)\" and \"([^\"]*)\" are requested for an offender with booking id \"([^\"]*)\"$")
+    public void scheduledActivitiesBetweenAndAreRequestedForAnOffenderWithBookingId(String fromDate, String toDate, String bookingId) throws Throwable {
+        bookingActivities.getBookingActivities(Long.valueOf(bookingId), fromDate, toDate, null, null);
+    }
+
+    @And("^\"([^\"]*)\" activities in total are available$")
+    public void activitiesInTotalAreAvailable(String expectedTotal) throws Throwable {
+        bookingActivities.verifyTotalResourceRecordsAvailable(Long.parseLong(expectedTotal));
+    }
+
+    @When("^scheduled activities, sorted by \"([^\"]*)\" in \"([^\"]*)\" order, are requested for an offender with booking id \"([^\"]*)\"$")
+    public void scheduledActivitiesSortedByInOrderAreRequestedForAnOffenderWithBookingId(String sortFields, String sortOrder, String bookingId) throws Throwable {
+        bookingActivities.getBookingActivities(Long.valueOf(bookingId), null, null, sortFields, parseSortOrder(sortOrder));
+    }
+
+    @Then("^bad request response, with \"([^\"]*)\" message, is received from booking activities API$")
+    public void badRequestResponseWithMessageIsReceivedFromBookingActivitiesAPI(String expectedUserMessage) throws Throwable {
+        bookingActivities.verifyBadRequest(expectedUserMessage);
     }
 }

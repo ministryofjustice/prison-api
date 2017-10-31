@@ -17,6 +17,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.ws.rs.BadRequestException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -84,15 +86,23 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Page<ScheduledEvent> getBookingActivities(Long bookingId, long offset, long limit, String orderByFields, Order order) {
+    public Page<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order) {
+        // Validate required parameter(s)
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
+
+        // Validate date range
+        if (Objects.nonNull(fromDate) && Objects.nonNull(toDate)) {
+            if (toDate.isBefore(fromDate)) {
+                throw new BadRequestException("Invalid date range: toDate is before fromDate.");
+            }
+        }
 
         verifyBookingAccess(bookingId);
 
         String sortFields = StringUtils.defaultString(orderByFields, "startTime");
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
 
-        return bookingRepository.getBookingActivities(bookingId, offset, limit, sortFields, sortOrder);
+        return bookingRepository.getBookingActivities(bookingId, fromDate, toDate, offset, limit, sortFields, sortOrder);
     }
 
     private NonDtoReleaseDate deriveNonDtoReleaseDate(SentenceDetail sentenceDetail) {
