@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -14,7 +15,7 @@ public interface BookingService {
 
     PrivilegeSummary getBookingIEPSummary(Long bookingId, boolean withDetails);
 
-    Page<ScheduledEvent> getBookingActivities(Long bookingId, long offset, long limit, String orderByFields, Order order);
+    Page<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);
 
     void verifyBookingAccess(Long bookingId);
 
