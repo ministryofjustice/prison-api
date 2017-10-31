@@ -105,6 +105,10 @@ abstract class AbstractStepDefinitions {
         BookingSentenceSteps bookingSentenceSteps() {
             return new BookingSentenceSteps();
         }
+        @Bean
+        BookingAssessmentSteps bookingAssessmentSteps() {
+            return new BookingAssessmentSteps();
+        }
     }
 
     protected int ord2idx(String ordinal) {
