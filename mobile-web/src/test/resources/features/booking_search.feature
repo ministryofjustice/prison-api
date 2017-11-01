@@ -15,7 +15,7 @@ Feature: Booking Search
   Scenario: Search all offenders
     When a booking search is made without any criteria
     Then "10" booking records are returned
-    And  "15" total booking records are available
+    And  "19" total booking records are available
 
   Scenario Outline: Search based on full offender last name
     When a booking search is made with full last "<name>" of existing offender
@@ -106,6 +106,6 @@ Feature: Booking Search
       | DONALD     | CHAPLIN   | 3      | CHARLES,DONALD,DONALD            | CHAPLIN,DUCK,TRUMP               |
       | CHARLES    | TRUMP     | 2      | CHARLES,DONALD                   | CHAPLIN,TRUMP                    |
       | JOHN       | DOE       | 0      |                                  |                                  |
-      | DA%        | SMITH     | 5      | DANIEL,DANIEL,DARIUS,GILES,DANNY | SMITH,SMITH,SMITH,SMELLEY,SMILEY |
-      | DANIEL     | SM%       | 5      | DANIEL,DANIEL,DARIUS,GILES,DANNY | SMITH,SMITH,SMITH,SMELLEY,SMILEY |
-      | DA%        | SM%       | 5      | DANIEL,DANIEL,DARIUS,GILES,DANNY | SMITH,SMITH,SMITH,SMELLEY,SMILEY |
+      | DA%        | SMITH     | 6      | DANIEL,DANIEL,DARIUS,GILES,DANNY,MATTHEW | SMITH,SMITH,SMITH,SMITH,SMELLEY,SMILEY |
+      | DANIEL     | SM%       | 6      | DANIEL,DANIEL,DARIUS,GILES,DANNY,MATTHEW | SMITH,SMITH,SMITH,SMITH,SMELLEY,SMILEY |
+      | DA%        | SM%       | 6      | DANIEL,DANIEL,DARIUS,GILES,DANNY,MATTHEW | SMITH,SMITH,SMITH,SMITH,SMELLEY,SMILEY |
