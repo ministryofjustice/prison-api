@@ -209,9 +209,7 @@ FIND_ACTIVE_APPROVED_ASSESSMENT {
       ON off_ass.overrided_sup_level_type = ref_override.CODE AND ref_override.DOMAIN = 'SUP_LVL_TYPE'
     LEFT JOIN REFERENCE_CODES ref_cal_sup
       ON off_ass.calc_sup_level_type = ref_cal_sup.CODE AND ref_cal_sup.DOMAIN = 'SUP_LVL_TYPE'
-  WHERE ass.ASSESSMENT_CLASS = 'TYPE'
-        AND off_ass.ASSESS_STATUS = 'A'
-        AND off_ass.EVALUATION_RESULT_CODE = 'APP'
+  WHERE off_ass.ASSESS_STATUS = 'A'
         AND off_ass.OFFENDER_BOOK_ID = :bookingId
   ORDER BY ASSESSMENT_CODE, ASSESSMENT_DATE desc, ASSESSMENT_SEQ desc
   }
