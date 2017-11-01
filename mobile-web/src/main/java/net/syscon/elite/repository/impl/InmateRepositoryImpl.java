@@ -35,7 +35,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             .put("MIDDLE_NAME", 		new FieldMapper("middleName", null, null, StringUtils::upperCase))
             .put("LAST_NAME", 			new FieldMapper("lastName", null, null, StringUtils::upperCase))
             .put("BIRTH_DATE", 			new FieldMapper("dateOfBirth", DateTimeConverter::toISO8601LocalDate))
-            .put("AGE",                 new FieldMapper("age"))
             .put("ALERT_TYPES", 		new FieldMapper("alertsCodes", value -> Arrays.asList(value.toString().split(","))))
             .put("ALIASES", 		    new FieldMapper("aliases", value -> Arrays.asList(value.toString().split(","))))
             .put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
@@ -79,7 +78,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("LAST_NAME", 			new FieldMapper("lastName"))
 			.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
 			.put("BIRTH_DATE", 			new FieldMapper("dateOfBirth", DateTimeConverter::toISO8601LocalDate))
-			.put("AGE",                 new FieldMapper("age"))
 			.put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerId"))
 			.build();
 
@@ -117,7 +115,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("FIRST_NAME",		new FieldMapper("firstName"))
 			.put("MIDDLE_NAME",		new FieldMapper("middleName"))
 			.put("BIRTH_DATE",		new FieldMapper("dob", DateTimeConverter::toISO8601LocalDate))
-			.put("AGE",				new FieldMapper("age"))
 			.put("SEX",				new FieldMapper("gender"))
 			.put("ETHNICITY",		new FieldMapper("ethinicity"))
 			.put("ALIAS_TYPE",		new FieldMapper("nameType"))
@@ -150,6 +147,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "limit", limit),
                 paRowMapper);
 
+		results.forEach(b -> b.setAge(DateTimeConverter.getAge(b.getDateOfBirth())));
 		return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
 	}
 
@@ -177,7 +175,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "offset", offset,
                         "limit", limit),
                 paRowMapper);
-
+		inmates.forEach(b -> b.setAge(DateTimeConverter.getAge(b.getDateOfBirth())));
 		return new Page<>(inmates, paRowMapper.getTotalRecords(), offset, limit);
 	}
 
@@ -225,7 +223,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "locationTypeRoot", locationTypeRoot,
                         "offset", offset, "limit", limit),
                 paRowMapper);
-
+		offenderBookings.forEach(b -> b.setAge(DateTimeConverter.getAge(b.getDateOfBirth())));
 		return new Page<>(offenderBookings, paRowMapper.getTotalRecords(), offset, limit);
 	}
 
@@ -250,10 +248,11 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 createParams("staffId", staffId,
                         "caseLoadId", currentCaseLoad,
                         "locationTypeRoot", locationTypeRoot,
+                        "currentDate", LocalDate.now(),
                         "offset", offset,
                         "limit", limit),
                 paRowMapper);
-
+		results.forEach(b -> b.setAge(DateTimeConverter.getAge(b.getDateOfBirth())));
 		return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
 	}
 
@@ -374,8 +373,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		try {
 			inmate = jdbcTemplate.queryForObject(
 					sql,
-					createParams("bookingId", bookingId, "caseLoadId", caseloads),
+					createParams("bookingId", bookingId, "caseLoadId", caseloads, "currentDate", LocalDate.now()),
 					inmateRowMapper);
+			inmate.setAge(DateTimeConverter.getAge(inmate.getDateOfBirth()));
 		} catch (EmptyResultDataAccessException ex) {
 			inmate = null;
 		}
@@ -410,7 +410,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 sql,
                 createParams("bookingId", bookingId, "offset", offset, "limit", limit),
                 paRowMapper);
-
+		results.forEach(alias -> alias.setAge(DateTimeConverter.getAge(alias.getDob())));
 		return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
 	}
 }
