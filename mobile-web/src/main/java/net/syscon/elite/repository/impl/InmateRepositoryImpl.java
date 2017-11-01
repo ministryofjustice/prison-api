@@ -248,7 +248,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 createParams("staffId", staffId,
                         "caseLoadId", currentCaseLoad,
                         "locationTypeRoot", locationTypeRoot,
-                        "currentDate", LocalDate.now(),
+                        "currentDate", DateTimeConverter.toDate(LocalDate.now()),
                         "offset", offset,
                         "limit", limit),
                 paRowMapper);
@@ -373,7 +373,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		try {
 			inmate = jdbcTemplate.queryForObject(
 					sql,
-					createParams("bookingId", bookingId, "caseLoadId", caseloads, "currentDate", LocalDate.now()),
+					createParams("bookingId", bookingId, "caseLoadId", caseloads, "currentDate", DateTimeConverter.toDate(LocalDate.now())),
 					inmateRowMapper);
 			inmate.setAge(DateTimeConverter.getAge(inmate.getDateOfBirth()));
 		} catch (EmptyResultDataAccessException ex) {
