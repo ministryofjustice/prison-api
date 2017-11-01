@@ -51,6 +51,7 @@ public class CustodyStatusRepositoryImplTest {
     public final void retrieveARecordForAKnownOffenderThatHasNoMovementRecord() {
         final CustodyStatusRecord custodyStatusRecord = repository.getCustodyStatusRecord("Z0022ZZ").orElse(null);
         assertNotNull(custodyStatusRecord);
+
         assertEquals("Z0022ZZ", custodyStatusRecord.getOffender_id_display());
         assertEquals("O", custodyStatusRecord.getBooking_status());
         assertEquals("N", custodyStatusRecord.getActive_flag());

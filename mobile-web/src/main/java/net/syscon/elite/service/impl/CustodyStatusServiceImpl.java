@@ -57,7 +57,7 @@ public class CustodyStatusServiceImpl implements CustodyStatusService {
     }
 
     private boolean filterOnCustodyStatus(PrisonerCustodyStatus record, List<CustodyStatusCode> custodyStatusCodes) {
-        if (custodyStatusCodes.size() > 0) {
+        if (custodyStatusCodes != null && custodyStatusCodes.size() > 0) {
             return custodyStatusCodes.contains(record.getCustodyStatusCode());
         }
 
