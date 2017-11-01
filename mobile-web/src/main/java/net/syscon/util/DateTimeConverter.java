@@ -162,4 +162,14 @@ public class DateTimeConverter {
 
 		return OffsetDateTime.of(ldt, ZoneOffset.UTC);
 	}
+
+	/**
+	 * Get Age from date of birth
+	 * @param dateOfBirth
+	 * @return age in years
+	 */
+	public static int getAge(LocalDate dateOfBirth) {
+		Period period = Period.between(dateOfBirth, LocalDate.now());
+		return period.getYears();
+	}
 }
