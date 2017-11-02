@@ -52,7 +52,7 @@ Feature: Booking Activities
 
   Scenario: Retrieve scheduled activities for an existing offender having one or more activities, some of which they have attended
     When scheduled activities are requested for an offender with booking id "-3"
-    Then "5" activities are returned
+    Then "6" activities are returned
 
   Scenario: Retrieve scheduled activities for an existing offender having one or more activities, some of which they are excluded from (by day)
     When scheduled activities are requested for an offender with booking id "-4"
