@@ -5,9 +5,7 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-
 import net.syscon.elite.executablespecification.steps.UserSteps;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
@@ -23,7 +21,8 @@ import java.util.Map;
  *     <li>/users/login</li>
  *     <li>/users/staff</li>
  *     <li>/users/token</li>
- *     <li>/v2/users/me/locations</li>
+ *     <li>/users/me/locations</li>
+ *     <li>/users/me/roles</li>
  * </ul>
  *
  * NB: Not all API endpoints have associated tests at this point in time.
@@ -113,5 +112,15 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     @Then("^resource not found response is received from users API$")
     public void resourceNotFoundResponseIsReceivedFromUsersAPI() throws Throwable {
         user.verifyResourceNotFound();
+    }
+
+    @When("^a user role request is made$")
+    public void aUserRoleRequestIsMade() throws Throwable {
+        user.getUserRoles();
+    }
+
+    @Then("^the roles returned are \"([^\"]*)\"$")
+    public void theRolesReturnedAre(String roles) throws Throwable {
+        user.verifyRoles(roles);
     }
 }

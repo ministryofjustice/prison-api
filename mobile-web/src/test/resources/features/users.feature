@@ -21,3 +21,15 @@ Feature: Users and Staff
   Scenario: Find staff member using staff id that does not exist
     When a staff member search is made using staff id "-9999"
     Then resource not found response is received from users API
+
+  Scenario Outline: As a logged in user I can find out my roles
+    Given user "<username>" with password "password" has authenticated with the API
+    When a user role request is made
+    Then the roles returned are "<roles>"
+
+  Examples:
+  | username            | roles                                  |
+  | itag_user           | BXI_WING_OFF,LEI_WING_OFF,WAI_WING_OFF |
+  | elite2_api_user     | LEI_CENTRAL_ADMIN                      |
+  | hpa_user            | LEI_GLOBAL_SEARCH,LEI_WING_OFF         |
+  | api_test_user       | MUL_WING_OFF                           |
