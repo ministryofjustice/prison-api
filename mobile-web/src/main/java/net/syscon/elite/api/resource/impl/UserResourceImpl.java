@@ -7,12 +7,14 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.ws.rs.Path;
 import java.util.List;
 
+import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
 import static net.syscon.util.ResourceUtils.nvl;
 
 @RestResource
@@ -23,16 +25,18 @@ public class UserResourceImpl implements UserResource {
     private final AuthenticationService authenticationService;
     private final ReferenceDomainService referenceDomainService;
     private final UserService userService;
+    private final BookingService bookingService;
 
     @Value("${token.username.stored.caps:true}")
     private boolean upperCaseUsername;
 
-    public UserResourceImpl(LocationService locationService, AssignmentService assignmentService, AuthenticationService authenticationService, ReferenceDomainService referenceDomainService, UserService userService) {
+    public UserResourceImpl(LocationService locationService, AssignmentService assignmentService, AuthenticationService authenticationService, ReferenceDomainService referenceDomainService, UserService userService, BookingService bookingService) {
         this.locationService = locationService;
         this.assignmentService = assignmentService;
         this.authenticationService = authenticationService;
         this.referenceDomainService = referenceDomainService;
         this.userService = userService;
+        this.bookingService = bookingService;
     }
 
     @Override
@@ -74,6 +78,21 @@ public class UserResourceImpl implements UserResource {
         List<Location> userLocations = locationService.getUserLocations(UserSecurityUtils.getCurrentUsername());
 
         return GetMyLocationsResponse.respond200WithApplicationJson(userLocations);
+    }
+
+    @Override
+    public GetMyOffenderReleasesResponse getMyOffenderReleases(String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder, String toDate) {
+        final Page<OffenderRelease> offenderReleaseSummary = bookingService.getOffenderReleaseSummary(fromISO8601DateString(toDate), query,
+                nvl(pageOffset, 0L),
+                nvl(pageLimit, 10L),
+                StringUtils.defaultIfBlank(sortFields, "releaseDate,offenderNo"), sortOrder != null ? sortOrder : Order.DESC, true);
+        return GetMyOffenderReleasesResponse.respond200WithApplicationJson(offenderReleaseSummary);
+    }
+
+    @Override
+    public GetMyRolesResponse getMyRoles() {
+        final List<UserRole> rolesByUsername = userService.getRolesByUsername(UserSecurityUtils.getCurrentUsername());
+        return GetMyRolesResponse.respond200WithApplicationJson(rolesByUsername);
     }
 
     @Override

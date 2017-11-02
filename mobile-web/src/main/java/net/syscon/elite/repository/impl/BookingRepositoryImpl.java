@@ -153,8 +153,11 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         return new Page<>(activities, paRowMapper.getTotalRecords(), offset, limit);
     }
 
-    public Page<OffenderRelease> getOffenderReleaseSummary(String query, long offset, long limit, String orderByFields, Order order) {
+    public Page<OffenderRelease> getOffenderReleaseSummary(LocalDate toReleaseDate, String query, long offset, long limit, String orderByFields, Order order, Set<String> allowedCaseloadsOnly) {
         String initialSql = getQuery("OFFENDER_SUMMARY");
+        if (!allowedCaseloadsOnly.isEmpty()) {
+            initialSql += " AND EXISTS (select 1 from CASELOAD_AGENCY_LOCATIONS C WHERE ob.AGY_LOC_ID = C.AGY_LOC_ID AND C.CASELOAD_ID IN (:caseloadIds))";
+        }
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, offenderReleaseMapper.getFieldMap());
 
         String sql = builder
@@ -168,7 +171,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
 
         List<OffenderRelease> offenderReleases = jdbcTemplate.query(
                 sql,
-                createParams("offset", offset, "limit", limit),
+                createParams("toReleaseDate", DateTimeConverter.toDate(toReleaseDate), "caseloadIds", allowedCaseloadsOnly, "offset", offset, "limit", limit),
                 paRowMapper);
 
         offenderReleases.forEach(or -> or.setInternalLocationDesc(LocationRepositoryImpl.removeAgencyId(or.getInternalLocationDesc(), or.getAgencyLocationId())));

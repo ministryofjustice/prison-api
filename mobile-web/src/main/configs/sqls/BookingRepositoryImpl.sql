@@ -107,4 +107,6 @@ OFFENDER_SUMMARY {
     LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
     LEFT JOIN offender_release_details ord
       ON ord.offender_book_id = ob.offender_book_id
+  WHERE COALESCE(ord.release_date, ord.auto_release_date) <= :toReleaseDate
+    AND OB.ACTIVE_FLAG = 'Y'
 }

@@ -5,15 +5,16 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
+import net.syscon.elite.repository.CaseLoadRepository;
 import net.syscon.elite.repository.SentenceRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.support.NonDtoReleaseDate;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,12 +36,16 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final SentenceRepository sentenceRepository;
     private final AgencyService agencyService;
+    private final CaseLoadRepository caseLoadRepository;
+    private final int lastNumberOfMonths;
 
     public BookingServiceImpl(BookingRepository bookingRepository, SentenceRepository sentenceRepository,
-            AgencyService agencyService, InmateService inmateService) {
+                              AgencyService agencyService, CaseLoadRepository caseLoadRepository, @Value("${api.offender.release.date.min.months:3}") int lastNumberOfMonths) {
         this.bookingRepository = bookingRepository;
         this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
+        this.caseLoadRepository = caseLoadRepository;
+        this.lastNumberOfMonths = lastNumberOfMonths;
     }
 
     @Override
@@ -190,18 +195,11 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Page<OffenderRelease> getOffenderReleaseSummary(List<String> offenderNos, long offset, long limit) {
-
-        final String query = buildOffenderInQuery(offenderNos);
-        return bookingRepository.getOffenderReleaseSummary(query, offset, limit, "offenderNo", Order.ASC);
+    public Page<OffenderRelease> getOffenderReleaseSummary(LocalDate toReleaseDate, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly) {
+        return bookingRepository.getOffenderReleaseSummary(toReleaseDate != null ? toReleaseDate : LocalDate.now().plusMonths(lastNumberOfMonths), query, offset, limit, orderByFields, Order.ASC, allowedCaseloadsOnly ? getUserCaseloadIds() : Collections.emptySet());
     }
 
-    private String buildOffenderInQuery(List<String> offenderNos) {
-        String query = null;
-        if (!offenderNos.isEmpty()) {
-            final String ids = offenderNos.stream().map(offenderNo -> "'"+offenderNo+"'").collect(Collectors.joining("|"));
-            query = "offenderNo:in:" + ids + "";
-        }
-        return query;
+    private Set<String> getUserCaseloadIds() {
+        return caseLoadRepository.getUserCaseloadIds(UserSecurityUtils.getCurrentUsername());
     }
 }
