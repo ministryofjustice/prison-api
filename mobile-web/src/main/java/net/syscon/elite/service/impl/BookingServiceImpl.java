@@ -196,7 +196,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Page<OffenderRelease> getOffenderReleaseSummary(LocalDate toReleaseDate, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly) {
-        return bookingRepository.getOffenderReleaseSummary(toReleaseDate != null ? toReleaseDate : LocalDate.now().plusMonths(lastNumberOfMonths), query, offset, limit, orderByFields, Order.ASC, allowedCaseloadsOnly ? getUserCaseloadIds() : Collections.emptySet());
+        return bookingRepository.getOffenderReleaseSummary(toReleaseDate != null ? toReleaseDate : LocalDate.now().plusMonths(lastNumberOfMonths), query, offset, limit, orderByFields, order, allowedCaseloadsOnly ? getUserCaseloadIds() : Collections.emptySet());
     }
 
     private Set<String> getUserCaseloadIds() {
