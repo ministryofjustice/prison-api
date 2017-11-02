@@ -47,7 +47,7 @@ public class YamlToJson {
         this.logger = codegeneratorLogger;
     }
 
-    public void convert() {
+    public void convert() throws IOException {
         logger.info("Generate .json file from .yaml");
 
         File outputDirectory = new File(outputDirectoryPath);
@@ -64,8 +64,6 @@ public class YamlToJson {
             fileWriter.write(getYamlFileContentAsJson());
             fileWriter.flush();
             logger.info("File written to " + jsonFile.getAbsolutePath());
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
         } finally {
             IOUtils.closeQuietly(fileWriter);
         }
@@ -84,7 +82,7 @@ public class YamlToJson {
         JsonNode rootNode = yamlMapper.readTree(data);
 
         // must have swagger node set
-        JsonNode swaggerNode = rootNode.get("swagger");
+        rootNode.get("swagger");
 
         return rootNode.toString();
     }

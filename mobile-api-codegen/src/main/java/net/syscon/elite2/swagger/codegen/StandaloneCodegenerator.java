@@ -251,7 +251,7 @@ public class StandaloneCodegenerator {
         final StringBuilder sb = new StringBuilder();
 
         for (final CodegenConfig config : extensions) {
-            if (sb.toString().length() != 0) {
+            if (sb.length() != 0) {
                 sb.append(", ");
             }
 
