@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
 import java.util.Map;
+import javax.validation.constraints.*;
 {{#models}}
 {{#model}}{{#description}}
 /**
@@ -30,7 +31,8 @@ public class {{classname}}{{#parent}} extends {{{parent}}}{{/parent}} {
     };
 
     private {{{datatypeWithEnum}}} {{name}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}};{{/isEnum}}{{^isEnum}}
-    {{#required}}{{#isListContainer}}{{#defaultValue}}@Builder.Default
+    {{#required}}@NotNull
+    {{#isListContainer}}{{#defaultValue}}@Builder.Default
     {{/defaultValue}}{{/isListContainer}}{{/required}}private {{{datatype}}} {{name}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}};{{/isEnum}}
     {{/vars}}
 

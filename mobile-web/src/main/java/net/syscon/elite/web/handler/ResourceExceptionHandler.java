@@ -7,6 +7,8 @@ import net.syscon.elite.service.EntityNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -43,6 +45,10 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
             status = Response.Status.FORBIDDEN.getStatusCode();
             userMessage = "You do not have sufficient privileges to access this resource.";
             log.warn("Insufficient privileges to access resource.", ex);
+        } else if (ex instanceof ConstraintViolationException) {
+            status = Response.Status.BAD_REQUEST.getStatusCode();
+            userMessage = formatConstraintErrors(ex);
+            log.warn("JSR303 error.", ex);
         } else {
             status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
             userMessage = "An internal error has occurred - please try again later.";
@@ -56,5 +62,15 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
                 .build();
 
         return OperationResponse.respondErrorWithApplicationJson(errorResponse);
+    }
+
+    private static String formatConstraintErrors(Exception ex) {
+        StringBuilder sb = new StringBuilder();
+        for (ConstraintViolation<?> cv : ((ConstraintViolationException) ex).getConstraintViolations()) {
+            sb.append(cv.getMessage());
+            sb.append(',');
+        }
+        sb.setLength(sb.length() - 1);
+        return sb.toString();
     }
 }

@@ -66,11 +66,11 @@ public class CaseNoteSteps extends CommonSteps {
     }
 
     @Step("Create case note")
-    public CaseNote createCaseNote(Long bookingId, NewCaseNote newCaseNote, boolean creationExpected) {
+    public CaseNote createCaseNote(Long bookingId, NewCaseNote newCaseNote) {
         pendingCaseNote = newCaseNote;
-        Long caseNoteId = dispatchCreateRequest(bookingId, newCaseNote, creationExpected);
+        Long caseNoteId = dispatchCreateRequest(bookingId, newCaseNote);
 
-        if (creationExpected) {
+        if (caseNoteId != null) {
             dispatchGetRequest(bookingId, caseNoteId);
         } else {
             caseNote = null;
@@ -142,7 +142,7 @@ public class CaseNoteSteps extends CommonSteps {
         }
     }
 
-    private Long dispatchCreateRequest(Long bookingId, NewCaseNote caseNote, boolean creationExpected) {
+    private Long dispatchCreateRequest(Long bookingId, NewCaseNote caseNote) {
         Long caseNoteId;
 
         try {
@@ -150,12 +150,10 @@ public class CaseNoteSteps extends CommonSteps {
                     CaseNote.class, bookingId);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-            assertThat(creationExpected).isTrue();
 
             caseNoteId = response.getBody().getCaseNoteId();
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
-            assertThat(creationExpected).isFalse();
 
             caseNoteId = null;
         }

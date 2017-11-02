@@ -85,6 +85,12 @@ public abstract class CommonSteps {
         assertThat(errorResponse.getDeveloperMessage()).isEmpty();
     }
 
+    public void verifyBadRequest(String expected) {
+        assertThat(errorResponse).isNotNull();
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertEquals(expected, errorResponse.getUserMessage());
+    }
+
     @Step("Verify access denied")
     public void verifyAccessDenied() {
         assertThat(errorResponse).isNotNull();

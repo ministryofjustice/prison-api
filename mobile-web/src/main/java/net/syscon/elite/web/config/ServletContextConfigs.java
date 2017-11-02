@@ -9,30 +9,41 @@ import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
 import net.syscon.elite.api.resource.impl.*;
+import net.syscon.elite.web.handler.ConstraintViolationExceptionHandler;
 import net.syscon.elite.web.handler.ResourceExceptionHandler;
 import net.syscon.elite.web.listener.EndpointLoggingListener;
 import org.apache.commons.lang3.StringUtils;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
 import org.slf4j.Logger;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
+import org.springframework.validation.beanvalidation.SpringConstraintValidatorFactory;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Singleton;
+import javax.ws.rs.ext.ExceptionMapper;
+
 import java.util.Arrays;
 
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
@@ -42,10 +53,19 @@ import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS
 @EnableScheduling
 @EnableCaching
 @EnableAsync
-public class ServletContextConfigs extends ResourceConfig {
+public class ServletContextConfigs extends ResourceConfig implements BeanFactoryAware  {
 
     @Value("${spring.jersey.application-path:/}")
     private String apiPath;
+
+    private BeanFactory beanFactory;
+    private SpringConstraintValidatorFactory constraintValidatorFactory;
+    private LocalValidatorFactoryBean localValidatorFactoryBean;
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = beanFactory;
+    }
 
     @Autowired
     public void setEnv(ConfigurableEnvironment env) {
@@ -67,6 +87,13 @@ public class ServletContextConfigs extends ResourceConfig {
         register(new EndpointLoggingListener(contextPath));
         register(RequestContextFilter.class);
         register(LoggingFeature.class);
+        // Override jersey built-in Validation exception mapper
+        register(new AbstractBinder() {
+            @Override
+            protected void configure() {
+                bind(ConstraintViolationExceptionHandler.class).to(ExceptionMapper.class).in(Singleton.class);
+            }
+        });
     }
 
     @Autowired
@@ -79,14 +106,26 @@ public class ServletContextConfigs extends ResourceConfig {
         objectMapper.configure(WRITE_DATES_AS_TIMESTAMPS, false);
     }
 
-    @Bean
+    @Bean(name = "SpringWebConstraintValidatorFactory")
+    public SpringConstraintValidatorFactory validatorFactory() {
+        constraintValidatorFactory = new SpringConstraintValidatorFactory((AutowireCapableBeanFactory) beanFactory);
+        return constraintValidatorFactory;
+    }
+
+    @Bean(name = "LocalValidatorFactoryBean")
+    @DependsOn(value = "SpringWebConstraintValidatorFactory")
     public LocalValidatorFactoryBean validator() {
-        return new LocalValidatorFactoryBean();
+        localValidatorFactoryBean = new LocalValidatorFactoryBean();
+        localValidatorFactoryBean.setConstraintValidatorFactory(constraintValidatorFactory);
+        return localValidatorFactoryBean;
     }
 
     @Bean
+    @DependsOn(value = "LocalValidatorFactoryBean")
     public MethodValidationPostProcessor methodPostProcessor() {
-        return new MethodValidationPostProcessor();
+        final MethodValidationPostProcessor methodValidationPostProcessor = new MethodValidationPostProcessor();
+        methodValidationPostProcessor.setValidator(localValidatorFactoryBean);
+        return methodValidationPostProcessor;
     }
 
     @Bean

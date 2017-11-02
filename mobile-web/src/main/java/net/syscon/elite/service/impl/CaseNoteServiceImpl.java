@@ -9,11 +9,15 @@ import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.validation.ReferenceCodesValid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+
+import javax.validation.Valid;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,6 +29,7 @@ import static java.lang.String.format;
 
 @Transactional
 @Service
+@Validated
 public class CaseNoteServiceImpl implements CaseNoteService {
 	private static final String AMEND_CASE_NOTE_FORMAT = "%s ...[%s updated the case notes on %s] %s";
 
@@ -81,7 +86,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	}
 
 	@Override
-	public CaseNote createCaseNote(final long bookingId, final NewCaseNote caseNote) {
+    public CaseNote createCaseNote(final long bookingId, @Valid @ReferenceCodesValid final NewCaseNote caseNote) {
         bookingService.verifyBookingAccess(bookingId);
 
 		//TODO: First - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
@@ -91,7 +96,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
     }
 
 	@Override
-	public CaseNote updateCaseNote(final long bookingId, final long caseNoteId, final String newCaseNoteText) {
+	public CaseNote updateCaseNote(final long bookingId, final long caseNoteId, @Valid final String newCaseNoteText) {
         bookingService.verifyBookingAccess(bookingId);
 
         CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId).orElseThrow(new EntityNotFoundException(String.valueOf(caseNoteId)));

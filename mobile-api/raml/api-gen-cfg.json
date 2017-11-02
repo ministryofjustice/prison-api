@@ -12,5 +12,6 @@
   "developerEmail": "andrew.eastgaard@syscon.net",
   "developerOrganization": "Syscon Justice Systems",
   "developerOrganizationUrl": "http://www.syscon.net",
-  "paginationHeaders": "totalRecords,pageOffset,pageLimit"
+  "paginationHeaders": "totalRecords,pageOffset,pageLimit",
+  "enable303" : true
 }
