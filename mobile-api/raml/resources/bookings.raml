@@ -179,6 +179,25 @@
     bookingId:
       (javaType): Long
       description: The offender booking id
+  get:
+    queryParameters:
+      fromDate?:
+        description: Returned activities must be scheduled on or after this date (in YYYY-MM-DD format).
+        type: string
+      toDate?:
+        description: Returned activities must be scheduled on or before this date (in YYYY-MM-DD format).
+        type: string
+  is: [
+    sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
+  ]
+
+/{bookingId}/activities/today:
+  (javaOperationName): getBookingActivitiesForToday
+  type: {readOnlyCollectionPaged: {type: ScheduledEvent, description: Scheduled activities for the offender. }}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
   is: [
     sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
   ]

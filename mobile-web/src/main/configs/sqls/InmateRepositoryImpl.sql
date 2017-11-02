@@ -16,7 +16,6 @@ FIND_INMATE_DETAIL {
             ORDER BY CREATE_DATETIME DESC)
           WHERE ROWNUM <= 1) AS FACE_IMAGE_ID,
          O.BIRTH_DATE,
-         TRUNC(MONTHS_BETWEEN(sysdate, O.BIRTH_DATE)/12) AS AGE,
          B.ASSIGNED_STAFF_ID AS ASSIGNED_OFFICER_ID
   FROM OFFENDER_BOOKINGS B
     INNER JOIN OFFENDERS O ON B.OFFENDER_ID = O.OFFENDER_ID
@@ -50,7 +49,6 @@ FIND_ALL_INMATES {
          O.MIDDLE_NAME,
          O.LAST_NAME,
          O.BIRTH_DATE,
-         TRUNC(MONTHS_BETWEEN(sysdate, O.BIRTH_DATE)/12) AS AGE,
          (SELECT LISTAGG(ALERT_TYPE, ',') WITHIN GROUP (ORDER BY ALERT_TYPE)
           FROM (SELECT DISTINCT(ALERT_TYPE)
                 FROM OFFENDER_ALERTS A
@@ -85,7 +83,6 @@ FIND_INMATES_BY_LOCATION {
             O.MIDDLE_NAME,
             O.LAST_NAME,
             O.BIRTH_DATE,
-            TRUNC(MONTHS_BETWEEN(sysdate, O.BIRTH_DATE)/12) AS AGE,
             (
                 SELECT LISTAGG(ALERT_TYPE, ',') WITHIN GROUP (ORDER BY ALERT_TYPE)
                   FROM (
@@ -197,7 +194,7 @@ FIND_ACTIVE_APPROVED_ASSESSMENT {
     off_ass.calc_sup_level_type,
     ref_cal_sup.DESCRIPTION  AS calc_sup_level_type_desc,
     ass.caseload_type,
-    ass.cell_sharing_alert_flag,
+    CASE WHEN ass.cell_sharing_alert_flag = 'Y' THEN 1 ELSE 0 END as cell_sharing_alert_flag,
     off_ass.assess_status,
     off_ass.assessment_date,
     off_ass.assessment_seq
@@ -209,9 +206,7 @@ FIND_ACTIVE_APPROVED_ASSESSMENT {
       ON off_ass.overrided_sup_level_type = ref_override.CODE AND ref_override.DOMAIN = 'SUP_LVL_TYPE'
     LEFT JOIN REFERENCE_CODES ref_cal_sup
       ON off_ass.calc_sup_level_type = ref_cal_sup.CODE AND ref_cal_sup.DOMAIN = 'SUP_LVL_TYPE'
-  WHERE ass.ASSESSMENT_CLASS = 'TYPE'
-        AND off_ass.ASSESS_STATUS = 'A'
-        AND off_ass.EVALUATION_RESULT_CODE = 'APP'
+  WHERE off_ass.ASSESS_STATUS = 'A'
         AND off_ass.OFFENDER_BOOK_ID = :bookingId
   ORDER BY ASSESSMENT_CODE, ASSESSMENT_DATE desc, ASSESSMENT_SEQ desc
   }
@@ -221,7 +216,6 @@ FIND_INMATE_ALIASES {
     O.FIRST_NAME,
     O.MIDDLE_NAME,
     O.BIRTH_DATE,
-    TRUNC(MONTHS_BETWEEN(SYSDATE, O.BIRTH_DATE)/12) AS AGE,
     RCE.DESCRIPTION AS ETHNICITY,
     RCS.DESCRIPTION AS SEX,
     RCNT.DESCRIPTION AS ALIAS_TYPE,
@@ -247,7 +241,6 @@ FIND_MY_ASSIGNMENTS {
          O.MIDDLE_NAME,
          O.LAST_NAME,
          O.BIRTH_DATE,
-         TRUNC(MONTHS_BETWEEN(sysdate, O.BIRTH_DATE)/12) AS AGE,
          (SELECT LISTAGG(ALERT_TYPE, ',')
           WITHIN GROUP (ORDER BY ALERT_TYPE)
           FROM (SELECT DISTINCT(ALERT_TYPE)

@@ -10,6 +10,8 @@ import net.syscon.util.DateTimeConverter;
 
 import javax.ws.rs.Path;
 
+import java.time.LocalDate;
+
 import static net.syscon.util.ResourceUtils.nvl;
 
 /**
@@ -53,15 +55,31 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetBookingActivitiesResponse getBookingActivities(Long bookingId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+    public GetBookingActivitiesResponse getBookingActivities(Long bookingId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder, String fromDate, String toDate) {
         Page<ScheduledEvent> activities =  bookingService.getBookingActivities(
                 bookingId,
+                DateTimeConverter.fromISO8601DateString(fromDate),
+                DateTimeConverter.fromISO8601DateString(toDate),
                 nvl(pageOffset, 0L),
                 nvl(pageLimit, 10L),
                 sortFields,
                 sortOrder);
 
         return GetBookingActivitiesResponse.respond200WithApplicationJson(activities);
+    }
+
+    @Override
+    public GetBookingActivitiesForTodayResponse getBookingActivitiesForToday(Long bookingId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+        Page<ScheduledEvent> activities =  bookingService.getBookingActivities(
+                bookingId,
+                LocalDate.now(),
+                LocalDate.now(),
+                nvl(pageOffset, 0L),
+                nvl(pageLimit, 10L),
+                sortFields,
+                sortOrder);
+
+        return GetBookingActivitiesForTodayResponse.respond200WithApplicationJson(activities);
     }
 
     @Override

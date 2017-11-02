@@ -3,14 +3,12 @@ package net.syscon.elite.executablespecification;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-
+import net.syscon.elite.executablespecification.steps.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
-
-import net.syscon.elite.executablespecification.steps.*;
 
 /**
  * BDD step definitions for the following Booking API endpoints:
@@ -48,6 +46,9 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @Autowired
     private BookingSentenceSteps bookingSentenceSteps;
+
+    @Autowired
+    private BookingAssessmentSteps bookingAssessmentSteps;
 
     @When("^a booking search is made with full last \"([^\"]*)\" of existing offender$")
     public void aBookingSearchIsMadeWithFullLastNameOfExistingOffender(String fullLastName) throws Throwable {
@@ -453,5 +454,21 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @Then("resource not found response is received from sentence API")
     public void resourceNotFoundResponse() {
         bookingSentenceSteps.verifyResourceNotFound();
+    }
+
+    // ----------------------------- Assessments --------------------------
+    @When("^an offender booking request is made with booking id ([0-9-]+) and \"([^\"]*)\"$")
+    public void anOffenderBookingRequestIsMadeWithBookingIdAnd(Long bookingId, String assessmentCode) throws Throwable {
+        bookingAssessmentSteps.getAssessmentByCode(bookingId, assessmentCode);
+    }
+
+    @Then("^the classification is \"([^\"]*)\"$")
+    public void theClassificationIsCorrect(String classification) throws Throwable {
+        bookingAssessmentSteps.verifyField("classification", classification);
+    }
+
+    @And("^the Cell Sharing Alert is (true|false)$")
+    public void theCellSharingAlertIs(boolean csra) throws Throwable {
+        bookingAssessmentSteps.verifyCsra(csra);
     }
 }

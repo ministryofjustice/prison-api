@@ -1,13 +1,16 @@
 package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,6 +19,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class BookingActivitySteps extends CommonSteps {
     private static final String BOOKING_ACTIVITIES_API_URL = API_PREFIX + "bookings/{bookingId}/activities";
+    private static final String BOOKING_ACTIVITIES_TODAY_URL_MODIFIER = "/today";
+    private static final String FROM_DATE_QUERY_PARAM_PREFIX = "&fromDate=";
+    private static final String TO_DATE_QUERY_PARAM_PREFIX = "&toDate=";
 
     private List<ScheduledEvent> scheduledEvents;
 
@@ -26,8 +32,13 @@ public class BookingActivitySteps extends CommonSteps {
     }
 
     @Step("Get activities for booking")
-    public void getBookingActivities(Long bookingId) {
-        dispatchRequest(bookingId);
+    public void getBookingActivities(Long bookingId, String fromDate, String toDate, String sortFields, Order sortOrder) {
+        dispatchRequest(bookingId, fromDate, toDate, sortFields, sortOrder);
+    }
+
+    @Step("Get activities for booking for current day only")
+    public void getBookingActivitiesForCurrentDay(Long bookingId) {
+        dispatchRequestForCurrentDay(bookingId);
     }
 
     @Step("Verify booking id for all activities")
@@ -120,17 +131,43 @@ public class BookingActivitySteps extends CommonSteps {
         assertThat(scheduledEvents.get(index).getEventSourceDesc()).isEqualTo(expectedEventSourceDescription);
     }
 
-    private void dispatchRequest(Long bookingId) {
+    private void dispatchRequest(Long bookingId, String fromDate, String toDate, String sortFields, Order sortOrder) {
+        String urlModifier = "";
+
+        if (StringUtils.isNotBlank(fromDate)) {
+            urlModifier += (FROM_DATE_QUERY_PARAM_PREFIX + fromDate);
+        }
+
+        if (StringUtils.isNotBlank(toDate)) {
+            urlModifier += (TO_DATE_QUERY_PARAM_PREFIX + toDate);
+        }
+
+        if (StringUtils.isNotBlank(urlModifier)) {
+            urlModifier = "?" + urlModifier.substring(1);
+        }
+
+        Map<String,String> headers = buildSortHeaders(sortFields, sortOrder);
+
+        dispatchRequest(bookingId, urlModifier, headers);
+    }
+
+    private void dispatchRequestForCurrentDay(Long bookingId) {
+        dispatchRequest(bookingId, BOOKING_ACTIVITIES_TODAY_URL_MODIFIER, null);
+    }
+
+    private void dispatchRequest(Long bookingId, String urlModifier, Map<String,String> headers) {
         init();
 
         ResponseEntity<List<ScheduledEvent>> response;
 
+        String url = BOOKING_ACTIVITIES_API_URL + urlModifier;
+
         try {
             response =
                     restTemplate.exchange(
-                            BOOKING_ACTIVITIES_API_URL,
+                            url,
                             HttpMethod.GET,
-                            createEntity(),
+                            createEntity(null, headers),
                             new ParameterizedTypeReference<List<ScheduledEvent>>() {},
                             bookingId);
 

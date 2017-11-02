@@ -19,7 +19,7 @@ CREATE TABLE OFFENCES (
   CHECK_BOX3 VARCHAR(1) DEFAULT 'N',
   OFFENSE_DEGREE VARCHAR(12),
   MAX_GOOD_TIME_PERC INTEGER,
-  CREATE_DATE DATE  NOT NULL DEFAULT SYSDATE,            --'The date when Offence gets Created';
+  CREATE_DATE DATE  NOT NULL DEFAULT now(),            --'The date when Offence gets Created';
   MODIFY_USER_ID VARCHAR(32),                            --'The user who modifies the record';
   MODIFY_DATETIME TIMESTAMP,                             --'The timestamp when the record is modified ';
   HO_CODE VARCHAR(12),                                   --'This column stores the value of Home Office Class and Home Office sub class';

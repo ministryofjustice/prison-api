@@ -65,3 +65,23 @@ Feature: Booking Details
   Scenario: Request for specific offender booking record that does not exist
     When an offender booking request is made with booking id "-9999"
     Then resource not found response is received from bookings API
+
+  Scenario Outline: Request for assessment information about an offender
+    When an offender booking request is made with booking id <bookingId> and "<assessmentCode>"
+    Then the classification is "<classification>"
+    And the Cell Sharing Alert is <CSRA>
+
+    Examples:
+      | bookingId | assessmentCode | CSRA  | classification |
+      | -1        | CSR            | true  | High           |
+      | -2        | CSR            | true  |                |
+      | -3        | CSR            | true  | Low            |
+      | -4        | CSR            | true  | Medium         |
+      | -5        | CSR            | true  | High           |
+      | -6        | CATEGORY       | false | Cat C          |
+      | -6        | CSR            | true  | Standard       |
+      | -6        | PAROLE         | false | High           |
+
+  Scenario: Request for specific offender booking record that does not exist
+    When an offender booking request is made with booking id -16 and "CSR"
+    Then resource not found response is received from bookings API

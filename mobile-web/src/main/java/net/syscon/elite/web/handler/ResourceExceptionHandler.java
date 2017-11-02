@@ -9,6 +9,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -49,6 +50,10 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
             status = Response.Status.BAD_REQUEST.getStatusCode();
             userMessage = formatConstraintErrors(ex);
             log.warn("JSR303 error.", ex);
+        } else if (ex instanceof BadRequestException) {
+            status = Response.Status.BAD_REQUEST.getStatusCode();
+            userMessage = ex.getMessage();
+            log.warn("Client submitted invalid request.", ex);
         } else {
             status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
             userMessage = "An internal error has occurred - please try again later.";
