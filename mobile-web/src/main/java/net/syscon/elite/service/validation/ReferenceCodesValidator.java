@@ -15,7 +15,7 @@ import javax.validation.ConstraintValidatorContext;
 public class ReferenceCodesValidator implements ConstraintValidator<ReferenceCodesValid, NewCaseNote> {
 
     @Autowired
-    ReferenceDomainService referenceDomainService;
+    private ReferenceDomainService referenceDomainService;
 
     @Override
     public void initialize(ReferenceCodesValid constraintAnnotation) {

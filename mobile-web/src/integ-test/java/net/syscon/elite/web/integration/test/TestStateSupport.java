@@ -27,7 +27,8 @@ public class TestStateSupport {
 		map.put(key, value);
 	}
 
-	public static <T> T get(final String key) {
+	@SuppressWarnings("unchecked")
+    public static <T> T get(final String key) {
 		return (T) map.get(key);
 	}
 
