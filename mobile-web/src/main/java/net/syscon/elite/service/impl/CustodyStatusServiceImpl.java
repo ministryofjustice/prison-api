@@ -1,11 +1,10 @@
 package net.syscon.elite.service.impl;
 
-import com.google.common.collect.Lists;
 import net.syscon.elite.api.model.PrisonerCustodyStatus;
 import net.syscon.elite.api.support.CustodyStatusCode;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.service.support.CustodyStatusDto;
 import net.syscon.elite.repository.CustodyStatusRepository;
-import net.syscon.elite.repository.CustodyStatusRecord;
 import net.syscon.elite.service.CustodyStatusCalculator;
 import net.syscon.elite.service.CustodyStatusService;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -31,7 +30,7 @@ public class CustodyStatusServiceImpl implements CustodyStatusService {
 
     @Override
     public PrisonerCustodyStatus getCustodyStatus(String offenderNo) {
-        return custodyStatusRepository.getCustodyStatusRecord(offenderNo)
+        return custodyStatusRepository.getCustodyStatus(offenderNo)
                 .map(this::toCustodyStatus)
                 .orElseThrow(new EntityNotFoundException(offenderNo));
     }
@@ -48,7 +47,7 @@ public class CustodyStatusServiceImpl implements CustodyStatusService {
 
     @Override
     public List<PrisonerCustodyStatus> listCustodyStatuses(List<CustodyStatusCode> custodyStatusCodes, Order order) {
-        return custodyStatusRepository.listCustodyStatusRecords()
+        return custodyStatusRepository.listCustodyStatuses()
                 .stream()
                 .map(this::toCustodyStatus)
                 .filter(x -> filterOnCustodyStatus(x, custodyStatusCodes))
@@ -64,12 +63,12 @@ public class CustodyStatusServiceImpl implements CustodyStatusService {
         return true;
     }
 
-    private PrisonerCustodyStatus toCustodyStatus(CustodyStatusRecord record) {
+    private PrisonerCustodyStatus toCustodyStatus(CustodyStatusDto record) {
         CustodyStatusCode custodyStatusCode = calculator.CustodyStatusCodeOf(record);
 
         return PrisonerCustodyStatus
                 .builder()
-                .offenderNo(record.getOffender_id_display())
+                .offenderNo(record.getOffenderIdDisplay())
                 .custodyStatusCode(custodyStatusCode)
                 .custodyStatusDescription(custodyStatusCode.toString())
                 .build();

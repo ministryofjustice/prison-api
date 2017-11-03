@@ -4,7 +4,7 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import net.syscon.elite.api.support.CustodyStatusCode;
-import net.syscon.elite.repository.CustodyStatusRecord;
+import net.syscon.elite.service.support.CustodyStatusDto;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -43,13 +43,13 @@ public class CustodyStatusCalculatorTest {
     @Test
     @UseDataProvider("custodyStatusRecords")
     public void canIdentifyAnOffendersCustodyStatusCorrectly(String booking_status, String active_flag, String direction_code, String movement_type, String movement_reason_code, CustodyStatusCode expectedCustodyStatus) {
-        CustodyStatusRecord record = CustodyStatusRecord
+        CustodyStatusDto record = CustodyStatusDto
                 .builder()
-                .booking_status(booking_status)
-                .active_flag(active_flag)
-                .direction_code(direction_code)
-                .movement_type(movement_type)
-                .movement_reason_code(movement_reason_code)
+                .bookingStatus(booking_status)
+                .activeFlag(active_flag)
+                .directionCode(direction_code)
+                .movementType(movement_type)
+                .movementReasonCode(movement_reason_code)
                 .build();
 
         assertEquals(

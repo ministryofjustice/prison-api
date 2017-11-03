@@ -1,20 +1,20 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.support.CustodyStatusCode;
-import net.syscon.elite.repository.CustodyStatusRecord;
+import net.syscon.elite.service.support.CustodyStatusDto;
 
 import java.util.Optional;
 
 public class CustodyStatusCalculator {
 
-    public CustodyStatusCode CustodyStatusCodeOf(CustodyStatusRecord record) {
-        if ("O".equals(record.getBooking_status())) {
-            if ("Y".equals(record.getActive_flag())) {
-                if ("OUT".equals(record.getDirection_code())) {
-                    if ("CRT".equals(record.getMovement_type())) {
+    public CustodyStatusCode CustodyStatusCodeOf(CustodyStatusDto record) {
+        if ("O".equals(record.getBookingStatus())) {
+            if ("Y".equals(record.getActiveFlag())) {
+                if ("OUT".equals(record.getDirectionCode())) {
+                    if ("CRT".equals(record.getMovementType())) {
                         return CustodyStatusCode.ACTIVE_OUT_CRT;
                     }
-                    if ("TAP".equals(record.getMovement_type())) {
+                    if ("TAP".equals(record.getMovementType())) {
                         return CustodyStatusCode.ACTIVE_OUT_TAP;
                     }
                 }
@@ -22,14 +22,14 @@ public class CustodyStatusCalculator {
                 return CustodyStatusCode.ACTIVE_IN;
             }
 
-            if ("N".equals(record.getActive_flag())  && "TRN".equals(record.getMovement_type())) {
+            if ("N".equals(record.getActiveFlag())  && "TRN".equals(record.getMovementType())) {
                 return CustodyStatusCode.IN_TRANSIT;
             }
         }
 
-        return Optional.ofNullable(record.getMovement_type())
+        return Optional.ofNullable(record.getMovementType())
                 .filter("REL"::equals)
-                .map(mt -> Optional.ofNullable(record.getMovement_reason_code())
+                .map(mt -> Optional.ofNullable(record.getMovementReasonCode())
                         .map(mrc -> {
                             switch (mrc) {
                                 case "UAL":

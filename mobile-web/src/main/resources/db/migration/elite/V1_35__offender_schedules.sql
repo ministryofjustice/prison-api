@@ -349,7 +349,7 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CONSTRAINT OFFENDER_IND_SCHEDULES_PK PRIM
 -- AS
 -- SELECT
 --        off.offender_id,
---        off.offender_id_display,
+--        off.offenderIdDisplay,
 --        off.last_name offender_last_name,
 --        off.first_name offender_first_name,
 --        sch.offender_book_id,
@@ -408,8 +408,8 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CONSTRAINT OFFENDER_IND_SCHEDULES_PK PRIM
 -- 	               NULL,                            <-- not used
 -- 	               'EXT_MOV',
 -- 	               'SCH',
--- 	               ord.movement_type,
--- 	               ord.movement_reason_code,
+-- 	               ord.movementType,
+-- 	               ord.movementReasonCode,
 -- 	               ord.release_date,
 -- 	               NULL,
 -- 	               NULL,
@@ -444,7 +444,7 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CONSTRAINT OFFENDER_IND_SCHEDULES_PK PRIM
 --                                cs.schedule_date) >= cs.schedule_date
 --             WHERE opp.offender_program_status = 'ALLOC'
 --               AND NVL(opp.suspended_flag,'N') = 'N'
---               AND ca.active_flag = 'Y'
+--               AND ca.activeFlag = 'Y'
 --               AND ca.course_activity_type IS NOT NULL
 --               AND cs.catch_up_crs_sch_id IS NULL
 --               AND NOT EXISTS ( SELECT 'x'
@@ -512,7 +512,7 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CONSTRAINT OFFENDER_IND_SCHEDULES_PK PRIM
 --               AND oh.event_status = 'SCH') sch
 --   JOIN offender_bookings bkg
 --     ON sch.offender_book_id = bkg.offender_book_id
---        AND bkg.active_flag  = 'Y'
+--        AND bkg.activeFlag  = 'Y'
 --   JOIN offenders off
 --     ON bkg.offender_id = off.offender_id
 --   LEFT JOIN agency_internal_locations   ail

@@ -1,5 +1,6 @@
 package net.syscon.elite.repository;
 
+import net.syscon.elite.service.support.CustodyStatusDto;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,28 +37,28 @@ public class CustodyStatusRepositoryImplTest {
 
     @Test
     public final void retrieveARecordForAKnownOffenderThatHasAMovementRecord() {
-        final CustodyStatusRecord custodyStatusRecord = repository.getCustodyStatusRecord("Z0023ZZ").orElse(null);
-        assertNotNull(custodyStatusRecord);
+        final CustodyStatusDto custodyStatusDto = repository.getCustodyStatus("Z0023ZZ").orElse(null);
+        assertNotNull(custodyStatusDto);
 
-        assertEquals("Z0023ZZ", custodyStatusRecord.getOffender_id_display());
-        assertEquals("O", custodyStatusRecord.getBooking_status());
-        assertEquals("N", custodyStatusRecord.getActive_flag());
-        assertEquals("OUT", custodyStatusRecord.getDirection_code());
-        assertEquals("REL", custodyStatusRecord.getMovement_type());
-        assertEquals("ESCP", custodyStatusRecord.getMovement_reason_code());
+        assertEquals("Z0023ZZ", custodyStatusDto.getOffenderIdDisplay());
+        assertEquals("O", custodyStatusDto.getBookingStatus());
+        assertEquals("N", custodyStatusDto.getActiveFlag());
+        assertEquals("OUT", custodyStatusDto.getDirectionCode());
+        assertEquals("REL", custodyStatusDto.getMovementType());
+        assertEquals("ESCP", custodyStatusDto.getMovementReasonCode());
     }
 
     @Test
     public final void retrieveARecordForAKnownOffenderThatHasNoMovementRecord() {
-        final CustodyStatusRecord custodyStatusRecord = repository.getCustodyStatusRecord("Z0022ZZ").orElse(null);
-        assertNotNull(custodyStatusRecord);
+        final CustodyStatusDto custodyStatusDto = repository.getCustodyStatus("Z0022ZZ").orElse(null);
+        assertNotNull(custodyStatusDto);
 
-        assertEquals("Z0022ZZ", custodyStatusRecord.getOffender_id_display());
-        assertEquals("O", custodyStatusRecord.getBooking_status());
-        assertEquals("N", custodyStatusRecord.getActive_flag());
-        assertNull(custodyStatusRecord.getDirection_code());
-        assertNull(custodyStatusRecord.getMovement_type());
-        assertNull(custodyStatusRecord.getMovement_reason_code());
+        assertEquals("Z0022ZZ", custodyStatusDto.getOffenderIdDisplay());
+        assertEquals("O", custodyStatusDto.getBookingStatus());
+        assertEquals("N", custodyStatusDto.getActiveFlag());
+        assertNull(custodyStatusDto.getDirectionCode());
+        assertNull(custodyStatusDto.getMovementType());
+        assertNull(custodyStatusDto.getMovementReasonCode());
     }
 
 }

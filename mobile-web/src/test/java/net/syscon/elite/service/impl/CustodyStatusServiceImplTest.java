@@ -7,7 +7,7 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import net.syscon.elite.api.model.PrisonerCustodyStatus;
 import net.syscon.elite.api.support.CustodyStatusCode;
 import net.syscon.elite.api.support.Order;
-import net.syscon.elite.repository.CustodyStatusRecord;
+import net.syscon.elite.service.support.CustodyStatusDto;
 import net.syscon.elite.repository.CustodyStatusRepository;
 import net.syscon.elite.service.CustodyStatusCalculatorTest;
 import net.syscon.elite.service.CustodyStatusService;
@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -43,43 +42,43 @@ public class CustodyStatusServiceImplTest {
 
     @Before
     public void init() {
-        List<CustodyStatusRecord> records = ImmutableList.of(
-                CustodyStatusRecord.builder()
-                        .offender_id_display("A")
+        List<CustodyStatusDto> records = ImmutableList.of(
+                CustodyStatusDto.builder()
+                        .offenderIdDisplay("A")
                         .build(),
-                CustodyStatusRecord.builder()
-                        .offender_id_display("B")
-                        .booking_status("O")
-                        .active_flag("Y")
-                        .direction_code("OUT")
-                        .movement_type("CRT")
+                CustodyStatusDto.builder()
+                        .offenderIdDisplay("B")
+                        .bookingStatus("O")
+                        .activeFlag("Y")
+                        .directionCode("OUT")
+                        .movementType("CRT")
                         .build(),
-                CustodyStatusRecord.builder()
-                        .offender_id_display("C")
-                        .booking_status("O")
-                        .active_flag("Y")
+                CustodyStatusDto.builder()
+                        .offenderIdDisplay("C")
+                        .bookingStatus("O")
+                        .activeFlag("Y")
                         .build()
         );
 
-        when(custodyStatusRepository.listCustodyStatusRecords())
+        when(custodyStatusRepository.listCustodyStatuses())
                 .thenReturn(records);
     }
 
 
     @Test
     @UseDataProvider("custodyStatusRecords")
-    public void getCustodyStatusRecord(String booking_status, String active_flag, String direction_code, String movement_type, String movement_reason_code, CustodyStatusCode expectedCustodyStatus) {
+    public void getCustodyStatus(String booking_status, String active_flag, String direction_code, String movement_type, String movement_reason_code, CustodyStatusCode expectedCustodyStatus) {
         String randomOffenderNo = UUID.randomUUID().toString();
 
-        when(custodyStatusRepository.getCustodyStatusRecord(randomOffenderNo))
-                .thenReturn(Optional.of(CustodyStatusRecord
+        when(custodyStatusRepository.getCustodyStatus(randomOffenderNo))
+                .thenReturn(Optional.of(CustodyStatusDto
                         .builder()
-                        .offender_id_display(randomOffenderNo)
-                        .booking_status(booking_status)
-                        .active_flag(active_flag)
-                        .direction_code(direction_code)
-                        .movement_type(movement_type)
-                        .movement_reason_code(movement_reason_code)
+                        .offenderIdDisplay(randomOffenderNo)
+                        .bookingStatus(booking_status)
+                        .activeFlag(active_flag)
+                        .directionCode(direction_code)
+                        .movementType(movement_type)
+                        .movementReasonCode(movement_reason_code)
                         .build()));
 
         PrisonerCustodyStatus custodyStatus = service.getCustodyStatus(randomOffenderNo);
@@ -89,14 +88,14 @@ public class CustodyStatusServiceImplTest {
     }
 
     @Test
-    public void listCustodyStatusRecordsWithoutACustodyStatusFilter() {
+    public void listCustodyStatusesWithoutACustodyStatusFilter() {
         List<PrisonerCustodyStatus> records = service.listCustodyStatuses(null, null);
 
         assertEquals(3, records.size());
     }
 
     @Test
-    public void listCustodyStatusRecordsWithACustodyStatusFilterSetToACTIVE_IN() {
+    public void listCustodyStatusesWithACustodyStatusFilterSetToACTIVE_IN() {
         List<PrisonerCustodyStatus> records = service.listCustodyStatuses(CustodyStatusCode.ACTIVE_IN);
 
         assertEquals(1, records.size());
@@ -109,7 +108,7 @@ public class CustodyStatusServiceImplTest {
     }
 
     @Test
-    public void listCustodyStatusRecordsWithACustodyStatusFilterSetToACTIVE_OUT_CRT() {
+    public void listCustodyStatusesWithACustodyStatusFilterSetToACTIVE_OUT_CRT() {
         List<PrisonerCustodyStatus> records = service.listCustodyStatuses(CustodyStatusCode.ACTIVE_OUT_CRT);
 
         assertEquals(1, records.size());
@@ -122,7 +121,7 @@ public class CustodyStatusServiceImplTest {
     }
 
     @Test
-    public void listCustodyStatusRecordsWithACustodyStatusFilterSetToTwoCodes() {
+    public void listCustodyStatusesWithACustodyStatusFilterSetToTwoCodes() {
         List<CustodyStatusCode> codes = Arrays.asList(CustodyStatusCode.ACTIVE_OUT_CRT, CustodyStatusCode.ACTIVE_IN);
         List<PrisonerCustodyStatus> records = service.listCustodyStatuses(codes, Order.ASC);
 
