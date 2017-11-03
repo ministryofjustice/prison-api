@@ -2,6 +2,7 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.UserDetail;
+import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Test;
@@ -65,9 +66,8 @@ public class UserRepositoryTest {
 
     @Test
     public final void testFindRolesByUsername() {
-        List<String> roles = repository.findRolesByUsername("itag_user");
-
+        List<UserRole> roles = repository.findRolesByUsername("itag_user");
         assertThat(roles).isNotEmpty();
-        assertThat(roles).contains("LEI_WING_OFF");
+        assertThat(roles).extracting("roleCode").contains("LEI_WING_OFF");
     }
 }

@@ -3,9 +3,11 @@ package net.syscon.elite.repository.impl;
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.UserDetail;
+import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
+import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
@@ -34,6 +36,9 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 			.put("LAST_NAME", new FieldMapper("lastName"))
 			.put("EMAIL", new FieldMapper("email"))
 			.put("IMAGE_ID", new FieldMapper("thumbnailId")).build();
+
+	private final StandardBeanPropertyRowMapper<UserRole> USER_ROLE_MAPPER =
+			new StandardBeanPropertyRowMapper<>(UserRole.class);
 
 	@Override
 	public Optional<UserDetail> findByUsername(final String username) {
@@ -74,9 +79,9 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
 	@Override
 	@Cacheable("findRolesByUsername")
-	public List<String> findRolesByUsername(final String username) {
-		final String sql = getQuery("FIND_ROLES_BY_USERNAME");
-		return jdbcTemplate.queryForList(sql, createParams("username", username), String.class);
+	public List<UserRole> findRolesByUsername(final String username) {
+		String sql = getQuery("FIND_ROLES_BY_USERNAME");
+		return jdbcTemplate.query(sql, createParams("username", username), USER_ROLE_MAPPER);
 	}
 
 

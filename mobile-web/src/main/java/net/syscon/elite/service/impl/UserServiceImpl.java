@@ -3,6 +3,7 @@ package net.syscon.elite.service.impl;
 import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.UserDetail;
+import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.repository.CaseLoadRepository;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -62,5 +63,11 @@ public class UserServiceImpl implements UserService {
 			final UserDetail userDetails = getUserByUsername(username);
 			userRepository.updateCurrentLoad(userDetails.getStaffId(), caseLoadId);
 		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<UserRole> getRolesByUsername(String username) {
+		return userRepository.findRolesByUsername(username);
 	}
 }
