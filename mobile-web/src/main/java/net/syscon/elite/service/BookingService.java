@@ -5,7 +5,6 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 
 import java.time.LocalDate;
-import java.util.List;
 
 /**
  * Bookings API service interface.
@@ -21,5 +20,5 @@ public interface BookingService {
 
     MainSentence getMainSentence(Long bookingId);
 
-    Page<OffenderRelease> getOffenderReleaseSummary(List<String> offenderNos, long offset, long limit);
+    Page<OffenderRelease> getOffenderReleaseSummary(LocalDate fromReleaseDate, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly);
 }

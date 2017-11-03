@@ -1,6 +1,7 @@
 package net.syscon.elite.security;
 
 import net.syscon.elite.api.model.UserDetail;
+import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.service.EntityNotFoundException;
 import org.apache.commons.lang3.StringUtils;
@@ -30,11 +31,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Cacheable("loadUserByUsername")
 	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
 		final UserDetail userDetail = userRepository.findByUsername(username).orElseThrow(new EntityNotFoundException(username));
-		List<String> roles = userRepository.findRolesByUsername(username);
+		List<UserRole> roles = userRepository.findRolesByUsername(username);
 
 		Set<GrantedAuthority> authorities = roles.stream()
 				.filter(Objects::nonNull)
-				.map(name -> new SimpleGrantedAuthority("ROLE_" + StringUtils.upperCase(StringUtils.replaceAll(name,"-", "_"))))
+				.map(role -> new SimpleGrantedAuthority("ROLE_" + StringUtils.upperCase(StringUtils.replaceAll(role.getRoleCode(),"-", "_"))))
 				.collect(Collectors.toSet());
 
 		return new UserDetailsImpl(username, null, authorities, userDetail.getAdditionalProperties());

@@ -204,6 +204,6 @@ public class InmateServiceImpl implements InmateService {
     }
 
     private Set<String> getUserCaseloadIds() {
-        return caseLoadRepository.findCaseLoadsByUsername(UserSecurityUtils.getCurrentUsername()).stream().map(CaseLoad::getCaseLoadId).collect(Collectors.toSet());
+        return caseLoadRepository.getUserCaseloadIds(UserSecurityUtils.getCurrentUsername());
     }
 }

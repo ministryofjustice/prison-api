@@ -11,9 +11,15 @@ import org.springframework.stereotype.Repository;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository
 public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRepository {
+
+	public Set<String> getUserCaseloadIds(String username) {
+		return findCaseLoadsByUsername(username).stream().map(CaseLoad::getCaseLoadId).collect(Collectors.toSet());
+	}
 
 	@Override
 	public Optional<CaseLoad> find(final String caseLoadId) {
