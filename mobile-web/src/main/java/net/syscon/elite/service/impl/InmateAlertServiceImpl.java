@@ -59,7 +59,7 @@ public class InmateAlertServiceImpl implements InmatesAlertService {
     public Alert getInmateAlert(long bookingId, long alertSeqId) {
         bookingService.verifyBookingAccess(bookingId);
         final Alert alert = inmateAlertRepository.getInmateAlert(bookingId, alertSeqId)
-                .orElseThrow(new EntityNotFoundException(String.valueOf(alertSeqId)));
+                .orElseThrow(EntityNotFoundException.withId(alertSeqId));
         alert.setExpired(isExpiredAlert(alert));
         return alert;
     }

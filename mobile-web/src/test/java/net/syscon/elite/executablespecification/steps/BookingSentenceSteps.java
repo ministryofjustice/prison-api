@@ -2,6 +2,7 @@ package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.MainSentence;
 import net.syscon.elite.test.EliteClientException;
+import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ public class BookingSentenceSteps extends CommonSteps {
 
     private MainSentence mainSentence;
 
+    @Step("Get main offence details for offender")
     public void getMainSentence(Long bookingId) {
         doSingleResultApiCall(API_BOOKING_PREFIX + bookingId + "/mainSentence");
     }
@@ -40,13 +42,5 @@ public class BookingSentenceSteps extends CommonSteps {
     public void verifyField(String field, String value) throws ReflectiveOperationException {
         assertNotNull(mainSentence);
         super.verifyField(mainSentence, field, value);
-    }
-    
-    public void getNonexistentMainSentence() {
-        doSingleResultApiCall(API_BOOKING_PREFIX + "-100000000001/mainSentence");
-    }
-
-    public void getMainSentenceInDifferentCaseload() {
-        doSingleResultApiCall(API_BOOKING_PREFIX + "-16/mainSentence");
     }
 }

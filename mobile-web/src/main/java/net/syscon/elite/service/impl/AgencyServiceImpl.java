@@ -27,7 +27,7 @@ public class AgencyServiceImpl implements AgencyService {
 
     @Override
     public Agency getAgency(String agencyId) {
-        return agencyRepository.getAgency(agencyId).orElseThrow(new EntityNotFoundException(agencyId));
+        return agencyRepository.getAgency(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
     }
 
     @Override

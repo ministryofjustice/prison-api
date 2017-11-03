@@ -56,10 +56,18 @@ Feature: Case Note Retrieval and Filtering
       | -3        |                |                    |            | 2017-05-09 | 2     | 0      | 2      | 4     |
       | -3        |                |                    | 2017-05-07 | 2017-05-12 | 3     | 3      | 3      | 6     |
 
-  Scenario: The logged on staff user's caseload does not include the booking id - get single
-    When a case note with booking id in different caseload is retrieved
-    Then resource not found response is received from caseload API
+  Scenario: A specific case note is requested for booking that is not part of any of logged on staff user's caseloads
+    When a case note is requested for offender booking "-16"
+    Then resource not found response is received from casenotes API
 
-  Scenario: The logged on staff user's caseload does not include the booking id - get list
-    When a case note list with booking id in different caseload is retrieved
-    Then resource not found response is received from caseload API
+  Scenario: A specific case note is requested for booking that does not exist
+    When a case note is requested for offender booking "-99"
+    Then resource not found response is received from casenotes API
+
+  Scenario: Case note list is requested for booking that is not part of any of logged on staff user's caseloads
+    When case notes are requested for offender booking "-16"
+    Then resource not found response is received from casenotes API
+
+  Scenario: Case note list is requested for booking that does not exist
+    When case notes are requested for offender booking "-99"
+    Then resource not found response is received from casenotes API

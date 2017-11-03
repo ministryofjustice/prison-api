@@ -16,7 +16,7 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     public ImageDetail findImageDetail(final Long imageId) {
-        return repository.findImageDetail(imageId).orElseThrow(new EntityNotFoundException(String.valueOf(imageId)));
+        return repository.findImageDetail(imageId).orElseThrow(EntityNotFoundException.withId(imageId));
     }
 
     @Override

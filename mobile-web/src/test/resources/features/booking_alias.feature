@@ -15,6 +15,13 @@ Feature: Booking Aliases
 
     Examples:
        | booking id | number | alias first name list           | alias last name list               |
-       | -9999      | 0      |                                 |                                    |
        | -12        | 1      | DANNY                           | SMILEY                             |
        | -9         | 5      | CHARLEY,MARK,PAUL,SANJAY,TREVOR | BASIS,DEMUNK,SIMONS,SMITH,THOMPSON |
+
+  Scenario: Aliases are requested for booking that does not exist
+    When aliases are requested for an offender booking "-99"
+    Then resource not found response is received from offender aliases API
+
+  Scenario: Aliases are requested for booking that is not part of any of logged on staff user's caseloads
+    When aliases are requested for an offender booking "-16"
+    Then resource not found response is received from offender aliases API

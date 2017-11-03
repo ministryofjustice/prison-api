@@ -40,7 +40,7 @@ public class CaseLoadRepositoryTest {
 
     @Test
     public final void testFindCaseload() {
-        final CaseLoad caseload = repository.find("LEI").orElseThrow(new EntityNotFoundException("LEI"));
+        final CaseLoad caseload = repository.find("LEI").orElseThrow(EntityNotFoundException.withId("LEI"));
         assertThat(caseload).isNotNull();
         assertThat(caseload.getDescription()).isEqualTo("LEEDS (HMP)");
     }

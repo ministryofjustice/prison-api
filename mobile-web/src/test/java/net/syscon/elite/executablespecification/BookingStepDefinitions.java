@@ -39,16 +39,16 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     private BookingSentenceDetailSteps bookingSentenceDetail;
 
     @Autowired
-    private BookingIEPSteps bookingIEPSteps;
+    private BookingIEPSteps bookingIEP;
 
     @Autowired
     private BookingAlertSteps bookingAlerts;
 
     @Autowired
-    private BookingSentenceSteps bookingSentenceSteps;
+    private BookingSentenceSteps bookingSentence;
 
     @Autowired
-    private BookingAssessmentSteps bookingAssessmentSteps;
+    private BookingAssessmentSteps bookingAssessment;
 
     @When("^a booking search is made with full last \"([^\"]*)\" of existing offender$")
     public void aBookingSearchIsMadeWithFullLastNameOfExistingOffender(String fullLastName) throws Throwable {
@@ -148,6 +148,11 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @And("^alias ethnicities match \"([^\"]*)\"$")
     public void aliasEthnicitiesMatch(String ethnicities) throws Throwable {
         bookingAlias.verifyAliasEthnicities(ethnicities);
+    }
+
+    @Then("^resource not found response is received from offender aliases API$")
+    public void resourceNotFoundResponseIsReceivedFromOffenderAliasesAPI() throws Throwable {
+        bookingAlias.verifyResourceNotFound();
     }
 
     @When("^an offender booking request is made with booking id \"([^\"]*)\"$")
@@ -292,16 +297,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingSentenceDetail.verifyEarlyReleaseSchemeEligibilityDate(earlyReleaseSchemeEligibilityDate);
     }
 
-    @When("^sentence details with nonexistent booking id is requested$")
-    public void aNonexistentIdIsRequested() {
-        bookingSentenceDetail.getNonexistentSentenceDetails();
-    }
-
-    @When("^sentence details with booking id in different caseload is requested$")
-    public void anIdInDifferentCaseloadIsRequested() {
-        bookingSentenceDetail.getSentenceDetailsInDifferentCaseload();
-    }
-
     @Then("^resource not found response is received from sentence details API$")
     public void resourceNotFoundResponseIsReceivedFromSentenceDetailsAPI() throws Throwable {
         bookingSentenceDetail.verifyResourceNotFound();
@@ -309,37 +304,37 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @When("^an IEP summary only is requested for an offender with booking id \"([^\"]*)\"$")
     public void anIEPSummaryOnlyIsRequestedForAnOffenderWithBookingId(String bookingId) throws Throwable {
-        bookingIEPSteps.getBookingIEPSummary(Long.valueOf(bookingId), false);
+        bookingIEP.getBookingIEPSummary(Long.valueOf(bookingId), false);
     }
 
     @When("^an IEP summary, with details, is requested for an offender with booking id \"([^\"]*)\"$")
     public void anIEPSummaryWithDetailsIsRequestedForAnOffenderWithBookingId(String bookingId) throws Throwable {
-        bookingIEPSteps.getBookingIEPSummary(Long.valueOf(bookingId), true);
+        bookingIEP.getBookingIEPSummary(Long.valueOf(bookingId), true);
     }
 
     @Then("^IEP summary is returned with IEP level of \"([^\"]*)\"$")
     public void iepSummaryIsReturnedWithIEPLevelOf(String iepLevel) throws Throwable {
-        bookingIEPSteps.verifyCurrentIEPLevel(iepLevel);
+        bookingIEP.verifyCurrentIEPLevel(iepLevel);
     }
 
     @And("^IEP summary contains \"([^\"]*)\" detail records$")
     public void iepSummaryContainsDetailRecords(String detailRecordCount) throws Throwable {
-        bookingIEPSteps.verifyIEPDetailRecordCount(Integer.parseInt(detailRecordCount));
+        bookingIEP.verifyIEPDetailRecordCount(Integer.parseInt(detailRecordCount));
     }
 
     @And("^IEP days since review is correct for IEP date of \"([^\"]*)\"$")
     public void iepDaysSinceReviewIsCorrectForIEPDateOf(String iepDate) throws Throwable {
-        bookingIEPSteps.verifyDaysSinceReview(iepDate);
-    }
-
-    @When("^an IEP summary with booking id in different caseload is requested$")
-    public void IEPSummaryWithBookingIdInDifferentCaseload() throws Throwable {
-        bookingIEPSteps.getIdInDifferentCaseload();
+        bookingIEP.verifyDaysSinceReview(iepDate);
     }
 
     @Then("^resource not found response is received from bookings IEP summary API$")
     public void resourceNotFoundResponseIsReceivedFromBookingsIEPSummaryAPI() throws Throwable {
-        bookingIEPSteps.verifyResourceNotFound();
+        bookingIEP.verifyResourceNotFound();
+    }
+
+    @And("^user message in resource not found response from bookings IEP summary API is \"([^\"]*)\"$")
+    public void userMessageInResourceNotFoundResponseFromBookingsIEPSummaryAPIIs(String expectedUserMessage) throws Throwable {
+        bookingIEP.verifyResourceNotFoundUserMessage(expectedUserMessage);
     }
 
     @And("^gender matches \"([^\"]*)\"$")
@@ -395,8 +390,8 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^\"([^\"]*)\" alerts are returned$")
-    public void numberAlertsAreReturned(int number) throws Throwable {
-        bookingAlerts.verifyNumber(number);
+    public void numberAlertsAreReturned(String expectedCount) throws Throwable {
+        bookingAlerts.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
     }
 
     @And("alerts codes match \"([^\"]*)\"$")
@@ -414,16 +409,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAlerts.verifyAlertField(field, value);
     }
 
-    @When("^an alert list with booking id in different caseload is requested$")
-    public void anAlertListInDifferentCaseloadIsRequested() {
-        bookingAlerts.getAlertsInDifferentCaseload();
-    }
-
-    @When("^an alert with booking id in different caseload is requested$")
-    public void anAlertInDifferentCaseloadIsRequested() {
-        bookingAlerts.getAlertInDifferentCaseload();
-    }
-
     @Then("^resource not found response is received from alert API$")
     public void resourceNotFoundResponseIsReceivedFromAlertAPI() throws Throwable {
         bookingAlerts.verifyResourceNotFound();
@@ -433,42 +418,42 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @When("^a sentence with booking id ([0-9-]+) is requested$")
     public void sentenceWithBookingId(Long id) {
-        bookingSentenceSteps.getMainSentence(id);
+        bookingSentence.getMainSentence(id);
     }
 
     @Then("^the returned mainSentence ([^\"]+) is \"([^\"]*)\"$")
     public void theFieldIs(String field, String value) throws ReflectiveOperationException {
-        bookingSentenceSteps.verifyField(field, value);
-    }
-
-    @When("a sentence with a nonexistent booking id is requested")
-    public void sentenceWithNonexistentBookingId() {
-        bookingSentenceSteps.getNonexistentMainSentence();
-    }
-
-    @When("a sentence with a booking id in a different caseload is requested")
-    public void sentenceWithBookingIdDifferentCaseload() {
-        bookingSentenceSteps.getMainSentenceInDifferentCaseload();
+        bookingSentence.verifyField(field, value);
     }
 
     @Then("resource not found response is received from sentence API")
     public void resourceNotFoundResponse() {
-        bookingSentenceSteps.verifyResourceNotFound();
+        bookingSentence.verifyResourceNotFound();
     }
 
     // ----------------------------- Assessments --------------------------
-    @When("^an offender booking request is made with booking id ([0-9-]+) and \"([^\"]*)\"$")
-    public void anOffenderBookingRequestIsMadeWithBookingIdAnd(Long bookingId, String assessmentCode) throws Throwable {
-        bookingAssessmentSteps.getAssessmentByCode(bookingId, assessmentCode);
+    @When("^an offender booking assessment information request is made with booking id ([0-9-]+) and \"([^\"]*)\"$")
+    public void anOffenderBookingAssessmentInformationRequestIsMadeWithBookingIdAnd(Long bookingId, String assessmentCode) throws Throwable {
+        bookingAssessment.getAssessmentByCode(bookingId, assessmentCode);
     }
 
     @Then("^the classification is \"([^\"]*)\"$")
     public void theClassificationIsCorrect(String classification) throws Throwable {
-        bookingAssessmentSteps.verifyField("classification", classification);
+        bookingAssessment.verifyField("classification", classification);
     }
 
     @And("^the Cell Sharing Alert is (true|false)$")
     public void theCellSharingAlertIs(boolean csra) throws Throwable {
-        bookingAssessmentSteps.verifyCsra(csra);
+        bookingAssessment.verifyCsra(csra);
+    }
+
+    @Then("^resource not found response is received from booking assessments API$")
+    public void resourceNotFoundResponseIsReceivedFromBookingAssessmentsAPI() throws Throwable {
+        bookingAssessment.verifyResourceNotFound();
+    }
+
+    @And("^user message in resource not found response from booking assessments API is \"([^\"]*)\"$")
+    public void userMessageInResourceNotFoundResponseFromBookingAssessmentsAPIIs(String expectedUserMessage) throws Throwable {
+        bookingAssessment.verifyResourceNotFoundUserMessage(expectedUserMessage);
     }
 }

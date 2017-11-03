@@ -80,7 +80,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	public CaseNote getCaseNote(final long bookingId, final long caseNoteId) {
         bookingService.verifyBookingAccess(bookingId);
 
-		CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId).orElseThrow(new EntityNotFoundException(String.valueOf(caseNoteId)));
+		CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId).orElseThrow(EntityNotFoundException.withId(caseNoteId));
 
 		return transformer.transform(caseNote);
 	}
@@ -99,7 +99,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	public CaseNote updateCaseNote(final long bookingId, final long caseNoteId, @Valid final String newCaseNoteText) {
         bookingService.verifyBookingAccess(bookingId);
 
-        CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId).orElseThrow(new EntityNotFoundException(String.valueOf(caseNoteId)));
+        CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId).orElseThrow(EntityNotFoundException.withId(caseNoteId));
 
         String amendedText = format(AMEND_CASE_NOTE_FORMAT,
                 caseNote.getText(),
