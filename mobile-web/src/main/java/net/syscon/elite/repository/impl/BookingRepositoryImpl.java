@@ -18,8 +18,10 @@ import net.syscon.util.IQueryBuilder;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Types;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -144,8 +146,8 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         List<ScheduledEvent> activities = jdbcTemplate.query(
                 sql,
                 createParams("bookingId", bookingId,
-                        "fromDate", DateTimeConverter.toDate(fromDate),
-                        "toDate", DateTimeConverter.toDate(toDate),
+                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
+                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate)),
                         "offset", offset,
                         "limit", limit),
                 paRowMapper);
