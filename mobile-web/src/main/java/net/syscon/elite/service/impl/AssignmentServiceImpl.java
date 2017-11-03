@@ -31,7 +31,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     public Page<OffenderBooking> findMyAssignments(long offset, long limit) {
         String username = UserSecurityUtils.getCurrentUsername();
 
-        UserDetail loggedInUser = userRepository.findByUsername(username).orElseThrow(new EntityNotFoundException(username));
+        UserDetail loggedInUser = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
 
         return inmateRepository.findMyAssignments(
                 loggedInUser.getStaffId(),

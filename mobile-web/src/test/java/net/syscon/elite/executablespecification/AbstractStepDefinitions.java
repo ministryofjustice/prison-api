@@ -63,17 +63,17 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        BookingIEPSteps bookingIEPSteps() {
+        BookingIEPSteps bookingIEP() {
             return new BookingIEPSteps();
         }
 
         @Bean
-        BookingActivitySteps bookingActivitySteps() {
+        BookingActivitySteps bookingActivity() {
             return new BookingActivitySteps();
         }
 
         @Bean
-        BookingAlertSteps bookingAlertSteps() {
+        BookingAlertSteps bookingAlert() {
             return new BookingAlertSteps();
         }
 
@@ -88,7 +88,7 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        ReferenceDomainsSteps referenceDomainsSteps() {
+        ReferenceDomainsSteps referenceDomains() {
             return new ReferenceDomainsSteps();
         }
 
@@ -98,16 +98,17 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        FinanceSteps financeSteps() {
+        FinanceSteps finance() {
             return new FinanceSteps();
         }
 
         @Bean
-        BookingSentenceSteps bookingSentenceSteps() {
+        BookingSentenceSteps bookingSentence() {
             return new BookingSentenceSteps();
         }
+
         @Bean
-        BookingAssessmentSteps bookingAssessmentSteps() {
+        BookingAssessmentSteps bookingAssessment() {
             return new BookingAssessmentSteps();
         }
     }

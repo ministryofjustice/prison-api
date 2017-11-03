@@ -156,12 +156,4 @@ public class BookingSentenceDetailSteps extends CommonSteps {
             setErrorResponse(ex.getErrorResponse());
         }
     }
-
-    public void getNonexistentSentenceDetails() {
-        dispatchRequest(-100000000001L);
-    }
-
-    public void getSentenceDetailsInDifferentCaseload() {
-        dispatchRequest(-16L);
-    }
 }

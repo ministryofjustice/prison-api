@@ -5,7 +5,6 @@ import net.syscon.elite.api.model.Account;
 import net.syscon.elite.repository.FinanceRepository;
 import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;

@@ -84,6 +84,7 @@ Feature: Booking Sentence Details
       | -12       | 2017-09-01 | 2018-05-31 |     |            |            |            |
       | -13       | 2017-02-08 | 2023-08-07 |     |            |            |            |
       | -14       | 2007-10-16 | 2022-10-20 |     | 2021-02-28 | 2021-03-25 |            |
+      | -15       |            |            |     |            |            |            |
 
   Scenario Outline: Retrieve sentence details for an offender, check other dates
     When sentence details are requested for an offender with booking id "<bookingId>"
@@ -110,6 +111,7 @@ Feature: Booking Sentence Details
       | -12       | 2017-09-01 |            |            |            |            |            |
       | -13       | 2017-02-08 |            | 2021-05-05 | 2020-08-07 |            |            |
       | -14       | 2007-10-16 | 2020-12-30 |            | 2021-09-24 | 2021-01-02 |            |
+      | -15       |            |            |            |            |            |            |
 
   @nomis
   Scenario Outline: Retrieve sentence details for an offender, check other dates (NOMIS only - for ROTL and ERSED)
@@ -122,12 +124,12 @@ Feature: Booking Sentence Details
       | bookingId | ssd        | rotl       | ersed      |
       | -2        | 2016-11-22 | 2018-02-25 |            |
       | -4        | 2007-10-16 |            | 2019-09-01 |
+      | -15       |            |            |            |
 
-  Scenario: Booking id does not exist
-    When sentence details with nonexistent booking id is requested
+  Scenario: Sentence details are requested for booking that does not exist
+    When sentence details are requested for an offender with booking id "-99"
     Then resource not found response is received from sentence details API
 
-  Scenario: The logged on staff user's caseload does not include the booking id
-    When sentence details with booking id in different caseload is requested
+  Scenario: Sentence details are requested for booking that is not part of any of logged on staff user's caseloads
+    When sentence details are requested for an offender with booking id "-16"
     Then resource not found response is received from sentence details API
-

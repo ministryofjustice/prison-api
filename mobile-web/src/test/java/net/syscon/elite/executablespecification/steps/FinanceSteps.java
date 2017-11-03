@@ -2,7 +2,7 @@ package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.Account;
 import net.syscon.elite.test.EliteClientException;
-
+import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -18,6 +18,7 @@ public class FinanceSteps extends CommonSteps {
 
     private Account result;
 
+    @Step("Get offender account balances")
     public void getAccount(Long bookingId) {
         doSingleResultApiCall(API_BOOKING_PREFIX + bookingId + "/balances");
     }
@@ -42,13 +43,5 @@ public class FinanceSteps extends CommonSteps {
 
     public void verifyField(String field, String value) throws ReflectiveOperationException {
         super.verifyField(result, field, value);
-    }
-
-    public void getNonexistentAccount() {
-        doSingleResultApiCall(API_BOOKING_PREFIX + "-100000000001/balances");
-    }
-
-    public void getAccountInDifferentCaseload() {
-        doSingleResultApiCall(API_BOOKING_PREFIX + "-16/balances");
     }
 }

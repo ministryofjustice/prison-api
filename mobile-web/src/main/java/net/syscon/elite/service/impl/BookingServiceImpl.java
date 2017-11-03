@@ -51,7 +51,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public SentenceDetail getBookingSentenceDetail(Long bookingId) {
         verifyBookingAccess(bookingId);
-        SentenceDetail sentenceDetail = bookingRepository.getBookingSentenceDetail(bookingId).orElseThrow(new EntityNotFoundException(bookingId.toString()));
+        SentenceDetail sentenceDetail = bookingRepository.getBookingSentenceDetail(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
 
         NonDtoReleaseDate nonDtoReleaseDate = deriveNonDtoReleaseDate(sentenceDetail);
 
@@ -70,7 +70,7 @@ public class BookingServiceImpl implements BookingService {
 
         // If no IEP details exist for offender, cannot derive an IEP summary.
         if (iepDetails.isEmpty()) {
-            throw new EntityNotFoundException(bookingId.toString());
+            throw EntityNotFoundException.withMessage("Offender does not have any IEP records.");
         }
 
         // Extract most recent detail from list
@@ -184,7 +184,7 @@ public class BookingServiceImpl implements BookingService {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
         if (!bookingRepository.verifyBookingAccess(bookingId, getAgencyIds())) {
-            throw new EntityNotFoundException(bookingId.toString());
+            throw EntityNotFoundException.withId(bookingId);
         }
     }
 

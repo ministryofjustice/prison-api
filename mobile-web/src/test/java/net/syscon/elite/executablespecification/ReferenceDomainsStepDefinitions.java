@@ -26,106 +26,106 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
 
     @Autowired
-    private ReferenceDomainsSteps referenceDomainsSteps;
+    private ReferenceDomainsSteps referenceDomains;
 
     @When("^all types are requested$")
     public void allTypesAreRequested() {
-        referenceDomainsSteps.getAllTypes(false);
+        referenceDomains.getAllTypes(false);
     }
 
     @Then("^all types are returned$")
     public void allTypesAreReturned() {
-        referenceDomainsSteps.verifySomeSampleTypeData();
+        referenceDomains.verifySomeSampleTypeData();
     }
 
     @When("^all types with subtypes are requested$")
     public void allTypesAndSubTypesAreRequested() {
-        referenceDomainsSteps.getAllTypes(true);
+        referenceDomains.getAllTypes(true);
     }
 
     @Then("^all types with subtypes are returned$")
     public void allTypesAndSubTypesAreReturned() {
-        referenceDomainsSteps.verifySomeTypesAndSubtypes();
+        referenceDomains.verifySomeTypesAndSubtypes();
     }
 
     @When("^all alert types are requested$")
     public void allAlertTypesAreRequested() {
-        referenceDomainsSteps.getAllAlertTypes();
+        referenceDomains.getAllAlertTypes();
     }
 
     @Then("^all alert types are returned$")
     public void allAlertTypesAreReturned() {
-        referenceDomainsSteps.verifySomeAlertTypes();
+        referenceDomains.verifySomeAlertTypes();
     }
 
     @When("^all sources are requested$")
     public void allSourcesAreRequested() {
-        referenceDomainsSteps.getAllSources();
+        referenceDomains.getAllSources();
     }
 
     @Then("^all sources are returned$")
     public void allSourcesAreReturned() {
-        referenceDomainsSteps.verifyAllSources();
+        referenceDomains.verifyAllSources();
     }
 
     @When("^alert type with code \"([^\"]*)\" is requested$")
     public void anAlertTypeIsRequested(String code) {
-        referenceDomainsSteps.getAlertType(code);
+        referenceDomains.getAlertType(code);
     }
 
     @When("^type with code \"([^\"]*)\" is requested$")
     public void aTypeIsRequested(String code) {
-        referenceDomainsSteps.getType(code);
+        referenceDomains.getType(code);
     }
 
     @When("^subtype with code \"([^\"]*)\" and subCode \"([^\"]*)\" is requested$")
     public void aSubtypeIsRequested(String code, String subCode) {
-        referenceDomainsSteps.getSubtype(code, subCode);
+        referenceDomains.getSubtype(code, subCode);
     }
 
     @When("^alert code with code \"([^\"]*)\" and subCode \"([^\"]*)\" is requested$")
     public void anAlertCodeIsRequested(String code, String subCode) {
-        referenceDomainsSteps.getAlertCode(code, subCode);
+        referenceDomains.getAlertCode(code, subCode);
     }
 
     @When("^source with code \"([^\"]*)\" is requested$")
     public void aSourceIsRequested(String code) {
-        referenceDomainsSteps.getSource(code);
+        referenceDomains.getSource(code);
     }
 
     @Then("^the .+ returned ([^\"]+) is \"([^\"]*)\"$")
     public void theFieldIs(String field, String value) throws ReflectiveOperationException {
-        referenceDomainsSteps.verifyField(field, value);
+        referenceDomains.verifyField(field, value);
     }
 
     @When("^subtype list with code \"([^\"]*)\" is requested$")
     public void aSubtypeListIsRequested(String code) {
-        referenceDomainsSteps.getSubtypeList(code);
+        referenceDomains.getSubtypeList(code);
     }
 
     @When("^alert code list with code \"([^\"]*)\" is requested$")
     public void anAlertCodeListIsRequested(String code) {
-        referenceDomainsSteps.getAlertCodeList(code);
+        referenceDomains.getAlertCodeList(code);
     }
 
     @Then("^the list size is \"([0-9]+)\"$")
     public void listSize(int size) {
-        referenceDomainsSteps.verifyListSize(size);
+        referenceDomains.verifyListSize(size);
     }
 
     @And("^the list domain is \"([^\"]*)\"$")
     public void listDomain(String domain) {
-        referenceDomainsSteps.verifyListDomain(domain);
+        referenceDomains.verifyListDomain(domain);
     }
 
     @And("^the list first code is \"([^\"]*)\"$")
     public void listFirstCode(String code) {
-        referenceDomainsSteps.verifyListFirstCode(code);
+        referenceDomains.verifyListFirstCode(code);
     }
 
     @And("^the list first description is \"([^\"]*)\"$")
     public void listfirstDescription(String description) {
-        referenceDomainsSteps.verifyListFirstDescription(description);
+        referenceDomains.verifyListFirstDescription(description);
     }
 
 

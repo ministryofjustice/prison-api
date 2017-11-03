@@ -6,6 +6,7 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.CaseLoadRepository;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
@@ -13,7 +14,6 @@ import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -34,19 +34,23 @@ public class InmateServiceImpl implements InmateService {
 
     private final InmateRepository repository;
     private final CaseLoadRepository caseLoadRepository;
+    private final BookingService bookingService;
+
     private final int maxYears;
     private final String locationTypeGranularity;
     private final Pattern offenderNoRegex;
 
-    @Autowired
-    public InmateServiceImpl(InmateRepository repository, CaseLoadRepository caseLoadRepository, @Value("${offender.dob.max.range.years:10}") int maxYears,
+    public InmateServiceImpl(InmateRepository repository,
+                             CaseLoadRepository caseLoadRepository,
+                             BookingService bookingService,
+                             @Value("${offender.dob.max.range.years:10}") int maxYears,
                              @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity,
                              @Value("${api.offender.no.regex.pattern:^[A-Za-z]\\d{4}[A-Za-z]{2}$}") String offenderNoRegex) {
         this.repository = repository;
         this.caseLoadRepository = caseLoadRepository;
+        this.bookingService = bookingService;
         this.maxYears = maxYears;
         this.locationTypeGranularity = locationTypeGranularity;
-
         this.offenderNoRegex = Pattern.compile(offenderNoRegex);
     }
 
@@ -59,7 +63,7 @@ public class InmateServiceImpl implements InmateService {
     @Override
     @Cacheable("findInmate")
     public InmateDetail findInmate(Long inmateId) {
-        final InmateDetail inmate = repository.findInmate(inmateId, getUserCaseloadIds(), locationTypeGranularity).orElseThrow(new EntityNotFoundException(String.valueOf(inmateId)));
+        final InmateDetail inmate = repository.findInmate(inmateId, getUserCaseloadIds(), locationTypeGranularity).orElseThrow(EntityNotFoundException.withId(inmateId));
 
         PhysicalAttributes physicalAttributes = repository.findPhysicalAttributes(inmateId).orElse(null);
         if (physicalAttributes != null && physicalAttributes.getHeightCentimetres() != null) {
@@ -82,17 +86,19 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     @Cacheable("getInmateAssessmentByCode")
-    public Optional<Assessment> getInmateAssessmentByCode(long bookingId, final String assessmentCode) {
-
+    public Optional<Assessment> getInmateAssessmentByCode(long bookingId, String assessmentCode) {
         // This stops people looking up offenders they cannot access.
-        repository.findInmate(bookingId, getUserCaseloadIds(), locationTypeGranularity).orElseThrow(new EntityNotFoundException(String.valueOf(bookingId)));
+        bookingService.verifyBookingAccess(bookingId);
 
         final Map<String, List<AssessmentDto>> mapOfAssessments = getAssessmentsAsMap(bookingId);
         final List<AssessmentDto> assessmentForCodeType = mapOfAssessments.get(assessmentCode);
+
         Assessment assessment = null;
+
         if (assessmentForCodeType != null && !assessmentForCodeType.isEmpty()) {
             assessment = createAssessment(assessmentForCodeType.get(0));
         }
+
         return Optional.ofNullable(assessment);
     }
 
@@ -121,9 +127,12 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public Page<Alias> findInmateAliases(Long inmateId, final String orderByFields, final Order order, long offset, long limit) {
+    public Page<Alias> findInmateAliases(Long inmateId, String orderByFields, Order order, long offset, long limit) {
+        bookingService.verifyBookingAccess(inmateId);
+
         String orderBy = StringUtils.defaultString(StringUtils.trimToNull(orderByFields), "createDate");
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.DESC);
+
         return repository.findInmateAliases(inmateId, orderBy, sortOrder, offset, limit);
     }
 
