@@ -3,6 +3,7 @@ package net.syscon.elite.executablespecification.steps;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.UserDetail;
+import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
@@ -20,10 +21,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class UserSteps extends CommonSteps {
     private static final String API_USERS_ME_REQUEST_URL = API_PREFIX + "users/me";
     private static final String API_STAFF_REQUEST_URL = API_PREFIX + "users/staff/{staffId}";
-    private static final String API_USERS_ME_LOCATIONS_REQUEST_URL = API_PREFIX + "users/me/locations";
+    private static final String API_USERS_ME_LOCATIONS_REQUEST_URL = API_USERS_ME_REQUEST_URL + "/locations";
+    private static final String API_USERS_ME_ROLES_REQUEST_URL = API_USERS_ME_REQUEST_URL + "/roles";
 
     private StaffDetail staffDetail;
     private List<Location> userLocations;
+    private List<UserRole> userRoles;
 
     @Step("Verify current user details")
     public void verifyDetails(String username, String firstName, String lastName) {
@@ -109,5 +112,23 @@ public class UserSteps extends CommonSteps {
         userLocations = response.getBody();
 
         buildResourceData(response);
+    }
+
+    public List<UserRole> getUserRoles() {
+        try {
+            ResponseEntity<List<UserRole>> responseEntity = restTemplate.exchange(API_USERS_ME_ROLES_REQUEST_URL,
+                    HttpMethod.GET, createEntity(null, null), new ParameterizedTypeReference<List<UserRole>>() {
+                    });
+
+            userRoles = responseEntity.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+
+        return userRoles;
+    }
+
+    public void verifyRoles(String roles) {
+        verifyPropertyValues(userRoles, UserRole::getRoleCode, roles);
     }
 }
