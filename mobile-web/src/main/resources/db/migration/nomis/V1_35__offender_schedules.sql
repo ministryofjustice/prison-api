@@ -397,7 +397,7 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CHECK (EVENT_CLASS IN ('EXT_MOV','INT_MOV
 -- AS
 -- SELECT
 --        off.offender_id,
---        off.offenderIdDisplay,
+--        off.offender_id_display,
 --        off.last_name offender_last_name,
 --        off.first_name offender_first_name,
 --        sch.offender_book_id,
@@ -456,8 +456,8 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CHECK (EVENT_CLASS IN ('EXT_MOV','INT_MOV
 -- 	               NULL,                            <-- not used
 -- 	               'EXT_MOV',
 -- 	               'SCH',
--- 	               ord.movementType,
--- 	               ord.movementReasonCode,
+-- 	               ord.movement_type,
+-- 	               ord.movement_reason_code,
 -- 	               ord.release_date,
 -- 	               NULL,
 -- 	               NULL,
@@ -492,7 +492,7 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CHECK (EVENT_CLASS IN ('EXT_MOV','INT_MOV
 --                                cs.schedule_date) >= cs.schedule_date
 --             WHERE opp.offender_program_status = 'ALLOC'
 --               AND NVL(opp.suspended_flag,'N') = 'N'
---               AND ca.activeFlag = 'Y'
+--               AND ca.active_flag = 'Y'
 --               AND ca.course_activity_type IS NOT NULL
 --               AND cs.catch_up_crs_sch_id IS NULL
 --               AND NOT EXISTS ( SELECT 'x'
@@ -560,7 +560,7 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CHECK (EVENT_CLASS IN ('EXT_MOV','INT_MOV
 --               AND oh.event_status = 'SCH') sch
 --   JOIN offender_bookings bkg
 --     ON sch.offender_book_id = bkg.offender_book_id
---        AND bkg.activeFlag  = 'Y'
+--        AND bkg.active_flag  = 'Y'
 --   JOIN offenders off
 --     ON bkg.offender_id = off.offender_id
 --   LEFT JOIN agency_internal_locations   ail
