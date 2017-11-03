@@ -1,4 +1,6 @@
 ---
 exclude_paths:
-  - mobile-web/src/main/configs
+  - 'mobile-web/src/main/configs/**'
   - '**.sql'
+  
+  # see https://support.codacy.com/hc/en-us/articles/115002130625-Codacy-Configuration-File

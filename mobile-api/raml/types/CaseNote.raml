@@ -10,13 +10,13 @@ properties:
   type:
     type: string
     description: Case Note Type
-  typeDescription:
+  typeDescription?:
     type: string
     description: Case Note Type Description
   subType:
     type: string
     description: Case Note Sub Type
-  subTypeDescription:
+  subTypeDescription?:
     type: string
     description: Case Note Sub Type Description
   source:
@@ -28,7 +28,7 @@ properties:
   occurrenceDateTime:
     type: datetime
     description: Date and Time of when case note contact with offender was made
-  authorName:
+  authorName?:
     type: string
     description: Name of the user entering the case note (lastname, firstname)
   text:

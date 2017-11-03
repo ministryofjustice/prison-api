@@ -31,7 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
 
@@ -447,7 +446,7 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
 
     @Override
     public boolean is303Supported() {
-        return false;
+        return true;
     }
 
     @Override

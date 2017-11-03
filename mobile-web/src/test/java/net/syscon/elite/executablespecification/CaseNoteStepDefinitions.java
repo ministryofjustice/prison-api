@@ -16,6 +16,7 @@ import java.time.ZoneOffset;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * BDD step definitions for case note related Booking API endpoints:
@@ -51,7 +52,7 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
                         caseNoteData.get("text"),
                         caseNoteData.get("occurrenceDateTime"));
 
-        caseNote.createCaseNote(caseNoteBookingId, newCaseNote, true);
+        caseNote.createCaseNote(caseNoteBookingId, newCaseNote);
     }
 
     @Then("^case note is successfully created$")
@@ -64,9 +65,15 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         NewCaseNote newCaseNote =
                 buildNewCaseNote("CHAP","FAMMAR", caseNoteText, null);
 
-        seededCaseNote = caseNote.createCaseNote(caseNoteBookingId, newCaseNote, true);
+        seededCaseNote = caseNote.createCaseNote(caseNoteBookingId, newCaseNote);
+        assertNotNull(seededCaseNote);
     }
 
+    @Then("^case note validation error \"([^\"]*)\" occurs$")
+     public void caseNoteValidationErrorOccurs(String error)  {
+        caseNote.verifyBadRequest(error);
+    }
+    
     @When("^the created case note is updated with text \"([^\"]*)\"$")
     public void theCaseNoteIsUpdatedWithText(String caseNoteText) throws Throwable {
         updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
@@ -97,7 +104,8 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
                                  caseNoteData.get("text"),
                                  caseNoteData.get("occurrenceDateTime"));
 
-        caseNote.createCaseNote(caseNoteBookingId, newCaseNote, false);
+        caseNote.createCaseNote(caseNoteBookingId, newCaseNote);
+        caseNote.verifyBadRequest("message todo");
     }
 
     @Then("^case note is not created$")
@@ -175,14 +183,14 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
 
     @When("^a case note with booking id in different caseload is created")
     public void caseNotesDifferentCaseloadCreated() throws Throwable {
-        NewCaseNote newCaseNote = buildNewCaseNote("CHAP", "FAMMAR", "dummy text", null);
-        caseNote.createCaseNote(-16L, newCaseNote, false);
+        NewCaseNote newCaseNote = buildNewCaseNote("CHAP", "FAMMAR", "dummy text", "2017-09-10T11:00:00");
+        caseNote.createCaseNote(-16L, newCaseNote);
     }
 
     @When("^a case note with booking id in different caseload is updated")
     public void caseNotesDifferentCaseloadUpdated() throws Throwable {
-        NewCaseNote newCaseNote = buildNewCaseNote("CHAP", "FAMMAR", "dummy text", null);
-        seededCaseNote = caseNote.createCaseNote(-15L, newCaseNote, true);
+        NewCaseNote newCaseNote = buildNewCaseNote("CHAP", "FAMMAR", "dummy text", "2017-09-10T11:00:00");
+        seededCaseNote = caseNote.createCaseNote(-15L, newCaseNote);
         // Force booking id as its impossible to create this id
         seededCaseNote.setBookingId(-16L);
         caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text("Updated text").build());
@@ -192,7 +200,7 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     public void caseNotesDifferentCaseloadGetList() throws Throwable {
         caseNote.getCaseNotes(-16L);
     }
-    
+
     @When("^a case note with booking id in different caseload is retrieved")
     public void caseNotesDifferentCaseloadGet() throws Throwable {
         caseNote.getCaseNote(-16L, -14L);

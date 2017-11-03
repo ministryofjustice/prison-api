@@ -18,6 +18,22 @@ Feature: Case Note Creation and Update
     Then case note is successfully created
     And correct case note source is used
 
+  Scenario: Create a case note with invalid type
+    When a case note is created for an existing offender booking:
+      | type               | doesnotexist                                |
+      | subType            | COM_IN                                      |
+      | text               | A new case note (from Serenity BDD test **) |
+      | occurrenceDateTime | 2017-04-14T10:15:30                         |
+    Then case note validation error "Reference type/subtype=doesnotexist/COM_IN does not exist" occurs
+
+  Scenario: Create a case note with invalid subType
+    When a case note is created for an existing offender booking:
+      | type               | COMMS                                       |
+      | subType            | doesnotexist                                |
+      | text               | A new case note (from Serenity BDD test **) |
+      | occurrenceDateTime | 2017-04-14T10:15:30                         |
+    Then case note validation error "Reference type/subtype=COMMS/doesnotexist does not exist" occurs
+
   Scenario: Update a case note
     When the created case note is updated with text "Updated Case Note"
     Then case note is successfully updated with "Updated Case Note"

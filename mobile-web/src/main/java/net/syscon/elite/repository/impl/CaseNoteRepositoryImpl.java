@@ -56,8 +56,22 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
             params.addValue("fromDate", DateTimeConverter.toDate(from));
         }
         if (to != null) {
-            // adjust to be strictly less than start of *next day
             initialSql += " AND CN.CONTACT_TIME < :toDate";
+
+            // Adjust to be strictly less than start of *next day.
+
+            // This handles a query which includes an inclusive 'date to' element of a date range filter being used to retrieve
+            // case notes based on the OFFENDER_CASE_NOTES.CONTACT_TIME falling on or between two dates
+            // (inclusive date from and date to elements included) or being on or before a specified date (inclusive date to
+            // element only).
+            //
+            // As the CONTACT_TIME field is a TIMESTAMP (i.e. includes a time component), a clause which performs a '<='
+            // comparison between CONTACT_TIME and the provided 'date to' value will not evaluate to 'true' for CONTACT_TIME
+            // values on the same day as the 'date to' value.
+            //
+            // This processing step has been introduced to ADD ONE DAY to a provided 'date to' value and replace 
+            // it with an exclusive test. This approach ensures all eligible case notes are returned.
+            //
             params.addValue("toDate", DateTimeConverter.toDate(to.plusDays(1)));
         }
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, CASE_NOTE_MAPPING);
