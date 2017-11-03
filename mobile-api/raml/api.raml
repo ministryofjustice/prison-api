@@ -52,6 +52,7 @@ types:
   MainSentence:           !include types/MainSentence.raml
   ScheduledEvent:         !include types/ScheduledEvent.raml
   OffenderRelease:        !include types/OffenderRelease.raml
+  PrisonerCustodyStatus:  !include types/PrisonerCustodyStatus.raml
   UserRole:               !include types/UserRole.raml
 
 securitySchemes:
@@ -92,3 +93,5 @@ resourceTypes: !include resourceTypes/generic-resource-types.raml
 /users:             !include resources/users.raml
 /reference-domains: !include resources/reference-domains.raml
 /locations:         !include resources/locations.raml
+/custody-statuses:  !include resources/custody-statuses.raml
+

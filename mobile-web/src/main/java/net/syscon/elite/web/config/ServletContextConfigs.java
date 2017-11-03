@@ -81,6 +81,8 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
         register(PrisonerResourceImpl.class);
         register(BookingResourceImpl.class);
         register(OffenderReleaseResourceImpl.class);
+        register(net.syscon.elite.api.resource.impl.BookingResourceImpl.class);
+        register(CustodyStatusResourceImpl.class);
 
         String contextPath = env.getProperty("server.contextPath");
 

@@ -201,7 +201,7 @@ project(":mobile-api") {
     raml2oas.dependsOn npmInstall
     htmlGen.dependsOn npmInstall
 
-    generateOas20Resources.dependsOn cleanGenerated, npmInstall, raml2oas, ':mobile-api-codegen:jar'
+    generateOas20Resources.dependsOn cleanGenerated, raml2oas, ':mobile-api-codegen:jar'
     generateOas20Resources.mustRunAfter cleanGenerated
 
     // Ensure project JAR only created after generated classes are processed
