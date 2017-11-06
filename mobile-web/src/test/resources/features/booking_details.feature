@@ -95,6 +95,7 @@ Feature: Booking Details
     When an offender booking assessment information request is made with booking id -16 and "CSR"
     Then resource not found response is received from booking assessments API
 
+@nomis
   Scenario Outline: Request for specific offender booking record returns religion
     When an offender booking request is made with booking id "<bookingId>"
     Then religion of offender booking returned is "<religion>"
