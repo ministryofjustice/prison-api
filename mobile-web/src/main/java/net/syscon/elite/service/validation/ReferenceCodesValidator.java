@@ -28,8 +28,8 @@ public class ReferenceCodesValidator implements ConstraintValidator<ReferenceCod
             referenceDomainService.getCaseNoteSubType(value.getType(), value.getSubType());
         } catch (EntityNotFoundException e) {
             context.disableDefaultConstraintViolation();
-            final String message = "Reference type/subtype=" + value.getType() + '/' + value.getSubType()
-                    + " does not exist";
+            final String message = "Reference (type,subtype)=(" + value.getType() + ',' + value.getSubType()
+                    + ") does not exist";
             context.buildConstraintViolationWithTemplate(message).addConstraintViolation();
             return false;
         }

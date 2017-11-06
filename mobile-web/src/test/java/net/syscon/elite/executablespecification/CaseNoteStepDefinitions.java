@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,13 +70,25 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         assertNotNull(seededCaseNote);
     }
 
+    @Then("case note validation errors are:")
+    public void caseNoteValidationErrorsAre(DataTable rawData) {
+        List<String> errors = rawData.asList(String.class);
+        caseNote.verifyBadRequest(errors);
+    }
+
     @Then("^case note validation error \"([^\"]*)\" occurs$")
      public void caseNoteValidationErrorOccurs(String error)  {
         caseNote.verifyBadRequest(error);
     }
-    
+
     @When("^the created case note is updated with text \"([^\"]*)\"$")
     public void theCaseNoteIsUpdatedWithText(String caseNoteText) throws Throwable {
+        updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
+    }
+
+    @When("^the created case note is updated with long text$")
+    public void theCaseNoteIsUpdatedWithText() throws Throwable {
+        final String caseNoteText = "A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string ";
         updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
     }
 

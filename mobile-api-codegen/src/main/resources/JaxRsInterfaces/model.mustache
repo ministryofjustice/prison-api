@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import java.util.HashMap;
 import java.util.Map;
 import javax.validation.constraints.*;
+import org.hibernate.validator.constraints.*;
 {{#models}}
 {{#model}}{{#description}}
 /**
@@ -33,7 +34,7 @@ public class {{classname}}{{#parent}} extends {{{parent}}}{{/parent}} {
     };
 
     private {{{datatypeWithEnum}}} {{name}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}};{{/isEnum}}{{^isEnum}}
-    {{#required}}@NotNull
+    {{#maxLength}}@Length(max={{maxLength}}) {{/maxLength}}{{#pattern}}@Pattern(regexp="{{pattern}}") {{/pattern}}{{#required}}{{#isString}}@NotBlank{{/isString}}{{^isString}}@NotNull{{/isString}}
     {{#isListContainer}}{{#defaultValue}}@Builder.Default
     {{/defaultValue}}{{/isListContainer}}{{/required}}private {{{datatype}}} {{name}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}};{{/isEnum}}
     {{/vars}}
