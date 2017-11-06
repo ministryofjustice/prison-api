@@ -6,6 +6,7 @@ import net.syscon.elite.api.support.OperationResponse;
 import net.syscon.elite.service.EntityNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.util.CollectionUtils;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -16,6 +17,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+
+import java.util.Set;
 
 @Provider
 @Slf4j
@@ -71,7 +74,11 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
 
     private static String formatConstraintErrors(Exception ex) {
         StringBuilder sb = new StringBuilder();
-        for (ConstraintViolation<?> cv : ((ConstraintViolationException) ex).getConstraintViolations()) {
+        final Set<ConstraintViolation<?>> constraintViolations = ((ConstraintViolationException) ex).getConstraintViolations();
+        if (CollectionUtils.isEmpty(constraintViolations)) {
+            return "";
+        }
+        for (ConstraintViolation<?> cv : constraintViolations) {
             sb.append(cv.getMessage());
             sb.append(',');
         }

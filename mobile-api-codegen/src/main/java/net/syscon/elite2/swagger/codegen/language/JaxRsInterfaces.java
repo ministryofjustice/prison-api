@@ -284,6 +284,7 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
             property.datatype = javaType;
             property.baseType = property.datatype;
             property.datatypeWithEnum = property.datatype;
+            property.isString = false;
         }
     }
 
@@ -338,6 +339,7 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
                 param.baseType = param.dataType;
                 param.datatypeWithEnum = param.dataType;
                 param.isPrimitiveType = false;
+                param.isString = false;
             }
         });
     }
@@ -386,6 +388,7 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
         return sanitizedOperationId;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> postProcessOperations(final Map<String, Object> objs) {
         Map<String, Object> operations = (Map<String, Object>) objs.get("operations");

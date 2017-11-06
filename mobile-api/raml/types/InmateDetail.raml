@@ -2,6 +2,7 @@
 description: Inmate Detail
 properties:
   bookingId:
+    type: number
     (javaType): Long
     description: Offender Booking Id
   bookingNo:
@@ -29,6 +30,7 @@ properties:
     type: AssignedLivingUnit
     description: Where the offender is staying
   facialImageId?:
+    type: number
     (javaType): Long
     description: Image Id Ref of Offender
   dateOfBirth:
@@ -53,5 +55,6 @@ properties:
     type: Assessment[]
     description: List of assessments
   assignedOfficerId?:
+    type: number
     (javaType): Long
     description: Staff Id reference for assigned officer / keyworker

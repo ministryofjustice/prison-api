@@ -2,6 +2,7 @@
 description: Movement
 properties:
   bookingId:
+    type: number
     (javaType): Long
     description: Booking Id
   moveCategory:
@@ -20,9 +21,11 @@ properties:
     type: string
     description: Reason for moving
   fromLocationId?:
+    type: number
     (javaType): Long
     description: Move From location
   toLocationId?:
+    type: number
     (javaType): Long
     description: Move to Location
 

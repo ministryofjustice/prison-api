@@ -93,9 +93,13 @@ public abstract class CommonSteps {
 
     @Step("Verify bad request")
     public void verifyBadRequest(String expectedUserMessage) {
+        verifyBadRequest(Collections.singletonList(expectedUserMessage));
+    }
+
+    public void verifyBadRequest(List<String> expectedUserMessages) {
         assertThat(errorResponse).isNotNull();
         assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        assertThat(errorResponse.getUserMessage()).isEqualTo(expectedUserMessage);
+        assertThat(errorResponse.getUserMessage()).contains(expectedUserMessages);
     }
 
     @Step("Verify access denied")
@@ -140,15 +144,15 @@ public abstract class CommonSteps {
         this.errorResponse = errorResponse;
     }
 
-    protected HttpEntity createEntity() {
+    protected HttpEntity<?> createEntity() {
         return createEntity(null, null);
     }
 
-    protected HttpEntity createEntity(Object entity) {
+    protected HttpEntity<?> createEntity(Object entity) {
         return createEntity(entity, null);
     }
 
-    protected HttpEntity createEntity(Object entity, Map<String, String> extraHeaders) {
+    protected HttpEntity<?> createEntity(Object entity, Map<String, String> extraHeaders) {
         HttpHeaders headers = new HttpHeaders();
 
         if (auth.getToken() != null) {

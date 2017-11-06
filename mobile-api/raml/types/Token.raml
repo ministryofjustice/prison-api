@@ -5,14 +5,17 @@ properties:
     type: string
     description: Token for accessing the API
   issuedAt:
+    type: number
     (javaType): Long
     description: Details of the issued time
   expiration:
+    type: number
     (javaType): Long
     description: Unix time until token expiration
   refreshToken:
     type: string
     description: Token that can be used to refresh the JWT
   refreshExpiration:
+    type: number
     (javaType): Long
     description: Unix time until refresh token expiration
