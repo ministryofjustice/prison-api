@@ -72,6 +72,7 @@ public class InmateServiceImpl implements InmateService {
 
         inmate.setPhysicalAttributes(physicalAttributes);
         inmate.setPhysicalCharacteristics(repository.findPhysicalCharacteristics(inmateId));
+        inmate.setProfileInformation(repository.getProfileInformation(inmateId));
         inmate.setPhysicalMarks(repository.findPhysicalMarks(inmateId));
         inmate.setAssignedLivingUnit(repository.findAssignedLivingUnit(inmateId, locationTypeGranularity).orElse(null));
         inmate.setAlertsCodes(repository.findActiveAlertCodes(inmateId));

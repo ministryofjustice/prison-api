@@ -76,6 +76,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("FIRST_NAME", 			new FieldMapper("firstName"))
 			.put("MIDDLE_NAME", 		new FieldMapper("middleName"))
 			.put("LAST_NAME", 			new FieldMapper("lastName"))
+            .put("RELIGION", 			new FieldMapper("religion"))
 			.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
 			.put("BIRTH_DATE", 			new FieldMapper("dateOfBirth", DateTimeConverter::toISO8601LocalDate))
 			.put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerId"))
@@ -91,11 +92,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("WEIGHT_KG",  new FieldMapper("weightKilograms"))
 			.build();
 
-	private final Map<String, FieldMapper> physicalCharacteristicsMapping = new ImmutableMap.Builder<String, FieldMapper>()
-			.put("CHARACTERISTIC", 	new FieldMapper("characteristic"))
-			.put("DETAIL",          new FieldMapper("detail"))
-			.put("IMAGE_ID", new FieldMapper("imageId"))
-			.build();
 
 	private final Map<String, FieldMapper> assignedLivingUnitMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("AGY_LOC_ID", 	new FieldMapper("agencyId"))
@@ -109,6 +105,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.build();
 
 	private final StandardBeanPropertyRowMapper<AssessmentDto> ASSESSMENT_MAPPER = new StandardBeanPropertyRowMapper<>(AssessmentDto.class);
+    private final StandardBeanPropertyRowMapper<PhysicalCharacteristic> PHYSICAL_CHARACTERISTIC_MAPPER = new StandardBeanPropertyRowMapper<>(PhysicalCharacteristic.class);
+	private final StandardBeanPropertyRowMapper<ProfileInformation> PROFILE_INFORMATION_MAPPER = new StandardBeanPropertyRowMapper<>(ProfileInformation.class);
 
 	private final Map<String, FieldMapper> aliasMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("LAST_NAME",		new FieldMapper("lastName"))
@@ -309,13 +307,19 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	public List<PhysicalCharacteristic> findPhysicalCharacteristics(long bookingId) {
 		String sql = getQuery("FIND_PHYSICAL_CHARACTERISTICS_BY_BOOKING");
 
-		RowMapper<PhysicalCharacteristic> physicalCharacteristicsRowMapper =
-				Row2BeanRowMapper.makeMapping(sql, PhysicalCharacteristic.class, physicalCharacteristicsMapping);
+		return jdbcTemplate.query(
+				sql,
+				createParams("bookingId", bookingId),
+				PHYSICAL_CHARACTERISTIC_MAPPER);
+	}
+
+	public List<ProfileInformation> getProfileInformation(long bookingId) {
+		String sql = getQuery("FIND_PROFILE_INFORMATION_BY_BOOKING");
 
 		return jdbcTemplate.query(
 				sql,
 				createParams("bookingId", bookingId),
-				physicalCharacteristicsRowMapper);
+                PROFILE_INFORMATION_MAPPER);
 	}
 
 	public Optional<PhysicalAttributes> findPhysicalAttributes(long bookingId) {
