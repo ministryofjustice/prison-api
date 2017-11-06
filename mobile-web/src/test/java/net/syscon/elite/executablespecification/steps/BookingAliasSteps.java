@@ -1,8 +1,8 @@
 package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.Alias;
+import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -22,7 +22,7 @@ public class BookingAliasSteps extends CommonSteps {
 
     @Step("Retrieve aliases for offender booking")
     public void getAliasesForBooking(Long bookingId) {
-        dispatchRequest(bookingId, null);
+        dispatchRequest(bookingId);
     }
 
     @Step("Verify returned offender alias first names")
@@ -40,16 +40,25 @@ public class BookingAliasSteps extends CommonSteps {
         verifyPropertyValues(aliases, Alias::getEthinicity, ethnicities);
     }
 
-    private void dispatchRequest(Long bookingId, String query) {
+    private void dispatchRequest(Long bookingId) {
         init();
 
-        String requestUrl = API_REQUEST_BASE_URL + StringUtils.trimToEmpty(query);
-        ResponseEntity<List<Alias>> response = restTemplate.exchange(requestUrl, HttpMethod.GET, createEntity(),
-                new ParameterizedTypeReference<List<Alias>>() {}, bookingId.toString());
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        try {
+            ResponseEntity<List<Alias>> response =
+                    restTemplate.exchange(
+                            API_REQUEST_BASE_URL,
+                            HttpMethod.GET, createEntity(),
+                            new ParameterizedTypeReference<List<Alias>>() {},
+                            bookingId);
 
-        aliases = response.getBody();
-        buildResourceData(response);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+            aliases = response.getBody();
+
+            buildResourceData(response);
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
     }
 
     protected void init() {

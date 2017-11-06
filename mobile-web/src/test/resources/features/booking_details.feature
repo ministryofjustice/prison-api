@@ -67,7 +67,7 @@ Feature: Booking Details
     Then resource not found response is received from bookings API
 
   Scenario Outline: Request for assessment information about an offender
-    When an offender booking request is made with booking id <bookingId> and "<assessmentCode>"
+    When an offender booking assessment information request is made with booking id <bookingId> and "<assessmentCode>"
     Then the classification is "<classification>"
     And the Cell Sharing Alert is <CSRA>
 
@@ -82,6 +82,35 @@ Feature: Booking Details
       | -6        | CSR            | true  | Standard       |
       | -6        | PAROLE         | false | High           |
 
-  Scenario: Request for specific offender booking record that does not exist
-    When an offender booking request is made with booking id -16 and "CSR"
-    Then resource not found response is received from bookings API
+  Scenario: Request for assessment information for booking that does not have requested assessment
+    When an offender booking assessment information request is made with booking id -15 and "CSR"
+    Then resource not found response is received from booking assessments API
+    And user message in resource not found response from booking assessments API is "Offender does not have a [CSR] assessment on record."
+
+  Scenario: Request for assessment information for booking that does not exist
+    When an offender booking assessment information request is made with booking id -99 and "CSR"
+    Then resource not found response is received from booking assessments API
+
+  Scenario: Request for assessment information for booking that is not part of any of logged on staff user's caseloads
+    When an offender booking assessment information request is made with booking id -16 and "CSR"
+    Then resource not found response is received from booking assessments API
+
+@nomis
+  Scenario Outline: Request for specific offender booking record returns religion
+    When an offender booking request is made with booking id "<bookingId>"
+    Then religion of offender booking returned is "<religion>"
+
+    Examples:
+      | bookingId | religion                  |
+      | -1        | Church of England         |
+      | -2        | Baptist                   |
+      | -3        | Anglican                  |
+      | -4        | Christian Scientist       |
+      | -5        | Church of Norway          |
+      | -6        | Ethiopian Orthodox        |
+      | -7        | Episcopalian              |
+      | -8        | Jehovahs Witness          |
+      | -9        | Lutheran                  |
+      | -10       | Metodist                  |
+      | -11       | Other Christian Religion  |
+      | -12       | Orthodox (Greek/Russian)  |

@@ -1,19 +1,16 @@
 package net.syscon.elite.executablespecification.steps;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
-
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * BDD step implementations for Booking alias feature.
@@ -27,11 +24,7 @@ public class BookingAlertSteps extends CommonSteps {
 
     @Step("Retrieve alerts for offender booking")
     public void getAlerts(Long bookingId) {
-        doListApiCall(bookingId, null);
-    }
-
-    public void verifyNumber(int number) {
-        assertEquals(number, alerts.size());
+        doListApiCall(bookingId);
     }
 
     @Step("Verify returned offender alias first names")
@@ -39,15 +32,22 @@ public class BookingAlertSteps extends CommonSteps {
         verifyPropertyValues(alerts, Alert::getAlertCode, codes);
     }
 
-    private void doListApiCall(Long bookingId, String query) {
+    private void doListApiCall(Long bookingId) {
         init();
-        String requestUrl = API_REQUEST_BASE_URL + StringUtils.trimToEmpty(query);
+
         try {
-            ResponseEntity<List<Alert>> response = restTemplate.exchange(requestUrl, HttpMethod.GET, createEntity(),
-                    new ParameterizedTypeReference<List<Alert>>() {
-                    }, bookingId.toString());
+            ResponseEntity<List<Alert>> response =
+                    restTemplate.exchange(
+                            API_REQUEST_BASE_URL,
+                            HttpMethod.GET,
+                            createEntity(),
+                            new ParameterizedTypeReference<List<Alert>>() {},
+                            bookingId);
+
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
             alerts = response.getBody();
+
             buildResourceData(response);
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
@@ -56,11 +56,19 @@ public class BookingAlertSteps extends CommonSteps {
 
     private void doSingleResultApiCall(Long bookingId, Long alertId) {
         init();
+
         try {
-            ResponseEntity<Alert> response = restTemplate.exchange(API_REQUEST_ALERT_URL, HttpMethod.GET,
-                    createEntity(null, null), new ParameterizedTypeReference<Alert>() {
-                    }, bookingId, alertId);
+            ResponseEntity<Alert> response =
+                    restTemplate.exchange(
+                            API_REQUEST_ALERT_URL,
+                            HttpMethod.GET,
+                            createEntity(null, null),
+                            new ParameterizedTypeReference<Alert>() {},
+                            bookingId,
+                            alertId);
+
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
             alert = response.getBody();
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
@@ -69,23 +77,18 @@ public class BookingAlertSteps extends CommonSteps {
 
     protected void init() {
         super.init();
+
         alerts = null;
         alert = null;
     }
 
+    @Step("Retrieve specific alert detail for offender booking")
     public void getAlert(Long bookingId, Long alertId) {
         doSingleResultApiCall(bookingId, alertId);
     }
 
+    @Step("Verify value of specific field in alert detail")
     public void verifyAlertField(String field, String value) throws ReflectiveOperationException {
         verifyField(alert, field, value);
-    }
-
-    public void getAlertsInDifferentCaseload() {
-        doListApiCall(-16L, null);
-    }
-
-    public void getAlertInDifferentCaseload() {
-        doSingleResultApiCall(-16L, 1L);
     }
 }

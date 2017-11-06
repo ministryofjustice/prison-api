@@ -7,10 +7,10 @@ Feature: Case Note Creation and Update
   Background:
     Given a user has authenticated with the API
     And case note test harness initialized
-    And I have created a case note with text of "Hello this is a new case note"
 
   Scenario: Create a case note
-    When a case note is created for an existing offender booking:
+    When a case note is created for booking:
+      | bookingId          | -15                                         |
       | type               | COMMS                                       |
       | subType            | COM_IN                                      |
       | text               | A new case note (from Serenity BDD test **) |
@@ -35,7 +35,8 @@ Feature: Case Note Creation and Update
     Then case note validation error "Reference (type,subtype)=(COMMS,doesnotexist) does not exist" occurs
 
   Scenario: Create a case note with invalid type
-    When a case note is created for an existing offender booking:
+    When a case note is created for booking:
+      | bookingId          | -15                                         |
       | type               | invalid%charsandtoolong                     |
       | subType            | COM_IN                                      |
       | text               | A new case note (from Serenity BDD test **) |
@@ -44,7 +45,8 @@ Feature: Case Note Creation and Update
       |Value is too long: max length is 12|Reference (type,subtype)=(invalid%charsandtoolong,COM_IN) does not exist|Value contains invalid characters: must match '\\w*'|
 
   Scenario: Create a case note with invalid subType
-    When a case note is created for an existing offender booking:
+    When a case note is created for booking:
+      | bookingId          | -15                                         |
       | type               | COMMS                                       |
       | subType            | invalid%charsandtoolong                     |
       | text               | A new case note (from Serenity BDD test **) |
@@ -71,22 +73,40 @@ Feature: Case Note Creation and Update
       |Value cannot be blank|Reference (type,subtype)=(COMMS,) does not exist|
 
   Scenario: Update a case note
-    When the created case note is updated with text "Updated Case Note"
+    When existing case note is updated with text "Updated Case Note"
     Then case note is successfully updated with "Updated Case Note"
     And the original text is not replaced
 
   Scenario: Update a case note with blank data
-    When the created case note is updated with text "  "
+    When existing case note is updated with text "  "
     Then case note validation error "Case Note text is blank" occurs
 
   Scenario: Update a case note with data which is too long
-    When the created case note is updated with long text
+    When existing case note is updated with long text
     Then case note validation error "Case Note text is over 4000 characters" occurs
 
-  Scenario: The logged on staff user's caseload does not include the booking id - create
-    When a case note with booking id in different caseload is created
-    Then resource not found response is received from caseload API
+  Scenario: Attempt to create case note for offender is not part of any of logged on staff user's caseloads
+    When attempt is made to create case note for booking:
+      | bookingId          | -16                                         |
+      | type               | COMMS                                       |
+      | subType            | COM_IN                                      |
+      | text               | A new case note (from Serenity BDD test **) |
+      | occurrenceDateTime | 2017-04-14T10:15:30                         |
+    Then resource not found response is received from casenotes API
 
-  Scenario: The logged on staff user's caseload does not include the booking id - update
-    When a case note with booking id in different caseload is updated
-    Then resource not found response is received from caseload API
+  Scenario: Attempt to create case note for offender that does not exist
+    When attempt is made to create case note for booking:
+      | bookingId          | -99                                         |
+      | type               | COMMS                                       |
+      | subType            | COM_IN                                      |
+      | text               | A new case note (from Serenity BDD test **) |
+      | occurrenceDateTime | 2017-04-14T10:15:30                         |
+    Then resource not found response is received from casenotes API
+
+  Scenario: Attempt to update case note for offender that is not part of any of logged on staff user's caseloads
+    When attempt is made to update case note for booking with id -16
+    Then resource not found response is received from casenotes API
+
+  Scenario: Attempt to update case note for offender that does not exist
+    When attempt is made to update case note for booking with id -99
+    Then resource not found response is received from casenotes API

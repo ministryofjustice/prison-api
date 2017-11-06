@@ -15,9 +15,16 @@ Feature: Finances
     And the returned account currency is GBP
 
   Scenario: Booking id does not exist
-    When an account with nonexistent booking id is requested
+    When an account with booking id -99 is requested
     Then resource not found response is received from finance API
 
   Scenario: The logged on staff user's caseload does not include the booking id
-    When an account with booking id in different caseload is requested
+    When an account with booking id -16 is requested
     Then resource not found response is received from finance API
+
+  Scenario: Request balances for offender that has no finance records
+    When an account with booking id -15 is requested
+    Then the returned account cash is 0.00
+    And the returned account spends is 0.00
+    And the returned account savings is 0.00
+    And the returned account currency is GBP

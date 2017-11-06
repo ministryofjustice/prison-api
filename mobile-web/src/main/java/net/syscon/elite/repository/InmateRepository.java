@@ -19,6 +19,7 @@ public interface InmateRepository {
 	Page<OffenderBooking> findMyAssignments(long staffId, String currentCaseLoad, String locationTypeRoot, String orderBy, boolean sortAscending, long offset, long limit);
 	Page<PrisonerDetail> searchForOffenders(String query, LocalDate fromDobDate, LocalDate toDobDate, String sortFields, boolean ascendingOrder, long offset, long limit);
 	Optional<PhysicalAttributes> findPhysicalAttributes(long bookingId);
+	List<ProfileInformation> getProfileInformation(long bookingId);
 	List<PhysicalCharacteristic> findPhysicalCharacteristics(long bookingId);
 	List<PhysicalMark> findPhysicalMarks(long inmateId);
 	List<AssessmentDto> findAssessments(long bookingId);

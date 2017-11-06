@@ -118,7 +118,7 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public Location getLocation(long locationId, boolean withInmates) {
-        Location location = locationRepository.findLocation(locationId).orElseThrow(new EntityNotFoundException(String.valueOf(locationId)));
+        Location location = locationRepository.findLocation(locationId).orElseThrow(EntityNotFoundException.withId(locationId));
 
         if (withInmates) {
             Page<OffenderBooking> inmates = inmateRepository.findInmatesByLocation(
@@ -139,7 +139,7 @@ public class LocationServiceImpl implements LocationService {
     private String getCurrentCaseLoad() {
         //  get the user data from the database
         final String currentUsername = UserSecurityUtils.getCurrentUsername();
-        final UserDetail userDetail = userRepository.findByUsername(currentUsername).orElseThrow(new EntityNotFoundException(currentUsername));
+        final UserDetail userDetail = userRepository.findByUsername(currentUsername).orElseThrow(EntityNotFoundException.withId(currentUsername));
         return userDetail.getActiveCaseLoadId();
     }
 

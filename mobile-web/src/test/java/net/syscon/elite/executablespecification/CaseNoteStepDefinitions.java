@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * BDD step definitions for case note related Booking API endpoints:
@@ -41,11 +40,25 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     @And("^case note test harness initialized$")
     public void caseNoteTestHarnessInitialized() throws Throwable {
         caseNote.init();
+
+        seedCaseNoteForUpdateTest();
     }
 
-    @When("^a case note is created for an existing offender booking:$")
-    public void aCaseNoteIsCreatedForAnExistingOffenderBooking(DataTable rawData) {
+    private void seedCaseNoteForUpdateTest() {
+        NewCaseNote newCaseNote = buildNewCaseNote(
+                "CHAP",
+                "FAMMAR",
+                "Hello this is a new case note",
+                null);
+
+        seededCaseNote = caseNote.createCaseNote(caseNoteBookingId, newCaseNote);
+    }
+
+    @When("^a case note is created for booking:$")
+    public void aCaseNoteIsCreatedForBooking(DataTable rawData) throws Throwable {
         Map<String, String> caseNoteData = rawData.asMap(String.class, String.class);
+
+        Long bookingId = Long.valueOf(caseNoteData.get("bookingId"));
 
         NewCaseNote newCaseNote =
                 buildNewCaseNote(caseNoteData.get("type"),
@@ -53,21 +66,28 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
                         caseNoteData.get("text"),
                         caseNoteData.get("occurrenceDateTime"));
 
-        caseNote.createCaseNote(caseNoteBookingId, newCaseNote);
+        caseNote.createCaseNote(bookingId, newCaseNote);
+    }
+
+    @When("^attempt is made to create case note for booking:$")
+    public void attemptIsMadeToCreateCaseNoteForBooking(DataTable rawData) throws Throwable {
+        Map<String, String> caseNoteData = rawData.asMap(String.class, String.class);
+
+        Long bookingId = Long.valueOf(caseNoteData.get("bookingId"));
+
+        NewCaseNote newCaseNote =
+                buildNewCaseNote(caseNoteData.get("type"),
+                        caseNoteData.get("subType"),
+                        caseNoteData.get("text"),
+                        caseNoteData.get("occurrenceDateTime"));
+
+        caseNote.createCaseNote(bookingId, newCaseNote);
+        caseNote.verifyNotCreated();
     }
 
     @Then("^case note is successfully created$")
     public void caseNoteIsSuccessfullyCreated() {
         caseNote.verify();
-    }
-
-    @And("^I have created a case note with text of \"([^\"]*)\"$")
-    public void iHaveCreatedACaseNoteTextOf(String caseNoteText) throws Throwable {
-        NewCaseNote newCaseNote =
-                buildNewCaseNote("CHAP","FAMMAR", caseNoteText, null);
-
-        seededCaseNote = caseNote.createCaseNote(caseNoteBookingId, newCaseNote);
-        assertNotNull(seededCaseNote);
     }
 
     @Then("case note validation errors are:")
@@ -81,7 +101,7 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         caseNote.verifyBadRequest(error);
     }
 
-    @When("^the created case note is updated with text \"([^\"]*)\"$")
+    @When("^existing case note is updated with text \"([^\"]*)\"$")
     public void theCaseNoteIsUpdatedWithText(String caseNoteText) throws Throwable {
         updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
     }
@@ -107,20 +127,6 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         caseNote.verifyCaseNoteSource();
     }
 
-    @When("^a case note is created for an existing offender booking with incorrectly formatted occurrence dateTime:$")
-    public void aCaseNoteIsCreatedForAnExistingOffenderBookingWithIncorrectlyFormattedOccurrenceDateTime(DataTable rawData) throws Throwable {
-        Map<String, String> caseNoteData = rawData.asMap(String.class, String.class);
-
-        NewCaseNote newCaseNote =
-                buildNewCaseNote(caseNoteData.get("type"),
-                                 caseNoteData.get("subType"),
-                                 caseNoteData.get("text"),
-                                 caseNoteData.get("occurrenceDateTime"));
-
-        caseNote.createCaseNote(caseNoteBookingId, newCaseNote);
-        caseNote.verifyBadRequest("message todo");
-    }
-
     @Then("^case note is not created$")
     public void caseNoteIsNotCreated() throws Throwable {
         caseNote.verifyNotCreated();
@@ -132,6 +138,7 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         newCaseNote.setType(type);
         newCaseNote.setSubType(subType);
         newCaseNote.setText(text);
+
         if (StringUtils.isNotBlank(occurrenceDateTime)) {
             newCaseNote.setOccurrenceDateTime(DateTimeConverter.fromISO8601DateTimeToLocalDateTime(occurrenceDateTime, ZoneOffset.UTC));
         }
@@ -194,32 +201,18 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         caseNote.verifyTotalResourceRecordsAvailable(Long.valueOf(count));
     }
 
-    @When("^a case note with booking id in different caseload is created")
-    public void caseNotesDifferentCaseloadCreated() throws Throwable {
-        NewCaseNote newCaseNote = buildNewCaseNote("CHAP", "FAMMAR", "dummy text", "2017-09-10T11:00:00");
-        caseNote.createCaseNote(-16L, newCaseNote);
-    }
-
-    @When("^a case note with booking id in different caseload is updated")
-    public void caseNotesDifferentCaseloadUpdated() throws Throwable {
-        NewCaseNote newCaseNote = buildNewCaseNote("CHAP", "FAMMAR", "dummy text", "2017-09-10T11:00:00");
-        seededCaseNote = caseNote.createCaseNote(-15L, newCaseNote);
-        // Force booking id as its impossible to create this id
-        seededCaseNote.setBookingId(-16L);
+    @When("^attempt is made to update case note for booking with id -(\\d+)$")
+    public void attemptIsMadeToUpdateCaseNoteForBookingWithId(long bookingId) throws Throwable {
+        seededCaseNote.setBookingId(bookingId);
         caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text("Updated text").build());
     }
 
-    @When("^a case note list with booking id in different caseload is retrieved")
-    public void caseNotesDifferentCaseloadGetList() throws Throwable {
-        caseNote.getCaseNotes(-16L);
+    @When("^a case note is requested for offender booking \"([^\"]*)\"")
+    public void caseNotesDifferentCaseloadGet(long bookingId) throws Throwable {
+        caseNote.getCaseNote(bookingId, -1L);
     }
 
-    @When("^a case note with booking id in different caseload is retrieved")
-    public void caseNotesDifferentCaseloadGet() throws Throwable {
-        caseNote.getCaseNote(-16L, -14L);
-    }
-
-    @Then("^resource not found response is received from caseload API")
+    @Then("^resource not found response is received from casenotes API")
     public void caseNotesVerifyResourceNotFound() throws Throwable {
         caseNote.verifyResourceNotFound();
     }

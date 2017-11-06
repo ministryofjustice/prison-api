@@ -48,6 +48,11 @@ public class BookingDetailSteps extends CommonSteps {
         assertThat(inmateDetail.getAssignedOfficerId()).isEqualTo(assignedOfficerId);
     }
 
+    @Step("Verify religion")
+    public void verifyReligion(String religion) {
+        assertThat(inmateDetail.getReligion()).isEqualTo(religion);
+    }
+
     @Step("Verify offender gender")
     public void verifyOffenderGender(String gender) {
         assertThat(inmateDetail.getPhysicalAttributes().getGender()).isEqualTo(gender);

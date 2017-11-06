@@ -32,11 +32,18 @@ Feature: Booking Alerts
   | -4        | 1       | R         | Risk                 | ROM       | OASys Serious Harm-Medium | Alert Text 4 |             | false   |
   | -8        | 1       | X         | Security             | XCU       | Controlled Unlock         | Alert Text 8 |             | false   |
 
-  Scenario: The logged on staff user's caseload does not include the booking id
-    When an alert with booking id in different caseload is requested
+  Scenario: An alert requested for booking that is not part of any of logged on staff user's caseloads
+    When alert is requested for an offender booking "-16" and alert id "-1"
     Then resource not found response is received from alert API
 
-  Scenario: The logged on staff user's caseload does not include the booking id
-    When an alert list with booking id in different caseload is requested
+  Scenario: Alerts are requested for booking that is not part of any of logged on staff user's caseloads
+    When alerts are requested for an offender booking "-16"
     Then resource not found response is received from alert API
 
+  Scenario: An alert is requested for booking that does not exist
+    When alert is requested for an offender booking "-99" and alert id "-1"
+    Then resource not found response is received from alert API
+
+  Scenario: Alerts are requested for booking that does not exist
+    When alerts are requested for an offender booking "-99"
+    Then resource not found response is received from alert API

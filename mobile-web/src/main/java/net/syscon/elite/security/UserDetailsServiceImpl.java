@@ -30,7 +30,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Override
 	@Cacheable("loadUserByUsername")
 	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-		final UserDetail userDetail = userRepository.findByUsername(username).orElseThrow(new EntityNotFoundException(username));
+		final UserDetail userDetail = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
 		List<UserRole> roles = userRepository.findRolesByUsername(username);
 
 		Set<GrantedAuthority> authorities = roles.stream()

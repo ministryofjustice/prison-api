@@ -9,8 +9,8 @@ import net.syscon.elite.service.*;
 import net.syscon.util.DateTimeConverter;
 
 import javax.ws.rs.Path;
-
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static net.syscon.util.ResourceUtils.nvl;
 
@@ -116,8 +116,13 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     public GetAssessmentByCodeResponse getAssessmentByCode(Long bookingId, String assessmentCode) {
-        final Assessment inmateAssessmentByCode = inmateService.getInmateAssessmentByCode(bookingId, assessmentCode).orElseThrow(new EntityNotFoundException(assessmentCode));
-        return GetAssessmentByCodeResponse.respond200WithApplicationJson(inmateAssessmentByCode);
+        Optional<Assessment> inmateAssessmentByCode = inmateService.getInmateAssessmentByCode(bookingId, assessmentCode);
+
+        if (!inmateAssessmentByCode.isPresent()) {
+            throw EntityNotFoundException.withMessage("Offender does not have a [" + assessmentCode + "] assessment on record.");
+        }
+
+        return GetAssessmentByCodeResponse.respond200WithApplicationJson(inmateAssessmentByCode.get());
     }
 
     @Override

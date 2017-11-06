@@ -29,20 +29,20 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional(readOnly = true)
 	public StaffDetail getUserByStaffId(Long staffId) {
-		return userRepository.findByStaffId(staffId).orElseThrow(new EntityNotFoundException(String.valueOf(staffId)));
+		return userRepository.findByStaffId(staffId).orElseThrow(EntityNotFoundException.withId(staffId));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public UserDetail getUserByUsername(String username) {
-		return userRepository.findByUsername(username).orElseThrow(new EntityNotFoundException(username));
+		return userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public CaseLoad getActiveCaseLoad(final String username) {
 		final UserDetail userDetails = getUserByUsername(username);
-		return caseLoadRepository.find(userDetails.getActiveCaseLoadId()).orElseThrow(new EntityNotFoundException(userDetails.getActiveCaseLoadId()));
+		return caseLoadRepository.find(userDetails.getActiveCaseLoadId()).orElseThrow(EntityNotFoundException.withId(userDetails.getActiveCaseLoadId()));
 	}
 
 	@Override
