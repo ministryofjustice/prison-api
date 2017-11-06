@@ -175,6 +175,11 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.verifyOffenderAssignedOfficerId(assignedOfficerId);
     }
 
+    @And("^religion of offender booking returned is \"([^\"]*)\"$")
+    public void religionOfOffenderBookingReturnedIs(String religion) throws Throwable {
+        bookingDetail.verifyReligion(religion);
+    }
+
     // Sentence Detail Step Definitions (for testing of /bookings/{bookingId}/sentenceDetail endpoint)
     @When("^sentence details are requested for an offender with booking id \"([^\"]*)\"$")
     public void sentenceDetailsAreRequestedForAnOffenderWithBookingId(String bookingId) throws Throwable {

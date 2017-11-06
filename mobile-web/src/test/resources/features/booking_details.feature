@@ -94,3 +94,23 @@ Feature: Booking Details
   Scenario: Request for assessment information for booking that is not part of any of logged on staff user's caseloads
     When an offender booking assessment information request is made with booking id -16 and "CSR"
     Then resource not found response is received from booking assessments API
+
+@nomis
+  Scenario Outline: Request for specific offender booking record returns religion
+    When an offender booking request is made with booking id "<bookingId>"
+    Then religion of offender booking returned is "<religion>"
+
+    Examples:
+      | bookingId | religion                  |
+      | -1        | Church of England         |
+      | -2        | Baptist                   |
+      | -3        | Anglican                  |
+      | -4        | Christian Scientist       |
+      | -5        | Church of Norway          |
+      | -6        | Ethiopian Orthodox        |
+      | -7        | Episcopalian              |
+      | -8        | Jehovahs Witness          |
+      | -9        | Lutheran                  |
+      | -10       | Metodist                  |
+      | -11       | Other Christian Religion  |
+      | -12       | Orthodox (Greek/Russian)  |
