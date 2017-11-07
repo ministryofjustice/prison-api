@@ -23,92 +23,92 @@ abstract class AbstractStepDefinitions {
     @TestConfiguration
     static class Config {
         @Bean
-        AuthenticationSteps auth() {
+        public AuthenticationSteps auth() {
             return new AuthenticationSteps();
         }
 
         @Bean
-        UserSteps user() {
+        public UserSteps user() {
             return new UserSteps();
         }
 
         @Bean
-        CaseNoteSteps caseNote() {
+        public CaseNoteSteps caseNote() {
             return new CaseNoteSteps();
         }
 
         @Bean
-        BookingSearchSteps bookingSearch() {
+        public BookingSearchSteps bookingSearch() {
             return new BookingSearchSteps();
         }
 
         @Bean
-        LocationsSteps location() {
+        public LocationsSteps location() {
             return new LocationsSteps();
         }
 
         @Bean
-        BookingAliasSteps bookingAlias() {
+        public BookingAliasSteps bookingAlias() {
             return new BookingAliasSteps();
         }
 
         @Bean
-        BookingDetailSteps bookingDetail() {
+        public BookingDetailSteps bookingDetail() {
             return new BookingDetailSteps();
         }
 
         @Bean
-        BookingSentenceDetailSteps bookingSentenceDetail() {
+        public BookingSentenceDetailSteps bookingSentenceDetail() {
             return new BookingSentenceDetailSteps();
         }
 
         @Bean
-        BookingIEPSteps bookingIEP() {
+        public BookingIEPSteps bookingIEP() {
             return new BookingIEPSteps();
         }
 
         @Bean
-        BookingActivitySteps bookingActivity() {
+        public BookingActivitySteps bookingActivity() {
             return new BookingActivitySteps();
         }
 
         @Bean
-        BookingAlertSteps bookingAlert() {
+        public BookingAlertSteps bookingAlert() {
             return new BookingAlertSteps();
         }
 
         @Bean
-        OffenderSearchSteps offenderSearch() {
+        public OffenderSearchSteps offenderSearch() {
             return new OffenderSearchSteps();
         }
 
         @Bean
-        PrisonerSearchSteps prisonerSearch() {
+        public PrisonerSearchSteps prisonerSearch() {
             return new PrisonerSearchSteps();
         }
 
         @Bean
-        ReferenceDomainsSteps referenceDomains() {
+        public ReferenceDomainsSteps referenceDomains() {
             return new ReferenceDomainsSteps();
         }
 
         @Bean
-        MyAssignmentsSteps myAssignments() {
+        public MyAssignmentsSteps myAssignments() {
             return new MyAssignmentsSteps();
         }
 
         @Bean
-        FinanceSteps finance() {
+        public FinanceSteps finance() {
             return new FinanceSteps();
         }
 
         @Bean
-        BookingSentenceSteps bookingSentence() {
+        public BookingSentenceSteps bookingSentence() {
             return new BookingSentenceSteps();
         }
 
         @Bean
-        BookingAssessmentSteps bookingAssessment() {
+        public BookingAssessmentSteps bookingAssessment() {
             return new BookingAssessmentSteps();
         }
     }

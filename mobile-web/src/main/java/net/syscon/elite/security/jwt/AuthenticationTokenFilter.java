@@ -60,19 +60,20 @@ public class AuthenticationTokenFilter extends UsernamePasswordAuthenticationFil
             SecurityContextHolder.getContext().setAuthentication(null);
         }
 
-        if ((userDetails != null) && (SecurityContextHolder.getContext().getAuthentication() == null)) {
-			if (tokenManagement.validateToken(token, userDetails, deviceFingerprint, uri.endsWith("/users/token"))) {
+        if (userDetails != null //
+                && SecurityContextHolder.getContext().getAuthentication() == null//
+                && tokenManagement.validateToken(token, userDetails, deviceFingerprint, uri.endsWith("/users/token"))) {
 
-				if (log.isDebugEnabled()) {
-					log.debug("--passing control to filterChain for \"{}\" from \"{}\"--", httpRequest.getRequestURL(), request.getRemoteAddr());
-					log.debug("User {} has roles {}", userDetails.getUsername(), userDetails.getAuthorities());
-				}
+            if (log.isDebugEnabled()) {
+                log.debug("--passing control to filterChain for \"{}\" from \"{}\"--", httpRequest.getRequestURL(), request.getRemoteAddr());
+                log.debug("User {} has roles {}", userDetails.getUsername(), userDetails.getAuthorities());
+            }
 
-				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));
-				SecurityContextHolder.getContext().setAuthentication(authentication);
-			}
-		}
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails,
+                    null, userDetails.getAuthorities());
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpRequest));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
 		
 		chain.doFilter(request, response);
 	}

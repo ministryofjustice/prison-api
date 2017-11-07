@@ -53,7 +53,8 @@ public class OracleConnectionAspect {
     }
 
     @Pointcut("execution (* com.zaxxer.hikari.HikariDataSource.getConnection())")
-    private void onNewConnectionPointcut() {
+    protected void onNewConnectionPointcut() {
+        // No code needed
     }
 
     @Around("onNewConnectionPointcut()")

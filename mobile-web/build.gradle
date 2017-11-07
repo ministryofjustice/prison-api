@@ -62,11 +62,6 @@ project(":mobile-web") {
 
     gradle.startParameter.continueOnFailure = true
 
-    configurations {
-        integTestCompile.extendsFrom testCompile
-        integTestRuntime.extendsFrom testRuntime
-    }
-
     sourceSets {
         main {
             java {
@@ -76,24 +71,6 @@ project(":mobile-web") {
                 srcDirs = ['src/main/configs', 'src/main/resources']
             }
         }
-        integTest {
-            java {
-                srcDir file("${rootDir}/mobile-web/src/integ-test/java")
-                outputDir = file('build/classes/integTest')
-                compileClasspath += main.output + test.output
-                runtimeClasspath += main.output + test.output
-            }
-            resources {
-                srcDir file("${rootDir}/mobile-web/src/integ-test/resources")
-            }
-        }
-    }
-
-    task integTest(type: Test) {
-        minHeapSize = "2G"
-        maxHeapSize = "2G"
-        testClassesDirs = sourceSets.integTest.output.classesDirs
-        classpath = sourceSets.integTest.runtimeClasspath
     }
 
     task testWithSchemaNomis(type:Test) {
@@ -116,14 +93,11 @@ project(":mobile-web") {
         environment eliteEnvVars
     }
 
-    check.dependsOn integTest
-
-    integTest.mustRunAfter test
+    check.dependsOn test
 
     // TODO: Enable checkstyle once rules reviewed and agreed (but don't enable for tests).
     checkstyleMain.enabled = false
     checkstyleTest.enabled = false
-    checkstyleIntegTest.enabled = false
 
     // Exclude Serenity BDD integration tests from 'test' task so they can be controlled independently
     test {

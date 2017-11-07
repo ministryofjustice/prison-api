@@ -64,7 +64,7 @@ public class CustodyStatusServiceImpl implements CustodyStatusService {
     }
 
     private PrisonerCustodyStatus toCustodyStatus(CustodyStatusDto record) {
-        CustodyStatusCode custodyStatusCode = calculator.CustodyStatusCodeOf(record);
+        CustodyStatusCode custodyStatusCode = calculator.custodyStatusCodeOf(record);
 
         return PrisonerCustodyStatus
                 .builder()

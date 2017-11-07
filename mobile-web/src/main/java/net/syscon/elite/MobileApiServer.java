@@ -9,7 +9,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.io.File;
 
-
 @SpringBootApplication
 @EnableSwagger2
 public class MobileApiServer {
@@ -18,10 +17,10 @@ public class MobileApiServer {
         final File currDir = new File(".");
         final File projectDir = currDir.getAbsolutePath().contains("mobile-web")? currDir: new File("mobile-web");
         final String activeProfile = System.getProperty(AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME);
-        if (activeProfile == null) {
-            if (StringUtils.isBlank(System.getenv("SPRING_PROFILES_ACTIVE")) && projectDir.exists()) {
-                System.setProperty(AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME, Constants.SPRING_PROFILE_DEVELOPMENT);
-            }
+        if (activeProfile == null //
+                && StringUtils.isBlank(System.getenv("SPRING_PROFILES_ACTIVE"))//
+                && projectDir.exists()) {
+            System.setProperty(AbstractEnvironment.ACTIVE_PROFILES_PROPERTY_NAME, Constants.SPRING_PROFILE_DEVELOPMENT);
         }
     }
 

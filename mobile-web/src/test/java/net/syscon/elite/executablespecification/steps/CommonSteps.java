@@ -48,7 +48,7 @@ public abstract class CommonSteps {
     private long paginationOffset;
 
     @PostConstruct
-    private void postConstruct() {
+    protected void postConstruct() {
         restTemplate.getRestTemplate().setErrorHandler(new ErrorResponseErrorHandler());
     }
 

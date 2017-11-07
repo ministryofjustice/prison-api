@@ -54,20 +54,14 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	public Page<CaseNote> getCaseNotes(long bookingId, String query, LocalDate from, LocalDate to, String orderBy, Order order, long offset, long limit) {
         bookingService.verifyBookingAccess(bookingId);
 
-        String colSort = orderBy;
-
-        if (StringUtils.isBlank(orderBy)) {
-			colSort = "occurrenceDateTime";
-			order = Order.DESC;
-		}
-
-		Page<CaseNote> caseNotePage = caseNoteRepository.getCaseNotes(
+		final boolean orderByBlank = StringUtils.isBlank(orderBy);
+        Page<CaseNote> caseNotePage = caseNoteRepository.getCaseNotes(
 				bookingId,
 				query,
 				from,
 				to,
-				colSort,
-				order,
+				orderByBlank ? "occurrenceDateTime" : orderBy,
+				orderByBlank ? Order.DESC : order,
 				offset,
 				limit);
 

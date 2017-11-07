@@ -38,7 +38,8 @@ public class CaseNoteTransformerTest {
 
     @Test
     public void happyPathCaseNoteAmendmentTest() {
-        final CaseNote returnedCaseNote = transformer.splitOutAmendments("test1 ...[MWILLIS_GEN updated the case notes on 2017/10/04 11:59:18] hi there ...[SRENDELL updated the case notes on 2017/10/04 12:00:06] hi again", caseNote);
+        caseNote.setText("test1 ...[MWILLIS_GEN updated the case notes on 2017/10/04 11:59:18] hi there ...[SRENDELL updated the case notes on 2017/10/04 12:00:06] hi again");
+        final CaseNote returnedCaseNote = transformer.transform(caseNote);
 
         assertThat(returnedCaseNote.getOriginalNoteText()).isEqualTo("test1");
         assertThat(returnedCaseNote.getAmendments()).hasSize(2);
@@ -58,7 +59,8 @@ public class CaseNoteTransformerTest {
 
     @Test
     public void badFormattedNoteTest() {
-        final CaseNote returnedCaseNote = transformer.splitOutAmendments("a bad case note ...[MWILLIS_GEN updated thed case notes on 2017/10/04 11:59:18] hi there ..[SRENDELL updated the case notes on 2017/10/04 12:00:06] hi again ...[JOHN updated the case notes on 2016/12/31 23:59:06] only one!", caseNote);
+        caseNote.setText("a bad case note ...[MWILLIS_GEN updated thed case notes on 2017/10/04 11:59:18] hi there ..[SRENDELL updated the case notes on 2017/10/04 12:00:06] hi again ...[JOHN updated the case notes on 2016/12/31 23:59:06] only one!");
+        final CaseNote returnedCaseNote = transformer.transform(caseNote);
 
         assertThat(returnedCaseNote.getOriginalNoteText()).isEqualTo("a bad case note ...[MWILLIS_GEN updated thed case notes on 2017/10/04 11:59:18] hi there ..[SRENDELL updated the case notes on 2017/10/04 12:00:06] hi again");
         assertThat(returnedCaseNote.getAmendments()).hasSize(1);
@@ -71,14 +73,16 @@ public class CaseNoteTransformerTest {
 
     @Test
     public void singleCaseNoteTest() {
-        final CaseNote returnedCaseNote = transformer.splitOutAmendments("Case Note with no ammendments", caseNote);
+        caseNote.setText("Case Note with no ammendments");
+        final CaseNote returnedCaseNote = transformer.transform(caseNote);
         assertThat(returnedCaseNote.getOriginalNoteText()).isEqualTo("Case Note with no ammendments");
         assertThat(returnedCaseNote.getAmendments()).hasSize(0);
     }
 
     @Test
     public void badDateCaseNoteTest() {
-        final CaseNote returnedCaseNote = transformer.splitOutAmendments("bad date ...[MWILLIS_GEN updated the case notes on 2017-10-04] bad one", caseNote);
+        caseNote.setText("bad date ...[MWILLIS_GEN updated the case notes on 2017-10-04] bad one");
+        final CaseNote returnedCaseNote = transformer.transform(caseNote);
         assertThat(returnedCaseNote.getOriginalNoteText()).isEqualTo("bad date");
         assertThat(returnedCaseNote.getAmendments()).hasSize(1);
 
@@ -91,7 +95,8 @@ public class CaseNoteTransformerTest {
 
     @Test
     public void badUsernameCaseNoteTest() {
-        final CaseNote returnedCaseNote = transformer.splitOutAmendments("bad user man ...[DUMMY_USER updated the case notes on 2017/01/31 12:23:43] bad user", caseNote);
+        caseNote.setText("bad user man ...[DUMMY_USER updated the case notes on 2017/01/31 12:23:43] bad user");
+        final CaseNote returnedCaseNote = transformer.transform(caseNote);
         assertThat(returnedCaseNote.getOriginalNoteText()).isEqualTo("bad user man");
         assertThat(returnedCaseNote.getAmendments()).hasSize(1);
 

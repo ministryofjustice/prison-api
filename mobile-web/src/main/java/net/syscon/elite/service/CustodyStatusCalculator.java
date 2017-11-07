@@ -7,7 +7,7 @@ import java.util.Optional;
 
 public class CustodyStatusCalculator {
 
-    public CustodyStatusCode CustodyStatusCodeOf(CustodyStatusDto record) {
+    public CustodyStatusCode custodyStatusCodeOf(CustodyStatusDto record) {
         if ("O".equals(record.getBookingStatus())) {
             if ("Y".equals(record.getActiveFlag())) {
                 if ("OUT".equals(record.getDirectionCode())) {

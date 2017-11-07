@@ -100,7 +100,8 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public Page<OffenderBooking> getInmatesFromLocation(long locationId, String query, String orderByField, Order order, long offset, long limit) {
-        Location location = getLocation(locationId, false);
+        // validation check?
+        getLocation(locationId, false);
 
         String colSort = StringUtils.isNotBlank(orderByField) ? orderByField : DEFAULT_OFFENDER_SORT;
 

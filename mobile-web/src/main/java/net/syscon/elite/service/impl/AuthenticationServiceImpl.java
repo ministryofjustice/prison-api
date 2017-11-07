@@ -123,7 +123,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             userDetails = userDetailsService.loadUserByUsername(((UserPrincipalForToken)userPrincipal).getUsername());
 
         } else if (userPrincipal instanceof Map) {
-            Map userPrincipalMap = (Map) userPrincipal;
+            Map<String,String> userPrincipalMap = (Map<String,String>) userPrincipal;
             final String username = (String) userPrincipalMap.get("username");
             if (StringUtils.isNotBlank(username)) {
                 userDetails = userDetailsService.loadUserByUsername(username);

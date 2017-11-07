@@ -31,9 +31,9 @@ import static org.mockito.Mockito.when;
 @RunWith(DataProviderRunner.class)
 public class CustodyStatusServiceImplTest {
 
-    CustodyStatusRepository custodyStatusRepository = mock(CustodyStatusRepository.class);
+    private CustodyStatusRepository custodyStatusRepository = mock(CustodyStatusRepository.class);
 
-    CustodyStatusService service = new CustodyStatusServiceImpl(custodyStatusRepository);
+    private CustodyStatusService service = new CustodyStatusServiceImpl(custodyStatusRepository);
 
     @DataProvider
     public static Object[][] custodyStatusRecords() {
@@ -95,7 +95,7 @@ public class CustodyStatusServiceImplTest {
     }
 
     @Test
-    public void listCustodyStatusesWithACustodyStatusFilterSetToACTIVE_IN() {
+    public void listCustodyStatusesWithACustodyStatusFilterSetToACTIVEIN() {
         List<PrisonerCustodyStatus> records = service.listCustodyStatuses(CustodyStatusCode.ACTIVE_IN);
 
         assertEquals(1, records.size());
@@ -108,7 +108,7 @@ public class CustodyStatusServiceImplTest {
     }
 
     @Test
-    public void listCustodyStatusesWithACustodyStatusFilterSetToACTIVE_OUT_CRT() {
+    public void listCustodyStatusesWithACustodyStatusFilterSetToACTIVEOUTCRT() {
         List<PrisonerCustodyStatus> records = service.listCustodyStatuses(CustodyStatusCode.ACTIVE_OUT_CRT);
 
         assertEquals(1, records.size());

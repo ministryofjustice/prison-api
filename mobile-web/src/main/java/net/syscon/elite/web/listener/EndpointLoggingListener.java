@@ -143,9 +143,9 @@ public class EndpointLoggingListener implements ApplicationEventListener {
 	private static class EndpointLogLine {
 
 		private static final String DEFAULT_FORMAT = "   %-7s %s";
-		final String httpMethod;
-		final String path;
-		final String format;
+		private final String httpMethod;
+		private final String path;
+		private final String format;
 
 		private EndpointLogLine(final String httpMethod, final String path, final String format) {
 			this.httpMethod = httpMethod;

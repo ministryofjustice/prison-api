@@ -105,7 +105,7 @@ public class TokenManagement {
 		return userPrincipal;
 	}
 
-	Boolean validateToken(String token, Object userPrincipal, DeviceFingerprint deviceFingerprint, boolean refreshingToken) {
+	public Boolean validateToken(String token, Object userPrincipal, DeviceFingerprint deviceFingerprint, boolean refreshingToken) {
 		final Claims claims = this.getClaimsFromToken(token);
 		final Boolean allowRefreshToken = (Boolean) claims.get(ALLOW_REFRESH_TOKEN);
 

@@ -55,7 +55,7 @@ public class CustodyStatusCalculatorTest {
         assertEquals(
                 "Identifies correct custody status",
                 expectedCustodyStatus,
-                calculator.CustodyStatusCodeOf(record));
+                calculator.custodyStatusCodeOf(record));
     }
 
 }

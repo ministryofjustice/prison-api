@@ -1,7 +1,7 @@
 package net.syscon.elite.service.impl;
 
-import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.SentenceDetail.NonDtoReleaseDateType;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
@@ -31,7 +31,6 @@ import static java.time.temporal.ChronoUnit.DAYS;
  */
 @Service
 @Transactional(readOnly = true)
-@Slf4j
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final SentenceRepository sentenceRepository;
@@ -113,49 +112,25 @@ public class BookingServiceImpl implements BookingService {
     private NonDtoReleaseDate deriveNonDtoReleaseDate(SentenceDetail sentenceDetail) {
         List<NonDtoReleaseDate> nonDtoReleaseDates = new ArrayList<>();
 
-        if (Objects.nonNull(sentenceDetail.getAutomaticReleaseDate())) {
-            nonDtoReleaseDates.add(new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.ARD,
-                    sentenceDetail.getAutomaticReleaseDate(), false));
-        }
-
-        if (Objects.nonNull(sentenceDetail.getAutomaticReleaseOverrideDate())) {
-            nonDtoReleaseDates.add(new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.ARD,
-                    sentenceDetail.getAutomaticReleaseOverrideDate(), true));
-        }
-
-        if (Objects.nonNull(sentenceDetail.getConditionalReleaseDate())) {
-            nonDtoReleaseDates.add(new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.CRD,
-                    sentenceDetail.getConditionalReleaseDate(), false));
-        }
-
-        if (Objects.nonNull(sentenceDetail.getConditionalReleaseOverrideDate())) {
-            nonDtoReleaseDates.add(new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.CRD,
-                    sentenceDetail.getConditionalReleaseOverrideDate(), true));
-        }
-
-        if (Objects.nonNull(sentenceDetail.getNonParoleDate())) {
-            nonDtoReleaseDates.add(new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.NPD,
-                    sentenceDetail.getNonParoleDate(), false));
-        }
-
-        if (Objects.nonNull(sentenceDetail.getNonParoleOverrideDate())) {
-            nonDtoReleaseDates.add(new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.NPD,
-                    sentenceDetail.getNonParoleOverrideDate(), true));
-        }
-
-        if (Objects.nonNull(sentenceDetail.getPostRecallReleaseDate())) {
-            nonDtoReleaseDates.add(new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.PRRD,
-                    sentenceDetail.getPostRecallReleaseDate(), false));
-        }
-
-        if (Objects.nonNull(sentenceDetail.getPostRecallReleaseOverrideDate())) {
-            nonDtoReleaseDates.add(new NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType.PRRD,
-                    sentenceDetail.getPostRecallReleaseOverrideDate(), true));
-        }
+        addReleaseDate(nonDtoReleaseDates, sentenceDetail.getAutomaticReleaseDate(), SentenceDetail.NonDtoReleaseDateType.ARD, false);
+        addReleaseDate(nonDtoReleaseDates, sentenceDetail.getAutomaticReleaseOverrideDate(), SentenceDetail.NonDtoReleaseDateType.ARD, true);
+        addReleaseDate(nonDtoReleaseDates, sentenceDetail.getConditionalReleaseDate(), SentenceDetail.NonDtoReleaseDateType.CRD, false);
+        addReleaseDate(nonDtoReleaseDates, sentenceDetail.getConditionalReleaseOverrideDate(), SentenceDetail.NonDtoReleaseDateType.CRD, true);
+        addReleaseDate(nonDtoReleaseDates, sentenceDetail.getNonParoleDate(), SentenceDetail.NonDtoReleaseDateType.NPD, false);
+        addReleaseDate(nonDtoReleaseDates, sentenceDetail.getNonParoleOverrideDate(), SentenceDetail.NonDtoReleaseDateType.NPD, true);
+        addReleaseDate(nonDtoReleaseDates, sentenceDetail.getPostRecallReleaseDate(), SentenceDetail.NonDtoReleaseDateType.PRRD, false);
+        addReleaseDate(nonDtoReleaseDates, sentenceDetail.getPostRecallReleaseOverrideDate(), SentenceDetail.NonDtoReleaseDateType.PRRD, true);
 
         Collections.sort(nonDtoReleaseDates);
 
         return nonDtoReleaseDates.isEmpty() ? null : nonDtoReleaseDates.get(0);
+    }
+
+    private void addReleaseDate(List<NonDtoReleaseDate> nonDtoReleaseDates, final LocalDate releaseDate,
+            final NonDtoReleaseDateType releaseDateType, final boolean isOverride) {
+        if (Objects.nonNull(releaseDate)) {
+            nonDtoReleaseDates.add(new NonDtoReleaseDate(releaseDateType, releaseDate, isOverride));
+        }
     }
 
     /**
@@ -196,7 +171,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Page<OffenderRelease> getOffenderReleaseSummary(LocalDate toReleaseDate, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly) {
-        return bookingRepository.getOffenderReleaseSummary(toReleaseDate != null ? toReleaseDate : LocalDate.now().plusMonths(lastNumberOfMonths), query, offset, limit, orderByFields, order, allowedCaseloadsOnly ? getUserCaseloadIds() : Collections.emptySet());
+        return bookingRepository.getOffenderReleaseSummary(toReleaseDate != null ? toReleaseDate : now().plusMonths(lastNumberOfMonths), query, offset, limit, orderByFields, order, allowedCaseloadsOnly ? getUserCaseloadIds() : Collections.emptySet());
     }
 
     private Set<String> getUserCaseloadIds() {

@@ -27,7 +27,7 @@ This README is going to show how to run mobile API server.
   
 * Build command
 
-    `gradlew clean build -x integTest`
+    `gradlew clean build`
   
 * Database configuration
   To connect the application to a database, change the configurations in your configuration profile file, for example in mobile-dev.yml.
@@ -54,7 +54,7 @@ Where `/etc/elite-mobile` is the external configuration directory. In the projec
 
 If you need to build against Oracle 11 use:-
 ```bash
-./gradlew clean assemble -x integTest
+./gradlew clean assemble
 ```
 
 4) In a Docker container
