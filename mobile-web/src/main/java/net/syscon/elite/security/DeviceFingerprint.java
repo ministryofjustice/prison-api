@@ -13,7 +13,12 @@ public class DeviceFingerprint {
 
 	private static final ThreadLocal<DeviceFingerprint> FINGER_PRINTS = new ThreadLocal<>();
 
-	public static DeviceFingerprint get() {
+	private Device device;
+    private String userAgent;
+    private boolean isSecure;
+    private int certCount;
+
+    public static DeviceFingerprint get() {
 		return FINGER_PRINTS.get();
 	}
 
@@ -22,11 +27,6 @@ public class DeviceFingerprint {
 		FINGER_PRINTS.set(deviceFingerprint);
 		return deviceFingerprint;
 	}
-
-	private Device device;
-	private String userAgent;
-	private boolean isSecure;
-	private int certCount;
 
 	private DeviceFingerprint(HttpServletRequest request) {
 		this.device = DeviceUtils.getCurrentDevice(request);
@@ -42,7 +42,6 @@ public class DeviceFingerprint {
 	public Device getDevice() {
 		return device;
 	}
-
 
 	public String getUserAgent() {
 		return userAgent;

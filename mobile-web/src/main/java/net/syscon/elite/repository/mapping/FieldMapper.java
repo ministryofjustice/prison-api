@@ -105,7 +105,7 @@ public class FieldMapper {
 		if (Character.TYPE.equals(fieldType) || Character.class.equals(fieldType))
 			return (char) numberValue.shortValue();
 		if (Boolean.TYPE.equals(fieldType) || Boolean.class.equals(fieldType))
-			return numberValue.byteValue() == 0 ? false : true;
+			return numberValue.byteValue() != 0;
 		if (BigDecimal.class.equals(fieldType))
 			return new BigDecimal(numberValue.toString());
 		if (BigInteger.class.equals(fieldType))

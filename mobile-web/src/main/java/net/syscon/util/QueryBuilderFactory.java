@@ -23,7 +23,7 @@ public class QueryBuilderFactory {
     };
 
     public IQueryBuilder getQueryBuilder(String initialSql, Map<String, FieldMapper> fieldMap) {
-        IQueryBuilder queryBuilder = null;
+        final IQueryBuilder queryBuilder;
 
         switch(dialect) {
             case HSQLDB:
@@ -33,6 +33,9 @@ public class QueryBuilderFactory {
             case ORACLE_12:
             case POSTGRES:
                 queryBuilder = new OracleQueryBuilder(initialSql, fieldMap, dialect);
+                break;
+            default:
+                queryBuilder = null;
                 break;
         }
         return queryBuilder;
