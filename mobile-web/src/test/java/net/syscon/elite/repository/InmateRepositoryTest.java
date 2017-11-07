@@ -4,7 +4,7 @@ import net.syscon.elite.api.model.InmateDetail;
 import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
-import net.syscon.elite.api.support.PageRequest;
+import net.syscon.elite.service.support.PageRequest;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
 import org.junit.Test;

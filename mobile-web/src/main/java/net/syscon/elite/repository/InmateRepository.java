@@ -3,8 +3,8 @@ package net.syscon.elite.repository;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
-import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.support.AssessmentDto;
+import net.syscon.elite.service.support.PageRequest;
 
 import java.time.LocalDate;
 import java.util.List;
