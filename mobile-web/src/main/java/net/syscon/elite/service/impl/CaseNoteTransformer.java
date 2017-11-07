@@ -31,7 +31,7 @@ public class CaseNoteTransformer {
         this.caseNoteDateFormat = caseNoteDateFormat;
     }
 
-    CaseNote transform(final CaseNote in) {
+    public CaseNote transform(final CaseNote in) {
         CaseNote out = null;
         if (in != null && in.getText() != null) {
             out = CaseNote.builder()
@@ -57,7 +57,7 @@ public class CaseNoteTransformer {
         return out;
     }
 
-    CaseNote splitOutAmendments(final String originalText, final CaseNote caseNote) {
+    private CaseNote splitOutAmendments(final String originalText, final CaseNote caseNote) {
 
         String[] breakUp = originalText.split(AMEND_REGEX);
         String workingText = originalText;

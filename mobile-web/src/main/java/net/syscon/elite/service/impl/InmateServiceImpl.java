@@ -3,6 +3,7 @@ package net.syscon.elite.service.impl;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.CaseLoadRepository;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.security.UserSecurityUtils;
@@ -30,7 +31,7 @@ import static java.lang.String.format;
 @Service
 @Transactional(readOnly = true)
 public class InmateServiceImpl implements InmateService {
-    static final String DEFAULT_OFFENDER_SORT = "lastName,firstName,offenderNo";
+    public static final String DEFAULT_OFFENDER_SORT = "lastName,firstName,offenderNo";
 
     private final InmateRepository repository;
     private final CaseLoadRepository caseLoadRepository;
@@ -57,7 +58,7 @@ public class InmateServiceImpl implements InmateService {
     @Override
     public Page<OffenderBooking> findAllInmates(String query, long offset, long limit, String orderBy, Order order) {
         String colSort = StringUtils.isNotBlank(orderBy) ? orderBy : DEFAULT_OFFENDER_SORT;
-        return repository.findAllInmates(getUserCaseloadIds(), locationTypeGranularity, query, offset, limit, colSort, order);
+        return repository.findAllInmates(getUserCaseloadIds(), locationTypeGranularity, query, new PageRequest(offset, limit, colSort, order));
     }
 
     @Override
@@ -140,8 +141,6 @@ public class InmateServiceImpl implements InmateService {
     @Override
     public Page<OffenderBooking> findOffenders(String keywords, String locationPrefix, String sortFields, Order sortOrder, long offset, long limit) {
 
-        final boolean descendingOrder = Order.DESC == sortOrder;
-
         final String keywordSearch = StringUtils.upperCase(StringUtils.trimToEmpty(keywords));
         String offenderNo = null;
         String lastName = null;
@@ -160,9 +159,9 @@ public class InmateServiceImpl implements InmateService {
             }
         }
 
+        final PageRequest pageRequest = new PageRequest(offset, limit, StringUtils.isNotBlank(sortFields) ? sortFields : DEFAULT_OFFENDER_SORT, sortOrder);
         return repository.searchForOffenderBookings(getUserCaseloadIds(), offenderNo, lastName, firstName, StringUtils.replaceAll(locationPrefix, "_", ""),
-                locationTypeGranularity, offset,
-                limit, StringUtils.isNotBlank(sortFields) ? sortFields : DEFAULT_OFFENDER_SORT, !descendingOrder);
+                locationTypeGranularity, pageRequest);
     }
 
     private boolean isOffenderNo(String potentialOffenderNumber) {

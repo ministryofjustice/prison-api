@@ -3,6 +3,7 @@ package net.syscon.elite.repository;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.support.AssessmentDto;
 
 import java.time.LocalDate;
@@ -11,8 +12,8 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface InmateRepository {
-	Page<OffenderBooking> findAllInmates(Set<String> caseloads, String locationTypeRoot, String query, long offset, long limit, String orderBy, Order order);
-	Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String lastName, String firstName, String locationPrefix, String locationTypeRoot, long offset, long limit, String orderBy, boolean isAscendingOrder);
+	Page<OffenderBooking> findAllInmates(Set<String> caseloads, String locationTypeRoot, String query, PageRequest pageRequest);
+	Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String lastName, String firstName, String locationPrefix, String locationTypeRoot, PageRequest pageRequest);
 	Page<OffenderBooking> findInmatesByLocation(Long locationId, String locationTypeRoot, String query, String orderByField, Order order, long offset, long limit);
 	Optional<InmateDetail> findInmate(Long inmateId, Set<String> caseloads, String locationTypeRoot);
 	Page<Alias> findInmateAliases(Long bookingId, String orderByFields, Order order, long offset, long limit);

@@ -23,18 +23,18 @@ public class QueryBuilderFactory {
     };
 
     public IQueryBuilder getQueryBuilder(String initialSql, Map<String, FieldMapper> fieldMap) {
-        IQueryBuilder queryBuilder;
+        IQueryBuilder queryBuilder = null;
 
         switch(dialect) {
             case HSQLDB:
                 queryBuilder = new HSQLDBQueryBuilder(initialSql, fieldMap, dialect);
-
                 break;
-
-            default:
+            case ORACLE_11:
+            case ORACLE_12:
+            case POSTGRES:
                 queryBuilder = new OracleQueryBuilder(initialSql, fieldMap, dialect);
+                break;
         }
-
         return queryBuilder;
     }
 }

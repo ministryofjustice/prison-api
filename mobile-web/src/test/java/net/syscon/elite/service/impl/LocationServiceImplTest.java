@@ -5,7 +5,6 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.LocationRepository;
 import net.syscon.elite.service.LocationService;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,11 +44,11 @@ public class LocationServiceImplTest {
                 eq(0),
                 eq(10))).thenReturn(new Page<>(locations, 1, 0, 10));
 
-        List<net.syscon.elite.api.model.Location> returnedLocations = locationService.getUserLocations("");
+        List<Location> returnedLocations = locationService.getUserLocations("");
 
         assertFalse(returnedLocations.isEmpty());
 
-        net.syscon.elite.api.model.Location returnedLocation = returnedLocations.get(0);
+        Location returnedLocation = returnedLocations.get(0);
 
         assertEquals(location.getLocationId().longValue(), returnedLocation.getLocationId().longValue());
         assertEquals(location.getAgencyId(), returnedLocation.getAgencyId());

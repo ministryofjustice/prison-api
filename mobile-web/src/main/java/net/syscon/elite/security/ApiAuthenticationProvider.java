@@ -21,9 +21,6 @@ public class ApiAuthenticationProvider extends DaoAuthenticationProvider {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Value("${spring.datasource.driver-class-name}")
-    private String jdbcDriver;
-
     @Value("${spring.datasource.url}")
     private String jdbcUrl;
 

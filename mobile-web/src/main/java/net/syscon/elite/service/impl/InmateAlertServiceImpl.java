@@ -28,24 +28,23 @@ public class InmateAlertServiceImpl implements InmatesAlertService {
         this.bookingService = bookingService;
     }
 
-	@Override
-	public Page<Alert> getInmateAlerts(long bookingId,  String query,  String orderByField, Order order, long offset,
-									   long limit) {
-	    bookingService.verifyBookingAccess(bookingId);
+    @Override
+    public Page<Alert> getInmateAlerts(long bookingId, String query, String orderByField, Order order, long offset,
+            long limit) {
+        bookingService.verifyBookingAccess(bookingId);
 
-	    String colSort = orderByField;
+        final boolean orderByBlank = StringUtils.isBlank(orderByField);
 
-	    if (StringUtils.isBlank(orderByField)) {
-			colSort = "dateExpires,dateCreated";
-			order = Order.DESC;
-		}
+        Page<Alert> alerts = inmateAlertRepository.getInmateAlert(//
+                bookingId, query, //
+                orderByBlank ? "dateExpires,dateCreated" : orderByField, //
+                orderByBlank ? Order.DESC : order, //
+                offset, limit);
 
-		Page<Alert> alerts = inmateAlertRepository.getInmateAlert(bookingId, query, colSort, order, offset, limit);
+        alerts.getItems().forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
 
-		alerts.getItems().forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
-
-		return alerts;
-	}
+        return alerts;
+    }
 
     private boolean isExpiredAlert(Alert alert) {
         boolean expiredAlert = false;

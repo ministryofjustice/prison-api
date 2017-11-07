@@ -49,19 +49,19 @@ public class QueryBuilderTest {
 
 
 	@Test
-	public void buildSQL_PreOracle12WithoutPagination_ShouldReturnTheSameSQL() {
+	public void buildSqlPreOracle12WithoutPaginationShouldReturnTheSameSQL() {
 		final String sql = oracle11Builder.getQueryBuilder(INITIAL_SQL, agencyMapping).removeSpecialChars().build();
 		assertThat(sql, equalTo(INITIAL_SQL));
 	}
 	
 	@Test
-	public void buildSQL_Oracle12WithoutPagination_ShouldReturnTheSameSql() {
+	public void buildSqlOracle12WithoutPaginationShouldReturnTheSameSql() {
 		final String sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping).removeSpecialChars().build();
 		assertThat(sql, equalTo(INITIAL_SQL));
 	}
 
 	@Test
-	public void buildSQL_Oracle12AndRowCount_ShouldReturnOracleNativePaginatedSql() {
+	public void buildSqlOracle12AndRowCountShouldReturnOracleNativePaginatedSql() {
 		final String sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
 				.removeSpecialChars()
 				.addRowCount()
@@ -71,7 +71,7 @@ public class QueryBuilderTest {
 	}
 
 	@Test
-	public void buildSQL_PostgresAndRowCount_ShouldReturnOracleNativePaginatedSql() {
+	public void buildSqlPostgresAndRowCountShouldReturnOracleNativePaginatedSql() {
 		final String sql = postgresBuilder.getQueryBuilder(INITIAL_SQL, agencyMapping)
 				.removeSpecialChars()
 				.addRowCount()
@@ -81,7 +81,7 @@ public class QueryBuilderTest {
 	}
 
 	@Test
-	public void buildSQL_HsqlDBAndRowCount_ShouldReturnOracleNativePaginatedSql() {
+	public void buildSqlHsqlDBAndRowCountShouldReturnOracleNativePaginatedSql() {
 		final String sql = hsqldbBuilder.getQueryBuilder(INITIAL_SQL, agencyMapping)
 				.removeSpecialChars()
 				.addRowCount()
@@ -91,7 +91,7 @@ public class QueryBuilderTest {
 	}
 
 	@Test
-	public void buildSQL_Oracle12AndPagination_ShouldReturnOracleNativePaginatedSql() {
+	public void buildSqlOracle12AndPaginationShouldReturnOracleNativePaginatedSql() {
 		final String sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
 				.removeSpecialChars()
 				.addPagination()
@@ -101,7 +101,7 @@ public class QueryBuilderTest {
 	}
 
 	@Test
-	public void buildSQL_PostgresAndPagination_ShouldReturnOracleNativePaginatedSql() {
+	public void buildSqlPostgresAndPaginationShouldReturnOracleNativePaginatedSql() {
 		final String sql = postgresBuilder.getQueryBuilder(INITIAL_SQL, agencyMapping)
 				.removeSpecialChars()
 				.addPagination()
@@ -111,7 +111,7 @@ public class QueryBuilderTest {
 	}
 
 	@Test
-	public void buildSQL_HsqlDBAndPagination_ShouldReturnOracleNativePaginatedSql() {
+	public void buildSqlHsqlDBAndPaginationShouldReturnOracleNativePaginatedSql() {
 		final String sql = hsqldbBuilder.getQueryBuilder(INITIAL_SQL, agencyMapping)
 				.removeSpecialChars()
 				.addPagination()
@@ -121,7 +121,7 @@ public class QueryBuilderTest {
 	}
 
 	@Test
-	public void buildSQL_PreOracle12AndPagination_ShouldReturnSubQueryPaginatedSql() {
+	public void buildSqlPreOracle12AndPaginationShouldReturnSubQueryPaginatedSql() {
 		final String sql = oracle11Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
 				.removeSpecialChars()
 				.addPagination()
@@ -131,7 +131,7 @@ public class QueryBuilderTest {
 	}
 		
 	@Test
-	public void buildSQL_UsingAliasColumnWithCondition_ShouldReturnQueryWithSubQuery() {
+	public void buildSqlUsingAliasColumnWithConditionShouldReturnQueryWithSubQuery() {
 		final String sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
 				.removeSpecialChars()
 				.addQuery("agencyId:eq:'ITAG'")
@@ -141,7 +141,7 @@ public class QueryBuilderTest {
 	}
 		
 	@Test
-	public void buildSQL_UsingAliasColumnWithConditionAndRowCounting_ShouldReturnQueryWithSubQuery() {
+	public void buildSqlUsingAliasColumnWithConditionAndRowCountingShouldReturnQueryWithSubQuery() {
 		final String sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
 			.removeSpecialChars()
 			.addQuery("agencyId:eq:'ITAG'")
@@ -153,7 +153,7 @@ public class QueryBuilderTest {
 
 	@Test
 	@UseDataProvider("data")
-	public void buildSql_UsingQueryOperators_ShouldReturnExpectedParam(final String jsonOperator, final String sqlOperator, final String paramValue, String paramExpected) {
+	public void buildSqlUsingQueryOperatorsShouldReturnExpectedParam(final String jsonOperator, final String sqlOperator, final String paramValue, String paramExpected) {
 		final String sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
 				.removeSpecialChars()
 				.addQuery("agencyId:" + jsonOperator + ":" + paramValue)

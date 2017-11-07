@@ -81,7 +81,6 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
         register(PrisonerResourceImpl.class);
         register(BookingResourceImpl.class);
         register(OffenderReleaseResourceImpl.class);
-        register(net.syscon.elite.api.resource.impl.BookingResourceImpl.class);
         register(CustodyStatusResourceImpl.class);
 
         String contextPath = env.getProperty("server.contextPath");
@@ -170,7 +169,7 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
     }
 
     @Bean
-    Logger getLogger() {
+    public  Logger getLogger() {
         return org.slf4j.LoggerFactory.getLogger("net.syscon.elite");
     }
 }

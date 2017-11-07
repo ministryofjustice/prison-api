@@ -15,6 +15,17 @@
  */
 package net.syscon.elite2.swagger.codegen.language;
 
+import static java.util.stream.Collectors.toList;
+
+import net.syscon.elite2.swagger.codegen.ConfigurableCodegenConfig;
+import net.syscon.elite2.swagger.codegen.Inflector;
+import net.syscon.elite2.swagger.codegen.PageCodegenResponse;
+
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.File;
+import java.util.*;
+
 import io.swagger.codegen.*;
 import io.swagger.codegen.languages.JavaClientCodegen;
 import io.swagger.models.Model;
@@ -24,15 +35,6 @@ import io.swagger.models.Swagger;
 import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.MapProperty;
 import io.swagger.models.properties.Property;
-import net.syscon.elite2.swagger.codegen.ConfigurableCodegenConfig;
-import net.syscon.elite2.swagger.codegen.Inflector;
-import net.syscon.elite2.swagger.codegen.PageCodegenResponse;
-import org.apache.commons.lang3.StringUtils;
-
-import java.io.File;
-import java.util.*;
-
-import static java.util.stream.Collectors.*;
 
 /**
  * https://github.com/swagger-api/swagger-codegen/blob/master/modules/swagger-codegen/src/main/java/com/wordnik/swagger/codegen/languages/JaxRSServerCodegen.java.
@@ -121,20 +123,13 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
 
     @Override
     public String modelPackage() {
-        if (this.modelPackage == null || this.modelPackage.trim().isEmpty()) {
-            throw new RuntimeException("'modelPackage' should not be null or empty");
-        }
-
+        Objects.requireNonNull(this.modelPackage);
         return this.modelPackage;
     }
 
     @Override
     public String apiPackage() {
-
-        if (this.apiPackage == null || this.apiPackage.trim().isEmpty()) {
-            throw new RuntimeException("'apiPackage' should not be null or empty");
-        }
-
+        Objects.requireNonNull(this.apiPackage);
         return this.apiPackage;
     }
 

@@ -1,6 +1,5 @@
 package net.syscon.elite.service.impl;
 
-import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
@@ -31,7 +30,6 @@ import static java.time.temporal.ChronoUnit.DAYS;
  */
 @Service
 @Transactional(readOnly = true)
-@Slf4j
 public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final SentenceRepository sentenceRepository;
@@ -196,7 +194,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Page<OffenderRelease> getOffenderReleaseSummary(LocalDate toReleaseDate, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly) {
-        return bookingRepository.getOffenderReleaseSummary(toReleaseDate != null ? toReleaseDate : LocalDate.now().plusMonths(lastNumberOfMonths), query, offset, limit, orderByFields, order, allowedCaseloadsOnly ? getUserCaseloadIds() : Collections.emptySet());
+        return bookingRepository.getOffenderReleaseSummary(toReleaseDate != null ? toReleaseDate : now().plusMonths(lastNumberOfMonths), query, offset, limit, orderByFields, order, allowedCaseloadsOnly ? getUserCaseloadIds() : Collections.emptySet());
     }
 
     private Set<String> getUserCaseloadIds() {

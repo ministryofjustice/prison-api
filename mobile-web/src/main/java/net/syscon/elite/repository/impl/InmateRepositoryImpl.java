@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
@@ -150,14 +151,14 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public Page<OffenderBooking> findAllInmates(Set<String> caseloads, String locationTypeRoot, String query, long offset, long limit, String orderBy, Order order) {
+	public Page<OffenderBooking> findAllInmates(Set<String> caseloads, String locationTypeRoot, String query, PageRequest pageRequest) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_BOOKING_MAPPING);
 
 		String sql = builder
 				.addRowCount()
 				.addQuery(query)
-				.addOrderBy(order, orderBy)
+				.addOrderBy(pageRequest.getOrder(), pageRequest.getOrderBy())
 				.addPagination()
 				.build();
 
@@ -170,16 +171,16 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 sql,
                 createParams("caseLoadId", caseloads,
                         "locationTypeRoot", locationTypeRoot,
-                        "offset", offset,
-                        "limit", limit),
+                        "offset", pageRequest.getOffset(),
+                        "limit", pageRequest.getLimit()),
                 paRowMapper);
 		inmates.forEach(b -> b.setAge(DateTimeConverter.getAge(b.getDateOfBirth())));
-		return new Page<>(inmates, paRowMapper.getTotalRecords(), offset, limit);
+		return new Page<>(inmates, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
 	}
 
 	@Override
 	@Cacheable("searchForOffenderBookings")
-	public Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String lastName, String firstName, String locationPrefix, String locationTypeRoot, long offset, long limit, String orderBy, boolean sortAscending) {
+	public Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String lastName, String firstName, String locationPrefix, String locationTypeRoot, PageRequest pageRequest) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
 
 		if (StringUtils.isNotBlank(locationPrefix)) {
@@ -202,7 +203,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 		String sql = builder
 				.addRowCount()
-				.addOrderBy(sortAscending, orderBy)
+				.addOrderBy(pageRequest.getOrder(), pageRequest.getOrderBy())
 				.addPagination()
 				.build();
 
@@ -219,10 +220,10 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "locationPrefix", StringUtils.trimToEmpty(locationPrefix) + "%",
                         "caseLoadId", caseloads,
                         "locationTypeRoot", locationTypeRoot,
-                        "offset", offset, "limit", limit),
+                        "offset", pageRequest.getOffset(), "limit", pageRequest.getLimit()),
                 paRowMapper);
 		offenderBookings.forEach(b -> b.setAge(DateTimeConverter.getAge(b.getDateOfBirth())));
-		return new Page<>(offenderBookings, paRowMapper.getTotalRecords(), offset, limit);
+		return new Page<>(offenderBookings, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
 	}
 
 	@Override

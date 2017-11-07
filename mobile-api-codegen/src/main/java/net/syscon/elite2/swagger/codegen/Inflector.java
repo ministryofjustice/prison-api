@@ -279,11 +279,11 @@ public class Inflector {
      * @see #upperCamelCase(String, char[])
      * @see #lowerCamelCase(String, char[])
      */
-    public String camelCase( String lowerCaseAndUnderscoredWord,
+    public String camelCase( final String lowerCaseAndUnderscoredWordParam,
                              boolean uppercaseFirstLetter,
                              char... delimiterChars ) {
-        if (lowerCaseAndUnderscoredWord == null) return null;
-        lowerCaseAndUnderscoredWord = lowerCaseAndUnderscoredWord.trim();
+        if (lowerCaseAndUnderscoredWordParam == null) return null;
+        final String lowerCaseAndUnderscoredWord = lowerCaseAndUnderscoredWordParam.trim();
         if (lowerCaseAndUnderscoredWord.length() == 0) return "";
         if (uppercaseFirstLetter) {
             String result = lowerCaseAndUnderscoredWord;

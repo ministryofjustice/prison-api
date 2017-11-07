@@ -1,6 +1,5 @@
 package net.syscon.util;
 
-import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
@@ -10,6 +9,7 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.syscon.elite.repository.mapping.FieldMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.InvalidDataAccessResourceUsageException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +20,6 @@ import java.util.Map;
  * @author om.pandey
  *
  */
-@Slf4j
 public class QueryUtil {
 	private QueryUtil() {
 	}
@@ -124,7 +123,7 @@ public class QueryUtil {
             return criteria.toString();
 
         } catch (JSQLParserException e) {
-		    throw new RuntimeException(e);
+		    throw new InvalidDataAccessResourceUsageException(sql, e);
         }
 	}
 

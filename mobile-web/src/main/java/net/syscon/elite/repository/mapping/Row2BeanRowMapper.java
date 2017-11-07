@@ -1,6 +1,5 @@
 package net.syscon.elite.repository.mapping;
 
-
 import net.syscon.elite.exception.RowMappingException;
 import org.apache.commons.lang3.text.WordUtils;
 import org.slf4j.Logger;
@@ -14,12 +13,18 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 public class Row2BeanRowMapper<T> implements RowMapper<T> {
 
-	private static class MappingInfo {
-		final String sql;
-		final Class<?> type;
+	@SuppressWarnings("rawtypes")
+    private static final Map<MappingInfo , Row2BeanRowMapper> cachedMappings = new ConcurrentHashMap<>();
+    private static final Logger logger = LoggerFactory.getLogger(Row2BeanRowMapper.class);
+    private final Class<? extends T> type;
+    private final Map<String, FieldMapper> columnsMapping;
+    private List<String> sqlToCollumns;
+
+    private static class MappingInfo {
+		private final String sql;
+		private final Class<?> type;
 		public MappingInfo(final String sql, final Class<?> type) {
 			this.sql = sql;
 			this.type = type;
@@ -37,18 +42,6 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 			return Objects.hash(sql, type);
 		}
 	}
-
-
-	@SuppressWarnings("rawtypes")
-	private static final Map<MappingInfo , Row2BeanRowMapper> cachedMappings = new ConcurrentHashMap<>();
-
-	private static final Logger logger = LoggerFactory.getLogger(Row2BeanRowMapper.class);
-
-
-	private final Class<? extends T> type;
-	private final Map<String, FieldMapper> columnsMapping;
-
-	private List<String> sqlToCollumns;
 
 	public Row2BeanRowMapper(final Class<? extends T> type, final Map<String, FieldMapper> mappings) {
 		this.type = type;

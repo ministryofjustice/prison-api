@@ -40,10 +40,10 @@ public final class NonDtoReleaseDate implements Comparable<NonDtoReleaseDate> {
         }
 
         // If same type, override has priority.
-        if (Objects.equals(this.releaseDateType, otherNonDtoReleaseDate.releaseDateType)) {
-            if (this.isOverride ^ otherNonDtoReleaseDate.isOverride) {
-                return this.isOverride ? HIGHER_PRIORITY : LOWER_PRIORITY;
-            }
+        if (Objects.equals(this.releaseDateType, otherNonDtoReleaseDate.releaseDateType)
+                && (this.isOverride ^ otherNonDtoReleaseDate.isOverride)) {
+
+            return this.isOverride ? HIGHER_PRIORITY : LOWER_PRIORITY;
         }
 
         // Otherwise, later date has priority

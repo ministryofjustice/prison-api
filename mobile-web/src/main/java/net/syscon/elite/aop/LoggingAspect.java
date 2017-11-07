@@ -26,6 +26,7 @@ public class LoggingAspect {
 
     @Pointcut("within(net.syscon.elite.repository..*) || within(net.syscon.elite.service..*) || within(net.syscon.elite.web.api..*) || within(net.syscon.elite.aop..*)")
     public void loggingPointcut() {
+        // No code needed
     }
 
     @AfterThrowing(pointcut = "loggingPointcut()", throwing = "e")
