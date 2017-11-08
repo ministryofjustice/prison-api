@@ -31,12 +31,12 @@ public class FinanceRepositoryTest {
     private FinanceRepository repository;
 
     @Before
-    public final void init() {
+    public void init() {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
     }
 
     @Test
-    public final void testGetAccount() {
+    public void testGetAccount() {
         final Account account = repository.getBalances(-1L);
         assertNotNull(account);
         assertEquals("1.24", account.getCash().toString());
@@ -45,7 +45,7 @@ public class FinanceRepositoryTest {
     }
 
     @Test
-    public final void testGetAccountInvalidBookingId() {
+    public void testGetAccountInvalidBookingId() {
         final Account account = repository.getBalances(1001L);
         assertNotNull(account);
         assertNull(account.getCash());
