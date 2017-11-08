@@ -8,6 +8,7 @@ import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
@@ -172,12 +173,14 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
         return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
 	}
 
-    // TODO: Have to fix this - pagination only applied when not retrieving with sub-types - very confusing.
+    // TODO: Remove pagination, not required. Only applied when not retrieving with sub-types - very confusing.
     @Override
+    @Cacheable("caseNoteTypeByCurrentCaseLoad")
 	public Page<ReferenceCode> getCaseNoteTypeByCurrentCaseLoad(String caseLoadType, boolean includeSubTypes, String query, String orderBy, Order order, long offset, long limit) {
         Page<ReferenceCode> page;
 
         if (includeSubTypes) {
+            // TODO: SQL needs simplifying (eg. left join)
             String initialSql = getQuery("FIND_CNOTE_TYPES_AND_SUBTYPES_BY_CASELOAD");
             IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, referenceCodeDetailMapper.getFieldMap());
             String sql = builder.build();
