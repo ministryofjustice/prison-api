@@ -1,12 +1,11 @@
 package net.syscon.elite.security;
 
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 public class UserSecurityUtils {
@@ -20,6 +19,9 @@ public class UserSecurityUtils {
 			username = ((UserDetails)userPrincipal).getUsername();
 		} else if (userPrincipal instanceof String) {
 			username = (String) userPrincipal;
+		} else if (userPrincipal instanceof Map) {
+			Map userPrincipalMap = (Map) userPrincipal;
+			username = (String) userPrincipalMap.get("username");
 		} else {
 			username = null;
 		}
@@ -27,33 +29,18 @@ public class UserSecurityUtils {
 		return username;
 	}
 
-	public static UserDetailsImpl toUserDetails(Object userPrincipal) {
-		UserDetailsImpl userDetails;
+	public static boolean isAnonymousAuthentication() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-		if (userPrincipal instanceof String) {
-			userDetails = new UserDetailsImpl((String) userPrincipal, null, Collections.emptyList(), null);
-		} else if (userPrincipal instanceof UserDetailsImpl) {
-			userDetails = (UserDetailsImpl) userPrincipal;
-		} else if (userPrincipal instanceof Map) {
-			Map userPrincipalMap = (Map) userPrincipal;
-
-			String username = (String) userPrincipalMap.get("username");
-			List authorities = (List) userPrincipalMap.get("authorities");
-			Map additionalProperties = (Map) userPrincipalMap.get("additionalProperties");
-
-			if (StringUtils.isNotBlank(username)) {
-				userDetails = new UserDetailsImpl(username, null,
-						(authorities == null) ? Collections.emptyList() : authorities,
-						additionalProperties);
-			} else {
-				userDetails = null;
-			}
-		} else {
-			userDetails = null;
-		}
-
-		return userDetails;
+		return auth instanceof AnonymousAuthenticationToken;
 	}
+
+	public static boolean isPreAuthenticatedAuthenticationToken() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+		return auth instanceof PreAuthenticatedAuthenticationToken;
+	}
+
 
 	private static Object getUserPrincipal() {
 		Object userPrincipal;

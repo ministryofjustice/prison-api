@@ -1,6 +1,11 @@
 package net.syscon.elite.security;
 
-import net.syscon.elite.persistence.UserRepository;
+import net.syscon.elite.api.model.UserDetail;
+import net.syscon.elite.api.model.UserRole;
+import net.syscon.elite.repository.UserRepository;
+import net.syscon.elite.service.EntityNotFoundException;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,20 +28,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	}
 
 	@Override
+	@Cacheable("loadUserByUsername")
 	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-		final net.syscon.elite.web.api.model.UserDetails user = userRepository.findByUsername(username);
-
-		if (user == null) {
-			throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
-		}
-
-		List<String> roles = userRepository.findRolesByUsername(username);
+		final UserDetail userDetail = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
+		List<UserRole> roles = userRepository.findRolesByUsername(username);
 
 		Set<GrantedAuthority> authorities = roles.stream()
 				.filter(Objects::nonNull)
-				.map(name -> new SimpleGrantedAuthority(name.replace('-', '_')))
+				.map(role -> new SimpleGrantedAuthority("ROLE_" + StringUtils.upperCase(StringUtils.replaceAll(role.getRoleCode(),"-", "_"))))
 				.collect(Collectors.toSet());
 
-		return new UserDetailsImpl(username, null, authorities, user.getAdditionalProperties());
+		return new UserDetailsImpl(username, null, authorities, userDetail.getAdditionalProperties());
 	}
 }

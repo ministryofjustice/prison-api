@@ -1,0 +1,6 @@
+{
+  "status": 500,
+  "errorCode": 23966,
+  "userMessage": "An unexpected error occurred - please wait a few minutes and try again.",
+  "developerMessage": "Database took too long to respond to connection request"
+}

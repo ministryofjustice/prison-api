@@ -1,0 +1,22 @@
+#%RAML 1.0 DataType
+description: Physical Mark
+properties:
+  type:
+    type: string
+    description: Type of Mark
+  side:
+    type: string
+    description: Left or Right Side
+  bodyPart:
+    type: string
+    description: Where on the body
+  orientation:
+    type: string
+    description: Image orientation
+  comment:
+    type: string
+    description: More information
+  imageId?:
+    type: number
+    (javaType): Long
+    description: Image Id Ref

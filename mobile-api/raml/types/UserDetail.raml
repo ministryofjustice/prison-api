@@ -1,0 +1,20 @@
+#%RAML 1.0 DataType
+description: User Details
+properties:
+  staffId:
+    type: number
+    (javaType): Long
+    description: Staff Id
+  username:
+    type: string
+  firstName:
+    type: string
+  lastName:
+    type: string
+  email?:
+    type: string
+  thumbnailId?:
+    type: number
+    (javaType): Long
+  activeCaseLoadId?:
+    type: string

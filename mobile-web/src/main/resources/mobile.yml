@@ -4,21 +4,16 @@
 
 spring:
 
-  jackson:
-    serialization:
-      INDENT_OUTPUT: false
-
   datasource:
-      hikari:
-        pool-name: EliteCP
-        maximum-pool-size: ${conn.pool.max.size}
-        driver-class-name: ${spring.datasource.driver-class-name}
-        connection-init-sql: SELECT 1 FROM DUAL
-        jdbc-url: ${spring.datasource.url}
-        username: ${spring.datasource.username}
-        password: ${spring.datasource.password}
-        idle-timeout: ${conn.pool.idle.timeout}
-        oracle-proxy.enabled: true
+    continueOnError: true
+    initialize: false
+    initialSize: 0
+    timeBetweenEvictionRunsMillis: ${conn.pool.idle.timeout}
+    minEvictableIdleTimeMillis: ${conn.pool.idle.timeout}
+    minIdle: 0
+    maxActive: ${conn.pool.max.size}
+    validationQuery: SELECT 1 FROM DUAL
+    maxWait: 10000
 
   application:
     index: api.html
@@ -38,9 +33,6 @@ security:
 logging:
   level:
     org.springframework.security: INFO
-  cache:
-    jcache:
-      config: ehcache.xml
       
   mail:
     host: localhost
@@ -52,10 +44,11 @@ logging:
     cache-seconds: 1
 
 server:
-    contextPath: /
+    contextPath: /api
 
 endpoints:
   cors:
     allowed-origins: ${cors.allowed-origins}
     allow-credentials: true
-    allow-headers: Origin, X-Requested-With, Content-Type, Accept, Authorization
+    allow-headers: Origin,X-Requested-With,Content-Type,Accept,Authorization
+    allow-methods: GET,PUT,POST,DELETE

@@ -1,16 +1,18 @@
 package net.syscon.elite.service.impl;
 
-import net.syscon.elite.persistence.CaseLoadRepository;
-import net.syscon.elite.persistence.UserRepository;
+import net.syscon.elite.api.model.CaseLoad;
+import net.syscon.elite.api.model.StaffDetail;
+import net.syscon.elite.api.model.UserDetail;
+import net.syscon.elite.api.model.UserRole;
+import net.syscon.elite.repository.CaseLoadRepository;
+import net.syscon.elite.repository.UserRepository;
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.UserService;
-import net.syscon.elite.web.api.model.CaseLoad;
-import net.syscon.elite.web.api.model.UserDetails;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 
-import javax.inject.Inject;
 import java.util.List;
 
 import static java.lang.String.format;
@@ -18,27 +20,29 @@ import static java.lang.String.format;
 @Service
 public class UserServiceImpl implements UserService {
 
-	private final UserRepository userRepository;
-	private final CaseLoadRepository caseLoadRepository;
+	@Autowired
+	private UserRepository userRepository;
 
-	@Inject
-	public UserServiceImpl(UserRepository userRepository, CaseLoadRepository caseLoadRepository) {
-		this.userRepository = userRepository;
-		this.caseLoadRepository = caseLoadRepository;
+	@Autowired
+	private CaseLoadRepository caseLoadRepository;
+
+	@Override
+	@Transactional(readOnly = true)
+	public StaffDetail getUserByStaffId(Long staffId) {
+		return userRepository.findByStaffId(staffId).orElseThrow(EntityNotFoundException.withId(staffId));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public UserDetails getUserByUsername(final String username) {
-		return userRepository.findByUsername(username);
+	public UserDetail getUserByUsername(String username) {
+		return userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public CaseLoad getActiveCaseLoad(final String username) {
-		final UserDetails userDetails = userRepository.findByUsername(username);
-		Assert.notNull(userDetails, format("User with username %s was not found!", username));
-		return caseLoadRepository.find(userDetails.getActiveCaseLoadId());
+		final UserDetail userDetails = getUserByUsername(username);
+		return caseLoadRepository.find(userDetails.getActiveCaseLoadId()).orElseThrow(EntityNotFoundException.withId(userDetails.getActiveCaseLoadId()));
 	}
 
 	@Override
@@ -56,8 +60,14 @@ public class UserServiceImpl implements UserService {
 		if (!found) {
 			throw new AccessDeniedException(format("The user does not have access to the caseLoadid = %s", caseLoadId));
 		} else {
-			final UserDetails userDetails = userRepository.findByUsername(username);
+			final UserDetail userDetails = getUserByUsername(username);
 			userRepository.updateCurrentLoad(userDetails.getStaffId(), caseLoadId);
 		}
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<UserRole> getRolesByUsername(String username) {
+		return userRepository.findRolesByUsername(username);
 	}
 }

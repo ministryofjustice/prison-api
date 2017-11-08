@@ -1,0 +1,11 @@
+/{locationPrefix}:
+  (javaOperationName): searchForOffendersLocationOnly
+  description: Search for Offender Bookings in the system by location
+  type: { readOnlyCollectionPaged: { type: OffenderBooking } }
+  is: [ sortable ]
+
+/{locationPrefix}/{keywords}:
+  (javaOperationName): searchForOffendersLocationAndKeyword
+  description: Search for Offender Bookings in the system by location and keywords
+  type: { readOnlyCollectionPaged: { type: OffenderBooking } }
+  is: [ sortable ]

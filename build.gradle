@@ -1,147 +1,131 @@
 buildscript {
-	repositories {
-		maven { url "https://repo.spring.io/plugins-release" }
-		maven { url "https://plugins.gradle.org/m2" }
-	}
-	dependencies {
-		classpath "org.raml:raml-jaxrs-codegen-core:1.3.4"
-		classpath "org.springframework.boot:spring-boot-gradle-plugin:${version_spring_boot}"
-		classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.2.1"
-		classpath "net.serenity-bdd:serenity-gradle-plugin:1.1.42"
-	}
+
+    repositories {
+        maven { url "https://repo.spring.io/plugins-release" }
+        maven { url "https://plugins.gradle.org/m2" }
+        maven { url "https://repository.mulesoft.org/releases" }
+    }
+
+    dependencies {
+        classpath "org.raml:raml-jaxrs-codegen-core:1.3.4"
+        classpath "org.raml.jaxrs:jaxrs-code-generator:2.1.0"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${version_spring_boot}"
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.2.1"
+        classpath "net.serenity-bdd:serenity-gradle-plugin:1.1.42"
+    }
 }
-
-
-defaultTasks "clean", "run"
-
 
 subprojects {
 
+    ext {
+        resourceGenDir = file("${rootDir}/mobile-api/src/generated/resources")
+        sourceGenDir = file("${rootDir}/mobile-api/src/generated/java")
+        elite2ApiDir = file("${rootDir}/mobile-api/src/main/java")
+    }
 
+    repositories {
+        mavenCentral()
+        maven { url "${artifactory_url}/libs-release" }
+        maven { url "${artifactory_url}/third-party" }
+    }
 
-	repositories {
-		mavenLocal()
-		maven { url "${artifactory_url}/libs-release" }
-		maven { url "${artifactory_url}/third-party" }
-		mavenCentral()
-	}
+    configurations {
+        compile.exclude module: "commons-logging"
+        compile.exclude module: "log4j"
+        compile.exclude module: "c3p0"
+        compile.exclude module: "tomcat-jdbc"
+    }
 
+    apply plugin: "java"
+    apply plugin: "checkstyle"
+    apply plugin: "maven"
+    apply plugin: "maven-publish"
+    apply plugin: "idea"
+    apply plugin: "eclipse"
 
-	configurations {
-		compile.exclude module: "commons-logging"
-		compile.exclude module: "log4j"
-		compile.exclude module: "c3p0"
-		compile.exclude module: "tomcat-embed-core"
-		compile.exclude module: "tomcat-embed-el"
-		compile.exclude module: "tomcat-embed-websocket"
-		compile.exclude module: "tomcat-juli"
-		compile.exclude module: "tomcat-jdbc"
-		compile.exclude module: "spring-boot-starter-tomcat"
-		compile.exclude module: "tools"
-	}
+    idea {
+        module {
+            outputDir file('build/classes/main')
+            testOutputDir file('build/classes/test')
+        }
+    }
 
+    if (project.convention.findPlugin(JavaPluginConvention)) {
+        // Change the output directory for the main and test source sets back to the old path
+        sourceSets.main.java.outputDir = new File(buildDir, "classes/main")
+        sourceSets.test.java.outputDir = new File(buildDir, "classes/test")
+    }
 
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 
-	apply plugin: "java"
-	apply plugin: "org.sonarqube"
-	apply plugin: "checkstyle"
-	apply plugin: "maven"
-	apply plugin: "maven-publish"
-	apply plugin: "idea"
-	apply plugin: "eclipse"
+    group = "net.syscon.elite"
+    version = "1.0.12"
 
+    checkstyle {
+        configFile = new File(rootDir, "syscon-checkstyle.xml")
+    }
 
-	
-	sourceCompatibility = JavaVersion.VERSION_1_8
-	targetCompatibility = JavaVersion.VERSION_1_8	
+    dependencies {
+        compile("org.apache.commons:commons-lang3:3.5")
+        compile ("commons-io:commons-io:2.5")
+        compile("com.google.code.findbugs:jsr305:3.0.1")
+    }
 
-	group = "net.syscon.elite"
-	version = "1.0-SNAPSHOT"
+    install.repositories.mavenInstaller.pom.whenConfigured { generatedPom ->
+        generatedPom.project {
+            name = project.name
+            description = project.description
+            url "http://www.syscon.net"
+            organization { name "Syscon Justice Systems"; url "http://www.syscon.net" }
+            developers {
+                developer {
+                    id "syscon-elite-team"
+                    name "Syscon Elite Team"
+                    organization  "Syscon Justice Systems"
+                    organizationUrl "http://www.syscon.net"
+                }
+            }
+        }
+    }
 
+    def repositoryType = project.version.endsWith('-SNAPSHOT')? "snapshot": "release"
 
-	checkstyle {
-		configFile = new File(rootDir, "syscon-checkstyle.xml")
-	}
+    publishing {
 
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+            }
+        }
 
-	sonarqube {
-		properties {
-			property "sonar.projectName", "Elite2"
-			property "sonar.projectKey", "net.syscon.elite:elite2"
-			property "sonar.sourceEncoding", "UTF-8"
-			property "sonar.login", "e73c987cc6cad28be858a8610636c1d2545c4c96"
-			property "sonar.host.url", "http://chronos.syscon.ca:9000/sonar"
-			property "sonar.sources", "${rootDir}/mobile-web/src/main/java"
-			property "sonar.exclusions", "**/generated/**"
-		}
-	}
-	
-	dependencies {
-		compile( "org.apache.commons:commons-lang3:3.5")
-		compile("com.google.code.findbugs:jsr305:3.0.1")
-	}
+        repositories {
+            maven {
+                credentials {
+                    username = "${artifactory_username}"
+                    password = "${artifactory_password}"
+                }
 
-	install.repositories.mavenInstaller.pom.whenConfigured { generatedPom ->
-		generatedPom.project {
-			name = project.name
-			description = project.description
-			url "http://www.syscon.net"
-			organization { name "Syscon Justice Systems"; url "http://www.syscon.net" }
-			developers {
-				developer {
-					id "syscon-elite-team"
-					name "Syscon Elite Team"
-					organization  "Syscon Justice Systems"
-					organizationUrl "http://www.syscon.net"
-				}
-			}
-		}
-	}
+                url "${artifactory_url}/libs-${repositoryType}-local"
+            }
+        }
+    }
 
+    task assembleSandbox {
+        dependsOn([":mobile-api:htmlGen", "assemble"])
 
-	def repositoryType = project.version.endsWith('-SNAPSHOT')? "snapshot": "release"
-	publishing {
-		publications {
-			mavenJava(MavenPublication) {
-				from components.java
-			}
-		}
-		repositories {
-			maven {
-				credentials {
-					username = "${artifactory_username}"
-					password = "${artifactory_password}"
-				}
-				url "${artifactory_url}/libs-${repositoryType}-local"
-			}
-		}
-	}
+        doLast {
+            def staticDir = file("${rootDir}/mobile-web/src/main/resources/static")
 
-	sourceSets {
-		integrationTest {
-			java.srcDir file("src/integration-test/resources")
-			resources.srcDir file("src/integration-test/resources")
-			compileClasspath += sourceSets.main.output + sourceSets.test.output + configurations.integrationTestCompile
-			runtimeClasspath += sourceSets.main.output + sourceSets.test.output + configurations.integrationTestRuntime
-		}
-	}
+            if (!staticDir.exists()) {
+                staticDir.mkdirs()
+            }
 
-	task integrationTest(type: Test) {
-		testClassesDir = sourceSets.integrationTest.output.classesDir
-		classpath = sourceSets.integrationTest.runtimeClasspath
-	}
-
-	task assembleSandbox {
-		dependsOn([":mobile-api:htmlGen", "assemble"])
-		doLast {
-			def staticDir = file("${rootDir}/mobile-web/src/main/resources/static")
-			if (!staticDir.exists()) { staticDir.mkdirs() }
-			copy {
-				from ("${rootDir}/mobile-api/raml") { include "api.html" }
-				into (staticDir.absolutePath)
-				rename { String fileName -> "index.html" }
-			}
-		}
-	}
-
+            copy {
+                from ("${rootDir}/mobile-api/raml") { include "api.html" }
+                into (staticDir.absolutePath)
+                rename { String fileName -> "index.html" }
+            }
+        }
+    }
 }

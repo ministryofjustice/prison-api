@@ -1,0 +1,22 @@
+/:
+  description: Returns a list of offender nos and their respective custody status.
+  (javaOperationName): getPrisonerCustodyStatuses
+  type: { readOnlyCollection: { type: PrisonerCustodyStatus } }
+  get:
+    queryParameters:
+      custodyStatusCode:
+        description: Prisoner with the specified Custody Status
+        (JavaType): CustodyStatusCode
+    is: [
+      sortable: { fieldsList : "custodyStatusCode" },
+    ]
+
+/{offenderNo}:
+  description: Returns the custody status for a specific offender no.
+  (javaOperationName): getPrisonerCustodyStatus
+  type: { readOnlyItem: { type: PrisonerCustodyStatus } }
+  get:
+    uriParameters:
+      offenderNo:
+        description: The OffenderNo of an offender
+        type: string

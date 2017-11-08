@@ -1,0 +1,15 @@
+#%RAML 1.0 DataType
+description: Prisoner Custody Status
+properties:
+  offenderNo:
+    type: string
+    description: Display Prisoner Number (UK is NOMS ID)
+    required: true
+  custodyStatusCode:
+    (javaType): CustodyStatusCode
+    description: Custody Status code
+    required: true
+  custodyStatusDescription:
+    type: string
+    description: Custody Status description
+    required: true

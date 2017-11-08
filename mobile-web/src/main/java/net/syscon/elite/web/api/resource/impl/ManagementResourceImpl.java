@@ -1,14 +1,15 @@
 package net.syscon.elite.web.api.resource.impl;
 
 
+import net.syscon.elite.core.RestResource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.DumpEndpoint;
 import org.springframework.boot.actuate.endpoint.HealthEndpoint;
 import org.springframework.boot.actuate.endpoint.InfoEndpoint;
 import org.springframework.boot.actuate.endpoint.MetricsEndpoint;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.StreamingOutput;
@@ -17,21 +18,20 @@ import java.lang.management.ThreadInfo;
 
 @Path("/")
 @Produces({MediaType.APPLICATION_JSON})
-@Component
+@Profile("!nomis")
+@RestResource
 public class ManagementResourceImpl {
+	@Autowired
+	private HealthEndpoint healthEndpoint;
 
-	private final HealthEndpoint healthEndpoint;
-	private final MetricsEndpoint metricsEndpoint;
-	private final DumpEndpoint dumpEndpoint;
-	private final InfoEndpoint infoEndpoint;
+	@Autowired
+	private MetricsEndpoint metricsEndpoint;
 
-	@Inject
-	public ManagementResourceImpl(HealthEndpoint healthEndpoint, MetricsEndpoint metricsEndpoint, DumpEndpoint dumpEndpoint, InfoEndpoint infoEndpoint) {
-		this.healthEndpoint = healthEndpoint;
-		this.metricsEndpoint = metricsEndpoint;
-		this.dumpEndpoint = dumpEndpoint;
-		this.infoEndpoint = infoEndpoint;
-	}
+	@Autowired
+	private DumpEndpoint dumpEndpoint;
+
+	@Autowired
+	private InfoEndpoint infoEndpoint;
 
 	@GET
 	@Path("management/info")
@@ -65,40 +65,33 @@ public class ManagementResourceImpl {
 	@Path("management/dump")
 	@Produces(MediaType.TEXT_PLAIN)
 	public Object getThreadDump() {
-		return new StreamingOutput() {
-			@Override
-			public void write(java.io.OutputStream out) throws IOException, WebApplicationException {
-				final Writer writer = new BufferedWriter(new OutputStreamWriter(out));
-				for (final ThreadInfo thread : dumpEndpoint.invoke()) {
-					writer.write(thread.toString());
-				}
-				writer.flush();
-			}
-		};
+		return (StreamingOutput) out -> {
+            final Writer writer = new BufferedWriter(new OutputStreamWriter(out));
+            for (final ThreadInfo thread : dumpEndpoint.invoke()) {
+                writer.write(thread.toString());
+            }
+            writer.flush();
+        };
 	}
 
 	@GET
-	@Path("/")
+	@Path("management/apis")
 	@Produces(MediaType.TEXT_HTML)
 	public Object apiIndex() {
-		return new StreamingOutput() {
-			@Override
-			public void write(java.io.OutputStream out) throws IOException, WebApplicationException {
-				final Writer writer = new BufferedWriter(new OutputStreamWriter(out));
-				ClassPathResource resource = new ClassPathResource("static/index.html");
-				InputStream in = resource.getInputStream();
-				if (in != null) {
-					try (BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
-						String s;
-						while ((s = br.readLine()) != null) {
-							writer.write(s);
-							writer.write("\n");
-						}
-					}
-				}
-				writer.flush();
-			}
-		};
+		return (StreamingOutput) out -> {
+            final Writer writer = new BufferedWriter(new OutputStreamWriter(out));
+            ClassPathResource resource = new ClassPathResource("static/index.html");
+            InputStream in = resource.getInputStream();
+            if (in != null) {
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
+                    String s;
+                    while ((s = br.readLine()) != null) {
+                        writer.write(s);
+                        writer.write("\n");
+                    }
+                }
+            }
+            writer.flush();
+        };
 	}
-
 }

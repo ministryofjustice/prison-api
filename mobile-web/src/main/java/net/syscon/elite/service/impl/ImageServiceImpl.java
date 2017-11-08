@@ -1,27 +1,22 @@
 package net.syscon.elite.service.impl;
 
-import net.syscon.elite.persistence.ImageRepository;
+import net.syscon.elite.api.model.ImageDetail;
+import net.syscon.elite.repository.ImageRepository;
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.ImageService;
-import net.syscon.elite.web.api.model.ImageDetails;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.inject.Inject;
 
 @Service
 @Transactional(readOnly = true)
 public class ImageServiceImpl implements ImageService {
-
-    private final ImageRepository repository;
-
-    @Inject
-    public ImageServiceImpl(ImageRepository repository) {
-        this.repository = repository;
-    }
+    @Autowired
+    private ImageRepository repository;
 
     @Override
-    public ImageDetails findImageDetail(final Long imageId) {
-        return repository.findImageDetail(imageId);
+    public ImageDetail findImageDetail(final Long imageId) {
+        return repository.findImageDetail(imageId).orElseThrow(EntityNotFoundException.withId(imageId));
     }
 
     @Override

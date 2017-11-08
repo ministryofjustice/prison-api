@@ -1,20 +1,27 @@
-description: Returns the list of locations viewable by the user
-type: { get-collection: { collectionSchema: locations } }
-is: [
-  searchable: {fieldsList : "locationId, agencyId, locationType, and parentLocationId"},
-  orderable: {fieldsList : "locationId, agencyId, locationType, and parentLocationId"},
-  pageable
-]
+/:
+  (javaOperationName): getLocations
+  type: { readOnlyCollectionPaged: { type: Location, description: Returns the list of locations viewable by the user } }
+  is: [
+    searchable: {fieldsList : "locationId, agencyId, locationType, and parentLocationId"},
+    sortable: {fieldsList : "locationId, agencyId, locationType, and parentLocationId"},
+  ]
 
 /{locationId}:
-  description: Returns details about the specified location
-  type: { get-item: { schema: location }}
+  (javaOperationName): getLocation
+  uriParameters:
+    locationId:
+      (javaType): Long
+      description: The location id of location
+  type: { readOnlyItem: { type: Location, description: Returns details about the specified location }}
 
 /{locationId}/inmates:
-  description: The collection of inmates present at the specified location.
-  type: { get-collection: { collectionSchema: inmateSummaries } }
+  (javaOperationName): getOffendersAtLocation
+  uriParameters:
+    locationId:
+      (javaType): Long
+      description: The location id of location
+  type: { readOnlyCollectionPaged: { type: OffenderBooking, description: The collection of inmates present at the specified location. } }
   is: [
-    searchable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, agencyId, currentLocationId, or assignedLivingUnitId"},
-    orderable: {fieldsList : "inmateId, bookingId, offenderId, firstName, lastName, agencyId, currentLocationId, or assignedLivingUnitId"},
-    pageable
+    searchable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId"},
+    sortable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId"},
   ]

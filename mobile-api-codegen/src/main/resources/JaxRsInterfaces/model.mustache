@@ -1,0 +1,85 @@
+package {{package}};
+
+{{#imports}}import {{import}};
+{{/imports}}
+
+import {{supportPackage}}.*;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
+import java.util.HashMap;
+import java.util.Map;
+import javax.validation.constraints.*;
+import org.hibernate.validator.constraints.*;
+{{#models}}
+{{#model}}{{#description}}
+/**
+ * {{description}}
+ **/{{/description}}
+@ApiModel(description = "{{{description}}}")
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class {{classname}}{{#parent}} extends {{{parent}}}{{/parent}} {
+    {{^isEnum}}
+    @JsonIgnore
+    private Map<String, Object> additionalProperties;
+    {{/isEnum}}
+    {{#vars}}{{#isEnum}}
+    public enum {{datatypeWithEnum}} {
+        {{#allowableValues}}{{#values}} {{.}}, {{/values}}{{/allowableValues}}
+    };
+
+    private {{{datatypeWithEnum}}} {{name}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}};{{/isEnum}}{{^isEnum}}
+    {{#maxLength}}@Length(max={{maxLength}}) {{/maxLength}}{{#pattern}}@Pattern(regexp="{{pattern}}") {{/pattern}}{{#required}}{{#isString}}@NotBlank{{/isString}}{{^isString}}@NotNull{{/isString}}
+    {{#isListContainer}}{{#defaultValue}}@Builder.Default
+    {{/defaultValue}}{{/isListContainer}}{{/required}}private {{{datatype}}} {{name}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}};{{/isEnum}}
+    {{/vars}}
+
+    {{^isEnum}}
+    @JsonAnyGetter
+    public Map<String, Object> getAdditionalProperties() {
+        return additionalProperties == null ? new HashMap<>() : additionalProperties;
+    }
+
+    @ApiModelProperty(hidden = true)
+    @JsonAnySetter
+    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+        this.additionalProperties = additionalProperties;
+    }
+    {{/isEnum}}
+    {{#vars}}
+
+    /**{{#description}}
+      * {{{description}}}{{/description}}{{#minimum}}
+      * minimum: {{minimum}}{{/minimum}}{{#maximum}}
+      * maximum: {{maximum}}{{/maximum}}
+      */
+    @ApiModelProperty({{#required}}required = {{required}}, {{/required}}value = "{{{description}}}")
+    @JsonProperty("{{baseName}}")
+    public {{{datatypeWithEnum}}} {{getter}}() {
+        return {{name}};
+    }
+
+    public void {{setter}}({{{datatypeWithEnum}}} {{name}}) {
+        this.{{name}} = {{name}};
+    }
+    {{/vars}}
+
+    @Override
+    public String toString()  {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("class {{classname}} {\n");
+        {{#parent}}sb.append("  " + super.toString()).append("\n");{{/parent}}
+        {{#vars}}sb.append("  {{name}}: ").append({{name}}).append("\n");
+        {{/vars}}sb.append("}\n");
+
+        return sb.toString();
+    }
+}
+{{/model}}
+{{/models}}

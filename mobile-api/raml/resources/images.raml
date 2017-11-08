@@ -1,13 +1,24 @@
 /{imageId}:
-  description: Details about the specified image including the image itself.
-  type: { get-item: { schema: imageDetails }}
+  (javaOperationName): getImage
+  type: {
+    readOnlyItem: {
+      type: ImageDetail,
+      description: Details about the specified image including the image itself.
+    }
+  }
+  uriParameters:
+    imageId:
+      (javaType): Long
+      description: The image id of offender
 
 /{imageId}/data:
-    type:
-      get-base:
-    
-    get:
-      responses:
-        200:
-          body:
-            image/jpeg:
+  (javaOperationName): getImageData
+  type: {
+    userPicture: {
+      description: Image as bytes.
+    }
+  }
+  uriParameters:
+    imageId:
+      (javaType): Long
+      description: The image id of offender

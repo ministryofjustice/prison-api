@@ -1,79 +1,77 @@
 /alertTypes:
+  (javaOperationName): getAlertTypes
   description: Give all Alert types
-  type: { get-collection : { collectionSchema: referenceCodes}}
+  type: { readOnlyCollectionPaged: { type: ReferenceCode } }
+  get:
+    queryParameters:
+      includeSubTypes:
+        description: Include the Subtypes in the response
+        type: boolean
+        default: false
   is: [
     searchable: {fieldsList: "code, description, activeFlag and parentCode"},
-    orderable: {fieldsList: "code"},
-    pageable
+    sortable: {fieldsList: "code"}
   ]
+
+/alertTypes/{alertType}:
+  (javaOperationName): getAlertType
+  description: Return Alert Type for specific Alert type
+  type: { readOnlyItem : { type: ReferenceCode, description: Get Alert Type for specified type }}
   
-/alertTypes/{alertType}: 
-  description: Give all Alerts for specific Alert type
-  type: { get-item : { schema: referenceCode}}
-  
-/alertTypes/{alertType}/codes: 
+/alertTypes/{alertType}/codes:
+  (javaOperationName): getAlertTypesByType
   description: Give all Alert Codes for specific Alert type
-  type: { get-collection : { collectionSchema: referenceCodes}}
+  type: { readOnlyCollectionPaged : { type: ReferenceCode }}
   is: [
     searchable: {fieldsList: "code, description, activeFlag and parentCode"},
-    orderable: {fieldsList: "code"},
-    pageable
+    sortable: {fieldsList: "code"}
   ]
   
-/alertTypes/{alertType}/codes/{alertCode}: 
+/alertTypes/{alertType}/codes/{alertCode}:
+  (javaOperationName): getAlertTypeCode
   description: Give specific code details of alerts.
-  type: { get-item : { schema: referenceCode}}
-  
-
-/caseNotes/types/{caseLoad}:
-  description: Case note type reference codes related to specified case load. Case load can either be 'COMM' or 'INST'
-  type: { get-collection : { collectionSchema: referenceCodes}}
-  is: [
-    pageable
-  ]
-
-/caseNotes/subTypes/{caseNoteType}:
-  description: Case note sub type reference codes related to specified case note type.
-  type: { get-collection : { collectionSchema: referenceCodes}}
-  is: [
-    pageable
-  ]
+  type: { readOnlyItem : { type: ReferenceCode, description: Get Alert Types  for specified parent alert code }}
 
 /caseNoteSources:
-   description: Give all Case Note Sources
-   type: { get-collection : { collectionSchema: referenceCodes}}
-   is: [
-     searchable: {fieldsList: "code, description, activeFlag and parentCode"},
-     orderable: {fieldsList: "code"},
-     pageable
-   ]
+  (javaOperationName): getCaseNoteSources
+  description: Give all Case Note Sources
+  type: { readOnlyCollectionPaged : { type: ReferenceCode }}
+  is: [
+    searchable: {fieldsList: "code, description, activeFlag and parentCode"},
+    sortable: {fieldsList: "code"}
+  ]
 
 /caseNoteSources/{sourceCode}:
+  (javaOperationName): getCaseNoteSource
   description: Get the Case Note Source
-  type: { get-item : { schema: referenceCode}}
+  type: { readOnlyItem : { type: ReferenceCode, description: Get Case Note Source for specified source }}
 
 /caseNoteTypes:
-   description: Give all Case Note Types
-   type: { get-collection : { collectionSchema: referenceCodes}}
-   is: [
-     searchable: {fieldsList: "code, description, activeFlag and parentCode"},
-     orderable: {fieldsList: "code"},
-     pageable
-   ]
+  (javaOperationName): getCaseNoteTypes
+  description: Give all Case Note Types
+  type: { readOnlyCollectionPaged : { type: ReferenceCode }}
+  get:
+    queryParameters:
+      includeSubTypes:
+        description: Include the Subtypes in the response
+        type: boolean
+        default: false
+  is: [
+    searchable: {fieldsList: "code, description, activeFlag and parentCode"},
+    sortable: {fieldsList: "code"}
+  ]
 
 /caseNoteTypes/{typeCode}:
+  (javaOperationName): getCaseNoteType
   description: Get the Case Note Type
-  type: { get-item : { schema: referenceCode}}
+  type: { readOnlyItem : { type: ReferenceCode, description: Get Case Note Type for specified note type } }
 
-/caseNoteTypes/{typeCode}/subTypes:
-   description: Give all Case Note SubTypes
-   type: { get-collection : { collectionSchema: referenceCodes}}
-   is: [
-     searchable: {fieldsList: "code, description, activeFlag and parentCode"},
-     orderable: {fieldsList: "code"},
-     pageable
-   ]
+/caseNoteSubTypes/{typeCode}:
+  (javaOperationName): getCaseNoteSubTypes
+  description: Give all Case Note SubTypes
+  type: { readOnlyCollectionPaged : { type: ReferenceCode }}
 
-/caseNoteTypes/{typeCode}/subTypes/{subTypeCode}:
+/caseNoteSubTypes/{typeCode}/subTypes/{subTypeCode}:
+  (javaOperationName): getCaseNoteSubType
   description: Get the Case Note SubType
-  type: { get-item : { schema: referenceCode}}
+  type: { readOnlyItem : { type: ReferenceCode, description: Get Case Note Subtype for specified type and subtype }}

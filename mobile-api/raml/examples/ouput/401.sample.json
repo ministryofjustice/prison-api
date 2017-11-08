@@ -1,0 +1,7 @@
+{
+	"status": 401,
+	"errorCode": 401,
+	"userMessage": "Not Authorized",
+	"developerMessage": "Not Authorized Resource",
+	"moreInfo": ""
+}

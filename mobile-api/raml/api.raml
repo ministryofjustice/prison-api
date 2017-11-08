@@ -1,49 +1,63 @@
-#%RAML 0.8
+#%RAML 1.0
 title: Elite2 Public API
-baseUri: http://api.elite2.syscon.net/{version}
-version: v1
-securedBy: [jwt]
-schemas:
-- httpStatus: !include schemas/output/http-status.schema.json
-- pageMetaData: !include schemas/output/page-metadata.schema.json
-- userDetails: !include schemas/output/user-details.schema.json
-- authLogin: !include schemas/input/auth-login.schema.json
-- authToken: !include schemas/input/auth-token.schema.json
-- token: !include schemas/output/token.schema.json
-- agency: !include schemas/output/agency.schema.json
-- agencies: !include schemas/output/agencies.schema.json
-- inmateSummary: !include schemas/output/inmate-summary.schema.json
-- inmateAssignmentSummary: !include schemas/output/inmate-assignment-summary.schema.json
-- inmateAssignmentSummaries: !include schemas/output/inmate-assignment-summaries.schema.json
-- inmateSummaries: !include schemas/output/inmate-summaries.schema.json
-- inmateDetails: !include schemas/output/inmate-details.schema.json
-- location: !include schemas/output/location.schema.json
-- locations: !include schemas/output/locations.schema.json
-- imageSummary: !include schemas/output/image-summary.schema.json
-- imageSummaries: !include schemas/output/image-summaries.schema.json
-- imageDetails: !include schemas/output/image-details.schema.json
-- imageData: !include schemas/output/image-data.schema.json
-- updateCaseNote: !include schemas/input/update-case-note.schema.json
-- caseNote: !include schemas/output/case-note.schema.json
-- newCaseNote: !include schemas/output/new-case-note.schema.json
-- caseNotes: !include schemas/output/case-notes.schema.json
-- referenceCode: !include schemas/output/reference-code.schema.json
-- referenceCodes: !include schemas/output/reference-codes.schema.json
-- referenceDomain: !include schemas/output/reference-domain.schema.json
-- referenceDomains: !include schemas/output/reference-domains.schema.json
-- caseNoteTypes: !include schemas/output/caseNoteTypes.schema.json
-- caseNoteSubTypes: !include schemas/output/caseNoteSubTypes.schema.json
-- typeSubtypes: !include schemas/output/caseNote-type-subtype.schema.json
-- caseLoad: !include schemas/output/case-load.schema.json
-- caseLoads: !include schemas/output/case-loads.schema.json
-- alert: !include schemas/output/alert.schema.json
-- alerts: !include schemas/output/alerts.schema.json
-- alias: !include schemas/output/alias.schema.json
-- aliases: !include schemas/output/aliases.schema.json
+baseUri: http://api.elite2.syscon.net/api
+version: v2
+mediaType: application/json
 
+annotationTypes:
+  javaOperationName:
+    type: string
+    description: Hint to downstream code generator of name to use for Java method that implements operation.
+  javaType:
+    type: string
+    description: override type to specified java type
+  headersWithType:
+    type: string
+    description: override the type used in a reponse headers (e.g. headersWithType_Long: Page-Offset,Page-Limit will apply a Long to the listed headers)
+
+securedBy: [jwt]
+
+types:
+  Agency:                 !include types/Agency.raml
+  ErrorResponse:          !include types/ErrorResponse.raml
+  Location:               !include types/Location.raml
+  OffenderBooking:        !include types/OffenderBooking.raml
+  PrisonerDetail:         !include types/PrisonerDetail.raml
+  SentenceDetail:         !include types/SentenceDetail.raml
+  ImageDetail:            !include types/ImageDetail.raml
+  PrivilegeDetail:        !include types/PrivilegeDetail.raml
+  PrivilegeSummary:       !include types/PrivilegeSummary.raml
+  ReferenceCode:          !include types/ReferenceCode.raml
+  UserDetail:             !include types/UserDetail.raml
+  StaffDetail:            !include types/StaffDetail.raml
+  CaseLoad:               !include types/CaseLoad.raml
+  Account:                !include types/Account.raml
+  AuthLogin:              !include types/AuthLogin.raml
+  Token:                  !include types/Token.raml
+  CaseNote:               !include types/CaseNote.raml
+  CaseNoteAmendment:      !include types/CaseNoteAmendment.raml
+  NewCaseNote:            !include types/NewCaseNote.raml
+  UpdateCaseNote:         !include types/UpdateCaseNote.raml
+  Alert:                  !include types/Alert.raml
+  Alias:                  !include types/Alias.raml
+  Movement:               !include types/Movement.raml
+  LocationCountDetail:    !include types/LocationCountDetail.raml
+  LocationCount:          !include types/LocationCount.raml
+  Assessment:             !include types/Assessment.raml
+  AssignedLivingUnit:     !include types/AssignedLivingUnit.raml
+  PhysicalAttributes:     !include types/PhysicalAttributes.raml
+  PhysicalCharacteristic: !include types/PhysicalCharacteristic.raml
+  ProfileInformation:     !include types/ProfileInformation.raml
+  PhysicalMark:           !include types/PhysicalMark.raml
+  InmateDetail:           !include types/InmateDetail.raml
+  MainSentence:           !include types/MainSentence.raml
+  ScheduledEvent:         !include types/ScheduledEvent.raml
+  OffenderRelease:        !include types/OffenderRelease.raml
+  PrisonerCustodyStatus:  !include types/PrisonerCustodyStatus.raml
+  UserRole:               !include types/UserRole.raml
 
 securitySchemes:
-- jwt:
+  jwt:
     description: Elite API uses Json Web Token (JWT) to authenticate most requests
     type: x-jwt
     describedBy:
@@ -52,8 +66,7 @@ securitySchemes:
           description: Used to send a valid JWT. Do not use  query string parameter.
           type: string
           example: "Authorization: Bearer eyJpc3MiOiJzY290Y2guaW8iLCJleHAiOjEzMDA4MTkzODAsIm5hbWUiOiJDaHJpcyBTZXZpbGxlamEiLCJhZG1pbiI6dHJ1ZX0"
-
-- basic:
+  basic:
     description: Each request must contain the headers necessary for basic authentication
     type: Basic Authentication
     describedBy:
@@ -68,13 +81,18 @@ securitySchemes:
             combination is invalid, or the user is not allowed to access
             the content provided by the requested URL.
 
+traits:        !include traits/traits.raml
+
 resourceTypes: !include resourceTypes/generic-resource-types.raml
 
-traits: !include traits/generic-traits.raml
+/agencies:          !include resources/agencies.raml
+/images:            !include resources/images.raml
+/bookings:          !include resources/bookings.raml
+/prisoners:         !include resources/prisoners.raml
+/search-offenders:  !include resources/search-offenders.raml
+/offender-releases: !include resources/offender-releases.raml
+/users:             !include resources/users.raml
+/reference-domains: !include resources/reference-domains.raml
+/locations:         !include resources/locations.raml
+/custody-statuses:  !include resources/custody-statuses.raml
 
-/users: !include resources/users.raml
-/agencies: !include resources/agencies.raml
-/booking: !include resources/booking.raml
-/locations: !include resources/locations.raml
-/images: !include resources/images.raml
-/referenceDomains: !include resources/reference-domains.raml

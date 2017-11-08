@@ -1,4 +1,4 @@
-@nomis
+@global
 Feature: Booking Search
 
   Acceptance Criteria:
@@ -15,21 +15,25 @@ Feature: Booking Search
   Scenario: Search all offenders
     When a booking search is made without any criteria
     Then "10" booking records are returned
-    And  "15" total booking records are available
+    And  "19" total booking records are available
 
   Scenario Outline: Search based on full offender last name
     When a booking search is made with full last "<name>" of existing offender
     Then "<number>" booking records are returned
     And offender first names match "<first name list>"
     And offender middle names match "<middle name list>"
+    And living unit descriptions match "<living unit list>"
+    And image id match "<image ids>"
+    And their dob match "<DOB>"
 
     Examples:
-      | name     | number | first name list | middle name list |
-      | ANDERSON | 2      | ARTHUR,GILLIAN  | BORIS,EVE        |
-      | anderson | 2      | ARTHUR,GILLIAN  | BORIS,EVE        |
-      | AnDersOn | 2      | ARTHUR,GILLIAN  | BORIS,EVE        |
-      | UNKNOWN  | 0      |                 |                  |
-      |          | 0      |                 |                  |
+      | name     | number | first name list | middle name list | living unit list    |  image ids   | DOB                   |
+      | ANDERSON | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | A-1-1,H-1-5         | -1,-2        | 1969-12-30,1998-08-28 |
+      | DUCK     | 1      | DONALD          | JEFFREY          | A-1-10              | -6           | 1956-02-28            |
+      | anderson | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | A-1-1,H-1-5         | -1,-2        | 1969-12-30,1998-08-28 |
+      | AnDersOn | 2      | ARTHUR,GILLIAN  | BORIS,EVE        | A-1-1,H-1-5         | -1,-2        | 1969-12-30,1998-08-28 |
+      | UNKNOWN  | 0      |                 |                  |                     |              |                       |
+      |          | 0      |                 |                  |                     |              |                       |
 
   Scenario Outline: Search based on partial offender last name
     When a booking search is made with partial last "<name>" of existing offender
@@ -53,9 +57,9 @@ Feature: Booking Search
 
     Examples:
       | name    | number | last name list | middle name list |
-      | DONALD  | 2      | DUCK,TRUMP     |                  |
-      | donald  | 2      | DUCK,TRUMP     |                  |
-      | DoNAld  | 2      | DUCK,TRUMP     |                  |
+      | DONALD  | 2      | DUCK,TRUMP     | JEFFREY          |
+      | donald  | 2      | DUCK,TRUMP     | JEFFREY          |
+      | DoNAld  | 2      | DUCK,TRUMP     | JEFFREY          |
       | UNKNOWN | 0      |                |                  |
       |         | 0      |                |                  |
 
@@ -102,6 +106,6 @@ Feature: Booking Search
       | DONALD     | CHAPLIN   | 3      | CHARLES,DONALD,DONALD            | CHAPLIN,DUCK,TRUMP               |
       | CHARLES    | TRUMP     | 2      | CHARLES,DONALD                   | CHAPLIN,TRUMP                    |
       | JOHN       | DOE       | 0      |                                  |                                  |
-      | DA%        | SMITH     | 5      | DANIEL,DANIEL,DARIUS,GILES,DANNY | SMITH,SMITH,SMITH,SMELLEY,SMILEY |
-      | DANIEL     | SM%       | 5      | DANIEL,DANIEL,DARIUS,GILES,DANNY | SMITH,SMITH,SMITH,SMELLEY,SMILEY |
-      | DA%        | SM%       | 5      | DANIEL,DANIEL,DARIUS,GILES,DANNY | SMITH,SMITH,SMITH,SMELLEY,SMILEY |
+      | DA%        | SMITH     | 6      | DANIEL,DANIEL,DARIUS,GILES,DANNY,MATTHEW | SMITH,SMITH,SMITH,SMITH,SMELLEY,SMILEY |
+      | DANIEL     | SM%       | 6      | DANIEL,DANIEL,DARIUS,GILES,DANNY,MATTHEW | SMITH,SMITH,SMITH,SMITH,SMELLEY,SMILEY |
+      | DA%        | SM%       | 6      | DANIEL,DANIEL,DARIUS,GILES,DANNY,MATTHEW | SMITH,SMITH,SMITH,SMITH,SMELLEY,SMILEY |

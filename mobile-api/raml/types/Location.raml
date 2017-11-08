@@ -1,0 +1,50 @@
+#%RAML 1.0 DataType
+description: Location Details
+properties:
+  locationId:
+    type: number
+    (javaType): Long
+    description: Location identifier.
+  locationType:
+    type: string
+    description: Location type.
+  description:
+    type: string
+    description: Location description.
+  agencyId:
+    type: string
+    description: Identifier of Agency this location is associated with.
+  parentLocationId?:
+    type: number
+    (javaType): Long
+    description: Identifier of this location's parent location.
+  currentOccupancy?:
+    type: integer
+    description: Current occupancy of location.
+  locationPrefix?:
+    type: string
+    description: Location prefix. Defines search prefix that will constrain search to this location and its subordinate locations.
+  level:
+    type: integer
+    description: the level in the heirarcy
+  listSequence:
+    type: integer
+    description: walk sequence of the cells
+  assignedInmates:
+    type: OffenderBooking[]
+    description: list of offenders at this location
+  operationalCapacity:
+    type: integer
+    description: capacity of a location
+  livingUnit:
+    type: boolean
+    description: indicates a living unit
+  housingUnitType:
+    type: integer
+    description: Housing Unit Type
+  activeCountStatusCode:
+    type: { "enum": ["I", "R", "C"] }
+    description: Active Count Status Code
+  activeCountId:
+    type: integer
+    description: Count of active offenders

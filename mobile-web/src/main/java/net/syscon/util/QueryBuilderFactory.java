@@ -1,7 +1,8 @@
 package net.syscon.util;
 
-import net.syscon.elite.persistence.mapping.FieldMapper;
-import org.apache.commons.lang3.StringUtils;
+import net.syscon.elite.repository.mapping.FieldMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -14,19 +15,29 @@ import java.util.Map;
 @Component
 public class QueryBuilderFactory {
 
-    public static IQueryBuilder getQueryBuilder(String initialSql, Map<String, FieldMapper> fieldMap) {
-        IQueryBuilder queryBuilder;
+    private final DatabaseDialect dialect;
 
-        // TODO: Consider controlling this using a database type property
-        if (StringUtils.containsAny(initialSql,
-                IQueryBuilder.SQL_PLACEHOLDER_WHERE_QUERY,
-                IQueryBuilder.SQL_PLACEHOLDER_AND_QUERY,
-                IQueryBuilder.SQL_PLACEHOLDER_OR_QUERY)) {
-            queryBuilder = new StandardQueryBuilder(initialSql, fieldMap);
-        } else {
-            queryBuilder = new OracleQueryBuilder(initialSql, fieldMap);
+    @Autowired
+    public QueryBuilderFactory(@Value("${schema.database.dialect}") DatabaseDialect dialect) {
+        this.dialect = dialect;
+    };
+
+    public IQueryBuilder getQueryBuilder(String initialSql, Map<String, FieldMapper> fieldMap) {
+        final IQueryBuilder queryBuilder;
+
+        switch(dialect) {
+            case HSQLDB:
+                queryBuilder = new HSQLDBQueryBuilder(initialSql, fieldMap, dialect);
+                break;
+            case ORACLE_11:
+            case ORACLE_12:
+            case POSTGRES:
+                queryBuilder = new OracleQueryBuilder(initialSql, fieldMap, dialect);
+                break;
+            default:
+                queryBuilder = null;
+                break;
         }
-
         return queryBuilder;
     }
 }

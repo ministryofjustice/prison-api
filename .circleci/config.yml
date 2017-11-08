@@ -1,31 +1,94 @@
+defaults: &defaults
+  working_directory: /tmp/circleci-elite2-api
+
 version: 2
 jobs:
   build:
-    working_directory: /tmp/circleci-elite2-api
+    <<: *defaults
     docker:
       - image: sysconjusticesystems/ci-java-node:latest
     steps:
       - checkout
-      - run: sudo npm i -g raml2html@3.0.1 && ./gradlew build aggregate assembleSandbox -x integTest
+      - run: ./gradlew build aggregate --stacktrace
       - store_test_results:
           path: mobile-web/build/test-results
       - store_test_results:
           path: mobile-web/target/site
       - store_artifacts:
-          path: mobile-web/build/libs/mobile-web-1.0-SNAPSHOT.jar
+          path: mobile-web/build/libs
       - store_artifacts:
           path: mobile-web/build/reports/tests
       - store_artifacts:
           path: mobile-web/target/site
       - store_artifacts:
           path: mobile-api/raml/api.html
-      - setup_remote_docker
-      - run: |
-          if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
-            TAG=1.0.$CIRCLE_BUILD_NUM
-            docker build -t sysconjusticesystems/elite2-api:$TAG .
-            docker tag sysconjusticesystems/elite2-api:$TAG sysconjusticesystems/elite2-api:latest
+      - persist_to_workspace:
+          root: .
+          paths:
+            - mobile-web/build/libs
+            - build.gradle
+
+  build_docker:
+    <<: *defaults
+    docker:
+      - image: circleci/python:latest-browsers
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp/circleci-elite2-api/
+      - setup_remote_docker:
+          exclusive: true
+      - run:
+          command: |
+            API_VERSION=$(egrep -o "^\s+version\s=\s\"(.*)\"" build.gradle | awk -F"\"" '{print $2}')
+            TAG=${API_VERSION}.${CIRCLE_BRANCH}.${CIRCLE_BUILD_NUM}
+            if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
+              TAG=ELITE2_API_${API_VERSION}
+            else
+              TAG=${API_VERSION}.${CIRCLE_BRANCH}.${CIRCLE_BUILD_NUM}
+            fi
+            docker build --rm=false . \
+               --tag "sysconjusticesystems/elite2-api:$TAG" \
+               --label "maintainer=michael.willis@syscon.net" \
+               --label "build.number=$CIRCLE_BUILD_NUM" \
+               --label "build.url=$CIRCLE_BUILD_URL" \
+               --label "build.gitref=$CIRCLE_SHA1"
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker push sysconjusticesystems/elite2-api:$TAG
-            docker push sysconjusticesystems/elite2-api:latest
-          fi
+
+            if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
+              docker tag sysconjusticesystems/elite2-api:$TAG sysconjusticesystems/elite2-api:latest
+              docker push sysconjusticesystems/elite2-api:latest
+            fi
+
+  build_docker_stage:
+    <<: *defaults
+    docker:
+      - image: circleci/python:latest-browsers
+    steps:
+      - setup_remote_docker:
+          exclusive: true
+      - run:
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker pull sysconjusticesystems/elite2-api:latest
+            docker tag sysconjusticesystems/elite2-api:latest sysconjusticesystems/elite2-api:stage-latest
+            docker push sysconjusticesystems/elite2-api:stage-latest
+
+workflows:
+  version: 2
+  build-test-and-deploy:
+    jobs:
+      - build:
+          filters:
+            tags:
+              ignore: /.*/
+      - build_docker:
+          requires:
+            - build
+      - build_docker_stage:
+          filters:
+            tags:
+              only: /^stage-release.*/
+            branches:
+              ignore: /.*/

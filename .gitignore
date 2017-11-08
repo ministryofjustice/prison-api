@@ -153,7 +153,11 @@ UI/_temp
 # Log file
 *.log
 
-mobile-web/src/main/resources/static/index.html
 .DS_Store
 
+mobile-api/raml/package*.json
 mobile-api/raml/api.html
+mobile-api/raml/node_modules/
+mobile-api/src/
+mobile-web/src/main/resources/static/
+

@@ -1,0 +1,13 @@
+#%RAML 1.0 DataType
+description: User Role
+properties:
+  roleId:
+    type: number
+    (javaType): Long
+    description: Role Id
+  roleCode:
+    type: string
+  roleName:
+    type: string
+  parentRoleCode?:
+    type: string

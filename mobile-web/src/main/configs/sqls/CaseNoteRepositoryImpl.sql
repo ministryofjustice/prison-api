@@ -1,15 +1,20 @@
 FIND_CASENOTES {
     SELECT CN.OFFENDER_BOOK_ID,
            CN.CASE_NOTE_TYPE,
+           RC1.DESCRIPTION as CASE_NOTE_TYPE_DESC,
            CN.CASE_NOTE_SUB_TYPE,
+           RC2.DESCRIPTION as CASE_NOTE_SUB_TYPE_DESC,
            CN.CASE_NOTE_TEXT,
            CN.CASE_NOTE_ID,
            CN.NOTE_SOURCE_CODE,
            CN.CREATE_DATETIME,
-           CN.CREATE_USER_ID,
+           concat(SM.LAST_NAME, concat(', ', SM.FIRST_NAME)) AS STAFF_NAME,
            CN.CONTACT_TIME
       FROM OFFENDER_CASE_NOTES CN
-     WHERE CN.OFFENDER_BOOK_ID = :bookingId
+        JOIN reference_codes RC1 on RC1.code = CN.CASE_NOTE_TYPE AND RC1.domain = 'TASK_TYPE'
+        JOIN reference_codes RC2 on RC2.code = CN.CASE_NOTE_SUB_TYPE AND RC2.domain = 'TASK_SUBTYPE'
+        JOIN STAFF_MEMBERS SM ON SM.STAFF_ID = CN.STAFF_ID
+      WHERE CN.OFFENDER_BOOK_ID = :bookingId
 
 }
 
@@ -29,12 +34,12 @@ INSERT_CASE_NOTE {
 	      NOTE_SOURCE_CODE
 	  ) VALUES (
 	      CASE_NOTE_ID.NEXTVAL,
-	      :bookingID,
+	      :bookingId,
 	      :contactDate,
 	      :contactTime,
 	      :type,
 	      :subType,
-	      (SELECT  STAFF_ID FROM STAFF_MEMBERS WHERE USER_ID = :user_Id),
+	      (SELECT  STAFF_ID FROM STAFF_MEMBERS WHERE USER_ID = :userId),
 	      :text,
 	      :createDate,
 	      :createTime,
@@ -54,14 +59,19 @@ UPDATE_CASE_NOTE {
 FIND_CASENOTE{
     SELECT CN.OFFENDER_BOOK_ID,
            CN.CASE_NOTE_TYPE,
+           RC1.DESCRIPTION as CASE_NOTE_TYPE_DESC,
            CN.CASE_NOTE_SUB_TYPE,
+           RC2.DESCRIPTION as CASE_NOTE_SUB_TYPE_DESC,
            CN.CASE_NOTE_TEXT,
            CN.CASE_NOTE_ID,
            CN.NOTE_SOURCE_CODE,
            CN.CREATE_DATETIME,
-           CN.CREATE_USER_ID,
+           concat(SM.LAST_NAME, concat(', ', SM.FIRST_NAME)) AS STAFF_NAME,
            CN.CONTACT_TIME
       FROM OFFENDER_CASE_NOTES CN
+        JOIN reference_codes RC1 on RC1.code = CN.CASE_NOTE_TYPE AND RC1.domain = 'TASK_TYPE'
+        JOIN reference_codes RC2 on RC2.code = CN.CASE_NOTE_SUB_TYPE AND RC2.domain = 'TASK_SUBTYPE'
+        JOIN STAFF_MEMBERS SM ON SM.STAFF_ID = CN.STAFF_ID
      WHERE CN.OFFENDER_BOOK_ID = :bookingId AND CN.CASE_NOTE_ID = :caseNoteId
 
 }

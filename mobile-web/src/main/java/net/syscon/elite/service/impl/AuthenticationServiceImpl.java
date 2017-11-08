@@ -1,23 +1,28 @@
 package net.syscon.elite.service.impl;
 
+import net.syscon.elite.api.model.AuthLogin;
+import net.syscon.elite.api.model.Token;
 import net.syscon.elite.security.UserDetailsImpl;
-import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.security.UserPrincipalForToken;
 import net.syscon.elite.security.jwt.TokenManagement;
 import net.syscon.elite.security.jwt.TokenSettings;
 import net.syscon.elite.service.AuthenticationService;
-import net.syscon.elite.web.api.model.AuthLogin;
-import net.syscon.elite.web.api.model.Token;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import java.util.Base64;
+import java.util.Collections;
+import java.util.Map;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -33,6 +38,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     private TokenSettings tokenSettings;
 
+    @Value("${token.username.stored.caps:true}")
+    private boolean upperCaseUsername;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
+
     @Override
     public Token getAuthenticationToken(String credentials, AuthLogin authLogin) {
         Token token;
@@ -41,7 +52,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String password = null;
 
         if (authLogin != null) {
-            username = authLogin.getUsername().toUpperCase();
+            username = upperCaseUsername ? authLogin.getUsername().toUpperCase() : authLogin.getUsername();
             password = authLogin.getPassword();
         } else if (credentials != null) {
             int index = credentials.indexOf(TokenSettings.BASIC_AUTHENTICATION);
@@ -92,11 +103,37 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             String encodedToken = header.substring(index + tokenSettings.getSchema().length()).trim();
 
             Object userPrincipal = tokenManagement.getUserPrincipalFromToken(encodedToken);
-            UserDetailsImpl userDetails = UserSecurityUtils.toUserDetails(userPrincipal);
-
-            token = tokenManagement.createToken(userDetails);
+            token = tokenManagement.createToken((String) userPrincipal);
         }
 
         return token;
+    }
+
+    @SuppressWarnings("unchecked")
+    public UserDetails toUserDetails(Object userPrincipal) {
+        UserDetails userDetails;
+
+        if (userPrincipal instanceof String) {
+            userDetails = userDetailsService.loadUserByUsername((String)userPrincipal);
+            if (userDetails == null) {
+                userDetails = new UserDetailsImpl((String) userPrincipal, null, Collections.emptyList(), null);
+            }
+
+        } else if (userPrincipal instanceof UserPrincipalForToken) {
+            userDetails = userDetailsService.loadUserByUsername(((UserPrincipalForToken)userPrincipal).getUsername());
+
+        } else if (userPrincipal instanceof Map) {
+            Map<String,String> userPrincipalMap = (Map<String,String>) userPrincipal;
+            final String username = (String) userPrincipalMap.get("username");
+            if (StringUtils.isNotBlank(username)) {
+                userDetails = userDetailsService.loadUserByUsername(username);
+            } else {
+                userDetails = null;
+            }
+        } else {
+            userDetails = null;
+        }
+
+        return userDetails;
     }
 }

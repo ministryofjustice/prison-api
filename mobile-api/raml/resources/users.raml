@@ -1,75 +1,103 @@
+/me/locations:
+  (javaOperationName): getMyLocations
+  description: Returns list of locations associated with current user.
+  type: { readOnlyCollection: { type: Location } }
+  
 /{username}:
-  description: Returns details about the specified staffId.
-  type: { get-item: { schema: userDetails }}
+  (javaOperationName): getUserDetails
+  type: { readOnlyItem: { type: UserDetail,  description: Retrieve details for user having specified username. }}
+  uriParameters:
+    username:
+      description: The username of the user.
+
+/staff/{staffId}:
+  (javaOperationName): getStaffDetail
+  type: { readOnlyItem: { type: StaffDetail, description: Retrieve basic personal details for staff member having specified staff id. }}
+  uriParameters:
+    staffId:
+      (javaType): Long
+      description: The staff id of the staff member.
 
 /me:
-  description: Details of the current logged user
-  type: { get-item: { schema: userDetails } }
+  (javaOperationName): getMyUserInformation
+  type: { readOnlyItem: { type: UserDetail, description: Details of the current logged user } }
 
 /me/bookingAssignments:
+  (javaOperationName): getMyAssignments
   description: Offender Assignments for this logged in user
-  type: { get-collection: { collectionSchema: inmateAssignmentSummaries } }
+  type: { readOnlyCollectionPaged: { type: OffenderBooking } }
+
+/me/roles:
+  (javaOperationName): getMyRoles
+  description: Get the logged in users roles
+  type: { readOnlyCollection: { type: UserRole } }
+
+/me/offender-releases:
+  (javaOperationName): getMyOffenderReleases
+  description: Forthcoming offender releases for my caseloads
+  type: { readOnlyCollectionPaged: { type: OffenderRelease } }
+  get:
+     queryParameters:
+        toDate?:
+          description: Filter results to only display releases before a defined date, if not defined it will use 3 months from now
+          type: string
+          example: toDate=2017-02-28
   is: [
-    pageable
+    searchable: {fieldsList : "offenderNo, lastName, firstName, agencyLocationId, internalLocationDesc, releaseDate"},
+    sortable: {fieldsList : "offenderNo, lastName, firstName, agencyLocationId, internalLocationDesc, releaseDate"},
   ]
 
 /me/caseLoads:
+  (javaOperationName): getMyCaseLoads
   description: Returns the list of caseloads associated to the user
-  type: { get-collection: { collectionSchema: caseLoads } }
-  is: [
-    pageable
-  ]
+  type: { readOnlyCollection: { type: CaseLoad } }
   
 /me/caseNoteTypes:
+  (javaOperationName): getMyCaseNoteTypes
   description: Returns the list of case Note types associated to the user
-  type: { get-collection: { collectionSchema: caseNoteTypes } }
+  type: { readOnlyCollectionPaged: { type: ReferenceCode } }
+  get:
+    queryParameters:
+      includeSubTypes:
+        description: Include the Subtypes in the response
+        type: boolean
+        default: false
   is: [
-    searchable: {fieldsList : "code, type"},
-    orderable: {fieldsList : "code, type"},
-    pageable
+    searchable: {fieldsList : "code, activeFlag and description"},
+    sortable: {fieldsList : "code, activeFlag and description"},
   ] 
   
-/me/caseNoteTypes/{typeCode}:
-  description: Returns the list of case Note types associated to the user
-  type: { get-collection: { collectionSchema: caseNoteSubTypes } }
-  is: [
-    searchable: {fieldsList : "code, type"},
-    orderable: {fieldsList : "code, type"},
-    pageable
-  ] 
 
 /me/activeCaseLoad:
+  (javaOperationName): updateMyActiveCaseLoad
   description: The active caseload associated to the user
-  type: { get-item: { schema: caseLoad } }
-
   put:
     description: Set the active caseload associated to the user.
     body:
       application/json:
-        schema: caseLoad
+        type: CaseLoad
     responses:
-      200:
-        description: The user's active caseload has been updated.
       401:
-        description: Invalid username or password
         body:
           application/json:
-            schema: httpStatus
-            example: !include ../examples/output/401.sample.json
+            type: ErrorResponse
+            description: Invalid username or password
+            example:  !include ../examples/ouput/401.sample.json
       403:
-        description: the user does not have permission to view the caseload.
         body:
           application/json:
-            schema: httpStatus
-            example: !include ../examples/output/403.sample.json
+            type: ErrorResponse
+            description: the user does not have permission to view the caseload.
+            example:  !include ../examples/ouput/403.sample.json
 
 /login:
+  (javaOperationName): login
   post:
     securedBy: [basic]
     description: Login using Username and Password
     body:
       application/json:
-        schema: authLogin
+        type: AuthLogin
         example: !include ../examples/input/login-auth.sample.json
     headers:
       Authorization:
@@ -81,7 +109,7 @@
         description: If the login has been completed with success. The token object is returned including the status.
         body:
           application/json:
-            schema: token
+            type: Token
             example: !include ../examples/output/login-success.sample.json
         headers:
           Authorization:
@@ -90,13 +118,14 @@
             example: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJpdGFnX3VzZXIiLCJhdWRpZW5jZSI6InVua25vd24iLCJjcmVhdGVkIjoxNDkyMTIwOTE1MDgzLCJleHAiOjE0OTIxMjE5MTV9.9gX_NzwtD2gHPZ9PJwClHuLxEohZBlKaeGWYJBL2nY1ydjlT7PQ2xjsWPsDusebpSozdbUCnm8H3fpKE7yWRZg
 
       401:
-        description: Invalid username or password
         body:
           application/json:
-            schema: httpStatus
-            example: !include ../examples/output/401.sample.json
+            type: ErrorResponse
+            description: Invalid username or password
+            example:  !include ../examples/ouput/401.sample.json
 
 /token:
+  (javaOperationName): tokenRefresh
   post:
     description: Renew the JWT to keep as a authenticated user
     headers:
@@ -109,7 +138,7 @@
         description: If the login has been completed with success. The token object is returned including the status.
         body:
           application/json:
-            schema: token
+            type: Token
             example: !include ../examples/output/login-success.sample.json
         headers:
           Authorization:
@@ -117,8 +146,8 @@
             required: true
             example: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJpdGFnX3VzZXIiLCJhdWRpZW5jZSI6InVua25vd24iLCJjcmVhdGVkIjoxNDkyMTIwOTE1MDgzLCJleHAiOjE0OTIxMjE5MTV9.9gX_NzwtD2gHPZ9PJwClHuLxEohZBlKaeGWYJBL2nY1ydjlT7PQ2xjsWPsDusebpSozdbUCnm8H3fpKE7yWRZg
       401:
-        description: Invalid Token
         body:
           application/json:
-            schema: httpStatus
-            example: !include ../examples/output/401.sample.json
+            type: ErrorResponse
+            description: Invalid Token
+            example:  !include ../examples/ouput/401.sample.json

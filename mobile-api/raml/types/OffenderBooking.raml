@@ -1,0 +1,54 @@
+#%RAML 1.0 DataType
+description: Offender Booking Summary
+properties:
+  bookingId:
+    type: number
+    (javaType): Long
+    description: Unique, numeric booking id.
+  bookingNo?:
+    type: string
+    description: Booking number.
+  offenderNo:
+    type: string
+    description: Offender number (e.g. NOMS Number).
+  firstName:
+    type: string
+    description: Offender first name.
+  middleName?:
+    type: string
+    description: Offender middle name.
+  lastName:
+    type: string
+    description: Offender last name.
+  dateOfBirth:
+    type: date-only
+    description: Offender date of birth.
+  age:
+    type: integer
+    description: Offender's current age.
+  alertsCodes:
+    type: string[]
+    description: List of offender's current alert codes.
+  agencyId:
+    type: string
+    description: Identifier of agency that offender is associated with.
+  assignedLivingUnitId?:
+    type: number
+    (javaType): Long
+    description: Identifier of living unit (e.g. cell) that offender is assigned to.
+  assignedLivingUnitDesc?:
+    type: string
+    description: Description of living unit (e.g. cell) that offender is assigned to.
+  facialImageId?:
+    type: number
+    (javaType): Long
+    description: Identifier of facial image of offender.
+  assignedOfficerUserId?:
+    type: string
+    description: Identifier of officer (key worker) to which offender is assigned.
+  aliases?:
+    type: string[]
+    description: List of offender's alias names.
+  iepLevel?:
+    type: string
+    description: The IEP Level of the offender (UK Only)

@@ -1,0 +1,60 @@
+#%RAML 1.0 DataType
+description: Scheduled Event
+properties:
+  bookingId:
+    type: number
+    (javaType): Long
+    description: Offender booking id
+    example: 48765
+  eventClass:
+    type: string
+    description: Class of event
+    example: INT_MOV (meaning Internal Movement)
+  eventStatus:
+    type: string
+    description: Status of event
+    example: SCH (meaning Scheduled)
+  eventType:
+    type: string
+    description: Type of scheduled event (as a code)
+    example: PRISON_ACT (meaning Prison Activity)
+  eventTypeDesc:
+    type: string
+    description: Description of scheduled event type
+    example: Prison Activities
+  eventSubType:
+    type: string
+    description: Sub type (or reason) of scheduled event (as a code)
+    example: CRT (meaning Court Appearance)
+  eventSubTypeDesc:
+    type: string
+    description: Description of scheduled event sub type
+    example: Late Return (Voluntary)
+  eventDate:
+    type: date-only
+    description: Date on which event occurs
+    example: 2017-09-13
+  startTime?:
+    type: datetime
+    description: Date and time at which event starts
+    example: 2017-09-13 09:30:00
+  endTime?:
+    type: datetime
+    description: Date and time at which event ends
+    example: 2017-09-13 11:30:00
+  eventLocation?:
+    type: string
+    description: Location at which event takes place (could be an internal location, agency or external address).
+    example: HMP Leeds
+  eventSource:
+    type: string
+    description: Code identifying underlying source of event data
+    example: VISIT (meaning Visit Schedules)
+  eventSourceCode?:
+    type: string
+    description: Source-specific code for the type or nature of the event
+    example: WOOD (meaning Woodwork class)
+  eventSourceDesc?:
+    type: string
+    description: Source-specific description for type or nature of the event
+    example: Woodwork

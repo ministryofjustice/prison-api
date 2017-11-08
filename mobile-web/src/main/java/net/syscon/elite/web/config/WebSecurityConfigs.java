@@ -1,6 +1,6 @@
 package net.syscon.elite.web.config;
 
-import net.syscon.elite.persistence.UserRepository;
+import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.security.ApiAuthenticationProvider;
 import net.syscon.elite.security.EntryPointUnauthorizedHandler;
 import net.syscon.elite.security.UserDetailsServiceImpl;
@@ -8,14 +8,15 @@ import net.syscon.elite.security.jwt.AuthenticationTokenFilter;
 import net.syscon.elite.security.jwt.TokenManagement;
 import net.syscon.elite.security.jwt.TokenSettings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -25,7 +26,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@Import({PersistenceConfigs.class, ServiceConfigs.class})
+@EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
 public class WebSecurityConfigs extends WebSecurityConfigurerAdapter {
 
 	@Autowired
@@ -57,8 +58,8 @@ public class WebSecurityConfigs extends WebSecurityConfigurerAdapter {
 	}
 
 	@Bean
-	public TokenManagement tokenManagement() {
-		return new TokenManagement();
+	public TokenManagement tokenManagement(TokenSettings settings, 	@Value("${token.username.stored.caps:true}") boolean upperCaseUsername) {
+		return new TokenManagement(settings, upperCaseUsername);
 	}
 
 	@Bean
@@ -77,11 +78,11 @@ public class WebSecurityConfigs extends WebSecurityConfigurerAdapter {
 				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and().authorizeRequests()
 				.antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-				.antMatchers("/api").permitAll()
-				.antMatchers( "/api/users/login").permitAll()
-				.antMatchers("/api/management/info").permitAll()
-				.anyRequest().authenticated();
-
+				.antMatchers( "/users/login").permitAll()
+				.antMatchers("/info/**").permitAll()
+				.antMatchers("/management/info").permitAll()
+				.antMatchers("/swagger*").permitAll()
+				.antMatchers("/**").authenticated();
 		// Custom JWT based authentication
 		http.addFilterBefore(authenticationTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 	}
