@@ -461,4 +461,14 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     public void userMessageInResourceNotFoundResponseFromBookingAssessmentsAPIIs(String expectedUserMessage) throws Throwable {
         bookingAssessment.verifyResourceNotFoundUserMessage(expectedUserMessage);
     }
+
+    @Then("^the number of active alerts is ([0-9-]+)$")
+    public void theNumberOfActiveAlertsIs(int count) throws Throwable {
+        bookingDetail.verifyActiveCount(count);
+    }
+
+    @And("^the number of inactive alerts is ([0-9-]+)$")
+    public void theNumberOfInactiveAlertsIs(int count) throws Throwable {
+        bookingDetail.verifyInactiveCount(count);
+    }
 }

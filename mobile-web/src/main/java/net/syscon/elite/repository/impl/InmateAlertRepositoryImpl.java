@@ -5,9 +5,7 @@ import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
-import net.syscon.elite.repository.mapping.FieldMapper;
-import net.syscon.elite.repository.mapping.PageAwareRowMapper;
-import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
+import net.syscon.elite.repository.mapping.*;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -74,5 +72,11 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 		}
 
 		return Optional.ofNullable(alert);
+	}
+
+	public long getAlertCounts(long bookingId, String status) {
+        return jdbcTemplate.queryForObject(getQuery("ALERT_COUNTS"),
+                createParams("bookingId", bookingId, "status", status),
+                Long.class);
 	}
 }

@@ -98,4 +98,19 @@ public class BookingDetailSteps extends CommonSteps {
         verifyPropertyMapValues(inmateDetail.getPhysicalCharacteristics(),
                 PhysicalCharacteristic::getCharacteristic, PhysicalCharacteristic::getDetail, characteristicsList);
     }
+
+    @Step("Verify active alert count")
+    public void verifyActiveCount(int count) {
+        assertThat(inmateDetail.getActiveAlertCount())
+                .as(String.format("bookingId: %s",inmateDetail.getBookingId()))
+                .isEqualTo(count);
+    }
+
+    @Step("Verify inactive alert count")
+    public void verifyInactiveCount(int count) {
+
+        assertThat(inmateDetail.getInactiveAlertCount())
+                .as(String.format("bookingId: %s",inmateDetail.getBookingId()))
+                .isEqualTo(count);
+    }
 }
