@@ -97,8 +97,8 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     }
 
     @Step("Verify home detention curfew approved date")
-    public void verifyHomeDetentionCurfewApprovedDate(String homeDetentionCurfewApprovedDate) {
-        verifyLocalDate(sentenceDetail.getHomeDetentionCurfewApprovedDate(), homeDetentionCurfewApprovedDate);
+    public void verifyHomeDetentionCurfewActualDate(String homeDetentionCurfewActualDate) {
+        verifyLocalDate(sentenceDetail.getHomeDetentionCurfewActualDate(), homeDetentionCurfewActualDate);
     }
 
     @Step("Verify parole approved date")
@@ -134,6 +134,21 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     @Step("Verify additional days awarded")
     public void verifyAdditionalDaysAwarded(Integer additionalDaysAwarded) {
         assertThat(sentenceDetail.getAdditionalDaysAwarded()).isEqualTo(additionalDaysAwarded);
+    }
+
+    @Step("Verify confirmed release date")
+    public void verifyConfirmedReleaseDate(String confirmedReleaseDate) {
+        verifyLocalDate(sentenceDetail.getConfirmedReleaseDate(), confirmedReleaseDate);
+    }
+
+    @Step("Verify release date")
+    public void verifyReleaseDate(String releaseDate) {
+        verifyLocalDate(sentenceDetail.getReleaseDate(), releaseDate);
+    }
+
+    @Step("Verify topup supervision eligibility date")
+    public void verifyTopupSupervisionEndDate(String topupSupervisionEndDate) {
+        verifyLocalDate(sentenceDetail.getTopupSupervisionEndDate(), topupSupervisionEndDate);
     }
 
     protected void init() {
