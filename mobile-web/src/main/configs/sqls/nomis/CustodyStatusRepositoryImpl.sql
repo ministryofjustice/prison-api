@@ -25,6 +25,7 @@ LIST_CUSTODY_STATUSES {
   FROM OFFENDERS O
     JOIN OFFENDER_BOOKINGS OB
       ON OB.offender_id = O.offender_id
+         AND NOT (OB.agy_loc_id = null OR OB.agy_loc_id = 'ZZGHI')
          AND OB.booking_seq = 1
 }
 
@@ -55,6 +56,8 @@ GET_CUSTODY_STATUS {
   FROM OFFENDERS O
     JOIN OFFENDER_BOOKINGS OB
         ON OB.offender_id = O.offender_id
+            AND NOT (OB.agy_loc_id = null OR OB.agy_loc_id = 'ZZGHI')
             AND OB.booking_seq = 1
-  WHERE O.OFFENDER_ID_DISPLAY = :offenderNo
+  WHERE
+    O.OFFENDER_ID_DISPLAY = :offenderNo
 }

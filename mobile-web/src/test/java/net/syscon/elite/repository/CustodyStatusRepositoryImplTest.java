@@ -61,4 +61,10 @@ public class CustodyStatusRepositoryImplTest {
         assertNull(custodyStatusDto.getMovementReasonCode());
     }
 
+    @Test
+    public final void failToRetrieveARecordForAKnownOffenderThatIsLocatedInTheGhostPrison() {
+        final CustodyStatusDto custodyStatusDto = repository.getCustodyStatus("Z0026ZZ").orElse(null);
+        assertNull(custodyStatusDto);
+    }
+
 }
