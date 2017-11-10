@@ -1,6 +1,7 @@
 package net.syscon.elite.service.impl;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -89,7 +90,7 @@ public class CustodyStatusServiceImplTest {
 
     @Test
     public void listCustodyStatusesWithoutACustodyStatusFilter() {
-        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(new CustodyStatusCode[] {}, null);
+        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(Lists.newArrayList(), null);
 
         assertEquals(3, records.size());
     }
@@ -122,7 +123,7 @@ public class CustodyStatusServiceImplTest {
 
     @Test
     public void listCustodyStatusesWithACustodyStatusFilterSetToTwoCodes() {
-        CustodyStatusCode[] codes = new CustodyStatusCode[] { CustodyStatusCode.ACTIVE_OUT_CRT, CustodyStatusCode.ACTIVE_IN };
+        List<CustodyStatusCode> codes = Lists.newArrayList(CustodyStatusCode.ACTIVE_OUT_CRT, CustodyStatusCode.ACTIVE_IN);
         List<PrisonerCustodyStatus> records = service.listCustodyStatuses(codes, Order.ASC);
 
         assertEquals(2, records.size());

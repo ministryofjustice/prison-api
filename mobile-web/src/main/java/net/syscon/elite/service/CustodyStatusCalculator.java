@@ -22,11 +22,13 @@ public class CustodyStatusCalculator {
                 return CustodyStatusCode.ACTIVE_IN;
             }
 
-            if ("N".equals(record.getActiveFlag())  && "TRN".equals(record.getMovementType())) {
+            // "N".equals(record.getActiveFlag())
+            if ("TRN".equals(record.getMovementType())) {
                 return CustodyStatusCode.IN_TRANSIT;
             }
         }
 
+        // "C".equals(record.getBookingStatus())
         return Optional.ofNullable(record.getMovementType())
                 .filter("REL"::equals)
                 .map(mt -> Optional.ofNullable(record.getMovementReasonCode())
