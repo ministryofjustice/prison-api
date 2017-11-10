@@ -89,7 +89,7 @@ public class CustodyStatusServiceImplTest {
 
     @Test
     public void listCustodyStatusesWithoutACustodyStatusFilter() {
-        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(null, null);
+        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(new CustodyStatusCode[] {}, null);
 
         assertEquals(3, records.size());
     }
@@ -122,7 +122,7 @@ public class CustodyStatusServiceImplTest {
 
     @Test
     public void listCustodyStatusesWithACustodyStatusFilterSetToTwoCodes() {
-        List<CustodyStatusCode> codes = Arrays.asList(CustodyStatusCode.ACTIVE_OUT_CRT, CustodyStatusCode.ACTIVE_IN);
+        CustodyStatusCode[] codes = new CustodyStatusCode[] { CustodyStatusCode.ACTIVE_OUT_CRT, CustodyStatusCode.ACTIVE_IN };
         List<PrisonerCustodyStatus> records = service.listCustodyStatuses(codes, Order.ASC);
 
         assertEquals(2, records.size());

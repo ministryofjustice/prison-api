@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import com.google.common.collect.Lists;
 import net.syscon.elite.api.model.PrisonerCustodyStatus;
 import net.syscon.elite.api.support.CustodyStatusCode;
 import net.syscon.elite.api.support.Order;
@@ -37,12 +38,22 @@ public class CustodyStatusServiceImpl implements CustodyStatusService {
 
     @Override
     public List<PrisonerCustodyStatus> listCustodyStatuses(Order order) {
-        return listCustodyStatuses(null, order);
+        return listCustodyStatuses(Lists.newArrayList(), order);
     }
 
     @Override
     public List<PrisonerCustodyStatus> listCustodyStatuses(CustodyStatusCode custodyStatusCode) {
-        return listCustodyStatuses(Arrays.asList(custodyStatusCode), null);
+        return listCustodyStatuses(Lists.newArrayList(custodyStatusCode), null);
+    }
+
+    @Override
+    public List<PrisonerCustodyStatus> listCustodyStatuses(List<CustodyStatusCode> custodyStatusCodes) {
+        return listCustodyStatuses(custodyStatusCodes, null);
+    }
+
+    @Override
+    public List<PrisonerCustodyStatus> listCustodyStatuses(CustodyStatusCode custodyStatusCode, Order order) {
+        return listCustodyStatuses(Lists.newArrayList(custodyStatusCode), order);
     }
 
     @Override

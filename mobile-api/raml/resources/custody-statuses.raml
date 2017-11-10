@@ -1,20 +1,40 @@
 /:
   description: Returns a list of offender nos and their respective custody status.
   (javaOperationName): getPrisonerCustodyStatuses
-  type: { readOnlyCollection: { type: PrisonerCustodyStatus } }
+  type:
+    readOnlyCollection:
+      type: PrisonerCustodyStatus
+      description: A Custody Status attributed to a Prisoner
   get:
     queryParameters:
-      custodyStatusCode:
+      custodyStatusCodes:
         description: Prisoner with the specified Custody Status
-        (JavaType): CustodyStatusCode
-    is: [
-      sortable: { fieldsList : "custodyStatusCode" },
-    ]
+        type: array
+        items:
+          (javaType): CustodyStatusCode
+#          enum:
+#            - ACTIVE_OUT_CRT
+#            - ACTIVE_OUT_TAP
+#            - ACTIVE_IN
+#            - IN_TRANSIT
+#            - ACTIVE_UAL
+#            - ACTIVE_UAL_ECL
+#            - ACTIVE_ESCP
+#            - IN_ACTIVE
+#            - IN_ACTIVE_OUT
+#            - OTHER
+        required: false
+    is:
+      - sortable:
+          fieldsList: "custodyStatusCode"
 
 /{offenderNo}:
   description: Returns the custody status for a specific offender no.
   (javaOperationName): getPrisonerCustodyStatus
-  type: { readOnlyItem: { type: PrisonerCustodyStatus } }
+  type:
+    readOnlyItem:
+      type: PrisonerCustodyStatus
+      description: A Custody Status attributed to a Prisoner
   get:
     uriParameters:
       offenderNo:

@@ -27,8 +27,10 @@ public class CustodyStatusResourceImpl implements CustodyStatusResource {
 
     @Override
     @PreAuthorize("authentication.authorities.?[authority.contains('_ADMIN')].size() != 0 || authentication.authorities.?[authority.contains('GLOBAL_SEARCH')].size() != 0")
-    public GetPrisonerCustodyStatusesResponse getPrisonerCustodyStatuses(String custodyStatusCodes, String sortFields, Order sortOrder) {
-        final List<PrisonerCustodyStatus> custodyStatuses = custodyStatusService.listCustodyStatuses(asValidCustodyStatusCode(custodyStatusCodes), sortOrder);
+    public GetPrisonerCustodyStatusesResponse getPrisonerCustodyStatuses(String sortFields, Order sortOrder, List<String> custodyStatusCodes) {
+        final List<PrisonerCustodyStatus> custodyStatuses = custodyStatusService.listCustodyStatuses(
+                custodyStatusCodes.stream().map(CustodyStatusCode::valueOf).collect(Collectors.toList()),
+                sortOrder);
         return GetPrisonerCustodyStatusesResponse.respond200WithApplicationJson(custodyStatuses);
     }
 
@@ -37,11 +39,5 @@ public class CustodyStatusResourceImpl implements CustodyStatusResource {
     public GetPrisonerCustodyStatusResponse getPrisonerCustodyStatus(String offenderNo) {
         final PrisonerCustodyStatus custodyStatus = custodyStatusService.getCustodyStatus(offenderNo);
         return GetPrisonerCustodyStatusResponse.respond200WithApplicationJson(custodyStatus);
-    }
-
-    private List<CustodyStatusCode> asValidCustodyStatusCode(String codes) {
-        return StringUtils.isNotBlank(codes) ?
-                Arrays.stream(codes.split(",")).map(CustodyStatusCode::valueOf).collect(Collectors.toList()) :
-                Arrays.asList();
     }
 }
