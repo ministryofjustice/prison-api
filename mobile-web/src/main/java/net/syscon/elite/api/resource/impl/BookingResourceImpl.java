@@ -10,6 +10,7 @@ import net.syscon.util.DateTimeConverter;
 
 import javax.ws.rs.Path;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static net.syscon.util.ResourceUtils.nvl;
@@ -187,10 +188,10 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetMainSentenceResponse getMainSentence(Long bookingId) {
-        MainSentence mainSentence = bookingService.getMainSentence(bookingId);
+    public GetMainOffenceResponse getMainOffence(Long bookingId) {
+        List<OffenceDetail> offenceDetails = bookingService.getMainOffenceDetails(bookingId);
 
-        return GetMainSentenceResponse.respond200WithApplicationJson(mainSentence);
+        return GetMainOffenceResponse.respond200WithApplicationJson(offenceDetails);
     }
 
     @Override

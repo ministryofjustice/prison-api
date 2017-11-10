@@ -1,3 +1,20 @@
+GET_BOOKING_MAIN_OFFENCES {
+  SELECT OCH.OFFENDER_BOOK_ID BOOKING_ID,
+         OFFS.DESCRIPTION OFFENCE_DESCRIPTION
+  FROM OFFENDER_CHARGES OCH
+    INNER JOIN OFFENCES OFFS ON OFFS.OFFENCE_CODE = OCH.OFFENCE_CODE AND OFFS.STATUTE_CODE = OCH.STATUTE_CODE
+  WHERE OCH.OFFENDER_BOOK_ID = :bookingId
+    AND OCH.MOST_SERIOUS_FLAG = 'Y'
+    AND OCH.CHARGE_STATUS = 'A'
+  ORDER BY CAST(COALESCE(OFFS.SEVERITY_RANKING, '999') AS INT)
+}
+
+GET_BOOKING_CONFIRMED_RELEASE_DATE {
+  SELECT RELEASE_DATE
+  FROM OFFENDER_RELEASE_DETAILS
+  WHERE OFFENDER_BOOK_ID = :bookingId
+}
+
 GET_CASE {
   -- not currently used, this gets a case id for the query below
 SELECT ocs.case_id,
@@ -45,21 +62,4 @@ SELECT och.offender_charge_id,
   LEFT JOIN reference_codes r2           ON r2.code = ist.band_code AND r2.domain = 'IMPSBAND'
  WHERE och.case_id = :caseId
  ORDER BY och.charge_status asc, och.most_serious_flag desc, offs.severity_ranking
-}
-
-GET_MAIN_OFFENCE {
-  SELECT offs.description FROM offender_charges och
-  JOIN offences offs ON offs.offence_code = och.offence_code AND offs.statute_code = och.statute_code
-  WHERE och.offender_book_id = :bookingId AND och.most_serious_flag = 'Y' AND och.charge_status = 'A'
-}
-
-GET_SENTENCE_LENGTH {
-  SELECT osc.effective_sentence_length FROM offender_sent_calculations osc
-  WHERE offender_sent_calculation_id = 
-    (SELECT MAX(offender_sent_calculation_id) FROM offender_sent_calculations WHERE offender_book_id = :bookingId)
-}
-
-GET_RELEASE_DATE {  
-  SELECT COALESCE(auto_release_date, release_date) AS release_date FROM offender_release_details
-  WHERE offender_book_id = :bookingId
 }
