@@ -266,8 +266,8 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingSentenceDetail.verifyLicenceExpiryDate(licenceExpiryDate);
     }
 
-    @And("^release date matches \"([^\"]*)\"$")
-    public void releaseDateMatches(String releaseDate) throws Throwable {
+    @And("^non-DTO release date matches \"([^\"]*)\"$")
+    public void nonDtoReleaseDateMatches(String releaseDate) throws Throwable {
         bookingSentenceDetail.verifyNonDtoReleaseDate(releaseDate);
     }
 
@@ -277,14 +277,14 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
                 isBlank(additionalDaysAwarded) ? null : Integer.valueOf(additionalDaysAwarded));
     }
 
-    @And("^release date type matches \"([^\"]*)\"$")
-    public void releaseDateTypeMatches(String releaseDateType) throws Throwable {
+    @And("^non-DTO release date type matches \"([^\"]*)\"$")
+    public void nonDtoReleaseDateTypeMatches(String releaseDateType) throws Throwable {
         bookingSentenceDetail.verifyNonDtoReleaseDateType(releaseDateType);
     }
 
-    @And("^home detention curfew approved date matches \"([^\"]*)\"$")
-    public void homeDetentionCurfewApprovedDateMatches(String homeDetentionCurfewApprovedDate) throws Throwable {
-        bookingSentenceDetail.verifyHomeDetentionCurfewApprovedDate(homeDetentionCurfewApprovedDate);
+    @And("^home detention curfew actual date matches \"([^\"]*)\"$")
+    public void homeDetentionCurfewActualDateMatches(String homeDetentionCurfewActualDate) throws Throwable {
+        bookingSentenceDetail.verifyHomeDetentionCurfewActualDate(homeDetentionCurfewActualDate);
     }
 
     @And("^approved parole date matches \"([^\"]*)\"$")
@@ -305,6 +305,21 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @Then("^resource not found response is received from sentence details API$")
     public void resourceNotFoundResponseIsReceivedFromSentenceDetailsAPI() throws Throwable {
         bookingSentenceDetail.verifyResourceNotFound();
+    }
+
+    @And("^confirmed release date matches \"([^\"]*)\"$")
+    public void confirmedReleaseDateMatches(String confirmedReleaseDate) throws Throwable {
+        bookingSentenceDetail.verifyConfirmedReleaseDate(confirmedReleaseDate);
+    }
+
+    @And("^topup supervision end date matches \"([^\"]*)\"$")
+    public void topupSupervisionEndDateMatches(String topupSupervisionEndDate) throws Throwable {
+        bookingSentenceDetail.verifyTopupSupervisionEndDate(topupSupervisionEndDate);
+    }
+
+    @And("^release date matches \"([^\"]*)\"$")
+    public void releaseDateMatches(String releaseDate) throws Throwable {
+        bookingSentenceDetail.verifyReleaseDate(releaseDate);
     }
 
     @When("^an IEP summary only is requested for an offender with booking id \"([^\"]*)\"$")
@@ -420,15 +435,19 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     }
 
     // ----------------------------- Main Sentence --------------------------
-
     @When("^a sentence with booking id ([0-9-]+) is requested$")
-    public void sentenceWithBookingId(Long id) {
-        bookingSentence.getMainSentence(id);
+    public void sentenceWithBookingId(Long bookingId) {
+        bookingSentence.getMainOffenceDetails(bookingId);
     }
 
-    @Then("^the returned mainSentence ([^\"]+) is \"([^\"]*)\"$")
-    public void theFieldIs(String field, String value) throws ReflectiveOperationException {
-        bookingSentence.verifyField(field, value);
+    @Then("^(\\d+) offence detail records are returned$")
+    public void offenceDetailRecordsAreReturned(long expectedCount) throws Throwable {
+        bookingSentence.verifyResourceRecordsReturned(expectedCount);
+    }
+
+    @And("^offence description of \"([^\"]*)\" offence detail record is \"([^\"]*)\"$")
+    public void offenceDescriptionOfOffenceDetailRecordIs(String ordinal, String expectedDescription) throws Throwable {
+        bookingSentence.verifyOffenceDescription(ord2idx(ordinal), expectedDescription);
     }
 
     @Then("resource not found response is received from sentence API")

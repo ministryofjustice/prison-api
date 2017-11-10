@@ -202,9 +202,9 @@
     sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
   ]
 
-/{bookingId}/mainSentence:
-  (javaOperationName): getMainSentence
-  type: { readOnlyItem: { type: MainSentence } }
+/{bookingId}/mainOffence:
+  (javaOperationName): getMainOffence
+  type: { readOnlyCollection: { type: OffenceDetail, description: Main offence details. } }
   uriParameters:
     bookingId:
       (javaType): Long

@@ -53,9 +53,9 @@ properties:
   paroleEligibilityDate?:
     type: date-only
     description: PED - date on which offender is eligible for parole.
-  homeDetentionCurfewApprovedDate?:
+  homeDetentionCurfewActualDate?:
     type: date-only
-    description: HDCAD - the offender's approved home detention curfew date.
+    description: HDCAD - the offender's actual home detention curfew date.
   approvedParoleDate?:
     type: date-only
     description: APD - the offender's approved parole date.
@@ -74,3 +74,12 @@ properties:
   lateTermDate?:
     type: date-only
     description: LTD - late term date for offender.
+  topupSupervisionEndDate?:
+    type: date-only
+    description: TUSED - top-up supervision end date for offender.
+  confirmedReleaseDate?:
+    type: date-only
+    description: Confirmed release date for offender.
+  releaseDate?:
+    type: date-only
+    description: Confirmed, actual, approved, provisional or calculated release date for offender, according to offender release date algorithm.
