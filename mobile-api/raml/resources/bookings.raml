@@ -202,6 +202,14 @@
     sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
   ]
 
+/{bookingId}/contacts:
+  (javaOperationName): getContacts
+  type: { readOnlyItem: { type: ContactDetail } }
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+
 /{bookingId}/mainSentence:
   (javaOperationName): getMainSentence
   type: { readOnlyItem: { type: MainSentence } }

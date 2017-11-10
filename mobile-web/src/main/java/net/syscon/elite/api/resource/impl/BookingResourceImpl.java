@@ -25,14 +25,17 @@ public class BookingResourceImpl implements BookingResource {
     private final CaseNoteService caseNoteService;
     private final InmatesAlertService inmateAlertService;
     private final FinanceService financeService;
+    private final ContactService contactService;
 
     public BookingResourceImpl(BookingService bookingService, InmateService inmateService,
-            CaseNoteService caseNoteService, InmatesAlertService inmateAlertService, FinanceService financeService) {
+            CaseNoteService caseNoteService, InmatesAlertService inmateAlertService, FinanceService financeService,
+            ContactService contactService) {
         this.bookingService = bookingService;
         this.inmateService = inmateService;
         this.caseNoteService = caseNoteService;
         this.inmateAlertService = inmateAlertService;
         this.financeService = financeService;
+        this.contactService = contactService;
     }
 
     @Override
@@ -188,5 +191,12 @@ public class BookingResourceImpl implements BookingResource {
         MainSentence mainSentence = bookingService.getMainSentence(bookingId);
 
         return GetMainSentenceResponse.respond200WithApplicationJson(mainSentence);
+    }
+
+    @Override
+    public GetContactsResponse getContacts(Long bookingId) {
+        final ContactDetail contacts = contactService.getContacts(bookingId);
+
+        return GetContactsResponse.respond200WithApplicationJson(contacts);
     }
 }
