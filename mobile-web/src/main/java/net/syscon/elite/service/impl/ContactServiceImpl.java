@@ -28,7 +28,7 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public ContactDetail getContacts(final long bookingId) {
         bookingService.verifyBookingAccess(bookingId);
-        List<NextOfKin> list = repository.findNextOfKin(bookingId);
+        final List<NextOfKin> list = repository.findNextOfKin(bookingId);
         return ContactDetail.builder().nextOfKin(list).build();
     }
 }

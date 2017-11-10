@@ -29,9 +29,8 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
 
     @Override
     public List<NextOfKin> findNextOfKin(long bookingId) {
-        String sql = getQuery("FIND_NEXT_OF_KIN");
-        RowMapper<NextOfKin> rowMapper = Row2BeanRowMapper.makeMapping(sql, NextOfKin.class, nextOfKinMapping);
-        List<NextOfKin> results = jdbcTemplate.query(sql, createParams("bookingId", bookingId), rowMapper);
-        return results;
+        final String sql = getQuery("FIND_NEXT_OF_KIN");
+        final RowMapper<NextOfKin> rowMapper = Row2BeanRowMapper.makeMapping(sql, NextOfKin.class, nextOfKinMapping);
+        return jdbcTemplate.query(sql, createParams("bookingId", bookingId), rowMapper);
     }
 }
