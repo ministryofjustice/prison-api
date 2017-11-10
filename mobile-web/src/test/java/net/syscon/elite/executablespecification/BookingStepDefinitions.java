@@ -1,5 +1,6 @@
 package net.syscon.elite.executablespecification;
 
+import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -460,5 +461,15 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @And("^user message in resource not found response from booking assessments API is \"([^\"]*)\"$")
     public void userMessageInResourceNotFoundResponseFromBookingAssessmentsAPIIs(String expectedUserMessage) throws Throwable {
         bookingAssessment.verifyResourceNotFoundUserMessage(expectedUserMessage);
+    }
+
+    @Then("^the number of active alerts is ([0-9-]+)$")
+    public void theNumberOfActiveAlertsIs(int count) throws Throwable {
+        bookingDetail.verifyActiveCount(count);
+    }
+
+    @And("^the number of inactive alerts is ([0-9-]+)$")
+    public void theNumberOfInactiveAlertsIs(int count) throws Throwable {
+        bookingDetail.verifyInactiveCount(count);
     }
 }

@@ -114,3 +114,16 @@ Feature: Booking Details
       | -10       | Metodist                  |
       | -11       | Other Christian Religion  |
       | -12       | Orthodox (Greek/Russian)  |
+
+
+  Scenario Outline: When requesting offender details a count of active and inactive alerts are returned
+    When an offender booking request is made with booking id "<bookingId>"
+    Then the number of active alerts is <activeAlerts>
+    And the number of inactive alerts is <inactiveAlerts>
+
+    Examples:
+      | bookingId | activeAlerts | inactiveAlerts |
+      | -15       | 1            | 0              |
+      | -1        | 2            | 1              |
+      | -13       | 0            | 1              |
+

@@ -26,6 +26,12 @@ properties:
   alertsCodes?:
     type: string[]
     description: List of Alerts
+  activeAlertCount:
+    (javaType): Long
+    description: number of active alerts
+  inactiveAlertCount:
+    (javaType): Long
+    description: number of inactive alerts
   assignedLivingUnit?:
     type: AssignedLivingUnit
     description: Where the offender is staying
