@@ -1,6 +1,7 @@
 package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.CaseNote;
+import net.syscon.elite.api.model.CaseNoteCount;
 import net.syscon.elite.api.model.NewCaseNote;
 import net.syscon.elite.api.model.UpdateCaseNote;
 import net.syscon.elite.test.EliteClientException;
@@ -22,11 +23,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CaseNoteSteps extends CommonSteps {
     private static final String API_REQUEST_BASE_URL = API_PREFIX + "bookings/{bookingId}/caseNotes";
     private static final String API_REQUEST_FOR_CASENOTE = API_REQUEST_BASE_URL + "/{caseNoteId}";
+    private static final String API_REQUEST_FOR_CASENOTE_COUNT = API_REQUEST_BASE_URL + "/{type}/{subType}/count";
 
     private CaseNote caseNote;
     private NewCaseNote pendingCaseNote;
     private String caseNoteFilter;
     private List<CaseNote> caseNotes;
+    private CaseNoteCount caseNoteCount;
 
     @Value("${api.caseNote.sourceCode:AUTO}")
     private String caseNoteSource;
@@ -42,6 +45,7 @@ public class CaseNoteSteps extends CommonSteps {
         caseNoteFilter = "";
         fromDate = null;
         toDate = null;
+        caseNoteCount = null;
     }
 
     @Step("Verify case note")
@@ -92,8 +96,14 @@ public class CaseNoteSteps extends CommonSteps {
         dispatchQueryRequest(bookingId);
     }
 
+    @Step("Get case note")
     public void getCaseNote(long bookingId, long caseNoteId) {
         dispatchGetRequest(bookingId, caseNoteId);
+    }
+
+    @Step("Get case note count")
+    public void getCaseNoteCount(long bookingId, String type, String subType) {
+        dispatchGetCaseNoteCountRequest(bookingId, type, subType);
     }
 
     @Step("Verify case note types")
@@ -104,6 +114,11 @@ public class CaseNoteSteps extends CommonSteps {
     @Step("Verify case note sub types")
     public void verifyCaseNoteSubTypes(String caseNoteSubTypes) {
         verifyPropertyValues(caseNotes, CaseNote::getSubType, caseNoteSubTypes);
+    }
+
+    @Step("Verify case note count response property value")
+    public void verifyCaseNoteCountPropertyValue(String propertyName, String expectedValue) throws Exception {
+        verifyPropertyValue(caseNoteCount, propertyName, expectedValue);
     }
 
     @Step("Apply case note type filter")
@@ -200,6 +215,25 @@ public class CaseNoteSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             buildResourceData(response);
             caseNotes = response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    private void dispatchGetCaseNoteCountRequest(Long bookingId, String type, String subType) {
+        try {
+            ResponseEntity<CaseNoteCount> response = restTemplate.exchange(
+                    API_REQUEST_FOR_CASENOTE_COUNT,
+                    HttpMethod.GET,
+                    createEntity(),
+                    CaseNoteCount.class,
+                    bookingId,
+                    type,
+                    subType);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+            caseNoteCount = response.getBody();
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
