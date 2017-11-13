@@ -2,35 +2,37 @@ package net.syscon.elite.repository.impl;
 
 import net.syscon.elite.api.model.NextOfKin;
 import net.syscon.elite.repository.ContactRepository;
-import net.syscon.elite.repository.mapping.FieldMapper;
-import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
-
-import jersey.repackaged.com.google.common.collect.ImmutableMap;
 
 @Repository
 public class ContactRepositoryImpl extends RepositoryBase implements ContactRepository {
 
-    private final Map<String, FieldMapper> nextOfKinMapping = new ImmutableMap.Builder<String, FieldMapper>()
-            .put("LAST_NAME",                new FieldMapper("lastName"))
-            .put("FIRST_NAME",               new FieldMapper("firstName"))
-            .put("MIDDLE_NAME",              new FieldMapper("middleName"))
-            .put("CONTACT_TYPE",             new FieldMapper("contactType"))
-            .put("CONTACT_DESCRIPTION",      new FieldMapper("contactTypeDescription"))
-            .put("RELATIONSHIP_TYPE",        new FieldMapper("relationship"))
-            .put("RELATIONSHIP_DESCRIPTION", new FieldMapper("relationshipDescription"))
-            .put("EMERGENCY_CONTACT_FLAG",   new FieldMapper("emergencyContact", value -> "Y".equals(value)))
-            .build();
-
     @Override
     public List<NextOfKin> findNextOfKin(long bookingId) {
+
         final String sql = getQuery("FIND_NEXT_OF_KIN");
-        final RowMapper<NextOfKin> rowMapper = Row2BeanRowMapper.makeMapping(sql, NextOfKin.class, nextOfKinMapping);
+        final RowMapper<NextOfKin> rowMapper = new RowMapper<NextOfKin>() {
+
+            @Override
+            public NextOfKin mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return NextOfKin.builder()
+                        .lastName(rs.getString("LAST_NAME"))
+                        .firstName(rs.getString("FIRST_NAME"))
+                        .middleName(rs.getString("MIDDLE_NAME"))
+                        .contactType(rs.getString("CONTACT_TYPE"))
+                        .contactTypeDescription(rs.getString("CONTACT_DESCRIPTION"))
+                        .relationship(rs.getString("RELATIONSHIP_TYPE"))
+                        .relationshipDescription(rs.getString("RELATIONSHIP_DESCRIPTION"))
+                        .emergencyContact("Y".equals(rs.getString("EMERGENCY_CONTACT_FLAG")))
+                        .build();
+            }
+        };
         return jdbcTemplate.query(sql, createParams("bookingId", bookingId), rowMapper);
     }
 }
