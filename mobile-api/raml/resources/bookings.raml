@@ -184,9 +184,11 @@
       fromDate?:
         type: string
         description: Returned activities must be scheduled on or after this date (in YYYY-MM-DD format).
+        example: 2017-06-01
       toDate?:
         type: string
         description: Returned activities must be scheduled on or before this date (in YYYY-MM-DD format).
+        example: 2017-09-01
   is: [
     sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
   ]
@@ -229,9 +231,11 @@
       fromDate?:
         type: string
         description: Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.
+        example: 2017-06-01
       toDate?:
         type: string
         description: Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered.
+        example: 2017-09-01
 
 /{bookingId}/mainOffence:
   (javaOperationName): getMainOffence

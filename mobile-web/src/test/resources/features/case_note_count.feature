@@ -17,8 +17,12 @@ Feature: Case Note Count
     When case note count is requested for offender booking "-16" for case note type "CHAP" and sub-type "FAMMAR"
     Then resource not found response is received from casenotes API
 
+  Scenario: Case note count is requested for existing booking, using a fromDate later than toDate
+    When case note count between "2017-09-18" and "2017-09-12" is requested for offender booking "-1" for case note type "CHAP" and sub-type "FAMMAR"
+    Then bad request response, with "Invalid date range: toDate is before fromDate." message, is received from casenotes API
+
   Scenario Outline: Valid request for case note count
-    When case note count is requested for offender booking "<bookingId>" for case note type "<type>" and sub-type "<subType>"
+    When case note count between "<fromDate>" and "<toDate>" is requested for offender booking "<bookingId>" for case note type "<type>" and sub-type "<subType>"
     Then case note count response "count" is "<count>"
     And case note count response "bookingId" is "<bookingId>"
     And case note count response "type" is "<type>"
@@ -27,9 +31,14 @@ Feature: Case Note Count
     And case note count response "toDate" is "<toDate>"
 
     Examples:
-      | bookingId | type    | subType | fromDate | toDate | count |
-      | -1        | CHAP    | FAMMAR  |          |        | 1     |
-      | -2        | CHAP    | FAMMAR  |          |        | 0     |
-      | -2        | APP     | OUTCOME |          |        | 1     |
-      | -3        | CHAP    | FAMMAR  |          |        | 0     |
-      | -3        | OBSERVE | OBS_GEN |          |        | 8     |
+      | bookingId | type    | subType | fromDate   | toDate     | count |
+      | -1        | CHAP    | FAMMAR  |            |            | 1     |
+      | -2        | CHAP    | FAMMAR  |            |            | 0     |
+      | -2        | APP     | OUTCOME |            |            | 1     |
+      | -3        | CHAP    | FAMMAR  |            |            | 0     |
+      | -3        | OBSERVE | OBS_GEN |            |            | 8     |
+      | -3        | OBSERVE | OBS_GEN | 2017-05-01 |            | 8     |
+      | -3        | OBSERVE | OBS_GEN |            | 2017-05-01 | 0     |
+      | -3        | OBSERVE | OBS_GEN | 2017-07-01 |            | 4     |
+      | -3        | OBSERVE | OBS_GEN |            | 2017-07-31 | 6     |
+      | -3        | OBSERVE | OBS_GEN | 2017-08-01 | 2017-08-31 | 2     |

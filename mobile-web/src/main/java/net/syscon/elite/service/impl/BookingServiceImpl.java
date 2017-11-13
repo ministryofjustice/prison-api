@@ -110,10 +110,8 @@ public class BookingServiceImpl implements BookingService {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
         // Validate date range
-        if (Objects.nonNull(fromDate) && Objects.nonNull(toDate)) {
-            if (toDate.isBefore(fromDate)) {
-                throw new BadRequestException("Invalid date range: toDate is before fromDate.");
-            }
+        if (Objects.nonNull(fromDate) && Objects.nonNull(toDate) && toDate.isBefore(fromDate)) {
+            throw new BadRequestException("Invalid date range: toDate is before fromDate.");
         }
 
         verifyBookingAccess(bookingId);
