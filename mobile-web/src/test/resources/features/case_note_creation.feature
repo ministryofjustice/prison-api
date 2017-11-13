@@ -136,9 +136,9 @@ Feature: Case Note Creation and Update
     Then resource not found response is received from casenotes API
 
   Scenario: Attempt to update case note for offender that is not part of any of logged on staff user's caseloads
-    When attempt is made to update case note for booking with id -16
+    When attempt is made to update case note for booking with id "-16"
     Then resource not found response is received from casenotes API
 
   Scenario: Attempt to update case note for offender that does not exist
-    When attempt is made to update case note for booking with id -99
+    When attempt is made to update case note for booking with id "-99"
     Then resource not found response is received from casenotes API

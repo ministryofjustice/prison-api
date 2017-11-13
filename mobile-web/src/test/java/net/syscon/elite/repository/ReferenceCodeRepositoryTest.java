@@ -36,7 +36,7 @@ public class ReferenceCodeRepositoryTest {
 
     @Test
     public final void testGetAlertTypeByCode() {
-        final ReferenceCode alertTypeCodesByAlertCode = repository.getReferenceCodeByDomainAndCode("ALERT", "X")
+        final ReferenceCode alertTypeCodesByAlertCode = repository.getReferenceCodeByDomainAndCode("ALERT", "X", false)
                 .orElseThrow(new EntityNotFoundException("not found"));
         assertThat(alertTypeCodesByAlertCode).isNotNull();
     }

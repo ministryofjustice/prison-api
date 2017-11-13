@@ -26,21 +26,50 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
             new StandardBeanPropertyRowMapper<>(ReferenceCodeDetail.class);
 
 	@Override
-	public Optional<ReferenceCode> getReferenceCodeByDomainAndCode(String domain, String code) {
+	public Optional<ReferenceCode> getReferenceCodeByDomainAndCode(String domain, String code, boolean withChildren) {
+		ReferenceCode referenceCode;
+
+		if (withChildren) {
+			List<ReferenceCode> referenceCodeList = getReferenceCodeByDomainAndCodeWithChildren(domain, code);
+
+			if (referenceCodeList.isEmpty()) {
+				referenceCode = null;
+			} else {
+				referenceCode = referenceCodeList.get(0);
+			}
+		} else {
+			referenceCode = getReferenceCodeByDomainAndCode(domain, code);
+		}
+
+		return Optional.ofNullable(referenceCode);
+	}
+
+	private List<ReferenceCode> getReferenceCodeByDomainAndCodeWithChildren(String domain, String code) {
+		String sql = getQuery("FIND_REFERENCE_CODES_BY_DOMAIN_AND_CODE_WITH_CHILDREN");
+
+		List<ReferenceCodeDetail> rcdResults = jdbcTemplate.query(
+				sql,
+				createParams("domain", domain, "code", code),
+				referenceCodeDetailMapper);
+
+		return convertToReferenceCodes(rcdResults, false);
+	}
+
+	private ReferenceCode getReferenceCodeByDomainAndCode(String domain, String code) {
 		String sql = getQuery("FIND_REFERENCE_CODE_BY_DOMAIN_CODE");
 
-        ReferenceCode referenceCode;
+		ReferenceCode referenceCode;
 
 		try {
-            referenceCode = jdbcTemplate.queryForObject(
-                    sql,
-                    createParams("domain", domain, "code", code),
-                    referenceCodeMapper);
+			referenceCode = jdbcTemplate.queryForObject(
+					sql,
+					createParams("domain", domain, "code", code),
+					referenceCodeMapper);
 		} catch (EmptyResultDataAccessException e) {
 			referenceCode = null;
 		}
 
-		return Optional.ofNullable(referenceCode);
+		return referenceCode;
 	}
 
 	@Override
@@ -215,27 +244,5 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
         }
 
         return page;
-	}
-
-	@Override
-	public Page<ReferenceCode> getCaseNoteSubType(String typeCode, String query, String orderBy, Order order, long offset, long limit) {
-        String initialSql = getQuery("FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE");
-	    IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, referenceCodeMapper.getFieldMap());
-
-	    String sql = builder
-				.addQuery(query)
-				.addOrderBy(order, orderBy)
-				.addRowCount()
-				.addPagination()
-				.build();
-
-        PageAwareRowMapper<ReferenceCode> paRowMapper = new PageAwareRowMapper<>(referenceCodeMapper);
-
-        List<ReferenceCode> results = jdbcTemplate.query(
-                    sql,
-                    createParams("caseNoteType", typeCode, "offset", offset, "limit", limit),
-                    paRowMapper);
-
-        return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
 	}
 }
