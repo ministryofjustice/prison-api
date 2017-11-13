@@ -219,7 +219,7 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
 
     @When("^case note count is requested for offender booking \"([^\"]*)\" for case note type \"([^\"]*)\" and sub-type \"([^\"]*)\"$")
     public void caseNoteCountIsRequestedForOffenderBookingForCaseNoteTypeAndSubType(String bookingId, String type, String subType) throws Throwable {
-        caseNote.getCaseNoteCount(Long.valueOf(bookingId), type, subType);
+        caseNote.getCaseNoteCount(Long.valueOf(bookingId), type, subType, null, null);
     }
 
     @Then("^case note count response \"([^\"]*)\" is \"([^\"]*)\"$")
@@ -230,5 +230,10 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     @Then("^bad request response, with \"([^\"]*)\" message, is received from casenotes API$")
     public void badRequestResponseWithMessageIsReceivedFromCasenotesAPI(String expectedUserMessage) throws Throwable {
         caseNote.verifyBadRequest(expectedUserMessage);
+    }
+
+    @When("^case note count between \"([^\"]*)\" and \"([^\"]*)\" is requested for offender booking \"([^\"]*)\" for case note type \"([^\"]*)\" and sub-type \"([^\"]*)\"$")
+    public void caseNoteCountBetweenAndIsRequestedForOffenderBookingForCaseNoteTypeAndSubType(String fromDate, String toDate, String bookingId, String type, String subType) throws Throwable {
+        caseNote.getCaseNoteCount(Long.valueOf(bookingId), type, subType, fromDate, toDate);
     }
 }

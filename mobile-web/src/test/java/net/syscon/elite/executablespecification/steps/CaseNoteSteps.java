@@ -24,6 +24,8 @@ public class CaseNoteSteps extends CommonSteps {
     private static final String API_REQUEST_BASE_URL = API_PREFIX + "bookings/{bookingId}/caseNotes";
     private static final String API_REQUEST_FOR_CASENOTE = API_REQUEST_BASE_URL + "/{caseNoteId}";
     private static final String API_REQUEST_FOR_CASENOTE_COUNT = API_REQUEST_BASE_URL + "/{type}/{subType}/count";
+    private static final String FROM_DATE_QUERY_PARAM_PREFIX = "&fromDate=";
+    private static final String TO_DATE_QUERY_PARAM_PREFIX = "&toDate=";
 
     private CaseNote caseNote;
     private NewCaseNote pendingCaseNote;
@@ -102,8 +104,8 @@ public class CaseNoteSteps extends CommonSteps {
     }
 
     @Step("Get case note count")
-    public void getCaseNoteCount(long bookingId, String type, String subType) {
-        dispatchGetCaseNoteCountRequest(bookingId, type, subType);
+    public void getCaseNoteCount(long bookingId, String type, String subType, String fromDate, String toDate) {
+        dispatchGetCaseNoteCountRequest(bookingId, type, subType, fromDate, toDate);
     }
 
     @Step("Verify case note types")
@@ -201,12 +203,15 @@ public class CaseNoteSteps extends CommonSteps {
         caseNotes = null;
 
         String queryUrl = API_REQUEST_BASE_URL + buildQuery(caseNoteFilter);
-        if (fromDate != null) {
+
+        if (StringUtils.isNotBlank(fromDate)) {
             queryUrl += "&from=" + fromDate;
         }
-        if (toDate != null) {
+
+        if (StringUtils.isNotBlank(toDate)) {
             queryUrl += "&to=" + toDate;
         }
+
         try {
             ResponseEntity<List<CaseNote>> response = restTemplate.exchange(queryUrl, HttpMethod.GET,
                     createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<CaseNote>>() {
@@ -220,10 +225,28 @@ public class CaseNoteSteps extends CommonSteps {
         }
     }
 
-    private void dispatchGetCaseNoteCountRequest(Long bookingId, String type, String subType) {
+    private void dispatchGetCaseNoteCountRequest(Long bookingId, String type, String subType, String fromDate, String toDate) {
+        init();
+
+        String urlModifier = "";
+
+        if (StringUtils.isNotBlank(fromDate)) {
+            urlModifier += (FROM_DATE_QUERY_PARAM_PREFIX + fromDate);
+        }
+
+        if (StringUtils.isNotBlank(toDate)) {
+            urlModifier += (TO_DATE_QUERY_PARAM_PREFIX + toDate);
+        }
+
+        if (StringUtils.isNotBlank(urlModifier)) {
+            urlModifier = "?" + urlModifier.substring(1);
+        }
+
+        String url = API_REQUEST_FOR_CASENOTE_COUNT + urlModifier;
+
         try {
             ResponseEntity<CaseNoteCount> response = restTemplate.exchange(
-                    API_REQUEST_FOR_CASENOTE_COUNT,
+                    url,
                     HttpMethod.GET,
                     createEntity(),
                     CaseNoteCount.class,

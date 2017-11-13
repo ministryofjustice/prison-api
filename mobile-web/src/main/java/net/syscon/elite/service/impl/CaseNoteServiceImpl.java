@@ -20,10 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
+import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -109,6 +111,13 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
 	@Override
 	public CaseNoteCount getCaseNoteCount(long bookingId, String type, String subType, LocalDate fromDate, LocalDate toDate) {
+		// Validate date range
+		if (Objects.nonNull(fromDate) && Objects.nonNull(toDate)) {
+			if (toDate.isBefore(fromDate)) {
+				throw new BadRequestException("Invalid date range: toDate is before fromDate.");
+			}
+		}
+
 		bookingService.verifyBookingAccess(bookingId);
 
 		Long count = caseNoteRepository.getCaseNoteCount(bookingId, type, subType, fromDate, toDate);
