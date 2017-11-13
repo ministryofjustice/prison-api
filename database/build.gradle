@@ -1,0 +1,18 @@
+
+buildscript {
+    dependencies {
+        classpath files("../lib/ojdbc7-12.1.0.2.jar")
+        classpath('org.hsqldb:hsqldb:2.4.0')
+        classpath("org.flywaydb:flyway-core:4.2.0")
+    }
+}
+
+plugins {
+    id "org.flywaydb.flyway" version "4.2.0"
+}
+
+flyway {
+    url = 'jdbc:oracle:thin:@terraform-20171107090047970300000001.cuo8tj8nysnb.eu-west-2.rds.amazonaws.com:1521:TESTDB'
+    user = 'DEMO_NOMIS_OWNER'
+    password = 'DEMO_NOMIS_OWNER'
+}
