@@ -245,26 +245,4 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 
         return page;
 	}
-
-	@Override
-	public Page<ReferenceCode> getCaseNoteSubType(String typeCode, String query, String orderBy, Order order, long offset, long limit) {
-        String initialSql = getQuery("FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE");
-	    IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, referenceCodeMapper.getFieldMap());
-
-	    String sql = builder
-				.addQuery(query)
-				.addOrderBy(order, orderBy)
-				.addRowCount()
-				.addPagination()
-				.build();
-
-        PageAwareRowMapper<ReferenceCode> paRowMapper = new PageAwareRowMapper<>(referenceCodeMapper);
-
-        List<ReferenceCode> results = jdbcTemplate.query(
-                    sql,
-                    createParams("caseNoteType", typeCode, "offset", offset, "limit", limit),
-                    paRowMapper);
-
-        return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
-	}
 }

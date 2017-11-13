@@ -73,11 +73,6 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 		return referenceCodeRepository.getReferenceCodeByDomainAndParentAndCode("TASK_SUBTYPE", typeCode, subTypeCode).orElseThrow(EntityNotFoundException.withId(typeCode+"/"+subTypeCode));
 	}
 
-//	@Override
-//	public Page<ReferenceCode> getCaseNoteSubTypes(String typeCode, String query, String orderBy, Order order, long offset, long limit) {
-//		return referenceCodeRepository.getReferenceCodesByDomainAndParent("TASK_SUBTYPE", typeCode, query, getDefaultOrderBy(orderBy), order, offset, limit);
-//	}
-
 	@Override
     @Cacheable("caseNoteSources")
 	public Page<ReferenceCode> getCaseNoteSources(String query, String orderBy, Order order, long offset, long limit) {
@@ -103,9 +98,4 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 
 		return referenceCodeRepository.getCaseNoteTypeByCurrentCaseLoad(caseLoadType, includeSubTypes, query, getDefaultOrderBy(orderBy), order, offset, limit);
 	}
-
-//	@Override
-//	public Page<ReferenceCode> getCaseNoteSubType(String typeCode, String query, String orderBy, Order order, long offset, long limit) {
-//		return referenceCodeRepository.getCaseNoteSubType(typeCode, query, getDefaultOrderBy(orderBy), order, offset, limit);
-//	}
 }
