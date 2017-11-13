@@ -115,9 +115,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("MIDDLE_NAME",		new FieldMapper("middleName"))
 			.put("BIRTH_DATE",		new FieldMapper("dob", DateTimeConverter::toISO8601LocalDate))
 			.put("SEX",				new FieldMapper("gender"))
-			.put("ETHNICITY",		new FieldMapper("ethinicity"))
+			.put("ETHNICITY",		new FieldMapper("ethnicity"))
 			.put("ALIAS_TYPE",		new FieldMapper("nameType"))
-			.put("CREATE_DATE", new FieldMapper("createDate", DateTimeConverter::toISO8601LocalDate))
+			.put("CREATE_DATE",     new FieldMapper("createDate", DateTimeConverter::toISO8601LocalDate))
 			.build();
 
 	@Override

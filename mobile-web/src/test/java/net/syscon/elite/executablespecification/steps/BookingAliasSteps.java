@@ -37,7 +37,7 @@ public class BookingAliasSteps extends CommonSteps {
 
     @Step("Verify returned offender alias ethnicities")
     public void verifyAliasEthnicities(String ethnicities) {
-        verifyPropertyValues(aliases, Alias::getEthinicity, ethnicities);
+        verifyPropertyValues(aliases, Alias::getEthnicity, ethnicities);
     }
 
     private void dispatchRequest(Long bookingId) {
