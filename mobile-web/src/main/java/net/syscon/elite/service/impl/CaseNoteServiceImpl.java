@@ -112,10 +112,8 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	@Override
 	public CaseNoteCount getCaseNoteCount(long bookingId, String type, String subType, LocalDate fromDate, LocalDate toDate) {
 		// Validate date range
-		if (Objects.nonNull(fromDate) && Objects.nonNull(toDate)) {
-			if (toDate.isBefore(fromDate)) {
-				throw new BadRequestException("Invalid date range: toDate is before fromDate.");
-			}
+		if (Objects.nonNull(fromDate) && Objects.nonNull(toDate) && toDate.isBefore(fromDate)) {
+			throw new BadRequestException("Invalid date range: toDate is before fromDate.");
 		}
 
 		bookingService.verifyBookingAccess(bookingId);
