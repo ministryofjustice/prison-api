@@ -1,0 +1,26 @@
+#%RAML 1.0 DataType
+description: Adjudication award / sanction
+properties:
+  sanctionCode:
+    type: string
+    description: Type of award
+  sanctionCodeDescription?:
+    type: string
+    description: Award type description
+  months?:
+    type: number
+    (javaType): Integer
+    description: Number of months duration
+  days?:
+    type: number
+    (javaType): Integer
+    description: Number of days duration
+  limit?:
+    type: number
+    description: Compensation amount
+  comment?:
+    type: string
+    description: Optional details
+  effectiveDate:
+    type: date-only
+    description: Start of sanction

@@ -113,6 +113,11 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
+        public AdjudicationSteps adjudicationSteps() {
+            return new AdjudicationSteps();
+        }
+
+        @Bean
         public BookingAssessmentSteps bookingAssessment() {
             return new BookingAssessmentSteps();
         }
