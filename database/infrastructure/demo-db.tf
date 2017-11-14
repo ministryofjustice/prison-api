@@ -14,7 +14,7 @@ resource "aws_db_instance" "syscon-test-db" {
   instance_class       = "db.t2.micro"
   name                 = "testdb"
   username             = "SYSCON_TEST"
-  password             = "wd129j12fnqf"
+  password             = "${var.database_password}"
   parameter_group_name = "default.oracle-se2-12.1"
   vpc_security_group_ids = [ "${aws_security_group.db_demo_group.id}" ]
   character_set_name   = "AL32UTF8"

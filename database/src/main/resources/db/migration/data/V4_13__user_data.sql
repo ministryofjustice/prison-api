@@ -1,10 +1,3 @@
-CREATE USER "officer1" PASSWORD 'password';
-CREATE USER "officer2" PASSWORD 'password';
-CREATE USER "officer3" PASSWORD 'password';
-CREATE USER "officer4" PASSWORD 'password';
-CREATE USER "officer5" PASSWORD 'password';
-CREATE USER "adminstaff" PASSWORD 'password';
-
 INSERT INTO OMS_ROLES (ROLE_ID, ROLE_NAME, ROLE_SEQ, ROLE_CODE, PARENT_ROLE_CODE) VALUES ( -1, 'Admin', 1, 'CENTRAL_ADMIN', null);
 INSERT INTO OMS_ROLES (ROLE_ID, ROLE_NAME, ROLE_SEQ, ROLE_CODE, PARENT_ROLE_CODE) VALUES ( -2, 'General', 1, 'GEN', null);
 
