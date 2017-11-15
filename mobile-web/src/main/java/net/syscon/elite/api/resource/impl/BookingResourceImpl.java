@@ -9,6 +9,7 @@ import net.syscon.elite.service.*;
 
 import javax.ws.rs.Path;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,15 +76,13 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetBookingActivitiesForTodayResponse getBookingActivitiesForToday(Long bookingId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+    public GetBookingActivitiesForTodayResponse getBookingActivitiesForToday(Long bookingId, String sortFields, Order sortOrder) {
         LocalDate today = LocalDate.now();
 
-        Page<ScheduledEvent> activities =  bookingService.getBookingActivities(
+        List<ScheduledEvent> activities =  bookingService.getBookingActivities(
                 bookingId,
                 today,
                 today,
-                nvl(pageOffset, 0L),
-                nvl(pageLimit, 10L),
                 sortFields,
                 sortOrder);
 
@@ -239,18 +238,36 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetBookingVisitsForTodayResponse getBookingVisitsForToday(Long bookingId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+    public GetBookingVisitsForTodayResponse getBookingVisitsForToday(Long bookingId, String sortFields, Order sortOrder) {
         LocalDate today = LocalDate.now();
 
-        Page<ScheduledEvent> visits =  bookingService.getBookingVisits(
+        List<ScheduledEvent> visits =  bookingService.getBookingVisits(
                 bookingId,
                 today,
                 today,
-                nvl(pageOffset, 0L),
-                nvl(pageLimit, 10L),
                 sortFields,
                 sortOrder);
 
         return GetBookingVisitsForTodayResponse.respond200WithApplicationJson(visits);
+    }
+
+    @Override
+    public GetBookingAppointmentsResponse getBookingAppointments(Long bookingId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder, String fromDate, String toDate) {
+        return GetBookingAppointmentsResponse.respond200WithApplicationJson(new Page<>(Collections.emptyList(), 0,0 ,10));
+    }
+
+    @Override
+    public GetBookingAppointmentsForTodayResponse getBookingAppointmentsForToday(Long bookingId, String sortFields, Order sortOrder) {
+        return GetBookingAppointmentsForTodayResponse.respond200WithApplicationJson(Collections.emptyList());
+    }
+
+    @Override
+    public GetBookingAppointmentsForThisWeekResponse getBookingAppointmentsForThisWeek(Long bookingId, String sortFields, Order sortOrder) {
+        return GetBookingAppointmentsForThisWeekResponse.respond200WithApplicationJson(Collections.emptyList());
+    }
+
+    @Override
+    public GetBookingAppointmentsForNextWeekResponse getBookingAppointmentsForNextWeek(Long bookingId, String sortFields, Order sortOrder) {
+        return GetBookingAppointmentsForNextWeekResponse.respond200WithApplicationJson(Collections.emptyList());
     }
 }
