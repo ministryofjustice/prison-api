@@ -27,16 +27,18 @@ public class BookingResourceImpl implements BookingResource {
     private final InmatesAlertService inmateAlertService;
     private final FinanceService financeService;
     private final ContactService contactService;
+    private final AdjudicationService adjudicationService;
 
     public BookingResourceImpl(BookingService bookingService, InmateService inmateService,
             CaseNoteService caseNoteService, InmatesAlertService inmateAlertService, FinanceService financeService,
-            ContactService contactService) {
+            ContactService contactService, AdjudicationService adjudicationService) {
         this.bookingService = bookingService;
         this.inmateService = inmateService;
         this.caseNoteService = caseNoteService;
         this.inmateAlertService = inmateAlertService;
         this.financeService = financeService;
         this.contactService = contactService;
+        this.adjudicationService = adjudicationService;
     }
 
     @Override
@@ -213,6 +215,13 @@ public class BookingResourceImpl implements BookingResource {
                 fromISO8601DateString(toDate));
 
         return GetCaseNoteCountResponse.respond200WithApplicationJson(caseNoteCount);
+    }
+
+    @Override
+    public GetAdjudicationsResponse getAdjudications(Long bookingId, String fromDate) {
+        final AdjudicationDetail adjudicationDetail = adjudicationService.getAdjudications(bookingId, fromISO8601DateString(fromDate));
+
+        return GetAdjudicationsResponse.respond200WithApplicationJson(adjudicationDetail);
     }
 
     @Override
