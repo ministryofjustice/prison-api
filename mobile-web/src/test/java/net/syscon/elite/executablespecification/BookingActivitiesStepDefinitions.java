@@ -9,6 +9,7 @@ import net.syscon.elite.executablespecification.steps.BookingActivitySteps;
  * BDD step definitions for the Booking Activities API endpoints:
  * <ul>
  *     <li>/booking/{bookingId}/activities</li>
+ *     <li>/booking/{bookingId}/activities/today</li>
  * </ul>
  */
 public class BookingActivitiesStepDefinitions extends AbstractStepDefinitions {
@@ -23,7 +24,7 @@ public class BookingActivitiesStepDefinitions extends AbstractStepDefinitions {
         bookingActivities.getBookingActivities(Long.valueOf(bookingId), null, null, null, null);
     }
 
-    @Then("^response is an empty list$")
+    @Then("^response from booking activities API is an empty list$")
     public void responseIsAnEmptyList() throws Throwable {
         bookingActivities.verifyNoResourceRecordsReturned();
     }
@@ -98,8 +99,8 @@ public class BookingActivitiesStepDefinitions extends AbstractStepDefinitions {
         bookingActivities.verifyEventLocation(ord2idx(ordinal), expectedEventLocation);
     }
 
-    @And("^event source code for \"([^\"]*)\" returned activitiy is \"([^\"]*)\"$")
-    public void eventSourceCodeForReturnedActivitiyIs(String ordinal, String expectedSourceCode) throws Throwable {
+    @And("^event source code for \"([^\"]*)\" returned activity is \"([^\"]*)\"$")
+    public void eventSourceCodeForReturnedActivityIs(String ordinal, String expectedSourceCode) throws Throwable {
         bookingActivities.verifyEventSourceCode(ord2idx(ordinal), expectedSourceCode);
     }
 

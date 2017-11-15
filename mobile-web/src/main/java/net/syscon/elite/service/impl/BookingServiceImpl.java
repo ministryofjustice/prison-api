@@ -114,12 +114,32 @@ public class BookingServiceImpl implements BookingService {
             throw new BadRequestException("Invalid date range: toDate is before fromDate.");
         }
 
+        // Verify access to booking for current user
         verifyBookingAccess(bookingId);
 
         String sortFields = StringUtils.defaultString(orderByFields, "startTime");
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
 
         return bookingRepository.getBookingActivities(bookingId, fromDate, toDate, offset, limit, sortFields, sortOrder);
+    }
+
+    @Override
+    public Page<ScheduledEvent> getBookingVisits(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order) {
+        // Validate required parameter(s)
+        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
+
+        // Validate date range
+        if (Objects.nonNull(fromDate) && Objects.nonNull(toDate) && toDate.isBefore(fromDate)) {
+            throw new BadRequestException("Invalid date range: toDate is before fromDate.");
+        }
+
+        // Verify access to booking for current user
+        verifyBookingAccess(bookingId);
+
+        String sortFields = StringUtils.defaultString(orderByFields, "startTime");
+        Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
+
+        return bookingRepository.getBookingVisits(bookingId, fromDate, toDate, offset, limit, sortFields, sortOrder);
     }
 
     private NonDtoReleaseDate deriveNonDtoReleaseDate(SentenceDetail sentenceDetail) {
