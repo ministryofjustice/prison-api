@@ -2,6 +2,7 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.service.support.CustodyStatusDto;
 import net.syscon.elite.web.config.PersistenceConfigs;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +16,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -33,6 +36,13 @@ public class CustodyStatusRepositoryImplTest {
     @Before
     public final void init() {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
+    }
+
+    @Test
+    public final void retrieveAListOfCustodyStatusRecordsFromTheDataBase() {
+        final List<CustodyStatusDto> results = repository.listCustodyStatuses();
+
+        assertThat(results.size(), Matchers.greaterThan(0));
     }
 
     @Test
