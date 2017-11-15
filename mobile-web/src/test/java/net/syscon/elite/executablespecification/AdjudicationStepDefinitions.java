@@ -25,7 +25,7 @@ public class AdjudicationStepDefinitions extends AbstractStepDefinitions {
         adjudicationSteps.setIndex(0);
         adjudicationSteps.getAwards(id, null);
     }
-    
+
     @When("^adjudication details with booking id ([0-9-]+) and cutoff date \"([^\"]*)\" is requested$")
     public void withBookingId(Long id, String fromDate) {
         adjudicationSteps.setIndex(0);
@@ -46,9 +46,9 @@ public class AdjudicationStepDefinitions extends AbstractStepDefinitions {
     public void awardsNumber(Integer n) throws Throwable {
         adjudicationSteps.verifyAwardsNumber(n);
     }
-    
+
     @Then("^For award index ([0-9]+),$")
-    public void AwardsIndex(Integer i) throws Throwable {
+    public void awardsIndex(Integer i) throws Throwable {
         adjudicationSteps.setIndex(i);
     }
 
