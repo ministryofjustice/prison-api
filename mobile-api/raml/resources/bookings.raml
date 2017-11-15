@@ -194,7 +194,7 @@
 
 /{bookingId}/activities/today:
   (javaOperationName): getBookingActivitiesForToday
-  type: {readOnlyCollectionPaged: {type: ScheduledEvent, description: Scheduled activities for the offender. }}
+  type: {readOnlyCollection: {type: ScheduledEvent, description: Scheduled activities for the offender for current day. }}
   uriParameters:
     bookingId:
       (javaType): Long
@@ -281,7 +281,61 @@
 
 /{bookingId}/visits/today:
   (javaOperationName): getBookingVisitsForToday
-  type: {readOnlyCollectionPaged: {type: ScheduledEvent, description: Scheduled visits for the offender. }}
+  type: {readOnlyCollection: {type: ScheduledEvent, description: Scheduled visits for the offender for current day. }}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+  is: [
+    sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
+  ]
+
+/{bookingId}/appointments:
+  (javaOperationName): getBookingAppointments
+  type: {readOnlyCollectionPaged: {type: ScheduledEvent, description: Scheduled appointments for the offender. }}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+  get:
+    queryParameters:
+      fromDate?:
+        type: string
+        description: Returned appointments must be scheduled on or after this date (in YYYY-MM-DD format).
+        example: 2017-06-01
+      toDate?:
+        type: string
+        description: Returned appointments must be scheduled on or before this date (in YYYY-MM-DD format).
+        example: 2017-09-01
+  is: [
+    sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
+  ]
+
+/{bookingId}/appointments/today:
+  (javaOperationName): getBookingAppointmentsForToday
+  type: {readOnlyCollection: {type: ScheduledEvent, description: Scheduled appointments for the offender for current day. }}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+  is: [
+    sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
+  ]
+
+/{bookingId}/appointments/thisweek:
+  (javaOperationName): getBookingAppointmentsForThisWeek
+  type: {readOnlyCollection: {type: ScheduledEvent, description: Scheduled appointments for the offender for 7 days ahead starting from today. }}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+  is: [
+    sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
+  ]
+
+/{bookingId}/appointments/nextweek:
+  (javaOperationName): getBookingAppointmentsForNextWeek
+  type: {readOnlyCollection: {type: ScheduledEvent, description: Scheduled appointments for the offender for 7 days ahead starting a week from today. }}
   uriParameters:
     bookingId:
       (javaType): Long

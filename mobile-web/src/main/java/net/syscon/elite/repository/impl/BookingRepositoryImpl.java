@@ -157,6 +157,25 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
+    public List<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
+        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
+
+        String initialSql = getQuery("GET_BOOKING_ACTIVITIES");
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, scheduledEventMapper.getFieldMap());
+
+        String sql = builder
+                .addOrderBy(order, orderByFields)
+                .build();
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("bookingId", bookingId,
+                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
+                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
+                scheduledEventMapper);
+    }
+
+    @Override
     public Page<ScheduledEvent> getBookingVisits(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
@@ -181,6 +200,26 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                 paRowMapper);
 
         return new Page<>(visits, paRowMapper.getTotalRecords(), offset, limit);
+    }
+
+    @Override
+    public List<ScheduledEvent> getBookingVisits(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
+        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
+
+        String initialSql = getQuery("GET_BOOKING_VISITS");
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, scheduledEventMapper.getFieldMap());
+
+        String sql = builder
+                .addOrderBy(order, orderByFields)
+                .build();
+
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("bookingId", bookingId,
+                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
+                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
+                scheduledEventMapper);
     }
 
     public Page<OffenderRelease> getOffenderReleaseSummary(LocalDate toReleaseDate, String query, long offset, long limit, String orderByFields, Order order, Set<String> allowedCaseloadsOnly) {
