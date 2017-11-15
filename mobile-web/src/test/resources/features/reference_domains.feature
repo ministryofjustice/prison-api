@@ -7,14 +7,17 @@ Feature: Reference Domains
   Background:
     Given a user has authenticated with the API
 
+  @broken
   Scenario: Retrieve types without subtypes
     When all types are requested
     Then all types are returned
 
+  @broken
   Scenario: Retrieve types with subtypes
     When all types with subtypes are requested
     Then all types with subtypes are returned
 
+  @broken
   Scenario: Retrieve alert types
     When all alert types are requested
     Then all alert types are returned

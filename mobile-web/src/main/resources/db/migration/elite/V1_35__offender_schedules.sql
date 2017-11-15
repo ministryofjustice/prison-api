@@ -256,6 +256,40 @@ ALTER TABLE OFFENDER_COURSE_ATTENDANCES ADD CONSTRAINT OFFENDER_COURSE_ATTENDANC
 
 ALTER TABLE OFFENDER_COURSE_ATTENDANCES ADD CHECK (EVENT_CLASS IN ('INT_MOV','COMM','EXT_MOV'));
 
+
+-------------------------------------------------------
+-- Source tables for Visits (VISIT) Scheduled Events --
+-------------------------------------------------------
+CREATE TABLE OFFENDER_VISITS
+(
+	OFFENDER_VISIT_ID               NUMBER(10)                          NOT NULL,
+	OFFENDER_BOOK_ID                NUMBER(10)                          NOT NULL,
+	COMMENT_TEXT                    VARCHAR2(240),
+	RAISED_INCIDENT_TYPE            VARCHAR2(12),
+	RAISED_INCIDENT_NUMBER          NUMBER(10),
+	VISIT_DATE                      DATE                                NOT NULL,
+	START_TIME                      DATE                                NOT NULL,
+	END_TIME                        DATE                                NOT NULL,
+	EVENT_OUTCOME                   VARCHAR2(12),
+	VISIT_TYPE                      VARCHAR2(12)                        NOT NULL,
+	VISIT_STATUS                    VARCHAR2(12)                        NOT NULL,
+	OUTCOME_REASON_CODE             VARCHAR2(12),
+	VISIT_INTERNAL_LOCATION_ID      NUMBER(10),
+	AGENCY_VISIT_SLOT_ID            NUMBER(10),
+	AGY_LOC_ID                      VARCHAR2(6)                         NOT NULL,
+	CREATE_DATETIME                 TIMESTAMP(9)  DEFAULT SYSTIMESTAMP  NOT NULL,
+	CREATE_USER_ID                  VARCHAR2(32)  DEFAULT USER          NOT NULL,
+	MODIFY_DATETIME                 TIMESTAMP(9)  DEFAULT SYSTIMESTAMP,
+	MODIFY_USER_ID                  VARCHAR2(32),
+	RECORD_USER_ID                  VARCHAR2(30)  DEFAULT USER          NOT NULL,
+	SEAL_FLAG                       VARCHAR2(1)
+);
+
+ALTER TABLE OFFENDER_VISITS ADD CONSTRAINT OFFENDER_VISIT_PK PRIMARY KEY (OFFENDER_VISIT_ID);
+--ALTER TABLE OFFENDER_VISITS ADD FOREIGN KEY (OFFENDER_BOOK_ID) REFERENCES OFFENDER_BOOKINGS;
+--ALTER TABLE OFFENDER_VISITS ADD FOREIGN KEY (AGENCY_VISIT_SLOT_ID) REFERENCES AGENCY_VISIT_SLOTS;
+
+
 -----------------------------------------------------------
 -- Source tables for Appointments (APP) Scheduled Events --
 -----------------------------------------------------------
@@ -373,7 +407,7 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CONSTRAINT OFFENDER_IND_SCHEDULES_PK PRIM
 --        sch.to_city_code,
 --        sch.source
 --   FROM (SELECT ind.offender_book_id,
--- 	            ind.agy_loc_id,                     <-- not used
+-- 	            ind.agy_loc_id,
 -- 	            ind.event_class,
 -- 	            ind.event_status,
 -- 	            ind.event_type,
@@ -383,13 +417,13 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CONSTRAINT OFFENDER_IND_SCHEDULES_PK PRIM
 -- 	            ind.to_address_id,
 -- 	            ind.to_city_code,
 -- 	            ind.to_agy_loc_id,
---                ind.to_internal_location_id,      <-- not used
+--                ind.to_internal_location_id,
 --                'APP' source
 --              FROM offender_ind_schedules ind
 --             WHERE event_status = 'SCH'
 --             UNION ALL
 --            SELECT ce.offender_book_id,
--- 	               NULL,                            <-- not used
+-- 	               NULL,
 --                   'EXT_MOV',
 --                   'SCH',
 -- 	               'CRT',
@@ -399,13 +433,13 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CONSTRAINT OFFENDER_IND_SCHEDULES_PK PRIM
 -- 	               NULL,
 -- 	               NULL,
 --                   ce.agy_loc_id,
---                   NULL,                          <-- not used
+--                   NULL,
 --                   'CRT'
 --              FROM court_events ce
 --             WHERE NVL(ce.event_status,'SCH') = 'SCH'
 --             UNION ALL
 --            SELECT ord.offender_book_id,
--- 	               NULL,                            <-- not used
+-- 	               NULL,
 -- 	               'EXT_MOV',
 -- 	               'SCH',
 -- 	               ord.movement_type,
@@ -421,7 +455,7 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CONSTRAINT OFFENDER_IND_SCHEDULES_PK PRIM
 --             WHERE ord.event_status = 'SCH'
 --             UNION ALL
 --            SELECT opp.offender_book_id,
---                   opp.agy_loc_id,                <-- not used
+--                   opp.agy_loc_id,
 -- 	               'INT_MOV',
 -- 	               'SCH',
 --                   'PRISON_ACT',
@@ -431,7 +465,7 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CONSTRAINT OFFENDER_IND_SCHEDULES_PK PRIM
 -- 	               ca.services_address_id,
 -- 	               NULL,
 --                   ca.agy_loc_id,
---                   ca.internal_location_id,       <-- not used
+--                   ca.internal_location_id,
 --                   'PA'
 --              FROM offender_program_profiles opp
 --              JOIN course_activities ca
@@ -458,7 +492,7 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CONSTRAINT OFFENDER_IND_SCHEDULES_PK PRIM
 --                     WHERE oe.off_prgref_id = opp.off_prgref_id)
 --             UNION ALL
 --            SELECT oca.offender_book_id,
---                   oca.agy_loc_id,                <-- not used
+--                   oca.agy_loc_id,
 -- 	               'INT_MOV',
 -- 	               'SCH',
 -- 	               oca.event_type,
@@ -468,13 +502,13 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CONSTRAINT OFFENDER_IND_SCHEDULES_PK PRIM
 -- 	               oca.to_address_id,
 -- 	               NULL,
 -- 	               oca.to_agy_loc_id,
---                   oca.to_internal_location_id,   <-- not used
+--                   oca.to_internal_location_id,
 --                   'PA'
 --              FROM offender_course_attendances oca
 --             WHERE oca.event_status = 'SCH'
 --             UNION ALL
 --            SELECT ov.offender_book_id,
--- 	               ov.agy_loc_id,                   <-- not used
+-- 	               ov.agy_loc_id,
 -- 	               'INT_MOV',
 -- 	               'SCH',
 -- 	               'VISIT',
@@ -484,13 +518,13 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CONSTRAINT OFFENDER_IND_SCHEDULES_PK PRIM
 -- 	               null,
 -- 	               null,
 -- 	               ov.agy_loc_id,
---                   visit_internal_location_id,    <-- not used
+--                   visit_internal_location_id,
 --                   'VIS'
 --              FROM offender_visits ov
 --             WHERE visit_status = 'SCH'
 --             UNION ALL
 --            SELECT aip.offender_book_id,
---                   ai.agy_loc_id,                 <-- not used
+--                   ai.agy_loc_id,
 --                   'INT_MOV',
 --                   'SCH',
 --                   'OIC',
@@ -500,7 +534,7 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CONSTRAINT OFFENDER_IND_SCHEDULES_PK PRIM
 --                   null,
 --                   null,
 --                   ai.agy_loc_id,
---                   oh.internal_location_id,       <-- not used
+--                   oh.internal_location_id,
 --                   'OIC'
 --              FROM agency_incident_parties aip
 --              JOIN oic_hearings oh

@@ -20,9 +20,9 @@ Feature: Booking Contacts
 
     Examples:
       | bookingId | lastName  | firstName | middleName | contactType | contactTypeDescription | relationship | relationshipDescription | emergencyContact |
-      | -1        | SMITH1    | JESSY     |            | S           | Social                 | UN           | Uncle                   |      false       |
-      | -2        | Smith     | John      | asdf       | S           | Social                 | BOF          | Boyfriend               |      true        |
-      | -3        | JOHNSON   | JOHN      | JUSTICE    | S           | Social                 | BRO          | Brother                 |      false       |
+      | -1        | SMITH1    | JESSY     |            | S           | Social/Family          | UN           | Uncle                   |      false       |
+      | -2        | Smith     | John      | asdf       | S           | Social/Family          | BOF          | Boyfriend               |      true        |
+      | -3        | JOHNSON   | JOHN      | JUSTICE    | S           | Social/Family          | BRO          | Brother                 |      false       |
 
   Scenario: Offender has no next of kin, no data
     When contact details with booking id -4 is requested
@@ -47,7 +47,7 @@ Feature: Booking Contacts
     Examples:
       | index     | lastName  | firstName | middleName | contactType | contactTypeDescription | relationship | relationshipDescription | emergencyContact |
       | 0         | SMITH13   | JESSY     |            | L           |                        | AT           |                         |      true        |
-      | 1         | ROBERTSON | ELLY      |            | S           | Social                 | FRI          | Friend                  |      false       |
+      | 1         | ROBERTSON | ELLY      |            | S           | Social/Family          | FRI          | Friend                  |      false       |
 
   Scenario: Offender does not exist or different caseload
     When contact details with booking id -16 is requested

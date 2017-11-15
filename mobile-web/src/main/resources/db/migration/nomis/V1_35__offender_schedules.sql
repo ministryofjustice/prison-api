@@ -299,6 +299,49 @@ ALTER TABLE OFFENDER_EXCLUDE_ACTS_SCHDS ADD FOREIGN KEY (CRS_ACTY_ID) REFERENCES
 ALTER TABLE OFFENDER_EXCLUDE_ACTS_SCHDS ADD UNIQUE (OFF_PRGREF_ID, EXCLUDE_DAY, SLOT_CATEGORY_CODE);
 
 
+-------------------------------------------------------
+-- Source tables for Visits (VISIT) Scheduled Events --
+-------------------------------------------------------
+CREATE TABLE OFFENDER_VISITS
+(
+	OFFENDER_VISIT_ID               BIGSERIAL   PRIMARY KEY       NOT NULL,
+	OFFENDER_BOOK_ID                BIGINT                        NOT NULL,
+	COMMENT_TEXT                    VARCHAR(240),
+	OVERRIDE_BAN_STAFF_ID           BIGINT,
+	SEARCH_TYPE                     VARCHAR(12),
+	RAISED_INCIDENT_TYPE            VARCHAR(12),
+	RAISED_INCIDENT_NUMBER          BIGINT,
+	VISITOR_CONCERN_TEXT            VARCHAR(240),
+	VISIT_DATE                      DATE                          NOT NULL,
+	START_TIME                      TIMESTAMP                     NOT NULL,
+	END_TIME                        TIMESTAMP                     NOT NULL,
+	EVENT_OUTCOME                   VARCHAR(12),
+	VISIT_TYPE                      VARCHAR(12)                   NOT NULL,
+	VISIT_STATUS                    VARCHAR(12)                   NOT NULL,
+	OUTCOME_REASON_CODE             VARCHAR(12),
+	VISIT_INTERNAL_LOCATION_ID      BIGINT,
+	AGENCY_VISIT_SLOT_ID            BIGINT,
+	AGY_LOC_ID                      VARCHAR(6)                    NOT NULL,
+	CREATE_DATETIME                 TIMESTAMP   DEFAULT now()     NOT NULL,
+	CREATE_USER_ID                  VARCHAR(32) DEFAULT USER      NOT NULL,
+	MODIFY_DATETIME                 TIMESTAMP,
+	MODIFY_USER_ID                  VARCHAR(32),
+	RECORD_USER_ID                  VARCHAR(30) DEFAULT USER      NOT NULL,
+	AUDIT_TIMESTAMP                 TIMESTAMP,
+	AUDIT_USER_ID                   VARCHAR(32),
+	AUDIT_MODULE_NAME               VARCHAR(65),
+	AUDIT_CLIENT_USER_ID            VARCHAR(64),
+	AUDIT_CLIENT_IP_ADDRESS         VARCHAR(39),
+	AUDIT_CLIENT_WORKSTATION_NAME   VARCHAR(64),
+	AUDIT_ADDITIONAL_INFO           VARCHAR(256),
+	OFFENDER_VISIT_ORDER_ID         BIGINT,
+	CLIENT_UNIQUE_REF               VARCHAR(100)
+);
+
+--ALTER TABLE OFFENDER_VISITS ADD FOREIGN KEY (OFFENDER_BOOK_ID) REFERENCES OFFENDER_BOOKINGS;
+ALTER TABLE OFFENDER_VISITS ADD UNIQUE (CLIENT_UNIQUE_REF);
+
+
 -----------------------------------------------------------
 -- Source tables for Appointments (APP) Scheduled Events --
 -----------------------------------------------------------
@@ -421,7 +464,7 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CHECK (EVENT_CLASS IN ('EXT_MOV','INT_MOV
 --        sch.to_city_code,
 --        sch.source
 --   FROM (SELECT ind.offender_book_id,
--- 	            ind.agy_loc_id,                     <-- not used
+-- 	            ind.agy_loc_id,
 -- 	            ind.event_class,
 -- 	            ind.event_status,
 -- 	            ind.event_type,
@@ -431,13 +474,13 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CHECK (EVENT_CLASS IN ('EXT_MOV','INT_MOV
 -- 	            ind.to_address_id,
 -- 	            ind.to_city_code,
 -- 	            ind.to_agy_loc_id,
---                ind.to_internal_location_id,      <-- not used
+--                ind.to_internal_location_id,
 --                'APP' source
 --              FROM offender_ind_schedules ind
 --             WHERE event_status = 'SCH'
 --             UNION ALL
 --            SELECT ce.offender_book_id,
--- 	               NULL,                            <-- not used
+-- 	               NULL,
 --                   'EXT_MOV',
 --                   'SCH',
 -- 	               'CRT',
@@ -447,13 +490,13 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CHECK (EVENT_CLASS IN ('EXT_MOV','INT_MOV
 -- 	               NULL,
 -- 	               NULL,
 --                   ce.agy_loc_id,
---                   NULL,                          <-- not used
+--                   NULL,
 --                   'CRT'
 --              FROM court_events ce
 --             WHERE NVL(ce.event_status,'SCH') = 'SCH'
 --             UNION ALL
 --            SELECT ord.offender_book_id,
--- 	               NULL,                            <-- not used
+-- 	               NULL,
 -- 	               'EXT_MOV',
 -- 	               'SCH',
 -- 	               ord.movement_type,
@@ -469,7 +512,7 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CHECK (EVENT_CLASS IN ('EXT_MOV','INT_MOV
 --             WHERE ord.event_status = 'SCH'
 --             UNION ALL
 --            SELECT opp.offender_book_id,
---                   opp.agy_loc_id,                <-- not used
+--                   opp.agy_loc_id,
 -- 	               'INT_MOV',
 -- 	               'SCH',
 --                   'PRISON_ACT',
@@ -479,7 +522,7 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CHECK (EVENT_CLASS IN ('EXT_MOV','INT_MOV
 -- 	               ca.services_address_id,
 -- 	               NULL,
 --                   ca.agy_loc_id,
---                   ca.internal_location_id,       <-- not used
+--                   ca.internal_location_id,
 --                   'PA'
 --              FROM offender_program_profiles opp
 --              JOIN course_activities ca
@@ -506,7 +549,7 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CHECK (EVENT_CLASS IN ('EXT_MOV','INT_MOV
 --                     WHERE oe.off_prgref_id = opp.off_prgref_id)
 --             UNION ALL
 --            SELECT oca.offender_book_id,
---                   oca.agy_loc_id,                <-- not used
+--                   oca.agy_loc_id,
 -- 	               'INT_MOV',
 -- 	               'SCH',
 -- 	               oca.event_type,
@@ -516,13 +559,13 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CHECK (EVENT_CLASS IN ('EXT_MOV','INT_MOV
 -- 	               oca.to_address_id,
 -- 	               NULL,
 -- 	               oca.to_agy_loc_id,
---                   oca.to_internal_location_id,   <-- not used
+--                   oca.to_internal_location_id,
 --                   'PA'
 --              FROM offender_course_attendances oca
 --             WHERE oca.event_status = 'SCH'
 --             UNION ALL
 --            SELECT ov.offender_book_id,
--- 	               ov.agy_loc_id,                   <-- not used
+-- 	               ov.agy_loc_id,
 -- 	               'INT_MOV',
 -- 	               'SCH',
 -- 	               'VISIT',
@@ -532,13 +575,13 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CHECK (EVENT_CLASS IN ('EXT_MOV','INT_MOV
 -- 	               null,
 -- 	               null,
 -- 	               ov.agy_loc_id,
---                   visit_internal_location_id,    <-- not used
+--                   visit_internal_location_id,
 --                   'VIS'
 --              FROM offender_visits ov
 --             WHERE visit_status = 'SCH'
 --             UNION ALL
 --            SELECT aip.offender_book_id,
---                   ai.agy_loc_id,                 <-- not used
+--                   ai.agy_loc_id,
 --                   'INT_MOV',
 --                   'SCH',
 --                   'OIC',
@@ -548,7 +591,7 @@ ALTER TABLE OFFENDER_IND_SCHEDULES ADD CHECK (EVENT_CLASS IN ('EXT_MOV','INT_MOV
 --                   null,
 --                   null,
 --                   ai.agy_loc_id,
---                   oh.internal_location_id,       <-- not used
+--                   oh.internal_location_id,
 --                   'OIC'
 --              FROM agency_incident_parties aip
 --              JOIN oic_hearings oh
