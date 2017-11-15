@@ -7,7 +7,7 @@ Feature: Booking Details
   Background:
     Given a user has authenticated with the API
 
-  Scenario Outline: Request for specific offender booking record (assigned officer)
+  Scenario Outline: Request for specific offender booking record - assigned officer
     When an offender booking request is made with booking id "<bookingId>"
     Then booking number of offender booking returned is "<bookingNo>"
     And assigned officer id of offender booking returned is "<assignedOfficerId>"
@@ -17,7 +17,7 @@ Feature: Booking Details
       | -1        | A00111    | -2                |
       | -8        | A00118    | -2                |
 
-  Scenario Outline: Request for specific offender booking record (physical attributes)
+  Scenario Outline: Request for specific offender booking record - physical attributes
     When an offender booking request is made with booking id "<bookingId>"
     Then booking number of offender booking returned is "<bookingNo>"
     And gender matches "<gender>"
@@ -42,7 +42,7 @@ Feature: Booking Details
       | -9        | A00119    | Male   | Mixed: White and Black African | 5  | 10 | 178 | 1.78 | 185 | 84  |
       | -10       | A00120    | Male   | White: British                 | 6  | 6  | 198 | 1.98 | 235 | 107 |
 
-  Scenario Outline: Request for specific offender booking record (physical characteristics)
+  Scenario Outline: Request for specific offender booking record - physical characteristics
     When an offender booking request is made with booking id "<bookingId>"
     Then booking number of offender booking returned is "<bookingNo>"
     And characteristics match "<characteristicsList>"

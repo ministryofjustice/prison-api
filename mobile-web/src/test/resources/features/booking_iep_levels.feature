@@ -12,7 +12,7 @@ Feature: Booking Incentives & Earned Privileges
   Background:
     Given a user has authenticated with the API
 
-  Scenario Outline: Retrieve IEP summary for an offender (without IEP details).
+  Scenario Outline: Retrieve IEP summary for an offender - without IEP details
     When an IEP summary only is requested for an offender with booking id "<bookingId>"
     Then IEP summary is returned with IEP level of "<iepLevel>"
     And IEP summary contains "<iepDetailCount>" detail records
@@ -24,7 +24,7 @@ Feature: Booking Incentives & Earned Privileges
       | -2        | Basic    | 0              | 2017-09-06 |
       | -3        | Enhanced | 0              | 2017-10-12 |
 
-  Scenario Outline: Retrieve IEP summary for an offender (with IEP details).
+  Scenario Outline: Retrieve IEP summary for an offender - with IEP details
     When an IEP summary, with details, is requested for an offender with booking id "<bookingId>"
     Then IEP summary is returned with IEP level of "<iepLevel>"
     And IEP summary contains "<iepDetailCount>" detail records
@@ -36,7 +36,7 @@ Feature: Booking Incentives & Earned Privileges
       | -2        | Basic    | 2              | 2017-09-06 |
       | -3        | Enhanced | 4              | 2017-10-12 |
 
-  Scenario: Request IEP summary for an existing offender that does not have any IEP detail records.
+  Scenario: Request IEP summary for an existing offender that does not have any IEP detail records
     When an IEP summary, with details, is requested for an offender with booking id "-9"
     Then resource not found response is received from bookings IEP summary API
     And user message in resource not found response from bookings IEP summary API is "Offender does not have any IEP records."

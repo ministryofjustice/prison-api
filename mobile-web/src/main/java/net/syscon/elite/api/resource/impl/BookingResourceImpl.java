@@ -76,10 +76,12 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     public GetBookingActivitiesForTodayResponse getBookingActivitiesForToday(Long bookingId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+        LocalDate today = LocalDate.now();
+
         Page<ScheduledEvent> activities =  bookingService.getBookingActivities(
                 bookingId,
-                LocalDate.now(),
-                LocalDate.now(),
+                today,
+                today,
                 nvl(pageOffset, 0L),
                 nvl(pageLimit, 10L),
                 sortFields,
@@ -220,5 +222,35 @@ public class BookingResourceImpl implements BookingResource {
         final AdjudicationDetail adjudicationDetail = adjudicationService.getAdjudications(bookingId, fromISO8601DateString(fromDate));
 
         return GetAdjudicationsResponse.respond200WithApplicationJson(adjudicationDetail);
+    }
+
+    @Override
+    public GetBookingVisitsResponse getBookingVisits(Long bookingId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder, String fromDate, String toDate) {
+        Page<ScheduledEvent> visits =  bookingService.getBookingVisits(
+                bookingId,
+                fromISO8601DateString(fromDate),
+                fromISO8601DateString(toDate),
+                nvl(pageOffset, 0L),
+                nvl(pageLimit, 10L),
+                sortFields,
+                sortOrder);
+
+        return GetBookingVisitsResponse.respond200WithApplicationJson(visits);
+    }
+
+    @Override
+    public GetBookingVisitsForTodayResponse getBookingVisitsForToday(Long bookingId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+        LocalDate today = LocalDate.now();
+
+        Page<ScheduledEvent> visits =  bookingService.getBookingVisits(
+                bookingId,
+                today,
+                today,
+                nvl(pageOffset, 0L),
+                nvl(pageLimit, 10L),
+                sortFields,
+                sortOrder);
+
+        return GetBookingVisitsForTodayResponse.respond200WithApplicationJson(visits);
     }
 }

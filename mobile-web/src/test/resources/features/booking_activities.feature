@@ -1,4 +1,4 @@
-@nomis
+@global
 Feature: Booking Activities
 
   Acceptance Criteria
@@ -7,27 +7,27 @@ Feature: Booking Activities
   Background:
     Given a user has authenticated with the API
 
-  Scenario: Retrieve scheduled activities for an existing offender that is not in a caseload accessible to authenticated user.
+  Scenario: Retrieve scheduled activities for an existing offender that is not in a caseload accessible to authenticated user
     When scheduled activities are requested for an offender with booking id "-16"
     Then resource not found response is received from booking activities API
 
-  Scenario: Retrieve current day's scheduled activities for an existing offender that is not in a caseload accessible to authenticated user.
+  Scenario: Retrieve current day's scheduled activities for an existing offender that is not in a caseload accessible to authenticated user
     When scheduled activities for current day are requested for an offender with booking id "-16"
     Then resource not found response is received from booking activities API
 
-  Scenario: Retrieve scheduled activities for an offender that does not exist.
+  Scenario: Retrieve scheduled activities for an offender that does not exist
     When scheduled activities are requested for an offender with booking id "-99"
     Then resource not found response is received from booking activities API
 
-  Scenario: Retrieve current day's scheduled activities for an offender that does not exist.
+  Scenario: Retrieve current day's scheduled activities for an offender that does not exist
     When scheduled activities for current day are requested for an offender with booking id "-99"
     Then resource not found response is received from booking activities API
 
-  Scenario: Retrieve scheduled activities for an existing offender having no activities.
+  Scenario: Retrieve scheduled activities for an existing offender having no activities
     When scheduled activities are requested for an offender with booking id "-9"
-    Then response is an empty list
+    Then response from booking activities API is an empty list
 
-  Scenario: Retrieve scheduled activities for an existing offender having one or more activities.
+  Scenario: Retrieve scheduled activities for an existing offender having one or more activities
     When scheduled activities are requested for an offender with booking id "-1"
     Then "10" activities are returned
     And "15" activities in total are available
@@ -49,8 +49,8 @@ Feature: Booking Activities
     And end time for "6th" returned activity is "2017-09-13 15:00:00"
     And event location for "1st" returned activity is "Chapel"
     And event location for "10th" returned activity is "Classroom 1"
-    And event source code for "3rd" returned activitiy is "CC1"
-    And event source code for "8th" returned activitiy is "SUBS"
+    And event source code for "3rd" returned activity is "CC1"
+    And event source code for "8th" returned activity is "SUBS"
     And event source description for "5th" returned activity is "Chapel Cleaner"
     And event source description for "6th" returned activity is "Substance misuse course"
 
@@ -66,11 +66,13 @@ Feature: Booking Activities
     When scheduled activities are requested for an offender with booking id "-3"
     Then "6" activities are returned
 
-  Scenario: Retrieve scheduled activities for an existing offender having one or more activities, some of which they are excluded from (by day)
+  @nomis
+  Scenario: Retrieve scheduled activities for an existing offender having one or more activities, some of which they are excluded from - by day
     When scheduled activities are requested for an offender with booking id "-4"
     Then "4" activities are returned
 
-  Scenario: Retrieve scheduled activities for an existing offender having one or more activities, some of which they are excluded from (by day and slot)
+  @nomis
+  Scenario: Retrieve scheduled activities for an existing offender having one or more activities, some of which they are excluded from - by day and slot
     When scheduled activities are requested for an offender with booking id "-5"
     Then "8" activities are returned
 

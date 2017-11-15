@@ -121,6 +121,11 @@ abstract class AbstractStepDefinitions {
         public BookingAssessmentSteps bookingAssessment() {
             return new BookingAssessmentSteps();
         }
+
+        @Bean
+        public BookingVisitSteps bookingVisit() {
+            return new BookingVisitSteps();
+        }
     }
 
     protected int ord2idx(String ordinal) {

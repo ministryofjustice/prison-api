@@ -257,3 +257,35 @@
     bookingId:
       (javaType): Long
       description: The offender booking id
+
+/{bookingId}/visits:
+  (javaOperationName): getBookingVisits
+  type: {readOnlyCollectionPaged: {type: ScheduledEvent, description: Scheduled visits for the offender. }}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+  get:
+    queryParameters:
+      fromDate?:
+        type: string
+        description: Returned visits must be scheduled on or after this date (in YYYY-MM-DD format).
+        example: 2017-06-01
+      toDate?:
+        type: string
+        description: Returned visits must be scheduled on or before this date (in YYYY-MM-DD format).
+        example: 2017-09-01
+  is: [
+    sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
+  ]
+
+/{bookingId}/visits/today:
+  (javaOperationName): getBookingVisitsForToday
+  type: {readOnlyCollectionPaged: {type: ScheduledEvent, description: Scheduled visits for the offender. }}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+  is: [
+    sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
+  ]

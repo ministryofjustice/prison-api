@@ -138,7 +138,7 @@ Feature: Booking Sentence Details
       | -25       | 2009-09-09 |            |            |            |            | 2019-09-08 | 2023-03-03  | 2023-03-03  |
 
   @nomis
-  Scenario Outline: Retrieve sentence details for an offender, check other dates (NOMIS only - for ROTL, ERSED and TUSED)
+  Scenario Outline: Retrieve sentence details for an offender, check other dates - NOMIS only - for ROTL, ERSED and TUSED
     When sentence details are requested for an offender with booking id "<bookingId>"
     Then sentence start date matches "<ssd>"
     And release on temporary licence date matches "<rotl>"
