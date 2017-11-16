@@ -46,6 +46,10 @@
         <appender-ref ref="consoleAppender"/>
     </logger>
 
+    <logger name="com.microsoft.applicationinsights" additivity="false" level="INFO" >
+        <appender-ref ref="consoleAppender"/>
+    </logger>
+
     <logger name="com.zaxxer.hikari" additivity="false" level="INFO" >
         <appender-ref ref="consoleAppender"/>
     </logger>

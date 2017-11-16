@@ -1,5 +1,7 @@
 package net.syscon.elite.service.impl;
 
+import com.google.common.collect.ImmutableMap;
+import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.CaseNote;
 import net.syscon.elite.api.model.CaseNoteCount;
 import net.syscon.elite.api.model.NewCaseNote;
@@ -42,12 +44,13 @@ public class CaseNoteServiceImpl implements CaseNoteService {
     private final CaseNoteRepository caseNoteRepository;
     private final CaseNoteTransformer transformer;
     private final BookingService bookingService;
-
+	private final TelemetryClient telemetryClient;
     public CaseNoteServiceImpl(CaseNoteRepository caseNoteRepository, CaseNoteTransformer transformer,
-            BookingService bookingService) {
+            BookingService bookingService, TelemetryClient telemetryClient) {
         this.caseNoteRepository = caseNoteRepository;
         this.transformer = transformer;
         this.bookingService = bookingService;
+        this.telemetryClient = telemetryClient;
     }
 
     @Transactional(readOnly = true)
@@ -89,7 +92,11 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 		//TODO: First - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
         Long caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote, caseNoteSource);
 
-        return getCaseNote(bookingId, caseNoteId);
+		final CaseNote caseNoteCreated = getCaseNote(bookingId, caseNoteId);
+
+		// Log event
+		telemetryClient.trackEvent("CaseNoteCreated", ImmutableMap.of("type", caseNoteCreated.getType(), "subType", caseNoteCreated.getSubType()), null);
+		return caseNoteCreated;
     }
 
 	@Override
@@ -120,7 +127,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
 		Long count = caseNoteRepository.getCaseNoteCount(bookingId, type, subType, fromDate, toDate);
 
-        CaseNoteCount caseNoteCount = CaseNoteCount.builder()
+        return CaseNoteCount.builder()
 				.bookingId(bookingId)
 				.type(type)
 				.subType(subType)
@@ -128,7 +135,5 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 				.toDate(toDate)
 				.count(count)
 				.build();
-
-		return caseNoteCount;
 	}
 }
