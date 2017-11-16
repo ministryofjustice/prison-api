@@ -1,5 +1,6 @@
 package net.syscon.elite.web.config;
 
+import com.microsoft.applicationinsights.TelemetryClient;
 import com.microsoft.applicationinsights.TelemetryConfiguration;
 import com.microsoft.applicationinsights.web.internal.WebRequestTrackingFilter;
 import org.apache.commons.lang3.StringUtils;
@@ -43,6 +44,11 @@ public class ApplicationInsightsConfiguration {
     public String telemetryConfig() {
         TelemetryConfiguration.getActive().setInstrumentationKey(telemetryKey);
         return telemetryKey;
+    }
+
+    @Bean
+    public TelemetryClient telemetryClient() {
+        return new TelemetryClient();
     }
 
     public static class AppInsightKeyPresentCondition implements Condition {
