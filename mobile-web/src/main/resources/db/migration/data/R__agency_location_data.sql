@@ -51,4 +51,5 @@ INSERT INTO AGENCY_INTERNAL_LOCATIONS (INTERNAL_LOCATION_ID, INTERNAL_LOCATION_C
          (-25, 'CHAP', 'AREA', 'LEI', 'LEI-CHAP', null, 'Chapel'),
          (-26, 'CARP', 'WSHP', 'LEI', 'LEI-CARP', null, 'Carpentry Workshop'),
          (-27, 'CRM1', 'CLAS', 'LEI', 'LEI-CRM1', null, 'Classroom 1'),
-         (-28, 'VIS', 'VISIT', 'LEI', 'LEI-VIS', null, 'Visiting Room');
+         (-28, 'VIS', 'VISIT', 'LEI', 'LEI-VIS', null, 'Visiting Room'),
+         (-29, 'MED', 'AREA', 'LEI', 'LEI-MED', null, 'Medical Centre');

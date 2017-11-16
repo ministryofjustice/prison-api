@@ -13,7 +13,7 @@ Feature: Locations
   Scenario: Retrieve all available location records
     When a request is made to retrieve all locations available to the user
     Then "10" location records are returned
-    And "28" total location records are available
+    And "29" total location records are available
 
   @global
   Scenario Outline: Retrieve a specific location record

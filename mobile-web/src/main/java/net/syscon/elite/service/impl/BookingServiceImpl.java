@@ -144,6 +144,26 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.getBookingVisits(bookingId, fromDate, toDate, sortFields, sortOrder);
     }
 
+    @Override
+    public Page<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order) {
+        validateScheduledEventsRequest(bookingId, fromDate, toDate);
+
+        String sortFields = StringUtils.defaultString(orderByFields, "startTime");
+        Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
+
+        return bookingRepository.getBookingAppointments(bookingId, fromDate, toDate, offset, limit, sortFields, sortOrder);
+    }
+
+    @Override
+    public List<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
+        validateScheduledEventsRequest(bookingId, fromDate, toDate);
+
+        String sortFields = StringUtils.defaultString(orderByFields, "startTime");
+        Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
+
+        return bookingRepository.getBookingAppointments(bookingId, fromDate, toDate, sortFields, sortOrder);
+    }
+
     private void validateScheduledEventsRequest(Long bookingId, LocalDate fromDate, LocalDate toDate) {
         // Validate required parameter(s)
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
