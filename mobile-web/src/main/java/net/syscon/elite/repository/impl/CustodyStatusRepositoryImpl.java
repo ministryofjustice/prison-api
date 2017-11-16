@@ -7,6 +7,8 @@ import net.syscon.util.IQueryBuilder;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,18 +19,28 @@ public class CustodyStatusRepositoryImpl extends RepositoryBase implements Custo
 
     @Override
     public List<CustodyStatusDto> listCustodyStatuses() {
+        return listCustodyStatuses(LocalDate.now());
+    }
+
+    @Override
+    public List<CustodyStatusDto> listCustodyStatuses(LocalDate onDate) {
         String sql = getQueryBuilder("LIST_CUSTODY_STATUSES").build();
-        return jdbcTemplate.query(sql, CUSTODY_STATUS_MAPPER);
+        return jdbcTemplate.query(sql, createParams("onDate", onDate.format(DateTimeFormatter.ISO_LOCAL_DATE)), CUSTODY_STATUS_MAPPER);
     }
 
     @Override
     public Optional<CustodyStatusDto> getCustodyStatus(String offenderNo) {
+        return getCustodyStatus(offenderNo, LocalDate.now());
+    }
+
+    @Override
+    public Optional<CustodyStatusDto> getCustodyStatus(String offenderNo, LocalDate onDate) {
         String sql = getQueryBuilder("GET_CUSTODY_STATUS").build();
 
         CustodyStatusDto record;
 
         try {
-            record = jdbcTemplate.queryForObject(sql, createParams("offenderNo", offenderNo), CUSTODY_STATUS_MAPPER);
+            record = jdbcTemplate.queryForObject(sql, createParams("offenderNo", offenderNo, "onDate", onDate.format(DateTimeFormatter.ISO_LOCAL_DATE)), CUSTODY_STATUS_MAPPER);
         } catch (EmptyResultDataAccessException ex) {
             record = null;
         }
