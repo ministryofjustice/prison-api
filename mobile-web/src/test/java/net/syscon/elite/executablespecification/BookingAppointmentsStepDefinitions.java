@@ -37,7 +37,7 @@ public class BookingAppointmentsStepDefinitions extends AbstractStepDefinitions 
     }
 
     @Then("^\"([^\"]*)\" appointments are returned$")
-    public void AppointmentsAreReturned(String expectedCount) throws Throwable {
+    public void appointmentsAreReturned(String expectedCount) throws Throwable {
         bookingAppointments.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
     }
 
@@ -132,7 +132,7 @@ public class BookingAppointmentsStepDefinitions extends AbstractStepDefinitions 
     }
 
     @And("^\"([^\"]*)\" appointments in total are available$")
-    public void AppointmentsInTotalAreAvailable(String expectedTotal) throws Throwable {
+    public void appointmentsInTotalAreAvailable(String expectedTotal) throws Throwable {
         bookingAppointments.verifyTotalResourceRecordsAvailable(Long.parseLong(expectedTotal));
     }
 
