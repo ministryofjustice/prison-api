@@ -126,6 +126,11 @@ abstract class AbstractStepDefinitions {
         public BookingVisitSteps bookingVisit() {
             return new BookingVisitSteps();
         }
+        
+        @Bean
+        public BookingEventSteps bookingEvent() {
+            return new BookingEventSteps();
+        }
 
         @Bean
         public BookingAppointmentSteps bookingAppointment() {

@@ -269,6 +269,24 @@ public abstract class CommonSteps {
         return extractedVals;
     }
 
+    protected <T> List<String> extractLocalDateTimeValues(Collection<T> actualCollection, Function<T,LocalDateTime> mapper) {
+        List<String> extractedVals = new ArrayList<>();
+        final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        if (actualCollection != null) {
+            extractedVals.addAll(
+                    actualCollection
+                            .stream()
+                            .map(mapper)
+                            .filter(Objects::nonNull)
+                            .map(date -> date.format(dateTimeFormatter))
+                            .collect(Collectors.toList())
+            );
+        }
+
+        return extractedVals;
+    }
+
     protected <T> List<String> extractDateValues(Collection<T> actualCollection, Function<T,Date> mapper) {
         List<String> extractedVals = new ArrayList<>();
         final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -331,6 +349,14 @@ public abstract class CommonSteps {
         verifyIdentical(actualValList, expectedValList);
     }
 
+protected <T> void verifyLocalDateTimeValues(Collection<T> actualCollection,
+        Function<T,LocalDateTime> mapper,
+        String expectedValues) {
+List<String> actualValList = extractLocalDateTimeValues(actualCollection, mapper);
+List<String> expectedValList = csv2list(expectedValues);
+
+verifyIdentical(actualValList, expectedValList);
+}
     protected <T> void verifyDateValues(Collection<T> actualCollection,
                                             Function<T,Date> mapper,
                                             String expectedValues) {

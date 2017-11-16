@@ -10,8 +10,8 @@ import net.syscon.elite.executablespecification.steps.BookingAppointmentSteps;
  * <ul>
  *     <li>/booking/{bookingId}/appointments</li>
  *     <li>/booking/{bookingId}/appointments/today</li>
- *     <li>/booking/{bookingId}/appointments/thisweek</li>
- *     <li>/booking/{bookingId}/appointments/nextweek</li>
+ *     <li>/booking/{bookingId}/appointments/thisWeek</li>
+ *     <li>/booking/{bookingId}/appointments/nextWeek</li>
  * </ul>
  */
 public class BookingAppointmentsStepDefinitions extends AbstractStepDefinitions {

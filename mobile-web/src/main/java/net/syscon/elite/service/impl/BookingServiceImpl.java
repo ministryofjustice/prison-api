@@ -32,11 +32,33 @@ import static java.time.temporal.ChronoUnit.DAYS;
 @Service
 @Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
+
+    private final StartTimeComparator startTimeComparator = new StartTimeComparator();
+
     private final BookingRepository bookingRepository;
     private final SentenceRepository sentenceRepository;
     private final AgencyService agencyService;
     private final CaseLoadRepository caseLoadRepository;
     private final int lastNumberOfMonths;
+
+    /**
+     * Order ScheduledEvents by startTime with null coming last
+     */
+    class StartTimeComparator implements Comparator<ScheduledEvent> {
+
+        @Override
+        public int compare(ScheduledEvent event1, ScheduledEvent event2) {
+            if (event1.getStartTime() == event2.getStartTime()) {
+                return 0;
+            } else if (event1.getStartTime() == null) {
+                return 1;
+            } else if (event2.getStartTime() == null) {
+                return -1;
+            } else {
+                return event1.getStartTime().compareTo(event2.getStartTime());
+            }
+        }
+    }
 
     public BookingServiceImpl(BookingRepository bookingRepository, SentenceRepository sentenceRepository,
                               AgencyService agencyService, CaseLoadRepository caseLoadRepository, @Value("${api.offender.release.date.min.months:3}") int lastNumberOfMonths) {
@@ -275,6 +297,47 @@ public class BookingServiceImpl implements BookingService {
         verifyBookingAccess(bookingId);
 
         return sentenceRepository.getMainOffenceDetails(bookingId);
+    }
+
+    @Override
+    public List<ScheduledEvent> getEventsToday(Long bookingId) {
+        final LocalDate today = LocalDate.now();
+        return getEvents(bookingId, today, today);
+    }
+
+    @Override
+    public List<ScheduledEvent> getEventsThisWeek(Long bookingId) {
+        final LocalDate today = LocalDate.now();
+        return getEvents(bookingId, today, today.plusDays(7));
+    }
+
+    @Override
+    public List<ScheduledEvent> getEventsNextWeek(Long bookingId) {
+        final LocalDate today = LocalDate.now();
+        return getEvents(bookingId, today.plusDays(8), today.plusDays(15));
+    }
+
+    private List<ScheduledEvent> getEvents(Long bookingId, final LocalDate from, final LocalDate to) {
+        final Page<ScheduledEvent> activitiesPaged = getBookingActivities(bookingId, from, to, 0, 1000, null, null);
+        final List<ScheduledEvent> activities = activitiesPaged.getItems();
+        if (activitiesPaged.getTotalRecords() > activitiesPaged.getPageLimit()) {
+            activities.addAll(getBookingActivities(bookingId, from, to, 1000, activitiesPaged.getTotalRecords(), null, null).getItems());
+        }
+        final Page<ScheduledEvent> visitsPaged = getBookingVisits(bookingId, from, to, 0, 1000, null, null);
+        final List<ScheduledEvent> visits = visitsPaged.getItems();
+        if (visitsPaged.getTotalRecords() > visitsPaged.getPageLimit()) {
+            visits.addAll(getBookingVisits(bookingId, from, to, 1000, visitsPaged.getTotalRecords(), null, null).getItems());
+        }
+        final Page<ScheduledEvent> appointmentsPaged = getBookingAppointments(bookingId, from, to, 0, 1000, null, null);
+        final List<ScheduledEvent> appointments = appointmentsPaged.getItems();
+        if (appointmentsPaged.getTotalRecords() > appointmentsPaged.getPageLimit()) {
+            appointments.addAll(getBookingAppointments(bookingId, from, to, 1000, appointmentsPaged.getTotalRecords(), null, null).getItems());
+        }
+        final SortedSet<ScheduledEvent> sortedSet = new TreeSet<>(startTimeComparator);
+        sortedSet.addAll(activities);
+        sortedSet.addAll(visits);
+        sortedSet.addAll(appointments);
+        return Arrays.asList(sortedSet.toArray(new ScheduledEvent[sortedSet.size()]));
     }
 
     @Override
