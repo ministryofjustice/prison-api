@@ -18,12 +18,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  * BDD step implementations for 'Scheduled Event' APIs (e.g. Booking Activities, Booking Visits, etc.)
  */
 public abstract class ScheduledEventSteps extends CommonSteps {
-    private static final String SCHEDULED_EVENTS_TODAY_URL_MODIFIER = "/today";
     private static final String FROM_DATE_QUERY_PARAM_PREFIX = "&fromDate=";
     private static final String TO_DATE_QUERY_PARAM_PREFIX = "&toDate=";
 
     private List<ScheduledEvent> scheduledEvents;
-
+    
     protected void init() {
         super.init();
 
@@ -142,8 +141,8 @@ public abstract class ScheduledEventSteps extends CommonSteps {
         dispatchRequest(bookingId, urlModifier, headers);
     }
 
-    protected void dispatchRequestForCurrentDay(Long bookingId) {
-        dispatchRequest(bookingId, SCHEDULED_EVENTS_TODAY_URL_MODIFIER, null);
+    protected void dispatchRequestForPeriod(Long bookingId, ScheduledEventPeriod period) {
+        dispatchRequest(bookingId, period.getUrlModifier(), null);
     }
 
     private void dispatchRequest(Long bookingId, String urlModifier, Map<String,String> headers) {
@@ -167,6 +166,22 @@ public abstract class ScheduledEventSteps extends CommonSteps {
             buildResourceData(response);
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
+        }
+    }
+    
+    enum ScheduledEventPeriod {
+        TODAY("/today"),
+        THISWEEK("/thisweek"),
+        NEXTWEEK("/nextweek");
+
+        private String urlModifier;
+
+        ScheduledEventPeriod(String urlModifier) {
+            this.urlModifier = urlModifier;
+        }
+
+        public String getUrlModifier() {
+            return urlModifier;
         }
     }
 }

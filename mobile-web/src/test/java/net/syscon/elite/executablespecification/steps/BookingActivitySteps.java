@@ -21,6 +21,6 @@ public class BookingActivitySteps extends ScheduledEventSteps {
 
     @Step("Get activities for booking for current day only")
     public void getBookingActivitiesForCurrentDay(Long bookingId) {
-        dispatchRequestForCurrentDay(bookingId);
+        dispatchRequestForPeriod(bookingId, ScheduledEventPeriod.TODAY);
     }
 }

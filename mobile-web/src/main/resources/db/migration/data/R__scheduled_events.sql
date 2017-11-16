@@ -88,3 +88,14 @@ INSERT INTO OFFENDER_VISITS (OFFENDER_VISIT_ID, OFFENDER_BOOK_ID, VISIT_DATE, ST
 INSERT INTO OFFENDER_VISITS (OFFENDER_VISIT_ID, OFFENDER_BOOK_ID, VISIT_DATE, START_TIME, END_TIME, VISIT_TYPE, VISIT_STATUS, VISIT_INTERNAL_LOCATION_ID, AGY_LOC_ID)
   VALUES (-17, -3, current_date, now(), now(), 'OFFI', 'SCH', -25, 'LEI'),
          (-18, -3, current_date, now(), now(), 'SCON', 'SCH', -28, 'LEI');
+
+
+-------------------------------------------------------
+-- Seed data for Appointments (APP) Scheduled Events --
+-------------------------------------------------------
+
+-- OFFENDER_IND_SCHEDULES (record of individual scheduled evetns, incl. appointments)
+-- NB: Dates deliberately out of sequence (to allow default sorting to be verified)
+INSERT INTO OFFENDER_IND_SCHEDULES (EVENT_ID, OFFENDER_BOOK_ID, EVENT_DATE, START_TIME, END_TIME, EVENT_CLASS, EVENT_TYPE, EVENT_SUB_TYPE, EVENT_STATUS, TO_AGY_LOC_ID, TO_INTERNAL_LOCATION_ID, TO_ADDRESS_ID, TO_CITY_CODE)
+  VALUES (-1, -1, '2017-09-15', '2017-09-15 14:30:00', '2017-09-15 15:00:00', 'INT_MOV', 'APP', 'MEDE', 'SCH', 'LEI', -29, null, null),
+         (-16, -2, '2017-05-12', '2017-05-12 09:30:00', '2017-05-12 10:00:00', 'INT_MOV', 'APP', 'IMM', 'SCH', 'LEI', -28, null, null);
