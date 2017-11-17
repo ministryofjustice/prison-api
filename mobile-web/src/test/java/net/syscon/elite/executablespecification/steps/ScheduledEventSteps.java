@@ -171,8 +171,8 @@ public abstract class ScheduledEventSteps extends CommonSteps {
     
     enum ScheduledEventPeriod {
         TODAY("/today"),
-        THISWEEK("/thisweek"),
-        NEXTWEEK("/nextweek");
+        THISWEEK("/thisWeek"),
+        NEXTWEEK("/nextWeek");
 
         private String urlModifier;
 
