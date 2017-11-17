@@ -322,7 +322,7 @@
     sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
   ]
 
-/{bookingId}/appointments/thisweek:
+/{bookingId}/appointments/thisWeek:
   (javaOperationName): getBookingAppointmentsForThisWeek
   type: {readOnlyCollection: {type: ScheduledEvent, description: Scheduled appointments for the offender for 7 days ahead starting from today. }}
   uriParameters:
@@ -333,7 +333,7 @@
     sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
   ]
 
-/{bookingId}/appointments/nextweek:
+/{bookingId}/appointments/nextWeek:
   (javaOperationName): getBookingAppointmentsForNextWeek
   type: {readOnlyCollection: {type: ScheduledEvent, description: Scheduled appointments for the offender for 7 days ahead starting a week from today. }}
   uriParameters:
