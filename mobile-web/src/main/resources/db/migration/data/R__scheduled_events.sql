@@ -1,3 +1,11 @@
+-----------------------------
+-- Seed data for Addresses --
+-----------------------------
+INSERT INTO ADDRESSES (ADDRESS_ID, OWNER_CLASS, OWNER_CODE, ADDRESS_TYPE, PRIMARY_FLAG, MAIL_FLAG, STREET)
+  VALUES (-1, 'AGY', 'BRMSYC', 'BUS', 'Y', 'Y', 'Justice Avenue'),
+         (-2, 'AGY', 'WELBYC', 'BUS', 'Y', 'Y', 'Peyton Place');
+
+
 -------------------------------------------------------------------
 -- Seed data for Prison Activities (PRISON_ACT) Scheduled Events --
 -------------------------------------------------------------------
@@ -56,11 +64,13 @@ INSERT INTO OFFENDER_PROGRAM_PROFILES (OFF_PRGREF_ID, OFFENDER_BOOK_ID, PROGRAM_
          (-7, -4, -4, '2016-11-09', 'ALLOC', -4, null, null, null, null, null, 'N', 'LEI', null, null),
          (-8, -5, -1, '2016-11-09', 'ALLOC', -1, null, null, null, null, null, 'N', 'LEI', null, null);
 
--- OFFENDER_COURSE_ATTENDANCES (record of offenders having attended scheduled activities)
+-- OFFENDER_COURSE_ATTENDANCES (record of offenders attendance of scheduled activities)
 INSERT INTO OFFENDER_COURSE_ATTENDANCES (EVENT_ID, OFFENDER_BOOK_ID, CRS_SCH_ID, EVENT_CLASS, EVENT_TYPE, EVENT_SUB_TYPE, EVENT_DATE, EVENT_STATUS)
-  VALUES (-1, -3, -6, 'INT_MOV', 'PRISON_ACT', 'EDUC', '2017-09-11', 'EXP'),
-         (-2, -3, -7, 'INT_MOV', 'PRISON_ACT', 'EDUC', '2017-09-12', 'SCH');
-
+  VALUES (-1, -3, -6, 'INT_MOV', 'PRISON_ACT', 'EDUC', '2017-09-11', 'COMP'),
+         (-2, -3, -7, 'INT_MOV', 'PRISON_ACT', 'EDUC', '2017-09-12', 'EXP'),
+         (-3, -3, -8, 'INT_MOV', 'PRISON_ACT', 'EDUC', '2017-09-13', 'CANC'),
+         (-4, -3, -9, 'INT_MOV', 'PRISON_ACT', 'EDUC', '2017-09-14', 'SCH'),
+         (-5, -3, -10, 'INT_MOV', 'PRISON_ACT', 'EDUC', '2017-09-15', 'SCH');
 
 ---------------------------------------------------
 -- Seed data for Visits (VISIT) Scheduled Events --
@@ -103,8 +113,30 @@ INSERT INTO OFFENDER_VISITS (OFFENDER_VISIT_ID, OFFENDER_BOOK_ID, VISIT_DATE, ST
 -- OFFENDER_IND_SCHEDULES (record of individual scheduled events, incl. appointments)
 -- NB: Dates deliberately out of sequence (to allow default sorting to be verified)
 INSERT INTO OFFENDER_IND_SCHEDULES (EVENT_ID, OFFENDER_BOOK_ID, EVENT_DATE, START_TIME, END_TIME, EVENT_CLASS, EVENT_TYPE, EVENT_SUB_TYPE, EVENT_STATUS, TO_AGY_LOC_ID, TO_INTERNAL_LOCATION_ID, TO_ADDRESS_ID, TO_CITY_CODE)
-  VALUES (-1, -1, '2017-09-15', '2017-09-15 14:30:00',    '2017-09-15 15:00:00',    'INT_MOV', 'APP', 'MEDE', 'SCH', 'LEI', -29, null, null),
-         (-2, -3, current_date, now() + interval '3' day, now() + interval '3' day, 'INT_MOV', 'APP', 'IMM', 'SCHA1', 'LEI', -28, null, null),
-         (-3, -3, current_date, now() + interval '3' day, now() + interval '3' day, 'INT_MOV', 'APP', 'IMM', 'SCHA2', 'LEI', -28, null, null),
-         (-4, -3, current_date, now() + interval '3' day, now() + interval '3' day, 'INT_MOV', 'APP', 'IMM', 'SCHA3', 'LEI', -28, null, null),
-         (-16, -2, '2017-05-12', '2017-05-12 09:30:00',   '2017-05-12 10:00:00',    'INT_MOV', 'APP', 'IMM', 'SCH', 'LEI', -28, null, null);
+  VALUES (-1, -1, '2017-09-15', '2017-09-15 14:30:00', '2017-09-15 15:00:00', 'INT_MOV', 'APP', 'MEDE', 'SCH', 'LEI', -29, null, null),
+         (-2, -1, '2017-08-15', '2017-08-15 14:30:00', '2017-08-15 15:00:00', 'INT_MOV', 'APP', 'MEDE', 'SCH', 'LEI', -29, null, null),
+         (-3, -1, '2017-08-12', '2017-08-12 15:00:00', '2017-08-15 16:00:00', 'INT_MOV', 'APP', 'CHAP', 'SCH', 'LEI', null, null, null),
+         (-4, -1, '2017-09-18', '2017-09-18 13:30:00', '2017-09-18 15:30:00', 'INT_MOV', 'APP', 'IMM', 'SCH', null, null, -1, null),
+         (-5, -1, '2017-07-22', '2017-07-22 09:30:00', '2017-07-22 11:30:00', 'INT_MOV', 'APP', 'EDUC', 'SCH', 'LEI', -27, null, null),
+         (-6, -1, '2017-06-15', '2017-06-15 14:30:00', '2017-06-15 15:00:00', 'INT_MOV', 'APP', 'MEPS', 'SCH', 'LEI', -29, null, null),
+         (-7, -1, '2017-05-15', '2017-05-15 14:30:00', '2017-05-15 15:00:00', 'INT_MOV', 'APP', 'MEDE', 'SCH', 'LEI', -29, null, null),
+         (-8, -1, '2017-04-15', '2017-04-15 14:30:00', '2017-04-15 15:00:00', 'INT_MOV', 'APP', 'MEDE', 'SCH', null, -29, null, null),
+         (-9, -1, '2017-03-15', '2017-03-15 14:30:00', '2017-03-15 15:00:00', 'INT_MOV', 'APP', 'MEDE', 'SCH', 'LEI', -29, null, null),
+         (-10, -1, '2017-02-15', '2017-02-15 14:30:00', '2017-02-15 15:00:00', 'INT_MOV', 'APP', 'MEDE', 'SCH', null, null, null, '29216'),
+         (-11, -1, '2017-01-15', '2017-01-15 14:30:00', '2017-01-15 15:00:00', 'INT_MOV', 'APP', 'MEDE', 'SCH', 'LEI', -29, null, null),
+         (-12, -1, '2017-10-15', '2017-10-15 14:30:00', '2017-10-15 15:00:00', 'INT_MOV', 'APP', 'MEDE', 'SCH', 'LEI', -29, null, null),
+         (-13, -1, '2017-11-15', '2017-11-15 14:30:00', '2017-11-15 15:00:00', 'INT_MOV', 'APP', 'MEDE', 'SCH', 'LEI', -29, null, null),
+         (-14, -1, '2017-12-15', '2017-12-15 14:30:00', '2017-12-15 15:00:00', 'INT_MOV', 'APP', 'MEDE', 'SCH', 'LEI', -29, null, null),
+         (-15, -1, '2017-12-25', '2017-12-25 09:00:00', '2017-12-25 10:00:00', 'INT_MOV', 'APP', 'CHAP', 'SCH', 'LEI', -25, null, null),
+         (-16, -2, '2017-05-12', '2017-05-12 09:30:00', '2017-05-12 10:00:00', 'INT_MOV', 'APP', 'IMM', 'SCH', 'LEI', -28, null, null);
+
+-- These appointments defined for current day, this week and next week (to test 'today', 'thisWeek' and 'nextWeek' endpoint actions).
+INSERT INTO OFFENDER_IND_SCHEDULES (EVENT_ID, OFFENDER_BOOK_ID, EVENT_DATE, START_TIME, END_TIME, EVENT_CLASS, EVENT_TYPE, EVENT_SUB_TYPE, EVENT_STATUS, TO_AGY_LOC_ID, TO_INTERNAL_LOCATION_ID, TO_ADDRESS_ID, TO_CITY_CODE)
+  VALUES (-17, -3, current_date, now(), now(), 'INT_MOV', 'APP', 'MEDE', 'SCH', 'LEI', -29, null, null),
+         (-18, -3, current_date, now(), now(), 'INT_MOV', 'APP', 'EDUC', 'SCH', 'LEI', -28, null, null),
+         (-19, -3, current_date + INTERVAL '1' DAY, now() + INTERVAL '1' DAY, now() + INTERVAL '1' DAY, 'INT_MOV', 'APP', 'EDUC', 'SCH', 'LEI', -28, null, null),
+         (-20, -3, current_date + INTERVAL '6' DAY, now() + INTERVAL '6' DAY, now() + INTERVAL '6' DAY, 'INT_MOV', 'APP', 'EDUC', 'SCH', 'LEI', -28, null, null),
+         (-21, -3, current_date + INTERVAL '3' DAY, now() + INTERVAL '3' DAY, now() + INTERVAL '3' DAY, 'INT_MOV', 'APP', 'EDUC', 'SCH', 'LEI', -28, null, null),
+         (-22, -3, current_date + INTERVAL '7' DAY, now() + INTERVAL '1' DAY, now() + INTERVAL '7' DAY, 'INT_MOV', 'APP', 'EDUC', 'SCH', 'LEI', -28, null, null),
+         (-23, -3, current_date + INTERVAL '12' DAY, now() + INTERVAL '1' DAY, now() + INTERVAL '12' DAY, 'INT_MOV', 'APP', 'EDUC', 'SCH', 'LEI', -28, null, null),
+         (-24, -3, current_date + INTERVAL '17' DAY, now() + INTERVAL '1' DAY, now() + INTERVAL '17' DAY, 'INT_MOV', 'APP', 'EDUC', 'SCH', 'LEI', -28, null, null);

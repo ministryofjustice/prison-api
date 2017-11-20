@@ -116,6 +116,16 @@ public class BookingAppointmentsStepDefinitions extends AbstractStepDefinitions 
         bookingAppointments.getBookingAppointmentsForCurrentDay(Long.valueOf(bookingId));
     }
 
+    @When("^scheduled appointments for this week are requested for an offender with booking id \"([^\"]*)\"$")
+    public void scheduledAppointmentsForThisWeekAreRequestedForAnOffenderWithBookingId(String bookingId) throws Throwable {
+        bookingAppointments.getBookingAppointmentsForThisWeek(Long.valueOf(bookingId));
+    }
+
+    @When("^scheduled appointments for next week are requested for an offender with booking id \"([^\"]*)\"$")
+    public void scheduledAppointmentsForNextWeekAreRequestedForAnOffenderWithBookingId(String bookingId) throws Throwable {
+        bookingAppointments.getBookingAppointmentsForNextWeek(Long.valueOf(bookingId));
+    }
+
     @When("^scheduled appointments from \"([^\"]*)\" are requested for an offender with booking id \"([^\"]*)\"$")
     public void scheduledAppointmentsFromAreRequestedForAnOffenderWithBookingId(String fromDate, String bookingId) throws Throwable {
         bookingAppointments.getBookingAppointments(Long.valueOf(bookingId), fromDate, null, null, null);

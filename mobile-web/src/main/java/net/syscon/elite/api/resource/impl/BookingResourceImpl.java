@@ -9,7 +9,6 @@ import net.syscon.elite.service.*;
 
 import javax.ws.rs.Path;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -274,21 +273,59 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     public GetBookingAppointmentsResponse getBookingAppointments(Long bookingId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder, String fromDate, String toDate) {
-        return GetBookingAppointmentsResponse.respond200WithApplicationJson(new Page<>(Collections.emptyList(), 0,0 ,10));
+        Page<ScheduledEvent> appointments =  bookingService.getBookingAppointments(
+                bookingId,
+                fromISO8601DateString(fromDate),
+                fromISO8601DateString(toDate),
+                nvl(pageOffset, 0L),
+                nvl(pageLimit, 10L),
+                sortFields,
+                sortOrder);
+
+        return GetBookingAppointmentsResponse.respond200WithApplicationJson(appointments);
     }
 
     @Override
     public GetBookingAppointmentsForTodayResponse getBookingAppointmentsForToday(Long bookingId, String sortFields, Order sortOrder) {
-        return GetBookingAppointmentsForTodayResponse.respond200WithApplicationJson(Collections.emptyList());
+        LocalDate today = LocalDate.now();
+
+        List<ScheduledEvent> appointments =  bookingService.getBookingAppointments(
+                bookingId,
+                today,
+                today,
+                sortFields,
+                sortOrder);
+
+        return GetBookingAppointmentsForTodayResponse.respond200WithApplicationJson(appointments);
     }
 
     @Override
     public GetBookingAppointmentsForThisWeekResponse getBookingAppointmentsForThisWeek(Long bookingId, String sortFields, Order sortOrder) {
-        return GetBookingAppointmentsForThisWeekResponse.respond200WithApplicationJson(Collections.emptyList());
+        LocalDate fromDate = LocalDate.now();
+        LocalDate toDate = fromDate.plusDays(6);
+
+        List<ScheduledEvent> appointments =  bookingService.getBookingAppointments(
+                bookingId,
+                fromDate,
+                toDate,
+                sortFields,
+                sortOrder);
+
+        return GetBookingAppointmentsForThisWeekResponse.respond200WithApplicationJson(appointments);
     }
 
     @Override
     public GetBookingAppointmentsForNextWeekResponse getBookingAppointmentsForNextWeek(Long bookingId, String sortFields, Order sortOrder) {
-        return GetBookingAppointmentsForNextWeekResponse.respond200WithApplicationJson(Collections.emptyList());
+        LocalDate fromDate = LocalDate.now().plusDays(7);
+        LocalDate toDate = fromDate.plusDays(6);
+
+        List<ScheduledEvent> appointments =  bookingService.getBookingAppointments(
+                bookingId,
+                fromDate,
+                toDate,
+                sortFields,
+                sortOrder);
+
+        return GetBookingAppointmentsForNextWeekResponse.respond200WithApplicationJson(appointments);
     }
 }

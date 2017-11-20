@@ -75,6 +75,12 @@ public abstract class ScheduledEventSteps extends CommonSteps {
         });
     }
 
+    @Step("Verify event status for specific scheduled event")
+    public void verifyEventStatus(int index, String expectedEventStatus) {
+        validateResourcesIndex(index);
+        assertThat(scheduledEvents.get(index).getEventStatus()).isEqualTo(expectedEventStatus);
+    }
+
     @Step("Verify event sub type for specific scheduled event")
     public void verifyEventSubType(int index, String expectedEventSubType) {
         validateResourcesIndex(index);

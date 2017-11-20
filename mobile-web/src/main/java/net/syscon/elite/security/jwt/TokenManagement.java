@@ -12,7 +12,6 @@ import net.syscon.elite.security.UserPrincipalForToken;
 import net.syscon.util.DateTimeConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
@@ -29,11 +28,9 @@ public class TokenManagement {
 	private static final String USER_PRINCIPAL = "userPrincipal";
 
 	private final TokenSettings settings;
-	private final boolean upperCaseUsername;
 
-	public TokenManagement(TokenSettings settings, 	@Value("${token.username.stored.caps:true}") boolean upperCaseUsername) {
+	public TokenManagement(TokenSettings settings) {
 		this.settings = settings;
-		this.upperCaseUsername = upperCaseUsername;
 	}
 
 	public Token createToken(String username) {
@@ -42,7 +39,7 @@ public class TokenManagement {
 	}
 
 	public Token createToken(UserDetails userDetails) {
-		final String usernameToken = upperCaseUsername ? userDetails.getUsername().toUpperCase() : userDetails.getUsername();
+		final String usernameToken = userDetails.getUsername().toUpperCase();
 		final Claims claims = Jwts.claims().setSubject(usernameToken);
 		final int deviceFingerprintHashCode = DeviceFingerprint.get().hashCode();
 

@@ -12,7 +12,7 @@ services:
     environment:
       - JAVA_OPTS=-Xms256m -Xmx256m
       - SERVER_PORT=8080
-      - SPRING_PROFILES_ACTIVE=demo,noproxy,dev
+      - SPRING_PROFILES_ACTIVE=demo,dev
       - JWT_EXPIRATION_MINS=5
       - JWT_REFRESH_EXPIRATION_MINS=25
 networks:

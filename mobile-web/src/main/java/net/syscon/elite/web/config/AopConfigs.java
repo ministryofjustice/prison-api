@@ -19,7 +19,7 @@ public class AopConfigs {
     }
 
     @Bean
-	@Profile("!noproxy")
+	@Profile("connection-proxy")
 	public OracleConnectionAspect oracleProxyConnectionAspect(SQLProvider sqlProvider,
                                                               @Value("${spring.datasource.url}") String jdbcUrl,
                                                               @Value("${spring.datasource.username}") String username,

@@ -30,3 +30,7 @@ INSERT INTO OFFENDER_EXCLUDE_ACTS_SCHDS (OFFENDER_EXCLUDE_ACT_SCHD_ID, OFFENDER_
   VALUES (-1, -4, -7, -4, 'FRI', null),
          (-2, -5, -8, -1, 'MON', 'AM'),
          (-3, -5, -8, -1, 'TUE', 'PM');
+
+-- ADDRESSES (PREMISE column does not exist in Elite Core schema)
+UPDATE ADDRESSES SET PREMISE = 'Birmingham Youth Court' WHERE ADDRESS_ID = -1;
+UPDATE ADDRESSES SET PREMISE = 'The Court House' WHERE ADDRESS_ID = -2;
