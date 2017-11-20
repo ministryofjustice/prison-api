@@ -17,4 +17,9 @@ public class AdjudicationsRepositoryImpl extends RepositoryBase implements Adjud
     public List<Award> findAwards(long bookingId) {
         return jdbcTemplate.query(getQuery("FIND_AWARDS"), createParams("bookingId", bookingId), rowMapper);
     }
+    
+    @Override
+    public int getAdjudicationCount(long bookingId) {
+        return jdbcTemplate.queryForObject(getQuery("GET_ADJUDICATION_COUNT"), createParams("bookingId", bookingId), Integer.class);
+    }
 }

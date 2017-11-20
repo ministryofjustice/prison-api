@@ -44,8 +44,10 @@ public class AdjudicationServiceImpl implements AdjudicationService {
                 endDate = endDate.plusDays(t.getDays());
             }
             return fromDate.isEqual(endDate) || fromDate.isBefore(endDate);
-
         }).collect(Collectors.toList());
-        return AdjudicationDetail.builder().awards(filteredList).build();
+
+        final int count = repository.getAdjudicationCount(bookingId);
+
+        return AdjudicationDetail.builder().awards(filteredList).adjudicationCount(count).build();
     }
 }

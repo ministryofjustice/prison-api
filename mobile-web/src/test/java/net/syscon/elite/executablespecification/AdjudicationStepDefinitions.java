@@ -37,6 +37,11 @@ public class AdjudicationStepDefinitions extends AbstractStepDefinitions {
         adjudicationSteps.verifyResourceNotFound();
     }
 
+    @Then("^the adjudication count is ([0-9-]+)")
+    public void theAdjudicationCountIs(Integer value) throws Throwable {
+        adjudicationSteps.verifyAdjudicationCount(value);
+    }
+    
     @Then("^the award (\\w+) is \"([^\"]*)\"$")
     public void theAwardsFieldIs(String field, String value) throws Throwable {
         adjudicationSteps.verifyAwardField(field, value);
