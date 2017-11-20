@@ -12,6 +12,7 @@ import net.syscon.elite.service.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -30,35 +31,15 @@ public class CustodyStatusServiceImpl implements CustodyStatusService {
     }
 
     @Override
-    public PrisonerCustodyStatus getCustodyStatus(String offenderNo) {
-        return custodyStatusRepository.getCustodyStatus(offenderNo)
+    public PrisonerCustodyStatus getCustodyStatus(String offenderNo, LocalDate onDate) {
+        return custodyStatusRepository.getCustodyStatus(offenderNo, onDate)
                 .map(this::toCustodyStatus)
                 .orElseThrow(new EntityNotFoundException(offenderNo));
     }
 
     @Override
-    public List<PrisonerCustodyStatus> listCustodyStatuses(Order order) {
-        return listCustodyStatuses(Lists.newArrayList(), order);
-    }
-
-    @Override
-    public List<PrisonerCustodyStatus> listCustodyStatuses(CustodyStatusCode custodyStatusCode) {
-        return listCustodyStatuses(Lists.newArrayList(custodyStatusCode), null);
-    }
-
-    @Override
-    public List<PrisonerCustodyStatus> listCustodyStatuses(List<CustodyStatusCode> custodyStatusCodes) {
-        return listCustodyStatuses(custodyStatusCodes, null);
-    }
-
-    @Override
-    public List<PrisonerCustodyStatus> listCustodyStatuses(CustodyStatusCode custodyStatusCode, Order order) {
-        return listCustodyStatuses(Lists.newArrayList(custodyStatusCode), order);
-    }
-
-    @Override
-    public List<PrisonerCustodyStatus> listCustodyStatuses(List<CustodyStatusCode> custodyStatusCodes, Order order) {
-        return custodyStatusRepository.listCustodyStatuses()
+    public List<PrisonerCustodyStatus> listCustodyStatuses(List<CustodyStatusCode> custodyStatusCodes, LocalDate onDate, Order order) {
+        return custodyStatusRepository.listCustodyStatuses(onDate)
                 .stream()
                 .map(this::toCustodyStatus)
                 .filter(x -> filterOnCustodyStatus(x, custodyStatusCodes))

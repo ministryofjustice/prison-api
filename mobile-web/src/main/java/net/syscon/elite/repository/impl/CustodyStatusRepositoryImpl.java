@@ -18,19 +18,9 @@ public class CustodyStatusRepositoryImpl extends RepositoryBase implements Custo
     private final StandardBeanPropertyRowMapper<CustodyStatusDto> CUSTODY_STATUS_MAPPER = new StandardBeanPropertyRowMapper<>(CustodyStatusDto.class);
 
     @Override
-    public List<CustodyStatusDto> listCustodyStatuses() {
-        return listCustodyStatuses(LocalDate.now());
-    }
-
-    @Override
     public List<CustodyStatusDto> listCustodyStatuses(LocalDate onDate) {
         String sql = getQueryBuilder("LIST_CUSTODY_STATUSES").build();
         return jdbcTemplate.query(sql, createParams("onDate", onDate.format(DateTimeFormatter.ISO_LOCAL_DATE)), CUSTODY_STATUS_MAPPER);
-    }
-
-    @Override
-    public Optional<CustodyStatusDto> getCustodyStatus(String offenderNo) {
-        return getCustodyStatus(offenderNo, LocalDate.now());
     }
 
     @Override

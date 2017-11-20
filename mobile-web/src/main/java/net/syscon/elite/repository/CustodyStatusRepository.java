@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CustodyStatusRepository {
-    List<CustodyStatusDto> listCustodyStatuses();
     List<CustodyStatusDto> listCustodyStatuses(LocalDate onDate);
-    Optional<CustodyStatusDto> getCustodyStatus(String offenderNo);
     Optional<CustodyStatusDto> getCustodyStatus(String offenderNo, LocalDate onDate);
 }

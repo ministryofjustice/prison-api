@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.ws.rs.Path;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,14 +31,14 @@ public class CustodyStatusResourceImpl implements CustodyStatusResource {
     public GetPrisonerCustodyStatusesResponse getPrisonerCustodyStatuses(String sortFields, Order sortOrder, List<String> custodyStatusCodes) {
         final List<PrisonerCustodyStatus> custodyStatuses = custodyStatusService.listCustodyStatuses(
                 custodyStatusCodes.stream().map(CustodyStatusCode::valueOf).collect(Collectors.toList()),
-                sortOrder);
+                LocalDate.now(), sortOrder);
         return GetPrisonerCustodyStatusesResponse.respond200WithApplicationJson(custodyStatuses);
     }
 
     @Override
     @PreAuthorize("authentication.authorities.?[authority.contains('_ADMIN')].size() != 0 || authentication.authorities.?[authority.contains('GLOBAL_SEARCH')].size() != 0")
     public GetPrisonerCustodyStatusResponse getPrisonerCustodyStatus(String offenderNo) {
-        final PrisonerCustodyStatus custodyStatus = custodyStatusService.getCustodyStatus(offenderNo);
+        final PrisonerCustodyStatus custodyStatus = custodyStatusService.getCustodyStatus(offenderNo, LocalDate.now());
         return GetPrisonerCustodyStatusResponse.respond200WithApplicationJson(custodyStatus);
     }
 }
