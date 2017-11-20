@@ -1,14 +1,7 @@
 package net.syscon.elite.repository;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
-
 import net.syscon.elite.api.model.Award;
 import net.syscon.elite.web.config.PersistenceConfigs;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@ActiveProfiles("nomis,nomis-hsqldb")
+import static org.junit.Assert.*;
+import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
+
+@ActiveProfiles("nomis-hsqldb")
 @RunWith(SpringRunner.class)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @JdbcTest

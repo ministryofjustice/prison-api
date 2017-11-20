@@ -8,7 +8,6 @@ import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.*;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.ws.rs.Path;
@@ -26,9 +25,6 @@ public class UserResourceImpl implements UserResource {
     private final ReferenceDomainService referenceDomainService;
     private final UserService userService;
     private final BookingService bookingService;
-
-    @Value("${token.username.stored.caps:true}")
-    private boolean upperCaseUsername;
 
     public UserResourceImpl(LocationService locationService, AssignmentService assignmentService, AuthenticationService authenticationService, ReferenceDomainService referenceDomainService, UserService userService, BookingService bookingService) {
         this.locationService = locationService;
@@ -116,7 +112,7 @@ public class UserResourceImpl implements UserResource {
 
     @Override
     public GetUserDetailsResponse getUserDetails(String username) {
-        UserDetail userByUsername = userService.getUserByUsername(upperCaseUsername ? username.toUpperCase() : username);
+        UserDetail userByUsername = userService.getUserByUsername(username.toUpperCase());
 
         return GetUserDetailsResponse.respond200WithApplicationJson(userByUsername);
     }
