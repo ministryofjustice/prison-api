@@ -46,17 +46,17 @@ public class CustodyStatusRepositoryImplTest {
 
     @Test
     public final void canRetrieveAListOfCustodyStatusDetails() {
-        assertThat("A list containing results is returned", repository.listCustodyStatuses(null).size(), Matchers.greaterThan(0));
+        assertThat("A list containing results is returned", repository.listCustodyStatuses(LocalDate.now()).size(), Matchers.greaterThan(0));
     }
 
     @Test
     public final void canRetrieveCustodyStatusDetails() {
-        assertTrue("A CustodyStatusDto is returned", repository.getCustodyStatus(offenderWithMovementRecord, null).isPresent());
+        assertTrue("A CustodyStatusDto is returned", repository.getCustodyStatus(offenderWithMovementRecord, LocalDate.now()).isPresent());
     }
 
     @Test
     public final void canFailGracefully() {
-        assertFalse("A CustodyStatusDto is NOT returned", repository.getCustodyStatus(offenderThatDoesNotExist, null).isPresent());
+        assertFalse("A CustodyStatusDto is NOT returned", repository.getCustodyStatus(offenderThatDoesNotExist, LocalDate.now()).isPresent());
     }
 
     @Test
@@ -64,12 +64,12 @@ public class CustodyStatusRepositoryImplTest {
         assertEquals(
                 String.format("The record for Offender %s is returned", offenderWithMovementRecord),
                 offenderWithMovementRecord,
-                repository.getCustodyStatus(offenderWithMovementRecord, null).map(x -> x.getOffenderIdDisplay()).get());
+                repository.getCustodyStatus(offenderWithMovementRecord, LocalDate.now()).map(x -> x.getOffenderIdDisplay()).get());
     }
 
     @Test
     public final void includesBookingFlagsWithinTheRetrievedData() {
-        final CustodyStatusDto custodyStatusDto = repository.getCustodyStatus(offenderWithMovementRecord, null).orElse(null);
+        final CustodyStatusDto custodyStatusDto = repository.getCustodyStatus(offenderWithMovementRecord, LocalDate.now()).orElse(null);
 
         assertNotNull("Includes Booking StatusFlag", custodyStatusDto.getBookingStatus());
         assertNotNull("Includes Booking ActiveFlag", custodyStatusDto.getActiveFlag());
@@ -77,7 +77,7 @@ public class CustodyStatusRepositoryImplTest {
 
     @Test
     public final void includesMovementDetailsWithinTheRetrievedDataWhenMovementDetailsAreAvailable() {
-        final CustodyStatusDto custodyStatusDto = repository.getCustodyStatus(offenderWithMovementRecord, null).orElse(null);
+        final CustodyStatusDto custodyStatusDto = repository.getCustodyStatus(offenderWithMovementRecord, LocalDate.now()).orElse(null);
 
         assertNotNull("Includes Movement DirectionCode", custodyStatusDto.getDirectionCode());
         assertNotNull("Includes Movement TypeCode", custodyStatusDto.getMovementType());
@@ -86,7 +86,7 @@ public class CustodyStatusRepositoryImplTest {
 
     @Test
     public final void includesNullValuesWithinTheRetrievedDataWhenMovementDetailsAreNotAvailable() {
-        final CustodyStatusDto custodyStatusDto = repository.getCustodyStatus(offenderWithNoMovementRecord, null).orElse(null);
+        final CustodyStatusDto custodyStatusDto = repository.getCustodyStatus(offenderWithNoMovementRecord, LocalDate.now()).orElse(null);
 
         assertNull("Includes Null for DirectionCode", custodyStatusDto.getDirectionCode());
         assertNull("Includes Null for MovementType", custodyStatusDto.getMovementType());
@@ -95,12 +95,12 @@ public class CustodyStatusRepositoryImplTest {
 
     @Test
     public final void cannotRetrieveCustodyStatusDetailsForAnOffenderLocatedInTheGhostPrison() {
-        assertFalse("A CustodyStatusDto is NOT returned", repository.getCustodyStatus(offenderInGhostPrison, null).isPresent());
+        assertFalse("A CustodyStatusDto is NOT returned", repository.getCustodyStatus(offenderInGhostPrison, LocalDate.now()).isPresent());
     }
 
     @Test
     public final void includesMostRecentMovementDetailsWithinTheRetrievedDataWhenNoDateIsPassed() {
-        final CustodyStatusDto custodyStatusDto = repository.getCustodyStatus(offenderWithMovementRecord, null).orElse(null);
+        final CustodyStatusDto custodyStatusDto = repository.getCustodyStatus(offenderWithMovementRecord, LocalDate.now()).orElse(null);
 
         assertNotNull("Includes Movement DirectionCode", custodyStatusDto.getDirectionCode());
         assertNotNull("Includes Movement TypeCode", custodyStatusDto.getMovementType());
