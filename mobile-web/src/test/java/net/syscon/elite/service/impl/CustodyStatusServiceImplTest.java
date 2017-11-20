@@ -17,7 +17,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,6 +35,8 @@ public class CustodyStatusServiceImplTest {
     private CustodyStatusRepository custodyStatusRepository = mock(CustodyStatusRepository.class);
 
     private CustodyStatusService service = new CustodyStatusServiceImpl(custodyStatusRepository);
+
+    private LocalDate nowDate = LocalDate.now();
 
     @DataProvider
     public static Object[][] custodyStatusRecords() {
@@ -62,7 +63,7 @@ public class CustodyStatusServiceImplTest {
                         .build()
         );
 
-        when(custodyStatusRepository.listCustodyStatuses(null))
+        when(custodyStatusRepository.listCustodyStatuses(nowDate))
                 .thenReturn(records);
     }
 
@@ -71,7 +72,7 @@ public class CustodyStatusServiceImplTest {
     public void canRetrieveCustodyStatusRecordsWithCorrectCustodyStatusCodesAttached(String booking_status, String active_flag, String direction_code, String movement_type, String movement_reason_code, CustodyStatusCode expectedCustodyStatus) {
         String randomOffenderNo = UUID.randomUUID().toString();
 
-        when(custodyStatusRepository.getCustodyStatus(randomOffenderNo, null))
+        when(custodyStatusRepository.getCustodyStatus(randomOffenderNo, nowDate))
                 .thenReturn(Optional.of(CustodyStatusDto
                         .builder()
                         .offenderIdDisplay(randomOffenderNo)
@@ -82,7 +83,7 @@ public class CustodyStatusServiceImplTest {
                         .movementReasonCode(movement_reason_code)
                         .build()));
 
-        PrisonerCustodyStatus custodyStatus = service.getCustodyStatus(randomOffenderNo, null);
+        PrisonerCustodyStatus custodyStatus = service.getCustodyStatus(randomOffenderNo, nowDate);
 
         assertEquals("has the correct offenderNo", custodyStatus.getOffenderNo(), randomOffenderNo);
         assertEquals("identifies correct custody status", custodyStatus.getCustodyStatusCode(), expectedCustodyStatus);
@@ -90,14 +91,14 @@ public class CustodyStatusServiceImplTest {
 
     @Test
     public void canRetrieveAllCustodyStatusesWhenTheFilterListIsEmpty() {
-        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(Lists.newArrayList(), null, null);
+        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(Lists.newArrayList(), nowDate, null);
 
         assertEquals(3, records.size());
     }
 
     @Test
     public void canRetrieveAllActiveINCustodyStatusesWhenTheFilterListIsSetToACTIVEIN() {
-        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(Lists.newArrayList(CustodyStatusCode.ACTIVE_IN), null, null);
+        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(Lists.newArrayList(CustodyStatusCode.ACTIVE_IN), nowDate, null);
 
         assertEquals(1, records.size());
         assertEquals("C", records.get(0).getOffenderNo());
@@ -105,7 +106,7 @@ public class CustodyStatusServiceImplTest {
 
     @Test
     public void canRetrieveAllACTIVEOUTCRTCustodyStatusesWhenTheFilterListIsSetToACTIVEOUTCRT() {
-        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(Lists.newArrayList(CustodyStatusCode.ACTIVE_OUT_CRT), null, null);
+        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(Lists.newArrayList(CustodyStatusCode.ACTIVE_OUT_CRT), nowDate, null);
 
         assertEquals(1, records.size());
         assertEquals("B", records.get(0).getOffenderNo());
@@ -114,7 +115,7 @@ public class CustodyStatusServiceImplTest {
     @Test
     public void canRetrieveAllACTIVEOUTCRTandACTIVEINCustodyStatusesWhenTheFilterListIsSetToACTIVEOUTCRTandACTIVEIN() {
         List<CustodyStatusCode> codes = Lists.newArrayList(CustodyStatusCode.ACTIVE_OUT_CRT, CustodyStatusCode.ACTIVE_IN);
-        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(codes, null, Order.ASC);
+        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(codes, nowDate, Order.ASC);
 
         assertEquals(2, records.size());
         assertEquals("C", records.get(0).getOffenderNo());
@@ -123,8 +124,7 @@ public class CustodyStatusServiceImplTest {
 
     @Test
     public void canRetrieveCustodyStatusesInDescendingOrder() {
-        List<CustodyStatusCode> codes = Lists.newArrayList(CustodyStatusCode.ACTIVE_OUT_CRT, CustodyStatusCode.ACTIVE_IN);
-        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(Lists.newArrayList(), null, Order.DESC);
+        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(Lists.newArrayList(), nowDate, Order.DESC);
 
         assertEquals("A", records.get(0).getOffenderNo());
         assertEquals("C", records.get(2).getOffenderNo());
@@ -132,8 +132,7 @@ public class CustodyStatusServiceImplTest {
 
     @Test
     public void canRetrieveCustodyStatusesInAscendingOrder() {
-        List<CustodyStatusCode> codes = Lists.newArrayList(CustodyStatusCode.ACTIVE_OUT_CRT, CustodyStatusCode.ACTIVE_IN);
-        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(Lists.newArrayList(), null, Order.ASC);
+        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(Lists.newArrayList(), nowDate, Order.ASC);
 
         assertEquals("C", records.get(0).getOffenderNo());
         assertEquals("A", records.get(2).getOffenderNo());

@@ -1,6 +1,5 @@
 package net.syscon.elite.service.impl;
 
-import com.google.common.collect.Lists;
 import net.syscon.elite.api.model.PrisonerCustodyStatus;
 import net.syscon.elite.api.support.CustodyStatusCode;
 import net.syscon.elite.api.support.Order;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
