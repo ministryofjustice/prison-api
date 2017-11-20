@@ -62,11 +62,13 @@ INSERT INTO OFFENDER_PROGRAM_PROFILES (OFF_PRGREF_ID, OFFENDER_BOOK_ID, PROGRAM_
          (-7, -4, -4, '2016-11-09', 'ALLOC', -4, null, null, null, null, null, 'N', 'LEI', null, null),
          (-8, -5, -1, '2016-11-09', 'ALLOC', -1, null, null, null, null, null, 'N', 'LEI', null, null);
 
--- OFFENDER_COURSE_ATTENDANCES (record of offenders having attended scheduled activitie)
+-- OFFENDER_COURSE_ATTENDANCES (record of offenders attendance of scheduled activities)
 INSERT INTO OFFENDER_COURSE_ATTENDANCES (EVENT_ID, OFFENDER_BOOK_ID, CRS_SCH_ID, EVENT_CLASS, EVENT_TYPE, EVENT_SUB_TYPE, EVENT_DATE, EVENT_STATUS)
-  VALUES (-1, -3, -6, 'INT_MOV', 'PRISON_ACT', 'EDUC', '2017-09-11', 'EXP'),
-         (-2, -3, -7, 'INT_MOV', 'PRISON_ACT', 'EDUC', '2017-09-12', 'SCH');
-
+  VALUES (-1, -3, -6, 'INT_MOV', 'PRISON_ACT', 'EDUC', '2017-09-11', 'COMP'),
+         (-2, -3, -7, 'INT_MOV', 'PRISON_ACT', 'EDUC', '2017-09-12', 'EXP'),
+         (-3, -3, -8, 'INT_MOV', 'PRISON_ACT', 'EDUC', '2017-09-13', 'CANC'),
+         (-4, -3, -9, 'INT_MOV', 'PRISON_ACT', 'EDUC', '2017-09-14', 'SCH'),
+         (-5, -3, -10, 'INT_MOV', 'PRISON_ACT', 'EDUC', '2017-09-15', 'SCH');
 
 ---------------------------------------------------
 -- Seed data for Visits (VISIT) Scheduled Events --

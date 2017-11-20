@@ -69,6 +69,11 @@ public class BookingActivitiesStepDefinitions extends AbstractStepDefinitions {
         bookingActivities.verifyEventSource(expectedEventSource);
     }
 
+    @And("^event status for \"([^\"]*)\" returned activity is \"([^\"]*)\"$")
+    public void eventStatusForReturnedActivityIs(String ordinal, String expectedEventStatus) throws Throwable {
+        bookingActivities.verifyEventStatus(ord2idx(ordinal), expectedEventStatus);
+    }
+
     @And("^event sub type for \"([^\"]*)\" returned activity is \"([^\"]*)\"$")
     public void eventSubTypeForReturnedActivityIs(String ordinal, String expectedEventSubType) throws Throwable {
         bookingActivities.verifyEventSubType(ord2idx(ordinal), expectedEventSubType);
