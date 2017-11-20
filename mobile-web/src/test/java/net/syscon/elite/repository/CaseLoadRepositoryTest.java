@@ -35,7 +35,7 @@ public class CaseLoadRepositoryTest {
 
     @Before
     public final void init() {
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("ITAG_USER", "password"));
     }
 
     @Test
@@ -48,7 +48,7 @@ public class CaseLoadRepositoryTest {
 
     @Test
     public final void testGetOffender() {
-        final List<CaseLoad> caseLoadsByStaffId = repository.findCaseLoadsByUsername("itag_user");
+        final List<CaseLoad> caseLoadsByStaffId = repository.findCaseLoadsByUsername("ITAG_USER");
         assertThat(caseLoadsByStaffId).isNotEmpty();
         assertThat(caseLoadsByStaffId).hasSize(3);
         assertThat(caseLoadsByStaffId).extracting("caseLoadId").contains("LEI", "BXI", "WAI");

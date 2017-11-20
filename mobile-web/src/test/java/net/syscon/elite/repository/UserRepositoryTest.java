@@ -35,7 +35,7 @@ public class UserRepositoryTest {
 
     @Test
     public final void testFindUserByUsername() {
-        UserDetail user = repository.findByUsername("itag_user").orElseThrow(new EntityNotFoundException("not found"));
+        UserDetail user = repository.findByUsername("ITAG_USER").orElseThrow(new EntityNotFoundException("not found"));
 
         assertThat(user.getLastName()).isEqualTo("User");
         assertThat(user.getEmail()).isEqualTo("itaguser@syscon.net");
@@ -49,7 +49,7 @@ public class UserRepositoryTest {
 
     @Test
     public final void testFindUserByStaffId() {
-        UserDetail user = repository.findByUsername("elite2_api_user").orElseThrow(new EntityNotFoundException("not found"));
+        UserDetail user = repository.findByUsername("ELITE2_API_USER").orElseThrow(new EntityNotFoundException("not found"));
 
         final StaffDetail staffDetails = repository.findByStaffId(user.getStaffId()).orElseThrow(new EntityNotFoundException("not found"));
 
@@ -66,7 +66,7 @@ public class UserRepositoryTest {
 
     @Test
     public final void testFindRolesByUsername() {
-        List<UserRole> roles = repository.findRolesByUsername("itag_user");
+        List<UserRole> roles = repository.findRolesByUsername("ITAG_USER");
         assertThat(roles).isNotEmpty();
         assertThat(roles).extracting("roleCode").contains("LEI_WING_OFF");
     }
