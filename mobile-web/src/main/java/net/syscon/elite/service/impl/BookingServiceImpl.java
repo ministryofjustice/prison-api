@@ -1,5 +1,8 @@
 package net.syscon.elite.service.impl;
 
+import static java.time.LocalDate.now;
+import static java.time.temporal.ChronoUnit.DAYS;
+
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.SentenceDetail.NonDtoReleaseDateType;
 import net.syscon.elite.api.support.Order;
@@ -12,6 +15,7 @@ import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.support.NonDtoReleaseDate;
+
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,12 +23,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.ws.rs.BadRequestException;
+
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static java.time.LocalDate.now;
-import static java.time.temporal.ChronoUnit.DAYS;
 
 /**
  * Bookings API service implementation.
@@ -333,11 +335,12 @@ public class BookingServiceImpl implements BookingService {
         if (appointmentsPaged.getTotalRecords() > appointmentsPaged.getPageLimit()) {
             appointments.addAll(getBookingAppointments(bookingId, from, to, 1000, appointmentsPaged.getTotalRecords(), null, null).getItems());
         }
-        final SortedSet<ScheduledEvent> sortedSet = new TreeSet<>(startTimeComparator);
-        sortedSet.addAll(activities);
-        sortedSet.addAll(visits);
-        sortedSet.addAll(appointments);
-        return Arrays.asList(sortedSet.toArray(new ScheduledEvent[sortedSet.size()]));
+        List<ScheduledEvent> results = new ArrayList<>();
+        results.addAll(activities);
+        results.addAll(visits);
+        results.addAll(appointments);
+        Collections.sort(results, startTimeComparator);
+        return results;
     }
 
     @Override

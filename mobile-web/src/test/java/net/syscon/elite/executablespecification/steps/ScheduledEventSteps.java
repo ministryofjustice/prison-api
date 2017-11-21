@@ -23,7 +23,7 @@ public abstract class ScheduledEventSteps extends CommonSteps {
     private static final String FROM_DATE_QUERY_PARAM_PREFIX = "&fromDate=";
     private static final String TO_DATE_QUERY_PARAM_PREFIX = "&toDate=";
 
-    private List<ScheduledEvent> scheduledEvents;
+    protected List<ScheduledEvent> scheduledEvents;
     
     protected void init() {
         super.init();

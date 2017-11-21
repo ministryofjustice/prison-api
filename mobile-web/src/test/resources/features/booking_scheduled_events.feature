@@ -19,29 +19,52 @@ Feature: Booking Scheduled Events
     When today's scheduled events are requested for an offender with booking id -9
     Then response from booking events API is an empty list
 
-  Scenario Outline: Retrieve today's scheduled events for an offender
-    When today's scheduled events are requested for an offender with booking id -1
-    Then "<number>" events are returned
-    And the start time order is "<startTimes>"
+  Scenario Outline: Retrieve today's scheduled events for an offender in correct time order
+    When today's scheduled events are requested for an offender with booking id -3
+    Then 6 events are returned
+    And For index of <index>,
+    Then the eventType is "<eventType>"
+    And the eventLocation is "<eventLocation>"
     Examples:
-      | number | startTimes     |  
-      | 0      | SMITH13        |
-      | 1      | ROBERTSON      |
+      | index | eventType  | eventLocation      |
+      | 0     | VISIT      | Chapel             |
+      | 1     | VISIT      | Visiting Room      |
+      | 2     | APP        | Medical Centre     |
+      | 3     | APP        | Visiting Room      |
+      | 4     | PRISON_ACT | Carpentry Workshop |
+      | 5     | PRISON_ACT | Carpentry Workshop |
 
-  Scenario Outline: Retrieve this week's scheduled events for an offender
-    When this week's scheduled events are requested for an offender with booking id -1
-    Then "<number>" events are returned
-    And the start time order is "<startTimes>"
+  Scenario Outline: Retrieve this week's scheduled events for an offender in correct time order
+    When this week's scheduled events are requested for an offender with booking id -3
+    Then 13 events are returned
+     And For index of <index>,
+    Then the eventType is "<eventType>"
+    And the eventLocation is "<eventLocation>"
     Examples:
-      | number | startTimes     |  
-      | 0      | SMITH13        |
-      | 1      | ROBERTSON      |
+      | index | eventType  | eventLocation      | days-ahead-comment |
+      | 0     | VISIT      | Chapel             | 0                  |
+      | 1     | VISIT      | Visiting Room      | 0                  |
+      | 2     | APP        | Medical Centre     | 0                  |
+      | 3     | APP        | Visiting Room      | 0                  |
+      | 4     | PRISON_ACT | Carpentry Workshop | 0                  |
+      | 5     | PRISON_ACT | Carpentry Workshop | 0                  |
+      | 6     | VISIT      | Carpentry Workshop | 1                  |
+      | 7     | APP        | Visiting Room      | 1                  |
+      | 8     | VISIT      | Medical Centre     | 2                  |
+      | 9     | PRISON_ACT | Medical Centre     | 3                  |
+      | 10    | VISIT      | Block H            | 4                  |
+      | 11    | PRISON_ACT | Visiting Room      | 6                  |
+      | 12    | APP        | Visiting Room      | 7                  |
 
-  Scenario Outline: Retrieve next week's scheduled events for an offender
-    When next week's scheduled events are requested for an offender with booking id -1
-    Then "<number>" events are returned
-    And the start time order is "<startTimes>"
+  Scenario Outline: Retrieve next week's scheduled events for an offender in correct time order
+    When next week's scheduled events are requested for an offender with booking id -3
+    Then 4 events are returned
+     And For index of <index>,
+    Then the eventType is "<eventType>"
+    And the eventLocation is "<eventLocation>"
     Examples:
-      | number | startTimes     |  
-      | 0      | SMITH13        |
-      | 1      | ROBERTSON      |
+      | index | eventType  | eventLocation      | days-ahead-comment |
+      | 0     | VISIT      | Carpentry Workshop | 8                  |
+      | 1     | PRISON_ACT | Medical Centre     | 9                  |
+      | 2     | VISIT      | Classroom 1        | 10                 |
+      | 3     | APP        | Visiting Room      | 12                 |
