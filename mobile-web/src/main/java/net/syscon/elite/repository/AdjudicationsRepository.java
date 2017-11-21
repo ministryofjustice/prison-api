@@ -7,6 +7,4 @@ import java.util.List;
 public interface AdjudicationsRepository {
 
     List<Award> findAwards(long bookingId);
-
-    int getAdjudicationCount(long bookingId);
 }

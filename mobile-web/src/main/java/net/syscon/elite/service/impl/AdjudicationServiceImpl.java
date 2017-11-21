@@ -60,8 +60,6 @@ public class AdjudicationServiceImpl implements AdjudicationService {
             return true;
         }).collect(Collectors.toList());
 
-        // final int count = repository.getAdjudicationCount(bookingId);
-
         return AdjudicationDetail.builder().awards(filteredList).adjudicationCount(i.get()).build();
     }
 
