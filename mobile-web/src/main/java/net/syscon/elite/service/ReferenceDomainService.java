@@ -24,6 +24,4 @@ public interface ReferenceDomainService {
 	ReferenceCode getCaseNoteSource(String sourceCode);
 
 	Page<ReferenceCode> getCaseNoteSubTypesByParent(String caseNoteType, long offset, long limit);
-
-	Page<ReferenceCode> getCaseNoteTypeByCurrentCaseLoad(String query, String orderBy, Order order, long offset, long limit, boolean includeSubTypes);
 }

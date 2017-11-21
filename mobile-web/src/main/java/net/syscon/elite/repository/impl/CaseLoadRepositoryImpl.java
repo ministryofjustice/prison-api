@@ -3,6 +3,7 @@ package net.syscon.elite.repository.impl;
 import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.repository.CaseLoadRepository;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
+import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 
 @Repository
 public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRepository {
+	private static final RowMapper<CaseLoad> CASELOAD_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(CaseLoad.class);
 
 	public Set<String> getUserCaseloadIds(String username) {
 		return findCaseLoadsByUsername(username).stream().map(CaseLoad::getCaseLoadId).collect(Collectors.toSet());
@@ -48,17 +50,21 @@ public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRe
 	}
 
 	public Optional<CaseLoad> getCurrentCaseLoadDetail(final String username) {
-		final String sql = getQuery("FIND_ACTIVE_CASE_LOAD_BY_USERNAME");
-		final RowMapper<CaseLoad> caseLoadRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseLoad.class, caseLoadMapping);
+		String sql = getQuery("FIND_ACTIVE_CASE_LOAD_BY_USERNAME");
+
+//		RowMapper<CaseLoad> caseLoadRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseLoad.class, caseLoadMapping);
 
 		CaseLoad caseload;
+
 		try {
-			caseload = jdbcTemplate.queryForObject(sql, createParams("username", username), caseLoadRowMapper);
+			caseload = jdbcTemplate.queryForObject(
+					sql,
+					createParams("username", username),
+					CASELOAD_ROW_MAPPER);
 		} catch (EmptyResultDataAccessException e) {
 			caseload = null;
 		}
+
 		return Optional.ofNullable(caseload);
 	}
 }
-
-
