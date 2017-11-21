@@ -9,7 +9,8 @@ Feature: Booking Adjudications
 
   Scenario Outline: Request for Adjudications information about an offender
     When adjudication details with booking id <bookingId> and cutoff date "2016-09-01" is requested
-    Then the award sanctionCode is "<sanctionCode>"
+    Then the adjudication count is <count>
+    And the award sanctionCode is "<sanctionCode>"
     And the award sanctionCodeDescription is "<sanctionCodeDescription>"
     And the award months is "<months>"
     And the award days is "<days>"
@@ -18,9 +19,9 @@ Feature: Booking Adjudications
     And the award effectiveDate is "<effectiveDate>"
 
     Examples:
-      | bookingId | sanctionCode | sanctionCodeDescription | months | days | limit | comment | effectiveDate |
-      | -2        | ADA          | Additional Days Added   |        |  11  |       |         | 2016-11-09    |
-      | -1        | ADA          | Additional Days Added   |        |      |       |         | 2016-10-17    |
+      | bookingId | count | sanctionCode | sanctionCodeDescription | months | days | limit | comment | effectiveDate |
+      | -2        | 1     | ADA          | Additional Days Added   |        |  11  |       |         | 2016-11-09    |
+      | -1        | 1     | ADA          | Additional Days Added   |        |      |       |         | 2016-10-17    |
 
   Scenario: Offender has no awards, no data
     When adjudication details with booking id -4 is requested
@@ -33,6 +34,7 @@ Feature: Booking Adjudications
   Scenario Outline: Offender has more than 1 award
     When adjudication details with booking id -8 is requested
     Then there are 4 awards
+    And the adjudication count is 1
     And For award index <index>,
     And the award sanctionCode is "<sanctionCode>"
     And the award sanctionCodeDescription is "<sanctionCodeDescription>"
@@ -52,17 +54,18 @@ Feature: Booking Adjudications
   Scenario Outline: Ensure older awards expire
     When adjudication details with booking id -5 and cutoff date "<from>" is requested
     Then there are <number> awards
+    And the adjudication count is <count>
    
     Examples:
-      | from       | number | 
-      | 2017-09-13 | 7      | 
-      | 2017-11-07 | 6      | 
-      | 2017-11-15 | 5      | 
-      | 2017-11-28 | 4      | 
-      | 2017-12-04 | 3      | 
-      | 2017-12-07 | 2      | 
-      | 2017-12-14 | 1      | 
-      | 2017-12-15 | 0      | 
+      | from       | number | count |
+      | 2017-09-13 | 7      | 3     |
+      | 2017-11-07 | 6      | 3     |
+      | 2017-11-15 | 5      | 3     |
+      | 2017-11-28 | 4      | 3     |
+      | 2017-12-04 | 3      | 2     |
+      | 2017-12-07 | 2      | 1     |
+      | 2017-12-14 | 1      | 1     |
+      | 2017-12-15 | 0      | 0     |
 
   Scenario: Offender does not exist or different caseload
     When adjudication details with booking id -16 is requested
