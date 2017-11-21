@@ -54,19 +54,10 @@
   
 /me/caseNoteTypes:
   (javaOperationName): getMyCaseNoteTypes
-  description: Returns the list of case Note types associated to the user
-  type: { readOnlyCollectionPaged: { type: ReferenceCode } }
-  get:
-    queryParameters:
-      includeSubTypes:
-        description: Include the Subtypes in the response
-        type: boolean
-        default: false
+  type: { readOnlyCollection: { type: ReferenceCode, description: Get case note types (with sub-types) associated with user (and based on working caseload). } }
   is: [
-    searchable: {fieldsList : "code, activeFlag and description"},
-    sortable: {fieldsList : "code, activeFlag and description"},
-  ] 
-  
+    sortable: {fieldsList : "code, activeFlag, description"},
+  ]
 
 /me/activeCaseLoad:
   (javaOperationName): updateMyActiveCaseLoad
