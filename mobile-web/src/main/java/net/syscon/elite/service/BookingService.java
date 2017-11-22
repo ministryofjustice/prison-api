@@ -31,5 +31,11 @@ public interface BookingService {
 
     List<OffenceDetail> getMainOffenceDetails(Long bookingId);
 
+    List<ScheduledEvent> getEventsToday(Long bookingId);
+
+    List<ScheduledEvent> getEventsThisWeek(Long bookingId);
+
+    List<ScheduledEvent> getEventsNextWeek(Long bookingId);
+
     Page<OffenderRelease> getOffenderReleaseSummary(LocalDate fromReleaseDate, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly);
 }

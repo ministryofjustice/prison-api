@@ -171,6 +171,30 @@
       (javaType): Long
       description: The offender booking id
 
+/{bookingId}/events/today:
+  (javaOperationName): getEventsToday
+  type: {readOnlyCollection: {type: ScheduledEvent, description: All today's scheduled events for the offender. }}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+
+/{bookingId}/events/thisWeek:
+  (javaOperationName): getEventsThisWeek
+  type: {readOnlyCollection: {type: ScheduledEvent, description: All scheduled events for the offender for the coming week. }}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+
+/{bookingId}/events/nextWeek:
+  (javaOperationName): getEventsNextWeek
+  type: {readOnlyCollection: {type: ScheduledEvent, description: All scheduled events for the offender for the following week. }}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+
 /{bookingId}/activities:
   (javaOperationName): getBookingActivities
   type: {readOnlyCollectionPaged: {type: ScheduledEvent, description: Scheduled activities for the offender. }}
