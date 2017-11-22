@@ -165,8 +165,31 @@
 
 /{bookingId}/balances:
   (javaOperationName): getBalances
-  description: Returns specified booking account balances.
-  type: { readOnlyItem: { type: Account } }
+  type: { readOnlyItem: { type: Account, description: Returns booking account balances. } }
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+
+/{bookingId}/events/today:
+  (javaOperationName): getEventsToday
+  type: {readOnlyCollection: {type: ScheduledEvent, description: All today's scheduled events for the offender. }}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+
+/{bookingId}/events/thisWeek:
+  (javaOperationName): getEventsThisWeek
+  type: {readOnlyCollection: {type: ScheduledEvent, description: All scheduled events for the offender for the coming week. }}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+
+/{bookingId}/events/nextWeek:
+  (javaOperationName): getEventsNextWeek
+  type: {readOnlyCollection: {type: ScheduledEvent, description: All scheduled events for the offender for the following week. }}
   uriParameters:
     bookingId:
       (javaType): Long
@@ -195,7 +218,7 @@
 
 /{bookingId}/activities/today:
   (javaOperationName): getBookingActivitiesForToday
-  type: {readOnlyCollectionPaged: {type: ScheduledEvent, description: Scheduled activities for the offender. }}
+  type: {readOnlyCollection: {type: ScheduledEvent, description: Scheduled activities for the offender for current day. }}
   uriParameters:
     bookingId:
       (javaType): Long
@@ -206,11 +229,25 @@
 
 /{bookingId}/contacts:
   (javaOperationName): getContacts
-  type: { readOnlyItem: { type: ContactDetail } }
+  type: { readOnlyItem: { type: ContactDetail, description: Get current next of kin details } }
   uriParameters:
     bookingId:
       (javaType): Long
       description: The offender booking id
+
+/{bookingId}/adjudications:
+  (javaOperationName): getAdjudications
+  type: { readOnlyItem: { type: AdjudicationDetail, description: Get current award or sanction details } }
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+  get:
+    queryParameters:
+      fromDate?:
+        type: string
+        description: Only awards ending on or after this date (in YYYY-MM-DD format) will be considered.
+        example: 2017-06-01
 
 /{bookingId}/caseNotes/{type}/{subType}/count:
   (javaOperationName): getCaseNoteCount
@@ -244,3 +281,89 @@
     bookingId:
       (javaType): Long
       description: The offender booking id
+
+/{bookingId}/visits:
+  (javaOperationName): getBookingVisits
+  type: {readOnlyCollectionPaged: {type: ScheduledEvent, description: Scheduled visits for the offender. }}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+  get:
+    queryParameters:
+      fromDate?:
+        type: string
+        description: Returned visits must be scheduled on or after this date (in YYYY-MM-DD format).
+        example: 2017-06-01
+      toDate?:
+        type: string
+        description: Returned visits must be scheduled on or before this date (in YYYY-MM-DD format).
+        example: 2017-09-01
+  is: [
+    sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
+  ]
+
+/{bookingId}/visits/today:
+  (javaOperationName): getBookingVisitsForToday
+  type: {readOnlyCollection: {type: ScheduledEvent, description: Scheduled visits for the offender for current day. }}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+  is: [
+    sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
+  ]
+
+/{bookingId}/appointments:
+  (javaOperationName): getBookingAppointments
+  type: {readOnlyCollectionPaged: {type: ScheduledEvent, description: Scheduled appointments for the offender. }}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+  get:
+    queryParameters:
+      fromDate?:
+        type: string
+        description: Returned appointments must be scheduled on or after this date (in YYYY-MM-DD format).
+        example: 2017-06-01
+      toDate?:
+        type: string
+        description: Returned appointments must be scheduled on or before this date (in YYYY-MM-DD format).
+        example: 2017-09-01
+  is: [
+    sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
+  ]
+
+/{bookingId}/appointments/today:
+  (javaOperationName): getBookingAppointmentsForToday
+  type: {readOnlyCollection: {type: ScheduledEvent, description: Scheduled appointments for the offender for current day. }}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+  is: [
+    sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
+  ]
+
+/{bookingId}/appointments/thisWeek:
+  (javaOperationName): getBookingAppointmentsForThisWeek
+  type: {readOnlyCollection: {type: ScheduledEvent, description: Scheduled appointments for the offender for 7 days ahead starting from today. }}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+  is: [
+    sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
+  ]
+
+/{bookingId}/appointments/nextWeek:
+  (javaOperationName): getBookingAppointmentsForNextWeek
+  type: {readOnlyCollection: {type: ScheduledEvent, description: Scheduled appointments for the offender for 7 days ahead starting a week from today. }}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+  is: [
+    sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
+  ]

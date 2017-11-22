@@ -1,14 +1,10 @@
 package net.syscon.elite.executablespecification.steps;
 
-import net.syscon.elite.api.model.Location;
-import net.syscon.elite.api.model.StaffDetail;
-import net.syscon.elite.api.model.UserDetail;
-import net.syscon.elite.api.model.UserRole;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -23,36 +19,46 @@ public class UserSteps extends CommonSteps {
     private static final String API_STAFF_REQUEST_URL = API_PREFIX + "users/staff/{staffId}";
     private static final String API_USERS_ME_LOCATIONS_REQUEST_URL = API_USERS_ME_REQUEST_URL + "/locations";
     private static final String API_USERS_ME_ROLES_REQUEST_URL = API_USERS_ME_REQUEST_URL + "/roles";
+    private static final String API_USERS_ME_CASE_NOTE_TYPES_REQUEST_URL = API_USERS_ME_REQUEST_URL + "/caseNoteTypes";
 
     private StaffDetail staffDetail;
     private List<Location> userLocations;
     private List<UserRole> userRoles;
+    private List<ReferenceCode> caseNoteTypes;
+
+    @Override
+    protected void init() {
+        super.init();
+
+        staffDetail = null;
+        userLocations = null;
+        userRoles = null;
+        caseNoteTypes = null;
+    }
 
     @Step("Verify current user details")
     public void verifyDetails(String username, String firstName, String lastName) {
-        ResponseEntity<UserDetail> response =
-                restTemplate.exchange(
+        try {
+        ResponseEntity<UserDetail> response = restTemplate.exchange(
                         API_USERS_ME_REQUEST_URL,
                         HttpMethod.GET,
                         createEntity(),
                         UserDetail.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            UserDetail userDetails = response.getBody();
 
-        UserDetail userDetails = response.getBody();
-
-        assertThat(userDetails.getUsername()).isEqualToIgnoringCase(username);
-        assertThat(userDetails).hasFieldOrPropertyWithValue("firstName", firstName);
-        assertThat(userDetails).hasFieldOrPropertyWithValue("lastName", lastName);
+            assertThat(userDetails.getUsername()).isEqualToIgnoringCase(username);
+            assertThat(userDetails).hasFieldOrPropertyWithValue("firstName", firstName);
+            assertThat(userDetails).hasFieldOrPropertyWithValue("lastName", lastName);
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
     }
 
     @Step("Find staff details")
     public void findStaffDetails(Long staffId) {
-        ResponseEntity<StaffDetail> response;
-
         try {
-            response =
-                    restTemplate.exchange(
+            ResponseEntity<StaffDetail> response = restTemplate.exchange(
                             API_STAFF_REQUEST_URL,
                             HttpMethod.GET,
                             createEntity(),
@@ -100,35 +106,81 @@ public class UserSteps extends CommonSteps {
         verifyPropertyValues(userLocations, Location::getLocationPrefix, prefixes);
     }
 
-    private void dispatchUserLocationsRequest() {
-        userLocations = null;
-
-        ResponseEntity<List<Location>> response =
-                restTemplate.exchange(API_USERS_ME_LOCATIONS_REQUEST_URL, HttpMethod.GET, createEntity(),
-                        new ParameterizedTypeReference<List<Location>>() {});
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-        userLocations = response.getBody();
-
-        buildResourceData(response);
+    @Step("Get roles for current user")
+    public void getUserRoles() {
+        dispatchUserRolesRequest();
     }
 
-    public List<UserRole> getUserRoles() {
-        try {
-            ResponseEntity<List<UserRole>> responseEntity = restTemplate.exchange(API_USERS_ME_ROLES_REQUEST_URL,
-                    HttpMethod.GET, createEntity(null, null), new ParameterizedTypeReference<List<UserRole>>() {
-                    });
+    @Step("Verify roles retrieved for current user")
+    public void verifyRoles(String roles) {
+        verifyPropertyValues(userRoles, UserRole::getRoleCode, roles);
+    }
 
-            userRoles = responseEntity.getBody();
+    @Step("Get case note types for current user")
+    public void getUserCaseNoteTypes() {
+        dispatchUserCaseNoteTypesRequest();
+    }
+
+    @Step("Verify case note types have sub-types")
+    public void verifyCaseNoteTypesHaveSubTypes() {
+        assertThat(caseNoteTypes.isEmpty()).isFalse();
+
+        assertThat(caseNoteTypes.stream().filter(type -> type.getSubCodes().isEmpty()).count()).isEqualTo(0);
+    }
+
+    private void dispatchUserRolesRequest() {
+        init();
+
+        try {
+            ResponseEntity<List<UserRole>> response = restTemplate.exchange(
+                    API_USERS_ME_ROLES_REQUEST_URL,
+                    HttpMethod.GET,
+                    createEntity(),
+                    new ParameterizedTypeReference<List<UserRole>>() {});
+
+            userRoles = response.getBody();
+
+            buildResourceData(response);
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
-
-        return userRoles;
     }
 
-    public void verifyRoles(String roles) {
-        verifyPropertyValues(userRoles, UserRole::getRoleCode, roles);
+    private void dispatchUserLocationsRequest() {
+        init();
+
+        try {
+            ResponseEntity<List<Location>> response = restTemplate.exchange(
+                    API_USERS_ME_LOCATIONS_REQUEST_URL,
+                    HttpMethod.GET,
+                    createEntity(),
+                    new ParameterizedTypeReference<List<Location>>() {});
+
+            userLocations = response.getBody();
+
+            buildResourceData(response);
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    private void dispatchUserCaseNoteTypesRequest() {
+        init();
+
+        ResponseEntity<List<ReferenceCode>> response;
+
+        try {
+            response = restTemplate.exchange(
+                    API_USERS_ME_CASE_NOTE_TYPES_REQUEST_URL,
+                    HttpMethod.GET,
+                    createEntity(),
+                    new ParameterizedTypeReference<List<ReferenceCode>>() {});
+
+            caseNoteTypes = response.getBody();
+
+            buildResourceData(response);
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
     }
 }

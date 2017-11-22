@@ -91,17 +91,17 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public ReferenceDomainsSteps referenceDomains() {
+        public ReferenceDomainsSteps referenceDomain() {
             return new ReferenceDomainsSteps();
         }
 
         @Bean
-        public MyAssignmentsSteps myAssignments() {
+        public MyAssignmentsSteps userAssignment() {
             return new MyAssignmentsSteps();
         }
 
         @Bean
-        public FinanceSteps finance() {
+        public FinanceSteps bookingFinance() {
             return new FinanceSteps();
         }
 
@@ -111,13 +111,33 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public ContactSteps contactSteps() {
+        public ContactSteps bookingContact() {
             return new ContactSteps();
+        }
+
+        @Bean
+        public AdjudicationSteps bookingAdjudication() {
+            return new AdjudicationSteps();
         }
 
         @Bean
         public BookingAssessmentSteps bookingAssessment() {
             return new BookingAssessmentSteps();
+        }
+
+        @Bean
+        public BookingVisitSteps bookingVisit() {
+            return new BookingVisitSteps();
+        }
+        
+        @Bean
+        public BookingEventSteps bookingEvent() {
+            return new BookingEventSteps();
+        }
+
+        @Bean
+        public BookingAppointmentSteps bookingAppointment() {
+            return new BookingAppointmentSteps();
         }
     }
 

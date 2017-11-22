@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Api(tags = {"/{{baseName}}"})
+@SuppressWarnings("unused")
 {{#operations}}
 public interface {{classname}} {
     {{#operation}}

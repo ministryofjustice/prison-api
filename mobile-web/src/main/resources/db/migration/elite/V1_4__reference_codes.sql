@@ -1,18 +1,45 @@
+CREATE TABLE REFERENCE_DOMAINS
+(
+	DOMAIN                          VARCHAR2(12)                        NOT NULL,
+	DESCRIPTION                     VARCHAR2(40)                        NOT NULL,
+	DOMAIN_STATUS                   VARCHAR2(12)                        NOT NULL,
+	OWNER_CODE                      VARCHAR2(12)                        NOT NULL,
+	APPLN_CODE                      VARCHAR2(12)                        NOT NULL,
+	OLD_CODE_TABLE                  VARCHAR2(40),
+	PARENT_DOMAIN                   VARCHAR2(12),
+	CODE_LENGTH                     NUMBER(3),
+	CREATE_DATETIME                 TIMESTAMP(9)  DEFAULT SYSTIMESTAMP  NOT NULL,
+	CREATE_USER_ID                  VARCHAR2(32)  DEFAULT USER          NOT NULL,
+	MODIFY_DATETIME                 TIMESTAMP(9)  DEFAULT SYSTIMESTAMP,
+	MODIFY_USER_ID                  VARCHAR2(32),
+	SUPER_SET_DOMAIN                VARCHAR2(12),
+	SEAL_FLAG                       VARCHAR2(1)
+);
+
+ALTER TABLE REFERENCE_DOMAINS ADD CONSTRAINT REFERENCE_DOMAINS_PK PRIMARY KEY (DOMAIN);
+ALTER TABLE REFERENCE_DOMAINS ADD FOREIGN KEY (PARENT_DOMAIN) REFERENCES REFERENCE_DOMAINS;
+ALTER TABLE REFERENCE_DOMAINS ADD FOREIGN KEY (SUPER_SET_DOMAIN) REFERENCES REFERENCE_DOMAINS;
+
+
 CREATE TABLE REFERENCE_CODES
 (
-  "DOMAIN"                        VARCHAR2(12 CHAR),
-  "CODE"                          VARCHAR2(12 CHAR),
-  "DESCRIPTION"                   VARCHAR2(40 CHAR),
-  "LIST_SEQ"                      NUMBER(6, 0),
-  "ACTIVE_FLAG"                   VARCHAR2(1 CHAR)  DEFAULT 'Y',
-  "SYSTEM_DATA_FLAG"              VARCHAR2(1 CHAR)  DEFAULT 'Y',
-  "MODIFY_USER_ID"                VARCHAR2(32 CHAR),
-  "EXPIRED_DATE"                  DATE,
-  "NEW_CODE"                      VARCHAR2(12 CHAR),
-  "PARENT_CODE"                   VARCHAR2(12 CHAR),
-  "PARENT_DOMAIN"                 VARCHAR2(12 CHAR),
-  "CREATE_DATETIME"               TIMESTAMP(9)      DEFAULT systimestamp,
-  "CREATE_USER_ID"                VARCHAR2(32 CHAR) DEFAULT user,
-  "MODIFY_DATETIME"               TIMESTAMP(9),
-  "SEAL_FLAG"                     VARCHAR2(1 CHAR)
+	DOMAIN                          VARCHAR2(12)                        NOT NULL,
+	CODE                            VARCHAR2(12)                        NOT NULL,
+	DESCRIPTION                     VARCHAR2(40)                        NOT NULL,
+	LIST_SEQ                        NUMBER(6),
+	ACTIVE_FLAG                     VARCHAR2(1)   DEFAULT 'Y'           NOT NULL,
+	SYSTEM_DATA_FLAG                VARCHAR2(1)   DEFAULT 'Y'           NOT NULL,
+	MODIFY_USER_ID                  VARCHAR2(32),
+	EXPIRED_DATE                    DATE,
+	NEW_CODE                        VARCHAR2(12),
+	PARENT_CODE                     VARCHAR2(12),
+	PARENT_DOMAIN                   VARCHAR2(12),
+	CREATE_DATETIME                 TIMESTAMP(9)  DEFAULT SYSTIMESTAMP  NOT NULL,
+	CREATE_USER_ID                  VARCHAR2(32)  DEFAULT USER          NOT NULL,
+	MODIFY_DATETIME                 TIMESTAMP(9)  DEFAULT SYSTIMESTAMP,
+	SEAL_FLAG                       VARCHAR2(1)
 );
+
+ALTER TABLE REFERENCE_CODES ADD PRIMARY KEY (DOMAIN, CODE);
+ALTER TABLE REFERENCE_CODES ADD UNIQUE (DOMAIN, CODE, DESCRIPTION, ACTIVE_FLAG);
+ALTER TABLE REFERENCE_CODES ADD FOREIGN KEY (DOMAIN) REFERENCES REFERENCE_DOMAINS;

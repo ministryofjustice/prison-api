@@ -1,8 +1,11 @@
 package net.syscon.elite.service.impl;
 
+import com.google.common.collect.ImmutableMap;
+import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.CaseNote;
 import net.syscon.elite.api.model.CaseNoteCount;
 import net.syscon.elite.api.model.NewCaseNote;
+import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.CaseNoteRepository;
@@ -10,7 +13,7 @@ import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.service.validation.ReferenceCodesValid;
+import net.syscon.elite.service.validation.CaseNoteTypeSubTypeValid;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
@@ -42,12 +45,14 @@ public class CaseNoteServiceImpl implements CaseNoteService {
     private final CaseNoteRepository caseNoteRepository;
     private final CaseNoteTransformer transformer;
     private final BookingService bookingService;
+	private final TelemetryClient telemetryClient;
 
     public CaseNoteServiceImpl(CaseNoteRepository caseNoteRepository, CaseNoteTransformer transformer,
-            BookingService bookingService) {
+							   BookingService bookingService, TelemetryClient telemetryClient) {
         this.caseNoteRepository = caseNoteRepository;
         this.transformer = transformer;
         this.bookingService = bookingService;
+        this.telemetryClient = telemetryClient;
     }
 
     @Transactional(readOnly = true)
@@ -83,13 +88,17 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	}
 
 	@Override
-    public CaseNote createCaseNote(final long bookingId, @Valid @ReferenceCodesValid final NewCaseNote caseNote) {
+    public CaseNote createCaseNote(long bookingId, @Valid @CaseNoteTypeSubTypeValid NewCaseNote caseNote) {
         bookingService.verifyBookingAccess(bookingId);
 
 		//TODO: First - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
         Long caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote, caseNoteSource);
 
-        return getCaseNote(bookingId, caseNoteId);
+		final CaseNote caseNoteCreated = getCaseNote(bookingId, caseNoteId);
+
+		// Log event
+		telemetryClient.trackEvent("CaseNoteCreated", ImmutableMap.of("type", caseNoteCreated.getType(), "subType", caseNoteCreated.getSubType()), null);
+		return caseNoteCreated;
     }
 
 	@Override
@@ -120,7 +129,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
 		Long count = caseNoteRepository.getCaseNoteCount(bookingId, type, subType, fromDate, toDate);
 
-        CaseNoteCount caseNoteCount = CaseNoteCount.builder()
+        return CaseNoteCount.builder()
 				.bookingId(bookingId)
 				.type(type)
 				.subType(subType)
@@ -128,7 +137,15 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 				.toDate(toDate)
 				.count(count)
 				.build();
+	}
 
-		return caseNoteCount;
+	@Override
+	public List<ReferenceCode> getCaseNoteTypesByCaseLoadType(String caseLoadType) {
+		return caseNoteRepository.getCaseNoteTypesByCaseLoadType(caseLoadType);
+	}
+
+	@Override
+	public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(String caseLoadType) {
+		return caseNoteRepository.getCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType);
 	}
 }

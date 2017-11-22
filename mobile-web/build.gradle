@@ -31,6 +31,8 @@ project(":mobile-web") {
         compile("io.springfox:springfox-swagger-ui:2.7.0")
         compile("io.springfox:springfox-swagger2:2.7.0")
         compile("net.logstash.logback:logstash-logback-encoder:4.8")
+        compile("com.microsoft.azure:applicationinsights-core:1.0.10")
+        compile("com.microsoft.azure:applicationinsights-web:1.0.10")
 
         compileOnly 'org.projectlombok:lombok:1.16.18'
 
@@ -78,7 +80,8 @@ project(":mobile-web") {
     // maximum the test process is somewhat viciously killed and exits with code 137
         minHeapSize = "2G"
         maxHeapSize = "2G"
-        def nomisEnvVars = ['api.db.target':'nomis', 'cucumber.options':'--tags @global,@nomis --tags ~@elite']
+        def nomisEnvVars = ['api.db.target':'nomis',
+                            'cucumber.options':'--tags @global,@nomis --tags ~@elite --tags ~@wip --tags ~@broken']
 
         exclude "**/persistence/*"
         environment nomisEnvVars
@@ -87,7 +90,8 @@ project(":mobile-web") {
     task testWithSchemaElite(type:Test) {
         minHeapSize = "2G"
         maxHeapSize = "2G"
-        def eliteEnvVars = ['api.db.target':'elite', 'cucumber.options':'--tags @global,@elite --tags ~@nomis']
+        def eliteEnvVars = ['api.db.target':'elite',
+                            'cucumber.options':'--tags @global,@elite --tags ~@nomis --tags ~@wip --tags ~@broken']
 
         exclude "**/persistence/*"
         environment eliteEnvVars

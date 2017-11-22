@@ -17,9 +17,25 @@ public interface BookingService {
 
     Page<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);
 
+    List<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
+
+    Page<ScheduledEvent> getBookingVisits(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);
+
+    List<ScheduledEvent> getBookingVisits(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
+
+    Page<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);
+
+    List<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
+
     void verifyBookingAccess(Long bookingId);
 
     List<OffenceDetail> getMainOffenceDetails(Long bookingId);
+
+    List<ScheduledEvent> getEventsToday(Long bookingId);
+
+    List<ScheduledEvent> getEventsThisWeek(Long bookingId);
+
+    List<ScheduledEvent> getEventsNextWeek(Long bookingId);
 
     Page<OffenderRelease> getOffenderReleaseSummary(LocalDate fromReleaseDate, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly);
 }

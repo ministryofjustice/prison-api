@@ -27,16 +27,18 @@ public class BookingResourceImpl implements BookingResource {
     private final InmatesAlertService inmateAlertService;
     private final FinanceService financeService;
     private final ContactService contactService;
+    private final AdjudicationService adjudicationService;
 
     public BookingResourceImpl(BookingService bookingService, InmateService inmateService,
             CaseNoteService caseNoteService, InmatesAlertService inmateAlertService, FinanceService financeService,
-            ContactService contactService) {
+            ContactService contactService, AdjudicationService adjudicationService) {
         this.bookingService = bookingService;
         this.inmateService = inmateService;
         this.caseNoteService = caseNoteService;
         this.inmateAlertService = inmateAlertService;
         this.financeService = financeService;
         this.contactService = contactService;
+        this.adjudicationService = adjudicationService;
     }
 
     @Override
@@ -73,13 +75,13 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetBookingActivitiesForTodayResponse getBookingActivitiesForToday(Long bookingId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-        Page<ScheduledEvent> activities =  bookingService.getBookingActivities(
+    public GetBookingActivitiesForTodayResponse getBookingActivitiesForToday(Long bookingId, String sortFields, Order sortOrder) {
+        LocalDate today = LocalDate.now();
+
+        List<ScheduledEvent> activities =  bookingService.getBookingActivities(
                 bookingId,
-                LocalDate.now(),
-                LocalDate.now(),
-                nvl(pageOffset, 0L),
-                nvl(pageLimit, 10L),
+                today,
+                today,
                 sortFields,
                 sortOrder);
 
@@ -195,6 +197,27 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    public GetEventsTodayResponse getEventsToday(Long bookingId) {
+        List<ScheduledEvent> scheduledEvents = bookingService.getEventsToday(bookingId);
+
+        return GetEventsTodayResponse.respond200WithApplicationJson(scheduledEvents);
+    }
+
+    @Override
+    public GetEventsThisWeekResponse getEventsThisWeek(Long bookingId) {
+        List<ScheduledEvent> scheduledEvents = bookingService.getEventsThisWeek(bookingId);
+
+        return GetEventsThisWeekResponse.respond200WithApplicationJson(scheduledEvents);
+    }
+
+    @Override
+    public GetEventsNextWeekResponse getEventsNextWeek(Long bookingId) {
+        List<ScheduledEvent> scheduledEvents = bookingService.getEventsNextWeek(bookingId);
+
+        return GetEventsNextWeekResponse.respond200WithApplicationJson(scheduledEvents);
+    }
+
+    @Override
     public GetContactsResponse getContacts(Long bookingId) {
         final ContactDetail contacts = contactService.getContacts(bookingId);
 
@@ -211,5 +234,98 @@ public class BookingResourceImpl implements BookingResource {
                 fromISO8601DateString(toDate));
 
         return GetCaseNoteCountResponse.respond200WithApplicationJson(caseNoteCount);
+    }
+
+    @Override
+    public GetAdjudicationsResponse getAdjudications(Long bookingId, String fromDate) {
+        final AdjudicationDetail adjudicationDetail = adjudicationService.getAdjudications(bookingId, fromISO8601DateString(fromDate));
+
+        return GetAdjudicationsResponse.respond200WithApplicationJson(adjudicationDetail);
+    }
+
+    @Override
+    public GetBookingVisitsResponse getBookingVisits(Long bookingId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder, String fromDate, String toDate) {
+        Page<ScheduledEvent> visits =  bookingService.getBookingVisits(
+                bookingId,
+                fromISO8601DateString(fromDate),
+                fromISO8601DateString(toDate),
+                nvl(pageOffset, 0L),
+                nvl(pageLimit, 10L),
+                sortFields,
+                sortOrder);
+
+        return GetBookingVisitsResponse.respond200WithApplicationJson(visits);
+    }
+
+    @Override
+    public GetBookingVisitsForTodayResponse getBookingVisitsForToday(Long bookingId, String sortFields, Order sortOrder) {
+        LocalDate today = LocalDate.now();
+
+        List<ScheduledEvent> visits =  bookingService.getBookingVisits(
+                bookingId,
+                today,
+                today,
+                sortFields,
+                sortOrder);
+
+        return GetBookingVisitsForTodayResponse.respond200WithApplicationJson(visits);
+    }
+
+    @Override
+    public GetBookingAppointmentsResponse getBookingAppointments(Long bookingId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder, String fromDate, String toDate) {
+        Page<ScheduledEvent> appointments =  bookingService.getBookingAppointments(
+                bookingId,
+                fromISO8601DateString(fromDate),
+                fromISO8601DateString(toDate),
+                nvl(pageOffset, 0L),
+                nvl(pageLimit, 10L),
+                sortFields,
+                sortOrder);
+
+        return GetBookingAppointmentsResponse.respond200WithApplicationJson(appointments);
+    }
+
+    @Override
+    public GetBookingAppointmentsForTodayResponse getBookingAppointmentsForToday(Long bookingId, String sortFields, Order sortOrder) {
+        LocalDate today = LocalDate.now();
+
+        List<ScheduledEvent> appointments =  bookingService.getBookingAppointments(
+                bookingId,
+                today,
+                today,
+                sortFields,
+                sortOrder);
+
+        return GetBookingAppointmentsForTodayResponse.respond200WithApplicationJson(appointments);
+    }
+
+    @Override
+    public GetBookingAppointmentsForThisWeekResponse getBookingAppointmentsForThisWeek(Long bookingId, String sortFields, Order sortOrder) {
+        LocalDate fromDate = LocalDate.now();
+        LocalDate toDate = fromDate.plusDays(6);
+
+        List<ScheduledEvent> appointments =  bookingService.getBookingAppointments(
+                bookingId,
+                fromDate,
+                toDate,
+                sortFields,
+                sortOrder);
+
+        return GetBookingAppointmentsForThisWeekResponse.respond200WithApplicationJson(appointments);
+    }
+
+    @Override
+    public GetBookingAppointmentsForNextWeekResponse getBookingAppointmentsForNextWeek(Long bookingId, String sortFields, Order sortOrder) {
+        LocalDate fromDate = LocalDate.now().plusDays(7);
+        LocalDate toDate = fromDate.plusDays(6);
+
+        List<ScheduledEvent> appointments =  bookingService.getBookingAppointments(
+                bookingId,
+                fromDate,
+                toDate,
+                sortFields,
+                sortOrder);
+
+        return GetBookingAppointmentsForNextWeekResponse.respond200WithApplicationJson(appointments);
     }
 }

@@ -2,10 +2,12 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.CaseNote;
 import net.syscon.elite.api.model.NewCaseNote;
+import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface CaseNoteRepository {
@@ -18,4 +20,8 @@ public interface CaseNoteRepository {
     void updateCaseNote(long bookingId, long caseNoteId, String additionalCaseNoteText, String userId);
 
     Long getCaseNoteCount(long bookingId, String type, String subType, LocalDate fromDate, LocalDate toDate);
+
+    List<ReferenceCode> getCaseNoteTypesByCaseLoadType(String caseLoadType);
+
+    List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(String caseLoadType);
 }
