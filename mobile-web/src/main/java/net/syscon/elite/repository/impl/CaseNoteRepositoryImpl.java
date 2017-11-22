@@ -12,14 +12,15 @@ import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
-
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -158,5 +159,19 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 		jdbcTemplate.update(sql, createParams("modifyBy", userId,
 												"caseNoteId", caseNoteId,
 												"text", updatedText));
+	}
+
+	@Override
+	public Long getCaseNoteCount(long bookingId, String type, String subType, LocalDate fromDate, LocalDate toDate) {
+		String sql = getQuery("GET_CASE_NOTE_COUNT");
+
+		return jdbcTemplate.queryForObject(
+				sql,
+				createParams("bookingId", bookingId,
+						"type", type,
+						"subType", subType,
+						"fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
+						"toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
+				Long.class);
 	}
 }

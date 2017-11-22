@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.CaseLoadRepository;
+import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.BookingService;
@@ -36,6 +37,7 @@ public class InmateServiceImpl implements InmateService {
     private final InmateRepository repository;
     private final CaseLoadRepository caseLoadRepository;
     private final BookingService bookingService;
+    private final InmateAlertRepository inmateAlertRepository;
 
     private final int maxYears;
     private final String locationTypeGranularity;
@@ -44,12 +46,14 @@ public class InmateServiceImpl implements InmateService {
     public InmateServiceImpl(InmateRepository repository,
                              CaseLoadRepository caseLoadRepository,
                              BookingService bookingService,
+                             InmateAlertRepository inmateAlertRepository,
                              @Value("${offender.dob.max.range.years:10}") int maxYears,
                              @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity,
                              @Value("${api.offender.no.regex.pattern:^[A-Za-z]\\d{4}[A-Za-z]{2}$}") String offenderNoRegex) {
         this.repository = repository;
         this.caseLoadRepository = caseLoadRepository;
         this.bookingService = bookingService;
+        this.inmateAlertRepository = inmateAlertRepository;
         this.maxYears = maxYears;
         this.locationTypeGranularity = locationTypeGranularity;
         this.offenderNoRegex = Pattern.compile(offenderNoRegex);
@@ -77,6 +81,8 @@ public class InmateServiceImpl implements InmateService {
         inmate.setPhysicalMarks(repository.findPhysicalMarks(inmateId));
         inmate.setAssignedLivingUnit(repository.findAssignedLivingUnit(inmateId, locationTypeGranularity).orElse(null));
         inmate.setAlertsCodes(repository.findActiveAlertCodes(inmateId));
+        inmate.setActiveAlertCount(inmateAlertRepository.getAlertCounts(inmateId, "ACTIVE"));
+        inmate.setInactiveAlertCount(inmateAlertRepository.getAlertCounts(inmateId, "INACTIVE"));
 
         final Map<String, List<AssessmentDto>> mapOfAssessments = getAssessmentsAsMap(inmateId);
         final List<Assessment> assessments = new ArrayList<>();

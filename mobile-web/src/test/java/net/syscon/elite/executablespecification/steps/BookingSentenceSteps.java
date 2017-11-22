@@ -1,34 +1,49 @@
 package net.syscon.elite.executablespecification.steps;
 
-import net.syscon.elite.api.model.MainSentence;
+import net.syscon.elite.api.model.OffenceDetail;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
 
 public class BookingSentenceSteps extends CommonSteps {
-    private static final String API_BOOKING_PREFIX = API_PREFIX + "bookings/";
+    private static final String BOOKING_MAIN_OFFENCE_API_URL = API_PREFIX + "bookings/{bookingId}/mainOffence";
 
-    private MainSentence mainSentence;
+    private List<OffenceDetail> offenceDetails;
 
     @Step("Get main offence details for offender")
-    public void getMainSentence(Long bookingId) {
-        doSingleResultApiCall(API_BOOKING_PREFIX + bookingId + "/mainSentence");
+    public void getMainOffenceDetails(Long bookingId) {
+        dispatchRequest(bookingId);
     }
 
-    private void doSingleResultApiCall(String url) {
+    @Step("Verify offence description for specific offence")
+    public void verifyOffenceDescription(int index, String expectedOffenceDescription) {
+        validateResourcesIndex(index);
+        assertThat(offenceDetails.get(index).getOffenceDescription()).isEqualTo(expectedOffenceDescription);
+    }
+
+    private void dispatchRequest(Long bookingId) {
         init();
+
+        ResponseEntity<List<OffenceDetail>> response;
+
         try {
-            final ParameterizedTypeReference<MainSentence> ref = new ParameterizedTypeReference<MainSentence>() {
-            };
-            ResponseEntity<MainSentence> response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null), ref);
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            mainSentence = response.getBody();
+            response =
+                    restTemplate.exchange(
+                            BOOKING_MAIN_OFFENCE_API_URL,
+                            HttpMethod.GET,
+                            createEntity(),
+                            new ParameterizedTypeReference<List<OffenceDetail>>() {},
+                            bookingId);
+
+            offenceDetails = response.getBody();
+
+            buildResourceData(response);
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
@@ -36,11 +51,7 @@ public class BookingSentenceSteps extends CommonSteps {
 
     protected void init() {
         super.init();
-        mainSentence = null;
-    }
 
-    public void verifyField(String field, String value) throws ReflectiveOperationException {
-        assertNotNull(mainSentence);
-        super.verifyField(mainSentence, field, value);
+        offenceDetails = null;
     }
 }

@@ -40,12 +40,12 @@ public class InmateRepositoryTest {
     private InmateRepository repository;
 
     @Before
-    public final void init() {
+    public void init() {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
     }
 
     @Test
-    public final void testFindAllImates() {
+    public void testFindAllImates() {
         final PageRequest pageRequest = new PageRequest(0, 10, "lastName, firstName", Order.ASC);
         final HashSet<String> caseloads = new HashSet<>(Arrays.asList("LEI", "BXI"));
         Page<OffenderBooking> foundInmates = repository.findAllInmates(caseloads, "WING", "", pageRequest);
@@ -54,7 +54,7 @@ public class InmateRepositoryTest {
     }
 
     @Test
-    public final void testGetOffender() {
+    public void testGetOffender() {
         Optional<InmateDetail> inmate = repository.findInmate(
                 -1L,
                 Collections.singleton("LEI"),

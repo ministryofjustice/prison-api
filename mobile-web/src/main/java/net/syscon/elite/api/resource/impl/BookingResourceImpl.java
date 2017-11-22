@@ -6,12 +6,13 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.*;
-import net.syscon.util.DateTimeConverter;
 
 import javax.ws.rs.Path;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
+import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
 import static net.syscon.util.ResourceUtils.nvl;
 
 /**
@@ -25,14 +26,17 @@ public class BookingResourceImpl implements BookingResource {
     private final CaseNoteService caseNoteService;
     private final InmatesAlertService inmateAlertService;
     private final FinanceService financeService;
+    private final ContactService contactService;
 
     public BookingResourceImpl(BookingService bookingService, InmateService inmateService,
-            CaseNoteService caseNoteService, InmatesAlertService inmateAlertService, FinanceService financeService) {
+            CaseNoteService caseNoteService, InmatesAlertService inmateAlertService, FinanceService financeService,
+            ContactService contactService) {
         this.bookingService = bookingService;
         this.inmateService = inmateService;
         this.caseNoteService = caseNoteService;
         this.inmateAlertService = inmateAlertService;
         this.financeService = financeService;
+        this.contactService = contactService;
     }
 
     @Override
@@ -58,8 +62,8 @@ public class BookingResourceImpl implements BookingResource {
     public GetBookingActivitiesResponse getBookingActivities(Long bookingId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder, String fromDate, String toDate) {
         Page<ScheduledEvent> activities =  bookingService.getBookingActivities(
                 bookingId,
-                DateTimeConverter.fromISO8601DateString(fromDate),
-                DateTimeConverter.fromISO8601DateString(toDate),
+                fromISO8601DateString(fromDate),
+                fromISO8601DateString(toDate),
                 nvl(pageOffset, 0L),
                 nvl(pageLimit, 10L),
                 sortFields,
@@ -131,8 +135,8 @@ public class BookingResourceImpl implements BookingResource {
         Page<CaseNote> caseNotes = caseNoteService.getCaseNotes(
                 bookingId,
                 query,
-                DateTimeConverter.fromISO8601DateString(from),
-                DateTimeConverter.fromISO8601DateString(to),
+                fromISO8601DateString(from),
+                fromISO8601DateString(to),
                 sortFields,
                 sortOrder,
                 nvl(pageOffset, 0L),
@@ -184,9 +188,28 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetMainSentenceResponse getMainSentence(Long bookingId) {
-        MainSentence mainSentence = bookingService.getMainSentence(bookingId);
+    public GetMainOffenceResponse getMainOffence(Long bookingId) {
+        List<OffenceDetail> offenceDetails = bookingService.getMainOffenceDetails(bookingId);
 
-        return GetMainSentenceResponse.respond200WithApplicationJson(mainSentence);
+        return GetMainOffenceResponse.respond200WithApplicationJson(offenceDetails);
+    }
+
+    @Override
+    public GetContactsResponse getContacts(Long bookingId) {
+        final ContactDetail contacts = contactService.getContacts(bookingId);
+
+        return GetContactsResponse.respond200WithApplicationJson(contacts);
+    }
+
+    @Override
+    public GetCaseNoteCountResponse getCaseNoteCount(Long bookingId, String type, String subType, String fromDate, String toDate) {
+        CaseNoteCount caseNoteCount = caseNoteService.getCaseNoteCount(
+                bookingId,
+                type,
+                subType,
+                fromISO8601DateString(fromDate),
+                fromISO8601DateString(toDate));
+
+        return GetCaseNoteCountResponse.respond200WithApplicationJson(caseNoteCount);
     }
 }

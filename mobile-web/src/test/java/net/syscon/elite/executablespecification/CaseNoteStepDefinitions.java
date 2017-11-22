@@ -201,9 +201,9 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         caseNote.verifyTotalResourceRecordsAvailable(Long.valueOf(count));
     }
 
-    @When("^attempt is made to update case note for booking with id -(\\d+)$")
-    public void attemptIsMadeToUpdateCaseNoteForBookingWithId(long bookingId) throws Throwable {
-        seededCaseNote.setBookingId(bookingId);
+    @When("^attempt is made to update case note for booking with id \"([^\"]*)\"$")
+    public void attemptIsMadeToUpdateCaseNoteForBookingWithId(String bookingId) throws Throwable {
+        seededCaseNote.setBookingId(Long.valueOf(bookingId));
         caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text("Updated text").build());
     }
 
@@ -215,5 +215,25 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     @Then("^resource not found response is received from casenotes API")
     public void caseNotesVerifyResourceNotFound() throws Throwable {
         caseNote.verifyResourceNotFound();
+    }
+
+    @When("^case note count is requested for offender booking \"([^\"]*)\" for case note type \"([^\"]*)\" and sub-type \"([^\"]*)\"$")
+    public void caseNoteCountIsRequestedForOffenderBookingForCaseNoteTypeAndSubType(String bookingId, String type, String subType) throws Throwable {
+        caseNote.getCaseNoteCount(Long.valueOf(bookingId), type, subType, null, null);
+    }
+
+    @Then("^case note count response \"([^\"]*)\" is \"([^\"]*)\"$")
+    public void caseNoteCountResponseIs(String propertyName, String expectedValue) throws Throwable {
+        caseNote.verifyCaseNoteCountPropertyValue(propertyName, expectedValue);
+    }
+
+    @Then("^bad request response, with \"([^\"]*)\" message, is received from casenotes API$")
+    public void badRequestResponseWithMessageIsReceivedFromCasenotesAPI(String expectedUserMessage) throws Throwable {
+        caseNote.verifyBadRequest(expectedUserMessage);
+    }
+
+    @When("^case note count between \"([^\"]*)\" and \"([^\"]*)\" is requested for offender booking \"([^\"]*)\" for case note type \"([^\"]*)\" and sub-type \"([^\"]*)\"$")
+    public void caseNoteCountBetweenAndIsRequestedForOffenderBookingForCaseNoteTypeAndSubType(String fromDate, String toDate, String bookingId, String type, String subType) throws Throwable {
+        caseNote.getCaseNoteCount(Long.valueOf(bookingId), type, subType, fromDate, toDate);
     }
 }

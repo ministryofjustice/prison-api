@@ -182,11 +182,13 @@
   get:
     queryParameters:
       fromDate?:
+        type: string
         description: Returned activities must be scheduled on or after this date (in YYYY-MM-DD format).
-        type: string
+        example: 2017-06-01
       toDate?:
-        description: Returned activities must be scheduled on or before this date (in YYYY-MM-DD format).
         type: string
+        description: Returned activities must be scheduled on or before this date (in YYYY-MM-DD format).
+        example: 2017-09-01
   is: [
     sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
   ]
@@ -202,9 +204,42 @@
     sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
   ]
 
-/{bookingId}/mainSentence:
-  (javaOperationName): getMainSentence
-  type: { readOnlyItem: { type: MainSentence } }
+/{bookingId}/contacts:
+  (javaOperationName): getContacts
+  type: { readOnlyItem: { type: ContactDetail } }
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+
+/{bookingId}/caseNotes/{type}/{subType}/count:
+  (javaOperationName): getCaseNoteCount
+  type: {readOnlyItem: {type: CaseNoteCount, description: Count of case notes of specific type/subType for the offender. }}
+  uriParameters:
+    bookingId:
+      type: number
+      (javaType): Long
+      description: The offender booking id
+    type:
+      type: string
+      description: Case note type.
+    subType:
+      type: string
+      description: Case note sub-type.
+  get:
+    queryParameters:
+      fromDate?:
+        type: string
+        description: Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.
+        example: 2017-06-01
+      toDate?:
+        type: string
+        description: Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered.
+        example: 2017-09-01
+
+/{bookingId}/mainOffence:
+  (javaOperationName): getMainOffence
+  type: { readOnlyCollection: { type: OffenceDetail, description: Main offence details. } }
   uriParameters:
     bookingId:
       (javaType): Long

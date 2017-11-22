@@ -111,6 +111,11 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
+        public ContactSteps contactSteps() {
+            return new ContactSteps();
+        }
+
+        @Bean
         public BookingAssessmentSteps bookingAssessment() {
             return new BookingAssessmentSteps();
         }

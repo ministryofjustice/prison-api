@@ -40,7 +40,7 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 	@Override
     @Cacheable("alertTypesByType")
 	public ReferenceCode getAlertTypeByCode(String alertType) {
-		return referenceCodeRepository.getReferenceCodeByDomainAndCode("ALERT", alertType).orElseThrow(EntityNotFoundException.withId(alertType));
+		return referenceCodeRepository.getReferenceCodeByDomainAndCode("ALERT", alertType, false).orElseThrow(EntityNotFoundException.withId(alertType));
 	}
 
 	@Override
@@ -58,7 +58,7 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 	@Override
     @Cacheable("caseNoteTypesByCode")
 	public ReferenceCode getCaseNoteType(String typeCode) {
-		return referenceCodeRepository.getReferenceCodeByDomainAndCode("TASK_TYPE", typeCode).orElseThrow(EntityNotFoundException.withId(typeCode));
+		return referenceCodeRepository.getReferenceCodeByDomainAndCode("TASK_TYPE", typeCode, false).orElseThrow(EntityNotFoundException.withId(typeCode));
 	}
 
 	@Override
@@ -74,11 +74,6 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 	}
 
 	@Override
-	public Page<ReferenceCode> getCaseNoteSubTypes(String typeCode, String query, String orderBy, Order order, long offset, long limit) {
-		return referenceCodeRepository.getReferenceCodesByDomainAndParent("TASK_SUBTYPE", typeCode, query, getDefaultOrderBy(orderBy), order, offset, limit);
-	}
-
-	@Override
     @Cacheable("caseNoteSources")
 	public Page<ReferenceCode> getCaseNoteSources(String query, String orderBy, Order order, long offset, long limit) {
 		return referenceCodeRepository.getReferenceCodesByDomain("NOTE_SOURCE", query, getDefaultOrderBy(orderBy), order, offset, limit, false);
@@ -87,7 +82,7 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 	@Override
     @Cacheable("caseNoteSourcesByCode")
 	public ReferenceCode getCaseNoteSource(String sourceCode) {
-		return referenceCodeRepository.getReferenceCodeByDomainAndCode("NOTE_SOURCE", sourceCode).orElseThrow(EntityNotFoundException.withId(sourceCode));
+		return referenceCodeRepository.getReferenceCodeByDomainAndCode("NOTE_SOURCE", sourceCode, false).orElseThrow(EntityNotFoundException.withId(sourceCode));
 	}
 
 	@Override
@@ -102,10 +97,5 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 		final String caseLoadType = caseLoad.isPresent() ? caseLoad.get().getType() : "BOTH";
 
 		return referenceCodeRepository.getCaseNoteTypeByCurrentCaseLoad(caseLoadType, includeSubTypes, query, getDefaultOrderBy(orderBy), order, offset, limit);
-	}
-
-	@Override
-	public Page<ReferenceCode> getCaseNoteSubType(String typeCode, String query, String orderBy, Order order, long offset, long limit) {
-		return referenceCodeRepository.getCaseNoteSubType(typeCode, query, getDefaultOrderBy(orderBy), order, offset, limit);
 	}
 }

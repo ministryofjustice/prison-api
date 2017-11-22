@@ -1,6 +1,7 @@
 package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.CaseNote;
+import net.syscon.elite.api.model.CaseNoteCount;
 import net.syscon.elite.api.model.NewCaseNote;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
@@ -10,7 +11,6 @@ import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.validation.ReferenceCodesValid;
-
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
@@ -20,11 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
-
+import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -106,5 +107,28 @@ public class CaseNoteServiceImpl implements CaseNoteService {
         caseNoteRepository.updateCaseNote(bookingId, caseNoteId, amendedText, UserSecurityUtils.getCurrentUsername());
 
         return getCaseNote(bookingId, caseNoteId);
+	}
+
+	@Override
+	public CaseNoteCount getCaseNoteCount(long bookingId, String type, String subType, LocalDate fromDate, LocalDate toDate) {
+		// Validate date range
+		if (Objects.nonNull(fromDate) && Objects.nonNull(toDate) && toDate.isBefore(fromDate)) {
+			throw new BadRequestException("Invalid date range: toDate is before fromDate.");
+		}
+
+		bookingService.verifyBookingAccess(bookingId);
+
+		Long count = caseNoteRepository.getCaseNoteCount(bookingId, type, subType, fromDate, toDate);
+
+        CaseNoteCount caseNoteCount = CaseNoteCount.builder()
+				.bookingId(bookingId)
+				.type(type)
+				.subType(subType)
+				.fromDate(fromDate)
+				.toDate(toDate)
+				.count(count)
+				.build();
+
+		return caseNoteCount;
 	}
 }

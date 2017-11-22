@@ -161,3 +161,6 @@ mobile-api/raml/node_modules/
 mobile-api/src/
 mobile-web/src/main/resources/static/
 
+.gitignore
+terraform.tfstate
+terraform.tfstate.backup

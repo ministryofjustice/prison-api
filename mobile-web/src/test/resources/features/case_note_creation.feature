@@ -8,11 +8,21 @@ Feature: Case Note Creation and Update
     Given a user has authenticated with the API
     And case note test harness initialized
 
-  Scenario: Create a case note
+  Scenario: Create a case note 1
     When a case note is created for booking:
       | bookingId          | -15                                         |
       | type               | COMMS                                       |
       | subType            | COM_IN                                      |
+      | text               | A new case note (from Serenity BDD test **) |
+      | occurrenceDateTime | 2017-04-14T10:15:30                         |
+    Then case note is successfully created
+    And correct case note source is used
+
+  Scenario: Create a case note 2
+    When a case note is created for booking:
+      | bookingId          | -15                                         |
+      | type               | GEN                                         |
+      | subType            | HIS                                         |
       | text               | A new case note (from Serenity BDD test **) |
       | occurrenceDateTime | 2017-04-14T10:15:30                         |
     Then case note is successfully created
@@ -35,6 +45,24 @@ Feature: Case Note Creation and Update
       | text               | A new case note (from Serenity BDD test **) |
       | occurrenceDateTime | 2017-04-14T10:15:30                         |
     Then case note validation error "Reference (type,subtype)=(COMMS,doesnotexist) does not exist" occurs
+
+  Scenario: Create a case note with invalid combination
+    When a case note is created for booking:
+      | bookingId          | -15                                         |
+      | type               | DRR                                         |
+      | subType            | HIS                                         |
+      | text               | A new case note (from Serenity BDD test **) |
+      | occurrenceDateTime | 2017-04-14T10:15:30                         |
+    Then case note validation error "Reference (type,subtype)=(DRR,HIS) does not exist" occurs
+
+  Scenario: Create a case note with combination for different caseload
+    When a case note is created for booking:
+      | bookingId          | -15                                         |
+      | type               | REC                                         |
+      | subType            | RECRP                                       |
+      | text               | A new case note (from Serenity BDD test **) |
+      | occurrenceDateTime | 2017-04-14T10:15:30                         |
+  Then case note validation error "Reference (type,subtype)=(REC,RECRP) does not exist" occurs
 
   Scenario: Create a case note with invalid type
     When a case note is created for booking:
@@ -108,9 +136,9 @@ Feature: Case Note Creation and Update
     Then resource not found response is received from casenotes API
 
   Scenario: Attempt to update case note for offender that is not part of any of logged on staff user's caseloads
-    When attempt is made to update case note for booking with id -16
+    When attempt is made to update case note for booking with id "-16"
     Then resource not found response is received from casenotes API
 
   Scenario: Attempt to update case note for offender that does not exist
-    When attempt is made to update case note for booking with id -99
+    When attempt is made to update case note for booking with id "-99"
     Then resource not found response is received from casenotes API

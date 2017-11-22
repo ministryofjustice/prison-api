@@ -50,14 +50,29 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public SentenceDetail getBookingSentenceDetail(Long bookingId) {
         verifyBookingAccess(bookingId);
-        SentenceDetail sentenceDetail = bookingRepository.getBookingSentenceDetail(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
 
+        // Get sentence detail and confirmed release date.
+        Optional<SentenceDetail> optSentenceDetail = bookingRepository.getBookingSentenceDetail(bookingId);
+        Optional<LocalDate> confirmedReleaseDate = sentenceRepository.getConfirmedReleaseDate(bookingId);
+
+        SentenceDetail sentenceDetail = optSentenceDetail.orElse(
+                SentenceDetail.builder().bookingId(bookingId).build());
+
+        // Apply confirmed release date
+        sentenceDetail.setConfirmedReleaseDate(confirmedReleaseDate.orElse(null));
+
+        // Determine non-DTO release date
         NonDtoReleaseDate nonDtoReleaseDate = deriveNonDtoReleaseDate(sentenceDetail);
 
         if (Objects.nonNull(nonDtoReleaseDate)) {
             sentenceDetail.setNonDtoReleaseDate(nonDtoReleaseDate.getReleaseDate());
             sentenceDetail.setNonDtoReleaseDateType(nonDtoReleaseDate.getReleaseDateType());
         }
+
+        // Determine offender release date
+        LocalDate releaseDate = deriveOffenderReleaseDate(sentenceDetail);
+
+        sentenceDetail.setReleaseDate(releaseDate);
 
         return sentenceDetail;
     }
@@ -95,10 +110,8 @@ public class BookingServiceImpl implements BookingService {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
         // Validate date range
-        if (Objects.nonNull(fromDate) && Objects.nonNull(toDate)) {
-            if (toDate.isBefore(fromDate)) {
-                throw new BadRequestException("Invalid date range: toDate is before fromDate.");
-            }
+        if (Objects.nonNull(fromDate) && Objects.nonNull(toDate) && toDate.isBefore(fromDate)) {
+            throw new BadRequestException("Invalid date range: toDate is before fromDate.");
         }
 
         verifyBookingAccess(bookingId);
@@ -112,25 +125,64 @@ public class BookingServiceImpl implements BookingService {
     private NonDtoReleaseDate deriveNonDtoReleaseDate(SentenceDetail sentenceDetail) {
         List<NonDtoReleaseDate> nonDtoReleaseDates = new ArrayList<>();
 
-        addReleaseDate(nonDtoReleaseDates, sentenceDetail.getAutomaticReleaseDate(), SentenceDetail.NonDtoReleaseDateType.ARD, false);
-        addReleaseDate(nonDtoReleaseDates, sentenceDetail.getAutomaticReleaseOverrideDate(), SentenceDetail.NonDtoReleaseDateType.ARD, true);
-        addReleaseDate(nonDtoReleaseDates, sentenceDetail.getConditionalReleaseDate(), SentenceDetail.NonDtoReleaseDateType.CRD, false);
-        addReleaseDate(nonDtoReleaseDates, sentenceDetail.getConditionalReleaseOverrideDate(), SentenceDetail.NonDtoReleaseDateType.CRD, true);
-        addReleaseDate(nonDtoReleaseDates, sentenceDetail.getNonParoleDate(), SentenceDetail.NonDtoReleaseDateType.NPD, false);
-        addReleaseDate(nonDtoReleaseDates, sentenceDetail.getNonParoleOverrideDate(), SentenceDetail.NonDtoReleaseDateType.NPD, true);
-        addReleaseDate(nonDtoReleaseDates, sentenceDetail.getPostRecallReleaseDate(), SentenceDetail.NonDtoReleaseDateType.PRRD, false);
-        addReleaseDate(nonDtoReleaseDates, sentenceDetail.getPostRecallReleaseOverrideDate(), SentenceDetail.NonDtoReleaseDateType.PRRD, true);
+        if (Objects.nonNull(sentenceDetail)) {
+            addReleaseDate(nonDtoReleaseDates, sentenceDetail.getAutomaticReleaseDate(), SentenceDetail.NonDtoReleaseDateType.ARD, false);
+            addReleaseDate(nonDtoReleaseDates, sentenceDetail.getAutomaticReleaseOverrideDate(), SentenceDetail.NonDtoReleaseDateType.ARD, true);
+            addReleaseDate(nonDtoReleaseDates, sentenceDetail.getConditionalReleaseDate(), SentenceDetail.NonDtoReleaseDateType.CRD, false);
+            addReleaseDate(nonDtoReleaseDates, sentenceDetail.getConditionalReleaseOverrideDate(), SentenceDetail.NonDtoReleaseDateType.CRD, true);
+            addReleaseDate(nonDtoReleaseDates, sentenceDetail.getNonParoleDate(), SentenceDetail.NonDtoReleaseDateType.NPD, false);
+            addReleaseDate(nonDtoReleaseDates, sentenceDetail.getNonParoleOverrideDate(), SentenceDetail.NonDtoReleaseDateType.NPD, true);
+            addReleaseDate(nonDtoReleaseDates, sentenceDetail.getPostRecallReleaseDate(), SentenceDetail.NonDtoReleaseDateType.PRRD, false);
+            addReleaseDate(nonDtoReleaseDates, sentenceDetail.getPostRecallReleaseOverrideDate(), SentenceDetail.NonDtoReleaseDateType.PRRD, true);
 
-        Collections.sort(nonDtoReleaseDates);
+            Collections.sort(nonDtoReleaseDates);
+        }
 
         return nonDtoReleaseDates.isEmpty() ? null : nonDtoReleaseDates.get(0);
     }
 
-    private void addReleaseDate(List<NonDtoReleaseDate> nonDtoReleaseDates, final LocalDate releaseDate,
-            final NonDtoReleaseDateType releaseDateType, final boolean isOverride) {
+    private void addReleaseDate(List<NonDtoReleaseDate> nonDtoReleaseDates, LocalDate releaseDate,
+                                NonDtoReleaseDateType releaseDateType, boolean isOverride) {
+
         if (Objects.nonNull(releaseDate)) {
             nonDtoReleaseDates.add(new NonDtoReleaseDate(releaseDateType, releaseDate, isOverride));
         }
+    }
+
+    private LocalDate deriveOffenderReleaseDate(SentenceDetail sentenceDetail) {
+        // Offender release date is determined according to algorithm.
+        //
+        // 1. If there is a confirmed release date, the offender release date is the confirmed release date.
+        //
+        // 2. If there is no confirmed release date for the offender, the offender release date is either the approved
+        //    parole date or the home detention curfew actual date.
+        //
+        // 3. If there is no confirmed release date, approved parole date or home detention curfew actual date for the
+        //    offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both
+        //    are present).
+        //
+        LocalDate releaseDate;
+
+        if (Objects.nonNull(sentenceDetail.getConfirmedReleaseDate())) {
+            releaseDate = sentenceDetail.getConfirmedReleaseDate();
+        } else if (Objects.nonNull(sentenceDetail.getApprovedParoleDate())) {
+            releaseDate = sentenceDetail.getApprovedParoleDate();
+        } else if (Objects.nonNull(sentenceDetail.getHomeDetentionCurfewActualDate())) {
+            releaseDate = sentenceDetail.getHomeDetentionCurfewActualDate();
+        } else {
+            LocalDate nonDtoReleaseDate = sentenceDetail.getNonDtoReleaseDate();
+            LocalDate midTermDate = sentenceDetail.getMidTermDate();
+
+            if (Objects.isNull(midTermDate)) {
+                releaseDate = nonDtoReleaseDate;
+            } else if (Objects.isNull(nonDtoReleaseDate)) {
+                releaseDate = midTermDate;
+            } else {
+                releaseDate = midTermDate.isAfter(nonDtoReleaseDate) ? midTermDate : nonDtoReleaseDate;
+            }
+        }
+
+        return releaseDate;
     }
 
     /**
@@ -164,9 +216,10 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public MainSentence getMainSentence(Long bookingId) {
+    public List<OffenceDetail> getMainOffenceDetails(Long bookingId) {
         verifyBookingAccess(bookingId);
-        return sentenceRepository.getMainSentence(bookingId);
+
+        return sentenceRepository.getMainOffenceDetails(bookingId);
     }
 
     @Override

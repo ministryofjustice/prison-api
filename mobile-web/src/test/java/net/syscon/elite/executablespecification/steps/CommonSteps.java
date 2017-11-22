@@ -350,6 +350,10 @@ public abstract class CommonSteps {
         verifyIdentical(actualPropertyMap, expectedPropertyMap);
     }
 
+    protected void verifyPropertyValue(Object bean, String propertyName, String expectedValue) throws ReflectiveOperationException {
+        verifyField(bean, propertyName, expectedValue);
+    }
+
     protected void verifyField(Object bean, String fieldName, String expected) throws ReflectiveOperationException {
         final String actual = BeanUtilsBean.getInstance().getProperty(bean, fieldName);
         if (StringUtils.isBlank(expected)) {
