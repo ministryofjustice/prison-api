@@ -23,13 +23,13 @@ public class AdjudicationStepDefinitions extends AbstractStepDefinitions {
     @When("^adjudication details with booking id ([0-9-]+) is requested$")
     public void withBookingId(Long id) {
         adjudicationSteps.setIndex(0);
-        adjudicationSteps.getAwards(id, null);
+        adjudicationSteps.getAwards(id, null, null);
     }
 
-    @When("^adjudication details with booking id ([0-9-]+) and cutoff date \"([^\"]*)\" is requested$")
-    public void withBookingId(Long id, String fromDate) {
+    @When("^adjudication details with booking id ([0-9-]+), award cutoff date \"([^\"]*)\" and adjudication cutoff date \"([^\"]*)\" is requested$")
+    public void withBookingId(Long id, String awardCutoffDate, String adjudicationCutoffDate) {
         adjudicationSteps.setIndex(0);
-        adjudicationSteps.getAwards(id, fromDate);
+        adjudicationSteps.getAwards(id, awardCutoffDate, adjudicationCutoffDate);
     }
 
     @Then("^resource not found response is received from adjudication details API$")
@@ -41,7 +41,7 @@ public class AdjudicationStepDefinitions extends AbstractStepDefinitions {
     public void theAdjudicationCountIs(Integer value) throws Throwable {
         adjudicationSteps.verifyAdjudicationCount(value);
     }
-    
+
     @Then("^the award (\\w+) is \"([^\"]*)\"$")
     public void theAwardsFieldIs(String field, String value) throws Throwable {
         adjudicationSteps.verifyAwardField(field, value);

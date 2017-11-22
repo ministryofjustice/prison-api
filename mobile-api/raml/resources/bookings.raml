@@ -220,10 +220,14 @@
       description: The offender booking id
   get:
     queryParameters:
-      fromDate?:
+      awardCutoffDate?:
         type: string
         description: Only awards ending on or after this date (in YYYY-MM-DD format) will be considered.
-        example: 2017-06-01
+        example: 2017-06-17
+      adjudicationCutoffDate?:
+        type: string
+        description: Only proved adjudications ending on or after this date (in YYYY-MM-DD format) will be counted.
+        example: 2017-09-22
 
 /{bookingId}/caseNotes/{type}/{subType}/count:
   (javaOperationName): getCaseNoteCount
