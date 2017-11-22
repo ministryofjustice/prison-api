@@ -46,11 +46,7 @@ public class CustodyStatusServiceImpl implements CustodyStatusService {
     }
 
     private boolean filterOnCustodyStatus(PrisonerCustodyStatus record, List<CustodyStatusCode> custodyStatusCodes) {
-        if (custodyStatusCodes != null && custodyStatusCodes.size() > 0) {
-            return custodyStatusCodes.contains(record.getCustodyStatusCode());
-        }
-
-        return true;
+        return custodyStatusCodes.size() <= 0 || custodyStatusCodes.contains(record.getCustodyStatusCode());
     }
 
     private PrisonerCustodyStatus toCustodyStatus(CustodyStatusDto record) {
@@ -67,7 +63,7 @@ public class CustodyStatusServiceImpl implements CustodyStatusService {
     private class PrisonerCustodyStatusComparator implements Comparator<PrisonerCustodyStatus> {
         private final Order order;
 
-        public PrisonerCustodyStatusComparator(Order order) {
+        private PrisonerCustodyStatusComparator(Order order) {
             this.order = order;
         }
 

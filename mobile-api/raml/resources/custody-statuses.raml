@@ -6,7 +6,7 @@
       type: PrisonerCustodyStatus
       description: A Custody Status attributed to a Prisoner
   get:
-    queryParameters:
+    queryParameters?:
       custodyStatusCodes:
         description: Prisoner with the specified Custody Status
         type: array
@@ -23,7 +23,9 @@
 #            - IN_ACTIVE
 #            - IN_ACTIVE_OUT
 #            - OTHER
-        required: false
+      onDate?:
+        description: A date that is to be used to identify when custody status should be calculated for
+        type: date
     is:
       - sortable:
           fieldsList: "custodyStatusCode"
@@ -40,3 +42,4 @@
       offenderNo:
         description: The OffenderNo of an offender
         type: string
+        required: true
