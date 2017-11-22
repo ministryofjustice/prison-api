@@ -8,11 +8,11 @@ import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.*;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.ws.rs.Path;
 import java.util.List;
+import java.util.Optional;
 
 import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
 import static net.syscon.util.ResourceUtils.nvl;
@@ -23,20 +23,22 @@ public class UserResourceImpl implements UserResource {
     private final LocationService locationService;
     private final AssignmentService assignmentService;
     private final AuthenticationService authenticationService;
-    private final ReferenceDomainService referenceDomainService;
     private final UserService userService;
     private final BookingService bookingService;
+    private final CaseLoadService caseLoadService;
+    private final CaseNoteService caseNoteService;
 
-    @Value("${token.username.stored.caps:true}")
-    private boolean upperCaseUsername;
-
-    public UserResourceImpl(LocationService locationService, AssignmentService assignmentService, AuthenticationService authenticationService, ReferenceDomainService referenceDomainService, UserService userService, BookingService bookingService) {
+    public UserResourceImpl(LocationService locationService, AssignmentService assignmentService,
+                            AuthenticationService authenticationService, UserService userService,
+                            BookingService bookingService, CaseLoadService caseLoadService,
+                            CaseNoteService caseNoteService) {
         this.locationService = locationService;
         this.assignmentService = assignmentService;
         this.authenticationService = authenticationService;
-        this.referenceDomainService = referenceDomainService;
         this.userService = userService;
         this.bookingService = bookingService;
+        this.caseLoadService = caseLoadService;
+        this.caseNoteService = caseNoteService;
     }
 
     @Override
@@ -61,14 +63,12 @@ public class UserResourceImpl implements UserResource {
     }
 
     @Override
-    public GetMyCaseNoteTypesResponse getMyCaseNoteTypes(boolean includeSubTypes, String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-        Page<ReferenceCode> caseNoteTypes = referenceDomainService.getCaseNoteTypeByCurrentCaseLoad(
-                query,
-                sortFields,
-                sortOrder,
-                nvl(pageOffset, 0L),
-                nvl(pageLimit, 10L),
-                includeSubTypes);
+    public GetMyCaseNoteTypesResponse getMyCaseNoteTypes(String sortFields, Order sortOrder) {
+        Optional<CaseLoad> currentCaseLoad = caseLoadService.getWorkingCaseLoadForUser(UserSecurityUtils.getCurrentUsername());
+
+        String caseLoadType = currentCaseLoad.isPresent() ? currentCaseLoad.get().getType() : "BOTH";
+
+        List<ReferenceCode> caseNoteTypes = caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType);
 
         return GetMyCaseNoteTypesResponse.respond200WithApplicationJson(caseNoteTypes);
     }
@@ -116,7 +116,7 @@ public class UserResourceImpl implements UserResource {
 
     @Override
     public GetUserDetailsResponse getUserDetails(String username) {
-        UserDetail userByUsername = userService.getUserByUsername(upperCaseUsername ? username.toUpperCase() : username);
+        UserDetail userByUsername = userService.getUserByUsername(username.toUpperCase());
 
         return GetUserDetailsResponse.respond200WithApplicationJson(userByUsername);
     }

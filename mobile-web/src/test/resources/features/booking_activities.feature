@@ -64,7 +64,14 @@ Feature: Booking Activities
 
   Scenario: Retrieve scheduled activities for an existing offender having one or more activities, some of which they have attended
     When scheduled activities are requested for an offender with booking id "-3"
-    Then "6" activities are returned
+    Then "10" activities are returned
+    And "11" activities in total are available
+    And start time for "1st" returned activity is "2017-09-11 13:00:00"
+    And event status for "1st" returned activity is "COMP"
+    And event status for "2nd" returned activity is "EXP"
+    And event status for "3rd" returned activity is "CANC"
+    And event status for "4th" returned activity is "SCH"
+    And event status for "7th" returned activity is "SCH"
 
   @nomis
   Scenario: Retrieve scheduled activities for an existing offender having one or more activities, some of which they are excluded from - by day

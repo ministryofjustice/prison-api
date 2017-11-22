@@ -8,7 +8,6 @@ import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
@@ -200,49 +199,5 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
                 paRowMapper);
 
         return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
-	}
-
-    // TODO: Remove pagination, not required. Only applied when not retrieving with sub-types - very confusing.
-    @Override
-    @Cacheable("caseNoteTypeByCurrentCaseLoad")
-	public Page<ReferenceCode> getCaseNoteTypeByCurrentCaseLoad(String caseLoadType, boolean includeSubTypes, String query, String orderBy, Order order, long offset, long limit) {
-        Page<ReferenceCode> page;
-
-        if (includeSubTypes) {
-            // TODO: SQL needs simplifying (eg. left join)
-            String initialSql = getQuery("FIND_CNOTE_TYPES_AND_SUBTYPES_BY_CASELOAD");
-            IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, referenceCodeDetailMapper.getFieldMap());
-            String sql = builder.build();
-
-            List<ReferenceCodeDetail> rcdResults = jdbcTemplate.query(
-                    sql,
-                    createParams("caseLoadType", caseLoadType),
-                    referenceCodeDetailMapper);
-
-            List<ReferenceCode> results = convertToReferenceCodes(rcdResults, true);
-
-            page = new Page<>(results, results.size(), 0, results.size());
-        } else {
-            String initialSql = getQuery("FIND_CNOTE_TYPES_BY_CASELOAD");
-            IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, referenceCodeMapper.getFieldMap());
-
-            String sql = builder
-                    .addQuery(query)
-                    .addOrderBy(order, orderBy)
-                    .addRowCount()
-                    .addPagination()
-                    .build();
-
-            PageAwareRowMapper<ReferenceCode> paRowMapper = new PageAwareRowMapper<>(referenceCodeMapper);
-
-            List<ReferenceCode> results = jdbcTemplate.query(
-                    sql,
-                    createParams("caseLoadType", caseLoadType, "offset", offset, "limit", limit),
-                    paRowMapper);
-
-            page = new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
-        }
-
-        return page;
 	}
 }

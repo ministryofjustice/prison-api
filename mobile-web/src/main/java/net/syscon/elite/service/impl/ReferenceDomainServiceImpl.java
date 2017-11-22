@@ -1,12 +1,9 @@
 package net.syscon.elite.service.impl;
 
-import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
-import net.syscon.elite.repository.CaseLoadRepository;
 import net.syscon.elite.repository.ReferenceCodeRepository;
-import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.ReferenceDomainService;
 import org.apache.commons.lang3.StringUtils;
@@ -14,17 +11,13 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Service
 @Transactional(readOnly = true)
 public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 	private final ReferenceCodeRepository referenceCodeRepository;
-	private final CaseLoadRepository caseLoadRepository;
 
-	public ReferenceDomainServiceImpl(ReferenceCodeRepository referenceCodeRepository, CaseLoadRepository caseLoadRepository) {
+	public ReferenceDomainServiceImpl(ReferenceCodeRepository referenceCodeRepository) {
 		this.referenceCodeRepository = referenceCodeRepository;
-		this.caseLoadRepository = caseLoadRepository;
 	}
 
 	private String getDefaultOrderBy(String orderBy) {
@@ -89,13 +82,5 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
     @Cacheable("caseNoteTypesByType")
 	public Page<ReferenceCode> getCaseNoteSubTypesByParent(final String caseNoteType, final long offset, final long limit) {
 		return referenceCodeRepository.getReferenceCodesByDomainAndParent("TASK_SUBTYPE", caseNoteType, "", "code", Order.ASC, offset, limit);
-	}
-
-	@Override
-	public Page<ReferenceCode> getCaseNoteTypeByCurrentCaseLoad(String query, String orderBy, Order order, long offset, long limit, boolean includeSubTypes) {
-		final Optional<CaseLoad> caseLoad = caseLoadRepository.getCurrentCaseLoadDetail(UserSecurityUtils.getCurrentUsername());
-		final String caseLoadType = caseLoad.isPresent() ? caseLoad.get().getType() : "BOTH";
-
-		return referenceCodeRepository.getCaseNoteTypeByCurrentCaseLoad(caseLoadType, includeSubTypes, query, getDefaultOrderBy(orderBy), order, offset, limit);
 	}
 }

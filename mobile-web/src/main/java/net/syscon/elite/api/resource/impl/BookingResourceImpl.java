@@ -198,6 +198,27 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    public GetEventsTodayResponse getEventsToday(Long bookingId) {
+        List<ScheduledEvent> scheduledEvents = bookingService.getEventsToday(bookingId);
+
+        return GetEventsTodayResponse.respond200WithApplicationJson(scheduledEvents);
+    }
+
+    @Override
+    public GetEventsThisWeekResponse getEventsThisWeek(Long bookingId) {
+        List<ScheduledEvent> scheduledEvents = bookingService.getEventsThisWeek(bookingId);
+
+        return GetEventsThisWeekResponse.respond200WithApplicationJson(scheduledEvents);
+    }
+
+    @Override
+    public GetEventsNextWeekResponse getEventsNextWeek(Long bookingId) {
+        List<ScheduledEvent> scheduledEvents = bookingService.getEventsNextWeek(bookingId);
+
+        return GetEventsNextWeekResponse.respond200WithApplicationJson(scheduledEvents);
+    }
+
+    @Override
     public GetContactsResponse getContacts(Long bookingId) {
         final ContactDetail contacts = contactService.getContacts(bookingId);
 

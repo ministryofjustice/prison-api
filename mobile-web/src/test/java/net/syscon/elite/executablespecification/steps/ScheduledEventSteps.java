@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * BDD step implementations for 'Scheduled Event' APIs (e.g. Booking Activities, Booking Visits, etc.)
@@ -21,7 +23,7 @@ public abstract class ScheduledEventSteps extends CommonSteps {
     private static final String FROM_DATE_QUERY_PARAM_PREFIX = "&fromDate=";
     private static final String TO_DATE_QUERY_PARAM_PREFIX = "&toDate=";
 
-    private List<ScheduledEvent> scheduledEvents;
+    protected List<ScheduledEvent> scheduledEvents;
     
     protected void init() {
         super.init();
@@ -73,6 +75,12 @@ public abstract class ScheduledEventSteps extends CommonSteps {
         });
     }
 
+    @Step("Verify event status for specific scheduled event")
+    public void verifyEventStatus(int index, String expectedEventStatus) {
+        validateResourcesIndex(index);
+        assertThat(scheduledEvents.get(index).getEventStatus()).isEqualTo(expectedEventStatus);
+    }
+
     @Step("Verify event sub type for specific scheduled event")
     public void verifyEventSubType(int index, String expectedEventSubType) {
         validateResourcesIndex(index);
@@ -119,6 +127,14 @@ public abstract class ScheduledEventSteps extends CommonSteps {
     public void verifyEventSourceDescription(int index, String expectedEventSourceDescription) {
         validateResourcesIndex(index);
         assertThat(scheduledEvents.get(index).getEventSourceDesc()).isEqualTo(expectedEventSourceDescription);
+    }
+
+    public void verifyEmpty() {
+        assertTrue("Expecting no results", scheduledEvents.isEmpty());
+    }
+
+    public void verifyNumber(int number) {
+        assertEquals(number, scheduledEvents.size());
     }
 
     protected void dispatchRequest(Long bookingId, String fromDate, String toDate, String sortFields, Order sortOrder) {

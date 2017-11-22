@@ -40,7 +40,7 @@ Note that this does not yet work in Eclipse due to a gradle bug (see [here](http
 2) Using Gradle directly via command-line (optionally setting the spring profile variable to select the in-memory database)
 
 ```bash
-set JAVA_OPTS=-Dspring.profiles.active=nomis,nomis-hsqldb,noproxy,dev
+set JAVA_OPTS=-Dspring.profiles.active=nomis-hsqldb
 gradlew bootRun
 ```
 

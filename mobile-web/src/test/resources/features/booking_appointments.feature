@@ -66,7 +66,7 @@ Feature: Booking Appointments
 
   Scenario: Retrieve this week's scheduled appointments for an existing offender having one or more appointments this week
     When scheduled appointments for this week are requested for an offender with booking id "-3"
-    Then "5" appointments are returned
+    Then "3" appointments are returned
 
   Scenario: Retrieve next week's scheduled appointments for an existing offender having one or more appointments next week
     When scheduled appointments for next week are requested for an offender with booking id "-3"

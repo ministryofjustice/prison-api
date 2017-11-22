@@ -123,4 +123,19 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     public void theRolesReturnedAre(String roles) throws Throwable {
         user.verifyRoles(roles);
     }
+
+    @When("^request is made to retrieve valid case note types for current user$")
+    public void requestIsMadeToRetrieveValidCaseNoteTypesForCurrentUser() throws Throwable {
+        user.getUserCaseNoteTypes();
+    }
+
+    @Then("^\"([^\"]*)\" case note types are returned$")
+    public void caseNoteTypesAreReturned(String expectedCount) throws Throwable {
+        user.verifyResourceRecordsReturned(Long.parseLong(expectedCount));
+    }
+
+    @And("^each case note type is returned with one or more sub-types$")
+    public void eachCaseNoteTypeIsReturnedWithOneOrMoreSubTypes() throws Throwable {
+        user.verifyCaseNoteTypesHaveSubTypes();
+    }
 }
