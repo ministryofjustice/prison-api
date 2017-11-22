@@ -11,7 +11,7 @@ import net.syscon.elite.service.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,25 +29,15 @@ public class CustodyStatusServiceImpl implements CustodyStatusService {
     }
 
     @Override
-    public PrisonerCustodyStatus getCustodyStatus(String offenderNo) {
-        return custodyStatusRepository.getCustodyStatus(offenderNo)
+    public PrisonerCustodyStatus getCustodyStatus(String offenderNo, LocalDate onDate) {
+        return custodyStatusRepository.getCustodyStatus(offenderNo, onDate)
                 .map(this::toCustodyStatus)
                 .orElseThrow(new EntityNotFoundException(offenderNo));
     }
 
     @Override
-    public List<PrisonerCustodyStatus> listCustodyStatuses(Order order) {
-        return listCustodyStatuses(null, order);
-    }
-
-    @Override
-    public List<PrisonerCustodyStatus> listCustodyStatuses(CustodyStatusCode custodyStatusCode) {
-        return listCustodyStatuses(Arrays.asList(custodyStatusCode), null);
-    }
-
-    @Override
-    public List<PrisonerCustodyStatus> listCustodyStatuses(List<CustodyStatusCode> custodyStatusCodes, Order order) {
-        return custodyStatusRepository.listCustodyStatuses()
+    public List<PrisonerCustodyStatus> listCustodyStatuses(List<CustodyStatusCode> custodyStatusCodes, LocalDate onDate, Order order) {
+        return custodyStatusRepository.listCustodyStatuses(onDate)
                 .stream()
                 .map(this::toCustodyStatus)
                 .filter(x -> filterOnCustodyStatus(x, custodyStatusCodes))
@@ -56,11 +46,7 @@ public class CustodyStatusServiceImpl implements CustodyStatusService {
     }
 
     private boolean filterOnCustodyStatus(PrisonerCustodyStatus record, List<CustodyStatusCode> custodyStatusCodes) {
-        if (custodyStatusCodes != null && custodyStatusCodes.size() > 0) {
-            return custodyStatusCodes.contains(record.getCustodyStatusCode());
-        }
-
-        return true;
+        return custodyStatusCodes.size() <= 0 || custodyStatusCodes.contains(record.getCustodyStatusCode());
     }
 
     private PrisonerCustodyStatus toCustodyStatus(CustodyStatusDto record) {
@@ -77,7 +63,7 @@ public class CustodyStatusServiceImpl implements CustodyStatusService {
     private class PrisonerCustodyStatusComparator implements Comparator<PrisonerCustodyStatus> {
         private final Order order;
 
-        public PrisonerCustodyStatusComparator(Order order) {
+        private PrisonerCustodyStatusComparator(Order order) {
             this.order = order;
         }
 

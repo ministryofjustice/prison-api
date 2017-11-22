@@ -1,9 +1,11 @@
+
 INSERT INTO AGENCY_LOCATIONS (AGY_LOC_ID, DESCRIPTION, AGENCY_LOCATION_TYPE, ACTIVE_FLAG)
   VALUES ('BXI', 'BRIXTON', 'INST', 'Y'),
          ('LEI', 'LEEDS', 'INST', 'Y'),
          ('WAI', 'THE WEARE', 'INST', 'Y'),
          ('OUT', 'OUTSIDE', 'INST', 'Y'),
-         ('TRN', 'TRANSFER', 'INST', 'Y');
+         ('TRN', 'TRANSFER', 'INST', 'Y'),
+         ('ZZGHI', 'GHOST', 'INST', 'N');
 
 INSERT INTO CASELOAD_AGENCY_LOCATIONS (CASELOAD_ID, AGY_LOC_ID)
   VALUES ('BXI', 'BXI'),
@@ -14,7 +16,10 @@ INSERT INTO CASELOAD_AGENCY_LOCATIONS (CASELOAD_ID, AGY_LOC_ID)
          ('LEI', 'TRN'),
          ('WAI', 'WAI'),
          ('WAI', 'OUT'),
-         ('WAI', 'TRN');
+         ('WAI', 'TRN'),
+         ('ZZGHI', 'WAI'),
+         ('ZZGHI', 'OUT'),
+         ('ZZGHI', 'TRN');
 
 -- These insertions represent association of multiple agencies to a single location
 INSERT INTO CASELOAD_AGENCY_LOCATIONS (CASELOAD_ID, AGY_LOC_ID)
@@ -52,4 +57,5 @@ INSERT INTO AGENCY_INTERNAL_LOCATIONS (INTERNAL_LOCATION_ID, INTERNAL_LOCATION_C
          (-26, 'CARP', 'WSHP', 'LEI', 'LEI-CARP', null, 'Carpentry Workshop'),
          (-27, 'CRM1', 'CLAS', 'LEI', 'LEI-CRM1', null, 'Classroom 1'),
          (-28, 'VIS', 'VISIT', 'LEI', 'LEI-VIS', null, 'Visiting Room'),
-         (-29, 'MED', 'AREA', 'LEI', 'LEI-MED', null, 'Medical Centre');
+         (-29, 'MED', 'AREA', 'LEI', 'LEI-MED', null, 'Medical Centre'),
+         (-30, 'A', 'WING', 'ZZGHI', 'ZZGHI-A', null, 'Block A');

@@ -70,4 +70,5 @@ INSERT INTO OFFENDERS (OFFENDER_ID, ID_SOURCE_CODE, LAST_NAME, MIDDLE_NAME, FIRS
             (-22, 'SEQ', 'WEINSTEIN', null, 'HARVEY', 'M', now(), 'WEINSTEIN', 'Z0022ZZ', -22, 'W1', 'A', '1962-01-01', 'UK'),
             (-23, 'SEQ', 'GRAYSON', null, 'RICHARD', 'M', now(), 'GRAYSON', 'Z0023ZZ', -23, 'W1', 'A', '1960-01-01', 'UK'),
             (-24, 'SEQ', 'FOX', null, 'LUCIUS', 'M', now(), 'FOX', 'Z0024ZZ', -24, 'W1', 'A', '1958-01-01', 'UK'),
-            (-25, 'SEQ', 'SMITH', 'DAVID', 'MATTHEW', 'M', now(), 'SMITH', 'Z0025ZZ', -25, 'W1', 'A', '1974-01-01', 'UK');
+            (-25, 'SEQ', 'SMITH', 'DAVID', 'MATTHEW', 'M', now(), 'SMITH', 'Z0025ZZ', -25, 'W1', 'A', '1974-01-01', 'UK'),
+            (-26, 'SEQ', 'RIDER', null, 'GHOST', 'M', now(), 'RIDER', 'Z0026ZZ', -26, 'W1', 'A', '1972-01-01', 'UK');
