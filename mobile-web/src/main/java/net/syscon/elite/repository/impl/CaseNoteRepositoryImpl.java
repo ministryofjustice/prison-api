@@ -3,15 +3,19 @@ package net.syscon.elite.repository.impl;
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.CaseNote;
 import net.syscon.elite.api.model.NewCaseNote;
+import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.CaseNoteRepository;
 import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
+import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
@@ -25,12 +29,16 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRepository {
+	private static final RowMapper<ReferenceCode> REF_CODE_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(ReferenceCode.class);
+
+	private static final RowMapper<ReferenceCodeDetail> REF_CODE_DETAIL_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(ReferenceCodeDetail.class);
 
 	private final Map<String, FieldMapper> CASE_NOTE_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("OFFENDER_BOOK_ID", 			new FieldMapper("bookingId"))
@@ -174,4 +182,61 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 						"toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
 				Long.class);
 	}
+
+	@Override
+    @Cacheable("caseNoteTypesByCaseLoadType")
+	public List<ReferenceCode> getCaseNoteTypesByCaseLoadType(String caseLoadType) {
+		String sql = getQuery("GET_CASE_NOTE_TYPES_BY_CASELOAD_TYPE");
+
+		return jdbcTemplate.query(sql,
+				createParams("caseLoadType", caseLoadType),
+                REF_CODE_ROW_MAPPER);
+	}
+
+	@Override
+    @Cacheable("caseNoteTypesWithSubTypesByCaseLoadType")
+	public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(String caseLoadType) {
+		String sql = getQuery("GET_CASE_NOTE_TYPES_WITH_SUB_TYPES_BY_CASELOAD_TYPE");
+
+		List<ReferenceCodeDetail> referenceCodeDetails = jdbcTemplate.query(sql,
+				createParams("caseLoadType", caseLoadType),
+                REF_CODE_DETAIL_ROW_MAPPER);
+
+		return buildCaseNoteTypes(referenceCodeDetails);
+	}
+
+    private List<ReferenceCode> buildCaseNoteTypes(List<ReferenceCodeDetail> results) {
+        Map<String,ReferenceCode> caseNoteTypes = new TreeMap<>();
+
+        results.forEach(ref -> {
+            ReferenceCode caseNoteType = caseNoteTypes.get(ref.getCode());
+
+            if (caseNoteType == null) {
+                caseNoteType = ReferenceCode.builder()
+                        .code(ref.getCode())
+                        .domain(ref.getDomain())
+                        .description(ref.getDescription())
+                        .activeFlag(ref.getActiveFlag())
+                        .parentCode(ref.getParentCode())
+                        .parentDomainId(ref.getParentDomainId())
+                        .subCodes(new ArrayList<>())
+                        .build();
+
+                caseNoteTypes.put(ref.getCode(), caseNoteType);
+            }
+
+            if (StringUtils.isNotBlank(ref.getSubCode())) {
+                ReferenceCode caseNoteSubType = ReferenceCode.builder()
+                        .code(ref.getSubCode())
+                        .domain(ref.getSubDomain())
+                        .description(ref.getSubDescription())
+                        .activeFlag(ref.getSubActiveFlag())
+                        .build();
+
+                caseNoteType.getSubCodes().add(caseNoteSubType);
+            }
+        });
+
+        return caseNoteTypes.values().stream().filter(type -> !type.getSubCodes().isEmpty()).collect(Collectors.toList());
+    }
 }

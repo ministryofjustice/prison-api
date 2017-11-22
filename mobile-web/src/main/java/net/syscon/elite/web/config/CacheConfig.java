@@ -24,6 +24,9 @@ public class CacheConfig implements CachingConfigurer {
     @Value("${cache.timeout.seconds.caseload:3600}")
     private int caseLoadTimeoutSeconds;
 
+    @Value("${cache.timeout.seconds.casenote:3600}")
+    private int caseNoteTimeoutSeconds;
+
     @Value("${cache.timeout.seconds.agency:3600}")
     private int agencyTimeoutSeconds;
 
@@ -51,7 +54,9 @@ public class CacheConfig implements CachingConfigurer {
         config.addCache(config("caseNoteTypesByCode", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("caseNoteTypesByCodeFiltered", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("caseNoteTypesByTypeSubType", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("caseNoteTypeByCurrentCaseLoad", 10, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+
+        config.addCache(config("caseNoteTypesByCaseLoadType", 100, caseNoteTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("caseNoteTypesWithSubTypesByCaseLoadType", 100, caseNoteTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config("findByStaffId", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("findRolesByUsername", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));

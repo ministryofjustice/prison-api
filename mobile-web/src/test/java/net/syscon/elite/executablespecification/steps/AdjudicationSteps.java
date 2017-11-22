@@ -58,4 +58,8 @@ public class AdjudicationSteps extends CommonSteps {
     public void verifyAwardsNumber(int n) {
         assertEquals(n, details.getAwards().size());
     }
+
+    public void verifyAdjudicationCount(Integer n) {
+        assertEquals(n, details.getAdjudicationCount());
+    }
 }

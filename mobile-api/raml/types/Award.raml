@@ -8,12 +8,10 @@ properties:
     type: string
     description: Award type description
   months?:
-    type: number
-    (javaType): Integer
+    type: int
     description: Number of months duration
   days?:
-    type: number
-    (javaType): Integer
+    type: int
     description: Number of days duration
   limit?:
     type: number
@@ -24,3 +22,10 @@ properties:
   effectiveDate:
     type: date-only
     description: Start of sanction
+  hearingId:
+    type: number
+    (javaType): Long
+    description: Id of hearing
+  hearingSequence:
+    type: int
+    description: hearing record sequence number

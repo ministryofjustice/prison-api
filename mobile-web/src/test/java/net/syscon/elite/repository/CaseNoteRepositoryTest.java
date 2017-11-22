@@ -1,7 +1,6 @@
 package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.ReferenceCode;
-import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.web.config.CacheConfig;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Test;
@@ -15,7 +14,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.Assert.*;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("nomis-hsqldb")
@@ -24,15 +26,36 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = { PersistenceConfigs.class, CacheConfig.class })
-public class ReferenceCodeRepositoryTest {
+public class CaseNoteRepositoryTest {
 
     @Autowired
-    private ReferenceCodeRepository repository;
+    private CaseNoteRepository repository;
 
     @Test
-    public final void testGetAlertTypeByCode() {
-        final ReferenceCode alertTypeCodesByAlertCode = repository.getReferenceCodeByDomainAndCode("ALERT", "X", false)
-                .orElseThrow(new EntityNotFoundException("not found"));
-        assertThat(alertTypeCodesByAlertCode).isNotNull();
+    public void testGetCaseNoteTypesByCaseLoadType() {
+        List<ReferenceCode> types = repository.getCaseNoteTypesByCaseLoadType("COMM");
+
+        assertNotNull(types);
+        assertFalse(types.isEmpty());
+
+        // Ensure each type has null value for sub-types
+        types.forEach(type -> assertNull(type.getSubCodes()));
+    }
+
+    @Test
+    public void testGetCaseNoteTypeWithSubTypesByCaseLoadType() {
+        List<ReferenceCode> types = repository.getCaseNoteTypesWithSubTypesByCaseLoadType("COMM");
+
+        // Spot check
+        Optional<ReferenceCode> type = types.stream().filter(x -> x.getCode().equals("DRR")).findFirst();
+
+        assertTrue(type.isPresent());
+
+        List<ReferenceCode> subTypes = type.get().getSubCodes();
+
+        assertNotNull(subTypes);
+        assertFalse(subTypes.isEmpty());
+
+        assertTrue(subTypes.stream().anyMatch(x -> x.getCode().equals("DTEST")));
     }
 }
