@@ -8,7 +8,6 @@ Feature: Custody Status
   Background:
     Given user "hpa_user" with password "password" has authenticated with the API
 
-    @ignore
   @nomis
   Scenario: Retrieve a list of all custody status records
     When a request is made to retrieve all custody status records

@@ -47,13 +47,13 @@ INSERT INTO OFFENDER_BOOKINGS (OFFENDER_BOOK_ID, BOOKING_BEGIN_DATE, BOOKING_NO,
 VALUES (-16, systimestamp,  'A00126', -16, 'N', 'IN', 'Y', 'N', 'MUL', 1, -16, -15);
 
 INSERT INTO OFFENDER_BOOKINGS (OFFENDER_BOOK_ID, BOOKING_BEGIN_DATE, BOOKING_NO, OFFENDER_ID, DISCLOSURE_FLAG, IN_OUT_STATUS, ACTIVE_FLAG, YOUTH_ADULT_CODE, AGY_LOC_ID, ROOT_OFFENDER_ID, ASSIGNED_STAFF_ID, LIVING_UNIT_ID)
-    VALUES  (-17, systimestamp, 'Z00017', -17, 'N', 'IN',  'Y', 'N', 'LEI', -17, -16, -23),
-            (-18, systimestamp, 'Z00018', -18, 'N', 'IN',  'Y', 'N', 'LEI', -18, -16, -22),
-            (-19, systimestamp, 'Z00019', -19, 'N', 'IN',  'N', 'N', 'LEI', -19, -16, -21),
-            (-20, systimestamp, 'Z00020', -20, 'N', 'OUT', 'N', 'N', 'LEI', -20, -16, -20),
-            (-21, systimestamp, 'Z00021', -21, 'N', 'OUT', 'N', 'N', 'LEI', -21, -16, -19),
-            (-22, systimestamp, 'Z00022', -22, 'N', 'OUT', 'N', 'N', 'LEI', -22, -16, -18),
-            (-23, systimestamp, 'Z00023', -23, 'N', 'OUT', 'N', 'N', 'LEI', -23, -16, -17),
-            (-24, systimestamp, 'Z00024', -24, 'N', 'IN',  'Y', 'N', 'LEI', -24, -16, -16),
-            (-25, systimestamp, 'Z00025', -25, 'N', 'IN',  'Y', 'N', 'LEI', -25, -16, -15),
-            (-26, systimestamp, 'Z00026', -26, 'N', 'IN',  'Y', 'N', 'WEI', -26, -16, -28);
+     VALUES (-17, systimestamp, 'Z00017', -17, 'N', 'IN',  'Y', 'N', 'LEI', 1, -9, -14),
+            (-18, systimestamp, 'Z00018', -18, 'N', 'IN',  'Y', 'N', 'LEI', 1, -9, -14),
+            (-19, systimestamp, 'Z00019', -19, 'N', 'IN',  'N', 'N', 'LEI', 1, -9, -14),
+            (-20, systimestamp, 'Z00020', -20, 'N', 'OUT', 'N', 'N', 'LEI', 1, -9, -14),
+            (-21, systimestamp, 'Z00021', -21, 'N', 'OUT', 'N', 'N', 'LEI', 1, -9, -14),
+            (-22, systimestamp, 'Z00022', -22, 'N', 'OUT', 'N', 'N', 'LEI', 1, -9, -14),
+            (-23, systimestamp, 'Z00023', -23, 'N', 'OUT', 'N', 'N', 'LEI', 1, -9, -14),
+            (-24, systimestamp, 'Z00024', -24, 'N', 'IN',  'Y', 'N', 'LEI', 1, -9, -14),
+            (-25, systimestamp, 'Z00025', -25, 'N', 'IN',  'Y', 'N', 'LEI', 1, -9, -14),
+            (-26, systimestamp, 'Z00026', -26, 'N', 'IN',  'Y', 'N', 'ZZGHI', 1, -9, -28);
