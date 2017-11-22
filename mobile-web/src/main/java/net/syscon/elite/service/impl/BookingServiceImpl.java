@@ -303,23 +303,23 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<ScheduledEvent> getEventsToday(Long bookingId) {
-        final LocalDate today = LocalDate.now();
+        final LocalDate today = now();
         return getEvents(bookingId, today, today);
     }
 
     @Override
     public List<ScheduledEvent> getEventsThisWeek(Long bookingId) {
-        final LocalDate today = LocalDate.now();
-        return getEvents(bookingId, today, today.plusDays(7));
+        final LocalDate today = now();
+        return getEvents(bookingId, today, today.plusDays(6));
     }
 
     @Override
     public List<ScheduledEvent> getEventsNextWeek(Long bookingId) {
-        final LocalDate today = LocalDate.now();
-        return getEvents(bookingId, today.plusDays(8), today.plusDays(15));
+        final LocalDate today = now();
+        return getEvents(bookingId, today.plusDays(7), today.plusDays(13));
     }
 
-    private List<ScheduledEvent> getEvents(Long bookingId, final LocalDate from, final LocalDate to) {
+    private List<ScheduledEvent> getEvents(Long bookingId, LocalDate from, LocalDate to) {
         final Page<ScheduledEvent> activitiesPaged = getBookingActivities(bookingId, from, to, 0, 1000, null, null);
         final List<ScheduledEvent> activities = activitiesPaged.getItems();
         if (activitiesPaged.getTotalRecords() > activitiesPaged.getPageLimit()) {

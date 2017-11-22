@@ -36,7 +36,7 @@ Feature: Booking Scheduled Events
 
   Scenario Outline: Retrieve this week's scheduled events for an offender in correct time order
     When this week's scheduled events are requested for an offender with booking id -3
-    Then 13 events are returned
+    Then 12 events are returned
      And For index of <index>,
     Then the eventType is "<eventType>"
     And the eventLocation is "<eventLocation>"
@@ -54,17 +54,17 @@ Feature: Booking Scheduled Events
       | 9     | PRISON_ACT | Medical Centre     | 3                  |
       | 10    | VISIT      | Block H            | 4                  |
       | 11    | PRISON_ACT | Visiting Room      | 6                  |
-      | 12    | APP        | Visiting Room      | 7                  |
 
   Scenario Outline: Retrieve next week's scheduled events for an offender in correct time order
     When next week's scheduled events are requested for an offender with booking id -3
-    Then 4 events are returned
+    Then 5 events are returned
      And For index of <index>,
     Then the eventType is "<eventType>"
     And the eventLocation is "<eventLocation>"
     Examples:
       | index | eventType  | eventLocation      | days-ahead-comment |
-      | 0     | VISIT      | Carpentry Workshop | 8                  |
-      | 1     | PRISON_ACT | Medical Centre     | 9                  |
-      | 2     | VISIT      | Classroom 1        | 10                 |
-      | 3     | APP        | Visiting Room      | 12                 |
+      | 0     | APP        | Visiting Room      | 7                  |
+      | 1     | VISIT      | Carpentry Workshop | 8                  |
+      | 2     | PRISON_ACT | Medical Centre     | 9                  |
+      | 3     | VISIT      | Classroom 1        | 10                 |
+      | 4     | APP        | Visiting Room      | 12                 |

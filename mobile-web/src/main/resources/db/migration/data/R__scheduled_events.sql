@@ -50,8 +50,8 @@ INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME
 
 -- These course schedules defined for current day, this week and next week (to test 'today', 'thisWeek' and 'nextWeek' endpoint actions).
 INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME, END_TIME, SCHEDULE_STATUS)
-  VALUES (-26, -2, current_date, now() + INTERVAL '5' HOUR, now() + INTERVAL '5' HOUR, 'SCH'),
-         (-27, -2, current_date, now() + INTERVAL '6' HOUR, now() + INTERVAL '6' HOUR, 'SCH'),
+  VALUES (-26, -2, current_date, now() + INTERVAL '5' SECOND, now() + INTERVAL '5' SECOND, 'SCH'),
+         (-27, -2, current_date, now() + INTERVAL '6' SECOND, now() + INTERVAL '6' SECOND, 'SCH'),
          (-28, -5, current_date + INTERVAL  '6' DAY, now() + INTERVAL  '6' DAY, now() + INTERVAL  '6' DAY, 'SCH'),
          (-29, -6, current_date + INTERVAL  '3' DAY, now() + INTERVAL  '3' DAY, now() + INTERVAL  '3' DAY, 'SCH'),
          (-30, -5, current_date + INTERVAL '17' DAY, now() + INTERVAL '17' DAY, now() + INTERVAL '17' DAY, 'SCH'),
@@ -104,8 +104,8 @@ INSERT INTO OFFENDER_VISITS (OFFENDER_VISIT_ID, OFFENDER_BOOK_ID, VISIT_DATE, ST
 
 -- These visits defined for current day, this week and next week (to test 'today', 'thisWeek' and 'nextWeek' endpoint actions).
 INSERT INTO OFFENDER_VISITS (OFFENDER_VISIT_ID, OFFENDER_BOOK_ID, VISIT_DATE, START_TIME, END_TIME, VISIT_TYPE, VISIT_STATUS, VISIT_INTERNAL_LOCATION_ID, AGY_LOC_ID)
-  VALUES (-17, -3, current_date + INTERVAL '1' HOUR, now() + INTERVAL '1' HOUR, now() + INTERVAL '1' HOUR, 'OFFI', 'SCH', -25, 'LEI'),
-         (-18, -3, current_date + INTERVAL '2' HOUR, now() + INTERVAL '2' HOUR, now() + INTERVAL '2' HOUR, 'SCON', 'SCH', -28, 'LEI'),
+  VALUES (-17, -3, current_date + INTERVAL '1' SECOND, now() + INTERVAL '1' SECOND, now() + INTERVAL '1' SECOND, 'OFFI', 'SCH', -25, 'LEI'),
+         (-18, -3, current_date + INTERVAL '2' SECOND, now() + INTERVAL '2' SECOND, now() + INTERVAL '2' SECOND, 'SCON', 'SCH', -28, 'LEI'),
          (-19, -3, current_date + INTERVAL '1' DAY, now() + INTERVAL '1' DAY, now() + INTERVAL '1' DAY, 'SCON', 'SCH', -26, 'LEI'),
          (-21, -3, current_date + INTERVAL '2' DAY, now() + INTERVAL '2' DAY, now() + INTERVAL '2' DAY, 'SCON', 'SCH', -29, 'LEI'),
          (-22, -3, current_date + INTERVAL '4' DAY, now() + INTERVAL '4' DAY, now() + INTERVAL '4' DAY, 'SCON', 'SCH', -13, 'LEI'),
@@ -140,8 +140,8 @@ INSERT INTO OFFENDER_IND_SCHEDULES (EVENT_ID, OFFENDER_BOOK_ID, EVENT_DATE, STAR
 
 -- These appointments defined for current day, this week and next week (to test 'today', 'thisWeek' and 'nextWeek' endpoint actions).
 INSERT INTO OFFENDER_IND_SCHEDULES (EVENT_ID, OFFENDER_BOOK_ID, EVENT_DATE, START_TIME, END_TIME, EVENT_CLASS, EVENT_TYPE, EVENT_SUB_TYPE, EVENT_STATUS, TO_AGY_LOC_ID, TO_INTERNAL_LOCATION_ID, TO_ADDRESS_ID, TO_CITY_CODE)
-  VALUES (-17, -3, current_date + INTERVAL '3' HOUR, now() + INTERVAL '3' HOUR, now() + INTERVAL '3' HOUR, 'INT_MOV', 'APP', 'MEDE', 'SCH', 'LEI', -29, null, null),
-         (-18, -3, current_date + INTERVAL '4' HOUR, now() + INTERVAL '4' HOUR, now() + INTERVAL '4' HOUR, 'INT_MOV', 'APP', 'EDUC', 'SCH', 'LEI', -28, null, null),
+  VALUES (-17, -3, current_date + INTERVAL '3' SECOND, now() + INTERVAL '3' SECOND, now() + INTERVAL '3' SECOND, 'INT_MOV', 'APP', 'MEDE', 'SCH', 'LEI', -29, null, null),
+         (-18, -3, current_date + INTERVAL '4' SECOND, now() + INTERVAL '4' SECOND, now() + INTERVAL '4' SECOND, 'INT_MOV', 'APP', 'EDUC', 'SCH', 'LEI', -28, null, null),
          (-19, -3, current_date + INTERVAL '1' DAY, now() + INTERVAL '1' DAY, now() + INTERVAL '1' DAY, 'INT_MOV', 'APP', 'EDUC', 'SCH', 'LEI', -28, null, null),
          (-20, -3, current_date + INTERVAL '7' DAY, now() + INTERVAL '7' DAY, now() + INTERVAL '7' DAY, 'INT_MOV', 'APP', 'EDUC', 'SCH', 'LEI', -28, null, null),
          (-21, -3, current_date + INTERVAL '12' DAY, now() + INTERVAL '12' DAY, now() + INTERVAL '12' DAY, 'INT_MOV', 'APP', 'EDUC', 'SCH', 'LEI', -28, null, null),
