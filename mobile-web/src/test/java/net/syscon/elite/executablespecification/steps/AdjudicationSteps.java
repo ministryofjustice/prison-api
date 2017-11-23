@@ -12,14 +12,15 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 public class AdjudicationSteps extends CommonSteps {
-    private static final String BOOKING_ADJUDICATIONS_API_URL = API_PREFIX + "bookings/{bookingId}/adjudications";
-    private static final String FROM_DATE_PREFIX = "?fromDate=";
+    private static final String BOOKING_ADJUDICATIONS_API_URL = API_PREFIX + "bookings/{bookingId}/adjudications?";
+    private static final String AWARD_CUTOFF_DATE_DATE_PREFIX = "&awardCutoffDate=";
+    private static final String ADJUDICATION_CUTOFF_DATE_PREFIX = "&adjudicationCutoffDate=";
     private AdjudicationDetail details;
     private int index;
 
     @Step("Get offender adjudication details")
-    public void getAwards(Long bookingId, String fromDate) {
-        doSingleResultApiCall(bookingId, fromDate);
+    public void getAwards(Long bookingId, String awardCutoffDate, String adjudicationCutoffDate) {
+        doSingleResultApiCall(bookingId, awardCutoffDate, adjudicationCutoffDate);
     }
 
     @Step("Verify value of field in details")
@@ -27,12 +28,15 @@ public class AdjudicationSteps extends CommonSteps {
         verifyField(details.getAwards().get(index), field, value);
     }
 
-    private void doSingleResultApiCall(long bookingId, String fromDate) {
+    private void doSingleResultApiCall(long bookingId, String awardCutoffDate, String adjudicationCutoffDate) {
         init();
         try {
             String url = BOOKING_ADJUDICATIONS_API_URL;
-            if (StringUtils.isNotBlank(fromDate)) {
-                url += FROM_DATE_PREFIX + fromDate;
+            if (StringUtils.isNotBlank(awardCutoffDate)) {
+                url += AWARD_CUTOFF_DATE_DATE_PREFIX + awardCutoffDate;
+            }
+            if (StringUtils.isNotBlank(adjudicationCutoffDate)) {
+                url += ADJUDICATION_CUTOFF_DATE_PREFIX + adjudicationCutoffDate;
             }
             ResponseEntity<AdjudicationDetail> response = restTemplate.exchange(url, HttpMethod.GET, createEntity(),
                     AdjudicationDetail.class, bookingId);

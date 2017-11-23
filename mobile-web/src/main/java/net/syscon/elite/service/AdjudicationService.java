@@ -6,5 +6,5 @@ import java.time.LocalDate;
 
 public interface AdjudicationService {
 
-    AdjudicationDetail getAdjudications(final long bookingId, LocalDate fromDate);
+    AdjudicationDetail getAdjudications(final long bookingId, LocalDate awardCutoffDate, LocalDate adjudicationCutoffDate);
 }

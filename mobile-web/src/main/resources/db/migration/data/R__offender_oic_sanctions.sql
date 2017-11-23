@@ -1,6 +1,6 @@
 Insert into OIC_HEARING_RESULTS (OIC_HEARING_ID,RESULT_SEQ,AGENCY_INCIDENT_ID,CHARGE_SEQ,PLEA_FINDING_CODE,FINDING_CODE,OIC_OFFENCE_ID) values
 (-10,1,6195,1,'GUILTY','PROVED',80),
-(-10,2,6195,2,'GUILTY','PROVED',81),
+(-10,2,6195,2,'GUILTY','QUASHED',81),
 (-11,1,6096,1,'NOT_GUILTY','QUASHED',79),
 (-12,1,6215,1,'REFUSED','DISMISSED',79),
 (-13,1,6215,3,'UNFIT','APPEAL',83),
@@ -25,7 +25,7 @@ Insert into OFFENDER_OIC_SANCTIONS
 (-8, 4,'FORFEIT',null,2,   19,  'tv','2017-11-13',-10,'IMMEDIATE',1),   -- End date:
 (-5, 1,'ADA',    null,5,   null,null,'2017-04-13',-10,'IMMEDIATE',1),     -- 2017-09-13
 (-5, 2,'ADA',    null,48,  null,null,'2013-11-07',-10,'IMMEDIATE',1),     -- 2017-11-07
-(-5, 3,'FORFEIT',null,null,27,  'LOA','2017-11-07',-10,'IMMEDIATE',2),    -- 2017-12-04
+(-5, 3,'FORFEIT',null,null,27,  'LOA','2017-11-07',-15,'IMMEDIATE',1),    -- 2017-12-04
 (-5, 4,'STOP_PCT',50, null,21,  null,'2017-11-07',-14,'IMMEDIATE',1),     -- 2017-11-28
 (-5, 5,'CC',     null,1   ,7,   null,'2017-11-07',-10,'IMMEDIATE',1),     -- 2017-12-14
 (-5, 6,'FORFEIT',null,null,7,   'LOTV','2017-11-08',-10,'IMMEDIATE',1),   -- 2017-11-15

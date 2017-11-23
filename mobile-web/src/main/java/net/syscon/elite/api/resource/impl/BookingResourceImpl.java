@@ -8,6 +8,7 @@ import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.*;
 
 import javax.ws.rs.Path;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -237,8 +238,9 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetAdjudicationsResponse getAdjudications(Long bookingId, String fromDate) {
-        final AdjudicationDetail adjudicationDetail = adjudicationService.getAdjudications(bookingId, fromISO8601DateString(fromDate));
+    public GetAdjudicationsResponse getAdjudications(Long bookingId, String awardCutoffDate, String adjudicationCutoffDate) {
+        final AdjudicationDetail adjudicationDetail = adjudicationService.getAdjudications(bookingId,
+                fromISO8601DateString(awardCutoffDate), fromISO8601DateString(adjudicationCutoffDate));
 
         return GetAdjudicationsResponse.respond200WithApplicationJson(adjudicationDetail);
     }

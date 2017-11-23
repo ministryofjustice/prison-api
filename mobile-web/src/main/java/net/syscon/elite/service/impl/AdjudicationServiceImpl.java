@@ -7,16 +7,15 @@ import net.syscon.elite.service.AdjudicationService;
 import net.syscon.elite.service.BookingService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -25,48 +24,66 @@ public class AdjudicationServiceImpl implements AdjudicationService {
     private final AdjudicationsRepository repository;
     private final BookingService bookingService;
 
+    @Value("${api.cutoff.adjudication.months:3}") private int adjudicationCutoffDefault;
+    @Value("${api.cutoff.award.months:0}") private int awardCutoffDefault;
+
     @Autowired
     public AdjudicationServiceImpl(AdjudicationsRepository adjudicationsRepository, BookingService bookingService) {
         this.repository = adjudicationsRepository;
         this.bookingService = bookingService;
     }
 
+    /**
+     * Get awards that have not expired, i.e. the end date is today or later, and
+     * count proved adjudications which expired on or later than the from date.
+     */
     @Override
-    public AdjudicationDetail getAdjudications(final long bookingId, final LocalDate fromDate) {
+    public AdjudicationDetail getAdjudications(long bookingId, LocalDate awardCutoffDateParam, LocalDate adjudicationCutoffDateParam) {
+
         bookingService.verifyBookingAccess(bookingId);
         final List<Award> list = repository.findAwards(bookingId);
+        final LocalDate today = LocalDate.now();
+        LocalDate awardCutoffDate = awardCutoffDateParam;
+        if (awardCutoffDate == null) {
+            awardCutoffDate = today.plus(-awardCutoffDefault, ChronoUnit.MONTHS);
+        }
+        LocalDate adjudicationCutoffDate = adjudicationCutoffDateParam;
+        if (adjudicationCutoffDate == null) {
+            adjudicationCutoffDate = today.plus(-adjudicationCutoffDefault, ChronoUnit.MONTHS);
+        }
+        final Iterator<Award> iterator = list.iterator();
+        int adjudicationCount = 0;
+        Award previous = null;
 
-        final AtomicInteger i = new AtomicInteger(0);
-        final AtomicReference<Award> previous = new AtomicReference<>();
+        while (iterator.hasNext()) {
+            final Award current = iterator.next();
+            final LocalDate endDate = calculateEndDate(current);
 
-        final List<Award> filteredList = list.stream().filter(t -> {
-            if (fromDate == null) {
-                return true;
+            if (!adjudicationCutoffDate.isAfter(endDate) && changed(previous, current)) {
+                adjudicationCount++;
+                previous = current;
             }
-            LocalDate endDate = t.getEffectiveDate();
-            if (t.getMonths() != null) {
-                endDate = endDate.plus(t.getMonths(), ChronoUnit.MONTHS);
+            if (awardCutoffDate.isAfter(endDate)) {
+                iterator.remove();
             }
-            if (t.getDays() != null) {
-                endDate = endDate.plusDays(t.getDays());
-            }
-            return fromDate.isEqual(endDate) || fromDate.isBefore(endDate);
-        }).filter(t -> {
-            // Note this assumes data is sorted
-            if (changed(previous, t)) {
-                previous.set(t);
-                i.incrementAndGet();
-            }
-            return true;
-        }).collect(Collectors.toList());
-
-        return AdjudicationDetail.builder().awards(filteredList).adjudicationCount(i.get()).build();
+        }
+        return AdjudicationDetail.builder().awards(list).adjudicationCount(adjudicationCount).build();
     }
 
-    private boolean changed(AtomicReference<Award> previous, Award current) {
-        return previous.get() == null //
-                || !Objects.equals(previous.get().getHearingId(), current.getHearingId())
-                || !Objects.equals(previous.get().getHearingSequence(), current.getHearingSequence());
-        // TODO do we consider h.result_seq for distinctness- Waiting on Viny for example data
+    private LocalDate calculateEndDate(final Award award) {
+        LocalDate endDate = award.getEffectiveDate();
+        if (award.getMonths() != null) {
+            endDate = endDate.plus(award.getMonths(), ChronoUnit.MONTHS);
+        }
+        if (award.getDays() != null) {
+            endDate = endDate.plusDays(award.getDays());
+        }
+        return endDate;
+    }
+
+    private boolean changed(Award previous, Award current) {
+        return previous == null || !Objects.equals(previous.getHearingId(), current.getHearingId());
+        // Note we only consider the hearing id, not the sequence number as we only
+        // expect at most one proved adjudication in the sequence list
     }
 }
