@@ -38,14 +38,16 @@ public class AdjudicationServiceImpl implements AdjudicationService {
      * count proved adjudications which expired on or later than the from date.
      */
     @Override
-    public AdjudicationDetail getAdjudications(long bookingId, LocalDate awardCutoffDate, LocalDate adjudicationCutoffDate) {
+    public AdjudicationDetail getAdjudications(long bookingId, LocalDate awardCutoffDateParam, LocalDate adjudicationCutoffDateParam) {
 
         bookingService.verifyBookingAccess(bookingId);
         final List<Award> list = repository.findAwards(bookingId);
         final LocalDate today = LocalDate.now();
+        LocalDate awardCutoffDate = awardCutoffDateParam;
         if (awardCutoffDate == null) {
             awardCutoffDate = today.plus(-awardCutoffDefault, ChronoUnit.MONTHS);
         }
+        LocalDate adjudicationCutoffDate = adjudicationCutoffDateParam;
         if (adjudicationCutoffDate == null) {
             adjudicationCutoffDate = today.plus(-adjudicationCutoffDefault, ChronoUnit.MONTHS);
         }
@@ -57,11 +59,9 @@ public class AdjudicationServiceImpl implements AdjudicationService {
             final Award current = iterator.next();
             final LocalDate endDate = calculateEndDate(current);
 
-            if (!adjudicationCutoffDate.isAfter(endDate)) {
-                if (changed(previous, current)) {
-                    adjudicationCount++;
-                    previous = current;
-                }
+            if (!adjudicationCutoffDate.isAfter(endDate) && changed(previous, current)) {
+                adjudicationCount++;
+                previous = current;
             }
             if (awardCutoffDate.isAfter(endDate)) {
                 iterator.remove();
