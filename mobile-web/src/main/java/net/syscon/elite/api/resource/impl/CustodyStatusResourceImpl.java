@@ -10,7 +10,6 @@ import net.syscon.util.DateTimeConverter;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.ws.rs.Path;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,7 +26,7 @@ public class CustodyStatusResourceImpl implements CustodyStatusResource {
 
     @Override
     @PreAuthorize("authentication.authorities.?[authority.contains('_ADMIN')].size() != 0 || authentication.authorities.?[authority.contains('GLOBAL_SEARCH')].size() != 0")
-    public GetPrisonerCustodyStatusesResponse getPrisonerCustodyStatuses(List<String> custodyStatusCodes, String sortFields, Order sortOrder, String onDateString) {
+    public GetPrisonerCustodyStatusesResponse getPrisonerCustodyStatuses(List<String> custodyStatusCodes, String onDateString, String sortFields, Order sortOrder) {
         LocalDate onDate = DateTimeConverter.fromISO8601DateString(onDateString);
         if (onDate == null) {
             onDate = LocalDate.now();

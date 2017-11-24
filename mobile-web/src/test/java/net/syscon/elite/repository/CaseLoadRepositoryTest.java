@@ -1,7 +1,6 @@
 package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.CaseLoad;
-import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +17,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -29,29 +30,47 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = PersistenceConfigs.class)
 public class CaseLoadRepositoryTest {
-
+    private static final String TEST_USERNAME = "ITAG_USER";
+    
     @Autowired
     private CaseLoadRepository repository;
 
     @Before
-    public final void init() {
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("ITAG_USER", "password"));
+    public void init() {
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(TEST_USERNAME, "password"));
     }
 
     @Test
-    public final void testFindCaseload() {
-        final CaseLoad caseload = repository.find("LEI").orElseThrow(EntityNotFoundException.withId("LEI"));
-        assertThat(caseload).isNotNull();
-        assertThat(caseload.getDescription()).isEqualTo("LEEDS (HMP)");
-    }
+    public void testGetCaseLoad() {
+        Optional<CaseLoad> caseLoad = repository.getCaseLoad("LEI");
 
-
-    @Test
-    public final void testGetOffender() {
-        final List<CaseLoad> caseLoadsByStaffId = repository.findCaseLoadsByUsername("ITAG_USER");
-        assertThat(caseLoadsByStaffId).isNotEmpty();
-        assertThat(caseLoadsByStaffId).hasSize(3);
-        assertThat(caseLoadsByStaffId).extracting("caseLoadId").contains("LEI", "BXI", "WAI");
+        assertThat(caseLoad.isPresent()).isTrue();
+        assertThat(caseLoad.get().getDescription()).isEqualTo("LEEDS (HMP)");
     }
     
+    @Test
+    public void testGetCaseLoadsByUsername() {
+        List<CaseLoad> caseLoads = repository.getCaseLoadsByUsername(TEST_USERNAME);
+
+        assertThat(caseLoads).isNotEmpty();
+        assertThat(caseLoads).hasSize(3);
+        assertThat(caseLoads).extracting("caseLoadId").contains("LEI", "BXI", "WAI");
+    }
+    
+    @Test
+    public void testGetWorkingCaseLoadByUsername() {
+        Optional<CaseLoad> caseLoad = repository.getWorkingCaseLoadByUsername(TEST_USERNAME);
+
+        assertThat(caseLoad.isPresent()).isTrue();
+        assertThat(caseLoad.get().getDescription()).isEqualTo("LEEDS (HMP)");
+    }
+
+    @Test
+    public void testGetCaseLoadIdsByUsername() {
+        Set<String> caseLoadIds = repository.getCaseLoadIdsByUsername(TEST_USERNAME);
+
+        assertThat(caseLoadIds).isNotEmpty();
+        assertThat(caseLoadIds).hasSize(3);
+        assertThat(caseLoadIds).contains("LEI", "BXI", "WAI");
+    }
 }

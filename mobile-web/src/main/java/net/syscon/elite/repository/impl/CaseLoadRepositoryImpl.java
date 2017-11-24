@@ -19,12 +19,13 @@ import java.util.stream.Collectors;
 public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRepository {
 	private static final RowMapper<CaseLoad> CASELOAD_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(CaseLoad.class);
 
-	public Set<String> getUserCaseloadIds(String username) {
-		return findCaseLoadsByUsername(username).stream().map(CaseLoad::getCaseLoadId).collect(Collectors.toSet());
+	@Override
+	public Set<String> getCaseLoadIdsByUsername(String username) {
+		return getCaseLoadsByUsername(username).stream().map(CaseLoad::getCaseLoadId).collect(Collectors.toSet());
 	}
 
 	@Override
-	public Optional<CaseLoad> find(final String caseLoadId) {
+	public Optional<CaseLoad> getCaseLoad(final String caseLoadId) {
 		final String sql = getQuery("FIND_CASE_LOAD_BY_ID");
 		final RowMapper<CaseLoad> caseLoadRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseLoad.class, caseLoadMapping);
 
@@ -38,8 +39,8 @@ public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRe
 	}
 	
 	@Override
-	@Cacheable("findCaseLoadsByUsername")
-	public List<CaseLoad> findCaseLoadsByUsername(final String username) {
+	@Cacheable("getCaseLoadsByUsername")
+	public List<CaseLoad> getCaseLoadsByUsername(final String username) {
 		final String sql = getQuery("FIND_CASE_LOADS_BY_USERNAME");
 		final RowMapper<CaseLoad> caseLoadRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseLoad.class, caseLoadMapping);
 		try {
@@ -49,10 +50,9 @@ public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRe
 		}
 	}
 
-	public Optional<CaseLoad> getCurrentCaseLoadDetail(final String username) {
+	@Override
+	public Optional<CaseLoad> getWorkingCaseLoadByUsername(final String username) {
 		String sql = getQuery("FIND_ACTIVE_CASE_LOAD_BY_USERNAME");
-
-//		RowMapper<CaseLoad> caseLoadRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseLoad.class, caseLoadMapping);
 
 		CaseLoad caseload;
 

@@ -61,7 +61,7 @@ public class CustodyStatusResourceImplTest {
     @Test
     public void canRetrievePastCustodyStatusWhenPastDateProvided() {
         CustodyStatusResource.GetPrisonerCustodyStatusesResponse response = resource.getPrisonerCustodyStatuses(
-                Lists.newArrayList(), null, null, pastDate.toString());
+                Lists.newArrayList(), pastDate.toString(), null, null);
 
         List<PrisonerCustodyStatus> entity = (List<PrisonerCustodyStatus>) response.getEntity();
 

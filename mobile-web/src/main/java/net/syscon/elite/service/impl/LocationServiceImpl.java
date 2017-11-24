@@ -2,16 +2,16 @@ package net.syscon.elite.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.OffenderBooking;
-import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.LocationRepository;
-import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.LocationService;
 import org.apache.commons.lang3.StringUtils;
@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static net.syscon.elite.service.impl.InmateServiceImpl.DEFAULT_OFFENDER_SORT;
@@ -35,15 +36,15 @@ public class LocationServiceImpl implements LocationService {
     private final AgencyRepository agencyRepository;
     private final LocationRepository locationRepository;
     private final InmateRepository inmateRepository;
-    private final UserRepository userRepository;
+    private final CaseLoadService caseLoadService;
     private final String locationTypeGranularity;
     private final Integer locationDepth;
 
-    public LocationServiceImpl(AgencyRepository agencyRepository, LocationRepository locationRepository, InmateRepository inmateRepository, UserRepository userRepository,
+    public LocationServiceImpl(AgencyRepository agencyRepository, LocationRepository locationRepository, InmateRepository inmateRepository, CaseLoadService caseLoadService,
                                @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity, @Value("${api.users.me.locations.depth:1}") Integer locationDepth) {
         this.locationRepository = locationRepository;
         this.inmateRepository = inmateRepository;
-        this.userRepository = userRepository;
+        this.caseLoadService = caseLoadService;
         this.agencyRepository = agencyRepository;
         this.locationTypeGranularity = locationTypeGranularity;
         this.locationDepth = locationDepth;
@@ -138,10 +139,11 @@ public class LocationServiceImpl implements LocationService {
     }
 
     private String getCurrentCaseLoad() {
-        //  get the user data from the database
-        final String currentUsername = UserSecurityUtils.getCurrentUsername();
-        final UserDetail userDetail = userRepository.findByUsername(currentUsername).orElseThrow(EntityNotFoundException.withId(currentUsername));
-        return userDetail.getActiveCaseLoadId();
+        String currentUsername = UserSecurityUtils.getCurrentUsername();
+
+        Optional<CaseLoad> workingCaseLoad = caseLoadService.getWorkingCaseLoadForUser(currentUsername);
+
+        return workingCaseLoad.isPresent() ? workingCaseLoad.get().getCaseLoadId() : null;
     }
 
     private Location convertToLocation(Agency agency) {

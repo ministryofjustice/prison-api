@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CaseNoteRepository {
+
     Page<CaseNote> getCaseNotes(long bookingId, String query, LocalDate from, LocalDate to, String orderBy, Order order, long offset, long limit);
 
     Optional<CaseNote> getCaseNote(long bookingId, long caseNoteId);

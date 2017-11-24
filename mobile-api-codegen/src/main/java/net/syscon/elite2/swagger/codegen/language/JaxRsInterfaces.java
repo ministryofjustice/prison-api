@@ -15,17 +15,6 @@
  */
 package net.syscon.elite2.swagger.codegen.language;
 
-import static java.util.stream.Collectors.toList;
-
-import net.syscon.elite2.swagger.codegen.ConfigurableCodegenConfig;
-import net.syscon.elite2.swagger.codegen.Inflector;
-import net.syscon.elite2.swagger.codegen.PageCodegenResponse;
-
-import org.apache.commons.lang3.StringUtils;
-
-import java.io.File;
-import java.util.*;
-
 import io.swagger.codegen.*;
 import io.swagger.codegen.languages.JavaClientCodegen;
 import io.swagger.models.Model;
@@ -35,6 +24,15 @@ import io.swagger.models.Swagger;
 import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.MapProperty;
 import io.swagger.models.properties.Property;
+import net.syscon.elite2.swagger.codegen.ConfigurableCodegenConfig;
+import net.syscon.elite2.swagger.codegen.Inflector;
+import net.syscon.elite2.swagger.codegen.PageCodegenResponse;
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.File;
+import java.util.*;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * https://github.com/swagger-api/swagger-codegen/blob/master/modules/swagger-codegen/src/main/java/com/wordnik/swagger/codegen/languages/JaxRSServerCodegen.java.
@@ -260,6 +258,9 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
         // Adjust operation id (and dependent properties), if necessary.
         applyOperationId(op, operation);
 
+        // Process operation parameters (e.g. put them into a consistent order)
+        processOperationParameters(op);
+
         // Process Java type annotations (defined in RAML) for operation parameters.
         applyJavaTypesToParams(op);
 
@@ -280,6 +281,78 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
             property.baseType = property.datatype;
             property.datatypeWithEnum = property.datatype;
             property.isString = false;
+        }
+    }
+
+    private void processOperationParameters(CodegenOperation op) {
+        // Apply consistent order to header parameters and ensure they are always last in list of all parameters
+        if (op.getHasHeaderParams()) {
+            op.headerParams.sort(new HeaderParamComparator());
+
+            // Remove header params from allParams list
+            List<CodegenParameter> newAllParams = op.allParams.stream().filter(p -> !p.isHeaderParam).collect(toList());
+
+            // Add header params to end of allParams list
+            newAllParams.addAll(op.headerParams);
+
+            // Traverse allParams list to ensure hasMore is set correctly (all true, except false for last entry
+            newAllParams.forEach(p -> p.hasMore = true);
+            newAllParams.get(op.allParams.size() - 1).hasMore = false;
+
+            op.allParams = newAllParams;
+        }
+    }
+
+    private class HeaderParamComparator implements Comparator<CodegenParameter> {
+        @Override
+        public int compare(CodegenParameter o1, CodegenParameter o2) {
+            HeaderParam hp1 = HeaderParam.fromParamName(o1.baseName);
+            HeaderParam hp2 = HeaderParam.fromParamName(o2.baseName);
+
+            return Integer.compare(hp1.priority, hp2.priority);
+        }
+    }
+
+    enum HeaderParam {
+        PAGE_OFFSET("Page-Offset", 1),
+        PAGE_LIMIT("Page-Limit", 2),
+        SORT_FIELDS("Sort-Fields", 3),
+        SORT_ORDER("Sort-Order", 4),
+        OTHER("Other", 99);
+
+        private final String paramName;
+        private final int priority;
+
+        HeaderParam(String paramName, int priority) {
+            this.paramName = paramName;
+            this.priority = priority;
+        }
+
+        static HeaderParam fromParamName(String paramName) {
+            switch (paramName) {
+                case "Page-Offset":
+                    return PAGE_OFFSET;
+
+                case "Page-Limit":
+                    return PAGE_LIMIT;
+
+                case "Sort-Fields":
+                    return SORT_FIELDS;
+
+                case "Sort-Order":
+                    return SORT_ORDER;
+
+                default:
+                    return OTHER;
+            }
+        }
+
+        public String getParamName() {
+            return paramName;
+        }
+
+        public int getPriority() {
+            return priority;
         }
     }
 

@@ -8,9 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
-@Transactional
 @Service
+@Transactional(readOnly = true)
 public class CaseLoadServiceImpl implements CaseLoadService {
     private final CaseLoadRepository caseLoadRepository;
 
@@ -19,12 +20,22 @@ public class CaseLoadServiceImpl implements CaseLoadService {
     }
 
     @Override
-    public List<CaseLoad> findAllCaseLoadsForUser(String username) {
-        return null;
+    public Optional<CaseLoad> getCaseLoad(String caseLoadId) {
+        return caseLoadRepository.getCaseLoad(caseLoadId);
+    }
+
+    @Override
+    public List<CaseLoad> getCaseLoadsForUser(String username) {
+        return caseLoadRepository.getCaseLoadsByUsername(username);
     }
 
     @Override
     public Optional<CaseLoad> getWorkingCaseLoadForUser(String username) {
-        return caseLoadRepository.getCurrentCaseLoadDetail(username);
+        return caseLoadRepository.getWorkingCaseLoadByUsername(username);
+    }
+
+    @Override
+    public Set<String> getCaseLoadIdsForUser(String username) {
+        return caseLoadRepository.getCaseLoadIdsByUsername(username);
     }
 }

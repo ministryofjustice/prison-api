@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface CaseNoteService {
+
     Page<CaseNote> getCaseNotes(long bookingId, String query, LocalDate from, LocalDate to, String orderBy, Order order, long offset, long limit);
 
     CaseNote getCaseNote(long bookingId, long caseNoteId);
@@ -28,4 +29,6 @@ public interface CaseNoteService {
     List<ReferenceCode> getCaseNoteTypesByCaseLoadType(String caseLoadType);
 
     List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(String caseLoadType);
+
+    Page<ReferenceCode> getAllCaseNoteTypesWithSubTypes(long offset, long limit, String orderBy, Order order);
 }

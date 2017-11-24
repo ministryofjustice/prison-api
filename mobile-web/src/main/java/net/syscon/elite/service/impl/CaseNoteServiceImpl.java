@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-@Transactional
 @Service
 @Validated
 public class CaseNoteServiceImpl implements CaseNoteService {
@@ -55,8 +54,8 @@ public class CaseNoteServiceImpl implements CaseNoteService {
         this.telemetryClient = telemetryClient;
     }
 
-    @Transactional(readOnly = true)
 	@Override
+    @Transactional(readOnly = true)
 	public Page<CaseNote> getCaseNotes(long bookingId, String query, LocalDate from, LocalDate to, String orderBy, Order order, long offset, long limit) {
         bookingService.verifyBookingAccess(bookingId);
 
@@ -88,6 +87,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	}
 
 	@Override
+	@Transactional
     public CaseNote createCaseNote(long bookingId, @Valid @CaseNoteTypeSubTypeValid NewCaseNote caseNote) {
         bookingService.verifyBookingAccess(bookingId);
 
@@ -102,6 +102,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
     }
 
 	@Override
+	@Transactional
 	public CaseNote updateCaseNote(final long bookingId, final long caseNoteId, @NotBlank(message="{caseNoteTextBlank}") @Length(max=4000, message="{caseNoteTextTooLong}") final String newCaseNoteText) {
         bookingService.verifyBookingAccess(bookingId);
 
@@ -119,6 +120,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public CaseNoteCount getCaseNoteCount(long bookingId, String type, String subType, LocalDate fromDate, LocalDate toDate) {
 		// Validate date range
 		if (Objects.nonNull(fromDate) && Objects.nonNull(toDate) && toDate.isBefore(fromDate)) {
@@ -140,12 +142,20 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<ReferenceCode> getCaseNoteTypesByCaseLoadType(String caseLoadType) {
 		return caseNoteRepository.getCaseNoteTypesByCaseLoadType(caseLoadType);
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(String caseLoadType) {
 		return caseNoteRepository.getCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Page<ReferenceCode> getAllCaseNoteTypesWithSubTypes(long offset, long limit, String orderBy, Order order) {
+		return null;
 	}
 }

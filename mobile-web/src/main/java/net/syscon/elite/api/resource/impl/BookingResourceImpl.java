@@ -8,7 +8,6 @@ import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.*;
 
 import javax.ws.rs.Path;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -62,7 +61,7 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetBookingActivitiesResponse getBookingActivities(Long bookingId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder, String fromDate, String toDate) {
+    public GetBookingActivitiesResponse getBookingActivities(Long bookingId, String fromDate, String toDate, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         Page<ScheduledEvent> activities =  bookingService.getBookingActivities(
                 bookingId,
                 fromISO8601DateString(fromDate),
@@ -246,7 +245,7 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetBookingVisitsResponse getBookingVisits(Long bookingId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder, String fromDate, String toDate) {
+    public GetBookingVisitsResponse getBookingVisits(Long bookingId, String fromDate, String toDate, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         Page<ScheduledEvent> visits =  bookingService.getBookingVisits(
                 bookingId,
                 fromISO8601DateString(fromDate),
@@ -274,7 +273,7 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetBookingAppointmentsResponse getBookingAppointments(Long bookingId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder, String fromDate, String toDate) {
+    public GetBookingAppointmentsResponse getBookingAppointments(Long bookingId, String fromDate, String toDate, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         Page<ScheduledEvent> appointments =  bookingService.getBookingAppointments(
                 bookingId,
                 fromISO8601DateString(fromDate),

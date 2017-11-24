@@ -13,8 +13,6 @@ public interface UserService {
 
 	UserDetail getUserByUsername(String username);
 
-	CaseLoad getActiveCaseLoad(String username);
-
 	List<CaseLoad> getCaseLoads(String username);
 
 	void setActiveCaseLoad(String username, String caseLoadId);

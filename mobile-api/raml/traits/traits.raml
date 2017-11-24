@@ -12,11 +12,10 @@ searchable:
 
 pageable:
   usage: Apply this to any endpoint that needs pagination
-  description: Some requests the ability to supply a sort order
   headers:
     Page-Offset:
       displayName: Page Offset
-      description: Requested offset of first record in returned collection of <<resourcePathName>> records.
+      description: Requested offset of first record in returned collection of <<resourcePathName|!singularize>> records.
       type: integer
       (javaType): Long
       required: false
@@ -24,7 +23,7 @@ pageable:
       default: 0
     Page-Limit:
       displayName: Page Limit
-      description: Requested limit to number of <<resourcePathName>> records returned.
+      description: Requested limit to number of <<resourcePathName|!singularize>> records returned.
       type: integer
       (javaType): Long
       required: false
@@ -37,22 +36,21 @@ hasResponsePagination:
       (headersWithType_Long): Total-Records,Page-Offset,Page-Limit
       headers:
         Total-Records:
-          description: Total number of <<resourcePathName>> records available.
+          description: Total number of <<resourcePathName|!singularize>> records available.
         Page-Offset:
-          description: Offset of first record in returned page of <<resourcePathName>> records.
+          description: Offset of first record in returned page of <<resourcePathName|!singularize>> records.
         Page-Limit:
-          description: Maximum number of <<resourcePathName>> records in returned page.
+          description: Maximum number of <<resourcePathName|!singularize>> records in returned page.
 
 sortable:
   usage: Apply this to any endpoint that needs to be sortable
-  description: Some requests the ability to supply a sort order
   headers:
     Sort-Fields:
-      description: comma seperated list of fields: <<fieldsList>>
+      description: Comma separated list of one or more of the following fields - <b><<fieldsList>></b>
       type: string
       required: false
     Sort-Order:
-      description: the sort order
+      description: Sort order (ASC or DESC) - defaults to ASC.
       (javaType): Order
       required: false
       default: ASC

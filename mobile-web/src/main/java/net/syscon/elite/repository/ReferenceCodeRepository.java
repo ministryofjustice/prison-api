@@ -7,11 +7,8 @@ import net.syscon.elite.api.support.Page;
 import java.util.Optional;
 
 public interface ReferenceCodeRepository {
-	Optional<ReferenceCode> getReferenceCodeByDomainAndCode(String domain, String code, boolean withChildren);
 
-	Optional<ReferenceCode> getReferenceCodeByDomainAndParentAndCode(String domain, String code, String parentCode);
+	Optional<ReferenceCode> getReferenceCodeByDomainAndCode(String domain, String code, boolean withSubCodes);
 
-	Page<ReferenceCode> getReferenceCodesByDomain(String domain, String query, String orderBy, Order order, long offset, long limit, boolean includeSubTypes);
-
-	Page<ReferenceCode> getReferenceCodesByDomainAndParent(String domain, String parentCode, String query, String orderBy, Order order, long offset, long limit);
+	Page<ReferenceCode> getReferenceCodesByDomain(String domain, boolean withSubCodes, String orderBy, Order order, long offset, long limit);
 }

@@ -86,7 +86,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
 
 	@Override
-	public void updateCurrentLoad(final Long staffId, final String caseLoadId) {
+	public void updateWorkingCaseLoad(final Long staffId, final String caseLoadId) {
 		final String sql = getQuery("UPDATE_STAFF_ACTIVE_CASE_LOAD");
 		jdbcTemplate.update(sql, createParams("caseLoadId", caseLoadId, "staffId", staffId));
 	}
