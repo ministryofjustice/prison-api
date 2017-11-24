@@ -147,21 +147,22 @@ public class ReferenceDomainsSteps extends CommonSteps {
         }
     }
 
-    private void doSingleResultApiCall(String url) {
-        init();
-
-        try {
-            ResponseEntity<ReferenceCode> response = restTemplate.exchange(
-                    url,
-                    HttpMethod.GET,
-                    createEntity(),
-                    new ParameterizedTypeReference<ReferenceCode>() {});
-
-            referenceCode = response.getBody();
-        } catch (EliteClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
+      // @wip - this will be reinstated on next commit.
+//    private void doSingleResultApiCall(String url) {
+//        init();
+//
+//        try {
+//            ResponseEntity<ReferenceCode> response = restTemplate.exchange(
+//                    url,
+//                    HttpMethod.GET,
+//                    createEntity(),
+//                    new ParameterizedTypeReference<ReferenceCode>() {});
+//
+//            referenceCode = response.getBody();
+//        } catch (EliteClientException ex) {
+//            setErrorResponse(ex.getErrorResponse());
+//        }
+//    }
 
     protected void init() {
         super.init();

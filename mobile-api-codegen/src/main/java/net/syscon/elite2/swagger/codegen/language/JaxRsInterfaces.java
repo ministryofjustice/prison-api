@@ -31,7 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -291,7 +290,7 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
             op.headerParams.sort(new HeaderParamComparator());
 
             // Remove header params from allParams list
-            List<CodegenParameter> newAllParams = op.allParams.stream().filter(p -> !p.isHeaderParam).collect(Collectors.toList());
+            List<CodegenParameter> newAllParams = op.allParams.stream().filter(p -> !p.isHeaderParam).collect(toList());
 
             // Add header params to end of allParams list
             newAllParams.addAll(op.headerParams);
@@ -346,6 +345,14 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
                 default:
                     return OTHER;
             }
+        }
+
+        public String getParamName() {
+            return paramName;
+        }
+
+        public int getPriority() {
+            return priority;
         }
     }
 
