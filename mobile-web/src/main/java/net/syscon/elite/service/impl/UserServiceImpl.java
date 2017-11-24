@@ -4,11 +4,10 @@ import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
-import net.syscon.elite.repository.CaseLoadRepository;
 import net.syscon.elite.repository.UserRepository;
+import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,12 +18,13 @@ import static java.lang.String.format;
 
 @Service
 public class UserServiceImpl implements UserService {
+	private final CaseLoadService caseLoadService;
+	private final UserRepository userRepository;
 
-	@Autowired
-	private UserRepository userRepository;
-
-	@Autowired
-	private CaseLoadRepository caseLoadRepository;
+	public UserServiceImpl(CaseLoadService caseLoadService, UserRepository userRepository) {
+		this.caseLoadService = caseLoadService;
+		this.userRepository = userRepository;
+	}
 
 	@Override
 	@Transactional(readOnly = true)
@@ -40,28 +40,21 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public CaseLoad getActiveCaseLoad(final String username) {
-		final UserDetail userDetails = getUserByUsername(username);
-		return caseLoadRepository.find(userDetails.getActiveCaseLoadId()).orElseThrow(EntityNotFoundException.withId(userDetails.getActiveCaseLoadId()));
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public List<CaseLoad> getCaseLoads(final String username) {
-		return caseLoadRepository.findCaseLoadsByUsername(username);
+	public List<CaseLoad> getCaseLoads(String username) {
+		return caseLoadService.getCaseLoadsForUser(username);
 	}
 
 	@Override
 	@Transactional
-	public void setActiveCaseLoad(final String username, final String caseLoadId) {
-		final boolean found = caseLoadRepository.findCaseLoadsByUsername(username).stream()
-				.anyMatch(c -> c.getCaseLoadId().equalsIgnoreCase(caseLoadId));
+	public void setActiveCaseLoad(String username, String caseLoadId) {
+		List<CaseLoad> userCaseLoads = caseLoadService.getCaseLoadsForUser(username);
 
-		if (!found) {
-			throw new AccessDeniedException(format("The user does not have access to the caseLoadid = %s", caseLoadId));
+		if (userCaseLoads.stream().anyMatch(cl -> cl.getCaseLoadId().equalsIgnoreCase(caseLoadId))) {
+			UserDetail userDetails = getUserByUsername(username);
+
+			userRepository.updateWorkingCaseLoad(userDetails.getStaffId(), caseLoadId);
 		} else {
-			final UserDetail userDetails = getUserByUsername(username);
-			userRepository.updateCurrentLoad(userDetails.getStaffId(), caseLoadId);
+			throw new AccessDeniedException(format("The user does not have access to the caseLoadid = %s", caseLoadId));
 		}
 	}
 

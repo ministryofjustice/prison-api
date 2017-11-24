@@ -3,14 +3,10 @@ package net.syscon.elite.service.impl;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
-import net.syscon.elite.repository.CaseLoadRepository;
 import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.security.UserSecurityUtils;
-import net.syscon.elite.service.BookingService;
-import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.service.InmateService;
-import net.syscon.elite.service.PrisonerDetailSearchCriteria;
+import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.PageRequest;
 import net.syscon.util.CalcDateRanges;
@@ -35,7 +31,7 @@ public class InmateServiceImpl implements InmateService {
     public static final String DEFAULT_OFFENDER_SORT = "lastName,firstName,offenderNo";
 
     private final InmateRepository repository;
-    private final CaseLoadRepository caseLoadRepository;
+    private final CaseLoadService caseLoadService;
     private final BookingService bookingService;
     private final InmateAlertRepository inmateAlertRepository;
 
@@ -44,14 +40,14 @@ public class InmateServiceImpl implements InmateService {
     private final Pattern offenderNoRegex;
 
     public InmateServiceImpl(InmateRepository repository,
-                             CaseLoadRepository caseLoadRepository,
+                             CaseLoadService caseLoadService,
                              BookingService bookingService,
                              InmateAlertRepository inmateAlertRepository,
                              @Value("${offender.dob.max.range.years:10}") int maxYears,
                              @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity,
                              @Value("${api.offender.no.regex.pattern:^[A-Za-z]\\d{4}[A-Za-z]{2}$}") String offenderNoRegex) {
         this.repository = repository;
-        this.caseLoadRepository = caseLoadRepository;
+        this.caseLoadService = caseLoadService;
         this.bookingService = bookingService;
         this.inmateAlertRepository = inmateAlertRepository;
         this.maxYears = maxYears;
@@ -219,6 +215,6 @@ public class InmateServiceImpl implements InmateService {
     }
 
     private Set<String> getUserCaseloadIds() {
-        return caseLoadRepository.getUserCaseloadIds(UserSecurityUtils.getCurrentUsername());
+        return caseLoadService.getCaseLoadIdsForUser(UserSecurityUtils.getCurrentUsername());
     }
 }

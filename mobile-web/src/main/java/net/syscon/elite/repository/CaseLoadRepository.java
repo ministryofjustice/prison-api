@@ -7,11 +7,11 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface CaseLoadRepository {
-	Optional<CaseLoad> find(String caseLoadId);
+	Optional<CaseLoad> getCaseLoad(String caseLoadId);
 
-	List<CaseLoad> findCaseLoadsByUsername(String username);
+	List<CaseLoad> getCaseLoadsByUsername(String username);
 
-	Optional<CaseLoad> getCurrentCaseLoadDetail(String username);
+	Optional<CaseLoad> getWorkingCaseLoadByUsername(String username);
 
-	Set<String> getUserCaseloadIds(String username);
+	Set<String> getCaseLoadIdsByUsername(String username);
 }

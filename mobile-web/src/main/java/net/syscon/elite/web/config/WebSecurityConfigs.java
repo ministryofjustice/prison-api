@@ -1,12 +1,12 @@
 package net.syscon.elite.web.config;
 
-import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.security.ApiAuthenticationProvider;
 import net.syscon.elite.security.EntryPointUnauthorizedHandler;
 import net.syscon.elite.security.UserDetailsServiceImpl;
 import net.syscon.elite.security.jwt.AuthenticationTokenFilter;
 import net.syscon.elite.security.jwt.TokenManagement;
 import net.syscon.elite.security.jwt.TokenSettings;
+import net.syscon.elite.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,9 +27,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
 public class WebSecurityConfigs extends WebSecurityConfigurerAdapter {
-
 	@Autowired
-	private UserRepository userRepository;
+	private UserService userService;
 
 	@Bean
 	public TokenSettings tokenSettings() {
@@ -93,6 +92,6 @@ public class WebSecurityConfigs extends WebSecurityConfigurerAdapter {
 
 	@Override
 	public UserDetailsService userDetailsServiceBean() throws Exception {
-		return new UserDetailsServiceImpl(userRepository);
+		return new UserDetailsServiceImpl(userService);
 	}
 }

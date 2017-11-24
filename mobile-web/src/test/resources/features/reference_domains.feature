@@ -2,106 +2,44 @@
 Feature: Reference Domains
 
   Acceptance Criteria
-  A logged on staff user can obtain a list of case note types to select from.
+  A logged on staff user can obtain a list of all alert types with alert codes (active and/or inactive).
+  A logged on staff user can obtain a list of all case note sources.
+  A logged on staff user can obtain a list of all case note types with sub-types (active and/or inactive).
 
   Background:
     Given a user has authenticated with the API
 
-  @broken
-  Scenario: Retrieve types without subtypes
-    When all types are requested
-    Then all types are returned
+  Scenario: Retrieve all alert types with alert codes
+    When request submitted to retrieve all alert types with alert codes
+    Then "14" reference code items are returned
+    And domain for all returned items is "ALERT"
+    And codes of returned items are "A,C,H,L,M,O,P,R,S,T,TEST,V,W,X"
+    And there are one or more sub codes for every returned item
+    And domain for all returned item sub-codes is "ALERT_CODE"
+
+  Scenario: Retrieve all case note sources
+    When request submitted to retrieve all case note sources
+    Then "4" reference code items are returned
+    And domain for all returned items is "NOTE_SOURCE"
+    And codes of returned items are "AUTO,COMM,EXT,INST"
+    And descriptions of returned items are "System,Community,External,Prison"
+    And there is no parent domain for any returned item
+    And there are no sub codes for any returned item
 
   @broken
-  Scenario: Retrieve types with subtypes
-    When all types with subtypes are requested
-    Then all types with subtypes are returned
+  Scenario: Retrieve reference codes for a domain without sub-codes
+    When request submitted to retrieve all reference codes, without sub-codes, for domain "domain"
+    Then "6" reference code items are returned
 
   @broken
-  Scenario: Retrieve alert types
-    When all alert types are requested
-    Then all alert types are returned
+  Scenario: Retrieve reference codes for a domain with sub-codes
+    When request submitted to retrieve all reference codes, with sub-codes, for domain "domain"
+    Then "12" reference code items are returned
 
-  Scenario: Retrieve sources
-    When all sources are requested
-    Then all sources are returned
+  @broken
+  Scenario Outline: Retrieve specific reference code
+    When reference code with domain "<domain>" and code "<code>" is requested
 
-  Scenario Outline: Retrieve specific type
-    When type with code "<code>" is requested
-    Then the type returned code is "<code>"
-    And the type returned description is "<description>"
-    And the type returned activeFlag is "<activeFlag>"
-    And the type returned domain is "<domain>"
     Examples:
-      | code | description    | domain    | activeFlag | parentCode |
-      | RR   | Release Report | TASK_TYPE |     Y      |            |
-      
-  Scenario Outline: Retrieve specific subtype
-    When subtype with code "<code>" and subCode "<subCode>" is requested
-    Then the subtype returned code is "<subCode>"
-    And the subtype returned description is "<description>"
-    And the subtype returned activeFlag is "<activeFlag>"
-    And the subtype returned domain is "<domain>"
-    And the subtype returned parentCode is "<parentCode>"
-    Examples:
-      | code | subCode | description                    | domain       | activeFlag | parentCode |
-      | ACP  | CPS     | Core Programme Session         | TASK_SUBTYPE |     Y      |   ACP      |
-      | ACP  | POS4    | Post Programme OM Session four | TASK_SUBTYPE |     Y      |   ACP      |
-
-  Scenario Outline: Retrieve specific subtype list
-    When subtype list with code "<code>" is requested
-    Then the list size is "<listSize>"
-    And the list domain is "<domain>"
-    And the list first code is "<firstCode>"
-    And the list first description is "<firstDescription>"
-    Examples:
-      | code   | listSize | domain       | firstCode    | firstDescription          |
-      | VICTIM | 2        | TASK_SUBTYPE | INFO_COMPLET | CR Victim Complete test   |
-
-  Scenario Outline: Retrieve specific alert type
-    When alert type with code "<code>" is requested
-    Then the alert type returned code is "<code>"
-    And the alert type returned description is "<description>"
-    And the alert type returned activeFlag is "<activeFlag>"
-    And the alert type returned domain is "<domain>"
-    And the alert type returned parentCode is "<parentCode>"
-    Examples:
-      | code | description | domain | activeFlag | parentCode |
-      | X    | Security    | ALERT  |     Y      |            |
-      | R    | Risk        | ALERT  |     Y      |            |
-      | L    | Care Leaver | ALERT  |     Y      |    L       |
-
-  Scenario Outline: Retrieve specific alert type code
-    When alert code with code "<code>" and subCode "<subCode>" is requested
-    Then the alert code returned code is "<subCode>"
-    And the alert code returned description is "<description>"
-    And the alert code returned domain is "<domain>"
-    And the alert code returned activeFlag is "<activeFlag>"
-    And the alert code returned parentCode is "<parentCode>"
-    Examples:
-      | code | subCode | description                           | domain     | activeFlag | parentCode |
-      | C    | C3      | L3 Monitored Contact written or phone | ALERT_CODE |     Y      |      C     |
-      | R    | RTP     | Risk to transgender people            | ALERT_CODE |     Y      |      R     |
-
-  Scenario Outline: Retrieve specific alert code list
-    When alert code list with code "<code>" is requested
-    Then the list size is "<listSize>"
-    And the list domain is "<domain>"
-    And the list first code is "<firstCode>"
-    And the list first description is "<firstDescription>"
-    Examples:
-      | code | listSize | domain    | firstCode | firstDescription                      |
-      |  L   | 4        | ALERT_CODE| LPQAA     | Qualifies for Assistance and Advice   |
-      |  A   | 1        | ALERT_CODE| AS        | Social Care                           |
-      |  C   | 4        | ALERT_CODE| C4        | L4 No Restrictions (named child only) |
-
-  Scenario Outline: Retrieve specific source
-    When source with code "<code>" is requested
-    Then the source returned code is "<code>"
-    And the source returned description is "<description>"
-    And the source returned activeFlag is "<activeFlag>"
-    And the source returned domain is "<domain>"
-    Examples:
-      | code | description | domain      | activeFlag |
-      | EXT  | External    | NOTE_SOURCE |     Y      |
-      | COMM | Community   | NOTE_SOURCE |     Y      |
+      | domain | code | description    | activeFlag | parentDomain | parentCode |
+      | DOMAIN | CODE | description    | Y          |              |            |

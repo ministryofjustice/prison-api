@@ -1,21 +1,17 @@
 package net.syscon.elite.service.impl;
 
-import static java.time.LocalDate.now;
-import static java.time.temporal.ChronoUnit.DAYS;
-
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.SentenceDetail.NonDtoReleaseDateType;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
-import net.syscon.elite.repository.CaseLoadRepository;
 import net.syscon.elite.repository.SentenceRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.BookingService;
+import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.support.NonDtoReleaseDate;
-
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,10 +19,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.ws.rs.BadRequestException;
-
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.time.LocalDate.now;
+import static java.time.temporal.ChronoUnit.DAYS;
 
 /**
  * Bookings API service implementation.
@@ -40,7 +38,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final SentenceRepository sentenceRepository;
     private final AgencyService agencyService;
-    private final CaseLoadRepository caseLoadRepository;
+    private final CaseLoadService caseLoadService;
     private final int lastNumberOfMonths;
 
     /**
@@ -63,11 +61,11 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public BookingServiceImpl(BookingRepository bookingRepository, SentenceRepository sentenceRepository,
-                              AgencyService agencyService, CaseLoadRepository caseLoadRepository, @Value("${api.offender.release.date.min.months:3}") int lastNumberOfMonths) {
+                              AgencyService agencyService, CaseLoadService caseLoadService, @Value("${api.offender.release.date.min.months:3}") int lastNumberOfMonths) {
         this.bookingRepository = bookingRepository;
         this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
-        this.caseLoadRepository = caseLoadRepository;
+        this.caseLoadService = caseLoadService;
         this.lastNumberOfMonths = lastNumberOfMonths;
     }
 
@@ -349,6 +347,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private Set<String> getUserCaseloadIds() {
-        return caseLoadRepository.getUserCaseloadIds(UserSecurityUtils.getCurrentUsername());
+        return caseLoadService.getCaseLoadIdsForUser(UserSecurityUtils.getCurrentUsername());
     }
 }

@@ -43,17 +43,9 @@ public class CacheConfig implements CachingConfigurer {
     public net.sf.ehcache.CacheManager ehCacheManager() {
         net.sf.ehcache.config.Configuration config = new net.sf.ehcache.config.Configuration();
 
-        config.addCache(config("caseNoteTypesByType", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("caseNoteSources", 100, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("caseNoteSourcesByCode", 10, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("alertTypes", 10000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("alertTypesByType", 100, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("alertTypesByTypeFiltered", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("alertTypesByTypeAndCode", 100, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("caseNoteTypes", 10000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("caseNoteTypesByCode", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("caseNoteTypesByCodeFiltered", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("caseNoteTypesByTypeSubType", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("alertTypes", 100, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("caseNoteSources", 10, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("caseNoteTypes", 100, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config("caseNoteTypesByCaseLoadType", 100, caseNoteTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("caseNoteTypesWithSubTypesByCaseLoadType", 100, caseNoteTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
@@ -62,7 +54,7 @@ public class CacheConfig implements CachingConfigurer {
         config.addCache(config("findRolesByUsername", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("loadUserByUsername", 5000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
-        config.addCache(config("findCaseLoadsByUsername", 1000, caseLoadTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("getCaseLoadsByUsername", 1000, caseLoadTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config("findAgenciesByUsername", 1000, agencyTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
