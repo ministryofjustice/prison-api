@@ -69,12 +69,22 @@ public abstract class CommonSteps {
 
     @Step("User {0} authenticates with password {1}")
     public void authenticates(String username, String password) {
-        auth.authenticate(username, password);
+        errorResponse = auth.authenticate(username, password);
+    }
+
+    @Step("Refreshes with token")
+    public void refresh() {
+        errorResponse = auth.refresh();
     }
 
     @Step("Verify authentication token")
     public void verifyToken() {
-        assertThat(auth.getToken()).isNotEmpty();
+        assertThat(auth.getToken().getToken()).isNotEmpty();
+    }
+
+    @Step("Verify authentication refresh token")
+    public void verifyRefreshToken() {
+        assertThat(auth.getToken().getRefreshToken()).isNotEmpty();
     }
 
     @Step("Verify resource not found")
@@ -106,6 +116,12 @@ public abstract class CommonSteps {
     public void verifyAccessDenied() {
         assertThat(errorResponse).isNotNull();
         assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.FORBIDDEN.getStatusCode());
+    }
+
+    @Step("Verify not authorised")
+    public void verifyNotAuthorised() {
+        assertThat(errorResponse).isNotNull();
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
     @Step("Apply pagination")
@@ -156,7 +172,7 @@ public abstract class CommonSteps {
         HttpHeaders headers = new HttpHeaders();
 
         if (auth.getToken() != null) {
-            headers.add(auth.getAuthenticationHeader(), auth.getToken());
+            headers.add(auth.getAuthenticationHeader(), auth.getToken().getToken());
         }
 
         if (extraHeaders != null) {
@@ -458,5 +474,9 @@ verifyIdentical(actualValList, expectedValList);
         }
 
         return pageMetaData;
+    }
+
+    public AuthenticationSteps getAuth() {
+        return auth;
     }
 }

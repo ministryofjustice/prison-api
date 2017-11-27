@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -19,6 +20,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SuppressWarnings("SpringJavaAutowiringInspection")
 @ContextConfiguration
 @SpringBootTest(webEnvironment = RANDOM_PORT)
+@TestPropertySource({ "/application-test.properties" })
 abstract class AbstractStepDefinitions {
     @TestConfiguration
     static class Config {

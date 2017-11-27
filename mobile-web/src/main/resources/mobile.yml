@@ -25,8 +25,8 @@ security:
     header: Authorization
     signingKey: s3cre3tK3y
     schema: Bearer
-    expiration: ${jwt.expiration.mins} # Number of minutes
-    refreshExpiration: ${jwt.refresh.expiration.mins} # Number of minutes
+    expiration: ${jwt.expiration.seconds} # Number of seconds
+    refreshExpiration: ${jwt.refresh.expiration.seconds} # Number of seconds
     issuer: http://www.syscon.net
 
 

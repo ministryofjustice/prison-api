@@ -99,7 +99,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             String encodedToken = header.substring(index + tokenSettings.getSchema().length()).trim();
 
             Object userPrincipal = tokenManagement.getUserPrincipalFromToken(encodedToken);
-            token = tokenManagement.createToken((String) userPrincipal);
+            UserDetails userDetails = toUserDetails(userPrincipal);
+            token = tokenManagement.createToken(userDetails.getUsername());
         }
 
         return token;
