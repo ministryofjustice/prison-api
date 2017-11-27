@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,23 +20,78 @@ public class ReferenceDomainsSteps extends CommonSteps {
     private static final String API_REF_PREFIX = API_PREFIX + "reference-domains/";
     private static final String API_ALERTS_URL = API_REF_PREFIX + "alertTypes";
     private static final String API_SOURCES_URL = API_REF_PREFIX + "caseNoteSources";
+    private static final String API_DOMAINS_URL = API_REF_PREFIX + "domains/{domain}";
+    private static final String API_DOMAINS_CODES_URL = API_REF_PREFIX + "domains/{domain}/codes/{code}";
 
     private List<ReferenceCode> referenceCodes;
     private ReferenceCode referenceCode;
 
     @Step("Submit request for all alert types (with alert codes)")
     public void getAllAlertTypes() {
-        doListApiCall(API_ALERTS_URL);
+        dispatchListRequest(API_ALERTS_URL, null, null);
     }
 
     @Step("Submit request for all case note sources")
     public void getAllSources() {
-        doListApiCall(API_SOURCES_URL);
+        dispatchListRequest(API_SOURCES_URL, null, null);
     }
 
     @Step("Submit request for reference codes in specified domain")
-    public void getRefCodesForDomain(String domain) {
-        // wip
+    public void getRefCodesForDomain(String domain, boolean withSubCodes) {
+        dispatchListRequest(API_DOMAINS_URL, domain, withSubCodes);
+    }
+
+    @Step("Submit request for reference code with specified domain and code")
+    public void getRefCodeForDomainAndCode(String domain, String code, boolean withSubCodes) {
+        dispatchObjectRequest(API_DOMAINS_CODES_URL, domain, code, withSubCodes);
+    }
+
+    @Step("Verify reference code property value")
+    public void verifyRefCodePropertyValue(String propertyName, String propertyValue) throws Exception {
+        verifyPropertyValue(referenceCode, propertyName, propertyValue);
+    }
+
+    @Step("Verify returned item has no sub-codes")
+    public void verifyRefCodeNoSubCodes() {
+        assertThat(referenceCode.getSubCodes()).isNull();
+    }
+
+    @Step("Verify sub-code count for returned item")
+    public void verifySubCodeCount(long expectedCount) {
+        assertThat(Integer.valueOf(referenceCode.getSubCodes().size()).longValue()).isEqualTo(expectedCount);
+    }
+
+    @Step("Verify domain for all sub-codes of specific reference code item")
+    public void verifySubCodeDomain(int index, String expectedSubCodeDomain) {
+        ReferenceCode refCode = referenceCodes.get(index);
+
+        refCode.getSubCodes().forEach(sc -> {
+            assertThat(sc.getDomain())
+                    .as("Check domain for sub-code [%s] of code [%s]", sc.getCode(), refCode.getCode())
+                    .isEqualTo(expectedSubCodeDomain);
+        });
+    }
+
+    @Step("Verify domains for sub-codes of specific reference code item")
+    public void verifySubCodeDomains(int index, String expectedSubCodeDomains) {
+        ReferenceCode refCode = referenceCodes.get(index);
+
+        List<String> actualSubCodeDomains = refCode.getSubCodes()
+                .stream().map(ReferenceCode::getDomain).distinct().collect(Collectors.toList());
+
+        verifyIdentical(actualSubCodeDomains, csv2list(expectedSubCodeDomains));
+    }
+
+    @Step("Verify code for specific sub-code of specific reference code item")
+    public void verifyCodeForSubCode(int subCodeIndex, int refCodeIndex, String expectedSubCodeCode) {
+        assertThat(referenceCodes.get(refCodeIndex).getSubCodes().get(subCodeIndex).getCode())
+                .isEqualTo(expectedSubCodeCode);
+    }
+
+    @Step("Verify description for specific sub-code of specific reference code item")
+    public void verifyDescriptionForSubCode(int subCodeIndex, int refCodeIndex, String expectedSubCodeDescription) {
+        assertThat(referenceCodes.get(refCodeIndex).getSubCodes().get(subCodeIndex).getDescription())
+                .isEqualTo(expectedSubCodeDescription);
     }
 
     @Step("Verify domain for all returned reference code items")
@@ -50,7 +106,7 @@ public class ReferenceDomainsSteps extends CommonSteps {
     @Step("Verify parent domain for all returned reference code items")
     public void verifyParentDomain(String expectedParentDomain) {
         referenceCodes.forEach(rc -> {
-            assertThat(rc.getParentDomainId())
+            assertThat(rc.getParentDomain())
                     .as("Check parent domain for code [%s]", rc.getCode())
                     .isEqualTo(expectedParentDomain);
         });
@@ -61,9 +117,19 @@ public class ReferenceDomainsSteps extends CommonSteps {
         assertThat(referenceCodes.get(index).getCode()).isEqualTo(expectedCode);
     }
 
+    @Step("Verify description for specific reference code item")
+    public void verifyDescription(int index, String expectedDescription) {
+        assertThat(referenceCodes.get(index).getDescription()).isEqualTo(expectedDescription);
+    }
+
     @Step("Verify parent code for specific reference code item")
     public void verifyParentCode(int index, String expectedParentCode) {
         assertThat(referenceCodes.get(index).getParentCode()).isEqualTo(expectedParentCode);
+    }
+
+    @Step("Verify sub-code count for specific reference code item")
+    public void verifySubCodeCount(int index, long expectedCount) {
+        assertThat(Integer.valueOf(referenceCodes.get(index).getSubCodes().size()).longValue()).isEqualTo(expectedCount);
     }
 
     @Step("Verify no sub codes for any reference code item")
@@ -98,7 +164,7 @@ public class ReferenceDomainsSteps extends CommonSteps {
     @Step("Verify no parent domain for any reference code item")
     public void verifyNoParentDomain() {
         referenceCodes.forEach(rc -> {
-            assertThat(rc.getParentDomainId())
+            assertThat(rc.getParentDomain())
                     .as("Check code [%s] has no parent domain", rc.getCode())
                     .isNull();
         });
@@ -107,6 +173,11 @@ public class ReferenceDomainsSteps extends CommonSteps {
     @Step("Verify list of reference code item codes")
     public void verifyCodeList(String expectedCodes) {
         verifyPropertyValues(referenceCodes, ReferenceCode::getCode, expectedCodes);
+    }
+
+    @Step("Verify list of reference code item domains")
+    public void verifyDomainList(String expectedDomains) {
+        verifyPropertyValues(referenceCodes, ReferenceCode::getDomain, expectedDomains);
     }
 
     @Step("Verify list of reference code item descriptions")
@@ -127,17 +198,26 @@ public class ReferenceDomainsSteps extends CommonSteps {
         });
     }
 
-    private void doListApiCall(String url) {
+    private void dispatchListRequest(String resourcePath, String domain, Boolean withSubCodes) {
         init();
 
+        String urlModifier = "";
+
         applyPagination(0L, 1000L);
+
+        if (Objects.nonNull(withSubCodes)) {
+            urlModifier = "?withSubCodes=" + withSubCodes.toString();
+        }
+
+        String url = resourcePath + urlModifier;
 
         try {
             ResponseEntity<List<ReferenceCode>> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     createEntity(null, addPaginationHeaders()),
-                    new ParameterizedTypeReference<List<ReferenceCode>>() {});
+                    new ParameterizedTypeReference<List<ReferenceCode>>() {},
+                    domain);
 
             referenceCodes = response.getBody();
 
@@ -147,22 +227,31 @@ public class ReferenceDomainsSteps extends CommonSteps {
         }
     }
 
-      // @wip - this will be reinstated on next commit.
-//    private void doSingleResultApiCall(String url) {
-//        init();
-//
-//        try {
-//            ResponseEntity<ReferenceCode> response = restTemplate.exchange(
-//                    url,
-//                    HttpMethod.GET,
-//                    createEntity(),
-//                    new ParameterizedTypeReference<ReferenceCode>() {});
-//
-//            referenceCode = response.getBody();
-//        } catch (EliteClientException ex) {
-//            setErrorResponse(ex.getErrorResponse());
-//        }
-//    }
+    private void dispatchObjectRequest(String resourcePath, String domain, String code, Boolean withSubCodes) {
+        init();
+
+        String urlModifier = "";
+
+        if (Objects.nonNull(withSubCodes)) {
+            urlModifier = "?withSubCodes=" + withSubCodes.toString();
+        }
+
+        String url = resourcePath + urlModifier;
+
+        try {
+            ResponseEntity<ReferenceCode> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    createEntity(),
+                    new ParameterizedTypeReference<ReferenceCode>() {},
+                    domain,
+                    code);
+
+            referenceCode = response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
 
     protected void init() {
         super.init();

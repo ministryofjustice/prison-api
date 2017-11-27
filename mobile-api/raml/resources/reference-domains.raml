@@ -18,3 +18,39 @@
   is: [
     sortable: {fieldsList: "code, description"}
   ]
+
+/domains/{domain}:
+  (javaOperationName): getReferenceCodesByDomain
+  type: { readOnlyCollectionPaged : { type: ReferenceCode, description: Get reference codes for specified domain. } }
+  uriParameters:
+    domain:
+      type: string
+      description: The domain identifier/name.
+  get:
+    queryParameters:
+      withSubCodes?:
+        description: Specify whether or not to return reference codes with their associated sub-codes.
+        type: boolean
+        default: false
+        example: true
+  is: [
+    sortable: {fieldsList: "code, description"}
+  ]
+
+/domains/{domain}/codes/{code}:
+  (javaOperationName): getReferenceCodeByDomainAndCode
+  type: { readOnlyItem : { type: ReferenceCode, description: Get reference code detail for specified domain and code (with sub-codes). } }
+  uriParameters:
+    domain:
+      type: string
+      description: The domain identifier/name.
+    code:
+      type: string
+      description: The reference code.
+  get:
+    queryParameters:
+      withSubCodes?:
+        description: Specify whether or not to return the reference code with its associated sub-codes.
+        type: boolean
+        default: false
+        example: true

@@ -1,6 +1,5 @@
 package net.syscon.elite.executablespecification;
 
-import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -13,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  * <li>/reference-domains/alertTypes</li>
  * <li>/reference-domains/caseNoteSources</li>
  * <li>/reference-domains/caseNoteTypes</li>
+ * <li>/reference-domains/domains/{domain}</li>
+ * <li>/reference-domains/domains/{domain}/codes/{code}</li>
  * </ul>
  */
 public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
@@ -45,9 +46,19 @@ public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
         referenceDomains.verifyCode(ord2idx(ordinal), expectedCode);
     }
 
+    @And("^description for \"([^\"]*)\" returned item is \"([^\"]*)\"$")
+    public void descriptionForReturnedItemIs(String ordinal, String expectedDescription) throws Throwable {
+        referenceDomains.verifyDescription(ord2idx(ordinal), expectedDescription);
+    }
+
     @And("^codes of returned items are \"([^\"]*)\"$")
     public void codesOfReturnedItemsAre(String expectedCodes) throws Throwable {
         referenceDomains.verifyCodeList(expectedCodes);
+    }
+
+    @And("^domains of returned items are \"([^\"]*)\"$")
+    public void domainsOfReturnedItemsAre(String expectedDomains) throws Throwable {
+        referenceDomains.verifyDomainList(expectedDomains);
     }
 
     @And("^parent domain for all returned items is \"([^\"]*)\"$")
@@ -87,18 +98,76 @@ public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
 
     @When("^request submitted to retrieve all reference codes, without sub-codes, for domain \"([^\"]*)\"$")
     public void requestSubmittedToRetrieveAllReferenceCodesWithoutSubCodesForDomain(String domain) throws Throwable {
-        referenceDomains.getRefCodesForDomain(domain);
+        referenceDomains.getRefCodesForDomain(domain, false);
     }
 
     @When("^request submitted to retrieve all reference codes, with sub-codes, for domain \"([^\"]*)\"$")
     public void requestSubmittedToRetrieveAllReferenceCodesWithSubCodesForDomain(String domain) throws Throwable {
-        // Write code here that turns the phrase above into concrete actions
-        throw new PendingException();
+        referenceDomains.getRefCodesForDomain(domain, true);
     }
 
-    @When("^reference code with domain \"([^\"]*)\" and code \"([^\"]*)\" is requested$")
-    public void referenceCodeWithDomainAndCodeIsRequested(String domain, String code) throws Throwable {
-        // Write code here that turns the phrase above into concrete actions
-        throw new PendingException();
+    @And("^\"([^\"]*)\" returned item has \"([^\"]*)\" sub-codes$")
+    public void returnedItemHasSubCodes(String ordinal, String expectedCount) throws Throwable {
+        referenceDomains.verifySubCodeCount(ord2idx(ordinal), Long.parseLong(expectedCount));
+    }
+
+    @And("^domain for all sub-codes of \"([^\"]*)\" returned item is \"([^\"]*)\"$")
+    public void domainForAllSubCodesOfReturnedItemIs(String ordinal, String expectedSubCodeDomain) throws Throwable {
+        referenceDomains.verifySubCodeDomain(ord2idx(ordinal), expectedSubCodeDomain);
+    }
+
+    @And("^domains for sub-codes of \"([^\"]*)\" returned item are \"([^\"]*)\"$")
+    public void domainsForSubCodesOfReturnedItemAre(String ordinal, String expectedSubCodeDomains) throws Throwable {
+        referenceDomains.verifySubCodeDomains(ord2idx(ordinal), expectedSubCodeDomains);
+    }
+
+    @And("^code for \"([^\"]*)\" sub-code of \"([^\"]*)\" returned item is \"([^\"]*)\"$")
+    public void codeForSubCodeOfReturnedItemIs(String subCodeOrdinal, String refCodeOrdinal, String expectedCode) throws Throwable {
+        referenceDomains.verifyCodeForSubCode(ord2idx(subCodeOrdinal), ord2idx(refCodeOrdinal), expectedCode);
+    }
+
+    @And("^description for \"([^\"]*)\" sub-code of \"([^\"]*)\" returned item is \"([^\"]*)\"$")
+    public void descriptionForSubCodeOfReturnedItemIs(String subCodeOrdinal, String refCodeOrdinal, String expectedDescription) throws Throwable {
+        referenceDomains.verifyDescriptionForSubCode(ord2idx(subCodeOrdinal), ord2idx(refCodeOrdinal), expectedDescription);
+    }
+
+    @When("^request submitted to retrieve reference code, without sub-codes, for domain \"([^\"]*)\" and code \"([^\"]*)\"$")
+    public void requestSubmittedToRetrieveReferenceCodeWithoutSubCodesForDomainAndCode(String domain, String code) throws Throwable {
+        referenceDomains.getRefCodeForDomainAndCode(domain, code, false);
+    }
+
+    @And("^\"([^\"]*)\" for returned item is \"([^\"]*)\"$")
+    public void forReturnedItemIs(String propertyName, String propertyValue) throws Throwable {
+        referenceDomains.verifyRefCodePropertyValue(propertyName, propertyValue);
+    }
+
+    @And("^returned item has \"([^\"]*)\" sub-codes$")
+    public void returnedItemHasSubCodes(String expectedCount) throws Throwable {
+        referenceDomains.verifySubCodeCount(Long.parseLong(expectedCount));
+    }
+
+    @And("^returned item has no sub-codes$")
+    public void returnedItemHasNoSubCodes() throws Throwable {
+        referenceDomains.verifyRefCodeNoSubCodes();
+    }
+
+    @When("^request submitted to retrieve reference code, with sub-codes, for domain \"([^\"]*)\" and code \"([^\"]*)\"$")
+    public void requestSubmittedToRetrieveReferenceCodeWithSubCodesForDomainAndCode(String domain, String code) throws Throwable {
+        referenceDomains.getRefCodeForDomainAndCode(domain, code, true);
+    }
+
+    @Then("^resource not found response is received from reference domains API$")
+    public void resourceNotFoundResponseIsReceivedFromReferenceDomainsAPI() throws Throwable {
+        referenceDomains.verifyResourceNotFound();
+    }
+
+    @And("^user message in resource not found response from reference domains API is \"([^\"]*)\"$")
+    public void userMessageInResourceNotFoundResponseFromReferenceDomainsAPIIs(String expectedUserMessage) throws Throwable {
+        referenceDomains.verifyResourceNotFoundUserMessage(expectedUserMessage);
+    }
+
+    @Then("^bad request response is received from reference domains API and user message is \"([^\"]*)\"$")
+    public void badRequestResponseIsReceivedFromReferenceDomainsAPIAndUserMessageIs(String expectedUserMessage) throws Throwable {
+        referenceDomains.verifyBadRequest(expectedUserMessage);
     }
 }

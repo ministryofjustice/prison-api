@@ -284,6 +284,7 @@ public class BookingServiceImpl implements BookingService {
      * @param bookingId offender booking id.
      * @throws EntityNotFoundException if current user does not have access to specified booking.
      */
+    @Override
     public void verifyBookingAccess(Long bookingId) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
