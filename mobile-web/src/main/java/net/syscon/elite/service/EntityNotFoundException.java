@@ -3,7 +3,7 @@ package net.syscon.elite.service;
 import java.util.function.Supplier;
 
 public class EntityNotFoundException extends RuntimeException implements Supplier<EntityNotFoundException> {
-    public static final String DEFAULT_MESSAGE_FOR_ID_FORMAT = "Resource with id [%s] not found.";
+    private static final String DEFAULT_MESSAGE_FOR_ID_FORMAT = "Resource with id [%s] not found.";
 
     public static EntityNotFoundException withId(long id) {
         return withId(String.valueOf(id));
@@ -15,6 +15,10 @@ public class EntityNotFoundException extends RuntimeException implements Supplie
 
     public static EntityNotFoundException withMessage(String message) {
         return new EntityNotFoundException(message);
+    }
+
+    public static EntityNotFoundException withMessage(String message, Object... args) {
+        return new EntityNotFoundException(String.format(message, args));
     }
 
     public EntityNotFoundException(String message) {

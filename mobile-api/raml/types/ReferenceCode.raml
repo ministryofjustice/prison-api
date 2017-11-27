@@ -3,22 +3,28 @@ description: Reference Code
 properties:
   domain:
     type: string
-    description: Unique Domain name for reference data
+    description: Reference data item domain.
+    example: MOVE_RSN
   code:
     type: string
-    description: Identifying code for this reference data
+    description: Reference data item code.
+    example: SE
   description:
     type: string
-    description: Description of the reference data
-  parentDomainId?:
+    description: Reference data item description.
+    example: Other Security Escort
+  parentDomain?:
     type: string
-    description: Parent domain Id for this reference data
+    description: Parent reference data item domain.
+    example: MOVE_TYPE
   parentCode?:
     type: string
-    description: Parent Code for this reference data
+    description: Parent reference data item code.
+    example: TAP
   activeFlag:
     type: string
-    description: Y / N indicating active or not active
+    description: Reference data item active indicator flag.
+    example: Y
   subCodes?:
      type: ReferenceCode[]
-
+     description: List of subordinate reference data items associated with this reference data item.

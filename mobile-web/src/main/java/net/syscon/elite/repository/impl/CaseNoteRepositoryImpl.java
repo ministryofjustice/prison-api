@@ -218,7 +218,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
                         .description(ref.getDescription())
                         .activeFlag(ref.getActiveFlag())
                         .parentCode(ref.getParentCode())
-                        .parentDomainId(ref.getParentDomainId())
+                        .parentDomain(ref.getParentDomain())
                         .subCodes(new ArrayList<>())
                         .build();
 

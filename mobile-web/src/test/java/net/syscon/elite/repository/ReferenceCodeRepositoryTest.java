@@ -1,6 +1,7 @@
 package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.model.ReferenceDomain;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.web.config.CacheConfig;
@@ -33,6 +34,24 @@ public class ReferenceCodeRepositoryTest {
 
     @Autowired
     private ReferenceCodeRepository repository;
+
+    @Test
+    public void testGetReferenceDomainExists() {
+        Optional<ReferenceDomain> refDomain =
+                repository.getReferenceDomain("NOTE_SOURCE");
+
+        assertThat(refDomain.isPresent()).isTrue();
+        assertThat(refDomain.get().getDomain()).isEqualTo("NOTE_SOURCE");
+        assertThat(refDomain.get().getDescription()).isEqualTo("Case Note Sources");
+    }
+
+    @Test
+    public void testGetReferenceDomainNotExists() {
+        Optional<ReferenceDomain> refDomain =
+                repository.getReferenceDomain("UNKNOWN");
+
+        assertThat(refDomain.isPresent()).isFalse();
+    }
 
     @Test
     public void testGetReferenceCodeByDomainAndCodeWithSubCodes() {
@@ -391,7 +410,7 @@ public class ReferenceCodeRepositoryTest {
         refCodes.forEach(rc -> {
             if (Objects.nonNull(rc.getSubCodes())) {
                 rc.getSubCodes().forEach(sc -> {
-                    assertThat(sc.getParentDomainId())
+                    assertThat(sc.getParentDomain())
                             .as("Check sub-code [%s] parent domain against code [%s] domain", sc.getCode(), rc.getCode())
                             .isEqualTo(rc.getDomain());
 

@@ -1,6 +1,7 @@
 package net.syscon.elite.repository.impl;
 
 import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.model.ReferenceDomain;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.ReferenceCodeRepository;
@@ -8,6 +9,7 @@ import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
@@ -16,6 +18,9 @@ import java.util.stream.Collectors;
 
 @Repository
 public class ReferenceCodeRepositoryImpl extends RepositoryBase implements ReferenceCodeRepository {
+	private static final StandardBeanPropertyRowMapper<ReferenceDomain> REF_DOMAIN_ROW_MAPPER =
+			new StandardBeanPropertyRowMapper<>(ReferenceDomain.class);
+
 	private static final StandardBeanPropertyRowMapper<ReferenceCode> REF_CODE_ROW_MAPPER =
 			new StandardBeanPropertyRowMapper<>(ReferenceCode.class);
 
@@ -23,6 +28,26 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 			new StandardBeanPropertyRowMapper<>(ReferenceCodeDetail.class);
 
 	@Override
+	@Cacheable("referenceDomain")
+	public Optional<ReferenceDomain> getReferenceDomain(String domain) {
+		String sql = getQuery("FIND_REFERENCE_DOMAIN");
+
+		ReferenceDomain referenceDomain;
+
+		try {
+			referenceDomain = jdbcTemplate.queryForObject(
+					sql,
+					createParams("domain", domain),
+					REF_DOMAIN_ROW_MAPPER);
+		} catch (EmptyResultDataAccessException e) {
+			referenceDomain = null;
+		}
+
+		return Optional.ofNullable(referenceDomain);
+	}
+
+	@Override
+	@Cacheable("referenceCodeByDomainAndCode")
 	public Optional<ReferenceCode> getReferenceCodeByDomainAndCode(String domain, String code, boolean withSubCodes) {
 		Optional<ReferenceCode> referenceCode;
 
@@ -66,6 +91,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	}
 
 	@Override
+	@Cacheable("referenceCodesByDomain")
 	public Page<ReferenceCode> getReferenceCodesByDomain(String domain, boolean witSubCodes, String orderBy, Order order, long offset, long limit) {
 		Page<ReferenceCode> page;
 
@@ -168,7 +194,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
                         .description(ref.getDescription())
                         .activeFlag(ref.getActiveFlag())
                         .parentCode(ref.getParentCode())
-                        .parentDomainId(ref.getParentDomainId())
+                        .parentDomain(ref.getParentDomain())
                         .subCodes(new ArrayList<>())
                         .build();
 

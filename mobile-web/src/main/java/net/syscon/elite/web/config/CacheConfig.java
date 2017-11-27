@@ -43,9 +43,9 @@ public class CacheConfig implements CachingConfigurer {
     public net.sf.ehcache.CacheManager ehCacheManager() {
         net.sf.ehcache.config.Configuration config = new net.sf.ehcache.config.Configuration();
 
-        config.addCache(config("alertTypes", 100, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("caseNoteSources", 10, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("caseNoteTypes", 100, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("referenceDomain", 500, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("referenceCodesByDomain", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("referenceCodeByDomainAndCode", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config("caseNoteTypesByCaseLoadType", 100, caseNoteTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("caseNoteTypesWithSubTypesByCaseLoadType", 100, caseNoteTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
