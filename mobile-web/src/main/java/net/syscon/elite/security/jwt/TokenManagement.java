@@ -49,10 +49,10 @@ public class TokenManagement {
 
 		final LocalDateTime now = LocalDateTime.now();
 
-		log.info("Token expirection is {} mins, refresh expire is {} mins", settings.getExpiration(), settings.getRefreshExpiration());
+		log.info("Token expirection is {} seconds, refresh expire is {} seconds", settings.getExpiration(), settings.getRefreshExpiration());
 		final Date issuedAt = DateTimeConverter.toDate(now);
-		final Date expiration = DateTimeConverter.toDate(now.plusMinutes(settings.getExpiration()));
-		final Date refreshExpiration = DateTimeConverter.toDate(now.plusMinutes(settings.getRefreshExpiration()));
+		final Date expiration = DateTimeConverter.toDate(now.plusSeconds(settings.getExpiration()));
+		final Date refreshExpiration = DateTimeConverter.toDate(now.plusSeconds(settings.getRefreshExpiration()));
 
 		final Token token = new Token();
 
