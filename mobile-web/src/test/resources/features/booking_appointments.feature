@@ -55,6 +55,8 @@ Feature: Booking Appointments
     And event location for "2nd" returned appointment is "Wakefield"
     And event location for "7th" returned appointment is "Classroom 1"
     And event location for "8th" returned appointment is "LEEDS"
+    And event source description for "1st" returned appointment is "comment11"
+    And event source description for "2nd" returned appointment is "comment10"
 
   Scenario: Retrieve current day's scheduled appointments for an existing offender having no appointments on current day
     When scheduled appointments for current day are requested for an offender with booking id "-2"

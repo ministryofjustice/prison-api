@@ -1,9 +1,13 @@
 package net.syscon.elite.executablespecification;
 
 import net.syscon.elite.executablespecification.steps.AdjudicationSteps;
+import net.syscon.elite.executablespecification.steps.AdjudicationSteps.AwardOldDate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
+import cucumber.api.Format;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
@@ -52,9 +56,9 @@ public class AdjudicationStepDefinitions extends AbstractStepDefinitions {
         adjudicationSteps.verifyAwardsNumber(n);
     }
 
-    @Then("^For award index ([0-9]+),$")
-    public void awardsIndex(Integer i) throws Throwable {
-        adjudicationSteps.setIndex(i);
+    @Then("^the award result list is as follows:$")
+    public void awardResultListIsAsFollows(@Format("yyyy-MM-dd") List<AwardOldDate> list) throws Throwable {
+        adjudicationSteps.verifyAwards(list);
     }
 
     @Then("^There are no awards$")

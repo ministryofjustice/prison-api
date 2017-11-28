@@ -31,25 +31,14 @@ Feature: Booking Adjudications
     When adjudication details with booking id -7, award cutoff date "2013-01-01" and adjudication cutoff date "2013-01-01" is requested
     Then There are no awards
 
-  Scenario Outline: Offender has more than 1 award
+  Scenario: Offender has more than 1 award
     When adjudication details with booking id -8, award cutoff date "2017-08-20" and adjudication cutoff date "2017-08-20" is requested
-    Then there are 4 awards
-    And the adjudication count is 1
-    And For award index <index>,
-    And the award sanctionCode is "<sanctionCode>"
-    And the award sanctionCodeDescription is "<sanctionCodeDescription>"
-    And the award months is "<months>"
-    And the award days is "<days>"
-    And the award limit is "<limit>"
-    And the award comment is "<comment>"
-    And the award effectiveDate is "<effectiveDate>"
-
-    Examples:
-      | index     | sanctionCode | sanctionCodeDescription  | months | days | limit | comment | effectiveDate |
-      | 0         | FORFEIT      | Forfeiture of Privileges |        | 17   |       | loc     | 2017-11-13    |
-      | 1         | CC           | Cellular Confinement     |        | 7    |       |         | 2017-11-13    |
-      | 2         | STOP_PCT     | Stoppage of Earnings (%) |        | 21   | 50.00 |         | 2017-11-13    |
-      | 3         | FORFEIT      | Forfeiture of Privileges | 2      | 19   |       | tv      | 2017-11-13    |
+    Then the award result list is as follows:
+      | sanctionCode | sanctionCodeDescription  | months | days | limit | comment | effectiveOldDate |
+      | FORFEIT      | Forfeiture of Privileges |        | 17   |       | loc     | 2017-11-13    |
+      | CC           | Cellular Confinement     |        | 7    |       |         | 2017-11-13    |
+      | STOP_PCT     | Stoppage of Earnings (%) |        | 21   | 50.00 |         | 2017-11-13    |
+      | FORFEIT      | Forfeiture of Privileges | 2      | 19   |       | tv      | 2017-11-13    |
 
   Scenario Outline: Ensure older awards expire
     When adjudication details with booking id -5, award cutoff date "<from>" and adjudication cutoff date "<from>" is requested

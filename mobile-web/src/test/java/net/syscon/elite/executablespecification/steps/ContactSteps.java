@@ -1,14 +1,19 @@
 package net.syscon.elite.executablespecification.steps;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import net.syscon.elite.api.model.ContactDetail;
+import net.syscon.elite.api.model.NextOfKin;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+
+import java.util.Iterator;
+import java.util.List;
 
 public class ContactSteps extends CommonSteps {
     private static final String BOOKING_CONTACTS_API_URL = API_PREFIX + "bookings/{bookingId}/contacts";
@@ -45,11 +50,21 @@ public class ContactSteps extends CommonSteps {
         assertTrue("There is " + details.getNextOfKin().size() + " next of kin", details.getNextOfKin().isEmpty());
     }
 
-    public void setNextOfKinIndex(int i) {
-        index = i;
-    }
-
-    public void verifyNextOfKinNumber(int n) {
-        assertEquals(n, details.getNextOfKin().size());
+    public void verifyNextOfKinList(List<NextOfKin> expected) {
+        final Iterator<NextOfKin> expectedIterator = expected.iterator();
+        final Iterator<NextOfKin> awardsIterator = details.getNextOfKin().iterator();
+        while (expectedIterator.hasNext()) {
+            final NextOfKin expectedThis = expectedIterator.next();
+            final NextOfKin actualThis = awardsIterator.next();
+            assertEquals(expectedThis.getLastName(), actualThis.getLastName());
+            assertEquals(expectedThis.getFirstName(), actualThis.getFirstName());
+            assertEqualsBlankIsNull(expectedThis.getMiddleName(), actualThis.getMiddleName());
+            assertEqualsBlankIsNull(expectedThis.getContactType(), actualThis.getContactType());
+            assertEqualsBlankIsNull(expectedThis.getContactTypeDescription(), actualThis.getContactTypeDescription());
+            assertEqualsBlankIsNull(expectedThis.getRelationship(), actualThis.getRelationship());
+            assertEqualsBlankIsNull(expectedThis.getRelationshipDescription(), actualThis.getRelationshipDescription());
+            assertEquals(expectedThis.getEmergencyContact(), actualThis.getEmergencyContact());
+        }
+        assertFalse("Too many actual results", awardsIterator.hasNext());
     }
 }

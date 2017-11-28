@@ -32,22 +32,12 @@ Feature: Booking Contacts
     When contact details with booking id -7 is requested
     Then There is no next of kin
 
-  Scenario Outline: Offender has more than 1 next of kin
+  Scenario: Offender has more than 1 next of kin
     When contact details with booking id -10 is requested
-    Then there are 2 next of kin
-    And For next of kin index <index>,
-    And the next of kin lastName is "<lastName>"
-    And the next of kin firstName is "<firstName>"
-    And the next of kin middleName is "<middleName>"
-    And the next of kin contactType is "<contactType>"
-    And the next of kin contactTypeDescription is "<contactTypeDescription>"
-    And the next of kin relationship is "<relationship>"
-    And the next of kin relationshipDescription is "<relationshipDescription>"
-    And the next of kin emergencyContact is "<emergencyContact>"
-    Examples:
-      | index     | lastName  | firstName | middleName | contactType | contactTypeDescription | relationship | relationshipDescription | emergencyContact |
-      | 0         | SMITH13   | JESSY     |            | L           |                        | AT           |                         |      true        |
-      | 1         | ROBERTSON | ELLY      |            | S           | Social/Family          | FRI          | Friend                  |      false       |
+    Then the next of kin results are:
+      | lastName  | firstName | middleName | contactType | contactTypeDescription | relationship | relationshipDescription | emergencyContact |
+      | SMITH13   | JESSY     |            | L           |                        | AT           |                         |      true        |
+      | ROBERTSON | ELLY      |            | S           | Social/Family          | FRI          | Friend                  |      false       |
 
   Scenario: Offender does not exist or different caseload
     When contact details with booking id -16 is requested
