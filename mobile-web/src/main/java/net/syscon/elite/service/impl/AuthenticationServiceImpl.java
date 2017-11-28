@@ -1,5 +1,7 @@
 package net.syscon.elite.service.impl;
 
+import com.google.common.collect.ImmutableMap;
+import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.AuthLogin;
 import net.syscon.elite.api.model.Token;
 import net.syscon.elite.security.UserDetailsImpl;
@@ -40,6 +42,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     private UserDetailsService userDetailsService;
 
+    @Autowired
+    private TelemetryClient telemetryClient;
+
     @Override
     public Token getAuthenticationToken(String credentials, AuthLogin authLogin) {
         Token token;
@@ -67,6 +72,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         if (StringUtils.isNotBlank(username) && StringUtils.isNotBlank(password)) {
             logger.debug("Attempting authentication for user: ", username, " ...");
+            telemetryClient.trackEvent("authenticationAttempt", ImmutableMap.of("username", username), null);
 
             Authentication userPasswordAuth = new UsernamePasswordAuthenticationToken(username, password);
             Authentication authentication = authenticationManager.authenticate(userPasswordAuth);
@@ -80,6 +86,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             } else {
                 token = tokenManagement.createToken((String) userPrincipal);
             }
+
+            telemetryClient.trackEvent("authenticationSuccess", ImmutableMap.of("username", username), null);
         } else {
             token = null;
         }
@@ -121,7 +129,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         } else if (userPrincipal instanceof Map) {
             Map<String,String> userPrincipalMap = (Map<String,String>) userPrincipal;
-            final String username = (String) userPrincipalMap.get("username");
+            final String username = userPrincipalMap.get("username");
             if (StringUtils.isNotBlank(username)) {
                 userDetails = userDetailsService.loadUserByUsername(username);
             } else {
