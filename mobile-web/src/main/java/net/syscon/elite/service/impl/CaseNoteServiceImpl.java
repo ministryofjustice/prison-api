@@ -155,7 +155,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public Page<ReferenceCode> getAllCaseNoteTypesWithSubTypes(long offset, long limit, String orderBy, Order order) {
-		return null;
+	public List<ReferenceCode> getUsedCaseNoteTypesWithSubTypes() {
+		return caseNoteRepository.getUsedCaseNoteTypesWithSubTypes();
 	}
 }

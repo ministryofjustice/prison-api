@@ -5,7 +5,7 @@ Feature: Reference Domains
   A logged on staff user can obtain:
     - a list of all alert types with alert codes (active and/or inactive).
     - a list of all case note sources.
-    - a list of all case note types with sub-types (active and/or inactive).
+    - a list of case note types (with sub-types) that have been used for creation of offender case notes.
     - a list of reference code items for a specified domain, with or without sub-codes.
     - a single reference code item for a specified domain and code, with or without sub-codes.
   Reference codes without sub-codes are excluded from response when reference codes with sub-codes have been requested.
@@ -35,6 +35,19 @@ Feature: Reference Domains
     And descriptions of returned items are "System,Community,External,Prison"
     And there is no parent domain for any returned item
     And there are no sub codes for any returned item
+
+  Scenario: Retrieve used case note types with sub-types
+    When request submitted to retrieve used case note types
+    Then "5" reference code items are returned
+    And domain for all returned items is "TASK_TYPE"
+    And codes of returned items are "APP,CHAP,COMMS,ETE,OBSERVE"
+    And there are one or more sub codes for every returned item
+    And code for "1st" sub-code of "1st" returned item is "OUTCOME"
+    And code for "1st" sub-code of "2nd" returned item is "FAMMAR"
+    And code for "1st" sub-code of "3rd" returned item is "COM_IN"
+    And code for "2nd" sub-code of "3rd" returned item is "COM_OUT"
+    And code for "1st" sub-code of "4th" returned item is "ETERTO"
+    And code for "1st" sub-code of "5th" returned item is "OBS_GEN"
 
   Scenario: Retrieve reference codes, without sub-codes, for a domain that does not exist
     When request submitted to retrieve all reference codes, without sub-codes, for domain "UNKNOWN"

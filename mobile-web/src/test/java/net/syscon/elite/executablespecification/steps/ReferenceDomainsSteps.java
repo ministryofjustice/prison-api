@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
@@ -18,8 +19,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class ReferenceDomainsSteps extends CommonSteps {
     private static final String API_REF_PREFIX = API_PREFIX + "reference-domains/";
-    private static final String API_ALERTS_URL = API_REF_PREFIX + "alertTypes";
-    private static final String API_SOURCES_URL = API_REF_PREFIX + "caseNoteSources";
+    private static final String API_ALERT_TYPES_URL = API_REF_PREFIX + "alertTypes";
+    private static final String API_CASE_NOTE_SOURCES_URL = API_REF_PREFIX + "caseNoteSources";
+    private static final String API_CASE_NOTE_TYPES_URL = API_REF_PREFIX + "caseNoteTypes";
     private static final String API_DOMAINS_URL = API_REF_PREFIX + "domains/{domain}";
     private static final String API_DOMAINS_CODES_URL = API_REF_PREFIX + "domains/{domain}/codes/{code}";
 
@@ -28,17 +30,22 @@ public class ReferenceDomainsSteps extends CommonSteps {
 
     @Step("Submit request for all alert types (with alert codes)")
     public void getAllAlertTypes() {
-        dispatchListRequest(API_ALERTS_URL, null, null);
+        dispatchListRequest(API_ALERT_TYPES_URL, null, null, 0L, 1000L);
     }
 
     @Step("Submit request for all case note sources")
     public void getAllSources() {
-        dispatchListRequest(API_SOURCES_URL, null, null);
+        dispatchListRequest(API_CASE_NOTE_SOURCES_URL, null, null, 0L, 1000L);
+    }
+
+    @Step("Submit request for used case note types")
+    public void getUsedCaseNoteTypes() {
+        dispatchListRequest(API_CASE_NOTE_TYPES_URL, null, null, null, null);
     }
 
     @Step("Submit request for reference codes in specified domain")
     public void getRefCodesForDomain(String domain, boolean withSubCodes) {
-        dispatchListRequest(API_DOMAINS_URL, domain, withSubCodes);
+        dispatchListRequest(API_DOMAINS_URL, domain, withSubCodes, 0L, 1000L);
     }
 
     @Step("Submit request for reference code with specified domain and code")
@@ -198,12 +205,18 @@ public class ReferenceDomainsSteps extends CommonSteps {
         });
     }
 
-    private void dispatchListRequest(String resourcePath, String domain, Boolean withSubCodes) {
+    private void dispatchListRequest(String resourcePath, String domain, Boolean withSubCodes, Long offset, Long limit) {
         init();
 
         String urlModifier = "";
+        HttpEntity<?> httpEntity;
 
-        applyPagination(0L, 1000L);
+        if (Objects.nonNull(offset) && Objects.nonNull(limit)) {
+            applyPagination(offset, limit);
+            httpEntity = createEntity(null, addPaginationHeaders());
+        } else {
+            httpEntity = createEntity();
+        }
 
         if (Objects.nonNull(withSubCodes)) {
             urlModifier = "?withSubCodes=" + withSubCodes.toString();
@@ -215,7 +228,7 @@ public class ReferenceDomainsSteps extends CommonSteps {
             ResponseEntity<List<ReferenceCode>> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
-                    createEntity(null, addPaginationHeaders()),
+                    httpEntity,
                     new ParameterizedTypeReference<List<ReferenceCode>>() {},
                     domain);
 

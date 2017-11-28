@@ -31,6 +31,11 @@ public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
         referenceDomains.getAllSources();
     }
 
+    @When("^request submitted to retrieve used case note types$")
+    public void requestSubmittedToRetrieveUsedCaseNoteTypes() throws Throwable {
+        referenceDomains.getUsedCaseNoteTypes();
+    }
+
     @Then("^\"([^\"]*)\" reference code items are returned$")
     public void caseNoteSourcesAreReturned(String expectedCount) throws Throwable {
         referenceDomains.verifyResourceRecordsReturned(Long.parseLong(expectedCount));

@@ -205,7 +205,17 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 		return buildCaseNoteTypes(referenceCodeDetails);
 	}
 
-    private List<ReferenceCode> buildCaseNoteTypes(List<ReferenceCodeDetail> results) {
+	@Override
+	public List<ReferenceCode> getUsedCaseNoteTypesWithSubTypes() {
+		String sql = getQuery("GET_USED_CASE_NOTE_TYPES_WITH_SUB_TYPES");
+
+		List<ReferenceCodeDetail> referenceCodeDetails = jdbcTemplate.query(sql,
+					REF_CODE_DETAIL_ROW_MAPPER);
+
+		return buildCaseNoteTypes(referenceCodeDetails);
+	}
+
+	private List<ReferenceCode> buildCaseNoteTypes(List<ReferenceCodeDetail> results) {
         Map<String,ReferenceCode> caseNoteTypes = new TreeMap<>();
 
         results.forEach(ref -> {

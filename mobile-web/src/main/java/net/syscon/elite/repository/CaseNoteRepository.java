@@ -25,4 +25,6 @@ public interface CaseNoteRepository {
     List<ReferenceCode> getCaseNoteTypesByCaseLoadType(String caseLoadType);
 
     List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(String caseLoadType);
+
+    List<ReferenceCode> getUsedCaseNoteTypesWithSubTypes();
 }
