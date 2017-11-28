@@ -14,10 +14,7 @@
 
 /caseNoteTypes:
   (javaOperationName): getCaseNoteTypes
-  type: { readOnlyCollectionPaged : { type: ReferenceCode, description: Get all Case Note types (with sub-types). } }
-  is: [
-    sortable: {fieldsList: "code, description"}
-  ]
+  type: { readOnlyCollection : { type: ReferenceCode, description: Get all <i>used</i> Case Note types (with sub-types). } }
 
 /domains/{domain}:
   (javaOperationName): getReferenceCodesByDomain

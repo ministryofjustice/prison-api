@@ -30,5 +30,5 @@ public interface CaseNoteService {
 
     List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(String caseLoadType);
 
-    Page<ReferenceCode> getAllCaseNoteTypesWithSubTypes(long offset, long limit, String orderBy, Order order);
+    List<ReferenceCode> getUsedCaseNoteTypesWithSubTypes();
 }

@@ -5,10 +5,12 @@ import net.syscon.elite.api.resource.ReferenceDomainResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.RestResource;
+import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.ReferenceDomainService;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Path;
+import java.util.List;
 import java.util.Optional;
 
 import static net.syscon.util.ResourceUtils.nvl;
@@ -17,10 +19,12 @@ import static net.syscon.util.ResourceUtils.nvl;
 @Path("/reference-domains")
 public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
 	private final ReferenceDomainService referenceDomainService;
+	private final CaseNoteService caseNoteService;
 
-	public ReferenceDomainsResourceImpl(ReferenceDomainService referenceDomainService) {
+	public ReferenceDomainsResourceImpl(ReferenceDomainService referenceDomainService, CaseNoteService caseNoteService) {
 		this.referenceDomainService = referenceDomainService;
-	}
+        this.caseNoteService = caseNoteService;
+    }
 
 	@Override
 	public GetAlertTypesResponse getAlertTypes(Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
@@ -47,13 +51,8 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
 	}
 
 	@Override
-	public GetCaseNoteTypesResponse getCaseNoteTypes(Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-		Page<ReferenceCode> caseNoteTypes =
-				referenceDomainService.getCaseNoteTypes(
-						sortFields,
-						sortOrder,
-						nvl(pageOffset, 0L),
-						nvl(pageLimit, 10L));
+	public GetCaseNoteTypesResponse getCaseNoteTypes() {
+		List<ReferenceCode> caseNoteTypes = caseNoteService.getUsedCaseNoteTypesWithSubTypes();
 
 		return GetCaseNoteTypesResponse.respond200WithApplicationJson(caseNoteTypes);
 	}

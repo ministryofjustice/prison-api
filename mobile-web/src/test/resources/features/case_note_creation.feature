@@ -19,8 +19,8 @@ Feature: Case Note Creation and Update
   Scenario: Create a case note 1
     When a case note is created for booking:
       | bookingId          | -15                                         |
-      | type               | GEN                                         |
-      | subType            | OSE                                         |
+      | type               | OBSERVE                                     |
+      | subType            | OBS_GEN                                     |
       | text               | A new case note (from Serenity BDD test **) |
       | occurrenceDateTime | 2017-04-14T10:15:30                         |
     Then case note is successfully created
@@ -29,8 +29,8 @@ Feature: Case Note Creation and Update
   Scenario: Create a case note 2
     When a case note is created for booking:
       | bookingId          | -15                                         |
-      | type               | GEN                                         |
-      | subType            | HIS                                         |
+      | type               | OBSERVE                                     |
+      | subType            | OBS_GEN                                     |
       | text               | A new case note (from Serenity BDD test **) |
       | occurrenceDateTime | 2017-04-14T10:15:30                         |
     Then case note is successfully created
