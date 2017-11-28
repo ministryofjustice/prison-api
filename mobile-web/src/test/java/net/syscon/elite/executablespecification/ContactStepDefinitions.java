@@ -1,8 +1,11 @@
 package net.syscon.elite.executablespecification;
 
 import net.syscon.elite.executablespecification.steps.ContactSteps;
+import net.syscon.elite.api.model.NextOfKin;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -22,7 +25,6 @@ public class ContactStepDefinitions extends AbstractStepDefinitions {
 
     @When("^contact details with booking id ([0-9-]+) is requested$")
     public void sentenceWithBookingId(Long id) {
-        contactSteps.setNextOfKinIndex(0);
         contactSteps.getContacts(id);
     }
 
@@ -36,14 +38,9 @@ public class ContactStepDefinitions extends AbstractStepDefinitions {
         contactSteps.verifyNextOfKinField(field, value);
     }
 
-    @Then("^there are ([0-9]+) next of kin$")
-    public void nextOfKinNumber(Integer n) throws Throwable {
-        contactSteps.verifyNextOfKinNumber(n);
-    }
-    
-    @Then("^For next of kin index ([0-9]+),$")
-    public void nextOfKinIndex(Integer i) throws Throwable {
-        contactSteps.setNextOfKinIndex(i);
+    @Then("^the next of kin results are:$")
+    public void nextOfKinResultListIsAsFollows(List<NextOfKin> list) throws Throwable {
+        contactSteps.verifyNextOfKinList(list);
     }
 
     @Then("^There is no next of kin$")

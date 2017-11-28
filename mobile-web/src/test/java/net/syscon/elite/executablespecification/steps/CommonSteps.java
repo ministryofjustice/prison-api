@@ -476,6 +476,16 @@ verifyIdentical(actualValList, expectedValList);
         return pageMetaData;
     }
 
+    /**
+     * Equality assertion where blank and null are treated as equal
+     */
+    protected static void assertEqualsBlankIsNull(String expected, String actual) {
+        if (StringUtils.isBlank(actual) && StringUtils.isBlank(expected) ) {
+            return;
+        }
+        assertEquals(expected, actual);
+    }
+
     public AuthenticationSteps getAuth() {
         return auth;
     }

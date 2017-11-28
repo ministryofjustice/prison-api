@@ -1,9 +1,13 @@
 package net.syscon.elite.executablespecification;
 
+import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.executablespecification.steps.BookingEventSteps;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
+import cucumber.api.DataTable;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
@@ -43,23 +47,9 @@ public class BookingEventsStepDefinitions extends AbstractStepDefinitions {
         eventsSteps.verifyEmpty();
     }
 
-    @Then("^([0-9-]+) events are returned$")
-    public void numberEventsAreReturned(int number) throws Throwable {
-        eventsSteps.verifyNumber(number);
-    }
-
-    @Then("For index of ([0-9-]+),")
-    public void forIndexOf(int index) throws Throwable {
-        eventsSteps.setIndex(index);
-    }
-
-    @Then("the eventType is \"([^\"]*)\"")
-    public void theEventTypeIs(String value) throws Throwable {
-        eventsSteps.verifyIndexedEventType(value);
-    }
-
-    @Then("the eventLocation is \"([^\"]*)\"")
-    public void theEventLocationIs(String value) throws Throwable {
-        eventsSteps.verifyEventLocation(value);
+    @Then("^events are returned as follows:$")
+    public void eventsAreReturnedAsFollows(DataTable table) throws Throwable {
+        final List<ScheduledEvent> expected = table.asList(ScheduledEvent.class);
+        eventsSteps.verifyEvents(expected);
     }
 }
