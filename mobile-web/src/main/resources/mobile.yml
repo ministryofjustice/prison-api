@@ -23,7 +23,7 @@ security:
     enable: false
   jwt:
     header: Authorization
-    signingKey: s3cre3tK3y
+    signingKey: ${jwt.signing.key}
     schema: Bearer
     expiration: ${jwt.expiration.seconds} # Number of seconds
     refreshExpiration: ${jwt.refresh.expiration.seconds} # Number of seconds
