@@ -2,6 +2,7 @@ project(":mobile-web") {
 
     apply plugin: "org.springframework.boot"
     apply plugin: 'net.serenity-bdd.aggregator'
+    apply plugin: "jacoco"
 
     dependencies {
         compile project(":mobile-api")
@@ -97,7 +98,8 @@ project(":mobile-web") {
         environment eliteEnvVars
     }
 
-    check.dependsOn test
+    jacocoTestReport.dependsOn test
+    check.dependsOn jacocoTestReport
 
     // TODO: Enable checkstyle once rules reviewed and agreed (but don't enable for tests).
     checkstyleMain.enabled = false
@@ -109,6 +111,13 @@ project(":mobile-web") {
     }
 
     test.dependsOn testWithSchemaElite, testWithSchemaNomis
+
+    jacocoTestReport {
+        reports {
+            xml.enabled true
+            csv.enabled true
+        }
+    }
 
     compileJava.dependsOn processResources
 
