@@ -31,8 +31,6 @@ services:
     image: sysconjusticesystems/elite2-api:latest
     networks:
       - azure
-    depends_on:
-      - db
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/info/health"]
     deploy:
