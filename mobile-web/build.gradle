@@ -2,6 +2,7 @@ project(":mobile-web") {
 
     apply plugin: "org.springframework.boot"
     apply plugin: 'net.serenity-bdd.aggregator'
+    apply plugin: "jacoco"
 
     dependencies {
         compile project(":mobile-api")
@@ -98,7 +99,7 @@ project(":mobile-web") {
         environment eliteEnvVars
     }
 
-    check.dependsOn test
+    jacocoTestReport.dependsOn test
 
     // TODO: Enable checkstyle once rules reviewed and agreed (but don't enable for tests).
     checkstyleMain.enabled = false
@@ -110,6 +111,37 @@ project(":mobile-web") {
     }
 
     test.dependsOn testWithSchemaElite, testWithSchemaNomis
+
+    jacocoTestReport.executionData ([
+      file("${rootDir}/mobile-web/build/jacoco/test.exec"), 
+      file("${rootDir}/mobile-web/build/jacoco/testWithSchemaElite.exec"),
+      file("${rootDir}/mobile-web/build/jacoco/testWithSchemaNomis.exec")
+    ])
+
+    jacocoTestReport {
+        reports {
+            xml.enabled true
+            csv.enabled false
+        }
+    }
+
+    def codacyArgs = ['--language', 'Java',
+                      '--coverageReport', 'build/reports/jacoco/test/jacocoTestReport.xml',
+                      // Token is available from the Codacy website when logged in
+                      '--projectToken', 'bb910b37d3ac4032887fe0c56eb4cb59']
+
+    task codacyCoverageUploader(type:JavaExec) {
+        doFirst {
+            println "Sending coverage data to Codacy ..."
+
+            main = 'com.codacy.CodacyCoverageReporter'
+            // This jar was downloaded from the Codacy website:
+            classpath = files('codacy-coverage-reporter-2.0.1-assembly.jar')
+            args codacyArgs
+        }
+    }
+    codacyCoverageUploader.dependsOn jacocoTestReport
+    check.dependsOn codacyCoverageUploader
 
     compileJava.dependsOn processResources
 

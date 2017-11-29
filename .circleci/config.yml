@@ -19,6 +19,8 @@ jobs:
       - store_artifacts:
           path: mobile-web/build/reports/tests
       - store_artifacts:
+          path: mobile-web/build/reports/jacoco
+      - store_artifacts:
           path: mobile-web/target/site
       - store_artifacts:
           path: mobile-api/raml/api.html
