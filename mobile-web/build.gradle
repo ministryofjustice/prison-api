@@ -31,9 +31,9 @@ project(":mobile-web") {
         compile("io.springfox:springfox-swagger-ui:2.7.0")
         compile("io.springfox:springfox-swagger2:2.7.0")
         compile("net.logstash.logback:logstash-logback-encoder:4.8")
-        compile("com.microsoft.azure:applicationinsights-core:1.0.10")
-        compile("com.microsoft.azure:applicationinsights-web:1.0.10")
-        compile("com.microsoft.azure:applicationinsights-logging-logback:1.0.10")
+        compile("com.microsoft.azure:applicationinsights-core:1.0.9")
+        compile("com.microsoft.azure:applicationinsights-web:1.0.9")
+        compile("com.microsoft.azure:applicationinsights-logging-logback:1.0.9")
 
         compileOnly 'org.projectlombok:lombok:1.16.18'
 
