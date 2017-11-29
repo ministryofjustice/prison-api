@@ -10,8 +10,10 @@ import net.syscon.elite.security.DeviceFingerprint;
 import net.syscon.elite.security.UserDetailsImpl;
 import net.syscon.elite.security.UserPrincipalForToken;
 import net.syscon.util.DateTimeConverter;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
@@ -39,6 +41,11 @@ public class TokenManagement {
 	}
 
 	public Token createToken(UserDetails userDetails) {
+
+		if (StringUtils.isBlank(settings.getSigningKey())) {
+			throw new InternalAuthenticationServiceException("Signing Key not defined");
+		}
+
 		final String usernameToken = userDetails.getUsername().toUpperCase();
 		final Claims claims = Jwts.claims().setSubject(usernameToken);
 		final int deviceFingerprintHashCode = DeviceFingerprint.get().hashCode();
@@ -49,7 +56,7 @@ public class TokenManagement {
 
 		final LocalDateTime now = LocalDateTime.now();
 
-		log.info("Token expirection is {} seconds, refresh expire is {} seconds", settings.getExpiration(), settings.getRefreshExpiration());
+		log.info("Token expiration is {} seconds, refresh expiration is {} seconds", settings.getExpiration(), settings.getRefreshExpiration());
 		final Date issuedAt = DateTimeConverter.toDate(now);
 		final Date expiration = DateTimeConverter.toDate(now.plusSeconds(settings.getExpiration()));
 		final Date refreshExpiration = DateTimeConverter.toDate(now.plusSeconds(settings.getRefreshExpiration()));
@@ -129,6 +136,10 @@ public class TokenManagement {
 	}
 
 	private Claims getClaimsFromToken(String token) {
+		if (StringUtils.isBlank(settings.getSigningKey())) {
+			throw new InternalAuthenticationServiceException("Signing Key not defined");
+		}
+
 		Claims claims;
 
 		try {

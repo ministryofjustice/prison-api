@@ -45,13 +45,15 @@ jobs:
             API_VERSION=$(egrep -o "^\s+version\s=\s\"(.*)\"" build.gradle | awk -F"\"" '{print $2}')
             TAG=${API_VERSION}.${CIRCLE_BRANCH}.${CIRCLE_BUILD_NUM}
             if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
-              TAG=ELITE2_API_${API_VERSION}
+              TAG=ELITE2_API_${API_VERSION}.${CIRCLE_BUILD_NUM}
             else
               TAG=${API_VERSION}.${CIRCLE_BRANCH}.${CIRCLE_BUILD_NUM}
             fi
             docker build --rm=false . \
                --tag "sysconjusticesystems/elite2-api:$TAG" \
                --label "maintainer=michael.willis@syscon.net" \
+               --label "app.version=$TAG" \
+               --label "build.version=$TAG" \
                --label "build.number=$CIRCLE_BUILD_NUM" \
                --label "build.url=$CIRCLE_BUILD_URL" \
                --label "build.gitref=$CIRCLE_SHA1"

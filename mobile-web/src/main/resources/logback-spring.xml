@@ -20,22 +20,26 @@
                 <includeCallerInfo>true</includeCallerInfo>
             </encoder>
         </appender>
+    </springProfile>
 
+    <springProfile name="ai">
         <appender name="aiAppender"
                   class="com.microsoft.applicationinsights.logback.ApplicationInsightsAppender">
         </appender>
     </springProfile>
 
-    <springProfile name="dev">
-        <logger name="net.syscon" additivity="true" level="DEBUG">
-            <appender-ref ref="consoleAppender"/>
+    <logger name="net.syscon" additivity="false" level="DEBUG">
+        <appender-ref ref="consoleAppender"/>
+    </logger>
+
+    <springProfile name="ai">
+        <logger name="net.syscon" additivity="false" level="DEBUG">
             <appender-ref ref="aiAppender"/>
         </logger>
-    </springProfile>
-
-    <springProfile name="!dev">
-        <logger name="net.syscon" additivity="true" level="INFO">
-            <appender-ref ref="consoleAppender"/>
+        <logger name="org.springframework" additivity="false" level="INFO" >
+            <appender-ref ref="aiAppender"/>
+        </logger>
+        <logger name="org.glassfish.jersey" additivity="false" level="INFO" >
             <appender-ref ref="aiAppender"/>
         </logger>
     </springProfile>
@@ -64,16 +68,13 @@
         <appender-ref ref="consoleAppender"/>
     </logger>
 
-    <springProfile name="!logstash">
-        <root level="INFO">
-            <appender-ref ref="consoleAppender"/>
-        </root>
-    </springProfile>
+    <root level="INFO">
+        <appender-ref ref="consoleAppender"/>
+    </root>
 
-    <springProfile name="logstash">
+    <springProfile name="ai">
         <root level="INFO">
             <appender-ref ref="aiAppender"/>
-            <appender-ref ref="consoleAppender"/>
         </root>
     </springProfile>
 </configuration>
