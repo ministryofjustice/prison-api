@@ -287,9 +287,9 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingSentenceDetail.verifyHomeDetentionCurfewActualDate(homeDetentionCurfewActualDate);
     }
 
-    @And("^approved parole date matches \"([^\"]*)\"$")
-    public void approvedParoleDateMatches(String approvedParoleDate) throws Throwable {
-        bookingSentenceDetail.verifyApprovedParoleDate(approvedParoleDate);
+    @And("^actual parole date matches \"([^\"]*)\"$")
+    public void actualParoleDateMatches(String actualParoleDate) throws Throwable {
+        bookingSentenceDetail.verifyActualParoleDate(actualParoleDate);
     }
 
     @And("^release on temporary licence date matches \"([^\"]*)\"$")
@@ -297,9 +297,9 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingSentenceDetail.verifyReleaseOnTemporaryLicenceDate(releaseOnTemporaryLicenceDate);
     }
 
-    @And("^early release scheme eligibility date matches \"([^\"]*)\"$")
-    public void earlyReleaseSchemeEligibilityDateMatches(String earlyReleaseSchemeEligibilityDate) throws Throwable {
-        bookingSentenceDetail.verifyEarlyReleaseSchemeEligibilityDate(earlyReleaseSchemeEligibilityDate);
+    @And("^early removal scheme eligibility date matches \"([^\"]*)\"$")
+    public void earlyRemovalSchemeEligibilityDateMatches(String earlyRemovalSchemeEligibilityDate) throws Throwable {
+        bookingSentenceDetail.verifyEarlyRemovalSchemeEligibilityDate(earlyRemovalSchemeEligibilityDate);
     }
 
     @Then("^resource not found response is received from sentence details API$")
@@ -312,14 +312,19 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingSentenceDetail.verifyConfirmedReleaseDate(confirmedReleaseDate);
     }
 
-    @And("^topup supervision end date matches \"([^\"]*)\"$")
-    public void topupSupervisionEndDateMatches(String topupSupervisionEndDate) throws Throwable {
-        bookingSentenceDetail.verifyTopupSupervisionEndDate(topupSupervisionEndDate);
+    @And("^topup supervision expiry date matches \"([^\"]*)\"$")
+    public void topupSupervisionExpiryDateMatches(String topupSupervisionExpiryDate) throws Throwable {
+        bookingSentenceDetail.verifyTopupSupervisionExpiryDate(topupSupervisionExpiryDate);
     }
 
     @And("^release date matches \"([^\"]*)\"$")
     public void releaseDateMatches(String releaseDate) throws Throwable {
         bookingSentenceDetail.verifyReleaseDate(releaseDate);
+    }
+
+    @And("^tariff date matches \"([^\"]*)\"$")
+    public void tariffDateMatches(String tariffDate) throws Throwable {
+        bookingSentenceDetail.verifyTariffDate(tariffDate);
     }
 
     @When("^an IEP summary only is requested for an offender with booking id \"([^\"]*)\"$")

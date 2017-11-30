@@ -17,11 +17,12 @@ Feature: Booking Sentence Details
     - if present, the home detention curfew eligibility date is the overridden HDCED value, otherwise it is the calculated HDCED value.
     - if present, the parole eligibility date is the overridden PED value, otherwise it is the calculated PED value.
     - if present, the home detention curfew actual date is the overridden HDCAD value (the calculated HDCAD value is not used).
-    - if present, the approved parole date is the overridden APD value (the calculated APD value is not used).
+    - if present, the actual parole date is the overridden APD value (the calculated APD value is not used).
     - if present, the licence expiry date is the overridden LED value, otherwise it is the calculated LED value.
+    - if present, the tariff date is the overriden tariff date value, otherwise it is the calculated tariff date value.
     - for NOMIS only, the release on temporary licence date value is the override ROTL value (there is no calculated ROTL value).
-    - for NOMIS only, the early release scheme eligibility date value is the override ERSED value (there is no calculated ERSED value).
-    - for NOMIS only, the topup supervision end date value is the override TUSED value, otherwise it is the calculated TUSED value.
+    - for NOMIS only, the early removal scheme eligibility date value is the override ERSED value (there is no calculated ERSED value).
+    - for NOMIS only, the topup supervision expiry date value is the override TUSED value, otherwise it is the calculated TUSED value.
     - the release date for a non-DTO sentence type is derived from one or more of ARD, CRD, NPD and/or PRRD as follows:
       - if more than one ARD, CRD, NPD and/or PRRD value is present (calculated or overridden), the latest date is the release date
   Additional days awarded is the sum of all active sentence adjustment records for an offender booking with the 'ADA' adjustment type.
@@ -111,39 +112,42 @@ Feature: Booking Sentence Details
     And parole eligibility date matches "<ped>"
     And licence expiry date matches "<led>"
     And home detention curfew actual date matches "<hdcad>"
-    And approved parole date matches "<apd>"
+    And actual parole date matches "<apd>"
     And confirmed release date matches "<confRelDate>"
     And release date matches "<releaseDate>"
+    And tariff date matches "<tariffDate>"
 
     Examples:
-      | bookingId | ssd        | hdced      | ped        | led        | hdcad      | apd        | confRelDate | releaseDate |
-      | -1        | 2017-03-25 |            |            |            |            | 2018-09-27 | 2018-04-23  | 2018-04-23  |
-      | -2        | 2016-11-22 |            |            |            |            |            | 2018-04-19  | 2018-04-19  |
-      | -3        | 2015-03-16 |            |            |            |            |            |             | 2018-03-15  |
-      | -4        | 2007-10-16 |            |            |            |            |            |             | 2021-08-31  |
-      | -5        | 2017-02-08 | 2019-06-02 | 2019-06-01 |            |            |            |             | 2023-05-07  |
-      | -6        | 2017-09-01 |            |            |            | 2018-05-15 |            |             | 2018-05-15  |
-      | -7        | 2017-09-01 |            |            |            |            |            | 2018-01-05  | 2018-01-05  |
-      | -8        | 2017-09-01 |            |            |            |            | 2017-12-23 |             | 2017-12-23  |
-      | -9        | 2017-09-01 |            |            |            | 2018-01-15 |            | 2018-01-13  | 2018-01-13  |
-      | -10       | 2017-09-01 |            |            |            |            | 2018-02-22 |             | 2018-02-22  |
-      | -11       | 2017-09-01 |            |            |            |            |            |             | 2018-03-31  |
-      | -12       | 2017-09-01 |            |            |            |            |            |             | 2018-03-31  |
-      | -13       | 2017-02-08 |            | 2021-05-05 | 2020-08-07 |            |            |             | 2017-12-31  |
-      | -14       | 2007-10-16 | 2020-12-30 |            | 2021-09-24 |            | 2021-01-02 |             | 2021-01-02  |
-      | -15       |            |            |            |            |            |            |             |             |
-      | -17       | 2015-05-05 |            |            |            |            |            | 2018-01-16  | 2018-01-16  |
-      | -18       | 2016-11-17 |            |            |            | 2019-09-19 |            |             | 2019-09-19  |
-      | -24       | 2017-07-07 |            |            |            |            | 2022-06-06 | 2022-02-02  | 2022-02-02  |
-      | -25       | 2009-09-09 |            |            |            |            | 2019-09-08 | 2023-03-03  | 2023-03-03  |
+      | bookingId | ssd        | hdced      | ped        | led        | hdcad      | apd        | confRelDate | releaseDate | tariffDate |
+      | -1        | 2017-03-25 |            |            |            |            | 2018-09-27 | 2018-04-23  | 2018-04-23  |            |
+      | -2        | 2016-11-22 |            |            |            |            |            | 2018-04-19  | 2018-04-19  |            |
+      | -3        | 2015-03-16 |            |            |            |            |            |             | 2018-03-15  |            |
+      | -4        | 2007-10-16 |            |            |            |            |            |             | 2021-08-31  |            |
+      | -5        | 2017-02-08 | 2019-06-02 | 2019-06-01 |            |            |            |             | 2023-05-07  |            |
+      | -6        | 2017-09-01 |            |            |            | 2018-05-15 |            |             | 2018-05-15  |            |
+      | -7        | 2017-09-01 |            |            |            |            |            | 2018-01-05  | 2018-01-05  |            |
+      | -8        | 2017-09-01 |            |            |            |            | 2017-12-23 |             | 2017-12-23  |            |
+      | -9        | 2017-09-01 |            |            |            | 2018-01-15 |            | 2018-01-13  | 2018-01-13  |            |
+      | -10       | 2017-09-01 |            |            |            |            | 2018-02-22 |             | 2018-02-22  |            |
+      | -11       | 2017-09-01 |            |            |            |            |            |             | 2018-03-31  |            |
+      | -12       | 2017-09-01 |            |            |            |            |            |             | 2018-03-31  |            |
+      | -13       | 2017-02-08 |            | 2021-05-05 | 2020-08-07 |            |            |             | 2017-12-31  |            |
+      | -14       | 2007-10-16 | 2020-12-30 |            | 2021-09-24 |            | 2021-01-02 |             | 2021-01-02  |            |
+      | -15       |            |            |            |            |            |            |             |             |            |
+      | -17       | 2015-05-05 |            |            |            |            |            | 2018-01-16  | 2018-01-16  |            |
+      | -18       | 2016-11-17 |            |            |            | 2019-09-19 |            |             | 2019-09-19  |            |
+      | -24       | 2017-07-07 |            |            |            |            | 2022-06-06 | 2022-02-02  | 2022-02-02  |            |
+      | -25       | 2009-09-09 |            |            |            |            | 2019-09-08 | 2023-03-03  | 2023-03-03  |            |
+      | -27       | 2014-09-09 |            |            |            |            |            |             |             | 2029-09-08 |
+      | -28       | 2014-09-09 |            |            |            |            |            |             |             | 2031-03-08 |
 
   @nomis
   Scenario Outline: Retrieve sentence details for an offender, check other dates - NOMIS only - for ROTL, ERSED and TUSED
     When sentence details are requested for an offender with booking id "<bookingId>"
     Then sentence start date matches "<ssd>"
     And release on temporary licence date matches "<rotl>"
-    And early release scheme eligibility date matches "<ersed>"
-    And topup supervision end date matches "<tused>"
+    And early removal scheme eligibility date matches "<ersed>"
+    And topup supervision expiry date matches "<tused>"
 
     Examples:
       | bookingId | ssd        | rotl       | ersed      | tused      |

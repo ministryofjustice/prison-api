@@ -56,4 +56,6 @@ INSERT INTO OFFENDER_BOOKINGS (OFFENDER_BOOK_ID, BOOKING_BEGIN_DATE, BOOKING_NO,
             (-23, systimestamp, 'Z00023', -23, 'N', 'OUT', 'N', 'N', 'LEI', 1, -9, -14),
             (-24, systimestamp, 'Z00024', -24, 'N', 'IN',  'Y', 'N', 'LEI', 1, -9, -14),
             (-25, systimestamp, 'Z00025', -25, 'N', 'IN',  'Y', 'N', 'LEI', 1, -9, -14),
-            (-26, systimestamp, 'Z00026', -26, 'N', 'IN',  'Y', 'N', 'ZZGHI', 1, -9, -28);
+            (-26, systimestamp, 'Z00026', -26, 'N', 'IN',  'Y', 'N', 'ZZGHI', 1, -9, -28),
+            (-27, systimestamp, 'Z00027', -27, 'N', 'IN',  'Y', 'N', 'LEI', -27, -9, -14),
+            (-28, systimestamp, 'Z00028', -28, 'N', 'IN',  'Y', 'N', 'LEI', -28, -9, -14);
