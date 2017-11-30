@@ -1,1 +1,0 @@
-dbconfig.auto.tfvars filter=git-crypt diff=git-crypt

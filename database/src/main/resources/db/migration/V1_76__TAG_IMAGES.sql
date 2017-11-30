@@ -1,0 +1,27 @@
+CREATE TABLE "TAG_IMAGES"
+(
+  "TAG_IMAGE_ID"                  NUMBER(10, 0)                     NOT NULL ENABLE,
+  "IMAGE_OBJECT_TYPE"             VARCHAR2(12)                      NOT NULL ENABLE,
+  "IMAGE_OBJECT_ID"               NUMBER(10, 0)                     NOT NULL ENABLE,
+  "IMAGE_OBJECT_SEQ"              NUMBER(6, 0),
+  "CAPTURE_DATETIME"              DATE                              NOT NULL ENABLE,
+  "SET_NAME"                      VARCHAR2(12),
+  "IMAGE_VIEW_TYPE"               VARCHAR2(12),
+  "ORIENTATION_TYPE"              VARCHAR2(12)                      NOT NULL ENABLE,
+  "FULL_SIZE_IMAGE"               BLOB,
+  "THUMBNAIL_IMAGE"               BLOB,
+  "ACTIVE_FLAG"                   VARCHAR2(1) DEFAULT 'N'           NOT NULL ENABLE,
+  "CREATE_DATETIME"               TIMESTAMP(9) DEFAULT systimestamp NOT NULL ENABLE,
+  "CREATE_USER_ID"                VARCHAR2(32) DEFAULT USER         NOT NULL ENABLE,
+  "MODIFY_DATETIME"               TIMESTAMP(9),
+  "MODIFY_USER_ID"                VARCHAR2(32),
+  "AUDIT_TIMESTAMP"               TIMESTAMP(9),
+  "AUDIT_USER_ID"                 VARCHAR2(32),
+  "AUDIT_MODULE_NAME"             VARCHAR2(65),
+  "AUDIT_CLIENT_USER_ID"          VARCHAR2(64),
+  "AUDIT_CLIENT_IP_ADDRESS"       VARCHAR2(39),
+  "AUDIT_CLIENT_WORKSTATION_NAME" VARCHAR2(64),
+  "AUDIT_ADDITIONAL_INFO"         VARCHAR2(256),
+  "IMAGE_SOURCE_CODE"             VARCHAR2(12)                      NOT NULL ENABLE,
+  CONSTRAINT "TAG_IMAGES_PK" PRIMARY KEY ("TAG_IMAGE_ID")
+);
