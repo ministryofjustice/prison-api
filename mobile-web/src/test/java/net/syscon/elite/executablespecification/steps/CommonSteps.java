@@ -457,7 +457,7 @@ verifyIdentical(actualValList, expectedValList);
     }
 
     private Page<?> buildPageMetaData(HttpHeaders headers) {
-        Page<?> pageMetaData;
+        Page<?> metaData;
 
         List<String> totals = headers.get("Total-Records");
 
@@ -468,12 +468,12 @@ verifyIdentical(actualValList, expectedValList);
             List<String> limits = headers.get("Page-Limit");
             Long returnedLimit = Long.valueOf(limits.get(0));
 
-            pageMetaData = new Page<>(null, totalRecords, returnedOffset, returnedLimit);
+            metaData = new Page<>(null, totalRecords, returnedOffset, returnedLimit);
         } else {
-            pageMetaData = null;
+            metaData = null;
         }
 
-        return pageMetaData;
+        return metaData;
     }
 
     /**

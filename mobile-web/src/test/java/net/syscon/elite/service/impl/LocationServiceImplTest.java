@@ -36,6 +36,10 @@ public class LocationServiceImplTest {
     @Mock private Environment env;
 
     private LocationService locationService;
+    private Location cell1 = Location.builder().locationPrefix("cell1").build();
+    private Location cell2 = Location.builder().locationPrefix("cell2").build();
+    private Location cell3 = Location.builder().locationPrefix("cell3").build();
+    private Location cell4 = Location.builder().locationPrefix("cell4").build();
 
     @Before
     public void init() {
@@ -76,41 +80,57 @@ public class LocationServiceImplTest {
     }
 
     @Test
-    public void testGetGroupHappy() {
+    public void testGetGroupSinglePattern() {
 
-        Mockito.when(locationRepository.getCells("LEI")).thenReturn(Arrays.asList(//
-                "cell1", "cell2", "cell3", "cell4"));
+        Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", 1)).thenReturn(Arrays.asList(//
+                cell1, cell2, cell3, cell4));
         Mockito.when(env.getProperty("LEI_mylist")).thenReturn("cell[13]||cell4");
 
-        final List<String> group = locationService.getGroup("LEI", "mylist");
-        
-        assertThat(group).asList().containsExactly("cell1", "cell3", "cell4");
+        final List<Location> group = locationService.getGroup("LEI", "mylist");
+
+        assertThat(group).asList().containsExactly(cell1, cell3, cell4);
+    }
+
+    @Test
+    public void testGetGroupMultipleMatches() {
+
+        Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", 1)).thenReturn(Arrays.asList(//
+                cell1, cell2, cell3, cell4));
+        Mockito.when(env.getProperty("LEI_mylist")).thenReturn("cell3,cell[13]");
+
+        final List<Location> group = locationService.getGroup("LEI", "mylist");
+
+        assertThat(group).asList().containsExactly(cell3, cell1);
     }
 
     @Test(expected = EntityNotFoundException.class)
     public void testGetGroupNoName() throws Exception {
-        Mockito.when(locationRepository.getCells("LEI")).thenReturn(Arrays.asList(//
-                "cell1", "cell2", "cell3", "cell4"));
-        Mockito.when(env.getProperty("LEI_mylist")).thenReturn("cell[13]||cell4");
 
         locationService.getGroup("LEI", "does-not-exist");
     }
 
     @Test(expected = EntityNotFoundException.class)
     public void testGetGroupNoAgency() throws Exception {
-        Mockito.when(locationRepository.getCells("LEI")).thenReturn(Arrays.asList(//
-                "cell1", "cell2", "cell3", "cell4"));
-        Mockito.when(env.getProperty("LEI_mylist")).thenReturn("cell[13]||cell4");
 
         locationService.getGroup("does-not-exist", "mylist");
     }
 
     @Test(expected = PatternSyntaxException.class)
     public void testGetGroupInvalidPattern() throws Exception {
-        Mockito.when(locationRepository.getCells("LEI")).thenReturn(Arrays.asList(//
-                "cell1", "cell2", "cell3", "cell4"));
+        Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", 1)).thenReturn(Arrays.asList(//
+                cell1, cell2, cell3, cell4));
         Mockito.when(env.getProperty("LEI_mylist")).thenReturn("cell[13]||[");
 
         locationService.getGroup("LEI", "mylist");
+    }
+
+    @Test
+    public void testGetGroupBlankPattern() throws Exception {
+        Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", 1)).thenReturn(Arrays.asList(//
+                cell1, cell2, cell3, cell4));
+        Mockito.when(env.getProperty("LEI_mylist")).thenReturn("");
+
+        final List<Location> group = locationService.getGroup("LEI", "mylist");
+        assertThat(group).asList().isEmpty();
     }
 }

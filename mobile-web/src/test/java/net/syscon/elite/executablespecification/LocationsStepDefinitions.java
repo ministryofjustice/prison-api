@@ -66,4 +66,9 @@ public class LocationsStepDefinitions extends AbstractStepDefinitions {
     public void locationsAre(String list) throws Throwable {
         location.verifyLocationList(list);
     }
+    
+    @Then("^location ids are \"([^\"]*)\"$")
+    public void locationIdsAre(String list) throws Throwable {
+        location.verifyLocationIdList(list);
+    }
 }
