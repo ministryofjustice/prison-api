@@ -24,7 +24,7 @@ public class LocationsSteps extends CommonSteps {
     private static final String GROUPS_API_URL = API_LOCATIONS + "/groups/{agencyId}/{name}";
 
     private Location location;
-    private List<String> locationList;
+    private List<Location> locationList;
 
     @Step("Perform locations search without any criteria")
     public void findAll() {
@@ -86,24 +86,15 @@ public class LocationsSteps extends CommonSteps {
     private void dispatchCall(String url, String agencyId, String name) {
         init();
         try {
-            ResponseEntity<List<String>> response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
-                    new ParameterizedTypeReference<List<String>>() {}, agencyId, name);
+            ResponseEntity<List<Location>> response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
+                    new ParameterizedTypeReference<List<Location>>() {}, agencyId, name);
             locationList = response.getBody();
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
-   /* private void doSingleResultApiCall() {
-        init();
-        try {
-            ResponseEntity<ContactDetail> response = restTemplate.exchange(GROUPS_API_URL, HttpMethod.GET,
-                    createEntity(), ContactDetail.class, agencyId, name);
-            details = response.getBody();
-        } catch (EliteClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }*/
 
+    @Override
     protected void init() {
         super.init();
 
@@ -116,7 +107,12 @@ public class LocationsSteps extends CommonSteps {
     }
 
     public void verifyLocationList(String expectedList) {
-        assertThat(locationList).asList()
-                .containsExactlyInAnyOrder((Object[]) commaDelimitedListToStringArray(expectedList));
+        assertThat(locationList).asList().extracting("locationPrefix")
+                .containsExactly((Object[]) commaDelimitedListToStringArray(expectedList));
+    }
+
+    public void verifyLocationIdList(String expectedList) {
+        // Careful here - this does not check order, we are relying on verifyLocationList() for that
+        verifyLongValues(locationList, Location::getLocationId, expectedList);
     }
 }
