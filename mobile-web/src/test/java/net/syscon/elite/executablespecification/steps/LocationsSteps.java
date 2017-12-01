@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.util.StringUtils.commaDelimitedListToStringArray;
 
 /**
  * BDD step implementations for Locations feature.
@@ -20,7 +21,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class LocationsSteps extends CommonSteps {
     private static final String API_LOCATIONS = API_PREFIX + "locations";
 
+    private static final String GROUPS_API_URL = API_LOCATIONS + "/groups/{agencyId}/{name}";
+
     private Location location;
+    private List<String> locationList;
 
     @Step("Perform locations search without any criteria")
     public void findAll() {
@@ -79,9 +83,40 @@ public class LocationsSteps extends CommonSteps {
         }
     }
 
+    private void dispatchCall(String url, String agencyId, String name) {
+        init();
+        try {
+            ResponseEntity<List<String>> response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
+                    new ParameterizedTypeReference<List<String>>() {}, agencyId, name);
+            locationList = response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+   /* private void doSingleResultApiCall() {
+        init();
+        try {
+            ResponseEntity<ContactDetail> response = restTemplate.exchange(GROUPS_API_URL, HttpMethod.GET,
+                    createEntity(), ContactDetail.class, agencyId, name);
+            details = response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }*/
+
     protected void init() {
         super.init();
 
         location = null;
+        locationList = null;
+    }
+
+    public void findList(String agencyId, String name) {
+        dispatchCall(GROUPS_API_URL, agencyId, name);
+    }
+
+    public void verifyLocationList(String expectedList) {
+        assertThat(locationList).asList()
+                .containsExactlyInAnyOrder((Object[]) commaDelimitedListToStringArray(expectedList));
     }
 }

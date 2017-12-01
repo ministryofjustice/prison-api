@@ -14,7 +14,9 @@ import org.springframework.core.io.ClassPathResource;
 
 @Configuration
 @SuppressWarnings("squid:S1118")
-@PropertySources(@PropertySource(value = "classpath:mobile.yml"))
+@PropertySources({
+        @PropertySource(value = "classpath:mobile.yml"),
+        @PropertySource(value = "classpath:groups.properties") })
 public class ApplicationContextConfigs {
 
 	@Bean

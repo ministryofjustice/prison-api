@@ -54,4 +54,9 @@ public class LocationsResourceImpl implements LocationResource {
 
 		return GetOffendersAtLocationResponse.respond200WithApplicationJson(inmates);
 	}
+
+    @Override
+    public GetGroupResponse getGroup(String agencyId, String name) {
+        return GetGroupResponse.respond200WithApplicationJson(locationService.getGroup(agencyId, name));
+    }
 }
