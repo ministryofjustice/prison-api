@@ -25,3 +25,14 @@
     searchable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId"},
     sortable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId"},
   ]
+
+/groups/{agencyId}/{name}:
+  (javaOperationName): getGroup
+  uriParameters:
+    name:
+      type: string
+      description: The group name
+    agencyId:
+      type: string
+      description: The prison
+  type: { readOnlyCollection: { type: String, description: Returns location codes of cells in this prison belonging to the group. } }

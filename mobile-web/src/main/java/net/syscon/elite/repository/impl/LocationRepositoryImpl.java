@@ -132,6 +132,13 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 				locationRowMapper));
 	}
 
+    @Override
+    public List<String> getCells(String agencyId) {
+
+        final String sql = getQuery("GET_CELLS");
+        return jdbcTemplate.queryForList(sql, createParams("agencyId", agencyId), String.class);
+    }
+
 	private List<Location> removeAgencyId(final List<Location> locations) {
 		if (locations != null) {
 			locations.forEach(l -> l.setDescription(removeAgencyId(l.getDescription(), l.getAgencyId())));

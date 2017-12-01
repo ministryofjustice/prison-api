@@ -16,12 +16,15 @@ import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.LocationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static net.syscon.elite.service.impl.InmateServiceImpl.DEFAULT_OFFENDER_SORT;
@@ -39,13 +42,17 @@ public class LocationServiceImpl implements LocationService {
     private final CaseLoadService caseLoadService;
     private final String locationTypeGranularity;
     private final Integer locationDepth;
+    private final Environment env;
 
-    public LocationServiceImpl(AgencyRepository agencyRepository, LocationRepository locationRepository, InmateRepository inmateRepository, CaseLoadService caseLoadService,
-                               @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity, @Value("${api.users.me.locations.depth:1}") Integer locationDepth) {
+    public LocationServiceImpl(AgencyRepository agencyRepository, LocationRepository locationRepository,
+            InmateRepository inmateRepository, CaseLoadService caseLoadService, Environment env,
+            @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity,
+            @Value("${api.users.me.locations.depth:1}") Integer locationDepth) {
         this.locationRepository = locationRepository;
         this.inmateRepository = inmateRepository;
         this.caseLoadService = caseLoadService;
         this.agencyRepository = agencyRepository;
+        this.env = env;
         this.locationTypeGranularity = locationTypeGranularity;
         this.locationDepth = locationDepth;
     }
@@ -136,6 +143,27 @@ public class LocationServiceImpl implements LocationService {
         }
 
         return location;
+    }
+
+    /**
+     * Get all cells for the prison/agency then filter them using the named pattern
+     * defined in the groups.properties file.
+     */
+    @Override
+    @Cacheable("getGroup")
+    public List<String> getGroup(String agencyId, String name) {
+
+        final String patternString = env.getProperty(agencyId + '_' + name);
+        if (patternString == null) {
+            throw new EntityNotFoundException(
+                    "Group/list '" + name + "' does not exist for agencyId '" + agencyId + "'");
+        }
+        final List<String> cells = locationRepository.getCells(agencyId);
+        final Pattern pattern = Pattern.compile(patternString);
+        final List<String> results = cells.stream().filter(t -> {
+            return pattern.matcher(t).matches();
+        }).collect(Collectors.toList());
+        return results;
     }
 
     private String getCurrentCaseLoad() {

@@ -56,4 +56,14 @@ public class LocationsStepDefinitions extends AbstractStepDefinitions {
     public void resourceNotFoundResponseIsReceivedFromLocationsAPI() throws Throwable {
         location.verifyResourceNotFound();
     }
+
+    @When("^a request is made at agency \"([^\"]*)\" to retrieve the list named \"([^\"]*)\"$")
+    public void aRequestIsMadeToRetrieveListNamed(String agencyId, String name) throws Throwable {
+        location.findList(agencyId, name);
+    }
+
+    @Then("^locations are \"([^\"]*)\"$")
+    public void locationsAre(String list) throws Throwable {
+        location.verifyLocationList(list);
+    }
 }
