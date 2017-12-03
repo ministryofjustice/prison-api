@@ -23,6 +23,8 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Properties;
 
+import static java.lang.String.format;
+
 
 @Aspect
 public class OracleConnectionAspect {
@@ -82,17 +84,15 @@ public class OracleConnectionAspect {
                 final ProxyFactory proxyFactory = new ProxyFactory(conn);
                 proxyFactory.addAdvisor(closeConnectionAdvisor);
                 final Connection proxyConn = (Connection) proxyFactory.getProxy();
+                setDefaultSchema(proxyConn);
 
                 final String startSessionSQL = "SET ROLE " + tagUser + " IDENTIFIED BY " + rolePassword;
                 final PreparedStatement stmt = oracleConn.prepareStatement(startSessionSQL);
                 stmt.execute();
                 stmt.close();
-
-                setDefaultSchema(proxyConn);
                 log.debug("Exit: {}.{}() with result = {}", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(), conn);
                 return proxyConn;
             } else {
-                setDefaultSchema(conn);
                 return conn;
             }
         } catch (final Throwable e) {
@@ -102,7 +102,7 @@ public class OracleConnectionAspect {
     }
 
     private void setDefaultSchema(final Connection conn) {
-        if (StringUtils.isNoneBlank(defaultSchema)) {
+        if (StringUtils.isNotBlank(defaultSchema)) {
             try (PreparedStatement ps = conn.prepareStatement("ALTER SESSION SET CURRENT_SCHEMA="+defaultSchema);
                 ) {
                 ps.execute();
@@ -116,12 +116,16 @@ public class OracleConnectionAspect {
         if (rolePassword == null) {
             final DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource(jdbcUrl, username, password);
             final NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(driverManagerDataSource);
-            final String sql = sqlProvider.get("FIND_ROLE_PASSWORD");
+            final String sql = format(sqlProvider.get("FIND_ROLE_PASSWORD"), replaceSchema());
             final MapSqlParameterSource params = new MapSqlParameterSource();
             final String encryptedPassword = jdbcTemplate.queryForObject(sql, params, String.class);
             params.addValue("password", encryptedPassword);
-            rolePassword = jdbcTemplate.queryForObject("SELECT decryption('2DECRYPTPASSWRD', :password) FROM DUAL", params, String.class);
+            rolePassword = jdbcTemplate.queryForObject(format("SELECT %sdecryption('2DECRYPTPASSWRD', :password) FROM DUAL", replaceSchema()), params, String.class);
         }
+    }
+
+    private String replaceSchema() {
+        return StringUtils.isNotBlank(defaultSchema) ? defaultSchema + "." : "";
     }
 }
 
