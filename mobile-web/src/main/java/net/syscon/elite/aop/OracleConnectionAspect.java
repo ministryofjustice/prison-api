@@ -101,13 +101,11 @@ public class OracleConnectionAspect {
         }
     }
 
-    private void setDefaultSchema(final Connection conn) {
+    private void setDefaultSchema(final Connection conn) throws SQLException {
         if (StringUtils.isNotBlank(defaultSchema)) {
             try (PreparedStatement ps = conn.prepareStatement("ALTER SESSION SET CURRENT_SCHEMA="+defaultSchema);
                 ) {
                 ps.execute();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
             }
         }
     }
