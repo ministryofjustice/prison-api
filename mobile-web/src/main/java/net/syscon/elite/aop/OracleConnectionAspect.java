@@ -3,6 +3,7 @@ package net.syscon.elite.aop;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.util.SQLProvider;
 import oracle.jdbc.driver.OracleConnection;
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -18,6 +19,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -33,12 +35,16 @@ public class OracleConnectionAspect {
     private final String jdbcUrl;
     private final String username;
     private final String password;
+    private final String tagUser;
+    private final String defaultSchema;
 
-    public OracleConnectionAspect(SQLProvider sqlProvider, String jdbcUrl, String username, String password) {
+    public OracleConnectionAspect(SQLProvider sqlProvider, String jdbcUrl, String username, String password, String tagUser, String defaultSchema) {
         this.sqlProvider = sqlProvider;
         this.jdbcUrl = jdbcUrl;
         this.username = username;
         this.password = password;
+        this.tagUser = tagUser;
+        this.defaultSchema = defaultSchema;
 
         closeConnectionAdvisor = new AspectJExpressionPointcutAdvisor();
         closeConnectionAdvisor.setExpression("execution (* java.sql.Connection.close(..))");
@@ -77,19 +83,32 @@ public class OracleConnectionAspect {
                 proxyFactory.addAdvisor(closeConnectionAdvisor);
                 final Connection proxyConn = (Connection) proxyFactory.getProxy();
 
-                final String startSessionSQL = "SET ROLE TAG_USER IDENTIFIED BY " + rolePassword;
+                final String startSessionSQL = "SET ROLE " + tagUser + " IDENTIFIED BY " + rolePassword;
                 final PreparedStatement stmt = oracleConn.prepareStatement(startSessionSQL);
                 stmt.execute();
                 stmt.close();
 
+                setDefaultSchema(proxyConn);
                 log.debug("Exit: {}.{}() with result = {}", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(), conn);
                 return proxyConn;
             } else {
+                setDefaultSchema(conn);
                 return conn;
             }
         } catch (final Throwable e) {
             log.error("Illegal argument: {} in {}.{}()", Arrays.toString(joinPoint.getArgs()), joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(), e);
             throw e;
+        }
+    }
+
+    private void setDefaultSchema(final Connection conn) {
+        if (StringUtils.isNoneBlank(defaultSchema)) {
+            try (PreparedStatement ps = conn.prepareStatement("ALTER SESSION SET CURRENT_SCHEMA="+defaultSchema);
+                ) {
+                ps.execute();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
