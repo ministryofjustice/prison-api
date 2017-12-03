@@ -1,5 +1,7 @@
 package net.syscon.elite.service.impl;
 
+import static org.springframework.util.StringUtils.commaDelimitedListToSet;
+
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.CaseLoad;
@@ -16,12 +18,16 @@ import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.LocationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static net.syscon.elite.service.impl.InmateServiceImpl.DEFAULT_OFFENDER_SORT;
@@ -39,13 +45,17 @@ public class LocationServiceImpl implements LocationService {
     private final CaseLoadService caseLoadService;
     private final String locationTypeGranularity;
     private final Integer locationDepth;
+    private final Environment env;
 
-    public LocationServiceImpl(AgencyRepository agencyRepository, LocationRepository locationRepository, InmateRepository inmateRepository, CaseLoadService caseLoadService,
-                               @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity, @Value("${api.users.me.locations.depth:1}") Integer locationDepth) {
+    public LocationServiceImpl(AgencyRepository agencyRepository, LocationRepository locationRepository,
+            InmateRepository inmateRepository, CaseLoadService caseLoadService, Environment env,
+            @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity,
+            @Value("${api.users.me.locations.depth:1}") Integer locationDepth) {
         this.locationRepository = locationRepository;
         this.inmateRepository = inmateRepository;
         this.caseLoadService = caseLoadService;
         this.agencyRepository = agencyRepository;
+        this.env = env;
         this.locationTypeGranularity = locationTypeGranularity;
         this.locationDepth = locationDepth;
     }
@@ -136,6 +146,34 @@ public class LocationServiceImpl implements LocationService {
         }
 
         return location;
+    }
+
+    /**
+     * Get all cells for the prison/agency then filter them using the named pattern
+     * defined in the groups.properties file.
+     */
+    @Override
+    @Cacheable("getGroup")
+    public List<Location> getGroup(String agencyId, String name) {
+
+        final String patterns = env.getProperty(agencyId + '_' + name);
+        if (patterns == null) {
+            throw new EntityNotFoundException(
+                    "Group/list '" + name + "' does not exist for agencyId '" + agencyId + "'");
+        }
+        final List<Location> cells = locationRepository.findLocationsByAgencyAndType(agencyId, "CELL", 1);
+
+        final Set<String> patternSet = commaDelimitedListToSet(patterns);
+        final List<Location> results = new ArrayList<>();
+        for (String patternString : patternSet) {
+            final Pattern pattern = Pattern.compile(patternString);
+            for (Location cell : cells) {
+                if (pattern.matcher(cell.getLocationPrefix()).matches() && !results.contains(cell)) {
+                    results.add(cell);
+                }
+            }
+        }
+        return results;
     }
 
     private String getCurrentCaseLoad() {

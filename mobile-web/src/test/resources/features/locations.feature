@@ -31,3 +31,18 @@ Feature: Locations
   Scenario: Request for specific location record that does not exist
     When a request is made to retrieve location with locationId of "-9999"
     Then resource not found response is received from locations API
+
+  Scenario Outline: Retrieve a list/group of locations
+    When a request is made at agency "<agency>" to retrieve the list named "<name>"
+    Then location ids are "<locationIds>"
+    And locations are "<locations>"
+
+    Examples:
+      | agency | name           | locationIds                      | locations                                                                                            |
+      | LEI    | BlockA         | -3,-4,-5,-6,-7,-8,-9,-10,-11,-12 | LEI-A-1-1,LEI-A-1-2,LEI-A-1-3,LEI-A-1-4,LEI-A-1-5,LEI-A-1-6,LEI-A-1-7,LEI-A-1-8,LEI-A-1-9,LEI-A-1-10 |
+      | LEI    | LandingH1Evens | -16,-18,-20,-22,-24              | LEI-H-1-2,LEI-H-1-4,LEI-H-1-6,LEI-H-1-8,LEI-H-1-10                                                   |
+
+  Scenario: Request for list/group that does not exist
+    When a request is made at agency "LEI" to retrieve the list named "nonexistant"
+    Then resource not found response is received from locations API
+

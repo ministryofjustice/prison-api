@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.util.StringUtils.commaDelimitedListToStringArray;
 
 /**
  * BDD step implementations for Locations feature.
@@ -20,7 +21,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class LocationsSteps extends CommonSteps {
     private static final String API_LOCATIONS = API_PREFIX + "locations";
 
+    private static final String GROUPS_API_URL = API_LOCATIONS + "/groups/{agencyId}/{name}";
+
     private Location location;
+    private List<Location> locationList;
 
     @Step("Perform locations search without any criteria")
     public void findAll() {
@@ -79,9 +83,36 @@ public class LocationsSteps extends CommonSteps {
         }
     }
 
+    private void dispatchCall(String url, String agencyId, String name) {
+        init();
+        try {
+            ResponseEntity<List<Location>> response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
+                    new ParameterizedTypeReference<List<Location>>() {}, agencyId, name);
+            locationList = response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    @Override
     protected void init() {
         super.init();
 
         location = null;
+        locationList = null;
+    }
+
+    public void findList(String agencyId, String name) {
+        dispatchCall(GROUPS_API_URL, agencyId, name);
+    }
+
+    public void verifyLocationList(String expectedList) {
+        assertThat(locationList).asList().extracting("locationPrefix")
+                .containsExactly((Object[]) commaDelimitedListToStringArray(expectedList));
+    }
+
+    public void verifyLocationIdList(String expectedList) {
+        // Careful here - this does not check order, we are relying on verifyLocationList() for that
+        verifyLongValues(locationList, Location::getLocationId, expectedList);
     }
 }

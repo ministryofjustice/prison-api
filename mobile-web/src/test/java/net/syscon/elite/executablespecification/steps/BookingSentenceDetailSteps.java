@@ -96,24 +96,24 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         verifyLocalDate(sentenceDetail.getParoleEligibilityDate(), paroleEligibilityDate);
     }
 
-    @Step("Verify home detention curfew approved date")
+    @Step("Verify home detention curfew actual date")
     public void verifyHomeDetentionCurfewActualDate(String homeDetentionCurfewActualDate) {
         verifyLocalDate(sentenceDetail.getHomeDetentionCurfewActualDate(), homeDetentionCurfewActualDate);
     }
 
-    @Step("Verify parole approved date")
-    public void verifyApprovedParoleDate(String approvedParoleDate) {
-        verifyLocalDate(sentenceDetail.getApprovedParoleDate(), approvedParoleDate);
+    @Step("Verify actual parole date")
+    public void verifyActualParoleDate(String actualParoleDate) {
+        verifyLocalDate(sentenceDetail.getActualParoleDate(), actualParoleDate);
     }
-
+    
     @Step("Verify release on temporary licence date")
     public void verifyReleaseOnTemporaryLicenceDate(String releaseOnTemporaryLicenceDate) {
         verifyLocalDate(sentenceDetail.getReleaseOnTemporaryLicenceDate(), releaseOnTemporaryLicenceDate);
     }
 
-    @Step("Verify early release scheme eligibility date")
-    public void verifyEarlyReleaseSchemeEligibilityDate(String earlyReleaseSchemeEligilityDate) {
-        verifyLocalDate(sentenceDetail.getEarlyReleaseSchemeEligibilityDate(), earlyReleaseSchemeEligilityDate);
+    @Step("Verify early removal scheme eligibility date")
+    public void verifyEarlyRemovalSchemeEligibilityDate(String earlyRemovalSchemeEligilityDate) {
+        verifyLocalDate(sentenceDetail.getEarlyRemovalSchemeEligibilityDate(), earlyRemovalSchemeEligilityDate);
     }
 
     @Step("Verify licence expiry date")
@@ -146,9 +146,14 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         verifyLocalDate(sentenceDetail.getReleaseDate(), releaseDate);
     }
 
-    @Step("Verify topup supervision eligibility date")
-    public void verifyTopupSupervisionEndDate(String topupSupervisionEndDate) {
-        verifyLocalDate(sentenceDetail.getTopupSupervisionEndDate(), topupSupervisionEndDate);
+    @Step("Verify tariff date")
+    public void verifyTariffDate(String tariffDate) {
+        verifyLocalDate(sentenceDetail.getTariffDate(), tariffDate);
+    }
+
+    @Step("Verify topup supervision expiry date")
+    public void verifyTopupSupervisionExpiryDate(String topupSupervisionExpiryDate) {
+        verifyLocalDate(sentenceDetail.getTopupSupervisionExpiryDate(), topupSupervisionExpiryDate);
     }
 
     protected void init() {

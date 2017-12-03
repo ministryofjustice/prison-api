@@ -132,7 +132,7 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 				locationRowMapper));
 	}
 
-	private List<Location> removeAgencyId(final List<Location> locations) {
+	private static List<Location> removeAgencyId(final List<Location> locations) {
 		if (locations != null) {
 			locations.forEach(l -> l.setDescription(removeAgencyId(l.getDescription(), l.getAgencyId())));
 		}

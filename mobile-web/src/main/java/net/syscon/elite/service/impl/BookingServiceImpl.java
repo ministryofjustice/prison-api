@@ -231,10 +231,10 @@ public class BookingServiceImpl implements BookingService {
         //
         // 1. If there is a confirmed release date, the offender release date is the confirmed release date.
         //
-        // 2. If there is no confirmed release date for the offender, the offender release date is either the approved
+        // 2. If there is no confirmed release date for the offender, the offender release date is either the actual
         //    parole date or the home detention curfew actual date.
         //
-        // 3. If there is no confirmed release date, approved parole date or home detention curfew actual date for the
+        // 3. If there is no confirmed release date, actual parole date or home detention curfew actual date for the
         //    offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both
         //    are present).
         //
@@ -242,8 +242,8 @@ public class BookingServiceImpl implements BookingService {
 
         if (Objects.nonNull(sentenceDetail.getConfirmedReleaseDate())) {
             releaseDate = sentenceDetail.getConfirmedReleaseDate();
-        } else if (Objects.nonNull(sentenceDetail.getApprovedParoleDate())) {
-            releaseDate = sentenceDetail.getApprovedParoleDate();
+        } else if (Objects.nonNull(sentenceDetail.getActualParoleDate())) {
+            releaseDate = sentenceDetail.getActualParoleDate();
         } else if (Objects.nonNull(sentenceDetail.getHomeDetentionCurfewActualDate())) {
             releaseDate = sentenceDetail.getHomeDetentionCurfewActualDate();
         } else {
