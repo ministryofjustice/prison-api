@@ -23,9 +23,11 @@ public class AopConfigs {
 	public OracleConnectionAspect oracleProxyConnectionAspect(SQLProvider sqlProvider,
                                                               @Value("${spring.datasource.url}") String jdbcUrl,
                                                               @Value("${spring.datasource.username}") String username,
-                                                              @Value("${spring.datasource.password}") String password
+                                                              @Value("${spring.datasource.password}") String password,
+                                                              @Value("${oracle.tag.role.name}") String tagUser,
+                                                              @Value("${oracle.default.schema}") String defaultSchema
                                                               ) {
-        return new OracleConnectionAspect(sqlProvider, jdbcUrl, username, password);
+        return new OracleConnectionAspect(sqlProvider, jdbcUrl, username, password, tagUser, defaultSchema);
 	}
 
 }
