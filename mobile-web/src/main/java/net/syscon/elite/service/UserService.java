@@ -6,6 +6,7 @@ import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
 
 import java.util.List;
+import java.util.Set;
 
 public interface UserService {
 
@@ -14,6 +15,8 @@ public interface UserService {
 	UserDetail getUserByUsername(String username);
 
 	List<CaseLoad> getCaseLoads(String username);
+
+	Set<String> getCaseLoadIds(String username);
 
 	void setActiveCaseLoad(String username, String caseLoadId);
 

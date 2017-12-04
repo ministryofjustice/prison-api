@@ -19,8 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -37,28 +35,25 @@ public class InmateServiceImpl implements InmateService {
 
     private final int maxYears;
     private final String locationTypeGranularity;
-    private final Pattern offenderNoRegex;
 
     public InmateServiceImpl(InmateRepository repository,
                              CaseLoadService caseLoadService,
                              BookingService bookingService,
                              InmateAlertRepository inmateAlertRepository,
                              @Value("${offender.dob.max.range.years:10}") int maxYears,
-                             @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity,
-                             @Value("${api.offender.no.regex.pattern:^[A-Za-z]\\d{4}[A-Za-z]{2}$}") String offenderNoRegex) {
+                             @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity) {
         this.repository = repository;
         this.caseLoadService = caseLoadService;
         this.bookingService = bookingService;
         this.inmateAlertRepository = inmateAlertRepository;
         this.maxYears = maxYears;
         this.locationTypeGranularity = locationTypeGranularity;
-        this.offenderNoRegex = Pattern.compile(offenderNoRegex);
     }
 
     @Override
     public Page<OffenderBooking> findAllInmates(String query, long offset, long limit, String orderBy, Order order) {
         String colSort = StringUtils.isNotBlank(orderBy) ? orderBy : DEFAULT_OFFENDER_SORT;
-        return repository.findAllInmates(getUserCaseloadIds(), locationTypeGranularity, query, new PageRequest(offset, limit, colSort, order));
+        return repository.findAllInmates(getUserCaseloadIds(), locationTypeGranularity, query, new PageRequest(colSort, order, offset, limit));
     }
 
     @Override
@@ -138,37 +133,6 @@ public class InmateServiceImpl implements InmateService {
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.DESC);
 
         return repository.findInmateAliases(inmateId, orderBy, sortOrder, offset, limit);
-    }
-
-    @Override
-    public Page<OffenderBooking> findOffenders(String keywords, String locationPrefix, String sortFields, Order sortOrder, long offset, long limit) {
-
-        final String keywordSearch = StringUtils.upperCase(StringUtils.trimToEmpty(keywords));
-        String offenderNo = null;
-        String lastName = null;
-        String firstName = null;
-
-        if (StringUtils.isNotBlank(keywordSearch)) {
-            if (isOffenderNo(keywordSearch)) {
-                offenderNo = keywordSearch;
-            } else {
-                String [] nameSplit = StringUtils.splitByWholeSeparatorPreserveAllTokens(keywordSearch, ",");
-                lastName = nameSplit[0];
-
-                if (nameSplit.length > 1) {
-                    firstName = nameSplit[1];
-                }
-            }
-        }
-
-        final PageRequest pageRequest = new PageRequest(offset, limit, StringUtils.isNotBlank(sortFields) ? sortFields : DEFAULT_OFFENDER_SORT, sortOrder);
-        return repository.searchForOffenderBookings(getUserCaseloadIds(), offenderNo, lastName, firstName, StringUtils.replaceAll(locationPrefix, "_", ""),
-                locationTypeGranularity, pageRequest);
-    }
-
-    private boolean isOffenderNo(String potentialOffenderNumber) {
-        Matcher m = offenderNoRegex.matcher(potentialOffenderNumber);
-        return m.find();
     }
 
     @Override

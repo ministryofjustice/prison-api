@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 import static java.lang.String.format;
 
@@ -42,6 +43,11 @@ public class UserServiceImpl implements UserService {
 	@Transactional(readOnly = true)
 	public List<CaseLoad> getCaseLoads(String username) {
 		return caseLoadService.getCaseLoadsForUser(username);
+	}
+
+	@Override
+	public Set<String> getCaseLoadIds(String username) {
+		return caseLoadService.getCaseLoadIdsForUser(username);
 	}
 
 	@Override

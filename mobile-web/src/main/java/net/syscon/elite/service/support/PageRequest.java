@@ -1,34 +1,14 @@
 package net.syscon.elite.service.support;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import net.syscon.elite.api.support.Order;
 
+@Getter
+@AllArgsConstructor
 public class PageRequest {
-    private long offset;
-    private long limit;
-    private String orderBy;
-    private Order order;
-
-    public PageRequest(long offset, long limit, String orderBy, Order order) {
-        super();
-        this.offset = offset;
-        this.limit = limit;
-        this.orderBy = orderBy;
-        this.order = order;
-    }
-
-    public long getOffset() {
-        return offset;
-    }
-
-    public long getLimit() {
-        return limit;
-    }
-
-    public String getOrderBy() {
-        return orderBy;
-    }
-
-    public Order getOrder() {
-        return order;
-    }
+    protected final String orderBy;
+    protected final Order order;
+    protected final long offset;
+    protected final long limit;
 }
