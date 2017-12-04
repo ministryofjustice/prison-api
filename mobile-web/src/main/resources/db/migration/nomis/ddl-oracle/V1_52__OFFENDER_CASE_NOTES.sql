@@ -38,15 +38,10 @@ CREATE TABLE "OFFENDER_CASE_NOTES"
 );
 
 COMMENT ON COLUMN "OFFENDER_CASE_NOTES"."OFFENDER_BOOK_ID" IS 'The Related Offender Book Identifier';
-
 COMMENT ON COLUMN "OFFENDER_CASE_NOTES"."CREATE_USER_ID" IS 'The user who creates the record';
-
 COMMENT ON COLUMN "OFFENDER_CASE_NOTES"."MODIFY_DATETIME" IS 'The timestamp when the record is modified ';
-
 COMMENT ON COLUMN "OFFENDER_CASE_NOTES"."MODIFY_USER_ID" IS 'The user who modifies the record';
-
 COMMENT ON COLUMN "OFFENDER_CASE_NOTES"."CREATE_DATETIME" IS 'The timestamp when the record is created';
-
 COMMENT ON TABLE "OFFENDER_CASE_NOTES" IS 'A free format textual note pertinent to an event or contact that occurs during an offenders period of supervision and/or custody. Notes are held chronologically and may either be entered manually or generated automatically. Instances created automatically provide narrative for newly scheduled events. Narrative text format varies dependant upon scheduled event type but is internally constructed by the respective application function and not user configurable. e.g. An Appointment/Home Visit Offender Schedule entry is created. The note An appointment for Appointment/Home Visit has been made. Comment: is automatically generated.';
 
 
