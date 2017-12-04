@@ -1,0 +1,17 @@
+Insert into OFFENDER_CONTACT_PERSONS (OFFENDER_BOOK_ID,PERSON_ID,CONTACT_TYPE,RELATIONSHIP_TYPE,EMERGENCY_CONTACT_FLAG,NEXT_OF_KIN_FLAG,ACTIVE_FLAG,OFFENDER_CONTACT_PERSON_ID) values 
+(-1, -1, 'S','UN',  'N','Y','Y',-100),
+(-2, -2, 'S','BOF', 'Y','Y','Y',-101),
+(-3, -3, 'S','BRO', 'N','Y','Y',-102),
+(-7, -7, 'S','CLH', 'N','N','Y',-103),
+(-9, -9, 'S','BRO', 'N','N','Y',-104),
+(-10,-10,'S','FRI', 'N','Y','Y',-105),
+(-11,-11,'E','NEXT','Y','N','Y',-106),
+(-12,-12,'S','BRO', 'N','Y','Y',-107),
+(-13,-13,'S','COU', 'N','N','Y',-108),
+(-14,-14,'S','BRO', 'N','N','Y',-109),
+(-15,-15,'S','COU', 'Y','N','Y',-110),
+(-16,-16,'S','MOT', 'Y','Y','Y',-111),
+(-10,-11,'S','BRO', 'N','N','Y',-112),
+(-10,-12,'S','FA',  'N','Y','N',-113),
+(-10,-13,'L','AT',  'Y','Y','Y',-114),
+(-10,-14,'S','COU', 'Y','N','Y',-115);
