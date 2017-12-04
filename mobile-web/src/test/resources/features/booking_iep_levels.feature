@@ -38,8 +38,8 @@ Feature: Booking Incentives & Earned Privileges
 
   Scenario: Request IEP summary for an existing offender that does not have any IEP detail records
     When an IEP summary, with details, is requested for an offender with booking id "-9"
-    Then resource not found response is received from bookings IEP summary API
-    And user message in resource not found response from bookings IEP summary API is "Offender does not have any IEP records."
+    Then IEP summary is returned with IEP level of "Entry"
+    And IEP summary contains "0" detail records
 
   Scenario: Request IEP summary for an offender that does not exist
     When an IEP summary only is requested for an offender with booking id "-99"

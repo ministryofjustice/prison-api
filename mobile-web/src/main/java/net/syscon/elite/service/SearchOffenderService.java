@@ -2,12 +2,10 @@ package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.service.support.SearchOffenderRequest;
 
-/**
- * AssignmentService
- */
-public interface AssignmentService {
+public interface SearchOffenderService {
     String DEFAULT_OFFENDER_SORT = "lastName,firstName,offenderNo";
 
-    Page<OffenderBooking> findMyAssignments(String username, long offset, long limit);
+    Page<OffenderBooking> findOffenders(SearchOffenderRequest request);
 }

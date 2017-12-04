@@ -48,7 +48,10 @@ public class UserResourceImpl implements UserResource {
 
     @Override
     public GetMyAssignmentsResponse getMyAssignments(Long pageOffset, Long pageLimit) {
+        String currentUsername = UserSecurityUtils.getCurrentUsername();
+
         Page<OffenderBooking> assignments = assignmentService.findMyAssignments(
+                currentUsername,
                 nvl(pageOffset, 0L),
                 nvl(pageLimit, 10L));
 

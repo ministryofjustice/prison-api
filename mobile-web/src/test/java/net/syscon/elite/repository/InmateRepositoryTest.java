@@ -46,7 +46,7 @@ public class InmateRepositoryTest {
 
     @Test
     public void testFindAllImates() {
-        final PageRequest pageRequest = new PageRequest(0, 10, "lastName, firstName", Order.ASC);
+        final PageRequest pageRequest = new PageRequest("lastName, firstName", Order.ASC, 0 ,10);
         final HashSet<String> caseloads = new HashSet<>(Arrays.asList("LEI", "BXI"));
         Page<OffenderBooking> foundInmates = repository.findAllInmates(caseloads, "WING", "", pageRequest);
 
