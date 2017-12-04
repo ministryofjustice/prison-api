@@ -40,6 +40,7 @@ public class BookingServiceImpl implements BookingService {
     private final AgencyService agencyService;
     private final CaseLoadService caseLoadService;
     private final int lastNumberOfMonths;
+    private final String defaultIepLevel;
 
     /**
      * Order ScheduledEvents by startTime with null coming last
@@ -61,12 +62,15 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public BookingServiceImpl(BookingRepository bookingRepository, SentenceRepository sentenceRepository,
-                              AgencyService agencyService, CaseLoadService caseLoadService, @Value("${api.offender.release.date.min.months:3}") int lastNumberOfMonths) {
+                              AgencyService agencyService, CaseLoadService caseLoadService,
+                              @Value("${api.offender.release.date.min.months:3}") int lastNumberOfMonths,
+                              @Value("${api.bookings.iepLevel.default:Unknown}") String defaultIepLevel) {
         this.bookingRepository = bookingRepository;
         this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
         this.caseLoadService = caseLoadService;
         this.lastNumberOfMonths = lastNumberOfMonths;
+        this.defaultIepLevel = defaultIepLevel;
     }
 
     @Override
@@ -104,26 +108,33 @@ public class BookingServiceImpl implements BookingService {
         verifyBookingAccess(bookingId);
         List<PrivilegeDetail> iepDetails = bookingRepository.getBookingIEPDetails(bookingId);
 
+        PrivilegeSummary privilegeSummary;
+
         // If no IEP details exist for offender, cannot derive an IEP summary.
         if (iepDetails.isEmpty()) {
-            throw EntityNotFoundException.withMessage("Offender does not have any IEP records.");
+            privilegeSummary = PrivilegeSummary.builder()
+                    .bookingId(bookingId)
+                    .iepLevel(defaultIepLevel)
+                    .iepDetails(Collections.emptyList())
+                    .build();
+        } else {
+            // Extract most recent detail from list
+            PrivilegeDetail currentDetail = iepDetails.get(0);
+
+            // Determine number of days since current detail became effective
+            long daysSinceReview = DAYS.between(currentDetail.getIepDate(), now());
+
+            privilegeSummary = PrivilegeSummary.builder()
+                    .bookingId(bookingId)
+                    .iepDate(currentDetail.getIepDate())
+                    .iepTime(currentDetail.getIepTime())
+                    .iepLevel(currentDetail.getIepLevel())
+                    .daysSinceReview(Long.valueOf(daysSinceReview).intValue())
+                    .iepDetails(withDetails ? iepDetails : Collections.emptyList())
+                    .build();
         }
 
-        // Extract most recent detail from list
-        PrivilegeDetail currentDetail = iepDetails.get(0);
-
-        // Determine number of days since current detail became effective
-        long daysSinceReview = DAYS.between(currentDetail.getIepDate(), now());
-
-        // Construct and return IEP summary.
-        return PrivilegeSummary.builder()
-                .bookingId(bookingId)
-                .iepDate(currentDetail.getIepDate())
-                .iepTime(currentDetail.getIepTime())
-                .iepLevel(currentDetail.getIepLevel())
-                .daysSinceReview(Long.valueOf(daysSinceReview).intValue())
-                .iepDetails(withDetails ? iepDetails : Collections.emptyList())
-                .build();
+        return privilegeSummary;
     }
 
     @Override
