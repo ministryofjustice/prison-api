@@ -476,6 +476,11 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAssessment.verifyCsra(csra);
     }
 
+    @And("^the Next Review Date is \"([^\"]*)\"$")
+    public void theNextReviewDateIs(String nextReviewDate) throws Throwable {
+        bookingAssessment.verifyNextReviewDate(nextReviewDate);
+    }
+
     @Then("^resource not found response is received from booking assessments API$")
     public void resourceNotFoundResponseIsReceivedFromBookingAssessmentsAPI() throws Throwable {
         bookingAssessment.verifyResourceNotFound();
@@ -495,4 +500,5 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     public void theNumberOfInactiveAlertsIs(int count) throws Throwable {
         bookingDetail.verifyInactiveCount(count);
     }
+
 }

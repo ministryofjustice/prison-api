@@ -70,17 +70,20 @@ Feature: Booking Details
     When an offender booking assessment information request is made with booking id <bookingId> and "<assessmentCode>"
     Then the classification is "<classification>"
     And the Cell Sharing Alert is <CSRA>
+    And the Next Review Date is "<nextReviewDate>"
 
     Examples:
-      | bookingId | assessmentCode | CSRA  | classification |
-      | -1        | CSR            | true  | High           |
-      | -2        | CSR            | true  |                |
-      | -3        | CSR            | true  | Low            |
-      | -4        | CSR            | true  | Medium         |
-      | -5        | CSR            | true  | High           |
-      | -6        | CATEGORY       | false | Cat C          |
-      | -6        | CSR            | true  | Standard       |
-      | -6        | PAROLE         | false | High           |
+      | bookingId | assessmentCode | CSRA  | classification | nextReviewDate |
+      | -1        | CSR            | true  | High           | 2018-06-01     |
+      | -1        | CSR            | true  | High           | 2018-06-01     |
+      | -2        | CSR            | true  |                | 2018-06-01     |
+      | -3        | CSR            | true  | Low            | 2018-06-01     |
+      | -4        | CSR            | true  | Medium         | 2018-06-01     |
+      | -5        | CSR            | true  | High           | 2018-06-01     |
+      | -6        | CATEGORY       | false | Cat C          | 2018-06-01     |
+      | -6        | CSR            | true  | Standard       | 2018-06-01     |
+      | -6        | PAROLE         | false | High           | 2018-06-01     |
+
 
   Scenario: Request for assessment information for booking that does not have requested assessment
     When an offender booking assessment information request is made with booking id -15 and "CSR"
