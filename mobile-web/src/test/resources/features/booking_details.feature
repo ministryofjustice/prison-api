@@ -65,7 +65,7 @@ Feature: Booking Details
   Scenario: Request for specific offender booking record that does not exist
     When an offender booking request is made with booking id "-9999"
     Then resource not found response is received from bookings API
-
+@wip
   Scenario Outline: Request for assessment information about an offender
     When an offender booking assessment information request is made with booking id <bookingId> and "<assessmentCode>"
     Then the classification is "<classification>"
@@ -75,14 +75,13 @@ Feature: Booking Details
     Examples:
       | bookingId | assessmentCode | CSRA  | classification | nextReviewDate |
       | -1        | CSR            | true  | High           | 2018-06-01     |
-      | -1        | CSR            | true  | High           | 2018-06-01     |
-      | -2        | CSR            | true  |                | 2018-06-01     |
-      | -3        | CSR            | true  | Low            | 2018-06-01     |
-      | -4        | CSR            | true  | Medium         | 2018-06-01     |
-      | -5        | CSR            | true  | High           | 2018-06-01     |
-      | -6        | CATEGORY       | false | Cat C          | 2018-06-01     |
-      | -6        | CSR            | true  | Standard       | 2018-06-01     |
-      | -6        | PAROLE         | false | High           | 2018-06-01     |
+      | -2        | CSR            | true  |                | 2018-06-02     |
+      | -3        | CSR            | true  | Low            | 2018-06-03     |
+      | -4        | CSR            | true  | Medium         | 2018-06-04     |
+      | -5        | CSR            | true  | High           | 2018-06-05     |
+      | -6        | CATEGORY       | false | Cat C          | 2018-06-07     |
+      | -6        | CSR            | true  | Standard       | 2018-06-06     |
+      | -6        | PAROLE         | false | High           | 2018-06-08     |
 
 
   Scenario: Request for assessment information for booking that does not have requested assessment
