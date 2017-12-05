@@ -65,7 +65,7 @@ Feature: Booking Details
   Scenario: Request for specific offender booking record that does not exist
     When an offender booking request is made with booking id "-9999"
     Then resource not found response is received from bookings API
-@wip
+
   Scenario Outline: Request for assessment information about an offender
     When an offender booking assessment information request is made with booking id <bookingId> and "<assessmentCode>"
     Then the classification is "<classification>"
