@@ -5,6 +5,8 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.executablespecification.steps.BookingAppointmentSteps;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 /**
  * BDD step definitions for the Booking Appointments API endpoints:
  * <ul>
@@ -15,11 +17,9 @@ import net.syscon.elite.executablespecification.steps.BookingAppointmentSteps;
  * </ul>
  */
 public class BookingAppointmentsStepDefinitions extends AbstractStepDefinitions {
-    private final BookingAppointmentSteps bookingAppointments;
 
-    public BookingAppointmentsStepDefinitions(BookingAppointmentSteps bookingAppointments) {
-        this.bookingAppointments = bookingAppointments;
-    }
+    @Autowired
+    private BookingAppointmentSteps bookingAppointments;
 
     @When("^scheduled appointments are requested for an offender with booking id \"([^\"]*)\"$")
     public void scheduledAppointmentsAreRequestedForAnOffenderWithBookingId(String bookingId) throws Throwable {
