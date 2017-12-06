@@ -32,9 +32,9 @@ INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME
 
 -- These course schedules defined for current day, this week and next week (to test 'today', 'thisWeek' and 'nextWeek' endpoint actions).
 INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME, END_TIME, SCHEDULE_STATUS)
-VALUES (-26, -2, current_date, now() + INTERVAL '5' SECOND, now() + INTERVAL '5' SECOND, 'SCH'),
-(-27, -2, current_date, now() + INTERVAL '6' SECOND, now() + INTERVAL '6' SECOND, 'SCH'),
-(-28, -5, current_date + INTERVAL  '6' DAY, now() + INTERVAL  '6' DAY, now() + INTERVAL  '6' DAY, 'SCH'),
-(-29, -6, current_date + INTERVAL  '3' DAY, now() + INTERVAL  '3' DAY, now() + INTERVAL  '3' DAY, 'SCH'),
-(-30, -5, current_date + INTERVAL '17' DAY, now() + INTERVAL '17' DAY, now() + INTERVAL '17' DAY, 'SCH'),
-(-31, -6, current_date + INTERVAL  '9' DAY, now() + INTERVAL  '9' DAY, now() + INTERVAL  '9' DAY, 'SCH');
+VALUES (-26, -2, current_date, sysdate + INTERVAL '5' SECOND, sysdate + INTERVAL '5' SECOND, 'SCH'),
+(-27, -2, current_date, sysdate + INTERVAL '6' SECOND, sysdate + INTERVAL '6' SECOND, 'SCH'),
+(-28, -5, current_date + INTERVAL  '6' DAY, sysdate + INTERVAL  '6' DAY, sysdate + INTERVAL  '6' DAY, 'SCH'),
+(-29, -6, current_date + INTERVAL  '3' DAY, sysdate + INTERVAL  '3' DAY, sysdate + INTERVAL  '3' DAY, 'SCH'),
+(-30, -5, current_date + INTERVAL '17' DAY, sysdate + INTERVAL '17' DAY, sysdate + INTERVAL '17' DAY, 'SCH'),
+(-31, -6, current_date + INTERVAL  '9' DAY, sysdate + INTERVAL  '9' DAY, sysdate + INTERVAL  '9' DAY, 'SCH');
