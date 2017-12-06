@@ -62,6 +62,7 @@ Feature: Booking Activities
     When scheduled activities for current day are requested for an offender with booking id "-2"
     Then "2" activities are returned
 
+  @elite
   Scenario: Retrieve scheduled activities for an existing offender having one or more activities, some of which they have attended
     When scheduled activities are requested for an offender with booking id "-3"
     Then "10" activities are returned
