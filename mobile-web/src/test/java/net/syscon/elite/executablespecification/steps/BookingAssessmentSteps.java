@@ -44,4 +44,8 @@ public class BookingAssessmentSteps extends CommonSteps {
     public void verifyCsra(boolean csra) {
         assertThat(assessment.getCellSharingAlertFlag()).isEqualTo(csra);
     }
+
+    public void verifyNextReviewDate(String nextReviewDate) {
+        verifyLocalDate(assessment.getNextReviewDate(),nextReviewDate);
+    }
 }

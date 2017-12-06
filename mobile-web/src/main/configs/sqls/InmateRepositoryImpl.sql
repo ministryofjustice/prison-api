@@ -1,4 +1,4 @@
-FIND_INMATE_DETAIL {
+  FIND_INMATE_DETAIL {
   SELECT B.OFFENDER_BOOK_ID,
          B.BOOKING_NO,
          O.OFFENDER_ID_DISPLAY,
@@ -201,7 +201,8 @@ FIND_ACTIVE_APPROVED_ASSESSMENT {
     CASE WHEN ass.cell_sharing_alert_flag = 'Y' THEN 1 ELSE 0 END as cell_sharing_alert_flag,
     off_ass.assess_status,
     off_ass.assessment_date,
-    off_ass.assessment_seq
+    off_ass.assessment_seq,
+    off_ass.next_review_date
   FROM OFFENDER_ASSESSMENTS off_ass
     JOIN ASSESSMENTS ass ON off_ass.ASSESSMENT_TYPE_ID = ass.ASSESSMENT_ID
     LEFT JOIN REFERENCE_CODES ref_review

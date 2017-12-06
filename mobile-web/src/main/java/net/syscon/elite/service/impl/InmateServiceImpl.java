@@ -114,6 +114,7 @@ public class InmateServiceImpl implements InmateService {
                 .classification(deriveClassification(assessmentDto))
                 .assessmentDate(assessmentDto.getAssessmentDate())
                 .cellSharingAlertFlag(assessmentDto.isCellSharingAlertFlag())
+                .nextReviewDate(assessmentDto.getNextReviewDate())
                 .build();
     }
 

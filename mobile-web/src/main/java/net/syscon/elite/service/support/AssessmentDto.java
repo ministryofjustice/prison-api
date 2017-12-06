@@ -15,6 +15,8 @@ public class AssessmentDto {
     private LocalDate assessmentDate;
     private int assessmentSeq;
 
+    private LocalDate nextReviewDate;
+
     private String reviewSupLevelType;
     private String reviewSupLevelTypeDesc;
     private String overridedSupLevelType;
