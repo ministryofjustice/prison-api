@@ -1,0 +1,58 @@
+CREATE TABLE "PROFILE_TYPES"
+(
+  "PROFILE_TYPE"                  VARCHAR2(12 CHAR)                 NOT NULL ,
+  "PROFILE_CATEGORY"              VARCHAR2(12 CHAR),
+  "DESCRIPTION"                   VARCHAR2(40 CHAR),
+  "LIST_SEQ"                      NUMBER(6, 0)                      NOT NULL ,
+  "MANDATORY_FLAG"                VARCHAR2(1 CHAR) DEFAULT 'Y'      NOT NULL ,
+  "UPDATED_ALLOWED_FLAG"          VARCHAR2(1 CHAR) DEFAULT 'Y'      NOT NULL ,
+  "CODE_VALUE_TYPE"               VARCHAR2(12 CHAR)                 NOT NULL ,
+  "ACTIVE_FLAG"                   VARCHAR2(1 CHAR) DEFAULT 'Y'      NOT NULL ,
+  "EXPIRY_DATE"                   DATE,
+  "MODIFY_USER_ID"                VARCHAR2(32 CHAR),
+  "MODIFIED_DATE"                 DATE                              NOT NULL ,
+  "CREATE_DATETIME"               TIMESTAMP(9) DEFAULT systimestamp NOT NULL ,
+  "CREATE_USER_ID"                VARCHAR2(32 CHAR) DEFAULT USER    NOT NULL ,
+  "MODIFY_DATETIME"               TIMESTAMP(9),
+  "AUDIT_TIMESTAMP"               TIMESTAMP(9),
+  "AUDIT_USER_ID"                 VARCHAR2(32 CHAR),
+  "AUDIT_MODULE_NAME"             VARCHAR2(65 CHAR),
+  "AUDIT_CLIENT_USER_ID"          VARCHAR2(64 CHAR),
+  "AUDIT_CLIENT_IP_ADDRESS"       VARCHAR2(39 CHAR),
+  "AUDIT_CLIENT_WORKSTATION_NAME" VARCHAR2(64 CHAR),
+  "AUDIT_ADDITIONAL_INFO"         VARCHAR2(256 CHAR),
+  CONSTRAINT "PROFILE_TYPES_PK" PRIMARY KEY ("PROFILE_TYPE")
+);
+
+
+COMMENT ON COLUMN "PROFILE_TYPES"."PROFILE_TYPE" IS ' - Column already exists';
+
+COMMENT ON COLUMN "PROFILE_TYPES"."PROFILE_CATEGORY" IS ' - Column already exists';
+
+COMMENT ON COLUMN "PROFILE_TYPES"."DESCRIPTION" IS ' - Column already exists';
+
+COMMENT ON COLUMN "PROFILE_TYPES"."LIST_SEQ" IS ' - Column already exists';
+
+COMMENT ON COLUMN "PROFILE_TYPES"."MANDATORY_FLAG" IS ' - Column already exists';
+
+COMMENT ON COLUMN "PROFILE_TYPES"."UPDATED_ALLOWED_FLAG" IS ' - Column already exists';
+
+COMMENT ON COLUMN "PROFILE_TYPES"."CODE_VALUE_TYPE" IS 'Reference Code ( VALUE_TYPE)';
+
+COMMENT ON COLUMN "PROFILE_TYPES"."ACTIVE_FLAG" IS ' - Column already exists';
+
+COMMENT ON COLUMN "PROFILE_TYPES"."EXPIRY_DATE" IS ' - Column already exists';
+
+COMMENT ON COLUMN "PROFILE_TYPES"."MODIFY_USER_ID" IS 'The user who modifies the record';
+
+COMMENT ON COLUMN "PROFILE_TYPES"."MODIFIED_DATE" IS ' - Column already exists';
+
+COMMENT ON COLUMN "PROFILE_TYPES"."CREATE_DATETIME" IS 'The timestamp when the record is created';
+
+COMMENT ON COLUMN "PROFILE_TYPES"."CREATE_USER_ID" IS 'The user who creates the record';
+
+COMMENT ON COLUMN "PROFILE_TYPES"."MODIFY_DATETIME" IS 'The timestamp when the record is modified ';
+
+COMMENT ON TABLE "PROFILE_TYPES" IS 'Profile_type';
+
+

@@ -71,9 +71,9 @@ public class OracleConnectionAspect {
         try {
             final Connection conn = (Connection) joinPoint.proceed();
             final String username = UserSecurityUtils.getCurrentUsername();
-            assignRolePassword();
 
-            if ((!UserSecurityUtils.isAnonymousAuthentication() && username != null) || UserSecurityUtils.isPreAuthenticatedAuthenticationToken()) {
+            if ((!UserSecurityUtils.isAnonymousAuthentication() || UserSecurityUtils.isPreAuthenticatedAuthenticationToken()) && username != null) {
+                assignRolePassword();
                 final OracleConnection oracleConn = (OracleConnection) conn.unwrap(Connection.class);
 
                 final Properties info = new Properties();
@@ -86,7 +86,7 @@ public class OracleConnectionAspect {
                 final Connection proxyConn = (Connection) proxyFactory.getProxy();
                 setDefaultSchema(proxyConn);
 
-                final String startSessionSQL = "SET ROLE " + tagUser + " IDENTIFIED BY " + rolePassword;
+                final String startSessionSQL = format("SET ROLE %s IDENTIFIED BY %s", tagUser, rolePassword);
                 final PreparedStatement stmt = oracleConn.prepareStatement(startSessionSQL);
                 stmt.execute();
                 stmt.close();
@@ -103,7 +103,7 @@ public class OracleConnectionAspect {
 
     private void setDefaultSchema(final Connection conn) throws SQLException {
         if (StringUtils.isNotBlank(defaultSchema)) {
-            try (PreparedStatement ps = conn.prepareStatement("ALTER SESSION SET CURRENT_SCHEMA="+defaultSchema);
+            try (PreparedStatement ps = conn.prepareStatement(format("ALTER SESSION SET CURRENT_SCHEMA=%s", defaultSchema))
                 ) {
                 ps.execute();
             }
