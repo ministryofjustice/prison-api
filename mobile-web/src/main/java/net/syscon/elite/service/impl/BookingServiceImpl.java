@@ -5,6 +5,7 @@ import net.syscon.elite.api.model.SentenceDetail.NonDtoReleaseDateType;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
+import net.syscon.elite.repository.ReferenceCodeRepository;
 import net.syscon.elite.repository.SentenceRepository;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.*;
@@ -42,7 +43,7 @@ public class BookingServiceImpl implements BookingService {
     private final AgencyService agencyService;
     private final CaseLoadService caseLoadService;
     private final LocationService locationService;
-    private final ReferenceDomainService referenceDomainService;
+    private final ReferenceCodeRepository referenceCodeRepository;
     private final int lastNumberOfMonths;
     private final String defaultIepLevel;
 
@@ -67,7 +68,7 @@ public class BookingServiceImpl implements BookingService {
 
     public BookingServiceImpl(BookingRepository bookingRepository, SentenceRepository sentenceRepository,
             AgencyService agencyService, CaseLoadService caseLoadService, LocationService locationService,
-            ReferenceDomainService referenceDomainService,
+            ReferenceCodeRepository referenceCodeRepository,
             @Value("${api.offender.release.date.min.months:3}") int lastNumberOfMonths,
             @Value("${api.bookings.iepLevel.default:Unknown}") String defaultIepLevel) {
         this.bookingRepository = bookingRepository;
@@ -75,7 +76,7 @@ public class BookingServiceImpl implements BookingService {
         this.agencyService = agencyService;
         this.caseLoadService = caseLoadService;
         this.locationService = locationService;
-        this.referenceDomainService = referenceDomainService;
+        this.referenceCodeRepository = referenceCodeRepository;
         this.lastNumberOfMonths = lastNumberOfMonths;
         this.defaultIepLevel = defaultIepLevel;
     }
@@ -222,14 +223,9 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void validateEventType(NewAppointment newAppointment) {
-        final List<ReferenceCode> codes = referenceDomainService
-                .getReferenceCodesByDomain(INTERNAL_SCHEDULE_REASON, false, null, null, 0, 1000).getItems();
-
-        final String appointmentType = newAppointment.getAppointmentType();
-        final boolean valid = codes.stream().anyMatch(t -> {
-            return appointmentType.equals(t.getCode());
-        });
-        if (!valid) {
+        final Optional<ReferenceCode> result = referenceCodeRepository
+                .getReferenceCodeByDomainAndCode(INTERNAL_SCHEDULE_REASON, newAppointment.getAppointmentType(), false);
+        if (!result.isPresent()) {
             throw new BadRequestException("Event type not recognised.");
         }
     }
