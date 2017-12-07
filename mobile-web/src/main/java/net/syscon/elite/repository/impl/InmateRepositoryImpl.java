@@ -293,7 +293,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         return new Page<>(prisonerDetails, paRowMapper.getTotalRecords(), offset, limit);
     }
 
-	public List<PhysicalMark> findPhysicalMarks(long bookingId) {
+	@Override
+    public List<PhysicalMark> findPhysicalMarks(long bookingId) {
 		String sql = getQuery("FIND_PHYSICAL_MARKS_BY_BOOKING");
 
 		RowMapper<PhysicalMark> physicalMarkRowMapper =
@@ -305,7 +306,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 				physicalMarkRowMapper);
 	}
 
-	public List<PhysicalCharacteristic> findPhysicalCharacteristics(long bookingId) {
+	@Override
+    public List<PhysicalCharacteristic> findPhysicalCharacteristics(long bookingId) {
 		String sql = getQuery("FIND_PHYSICAL_CHARACTERISTICS_BY_BOOKING");
 
 		return jdbcTemplate.query(
@@ -314,7 +316,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 				PHYSICAL_CHARACTERISTIC_MAPPER);
 	}
 
-	public List<ProfileInformation> getProfileInformation(long bookingId) {
+	@Override
+    public List<ProfileInformation> getProfileInformation(long bookingId) {
 		String sql = getQuery("FIND_PROFILE_INFORMATION_BY_BOOKING");
 
 		return jdbcTemplate.query(
@@ -323,7 +326,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 PROFILE_INFORMATION_MAPPER);
 	}
 
-	public Optional<PhysicalAttributes> findPhysicalAttributes(long bookingId) {
+	@Override
+    public Optional<PhysicalAttributes> findPhysicalAttributes(long bookingId) {
 		String sql = getQuery("FIND_PHYSICAL_ATTRIBUTES_BY_BOOKING");
 
 		RowMapper<PhysicalAttributes> physicalAttributesRowMapper =
@@ -341,7 +345,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		return Optional.ofNullable(physicalAttributes);
 	}
 
-	public List<AssessmentDto> findAssessments(long bookingId) {
+	@Override
+    public List<AssessmentDto> findAssessments(long bookingId) {
 		String sql = getQuery("FIND_ACTIVE_APPROVED_ASSESSMENT");
 
 		return jdbcTemplate.query(
@@ -350,7 +355,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 				ASSESSMENT_MAPPER);
 	}
 
-	public Optional<AssignedLivingUnit> findAssignedLivingUnit(long bookingId, String locationTypeRoot) {
+	@Override
+    public Optional<AssignedLivingUnit> findAssignedLivingUnit(long bookingId, String locationTypeRoot) {
 		String sql = getQuery("FIND_ASSIGNED_LIVING_UNIT");
 
 		RowMapper<AssignedLivingUnit> assignedLivingUnitRowMapper =
@@ -388,7 +394,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		return Optional.ofNullable(inmate);
 	}
 
-	public List<String> findActiveAlertCodes(long bookingId) {
+	@Override
+    public List<String> findActiveAlertCodes(long bookingId) {
 		String sql = getQuery("FIND_ALERT_TYPES_FOR_OFFENDER");
 
 		return jdbcTemplate.query(

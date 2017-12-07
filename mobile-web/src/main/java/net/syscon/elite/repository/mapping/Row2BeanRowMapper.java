@@ -1,7 +1,7 @@
 package net.syscon.elite.repository.mapping;
 
 import net.syscon.elite.exception.RowMappingException;
-import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
