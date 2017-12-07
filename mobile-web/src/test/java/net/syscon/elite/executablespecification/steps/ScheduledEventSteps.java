@@ -24,11 +24,13 @@ public abstract class ScheduledEventSteps extends CommonSteps {
     private static final String TO_DATE_QUERY_PARAM_PREFIX = "&toDate=";
 
     protected List<ScheduledEvent> scheduledEvents;
-    
+    protected ScheduledEvent scheduledEvent;
+
+    @Override
     protected void init() {
         super.init();
-
         scheduledEvents = null;
+        scheduledEvent = null;
     }
 
     protected abstract String getResourcePath();

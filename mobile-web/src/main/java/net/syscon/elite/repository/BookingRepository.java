@@ -1,5 +1,6 @@
 package net.syscon.elite.repository;
 
+import net.syscon.elite.api.model.NewAppointment;
 import net.syscon.elite.api.model.OffenderRelease;
 import net.syscon.elite.api.model.PrivilegeDetail;
 import net.syscon.elite.api.model.ScheduledEvent;
@@ -33,6 +34,10 @@ public interface BookingRepository {
     Page<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);
 
     List<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
+
+    ScheduledEvent getBookingAppointment(Long bookingId, Long eventId);
+
+    Long createBookingAppointment(Long bookingId, NewAppointment newAppointment, String agencyId);
 
     Page<OffenderRelease> getOffenderReleaseSummary(LocalDate toReleaseDate, String query, long offset, long limit, String orderByFields, Order order, Set<String> allowedCaseloadsOnly);
 }

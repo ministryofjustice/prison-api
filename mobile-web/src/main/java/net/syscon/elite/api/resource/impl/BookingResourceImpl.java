@@ -273,7 +273,7 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetBookingAppointmentsResponse getBookingAppointments(Long bookingId, String fromDate, String toDate, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+    public GetBookingsBookingIdAppointmentsResponse getBookingsBookingIdAppointments(Long bookingId, String fromDate, String toDate, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         Page<ScheduledEvent> appointments =  bookingService.getBookingAppointments(
                 bookingId,
                 fromISO8601DateString(fromDate),
@@ -283,7 +283,7 @@ public class BookingResourceImpl implements BookingResource {
                 sortFields,
                 sortOrder);
 
-        return GetBookingAppointmentsResponse.respond200WithApplicationJson(appointments);
+        return GetBookingsBookingIdAppointmentsResponse.respond200WithApplicationJson(appointments);
     }
 
     @Override
@@ -328,5 +328,12 @@ public class BookingResourceImpl implements BookingResource {
                 sortOrder);
 
         return GetBookingAppointmentsForNextWeekResponse.respond200WithApplicationJson(appointments);
+    }
+
+    @Override
+    public PostBookingsBookingIdAppointmentsResponse postBookingsBookingIdAppointments(Long bookingId, NewAppointment newAppointment) {
+        ScheduledEvent createdEvent = bookingService.createBookingAppointment(bookingId, newAppointment);
+
+        return PostBookingsBookingIdAppointmentsResponse.respond201WithApplicationJson(createdEvent);
     }
 }

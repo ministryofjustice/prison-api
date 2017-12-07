@@ -7,11 +7,9 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
 import net.syscon.elite.security.UserSecurityUtils;
-import net.syscon.elite.service.AgencyService;
-import net.syscon.elite.service.BookingService;
-import net.syscon.elite.service.CaseLoadService;
-import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.NonDtoReleaseDate;
+
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +17,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.ws.rs.BadRequestException;
+
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,12 +33,16 @@ import static java.time.temporal.ChronoUnit.DAYS;
 @Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
 
+    private static final String INTERNAL_SCHEDULE_REASON = "INT_SCH_RSN";
+
     private final StartTimeComparator startTimeComparator = new StartTimeComparator();
 
     private final BookingRepository bookingRepository;
     private final SentenceRepository sentenceRepository;
     private final AgencyService agencyService;
     private final CaseLoadService caseLoadService;
+    private final LocationService locationService;
+    private final ReferenceDomainService referenceDomainService;
     private final int lastNumberOfMonths;
     private final String defaultIepLevel;
 
@@ -62,13 +66,16 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public BookingServiceImpl(BookingRepository bookingRepository, SentenceRepository sentenceRepository,
-                              AgencyService agencyService, CaseLoadService caseLoadService,
-                              @Value("${api.offender.release.date.min.months:3}") int lastNumberOfMonths,
-                              @Value("${api.bookings.iepLevel.default:Unknown}") String defaultIepLevel) {
+            AgencyService agencyService, CaseLoadService caseLoadService, LocationService locationService,
+            ReferenceDomainService referenceDomainService,
+            @Value("${api.offender.release.date.min.months:3}") int lastNumberOfMonths,
+            @Value("${api.bookings.iepLevel.default:Unknown}") String defaultIepLevel) {
         this.bookingRepository = bookingRepository;
         this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
         this.caseLoadService = caseLoadService;
+        this.locationService = locationService;
+        this.referenceDomainService = referenceDomainService;
         this.lastNumberOfMonths = lastNumberOfMonths;
         this.defaultIepLevel = defaultIepLevel;
     }
@@ -195,6 +202,47 @@ public class BookingServiceImpl implements BookingService {
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
 
         return bookingRepository.getBookingAppointments(bookingId, fromDate, toDate, sortFields, sortOrder);
+    }
+
+    @Transactional(readOnly = false)
+    @Override
+    public ScheduledEvent createBookingAppointment(Long bookingId, NewAppointment newAppointment) {
+        validateStartTime(newAppointment);
+        verifyBookingAccess(bookingId);
+        final String agencyId = validateLocationAndGetAgency(newAppointment);
+        validateEventType(newAppointment);
+        Long eventId = bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId);
+        return bookingRepository.getBookingAppointment(bookingId, eventId);
+    }
+
+    private void validateStartTime(NewAppointment newAppointment) {
+        if (newAppointment.getStartTime().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("Appointment time is in the past.");
+        }
+    }
+
+    private void validateEventType(NewAppointment newAppointment) {
+        final List<ReferenceCode> codes = referenceDomainService
+                .getReferenceCodesByDomain(INTERNAL_SCHEDULE_REASON, false, null, null, 0, 1000).getItems();
+
+        final String appointmentType = newAppointment.getAppointmentType();
+        final boolean valid = codes.stream().anyMatch(t -> {
+            return appointmentType.equals(t.getCode());
+        });
+        if (!valid) {
+            throw new BadRequestException("Event type not recognised.");
+        }
+    }
+
+    private String validateLocationAndGetAgency(NewAppointment newAppointment) {
+        Location location;
+        try {
+            location = locationService.getLocation(newAppointment.getLocationId(), false);
+        } catch (EntityNotFoundException e) {
+            throw new BadRequestException("Location does not exist or is not in your caseload.");
+        }
+        final String agencyId = location.getAgencyId();
+        return agencyId;
     }
 
     private void validateScheduledEventsRequest(Long bookingId, LocalDate fromDate, LocalDate toDate) {

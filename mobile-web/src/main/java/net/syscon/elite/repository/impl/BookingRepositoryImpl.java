@@ -2,6 +2,8 @@ package net.syscon.elite.repository.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
+
+import net.syscon.elite.api.model.NewAppointment;
 import net.syscon.elite.api.model.OffenderRelease;
 import net.syscon.elite.api.model.PrivilegeDetail;
 import net.syscon.elite.api.model.ScheduledEvent;
@@ -19,10 +21,12 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Types;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -271,6 +275,32 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                 EVENT_ROW_MAPPER);
     }
 
+    @Override
+    public ScheduledEvent getBookingAppointment(Long bookingId, Long eventId) {
+        String sql = getQuery("GET_BOOKING_APPOINTMENT");
+        return jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "eventId", eventId),
+                EVENT_ROW_MAPPER);
+    }
+
+    @Override
+    public Long createBookingAppointment(Long bookingId, NewAppointment newAppointment, String agencyId) {
+        final String sql = getQuery("INSERT_APPOINTMENT");
+        final GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
+        final LocalDateTime startTime = newAppointment.getStartTime();
+        jdbcTemplate.update(
+                sql,
+                createParams("bookingId", bookingId,
+                             "eventSubType", newAppointment.getAppointmentType(),
+                             "eventDate", DateTimeConverter.toDate(startTime.toLocalDate()),
+                             "startTime", DateTimeConverter.fromLocalDateTime(startTime),
+                             "locationId", newAppointment.getLocationId(),
+                             "agencyId", agencyId),
+                generatedKeyHolder,
+                new String[] {"EVENT_ID"});
+        return generatedKeyHolder.getKey().longValue();
+    }
+
+    @Override
     public Page<OffenderRelease> getOffenderReleaseSummary(LocalDate toReleaseDate, String query, long offset, long limit, String orderByFields, Order order, Set<String> allowedCaseloadsOnly) {
         String initialSql = getQuery("OFFENDER_SUMMARY");
         if (!allowedCaseloadsOnly.isEmpty()) {
