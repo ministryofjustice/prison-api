@@ -176,7 +176,6 @@ project(":mobile-web") {
         def configFile = file("${rootDir}/mobile-web/src/main/resources/application.properties").absoluteFile
 
         String configContent = configFile.getText('UTF-8')
-        configContent = configContent.replaceAll(/info\.app\.version=.*/, "info.app.version=${version}")
         configFile.write(configContent, 'UTF-8')
     }
 
@@ -189,6 +188,7 @@ project(":mobile-web") {
 
     springBoot {
         mainClass = applicationMainClass
+
         buildInfo {
             // Generate extra build info.
             additionalProperties = [
@@ -197,7 +197,8 @@ project(":mobile-web") {
                     continuousIntegration: System.getenv('CI') ? true : false,
                     machine              : InetAddress.localHost.hostName,
                     time                 : dateFormat.format(new Date()),
-                    name                 : 'elite2-api'
+                    name                 : 'elite2-api',
+                    version              : System.getenv('CI') ? "${version}.${System.getenv('CIRCLE_BUILD_NUM')}" : version
             ]
         }
         executable = true
