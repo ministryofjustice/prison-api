@@ -27,6 +27,8 @@ public interface BookingService {
 
     List<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
 
+    ScheduledEvent createBookingAppointment(Long bookingId, NewAppointment newAppointment);
+
     void verifyBookingAccess(Long bookingId);
 
     List<OffenceDetail> getMainOffenceDetails(Long bookingId);

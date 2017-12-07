@@ -317,13 +317,12 @@
   ]
 
 /{bookingId}/appointments:
-  (javaOperationName): getBookingAppointments
-  type: {readOnlyCollectionPaged: {type: ScheduledEvent, description: Scheduled appointments for the offender. }}
   uriParameters:
     bookingId:
       (javaType): Long
       description: The offender booking id
   get:
+    description: Scheduled appointments for the offender.
     queryParameters:
       fromDate?:
         type: string
@@ -333,9 +332,27 @@
         type: string
         description: Returned appointments must be scheduled on or before this date (in YYYY-MM-DD format).
         example: 2017-09-01
-  is: [
-    sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
-  ]
+    responses:
+      200:
+        body:
+          application/json:
+            ScheduledEvent[]
+    is: [
+      pageable,
+      hasResponsePagination,
+      sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
+    ]
+  post:
+    description: Add a new appointment under a booking.
+    body:
+      application/json:
+        type: NewAppointment
+    responses:
+      201:
+        body:
+          application/json:
+            type: ScheduledEvent
+            description: The appointment has been recorded. The updated object is returned including the status.
 
 /{bookingId}/appointments/today:
   (javaOperationName): getBookingAppointmentsForToday

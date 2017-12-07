@@ -123,4 +123,23 @@ Feature: Booking Appointments
     And event sub type for "1st" returned appointment is "CHAP"
     And end time for "10th" returned appointment is "2017-06-15 15:00:00"
     And event location for "6th" returned appointment is "Medical Centre"
-  
+
+  Scenario: Create a new appointment
+    When A medical appointment is created for an existing offender with booking id "-4", tomorrow at "16:00", at location "-28"
+    Then The appointment exists in the database
+
+  Scenario: Create a new appointment with invalid date
+    When An appointment is created for a time in the past
+    Then bad request response, with "Appointment time is in the past." message, is received from booking appointments API
+
+  Scenario: Create a new appointment with invalid type
+    When An appointment is created for an invalid type
+    Then bad request response, with "Event type not recognised." message, is received from booking appointments API
+
+  Scenario: Create a new appointment with invalid location
+    When An appointment is created for an invalid location
+    Then bad request response, with "Location does not exist or is not in your caseload." message, is received from booking appointments API
+
+  Scenario: Create a new appointment with invalid booking id
+    When An appointment is created for an invalid booking id
+    Then resource not found response is received from booking appointments API

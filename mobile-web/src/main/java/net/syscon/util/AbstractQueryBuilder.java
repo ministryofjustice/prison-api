@@ -33,27 +33,31 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
                     .collect(Collectors.toMap(v -> v.getValue().getName(),
                             Map.Entry::getKey));
         } else {
-            this.fieldNameToColumnMap = Collections.EMPTY_MAP;
+            this.fieldNameToColumnMap = Collections.emptyMap();
         }
     }
 
+    @Override
     public IQueryBuilder removeSpecialChars() {
         this.removeSpecialChars = true;
         return this;
     }
 
+    @Override
     public IQueryBuilder addPagination() {
         includePagination = true;
 
         return this;
     }
 
+    @Override
     public IQueryBuilder addRowCount() {
         includeRowCount = true;
 
         return this;
     }
 
+    @Override
     public IQueryBuilder addQuery(final String query) {
         if (StringUtils.isNotBlank(query)) {
             List<String> queryList = QueryUtil.checkPrecedencyAndSplit(query, new ArrayList<>());
@@ -78,6 +82,7 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
         return this;
     }
 
+    @Override
     public IQueryBuilder addOrderBy(boolean isAscending, String fields) {
         final String[] colOrder = StringUtils.split(fields, ",");
         if (colOrder != null && colOrder.length > 0) {
@@ -93,6 +98,7 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
         return this;
     }
 
+    @Override
     public IQueryBuilder addOrderBy(Order order, String fields) {
         return addOrderBy(Order.ASC == order, fields);
     }
