@@ -177,7 +177,6 @@ project(":mobile-web") {
 
         String configContent = configFile.getText('UTF-8')
         configFile.write(configContent, 'UTF-8')
-        expand(project.properties)
     }
 
     def applicationMainClass = 'net.syscon.elite.MobileApiServer'
