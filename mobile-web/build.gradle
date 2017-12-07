@@ -198,7 +198,7 @@ project(":mobile-web") {
                     machine              : InetAddress.localHost.hostName,
                     time                 : dateFormat.format(new Date()),
                     name                 : 'elite2-api',
-                    version              : System.properties['CIRCLE_BUILD_NUM']
+                    version              : System.getenv('CI') ? "${version}.${System.getenv('CIRCLE_BUILD_NUM')}" : version
             ]
         }
         executable = true
