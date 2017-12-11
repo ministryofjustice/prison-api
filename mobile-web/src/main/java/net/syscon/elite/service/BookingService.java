@@ -40,4 +40,6 @@ public interface BookingService {
     List<ScheduledEvent> getEventsNextWeek(Long bookingId);
 
     Page<OffenderRelease> getOffenderReleaseSummary(LocalDate fromReleaseDate, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly);
+
+    ScheduledEvent getBookingVisitLast(Long bookingId);
 }

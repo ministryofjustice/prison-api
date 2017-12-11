@@ -143,4 +143,14 @@ public class BookingVisitsStepDefinitions extends AbstractStepDefinitions {
     public void badRequestResponseWithMessageIsReceivedFromBookingVisitsAPI(String expectedUserMessage) throws Throwable {
         bookingVisits.verifyBadRequest(expectedUserMessage);
     }
+
+    @When("the last visit is requested for an offender with booking id \"([^\"]*)\"$")
+    public void lastVisitIsRequested(String bookingId) throws Throwable {
+        bookingVisits.getBookingVisitLast(Long.valueOf(bookingId));
+    }
+
+    @Then("the visit ([^\\\"]*) is \"([^\"]*)\"$")
+    public void theVisitFieldIs(String field, String value) throws Throwable {
+        bookingVisits.verifyVisitField(field, value);
+    }
 }

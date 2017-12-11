@@ -9,6 +9,7 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -40,4 +41,6 @@ public interface BookingRepository {
     Long createBookingAppointment(Long bookingId, NewAppointment newAppointment, String agencyId);
 
     Page<OffenderRelease> getOffenderReleaseSummary(LocalDate toReleaseDate, String query, long offset, long limit, String orderByFields, Order order, Set<String> allowedCaseloadsOnly);
+
+    ScheduledEvent getBookingVisitLast(Long bookingId, LocalDateTime cutoffDate);
 }

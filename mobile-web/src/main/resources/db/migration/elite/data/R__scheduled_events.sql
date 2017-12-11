@@ -87,7 +87,7 @@ INSERT INTO OFFENDER_COURSE_ATTENDANCES (EVENT_ID, OFFENDER_BOOK_ID, CRS_SCH_ID,
 INSERT INTO OFFENDER_VISITS (OFFENDER_VISIT_ID, OFFENDER_BOOK_ID, VISIT_DATE, START_TIME, END_TIME, VISIT_TYPE, VISIT_STATUS, VISIT_INTERNAL_LOCATION_ID, AGY_LOC_ID)
   VALUES (-1, -1, '2017-09-12', '2017-09-12 14:30:00', '2017-09-12 15:30:00', 'SCON', 'SCH', -28, 'LEI'),
          (-2, -1, '2017-11-13', '2017-11-13 14:30:00', '2017-11-13 15:30:00', 'SCON', 'SCH', -28, 'LEI'),
-         (-3, -1, '2017-12-12', '2017-12-12 14:30:00', '2017-12-12 15:30:00', 'SCON', 'SCH', -28, 'LEI'),
+         (-3, -1, '2017-12-10', '2017-12-10 14:30:00', '2017-12-10 15:30:00', 'SCON', 'SCH', -28, 'LEI'),
          (-4, -1, '2017-10-13', '2017-10-13 14:30:00', '2017-10-13 15:30:00', 'SCON', 'SCH', -28, 'LEI'),
          (-5, -1, '2017-09-15', '2017-09-15 14:00:00', '2017-09-15 16:00:00', 'OFFI', 'SCH', -25, 'LEI'),
          (-6, -1, '2017-09-10', '2017-09-10 14:30:00', '2017-09-10 15:30:00', 'SCON', 'SCH', -28, 'LEI'),
@@ -113,7 +113,11 @@ INSERT INTO OFFENDER_VISITS (OFFENDER_VISIT_ID, OFFENDER_BOOK_ID, VISIT_DATE, ST
          (-24, -3, current_date + INTERVAL '10' DAY, now() + INTERVAL '10' DAY, now() + INTERVAL '10' DAY, 'SCON', 'SCH', -27, 'LEI'),
          (-25, -3, current_date + INTERVAL '16' DAY, now() + INTERVAL '16' DAY, now() + INTERVAL '16' DAY, 'SCON', 'SCH', -28, 'LEI');
 
-
+-- These visits defined to be found by the 'last' endpoint.
+--INSERT INTO OFFENDER_VISITS (OFFENDER_VISIT_ID, OFFENDER_BOOK_ID, VISIT_DATE, START_TIME, END_TIME, VISIT_TYPE, VISIT_STATUS, VISIT_INTERNAL_LOCATION_ID, AGY_LOC_ID)
+--  VALUES (-26, -4, current_date, now() - INTERVAL '2' MINUTE, now() - INTERVAL '1' MINUTE, 'OFFI', 'SCH', -25, 'LEI'),
+--         (-27, -4, current_date, now() + INTERVAL '1' MINUTE, now() + INTERVAL '2' MINUTE, 'SCON', 'SCH', -28, 'LEI'),
+ 
 -------------------------------------------------------
 -- Seed data for Appointments (APP) Scheduled Events --
 -------------------------------------------------------
