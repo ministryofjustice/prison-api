@@ -156,8 +156,7 @@ project(":mobile-web") {
         }
     }
     codacyCoverageUploader.dependsOn jacocoTestReport
-    check.dependsOn codacyCoverageUploader
-
+    aggregate.dependsOn codacyCoverageUploader
     compileJava.dependsOn processResources
 
     def configsDir = file("${rootDir}/mobile-web/src/main/configs").absolutePath
