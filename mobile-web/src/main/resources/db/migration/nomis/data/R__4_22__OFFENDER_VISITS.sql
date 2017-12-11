@@ -22,8 +22,10 @@ INSERT INTO OFFENDER_VISITS (OFFENDER_VISIT_ID, OFFENDER_BOOK_ID, VISIT_DATE, ST
 INSERT INTO OFFENDER_VISITS (OFFENDER_VISIT_ID, OFFENDER_BOOK_ID, VISIT_DATE, START_TIME, END_TIME, VISIT_TYPE, VISIT_STATUS, VISIT_INTERNAL_LOCATION_ID, AGY_LOC_ID) VALUES (-16, -2, TO_DATE('2017-10-10', 'YYYY-MM-DD'), TO_DATE('2017-10-10 10:00:00', 'YYYY-MM-DD HH24:MI:SS'), TO_DATE('2017-10-10 12:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'OFFI', 'SCH', -25,  'LEI');
 
 INSERT INTO OFFENDER_VISITS (OFFENDER_VISIT_ID, OFFENDER_BOOK_ID, VISIT_DATE, START_TIME, END_TIME, VISIT_TYPE, VISIT_STATUS, VISIT_INTERNAL_LOCATION_ID, AGY_LOC_ID)
-VALUES (-17, -3, sysdate + INTERVAL '1' SECOND, sysdate + INTERVAL '1' SECOND, sysdate + INTERVAL '1' SECOND, 'OFFI', 'SCH', -25, 'LEI'),
-       (-18, -3, sysdate + INTERVAL '2' SECOND, sysdate + INTERVAL '2' SECOND, sysdate + INTERVAL '2' SECOND, 'SCON', 'SCH', -28, 'LEI'),
+-- These intervals in SECONDS need to be short enough that they are unlikely to span midnight, but also not so short that they end up
+-- in the wrong order due to a delay between the execution of one insert and another.
+VALUES (-17, -3, sysdate, sysdate + INTERVAL '5' SECOND, sysdate + INTERVAL '5' SECOND, 'OFFI', 'SCH', -25, 'LEI'),
+       (-18, -3, sysdate, sysdate + INTERVAL '10' SECOND, sysdate + INTERVAL '10' SECOND, 'SCON', 'SCH', -28, 'LEI'),
        (-19, -3, sysdate + INTERVAL '1' DAY, sysdate + INTERVAL '1' DAY, sysdate + INTERVAL '1' DAY, 'SCON', 'SCH', -26, 'LEI'),
        (-21, -3, sysdate + INTERVAL '2' DAY, sysdate + INTERVAL '2' DAY, sysdate + INTERVAL '2' DAY, 'SCON', 'SCH', -29, 'LEI'),
        (-22, -3, sysdate + INTERVAL '4' DAY, sysdate + INTERVAL '4' DAY, sysdate + INTERVAL '4' DAY, 'SCON', 'SCH', -13, 'LEI'),
