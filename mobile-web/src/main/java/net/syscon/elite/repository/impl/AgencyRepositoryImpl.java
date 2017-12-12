@@ -2,6 +2,7 @@ package net.syscon.elite.repository.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AgencyRepository;
@@ -30,6 +31,12 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
                     .put("AGENCY_LOCATION_TYPE", new FieldMapper("agencyType"))
                     .build();
 
+    private final Map<String, FieldMapper> locationMapping  =
+            new ImmutableMap.Builder<String, FieldMapper>()
+                    .put("INTERNAL_LOCATION_ID", new FieldMapper("locationId"))
+                    .put("DESCRIPTION", new FieldMapper("description"))
+                    .build();
+    
     @Override
     public Page<Agency> getAgencies(String orderByField, Order order, long offset, long limit) {
         String initialSql = getQuery("GET_AGENCIES");
@@ -86,5 +93,12 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
         }
 
         return Optional.ofNullable(agency);
+    }
+
+    @Override
+    public List<Location> getAvailableLocations(String agencyId, String eventType) {
+        String sql = getQuery("GET_AVAILABLE_LOCATIONS");
+        RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
+        return jdbcTemplate.query(sql, createParams("agencyId", agencyId, "eventType", eventType), locationRowMapper);
     }
 }

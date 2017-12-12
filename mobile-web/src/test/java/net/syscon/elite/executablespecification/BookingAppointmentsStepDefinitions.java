@@ -5,6 +5,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.executablespecification.steps.BookingAppointmentSteps;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
@@ -162,7 +163,7 @@ public class BookingAppointmentsStepDefinitions extends AbstractStepDefinitions 
     @When("^A medical appointment is created for an existing offender with booking id \"([^\"]*)\", tomorrow at \"([^\"]*)\", at location \"([^\"]*)\"")
     public void appointmentIsCreated(String bookingId, String time, String locationId) throws Throwable {
         final LocalDateTime startDateTime = LocalDateTime.parse(LocalDate.now().plusDays(1).toString() + 'T' + time);
-        bookingAppointments.createAppointment(Long.valueOf(bookingId), "MEDE", startDateTime, Long.valueOf(locationId));
+        bookingAppointments.createAppointment(Long.valueOf(bookingId), "MEDE", startDateTime, Long.valueOf(locationId), "a comment");
     }
 
     @Then("^The appointment exists in the database$")
@@ -170,23 +171,23 @@ public class BookingAppointmentsStepDefinitions extends AbstractStepDefinitions 
         bookingAppointments.verifyCreatedAppointment();
     }
 
-    @When("^An appointment is created for a time in the past$")
+    @When("^An appointment is created with an invalid comment$")
     public void appointmentIsCreatedInThePast() throws Throwable {
-        bookingAppointments.createAppointment(-4L, "MEDE", LocalDateTime.parse("2017-10-02T12:00:00"), -29L);
+        bookingAppointments.createAppointment(-4L, "MEDE",LocalDateTime.now().plusDays(1), -29L, StringUtils.repeat("0123456789", 1000));
     }
 
     @When("^An appointment is created for an invalid type$")
     public void appointmentIsCreatedInvalidType() throws Throwable {
-        bookingAppointments.createAppointment(-4L, "doesnotexist", LocalDateTime.now().plusDays(1), -29L);
+        bookingAppointments.createAppointment(-4L, "doesnotexist", LocalDateTime.now().plusDays(1), -29L, null);
     }
 
     @When("^An appointment is created for an invalid location$")
     public void appointmentIsCreatedInvalidLocation() throws Throwable {
-        bookingAppointments.createAppointment(-4L, "MEDE", LocalDateTime.now().plusDays(1), -999L);
+        bookingAppointments.createAppointment(-4L, "MEDE", LocalDateTime.now().plusDays(1), -999L, null);
     }
 
     @When("^An appointment is created for an invalid booking id$")
     public void appointmentIsCreatedInvalidBookingId() throws Throwable {
-        bookingAppointments.createAppointment(-999L, "MEDE", LocalDateTime.now().plusDays(1), -29L);
+        bookingAppointments.createAppointment(-999L, "MEDE", LocalDateTime.now().plusDays(1), -29L, null);
     }
 }

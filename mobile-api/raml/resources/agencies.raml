@@ -6,3 +6,14 @@ type: { readOnlyCollectionPaged: { type: Agency } }
   (javaOperationName): getAgency
   description: Returns specified agency.
   type: { readOnlyItem: { type: Agency } }
+
+/{agencyId}/locations:
+  (javaOperationName): getAvailableLocations
+  description: Returns locations available to an agency for creating/updating a given event type.
+  type: { readOnlyCollection: { type: Location } }
+  get:
+    queryParameters:
+      eventType:
+        type: string
+        description: The type of event
+        example: APP (appointment)

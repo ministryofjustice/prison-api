@@ -21,3 +21,24 @@ FIND_AGENCIES_BY_USERNAME {
          INNER JOIN STAFF_MEMBERS SM ON SM.STAFF_ID = SAC.STAFF_ID
            AND SM.PERSONNEL_TYPE = 'STAFF' AND SM.USER_ID = :username)
 }
+
+GET_AVAILABLE_LOCATIONS {
+ --- For INSERT_APPOINTMENT and other events
+SELECT ail.internal_location_id, -- this is the actual id
+       ail.description
+       --, ail.internal_location_code, ail.internal_location_type, ail.agy_loc_id,
+   --    ail.parent_internal_location_id,ail.active_flag,ail.deactivate_date,
+   --  ilu.internal_location_usage_id, -- all the same, for 'APP', 2247
+  ilul.usage_location_id, ilul.usage_location_type, ilul.parent_usage_location_id
+FROM int_loc_usage_locations ilul 
+  INNER JOIN internal_location_usages ilu ON ilu.internal_location_usage_id = ilul.internal_location_usage_id
+  INNER JOIN agency_internal_locations ail ON ail.internal_location_id = ilul.internal_location_id
+WHERE ilu.internal_location_usage = :eventType
+  AND ilu.agy_loc_id = :agencyId  
+  AND ail.active_flag = 'Y'
+  AND ail.deactivate_date IS NULL
+  AND ail.internal_location_code <> 'RTU'
+  AND NOT EXISTS (SELECT 1
+                 FROM int_loc_usage_locations
+                 WHERE parent_usage_location_id = ilul.usage_location_id)
+}

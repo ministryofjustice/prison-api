@@ -9111,3 +9111,13 @@ INSERT INTO REFERENCE_CODES (DOMAIN, CODE, DESCRIPTION, LIST_SEQ, ACTIVE_FLAG, S
          ('WRK_FLW_ACT', 'REM', 'Remove', null, 'Y', 'N', null, null, null),
          ('WRK_FLW_ACT', 'REV', 'Review', 99, 'Y', 'N', null, null, null),
          ('WRK_FLW_ACT', 'VER', 'Verification', 99, 'Y', 'Y', null, null, null);
+
+INSERT INTO INTERNAL_SCHEDULE_REASONS (INTERNAL_SCHEDULE_TYPE,INTERNAL_SCHEDULE_RSN_CODE,DESCRIPTION,ACTIVE_FLAG,LIST_SEQ,EXPIRY_DATE,CREATE_USER_ID,CREATE_DATETIME,MODIFY_DATETIME,MODIFY_USER_ID) 
+VALUES
+        ('APP','EDUC','Computers','Y',99,null,'OMS_OWNER','2015-07-15 15:02:07.0','2016-03-29 13:49:55.0','JILLY_GEN'),
+        ('APP','KWS','Key Work Session','Y',99,null,'TREV_GEN','2017-11-12 17:33:48.0',null,null),
+        ('APP','RST','HERE IS A REASON','N',99,'2016-03-29','JILLY_GEN','2016-03-29 13:49:48.0','2016-03-29 13:51:09.0','JILLY_GEN'),
+        ('APP','RES','Resolve','Y',null,null,'JILLY_GEN','2016-03-29 14:00:26.0',null,null),
+        ('APP','CHAP','Baptism','Y',null,null,'TREV_GEN','2017-10-12 16:11:52.0',null,null),
+        ('APP','CABA','Bail','Y',null,null,'TREV_GEN','2017-10-12 16:12:46.0',null,null),
+        ('APP','MEDE','Dentist','Y',null,null,'TREV_GEN','2017-10-12 16:13:03.0',null,null);

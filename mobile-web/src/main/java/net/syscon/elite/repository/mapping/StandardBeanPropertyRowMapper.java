@@ -34,6 +34,7 @@ public class StandardBeanPropertyRowMapper<T> extends BeanPropertyRowMapper<T> {
      * Initialize the mapping metadata for the given class.
      * @param mappedClass the mapped class
      */
+    @Override
     protected void initialize(Class<T> mappedClass) {
         super.initialize(mappedClass);
 

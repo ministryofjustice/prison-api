@@ -238,33 +238,8 @@ GET_BOOKING_APPOINTMENT {
 }
 
 INSERT_APPOINTMENT {
-  INSERT INTO OFFENDER_IND_SCHEDULES (EVENT_ID, OFFENDER_BOOK_ID, EVENT_DATE, START_TIME,
+  INSERT INTO OFFENDER_IND_SCHEDULES (EVENT_ID, OFFENDER_BOOK_ID, EVENT_DATE, START_TIME, END_TIME, COMMENT_TEXT,
     EVENT_CLASS, EVENT_TYPE, EVENT_SUB_TYPE, EVENT_STATUS, TO_AGY_LOC_ID, TO_INTERNAL_LOCATION_ID)
-  VALUES (EVENT_ID.NEXTVAL, :bookingId, :eventDate, :startTime,
+  VALUES (EVENT_ID.NEXTVAL, :bookingId, :eventDate, :startTime, :endTime, :comment,
     'INT_MOV', 'APP', :eventSubType, 'SCH', :agencyId, :locationId)
-}
-
-GET_AVAILABLE_LOCATIONS {
- --- For INSERT_APPOINTMENT
-SELECT ail.internal_location_id, -- this is the actual id
-       ail.description, ail.internal_location_code, ail.internal_location_type, ail.agy_loc_id,
-       ail.parent_internal_location_id,ail.active_flag,ail.deactivate_date,
-   --  ilu.internal_location_usage_id, -- all the same, for 'APP', 2247
-  ilul.usage_location_id, ilul.usage_location_type, ilul.parent_usage_location_id
-FROM int_loc_usage_locations ilul 
-  INNER JOIN internal_location_usages ilu ON ilu.internal_location_usage_id = ilul.internal_location_usage_id
-  INNER JOIN agency_internal_locations ail ON ail.internal_location_id = ilul.internal_location_id
-WHERE ilu.internal_location_usage = 'APP'
-  AND ilu.agy_loc_id = :agy_loc_id  
-  AND ail.active_flag = 'Y'
-  AND ail.deactivate_date IS NULL
-  AND ail.internal_location_code <> 'RTU'
-  AND NOT EXISTS (SELECT 1
-                 FROM int_loc_usage_locations
-                 WHERE parent_usage_location_id = ilul.usage_location_id)
-}
-
-GET_AVAILABLE_EVENT_SUBTYPES {
- --- For INSERT_APPOINTMENT
-SELECT internal_schedule_rsn_code FROM internal_schedule_reasons WHERE internal_schedule_type = 'APP' AND active_flag = 'Y'
 }

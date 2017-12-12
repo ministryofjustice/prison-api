@@ -128,9 +128,9 @@ Feature: Booking Appointments
     When A medical appointment is created for an existing offender with booking id "-4", tomorrow at "16:00", at location "-28"
     Then The appointment exists in the database
 
-  Scenario: Create a new appointment with invalid date
-    When An appointment is created for a time in the past
-    Then bad request response, with "Appointment time is in the past." message, is received from booking appointments API
+  Scenario: Create a new appointment with invalid comment
+    When An appointment is created with an invalid comment
+    Then bad request response, with "Value is too long: max length is 3600" message, is received from booking appointments API
 
   Scenario: Create a new appointment with invalid type
     When An appointment is created for an invalid type
