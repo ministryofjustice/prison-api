@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
+import net.syscon.elite.api.resource.impl.*;
 import net.syscon.elite.web.handler.ConstraintViolationExceptionHandler;
 import net.syscon.elite.web.handler.ResourceExceptionHandler;
 import net.syscon.elite.web.listener.EndpointLoggingListener;
@@ -67,10 +68,16 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
 
     @Autowired
     public void setEnv(ConfigurableEnvironment env) {
-        // Use package scanning to identify and register Jersey REST resources - the key to this working is to ensure
-        // that the concrete implementation classes include a @Path annotation (as this is how Jersey recognises them).
-        packages("net.syscon.elite.api.resource.impl");
-
+        register(ImagesResourceImpl.class);
+        register(LocationsResourceImpl.class);
+        register(ReferenceDomainsResourceImpl.class);
+        register(AgencyResourceImpl.class);
+        register(UserResourceImpl.class);
+        register(SearchResourceImpl.class);
+        register(PrisonerResourceImpl.class);
+        register(BookingResourceImpl.class);
+        register(OffenderReleaseResourceImpl.class);
+        register(CustodyStatusResourceImpl.class);
 
         String contextPath = env.getProperty("server.contextPath");
 
