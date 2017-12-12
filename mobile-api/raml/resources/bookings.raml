@@ -316,6 +316,14 @@
     sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
   ]
 
+/{bookingId}/visits/last:
+  (javaOperationName): getBookingVisitsLast
+  type: {readOnlyItem: {type: ScheduledEvent, description: The most recent visit for the offender. }}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+
 /{bookingId}/appointments:
   uriParameters:
     bookingId:

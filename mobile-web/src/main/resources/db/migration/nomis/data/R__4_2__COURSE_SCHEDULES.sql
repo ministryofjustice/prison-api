@@ -32,8 +32,10 @@ INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME
 
 -- These course schedules defined for current day, this week and next week (to test 'today', 'thisWeek' and 'nextWeek' endpoint actions).
 INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME, END_TIME, SCHEDULE_STATUS)
-VALUES (-26, -2, sysdate, sysdate + INTERVAL '5' SECOND, sysdate + INTERVAL '5' SECOND, 'SCH'),
-       (-27, -2, sysdate, sysdate + INTERVAL '6' SECOND, sysdate + INTERVAL '6' SECOND, 'SCH'),
+-- These intervals in SECONDS need to be short enough that they are unlikely to span midnight, but also not so short that they end up
+-- in the wrong order due to a delay between the execution of one insert and another.
+VALUES (-26, -2, sysdate, sysdate + INTERVAL '25' SECOND, sysdate + INTERVAL '25' SECOND, 'SCH'),
+       (-27, -2, sysdate, sysdate + INTERVAL '30' SECOND, sysdate + INTERVAL '30' SECOND, 'SCH'),
        (-28, -5, sysdate + INTERVAL  '6' DAY, sysdate + INTERVAL  '6' DAY, sysdate + INTERVAL  '6' DAY, 'SCH'),
        (-29, -6, sysdate + INTERVAL  '3' DAY, sysdate + INTERVAL  '3' DAY, sysdate + INTERVAL  '3' DAY, 'SCH'),
        (-30, -5, sysdate + INTERVAL '17' DAY, sysdate + INTERVAL '17' DAY, sysdate + INTERVAL '17' DAY, 'SCH'),

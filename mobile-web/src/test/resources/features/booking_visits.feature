@@ -72,7 +72,7 @@ Feature: Booking Visits
     And "10" visits in total are available
     And start time for "1st" returned visit is "2017-05-10 14:30:00"
     And event source description for "1st" returned visit is "Official Visit"
-    And end time for "10th" returned visit is "2017-12-12 15:30:00"
+    And end time for "10th" returned visit is "2017-12-10 15:30:00"
     And event source description for "10th" returned visit is "Social Contact"
 
   Scenario: Retrieve scheduled visits for an existing offender having one or more visits, to a specified date
@@ -96,7 +96,15 @@ Feature: Booking Visits
     When scheduled visits, sorted by "endTime" in "descending" order, are requested for an offender with booking id "-1"
     Then "10" visits are returned
     And "15" visits in total are available
-    And start time for "1st" returned visit is "2017-12-12 14:30:00"
+    And start time for "1st" returned visit is "2017-12-10 14:30:00"
     And event source description for "1st" returned visit is "Social Contact"
     And end time for "10th" returned visit is "2017-05-10 16:30:00"
     And event source description for "10th" returned visit is "Official Visit"
+
+  Scenario Outline: Retrieve last visit for an offender
+    When the last visit is requested for an offender with booking id "<booking id>"
+    Then the visit startTime is "<startTime>"
+    And the visit eventSubType is "<eventSubType>"
+    Examples:
+      | booking id | startTime        | eventSubType  | 
+      | -1         | 2017-12-10T14:30 | VISIT         |
