@@ -1,18 +1,18 @@
 /me/locations:
   (javaOperationName): getMyLocations
   description: Returns list of locations associated with current user.
-  type: { readOnlyCollection: { type: Location } }
+  type: { readOnlyCollection: { type: Location, description: List of locations accessible to current user. } }
   
 /{username}:
   (javaOperationName): getUserDetails
-  type: { readOnlyItem: { type: UserDetail,  description: Retrieve details for user having specified username. }}
+  type: { readOnlyItem: { type: UserDetail,  description: User detail. } }
   uriParameters:
     username:
       description: The username of the user.
 
 /staff/{staffId}:
   (javaOperationName): getStaffDetail
-  type: { readOnlyItem: { type: StaffDetail, description: Retrieve basic personal details for staff member having specified staff id. }}
+  type: { readOnlyItem: { type: StaffDetail, description: Staff detail. } }
   uriParameters:
     staffId:
       (javaType): Long
@@ -20,22 +20,22 @@
 
 /me:
   (javaOperationName): getMyUserInformation
-  type: { readOnlyItem: { type: UserDetail, description: Details of the current logged user } }
+  type: { readOnlyItem: { type: UserDetail, description: Current user detail. } }
 
 /me/bookingAssignments:
   (javaOperationName): getMyAssignments
   description: Offender Assignments for this logged in user
-  type: { readOnlyCollectionPaged: { type: OffenderBooking } }
+  type: { readOnlyCollectionPaged: { type: OffenderBooking, description: List of offender bookings assigned to current user. } }
 
 /me/roles:
   (javaOperationName): getMyRoles
   description: Get the logged in users roles
-  type: { readOnlyCollection: { type: UserRole } }
+  type: { readOnlyCollection: { type: UserRole, description: List of roles for current user. } }
 
 /me/offender-releases:
   (javaOperationName): getMyOffenderReleases
   description: Forthcoming offender releases for my caseloads
-  type: { readOnlyCollectionPaged: { type: OffenderRelease } }
+  type: { readOnlyCollectionPaged: { type: OffenderRelease, description: List of offenders (with release detail) in caseloads accessible to current user. } }
   get:
      queryParameters:
         toDate?:
@@ -50,11 +50,11 @@
 /me/caseLoads:
   (javaOperationName): getMyCaseLoads
   description: Returns the list of caseloads associated to the user
-  type: { readOnlyCollection: { type: CaseLoad } }
+  type: { readOnlyCollection: { type: CaseLoad, description: List of caseloads accessible to current user. } }
   
 /me/caseNoteTypes:
   (javaOperationName): getMyCaseNoteTypes
-  type: { readOnlyCollection: { type: ReferenceCode, description: Get case note types (with sub-types) associated with user (and based on working caseload). } }
+  type: { readOnlyCollection: { type: ReferenceCode, description: List of all case note types (with sub-types) accessible to current user (and based on working caseload). } }
   is: [
     sortable: {fieldsList : "code, activeFlag, description"},
   ]
@@ -63,7 +63,7 @@
   (javaOperationName): updateMyActiveCaseLoad
   description: The active caseload associated to the user
   put:
-    description: Set the active caseload associated to the user.
+    description: Update working caseload for current user.
     body:
       application/json:
         type: CaseLoad
@@ -85,7 +85,7 @@
   (javaOperationName): login
   post:
     securedBy: [basic]
-    description: Login using Username and Password
+    description: Authenticate user (with username and password).
     body:
       application/json:
         type: AuthLogin
@@ -118,7 +118,7 @@
 /token:
   (javaOperationName): tokenRefresh
   post:
-    description: Renew the JWT to keep as a authenticated user
+    description: Refresh authentication token.
     headers:
       Authorization:
         description: Current Token

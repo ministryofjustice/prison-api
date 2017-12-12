@@ -1,6 +1,6 @@
 /:
   (javaOperationName): getOffenderBookings
-  type: { readOnlyCollectionPaged: { type: OffenderBooking, description: Gets summary details for all offender accessible to current user. } }
+  type: { readOnlyCollectionPaged: { type: OffenderBooking, description: Summary information for all offenders accessible to current user. } }
   is: [
     searchable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, assignedLivingUnitId, assignedOfficerUserId"},
     sortable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, assignedLivingUnitId"},
@@ -8,7 +8,7 @@
 
 /{bookingId}:
   (javaOperationName): getOffenderBooking
-  type: { readOnlyItem: { type: InmateDetail, description: Gets details for specified offender. } }
+  type: { readOnlyItem: { type: InmateDetail, description: Offender detail. } }
   uriParameters:
     bookingId:
       (javaType): Long
@@ -21,7 +21,7 @@
       (javaType): Long
       description: The booking id of offender
   get:
-    description: Get a paged list of case notes for offender
+    description: Offender case notes.
     queryParameters:
       from:
         description: start contact date to search from
@@ -41,7 +41,7 @@
     ]
 
   post:
-    description: Entry of new case note under a booking.
+    description: Create case note for offender.
     body:
       application/json:
         type: NewCaseNote
@@ -66,7 +66,7 @@
       (javaType): Long
       description: The case note id
   get:
-    description: The specific case note of a booking
+    description: Offender case note detail.
     responses:
       200:
         body:
@@ -74,7 +74,7 @@
             CaseNote
 
   put:
-    description: Updates text note of specified case note. Text will not be replaced but it will be appended by provided text.
+    description: Amend offender case note.
     body:
       application/json:
         type: UpdateCaseNote
@@ -87,7 +87,7 @@
 
 /{bookingId}/alerts:
   (javaOperationName): getOffenderAlerts
-  type: {readOnlyCollectionPaged: {type: Alert, description: The collection of alerts associated to the inmate. }}
+  type: { readOnlyCollectionPaged: { type: Alert, description: Offender alerts. } }
   uriParameters:
     bookingId:
       (javaType): Long
@@ -99,7 +99,7 @@
 
 /{bookingId}/alerts/{alertId}:
   (javaOperationName): getOffenderAlert
-  type: { readOnlyItem: { type: Alert, description: A specific alert associated to the booking. } }
+  type: { readOnlyItem: { type: Alert, description: Offender alert detail. } }
   uriParameters:
     bookingId:
       (javaType): Long
@@ -110,7 +110,7 @@
 
 /{bookingId}/assessment/{assessmentCode}:
   (javaOperationName): getAssessmentByCode
-  type: { readOnlyItem: { type: Assessment, description: A specific assessment associated to the booking by assessment type code. } }
+  type: { readOnlyItem: { type: Assessment, description: Offender assessment detail. } }
   uriParameters:
     bookingId:
       (javaType): Long
@@ -121,7 +121,7 @@
 
 /{bookingId}/aliases:
   (javaOperationName): getOffenderAliases
-  type: {readOnlyCollectionPaged: {type: Alias, description: Gets aliases associated with specified booking.}}
+  type: { readOnlyCollectionPaged: { type: Alias, description: Offender aliases. } }
   uriParameters:
     bookingId:
       (javaType): Long
@@ -135,7 +135,7 @@
   type: {
     readOnlyItem: {
       type: SentenceDetail,
-      description: Gets sentence details (e.g. key dates) for offender booking.
+      description: Offender sentence detail (key dates and additional days awarded).
     }
   }
   uriParameters:
@@ -148,7 +148,7 @@
   type: {
     readOnlyItem: {
       type: PrivilegeSummary,
-      description: Gets IEP (Incentives & Earned Privileges) summary for offender booking.
+      description: Offender IEP (Incentives & Earned Privileges) summary.
     }
   }
   uriParameters:
@@ -163,7 +163,7 @@
 
 /{bookingId}/balances:
   (javaOperationName): getBalances
-  type: { readOnlyItem: { type: Account, description: Returns booking account balances. } }
+  type: { readOnlyItem: { type: Account, description: Offender account balances. } }
   uriParameters:
     bookingId:
       (javaType): Long
@@ -171,7 +171,7 @@
 
 /{bookingId}/events/today:
   (javaOperationName): getEventsToday
-  type: {readOnlyCollection: {type: ScheduledEvent, description: All today's scheduled events for the offender. }}
+  type: { readOnlyCollection: { type: ScheduledEvent, description: Today's scheduled events for offender. } }
   uriParameters:
     bookingId:
       (javaType): Long
@@ -179,7 +179,7 @@
 
 /{bookingId}/events/thisWeek:
   (javaOperationName): getEventsThisWeek
-  type: {readOnlyCollection: {type: ScheduledEvent, description: All scheduled events for the offender for the coming week. }}
+  type: { readOnlyCollection: { type: ScheduledEvent, description: Scheduled events for offender for coming week (from current day). } }
   uriParameters:
     bookingId:
       (javaType): Long
@@ -187,7 +187,7 @@
 
 /{bookingId}/events/nextWeek:
   (javaOperationName): getEventsNextWeek
-  type: {readOnlyCollection: {type: ScheduledEvent, description: All scheduled events for the offender for the following week. }}
+  type: { readOnlyCollection: { type: ScheduledEvent, description: Scheduled events for offender for following week. } }
   uriParameters:
     bookingId:
       (javaType): Long
@@ -195,7 +195,7 @@
 
 /{bookingId}/activities:
   (javaOperationName): getBookingActivities
-  type: {readOnlyCollectionPaged: {type: ScheduledEvent, description: Scheduled activities for the offender. }}
+  type: { readOnlyCollectionPaged: { type: ScheduledEvent, description: All scheduled activities for offender. } }
   uriParameters:
     bookingId:
       (javaType): Long
@@ -216,7 +216,7 @@
 
 /{bookingId}/activities/today:
   (javaOperationName): getBookingActivitiesForToday
-  type: {readOnlyCollection: {type: ScheduledEvent, description: Scheduled activities for the offender for current day. }}
+  type: { readOnlyCollection: { type: ScheduledEvent, description: Today's scheduled activities for offender. } }
   uriParameters:
     bookingId:
       (javaType): Long
@@ -227,7 +227,7 @@
 
 /{bookingId}/contacts:
   (javaOperationName): getContacts
-  type: { readOnlyItem: { type: ContactDetail, description: Get current next of kin details } }
+  type: { readOnlyItem: { type: ContactDetail, description: Offender contacts (e.g. next of kin). } }
   uriParameters:
     bookingId:
       (javaType): Long
@@ -235,7 +235,7 @@
 
 /{bookingId}/adjudications:
   (javaOperationName): getAdjudications
-  type: { readOnlyItem: { type: AdjudicationDetail, description: Get current award or sanction details } }
+  type: { readOnlyItem: { type: AdjudicationDetail, description: Offender adjudications (awards and sanctions). } }
   uriParameters:
     bookingId:
       (javaType): Long
@@ -253,7 +253,7 @@
 
 /{bookingId}/caseNotes/{type}/{subType}/count:
   (javaOperationName): getCaseNoteCount
-  type: {readOnlyItem: {type: CaseNoteCount, description: Count of case notes of specific type/subType for the offender. }}
+  type: { readOnlyItem: { type: CaseNoteCount, description: Count of case notes, of specified type and sub-type, for offender. } }
   uriParameters:
     bookingId:
       type: number
@@ -278,7 +278,7 @@
 
 /{bookingId}/mainOffence:
   (javaOperationName): getMainOffence
-  type: { readOnlyCollection: { type: OffenceDetail, description: Main offence details. } }
+  type: { readOnlyCollection: { type: OffenceDetail, description: Offender main offence detail. } }
   uriParameters:
     bookingId:
       (javaType): Long
@@ -286,7 +286,7 @@
 
 /{bookingId}/visits:
   (javaOperationName): getBookingVisits
-  type: {readOnlyCollectionPaged: {type: ScheduledEvent, description: Scheduled visits for the offender. }}
+  type: { readOnlyCollectionPaged: { type: ScheduledEvent, description: All scheduled visits for offender. } }
   uriParameters:
     bookingId:
       (javaType): Long
@@ -307,7 +307,7 @@
 
 /{bookingId}/visits/today:
   (javaOperationName): getBookingVisitsForToday
-  type: {readOnlyCollection: {type: ScheduledEvent, description: Scheduled visits for the offender for current day. }}
+  type: { readOnlyCollection: { type: ScheduledEvent, description: Today's scheduled visits for offender. } }
   uriParameters:
     bookingId:
       (javaType): Long
@@ -330,7 +330,7 @@
       (javaType): Long
       description: The offender booking id
   get:
-    description: Scheduled appointments for the offender.
+    description: All scheduled appointments for offender.
     queryParameters:
       fromDate?:
         type: string
@@ -351,7 +351,7 @@
       sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
     ]
   post:
-    description: Add a new appointment under a booking.
+    description: Create appointment for offender.
     body:
       application/json:
         type: NewAppointment
@@ -364,7 +364,7 @@
 
 /{bookingId}/appointments/today:
   (javaOperationName): getBookingAppointmentsForToday
-  type: {readOnlyCollection: {type: ScheduledEvent, description: Scheduled appointments for the offender for current day. }}
+  type: { readOnlyCollection: { type: ScheduledEvent, description: Today's scheduled appointments for offender. } }
   uriParameters:
     bookingId:
       (javaType): Long
@@ -375,7 +375,7 @@
 
 /{bookingId}/appointments/thisWeek:
   (javaOperationName): getBookingAppointmentsForThisWeek
-  type: {readOnlyCollection: {type: ScheduledEvent, description: Scheduled appointments for the offender for 7 days ahead starting from today. }}
+  type: { readOnlyCollection: { type: ScheduledEvent, description: Scheduled appointments for offender for coming week (from current day). } }
   uriParameters:
     bookingId:
       (javaType): Long
@@ -386,7 +386,7 @@
 
 /{bookingId}/appointments/nextWeek:
   (javaOperationName): getBookingAppointmentsForNextWeek
-  type: {readOnlyCollection: {type: ScheduledEvent, description: Scheduled appointments for the offender for 7 days ahead starting a week from today. }}
+  type: { readOnlyCollection: { type: ScheduledEvent, description: Scheduled appointments for offender for following week. } }
   uriParameters:
     bookingId:
       (javaType): Long

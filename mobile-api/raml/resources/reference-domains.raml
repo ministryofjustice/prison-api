@@ -1,24 +1,24 @@
 /alertTypes:
   (javaOperationName): getAlertTypes
-  type: { readOnlyCollectionPaged: { type: ReferenceCode, description: Get all Alert Types (with alert codes). } }
+  type: { readOnlyCollectionPaged: { type: ReferenceCode, description: List of alert types (with alert codes). } }
   is: [
     sortable: {fieldsList: "code, description"}
   ]
 
 /caseNoteSources:
   (javaOperationName): getCaseNoteSources
-  type: { readOnlyCollectionPaged : { type: ReferenceCode, description: Get all Case Note source codes. } }
+  type: { readOnlyCollectionPaged : { type: ReferenceCode, description: List of case note source codes. } }
   is: [
     sortable: {fieldsList: "code, description"}
   ]
 
 /caseNoteTypes:
   (javaOperationName): getCaseNoteTypes
-  type: { readOnlyCollection : { type: ReferenceCode, description: Get all <i>used</i> Case Note types (with sub-types). } }
+  type: { readOnlyCollection : { type: ReferenceCode, description: List of all used case note types (with sub-types). } }
 
 /domains/{domain}:
   (javaOperationName): getReferenceCodesByDomain
-  type: { readOnlyCollectionPaged : { type: ReferenceCode, description: Get reference codes for specified domain. } }
+  type: { readOnlyCollectionPaged : { type: ReferenceCode, description: List of reference codes for reference domain. } }
   uriParameters:
     domain:
       type: string
@@ -36,7 +36,7 @@
 
 /domains/{domain}/codes/{code}:
   (javaOperationName): getReferenceCodeByDomainAndCode
-  type: { readOnlyItem : { type: ReferenceCode, description: Get reference code detail for specified domain and code (with sub-codes). } }
+  type: { readOnlyItem : { type: ReferenceCode, description: Reference code detail for reference domain and code (with sub-codes). } }
   uriParameters:
     domain:
       type: string
