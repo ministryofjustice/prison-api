@@ -8,7 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
-import net.syscon.elite.api.resource.impl.*;
+import net.syscon.elite.core.RestResource;
 import net.syscon.elite.web.handler.ConstraintViolationExceptionHandler;
 import net.syscon.elite.web.handler.ResourceExceptionHandler;
 import net.syscon.elite.web.listener.EndpointLoggingListener;
@@ -57,6 +57,9 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
     @Value("${spring.jersey.application-path:/}")
     private String apiPath;
 
+    @Value("${api.resource.packages}")
+    private String[] apiResourcePackages;
+
     private BeanFactory beanFactory;
     private SpringConstraintValidatorFactory constraintValidatorFactory;
     private LocalValidatorFactoryBean localValidatorFactoryBean;
@@ -68,16 +71,9 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
 
     @Autowired
     public void setEnv(ConfigurableEnvironment env) {
-        register(ImagesResourceImpl.class);
-        register(LocationsResourceImpl.class);
-        register(ReferenceDomainsResourceImpl.class);
-        register(AgencyResourceImpl.class);
-        register(UserResourceImpl.class);
-        register(SearchResourceImpl.class);
-        register(PrisonerResourceImpl.class);
-        register(BookingResourceImpl.class);
-        register(OffenderReleaseResourceImpl.class);
-        register(CustodyStatusResourceImpl.class);
+        Class[] restResources = AnnotationScanner.findAnnotatedClasses(RestResource.class, apiResourcePackages);
+
+        registerClasses(restResources);
 
         String contextPath = env.getProperty("server.contextPath");
 
