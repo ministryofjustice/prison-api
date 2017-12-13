@@ -31,7 +31,7 @@ public class AnnotationScanner {
         List<Class> annotatedClasses = new ArrayList<>();
 
         Arrays.asList(scanPackages).forEach(pkg -> {
-            annotatedClasses.addAll(Arrays.asList(findAnnotatedClasses(annotationClass, pkg)));
+            annotatedClasses.addAll(locateAnnotatedClasses(annotationClass, pkg));
         });
 
         return annotatedClasses.toArray(new Class[annotatedClasses.size()]);
@@ -39,6 +39,13 @@ public class AnnotationScanner {
 
     public static Class[] findAnnotatedClasses(Class annotationClass, String scanPackage) {
         Objects.requireNonNull(annotationClass, "Annotation class must be specified.");
+
+        List<Class> annotatedClasses = locateAnnotatedClasses(annotationClass, scanPackage);
+
+        return annotatedClasses.toArray(new Class[annotatedClasses.size()]);
+    }
+
+    private static List<Class> locateAnnotatedClasses(Class annotationClass, String scanPackage) {
         Objects.requireNonNull(scanPackage, "Scan package must be specified.");
 
         List<Class> annotatedClasses = new ArrayList<>();
@@ -53,7 +60,7 @@ public class AnnotationScanner {
             }
         }
 
-        return annotatedClasses.toArray(new Class[annotatedClasses.size()]);
+        return annotatedClasses;
     }
 
     private static ClassPathScanningCandidateComponentProvider createComponentScanner(Class annotationClass) {
