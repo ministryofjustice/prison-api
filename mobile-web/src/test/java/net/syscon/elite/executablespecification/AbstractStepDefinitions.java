@@ -35,6 +35,11 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
+        public AgencySteps agency() {
+            return new AgencySteps();
+        }
+
+        @Bean
         public CaseNoteSteps caseNote() {
             return new CaseNoteSteps();
         }

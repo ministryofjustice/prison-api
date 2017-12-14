@@ -146,3 +146,14 @@ Feature: Reference Domains
       | domain    | code  | description                       | activeFlag | subCodeCount |
       | ALERT     | C     | Child Communication Measures      | Y          | 4            |
       | CONTACTS  | S     | Social/Family                     | Y          | 38           |
+
+  Scenario: Retrieve reason codes for an event type
+    When a request is submitted to retrieve all reason codes for event type "APP"
+    Then the returned reason codes are as follows:
+      | code | description      |
+      | CABA | Bail             |
+      | CHAP | Baptism          |
+      | EDUC | Computers        |
+      | KWS  | Key Work Session |
+      | MEDE | Dentist          |
+      | RES  | Resolve          |

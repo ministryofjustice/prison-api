@@ -1,10 +1,15 @@
 package net.syscon.elite.executablespecification;
 
+import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+
+import net.syscon.elite.api.model.ScheduleReason;
 import net.syscon.elite.executablespecification.steps.ReferenceDomainsSteps;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * BDD step definitions for reference domains endpoints:
@@ -174,5 +179,16 @@ public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
     @Then("^bad request response is received from reference domains API and user message is \"([^\"]*)\"$")
     public void badRequestResponseIsReceivedFromReferenceDomainsAPIAndUserMessageIs(String expectedUserMessage) throws Throwable {
         referenceDomains.verifyBadRequest(expectedUserMessage);
+    }
+
+    @When("^a request is submitted to retrieve all reason codes for event type \"([^\"]*)\"$")
+    public void requestSubmittedToRetrieveReasonCodesForEventType(String eventType) throws Throwable {
+        referenceDomains.getReasonCodes(eventType);
+    }
+
+    @Then("^the returned reason codes are as follows:$")
+    public void reasonCodesAreReturnedAsFollows(DataTable table) throws Throwable {
+        final List<ScheduleReason> expected = table.asList(ScheduleReason.class);
+        referenceDomains.verifyReasonCodes(expected);
     }
 }

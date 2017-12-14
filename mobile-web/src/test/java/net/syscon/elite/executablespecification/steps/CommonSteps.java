@@ -365,14 +365,14 @@ public abstract class CommonSteps {
         verifyIdentical(actualValList, expectedValList);
     }
 
-protected <T> void verifyLocalDateTimeValues(Collection<T> actualCollection,
-        Function<T,LocalDateTime> mapper,
-        String expectedValues) {
-List<String> actualValList = extractLocalDateTimeValues(actualCollection, mapper);
-List<String> expectedValList = csv2list(expectedValues);
+    protected <T> void verifyLocalDateTimeValues(Collection<T> actualCollection, Function<T, LocalDateTime> mapper,
+            String expectedValues) {
+        List<String> actualValList = extractLocalDateTimeValues(actualCollection, mapper);
+        List<String> expectedValList = csv2list(expectedValues);
 
-verifyIdentical(actualValList, expectedValList);
-}
+        verifyIdentical(actualValList, expectedValList);
+    }
+
     protected <T> void verifyDateValues(Collection<T> actualCollection,
                                             Function<T,Date> mapper,
                                             String expectedValues) {
