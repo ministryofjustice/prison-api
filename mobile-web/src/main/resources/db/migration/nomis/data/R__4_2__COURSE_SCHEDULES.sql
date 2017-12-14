@@ -31,12 +31,17 @@ INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME
 INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME, END_TIME, SCHEDULE_STATUS, SLOT_CATEGORY_CODE) VALUES (-25, -4, TO_DATE('2017-09-29', 'YYYY-MM-DD'), TO_DATE('2017-09-29 09:30:00', 'YYYY-MM-DD HH24:MI:SS'), TO_DATE('2017-09-29 11:30:00', 'YYYY-MM-DD HH24:MI:SS'), 'SCH', 'AM');
 
 -- These course schedules defined for current day, this week and next week (to test 'today', 'thisWeek' and 'nextWeek' endpoint actions).
-INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME, END_TIME, SCHEDULE_STATUS)
 -- These intervals in SECONDS need to be short enough that they are unlikely to span midnight, but also not so short that they end up
 -- in the wrong order due to a delay between the execution of one insert and another.
-VALUES (-26, -2, sysdate, sysdate + INTERVAL '25' SECOND, sysdate + INTERVAL '25' SECOND, 'SCH'),
-       (-27, -2, sysdate, sysdate + INTERVAL '30' SECOND, sysdate + INTERVAL '30' SECOND, 'SCH'),
-       (-28, -5, sysdate + INTERVAL  '6' DAY, sysdate + INTERVAL  '6' DAY, sysdate + INTERVAL  '6' DAY, 'SCH'),
-       (-29, -6, sysdate + INTERVAL  '3' DAY, sysdate + INTERVAL  '3' DAY, sysdate + INTERVAL  '3' DAY, 'SCH'),
-       (-30, -5, sysdate + INTERVAL '17' DAY, sysdate + INTERVAL '17' DAY, sysdate + INTERVAL '17' DAY, 'SCH'),
-       (-31, -6, sysdate + INTERVAL  '9' DAY, sysdate + INTERVAL  '9' DAY, sysdate + INTERVAL  '9' DAY, 'SCH');
+INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME, END_TIME, SCHEDULE_STATUS)
+VALUES (-26, -2, sysdate, sysdate + INTERVAL '25' SECOND, sysdate + INTERVAL '25' SECOND, 'SCH');
+INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME, END_TIME, SCHEDULE_STATUS)
+VALUES (-27, -2, sysdate, sysdate + INTERVAL '30' SECOND, sysdate + INTERVAL '30' SECOND, 'SCH');
+INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME, END_TIME, SCHEDULE_STATUS)
+VALUES (-28, -5, sysdate + INTERVAL  '6' DAY, sysdate + INTERVAL  '6' DAY, sysdate + INTERVAL  '6' DAY, 'SCH');
+INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME, END_TIME, SCHEDULE_STATUS)
+VALUES (-29, -6, sysdate + INTERVAL  '3' DAY, sysdate + INTERVAL  '3' DAY, sysdate + INTERVAL  '3' DAY, 'SCH');
+INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME, END_TIME, SCHEDULE_STATUS)
+VALUES (-30, -5, sysdate + INTERVAL '17' DAY, sysdate + INTERVAL '17' DAY, sysdate + INTERVAL '17' DAY, 'SCH');
+INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME, END_TIME, SCHEDULE_STATUS)
+VALUES (-31, -6, sysdate + INTERVAL  '9' DAY, sysdate + INTERVAL  '9' DAY, sysdate + INTERVAL  '9' DAY, 'SCH');
