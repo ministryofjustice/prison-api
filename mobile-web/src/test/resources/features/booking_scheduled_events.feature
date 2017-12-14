@@ -30,7 +30,6 @@ Feature: Booking Scheduled Events
       | PRISON_ACT | Carpentry Workshop |
       | PRISON_ACT | Carpentry Workshop |
 
-  @elite
   Scenario: Retrieve this week's scheduled events for an offender in correct time order
     When this week's scheduled events are requested for an offender with booking id -3
     Then events are returned as follows:

@@ -1,6 +1,7 @@
 package net.syscon.elite.repository;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 import net.syscon.elite.api.model.NewAppointment;
@@ -39,6 +40,19 @@ public class BookingRepositoryTest {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
     }
 
+    private static void assertVisitDetails(final ScheduledEvent visit) {
+        assertEquals(-1L, visit.getBookingId().longValue());
+        assertEquals("2016-12-11", visit.getEventDate().toString());
+        assertEquals("2016-12-11T14:30", visit.getStartTime().toString());
+        assertEquals("2016-12-11T15:30", visit.getEndTime().toString());
+        assertEquals("INT_MOV", visit.getEventClass());
+        assertEquals("VISIT", visit.getEventType());
+        assertEquals("Visiting Room", visit.getEventLocation());
+        assertEquals("SCH", visit.getEventStatus());
+        assertEquals("VIS", visit.getEventSource());
+        assertEquals("SCON", visit.getEventSourceCode());
+    }
+
     @Test
     public void testCreateBookingAppointment() {
         final NewAppointment appt = NewAppointment.builder()
@@ -75,5 +89,38 @@ public class BookingRepositoryTest {
         assertEquals(appt.getEndTime(), event.getEndTime());
         assertEquals(appt.getComment(), event.getEventSourceDesc());
         assertEquals(appt.getStartTime().toLocalDate(), event.getEventDate());
+    }
+
+    @Test
+    public void testGetBookingVisitLastSameDay() {
+        final ScheduledEvent visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2016-12-11T16:00"));
+        assertVisitDetails(visit);
+    }
+
+    @Test
+    public void testGetBookingVisitLastDifferentDay() {
+        final ScheduledEvent visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2016-12-20T00:00"));
+        assertVisitDetails(visit);
+    }
+
+    @Test
+    public void testGetBookingVisitLastMultipleCandidates() {
+        final ScheduledEvent visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2017-12-07T00:00"));
+        assertEquals(-1L, visit.getBookingId().longValue());
+        assertEquals("2017-11-13", visit.getEventDate().toString());
+        assertEquals("2017-11-13T14:30", visit.getStartTime().toString());
+        assertEquals("2017-11-13T15:30", visit.getEndTime().toString());
+    }
+
+    @Test
+    public void testGetBookingVisitLastNonexistentBooking() {
+        final ScheduledEvent visit = repository.getBookingVisitLast(-99L, LocalDateTime.parse("2016-12-11T16:00:00"));
+        assertNull(visit);
+    }
+
+    @Test
+    public void testGetBookingVisitLastEarlyDate() {
+        final ScheduledEvent visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2011-12-11T16:00:00"));
+        assertNull(visit);
     }
 }

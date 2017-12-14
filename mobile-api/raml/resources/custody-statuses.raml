@@ -4,7 +4,7 @@
   type:
     readOnlyCollection:
       type: PrisonerCustodyStatus
-      description: A Custody Status attributed to a Prisoner
+      description: List of offenders (with associated custody status detail).
   get:
     queryParameters?:
       custodyStatusCodes:
@@ -36,7 +36,7 @@
   type:
     readOnlyItem:
       type: PrisonerCustodyStatus
-      description: A Custody Status attributed to a Prisoner
+      description: Offender custody status detail.
   get:
     uriParameters:
       offenderNo:

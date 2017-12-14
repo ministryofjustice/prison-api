@@ -189,6 +189,11 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public ScheduledEvent getBookingVisitLast(Long bookingId) {
+        return bookingRepository.getBookingVisitLast(bookingId, LocalDateTime.now());
+    }
+
+    @Override
     public Page<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order) {
         validateScheduledEventsRequest(bookingId, fromDate, toDate);
 

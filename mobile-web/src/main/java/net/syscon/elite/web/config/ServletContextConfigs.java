@@ -8,7 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.swagger.jaxrs.config.BeanConfig;
 import io.swagger.jaxrs.listing.ApiListingResource;
 import io.swagger.jaxrs.listing.SwaggerSerializers;
-import net.syscon.elite.api.resource.impl.*;
+import net.syscon.elite.core.RestResource;
 import net.syscon.elite.web.handler.ConstraintViolationExceptionHandler;
 import net.syscon.elite.web.handler.ResourceExceptionHandler;
 import net.syscon.elite.web.listener.EndpointLoggingListener;
@@ -43,7 +43,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
 import javax.ws.rs.ext.ExceptionMapper;
-
 import java.util.Arrays;
 
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
@@ -58,6 +57,9 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
     @Value("${spring.jersey.application-path:/}")
     private String apiPath;
 
+    @Value("${api.resource.packages}")
+    private String[] apiResourcePackages;
+
     private BeanFactory beanFactory;
     private SpringConstraintValidatorFactory constraintValidatorFactory;
     private LocalValidatorFactoryBean localValidatorFactoryBean;
@@ -69,25 +71,18 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
 
     @Autowired
     public void setEnv(ConfigurableEnvironment env) {
-        // Use package scanning to identify and register Jersey REST resources - the key to this working is to ensure
-        // that the concrete implementation classes include a @Path annotation (as this is how Jersey recognises them).
-        register(ImagesResourceImpl.class);
-        register(LocationsResourceImpl.class);
-        register(ReferenceDomainsResourceImpl.class);
-        register(ResourceExceptionHandler.class);
-        register(AgencyResourceImpl.class);
-        register(UserResourceImpl.class);
-        register(SearchResourceImpl.class);
-        register(PrisonerResourceImpl.class);
-        register(BookingResourceImpl.class);
-        register(OffenderReleaseResourceImpl.class);
-        register(CustodyStatusResourceImpl.class);
+        Class[] restResources = AnnotationScanner.findAnnotatedClasses(RestResource.class, apiResourcePackages);
+
+        registerClasses(restResources);
 
         String contextPath = env.getProperty("server.contextPath");
 
         register(new EndpointLoggingListener(contextPath));
+
+        register(ResourceExceptionHandler.class);
         register(RequestContextFilter.class);
         register(LoggingFeature.class);
+
         // Override jersey built-in Validation exception mapper
         register(new AbstractBinder() {
             @Override

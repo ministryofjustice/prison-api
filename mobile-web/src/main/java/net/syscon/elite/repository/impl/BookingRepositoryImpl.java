@@ -229,6 +229,21 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
+    public ScheduledEvent getBookingVisitLast(Long bookingId, LocalDateTime cutoffDate) {
+        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
+        Objects.requireNonNull(cutoffDate, "cutoffDate is a required parameter");
+
+        try {
+            return jdbcTemplate.queryForObject(//
+                    getQuery("GET_LAST_BOOKING_VISIT"),
+                    createParams("bookingId", bookingId, "cutoffDate", DateTimeConverter.fromLocalDateTime(cutoffDate)),
+                    EVENT_ROW_MAPPER);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
     public Page<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 

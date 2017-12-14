@@ -1,11 +1,11 @@
 description: Returns list of active agencies.
 (javaOperationName): getAgencies
-type: { readOnlyCollectionPaged: { type: Agency } }
+type: { readOnlyCollectionPaged: { type: Agency, description: List of active agencies. } }
 
 /{agencyId}:
   (javaOperationName): getAgency
   description: Returns specified agency.
-  type: { readOnlyItem: { type: Agency } }
+  type: { readOnlyItem: { type: Agency, description: Agency detail. } }
 
 /{agencyId}/locations:
   (javaOperationName): getAvailableLocations
