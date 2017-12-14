@@ -9,14 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 import cucumber.api.DataTable;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 /**
- * BDD step definitions for reference domains endpoints:
+ * BDD step definitions for endpoints:
  * <ul>
- * <li>/agencies/alertTypes</li>
- * <li>/reference-domains/domains/{domain}/codes/{code}</li>
+ * <li>/agencies</li>
+ * <li>/agencies/{agencyId}</li>
+ * <li>/agencies/{agencyId}/locations</li>
  * </ul>
  */
 public class AgencyStepDefinitions extends AbstractStepDefinitions {
@@ -27,6 +29,7 @@ public class AgencyStepDefinitions extends AbstractStepDefinitions {
     @When("^a request is submitted to retrieve all agencies$")
     public void requestSubmittedToRetrieveAllAgencies() throws Throwable {
         agencySteps.getAllAgencies();
+        agencySteps.verifySuccess();
     }
 
     @Then("^the returned agencies are as follows:$")
@@ -35,19 +38,29 @@ public class AgencyStepDefinitions extends AbstractStepDefinitions {
         agencySteps.verifyAgencyList(expected);
     }
 
-    @When("^a request is submitted to retrieve agency \"([\\w-\\.]+)\"$")
+    @Then("^\"([^\"]*)\" agency records are returned$")
+    public void locationRecordsAreReturned(String expectedCount) throws Throwable {
+        agencySteps.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
+    }
+
+    @And("^\"([^\"]*)\" total agency records are available$")
+    public void totalLocationRecordsAreAvailable(String expectedCount) throws Throwable {
+        agencySteps.verifyTotalResourceRecordsAvailable(Long.valueOf(expectedCount));
+    }
+
+    @When("^a request is submitted to retrieve agency \"([^\"]*)\"$")
     public void requestSubmittedToRetrieveAgency(String agencyId) throws Throwable {
         agencySteps.getAgency(agencyId);
     }
 
-    @Then("^the returned agency ([^\"]+) is \"([\\w-\\.]+)\"$")
+    @Then("^the returned agency ([^\"]+) is \"([^\"]*)\"$")
     public void theFieldIs(String field, String value) throws ReflectiveOperationException {
         agencySteps.verifyField(field, value);
     }
 
-    @When("^a request is submitted to retrieve location codes for agency \"([\\w-\\.]+)\"$")
-    public void requestSubmittedToRetrieveLocations(String agencyId) throws Throwable {
-        agencySteps.getLocations(agencyId);
+    @When("^a request is submitted to retrieve location codes for agency \"([^\"]*)\" and event type \"([^\"]*)\"$")
+    public void requestSubmittedToRetrieveLocations(String agencyId, String eventType) throws Throwable {
+        agencySteps.getLocations(agencyId, eventType);
     }
 
     @Then("^the returned agency locations are as follows:$")

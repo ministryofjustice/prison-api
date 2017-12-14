@@ -2,6 +2,7 @@ package net.syscon.elite.executablespecification.steps;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
@@ -52,19 +53,17 @@ public class AgencySteps extends CommonSteps {
             return null;
         }
     }
-    
-    private <T> List<T> dispatchListRequest(String resourcePath, Object... params) {
+
+    private <T> List<T> dispatchListRequest(String resourcePath, String agencyId, String eventType) {
         init();
 
-        String urlModifier = "";
+        String urlModifier = "?eventType=" + eventType;
         HttpEntity<?> httpEntity = createEntity();
-
         String url = resourcePath + urlModifier;
-
         try {
             ResponseEntity<List<T>> response = restTemplate.exchange(url, HttpMethod.GET, httpEntity,
                     new ParameterizedTypeReference<List<T>>() {
-                    }, params);
+                    }, agencyId);
             buildResourceData(response);
             return response.getBody();
         } catch (EliteClientException ex) {
@@ -105,8 +104,8 @@ public class AgencySteps extends CommonSteps {
     }
 
     @Step("Submit request for agency locations")
-    public void getLocations(String agencyId) {
-        locations = dispatchListRequest(API_LOCATIONS_URL, agencyId);
+    public void getLocations(String agencyId, String eventType) {
+        locations = dispatchListRequest(API_LOCATIONS_URL, agencyId, eventType);
     }
 
     public void verifyAgencyList(List<Agency> expected) {
@@ -144,5 +143,9 @@ public class AgencySteps extends CommonSteps {
             assertEquals(expectedThis.getDescription(), actualThis.getDescription());
         }
         assertFalse("Too many actual events", actualIterator.hasNext());
+    }
+
+    public void verifySuccess() {
+        assertNotNull(agencies);
     }
 }

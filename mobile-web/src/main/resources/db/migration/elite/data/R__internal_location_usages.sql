@@ -1,15 +1,9 @@
 Insert into INTERNAL_LOCATION_USAGES (INTERNAL_LOCATION_USAGE_ID,AGY_LOC_ID,INTERNAL_LOCATION_USAGE,EVENT_SUB_TYPE,CREATE_DATETIME,CREATE_USER_ID,MODIFY_DATETIME,MODIFY_USER_ID) 
 values
- (991,'BMI','VISIT',null,'2016-01-19 15:10:39.0','SYSCON_ADM',null,null),
- (831,'BMI','PROG',null,'2016-01-09 13:33:53.0','PHILL_GEN',null,null),
- (832,'BMI','OCCUR',null,'2016-01-09 13:34:56.0','PHILL_GEN',null,null),
- (2247,'LEI','APP',null,'2011-01-28 15:22:02.0','OMS_OWNER',null,null),
- (2248,'LEI','MOVEMENT',null,'2011-01-28 15:22:02.0','OMS_OWNER',null,null),
- (2249,'LEI','OCCUR',null,'2011-01-28 15:22:02.0','OMS_OWNER',null,null),
- (2250,'LEI','OIC',null,'2011-01-28 15:22:02.0','OMS_OWNER',null,null),
- (2251,'LEI','PROG',null,'2011-01-28 15:22:02.0','OMS_OWNER',null,null),
- (2252,'LEI','PROP',null,'2011-01-28 15:22:02.0','OMS_OWNER',null,null),
- (2253,'LEI','VISIT',null,'2011-01-28 15:22:02.0','OMS_OWNER',null,null),
- (2254,'LEI','OTH',null,'2011-01-28 15:22:02.0','OMS_OWNER',null,null),
- (1011,'BXI','VISIT',null,'2016-01-23 22:21:26.0','TREV_GEN',null,null),
- (1031,'ALI','VISIT',null,'2016-01-09 11:02:25.0','KJOSHI_ADM',null,null);
+ (-1,'BMI','OCCUR',null,'2016-01-09 13:34:56.0','PHILL_GEN',null,null),
+ (-2,'LEI','APP',null,'2011-01-28 15:22:02.0','OMS_OWNER',null,null),
+ (-3,'LEI','MOVEMENT',null,'2011-01-28 15:22:02.0','OMS_OWNER',null,null),
+ (-4,'LEI','OCCUR',null,'2011-01-28 15:22:02.0','OMS_OWNER',null,null),
+ (-5,'LEI','VISIT',null,'2011-01-28 15:22:02.0','OMS_OWNER',null,null),
+ (-6,'LEI','OTH',null,'2011-01-28 15:22:02.0','OMS_OWNER',null,null),
+ (-7,'BXI','VISIT',null,'2016-01-23 22:21:26.0','TREV_GEN',null,null);
