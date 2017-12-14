@@ -37,7 +37,7 @@ import static java.time.temporal.ChronoUnit.DAYS;
 @Validated
 public class BookingServiceImpl implements BookingService {
 
-    static final String INTERNAL_SCHEDULE_REASON = "INT_SCH_RSN";
+    public static final String INTERNAL_SCHEDULE_REASON = "INT_SCH_RSN";
 
     private final StartTimeComparator startTimeComparator = new StartTimeComparator();
 
