@@ -87,4 +87,11 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
 
 		return GetReferenceCodeByDomainAndCodeResponse.respond200WithApplicationJson(referenceCode.get());
 	}
+
+    @Override
+    public GetScheduleReasonsResponse getScheduleReasons(String eventType) {
+        List<ReferenceCode> result =  referenceDomainService.getScheduleReasons(eventType);
+
+        return GetScheduleReasonsResponse.respond200WithApplicationJson(result);
+    }
 }

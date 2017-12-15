@@ -27,6 +27,9 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	private static final StandardBeanPropertyRowMapper<ReferenceCodeDetail> REF_CODE_DETAIL_ROW_MAPPER =
 			new StandardBeanPropertyRowMapper<>(ReferenceCodeDetail.class);
 
+	private static final StandardBeanPropertyRowMapper<ReferenceCode> SCHEDULE_REASON_ROW_MAPPER =
+	        new StandardBeanPropertyRowMapper<>(ReferenceCode.class);
+
 	@Override
 	@Cacheable("referenceDomain")
 	public Optional<ReferenceDomain> getReferenceDomain(String domain) {
@@ -218,9 +221,15 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 		return referenceCodes;
 	}
 
-	private void removeWhereSubTypesAreEmpty(List<ReferenceCode> referenceCodes, ReferenceCode activeRef) {
+	private static void removeWhereSubTypesAreEmpty(List<ReferenceCode> referenceCodes, ReferenceCode activeRef) {
 		if (activeRef != null && activeRef.getSubCodes().isEmpty()) {
 			referenceCodes.remove(activeRef);
 		}
-	}
+    }
+
+    @Override
+    public List<ReferenceCode> getScheduleReasons(String eventType) {
+        final String sql = getQuery("GET_AVAILABLE_EVENT_SUBTYPES");
+        return jdbcTemplate.query(sql, createParams("eventType", eventType), SCHEDULE_REASON_ROW_MAPPER);
+    }
 }

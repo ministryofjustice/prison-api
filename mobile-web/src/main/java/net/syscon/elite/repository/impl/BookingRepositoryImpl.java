@@ -308,6 +308,8 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                              "eventSubType", newAppointment.getAppointmentType(),
                              "eventDate", DateTimeConverter.toDate(startTime.toLocalDate()),
                              "startTime", DateTimeConverter.fromLocalDateTime(startTime),
+                             "endTime", DateTimeConverter.fromLocalDateTime(newAppointment.getEndTime()),
+                             "comment", newAppointment.getComment(),
                              "locationId", newAppointment.getLocationId(),
                              "agencyId", agencyId),
                 generatedKeyHolder,

@@ -8,11 +8,14 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * BDD step implementations for Reference Domains service.
@@ -24,9 +27,11 @@ public class ReferenceDomainsSteps extends CommonSteps {
     private static final String API_CASE_NOTE_TYPES_URL = API_REF_PREFIX + "caseNoteTypes";
     private static final String API_DOMAINS_URL = API_REF_PREFIX + "domains/{domain}";
     private static final String API_DOMAINS_CODES_URL = API_REF_PREFIX + "domains/{domain}/codes/{code}";
+    private static final String API_SCHEDULE_REASONS_URL = API_REF_PREFIX + "scheduleReasons";
 
     private List<ReferenceCode> referenceCodes;
     private ReferenceCode referenceCode;
+    private List<ReferenceCode> scheduleReasons;
 
     @Step("Submit request for all alert types (with alert codes)")
     public void getAllAlertTypes() {
@@ -266,9 +271,48 @@ public class ReferenceDomainsSteps extends CommonSteps {
         }
     }
 
+    private void dispatchScheduleReasonsListRequest(String resourcePath, String eventType) {
+        init();
+        HttpEntity<?> httpEntity = createEntity();
+        String urlModifier = "?eventType=" + eventType;
+        String url = resourcePath + urlModifier;
+        try {
+            ResponseEntity<List<ReferenceCode>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    httpEntity,
+                    new ParameterizedTypeReference<List<ReferenceCode>>() {});
+
+            scheduleReasons = response.getBody();
+            buildResourceData(response);
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+    
+    @Override
     protected void init() {
         super.init();
 
         referenceCodes = null;
+        referenceCode = null;
+        scheduleReasons = null;
+    }
+
+    public void getReasonCodes(String eventType) {
+        dispatchScheduleReasonsListRequest(API_SCHEDULE_REASONS_URL, eventType);
+    }
+
+    public void verifyReasonCodes(List<ReferenceCode> expected) {
+
+        final Iterator<ReferenceCode> expectedIterator = expected.iterator();
+        final Iterator<ReferenceCode> actualIterator = scheduleReasons.iterator();
+        while (expectedIterator.hasNext()) {
+            final ReferenceCode expectedThis = expectedIterator.next();
+            final ReferenceCode actualThis = actualIterator.next();
+            assertEquals(expectedThis.getCode(), actualThis.getCode());
+            assertEquals(expectedThis.getDescription(), actualThis.getDescription());
+        }
+        assertFalse("Too many actual events", actualIterator.hasNext());
     }
 }

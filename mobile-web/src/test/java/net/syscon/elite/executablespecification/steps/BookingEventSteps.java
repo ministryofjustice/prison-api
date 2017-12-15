@@ -14,6 +14,7 @@ import java.util.List;
 public class BookingEventSteps extends ScheduledEventSteps {
     private static final String BOOKING_EVENTS_API_URL = API_PREFIX + "bookings/{bookingId}/events";
 
+    @Override
     protected void init() {
         super.init();
     }
@@ -37,13 +38,13 @@ public class BookingEventSteps extends ScheduledEventSteps {
 
     public void verifyEvents(List<ScheduledEvent> expected) {
         final Iterator<ScheduledEvent> expectedIterator = expected.iterator();
-        final Iterator<ScheduledEvent> scheduledEventsIterator = scheduledEvents.iterator();
+        final Iterator<ScheduledEvent> actualIterator = scheduledEvents.iterator();
         while (expectedIterator.hasNext()) {
             final ScheduledEvent expectedThis = expectedIterator.next();
-            final ScheduledEvent actualThis = scheduledEventsIterator.next();
+            final ScheduledEvent actualThis = actualIterator.next();
             assertEquals(expectedThis.getEventType(), actualThis.getEventType());
             assertEquals(expectedThis.getEventLocation(), actualThis.getEventLocation());
         }
-        assertFalse("Too many actual events", scheduledEventsIterator.hasNext());
+        assertFalse("Too many actual events", actualIterator.hasNext());
     }
 }

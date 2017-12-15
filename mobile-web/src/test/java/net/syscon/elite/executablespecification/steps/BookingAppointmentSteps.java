@@ -47,11 +47,12 @@ public class BookingAppointmentSteps extends ScheduledEventSteps {
     }
 
     @Step("Create appointment")
-    public void createAppointment(Long bookingId, String eventType, LocalDateTime startDateTime, Long locationId) {
+    public void createAppointment(Long bookingId, String eventType, LocalDateTime startDateTime, Long locationId, String comment) {
         dispatchCreateRequest(bookingId, NewAppointment.builder()
                 .appointmentType(eventType)
                 .startTime(startDateTime)
                 .locationId(locationId)
+                .comment(comment)
                 .build());
     }
 
@@ -80,6 +81,7 @@ public class BookingAppointmentSteps extends ScheduledEventSteps {
         assertThat(scheduledEvent.getEventClass()).isEqualTo("INT_MOV");
         assertThat(scheduledEvent.getEventSource()).isEqualTo("APP");
         assertThat(scheduledEvent.getEventSourceCode()).isEqualTo("APP");
+        assertThat(scheduledEvent.getEventSourceDesc()).isEqualTo("a comment");
         assertThat(scheduledEvent.getStartTime().toString().substring(11)).isEqualTo("16:00");
         assertThat(scheduledEvent.getEndTime()).isNull();
     }

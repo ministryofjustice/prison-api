@@ -16,7 +16,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
+import javax.validation.Valid;
 import javax.ws.rs.BadRequestException;
 
 import java.time.LocalDate;
@@ -32,9 +34,10 @@ import static java.time.temporal.ChronoUnit.DAYS;
  */
 @Service
 @Transactional(readOnly = true)
+@Validated
 public class BookingServiceImpl implements BookingService {
 
-    private static final String INTERNAL_SCHEDULE_REASON = "INT_SCH_RSN";
+    public static final String INTERNAL_SCHEDULE_REASON = "INT_SCH_RSN";
 
     private final StartTimeComparator startTimeComparator = new StartTimeComparator();
 
@@ -212,8 +215,9 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional(readOnly = false)
     @Override
-    public ScheduledEvent createBookingAppointment(Long bookingId, NewAppointment newAppointment) {
+    public ScheduledEvent createBookingAppointment(Long bookingId, @Valid NewAppointment newAppointment) {
         validateStartTime(newAppointment);
+        validateEndTime(newAppointment);
         verifyBookingAccess(bookingId);
         final String agencyId = validateLocationAndGetAgency(newAppointment);
         validateEventType(newAppointment);
@@ -224,6 +228,13 @@ public class BookingServiceImpl implements BookingService {
     private void validateStartTime(NewAppointment newAppointment) {
         if (newAppointment.getStartTime().isBefore(LocalDateTime.now())) {
             throw new BadRequestException("Appointment time is in the past.");
+        }
+    }
+
+    private void validateEndTime(NewAppointment newAppointment) {
+        if (newAppointment.getEndTime() != null
+                && newAppointment.getEndTime().isBefore(newAppointment.getStartTime())) {
+            throw new BadRequestException("Appointment end time is before the start time.");
         }
     }
 

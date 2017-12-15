@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -22,11 +23,11 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 		this.referenceCodeRepository = referenceCodeRepository;
 	}
 
-	private String getDefaultOrderBy(String orderBy) {
+	private static String getDefaultOrderBy(String orderBy) {
 		return StringUtils.defaultIfBlank(orderBy, "code");
 	}
 
-	private Order getDefaultOrder(Order order) {
+	private static Order getDefaultOrder(Order order) {
 		return Objects.isNull(order) ? Order.ASC : order;
 	}
 
@@ -69,4 +70,11 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 		referenceCodeRepository.getReferenceCodeByDomainAndCode(domain, code, false)
 				.orElseThrow(EntityNotFoundException.withMessage("Reference code for domain [%s] and code [%s] not found.", domain, code));
 	}
+
+    @Override
+    public List<ReferenceCode> getScheduleReasons(String eventType) {
+        verifyReferenceCode("INT_SCH_TYPE", eventType);
+
+        return referenceCodeRepository.getScheduleReasons(eventType);
+    }
 }

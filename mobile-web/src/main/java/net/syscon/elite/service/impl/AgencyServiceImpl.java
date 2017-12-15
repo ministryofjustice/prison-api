@@ -1,7 +1,7 @@
 package net.syscon.elite.service.impl;
 
-import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AgencyRepository;
@@ -17,7 +17,6 @@ import java.util.List;
  */
 @Service
 @Transactional(readOnly = true)
-@Slf4j
 public class AgencyServiceImpl implements AgencyService {
     private final AgencyRepository agencyRepository;
 
@@ -38,5 +37,10 @@ public class AgencyServiceImpl implements AgencyService {
     @Override
     public List<Agency> findAgenciesByUsername(String username) {
         return agencyRepository.findAgenciesByUsername(username);
+    }
+
+    @Override
+    public List<Location> getAvailableLocations(String agencyId, String eventType) {
+        return agencyRepository.getAvailableLocations(agencyId, eventType);
     }
 }
