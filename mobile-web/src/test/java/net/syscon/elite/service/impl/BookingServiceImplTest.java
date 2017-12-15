@@ -28,7 +28,7 @@ import static org.junit.Assert.fail;
 @RunWith(MockitoJUnitRunner.class)
 public class BookingServiceImplTest {
     @Mock
-    AuthenticationFacade authenticationFacade;
+    private AuthenticationFacade authenticationFacade;
 
     @Mock
     private BookingRepository bookingRepository;
