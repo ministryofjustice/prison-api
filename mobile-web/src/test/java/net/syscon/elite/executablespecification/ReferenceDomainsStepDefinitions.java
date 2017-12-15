@@ -5,7 +5,7 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
-import net.syscon.elite.api.model.ScheduleReason;
+import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.executablespecification.steps.ReferenceDomainsSteps;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -188,7 +188,7 @@ public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^the returned reason codes are as follows:$")
     public void reasonCodesAreReturnedAsFollows(DataTable table) throws Throwable {
-        final List<ScheduleReason> expected = table.asList(ScheduleReason.class);
+        final List<ReferenceCode> expected = table.asList(ReferenceCode.class);
         referenceDomains.verifyReasonCodes(expected);
     }
 }

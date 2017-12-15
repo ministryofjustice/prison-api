@@ -1,7 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.ReferenceCode;
-import net.syscon.elite.api.model.ScheduleReason;
 import net.syscon.elite.api.resource.ReferenceDomainResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
@@ -91,7 +90,7 @@ public class ReferenceDomainsResourceImpl implements ReferenceDomainResource {
 
     @Override
     public GetScheduleReasonsResponse getScheduleReasons(String eventType) {
-        List<ScheduleReason> result =  referenceDomainService.getScheduleReasons(eventType);
+        List<ReferenceCode> result =  referenceDomainService.getScheduleReasons(eventType);
 
         return GetScheduleReasonsResponse.respond200WithApplicationJson(result);
     }

@@ -1,7 +1,6 @@
 package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.ReferenceCode;
-import net.syscon.elite.api.model.ScheduleReason;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.ReferenceCodeRepository;
@@ -73,7 +72,7 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 	}
 
     @Override
-    public List<ScheduleReason> getScheduleReasons(String eventType) {
+    public List<ReferenceCode> getScheduleReasons(String eventType) {
         verifyReferenceCode("INT_SCH_TYPE", eventType);
 
         return referenceCodeRepository.getScheduleReasons(eventType);

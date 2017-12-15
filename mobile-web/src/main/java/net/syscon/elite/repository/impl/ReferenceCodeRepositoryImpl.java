@@ -2,7 +2,6 @@ package net.syscon.elite.repository.impl;
 
 import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.model.ReferenceDomain;
-import net.syscon.elite.api.model.ScheduleReason;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.ReferenceCodeRepository;
@@ -28,8 +27,8 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	private static final StandardBeanPropertyRowMapper<ReferenceCodeDetail> REF_CODE_DETAIL_ROW_MAPPER =
 			new StandardBeanPropertyRowMapper<>(ReferenceCodeDetail.class);
 
-	private static final StandardBeanPropertyRowMapper<ScheduleReason> SCHEDULE_REASON_ROW_MAPPER =
-	        new StandardBeanPropertyRowMapper<>(ScheduleReason.class);
+	private static final StandardBeanPropertyRowMapper<ReferenceCode> SCHEDULE_REASON_ROW_MAPPER =
+	        new StandardBeanPropertyRowMapper<>(ReferenceCode.class);
 
 	@Override
 	@Cacheable("referenceDomain")
@@ -229,7 +228,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
     }
 
     @Override
-    public List<ScheduleReason> getScheduleReasons(String eventType) {
+    public List<ReferenceCode> getScheduleReasons(String eventType) {
         final String sql = getQuery("GET_AVAILABLE_EVENT_SUBTYPES");
         return jdbcTemplate.query(sql, createParams("eventType", eventType), SCHEDULE_REASON_ROW_MAPPER);
     }

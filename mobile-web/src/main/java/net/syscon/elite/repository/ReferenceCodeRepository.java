@@ -2,7 +2,6 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.model.ReferenceDomain;
-import net.syscon.elite.api.model.ScheduleReason;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 
@@ -17,5 +16,5 @@ public interface ReferenceCodeRepository {
 
 	Page<ReferenceCode> getReferenceCodesByDomain(String domain, boolean withSubCodes, String orderBy, Order order, long offset, long limit);
 
-    List<ScheduleReason> getScheduleReasons(String eventType);
+    List<ReferenceCode> getScheduleReasons(String eventType);
 }

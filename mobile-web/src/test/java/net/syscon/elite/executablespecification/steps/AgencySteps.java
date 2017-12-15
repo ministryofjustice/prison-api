@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * BDD step implementations for Reference Domains service.
+ * BDD step implementations for Agencies service.
  */
 public class AgencySteps extends CommonSteps {
     private static final String API_REF_PREFIX = API_PREFIX + "agencies/";

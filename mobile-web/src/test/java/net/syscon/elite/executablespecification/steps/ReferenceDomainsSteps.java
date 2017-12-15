@@ -1,7 +1,6 @@
 package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.ReferenceCode;
-import net.syscon.elite.api.model.ScheduleReason;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
@@ -32,7 +31,7 @@ public class ReferenceDomainsSteps extends CommonSteps {
 
     private List<ReferenceCode> referenceCodes;
     private ReferenceCode referenceCode;
-    private List<ScheduleReason> scheduleReasons;
+    private List<ReferenceCode> scheduleReasons;
 
     @Step("Submit request for all alert types (with alert codes)")
     public void getAllAlertTypes() {
@@ -278,11 +277,11 @@ public class ReferenceDomainsSteps extends CommonSteps {
         String urlModifier = "?eventType=" + eventType;
         String url = resourcePath + urlModifier;
         try {
-            ResponseEntity<List<ScheduleReason>> response = restTemplate.exchange(
+            ResponseEntity<List<ReferenceCode>> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     httpEntity,
-                    new ParameterizedTypeReference<List<ScheduleReason>>() {});
+                    new ParameterizedTypeReference<List<ReferenceCode>>() {});
 
             scheduleReasons = response.getBody();
             buildResourceData(response);
@@ -304,13 +303,13 @@ public class ReferenceDomainsSteps extends CommonSteps {
         dispatchScheduleReasonsListRequest(API_SCHEDULE_REASONS_URL, eventType);
     }
 
-    public void verifyReasonCodes(List<ScheduleReason> expected) {
+    public void verifyReasonCodes(List<ReferenceCode> expected) {
 
-        final Iterator<ScheduleReason> expectedIterator = expected.iterator();
-        final Iterator<ScheduleReason> actualIterator = scheduleReasons.iterator();
+        final Iterator<ReferenceCode> expectedIterator = expected.iterator();
+        final Iterator<ReferenceCode> actualIterator = scheduleReasons.iterator();
         while (expectedIterator.hasNext()) {
-            final ScheduleReason expectedThis = expectedIterator.next();
-            final ScheduleReason actualThis = actualIterator.next();
+            final ReferenceCode expectedThis = expectedIterator.next();
+            final ReferenceCode actualThis = actualIterator.next();
             assertEquals(expectedThis.getCode(), actualThis.getCode());
             assertEquals(expectedThis.getDescription(), actualThis.getDescription());
         }
