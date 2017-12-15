@@ -5,7 +5,7 @@ import net.syscon.elite.api.resource.UserResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.RestResource;
-import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.AccessDeniedException;
@@ -20,6 +20,7 @@ import static net.syscon.util.ResourceUtils.nvl;
 @RestResource
 @Path("/users")
 public class UserResourceImpl implements UserResource {
+    private final AuthenticationFacade authenticationFacade;
     private final LocationService locationService;
     private final AssignmentService assignmentService;
     private final AuthenticationService authenticationService;
@@ -28,10 +29,11 @@ public class UserResourceImpl implements UserResource {
     private final CaseLoadService caseLoadService;
     private final CaseNoteService caseNoteService;
 
-    public UserResourceImpl(LocationService locationService, AssignmentService assignmentService,
-                            AuthenticationService authenticationService, UserService userService,
-                            BookingService bookingService, CaseLoadService caseLoadService,
+    public UserResourceImpl(AuthenticationFacade authenticationFacade, LocationService locationService,
+                            AssignmentService assignmentService, AuthenticationService authenticationService,
+                            UserService userService, BookingService bookingService, CaseLoadService caseLoadService,
                             CaseNoteService caseNoteService) {
+        this.authenticationFacade = authenticationFacade;
         this.locationService = locationService;
         this.assignmentService = assignmentService;
         this.authenticationService = authenticationService;
@@ -43,15 +45,15 @@ public class UserResourceImpl implements UserResource {
 
     @Override
     public GetMyUserInformationResponse getMyUserInformation() {
-        return GetMyUserInformationResponse.respond200WithApplicationJson(userService.getUserByUsername(UserSecurityUtils.getCurrentUsername()));
+        UserDetail user = userService.getUserByUsername(authenticationFacade.getCurrentUsername());
+
+        return GetMyUserInformationResponse.respond200WithApplicationJson(user);
     }
 
     @Override
     public GetMyAssignmentsResponse getMyAssignments(Long pageOffset, Long pageLimit) {
-        String currentUsername = UserSecurityUtils.getCurrentUsername();
-
         Page<OffenderBooking> assignments = assignmentService.findMyAssignments(
-                currentUsername,
+                authenticationFacade.getCurrentUsername(),
                 nvl(pageOffset, 0L),
                 nvl(pageLimit, 10L));
 
@@ -60,14 +62,15 @@ public class UserResourceImpl implements UserResource {
 
     @Override
     public GetMyCaseLoadsResponse getMyCaseLoads() {
-        List<CaseLoad> caseLoads = userService.getCaseLoads(UserSecurityUtils.getCurrentUsername());
+        List<CaseLoad> caseLoads = userService.getCaseLoads(authenticationFacade.getCurrentUsername());
 
         return GetMyCaseLoadsResponse.respond200WithApplicationJson(caseLoads);
     }
 
     @Override
     public GetMyCaseNoteTypesResponse getMyCaseNoteTypes(String sortFields, Order sortOrder) {
-        Optional<CaseLoad> currentCaseLoad = caseLoadService.getWorkingCaseLoadForUser(UserSecurityUtils.getCurrentUsername());
+        Optional<CaseLoad> currentCaseLoad =
+                caseLoadService.getWorkingCaseLoadForUser(authenticationFacade.getCurrentUsername());
 
         String caseLoadType = currentCaseLoad.isPresent() ? currentCaseLoad.get().getType() : "BOTH";
 
@@ -78,30 +81,35 @@ public class UserResourceImpl implements UserResource {
 
     @Override
     public GetMyLocationsResponse getMyLocations() {
-        List<Location> userLocations = locationService.getUserLocations(UserSecurityUtils.getCurrentUsername());
+        List<Location> userLocations = locationService.getUserLocations(authenticationFacade.getCurrentUsername());
 
         return GetMyLocationsResponse.respond200WithApplicationJson(userLocations);
     }
 
     @Override
     public GetMyOffenderReleasesResponse getMyOffenderReleases(String query, String toDate, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-        final Page<OffenderRelease> offenderReleaseSummary = bookingService.getOffenderReleaseSummary(fromISO8601DateString(toDate), query,
+        Page<OffenderRelease> offenderReleaseSummary = bookingService.getOffenderReleaseSummary(
+                fromISO8601DateString(toDate),
+                authenticationFacade.getCurrentUsername(),
+                query,
                 nvl(pageOffset, 0L),
                 nvl(pageLimit, 10L),
                 StringUtils.defaultIfBlank(sortFields, "releaseDate,offenderNo"), sortOrder != null ? sortOrder : Order.DESC, true);
+
         return GetMyOffenderReleasesResponse.respond200WithApplicationJson(offenderReleaseSummary);
     }
 
     @Override
     public GetMyRolesResponse getMyRoles() {
-        final List<UserRole> rolesByUsername = userService.getRolesByUsername(UserSecurityUtils.getCurrentUsername());
+        List<UserRole> rolesByUsername = userService.getRolesByUsername(authenticationFacade.getCurrentUsername());
+
         return GetMyRolesResponse.respond200WithApplicationJson(rolesByUsername);
     }
 
     @Override
     public UpdateMyActiveCaseLoadResponse updateMyActiveCaseLoad(CaseLoad caseLoad) {
         try {
-            userService.setActiveCaseLoad(UserSecurityUtils.getCurrentUsername(), caseLoad.getCaseLoadId());
+            userService.setActiveCaseLoad(authenticationFacade.getCurrentUsername(), caseLoad.getCaseLoadId());
         } catch (final AccessDeniedException ex) {
             return UpdateMyActiveCaseLoadResponse.respond403WithApplicationJson(ErrorResponse.builder()
                     .userMessage("Not Authorized")

@@ -5,15 +5,18 @@ version: v2
 mediaType: application/json
 
 annotationTypes:
+  deprecated:
+    type: string
+    description: Indicate that operation or parameter is deprecated and provide alternatives and/or further details.
   javaOperationName:
     type: string
     description: Hint to downstream code generator of name to use for Java method that implements operation.
   javaType:
     type: string
-    description: override type to specified java type
+    description: Override type to specified java type.
   headersWithType:
     type: string
-    description: override the type used in a reponse headers (e.g. headersWithType_Long: Page-Offset,Page-Limit will apply a Long to the listed headers)
+    description: Override the type used in a reponse headers (e.g. headersWithType_Long: Page-Offset,Page-Limit will apply a Long to the listed headers).
 
 securedBy: [jwt]
 

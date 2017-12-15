@@ -1,7 +1,5 @@
 package net.syscon.elite.service.impl;
 
-import static org.springframework.util.StringUtils.commaDelimitedListToSet;
-
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.CaseLoad;
@@ -12,7 +10,6 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.LocationRepository;
-import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.LocationService;
@@ -31,6 +28,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static net.syscon.elite.service.impl.InmateServiceImpl.DEFAULT_OFFENDER_SORT;
+import static org.springframework.util.StringUtils.commaDelimitedListToSet;
 
 /**
  * Location API service implementation.
@@ -100,25 +98,21 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
-    public Page<Location> getLocations(String query, String orderBy, Order order, long offset, long limit) {
-        return locationRepository.findLocations(query, orderBy, order, offset, limit);
+    public Page<Location> getLocations(String username, String query, String orderBy, Order order, long offset, long limit) {
+        return locationRepository.findLocations(username, query, orderBy, order, offset, limit);
     }
 
     @Override
-    public Page<Location> getLocationsFromAgency(final String agencyId, final String query, final long offset, final long limit, final String orderByField, final Order order) {
-        return locationRepository.findLocationsByAgencyId(getCurrentCaseLoad(), agencyId, query, offset, limit, orderByField, order);
-    }
-
-    @Override
-    public Page<OffenderBooking> getInmatesFromLocation(long locationId, String query, String orderByField, Order order, long offset, long limit) {
+    public Page<OffenderBooking> getInmatesFromLocation(long locationId, String username, String query, String orderByField, Order order, long offset, long limit) {
         // validation check?
-        getLocation(locationId, false);
+        locationRepository.findLocation(locationId, username);
 
         String colSort = StringUtils.isNotBlank(orderByField) ? orderByField : DEFAULT_OFFENDER_SORT;
 
         Page<OffenderBooking> inmates = inmateRepository.findInmatesByLocation(
                 locationId,
                 locationTypeGranularity,
+                getWorkingCaseLoad(username),
                 query,
                 colSort,
                 order,
@@ -129,23 +123,8 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
-    public Location getLocation(long locationId, boolean withInmates) {
-        Location location = locationRepository.findLocation(locationId).orElseThrow(EntityNotFoundException.withId(locationId));
-
-        if (withInmates) {
-            Page<OffenderBooking> inmates = inmateRepository.findInmatesByLocation(
-                    locationId,
-                    locationTypeGranularity,
-                    null,
-                    null,
-                    null,
-                    0,
-                    1000);
-
-            location.setAssignedInmates(inmates.getItems());
-        }
-
-        return location;
+    public Location getLocation(long locationId) {
+        return locationRepository.getLocation(locationId).orElseThrow(EntityNotFoundException.withId(locationId));
     }
 
     /**
@@ -176,10 +155,8 @@ public class LocationServiceImpl implements LocationService {
         return results;
     }
 
-    private String getCurrentCaseLoad() {
-        String currentUsername = UserSecurityUtils.getCurrentUsername();
-
-        Optional<CaseLoad> workingCaseLoad = caseLoadService.getWorkingCaseLoadForUser(currentUsername);
+    private String getWorkingCaseLoad(String username) {
+        Optional<CaseLoad> workingCaseLoad = caseLoadService.getWorkingCaseLoadForUser(username);
 
         return workingCaseLoad.isPresent() ? workingCaseLoad.get().getCaseLoadId() : null;
     }

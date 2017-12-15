@@ -5,7 +5,7 @@ import net.syscon.elite.api.resource.SearchOffenderResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.RestResource;
-import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.SearchOffenderService;
 import net.syscon.elite.service.support.SearchOffenderRequest;
 
@@ -16,18 +16,18 @@ import static net.syscon.util.ResourceUtils.nvl;
 @RestResource
 @Path("search-offenders")
 public class SearchResourceImpl implements SearchOffenderResource {
+    private final AuthenticationFacade authenticationFacade;
     private final SearchOffenderService searchOffenderService;
 
-    public SearchResourceImpl(SearchOffenderService searchOffenderService) {
+    public SearchResourceImpl(AuthenticationFacade authenticationFacade, SearchOffenderService searchOffenderService) {
+        this.authenticationFacade = authenticationFacade;
         this.searchOffenderService = searchOffenderService;
     }
 
     @Override
     public SearchForOffendersLocationOnlyResponse searchForOffendersLocationOnly(String locationPrefix, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-        String currentUsername = UserSecurityUtils.getCurrentUsername();
-
         SearchOffenderRequest request = SearchOffenderRequest.builder()
-                .username(currentUsername)
+                .username(authenticationFacade.getCurrentUsername())
                 .locationPrefix(locationPrefix)
                 .orderBy(sortFields)
                 .order(sortOrder)
@@ -42,10 +42,8 @@ public class SearchResourceImpl implements SearchOffenderResource {
 
     @Override
     public SearchForOffendersLocationAndKeywordResponse searchForOffendersLocationAndKeyword(String locationPrefix, String keywords, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-        String currentUsername = UserSecurityUtils.getCurrentUsername();
-
         SearchOffenderRequest request = SearchOffenderRequest.builder()
-                .username(currentUsername)
+                .username(authenticationFacade.getCurrentUsername())
                 .keywords(keywords)
                 .locationPrefix(locationPrefix)
                 .orderBy(sortFields)

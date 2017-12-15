@@ -2,14 +2,12 @@ package net.syscon.elite.repository.impl;
 
 import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.repository.CaseLoadRepository;
-import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -26,28 +24,31 @@ public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRe
 
 	@Override
 	public Optional<CaseLoad> getCaseLoad(final String caseLoadId) {
-		final String sql = getQuery("FIND_CASE_LOAD_BY_ID");
-		final RowMapper<CaseLoad> caseLoadRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseLoad.class, caseLoadMapping);
+		String sql = getQuery("FIND_CASE_LOAD_BY_ID");
 
 		CaseLoad caseload;
+
 		try {
-			caseload = jdbcTemplate.queryForObject(sql, createParams("caseLoadId", caseLoadId), caseLoadRowMapper);
+			caseload = jdbcTemplate.queryForObject(
+					sql,
+					createParams("caseLoadId", caseLoadId),
+					CASELOAD_ROW_MAPPER);
 		} catch (EmptyResultDataAccessException e) {
 			caseload = null;
 		}
+
 		return Optional.ofNullable(caseload);
 	}
 	
 	@Override
 	@Cacheable("getCaseLoadsByUsername")
-	public List<CaseLoad> getCaseLoadsByUsername(final String username) {
-		final String sql = getQuery("FIND_CASE_LOADS_BY_USERNAME");
-		final RowMapper<CaseLoad> caseLoadRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseLoad.class, caseLoadMapping);
-		try {
-			return jdbcTemplate.query(sql, createParams("username", username), caseLoadRowMapper);
-		} catch (EmptyResultDataAccessException e) {
-			return Collections.emptyList();
-		}
+	public List<CaseLoad> getCaseLoadsByUsername(String username) {
+		String sql = getQuery("FIND_CASE_LOADS_BY_USERNAME");
+
+		return jdbcTemplate.query(
+				sql,
+				createParams("username", username),
+				CASELOAD_ROW_MAPPER);
 	}
 
 	@Override

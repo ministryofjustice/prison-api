@@ -5,8 +5,11 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.repository.InmateRepository;
-import net.syscon.elite.security.UserSecurityUtils;
-import net.syscon.elite.service.*;
+import net.syscon.elite.security.VerifyBookingAccess;
+import net.syscon.elite.service.CaseLoadService;
+import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.InmateService;
+import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.PageRequest;
 import net.syscon.util.CalcDateRanges;
@@ -30,7 +33,6 @@ public class InmateServiceImpl implements InmateService {
 
     private final InmateRepository repository;
     private final CaseLoadService caseLoadService;
-    private final BookingService bookingService;
     private final InmateAlertRepository inmateAlertRepository;
 
     private final int maxYears;
@@ -38,44 +40,45 @@ public class InmateServiceImpl implements InmateService {
 
     public InmateServiceImpl(InmateRepository repository,
                              CaseLoadService caseLoadService,
-                             BookingService bookingService,
                              InmateAlertRepository inmateAlertRepository,
                              @Value("${offender.dob.max.range.years:10}") int maxYears,
                              @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity) {
         this.repository = repository;
         this.caseLoadService = caseLoadService;
-        this.bookingService = bookingService;
         this.inmateAlertRepository = inmateAlertRepository;
         this.maxYears = maxYears;
         this.locationTypeGranularity = locationTypeGranularity;
     }
 
     @Override
-    public Page<OffenderBooking> findAllInmates(String query, long offset, long limit, String orderBy, Order order) {
+    public Page<OffenderBooking> findAllInmates(String username, String query, String orderBy, Order order, long offset, long limit) {
         String colSort = StringUtils.isNotBlank(orderBy) ? orderBy : DEFAULT_OFFENDER_SORT;
-        return repository.findAllInmates(getUserCaseloadIds(), locationTypeGranularity, query, new PageRequest(colSort, order, offset, limit));
+        Set<String> caseLoadIds = getUserCaseloadIds(username);
+
+        return repository.findAllInmates(caseLoadIds, locationTypeGranularity, query, new PageRequest(colSort, order, offset, limit));
     }
 
     @Override
     @Cacheable("findInmate")
-    public InmateDetail findInmate(Long inmateId) {
-        final InmateDetail inmate = repository.findInmate(inmateId, getUserCaseloadIds(), locationTypeGranularity).orElseThrow(EntityNotFoundException.withId(inmateId));
+    public InmateDetail findInmate(Long bookingId, String username) {
+        Set<String> caseLoadIds = getUserCaseloadIds(username);
+        final InmateDetail inmate = repository.findInmate(bookingId, caseLoadIds, locationTypeGranularity).orElseThrow(EntityNotFoundException.withId(bookingId));
 
-        PhysicalAttributes physicalAttributes = repository.findPhysicalAttributes(inmateId).orElse(null);
+        PhysicalAttributes physicalAttributes = repository.findPhysicalAttributes(bookingId).orElse(null);
         if (physicalAttributes != null && physicalAttributes.getHeightCentimetres() != null) {
             physicalAttributes.setHeightMetres(BigDecimal.valueOf(physicalAttributes.getHeightCentimetres()).movePointLeft(2));
         }
 
         inmate.setPhysicalAttributes(physicalAttributes);
-        inmate.setPhysicalCharacteristics(repository.findPhysicalCharacteristics(inmateId));
-        inmate.setProfileInformation(repository.getProfileInformation(inmateId));
-        inmate.setPhysicalMarks(repository.findPhysicalMarks(inmateId));
-        inmate.setAssignedLivingUnit(repository.findAssignedLivingUnit(inmateId, locationTypeGranularity).orElse(null));
-        inmate.setAlertsCodes(repository.findActiveAlertCodes(inmateId));
-        inmate.setActiveAlertCount(inmateAlertRepository.getAlertCounts(inmateId, "ACTIVE"));
-        inmate.setInactiveAlertCount(inmateAlertRepository.getAlertCounts(inmateId, "INACTIVE"));
+        inmate.setPhysicalCharacteristics(repository.findPhysicalCharacteristics(bookingId));
+        inmate.setProfileInformation(repository.getProfileInformation(bookingId));
+        inmate.setPhysicalMarks(repository.findPhysicalMarks(bookingId));
+        inmate.setAssignedLivingUnit(repository.findAssignedLivingUnit(bookingId, locationTypeGranularity).orElse(null));
+        inmate.setAlertsCodes(repository.findActiveAlertCodes(bookingId));
+        inmate.setActiveAlertCount(inmateAlertRepository.getAlertCounts(bookingId, "ACTIVE"));
+        inmate.setInactiveAlertCount(inmateAlertRepository.getAlertCounts(bookingId, "INACTIVE"));
 
-        final Map<String, List<AssessmentDto>> mapOfAssessments = getAssessmentsAsMap(inmateId);
+        final Map<String, List<AssessmentDto>> mapOfAssessments = getAssessmentsAsMap(bookingId);
         final List<Assessment> assessments = new ArrayList<>();
         mapOfAssessments.forEach((assessmentCode, assessment) -> assessments.add(createAssessment(assessment.get(0))));
         inmate.setAssessments(assessments);
@@ -85,10 +88,8 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     @Cacheable("getInmateAssessmentByCode")
-    public Optional<Assessment> getInmateAssessmentByCode(long bookingId, String assessmentCode) {
-        // This stops people looking up offenders they cannot access.
-        bookingService.verifyBookingAccess(bookingId);
-
+    @VerifyBookingAccess
+    public Optional<Assessment> getInmateAssessmentByCode(Long bookingId, String assessmentCode) {
         final Map<String, List<AssessmentDto>> mapOfAssessments = getAssessmentsAsMap(bookingId);
         final List<AssessmentDto> assessmentForCodeType = mapOfAssessments.get(assessmentCode);
 
@@ -101,8 +102,9 @@ public class InmateServiceImpl implements InmateService {
         return Optional.ofNullable(assessment);
     }
 
-    private Map<String, List<AssessmentDto>> getAssessmentsAsMap(Long inmateId) {
-        final List<AssessmentDto> assessmentsDto = repository.findAssessments(inmateId);
+    private Map<String, List<AssessmentDto>> getAssessmentsAsMap(Long bookingId) {
+        final List<AssessmentDto> assessmentsDto = repository.findAssessments(bookingId);
+
         return assessmentsDto.stream()
                 .collect(Collectors.groupingBy(AssessmentDto::getAssessmentCode));
     }
@@ -127,23 +129,22 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public Page<Alias> findInmateAliases(Long inmateId, String orderByFields, Order order, long offset, long limit) {
-        bookingService.verifyBookingAccess(inmateId);
-
-        String orderBy = StringUtils.defaultString(StringUtils.trimToNull(orderByFields), "createDate");
+    @VerifyBookingAccess
+    public Page<Alias> findInmateAliases(Long bookingId, String orderBy, Order order, long offset, long limit) {
+        String defaultOrderBy = StringUtils.defaultString(StringUtils.trimToNull(orderBy), "createDate");
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.DESC);
 
-        return repository.findInmateAliases(inmateId, orderBy, sortOrder, offset, limit);
+        return repository.findInmateAliases(bookingId, defaultOrderBy, sortOrder, offset, limit);
     }
 
     @Override
-    public Page<PrisonerDetail> findPrisoners(PrisonerDetailSearchCriteria criteria, String sortFields, Order sortOrder, long offset, long limit) {
+    public Page<PrisonerDetail> findPrisoners(PrisonerDetailSearchCriteria criteria, String orderBy, Order sortOrder, long offset, long limit) {
         final String query = generateQuery(criteria);
         CalcDateRanges calcDates = new CalcDateRanges(criteria.getDob(), criteria.getDobFrom(), criteria.getDobTo(), maxYears);
         if (query != null || calcDates.hasDobRange()) {
 
             return repository.searchForOffenders(query, calcDates.getDobDateFrom(), calcDates.getDobDateTo(),
-                    StringUtils.isNotBlank(sortFields) ? sortFields : DEFAULT_OFFENDER_SORT, Order.ASC == sortOrder, offset, limit);
+                    StringUtils.isNotBlank(orderBy) ? orderBy : DEFAULT_OFFENDER_SORT, Order.ASC == sortOrder, offset, limit);
         }
         return null;
     }
@@ -179,7 +180,7 @@ public class InmateServiceImpl implements InmateService {
         }
     }
 
-    private Set<String> getUserCaseloadIds() {
-        return caseLoadService.getCaseLoadIdsForUser(UserSecurityUtils.getCurrentUsername());
+    private Set<String> getUserCaseloadIds(String username) {
+        return caseLoadService.getCaseLoadIdsForUser(username);
     }
 }

@@ -1,6 +1,6 @@
 package net.syscon.elite.aop;
 
-
+import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.core.Constants;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -8,18 +8,14 @@ import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 
 import java.util.Arrays;
 
-
 @Aspect
+@Slf4j
 public class LoggingAspect {
-
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private Environment env;

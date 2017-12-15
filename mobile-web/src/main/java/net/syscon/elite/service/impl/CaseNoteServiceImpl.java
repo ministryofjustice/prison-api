@@ -9,8 +9,7 @@ import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.CaseNoteRepository;
-import net.syscon.elite.security.UserSecurityUtils;
-import net.syscon.elite.service.BookingService;
+import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.validation.CaseNoteTypeSubTypeValid;
@@ -43,23 +42,21 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
     private final CaseNoteRepository caseNoteRepository;
     private final CaseNoteTransformer transformer;
-    private final BookingService bookingService;
 	private final TelemetryClient telemetryClient;
 
     public CaseNoteServiceImpl(CaseNoteRepository caseNoteRepository, CaseNoteTransformer transformer,
-							   BookingService bookingService, TelemetryClient telemetryClient) {
+							   TelemetryClient telemetryClient) {
         this.caseNoteRepository = caseNoteRepository;
         this.transformer = transformer;
-        this.bookingService = bookingService;
         this.telemetryClient = telemetryClient;
     }
 
 	@Override
     @Transactional(readOnly = true)
-	public Page<CaseNote> getCaseNotes(long bookingId, String query, LocalDate from, LocalDate to, String orderBy, Order order, long offset, long limit) {
-        bookingService.verifyBookingAccess(bookingId);
-
+	@VerifyBookingAccess
+	public Page<CaseNote> getCaseNotes(Long bookingId, String query, LocalDate from, LocalDate to, String orderBy, Order order, long offset, long limit) {
 		final boolean orderByBlank = StringUtils.isBlank(orderBy);
+
         Page<CaseNote> caseNotePage = caseNoteRepository.getCaseNotes(
 				bookingId,
 				query,
@@ -78,56 +75,55 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public CaseNote getCaseNote(final long bookingId, final long caseNoteId) {
-        bookingService.verifyBookingAccess(bookingId);
-
-		CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId).orElseThrow(EntityNotFoundException.withId(caseNoteId));
+	@VerifyBookingAccess
+	public CaseNote getCaseNote(Long bookingId, Long caseNoteId) {
+		CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId)
+				.orElseThrow(EntityNotFoundException.withId(caseNoteId));
 
 		return transformer.transform(caseNote);
 	}
 
 	@Override
 	@Transactional
-    public CaseNote createCaseNote(long bookingId, @Valid @CaseNoteTypeSubTypeValid NewCaseNote caseNote) {
-        bookingService.verifyBookingAccess(bookingId);
-
-		//TODO: First - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
-        Long caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote, caseNoteSource);
+	@VerifyBookingAccess
+    public CaseNote createCaseNote(Long bookingId, @Valid @CaseNoteTypeSubTypeValid NewCaseNote caseNote, String username) {
+		// TODO: For Elite - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
+        Long caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote, caseNoteSource, username);
 
 		final CaseNote caseNoteCreated = getCaseNote(bookingId, caseNoteId);
 
 		// Log event
 		telemetryClient.trackEvent("CaseNoteCreated", ImmutableMap.of("type", caseNoteCreated.getType(), "subType", caseNoteCreated.getSubType()), null);
+
 		return caseNoteCreated;
     }
 
 	@Override
 	@Transactional
-	public CaseNote updateCaseNote(final long bookingId, final long caseNoteId, @NotBlank(message="{caseNoteTextBlank}") @Length(max=4000, message="{caseNoteTextTooLong}") final String newCaseNoteText) {
-        bookingService.verifyBookingAccess(bookingId);
-
-        CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId).orElseThrow(EntityNotFoundException.withId(caseNoteId));
+	@VerifyBookingAccess
+	public CaseNote updateCaseNote(Long bookingId, Long caseNoteId, String username, @NotBlank(message="{caseNoteTextBlank}") @Length(max=4000, message="{caseNoteTextTooLong}") String newCaseNoteText) {
+        CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId)
+				.orElseThrow(EntityNotFoundException.withId(caseNoteId));
 
         String amendedText = format(AMEND_CASE_NOTE_FORMAT,
                 caseNote.getText(),
-                UserSecurityUtils.getCurrentUsername(),
+                username,
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")),
                 newCaseNoteText);
 
-        caseNoteRepository.updateCaseNote(bookingId, caseNoteId, amendedText, UserSecurityUtils.getCurrentUsername());
+        caseNoteRepository.updateCaseNote(bookingId, caseNoteId, amendedText, username);
 
         return getCaseNote(bookingId, caseNoteId);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public CaseNoteCount getCaseNoteCount(long bookingId, String type, String subType, LocalDate fromDate, LocalDate toDate) {
+	@VerifyBookingAccess
+	public CaseNoteCount getCaseNoteCount(Long bookingId, String type, String subType, LocalDate fromDate, LocalDate toDate) {
 		// Validate date range
 		if (Objects.nonNull(fromDate) && Objects.nonNull(toDate) && toDate.isBefore(fromDate)) {
 			throw new BadRequestException("Invalid date range: toDate is before fromDate.");
 		}
-
-		bookingService.verifyBookingAccess(bookingId);
 
 		Long count = caseNoteRepository.getCaseNoteCount(bookingId, type, subType, fromDate, toDate);
 
