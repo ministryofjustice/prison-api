@@ -6,6 +6,7 @@ import net.syscon.elite.api.resource.OffenderReleaseResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.RestResource;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.BookingService;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -19,9 +20,11 @@ import static net.syscon.util.ResourceUtils.nvl;
 @RestResource
 @Path("/offender-releases")
 public class OffenderReleaseResourceImpl implements OffenderReleaseResource {
+    private final AuthenticationFacade authenticationFacade;
     private final BookingService bookingService;
 
-    public OffenderReleaseResourceImpl(BookingService bookingService) {
+    public OffenderReleaseResourceImpl(AuthenticationFacade authenticationFacade, BookingService bookingService) {
+        this.authenticationFacade = authenticationFacade;
         this.bookingService = bookingService;
     }
 
@@ -29,7 +32,9 @@ public class OffenderReleaseResourceImpl implements OffenderReleaseResource {
     @PreAuthorize("authentication.authorities.?[authority.contains('_ADMIN')].size() != 0")
     public GetOffenderReleasesResponse getOffenderReleases( List<String> offenderNos, String toDate, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         Page<OffenderRelease> releaseResponse = bookingService.getOffenderReleaseSummary(
-                fromISO8601DateString(toDate), buildOffenderInQuery(offenderNos),
+                fromISO8601DateString(toDate),
+                authenticationFacade.getCurrentUsername(),
+                buildOffenderInQuery(offenderNos),
                 nvl(pageOffset, 0L),
                 nvl(pageLimit, 10L),
                 StringUtils.defaultIfBlank(sortFields, "offenderNo"),

@@ -1,4 +1,5 @@
 /:
+  (deprecated): Use <b>/users/me/locations</b> instead. This API will be removed or re-purposed in a future release.
   (javaOperationName): getLocations
   type: { readOnlyCollectionPaged: { type: Location, description: List of locations accessible to current user. } }
   is: [
@@ -15,6 +16,7 @@
   type: { readOnlyItem: { type: Location, description: Location detail. } }
 
 /{locationId}/inmates:
+  (deprecated): Use <b>/search-offenders/{locationPrefix}</b> instead. This API will be removed in a future release.
   (javaOperationName): getOffendersAtLocation
   uriParameters:
     locationId:

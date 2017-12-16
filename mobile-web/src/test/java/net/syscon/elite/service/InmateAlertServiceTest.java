@@ -4,7 +4,6 @@ import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.service.impl.InmateAlertServiceImpl;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -17,16 +16,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.lang.String.format;
-import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InmateAlertServiceTest {
     @Mock
     private InmateAlertRepository inmateAlertRepository;
-    @Mock
-    private BookingService bookingService;
+
     @InjectMocks
     private InmateAlertServiceImpl serviceToTest;
 
@@ -36,7 +33,7 @@ public class InmateAlertServiceTest {
 
         Mockito.when(inmateAlertRepository.getInmateAlert(anyLong(), anyString(), anyString(), any(), anyLong(), anyLong())).thenReturn(alerts);
 
-        Page<Alert> returnedAlerts = serviceToTest.getInmateAlerts(-1, null, null, null, 0, 10);
+        Page<Alert> returnedAlerts = serviceToTest.getInmateAlerts(-1L, null, null, null, 0, 10);
 
         assertThat(returnedAlerts.getItems()).hasSize(alerts.getItems().size());
     }
@@ -47,31 +44,9 @@ public class InmateAlertServiceTest {
 
         Mockito.when(inmateAlertRepository.getInmateAlert(anyLong(), anyString(), anyString(), any(), anyLong(), anyLong())).thenReturn(alerts);
 
-        Page<Alert> returnedAlerts = serviceToTest.getInmateAlerts(-1, null, null, null, 0, 10);
+        Page<Alert> returnedAlerts = serviceToTest.getInmateAlerts(-1L, null, null, null, 0, 10);
 
         assertThat(returnedAlerts.getItems()).extracting("expired").containsSequence(false, false, true, true, false);
-    }
-
-    @Test
-    public void testAlertsDifferentCaseLoad() {
-        Mockito.doThrow(new EntityNotFoundException("test")).when(bookingService).verifyBookingAccess(-1L);
-        try {
-            serviceToTest.getInmateAlerts(-1, null, null, null, 0, 10);
-            fail("Should have thrown exception");
-        } catch (EntityNotFoundException e) {
-            // success
-        }
-    }
-
-    @Test
-    public void testAlertDifferentCaseLoad() {
-        Mockito.doThrow(new EntityNotFoundException("test")).when(bookingService).verifyBookingAccess(-1L);
-        try {
-            serviceToTest.getInmateAlert(-1, 5);
-            fail("Should have thrown exception");
-        } catch (EntityNotFoundException e) {
-            // success
-        }
     }
 
     private Page<Alert> createAlerts() {

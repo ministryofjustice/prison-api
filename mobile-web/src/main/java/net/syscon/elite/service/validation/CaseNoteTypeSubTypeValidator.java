@@ -3,7 +3,7 @@ package net.syscon.elite.service.validation;
 import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.api.model.NewCaseNote;
 import net.syscon.elite.api.model.ReferenceCode;
-import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.CaseNoteService;
 import org.springframework.stereotype.Component;
@@ -16,10 +16,13 @@ import java.util.Optional;
 
 @Component
 public class CaseNoteTypeSubTypeValidator implements ConstraintValidator<CaseNoteTypeSubTypeValid, NewCaseNote> {
+    private final AuthenticationFacade authenticationFacade;
     private final CaseLoadService caseLoadService;
     private final CaseNoteService caseNoteService;
 
-    public CaseNoteTypeSubTypeValidator(CaseLoadService caseLoadService, CaseNoteService caseNoteService) {
+    public CaseNoteTypeSubTypeValidator(AuthenticationFacade authenticationFacade,
+                                        CaseLoadService caseLoadService, CaseNoteService caseNoteService) {
+        this.authenticationFacade = authenticationFacade;
         this.caseLoadService = caseLoadService;
         this.caseNoteService = caseNoteService;
     }
@@ -35,7 +38,7 @@ public class CaseNoteTypeSubTypeValidator implements ConstraintValidator<CaseNot
         boolean valid = true;
 
         // This should be ok as it is cached:
-        Optional<CaseLoad> caseLoad = caseLoadService.getWorkingCaseLoadForUser(UserSecurityUtils.getCurrentUsername());
+        Optional<CaseLoad> caseLoad = caseLoadService.getWorkingCaseLoadForUser(authenticationFacade.getCurrentUsername());
         String caseLoadType = caseLoad.isPresent() ? caseLoad.get().getType() : "BOTH";
         List<ReferenceCode> allTypes = caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType);
 

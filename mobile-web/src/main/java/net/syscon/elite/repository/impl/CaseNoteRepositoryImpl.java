@@ -11,7 +11,6 @@ import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
-import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -118,11 +117,10 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
-	public Long createCaseNote(long bookingId, NewCaseNote newCaseNote, String sourceCode) {
+	public Long createCaseNote(long bookingId, NewCaseNote newCaseNote, String sourceCode, String username) {
 		String initialSql = getQuery("INSERT_CASE_NOTE");
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, CASE_NOTE_MAPPING);
 		String sql = builder.build();
-		String user = UserSecurityUtils.getCurrentUsername();
 
 		LocalDateTime now = Instant.now().atOffset(ZoneOffset.UTC).toLocalDateTime();
 
@@ -152,8 +150,8 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 										"createTime", createdDateTime,
 										"contactDate", occurrenceDate,
 										"contactTime", occurrenceTime,
-										"createdBy", user,
-										"userId", user),
+										"createdBy", username,
+										"userId", username),
 				generatedKeyHolder,
 				new String[] {"CASE_NOTE_ID"});
 

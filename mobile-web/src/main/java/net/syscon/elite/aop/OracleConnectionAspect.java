@@ -1,6 +1,7 @@
 package net.syscon.elite.aop;
 
-import net.syscon.elite.security.UserSecurityUtils;
+import lombok.extern.slf4j.Slf4j;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.util.SQLProvider;
 import oracle.jdbc.driver.OracleConnection;
 import org.apache.commons.lang3.StringUtils;
@@ -8,8 +9,6 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.aop.MethodBeforeAdvice;
 import org.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor;
 import org.springframework.aop.framework.ProxyFactory;
@@ -25,12 +24,10 @@ import java.util.Properties;
 
 import static java.lang.String.format;
 
-
 @Aspect
+@Slf4j
 public class OracleConnectionAspect {
-
-    private final Logger log = LoggerFactory.getLogger(this.getClass());
-
+    private final AuthenticationFacade authenticationFacade;
     private final AspectJExpressionPointcutAdvisor closeConnectionAdvisor;
     private String rolePassword;
     private final SQLProvider sqlProvider;
@@ -40,7 +37,10 @@ public class OracleConnectionAspect {
     private final String tagUser;
     private final String defaultSchema;
 
-    public OracleConnectionAspect(SQLProvider sqlProvider, String jdbcUrl, String username, String password, String tagUser, String defaultSchema) {
+    public OracleConnectionAspect(AuthenticationFacade authenticationFacade, SQLProvider sqlProvider,
+                                  String jdbcUrl, String username, String password, String tagUser,
+                                  String defaultSchema) {
+        this.authenticationFacade = authenticationFacade;
         this.sqlProvider = sqlProvider;
         this.jdbcUrl = jdbcUrl;
         this.username = username;
@@ -51,10 +51,12 @@ public class OracleConnectionAspect {
         closeConnectionAdvisor = new AspectJExpressionPointcutAdvisor();
         closeConnectionAdvisor.setExpression("execution (* java.sql.Connection.close(..))");
         closeConnectionAdvisor.setOrder(10);
+
         closeConnectionAdvisor.setAdvice((MethodBeforeAdvice) (method, args, target) -> {
             if (method.getName().equals("close")) {
                 final Connection conn = (Connection) target;
                 final OracleConnection oracleConn = (OracleConnection) conn.unwrap(Connection.class);
+
                 oracleConn.close(OracleConnection.PROXY_SESSION);
             }
         });
@@ -70,41 +72,46 @@ public class OracleConnectionAspect {
         log.debug("Enter: {}.{}()", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
         try {
             final Connection conn = (Connection) joinPoint.proceed();
-            final String username = UserSecurityUtils.getCurrentUsername();
 
-            if ((!UserSecurityUtils.isAnonymousAuthentication() || UserSecurityUtils.isPreAuthenticatedAuthenticationToken()) && username != null) {
+            if (authenticationFacade.isIdentifiedAuthentication()) {
                 assignRolePassword();
-                final OracleConnection oracleConn = (OracleConnection) conn.unwrap(Connection.class);
 
+                final OracleConnection oracleConn = (OracleConnection) conn.unwrap(Connection.class);
                 final Properties info = new Properties();
 
-                info.put(OracleConnection.PROXY_USER_NAME, username);
+                info.put(OracleConnection.PROXY_USER_NAME, authenticationFacade.getCurrentUsername());
                 oracleConn.openProxySession(OracleConnection.PROXYTYPE_USER_NAME, info);
 
                 final ProxyFactory proxyFactory = new ProxyFactory(conn);
+
                 proxyFactory.addAdvisor(closeConnectionAdvisor);
+
                 final Connection proxyConn = (Connection) proxyFactory.getProxy();
+
                 setDefaultSchema(proxyConn);
 
                 final String startSessionSQL = format("SET ROLE %s IDENTIFIED BY %s", tagUser, rolePassword);
                 final PreparedStatement stmt = oracleConn.prepareStatement(startSessionSQL);
+
                 stmt.execute();
                 stmt.close();
+
                 log.debug("Exit: {}.{}() with result = {}", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(), conn);
+
                 return proxyConn;
             } else {
                 return conn;
             }
         } catch (final Throwable e) {
             log.error("Illegal argument: {} in {}.{}()", Arrays.toString(joinPoint.getArgs()), joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(), e);
+
             throw e;
         }
     }
 
     private void setDefaultSchema(final Connection conn) throws SQLException {
         if (StringUtils.isNotBlank(defaultSchema)) {
-            try (PreparedStatement ps = conn.prepareStatement(format("ALTER SESSION SET CURRENT_SCHEMA=%s", defaultSchema))
-                ) {
+            try (PreparedStatement ps = conn.prepareStatement(format("ALTER SESSION SET CURRENT_SCHEMA=%s", defaultSchema))) {
                 ps.execute();
             }
         }
@@ -117,7 +124,9 @@ public class OracleConnectionAspect {
             final String sql = format(sqlProvider.get("FIND_ROLE_PASSWORD"), replaceSchema());
             final MapSqlParameterSource params = new MapSqlParameterSource();
             final String encryptedPassword = jdbcTemplate.queryForObject(sql, params, String.class);
+
             params.addValue("password", encryptedPassword);
+
             rolePassword = jdbcTemplate.queryForObject(format("SELECT %sdecryption('2DECRYPTPASSWRD', :password) FROM DUAL", replaceSchema()), params, String.class);
         }
     }
@@ -126,6 +135,3 @@ public class OracleConnectionAspect {
         return StringUtils.isNotBlank(defaultSchema) ? defaultSchema + "." : "";
     }
 }
-
-
-

@@ -5,12 +5,12 @@ import net.syscon.elite.api.model.SentenceDetail.NonDtoReleaseDateType;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
-import net.syscon.elite.repository.ReferenceCodeRepository;
 import net.syscon.elite.repository.SentenceRepository;
-import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.security.AuthenticationFacade;
+import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.NonDtoReleaseDate;
-
+import net.syscon.elite.service.support.ReferenceDomain;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +20,6 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
 import javax.ws.rs.BadRequestException;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -37,16 +36,15 @@ import static java.time.temporal.ChronoUnit.DAYS;
 @Validated
 public class BookingServiceImpl implements BookingService {
 
-    public static final String INTERNAL_SCHEDULE_REASON = "INT_SCH_RSN";
-
     private final StartTimeComparator startTimeComparator = new StartTimeComparator();
 
+    private final AuthenticationFacade authenticationFacade;
     private final BookingRepository bookingRepository;
     private final SentenceRepository sentenceRepository;
     private final AgencyService agencyService;
     private final CaseLoadService caseLoadService;
     private final LocationService locationService;
-    private final ReferenceCodeRepository referenceCodeRepository;
+    private final ReferenceDomainService referenceDomainService;
     private final int lastNumberOfMonths;
     private final String defaultIepLevel;
 
@@ -69,25 +67,26 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    public BookingServiceImpl(BookingRepository bookingRepository, SentenceRepository sentenceRepository,
-            AgencyService agencyService, CaseLoadService caseLoadService, LocationService locationService,
-            ReferenceCodeRepository referenceCodeRepository,
-            @Value("${api.offender.release.date.min.months:3}") int lastNumberOfMonths,
-            @Value("${api.bookings.iepLevel.default:Unknown}") String defaultIepLevel) {
+    public BookingServiceImpl(AuthenticationFacade authenticationFacade, BookingRepository bookingRepository,
+                              SentenceRepository sentenceRepository, AgencyService agencyService,
+                              CaseLoadService caseLoadService, LocationService locationService,
+                              ReferenceDomainService referenceDomainService,
+                              @Value("${api.offender.release.date.min.months:3}") int lastNumberOfMonths,
+                              @Value("${api.bookings.iepLevel.default:Unknown}") String defaultIepLevel) {
+        this.authenticationFacade = authenticationFacade;
         this.bookingRepository = bookingRepository;
         this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
         this.caseLoadService = caseLoadService;
         this.locationService = locationService;
-        this.referenceCodeRepository = referenceCodeRepository;
+        this.referenceDomainService = referenceDomainService;
         this.lastNumberOfMonths = lastNumberOfMonths;
         this.defaultIepLevel = defaultIepLevel;
     }
 
     @Override
+    @VerifyBookingAccess
     public SentenceDetail getBookingSentenceDetail(Long bookingId) {
-        verifyBookingAccess(bookingId);
-
         // Get sentence detail and confirmed release date.
         Optional<SentenceDetail> optSentenceDetail = bookingRepository.getBookingSentenceDetail(bookingId);
         Optional<LocalDate> confirmedReleaseDate = sentenceRepository.getConfirmedReleaseDate(bookingId);
@@ -115,8 +114,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @VerifyBookingAccess
     public PrivilegeSummary getBookingIEPSummary(Long bookingId, boolean withDetails) {
-        verifyBookingAccess(bookingId);
         List<PrivilegeDetail> iepDetails = bookingRepository.getBookingIEPDetails(bookingId);
 
         PrivilegeSummary privilegeSummary;
@@ -149,8 +148,9 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @VerifyBookingAccess
     public Page<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order) {
-        validateScheduledEventsRequest(bookingId, fromDate, toDate);
+        validateScheduledEventsRequest(fromDate, toDate);
 
         String sortFields = StringUtils.defaultString(orderByFields, "startTime");
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
@@ -159,8 +159,9 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @VerifyBookingAccess
     public List<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
-        validateScheduledEventsRequest(bookingId, fromDate, toDate);
+        validateScheduledEventsRequest(fromDate, toDate);
 
         String sortFields = StringUtils.defaultString(orderByFields, "startTime");
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
@@ -169,8 +170,9 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @VerifyBookingAccess
     public Page<ScheduledEvent> getBookingVisits(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order) {
-        validateScheduledEventsRequest(bookingId, fromDate, toDate);
+        validateScheduledEventsRequest(fromDate, toDate);
 
         String sortFields = StringUtils.defaultString(orderByFields, "startTime");
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
@@ -179,8 +181,9 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @VerifyBookingAccess
     public List<ScheduledEvent> getBookingVisits(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
-        validateScheduledEventsRequest(bookingId, fromDate, toDate);
+        validateScheduledEventsRequest(fromDate, toDate);
 
         String sortFields = StringUtils.defaultString(orderByFields, "startTime");
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
@@ -194,8 +197,9 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @VerifyBookingAccess
     public Page<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order) {
-        validateScheduledEventsRequest(bookingId, fromDate, toDate);
+        validateScheduledEventsRequest(fromDate, toDate);
 
         String sortFields = StringUtils.defaultString(orderByFields, "startTime");
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
@@ -204,8 +208,9 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @VerifyBookingAccess
     public List<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
-        validateScheduledEventsRequest(bookingId, fromDate, toDate);
+        validateScheduledEventsRequest(fromDate, toDate);
 
         String sortFields = StringUtils.defaultString(orderByFields, "startTime");
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
@@ -215,11 +220,11 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional(readOnly = false)
     @Override
-    public ScheduledEvent createBookingAppointment(Long bookingId, @Valid NewAppointment newAppointment) {
+    @VerifyBookingAccess
+    public ScheduledEvent createBookingAppointment(Long bookingId, String username, @Valid NewAppointment newAppointment) {
         validateStartTime(newAppointment);
         validateEndTime(newAppointment);
-        verifyBookingAccess(bookingId);
-        final String agencyId = validateLocationAndGetAgency(newAppointment);
+        final String agencyId = validateLocationAndGetAgency(username, newAppointment);
         validateEventType(newAppointment);
         Long eventId = bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId);
         return bookingRepository.getBookingAppointment(bookingId, eventId);
@@ -239,35 +244,48 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private void validateEventType(NewAppointment newAppointment) {
-        final Optional<ReferenceCode> result = referenceCodeRepository
-                .getReferenceCodeByDomainAndCode(INTERNAL_SCHEDULE_REASON, newAppointment.getAppointmentType(), false);
+        Optional<ReferenceCode> result;
+
+        try {
+            result = referenceDomainService.getReferenceCodeByDomainAndCode(
+                    ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(),false);
+        } catch (EntityNotFoundException ex) {
+            result = Optional.empty();
+        }
+
         if (!result.isPresent()) {
             throw new BadRequestException("Event type not recognised.");
         }
     }
 
-    private String validateLocationAndGetAgency(NewAppointment newAppointment) {
-        Location location;
+    private String validateLocationAndGetAgency(String username, NewAppointment newAppointment) {
+        Optional<String> agencyId;
+
         try {
-            location = locationService.getLocation(newAppointment.getLocationId(), false);
-        } catch (EntityNotFoundException e) {
-            throw new BadRequestException("Location does not exist or is not in your caseload.");
+            Location appointmentLocation = locationService.getLocation(newAppointment.getLocationId());
+            List<Location> userLocations = locationService.getUserLocations(username);
+
+            boolean isValidLocation = userLocations.stream()
+                    .anyMatch(loc -> loc.getAgencyId().equals(appointmentLocation.getAgencyId()));
+
+            if (isValidLocation) {
+                agencyId = Optional.of(appointmentLocation.getAgencyId());
+            } else {
+                agencyId = Optional.empty();
+            }
+        } catch (EntityNotFoundException enfex) {
+            agencyId = Optional.empty();
         }
-        final String agencyId = location.getAgencyId();
-        return agencyId;
+
+        return agencyId.orElseThrow(() ->
+            new BadRequestException("Location does not exist or is not in your caseload."));
     }
 
-    private void validateScheduledEventsRequest(Long bookingId, LocalDate fromDate, LocalDate toDate) {
-        // Validate required parameter(s)
-        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
-
+    private void validateScheduledEventsRequest(LocalDate fromDate, LocalDate toDate) {
         // Validate date range
         if (Objects.nonNull(fromDate) && Objects.nonNull(toDate) && toDate.isBefore(fromDate)) {
             throw new BadRequestException("Invalid date range: toDate is before fromDate.");
         }
-
-        // Verify access to booking for current user
-        verifyBookingAccess(bookingId);
     }
 
     private NonDtoReleaseDate deriveNonDtoReleaseDate(SentenceDetail sentenceDetail) {
@@ -341,7 +359,7 @@ public class BookingServiceImpl implements BookingService {
      */
     private Set<String> getAgencyIds() {
         return agencyService
-                .findAgenciesByUsername(UserSecurityUtils.getCurrentUsername())
+                .findAgenciesByUsername(authenticationFacade.getCurrentUsername())
                 .stream()
                 .map(Agency::getAgencyId)
                 .collect(Collectors.toSet());
@@ -365,25 +383,27 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @VerifyBookingAccess
     public List<OffenceDetail> getMainOffenceDetails(Long bookingId) {
-        verifyBookingAccess(bookingId);
-
         return sentenceRepository.getMainOffenceDetails(bookingId);
     }
 
     @Override
+    @VerifyBookingAccess
     public List<ScheduledEvent> getEventsToday(Long bookingId) {
         final LocalDate today = now();
         return getEvents(bookingId, today, today);
     }
 
     @Override
+    @VerifyBookingAccess
     public List<ScheduledEvent> getEventsThisWeek(Long bookingId) {
         final LocalDate today = now();
         return getEvents(bookingId, today, today.plusDays(6));
     }
 
     @Override
+    @VerifyBookingAccess
     public List<ScheduledEvent> getEventsNextWeek(Long bookingId) {
         final LocalDate today = now();
         return getEvents(bookingId, today.plusDays(7), today.plusDays(13));
@@ -414,11 +434,11 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Page<OffenderRelease> getOffenderReleaseSummary(LocalDate toReleaseDate, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly) {
-        return bookingRepository.getOffenderReleaseSummary(toReleaseDate != null ? toReleaseDate : now().plusMonths(lastNumberOfMonths), query, offset, limit, orderByFields, order, allowedCaseloadsOnly ? getUserCaseloadIds() : Collections.emptySet());
+    public Page<OffenderRelease> getOffenderReleaseSummary(LocalDate toReleaseDate, String username, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly) {
+        return bookingRepository.getOffenderReleaseSummary(toReleaseDate != null ? toReleaseDate : now().plusMonths(lastNumberOfMonths), query, offset, limit, orderByFields, order, allowedCaseloadsOnly ? getUserCaseloadIds(username) : Collections.emptySet());
     }
 
-    private Set<String> getUserCaseloadIds() {
-        return caseLoadService.getCaseLoadIdsForUser(UserSecurityUtils.getCurrentUsername());
+    private Set<String> getUserCaseloadIds(String username) {
+        return caseLoadService.getCaseLoadIdsForUser(username);
     }
 }

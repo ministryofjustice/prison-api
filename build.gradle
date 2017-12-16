@@ -59,7 +59,7 @@ subprojects {
     targetCompatibility = JavaVersion.VERSION_1_8
 
     group = "net.syscon.elite"
-    version = "1.0.15"
+    version = "1.0.16"
 
     checkstyle {
         configFile = new File(rootDir, "syscon-checkstyle.xml")
