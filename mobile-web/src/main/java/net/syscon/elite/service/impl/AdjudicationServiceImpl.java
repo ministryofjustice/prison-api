@@ -3,9 +3,8 @@ package net.syscon.elite.service.impl;
 import net.syscon.elite.api.model.AdjudicationDetail;
 import net.syscon.elite.api.model.Award;
 import net.syscon.elite.repository.AdjudicationsRepository;
+import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.AdjudicationService;
-import net.syscon.elite.service.BookingService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -22,15 +21,13 @@ import java.util.Objects;
 public class AdjudicationServiceImpl implements AdjudicationService {
 
     private final AdjudicationsRepository repository;
-    private final BookingService bookingService;
 
     @Value("${api.cutoff.adjudication.months:3}") private int adjudicationCutoffDefault;
     @Value("${api.cutoff.award.months:0}") private int awardCutoffDefault;
 
     @Autowired
-    public AdjudicationServiceImpl(AdjudicationsRepository adjudicationsRepository, BookingService bookingService) {
+    public AdjudicationServiceImpl(AdjudicationsRepository adjudicationsRepository) {
         this.repository = adjudicationsRepository;
-        this.bookingService = bookingService;
     }
 
     /**
@@ -38,9 +35,8 @@ public class AdjudicationServiceImpl implements AdjudicationService {
      * count proved adjudications which expired on or later than the from date.
      */
     @Override
-    public AdjudicationDetail getAdjudications(long bookingId, LocalDate awardCutoffDateParam, LocalDate adjudicationCutoffDateParam) {
-
-        bookingService.verifyBookingAccess(bookingId);
+    @VerifyBookingAccess
+    public AdjudicationDetail getAdjudications(Long bookingId, LocalDate awardCutoffDateParam, LocalDate adjudicationCutoffDateParam) {
         final List<Award> list = repository.findAwards(bookingId);
         final LocalDate today = LocalDate.now();
         LocalDate awardCutoffDate = awardCutoffDateParam;

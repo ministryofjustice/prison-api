@@ -1,16 +1,24 @@
 package net.syscon.elite.security;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-public class UserSecurityUtils {
+@Component
+public class UserSecurityUtils implements AuthenticationFacade {
+	@Override
+	public Authentication getAuthentication() {
+		return SecurityContextHolder.getContext().getAuthentication();
+	}
 
-	public static String getCurrentUsername() {
+	@Override
+	public String getCurrentUsername() {
 		String username;
 
 		Object userPrincipal = getUserPrincipal();
@@ -29,20 +37,29 @@ public class UserSecurityUtils {
 		return username;
 	}
 
-	public static boolean isAnonymousAuthentication() {
+	@Override
+	public boolean isIdentifiedAuthentication() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+		return ((!(auth instanceof AnonymousAuthenticationToken) ||
+				(auth instanceof PreAuthenticatedAuthenticationToken)) && StringUtils.isNotEmpty(getCurrentUsername()));
+	}
+
+	@Override
+	public boolean isAnonymousAuthentication() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
 		return auth instanceof AnonymousAuthenticationToken;
 	}
 
-	public static boolean isPreAuthenticatedAuthenticationToken() {
+	@Override
+	public boolean isPreAuthenticatedAuthenticationToken() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
 		return auth instanceof PreAuthenticatedAuthenticationToken;
 	}
 
-
-	private static Object getUserPrincipal() {
+	private Object getUserPrincipal() {
 		Object userPrincipal;
 
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();

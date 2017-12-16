@@ -15,16 +15,15 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface CaseNoteService {
+    Page<CaseNote> getCaseNotes(Long bookingId, String query, LocalDate from, LocalDate to, String orderBy, Order order, long offset, long limit);
 
-    Page<CaseNote> getCaseNotes(long bookingId, String query, LocalDate from, LocalDate to, String orderBy, Order order, long offset, long limit);
+    CaseNote getCaseNote(Long bookingId, Long caseNoteId);
 
-    CaseNote getCaseNote(long bookingId, long caseNoteId);
+    CaseNote createCaseNote(Long bookingId, @Valid @CaseNoteTypeSubTypeValid NewCaseNote caseNote, String username);
 
-    CaseNote createCaseNote(long bookingId, @Valid @CaseNoteTypeSubTypeValid NewCaseNote caseNote);
+    CaseNote updateCaseNote(Long bookingId, Long caseNoteId, String username, @NotBlank(message="{caseNoteTextBlank}") @Length(max=4000, message="{caseNoteTextTooLong}") String newCaseNoteText);
 
-    CaseNote updateCaseNote(long bookingId, long caseNoteId, @NotBlank(message="{caseNoteTextBlank}") @Length(max=4000, message="{caseNoteTextTooLong}") String newCaseNoteText);
-
-    CaseNoteCount getCaseNoteCount(long bookingId, String type, String subType, LocalDate fromDate, LocalDate toDate);
+    CaseNoteCount getCaseNoteCount(Long bookingId, String type, String subType, LocalDate fromDate, LocalDate toDate);
 
     List<ReferenceCode> getCaseNoteTypesByCaseLoadType(String caseLoadType);
 
