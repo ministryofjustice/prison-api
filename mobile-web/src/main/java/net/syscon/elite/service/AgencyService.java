@@ -1,6 +1,7 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.PrisonContactDetails;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.PrisonContactDetails;
 import net.syscon.elite.api.support.Page;
