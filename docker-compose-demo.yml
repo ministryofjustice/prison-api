@@ -43,11 +43,13 @@ services:
         placement:
           constraints: [node.role == worker]
     environment:
-      - JAVA_OPTS=-Xms256m -Xmx256m
-      - SPRING_PROFILES_ACTIVE=demo-oracle
+      - JAVA_OPTS=-Xmx1024m
+      - SPRING_PROFILES_ACTIVE=nomis-oracle
       - JWT_SIGNING_KEY=demosecretkey
-      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@terraform-20171129182150561600000001.cuo8tj8nysnb.eu-west-2.rds.amazonaws.com:1521:TESTDB
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@syscon-dev.cuo8tj8nysnb.eu-west-2.rds.amazonaws.com:1521:TESTDB
       - ORACLE_DEFAULT_SCHEMA=DEMO_NOMIS_OWNER
+      - SPRING_DATASOURCE_username=api_proxy_user
+      - SPRING_DATASOURCE_password=api_proxy_user
 
 networks:
   azure:

@@ -166,10 +166,6 @@ project(":mobile-web") {
         }
     }
 
-    compileJava {
-        options.forkOptions.jvmArgs += "-Doracle.jdbc.J2EE13Compliant=true"
-    }
-
     codacyCoverageUploader.dependsOn jacocoTestReport
     aggregate.dependsOn codacyCoverageUploader
     compileJava.dependsOn processResources
