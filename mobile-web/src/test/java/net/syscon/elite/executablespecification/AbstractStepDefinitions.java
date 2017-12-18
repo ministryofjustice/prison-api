@@ -146,8 +146,9 @@ abstract class AbstractStepDefinitions {
         public BookingAppointmentSteps bookingAppointment() {
             return new BookingAppointmentSteps();
         }
+
         @Bean
-        public PrisonContactDetailsSteps agency() {
+        public PrisonContactDetailsSteps prison() {
             return new PrisonContactDetailsSteps();
         }
     }
