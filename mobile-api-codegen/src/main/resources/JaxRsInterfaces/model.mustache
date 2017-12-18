@@ -7,6 +7,7 @@ import {{supportPackage}}.*;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.HashMap;
@@ -24,6 +25,7 @@ import org.hibernate.validator.constraints.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class {{classname}}{{#parent}} extends {{{parent}}}{{/parent}} {
     {{^isEnum}}
     @JsonIgnore

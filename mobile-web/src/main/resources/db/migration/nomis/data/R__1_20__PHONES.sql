@@ -1,1 +1,1 @@
--- Pending insertion of seed/test data
+INSERT INTO PHONES (PHONE_ID, OWNER_CLASS, OWNER_ID, PHONE_NO, PHONE_TYPE, EXT_NO) VALUES (-1, 'ADDR', '-3', '0114 2345345', 'BUS', '345');

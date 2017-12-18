@@ -35,13 +35,13 @@ GET_AVAILABLE_LOCATIONS {
  --- For INSERT_APPOINTMENT and other events
 SELECT ail.internal_location_id, -- this is the actual id
        ail.description,
-       ilul.usage_location_id, 
+       ilul.usage_location_id,
        ilul.usage_location_type
-FROM int_loc_usage_locations ilul 
+FROM int_loc_usage_locations ilul
   INNER JOIN internal_location_usages ilu ON ilu.internal_location_usage_id = ilul.internal_location_usage_id
   INNER JOIN agency_internal_locations ail ON ail.internal_location_id = ilul.internal_location_id
 WHERE ilu.internal_location_usage = :eventType
-  AND ilu.agy_loc_id = :agencyId  
+  AND ilu.agy_loc_id = :agencyId
   AND ail.active_flag = 'Y'
   AND ail.deactivate_date IS NULL
   AND ail.internal_location_code <> 'RTU'
@@ -49,4 +49,29 @@ WHERE ilu.internal_location_usage = :eventType
                  FROM int_loc_usage_locations
                  WHERE parent_usage_location_id = ilul.usage_location_id)
 ORDER BY ail.description
+}
+FIND_PRISON_ADDRESSES_PHONE_NUMBERS {
+  SELECT
+  al.AGY_LOC_ID,
+  ad.address_type,
+  ad.PREMISE,
+  ad.STREET,
+  ad.LOCALITY,
+  city.DESCRIPTION CITY,
+  country.DESCRIPTION COUNTRY,
+  ad.POSTAL_CODE,
+  p.PHONE_TYPE,
+  p.PHONE_NO,
+  p.EXT_NO
+FROM AGENCY_LOCATIONS al LEFT JOIN ADDRESSES ad ON ad.owner_class = 'AGY'
+                                                   AND ad.owner_code = al.agy_loc_id
+  LEFT JOIN PHONES p ON p.owner_class = 'ADDR'
+                        AND p.owner_id = ad.address_id
+  LEFT JOIN REFERENCE_CODES city ON city.CODE = ad.CITY_CODE and city.DOMAIN = 'CITY'
+  LEFT JOIN REFERENCE_CODES country ON country.CODE = ad.COUNTRY_CODE and country.DOMAIN = 'COUNTRY'
+WHERE al.ACTIVE_FLAG = 'Y'
+      AND al.AGY_LOC_ID NOT IN ('OUT', 'TRN')
+      AND al.AGENCY_LOCATION_TYPE = 'INST'
+      AND ad.PRIMARY_FLAG = 'Y'
+ORDER BY al.AGY_LOC_ID, ad.address_type, p.PHONE_TYPE
 }

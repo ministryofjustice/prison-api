@@ -18,3 +18,13 @@
         type: string
         description: The type of event
         example: APP (appointment)
+
+/prison:
+  (javaOperationName): getPrisonContactDetailsList
+  description: Returns list of prison contact details.
+  type: { readOnlyCollection: { type: PrisonContactDetails, description: List of prison contact details. } }
+
+/prison/{agencyId}:
+  (javaOperationName): getPrisonContactDetails
+  description: Returns prison contact details for given agency Id.
+  type: { readOnlyItem: { type: PrisonContactDetails, description: Prison contact details. } }

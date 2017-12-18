@@ -146,6 +146,10 @@ abstract class AbstractStepDefinitions {
         public BookingAppointmentSteps bookingAppointment() {
             return new BookingAppointmentSteps();
         }
+        @Bean
+        public PrisonContactDetailsSteps agency() {
+            return new PrisonContactDetailsSteps();
+        }
     }
 
     protected int ord2idx(String ordinal) {

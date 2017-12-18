@@ -2,6 +2,7 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.PrisonContactDetails;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 
@@ -16,4 +17,5 @@ public interface AgencyRepository {
     List<Agency> findAgenciesByUsername(String username);
     Optional<Agency> getAgency(String agencyId);
     List<Location> getAvailableLocations(String agencyId, String eventType);
+    List<PrisonContactDetails> getPrisonContactDetails(String agencyId);
 }
