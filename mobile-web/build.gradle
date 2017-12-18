@@ -40,7 +40,7 @@ project(":mobile-web") {
 
         runtime("org.postgresql:postgresql:42.1.4")
         runtime('org.hsqldb:hsqldb:2.4.0')
-        runtime("org.flywaydb:flyway-core:4.2.0")
+        runtime("org.flywaydb:flyway-core:5.0.2")
 
         testCompile project(":mobile-api")
         testCompile project(path: ":mobile-api", configuration: "generatedOutput")
@@ -104,6 +104,16 @@ project(":mobile-web") {
         environment nomisEnvVars
     }
 
+    task testWithSchemaNomisOracle(type:Test) {
+        minHeapSize = "2G"
+        maxHeapSize = "2G"
+        def nomisEnvVars = ['api.db.target':'nomis', 'api.db.dialect':'oracle',
+                            'cucumber.options':'--tags @global,@nomis,@oracle --tags ~@elite --tags ~@wip --tags ~@broken']
+
+        exclude "**/persistence/*"
+        environment nomisEnvVars
+    }
+
     task testWithSchemaElite(type:Test) {
         minHeapSize = "2G"
         maxHeapSize = "2G"
@@ -155,6 +165,7 @@ project(":mobile-web") {
             args codacyArgs
         }
     }
+
     codacyCoverageUploader.dependsOn jacocoTestReport
     aggregate.dependsOn codacyCoverageUploader
     compileJava.dependsOn processResources
