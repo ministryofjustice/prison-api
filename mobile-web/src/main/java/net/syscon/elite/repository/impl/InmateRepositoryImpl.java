@@ -121,7 +121,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.build();
 
 	@Override
-	public Page<OffenderBooking> findInmatesByLocation(Long locationId, String locationTypeRoot, String query, String orderByField, Order order, long offset, long limit) {
+	public Page<OffenderBooking> findInmatesByLocation(Long locationId, String locationTypeRoot, String caseLoadId, String query, String orderByField, Order order, long offset, long limit) {
 		String initialSql = getQuery("FIND_INMATES_BY_LOCATION");
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_BOOKING_MAPPING);
 
@@ -141,12 +141,13 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 sql,
                 createParams("locationId", locationId,
                         "locationTypeRoot", locationTypeRoot,
-                        "caseLoadId", getCurrentCaseLoad(),
+                        "caseLoadId", caseLoadId,
                         "offset", offset,
                         "limit", limit),
                 paRowMapper);
 
 		results.forEach(b -> b.setAge(DateTimeConverter.getAge(b.getDateOfBirth())));
+
 		return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
 	}
 

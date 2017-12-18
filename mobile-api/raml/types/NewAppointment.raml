@@ -15,4 +15,12 @@ properties:
     type: datetime
     description: Date and time at which event starts
     example: 2017-09-13 09:30:00
+  endTime?:
+    type: datetime
+    description: Date and time at which event ends
+    example: 2017-09-13 10:00:00
+  comment?:
+    type: string
+    description: Details of appointment
+    maxLength: 3600
 # TODO: repeating event params

@@ -69,6 +69,27 @@ public class BookingRepositoryTest {
         assertEquals(appt.getStartTime(), event.getStartTime());
         assertEquals(appt.getStartTime().toLocalDate(), event.getEventDate());
     }
+    
+    @Test
+    public void testCreateBookingAppointmentWithEndComment() {
+        final NewAppointment appt = NewAppointment.builder()
+                .appointmentType("APT_TYPE")
+                .locationId(-29L)
+                .startTime(LocalDateTime.parse("2017-12-24T10:15:30"))
+                .endTime(LocalDateTime.parse("2017-12-24T10:30:00"))
+                .comment("Hi there")
+                .build();
+
+        final Long eventId = repository.createBookingAppointment(-2L, appt, "LEI");
+
+        final ScheduledEvent event = repository.getBookingAppointment(-2L, eventId);
+        assertEquals(appt.getAppointmentType(), event.getEventSubType());
+        assertEquals("Medical Centre", event.getEventLocation());
+        assertEquals(appt.getStartTime(), event.getStartTime());
+        assertEquals(appt.getEndTime(), event.getEndTime());
+        assertEquals(appt.getComment(), event.getEventSourceDesc());
+        assertEquals(appt.getStartTime().toLocalDate(), event.getEventDate());
+    }
 
     @Test
     public void testGetBookingVisitLastSameDay() {

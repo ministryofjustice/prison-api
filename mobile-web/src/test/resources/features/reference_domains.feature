@@ -38,16 +38,14 @@ Feature: Reference Domains
 
   Scenario: Retrieve used case note types with sub-types
     When request submitted to retrieve used case note types
-    Then "5" reference code items are returned
+    Then "28" reference code items are returned
     And domain for all returned items is "TASK_TYPE"
-    And codes of returned items are "APP,CHAP,COMMS,ETE,OBSERVE"
+    And code for "1st" returned item is "ACP"
+    And code for "28th" returned item is "UW"
     And there are one or more sub codes for every returned item
-    And code for "1st" sub-code of "1st" returned item is "OUTCOME"
-    And code for "1st" sub-code of "2nd" returned item is "FAMMAR"
-    And code for "1st" sub-code of "3rd" returned item is "COM_IN"
-    And code for "2nd" sub-code of "3rd" returned item is "COM_OUT"
-    And code for "1st" sub-code of "4th" returned item is "ETERTO"
-    And code for "1st" sub-code of "5th" returned item is "OBS_GEN"
+    And code for "1st" sub-code of "1st" returned item is "POEM"
+    And code for "7th" sub-code of "1st" returned item is "POS6"
+    And code for "1st" sub-code of "28th" returned item is "UWTERM"
 
   Scenario: Retrieve reference codes, without sub-codes, for a domain that does not exist
     When request submitted to retrieve all reference codes, without sub-codes, for domain "UNKNOWN"
@@ -146,3 +144,14 @@ Feature: Reference Domains
       | domain    | code  | description                       | activeFlag | subCodeCount |
       | ALERT     | C     | Child Communication Measures      | Y          | 4            |
       | CONTACTS  | S     | Social/Family                     | Y          | 38           |
+
+  Scenario: Retrieve reason codes for an event type
+    When a request is submitted to retrieve all reason codes for event type "APP"
+    Then the returned reason codes are as follows:
+      | code | description      |
+      | CABA | Bail             |
+      | CHAP | Baptism          |
+      | EDUC | Computers        |
+      | KWS  | Key Work Session |
+      | MEDE | Dentist          |
+      | RES  | Resolve          |

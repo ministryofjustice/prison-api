@@ -1,8 +1,20 @@
-description: Returns list of active agencies.
-(javaOperationName): getAgencies
-type: { readOnlyCollectionPaged: { type: Agency, description: List of active agencies. } }
+/:
+  description: Returns list of active agencies.
+  (javaOperationName): getAgencies
+  type: { readOnlyCollectionPaged: { type: Agency, description: List of active agencies. } }
 
 /{agencyId}:
   (javaOperationName): getAgency
   description: Returns specified agency.
   type: { readOnlyItem: { type: Agency, description: Agency detail. } }
+
+/{agencyId}/locations:
+  (javaOperationName): getAvailableLocations
+  description: Returns locations available to an agency for creating/updating a given event type.
+  type: { readOnlyCollection: { type: Location } }
+  get:
+    queryParameters:
+      eventType:
+        type: string
+        description: The type of event
+        example: APP (appointment)

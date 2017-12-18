@@ -6,10 +6,12 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.ReferenceCodeRepository;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.ReferenceDomainService;
+import net.syscon.elite.service.support.ReferenceDomain;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -22,34 +24,44 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 		this.referenceCodeRepository = referenceCodeRepository;
 	}
 
-	private String getDefaultOrderBy(String orderBy) {
+	private static String getDefaultOrderBy(String orderBy) {
 		return StringUtils.defaultIfBlank(orderBy, "code");
 	}
 
-	private Order getDefaultOrder(Order order) {
+	private static Order getDefaultOrder(Order order) {
 		return Objects.isNull(order) ? Order.ASC : order;
 	}
 
 	@Override
 	public Page<ReferenceCode> getAlertTypes(String orderBy, Order order, long offset, long limit) {
-		return referenceCodeRepository.getReferenceCodesByDomain("ALERT", true, getDefaultOrderBy(orderBy), getDefaultOrder(order), offset, limit);
+		return referenceCodeRepository.getReferenceCodesByDomain(
+				ReferenceDomain.ALERT.getDomain(),true,
+				getDefaultOrderBy(orderBy), getDefaultOrder(order),
+				offset, limit);
 	}
 
 	@Override
 	public Page<ReferenceCode> getCaseNoteSources(String orderBy, Order order, long offset, long limit) {
-		return referenceCodeRepository.getReferenceCodesByDomain("NOTE_SOURCE", false, getDefaultOrderBy(orderBy), getDefaultOrder(order), offset, limit);
+		return referenceCodeRepository.getReferenceCodesByDomain(
+				ReferenceDomain.CASE_NOTE_SOURCE.getDomain(),false,
+				getDefaultOrderBy(orderBy), getDefaultOrder(order),
+				offset, limit);
 	}
 
 	@Override
 	public Page<ReferenceCode> getCaseNoteTypes(String orderBy, Order order, long offset, long limit) {
-		return referenceCodeRepository.getReferenceCodesByDomain("TASK_TYPE", true, getDefaultOrderBy(orderBy), getDefaultOrder(order), offset, limit);
+		return referenceCodeRepository.getReferenceCodesByDomain(
+				ReferenceDomain.CASE_NOTE_TYPE.getDomain(),true,
+				getDefaultOrderBy(orderBy), getDefaultOrder(order),
+				offset, limit);
 	}
 
 	@Override
 	public Page<ReferenceCode> getReferenceCodesByDomain(String domain, boolean withSubCodes, String orderBy, Order order, long offset, long limit) {
 		verifyReferenceDomain(domain);
 
-		return referenceCodeRepository.getReferenceCodesByDomain(domain, withSubCodes, getDefaultOrderBy(orderBy), getDefaultOrder(order), offset, limit);
+		return referenceCodeRepository.getReferenceCodesByDomain(
+				domain, withSubCodes, getDefaultOrderBy(orderBy), getDefaultOrder(order), offset, limit);
 	}
 
 	@Override
@@ -69,4 +81,11 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 		referenceCodeRepository.getReferenceCodeByDomainAndCode(domain, code, false)
 				.orElseThrow(EntityNotFoundException.withMessage("Reference code for domain [%s] and code [%s] not found.", domain, code));
 	}
+
+    @Override
+    public List<ReferenceCode> getScheduleReasons(String eventType) {
+        verifyReferenceCode(ReferenceDomain.INTERNAL_SCHEDULE_TYPE.getDomain(), eventType);
+
+        return referenceCodeRepository.getScheduleReasons(eventType);
+    }
 }

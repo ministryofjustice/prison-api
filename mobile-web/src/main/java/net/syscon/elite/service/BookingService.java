@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -27,7 +28,7 @@ public interface BookingService {
 
     List<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
 
-    ScheduledEvent createBookingAppointment(Long bookingId, NewAppointment newAppointment);
+    ScheduledEvent createBookingAppointment(Long bookingId, String username, @Valid NewAppointment newAppointment);
 
     void verifyBookingAccess(Long bookingId);
 
@@ -39,7 +40,7 @@ public interface BookingService {
 
     List<ScheduledEvent> getEventsNextWeek(Long bookingId);
 
-    Page<OffenderRelease> getOffenderReleaseSummary(LocalDate fromReleaseDate, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly);
+    Page<OffenderRelease> getOffenderReleaseSummary(LocalDate fromReleaseDate, String username, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly);
 
     ScheduledEvent getBookingVisitLast(Long bookingId);
 }

@@ -5,6 +5,7 @@ import net.syscon.elite.api.resource.BookingResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.RestResource;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.*;
 
 import javax.ws.rs.Path;
@@ -21,17 +22,20 @@ import static net.syscon.util.ResourceUtils.nvl;
 @RestResource
 @Path("/bookings")
 public class BookingResourceImpl implements BookingResource {
+    private final AuthenticationFacade authenticationFacade;
     private final BookingService bookingService;
     private final InmateService inmateService;
     private final CaseNoteService caseNoteService;
-    private final InmatesAlertService inmateAlertService;
+    private final InmateAlertService inmateAlertService;
     private final FinanceService financeService;
     private final ContactService contactService;
     private final AdjudicationService adjudicationService;
 
-    public BookingResourceImpl(BookingService bookingService, InmateService inmateService,
-            CaseNoteService caseNoteService, InmatesAlertService inmateAlertService, FinanceService financeService,
-            ContactService contactService, AdjudicationService adjudicationService) {
+    public BookingResourceImpl(AuthenticationFacade authenticationFacade, BookingService bookingService,
+                               InmateService inmateService, CaseNoteService caseNoteService,
+                               InmateAlertService inmateAlertService, FinanceService financeService,
+                               ContactService contactService, AdjudicationService adjudicationService) {
+        this.authenticationFacade = authenticationFacade;
         this.bookingService = bookingService;
         this.inmateService = inmateService;
         this.caseNoteService = caseNoteService;
@@ -44,18 +48,19 @@ public class BookingResourceImpl implements BookingResource {
     @Override
     public GetOffenderBookingsResponse getOffenderBookings(String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         Page<OffenderBooking> allInmates = inmateService.findAllInmates(
+                authenticationFacade.getCurrentUsername(),
                 query,
-                nvl(pageOffset, 0L),
-                nvl(pageLimit, 10L),
                 sortFields,
-                sortOrder);
+                sortOrder,
+                nvl(pageOffset, 0L),
+                nvl(pageLimit, 10L));
 
         return GetOffenderBookingsResponse.respond200WithApplicationJson(allInmates);
     }
 
     @Override
     public GetOffenderBookingResponse getOffenderBooking(Long bookingId) {
-        InmateDetail inmate = inmateService.findInmate(bookingId);
+        InmateDetail inmate = inmateService.findInmate(bookingId, authenticationFacade.getCurrentUsername());
 
         return GetOffenderBookingResponse.respond200WithApplicationJson(inmate);
     }
@@ -170,14 +175,15 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     public PostBookingsBookingIdCaseNotesResponse postBookingsBookingIdCaseNotes(Long bookingId, NewCaseNote body) {
-        CaseNote caseNote = caseNoteService.createCaseNote(bookingId, body);
+        CaseNote caseNote = caseNoteService.createCaseNote(bookingId, body, authenticationFacade.getCurrentUsername());
 
         return PostBookingsBookingIdCaseNotesResponse.respond201WithApplicationJson(caseNote);
     }
 
     @Override
     public PutBookingsBookingIdCaseNotesCaseNoteIdResponse putBookingsBookingIdCaseNotesCaseNoteId(Long bookingId, Long caseNoteId, UpdateCaseNote body) {
-        CaseNote caseNote = caseNoteService.updateCaseNote(bookingId, caseNoteId, body.getText());
+        CaseNote caseNote = caseNoteService.updateCaseNote(
+                bookingId, caseNoteId, authenticationFacade.getCurrentUsername(), body.getText());
 
         return PutBookingsBookingIdCaseNotesCaseNoteIdResponse.respond201WithApplicationJson(caseNote);
     }
@@ -339,7 +345,8 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     public PostBookingsBookingIdAppointmentsResponse postBookingsBookingIdAppointments(Long bookingId, NewAppointment newAppointment) {
-        ScheduledEvent createdEvent = bookingService.createBookingAppointment(bookingId, newAppointment);
+        ScheduledEvent createdEvent = bookingService.createBookingAppointment(
+                bookingId, authenticationFacade.getCurrentUsername(), newAppointment);
 
         return PostBookingsBookingIdAppointmentsResponse.respond201WithApplicationJson(createdEvent);
     }

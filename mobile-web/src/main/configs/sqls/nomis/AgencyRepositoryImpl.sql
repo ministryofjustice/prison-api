@@ -11,11 +11,3 @@ FIND_AGENCIES_BY_USERNAME {
            FROM USER_CASELOAD_ROLES UCR
            WHERE UCR.USERNAME = :username)
 }
-
-GET_AGENCY {
-    SELECT A.AGY_LOC_ID,
-           A.DESCRIPTION,
-           A.AGENCY_LOCATION_TYPE
-    WHERE A.ACTIVE_FLAG = 'Y'
-      AND A.AGY_LOC_ID = :agencyId
-}
