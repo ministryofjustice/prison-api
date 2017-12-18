@@ -204,6 +204,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
+	@Cacheable("usedCaseNoteTypesWithSubTypes")
 	public List<ReferenceCode> getUsedCaseNoteTypesWithSubTypes() {
 		String sql = getQuery("GET_USED_CASE_NOTE_TYPES_WITH_SUB_TYPES");
 

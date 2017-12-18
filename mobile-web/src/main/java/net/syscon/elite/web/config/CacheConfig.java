@@ -49,6 +49,7 @@ public class CacheConfig implements CachingConfigurer {
 
         config.addCache(config("caseNoteTypesByCaseLoadType", 100, caseNoteTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("caseNoteTypesWithSubTypesByCaseLoadType", 100, caseNoteTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("usedCaseNoteTypesWithSubTypes", 100, caseNoteTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config("findByStaffId", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("findRolesByUsername", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
