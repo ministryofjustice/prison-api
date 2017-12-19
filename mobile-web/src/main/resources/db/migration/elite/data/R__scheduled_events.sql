@@ -102,7 +102,10 @@ INSERT INTO OFFENDER_VISITS (OFFENDER_VISIT_ID, OFFENDER_BOOK_ID, VISIT_DATE, ST
          (-13, -1, '2017-04-10', '2017-04-10 14:30:00', '2017-04-10 15:30:00', 'SCON', 'SCH', -28, 'LEI'),
          (-14, -1, '2017-03-10', '2017-03-10 14:30:00', '2017-03-10 16:30:00', 'OFFI', 'SCH', -25, 'LEI'),
          (-15, -1, '2016-12-11', '2016-12-11 14:30:00', '2016-12-11 15:30:00', 'SCON', 'SCH', -28, 'LEI'),
-         (-16, -2, '2017-10-10', '2017-10-10 10:00:00', '2017-10-10 12:00:00', 'OFFI', 'SCH', -25, 'LEI');
+         (-16, -2, '2017-10-10', '2017-10-10 10:00:00', '2017-10-10 12:00:00', 'OFFI', 'SCH', -25, 'LEI'),
+
+-- Last visit
+         (-26, -4, '2017-10-10', '2017-10-10 10:00:00', '2017-10-10 12:00:00', 'OFFI', 'SCH', -27,  'LEI');
 
 -- These visits defined for current day, this week and next week (to test 'today', 'thisWeek' and 'nextWeek' endpoint actions).
 INSERT INTO OFFENDER_VISITS (OFFENDER_VISIT_ID, OFFENDER_BOOK_ID, VISIT_DATE, START_TIME, END_TIME, VISIT_TYPE, VISIT_STATUS, VISIT_INTERNAL_LOCATION_ID, AGY_LOC_ID)
@@ -115,11 +118,6 @@ INSERT INTO OFFENDER_VISITS (OFFENDER_VISIT_ID, OFFENDER_BOOK_ID, VISIT_DATE, ST
          (-24, -3, current_date + INTERVAL '10' DAY, now() + INTERVAL '10' DAY, now() + INTERVAL '10' DAY, 'SCON', 'SCH', -27, 'LEI'),
          (-25, -3, current_date + INTERVAL '16' DAY, now() + INTERVAL '16' DAY, now() + INTERVAL '16' DAY, 'SCON', 'SCH', -28, 'LEI');
 
--- These visits defined to be found by the 'last' endpoint.
---INSERT INTO OFFENDER_VISITS (OFFENDER_VISIT_ID, OFFENDER_BOOK_ID, VISIT_DATE, START_TIME, END_TIME, VISIT_TYPE, VISIT_STATUS, VISIT_INTERNAL_LOCATION_ID, AGY_LOC_ID)
---  VALUES (-26, -4, current_date, now() - INTERVAL '2' MINUTE, now() - INTERVAL '1' MINUTE, 'OFFI', 'SCH', -25, 'LEI'),
---         (-27, -4, current_date, now() + INTERVAL '1' MINUTE, now() + INTERVAL '2' MINUTE, 'SCON', 'SCH', -28, 'LEI'),
- 
 -------------------------------------------------------
 -- Seed data for Appointments (APP) Scheduled Events --
 -------------------------------------------------------

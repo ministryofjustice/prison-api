@@ -192,7 +192,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public ScheduledEvent getBookingVisitLast(Long bookingId) {
+    public Visit getBookingVisitLast(Long bookingId) {
         return bookingRepository.getBookingVisitLast(bookingId, LocalDateTime.now());
     }
 
