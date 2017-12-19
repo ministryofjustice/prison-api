@@ -18,6 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import com.google.common.collect.ImmutableMap;
+import com.microsoft.applicationinsights.TelemetryClient;
+
 import javax.validation.Valid;
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
@@ -45,6 +48,7 @@ public class BookingServiceImpl implements BookingService {
     private final CaseLoadService caseLoadService;
     private final LocationService locationService;
     private final ReferenceDomainService referenceDomainService;
+    private final TelemetryClient telemetryClient;
     private final int lastNumberOfMonths;
     private final String defaultIepLevel;
 
@@ -71,6 +75,7 @@ public class BookingServiceImpl implements BookingService {
                               SentenceRepository sentenceRepository, AgencyService agencyService,
                               CaseLoadService caseLoadService, LocationService locationService,
                               ReferenceDomainService referenceDomainService,
+                              TelemetryClient telemetryClient,
                               @Value("${api.offender.release.date.min.months:3}") int lastNumberOfMonths,
                               @Value("${api.bookings.iepLevel.default:Unknown}") String defaultIepLevel) {
         this.authenticationFacade = authenticationFacade;
@@ -80,6 +85,7 @@ public class BookingServiceImpl implements BookingService {
         this.caseLoadService = caseLoadService;
         this.locationService = locationService;
         this.referenceDomainService = referenceDomainService;
+        this.telemetryClient = telemetryClient;
         this.lastNumberOfMonths = lastNumberOfMonths;
         this.defaultIepLevel = defaultIepLevel;
     }
@@ -227,6 +233,17 @@ public class BookingServiceImpl implements BookingService {
         final String agencyId = validateLocationAndGetAgency(username, newAppointment);
         validateEventType(newAppointment);
         Long eventId = bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId);
+
+        // Log event
+        telemetryClient.trackEvent("AppointmentCreated", ImmutableMap.of(
+                "type", newAppointment.getAppointmentType(),
+                "start", newAppointment.getStartTime().toString(),
+               // "end", newAppointment.getEndTime() == null ? null : newAppointment.getEndTime().toString(),
+                "location", newAppointment.getLocationId().toString(),
+                "user", username
+               // , "comment", newAppointment.getComment()
+                ), null);
+
         return bookingRepository.getBookingAppointment(bookingId, eventId);
     }
 
