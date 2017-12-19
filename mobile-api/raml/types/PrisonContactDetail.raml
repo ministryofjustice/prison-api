@@ -1,0 +1,27 @@
+#%RAML 1.0 DataType
+description: Contacts Details for prison
+properties:
+  agencyId:
+    type: string
+    description: Identifier of agency/prison.
+  addressType:
+    type: string
+    description: Type of address.
+  premise:
+    type: string
+    description: The Prison name.
+  locality:
+    type: string
+    description: Describes the geographic location.
+  city:
+    type: string
+    description: Address city.
+  country:
+    type: string
+    description: Address country.
+  postCode:
+    type: string
+    description: Address postcode.
+  phones:
+    type: Telephone[]
+    description: List of Telephone details
