@@ -41,7 +41,6 @@ public class BookingVisitSteps extends ScheduledEventSteps {
     private void dispatchRequest(String url, Long bookingId) {
         init();
         ResponseEntity<Visit> response;
-
         try {
             response = restTemplate.exchange(
                             url,
