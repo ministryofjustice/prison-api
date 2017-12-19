@@ -280,7 +280,7 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     public GetBookingVisitsLastResponse getBookingVisitsLast(Long bookingId) {
-        ScheduledEvent visit = bookingService.getBookingVisitLast(bookingId);
+        Visit visit = bookingService.getBookingVisitLast(bookingId);
 
         return GetBookingVisitsLastResponse.respond200WithApplicationJson(visit);
     }

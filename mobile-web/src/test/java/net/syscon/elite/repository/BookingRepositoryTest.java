@@ -6,6 +6,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 
 import net.syscon.elite.api.model.NewAppointment;
 import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.Visit;
 import net.syscon.elite.web.config.PersistenceConfigs;
 
 import org.junit.Before;
@@ -40,17 +41,16 @@ public class BookingRepositoryTest {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
     }
 
-    private static void assertVisitDetails(final ScheduledEvent visit) {
-        assertEquals(-1L, visit.getBookingId().longValue());
-        assertEquals("2016-12-11", visit.getEventDate().toString());
+    private static void assertVisitDetails(final Visit visit) {
         assertEquals("2016-12-11T14:30", visit.getStartTime().toString());
         assertEquals("2016-12-11T15:30", visit.getEndTime().toString());
-        assertEquals("INT_MOV", visit.getEventClass());
-        assertEquals("VISIT", visit.getEventType());
-        assertEquals("Visiting Room", visit.getEventLocation());
-        assertEquals("SCH", visit.getEventStatus());
-        assertEquals("VIS", visit.getEventSource());
-        assertEquals("SCON", visit.getEventSourceCode());
+        assertEquals("ABS", visit.getEventOutcome());        // whether attended: null(=attended)/ABS Reference Code(OUTCOMES)
+        assertEquals("JESSY SMITH1", visit.getLeadVisitor());
+        assertEquals("Uncle", visit.getRelationship());
+        assertEquals("Visiting Room", visit.getLocation());
+        assertEquals("CANC", visit.getEventStatus());        // EXP / CANC / COMP /SCH                Reference Code(EVENT_STS)
+        assertEquals("NSHOW", visit.getCancellationReason());// VISCANC / NSHOW / REFUSED / ADMIN ... Reference Code(MOVE_CANC_RS)
+        assertEquals("Social Contact", visit.getVisitType());// social or official
     }
 
     @Test
@@ -93,34 +93,32 @@ public class BookingRepositoryTest {
 
     @Test
     public void testGetBookingVisitLastSameDay() {
-        final ScheduledEvent visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2016-12-11T16:00"));
+        final Visit visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2016-12-11T16:00"));
         assertVisitDetails(visit);
     }
 
     @Test
     public void testGetBookingVisitLastDifferentDay() {
-        final ScheduledEvent visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2016-12-20T00:00"));
+        final Visit visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2016-12-20T00:00"));
         assertVisitDetails(visit);
     }
 
     @Test
     public void testGetBookingVisitLastMultipleCandidates() {
-        final ScheduledEvent visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2017-12-07T00:00"));
-        assertEquals(-1L, visit.getBookingId().longValue());
-        assertEquals("2017-11-13", visit.getEventDate().toString());
+        final Visit visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2017-12-07T00:00"));
         assertEquals("2017-11-13T14:30", visit.getStartTime().toString());
         assertEquals("2017-11-13T15:30", visit.getEndTime().toString());
     }
 
     @Test
     public void testGetBookingVisitLastNonexistentBooking() {
-        final ScheduledEvent visit = repository.getBookingVisitLast(-99L, LocalDateTime.parse("2016-12-11T16:00:00"));
+        final Visit visit = repository.getBookingVisitLast(-99L, LocalDateTime.parse("2016-12-11T16:00:00"));
         assertNull(visit);
     }
 
     @Test
     public void testGetBookingVisitLastEarlyDate() {
-        final ScheduledEvent visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2011-12-11T16:00:00"));
+        final Visit visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2011-12-11T16:00:00"));
         assertNull(visit);
     }
 }
