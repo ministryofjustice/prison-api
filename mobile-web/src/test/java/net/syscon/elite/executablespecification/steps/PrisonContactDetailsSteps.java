@@ -1,6 +1,7 @@
 package net.syscon.elite.executablespecification.steps;
 
-import net.syscon.elite.api.model.PrisonContactDetails;
+import net.syscon.elite.api.model.PrisonContactDetail;
+import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.test.EliteClientException;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -15,8 +16,8 @@ public class PrisonContactDetailsSteps extends CommonSteps {
     private static final String PRISON_CONTACT_DETAILS_LIST_URL = API_PREFIX + "agencies/prison";
     private static final String PRISON_CONTACT_DETAILS_URL = API_PREFIX + "agencies/prison/{agencyId}";
 
-    private PrisonContactDetails details;
-    private List<PrisonContactDetails> detailsList;
+    private PrisonContactDetail details;
+    private List<PrisonContactDetail> detailsList;
 
     public void getPrisonContactDetails() {
         doListApiCall();
@@ -38,18 +39,17 @@ public class PrisonContactDetailsSteps extends CommonSteps {
         init();
 
         try {
-            ResponseEntity<List<PrisonContactDetails>> response =
+            ResponseEntity<List<PrisonContactDetail>> response =
                     restTemplate.exchange(
                             PRISON_CONTACT_DETAILS_LIST_URL,
                             HttpMethod.GET,
                             createEntity(),
-                            new ParameterizedTypeReference<List<PrisonContactDetails>>() {});
+                            new ParameterizedTypeReference<List<PrisonContactDetail>>() {});
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
             detailsList = response.getBody();
 
-           // buildResourceData(response);
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
@@ -58,9 +58,8 @@ public class PrisonContactDetailsSteps extends CommonSteps {
    private void doSingleResultApiCall(String agencyId) {
         init();
         try {
-            String url = PRISON_CONTACT_DETAILS_URL;
-            ResponseEntity<PrisonContactDetails> response = restTemplate.exchange(url, HttpMethod.GET, createEntity(),
-                    PrisonContactDetails.class, agencyId);
+            ResponseEntity<PrisonContactDetail> response = restTemplate.exchange(PRISON_CONTACT_DETAILS_URL, HttpMethod.GET, createEntity(),
+                    PrisonContactDetail.class, agencyId);
             details = response.getBody();
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
@@ -75,5 +74,19 @@ public class PrisonContactDetailsSteps extends CommonSteps {
 
     public void verifyPrisonContactDetails() {
         assertThat(details.getAgencyId()).isEqualTo("BMI");
+        assertThat(details.getAddressType()).isEqualTo("BUS");
+        assertThat(details.getPremise()).isEqualTo("Birmingham HMP");
+        assertThat(details.getLocality()).isEqualTo("Ambley");
+        assertThat(details.getCity()).isEqualTo("Birmingham");
+        assertThat(details.getCountry()).isEqualTo("England");
+        assertThat(details.getPostCode()).isEqualTo("BM1 23V");
+        assertThat(details.getPhones()).containsExactly(Telephone.builder().number("0114 2345345").ext("345").type("BUS").build());
+    }
+
+    public void verifyADummyListOfPrisonContactDetailsIsReturned() {
+        assertThat(detailsList).extracting("agencyId")
+                .containsExactly(
+                        "123"
+                );
     }
 }

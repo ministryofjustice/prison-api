@@ -43,4 +43,8 @@ public class PrisonContactDetailsStepDefinitions extends AbstractStepDefinitions
     @Then("^a list of prison contact details are returned$")
     public void aListOfPrisonContactDetailsAreReturned() { agencySteps.verifyAListOfPrisonContactDetailsIsReturned(); }
 
+    @Then("^a dummy list of prison contact details are returned$")
+    public void aDummyListOfPrisonContactDetailsAreReturned() throws Throwable {
+        agencySteps.verifyADummyListOfPrisonContactDetailsIsReturned();
+    }
 }

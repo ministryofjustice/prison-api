@@ -1,7 +1,7 @@
 package net.syscon.elite.service.impl;
 
 import com.google.common.collect.ImmutableList;
-import net.syscon.elite.api.model.PrisonContactDetails;
+import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -37,24 +37,24 @@ public class AgencyServiceImplTest {
 
     @Test
     public void shouldCallCollaboratorsForFullPrisonList () throws Exception {
-        service.getPrisonContactDetails();
+        service.getPrisonContactDetail();
         verify(agencyRepo, Mockito.times(1)).getPrisonContactDetails(null);
     }
 
     @Test
     public void shouldCallCollaboratorsForSinglePrison() throws Exception {
-        service.getPrisonContactDetails("ABC");
+        service.getPrisonContactDetail("ABC");
         verify(agencyRepo, Mockito.times(1)).getPrisonContactDetails("ABC");
     }
 
     @Test(expected = EntityNotFoundException.class)
     public void shouldReturnEntityNotFoundForSinglePrisonWithBlankAddress() throws Exception {
-        service.getPrisonContactDetails("BLANK");
+        service.getPrisonContactDetail("BLANK");
     }
 
     @Test(expected = EntityNotFoundException.class)
     public void shouldReturnEntityNotFoundForEmptyResult() throws Exception {
-        service.getPrisonContactDetails("NOADDRESS");
+        service.getPrisonContactDetail("NOADDRESS");
     }
 
     @Test()
@@ -65,22 +65,22 @@ public class AgencyServiceImplTest {
     }
 
 
-    private List<PrisonContactDetails> buildPrisonContactDetailsList() {
+    private List<PrisonContactDetail> buildPrisonContactDetailsList() {
         return ImmutableList.of(
-                PrisonContactDetails.builder().agencyId("ABC")
+                PrisonContactDetail.builder().agencyId("ABC")
                         .premise("ABC prison")
                         .city("Manchester")
                         .phones(ImmutableList.of(Telephone.builder().number("0114 2233444").type("BUS").build(), Telephone.builder().number("0114 6667775").type("BUS").build()))
                         .build(),
-                PrisonContactDetails.builder().agencyId("DEF")
+                PrisonContactDetail.builder().agencyId("DEF")
                         .premise("ABC prison")
                         .city("Manchester")
                         .phones(ImmutableList.of(Telephone.builder().number("0114 2233444").type("BUS").build()))
                         .build(),
-                PrisonContactDetails.builder().agencyId("BLANK")
+                PrisonContactDetail.builder().agencyId("BLANK")
                         .phones(ImmutableList.of(Telephone.builder().number("0114 2233444").type("BUS").build()))
                         .build(),
-                PrisonContactDetails.builder().agencyId("BLANK_WITH_COUNTRY")
+                PrisonContactDetail.builder().agencyId("BLANK_WITH_COUNTRY")
                         .country("England")
                         .phones(ImmutableList.of(Telephone.builder().number("0114 2233444").type("BUS").build()))
                         .build()
@@ -88,9 +88,9 @@ public class AgencyServiceImplTest {
 
     }
 
-    private List<PrisonContactDetails> buildPrisonContactDetailsListSingleResult() {
+    private List<PrisonContactDetail> buildPrisonContactDetailsListSingleResult() {
         return ImmutableList.of(
-                PrisonContactDetails.builder().agencyId("ABC")
+                PrisonContactDetail.builder().agencyId("ABC")
                         .premise("ABC prison")
                         .city("Manchester")
                         .phones(ImmutableList.of(Telephone.builder().number("0114 2233444").type("BUS").build(), Telephone.builder().number("0114 6667775").type("BUS").build()))
@@ -98,9 +98,9 @@ public class AgencyServiceImplTest {
         );
     }
 
-    private List<PrisonContactDetails> buildPrisonContactDetailsListSingleResultBlankAddress() {
+    private List<PrisonContactDetail> buildPrisonContactDetailsListSingleResultBlankAddress() {
         return ImmutableList.of(
-                PrisonContactDetails.builder().agencyId("BLANK")
+                PrisonContactDetail.builder().agencyId("BLANK")
                         .country("England")
                         .phones(ImmutableList.of(Telephone.builder().number("0114 2233444").type("BUS").build(), Telephone.builder().number("0114 6667775").type("BUS").build()))
                         .build()

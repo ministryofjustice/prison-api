@@ -1,7 +1,7 @@
 package net.syscon.elite.repository;
 
 import jersey.repackaged.com.google.common.collect.ImmutableList;
-import net.syscon.elite.api.model.PrisonContactDetails;
+import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
@@ -41,23 +41,23 @@ public class AgencyRepositoryTest {
 
     @Test
     public void testGetAllPrisonContactDetails() {
-        final List<PrisonContactDetails> prisonContactDetailsList = repository.getPrisonContactDetails(null);
-        assertThat(prisonContactDetailsList).extracting("agencyId")
+        final List<PrisonContactDetail> prisonContactDetailList = repository.getPrisonContactDetails(null);
+        assertThat(prisonContactDetailList).extracting("agencyId")
                 .containsExactly(
                         "BXI",
                         "BMI"
                 );
-        assertThat(prisonContactDetailsList).contains(buildBmiPrisonContactDetails());
+        assertThat(prisonContactDetailList).contains(buildBmiPrisonContactDetails());
     }
 
     @Test
     public void testGetPrisonContactDetailsByAgencyId() {
-        final List<PrisonContactDetails> prisonContactDetails = repository.getPrisonContactDetails("BMI");
+        final List<PrisonContactDetail> prisonContactDetails = repository.getPrisonContactDetails("BMI");
         assertThat(prisonContactDetails.get(0)).isEqualTo(buildBmiPrisonContactDetails());
     }
 
-    private PrisonContactDetails buildBmiPrisonContactDetails() {
-        return PrisonContactDetails.builder()
+    private PrisonContactDetail buildBmiPrisonContactDetails() {
+        return PrisonContactDetail.builder()
                 .agencyId("BMI")
                 .addressType("BUS")
                 .premise("Birmingham HMP")
@@ -65,6 +65,6 @@ public class AgencyRepositoryTest {
                 .city("Birmingham")
                 .country("England")
                 .postCode("BM1 23V")
-                .phones(ImmutableList.of(new Telephone(null, "0114 2345345", "BUS", "345"))).build();
+                .phones(ImmutableList.of(Telephone.builder().number("0114 2345345").type("BUS").ext("345").build())).build();
     }
 }

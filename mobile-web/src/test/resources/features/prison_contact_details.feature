@@ -22,3 +22,8 @@ Feature: Prison Contact Details
   Scenario: Prison exists but has no associated address
     When a request is made to retrieve contact details for prison "WAI"
     Then a response of resource not found is received
+
+  @elite
+  Scenario: Endpoint returns dummy record when in Elite mode
+    When a request is made to retrieve all prison contact details
+    Then a dummy list of prison contact details are returned

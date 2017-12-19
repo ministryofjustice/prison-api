@@ -2,10 +2,8 @@ package net.syscon.elite.repository.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.Agency;
-import net.syscon.elite.api.model.PrisonContactDetails;
-import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.api.model.Location;
-import net.syscon.elite.api.model.PrisonContactDetails;
+import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
@@ -13,8 +11,8 @@ import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
+import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.IQueryBuilder;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
@@ -40,10 +38,7 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
                     .put("AGENCY_LOCATION_TYPE", new FieldMapper("agencyType"))
                     .build();
 
-    private final Map<String, FieldMapper> addressMapping =
-            new ImmutableMap.Builder<String, FieldMapper>()
-                    .put("AGY_LOC_ID", new FieldMapper("agencyId"))
-                    .build();
+    private static final RowMapper<Address> ADDRESS_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(Address.class);
 
 
     private final Map<String, FieldMapper> locationMapping  =
@@ -121,30 +116,24 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
     }
 
     @Override
-    public List<PrisonContactDetails> getPrisonContactDetails(String agencyId) {
-        String initialSql = getQuery("FIND_PRISON_ADDRESSES_PHONE_NUMBERS");
+    public List<PrisonContactDetail> getPrisonContactDetails(String agencyId) {
+        String sql = getQuery("FIND_PRISON_ADDRESSES_PHONE_NUMBERS");
 
-        final String restrictByAgency = StringUtils.isNotBlank(agencyId) ? String.format("agencyId:eq:'%s'", agencyId) : null;
-
-        String sql = queryBuilderFactory.getQueryBuilder(initialSql, addressMapping).addQuery(restrictByAgency).build();
-
-        RowMapper<Address> addressRowMapper = Row2BeanRowMapper.makeMapping(sql, Address.class, addressMapping);
-
-        final List<Address> outerJoinResults = jdbcTemplate.query(sql, addressRowMapper);
+        final List<Address> outerJoinResults = jdbcTemplate.query(sql, createParams("agencyId", agencyId),ADDRESS_ROW_MAPPER);
 
         return mapResultsToPrisonContactDetailsList(groupAddresses(outerJoinResults).values());
     }
 
-    List<PrisonContactDetails> mapResultsToPrisonContactDetailsList(Collection<List<Address>> groupedResults) {
+    List<PrisonContactDetail> mapResultsToPrisonContactDetailsList(Collection<List<Address>> groupedResults) {
         return groupedResults.stream().map(this::mapResultsToPrisonContactDetails).collect(Collectors.toList());
     }
 
-    private PrisonContactDetails mapResultsToPrisonContactDetails(List<Address> addressList) {
+    private PrisonContactDetail mapResultsToPrisonContactDetails(List<Address> addressList) {
         final List<Telephone> telephones = addressList.stream().map(a ->
-                new Telephone(null, a.getPhoneNo(), a.getPhoneType(), a.getExtNo())).collect(Collectors.toList());
+                Telephone.builder().number(a.getPhoneNo()).type(a.getPhoneType()).ext(a.getExtNo()).build()).collect(Collectors.toList());
 
         final Address address = addressList.stream().findAny().get();
-        return PrisonContactDetails.builder().agencyId(address.getAgencyId())
+        return PrisonContactDetail.builder().agencyId(address.getAgencyId())
                 .addressType(address.getAddressType())
                 .phones(telephones)
                 .locality(address.getLocality())

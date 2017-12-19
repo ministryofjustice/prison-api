@@ -20,11 +20,11 @@
         example: APP (appointment)
 
 /prison:
-  (javaOperationName): getPrisonContactDetailsList
+  (javaOperationName): getPrisonContactDetailList
   description: Returns list of prison contact details.
-  type: { readOnlyCollection: { type: PrisonContactDetails, description: List of prison contact details. } }
+  type: { readOnlyCollection: { type: PrisonContactDetail, description: List of prison contact details. } }
 
 /prison/{agencyId}:
-  (javaOperationName): getPrisonContactDetails
+  (javaOperationName): getPrisonContactDetail
   description: Returns prison contact details for given agency Id.
-  type: { readOnlyItem: { type: PrisonContactDetails, description: Prison contact details. } }
+  type: { readOnlyItem: { type: PrisonContactDetail, description: Prison contact details. } }

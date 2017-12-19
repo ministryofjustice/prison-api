@@ -2,7 +2,7 @@ package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
-import net.syscon.elite.api.model.PrisonContactDetails;
+import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AgencyRepository;
@@ -47,29 +47,26 @@ public class AgencyServiceImpl implements AgencyService {
     }
 
     @Override
-    public List<PrisonContactDetails> getPrisonContactDetails() {
+    public List<PrisonContactDetail> getPrisonContactDetail() {
         return removeBlankAddresses(agencyRepository.getPrisonContactDetails(null));
     }
 
     @Override
-    public PrisonContactDetails getPrisonContactDetails(String agencyId) {
+    public PrisonContactDetail getPrisonContactDetail(String agencyId) {
 
-        final List<PrisonContactDetails> prisonContactDetailsList = removeBlankAddresses(agencyRepository.getPrisonContactDetails(agencyId));
-        if(prisonContactDetailsList.isEmpty()) {
-            throw new EntityNotFoundException(
-                    String.format("Contact details not found for Prison %s", agencyId));
+        final List<PrisonContactDetail> prisonContactDetailList = removeBlankAddresses(agencyRepository.getPrisonContactDetails(agencyId));
+        if(prisonContactDetailList.isEmpty()) {
+            throw EntityNotFoundException.withMessage(String.format("Contact details not found for Prison %s", agencyId));
         }
-        return prisonContactDetailsList.get(0);
+        return prisonContactDetailList.get(0);
     }
 
     //It is possible for invalid/empty address records to be persisted
-    List<PrisonContactDetails> removeBlankAddresses(List<PrisonContactDetails> list) {
-        return list.stream().filter(pcd -> {
-            return !isBlankAddress(pcd);
-        }).collect(Collectors.toList());
+    List<PrisonContactDetail> removeBlankAddresses(List<PrisonContactDetail> list) {
+        return list.stream().filter(pcd -> !isBlankAddress(pcd)).collect(Collectors.toList());
     }
 
-    private boolean isBlankAddress(PrisonContactDetails pcd) {
+    private boolean isBlankAddress(PrisonContactDetail pcd) {
         return pcd.getPremise() == null && pcd.getCity() == null && pcd.getLocality() == null && pcd.getPostCode() == null;
     }
 }
