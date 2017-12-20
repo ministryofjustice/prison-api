@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import com.google.common.collect.ImmutableMap;
 import com.microsoft.applicationinsights.TelemetryClient;
 
 import javax.validation.Valid;
@@ -232,17 +231,18 @@ public class BookingServiceImpl implements BookingService {
         validateEndTime(newAppointment);
         final String agencyId = validateLocationAndGetAgency(username, newAppointment);
         validateEventType(newAppointment);
-        Long eventId = bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId);
+        final Long eventId = bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId);
 
         // Log event
-        telemetryClient.trackEvent("AppointmentCreated", ImmutableMap.of(
-                "type", newAppointment.getAppointmentType(),
-                "start", newAppointment.getStartTime().toString(),
-               // "end", newAppointment.getEndTime() == null ? null : newAppointment.getEndTime().toString(),
-                "location", newAppointment.getLocationId().toString(),
-                "user", username
-               // , "comment", newAppointment.getComment()
-                ), null);
+        final Map<String, String> logMap = new HashMap<>();
+        logMap.put("type", newAppointment.getAppointmentType());
+        logMap.put("start", newAppointment.getStartTime().toString());
+        logMap.put("location", newAppointment.getLocationId().toString());
+        logMap.put("user", username);
+        if (newAppointment.getEndTime() != null) {
+            logMap.put("end", newAppointment.getEndTime().toString());
+        }
+        telemetryClient.trackEvent("AppointmentCreated", logMap, null);
 
         return bookingRepository.getBookingAppointment(bookingId, eventId);
     }
