@@ -197,6 +197,26 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public List<Contact> getRelationships(Long bookingId, String relationshipType) {
+        return null;
+    }
+
+    @Override
+    public List<Contact> getRelationshipsByOffenderNo(String offenderNo, String relationshipType) {
+        return null;
+    }
+
+    @Override
+    public List<OffenderBooking> getBookingsByExternalRefAndType(String externalRef, String relationshipType) {
+        return null;
+    }
+
+    @Override
+    public List<OffenderBooking> getBookingsByPersonIdAndType(Long personId, String relationshipType) {
+        return null;
+    }
+
+    @Override
     @VerifyBookingAccess
     public Page<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order) {
         validateScheduledEventsRequest(fromDate, toDate);

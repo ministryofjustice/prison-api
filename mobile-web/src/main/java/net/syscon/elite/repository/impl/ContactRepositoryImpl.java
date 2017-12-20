@@ -1,8 +1,7 @@
 package net.syscon.elite.repository.impl;
 
-import net.syscon.elite.api.model.NextOfKin;
+import net.syscon.elite.api.model.Contact;
 import net.syscon.elite.repository.ContactRepository;
-
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -14,14 +13,14 @@ import java.util.List;
 public class ContactRepositoryImpl extends RepositoryBase implements ContactRepository {
 
     @Override
-    public List<NextOfKin> findNextOfKin(long bookingId) {
+    public List<Contact> findNextOfKin(long bookingId) {
 
         final String sql = getQuery("FIND_NEXT_OF_KIN");
-        final RowMapper<NextOfKin> rowMapper = new RowMapper<NextOfKin>() {
+        final RowMapper<Contact> rowMapper = new RowMapper<Contact>() {
 
             @Override
-            public NextOfKin mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return NextOfKin.builder()
+            public Contact mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return Contact.builder()
                         .lastName(rs.getString("LAST_NAME"))
                         .firstName(rs.getString("FIRST_NAME"))
                         .middleName(rs.getString("MIDDLE_NAME"))

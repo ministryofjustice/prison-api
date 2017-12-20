@@ -56,7 +56,7 @@ types:
   ProfileInformation:     !include types/ProfileInformation.raml
   PhysicalMark:           !include types/PhysicalMark.raml
   InmateDetail:           !include types/InmateDetail.raml
-  NextOfKin:              !include types/NextOfKin.raml
+  Contact:                !include types/Contact.raml
   ContactDetail:          !include types/ContactDetail.raml
   Award:                  !include types/Award.raml
   AdjudicationDetail:     !include types/AdjudicationDetail.raml
@@ -65,6 +65,7 @@ types:
   OffenderRelease:        !include types/OffenderRelease.raml
   PrisonerCustodyStatus:  !include types/PrisonerCustodyStatus.raml
   UserRole:               !include types/UserRole.raml
+  OffenderRelationship:   !include types/OffenderRelationship.raml
 
 securitySchemes:
   jwt:
@@ -95,14 +96,15 @@ traits:        !include traits/traits.raml
 
 resourceTypes: !include resourceTypes/generic-resource-types.raml
 
-/agencies:          !include resources/agencies.raml
-/images:            !include resources/images.raml
-/bookings:          !include resources/bookings.raml
-/prisoners:         !include resources/prisoners.raml
-/search-offenders:  !include resources/search-offenders.raml
-/offender-releases: !include resources/offender-releases.raml
-/users:             !include resources/users.raml
-/reference-domains: !include resources/reference-domains.raml
-/locations:         !include resources/locations.raml
-/custody-statuses:  !include resources/custody-statuses.raml
+/agencies:                !include resources/agencies.raml
+/images:                  !include resources/images.raml
+/bookings:                !include resources/bookings.raml
+/prisoners:               !include resources/prisoners.raml
+/search-offenders:        !include resources/search-offenders.raml
+/offender-releases:       !include resources/offender-releases.raml
+/users:                   !include resources/users.raml
+/reference-domains:       !include resources/reference-domains.raml
+/locations:               !include resources/locations.raml
+/custody-statuses:        !include resources/custody-statuses.raml
+/offender-relationships:  !include resources/offender-relationships.raml
 

@@ -1,5 +1,5 @@
 #%RAML 1.0 DataType
-description: Next of kin
+description: Contact
 properties:
   lastName:
     type: string
@@ -25,3 +25,9 @@ properties:
   emergencyContact:
     type: boolean
     description: Is an emergency contact
+  relationshipId?:
+    (javaType): Long
+    description: id of the relationship (internal)
+  personId?:
+    (javaType): Long
+    description: id of the person contact

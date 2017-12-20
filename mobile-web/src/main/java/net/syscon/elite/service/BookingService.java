@@ -43,4 +43,12 @@ public interface BookingService {
     Page<OffenderRelease> getOffenderReleaseSummary(LocalDate fromReleaseDate, String username, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly);
 
     ScheduledEvent getBookingVisitLast(Long bookingId);
+
+    List<Contact> getRelationships(Long bookingId, String relationshipType);
+
+    List<Contact> getRelationshipsByOffenderNo(String offenderNo, String relationshipType);
+
+    List<OffenderBooking> getBookingsByExternalRefAndType(String externalRef, String relationshipType);
+
+    List<OffenderBooking> getBookingsByPersonIdAndType(Long personId, String relationshipType);
 }
