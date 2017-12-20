@@ -13,6 +13,8 @@ import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
@@ -229,10 +231,14 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         Objects.requireNonNull(cutoffDate, "cutoffDate is a required parameter");
 
         try {
-            return jdbcTemplate.queryForObject(//
+            final Visit result = jdbcTemplate.queryForObject(//
                     getQuery("GET_LAST_BOOKING_VISIT"),
                     createParams("bookingId", bookingId, "cutoffDate", DateTimeConverter.fromLocalDateTime(cutoffDate)),
                     VISIT_ROW_MAPPER);
+            if (StringUtils.isBlank(result.getLeadVisitor())) {
+                result.setLeadVisitor(null);
+            }
+            return result;
         } catch (EmptyResultDataAccessException e) {
             return null;
         }

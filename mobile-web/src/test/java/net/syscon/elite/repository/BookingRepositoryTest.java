@@ -108,6 +108,8 @@ public class BookingRepositoryTest {
         final Visit visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2017-12-07T00:00"));
         assertEquals("2017-11-13T14:30", visit.getStartTime().toString());
         assertEquals("2017-11-13T15:30", visit.getEndTime().toString());
+        assertNull(visit.getLeadVisitor());
+        assertNull(visit.getRelationship());
     }
 
     @Test
