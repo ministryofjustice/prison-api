@@ -18,10 +18,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -125,7 +122,9 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
     }
 
     List<PrisonContactDetail> mapResultsToPrisonContactDetailsList(Collection<List<Address>> groupedResults) {
-        return groupedResults.stream().map(this::mapResultsToPrisonContactDetails).collect(Collectors.toList());
+        final List<PrisonContactDetail> prisonContactDetails = groupedResults.stream().map(this::mapResultsToPrisonContactDetails).collect(Collectors.toList());
+        prisonContactDetails.sort(Comparator.comparing(a -> a.getAgencyId()));
+        return prisonContactDetails;
     }
 
     private PrisonContactDetail mapResultsToPrisonContactDetails(List<Address> addressList) {

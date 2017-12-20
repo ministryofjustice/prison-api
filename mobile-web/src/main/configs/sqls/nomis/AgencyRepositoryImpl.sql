@@ -36,5 +36,4 @@ WHERE al.ACTIVE_FLAG = 'Y'
       AND al.AGENCY_LOCATION_TYPE = 'INST'
       AND ad.PRIMARY_FLAG = 'Y'
       AND (:agencyId is NULL OR al.AGY_LOC_ID = :agencyId)
-ORDER BY al.AGY_LOC_ID, ad.address_type, p.PHONE_TYPE
 }
