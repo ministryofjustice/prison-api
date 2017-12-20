@@ -40,14 +40,24 @@ public class AgencyRepositoryTest {
     }
 
     @Test
-    public void testGetAllPrisonContactDetails() {
+    public void testGetAllPrisonContactDetailsInAgencyIdOrder() {
         final List<PrisonContactDetail> prisonContactDetailList = repository.getPrisonContactDetails(null);
         assertThat(prisonContactDetailList).extracting("agencyId")
                 .containsExactly(
+                        "BMI",
                         "BXI",
-                        "BMI"
+                        "TRO"
                 );
         assertThat(prisonContactDetailList).contains(buildBmiPrisonContactDetails());
+    }
+
+    @Test
+    public void testGetAllPrisonContactDetailsByAgencyId_multipleAddresses_onePrimary() {
+        final List<PrisonContactDetail> prisonContactDetailList = repository.getPrisonContactDetails("TRO");
+        assertThat(prisonContactDetailList).extracting("agencyId")
+                .containsExactly(
+                        "TRO"
+                );
     }
 
     @Test

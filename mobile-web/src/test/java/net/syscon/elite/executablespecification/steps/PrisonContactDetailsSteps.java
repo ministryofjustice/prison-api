@@ -30,8 +30,9 @@ public class PrisonContactDetailsSteps extends CommonSteps {
     public void verifyAListOfPrisonContactDetailsIsReturned() {
         assertThat(detailsList).extracting("agencyId")
                 .containsExactly(
+                        "BMI",
                         "BXI",
-                        "BMI"
+                        "TRO"
                 );
     }
 
