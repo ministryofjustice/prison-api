@@ -14,6 +14,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import com.microsoft.applicationinsights.TelemetryClient;
+
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -41,6 +43,9 @@ public class BookingServiceImplTest {
 
     @Mock
     private LocationService locationService;
+
+    @Mock
+    private TelemetryClient telemetryClient;
 
     private BookingService bookingService;
 
@@ -70,8 +75,8 @@ public class BookingServiceImplTest {
 
     @Before
     public void init() {
-        bookingService = new BookingServiceImpl(authenticationFacade, bookingRepository,null,
-                agencyService,null, locationService, referenceDomainService,1,"1");
+        bookingService = new BookingServiceImpl(authenticationFacade, bookingRepository, null, agencyService, null,
+                locationService, referenceDomainService, telemetryClient, 1, "1");
     }
 
     @Test
