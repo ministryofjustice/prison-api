@@ -235,9 +235,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                     getQuery("GET_LAST_BOOKING_VISIT"),
                     createParams("bookingId", bookingId, "cutoffDate", DateTimeConverter.fromLocalDateTime(cutoffDate)),
                     VISIT_ROW_MAPPER);
-            if (StringUtils.isBlank(result.getLeadVisitor())) {
-                result.setLeadVisitor(null);
-            }
+            result.setLeadVisitor(StringUtils.trimToNull(result.getLeadVisitor()));
             return result;
         } catch (EmptyResultDataAccessException e) {
             return null;
