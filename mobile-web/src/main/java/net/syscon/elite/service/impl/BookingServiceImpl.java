@@ -197,6 +197,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @VerifyBookingAccess
     public Visit getBookingVisitLast(Long bookingId) {
         return bookingRepository.getBookingVisitLast(bookingId, LocalDateTime.now());
     }

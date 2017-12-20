@@ -116,4 +116,7 @@ Feature: Booking Visits
       | booking id | visitType      | startTime        | endTime          | eventStatus | eventOutcome | leadVisitor  | relationship | location      | cancellationReason | 
       | -1         | Social Contact | 2017-12-10T14:30 | 2017-12-10T15:30 | CANC        | ABS          | JESSY SMITH1 | Uncle        | Visiting Room | NSHOW              |
       | -4         | Official Visit | 2017-10-10T10:00 | 2017-10-10T12:00 | EXP         | ATT          | MICK MUNCH   |              | Classroom 1   |                    |
-      
+
+  Scenario: Retrieve last visit for an offender that does not exist
+    When the last visit is requested for an offender with booking id "-99"
+    Then resource not found response is received from booking visits API
