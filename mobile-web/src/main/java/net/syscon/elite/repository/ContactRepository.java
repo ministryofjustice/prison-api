@@ -14,13 +14,13 @@ public interface ContactRepository {
 
     void updatePerson(Long personId, String firstName, String lastName);
     Optional<Person> getPersonById(Long personId);
-    Optional<Person> getPersonByRef(String externalRef);
+    Optional<Person> getPersonByRef(String externalRef, String identifierType);
 
-    void createExternalReference(Long personId, String externalId);
+    void createExternalReference(Long personId, String externalRef, String identifierType);
 
     List<Contact> getOffenderRelationships(Long bookingId, String relationshipType);
 
-    Long createRelationship(Long personId, Long bookingId, String relationshipType);
+    Long createRelationship(Long personId, Long bookingId, String relationshipType, String contactType);
 
     void updateRelationship(Long personId, Long bookingContactPersonId);
 }

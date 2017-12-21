@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static net.syscon.elite.service.ContactService.EXTERNAL_REF;
 
 /**
  * Bookings API service implementation.
@@ -203,7 +204,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<OffenderRelease> getBookingsByExternalRefAndType(String externalRef, String relationshipType) {
-        return bookingRepository.getBookingsByRelationship(externalRef, relationshipType);
+        return bookingRepository.getBookingsByRelationship(externalRef, relationshipType, EXTERNAL_REF);
     }
 
     @Override
@@ -461,7 +462,7 @@ public class BookingServiceImpl implements BookingService {
         results.addAll(activities);
         results.addAll(visits);
         results.addAll(appointments);
-        Collections.sort(results, startTimeComparator);
+        results.sort(startTimeComparator);
         return results;
     }
 

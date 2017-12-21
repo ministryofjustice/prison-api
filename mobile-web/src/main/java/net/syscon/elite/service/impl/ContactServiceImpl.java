@@ -9,6 +9,7 @@ import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.ContactService;
 import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.ReferenceDomainService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,13 +21,19 @@ import java.util.Optional;
 @Service
 @Transactional
 public class ContactServiceImpl implements ContactService {
+    private static final String OFFICIAL_CONTACT_TYPE = "O";  //TODO: Allow API to be specified in future work
+
     private final ContactRepository repository;
     private final BookingService bookingService;
+    private final ReferenceDomainService referenceDomainService;
 
     @Autowired
-    public ContactServiceImpl(ContactRepository contactRepository, BookingService bookingService) {
+    public ContactServiceImpl(ContactRepository contactRepository,
+                              BookingService bookingService,
+                              ReferenceDomainService referenceDomainService) {
         this.repository = contactRepository;
         this.bookingService = bookingService;
+        this.referenceDomainService = referenceDomainService;
     }
 
     @Override
@@ -60,6 +67,9 @@ public class ContactServiceImpl implements ContactService {
     @VerifyBookingAccess
     public Contact createRelationship(Long bookingId, OffenderRelationship relationshipDetail) {
 
+        // Check relationship type exists - TODO: Move to validator
+        referenceDomainService.getReferenceCodeByDomainAndCode("RELATIONSHIP", relationshipDetail.getRelationshipType(), false);
+
         Person person = createPersonAndRef(relationshipDetail, relationshipDetail.getPersonId());
 
         // now check the relationship exists already
@@ -75,7 +85,7 @@ public class ContactServiceImpl implements ContactService {
         }
 
         if (offenderRelationships.isEmpty()) {
-            repository.createRelationship(person.getPersonId(), bookingId, relationshipDetail.getRelationshipType());
+            repository.createRelationship(person.getPersonId(), bookingId, relationshipDetail.getRelationshipType(), OFFICIAL_CONTACT_TYPE);
         } else {
             repository.updateRelationship(person.getPersonId(), offenderRelationships.get(0).getRelationshipId());
         }
@@ -93,8 +103,8 @@ public class ContactServiceImpl implements ContactService {
         boolean foundRef = false;
         Optional<Person> person = Optional.empty();
         // check if person ref set
-        if (StringUtils.isNotBlank(relationshipDetail.getExternalId())) {
-            person = repository.getPersonByRef(relationshipDetail.getExternalId());
+        if (StringUtils.isNotBlank(relationshipDetail.getExternalRef())) {
+            person = repository.getPersonByRef(relationshipDetail.getExternalRef(), EXTERNAL_REF);
             foundRef = person.isPresent();
         } else if (personId != null) {
             person = repository.getPersonById(personId);
@@ -110,8 +120,8 @@ public class ContactServiceImpl implements ContactService {
         }
 
         // if the external ref was not found add as identifier
-        if (StringUtils.isNotBlank(relationshipDetail.getExternalId()) && !foundRef) {
-            repository.createExternalReference(newPersonId, relationshipDetail.getExternalId());
+        if (StringUtils.isNotBlank(relationshipDetail.getExternalRef()) && !foundRef) {
+            repository.createExternalReference(newPersonId, relationshipDetail.getExternalRef(), EXTERNAL_REF);
         }
 
         return repository.getPersonById(newPersonId).orElseThrow(EntityNotFoundException.withId(newPersonId));

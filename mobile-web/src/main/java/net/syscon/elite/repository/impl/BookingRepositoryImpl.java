@@ -25,8 +25,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static net.syscon.elite.repository.impl.ContactRepositoryImpl.EXTERNAL_REF;
-
 /**
  * Bookings API repository implementation.
  */
@@ -102,7 +100,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         RowMapper<SentenceDetail> sentenceDetailRowMapper =
                 Row2BeanRowMapper.makeMapping(sql, SentenceDetail.class, sentenceDetailMapping);
 
-        SentenceDetail sentenceDetail = null;
+        SentenceDetail sentenceDetail;
 
         try {
             sentenceDetail =
@@ -260,13 +258,13 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
 
-    public List<OffenderRelease> getBookingsByRelationship(String externalRef, String relationshipType) {
+    public List<OffenderRelease> getBookingsByRelationship(String externalRef, String relationshipType, String identifierType) {
 
         final String sql = getQuery("FIND_BOOKINGS_BY_PERSON_CONTACT");
 
         return jdbcTemplate.query(
                 sql,
-                createParams("identifierType", EXTERNAL_REF,
+                createParams("identifierType", identifierType,
                         "identifier", externalRef,
                         "relationshipType", relationshipType),
                 OFFENDER_RELEASE_ROW_MAPPER);

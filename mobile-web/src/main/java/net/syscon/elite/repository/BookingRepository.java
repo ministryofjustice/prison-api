@@ -42,7 +42,7 @@ public interface BookingRepository {
 
     Optional<Long> getBookingIdByOffenderNo(String offenderNo);
 
-    List<OffenderRelease> getBookingsByRelationship(String externalRef, String relationshipType);
+    List<OffenderRelease> getBookingsByRelationship(String externalRef, String relationshipType, String identifierType);
 
     List<OffenderRelease> getBookingsByRelationship(Long personId, String relationshipType);
 

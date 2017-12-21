@@ -7,6 +7,8 @@ import net.syscon.elite.api.model.OffenderRelationship;
 import java.util.List;
 
 public interface ContactService {
+    String EXTERNAL_REF = "EXTERNAL_REF";
+
     ContactDetail getContacts(Long bookingId);
 
     List<Contact> getRelationships(Long bookingId, String relationshipType);

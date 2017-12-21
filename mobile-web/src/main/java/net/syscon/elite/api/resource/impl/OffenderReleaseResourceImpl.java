@@ -29,7 +29,7 @@ public class OffenderReleaseResourceImpl implements OffenderReleaseResource {
     }
 
     @Override
-    @PreAuthorize("authentication.authorities.?[authority.contains('_ADMIN')].size() != 0")
+    @PreAuthorize("authentication.authorities.?[authority.contains('SYSTEM_USER')].size() != 0")
     public GetOffenderReleasesResponse getOffenderReleases( List<String> offenderNos, String toDate, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         Page<OffenderRelease> releaseResponse = bookingService.getOffenderReleaseSummary(
                 fromISO8601DateString(toDate),

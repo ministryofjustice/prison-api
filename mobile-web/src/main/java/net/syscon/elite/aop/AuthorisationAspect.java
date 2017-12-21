@@ -13,7 +13,7 @@ import java.util.Collection;
 @Aspect
 @Slf4j
 public class AuthorisationAspect {
-    private static final String ADMIN_ROLE = "_ADMIN";
+    private static final String SYSTEM_USER_ROLE = "SYSTEM_USER";
     private final BookingService bookingService;
 
     public AuthorisationAspect(BookingService bookingService) {
@@ -30,8 +30,8 @@ public class AuthorisationAspect {
         log.debug("Verifying booking access for booking [{}]", bookingId);
 
         final Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-        final boolean isAdmin = authorities.stream().anyMatch(a -> a.getAuthority().contains(ADMIN_ROLE));
-        if (!isAdmin) {
+        final boolean isSystemUser = authorities.stream().anyMatch(a -> a.getAuthority().contains(SYSTEM_USER_ROLE));
+        if (!isSystemUser) {
             bookingService.verifyBookingAccess(bookingId);
         }
     }

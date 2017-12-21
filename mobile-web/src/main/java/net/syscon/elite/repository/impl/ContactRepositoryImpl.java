@@ -16,7 +16,6 @@ import java.util.Optional;
 public class ContactRepositoryImpl extends RepositoryBase implements ContactRepository {
 
     private static final StandardBeanPropertyRowMapper<Person> PERSON_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(Person.class);
-    public static final String EXTERNAL_REF = "EXTERNAL_REF";
 
     private static final RowMapper<Contact> CONTACT_ROW_MAPPER = (rs, rowNum) -> Contact.builder()
             .relationshipId(rs.getLong("RELATIONSHIP_ID"))
@@ -76,12 +75,12 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
     }
 
     @Override
-    public Optional<Person> getPersonByRef(String externalRef) {
+    public Optional<Person> getPersonByRef(String externalRef, String identifierType) {
         final String sql = getQuery("GET_PERSON_BY_REF");
         Person person;
         try {
             person = jdbcTemplate.queryForObject(sql,
-                    createParams("identifierType", EXTERNAL_REF,
+                    createParams("identifierType", identifierType,
                             "identifier", externalRef),
                     PERSON_ROW_MAPPER);
         } catch (EmptyResultDataAccessException e) {
@@ -91,14 +90,14 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
     }
 
     @Override
-    public void createExternalReference(Long personId, String externalId) {
+    public void createExternalReference(Long personId, String externalRef, String identifierType) {
         final String sql = getQuery("CREATE_PERSON_IDENTIFIER");
         jdbcTemplate.update(
                 sql,
                 createParams("personId", personId,
-                        "seqNo", getIdentifierSequenceNumber(personId)+1,
-                        "identifierType", EXTERNAL_REF,
-                        "identifier", externalId));
+                        "seqNo", getIdentifierSequenceNumber(personId, identifierType)+1,
+                        "identifierType", identifierType,
+                        "identifier", externalRef));
     }
 
     @Override
@@ -112,7 +111,7 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
     }
 
     @Override
-    public Long createRelationship(Long personId, Long bookingId, String relationshipType) {
+    public Long createRelationship(Long personId, Long bookingId, String relationshipType, String contactType) {
         final String sql = getQuery("CREATE_OFFENDER_CONTACT_PERSONS");
         final GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
 
@@ -120,9 +119,9 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
                 sql,
                 createParams("bookingId", bookingId,
                         "personId", personId,
-                        "contactType", "O",
+                        "contactType", contactType,
                         "relationshipType", relationshipType,
-                        "emergencyContactFlag", "N",
+                        "emergencyContactFlag", "N",  //TODO: allow these to be controlled from service in future iterations
                         "nextOfKinFlag", "N",
                         "activeFlag", "Y"),
                 generatedKeyHolder,
@@ -142,12 +141,12 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
 
     }
 
-    private long getIdentifierSequenceNumber(Long personId) {
+    private long getIdentifierSequenceNumber(Long personId, String identifierType) {
         final String sql = getQuery("GET_MAX_IDENTIFIER_SEQ");
         return jdbcTemplate.queryForObject(
                 sql,
                 createParams("personId", personId,
-                        "identifierType", EXTERNAL_REF), Long.class);
+                        "identifierType", identifierType), Long.class);
 
     }
 }
