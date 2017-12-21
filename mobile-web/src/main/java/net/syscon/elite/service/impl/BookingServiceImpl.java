@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.SentenceDetail.NonDtoReleaseDateType;
 import net.syscon.elite.api.support.Order;
@@ -17,8 +18,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-
-import com.microsoft.applicationinsights.TelemetryClient;
 
 import javax.validation.Valid;
 import javax.ws.rs.BadRequestException;

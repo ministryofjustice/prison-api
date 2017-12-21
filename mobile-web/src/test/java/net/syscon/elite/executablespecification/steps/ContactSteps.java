@@ -5,7 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import net.syscon.elite.api.model.ContactDetail;
-import net.syscon.elite.api.model.NextOfKin;
+import net.syscon.elite.api.model.Contact;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 
@@ -50,12 +50,12 @@ public class ContactSteps extends CommonSteps {
         assertTrue("There is " + details.getNextOfKin().size() + " next of kin", details.getNextOfKin().isEmpty());
     }
 
-    public void verifyNextOfKinList(List<NextOfKin> expected) {
-        final Iterator<NextOfKin> expectedIterator = expected.iterator();
-        final Iterator<NextOfKin> awardsIterator = details.getNextOfKin().iterator();
+    public void verifyNextOfKinList(List<Contact> expected) {
+        final Iterator<Contact> expectedIterator = expected.iterator();
+        final Iterator<Contact> awardsIterator = details.getNextOfKin().iterator();
         while (expectedIterator.hasNext()) {
-            final NextOfKin expectedThis = expectedIterator.next();
-            final NextOfKin actualThis = awardsIterator.next();
+            final Contact expectedThis = expectedIterator.next();
+            final Contact actualThis = awardsIterator.next();
             assertEquals(expectedThis.getLastName(), actualThis.getLastName());
             assertEquals(expectedThis.getFirstName(), actualThis.getFirstName());
             assertEqualsBlankIsNull(expectedThis.getMiddleName(), actualThis.getMiddleName());
