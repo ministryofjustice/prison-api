@@ -28,13 +28,8 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
             .relationship(rs.getString("RELATIONSHIP_TYPE"))
             .relationshipDescription(rs.getString("RELATIONSHIP_DESCRIPTION"))
             .emergencyContact("Y".equals(rs.getString("EMERGENCY_CONTACT_FLAG")))
+            .nextOfKin("Y".equals(rs.getString("NEXT_OF_KIN_FLAG")))
             .build();
-
-    @Override
-    public List<Contact> findNextOfKin(long bookingId) {
-        final String sql = getQuery("FIND_NEXT_OF_KIN");
-        return jdbcTemplate.query(sql, createParams("bookingId", bookingId), CONTACT_ROW_MAPPER);
-    }
 
     @Override
     public Long createPerson(String firstName, String lastName) {

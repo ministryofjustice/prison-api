@@ -8,8 +8,6 @@ import java.util.Optional;
 
 public interface ContactRepository {
 
-    List<Contact> findNextOfKin(long bookingId);
-
     Long createPerson(String firstName, String lastName);
 
     void updatePerson(Long personId, String firstName, String lastName);

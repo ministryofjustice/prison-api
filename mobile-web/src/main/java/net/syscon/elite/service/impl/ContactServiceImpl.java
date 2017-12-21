@@ -15,8 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 @Transactional
@@ -40,8 +43,17 @@ public class ContactServiceImpl implements ContactService {
     @VerifyBookingAccess
     @Transactional(readOnly = true)
     public ContactDetail getContacts(Long bookingId) {
-        final List<Contact> list = repository.findNextOfKin(bookingId);
+        final List<Contact> contacts = repository.getOffenderRelationships(bookingId, null);
 
+        Comparator<Contact> sortCriteria = (c1, c2) -> Boolean.compare(
+                c2.getEmergencyContact(), c1.getEmergencyContact());
+
+        sortCriteria = sortCriteria.thenComparing(Comparator.comparing(Contact::getLastName));
+
+        final List<Contact> list = contacts.stream()
+                .filter(Contact::getNextOfKin)
+                .sorted(sortCriteria)
+                .collect(toList());
         return ContactDetail.builder().nextOfKin(list).build();
     }
 
