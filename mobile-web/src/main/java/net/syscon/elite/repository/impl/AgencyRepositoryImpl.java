@@ -1,5 +1,6 @@
 package net.syscon.elite.repository.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
@@ -43,10 +44,7 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
                     .put("INTERNAL_LOCATION_ID", new FieldMapper("locationId"))
                     .put("DESCRIPTION", new FieldMapper("description"))
                     .build();
-    private final Map<String, FieldMapper> addressMapping =
-            new ImmutableMap.Builder<String, FieldMapper>()
-                    .put("AGY_LOC_ID", new FieldMapper("agencyId"))
-                    .build();
+
     @Override
     public Page<Agency> getAgencies(String orderByField, Order order, long offset, long limit) {
         String initialSql = getQuery("GET_AGENCIES");
@@ -121,6 +119,7 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
         return mapResultsToPrisonContactDetailsList(groupAddresses(outerJoinResults).values());
     }
 
+    @VisibleForTesting
     List<PrisonContactDetail> mapResultsToPrisonContactDetailsList(Collection<List<Address>> groupedResults) {
         final List<PrisonContactDetail> prisonContactDetails = groupedResults.stream().map(this::mapResultsToPrisonContactDetails).collect(Collectors.toList());
         prisonContactDetails.sort(Comparator.comparing(a -> a.getAgencyId()));
