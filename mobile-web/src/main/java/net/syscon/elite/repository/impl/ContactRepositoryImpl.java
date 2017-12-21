@@ -16,7 +16,7 @@ import java.util.Optional;
 public class ContactRepositoryImpl extends RepositoryBase implements ContactRepository {
 
     private static final StandardBeanPropertyRowMapper<Person> PERSON_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(Person.class);
-    private static final String EXTERNAL_REF = "EXTERNAL_REF";
+    public static final String EXTERNAL_REF = "EXTERNAL_REF";
 
     private static final RowMapper<Contact> CONTACT_ROW_MAPPER = (rs, rowNum) -> Contact.builder()
             .relationshipId(rs.getLong("RELATIONSHIP_ID"))
@@ -141,7 +141,6 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
                         "personId", personId));
 
     }
-
 
     private long getIdentifierSequenceNumber(Long personId) {
         final String sql = getQuery("GET_MAX_IDENTIFIER_SEQ");

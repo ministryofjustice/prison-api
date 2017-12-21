@@ -25,6 +25,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static net.syscon.elite.repository.impl.ContactRepositoryImpl.EXTERNAL_REF;
+
 /**
  * Bookings API repository implementation.
  */
@@ -255,6 +257,31 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         }
 
         return Optional.ofNullable(bookingId);
+    }
+
+
+    public List<OffenderRelease> getBookingsByRelationship(String externalRef, String relationshipType) {
+
+        final String sql = getQuery("FIND_BOOKINGS_BY_PERSON_CONTACT");
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("identifierType", EXTERNAL_REF,
+                        "identifier", externalRef,
+                        "relationshipType", relationshipType),
+                OFFENDER_RELEASE_ROW_MAPPER);
+    }
+
+    public List<OffenderRelease> getBookingsByRelationship(Long personId, String relationshipType) {
+
+        final String sql = getQuery("FIND_BOOKINGS_BY_PERSON_ID_CONTACT");
+
+        return jdbcTemplate.query(
+                sql,
+                createParams(
+                        "personId", personId,
+                        "relationshipType", relationshipType),
+                OFFENDER_RELEASE_ROW_MAPPER);
     }
 
     @Override

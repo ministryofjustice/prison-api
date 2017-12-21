@@ -44,9 +44,9 @@ public interface BookingService {
 
     Visit getBookingVisitLast(Long bookingId);
 
-    List<OffenderBooking> getBookingsByExternalRefAndType(String externalRef, String relationshipType);
+    List<OffenderRelease> getBookingsByExternalRefAndType(String externalRef, String relationshipType);
 
-    List<OffenderBooking> getBookingsByPersonIdAndType(Long personId, String relationshipType);
+    List<OffenderRelease> getBookingsByPersonIdAndType(Long personId, String relationshipType);
 
     Long getBookingIdByOffenderNo(String offenderNo);
 }

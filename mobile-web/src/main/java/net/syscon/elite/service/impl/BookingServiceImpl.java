@@ -202,13 +202,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<OffenderBooking> getBookingsByExternalRefAndType(String externalRef, String relationshipType) {
-        return null;
+    public List<OffenderRelease> getBookingsByExternalRefAndType(String externalRef, String relationshipType) {
+        return bookingRepository.getBookingsByRelationship(externalRef, relationshipType);
     }
 
     @Override
-    public List<OffenderBooking> getBookingsByPersonIdAndType(Long personId, String relationshipType) {
-        return null;
+    public List<OffenderRelease> getBookingsByPersonIdAndType(Long personId, String relationshipType) {
+        return bookingRepository.getBookingsByRelationship(personId, relationshipType);
     }
 
     @Override

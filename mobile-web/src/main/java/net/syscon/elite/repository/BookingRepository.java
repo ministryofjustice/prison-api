@@ -41,4 +41,9 @@ public interface BookingRepository {
     Visit getBookingVisitLast(Long bookingId, LocalDateTime cutoffDate);
 
     Optional<Long> getBookingIdByOffenderNo(String offenderNo);
+
+    List<OffenderRelease> getBookingsByRelationship(String externalRef, String relationshipType);
+
+    List<OffenderRelease> getBookingsByRelationship(Long personId, String relationshipType);
+
 }
