@@ -1,14 +1,9 @@
 package net.syscon.elite.repository;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
-
 import net.syscon.elite.api.model.NewAppointment;
 import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.model.Visit;
 import net.syscon.elite.web.config.PersistenceConfigs;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +19,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("nomis-hsqldb")
 @RunWith(SpringRunner.class)

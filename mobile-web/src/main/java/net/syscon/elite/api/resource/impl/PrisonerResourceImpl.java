@@ -24,7 +24,7 @@ public class PrisonerResourceImpl implements PrisonerResource {
     }
 
     @Override
-    @PreAuthorize("authentication.authorities.?[authority.contains('_ADMIN')].size() != 0 || authentication.authorities.?[authority.contains('GLOBAL_SEARCH')].size() != 0")
+    @PreAuthorize("authentication.authorities.?[authority.contains('SYSTEM_USER')].size() != 0")
     public GetPrisonersResponse getPrisoners(String firstName, String middleNames, String lastName, String pncNumber, String croNumber, String dob, String dobFrom, String dobTo, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         PrisonerDetailSearchCriteria criteria = PrisonerDetailSearchCriteria.builder()
                 .firstName(firstName)

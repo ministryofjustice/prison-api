@@ -1,7 +1,7 @@
 package net.syscon.elite.executablespecification;
 
 import net.syscon.elite.executablespecification.steps.ContactSteps;
-import net.syscon.elite.api.model.NextOfKin;
+import net.syscon.elite.api.model.Contact;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -39,7 +39,7 @@ public class ContactStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^the next of kin results are:$")
-    public void nextOfKinResultListIsAsFollows(List<NextOfKin> list) throws Throwable {
+    public void nextOfKinResultListIsAsFollows(List<Contact> list) throws Throwable {
         contactSteps.verifyNextOfKinList(list);
     }
 

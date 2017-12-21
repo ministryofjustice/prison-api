@@ -9,7 +9,6 @@ import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.AgencyService;
 
 import javax.ws.rs.Path;
-
 import java.util.List;
 
 import static net.syscon.util.ResourceUtils.nvl;

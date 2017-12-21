@@ -40,7 +40,13 @@ public interface BookingService {
 
     List<ScheduledEvent> getEventsNextWeek(Long bookingId);
 
-    Page<OffenderRelease> getOffenderReleaseSummary(LocalDate fromReleaseDate, String username, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly);
+    Page<OffenderSummary> getOffenderReleaseSummary(LocalDate fromReleaseDate, String username, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly);
 
     Visit getBookingVisitLast(Long bookingId);
+
+    List<OffenderSummary> getBookingsByExternalRefAndType(String externalRef, String relationshipType);
+
+    List<OffenderSummary> getBookingsByPersonIdAndType(Long personId, String relationshipType);
+
+    Long getBookingIdByOffenderNo(String offenderNo);
 }

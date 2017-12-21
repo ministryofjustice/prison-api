@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.SentenceDetail.NonDtoReleaseDateType;
 import net.syscon.elite.api.support.Order;
@@ -18,8 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import com.microsoft.applicationinsights.TelemetryClient;
-
 import javax.validation.Valid;
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
@@ -29,6 +28,7 @@ import java.util.stream.Collectors;
 
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static net.syscon.elite.service.ContactService.EXTERNAL_REF;
 
 /**
  * Bookings API service implementation.
@@ -200,6 +200,21 @@ public class BookingServiceImpl implements BookingService {
     @VerifyBookingAccess
     public Visit getBookingVisitLast(Long bookingId) {
         return bookingRepository.getBookingVisitLast(bookingId, LocalDateTime.now());
+    }
+
+    @Override
+    public List<OffenderSummary> getBookingsByExternalRefAndType(String externalRef, String relationshipType) {
+        return bookingRepository.getBookingsByRelationship(externalRef, relationshipType, EXTERNAL_REF);
+    }
+
+    @Override
+    public List<OffenderSummary> getBookingsByPersonIdAndType(Long personId, String relationshipType) {
+        return bookingRepository.getBookingsByRelationship(personId, relationshipType);
+    }
+
+    @Override
+    public Long getBookingIdByOffenderNo(String offenderNo) {
+        return bookingRepository.getBookingIdByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
     }
 
     @Override
@@ -447,12 +462,12 @@ public class BookingServiceImpl implements BookingService {
         results.addAll(activities);
         results.addAll(visits);
         results.addAll(appointments);
-        Collections.sort(results, startTimeComparator);
+        results.sort(startTimeComparator);
         return results;
     }
 
     @Override
-    public Page<OffenderRelease> getOffenderReleaseSummary(LocalDate toReleaseDate, String username, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly) {
+    public Page<OffenderSummary> getOffenderReleaseSummary(LocalDate toReleaseDate, String username, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly) {
         return bookingRepository.getOffenderReleaseSummary(toReleaseDate != null ? toReleaseDate : now().plusMonths(lastNumberOfMonths), query, offset, limit, orderByFields, order, allowedCaseloadsOnly ? getUserCaseloadIds(username) : Collections.emptySet());
     }
 
