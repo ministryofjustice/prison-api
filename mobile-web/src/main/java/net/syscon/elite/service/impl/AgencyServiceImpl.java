@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.PrisonContactDetail;
@@ -62,6 +63,7 @@ public class AgencyServiceImpl implements AgencyService {
     }
 
     //It is possible for invalid/empty address records to be persisted
+    @VisibleForTesting
     List<PrisonContactDetail> removeBlankAddresses(List<PrisonContactDetail> list) {
         return list.stream().filter(pcd -> !isBlankAddress(pcd)).collect(Collectors.toList());
     }
