@@ -370,7 +370,7 @@
 
 /{bookingId}/visits/last:
   (javaOperationName): getBookingVisitsLast
-  type: {readOnlyItem: {type: ScheduledEvent, description: The most recent visit for the offender. }}
+  type: {readOnlyItem: {type: Visit, description: The most recent visit for the offender. }}
   uriParameters:
     bookingId:
       (javaType): Long

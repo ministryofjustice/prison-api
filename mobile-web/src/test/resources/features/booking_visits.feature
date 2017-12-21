@@ -103,8 +103,20 @@ Feature: Booking Visits
 
   Scenario Outline: Retrieve last visit for an offender
     When the last visit is requested for an offender with booking id "<booking id>"
-    Then the visit startTime is "<startTime>"
-    And the visit eventSubType is "<eventSubType>"
+    Then the visit visitType is "<visitType>"
+    And the visit startTime is "<startTime>"
+    And the visit endTime is "<endTime>"
+    And the visit eventStatus is "<eventStatus>"
+    And the visit eventOutcome is "<eventOutcome>"
+    And the visit leadVisitor is "<leadVisitor>"
+    And the visit relationship is "<relationship>"
+    And the visit location is "<location>"
+    And the visit cancellationReason is "<cancellationReason>"
     Examples:
-      | booking id | startTime        | eventSubType  | 
-      | -1         | 2017-12-10T14:30 | VISIT         |
+      | booking id | visitType      | startTime        | endTime          | eventStatus | eventOutcome | leadVisitor  | relationship | location      | cancellationReason | 
+      | -1         | Social Contact | 2017-12-10T14:30 | 2017-12-10T15:30 | CANC        | ABS          | JESSY SMITH1 | Uncle        | Visiting Room | NSHOW              |
+      | -4         | Official Visit | 2017-10-10T10:00 | 2017-10-10T12:00 | EXP         | ATT          | MICK MUNCH   |              | Classroom 1   |                    |
+
+  Scenario: Retrieve last visit for an offender that does not exist
+    When the last visit is requested for an offender with booking id "-99"
+    Then resource not found response is received from booking visits API

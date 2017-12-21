@@ -2,6 +2,7 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.resource.AgencyResource;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.RestResource;
@@ -39,7 +40,19 @@ public class AgencyResourceImpl implements AgencyResource {
     @Override
     public GetAvailableLocationsResponse getAvailableLocations(String agencyId, String eventType) {
         List<Location> locations = agencyService.getAvailableLocations(agencyId, eventType);
-        
+
         return GetAvailableLocationsResponse.respond200WithApplicationJson(locations);
+    }
+
+    @Override
+    public GetPrisonContactDetailListResponse getPrisonContactDetailList() {
+        final List<PrisonContactDetail> prisonContactDetail = agencyService.getPrisonContactDetail();
+        return GetPrisonContactDetailListResponse.respond200WithApplicationJson(prisonContactDetail);
+    }
+
+    @Override
+    public GetPrisonContactDetailResponse getPrisonContactDetail(String agencyId) {
+        final PrisonContactDetail prisonContactDetail = agencyService.getPrisonContactDetail(agencyId);
+        return GetPrisonContactDetailResponse.respond200WithApplicationJson(prisonContactDetail);
     }
 }

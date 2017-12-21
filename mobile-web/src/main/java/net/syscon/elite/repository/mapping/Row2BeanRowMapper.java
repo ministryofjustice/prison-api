@@ -1,6 +1,8 @@
 package net.syscon.elite.repository.mapping;
 
+import net.syscon.elite.core.Constants;
 import net.syscon.elite.exception.RowMappingException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,12 +93,14 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 			loadColumns(rs);
 
 			for (final String columnName: sqlToCollumns) {
-				final Object value = rs.getObject(columnName);
+				if (!StringUtils.equals(Constants.RECORD_COUNT_COLUMN, columnName)) {
+					final Object value = rs.getObject(columnName);
 
-				if (value != null) {
-					final FieldMapper fieldMapper = getFieldMapper(bean, columnName, value);
+					if (value != null) {
+						final FieldMapper fieldMapper = getFieldMapper(bean, columnName, value);
 
-					fieldMapper.setValue(bean, value);
+						fieldMapper.setValue(bean, value);
+					}
 				}
 			}
 

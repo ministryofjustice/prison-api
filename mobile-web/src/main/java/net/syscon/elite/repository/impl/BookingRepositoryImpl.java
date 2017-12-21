@@ -3,11 +3,7 @@ package net.syscon.elite.repository.impl;
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 
-import net.syscon.elite.api.model.NewAppointment;
-import net.syscon.elite.api.model.OffenderRelease;
-import net.syscon.elite.api.model.PrivilegeDetail;
-import net.syscon.elite.api.model.ScheduledEvent;
-import net.syscon.elite.api.model.SentenceDetail;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
@@ -17,6 +13,8 @@ import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
@@ -36,9 +34,8 @@ import java.util.*;
 @Slf4j
 public class BookingRepositoryImpl extends RepositoryBase implements BookingRepository {
     private static final StandardBeanPropertyRowMapper<PrivilegeDetail> PRIV_DETAIL_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(PrivilegeDetail.class);
-
     private static final StandardBeanPropertyRowMapper<ScheduledEvent> EVENT_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(ScheduledEvent.class);
-
+    private static final StandardBeanPropertyRowMapper<Visit> VISIT_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(Visit.class);
     private static final StandardBeanPropertyRowMapper<OffenderRelease> OFFENDER_RELEASE_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderRelease.class);
 
     private final Map<String, FieldMapper> sentenceDetailMapping =
@@ -229,15 +226,17 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    public ScheduledEvent getBookingVisitLast(Long bookingId, LocalDateTime cutoffDate) {
+    public Visit getBookingVisitLast(Long bookingId, LocalDateTime cutoffDate) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
         Objects.requireNonNull(cutoffDate, "cutoffDate is a required parameter");
 
         try {
-            return jdbcTemplate.queryForObject(//
+            final Visit result = jdbcTemplate.queryForObject(//
                     getQuery("GET_LAST_BOOKING_VISIT"),
                     createParams("bookingId", bookingId, "cutoffDate", DateTimeConverter.fromLocalDateTime(cutoffDate)),
-                    EVENT_ROW_MAPPER);
+                    VISIT_ROW_MAPPER);
+            result.setLeadVisitor(StringUtils.trimToNull(result.getLeadVisitor()));
+            return result;
         } catch (EmptyResultDataAccessException e) {
             return null;
         }

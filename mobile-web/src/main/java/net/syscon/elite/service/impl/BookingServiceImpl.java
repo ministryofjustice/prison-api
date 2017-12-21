@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import com.microsoft.applicationinsights.TelemetryClient;
+
 import javax.validation.Valid;
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
@@ -45,6 +47,7 @@ public class BookingServiceImpl implements BookingService {
     private final CaseLoadService caseLoadService;
     private final LocationService locationService;
     private final ReferenceDomainService referenceDomainService;
+    private final TelemetryClient telemetryClient;
     private final int lastNumberOfMonths;
     private final String defaultIepLevel;
 
@@ -71,6 +74,7 @@ public class BookingServiceImpl implements BookingService {
                               SentenceRepository sentenceRepository, AgencyService agencyService,
                               CaseLoadService caseLoadService, LocationService locationService,
                               ReferenceDomainService referenceDomainService,
+                              TelemetryClient telemetryClient,
                               @Value("${api.offender.release.date.min.months:3}") int lastNumberOfMonths,
                               @Value("${api.bookings.iepLevel.default:Unknown}") String defaultIepLevel) {
         this.authenticationFacade = authenticationFacade;
@@ -80,6 +84,7 @@ public class BookingServiceImpl implements BookingService {
         this.caseLoadService = caseLoadService;
         this.locationService = locationService;
         this.referenceDomainService = referenceDomainService;
+        this.telemetryClient = telemetryClient;
         this.lastNumberOfMonths = lastNumberOfMonths;
         this.defaultIepLevel = defaultIepLevel;
     }
@@ -192,7 +197,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public ScheduledEvent getBookingVisitLast(Long bookingId) {
+    @VerifyBookingAccess
+    public Visit getBookingVisitLast(Long bookingId) {
         return bookingRepository.getBookingVisitLast(bookingId, LocalDateTime.now());
     }
 
@@ -246,7 +252,19 @@ public class BookingServiceImpl implements BookingService {
         validateEndTime(newAppointment);
         final String agencyId = validateLocationAndGetAgency(username, newAppointment);
         validateEventType(newAppointment);
-        Long eventId = bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId);
+        final Long eventId = bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId);
+
+        // Log event
+        final Map<String, String> logMap = new HashMap<>();
+        logMap.put("type", newAppointment.getAppointmentType());
+        logMap.put("start", newAppointment.getStartTime().toString());
+        logMap.put("location", newAppointment.getLocationId().toString());
+        logMap.put("user", username);
+        if (newAppointment.getEndTime() != null) {
+            logMap.put("end", newAppointment.getEndTime().toString());
+        }
+        telemetryClient.trackEvent("AppointmentCreated", logMap, null);
+
         return bookingRepository.getBookingAppointment(bookingId, eventId);
     }
 

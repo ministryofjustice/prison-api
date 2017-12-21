@@ -42,7 +42,7 @@ public interface BookingService {
 
     Page<OffenderRelease> getOffenderReleaseSummary(LocalDate fromReleaseDate, String username, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly);
 
-    ScheduledEvent getBookingVisitLast(Long bookingId);
+    Visit getBookingVisitLast(Long bookingId);
 
     List<Contact> getRelationships(Long bookingId, String relationshipType);
 
