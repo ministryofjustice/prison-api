@@ -34,7 +34,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     private static final StandardBeanPropertyRowMapper<PrivilegeDetail> PRIV_DETAIL_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(PrivilegeDetail.class);
     private static final StandardBeanPropertyRowMapper<ScheduledEvent> EVENT_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(ScheduledEvent.class);
     private static final StandardBeanPropertyRowMapper<Visit> VISIT_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(Visit.class);
-    private static final StandardBeanPropertyRowMapper<OffenderRelease> OFFENDER_RELEASE_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderRelease.class);
+    private static final StandardBeanPropertyRowMapper<OffenderSummary> OFFENDER_SUMMARY_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderSummary.class);
 
     private final Map<String, FieldMapper> sentenceDetailMapping =
             new ImmutableMap.Builder<String, FieldMapper>()
@@ -258,7 +258,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
 
-    public List<OffenderRelease> getBookingsByRelationship(String externalRef, String relationshipType, String identifierType) {
+    public List<OffenderSummary> getBookingsByRelationship(String externalRef, String relationshipType, String identifierType) {
 
         final String sql = getQuery("FIND_BOOKINGS_BY_PERSON_CONTACT");
 
@@ -267,10 +267,10 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                 createParams("identifierType", identifierType,
                         "identifier", externalRef,
                         "relationshipType", relationshipType),
-                OFFENDER_RELEASE_ROW_MAPPER);
+                OFFENDER_SUMMARY_ROW_MAPPER);
     }
 
-    public List<OffenderRelease> getBookingsByRelationship(Long personId, String relationshipType) {
+    public List<OffenderSummary> getBookingsByRelationship(Long personId, String relationshipType) {
 
         final String sql = getQuery("FIND_BOOKINGS_BY_PERSON_ID_CONTACT");
 
@@ -279,7 +279,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                 createParams(
                         "personId", personId,
                         "relationshipType", relationshipType),
-                OFFENDER_RELEASE_ROW_MAPPER);
+                OFFENDER_SUMMARY_ROW_MAPPER);
     }
 
     @Override
@@ -357,12 +357,12 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    public Page<OffenderRelease> getOffenderReleaseSummary(LocalDate toReleaseDate, String query, long offset, long limit, String orderByFields, Order order, Set<String> allowedCaseloadsOnly) {
+    public Page<OffenderSummary> getOffenderReleaseSummary(LocalDate toReleaseDate, String query, long offset, long limit, String orderByFields, Order order, Set<String> allowedCaseloadsOnly) {
         String initialSql = getQuery("OFFENDER_SUMMARY");
         if (!allowedCaseloadsOnly.isEmpty()) {
             initialSql += " AND EXISTS (select 1 from CASELOAD_AGENCY_LOCATIONS C WHERE ob.AGY_LOC_ID = C.AGY_LOC_ID AND C.CASELOAD_ID IN (:caseloadIds))";
         }
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_RELEASE_ROW_MAPPER.getFieldMap());
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_SUMMARY_ROW_MAPPER.getFieldMap());
 
         String sql = builder
                 .addRowCount()
@@ -371,9 +371,9 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                 .addQuery(query)
                 .build();
 
-        PageAwareRowMapper<OffenderRelease> paRowMapper = new PageAwareRowMapper<>(OFFENDER_RELEASE_ROW_MAPPER);
+        PageAwareRowMapper<OffenderSummary> paRowMapper = new PageAwareRowMapper<>(OFFENDER_SUMMARY_ROW_MAPPER);
 
-        List<OffenderRelease> offenderReleases = jdbcTemplate.query(
+        List<OffenderSummary> offenderReleases = jdbcTemplate.query(
                 sql,
                 createParams("toReleaseDate", DateTimeConverter.toDate(toReleaseDate), "caseloadIds", allowedCaseloadsOnly, "offset", offset, "limit", limit),
                 paRowMapper);

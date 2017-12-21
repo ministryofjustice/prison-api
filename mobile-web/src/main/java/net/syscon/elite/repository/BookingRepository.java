@@ -36,14 +36,14 @@ public interface BookingRepository {
 
     Long createBookingAppointment(Long bookingId, NewAppointment newAppointment, String agencyId);
 
-    Page<OffenderRelease> getOffenderReleaseSummary(LocalDate toReleaseDate, String query, long offset, long limit, String orderByFields, Order order, Set<String> allowedCaseloadsOnly);
+    Page<OffenderSummary> getOffenderReleaseSummary(LocalDate toReleaseDate, String query, long offset, long limit, String orderByFields, Order order, Set<String> allowedCaseloadsOnly);
 
     Visit getBookingVisitLast(Long bookingId, LocalDateTime cutoffDate);
 
     Optional<Long> getBookingIdByOffenderNo(String offenderNo);
 
-    List<OffenderRelease> getBookingsByRelationship(String externalRef, String relationshipType, String identifierType);
+    List<OffenderSummary> getBookingsByRelationship(String externalRef, String relationshipType, String identifierType);
 
-    List<OffenderRelease> getBookingsByRelationship(Long personId, String relationshipType);
+    List<OffenderSummary> getBookingsByRelationship(Long personId, String relationshipType);
 
 }

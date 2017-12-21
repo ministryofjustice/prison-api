@@ -1,6 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.OffenderRelease;
+import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.resource.OffenderRelationshipResource;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.BookingService;
@@ -20,14 +20,14 @@ public class OffenderRelationshipResourceImpl implements OffenderRelationshipRes
 
     @Override
     public GetBookingsByExternalRefAndTypeResponse getBookingsByExternalRefAndType(String externalRef, String relationshipType) {
-        List<OffenderRelease> bookings = bookingService.getBookingsByExternalRefAndType(externalRef, relationshipType);
+        List<OffenderSummary> bookings = bookingService.getBookingsByExternalRefAndType(externalRef, relationshipType);
 
         return GetBookingsByExternalRefAndTypeResponse.respond200WithApplicationJson(bookings);
     }
 
     @Override
     public GetBookingsByPersonIdAndTypeResponse getBookingsByPersonIdAndType(Long personId, String relationshipType) {
-        List<OffenderRelease> bookings = bookingService.getBookingsByPersonIdAndType(personId, relationshipType);
+        List<OffenderSummary> bookings = bookingService.getBookingsByPersonIdAndType(personId, relationshipType);
 
         return GetBookingsByPersonIdAndTypeResponse.respond200WithApplicationJson(bookings);
     }

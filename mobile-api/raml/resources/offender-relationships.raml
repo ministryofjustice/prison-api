@@ -3,7 +3,7 @@
   (javaOperationName): getBookingsByExternalRefAndType
   type:
     readOnlyCollection:
-      type: OffenderRelease
+      type: OffenderSummary
       description: List of offenders
   get:
   uriParameters:
@@ -20,12 +20,13 @@
   (javaOperationName): getBookingsByPersonIdAndType
   type:
     readOnlyCollection:
-      type: OffenderRelease
+      type: OffenderSummary
       description: List of offenders that are related to this person Id and relationship type
   get:
   uriParameters:
     personId:
       (javaType): Long
+      type: number
       description: Person Id of the contact person
     relationshipType:
       type: string

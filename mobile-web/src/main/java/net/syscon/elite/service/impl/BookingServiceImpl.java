@@ -203,12 +203,12 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<OffenderRelease> getBookingsByExternalRefAndType(String externalRef, String relationshipType) {
+    public List<OffenderSummary> getBookingsByExternalRefAndType(String externalRef, String relationshipType) {
         return bookingRepository.getBookingsByRelationship(externalRef, relationshipType, EXTERNAL_REF);
     }
 
     @Override
-    public List<OffenderRelease> getBookingsByPersonIdAndType(Long personId, String relationshipType) {
+    public List<OffenderSummary> getBookingsByPersonIdAndType(Long personId, String relationshipType) {
         return bookingRepository.getBookingsByRelationship(personId, relationshipType);
     }
 
@@ -467,7 +467,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Page<OffenderRelease> getOffenderReleaseSummary(LocalDate toReleaseDate, String username, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly) {
+    public Page<OffenderSummary> getOffenderReleaseSummary(LocalDate toReleaseDate, String username, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly) {
         return bookingRepository.getOffenderReleaseSummary(toReleaseDate != null ? toReleaseDate : now().plusMonths(lastNumberOfMonths), query, offset, limit, orderByFields, order, allowedCaseloadsOnly ? getUserCaseloadIds(username) : Collections.emptySet());
     }
 
