@@ -269,3 +269,10 @@ INSERT_APPOINTMENT {
   VALUES (EVENT_ID.NEXTVAL, :bookingId, :eventDate, :startTime, :endTime, :comment,
     'INT_MOV', 'APP', :eventSubType, 'SCH', :agencyId, :locationId)
 }
+
+FIND_BOOKING_ID_BY_OFFENDER_NO {
+  SELECT B.OFFENDER_BOOK_ID
+  FROM OFFENDER_BOOKINGS B
+     JOIN OFFENDERS O ON B.OFFENDER_ID = O.OFFENDER_ID
+  WHERE B.ACTIVE_FLAG = 'Y' AND O.OFFENDER_ID_DISPLAY = :offenderNo
+}

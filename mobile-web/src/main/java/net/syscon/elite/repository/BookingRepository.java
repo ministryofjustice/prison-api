@@ -39,4 +39,6 @@ public interface BookingRepository {
     Page<OffenderRelease> getOffenderReleaseSummary(LocalDate toReleaseDate, String query, long offset, long limit, String orderByFields, Order order, Set<String> allowedCaseloadsOnly);
 
     Visit getBookingVisitLast(Long bookingId, LocalDateTime cutoffDate);
+
+    Optional<Long> getBookingIdByOffenderNo(String offenderNo);
 }

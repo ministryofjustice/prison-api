@@ -202,16 +202,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<Contact> getRelationships(Long bookingId, String relationshipType) {
-        return null;
-    }
-
-    @Override
-    public List<Contact> getRelationshipsByOffenderNo(String offenderNo, String relationshipType) {
-        return null;
-    }
-
-    @Override
     public List<OffenderBooking> getBookingsByExternalRefAndType(String externalRef, String relationshipType) {
         return null;
     }
@@ -219,6 +209,11 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<OffenderBooking> getBookingsByPersonIdAndType(Long personId, String relationshipType) {
         return null;
+    }
+
+    @Override
+    public Long getBookingIdByOffenderNo(String offenderNo) {
+        return bookingRepository.getBookingIdByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
     }
 
     @Override

@@ -241,6 +241,23 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
+    public Optional<Long> getBookingIdByOffenderNo(String offenderNo) {
+        Objects.requireNonNull(offenderNo, "offenderNo is a required parameter");
+
+        String sql = getQuery("FIND_BOOKING_ID_BY_OFFENDER_NO");
+        Long bookingId;
+        try {
+            bookingId = jdbcTemplate.queryForObject(
+                    sql,
+                    createParams("offenderNo", offenderNo), Long.class);
+        } catch (EmptyResultDataAccessException ex) {
+            bookingId = null;
+        }
+
+        return Optional.ofNullable(bookingId);
+    }
+
+    @Override
     public Page<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 

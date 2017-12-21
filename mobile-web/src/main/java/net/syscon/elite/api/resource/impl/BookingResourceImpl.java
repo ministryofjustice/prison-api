@@ -204,13 +204,13 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     public BookingResource.GetRelationshipsResponse getRelationships(Long bookingId, String relationshipType) {
-        List<Contact> relationships = bookingService.getRelationships(bookingId, relationshipType);
+        List<Contact> relationships = contactService.getRelationships(bookingId, relationshipType);
         return BookingResource.GetRelationshipsResponse.respond200WithApplicationJson(relationships);
     }
 
     @Override
     public GetRelationshipsByOffenderNoResponse getRelationshipsByOffenderNo(String offenderNo, String relationshipType) {
-        List<Contact> relationships = bookingService.getRelationshipsByOffenderNo(offenderNo, relationshipType);
+        List<Contact> relationships = contactService.getRelationshipsByOffenderNo(offenderNo, relationshipType);
         return GetRelationshipsByOffenderNoResponse.respond200WithApplicationJson(relationships);
     }
 
