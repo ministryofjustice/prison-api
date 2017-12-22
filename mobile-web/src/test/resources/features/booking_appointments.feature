@@ -130,7 +130,7 @@ Feature: Booking Appointments
 
   Scenario: Create a new appointment with invalid comment
     When An appointment is created with an invalid comment
-    Then bad request response, with "Value is too long: max length is 3600" message, is received from booking appointments API
+    Then bad request response, with "Value is too long: max length is 4000" message, is received from booking appointments API
 
   Scenario: Create a new appointment with invalid type
     When An appointment is created for an invalid type
