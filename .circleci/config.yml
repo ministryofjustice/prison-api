@@ -42,12 +42,12 @@ jobs:
           exclusive: true
       - run:
           command: |
-            API_VERSION=$(egrep -o "^\s+version\s=\s\"(.*)\"" build.gradle | awk -F"\"" '{print $2}')
-            TAG=${API_VERSION}.${CIRCLE_BRANCH}.${CIRCLE_BUILD_NUM}
+            jar xvf mobile-web/build/libs/mobile-web-*.jar META-INF/build-info.properties
+            API_VERSION=$(grep 'build.version=' META-INF/build-info.properties | awk -F= '{print $2}')
+            rm META-INF/build-info.properties
+            TAG=${API_VERSION}.${CIRCLE_BRANCH}
             if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
-              TAG=ELITE2_API_${API_VERSION}.${CIRCLE_BUILD_NUM}
-            else
-              TAG=${API_VERSION}.${CIRCLE_BRANCH}.${CIRCLE_BUILD_NUM}
+              TAG=ELITE2_API_${API_VERSION}
             fi
             docker build --rm=false . \
                --tag "sysconjusticesystems/elite2-api:$TAG" \
