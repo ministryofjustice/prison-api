@@ -104,18 +104,23 @@ Feature: Booking Visits
   Scenario Outline: Retrieve last visit for an offender
     When the last visit is requested for an offender with booking id "<booking id>"
     Then the visit visitType is "<visitType>"
+    And the visit visitTypeDescription is "<visitTypeDescription>"
     And the visit startTime is "<startTime>"
     And the visit endTime is "<endTime>"
     And the visit eventStatus is "<eventStatus>"
+    And the visit eventStatusDescription is "<eventStatusDescription>"
     And the visit eventOutcome is "<eventOutcome>"
+    And the visit eventOutcomeDescription is "<eventOutcomeDescription>"
     And the visit leadVisitor is "<leadVisitor>"
     And the visit relationship is "<relationship>"
+    And the visit relationshipDescription is "<relationshipDescription>"
     And the visit location is "<location>"
     And the visit cancellationReason is "<cancellationReason>"
+    And the visit cancellationReasonDescription is "<cancellationReasonDescription>"
     Examples:
-      | booking id | visitType      | startTime        | endTime          | eventStatus | eventOutcome | leadVisitor  | relationship | location      | cancellationReason | 
-      | -1         | Social Contact | 2017-12-10T14:30 | 2017-12-10T15:30 | CANC        | ABS          | JESSY SMITH1 | Uncle        | Visiting Room | NSHOW              |
-      | -4         | Official Visit | 2017-10-10T10:00 | 2017-10-10T12:00 | EXP         | ATT          | MICK MUNCH   |              | Classroom 1   |                    |
+      | booking id | visitType | visitTypeDescription | startTime        | endTime          | eventStatus | eventStatusDescription | eventOutcome | eventOutcomeDescription | leadVisitor  | relationship | relationshipDescription | location      | cancellationReason | cancellationReasonDescription |
+      | -1         | SCON      | Social Contact       | 2017-12-10T14:30 | 2017-12-10T15:30 | CANC        | Cancelled              | ABS          | Absence                 | JESSY SMITH1 | UN           | Uncle                   | Visiting Room | NSHOW              | Visitor Did Not Arrive        |
+      | -4         | OFFI      | Official Visit       | 2017-10-10T10:00 | 2017-10-10T12:00 | EXP         | Expired                | ATT          | Attended                | MICK MUNCH   |              |                         | Classroom 1   |                    |                               |
 
   Scenario: Retrieve last visit for an offender that does not exist
     When the last visit is requested for an offender with booking id "-99"

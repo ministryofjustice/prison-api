@@ -5,17 +5,26 @@ properties:
     type: string
     description: Status of event
     example: EXP / CANC / SCH
+  eventStatusDescription?:
+    type: string
+    description: Description of eventStatus code
   visitType:
     type: string
     description: Social or official
     example: SCON (Social Contact)
+  visitTypeDescription?:
+    type: string
+    description: Description of visitType code
   leadVisitor?:
     type: string
     description: Name of main visitor
     example: Joe Bloggs
-  relationship:
+  relationship?:
     type: string
     description: Relationship of main visitor to offender
+  relationshipDescription?:
+    type: string
+    description: Description of relationship code
     example: Father
   startTime:
     type: datetime
@@ -33,7 +42,13 @@ properties:
     type: string
     description: Whether attended or not
     example: ATT (Attended)
+  eventOutcomeDescription?:
+    type: string
+    description: Description of eventOutcome code
   cancellationReason?:
     type: string
     description: Reason if not attended
     example: NSHOW (Visitor Did Not Arrive)
+  cancellationReasonDescription?:
+    type: string
+    description: Description of cancellationReason code
