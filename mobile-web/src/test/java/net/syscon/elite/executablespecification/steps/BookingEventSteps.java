@@ -42,9 +42,13 @@ public class BookingEventSteps extends ScheduledEventSteps {
         while (expectedIterator.hasNext()) {
             final ScheduledEvent expectedThis = expectedIterator.next();
             final ScheduledEvent actualThis = actualIterator.next();
-            assertEquals(expectedThis.getEventType(), actualThis.getEventType());
-            assertEquals(expectedThis.getEventLocation(), actualThis.getEventLocation());
+            assertEquals(getDump(), expectedThis.getEventType(), actualThis.getEventType());
+            assertEquals(getDump(), expectedThis.getEventLocation(), actualThis.getEventLocation());
         }
         assertFalse("Too many actual events", actualIterator.hasNext());
+    }
+
+    private String getDump() {
+        return "Actual event list is \r\n" + scheduledEvents.toString();
     }
 }
