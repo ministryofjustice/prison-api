@@ -35,7 +35,7 @@
 /me/offender-releases:
   (javaOperationName): getMyOffenderReleases
   description: Forthcoming offender releases for my caseloads
-  type: { readOnlyCollectionPaged: { type: OffenderRelease, description: List of offenders (with release detail) in caseloads accessible to current user. } }
+  type: { readOnlyCollectionPaged: { type: OffenderSummary, description: List of offenders (with release detail) in caseloads accessible to current user. } }
   get:
      queryParameters:
         toDate?:

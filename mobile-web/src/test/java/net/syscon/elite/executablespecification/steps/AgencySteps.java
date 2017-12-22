@@ -1,14 +1,9 @@
 package net.syscon.elite.executablespecification.steps;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
-
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -17,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+
+import static org.junit.Assert.*;
 
 /**
  * BDD step implementations for Agencies service.
@@ -29,7 +26,7 @@ public class AgencySteps extends CommonSteps {
     private Agency agency;
     private List<Location> locations;
 
-    private <T> List<T> dispatchPagedListRequest(String resourcePath, Long offset, Long limit, Object... params) {
+    private List<Agency> dispatchPagedListRequest(String resourcePath, Long offset, Long limit, Object... params) {
         init();
         HttpEntity<?> httpEntity;
         if (Objects.nonNull(offset) && Objects.nonNull(limit)) {
@@ -40,11 +37,11 @@ public class AgencySteps extends CommonSteps {
         }
         String url = resourcePath;
         try {
-            ResponseEntity<List<T>> response = restTemplate.exchange(
+            ResponseEntity<List<Agency>> response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     httpEntity,
-                    new ParameterizedTypeReference<List<T>>() {},
+                    new ParameterizedTypeReference<List<Agency>>() {},
                     params);
             buildResourceData(response);
             return response.getBody();
@@ -54,15 +51,15 @@ public class AgencySteps extends CommonSteps {
         }
     }
 
-    private <T> List<T> dispatchListRequest(String resourcePath, String agencyId, String eventType) {
+    private List<Location> dispatchListRequest(String resourcePath, String agencyId, String eventType) {
         init();
 
         String urlModifier = "?eventType=" + eventType;
         HttpEntity<?> httpEntity = createEntity();
         String url = resourcePath + urlModifier;
         try {
-            ResponseEntity<List<T>> response = restTemplate.exchange(url, HttpMethod.GET, httpEntity,
-                    new ParameterizedTypeReference<List<T>>() {
+            ResponseEntity<List<Location>> response = restTemplate.exchange(url, HttpMethod.GET, httpEntity,
+                    new ParameterizedTypeReference<List<Location>>() {
                     }, agencyId);
             buildResourceData(response);
             return response.getBody();

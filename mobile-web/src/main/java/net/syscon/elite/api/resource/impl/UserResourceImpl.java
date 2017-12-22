@@ -88,7 +88,7 @@ public class UserResourceImpl implements UserResource {
 
     @Override
     public GetMyOffenderReleasesResponse getMyOffenderReleases(String query, String toDate, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-        Page<OffenderRelease> offenderReleaseSummary = bookingService.getOffenderReleaseSummary(
+        Page<OffenderSummary> offenderReleaseSummary = bookingService.getOffenderReleaseSummary(
                 fromISO8601DateString(toDate),
                 authenticationFacade.getCurrentUsername(),
                 query,

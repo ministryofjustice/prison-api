@@ -31,8 +31,8 @@ Feature: Users and Staff
   Examples:
   | username            | roles                                  |
   | itag_user           | BXI_WING_OFF,LEI_WING_OFF,WAI_WING_OFF |
-  | elite2_api_user     | LEI_CENTRAL_ADMIN                      |
-  | hpa_user            | LEI_GLOBAL_SEARCH,LEI_WING_OFF         |
+  | elite2_api_user     | LEI_SYSTEM_USER                        |
+  | hpa_user            | LEI_SYSTEM_USER,LEI_WING_OFF           |
   | api_test_user       | MUL_WING_OFF                           |
 
   @elite
@@ -44,6 +44,6 @@ Feature: Users and Staff
     Examples:
       | username            | roles                  |
       | itag_user           | WING_OFF               |
-      | elite2_api_user     | CENTRAL_ADMIN          |
-      | hpa_user            | GLOBAL_SEARCH,WING_OFF |
+      | elite2_api_user     | SYSTEM_USER            |
+      | hpa_user            | SYSTEM_USER,WING_OFF   |
       | api_test_user       | WING_OFF               |

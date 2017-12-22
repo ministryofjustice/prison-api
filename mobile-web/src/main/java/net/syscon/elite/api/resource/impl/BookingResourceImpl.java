@@ -203,6 +203,30 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    public BookingResource.GetRelationshipsResponse getRelationships(Long bookingId, String relationshipType) {
+        List<Contact> relationships = contactService.getRelationships(bookingId, relationshipType);
+        return BookingResource.GetRelationshipsResponse.respond200WithApplicationJson(relationships);
+    }
+
+    @Override
+    public GetRelationshipsByOffenderNoResponse getRelationshipsByOffenderNo(String offenderNo, String relationshipType) {
+        List<Contact> relationships = contactService.getRelationshipsByOffenderNo(offenderNo, relationshipType);
+        return GetRelationshipsByOffenderNoResponse.respond200WithApplicationJson(relationships);
+    }
+
+    @Override
+    public CreateRelationshipResponse createRelationship(Long bookingId, OffenderRelationship relationshipDetail) {
+        final Contact relationship = contactService.createRelationship(bookingId, relationshipDetail);
+        return CreateRelationshipResponse.respond201WithApplicationJson(relationship);
+    }
+
+    @Override
+    public CreateRelationshipByOffenderNoResponse createRelationshipByOffenderNo(String offenderNo, OffenderRelationship relationshipDetail) {
+        final Contact relationship = contactService.createRelationshipByOffenderNo(offenderNo, relationshipDetail);
+        return CreateRelationshipByOffenderNoResponse.respond201WithApplicationJson(relationship);
+    }
+
+    @Override
     public GetEventsTodayResponse getEventsToday(Long bookingId) {
         List<ScheduledEvent> scheduledEvents = bookingService.getEventsToday(bookingId);
 
@@ -280,7 +304,7 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     public GetBookingVisitsLastResponse getBookingVisitsLast(Long bookingId) {
-        ScheduledEvent visit = bookingService.getBookingVisitLast(bookingId);
+        Visit visit = bookingService.getBookingVisitLast(bookingId);
 
         return GetBookingVisitsLastResponse.respond200WithApplicationJson(visit);
     }

@@ -233,6 +233,59 @@
       (javaType): Long
       description: The offender booking id
 
+/{bookingId}/relationships:
+  type: { readOnlyCollection: { type: Contact, description: The contact details and their relationship to the offender } }
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      type: number
+      description: The offender booking id
+  get:
+    (javaOperationName): getRelationships
+    queryParameters:
+      relationshipType?:
+        type: string
+        description: filter by the relationship type
+  post:
+    (javaOperationName): createRelationship
+    description: Create a relationship with an offender
+    body:
+      application/json:
+        type: OffenderRelationship
+        description: The person details and their relationship to the offender
+    responses:
+      201:
+        description: If successful the Contact object is returned.
+        body:
+          application/json:
+            type: Contact
+
+/offenderNo/{offenderNo}/relationships:
+  type: { readOnlyCollection: { type: Contact, description: The contact details and their relationship to the offender } }
+  uriParameters:
+    offenderNo:
+      type: string
+      description: The offender Offender No
+  get:
+    (javaOperationName): getRelationshipsByOffenderNo
+    queryParameters:
+      relationshipType?:
+        type: string
+        description: filter by the relationship type
+  post:
+    (javaOperationName): createRelationshipByOffenderNo
+    description: Create a relationship with an offender
+    body:
+      application/json:
+        type: OffenderRelationship
+        description: The person details and their relationship to the offender
+    responses:
+      201:
+        description: If successful the Contact object is returned.
+        body:
+          application/json:
+            type: Contact
+
 /{bookingId}/adjudications:
   (javaOperationName): getAdjudications
   type: { readOnlyItem: { type: AdjudicationDetail, description: Offender adjudications (awards and sanctions). } }
@@ -318,7 +371,7 @@
 
 /{bookingId}/visits/last:
   (javaOperationName): getBookingVisitsLast
-  type: {readOnlyItem: {type: ScheduledEvent, description: The most recent visit for the offender. }}
+  type: {readOnlyItem: {type: Visit, description: The most recent visit for the offender. }}
   uriParameters:
     bookingId:
       (javaType): Long

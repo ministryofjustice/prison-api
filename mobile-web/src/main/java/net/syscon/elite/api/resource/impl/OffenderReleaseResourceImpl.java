@@ -1,7 +1,7 @@
 package net.syscon.elite.api.resource.impl;
 
 import net.logstash.logback.encoder.org.apache.commons.lang.StringUtils;
-import net.syscon.elite.api.model.OffenderRelease;
+import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.resource.OffenderReleaseResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
@@ -29,9 +29,9 @@ public class OffenderReleaseResourceImpl implements OffenderReleaseResource {
     }
 
     @Override
-    @PreAuthorize("authentication.authorities.?[authority.contains('_ADMIN')].size() != 0")
+    @PreAuthorize("authentication.authorities.?[authority.contains('SYSTEM_USER')].size() != 0")
     public GetOffenderReleasesResponse getOffenderReleases( List<String> offenderNos, String toDate, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-        Page<OffenderRelease> releaseResponse = bookingService.getOffenderReleaseSummary(
+        Page<OffenderSummary> releaseResponse = bookingService.getOffenderReleaseSummary(
                 fromISO8601DateString(toDate),
                 authenticationFacade.getCurrentUsername(),
                 buildOffenderInQuery(offenderNos),

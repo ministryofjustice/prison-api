@@ -1,10 +1,9 @@
 package net.syscon.elite.executablespecification.steps;
 
-import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.Visit;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
-
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +15,7 @@ public class BookingVisitSteps extends ScheduledEventSteps {
     private static final String BOOKING_VISITS_API_URL = API_PREFIX + "bookings/{bookingId}/visits";
     private static final String BOOKING_VISIT_LAST_API_URL = API_PREFIX + "bookings/{bookingId}/visits/last";
 
-    private ScheduledEvent lastVisit;
+    private Visit lastVisit;
 
     @Override
     protected String getResourcePath() {
@@ -40,14 +39,13 @@ public class BookingVisitSteps extends ScheduledEventSteps {
 
     private void dispatchRequest(String url, Long bookingId) {
         init();
-        ResponseEntity<ScheduledEvent> response;
-
+        ResponseEntity<Visit> response;
         try {
             response = restTemplate.exchange(
                             url,
                             HttpMethod.GET,
                             createEntity(),
-                            new ParameterizedTypeReference<ScheduledEvent>() {},
+                            new ParameterizedTypeReference<Visit>() {},
                             bookingId);
             lastVisit = response.getBody();
 

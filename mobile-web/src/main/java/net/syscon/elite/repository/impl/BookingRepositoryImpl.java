@@ -2,12 +2,7 @@ package net.syscon.elite.repository.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
-
-import net.syscon.elite.api.model.NewAppointment;
-import net.syscon.elite.api.model.OffenderRelease;
-import net.syscon.elite.api.model.PrivilegeDetail;
-import net.syscon.elite.api.model.ScheduledEvent;
-import net.syscon.elite.api.model.SentenceDetail;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
@@ -17,6 +12,7 @@ import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
@@ -36,10 +32,9 @@ import java.util.*;
 @Slf4j
 public class BookingRepositoryImpl extends RepositoryBase implements BookingRepository {
     private static final StandardBeanPropertyRowMapper<PrivilegeDetail> PRIV_DETAIL_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(PrivilegeDetail.class);
-
     private static final StandardBeanPropertyRowMapper<ScheduledEvent> EVENT_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(ScheduledEvent.class);
-
-    private static final StandardBeanPropertyRowMapper<OffenderRelease> OFFENDER_RELEASE_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderRelease.class);
+    private static final StandardBeanPropertyRowMapper<Visit> VISIT_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(Visit.class);
+    private static final StandardBeanPropertyRowMapper<OffenderSummary> OFFENDER_SUMMARY_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderSummary.class);
 
     private final Map<String, FieldMapper> sentenceDetailMapping =
             new ImmutableMap.Builder<String, FieldMapper>()
@@ -105,7 +100,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         RowMapper<SentenceDetail> sentenceDetailRowMapper =
                 Row2BeanRowMapper.makeMapping(sql, SentenceDetail.class, sentenceDetailMapping);
 
-        SentenceDetail sentenceDetail = null;
+        SentenceDetail sentenceDetail;
 
         try {
             sentenceDetail =
@@ -229,18 +224,62 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    public ScheduledEvent getBookingVisitLast(Long bookingId, LocalDateTime cutoffDate) {
+    public Visit getBookingVisitLast(Long bookingId, LocalDateTime cutoffDate) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
         Objects.requireNonNull(cutoffDate, "cutoffDate is a required parameter");
 
         try {
-            return jdbcTemplate.queryForObject(//
+            final Visit result = jdbcTemplate.queryForObject(//
                     getQuery("GET_LAST_BOOKING_VISIT"),
                     createParams("bookingId", bookingId, "cutoffDate", DateTimeConverter.fromLocalDateTime(cutoffDate)),
-                    EVENT_ROW_MAPPER);
+                    VISIT_ROW_MAPPER);
+            result.setLeadVisitor(StringUtils.trimToNull(result.getLeadVisitor()));
+            return result;
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
+    }
+
+    @Override
+    public Optional<Long> getBookingIdByOffenderNo(String offenderNo) {
+        Objects.requireNonNull(offenderNo, "offenderNo is a required parameter");
+
+        String sql = getQuery("FIND_BOOKING_ID_BY_OFFENDER_NO");
+        Long bookingId;
+        try {
+            bookingId = jdbcTemplate.queryForObject(
+                    sql,
+                    createParams("offenderNo", offenderNo), Long.class);
+        } catch (EmptyResultDataAccessException ex) {
+            bookingId = null;
+        }
+
+        return Optional.ofNullable(bookingId);
+    }
+
+
+    public List<OffenderSummary> getBookingsByRelationship(String externalRef, String relationshipType, String identifierType) {
+
+        final String sql = getQuery("FIND_BOOKINGS_BY_PERSON_CONTACT");
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("identifierType", identifierType,
+                        "identifier", externalRef,
+                        "relationshipType", relationshipType),
+                OFFENDER_SUMMARY_ROW_MAPPER);
+    }
+
+    public List<OffenderSummary> getBookingsByRelationship(Long personId, String relationshipType) {
+
+        final String sql = getQuery("FIND_BOOKINGS_BY_PERSON_ID_CONTACT");
+
+        return jdbcTemplate.query(
+                sql,
+                createParams(
+                        "personId", personId,
+                        "relationshipType", relationshipType),
+                OFFENDER_SUMMARY_ROW_MAPPER);
     }
 
     @Override
@@ -318,12 +357,12 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    public Page<OffenderRelease> getOffenderReleaseSummary(LocalDate toReleaseDate, String query, long offset, long limit, String orderByFields, Order order, Set<String> allowedCaseloadsOnly) {
+    public Page<OffenderSummary> getOffenderReleaseSummary(LocalDate toReleaseDate, String query, long offset, long limit, String orderByFields, Order order, Set<String> allowedCaseloadsOnly) {
         String initialSql = getQuery("OFFENDER_SUMMARY");
         if (!allowedCaseloadsOnly.isEmpty()) {
             initialSql += " AND EXISTS (select 1 from CASELOAD_AGENCY_LOCATIONS C WHERE ob.AGY_LOC_ID = C.AGY_LOC_ID AND C.CASELOAD_ID IN (:caseloadIds))";
         }
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_RELEASE_ROW_MAPPER.getFieldMap());
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_SUMMARY_ROW_MAPPER.getFieldMap());
 
         String sql = builder
                 .addRowCount()
@@ -332,9 +371,9 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                 .addQuery(query)
                 .build();
 
-        PageAwareRowMapper<OffenderRelease> paRowMapper = new PageAwareRowMapper<>(OFFENDER_RELEASE_ROW_MAPPER);
+        PageAwareRowMapper<OffenderSummary> paRowMapper = new PageAwareRowMapper<>(OFFENDER_SUMMARY_ROW_MAPPER);
 
-        List<OffenderRelease> offenderReleases = jdbcTemplate.query(
+        List<OffenderSummary> offenderReleases = jdbcTemplate.query(
                 sql,
                 createParams("toReleaseDate", DateTimeConverter.toDate(toReleaseDate), "caseloadIds", allowedCaseloadsOnly, "offset", offset, "limit", limit),
                 paRowMapper);

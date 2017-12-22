@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
@@ -13,8 +14,6 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import com.microsoft.applicationinsights.TelemetryClient;
 
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDateTime;
