@@ -257,7 +257,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         return Optional.ofNullable(bookingId);
     }
 
-
+    @Override
     public List<OffenderSummary> getBookingsByRelationship(String externalRef, String relationshipType, String identifierType) {
 
         final String sql = getQuery("FIND_BOOKINGS_BY_PERSON_CONTACT");
@@ -270,6 +270,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                 OFFENDER_SUMMARY_ROW_MAPPER);
     }
 
+    @Override
     public List<OffenderSummary> getBookingsByRelationship(Long personId, String relationshipType) {
 
         final String sql = getQuery("FIND_BOOKINGS_BY_PERSON_ID_CONTACT");

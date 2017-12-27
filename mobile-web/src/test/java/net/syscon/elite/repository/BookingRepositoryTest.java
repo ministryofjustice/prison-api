@@ -43,13 +43,18 @@ public class BookingRepositoryTest {
     private static void assertVisitDetails(final Visit visit) {
         assertEquals("2016-12-11T14:30", visit.getStartTime().toString());
         assertEquals("2016-12-11T15:30", visit.getEndTime().toString());
-        assertEquals("ABS", visit.getEventOutcome());        // whether attended: null(=attended)/ABS Reference Code(OUTCOMES)
+        assertEquals("ABS", visit.getEventOutcome());
+        assertEquals("Absence", visit.getEventOutcomeDescription());
         assertEquals("JESSY SMITH1", visit.getLeadVisitor());
-        assertEquals("Uncle", visit.getRelationship());
+        assertEquals("UN", visit.getRelationship());
+        assertEquals("Uncle", visit.getRelationshipDescription());
         assertEquals("Visiting Room", visit.getLocation());
-        assertEquals("CANC", visit.getEventStatus());        // EXP / CANC / COMP /SCH                Reference Code(EVENT_STS)
-        assertEquals("NSHOW", visit.getCancellationReason());// VISCANC / NSHOW / REFUSED / ADMIN ... Reference Code(MOVE_CANC_RS)
-        assertEquals("Social Contact", visit.getVisitType());// social or official
+        assertEquals("CANC", visit.getEventStatus());
+        assertEquals("Cancelled", visit.getEventStatusDescription());
+        assertEquals("NSHOW", visit.getCancellationReason());
+        assertEquals("Visitor Did Not Arrive", visit.getCancellationReasonDescription());
+        assertEquals("SCON", visit.getVisitType());
+        assertEquals("Social Contact", visit.getVisitTypeDescription());
     }
 
     @Test
