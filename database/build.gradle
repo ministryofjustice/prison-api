@@ -12,7 +12,7 @@ plugins {
 }
 
 flyway {
-    url = 'jdbc:oracle:thin:@terraform-20171129182150561600000001.cuo8tj8nysnb.eu-west-2.rds.amazonaws.com:1521:TESTDB'
+    url = 'jdbc:oracle:thin:@syscon-dev.cuo8tj8nysnb.eu-west-2.rds.amazonaws.com:1521:TESTDB'
     user = 'DEMO_NOMIS_OWNER'
     password = 'DEMO_NOMIS_OWNER'
 }
