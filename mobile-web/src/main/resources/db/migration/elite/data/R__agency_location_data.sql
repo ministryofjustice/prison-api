@@ -9,7 +9,8 @@ VALUES ('BXI', 'BRIXTON', 'INST', 'Y'),
        ('MUL', 'MUL', 'INST', 'Y'),
        ('ZZGHI', 'GHOST', 'INST', 'N'),
        ('COURT1', 'Court 1', 'CRT', 'Y'),
-       ('ABDRCT', 'Court 2', 'CRT', 'Y');
+       ('ABDRCT', 'Court 2', 'CRT', 'Y'),
+       ('TRO', 'TROOM', 'INST', 'Y');
 
 INSERT INTO CASELOAD_AGENCY_LOCATIONS (CASELOAD_ID, AGY_LOC_ID)
 VALUES ('BXI', 'BXI'),

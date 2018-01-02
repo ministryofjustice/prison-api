@@ -9,6 +9,9 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.support.LocationProcessor;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,8 +46,14 @@ public class AgencyServiceImpl implements AgencyService {
     }
 
     @Override
-    public List<Location> getAvailableLocations(String agencyId, String eventType) {
-        return agencyRepository.getAvailableLocations(agencyId, eventType);
+    public List<Location> getAgencyLocations(String agencyId, String eventType, String sortFields, Order sortOrder) {
+        // If no sort fields defined, sort in ascending order of user description then description (by default)
+        String orderBy = StringUtils.defaultIfBlank(sortFields, "userDescription,description");
+        Order order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
+
+        List<Location> rawLocations = agencyRepository.getAgencyLocations(agencyId, eventType, orderBy, order);
+
+        return LocationProcessor.processLocations(rawLocations);
     }
 
     @Override
