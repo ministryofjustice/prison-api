@@ -35,10 +35,6 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
         schedulesSteps.givenAnExistingAgencyAndLocationGroup();
     }
 
-   /* public void givenAnExistingAgency() {
-        schedulesSteps.givenAnExistingAgency();
-    }*/
-
     @Given("^agency does not belong to a caseload accessible to current user$")
     public void givenAgencyDoesNotBelongToCaseload() {
         schedulesSteps.givenAgencyDoesNotBelongToCaseload();

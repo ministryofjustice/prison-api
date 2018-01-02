@@ -9,7 +9,7 @@
       description: The list name.
   get:
     queryParameters:
-      timeSlot:
+      timeSlot?:
         type : enum
         (javaType): TimeSlot
         description: AM or PM
@@ -25,7 +25,7 @@
       description: The location id where event is held.
   get:
     queryParameters:
-      timeSlot:
+      timeSlot?:
         type : enum
         (javaType): TimeSlot
         description: AM or PM

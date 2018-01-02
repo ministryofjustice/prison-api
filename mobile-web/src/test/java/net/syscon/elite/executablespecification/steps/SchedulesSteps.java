@@ -187,18 +187,9 @@ public class SchedulesSteps extends CommonSteps {
     }
 
     public void verifySchedulesAreOrdered() {
-        // Check donald duck is at the end, cell 10
-   //     assertThat(results.get(6).getComment()).isEqualTo("comment23");
+        // Check donald duck is at the end, cell 10, so
+        // just ensure cell A-1-1 comes before A-1-10
         assertThat(results).isSortedAccordingTo((o1,o2) -> {return o1.getCellLocation().compareTo(o2.getCellLocation());});
-//            new Comparator<PrisonerSchedule>() {
-//
-//            @Override
-//            public int compare(PrisonerSchedule o1, PrisonerSchedule o2) {
-//                // Just ensure cell A-1-1 comes before A-1-10
-//                return o1.getCellLocation().compareTo(o2.getCellLocation());
-//            }
-//        });
-
     }
 
     public void verifyOffendersAreLocatedInALocationThatBelongsToRequestedAgencyAndLocationGroup() {
