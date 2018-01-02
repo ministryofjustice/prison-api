@@ -421,6 +421,23 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
+    /**
+     * Verifies that current user is authorised to access specified agency. If this
+     * agency location is not part of any caseload accessible to the current user, a 'Resource Not Found'
+     * exception is thrown.
+     *
+     * @param agencyId the agency.
+     * @throws EntityNotFoundException if current user does not have access to this agency.
+     */
+    @Override
+    public void verifyBookingAccess(String agencyId) {
+        Objects.requireNonNull(agencyId, "agencyId is a required parameter");
+
+        if (!getAgencyIds().contains(agencyId)) {
+            throw EntityNotFoundException.withId(agencyId);
+        }
+    }
+
     public boolean isSystemUser() {
         final Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
         return authorities.stream().anyMatch(a -> a.getAuthority().contains(SYSTEM_USER_ROLE));

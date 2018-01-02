@@ -8,6 +8,7 @@ import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.AssessmentDto;
+import net.syscon.elite.service.support.InmateDto;
 import net.syscon.elite.service.support.PageRequest;
 import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.ObjectUtils;
@@ -57,6 +58,13 @@ public class InmateServiceImpl implements InmateService {
         return repository.findAllInmates(bookingService.isSystemUser() ? Collections.emptySet() : getUserCaseloadIds(username), locationTypeGranularity, query, new PageRequest(colSort, order, offset, limit));
     }
 
+    @Override
+    public List<InmateDto> findInmatesByLocation(String username, String agencyId, List<Long> locations) {
+        Set<String> caseLoadIds = getUserCaseloadIds(username);
+
+        return repository.findInmatesByLocation(agencyId, locations, caseLoadIds);
+    }
+    
     @Override
     @Cacheable("findInmate")
     @VerifyBookingAccess

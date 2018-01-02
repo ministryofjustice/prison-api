@@ -3,7 +3,9 @@ package net.syscon.elite.service;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.service.support.InmateDto;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface InmateService {
@@ -16,4 +18,6 @@ public interface InmateService {
 	Page<PrisonerDetail> findPrisoners(PrisonerDetailSearchCriteria criteria, String orderBy, Order order, long offset, long limit);
 
 	Optional<Assessment> getInmateAssessmentByCode(Long bookingId, String assessmentCode);
+
+    List<InmateDto> findInmatesByLocation(String username, String agencyId, List<Long> locations);
 }

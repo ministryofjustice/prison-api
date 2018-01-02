@@ -91,6 +91,9 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
         supportingFiles.add(new SupportingFile("order.mustache",
                 (supportPackage()).replace(".", File.separator), "Order.java"));
 
+        supportingFiles.add(new SupportingFile("timeSlot.mustache",
+                (supportPackage()).replace(".", File.separator), "TimeSlot.java"));
+
         supportingFiles.add(new SupportingFile("custodyStatusCode.mustache",
                 (supportPackage()).replace(".", File.separator), "CustodyStatusCode.java"));
 

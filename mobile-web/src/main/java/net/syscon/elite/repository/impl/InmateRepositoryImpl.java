@@ -11,6 +11,7 @@ import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.elite.service.support.AssessmentDto;
+import net.syscon.elite.service.support.InmateDto;
 import net.syscon.elite.service.support.PageRequest;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
@@ -107,6 +108,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 	private final StandardBeanPropertyRowMapper<AssessmentDto> ASSESSMENT_MAPPER = new StandardBeanPropertyRowMapper<>(AssessmentDto.class);
     private final StandardBeanPropertyRowMapper<PhysicalCharacteristic> PHYSICAL_CHARACTERISTIC_MAPPER = new StandardBeanPropertyRowMapper<>(PhysicalCharacteristic.class);
+    private final StandardBeanPropertyRowMapper<InmateDto> INMATE_MAPPER = new StandardBeanPropertyRowMapper<>(InmateDto.class);
 	private final StandardBeanPropertyRowMapper<ProfileInformation> PROFILE_INFORMATION_MAPPER = new StandardBeanPropertyRowMapper<>(ProfileInformation.class);
 
 	private final Map<String, FieldMapper> aliasMapping = new ImmutableMap.Builder<String, FieldMapper>()
@@ -150,6 +152,13 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 		return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
 	}
+
+    @Override
+    public List<InmateDto> findInmatesByLocation(String agencyId, List<Long> locations, Set<String> caseLoadIds) {
+        List<InmateDto> results = jdbcTemplate.query(getQuery("FIND_INMATES_OF_LOCATION_LIST"),
+                createParams("agencyId", agencyId, "locations", locations, "caseLoadIds", caseLoadIds), INMATE_MAPPER);
+        return results;
+    }
 
 	@Override
 	public Page<OffenderBooking> findAllInmates(Set<String> caseloads, String locationTypeRoot, String query, PageRequest pageRequest) {
