@@ -2,8 +2,10 @@ package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -11,9 +13,11 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * BDD step implementations for Agencies service.
@@ -26,16 +30,20 @@ public class AgencySteps extends CommonSteps {
     private Agency agency;
     private List<Location> locations;
 
-    private List<Agency> dispatchPagedListRequest(String resourcePath, Long offset, Long limit, Object... params) {
+    private void dispatchPagedListRequest(String resourcePath, Long offset, Long limit, Object... params) {
         init();
+
         HttpEntity<?> httpEntity;
+
         if (Objects.nonNull(offset) && Objects.nonNull(limit)) {
             applyPagination(offset, limit);
             httpEntity = createEntity(null, addPaginationHeaders());
         } else {
             httpEntity = createEntity();
         }
+
         String url = resourcePath;
+
         try {
             ResponseEntity<List<Agency>> response = restTemplate.exchange(
                     url,
@@ -43,29 +51,34 @@ public class AgencySteps extends CommonSteps {
                     httpEntity,
                     new ParameterizedTypeReference<List<Agency>>() {},
                     params);
+
+            agencies = response.getBody();
+
             buildResourceData(response);
-            return response.getBody();
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
-            return null;
         }
     }
 
-    private List<Location> dispatchListRequest(String resourcePath, String agencyId, String eventType) {
+    private void dispatchListRequest(String resourcePath, String agencyId, String eventType, Map<String,String> headers) {
         init();
 
-        String urlModifier = "?eventType=" + eventType;
-        HttpEntity<?> httpEntity = createEntity();
+        String urlModifier = StringUtils.isBlank(eventType) ? "" : "?eventType=" + eventType;
         String url = resourcePath + urlModifier;
+
         try {
-            ResponseEntity<List<Location>> response = restTemplate.exchange(url, HttpMethod.GET, httpEntity,
-                    new ParameterizedTypeReference<List<Location>>() {
-                    }, agencyId);
+            ResponseEntity<List<Location>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    createEntity(null, headers),
+                    new ParameterizedTypeReference<List<Location>>() {},
+                    agencyId);
+
+            locations = response.getBody();
+
             buildResourceData(response);
-            return response.getBody();
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
-            return null;
         }
     }
 
@@ -97,12 +110,14 @@ public class AgencySteps extends CommonSteps {
 
     @Step("Submit request for all agencies")
     public void getAllAgencies() {
-        agencies = dispatchPagedListRequest(API_REF_PREFIX, 0L, 1000L);
+        dispatchPagedListRequest(API_REF_PREFIX, 0L, 1000L);
     }
 
     @Step("Submit request for agency locations")
-    public void getLocations(String agencyId, String eventType) {
-        locations = dispatchListRequest(API_LOCATIONS_URL, agencyId, eventType);
+    public void getLocations(String agencyId, String eventType, String sortFields, Order sortOrder) {
+        Map<String,String> headers = buildSortHeaders(sortFields, sortOrder);
+
+        dispatchListRequest(API_LOCATIONS_URL, agencyId, eventType, headers);
     }
 
     public void verifyAgencyList(List<Agency> expected) {
@@ -138,11 +153,8 @@ public class AgencySteps extends CommonSteps {
             assertEquals(expectedThis.getLocationId(), actualThis.getLocationId());
             assertEquals(expectedThis.getLocationPrefix(), actualThis.getLocationPrefix());
             assertEquals(expectedThis.getDescription(), actualThis.getDescription());
+            assertEquals(expectedThis.getUserDescription(), actualThis.getUserDescription());
         }
         assertFalse("Too many actual events", actualIterator.hasNext());
-    }
-
-    public void verifySuccess() {
-        assertNotNull(agencies);
     }
 }

@@ -5,26 +5,25 @@
 
 /{agencyId}:
   (javaOperationName): getAgency
-  description: Returns specified agency.
   type: { readOnlyItem: { type: Agency, description: Agency detail. } }
 
 /{agencyId}/locations:
-  (javaOperationName): getAvailableLocations
-  description: Returns locations available to an agency for creating/updating a given event type.
-  type: { readOnlyCollection: { type: Location } }
+  (javaOperationName): getAgencyLocations
+  type: { readOnlyCollection: { type: Location, description: List of active internal locations for agency. } }
   get:
     queryParameters:
-      eventType:
+      eventType?:
         type: string
-        description: The type of event
+        description: Restricts list of locations returned to those that can be used for the specified event type.
         example: APP (appointment)
+  is: [
+    sortable: {fieldsList : "description, userDescription"}
+  ]
 
 /prison:
   (javaOperationName): getPrisonContactDetailList
-  description: Returns list of prison contact details.
   type: { readOnlyCollection: { type: PrisonContactDetail, description: List of prison contact details. } }
 
 /prison/{agencyId}:
   (javaOperationName): getPrisonContactDetail
-  description: Returns prison contact details for given agency Id.
-  type: { readOnlyItem: { type: PrisonContactDetail, description: Prison contact details. } }
+  type: { readOnlyItem: { type: PrisonContactDetail, description: Prison contact detail. } }

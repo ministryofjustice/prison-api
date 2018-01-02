@@ -163,6 +163,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	@Override
 	public Page<OffenderBooking> findAllInmates(Set<String> caseloads, String locationTypeRoot, String query, PageRequest pageRequest) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
+		if (!caseloads.isEmpty()) {
+			initialSql += " AND " + getQuery("CASELOAD_FILTER");
+		}
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_BOOKING_MAPPING);
 
 		String sql = builder
@@ -192,7 +195,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	@Cacheable("searchForOffenderBookings")
 	public Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String lastName, String firstName, String locationPrefix, String locationTypeRoot, PageRequest pageRequest) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
-
+		if (!caseloads.isEmpty()) {
+			initialSql += " AND " + getQuery("CASELOAD_FILTER");
+		}
 		if (StringUtils.isNotBlank(locationPrefix)) {
 			initialSql += " AND " + getQuery("LOCATION_FILTER_SQL");
 		}
@@ -386,7 +391,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public Optional<InmateDetail> findInmate(Long bookingId, Set<String> caseloads, String locationTypeRoot) {
+	public Optional<InmateDetail> findInmate(Long bookingId) {
 		String sql = getQuery("FIND_INMATE_DETAIL");
 
 		RowMapper<InmateDetail> inmateRowMapper =Row2BeanRowMapper.makeMapping(sql, InmateDetail.class, inmateDetailsMapping);
@@ -394,7 +399,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		try {
 			inmate = jdbcTemplate.queryForObject(
 					sql,
-					createParams("bookingId", bookingId, "caseLoadId", caseloads, "currentDate", DateTimeConverter.toDate(LocalDate.now())),
+					createParams("bookingId", bookingId, "currentDate", DateTimeConverter.toDate(LocalDate.now())),
 					inmateRowMapper);
 			inmate.setAge(DateTimeConverter.getAge(inmate.getDateOfBirth()));
 		} catch (EmptyResultDataAccessException ex) {

@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Set;
+import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,8 +57,6 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
             }
         }
 
-        Set<String> userCaseLoadIds = userService.getCaseLoadIds(request.getUsername());
-
         PageRequest pageRequest;
 
         if (StringUtils.isBlank(request.getOrderBy())) {
@@ -68,7 +66,7 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
         }
 
         Page<OffenderBooking> bookings = repository.searchForOffenderBookings(
-                userCaseLoadIds, offenderNo, lastName, firstName,
+                bookingService.isSystemUser() ? Collections.emptySet() : userService.getCaseLoadIds(request.getUsername()), offenderNo, lastName, firstName,
                 StringUtils.replaceAll(request.getLocationPrefix(), "_", ""),
                 locationTypeGranularity, pageRequest);
 

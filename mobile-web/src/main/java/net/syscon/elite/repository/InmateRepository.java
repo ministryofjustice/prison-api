@@ -22,7 +22,7 @@ public interface InmateRepository {
 
     List<InmateDto> findInmatesByLocation(String agencyId, List<Long> locations, Set<String> caseLoadIds);
 
-    Optional<InmateDetail> findInmate(Long inmateId, Set<String> caseloads, String locationTypeRoot);
+	Optional<InmateDetail> findInmate(Long inmateId);
 
 	Page<Alias> findInmateAliases(Long bookingId, String orderByFields, Order order, long offset, long limit);
 

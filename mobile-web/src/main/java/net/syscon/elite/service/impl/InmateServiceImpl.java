@@ -6,10 +6,7 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.security.VerifyBookingAccess;
-import net.syscon.elite.service.CaseLoadService;
-import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.service.InmateService;
-import net.syscon.elite.service.PrisonerDetailSearchCriteria;
+import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
 import net.syscon.elite.service.support.PageRequest;
@@ -34,6 +31,7 @@ public class InmateServiceImpl implements InmateService {
 
     private final InmateRepository repository;
     private final CaseLoadService caseLoadService;
+    private final BookingService bookingService;
     private final InmateAlertRepository inmateAlertRepository;
 
     private final int maxYears;
@@ -42,6 +40,7 @@ public class InmateServiceImpl implements InmateService {
     public InmateServiceImpl(InmateRepository repository,
                              CaseLoadService caseLoadService,
                              InmateAlertRepository inmateAlertRepository,
+                             BookingService bookingService,
                              @Value("${offender.dob.max.range.years:10}") int maxYears,
                              @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity) {
         this.repository = repository;
@@ -49,14 +48,14 @@ public class InmateServiceImpl implements InmateService {
         this.inmateAlertRepository = inmateAlertRepository;
         this.maxYears = maxYears;
         this.locationTypeGranularity = locationTypeGranularity;
+        this.bookingService = bookingService;
     }
 
     @Override
     public Page<OffenderBooking> findAllInmates(String username, String query, String orderBy, Order order, long offset, long limit) {
         String colSort = StringUtils.isNotBlank(orderBy) ? orderBy : DEFAULT_OFFENDER_SORT;
-        Set<String> caseLoadIds = getUserCaseloadIds(username);
 
-        return repository.findAllInmates(caseLoadIds, locationTypeGranularity, query, new PageRequest(colSort, order, offset, limit));
+        return repository.findAllInmates(bookingService.isSystemUser() ? Collections.emptySet() : getUserCaseloadIds(username), locationTypeGranularity, query, new PageRequest(colSort, order, offset, limit));
     }
 
     @Override
@@ -68,9 +67,9 @@ public class InmateServiceImpl implements InmateService {
     
     @Override
     @Cacheable("findInmate")
+    @VerifyBookingAccess
     public InmateDetail findInmate(Long bookingId, String username) {
-        Set<String> caseLoadIds = getUserCaseloadIds(username);
-        final InmateDetail inmate = repository.findInmate(bookingId, caseLoadIds, locationTypeGranularity).orElseThrow(EntityNotFoundException.withId(bookingId));
+        final InmateDetail inmate = repository.findInmate(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
 
         PhysicalAttributes physicalAttributes = repository.findPhysicalAttributes(bookingId).orElse(null);
         if (physicalAttributes != null && physicalAttributes.getHeightCentimetres() != null) {

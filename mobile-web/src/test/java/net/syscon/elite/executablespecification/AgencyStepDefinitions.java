@@ -1,17 +1,15 @@
 package net.syscon.elite.executablespecification;
 
-import net.syscon.elite.api.model.Agency;
-import net.syscon.elite.api.model.Location;
-import net.syscon.elite.executablespecification.steps.AgencySteps;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
-
 import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.Location;
+import net.syscon.elite.executablespecification.steps.AgencySteps;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * BDD step definitions for endpoints:
@@ -29,7 +27,6 @@ public class AgencyStepDefinitions extends AbstractStepDefinitions {
     @When("^a request is submitted to retrieve all agencies$")
     public void requestSubmittedToRetrieveAllAgencies() throws Throwable {
         agencySteps.getAllAgencies();
-        agencySteps.verifySuccess();
     }
 
     @Then("^the returned agencies are as follows:$")
@@ -60,12 +57,27 @@ public class AgencyStepDefinitions extends AbstractStepDefinitions {
 
     @When("^a request is submitted to retrieve location codes for agency \"([^\"]*)\" and event type \"([^\"]*)\"$")
     public void requestSubmittedToRetrieveLocations(String agencyId, String eventType) throws Throwable {
-        agencySteps.getLocations(agencyId, eventType);
+        agencySteps.getLocations(agencyId, eventType, null, null);
+    }
+
+    @When("^a request is submitted to retrieve location codes for agency \"([^\"]*)\"$")
+    public void aRequestIsSubmittedToRetrieveLocationCodesForAgency(String agencyId) throws Throwable {
+        agencySteps.getLocations(agencyId, null, null, null);
+    }
+
+    @When("^a request is submitted to retrieve location codes for agency \"([^\"]*)\" and event type \"([^\"]*)\" sorted by \"([^\"]*)\" in \"([^\"]*)\" order$")
+    public void aRequestIsSubmittedToRetrieveLocationCodesForAgencyAndEventTypeSortedByInOrder(String agencyId, String eventType, String sortFields, String sortOrder) throws Throwable {
+        agencySteps.getLocations(agencyId, eventType, sortFields, parseSortOrder(sortOrder));
     }
 
     @Then("^the returned agency locations are as follows:$")
     public void locationCodesAreReturnedAsFollows(DataTable table) throws Throwable {
         final List<Location> expected = table.asList(Location.class);
         agencySteps.verifyLocationList(expected);
+    }
+
+    @Then("^\"([^\"]*)\" location records are returned for agency$")
+    public void locationRecordsAreReturnedForAgency(String expectedCount) throws Throwable {
+        agencySteps.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
     }
 }

@@ -10,6 +10,7 @@ import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -361,7 +362,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     public Page<OffenderSummary> getOffenderReleaseSummary(LocalDate toReleaseDate, String query, long offset, long limit, String orderByFields, Order order, Set<String> allowedCaseloadsOnly) {
         String initialSql = getQuery("OFFENDER_SUMMARY");
         if (!allowedCaseloadsOnly.isEmpty()) {
-            initialSql += " AND EXISTS (select 1 from CASELOAD_AGENCY_LOCATIONS C WHERE ob.AGY_LOC_ID = C.AGY_LOC_ID AND C.CASELOAD_ID IN (:caseloadIds))";
+            initialSql += " AND " + getQuery("CASELOAD_FILTER");
         }
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_SUMMARY_ROW_MAPPER.getFieldMap());
 
@@ -379,7 +380,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                 createParams("toReleaseDate", DateTimeConverter.toDate(toReleaseDate), "caseloadIds", allowedCaseloadsOnly, "offset", offset, "limit", limit),
                 paRowMapper);
 
-        offenderReleases.forEach(or -> or.setInternalLocationDesc(LocationRepositoryImpl.removeAgencyId(or.getInternalLocationDesc(), or.getAgencyLocationId())));
+        offenderReleases.forEach(or -> or.setInternalLocationDesc(LocationProcessor.stripAgencyId(or.getInternalLocationDesc(), or.getAgencyLocationId())));
         return new Page<>(offenderReleases, paRowMapper.getTotalRecords(), offset, limit);
     }
 }

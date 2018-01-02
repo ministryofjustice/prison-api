@@ -15,6 +15,8 @@ import net.syscon.elite.service.support.ReferenceDomain;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -214,7 +216,11 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Long getBookingIdByOffenderNo(String offenderNo) {
-        return bookingRepository.getBookingIdByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
+        final Long bookingId = bookingRepository.getBookingIdByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
+        if (!isSystemUser()) {
+            verifyBookingAccess(bookingId);
+        }
+        return bookingId;
     }
 
     @Override
@@ -430,6 +436,11 @@ public class BookingServiceImpl implements BookingService {
         if (!getAgencyIds().contains(agencyId)) {
             throw EntityNotFoundException.withId(agencyId);
         }
+    }
+
+    public boolean isSystemUser() {
+        final Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        return authorities.stream().anyMatch(a -> a.getAuthority().contains(SYSTEM_USER_ROLE));
     }
 
     @Override

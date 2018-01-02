@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 
@@ -56,9 +55,8 @@ public class InmateRepositoryTest {
     @Test
     public void testGetOffender() {
         Optional<InmateDetail> inmate = repository.findInmate(
-                -1L,
-                Collections.singleton("LEI"),
-                "WING");
+                -1L
+        );
 
         assertThat(inmate).isPresent();
     }

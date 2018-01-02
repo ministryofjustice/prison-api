@@ -1,19 +1,20 @@
-@global @wip
+@global
 Feature: Agencies
 
   Acceptance Criteria
   A logged on staff user can obtain:
-    - a list of all agencies.
-    - a list of all locations associated with an agency.
-    - a single agency details
+    - a list of all active agencies.
+    - details for a specified active agency.
+    - a list of all active locations associated with an active agency.
+    - a list of all active locations associated with an active agency that can be used for a specified type of event.
 
   Background:
     Given a user has authenticated with the API
 
   Scenario: Retrieve all agencies
     When a request is submitted to retrieve all agencies
-    Then "7" agency records are returned
-    And "7" total agency records are available
+    Then "8" agency records are returned
+    And "8" total agency records are available
     Then the returned agencies are as follows:
       | agencyId | agencyType | description  |
       | ABDRCT   | CRT        | Court 2      |
@@ -22,6 +23,7 @@ Feature: Agencies
       | COURT1   | CRT        | Court 1      |
       | LEI      | INST       | LEEDS        |
       | MUL      | INST       | MUL          |
+      | TRO      | INST       | TROOM        |
       | WAI      | INST       | THE WEARE    |
 
   Scenario Outline: Retrieve agency details
@@ -34,11 +36,25 @@ Feature: Agencies
       | LEI      | INST       | LEEDS       |
       | WAI      | INST       | THE WEARE   |
 
-  Scenario: Retrieve location codes for an agency
+
+  Scenario: Retrieve all locations for an agency
+    When a request is submitted to retrieve location codes for agency "LEI"
+    Then "29" location records are returned for agency
+
+  Scenario: Retrieve locations, for an agency, that can be used for appointments
     When a request is submitted to retrieve location codes for agency "LEI" and event type "APP"
     Then the returned agency locations are as follows:
-      | locationId | description |
-      | -26        | LEI-CARP    |
-      | -25        | LEI-CHAP    |
-      | -27        | LEI-CRM1    |
-      | -29        | LEI-MED     |
+      | locationId | description | userDescription    | locationPrefix |
+      | -26        | CARP        | Carpentry Workshop | LEI-CARP       |
+      | -25        | CHAP        | Chapel             | LEI-CHAP       |
+      | -27        | CRM1        | Classroom 1        | LEI-CRM1       |
+      | -29        | MED         | Medical Centre     | LEI-MED        |
+
+  Scenario: Retrieve locations, for an agency, that can be used for appointments, in descending order of description
+    When a request is submitted to retrieve location codes for agency "LEI" and event type "APP" sorted by "userDescription" in "descending" order
+    Then the returned agency locations are as follows:
+      | locationId | description | userDescription    | locationPrefix |
+      | -29        | MED         | Medical Centre     | LEI-MED        |
+      | -27        | CRM1        | Classroom 1        | LEI-CRM1       |
+      | -25        | CHAP        | Chapel             | LEI-CHAP       |
+      | -26        | CARP        | Carpentry Workshop | LEI-CARP       |

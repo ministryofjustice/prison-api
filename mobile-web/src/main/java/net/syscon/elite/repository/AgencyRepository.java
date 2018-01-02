@@ -17,5 +17,5 @@ public interface AgencyRepository {
     List<Agency> findAgenciesByUsername(String username);
     Optional<Agency> getAgency(String agencyId);
     List<PrisonContactDetail> getPrisonContactDetails(String agencyId);
-    List<Location> getAvailableLocations(String agencyId, String eventType);
+    List<Location> getAgencyLocations(String agencyId, String eventType, String sortFields, Order sortOrder);
 }

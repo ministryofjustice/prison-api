@@ -24,27 +24,9 @@ properties:
   locationPrefix?:
     type: string
     description: Location prefix. Defines search prefix that will constrain search to this location and its subordinate locations.
-  level:
+  operationalCapacity?:
     type: integer
-    description: the level in the heirarcy
-  listSequence:
-    type: integer
-    description: walk sequence of the cells
-  assignedInmates:
-    type: OffenderBooking[]
-    description: list of offenders at this location
-  operationalCapacity:
-    type: integer
-    description: capacity of a location
-  livingUnit:
-    type: boolean
-    description: indicates a living unit
-  housingUnitType:
-    type: integer
-    description: Housing Unit Type
-  activeCountStatusCode:
-    type: { "enum": ["I", "R", "C"] }
-    description: Active Count Status Code
-  activeCountId:
-    type: integer
-    description: Count of active offenders
+    description: Operational capacity of the location.
+  userDescription?:
+    type: string
+    description: User-friendly location description.
