@@ -52,7 +52,7 @@ public class BookingRepositoryTest {
         assertEquals("CANC", visit.getEventStatus());
         assertEquals("Cancelled", visit.getEventStatusDescription());
         assertEquals("NSHOW", visit.getCancellationReason());
-        assertEquals("Visitor Did Not Arrive", visit.getCancellationReasonDescription());
+        assertEquals("Visitor Did Not Arrive", visit.getCancelReasonDescription());
         assertEquals("SCON", visit.getVisitType());
         assertEquals("Social Contact", visit.getVisitTypeDescription());
     }
