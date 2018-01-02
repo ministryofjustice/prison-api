@@ -148,6 +148,11 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
+        public SchedulesSteps schedules() {
+            return new SchedulesSteps();
+        }
+
+        @Bean
         public PrisonContactDetailsSteps prison() {
             return new PrisonContactDetailsSteps();
         }

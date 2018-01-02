@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.service.support.AssessmentDto;
+import net.syscon.elite.service.support.InmateDto;
 import net.syscon.elite.service.support.PageRequest;
 
 import java.time.LocalDate;
@@ -19,7 +20,9 @@ public interface InmateRepository {
 	@Deprecated
 	Page<OffenderBooking> findInmatesByLocation(Long locationId, String locationTypeRoot, String caseLoadId, String query, String orderByField, Order order, long offset, long limit);
 
-	Optional<InmateDetail> findInmate(Long inmateId, Set<String> caseloads, String locationTypeRoot);
+    List<InmateDto> findInmatesByLocation(String agencyId, List<Long> locations, Set<String> caseLoadIds);
+
+    Optional<InmateDetail> findInmate(Long inmateId, Set<String> caseloads, String locationTypeRoot);
 
 	Page<Alias> findInmateAliases(Long bookingId, String orderByFields, Order order, long offset, long limit);
 

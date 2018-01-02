@@ -11,6 +11,7 @@ import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import net.syscon.elite.service.support.AssessmentDto;
+import net.syscon.elite.service.support.InmateDto;
 import net.syscon.elite.service.support.PageRequest;
 import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.ObjectUtils;
@@ -58,6 +59,13 @@ public class InmateServiceImpl implements InmateService {
         return repository.findAllInmates(caseLoadIds, locationTypeGranularity, query, new PageRequest(colSort, order, offset, limit));
     }
 
+    @Override
+    public List<InmateDto> findInmatesByLocation(String username, String agencyId, List<Long> locations) {
+        Set<String> caseLoadIds = getUserCaseloadIds(username);
+
+        return repository.findInmatesByLocation(agencyId, locations, caseLoadIds);
+    }
+    
     @Override
     @Cacheable("findInmate")
     public InmateDetail findInmate(Long bookingId, String username) {

@@ -138,7 +138,7 @@ public class LocationServiceImpl implements LocationService {
         final String patterns = env.getProperty(agencyId + '_' + name);
         if (patterns == null) {
             throw new EntityNotFoundException(
-                    "Group/list '" + name + "' does not exist for agencyId '" + agencyId + "'");
+                    "Group '" + name + "' does not exist for agencyId '" + agencyId + "'.");
         }
         final List<Location> cells = locationRepository.findLocationsByAgencyAndType(agencyId, "CELL", 1);
 

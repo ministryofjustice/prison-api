@@ -32,6 +32,8 @@ public interface BookingService {
 
     void verifyBookingAccess(Long bookingId);
 
+    void verifyBookingAccess(String agencyId);
+
     List<OffenceDetail> getMainOffenceDetails(Long bookingId);
 
     List<ScheduledEvent> getEventsToday(Long bookingId);

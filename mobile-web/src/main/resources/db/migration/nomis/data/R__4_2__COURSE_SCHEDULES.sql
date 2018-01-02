@@ -34,9 +34,9 @@ INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME
 -- These intervals in SECONDS need to be short enough that they are unlikely to span midnight, but also not so short that they end up
 -- in the wrong order due to a delay between the execution of one insert and another.
 INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME, END_TIME, SCHEDULE_STATUS)
-VALUES (-26, -2, sysdate, sysdate + INTERVAL '25' SECOND, sysdate + INTERVAL '25' SECOND, 'SCH');
+VALUES (-26, -2, sysdate, trunc(sysdate) + INTERVAL '12' HOUR, trunc(sysdate) + INTERVAL '12' HOUR, 'SCH');
 INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME, END_TIME, SCHEDULE_STATUS)
-VALUES (-27, -2, sysdate, sysdate + INTERVAL '30' SECOND, sysdate + INTERVAL '30' SECOND, 'SCH');
+VALUES (-27, -2, sysdate, trunc(sysdate) + INTERVAL '13' HOUR, trunc(sysdate) + INTERVAL '13' HOUR, 'SCH');
 INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME, END_TIME, SCHEDULE_STATUS)
 VALUES (-28, -5, sysdate + INTERVAL  '6' DAY, sysdate + INTERVAL  '6' DAY, sysdate + INTERVAL  '6' DAY, 'SCH');
 INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME, END_TIME, SCHEDULE_STATUS)
