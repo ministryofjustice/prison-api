@@ -151,5 +151,5 @@ INSERT INTO OFFENDER_IND_SCHEDULES (EVENT_ID, OFFENDER_BOOK_ID, EVENT_DATE, STAR
          (-21, -3, current_date + INTERVAL '12' DAY, now() + INTERVAL '12' DAY, now() + INTERVAL '12' DAY, 'INT_MOV', 'APP', 'EDUC', 'SCH', 'LEI', -28, null, null, 'comment21'),
          (-22, -3, current_date + INTERVAL '17' DAY, now() + INTERVAL '17' DAY, now() + INTERVAL '17' DAY, 'INT_MOV', 'APP', 'EDUC', 'SCH', 'LEI', -28, null, null, 'comment22'),
 -- extra event today for different offender to test groups
-         (-23, -5, current_date, now() + INTERVAL '1' HOUR, now() + INTERVAL '1' HOUR, 'INT_MOV', 'APP', 'EDUC', 'SCH', 'LEI', -28, null, null, 'comment23');
+         (-23, -5, current_date, trunc(now()) + INTERVAL '1' HOUR, trunc(now()) + INTERVAL '1' HOUR, 'INT_MOV', 'APP', 'EDUC', 'SCH', 'LEI', -28, null, null, 'comment23');
          
