@@ -45,4 +45,3 @@ Feature: Locations
   Scenario: Request for list/group that does not exist
     When a request is made at agency "LEI" to retrieve the list named "nonexistant"
     Then resource not found response is received from locations API
-

@@ -10,6 +10,7 @@ import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -379,7 +380,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                 createParams("toReleaseDate", DateTimeConverter.toDate(toReleaseDate), "caseloadIds", allowedCaseloadsOnly, "offset", offset, "limit", limit),
                 paRowMapper);
 
-        offenderReleases.forEach(or -> or.setInternalLocationDesc(LocationRepositoryImpl.removeAgencyId(or.getInternalLocationDesc(), or.getAgencyLocationId())));
+        offenderReleases.forEach(or -> or.setInternalLocationDesc(LocationProcessor.stripAgencyId(or.getInternalLocationDesc(), or.getAgencyLocationId())));
         return new Page<>(offenderReleases, paRowMapper.getTotalRecords(), offset, limit);
     }
 }
