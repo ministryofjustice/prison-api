@@ -19,7 +19,7 @@ public interface InmateRepository {
 	@Deprecated
 	Page<OffenderBooking> findInmatesByLocation(Long locationId, String locationTypeRoot, String caseLoadId, String query, String orderByField, Order order, long offset, long limit);
 
-	Optional<InmateDetail> findInmate(Long inmateId, Set<String> caseloads, String locationTypeRoot);
+	Optional<InmateDetail> findInmate(Long inmateId);
 
 	Page<Alias> findInmateAliases(Long bookingId, String orderByFields, Order order, long offset, long limit);
 

@@ -361,7 +361,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     public Page<OffenderSummary> getOffenderReleaseSummary(LocalDate toReleaseDate, String query, long offset, long limit, String orderByFields, Order order, Set<String> allowedCaseloadsOnly) {
         String initialSql = getQuery("OFFENDER_SUMMARY");
         if (!allowedCaseloadsOnly.isEmpty()) {
-            initialSql += " AND EXISTS (select 1 from CASELOAD_AGENCY_LOCATIONS C WHERE ob.AGY_LOC_ID = C.AGY_LOC_ID AND C.CASELOAD_ID IN (:caseloadIds))";
+            initialSql += " AND " + getQuery("CASELOAD_FILTER");
         }
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_SUMMARY_ROW_MAPPER.getFieldMap());
 
