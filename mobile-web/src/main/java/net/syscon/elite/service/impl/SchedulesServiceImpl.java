@@ -44,7 +44,7 @@ public class SchedulesServiceImpl implements SchedulesService {
     @Override
     @VerifyBookingAccess
     public List<PrisonerSchedule> getLocationGroupTodaysEvents(String agencyId, String groupName, TimeSlot timeSlot) {
- 
+
         bookingService.verifyBookingAccess(agencyId);
         final List<Location> locations = locationService.getGroup(agencyId, groupName);
         final List<PrisonerSchedule> results = new ArrayList<>();
@@ -54,7 +54,6 @@ public class SchedulesServiceImpl implements SchedulesService {
         final List<Long> locationIdList = locations.stream().mapToLong(Location::getLocationId).boxed()
                 .collect(Collectors.toList());
         final List<InmateDto> inmates = inmateService.findInmatesByLocation(currentUsername, agencyId, locationIdList);
-
         for (InmateDto inmate : inmates) {
             final List<ScheduledEvent> eventsToday = bookingService.getEventsToday(inmate.getBookingId());
             for (ScheduledEvent event : eventsToday) {
@@ -74,7 +73,6 @@ public class SchedulesServiceImpl implements SchedulesService {
                             .build();
                     results.add(result);
                 }
-
             }
         }
         return results;

@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.LocationRepository;
+import net.syscon.elite.service.ConfigException;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.LocationService;
 
@@ -124,13 +125,12 @@ public class LocationServiceImplTest {
         locationService.getGroup("LEI", "mylist");
     }
 
-    @Test
+    @Test(expected=ConfigException.class)
     public void testGetGroupBlankPattern() throws Exception {
         Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", 1)).thenReturn(Arrays.asList(//
                 cell1, cell2, cell3, cell4));
         Mockito.when(env.getProperty("LEI_mylist")).thenReturn("");
 
-        final List<Location> group = locationService.getGroup("LEI", "mylist");
-        assertThat(group).asList().isEmpty();
+        locationService.getGroup("LEI", "mylist");
     }
 }

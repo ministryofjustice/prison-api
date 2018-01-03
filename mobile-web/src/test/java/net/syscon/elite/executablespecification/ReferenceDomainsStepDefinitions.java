@@ -173,7 +173,7 @@ public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
 
     @And("^user message in resource not found response from reference domains API is \"([^\"]*)\"$")
     public void userMessageInResourceNotFoundResponseFromReferenceDomainsAPIIs(String expectedUserMessage) throws Throwable {
-        referenceDomains.verifyResourceNotFoundUserMessage(expectedUserMessage);
+        referenceDomains.verifyErrorUserMessage(expectedUserMessage);
     }
 
     @Then("^bad request response is received from reference domains API and user message is \"([^\"]*)\"$")

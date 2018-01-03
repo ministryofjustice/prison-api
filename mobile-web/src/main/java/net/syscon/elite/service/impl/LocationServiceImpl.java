@@ -11,8 +11,10 @@ import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.LocationRepository;
 import net.syscon.elite.service.CaseLoadService;
+import net.syscon.elite.service.ConfigException;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.LocationService;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
@@ -151,6 +153,9 @@ public class LocationServiceImpl implements LocationService {
                     results.add(cell);
                 }
             }
+        }
+        if (results.isEmpty()) {
+            throw ConfigException.withMessage("Group '%s' defines no locations for agencyId '%s'", name, agencyId);
         }
         return results;
     }
