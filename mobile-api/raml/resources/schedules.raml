@@ -15,7 +15,7 @@
         description: AM or PM
   type: { readOnlyCollection: { type: PrisonerSchedule, description: Get all events for today for prisoners in listed cells. } }
 
-/{agencyId}/locations/{locationId}:
+/{agencyId}/location/{locationId}/usage/{usage}:
   uriParameters:
     agencyId:
       type: string
@@ -23,6 +23,9 @@
     locationId:
       (javaType): Long
       description: The location id where event is held.
+    usage:
+      type: string
+      description: The locationUsage code from the location object.
   get:
     queryParameters:
       timeSlot?:

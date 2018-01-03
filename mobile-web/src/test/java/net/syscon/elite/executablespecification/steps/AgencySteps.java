@@ -26,6 +26,7 @@ public class AgencySteps extends CommonSteps {
     private static final String API_REF_PREFIX = API_PREFIX + "agencies/";
     private static final String API_AGENCY_URL = API_REF_PREFIX + "{agencyId}";
     private static final String API_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/locations";
+    private static final String API_EVENT_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/eventLocations";
     private List<Agency> agencies;
     private Agency agency;
     private List<Location> locations;

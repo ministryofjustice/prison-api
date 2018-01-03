@@ -57,17 +57,17 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
 
     @When("^schedules are requested for agency and location group$")
     public void schedulesAreRequested() {
-        schedulesSteps.getSchedules();
+        schedulesSteps.getSchedulesForLocationGroup();
     }
 
     @When("^schedules are requested for a valid agency and location group$")
     public void schedulesAreRequestedForValidAgencyAndLocationGroup() {
-        schedulesSteps.getSchedules("LEI", "BlockA");
+        schedulesSteps.getSchedulesForLocationGroup("LEI", "BlockA");
     }
 
     @When("^schedules are requested for a valid agency and location group with 'timeSlot' = '([APM]+)'$")
     public void schedulesAreRequestedForValidAgencyAndLocationGroupwithTimeSlot(TimeSlot timeSlot) {
-        schedulesSteps.getSchedules("LEI", "BlockA", timeSlot);
+        schedulesSteps.getSchedulesForLocationGroup("LEI", "BlockA", timeSlot);
     }
 
     @Then("^response is a list of offender's schedules for the current day with size ([0-9]+)$")
@@ -108,5 +108,42 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
     @Then("^schedules response is an empty list$")
     public void verifyResponseIsEmpty() throws Throwable {
         schedulesSteps.verifyNoResourceRecordsReturned();
+    }
+
+    // ----------------------------------------------------------------------
+
+    @Given("^an existing agency and location$")
+    public void givenAnExistingAgencyAndLocation() {
+        schedulesSteps.givenAnExistingAgencyAndLocation();
+    }
+
+    @Given("^location does not exist for the agency$")
+    public void givenLocationDoesNotExistForTheAgency() {
+        schedulesSteps.givenLocationDoesNotExistForTheAgency();
+    }
+
+    @Given("^the location within the agency has no scheduled events for current day$")
+    public void givenLocationNoScheduledEventsForCurrentDay() {
+        schedulesSteps.givenNoScheduledEventsForCurrentDay();
+    }
+
+    @Given("^one or more offenders are due to attend a scheduled event on the current day at a location within an agency$")
+    public void givenScheduledEventsForCurrentDayAtLocation() {
+        schedulesSteps.givenScheduledEventsForCurrentDayAtLocation();
+    }
+
+    @When("^schedules are requested for agency and location$")
+    public void schedulesAreRequestedForLocation() {
+        schedulesSteps.getSchedulesForLocation();
+    }
+
+    @When("^schedules are requested for a valid agency and location$")
+    public void schedulesAreRequestedForValidAgencyAndLocation() {
+        schedulesSteps.getSchedulesForLocation("LEI", "Visitor-centre");
+    }
+
+    @When("^schedules are requested for a valid agency and location with 'timeSlot' = '([APM]+)'$")
+    public void schedulesAreRequestedForValidAgencyAndLocationwithTimeSlot(TimeSlot timeSlot) {
+        schedulesSteps.getSchedulesForLocation("LEI", "Visitor-centre", timeSlot);
     }
 }

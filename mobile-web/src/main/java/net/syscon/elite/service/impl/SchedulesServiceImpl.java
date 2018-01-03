@@ -81,8 +81,25 @@ public class SchedulesServiceImpl implements SchedulesService {
     }
 
     @Override
-    public List<PrisonerSchedule> getLocationTodaysEvents(String agencyId, Long locationId, TimeSlot timeSlot) {
-        // TODO Auto-generated method stub
-        return null;
+    public List<PrisonerSchedule> getLocationTodaysEvents(String agencyId, Long locationId, String usage,
+            TimeSlot timeSlot) {
+        final List<ScheduledEvent> events;
+        switch (usage) {
+        case "APP":
+            events = bookingService.getBookingAppointments(locationId, null, null, usage, null);
+            break;
+        case "VISIT":
+            events = bookingService.getBookingVisits(locationId, null, null, usage, null);
+            break;
+        default:
+            events = bookingService.getBookingActivities(locationId, null, null, usage, null);
+        }
+        return events.stream().map(event -> PrisonerSchedule.builder()//
+                .comment(event.getEventSourceDesc())//
+                .startTime(event.getStartTime())//
+                .endTime(event.getEndTime())//
+                .event(event.getEventSubType())//
+                .eventDescription(event.getEventSubTypeDesc())//
+                .build()).collect(Collectors.toList());
     }
 }

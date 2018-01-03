@@ -16,6 +16,7 @@ public interface AgencyService {
     Page<Agency> getAgencies(long offset, long limit);
     List<Agency> findAgenciesByUsername(String username);
     List<Location> getAgencyLocations(String agencyId, String eventType, String sortFields, Order sortOrder);
+    List<Location> getAgencyEventLocations(String agencyId, String sortFields, Order sortOrder);
     List<PrisonContactDetail> getPrisonContactDetail();
     PrisonContactDetail getPrisonContactDetail(String agencyId);
 }

@@ -1,6 +1,8 @@
 package net.syscon.elite.repository;
 
 import jersey.repackaged.com.google.common.collect.ImmutableList;
+
+import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.web.config.PersistenceConfigs;
@@ -18,6 +20,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,6 +41,30 @@ public class AgencyRepositoryTest {
     @Before
     public void init() {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
+    }
+
+    @Test
+    public void testGetAgencyLocations() {
+        final List<Location> locations = repository.getAgencyLocations("LEI", Arrays.asList("APP", "VISIT"), null, null);
+        assertThat(locations).extracting("locationType").containsExactly("WSHP", "AREA", "CLAS", "AREA");
+    }
+
+    @Test
+    public void testGetAgencyLocationsNoResults1() {
+        final List<Location> locations = repository.getAgencyLocations("LEI", Arrays.asList("OTHER"), null, null);
+        assertThat(locations).isEmpty();
+    }
+
+    @Test
+    public void testGetAgencyLocationsNoResults2() {
+        final List<Location> locations = repository.getAgencyLocations("doesnotexist", Arrays.asList("APP"), null, null);
+        assertThat(locations).isEmpty();
+    }
+
+    @Test
+    public void testGetAgencyLocationsAll() {
+        final List<Location> locations = repository.getAgencyLocations("LEI", Collections.emptyList(), null, null);
+        assertThat(locations).hasSize(29);
     }
 
     @Test

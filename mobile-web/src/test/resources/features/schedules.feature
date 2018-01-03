@@ -62,8 +62,7 @@ Scenario: location caseload not accessible
     And schedules response error message is "Resource with id [<agencyId>] not found."
 
 Scenario: location does not exist
-    Given an existing agency
-    And agency belongs to a caseload accessible to current user
+    Given an agency which belongs to a caseload accessible to current user
     And location does not exist for the agency
     When schedules are requested for agency and location
     Then schedules response is HTTP 404 resource not found
@@ -71,30 +70,28 @@ Scenario: location does not exist
 
 Scenario: no location scheduled events
     Given the location within the agency has no scheduled events for current day
-    When schedules are requested for the agency and location
+    When schedules are requested for agency and location
     Then schedules response is an empty list
 
 Scenario: location scheduled events in order
     Given one or more offenders are due to attend a scheduled event on the current day at a location within an agency
-    When schedules are requested for the agency and location
-    Then response is a list of offender's schedules for the current day
+    When schedules are requested for a valid agency and location
+    Then response is a list of offender's schedules for the current day with size 6
     And returned schedules are ordered in ascending alphabetical order by offender last name (the first name)
     And returned schedules are only for offenders due to attend a scheduled event on current day for requested agency and location
 
 Scenario: location AM timeslot
     Given one or more offenders are due to attend a scheduled event on the current day at a location within an agency
-    When schedules are requested for the agency and location
-    And request includes the 'timeSlot' query parameter with a value of 'AM'
-    Then response is a list of offender's schedules for the current day
+    When schedules are requested for a valid agency and location with 'timeSlot' = 'AM'
+    Then response is a list of offender's schedules for the current day with size 4
     And start time of all returned schedules is before 12h00
     And returned schedules are ordered in ascending alphabetical order by offender last name (the first name)
     And returned schedules are only for offenders due to attend a scheduled event on current day for requested agency and location
 
 Scenario: location PM timeslot
     Given one or more offenders are due to attend a scheduled event on the current day at a location within an agency
-    When schedules are requested for the agency and location
-    And request includes the 'timeSlot' query parameter with a value of 'PM'
-    Then response is a list of offender's schedules for the current day
+    When schedules are requested for a valid agency and location with 'timeSlot' = 'PM'
+    Then response is a list of offender's schedules for the current day with size 2
     And start time of all returned schedules is on or after 12h00
     And returned schedules are ordered in ascending alphabetical order by offender last name (the first name)
     And returned schedules are only for offenders due to attend a scheduled event on current day for requested agency and location

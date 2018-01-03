@@ -45,6 +45,13 @@ public class AgencyResourceImpl implements AgencyResource {
     }
 
     @Override
+    public GetAgencyEventLocationsResponse getAgencyEventLocations(String agencyId, String sortFields, Order sortOrder) {
+        List<Location> locations = agencyService.getAgencyEventLocations(agencyId, sortFields, sortOrder);
+
+        return GetAgencyEventLocationsResponse.respond200WithApplicationJson(locations);
+    }
+
+    @Override
     public GetPrisonContactDetailListResponse getPrisonContactDetailList() {
         final List<PrisonContactDetail> prisonContactDetail = agencyService.getPrisonContactDetail();
         return GetPrisonContactDetailListResponse.respond200WithApplicationJson(prisonContactDetail);

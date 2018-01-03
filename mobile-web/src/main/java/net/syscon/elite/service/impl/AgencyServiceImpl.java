@@ -15,6 +15,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,6 +26,19 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 public class AgencyServiceImpl implements AgencyService {
+
+    // All location usages an event could possibly be held in (reference domain ILOC_USG )
+    private static final List<String> EVENT_LOCATION_TYPES = Arrays.asList(
+            "APP", // appointments
+            "MOVEMENT", "OCCUR",
+            "OIC", //Adjudication Hearing Location
+            "OTHER",
+            "PROG", //Programmes & Activities
+            "PROP", 
+            "VISIT" // Visits
+    //TODO currently this is all of them but some may be N/A
+    );
+
     private final AgencyRepository agencyRepository;
 
     public AgencyServiceImpl(AgencyRepository agencyRepository) {
@@ -51,7 +66,18 @@ public class AgencyServiceImpl implements AgencyService {
         String orderBy = StringUtils.defaultIfBlank(sortFields, "userDescription,description");
         Order order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
 
-        List<Location> rawLocations = agencyRepository.getAgencyLocations(agencyId, eventType, orderBy, order);
+        List<String> eventTypes = StringUtils.isBlank(eventType) ? Collections.emptyList() : Collections.singletonList(eventType);
+        List<Location> rawLocations = agencyRepository.getAgencyLocations(agencyId, eventTypes, orderBy, order);
+
+        return LocationProcessor.processLocations(rawLocations);
+    }
+
+    @Override
+    public List<Location> getAgencyEventLocations(String agencyId, String sortFields, Order sortOrder) {
+        String orderBy = StringUtils.defaultIfBlank(sortFields, "userDescription,description");
+        Order order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
+
+        List<Location> rawLocations = agencyRepository.getAgencyLocations(agencyId, EVENT_LOCATION_TYPES, orderBy, order);
 
         return LocationProcessor.processLocations(rawLocations);
     }

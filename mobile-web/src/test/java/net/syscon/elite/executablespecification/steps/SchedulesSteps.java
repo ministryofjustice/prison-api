@@ -19,10 +19,12 @@ import java.util.List;
  */
 public class SchedulesSteps extends CommonSteps {
     private static final String API_GROUPS_URL = API_PREFIX + "schedules/{agencyId}/groups/{name}";
+    private static final String API_LOCATION_URL = API_PREFIX + "schedules/{agencyId}/locations/{name}";
 
     private List<PrisonerSchedule> results;
     private String agency;
     private String groupName;
+    private String location;
 
     @Override
     protected void init() {
@@ -91,15 +93,19 @@ public class SchedulesSteps extends CommonSteps {
         groupName = "doesnotexist";
     }
 
-    public void getSchedules(String agencyId, String name) {
-        results = dispatchListRequest(API_GROUPS_URL, agencyId, name, null);
+    public void givenLocationGroupDoesNotDefineAnyLocations() {
+        groupName = "LandingH1Evens";
     }
 
-    public void getSchedules(String agencyId, String name, TimeSlot timeSlot) {
-        results = dispatchListRequest(API_GROUPS_URL, agencyId, name, timeSlot);
+    public void getSchedulesForLocationGroup(String agencyId, String group) {
+        results = dispatchListRequest(API_GROUPS_URL, agencyId, group, null);
     }
 
-    public void getSchedules() {
+    public void getSchedulesForLocationGroup(String agencyId, String group, TimeSlot timeSlot) {
+        results = dispatchListRequest(API_GROUPS_URL, agencyId, group, timeSlot);
+    }
+
+    public void getSchedulesForLocationGroup() {
         results = dispatchListRequest(API_GROUPS_URL, agency, groupName, null);
     }
 
@@ -208,4 +214,37 @@ public class SchedulesSteps extends CommonSteps {
         assertThat(results.get(0).getStartTime().getHour()).isEqualTo(12);
         assertThat(results.get(1).getStartTime().getHour()).isEqualTo(13);
     }
+
+// --------------------------------------------------------------------------------
+
+    public void givenAnExistingAgencyAndLocation() {
+        agency = "LEI";
+        location = "LEI-A-1-1";
+    }
+
+    public void givenLocationDoesNotExistForTheAgency() {
+        location = "doesnotexist";
+    }
+
+    public void givenLocationNoScheduledEventsForCurrentDay() {
+        agency = "LEI";
+        location = "LEI-A-1-7";
+    }
+
+    public void givenScheduledEventsForCurrentDayAtLocation() {
+        // data setup
+    }
+
+    public void getSchedulesForLocation() {
+        results = dispatchListRequest(API_LOCATION_URL, agency, location, null);
+    }
+
+    public void getSchedulesForLocation(String agencyId, String loc) {
+        results = dispatchListRequest(API_LOCATION_URL, agencyId, loc, null);
+    }
+
+    public void getSchedulesForLocation(String agencyId, String loc, TimeSlot timeSlot) {
+        results = dispatchListRequest(API_LOCATION_URL, agencyId, loc, timeSlot);
+    }
+
 }
