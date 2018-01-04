@@ -26,6 +26,13 @@ Scenario: no location group scheduled events
     When schedules are requested for agency and location group
     Then schedules response is an empty list
 
+Scenario: no locations in group
+    Given an existing agency and location group
+    And location group does not define any locations
+    When schedules are requested for agency and location group
+    Then schedules response is HTTP 500 server error
+    And schedules response error message is "Group 'BlockE' defines no locations for agencyId 'LEI'"
+
 Scenario: location group scheduled events in order
     Given one or more offenders have scheduled events for current day
     And offenders are located in a location that belongs to requested agency and location group

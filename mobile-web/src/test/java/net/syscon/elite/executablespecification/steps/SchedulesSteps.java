@@ -91,8 +91,12 @@ public class SchedulesSteps extends CommonSteps {
         groupName = "doesnotexist";
     }
 
-    public void getSchedules(String agencyId, String name) {
-        results = dispatchListRequest(API_GROUPS_URL, agencyId, name, null);
+    public void givenLocationGroupDoesNotDefineAnyLocations() {
+        groupName = "BlockE";
+    }
+
+    public void getSchedules(String agencyId, String group) {
+        results = dispatchListRequest(API_GROUPS_URL, agencyId, group, null);
     }
 
     public void getSchedules(String agencyId, String name, TimeSlot timeSlot) {

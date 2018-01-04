@@ -359,7 +359,7 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @And("^user message in resource not found response from bookings IEP summary API is \"([^\"]*)\"$")
     public void userMessageInResourceNotFoundResponseFromBookingsIEPSummaryAPIIs(String expectedUserMessage) throws Throwable {
-        bookingIEP.verifyResourceNotFoundUserMessage(expectedUserMessage);
+        bookingIEP.verifyErrorUserMessage(expectedUserMessage);
     }
 
     @And("^gender matches \"([^\"]*)\"$")
@@ -488,7 +488,7 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @And("^user message in resource not found response from booking assessments API is \"([^\"]*)\"$")
     public void userMessageInResourceNotFoundResponseFromBookingAssessmentsAPIIs(String expectedUserMessage) throws Throwable {
-        bookingAssessment.verifyResourceNotFoundUserMessage(expectedUserMessage);
+        bookingAssessment.verifyErrorUserMessage(expectedUserMessage);
     }
 
     @Then("^the number of active alerts is ([0-9-]+)$")
