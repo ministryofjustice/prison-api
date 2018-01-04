@@ -3,6 +3,7 @@ package net.syscon.elite.web.handler;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.support.OperationResponse;
+import net.syscon.elite.service.ConfigException;
 import net.syscon.elite.service.EntityNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -57,6 +58,10 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
             status = Response.Status.BAD_REQUEST.getStatusCode();
             userMessage = ex.getMessage();
             log.warn("Client submitted invalid request.", ex);
+        } else if (ex instanceof ConfigException) {
+            status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
+            userMessage = ex.getMessage();
+            log.error("Internal Server Error", ex);
         } else {
             status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
             userMessage = "An internal error has occurred - please try again later.";

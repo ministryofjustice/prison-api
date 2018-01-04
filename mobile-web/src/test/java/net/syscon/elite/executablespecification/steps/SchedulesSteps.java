@@ -94,7 +94,7 @@ public class SchedulesSteps extends CommonSteps {
     }
 
     public void givenLocationGroupDoesNotDefineAnyLocations() {
-        groupName = "LandingH1Evens";
+        groupName = "BlockE";
     }
 
     public void getSchedulesForLocationGroup(String agencyId, String group) {

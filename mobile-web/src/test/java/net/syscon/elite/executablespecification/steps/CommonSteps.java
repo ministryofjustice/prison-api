@@ -97,9 +97,15 @@ public abstract class CommonSteps {
         assertThat(errorResponse.getDeveloperMessage()).isEmpty();
     }
 
-    @Step("Verify user message in resource not found response")
-    public void verifyResourceNotFoundUserMessage(String expectedUserMessage) {
+    @Step("Verify user message in error response")
+    public void verifyErrorUserMessage(String expectedUserMessage) {
         assertThat(errorResponse.getUserMessage()).isEqualTo(expectedUserMessage);
+    }
+
+    @Step("Verify 500 error")
+    public void verify500Error() {
+        assertThat(errorResponse).isNotNull();
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
     }
 
     @Step("Verify bad request")

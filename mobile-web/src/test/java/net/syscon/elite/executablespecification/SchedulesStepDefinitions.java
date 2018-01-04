@@ -35,6 +35,11 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
         schedulesSteps.givenAnExistingAgencyAndLocationGroup();
     }
 
+    @Given("^location group does not define any locations$")
+    public void givenLocationGroupDoesNotDefineAnyLocations() {
+        schedulesSteps.givenLocationGroupDoesNotDefineAnyLocations();
+    }
+
     @Given("^agency does not belong to a caseload accessible to current user$")
     public void givenAgencyDoesNotBelongToCaseload() {
         schedulesSteps.givenAgencyDoesNotBelongToCaseload();
@@ -100,9 +105,14 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
         schedulesSteps.verifyResourceNotFound();
     }
 
+    @Then("^schedules response is HTTP 500 server error$")
+    public void verify500Error() throws Throwable {
+        schedulesSteps.verify500Error();
+    }
+
     @Then("^schedules response error message is \"([^\"]*)\"$")
     public void verifyErrorMessage(String message) throws Throwable {
-        schedulesSteps.verifyResourceNotFoundUserMessage(message);
+        schedulesSteps.verifyErrorUserMessage(message);
     }
 
     @Then("^schedules response is an empty list$")
