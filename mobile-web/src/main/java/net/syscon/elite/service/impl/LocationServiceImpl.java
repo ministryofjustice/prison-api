@@ -10,6 +10,7 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.LocationRepository;
+import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.ConfigException;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -134,6 +135,7 @@ public class LocationServiceImpl implements LocationService {
      * defined in the groups.properties file.
      */
     @Override
+    @VerifyAgencyAccess
     @Cacheable("getGroup")
     public List<Location> getGroup(String agencyId, String name) {
 
@@ -164,6 +166,7 @@ public class LocationServiceImpl implements LocationService {
      * Get all available groups for the prison/agency defined in the groups.properties file.
      */
     @Override
+    @VerifyAgencyAccess
     public List<String> getAvailableGroups(String agencyId) {
 
         final Set<String> keySet = groupsProperties.stringPropertyNames();

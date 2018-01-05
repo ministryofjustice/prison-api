@@ -7,6 +7,7 @@ import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AgencyRepository;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.support.LocationProcessor;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -24,9 +27,11 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 public class AgencyServiceImpl implements AgencyService {
+    private final AuthenticationFacade authenticationFacade;
     private final AgencyRepository agencyRepository;
 
-    public AgencyServiceImpl(AgencyRepository agencyRepository) {
+    public AgencyServiceImpl(AuthenticationFacade authenticationFacade, AgencyRepository agencyRepository) {
+        this.authenticationFacade = authenticationFacade;
         this.agencyRepository = agencyRepository;
     }
 
@@ -43,6 +48,37 @@ public class AgencyServiceImpl implements AgencyService {
     @Override
     public List<Agency> findAgenciesByUsername(String username) {
         return agencyRepository.findAgenciesByUsername(username);
+    }
+
+    /**
+     * Gets set of agency location ids accessible to current authenticated user. This governs access to bookings - a user
+     * cannot have access to an offender unless they are in a location that the authenticated user is also associated with.
+     *
+     * @return set of agency location ids accessible to current authenticated user.
+     */
+    @Override
+    public Set<String> getAgencyIds() {
+        return findAgenciesByUsername(authenticationFacade.getCurrentUsername())
+              .stream()
+              .map(Agency::getAgencyId)
+              .collect(Collectors.toSet());
+    }
+
+    /**
+     * Verifies that current user is authorised to access specified agency. If this
+     * agency location is not part of any caseload accessible to the current user, a 'Resource Not Found'
+     * exception is thrown.
+     *
+     * @param agencyId the agency.
+     * @throws EntityNotFoundException if current user does not have access to this agency.
+     */
+    @Override
+    public void verifyAgencyAccess(String agencyId) {
+        Objects.requireNonNull(agencyId, "agencyId is a required parameter");
+
+        if (!getAgencyIds().contains(agencyId)) {
+            throw EntityNotFoundException.withId(agencyId);
+        }
     }
 
     @Override

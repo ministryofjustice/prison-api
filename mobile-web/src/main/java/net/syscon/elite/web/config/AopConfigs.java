@@ -4,6 +4,7 @@ import net.syscon.elite.aop.AuthorisationAspect;
 import net.syscon.elite.aop.LoggingAspect;
 import net.syscon.elite.aop.OracleConnectionAspect;
 import net.syscon.elite.security.AuthenticationFacade;
+import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.BookingService;
 import net.syscon.util.SQLProvider;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,8 +23,8 @@ public class AopConfigs {
     }
 
     @Bean
-    public AuthorisationAspect authorisationAspect(BookingService bookingService) {
-        return new AuthorisationAspect(bookingService);
+    public AuthorisationAspect authorisationAspect(BookingService bookingService, AgencyService agencyService) {
+        return new AuthorisationAspect(bookingService, agencyService);
     }
 
     @Bean

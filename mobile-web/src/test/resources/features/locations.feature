@@ -54,12 +54,10 @@ Feature: Locations
     When a request is made at agency "MDI" to retrieve all the groups
     Then location groups are "A-Wing,B-Wing,C-Wing"
 
-@wip
   Scenario: Retrieve groups for agency which is not in caseload
     When a request is made at agency "ZZGHI" to retrieve all the groups
     Then resource not found response is received from locations API
 
-@wip
   Scenario: Retrieve groups for agency which does not exist
     When a request is made at agency "XXXX" to retrieve all the groups
     Then resource not found response is received from locations API

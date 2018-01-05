@@ -28,7 +28,7 @@ public class AgencyServiceImplTest {
 
     @Before
     public void setUp() throws Exception {
-        service = new AgencyServiceImpl(agencyRepo);
+        service = new AgencyServiceImpl(null, agencyRepo);
         when(agencyRepo.getPrisonContactDetails(eq(null))).thenReturn(buildPrisonContactDetailsList());
         when(agencyRepo.getPrisonContactDetails(eq("ABC"))).thenReturn(buildPrisonContactDetailsListSingleResult());
         when(agencyRepo.getPrisonContactDetails(eq("BLANK"))).thenReturn(buildPrisonContactDetailsListSingleResultBlankAddress());
