@@ -53,8 +53,8 @@ public class CaseLoadRepositoryTest {
         List<CaseLoad> caseLoads = repository.getCaseLoadsByUsername(TEST_USERNAME);
 
         assertThat(caseLoads).isNotEmpty();
-        assertThat(caseLoads).hasSize(3);
-        assertThat(caseLoads).extracting("caseLoadId").contains("LEI", "BXI", "WAI");
+        assertThat(caseLoads).hasSize(4);
+        assertThat(caseLoads).extracting("caseLoadId").contains("LEI", "BXI", "MDI", "WAI");
     }
     
     @Test
@@ -70,7 +70,7 @@ public class CaseLoadRepositoryTest {
         Set<String> caseLoadIds = repository.getCaseLoadIdsByUsername(TEST_USERNAME);
 
         assertThat(caseLoadIds).isNotEmpty();
-        assertThat(caseLoadIds).hasSize(3);
-        assertThat(caseLoadIds).contains("LEI", "BXI", "WAI");
+        assertThat(caseLoadIds).hasSize(4);
+        assertThat(caseLoadIds).contains("LEI", "BXI", "MDI", "WAI");
     }
 }

@@ -18,14 +18,13 @@ import net.syscon.elite.service.LocationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.core.env.Environment;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -45,17 +44,18 @@ public class LocationServiceImpl implements LocationService {
     private final CaseLoadService caseLoadService;
     private final String locationTypeGranularity;
     private final Integer locationDepth;
-    private final Environment env;
+    private final Properties groupsProperties;
 
     public LocationServiceImpl(AgencyRepository agencyRepository, LocationRepository locationRepository,
-            InmateRepository inmateRepository, CaseLoadService caseLoadService, Environment env,
+            InmateRepository inmateRepository, CaseLoadService caseLoadService,
             @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity,
-            @Value("${api.users.me.locations.depth:1}") Integer locationDepth) {
+            @Value("${api.users.me.locations.depth:1}") Integer locationDepth,
+            @Value("groups.properties") ClassPathResource groupPropertiesFile) throws IOException {
         this.locationRepository = locationRepository;
         this.inmateRepository = inmateRepository;
         this.caseLoadService = caseLoadService;
         this.agencyRepository = agencyRepository;
-        this.env = env;
+        this.groupsProperties = groupPropertiesFile == null ? null : PropertiesLoaderUtils.loadProperties(groupPropertiesFile);
         this.locationTypeGranularity = locationTypeGranularity;
         this.locationDepth = locationDepth;
     }
@@ -137,7 +137,7 @@ public class LocationServiceImpl implements LocationService {
     @Cacheable("getGroup")
     public List<Location> getGroup(String agencyId, String name) {
 
-        final String patterns = env.getProperty(agencyId + '_' + name);
+        final String patterns = groupsProperties.getProperty(agencyId + '_' + name);
         if (patterns == null) {
             throw new EntityNotFoundException(
                     "Group '" + name + "' does not exist for agencyId '" + agencyId + "'.");
@@ -157,6 +157,22 @@ public class LocationServiceImpl implements LocationService {
         if (results.isEmpty()) {
             throw ConfigException.withMessage("Group '%s' defines no locations for agencyId '%s'", name, agencyId);
         }
+        return results; 
+    }
+    
+    /**
+     * Get all available groups for the prison/agency defined in the groups.properties file.
+     */
+    @Override
+    public List<String> getAvailableGroups(String agencyId) {
+
+        final Set<String> keySet = groupsProperties.stringPropertyNames();
+
+        final List<String> results = keySet.stream()//
+                .filter(t -> t.startsWith(agencyId))//
+                .map(k -> k.substring(agencyId.length() + 1))//
+                .sorted()//
+                .collect(Collectors.toList());
         return results;
     }
 

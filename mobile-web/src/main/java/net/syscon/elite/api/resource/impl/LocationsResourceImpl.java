@@ -62,4 +62,9 @@ public class LocationsResourceImpl implements LocationResource {
     public GetGroupResponse getGroup(String agencyId, String name) {
         return GetGroupResponse.respond200WithApplicationJson(locationService.getGroup(agencyId, name));
     }
+
+    @Override
+    public GetAvailableGroupsResponse getAvailableGroups(String agencyId) {
+        return GetAvailableGroupsResponse.respond200WithApplicationJson(locationService.getAvailableGroups(agencyId));
+    }
 }

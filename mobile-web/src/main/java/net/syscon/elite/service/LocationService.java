@@ -22,4 +22,6 @@ public interface LocationService {
     Page<OffenderBooking> getInmatesFromLocation(long locationId, String username, String query, String orderByField, Order order, long offset, long limit);
 
     List<Location> getGroup(String agencyId, String name);
+
+    List<String> getAvailableGroups(String agencyId);
 }
