@@ -21,10 +21,13 @@ import static org.springframework.util.StringUtils.commaDelimitedListToStringArr
 public class LocationsSteps extends CommonSteps {
     private static final String API_LOCATIONS = API_PREFIX + "locations";
 
-    private static final String GROUPS_API_URL = API_LOCATIONS + "/groups/{agencyId}/{name}";
-
+    private static final String GROUPS_API_URL = API_LOCATIONS + "/groups/{agencyId}";
+    private static final String GROUP_API_URL = API_LOCATIONS + "/groups/{agencyId}/{name}";
+    
     private Location location;
     private List<Location> locationList;
+
+    private List<String> groupList;
 
     @Step("Perform locations search without any criteria")
     public void findAll() {
@@ -83,12 +86,23 @@ public class LocationsSteps extends CommonSteps {
         }
     }
 
-    private void dispatchCall(String url, String agencyId, String name) {
+    private void dispatchGroupCall(String url, String agencyId, String name) {
         init();
         try {
             ResponseEntity<List<Location>> response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
                     new ParameterizedTypeReference<List<Location>>() {}, agencyId, name);
             locationList = response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    private void dispatchGroupsCall(String url, String agencyId) {
+        init();
+        try {
+            ResponseEntity<List<String>> response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
+                    new ParameterizedTypeReference<List<String>>() {}, agencyId);
+            groupList = response.getBody();
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
@@ -100,10 +114,11 @@ public class LocationsSteps extends CommonSteps {
 
         location = null;
         locationList = null;
+        groupList = null;
     }
 
     public void findList(String agencyId, String name) {
-        dispatchCall(GROUPS_API_URL, agencyId, name);
+        dispatchGroupCall(GROUP_API_URL, agencyId, name);
     }
 
     public void verifyLocationList(String expectedList) {
@@ -114,5 +129,13 @@ public class LocationsSteps extends CommonSteps {
     public void verifyLocationIdList(String expectedList) {
         // Careful here - this does not check order, we are relying on verifyLocationList() for that
         verifyLongValues(locationList, Location::getLocationId, expectedList);
+    }
+
+    public void aRequestIsMadeToRetrieveAllGroups(String agencyId) {
+        dispatchGroupsCall(GROUPS_API_URL, agencyId);
+    }
+
+    public void groupsAre(String expectedList) {
+        assertThat(groupList).asList().containsExactly((Object[]) commaDelimitedListToStringArray(expectedList));
     }
 }

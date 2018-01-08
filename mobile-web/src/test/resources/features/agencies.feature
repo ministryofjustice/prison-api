@@ -13,8 +13,8 @@ Feature: Agencies
 
   Scenario: Retrieve all agencies
     When a request is submitted to retrieve all agencies
-    Then "8" agency records are returned
-    And "8" total agency records are available
+    Then "9" agency records are returned
+    And "9" total agency records are available
     Then the returned agencies are as follows:
       | agencyId | agencyType | description  |
       | ABDRCT   | CRT        | Court 2      |
@@ -22,6 +22,7 @@ Feature: Agencies
       | BXI      | INST       | BRIXTON      |
       | COURT1   | CRT        | Court 1      |
       | LEI      | INST       | LEEDS        |
+      | MDI      | INST       | MOORLAND     |
       | MUL      | INST       | MUL          |
       | TRO      | INST       | TROOM        |
       | WAI      | INST       | THE WEARE    |

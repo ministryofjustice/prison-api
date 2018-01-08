@@ -7,7 +7,6 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
-import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.NonDtoReleaseDate;
@@ -26,7 +25,6 @@ import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -42,7 +40,6 @@ public class BookingServiceImpl implements BookingService {
 
     private final StartTimeComparator startTimeComparator = new StartTimeComparator();
 
-    private final AuthenticationFacade authenticationFacade;
     private final BookingRepository bookingRepository;
     private final SentenceRepository sentenceRepository;
     private final AgencyService agencyService;
@@ -72,14 +69,13 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    public BookingServiceImpl(AuthenticationFacade authenticationFacade, BookingRepository bookingRepository,
+    public BookingServiceImpl(BookingRepository bookingRepository,
                               SentenceRepository sentenceRepository, AgencyService agencyService,
                               CaseLoadService caseLoadService, LocationService locationService,
                               ReferenceDomainService referenceDomainService,
                               TelemetryClient telemetryClient,
                               @Value("${api.offender.release.date.min.months:3}") int lastNumberOfMonths,
                               @Value("${api.bookings.iepLevel.default:Unknown}") String defaultIepLevel) {
-        this.authenticationFacade = authenticationFacade;
         this.bookingRepository = bookingRepository;
         this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
@@ -391,20 +387,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     /**
-     * Gets set of agency location ids accessible to current authenticated user. This governs access to bookings - a user
-     * cannot have access to an offender unless they are in a location that the authenticated user is also associated with.
-     *
-     * @return set of agency location ids accessible to current authenticated user.
-     */
-    private Set<String> getAgencyIds() {
-        return agencyService
-                .findAgenciesByUsername(authenticationFacade.getCurrentUsername())
-                .stream()
-                .map(Agency::getAgencyId)
-                .collect(Collectors.toSet());
-    }
-
-    /**
      * Verifies that current user is authorised to access specified offender booking. If offender booking is in an
      * agency location that is not part of any caseload accessible to the current user, a 'Resource Not Found'
      * exception is thrown.
@@ -416,28 +398,12 @@ public class BookingServiceImpl implements BookingService {
     public void verifyBookingAccess(Long bookingId) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
-        if (!bookingRepository.verifyBookingAccess(bookingId, getAgencyIds())) {
+        if (!bookingRepository.verifyBookingAccess(bookingId, agencyService.getAgencyIds())) {
             throw EntityNotFoundException.withId(bookingId);
         }
     }
 
-    /**
-     * Verifies that current user is authorised to access specified agency. If this
-     * agency location is not part of any caseload accessible to the current user, a 'Resource Not Found'
-     * exception is thrown.
-     *
-     * @param agencyId the agency.
-     * @throws EntityNotFoundException if current user does not have access to this agency.
-     */
     @Override
-    public void verifyBookingAccess(String agencyId) {
-        Objects.requireNonNull(agencyId, "agencyId is a required parameter");
-
-        if (!getAgencyIds().contains(agencyId)) {
-            throw EntityNotFoundException.withId(agencyId);
-        }
-    }
-
     public boolean isSystemUser() {
         final Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
         return authorities.stream().anyMatch(a -> a.getAuthority().contains(SYSTEM_USER_ROLE));

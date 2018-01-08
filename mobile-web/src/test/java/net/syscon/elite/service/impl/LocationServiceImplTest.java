@@ -14,12 +14,14 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.core.env.Environment;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.regex.PatternSyntaxException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +36,7 @@ public class LocationServiceImplTest {
 
     @Mock private LocationRepository locationRepository;
     @Mock private AgencyRepository agencyRepository;
-    @Mock private Environment env;
+    private Properties groupsProperties;
 
     private LocationService locationService;
     private Location cell1 = Location.builder().locationPrefix("cell1").build();
@@ -43,8 +45,10 @@ public class LocationServiceImplTest {
     private Location cell4 = Location.builder().locationPrefix("cell4").build();
 
     @Before
-    public void init() {
-        locationService = new LocationServiceImpl(agencyRepository, locationRepository, null, null, env, "WING", 2);
+    public void init() throws IOException {
+        locationService = new LocationServiceImpl(agencyRepository, locationRepository, null, null, "WING", 2, null);
+        groupsProperties = new Properties();
+        ReflectionTestUtils.setField(locationService, "groupsProperties", groupsProperties);
     }
 
     @Test
@@ -85,7 +89,7 @@ public class LocationServiceImplTest {
 
         Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", 1)).thenReturn(Arrays.asList(//
                 cell1, cell2, cell3, cell4));
-        Mockito.when(env.getProperty("LEI_mylist")).thenReturn("cell[13]||cell4");
+        groupsProperties.setProperty("LEI_mylist", "cell[13]||cell4");
 
         final List<Location> group = locationService.getGroup("LEI", "mylist");
 
@@ -97,7 +101,7 @@ public class LocationServiceImplTest {
 
         Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", 1)).thenReturn(Arrays.asList(//
                 cell1, cell2, cell3, cell4));
-        Mockito.when(env.getProperty("LEI_mylist")).thenReturn("cell3,cell[13]");
+        groupsProperties.setProperty("LEI_mylist", "cell3,cell[13]");
 
         final List<Location> group = locationService.getGroup("LEI", "mylist");
 
@@ -120,17 +124,41 @@ public class LocationServiceImplTest {
     public void testGetGroupInvalidPattern() throws Exception {
         Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", 1)).thenReturn(Arrays.asList(//
                 cell1, cell2, cell3, cell4));
-        Mockito.when(env.getProperty("LEI_mylist")).thenReturn("cell[13]||[");
+        groupsProperties.setProperty("LEI_mylist", "cell[13]||[");
 
         locationService.getGroup("LEI", "mylist");
     }
 
     @Test(expected=ConfigException.class)
-    public void testGetGroupBlankPattern() throws Exception {
+    public void testGetGroupNoCells() throws Exception {
         Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", 1)).thenReturn(Arrays.asList(//
                 cell1, cell2, cell3, cell4));
-        Mockito.when(env.getProperty("LEI_mylist")).thenReturn("");
+        groupsProperties.setProperty("LEI_mylist", "");
 
         locationService.getGroup("LEI", "mylist");
+    }
+
+    @Test
+    public void testGetAvailableGroups() {
+
+        groupsProperties.setProperty("LEI_mylist1", "cell1,cell2");
+        groupsProperties.setProperty("LEI_mylist2", "cell3,cell4");
+        groupsProperties.setProperty("BXI_mylist1", "cell5,cell6");
+
+        final List<String> groups = locationService.getAvailableGroups("LEI");
+
+        assertThat(groups).asList().contains("mylist1", "mylist2");
+    }
+
+    @Test
+    public void testGetAvailableGroupsNone() {
+
+        groupsProperties.setProperty("LEI_mylist1", "cell1,cell2");
+        groupsProperties.setProperty("LEI_mylist2", "cell3,cell4");
+        groupsProperties.setProperty("BXI_mylist1", "cell5,cell6");
+
+        final List<String> groups = locationService.getAvailableGroups("OTHER");
+
+        assertThat(groups).asList().isEmpty();
     }
 }
