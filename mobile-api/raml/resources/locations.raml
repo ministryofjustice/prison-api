@@ -38,3 +38,11 @@
       type: string
       description: The prison
   type: { readOnlyCollection: { type: Location, description: List of cell locations by group at agency location. } }
+
+/groups/{agencyId}:
+  (javaOperationName): getAvailableGroups
+  uriParameters:
+    agencyId:
+      type: string
+      description: The prison
+  type: { readOnlyCollection: { type: String, description: List of all available groups at agency. } }

@@ -29,11 +29,11 @@ Feature: Users and Staff
     Then the roles returned are "<roles>"
 
   Examples:
-  | username            | roles                                  |
-  | itag_user           | BXI_WING_OFF,LEI_WING_OFF,WAI_WING_OFF |
-  | elite2_api_user     | LEI_SYSTEM_USER                        |
-  | hpa_user            | LEI_SYSTEM_USER,LEI_WING_OFF           |
-  | api_test_user       | MUL_WING_OFF                           |
+  | username            | roles                                               |
+  | itag_user           | BXI_WING_OFF,LEI_WING_OFF,MDI_WING_OFF,WAI_WING_OFF |
+  | elite2_api_user     | LEI_SYSTEM_USER                                     |
+  | hpa_user            | LEI_SYSTEM_USER,LEI_WING_OFF                        |
+  | api_test_user       | MUL_WING_OFF                                        |
 
   @elite
   Scenario Outline: As a logged in user I can find out my roles

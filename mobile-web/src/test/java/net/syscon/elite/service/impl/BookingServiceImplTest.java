@@ -3,7 +3,6 @@ package net.syscon.elite.service.impl;
 import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.BookingRepository;
-import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.ReferenceDomain;
 import org.junit.Before;
@@ -28,9 +27,6 @@ import static org.junit.Assert.fail;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class BookingServiceImplTest {
-    @Mock
-    private AuthenticationFacade authenticationFacade;
-
     @Mock
     private BookingRepository bookingRepository;
 
@@ -74,7 +70,7 @@ public class BookingServiceImplTest {
 
     @Before
     public void init() {
-        bookingService = new BookingServiceImpl(authenticationFacade, bookingRepository, null, agencyService, null,
+        bookingService = new BookingServiceImpl(bookingRepository, null, agencyService, null,
                 locationService, referenceDomainService, telemetryClient, 1, "1");
     }
 

@@ -5,7 +5,7 @@ import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.security.AuthenticationFacade;
-import net.syscon.elite.security.VerifyBookingAccess;
+import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.LocationService;
@@ -42,10 +42,9 @@ public class SchedulesServiceImpl implements SchedulesService {
     }
 
     @Override
-    @VerifyBookingAccess
+    @VerifyAgencyAccess
     public List<PrisonerSchedule> getLocationGroupTodaysEvents(String agencyId, String groupName, TimeSlot timeSlot) {
 
-        bookingService.verifyBookingAccess(agencyId);
         final List<Location> locations = locationService.getGroup(agencyId, groupName);
         final List<PrisonerSchedule> results = new ArrayList<>();
         final LocalDateTime middayToday = LocalDateTime.of(LocalDate.now(), LocalTime.of(12, 0));
@@ -79,6 +78,7 @@ public class SchedulesServiceImpl implements SchedulesService {
     }
 
     @Override
+    @VerifyAgencyAccess
     public List<PrisonerSchedule> getLocationTodaysEvents(String agencyId, Long locationId, TimeSlot timeSlot) {
         // TODO Auto-generated method stub
         return null;
