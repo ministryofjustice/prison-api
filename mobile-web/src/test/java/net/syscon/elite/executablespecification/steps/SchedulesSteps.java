@@ -290,4 +290,8 @@ public class SchedulesSteps extends CommonSteps {
     public void verifyListOfScheduleStartTimes(String expectedList) {
         verifyLocalTimeValues(results, PrisonerSchedule::getStartTime, expectedList);
     }
+
+    public void givenUsageInvalid() {
+        usage = "INVALID";
+    }
 }

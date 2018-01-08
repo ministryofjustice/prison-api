@@ -28,32 +28,6 @@ GET_ACTIVITIES_AT_LOCATION {
     AND CS.CATCH_UP_CRS_SCH_ID IS NULL
 }
 
-DUFF{
-  SELECT B.OFFENDER_BOOK_ID AS BOOKING_ID,
-         O.OFFENDER_ID_DISPLAY AS OFFENDER_NO,
-         O.FIRST_NAME,
-         O.LAST_NAME, 
-         B.LIVING_UNIT_ID AS LOCATION_ID,
-         AIL.DESCRIPTION AS LOCATION_DESCRIPTION
-  FROM OFFENDER_BOOKINGS B
-    INNER JOIN OFFENDERS O ON B.OFFENDER_ID = O.OFFENDER_ID
-    INNER JOIN AGENCY_INTERNAL_LOCATIONS AIL ON B.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
-  WHERE B.ACTIVE_FLAG = 'Y'
-  AND EXISTS (select 1 from CASELOAD_AGENCY_LOCATIONS C WHERE B.AGY_LOC_ID = C.AGY_LOC_ID AND C.CASELOAD_ID IN (:caseLoadIds))
-  AND AIL.INTERNAL_LOCATION_ID in (:locations)
-  AND B.AGY_LOC_ID = :agencyId
-    private String offenderNo;
-    private String firstName;
-    private String lastName;
-    private String cellLocation;
-    
-    private String event;
-    private String eventDescription;
-    private String comment;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
-}
-
 GET_APPOINTMENTS_AT_LOCATION {
   SELECT O.OFFENDER_ID_DISPLAY AS OFFENDER_NO,
          O.FIRST_NAME,

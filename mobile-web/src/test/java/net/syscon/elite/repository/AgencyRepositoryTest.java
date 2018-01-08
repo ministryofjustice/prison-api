@@ -46,7 +46,7 @@ public class AgencyRepositoryTest {
     @Test
     public void testGetAgencyLocations() {
         final List<Location> locations = repository.getAgencyLocations("LEI", Arrays.asList("APP", "VISIT"), null, null);
-        assertThat(locations).extracting("locationType").containsExactly("WSHP", "AREA", "CLAS", "AREA");
+        assertThat(locations).extracting("locationType").contains("AREA", "AREA", "CLAS", "WSHP");
     }
 
     @Test

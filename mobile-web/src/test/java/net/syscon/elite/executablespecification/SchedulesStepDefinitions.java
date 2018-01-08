@@ -132,6 +132,11 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
         schedulesSteps.givenLocationDoesNotExistForTheAgency();
     }
 
+    @Given("^usage value is invalid$")
+    public void givenUsageInvalid() {
+        schedulesSteps.givenUsageInvalid();
+    }
+
     @Given("^the location within the agency has no scheduled events for current day$")
     public void givenLocationNoScheduledEventsForCurrentDay() {
         schedulesSteps.givenNoScheduledEventsForCurrentDay();
@@ -155,6 +160,11 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
     @Then("^response is a list of offender's schedules for the current day with last name list \"([^\"]*)\"$")
     public void verifyListOfOffendersSchedulesForCurrentDayLastNames(String list) throws Throwable {
         schedulesSteps.verifyListOfOffendersSchedulesForCurrentDayLastNames(list);
+    }
+
+    @Then("^bad request response, with \"([^\"]*)\" message, is received from schedules API$")
+    public void verifyBadRequest(String message) throws Throwable {
+        schedulesSteps.verifyBadRequest(message);
     }
 
     @Then("^the schedule event type list is \"([^\"]*)\"$")

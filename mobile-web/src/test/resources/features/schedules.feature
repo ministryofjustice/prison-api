@@ -75,6 +75,13 @@ Scenario: location does not exist
     Then schedules response is HTTP 404 resource not found
     And schedules response error message is "Resource with id [-99] not found."
 
+Scenario: usage not valid
+    Given an existing agency and location
+    And usage value is invalid
+    When schedules are requested for agency and location
+    Then bad request response, with "Usage not recognised." message, is received from schedules API
+
+
 Scenario: no location scheduled events
     Given the location within the agency has no scheduled events for current day
     When schedules are requested for agency and location
