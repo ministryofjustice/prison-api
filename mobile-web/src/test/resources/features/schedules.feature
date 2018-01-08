@@ -1,5 +1,4 @@
 @global
-@wip
 Feature: Location and Location Group Events
 
     Acceptance Criteria
@@ -67,39 +66,34 @@ Scenario: location caseload not accessible
     And agency does not belong to a caseload accessible to current user
     When schedules are requested for agency and location
     Then schedules response is HTTP 404 resource not found
-    And schedules response error message is "Resource with id [<agencyId>] not found."
+    And schedules response error message is "Resource with id [ZZGHI] not found."
 
 Scenario: location does not exist
     Given an agency which belongs to a caseload accessible to current user
     And location does not exist for the agency
     When schedules are requested for agency and location
     Then schedules response is HTTP 404 resource not found
-    And schedules response error message is "Resource with id [<locationId>] not found."
+    And schedules response error message is "Resource with id [-99] not found."
 
 Scenario: no location scheduled events
     Given the location within the agency has no scheduled events for current day
     When schedules are requested for agency and location
     Then schedules response is an empty list
 
-Scenario: location scheduled events in order
+Scenario Outline: location scheduled events in order
     Given one or more offenders are due to attend a scheduled event on the current day at a location within an agency
-    When schedules are requested for a valid agency and location
-    Then response is a list of offender's schedules for the current day with size 6
-    And returned schedules are ordered in ascending alphabetical order by offender last name (the first name)
+    When schedules are requested for a valid agency with location "<locationId>" and usage "<usage>" and timeSlot "<timeSlot>"
+    Then response is a list of offender's schedules for the current day with last name list "<last name list>"
+    And the schedule event type list is "<event type list>"
+    And the schedule start time list is "<start time list>"
+    And returned schedules are ordered in ascending alphabetical order by offender last name
     And returned schedules are only for offenders due to attend a scheduled event on current day for requested agency and location
-
-Scenario: location AM timeslot
-    Given one or more offenders are due to attend a scheduled event on the current day at a location within an agency
-    When schedules are requested for a valid agency and location with 'timeSlot' = 'AM'
-    Then response is a list of offender's schedules for the current day with size 4
-    And start time of all returned schedules is before 12h00
-    And returned schedules are ordered in ascending alphabetical order by offender last name (the first name)
-    And returned schedules are only for offenders due to attend a scheduled event on current day for requested agency and location
-
-Scenario: location PM timeslot
-    Given one or more offenders are due to attend a scheduled event on the current day at a location within an agency
-    When schedules are requested for a valid agency and location with 'timeSlot' = 'PM'
-    Then response is a list of offender's schedules for the current day with size 2
-    And start time of all returned schedules is on or after 12h00
-    And returned schedules are ordered in ascending alphabetical order by offender last name (the first name)
-    And returned schedules are only for offenders due to attend a scheduled event on current day for requested agency and location
+    Examples:
+      | locationId | usage    | timeSlot | last name list                | event type list     | start time list         |
+      | -28        | VISIT    |          | BATES                         | VISIT               | 01:00                   |
+      | -25        | VISIT    |          | BATES                         | VISIT               | 00:00                   |
+      | -28        | APP      |          | BATES,DUCK                    | EDUC,EDUC           | 04:00, 01:00            |
+      | -29        | APP      |          | BATES                         | MEDE                | 03:00                   |
+      | -26        | PROG     |          | ANDERSON,ANDERSON,BATES,BATES | EDUC,EDUC,EDUC,EDUC | 12:00,13:00,12:00,13:00 |
+      | -26        | PROG     | AM       |                               |                     |                         |
+      | -26        | PROG     | PM       | ANDERSON,ANDERSON,BATES,BATES | EDUC,EDUC,EDUC,EDUC | 12:00,13:00,12:00,13:00 |

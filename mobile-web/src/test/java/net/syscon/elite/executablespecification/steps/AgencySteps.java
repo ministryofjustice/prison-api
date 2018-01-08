@@ -121,6 +121,10 @@ public class AgencySteps extends CommonSteps {
         dispatchListRequest(API_LOCATIONS_URL, agencyId, eventType, headers);
     }
 
+    public void getLocationsForAnyEvents(String agencyId) {
+        dispatchListRequest(API_EVENT_LOCATIONS_URL, agencyId, null, null);
+    }
+
     public void verifyAgencyList(List<Agency> expected) {
 
         final Iterator<Agency> expectedIterator = expected.iterator();

@@ -147,13 +147,33 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
         schedulesSteps.getSchedulesForLocation();
     }
 
-    @When("^schedules are requested for a valid agency and location$")
-    public void schedulesAreRequestedForValidAgencyAndLocation() {
-        schedulesSteps.getSchedulesForLocation("LEI", "Visitor-centre");
+    @When("^schedules are requested for a valid agency with location \"([^\"]*)\" and usage \"([^\"]*)\" and timeSlot \"([^\"]*)\"$")
+    public void schedulesAreRequestedForValidAgencyAndLocationwithTimeSlot(Long locationId, String usage, TimeSlot timeSlot) {
+        schedulesSteps.getSchedulesForLocation("LEI", locationId, usage, timeSlot);
     }
 
-    @When("^schedules are requested for a valid agency and location with 'timeSlot' = '([APM]+)'$")
-    public void schedulesAreRequestedForValidAgencyAndLocationwithTimeSlot(TimeSlot timeSlot) {
-        schedulesSteps.getSchedulesForLocation("LEI", "Visitor-centre", timeSlot);
+    @Then("^response is a list of offender's schedules for the current day with last name list \"([^\"]*)\"$")
+    public void verifyListOfOffendersSchedulesForCurrentDayLastNames(String list) throws Throwable {
+        schedulesSteps.verifyListOfOffendersSchedulesForCurrentDayLastNames(list);
+    }
+
+    @Then("^the schedule event type list is \"([^\"]*)\"$")
+    public void verifyListOfScheduleEventTypes(String list) throws Throwable {
+        schedulesSteps.verifyListOfScheduleEventTypes(list);
+    }
+
+    @Then("^the schedule start time list is \"([^\"]*)\"$")
+    public void verifyListOfScheduleStartTimes(String list) throws Throwable {
+        schedulesSteps.verifyListOfScheduleStartTimes(list);
+    }
+
+    @Then("^returned schedules are ordered in ascending alphabetical order by offender last name$")
+    public void verifySchedulesAreOrderedAlphabetically() throws Throwable {
+        schedulesSteps.verifySchedulesAreOrderedAlphabetically();
+    }
+
+    @Then("^returned schedules are only for offenders due to attend a scheduled event on current day for requested agency and location$")
+    public void schedulesAreOnlyForOffendersOnCurrentDayAgencyLocation() throws Throwable {
+        schedulesSteps.schedulesAreOnlyForOffendersOnCurrentDay();
     }
 }

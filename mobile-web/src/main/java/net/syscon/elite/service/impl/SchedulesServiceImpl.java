@@ -3,7 +3,9 @@ package net.syscon.elite.service.impl;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
+import net.syscon.elite.repository.ScheduleRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.BookingService;
@@ -31,13 +33,16 @@ public class SchedulesServiceImpl implements SchedulesService {
     private final LocationService locationService;
     private final InmateService inmateService;
     private final BookingService bookingService;
+    private final ScheduleRepository scheduleRepository;
     private final AuthenticationFacade authenticationFacade;
 
     public SchedulesServiceImpl(LocationService locationService, InmateService inmateService,
-            BookingService bookingService, AuthenticationFacade authenticationFacade) {
+            BookingService bookingService, ScheduleRepository scheduleRepository,
+            AuthenticationFacade authenticationFacade) {
         this.locationService = locationService;
         this.inmateService = inmateService;
         this.bookingService = bookingService;
+        this.scheduleRepository = scheduleRepository;
         this.authenticationFacade = authenticationFacade;
     }
 
@@ -81,23 +86,25 @@ public class SchedulesServiceImpl implements SchedulesService {
     @Override
     public List<PrisonerSchedule> getLocationTodaysEvents(String agencyId, Long locationId, String usage,
             TimeSlot timeSlot) {
-        final List<ScheduledEvent> events;
+
+        final LocalDate today = LocalDate.now();
+        final LocalDateTime middayToday = LocalDateTime.of(LocalDate.now(), LocalTime.of(12, 0));
+        final List<PrisonerSchedule> events;
         switch (usage) {
         case "APP":
-            events = bookingService.getBookingAppointments(locationId, null, null, usage, null);
+            events = scheduleRepository.getLocationAppointments(locationId, today, today, "lastName", Order.ASC);
             break;
         case "VISIT":
-            events = bookingService.getBookingVisits(locationId, null, null, usage, null);
+            events = scheduleRepository.getLocationVisits(locationId, today, today, "lastName", Order.ASC);
             break;
         default:
-            events = bookingService.getBookingActivities(locationId, null, null, usage, null);
+            events = scheduleRepository.getLocationActivities(locationId, today, today, "lastName", Order.ASC);
         }
-        return events.stream().map(event -> PrisonerSchedule.builder()//
-                .comment(event.getEventSourceDesc())//
-                .startTime(event.getStartTime())//
-                .endTime(event.getEndTime())//
-                .event(event.getEventSubType())//
-                .eventDescription(event.getEventSubTypeDesc())//
-                .build()).collect(Collectors.toList());
+        if (timeSlot == null) {
+            return events;
+        }
+        return events.stream().filter(p -> (timeSlot == TimeSlot.AM && p.getStartTime().isBefore(middayToday))//
+                                        || (timeSlot == TimeSlot.PM && !p.getStartTime().isBefore(middayToday)))//
+                     .collect(Collectors.toList());
     }
 }

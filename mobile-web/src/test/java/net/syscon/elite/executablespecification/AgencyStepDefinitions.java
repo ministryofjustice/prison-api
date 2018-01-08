@@ -64,6 +64,11 @@ public class AgencyStepDefinitions extends AbstractStepDefinitions {
     public void aRequestIsSubmittedToRetrieveLocationCodesForAgency(String agencyId) throws Throwable {
         agencySteps.getLocations(agencyId, null, null, null);
     }
+    
+    @When("^a request is submitted to retrieve location codes for agency \"([^\"]*)\" for any events$")
+    public void aRequestIsSubmittedToRetrieveLocationCodesForAgencyForAnyEvents(String agencyId) throws Throwable {
+        agencySteps.getLocationsForAnyEvents(agencyId);
+    }
 
     @When("^a request is submitted to retrieve location codes for agency \"([^\"]*)\" and event type \"([^\"]*)\" sorted by \"([^\"]*)\" in \"([^\"]*)\" order$")
     public void aRequestIsSubmittedToRetrieveLocationCodesForAgencyAndEventTypeSortedByInOrder(String agencyId, String eventType, String sortFields, String sortOrder) throws Throwable {

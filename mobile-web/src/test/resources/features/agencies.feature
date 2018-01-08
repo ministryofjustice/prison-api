@@ -58,3 +58,12 @@ Feature: Agencies
       | -27        | CRM1        | Classroom 1        | LEI-CRM1       | APP           |
       | -25        | CHAP        | Chapel             | LEI-CHAP       | APP           |
       | -26        | CARP        | Carpentry Workshop | LEI-CARP       | APP           |
+      
+  Scenario: Retrieve locations, for an agency, that can be used for any events
+    When a request is submitted to retrieve location codes for agency "LEI" for any events
+    Then the returned agency locations are as follows:
+      | locationId | description | userDescription    | locationPrefix | locationUsage |
+      | -26        | CARP        | Carpentry Workshop | LEI-CARP       | APP           |
+      | -25        | CHAP        | Chapel             | LEI-CHAP       | APP           |
+      | -27        | CRM1        | Classroom 1        | LEI-CRM1       | APP           |
+      | -29        | MED         | Medical Centre     | LEI-MED        | APP           |
