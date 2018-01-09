@@ -16,12 +16,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Agency API service implementation.
@@ -30,17 +30,20 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class AgencyServiceImpl implements AgencyService {
 
-    // All location usages an event could possibly be held in (reference domain ILOC_USG )
-    private static final List<String> EVENT_LOCATION_TYPES = Arrays.asList(
-            "APP", // appointments
-            "MOVEMENT", "OCCUR",
-            "OIC", //Adjudication Hearing Location
-            "OTHER",
-            "PROG", //Programmes & Activities
-            "PROP", 
-            "VISIT" // Visits
-    //TODO currently this is all of them but some may be N/A
-    );
+    // All location usages that an event could possibly be held in. (reference domain ILOC_USG )
+    public static enum InternalLocationUsage {
+        APP, // appointments
+        MOVEMENT,
+        OCCUR,
+        OIC, //Adjudication Hearing Location
+        OTHER,
+        PROG, //Programmes & Activities
+        PROP,
+        VISIT; // Visits
+    }
+
+    private static final List<String> EVENT_LOCATION_TYPES = Stream.of(InternalLocationUsage.values())
+            .map(InternalLocationUsage::name).collect(Collectors.toList());
 
     private final AuthenticationFacade authenticationFacade;
     private final AgencyRepository agencyRepository;
