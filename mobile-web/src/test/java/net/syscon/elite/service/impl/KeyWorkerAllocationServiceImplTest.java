@@ -2,6 +2,7 @@ package net.syscon.elite.service.impl;
 
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.KeyWorkerAllocationService;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,11 +50,23 @@ public class KeyWorkerAllocationServiceImplTest {
         verify(repo, times(1)).getLatestAllocationForOffenderBooking(-1L);
     }
 
+    @Test(expected = EntityNotFoundException.class)
+    public void shouldThrowEmptyResultSetException_ForGetLatestAllocationForOffenderBooking () throws Exception {
+        when(repo.getLatestAllocationForOffenderBooking(-1L)).thenReturn(Optional.empty());
+        service.getLatestAllocationForOffenderBooking(-1L);
+    }
+
     @Test
     public void shouldCallCollaboratorsForGetCurrentAllocationForOffenderBooking () throws Exception {
         when(repo.getCurrentAllocationForOffenderBooking(-1L)).thenReturn(Optional.of(KeyWorkerAllocation.builder().build()));
         service.getCurrentAllocationForOffenderBooking(-1L);
         verify(repo, times(1)).getCurrentAllocationForOffenderBooking(-1L);
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void shouldThrowEmptyResultSetException_ForGetCurrentAllocationForOffenderBooking () throws Exception {
+        when(repo.getCurrentAllocationForOffenderBooking(-1L)).thenReturn(Optional.empty());
+        service.getCurrentAllocationForOffenderBooking(-1L);
     }
 
     @Test
