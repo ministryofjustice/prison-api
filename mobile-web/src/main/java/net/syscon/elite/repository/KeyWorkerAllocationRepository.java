@@ -3,6 +3,7 @@ package net.syscon.elite.repository;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Key Worker Allocation API repository interface.
@@ -10,9 +11,13 @@ import java.util.List;
 public interface KeyWorkerAllocationRepository {
     void createAllocation(KeyWorkerAllocation allocation, String username);
 
-    void deactivateCurrentAllocationForOffenderBooking(Long bookingId, String username);
+    void deactivateAllocationForOffenderBooking(Long bookingId, String username);
 
-    KeyWorkerAllocation getCurrentAllocationForOffenderBooking(Long bookingId);
+    Optional<KeyWorkerAllocation> getCurrentAllocationForOffenderBooking(Long bookingId);
 
     List<KeyWorkerAllocation> getAllocationHistoryForPrisoner(Long offenderId);
+
+    Optional<KeyWorkerAllocation> getLatestAllocationForOffenderBooking(Long bookingId);
+
+    void deactivateAllocationsForKeyWorker(Long staffId, String username);
 }
