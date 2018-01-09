@@ -33,7 +33,7 @@ public class KeyWorkerAllocationRepositoryTest {
     private static final long OFFENDER_BOOKING_ID_WITH_ALLOCATION_1 = -1L;
     private static final long OFFENDER_BOOKING_ID_WITH_ALLOCATION_2 = -2L;
     private static final long OFFENDER_BOOKING_ID_WITH_INACTIVE_ALLOCATION = -16L;
-    private static final long OFFENDER_BOOKING_ID_WITHOUT_ALLOCATION = -28L;
+    private static final long OFFENDER_BOOKING_ID_WITHOUT_ALLOCATION = -26L;
     private static final long OFFENDER_ID_WITH_MULTIPLE_OFFENDER_BOOKINGS = -28L;
     private static final long KEY_WORKER_WITH_ALLOCATIONS = -4;
     private static final String NEW_ALLOCATION_REASON = "new reason";
