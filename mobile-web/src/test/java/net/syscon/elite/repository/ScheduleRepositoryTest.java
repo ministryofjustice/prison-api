@@ -60,177 +60,20 @@ public class ScheduleRepositoryTest {
         final List<PrisonerSchedule> results = repository.getLocationActivities(-26L, date, toDate, null, null);
         assertThat(results).hasSize(14);
         assertPrisonerDetails(results.get(0));
-        // TODO assert at least 1 field from all results (time?)
-        /*
-<[class PrisonerSchedule {
-  offenderNo: A1234AB
-  firstName: GILLIAN
-  lastName: ANDERSON
-  cellLocation: LEI-H-1-5
-  event: EDUC
-  eventDescription: Education
-  comment: Woodwork
-  startTime: 2017-09-11T13:00
-  endTime: 2017-09-11T15:00
-}
-,
-    class PrisonerSchedule {
-  offenderNo: A1234AB
-  firstName: GILLIAN
-  lastName: ANDERSON
-  cellLocation: LEI-H-1-5
-  event: EDUC
-  eventDescription: Education
-  comment: Woodwork
-  startTime: 2017-09-12T13:00
-  endTime: 2017-09-12T15:00
-}
-,
-    class PrisonerSchedule {
-  offenderNo: A1234AB
-  firstName: GILLIAN
-  lastName: ANDERSON
-  cellLocation: LEI-H-1-5
-  event: EDUC
-  eventDescription: Education
-  comment: Woodwork
-  startTime: 2017-09-13T13:00
-  endTime: 2017-09-13T15:00
-}
-,
-    class PrisonerSchedule {
-  offenderNo: A1234AB
-  firstName: GILLIAN
-  lastName: ANDERSON
-  cellLocation: LEI-H-1-5
-  event: EDUC
-  eventDescription: Education
-  comment: Woodwork
-  startTime: 2017-09-14T13:00
-  endTime: 2017-09-14T15:00
-}
-,
-    class PrisonerSchedule {
-  offenderNo: A1234AB
-  firstName: GILLIAN
-  lastName: ANDERSON
-  cellLocation: LEI-H-1-5
-  event: EDUC
-  eventDescription: Education
-  comment: Woodwork
-  startTime: 2017-09-15T13:00
-  endTime: 2017-09-15T15:00
-}
-,
-    class PrisonerSchedule {
-  offenderNo: A1234AB
-  firstName: GILLIAN
-  lastName: ANDERSON
-  cellLocation: LEI-H-1-5
-  event: EDUC
-  eventDescription: Education
-  comment: Woodwork
-  startTime: 2018-01-04T12:00
-  endTime: 2018-01-04T12:00
-}
-,
-    class PrisonerSchedule {
-  offenderNo: A1234AB
-  firstName: GILLIAN
-  lastName: ANDERSON
-  cellLocation: LEI-H-1-5
-  event: EDUC
-  eventDescription: Education
-  comment: Woodwork
-  startTime: 2018-01-04T13:00
-  endTime: 2018-01-04T13:00
-}
-,
-    class PrisonerSchedule {
-  offenderNo: A1234AC
-  firstName: NORMAN
-  lastName: BATES
-  cellLocation: LEI-A-1-1
-  event: EDUC
-  eventDescription: Education
-  comment: Woodwork
-  startTime: 2017-09-11T13:00
-  endTime: 2017-09-11T15:00
-}
-,
-    class PrisonerSchedule {
-  offenderNo: A1234AC
-  firstName: NORMAN
-  lastName: BATES
-  cellLocation: LEI-A-1-1
-  event: EDUC
-  eventDescription: Education
-  comment: Woodwork
-  startTime: 2017-09-12T13:00
-  endTime: 2017-09-12T15:00
-}
-,
-    class PrisonerSchedule {
-  offenderNo: A1234AC
-  firstName: NORMAN
-  lastName: BATES
-  cellLocation: LEI-A-1-1
-  event: EDUC
-  eventDescription: Education
-  comment: Woodwork
-  startTime: 2017-09-13T13:00
-  endTime: 2017-09-13T15:00
-}
-,
-    class PrisonerSchedule {
-  offenderNo: A1234AC
-  firstName: NORMAN
-  lastName: BATES
-  cellLocation: LEI-A-1-1
-  event: EDUC
-  eventDescription: Education
-  comment: Woodwork
-  startTime: 2017-09-14T13:00
-  endTime: 2017-09-14T15:00
-}
-,
-    class PrisonerSchedule {
-  offenderNo: A1234AC
-  firstName: NORMAN
-  lastName: BATES
-  cellLocation: LEI-A-1-1
-  event: EDUC
-  eventDescription: Education
-  comment: Woodwork
-  startTime: 2017-09-15T13:00
-  endTime: 2017-09-15T15:00
-}
-,
-    class PrisonerSchedule {
-  offenderNo: A1234AC
-  firstName: NORMAN
-  lastName: BATES
-  cellLocation: LEI-A-1-1
-  event: EDUC
-  eventDescription: Education
-  comment: Woodwork
-  startTime: 2018-01-04T12:00
-  endTime: 2018-01-04T12:00
-}
-,
-    class PrisonerSchedule {
-  offenderNo: A1234AC
-  firstName: NORMAN
-  lastName: BATES
-  cellLocation: LEI-A-1-1
-  event: EDUC
-  eventDescription: Education
-  comment: Woodwork
-  startTime: 2018-01-04T13:00
-  endTime: 2018-01-04T13:00
-}
-]>
-         */
+        // assert at least 1 field from all results
+        assertThat(results.get(1).getStartTime().toString()).isEqualTo("2017-09-12T13:00");
+        assertThat(results.get(2).getStartTime().toString()).isEqualTo("2017-09-13T13:00");
+        assertThat(results.get(3).getStartTime().toString()).isEqualTo("2017-09-14T13:00");
+        assertThat(results.get(4).getStartTime().toString()).isEqualTo("2017-09-15T13:00");
+        assertThat(results.get(5).getLastName()).isEqualTo("ANDERSON"); // date today
+        assertThat(results.get(6).getLastName()).isEqualTo("ANDERSON");
+        assertThat(results.get(7).getStartTime().toString()).isEqualTo("2017-09-11T13:00");
+        assertThat(results.get(8).getStartTime().toString()).isEqualTo("2017-09-12T13:00");
+        assertThat(results.get(9).getStartTime().toString()).isEqualTo("2017-09-13T13:00");
+        assertThat(results.get(10).getStartTime().toString()).isEqualTo("2017-09-14T13:00");
+        assertThat(results.get(11).getStartTime().toString()).isEqualTo("2017-09-15T13:00");
+        assertThat(results.get(12).getLastName()).isEqualTo("BATES");
+        assertThat(results.get(13).getLastName()).isEqualTo("BATES");
     }
 
     @Test
@@ -239,44 +82,9 @@ public class ScheduleRepositoryTest {
         final LocalDate toDate = LocalDate.now();
           final List<PrisonerSchedule> results =  repository.getLocationAppointments(-28L, date, toDate, null, null);
           assertThat(results).hasSize(3);
-      //    assertPrisonerDetails(results.get(0));
-          
-          /*
-<[class PrisonerSchedule {
-  offenderNo: A1234AB
-  firstName: GILLIAN
-  lastName: ANDERSON
-  cellLocation: LEI-H-1-5
-  event: IMM
-  eventDescription: Immigration Appointment
-  comment: comment16
-  startTime: 2017-05-12T09:30
-  endTime: 2017-05-12T10:00
-},
-    class PrisonerSchedule {
-  offenderNo: A1234AC
-  firstName: NORMAN
-  lastName: BATES
-  cellLocation: LEI-A-1-1
-  event: EDUC
-  eventDescription: Education
-  comment: comment18
-  startTime: 2018-01-04T04:00
-  endTime: 2018-01-04T04:00
-},
-    class PrisonerSchedule {
-  offenderNo: A1234AE
-  firstName: DONALD
-  lastName: DUCK
-  cellLocation: LEI-A-1-10
-  event: EDUC
-  eventDescription: Education
-  comment: comment23
-  startTime: 2018-01-04T01:00
-  endTime: 2018-01-04T01:00
-}
-]>
-           */
+          assertThat(results.get(0).getLastName()).isEqualTo("ANDERSON");
+          assertThat(results.get(1).getLastName()).isEqualTo("BATES");
+          assertThat(results.get(2).getLastName()).isEqualTo("DUCK");
     }
 
     @Test
@@ -285,7 +93,11 @@ public class ScheduleRepositoryTest {
         final LocalDate toDate = LocalDate.now();
           final List<PrisonerSchedule> results =  repository.getLocationVisits(-25L, date, toDate, null, null);
           assertThat(results).hasSize(5);
-       //   assertPrisonerDetails(results.get(3));
+          assertThat(results.get(0).getLastName()).isEqualTo("ANDERSON");
+          assertThat(results.get(1).getLastName()).isEqualTo("ANDERSON");
+          assertThat(results.get(2).getLastName()).isEqualTo("ANDERSON");
+          assertThat(results.get(3).getLastName()).isEqualTo("ANDERSON");
+          assertThat(results.get(4).getLastName()).isEqualTo("BATES");
           /*
 <[class PrisonerSchedule {
   offenderNo: A1234AA

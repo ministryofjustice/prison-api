@@ -103,6 +103,7 @@ public class SchedulesServiceImpl implements SchedulesService {
             break;
         default:
             events = scheduleRepository.getLocationActivities(locationId, today, today, "lastName", Order.ASC);
+            break;
         }
         if (timeSlot == null) {
             return events;
