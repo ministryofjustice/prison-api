@@ -1,5 +1,6 @@
 
 /{agencyId}/groups/{name}:
+  (javaOperationName): getGroupEvents
   uriParameters:
     agencyId:
       type: string
@@ -16,6 +17,7 @@
   type: { readOnlyCollection: { type: PrisonerSchedule, description: Get all events for today for prisoners in listed cells. } }
 
 /{agencyId}/location/{locationId}/usage/{usage}:
+  (javaOperationName): getLocationEvents
   uriParameters:
     agencyId:
       type: string

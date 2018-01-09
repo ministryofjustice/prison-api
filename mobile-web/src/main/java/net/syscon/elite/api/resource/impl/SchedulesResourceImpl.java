@@ -23,20 +23,20 @@ public class SchedulesResourceImpl implements ScheduleResource {
     }
 
     @Override
-    public GetSchedulesAgencyIdGroupsNameResponse getSchedulesAgencyIdGroupsName(String agencyId, String name,
-            TimeSlot timeSlot) {
+    public GetGroupEventsResponse getGroupEvents(String agencyId, String name, TimeSlot timeSlot) {
 
         final List<PrisonerSchedule> events = schedulesService.getLocationGroupTodaysEvents(agencyId, name, timeSlot);
 
-        return GetSchedulesAgencyIdGroupsNameResponse.respond200WithApplicationJson(events);
+        return GetGroupEventsResponse.respond200WithApplicationJson(events);
     }
 
     @Override
-    public GetSchedulesAgencyIdLocationLocationIdUsageUsageResponse getSchedulesAgencyIdLocationLocationIdUsageUsage(
-            String agencyId, Long locationId, String usage, TimeSlot timeSlot) {
+    public GetLocationEventsResponse getLocationEvents(String agencyId, Long locationId, String usage,
+            TimeSlot timeSlot) {
 
-        final List<PrisonerSchedule> events = schedulesService.getLocationTodaysEvents(agencyId, locationId, usage, timeSlot);
+        final List<PrisonerSchedule> events = schedulesService.getLocationTodaysEvents(agencyId, locationId, usage,
+                timeSlot);
 
-        return GetSchedulesAgencyIdLocationLocationIdUsageUsageResponse.respond200WithApplicationJson(events);
+        return GetLocationEventsResponse.respond200WithApplicationJson(events);
     }
 }

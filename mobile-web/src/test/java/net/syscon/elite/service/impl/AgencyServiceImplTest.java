@@ -4,7 +4,10 @@ import com.google.common.collect.ImmutableList;
 import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.repository.AgencyRepository;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.ReferenceDomainService;
+
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,12 +26,13 @@ import static org.mockito.Mockito.when;
 public class AgencyServiceImplTest {
     private AgencyServiceImpl service;
 
-    @Mock
-    private AgencyRepository agencyRepo;
+    @Mock private AuthenticationFacade authenticationFacade;
+    @Mock private AgencyRepository agencyRepo;
+    @Mock private ReferenceDomainService referenceDomainService;
 
     @Before
     public void setUp() throws Exception {
-        service = new AgencyServiceImpl(null, agencyRepo);
+        service = new AgencyServiceImpl(authenticationFacade, agencyRepo, referenceDomainService);
         when(agencyRepo.getPrisonContactDetails(eq(null))).thenReturn(buildPrisonContactDetailsList());
         when(agencyRepo.getPrisonContactDetails(eq("ABC"))).thenReturn(buildPrisonContactDetailsListSingleResult());
         when(agencyRepo.getPrisonContactDetails(eq("BLANK"))).thenReturn(buildPrisonContactDetailsListSingleResultBlankAddress());

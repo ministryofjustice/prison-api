@@ -4,13 +4,17 @@ import com.google.common.annotations.VisibleForTesting;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.PrisonContactDetail;
+import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.support.LocationProcessor;
+import net.syscon.elite.service.support.ReferenceDomain;
+
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -21,7 +25,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Agency API service implementation.
@@ -30,27 +33,15 @@ import java.util.stream.Stream;
 @Transactional(readOnly = true)
 public class AgencyServiceImpl implements AgencyService {
 
-    // All location usages that an event could possibly be held in. (reference domain ILOC_USG )
-    public static enum InternalLocationUsage {
-        APP, // appointments
-        MOVEMENT,
-        OCCUR,
-        OIC, //Adjudication Hearing Location
-        OTHER,
-        PROG, //Programmes & Activities
-        PROP,
-        VISIT; // Visits
-    }
-
-    private static final List<String> EVENT_LOCATION_TYPES = Stream.of(InternalLocationUsage.values())
-            .map(InternalLocationUsage::name).collect(Collectors.toList());
-
     private final AuthenticationFacade authenticationFacade;
     private final AgencyRepository agencyRepository;
+    private final ReferenceDomainService referenceDomainService;
 
-    public AgencyServiceImpl(AuthenticationFacade authenticationFacade, AgencyRepository agencyRepository) {
+    public AgencyServiceImpl(AuthenticationFacade authenticationFacade, AgencyRepository agencyRepository,
+            ReferenceDomainService referenceDomainService) {
         this.authenticationFacade = authenticationFacade;
         this.agencyRepository = agencyRepository;
+        this.referenceDomainService = referenceDomainService;
     }
 
     @Override
@@ -116,7 +107,13 @@ public class AgencyServiceImpl implements AgencyService {
         String orderBy = StringUtils.defaultIfBlank(sortFields, "userDescription,description");
         Order order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
 
-        List<Location> rawLocations = agencyRepository.getAgencyLocations(agencyId, EVENT_LOCATION_TYPES, orderBy, order);
+        // Get all location usages for locations that an event could possibly be held in. (reference domain ILOC_USG )
+        // Note this should be cached. Also assuming small number of values
+        final List<String> allEventLocationUsages = referenceDomainService
+                .getReferenceCodesByDomain(ReferenceDomain.INTERNAL_LOCATION_USAGE.getDomain(), false, null, null, 0, 1000)
+                .getItems().stream().map(ReferenceCode::getCode).collect(Collectors.toList());
+
+        List<Location> rawLocations = agencyRepository.getAgencyLocations(agencyId, allEventLocationUsages, orderBy, order);
 
         return LocationProcessor.processLocations(rawLocations);
     }
