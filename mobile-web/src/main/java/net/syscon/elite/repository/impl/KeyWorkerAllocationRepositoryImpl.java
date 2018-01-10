@@ -1,10 +1,11 @@
 package net.syscon.elite.repository.impl;
 
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.DateTimeConverter;
+import net.syscon.util.IQueryBuilder;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
@@ -14,7 +15,7 @@ import java.util.Optional;
 
 @Repository
 public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements KeyWorkerAllocationRepository {
-    private static final RowMapper<KeyWorkerAllocation> KEY_WORKER_ALLOCATION_ROW_MAPPER =
+    private static final StandardBeanPropertyRowMapper<KeyWorkerAllocation> KEY_WORKER_ALLOCATION_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(KeyWorkerAllocation.class);
 
     @Override
@@ -40,7 +41,7 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
     }
 
     @Override
-    public void deactivateAllocationForOffenderBooking(Long bookingId, String username) {
+    public void deactivateAllocationForOffenderBooking(Long bookingId, String reason, String username) {
         String sql = getQuery("DEACTIVATE_KEY_WORKER_ALLOCATION_FOR_OFFENDER_BOOKING");
         final LocalDateTime localDateTime = LocalDateTime.now();
 
@@ -49,11 +50,12 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
         jdbcTemplate.update(
                 sql,
                 createParams("bookingId", bookingId,
+                        "deallocationReason", reason,
                         "expiryDate", now));
     }
 
     @Override
-    public void deactivateAllocationsForKeyWorker(Long staffId, String username) {
+    public void deactivateAllocationsForKeyWorker(Long staffId, String reason, String username) {
         String sql = getQuery("DEACTIVATE_KEY_WORKER_ALLOCATIONS_FOR_KEY_WORKER");
         final LocalDateTime localDateTime = LocalDateTime.now();
 
@@ -62,6 +64,7 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
         jdbcTemplate.update(
                 sql,
                 createParams("staffId", staffId,
+                        "deallocationReason", reason,
                         "expiryDate", now));
     }
 
@@ -80,8 +83,14 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
     }
 
     @Override
-    public List<KeyWorkerAllocation> getAllocationHistoryForPrisoner(Long offenderId) {
-        String sql = getQuery("GET_ALLOCATION_HISTORY_FOR_OFFENDER");
+    public List<KeyWorkerAllocation> getAllocationHistoryForPrisoner(Long offenderId, String orderByFields, Order order) {
+        String initialSql = getQuery("GET_ALLOCATION_HISTORY_FOR_OFFENDER");
+
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, KEY_WORKER_ALLOCATION_ROW_MAPPER.getFieldMap());
+
+        String sql = builder
+                .addOrderBy(order, orderByFields)
+                .build();
 
         final List<KeyWorkerAllocation> allocation = jdbcTemplate.query(
                 sql,
