@@ -20,6 +20,13 @@
     sortable: {fieldsList : "description, userDescription"}
   ]
 
+/{agencyId}/eventLocations:
+  (javaOperationName): getAgencyEventLocations
+  type: { readOnlyCollection: { type: Location, description: "List of locations for agency where events (appointments, visits, activities) could be held." } }
+  is: [
+    sortable: {fieldsList : "description, userDescription"}
+  ]
+
 /prison:
   (javaOperationName): getPrisonContactDetailList
   type: { readOnlyCollection: { type: PrisonContactDetail, description: List of prison contact details. } }

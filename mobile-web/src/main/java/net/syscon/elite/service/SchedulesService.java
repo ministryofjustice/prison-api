@@ -12,5 +12,5 @@ public interface SchedulesService {
 
     List<PrisonerSchedule> getLocationGroupTodaysEvents(String agencyId, String groupName, TimeSlot timeSlot);
 
-    List<PrisonerSchedule> getLocationTodaysEvents(String agencyId, Long locationId, TimeSlot timeSlot);
+    List<PrisonerSchedule> getLocationTodaysEvents(String agencyId, Long locationId, String usage, TimeSlot timeSlot);
 }

@@ -92,9 +92,7 @@ public abstract class CommonSteps {
     public void verifyResourceNotFound() {
         assertThat(errorResponse).isNotNull();
         assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-
-        // If developerMessage is not empty, test is calling incorrect path/uri.
-        assertThat(errorResponse.getDeveloperMessage()).isEmpty();
+        assertThat(errorResponse.getDeveloperMessage()).as("Test is calling incorrect path/uri").isEmpty();
     }
 
     @Step("Verify user message in error response")
@@ -310,6 +308,24 @@ public abstract class CommonSteps {
         return extractedVals;
     }
 
+    protected <T> List<String> extractLocalTimeValues(Collection<T> actualCollection, Function<T,LocalDateTime> mapper) {
+        List<String> extractedVals = new ArrayList<>();
+        final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+        if (actualCollection != null) {
+            extractedVals.addAll(
+                    actualCollection
+                            .stream()
+                            .map(mapper)
+                            .filter(Objects::nonNull)
+                            .map(date -> date.format(dateTimeFormatter))
+                            .collect(Collectors.toList())
+            );
+        }
+
+        return extractedVals;
+    }
+
     protected <T> List<String> extractDateValues(Collection<T> actualCollection, Function<T,Date> mapper) {
         List<String> extractedVals = new ArrayList<>();
         final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -375,6 +391,14 @@ public abstract class CommonSteps {
     protected <T> void verifyLocalDateTimeValues(Collection<T> actualCollection, Function<T, LocalDateTime> mapper,
             String expectedValues) {
         List<String> actualValList = extractLocalDateTimeValues(actualCollection, mapper);
+        List<String> expectedValList = csv2list(expectedValues);
+
+        verifyIdentical(actualValList, expectedValList);
+    }
+
+    protected <T> void verifyLocalTimeValues(Collection<T> actualCollection, Function<T, LocalDateTime> mapper,
+            String expectedValues) {
+        List<String> actualValList = extractLocalTimeValues(actualCollection, mapper);
         List<String> expectedValList = csv2list(expectedValues);
 
         verifyIdentical(actualValList, expectedValList);

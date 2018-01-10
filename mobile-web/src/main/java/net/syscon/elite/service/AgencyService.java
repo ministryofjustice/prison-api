@@ -19,6 +19,7 @@ public interface AgencyService {
     Set<String> getAgencyIds();
     void verifyAgencyAccess(String agencyId);
     List<Location> getAgencyLocations(String agencyId, String eventType, String sortFields, Order sortOrder);
+    List<Location> getAgencyEventLocations(String agencyId, String sortFields, Order sortOrder);
     List<PrisonContactDetail> getPrisonContactDetail();
     PrisonContactDetail getPrisonContactDetail(String agencyId);
 }
