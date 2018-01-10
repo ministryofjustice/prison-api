@@ -77,8 +77,8 @@ FIND_REFERENCE_CODE_BY_DOMAIN_AND_CODE {
 
 GET_AVAILABLE_EVENT_SUBTYPES {
  --- For INSERT_APPOINTMENT
-SELECT internal_schedule_rsn_code AS code,
+  SELECT internal_schedule_rsn_code AS code,
        description AS description
-FROM internal_schedule_reasons WHERE internal_schedule_type = :eventType AND active_flag = 'Y'
-ORDER BY internal_schedule_rsn_code
+  FROM internal_schedule_reasons WHERE internal_schedule_type = :eventType AND active_flag = 'Y'
+  ORDER BY description
 }

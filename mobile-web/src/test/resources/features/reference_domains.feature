@@ -145,13 +145,13 @@ Feature: Reference Domains
       | ALERT     | C     | Child Communication Measures      | Y          | 4            |
       | CONTACTS  | S     | Social/Family                     | Y          | 38           |
 
-  Scenario: Retrieve reason codes for an event type
+  Scenario: Retrieve reason codes for an event type ordered by description
     When a request is submitted to retrieve all reason codes for event type "APP"
     Then the returned reason codes are as follows:
       | code | description      |
       | CABA | Bail             |
       | CHAP | Baptism          |
       | EDUC | Computers        |
-      | KWS  | Key Work Session |
       | MEDE | Dentist          |
+      | KWS  | Key Work Session |
       | RES  | Resolve          |

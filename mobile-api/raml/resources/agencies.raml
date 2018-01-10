@@ -27,6 +27,14 @@
     sortable: {fieldsList : "description, userDescription"}
   ]
 
+/{agencyId}/locations/groups:
+  (javaOperationName): getAvailableGroups
+  uriParameters:
+    agencyId:
+      type: string
+      description: The prison
+  type: { readOnlyCollection: { type: String, description: List of all available groups at agency. } }
+
 /prison:
   (javaOperationName): getPrisonContactDetailList
   type: { readOnlyCollection: { type: PrisonContactDetail, description: List of prison contact details. } }

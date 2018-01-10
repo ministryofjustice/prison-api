@@ -21,7 +21,7 @@ import static org.springframework.util.StringUtils.commaDelimitedListToStringArr
 public class LocationsSteps extends CommonSteps {
     private static final String API_LOCATIONS = API_PREFIX + "locations";
 
-    private static final String GROUPS_API_URL = API_LOCATIONS + "/groups/{agencyId}";
+    private static final String GROUPS_API_URL = AgencySteps.API_AGENCY_URL + "/locations/groups";
     private static final String GROUP_API_URL = API_LOCATIONS + "/groups/{agencyId}/{name}";
     
     private Location location;
