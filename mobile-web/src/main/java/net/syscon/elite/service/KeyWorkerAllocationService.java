@@ -11,5 +11,13 @@ public interface KeyWorkerAllocationService {
 
     void createAllocation(KeyWorkerAllocation allocation, String username);
 
+    void deactivateAllocationForKeyWorker(Long staffId, String username);
+
+    void deactivateAllocationForOffenderBooking(Long bookingId, String username);
+
     List<KeyWorkerAllocation> getAllocationHistoryForPrisoner(Long offenderId);
+
+    KeyWorkerAllocation getCurrentAllocationForOffenderBooking(Long bookingId);
+
+    KeyWorkerAllocation getLatestAllocationForOffenderBooking(Long bookingId);
 }

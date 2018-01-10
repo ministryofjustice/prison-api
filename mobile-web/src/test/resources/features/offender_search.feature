@@ -10,7 +10,7 @@ Feature: Offender Search V2
   Scenario: Search all offenders across all allowed locations
     When an offender search is made without prisoner name or ID and across all locations
     Then "10" offender records are returned
-    And  "21" total offender records are available
+    And  "25" total offender records are available
 
   Scenario Outline: Search based on keywords
     When an offender search is made with keywords "<keywords>" of existing offender
@@ -37,9 +37,9 @@ Feature: Offender Search V2
     Examples:
       | location  | number |
       | LEI-A     | 12     |
-      | LEI-H     | 9      |
+      | LEI-H     | 13      |
       | BXI       | 0      |
-      | LEI       | 21     |
+      | LEI       | 25     |
       | XXX       | 0      |
 
   Scenario Outline: Search based on keywords and locations
