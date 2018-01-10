@@ -11,7 +11,6 @@ import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.IQueryBuilder;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
@@ -89,10 +88,10 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
     }
 
     @Override
-    public List<Location> getAgencyLocations(String agencyId, String eventType, String sortFields, Order sortOrder) {
+    public List<Location> getAgencyLocations(String agencyId, List<String> eventTypes, String sortFields, Order sortOrder) {
         String initialSql;
 
-        if (StringUtils.isBlank(eventType)) {
+        if (eventTypes.isEmpty()) {
             initialSql = getQuery("GET_AGENCY_LOCATIONS");
         } else {
             initialSql = getQuery("GET_AGENCY_LOCATIONS_FOR_EVENT_TYPE");
@@ -104,7 +103,7 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
 
         return jdbcTemplate.query(
                 sql,
-                createParams("agencyId", agencyId, "eventType", eventType),
+                createParams("agencyId", agencyId, "eventTypes", eventTypes),
                 LOCATION_ROW_MAPPER);
     }
 

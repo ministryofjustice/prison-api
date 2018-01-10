@@ -12,6 +12,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -19,10 +20,13 @@ import java.util.List;
  */
 public class SchedulesSteps extends CommonSteps {
     private static final String API_GROUPS_URL = API_PREFIX + "schedules/{agencyId}/groups/{name}";
+    private static final String API_LOCATION_URL = API_PREFIX + "schedules/{agencyId}/location/{locationId}/usage/{usage}";
 
     private List<PrisonerSchedule> results;
     private String agency;
     private String groupName;
+    private Long location;
+    private String usage;
 
     @Override
     protected void init() {
@@ -30,9 +34,11 @@ public class SchedulesSteps extends CommonSteps {
         results = null;
         agency = null;
         groupName = null;
+        location = null;
+        usage = null;
     }
 
-    private List<PrisonerSchedule> dispatchListRequest(String url, String agencyId, String name, TimeSlot timeSlot) {
+    private List<PrisonerSchedule> dispatchGroupRequest(String url, String agencyId, String name, TimeSlot timeSlot) {
         init();
         String urlModifier = "";
         if (timeSlot != null) {
@@ -43,6 +49,25 @@ public class SchedulesSteps extends CommonSteps {
             ResponseEntity<List<PrisonerSchedule>> response = restTemplate.exchange(url + urlModifier, HttpMethod.GET,
                     httpEntity, new ParameterizedTypeReference<List<PrisonerSchedule>>() {
                     }, agencyId, name);
+            buildResourceData(response);
+            return response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+            return null;
+        }
+    }
+    
+    private List<PrisonerSchedule> dispatchLocationRequest(String url, String agencyId, Long locationId, String usage1, TimeSlot timeSlot) {
+        init();
+        String urlModifier = "";
+        if (timeSlot != null) {
+            urlModifier += "?timeSlot=" + timeSlot.name();
+        }
+        HttpEntity<?> httpEntity = createEntity();
+        try {
+            ResponseEntity<List<PrisonerSchedule>> response = restTemplate.exchange(url + urlModifier, HttpMethod.GET,
+                    httpEntity, new ParameterizedTypeReference<List<PrisonerSchedule>>() {
+                    }, agencyId, locationId, usage1);
             buildResourceData(response);
             return response.getBody();
         } catch (EliteClientException ex) {
@@ -62,6 +87,8 @@ public class SchedulesSteps extends CommonSteps {
     public void givenNoScheduledEventsForCurrentDay() {
         agency = "LEI";
         groupName = "LandingH1Evens";
+        location = -24L;
+        usage = "APP";
     }
 
     public void givenAnExistingAgencyAndLocationGroup() {
@@ -80,6 +107,7 @@ public class SchedulesSteps extends CommonSteps {
 
     public void givenAgencyBelongsToCaseload() {
         agency = "LEI";
+        usage = "APP";
     }
 
     // public void verifyField(String field, String value) throws
@@ -95,16 +123,16 @@ public class SchedulesSteps extends CommonSteps {
         groupName = "BlockE";
     }
 
-    public void getSchedules(String agencyId, String group) {
-        results = dispatchListRequest(API_GROUPS_URL, agencyId, group, null);
+    public void getSchedulesForLocationGroup(String agencyId, String group) {
+        results = dispatchGroupRequest(API_GROUPS_URL, agencyId, group, null);
     }
 
-    public void getSchedules(String agencyId, String name, TimeSlot timeSlot) {
-        results = dispatchListRequest(API_GROUPS_URL, agencyId, name, timeSlot);
+    public void getSchedulesForLocationGroup(String agencyId, String group, TimeSlot timeSlot) {
+        results = dispatchGroupRequest(API_GROUPS_URL, agencyId, group, timeSlot);
     }
 
-    public void getSchedules() {
-        results = dispatchListRequest(API_GROUPS_URL, agency, groupName, null);
+    public void getSchedulesForLocationGroup() {
+        results = dispatchGroupRequest(API_GROUPS_URL, agency, groupName, null);
     }
 
     public void verifyListOfOffendersSchedulesForCurrentDay(int size) {
@@ -193,7 +221,7 @@ public class SchedulesSteps extends CommonSteps {
     public void verifySchedulesAreOrdered() {
         // Check donald duck is at the end, cell 10, so
         // just ensure cell A-1-1 comes before A-1-10
-        assertThat(results).isSortedAccordingTo((o1,o2) -> {return o1.getCellLocation().compareTo(o2.getCellLocation());});
+        assertThat(results).isSortedAccordingTo((o1,o2) -> o1.getCellLocation().compareTo(o2.getCellLocation()));
     }
 
     public void verifyOffendersAreLocatedInALocationThatBelongsToRequestedAgencyAndLocationGroup() {
@@ -211,5 +239,59 @@ public class SchedulesSteps extends CommonSteps {
     public void schedulesAreOnlyOnOrAfter12h00() {
         assertThat(results.get(0).getStartTime().getHour()).isEqualTo(12);
         assertThat(results.get(1).getStartTime().getHour()).isEqualTo(13);
+    }
+
+// --------------------------------------------------------------------------------
+
+    public void givenAnExistingAgencyAndLocation() {
+        agency = "LEI";
+        location = -28L;
+        usage = "APP";
+    }
+
+    public void givenLocationDoesNotExistForTheAgency() {
+        location = -99L;
+    }
+
+    public void givenLocationNoScheduledEventsForCurrentDay() {
+        agency = "LEI";
+        location = -24L;
+    }
+
+    public void givenScheduledEventsForCurrentDayAtLocation() {
+        // data setup
+    }
+
+    public void getSchedulesForLocation() {
+        results = dispatchLocationRequest(API_LOCATION_URL, agency, location, usage, null);
+    }
+
+    public void getSchedulesForLocation(String agencyId, Long loc, String usage1, TimeSlot timeSlot) {
+        results = dispatchLocationRequest(API_LOCATION_URL, agencyId, loc, usage1, timeSlot);
+    }
+
+    public void verifySchedulesAreOrderedAlphabetically() {
+        assertThat(results).isSortedAccordingTo((o1,o2) -> o1.getLastName().compareTo(o2.getLastName()));
+    }
+
+    public void schedulesAreOnlyForOffendersOnCurrentDay() {
+        final LocalDate now = LocalDate.now();
+        assertThat(results).allMatch(p -> p.getStartTime().toLocalDate().equals(now));
+    }
+
+    public void verifyListOfOffendersSchedulesForCurrentDayLastNames(String expectedList) {
+        verifyPropertyValues(results, PrisonerSchedule::getLastName, expectedList);
+    }
+
+    public void verifyListOfScheduleEventTypes(String expectedList) {
+        verifyPropertyValues(results, PrisonerSchedule::getEvent, expectedList);
+    }
+
+    public void verifyListOfScheduleStartTimes(String expectedList) {
+        verifyLocalTimeValues(results, PrisonerSchedule::getStartTime, expectedList);
+    }
+
+    public void givenUsageInvalid() {
+        usage = "INVALID";
     }
 }
