@@ -13,8 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,20 +23,18 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 
 @ActiveProfiles("nomis-hsqldb")
 @RunWith(SpringRunner.class)
-@Transactional(propagation = Propagation.NOT_SUPPORTED)
 @JdbcTest()
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = PersistenceConfigs.class)
 public class KeyWorkerAllocationRepositoryTest {
-    private static final long OFFENDER_BOOKING_ID_WITH_ALLOCATION_1 = -1L;
-    private static final long OFFENDER_BOOKING_ID_WITH_ALLOCATION_2 = -2L;
-    private static final long OFFENDER_BOOKING_ID_WITH_INACTIVE_ALLOCATION = -16L;
-    private static final long OFFENDER_BOOKING_ID_WITHOUT_ALLOCATION = -26L;
-    private static final long OFFENDER_ID_WITH_MULTIPLE_OFFENDER_BOOKINGS = -28L;
-    private static final long KEY_WORKER_WITH_ALLOCATIONS = -4;
+    private static final long OFFENDER_BOOKING_ID_WITH_ALLOCATION_1 = -29L;
+    private static final long OFFENDER_BOOKING_ID_WITH_ALLOCATION_2 = -32L;
+    private static final long OFFENDER_BOOKING_ID_WITH_INACTIVE_ALLOCATION = -29L;
+    private static final long OFFENDER_BOOKING_ID_WITHOUT_ALLOCATION = -30L;
+    private static final long OFFENDER_ID_WITH_ALLOCATION = -29L;
+    private static final long KEY_WORKER_WITH_ALLOCATIONS = -5;
     private static final String NEW_ALLOCATION_REASON = "new reason";
     private static final String DEFAULT_ALLOCATION_REASON = "MANUAL";
-    private static final long STAFF_ID = -2L;
     private static final String AUTO_ALLOCATION_TYPE = "A";
     private static final String MANUAL_ALLOCATION_TYPE = "M";
     private static final String USERNAME = "testuser";
@@ -58,7 +54,7 @@ public class KeyWorkerAllocationRepositoryTest {
 
         assertTrue(allocation.isPresent());
         assertThat(allocation.get().getReason()).isEqualTo(NEW_ALLOCATION_REASON);
-        assertThat(allocation.get().getStaffId()).isEqualTo(STAFF_ID);
+        assertThat(allocation.get().getStaffId()).isEqualTo(KEY_WORKER_WITH_ALLOCATIONS);
     }
 
     @Test
@@ -75,7 +71,7 @@ public class KeyWorkerAllocationRepositoryTest {
 
         assertTrue(allocation.isPresent());
         assertThat(allocation.get().getBookingId()).isEqualTo(OFFENDER_BOOKING_ID_WITH_ALLOCATION_2);
-        assertThat(allocation.get().getStaffId()).isEqualTo(STAFF_ID);
+        assertThat(allocation.get().getStaffId()).isEqualTo(KEY_WORKER_WITH_ALLOCATIONS);
         assertThat(allocation.get().getReason()).isEqualTo(DEFAULT_ALLOCATION_REASON);
         assertThat(allocation.get().getType()).isEqualTo(MANUAL_ALLOCATION_TYPE);
 
@@ -89,7 +85,7 @@ public class KeyWorkerAllocationRepositoryTest {
 
         assertTrue(allocation.isPresent());
         assertThat(allocation.get().getBookingId()).isEqualTo(OFFENDER_BOOKING_ID_WITH_INACTIVE_ALLOCATION);
-        assertThat(allocation.get().getStaffId()).isEqualTo(STAFF_ID);
+        assertThat(allocation.get().getStaffId()).isEqualTo(KEY_WORKER_WITH_ALLOCATIONS);
         assertThat(allocation.get().getActive()).isEqualTo("N");
     }
 
@@ -103,8 +99,8 @@ public class KeyWorkerAllocationRepositoryTest {
 
     @Test
     public void shouldGetAllocationHistoryForPrisonerInCronologicalOrder() throws Exception {
-        final List<KeyWorkerAllocation> historyForPrisoner = repo.getAllocationHistoryForPrisoner(OFFENDER_ID_WITH_MULTIPLE_OFFENDER_BOOKINGS);
-        assertThat(historyForPrisoner).extracting("bookingId").containsExactly(-29L, -28L);
+        final List<KeyWorkerAllocation> historyForPrisoner = repo.getAllocationHistoryForPrisoner(OFFENDER_ID_WITH_ALLOCATION);
+        assertThat(historyForPrisoner).extracting("bookingId").containsExactly(-29L, -29L);
         assertThat(historyForPrisoner).extracting("assigned").isSorted();
     }
 
@@ -112,14 +108,12 @@ public class KeyWorkerAllocationRepositoryTest {
     public void shouldDeactivateAllocationForKeyWorker() throws Exception {
         repo.deactivateAllocationsForKeyWorker(KEY_WORKER_WITH_ALLOCATIONS, USERNAME);
 
-        final List<KeyWorkerAllocation> historyForPrisoner11 = repo.getAllocationHistoryForPrisoner(-11L);
-        final List<KeyWorkerAllocation> historyForPrisoner12 = repo.getAllocationHistoryForPrisoner(-12L);
-        assertThat(historyForPrisoner11).extracting("active").containsExactly("N");
-        assertThat(historyForPrisoner12).extracting("active").containsExactly("N");
+        final List<KeyWorkerAllocation> historyForPrisoner = repo.getAllocationHistoryForPrisoner(OFFENDER_BOOKING_ID_WITH_INACTIVE_ALLOCATION);
+        assertThat(historyForPrisoner).extracting("active").containsExactly("N", "N");
     }
 
     private KeyWorkerAllocation buildKeyWorkerAllocation(Long bookingId) {
-        return KeyWorkerAllocation.builder().agencyId("LEI").bookingId(bookingId).reason(NEW_ALLOCATION_REASON).staffId(STAFF_ID).type(AUTO_ALLOCATION_TYPE).build();
+        return KeyWorkerAllocation.builder().agencyId("LEI").bookingId(bookingId).reason(NEW_ALLOCATION_REASON).staffId(KEY_WORKER_WITH_ALLOCATIONS).type(AUTO_ALLOCATION_TYPE).build();
     }
 
 }

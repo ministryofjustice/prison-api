@@ -73,4 +73,8 @@ INSERT INTO OFFENDERS (OFFENDER_ID, ID_SOURCE_CODE, LAST_NAME, MIDDLE_NAME, FIRS
             (-25, 'SEQ', 'SMITH', 'DAVID', 'MATTHEW', 'M', now(), 'SMITH', 'Z0025ZZ', -25, 'W1', 'A', '1974-01-01', 'UK'),
             (-26, 'SEQ', 'RIDER', null, 'GHOST', 'M', now(), 'RIDER', 'Z0026ZZ', -26, 'W1', 'A', '1972-01-01', 'UK'),
             (-27, 'SEQ', 'CLAPTON', null, 'ERIC', 'M', now(), 'CLAPTON', 'A9876EC', -27, 'W1', 'A', '1945-03-30', 'UK'),
-            (-28, 'SEQ', 'STEWART', null, 'RODERICK', 'M', now(), 'STEWART', 'A9876RS', -28, 'W1', 'A', '1945-01-10', 'UK');
+            (-28, 'SEQ', 'STEWART', null, 'RODERICK', 'M', now(), 'STEWART', 'A9876RS', -28, 'W1', 'A', '1945-01-10', 'UK'),
+            (-29, 'SEQ', 'BRADLEY', null, 'NEIL', 'M', now(), 'BRADLEY', 'A6676RS', -29, 'W1', 'A', '1945-01-10', 'UK'),
+            (-30, 'SEQ', 'SARLY', null, 'NEIL', 'M', now(), 'SARLY', 'A4476RS', -30, 'W1', 'A', '1945-01-10', 'UK'),
+            (-31, 'SEQ', 'SARLY', null, 'HARRY', 'M', now(), 'SARLY', 'A5576RS', -31, 'W1', 'A', '1945-01-10', 'UK'),
+            (-32, 'SEQ', 'JAMES', null, 'FRED', 'M', now(), 'STEWART', 'A1176RS', -32, 'W1', 'A', '1945-01-10', 'UK');

@@ -15,7 +15,7 @@ Feature: Booking Search
   Scenario: Search all offenders
     When a booking search is made without any criteria
     Then "10" booking records are returned
-    And  "21" total booking records are available
+    And  "25" total booking records are available
 
   Scenario Outline: Search based on full offender last name
     When a booking search is made with full last "<name>" of existing offender
