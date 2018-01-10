@@ -24,7 +24,7 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
     }
 
     @Override
-    @Transactional()
+    @Transactional
     public void createAllocation(KeyWorkerAllocation allocation, String username) {
         repository.getCurrentAllocationForOffenderBooking(allocation.getBookingId())
                 .orElseThrow(AllocationException.withMessage(String.format("Existing allocation found for offenderBookingId %s", allocation.getBookingId())));
@@ -32,13 +32,13 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
     }
 
     @Override
-    @Transactional()
+    @Transactional
     public void deactivateAllocationForKeyWorker(Long staffId, String reason, String username) {
         repository.deactivateAllocationsForKeyWorker(staffId, reason, username);
     }
 
     @Override
-    @Transactional()
+    @Transactional
     public void deactivateAllocationForOffenderBooking(Long bookingId, String reason, String username) {
         repository.deactivateAllocationForOffenderBooking(bookingId, reason, username);
     }
