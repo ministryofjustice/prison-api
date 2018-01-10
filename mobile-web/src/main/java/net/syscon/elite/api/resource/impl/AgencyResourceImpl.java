@@ -8,6 +8,7 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.AgencyService;
+import net.syscon.elite.service.LocationService;
 
 import javax.ws.rs.Path;
 import java.util.List;
@@ -18,9 +19,11 @@ import static net.syscon.util.ResourceUtils.nvl;
 @Path("/agencies")
 public class AgencyResourceImpl implements AgencyResource {
     private final AgencyService agencyService;
+    private final LocationService locationService;
 
-    public AgencyResourceImpl(AgencyService agencyService) {
+    public AgencyResourceImpl(AgencyService agencyService, LocationService locationService) {
         this.agencyService = agencyService;
+        this.locationService = locationService;
     }
 
     @Override
@@ -49,6 +52,11 @@ public class AgencyResourceImpl implements AgencyResource {
         List<Location> locations = agencyService.getAgencyEventLocations(agencyId, sortFields, sortOrder);
 
         return GetAgencyEventLocationsResponse.respond200WithApplicationJson(locations);
+    }
+
+    @Override
+    public GetAvailableGroupsResponse getAvailableGroups(String agencyId) {
+        return GetAvailableGroupsResponse.respond200WithApplicationJson(locationService.getAvailableGroups(agencyId));
     }
 
     @Override

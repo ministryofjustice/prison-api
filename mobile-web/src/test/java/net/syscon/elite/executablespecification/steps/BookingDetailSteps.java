@@ -45,7 +45,10 @@ public class BookingDetailSteps extends CommonSteps {
 
     @Step("Verify offender assigned officer id")
     public void verifyOffenderAssignedOfficerId(Long assignedOfficerId) {
-        assertThat(inmateDetail.getAssignedOfficerId()).isEqualTo(assignedOfficerId);
+        assertThat(inmateDetail.getAssignedOfficerId())
+                .as("assignedOfficerId expected %d but was %d, inmateDetail = %s", assignedOfficerId,
+                        inmateDetail.getAssignedOfficerId(), inmateDetail.toString())
+                .isEqualTo(assignedOfficerId);
     }
 
     @Step("Verify religion")
