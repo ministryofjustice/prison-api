@@ -161,7 +161,7 @@ public class LocationServiceImpl implements LocationService {
         }
         return results; 
     }
-    
+
     /**
      * Get all available groups for the prison/agency defined in the groups.properties file.
      */
