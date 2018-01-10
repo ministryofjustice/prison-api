@@ -36,12 +36,13 @@ public class FinanceSteps extends CommonSteps {
         }
     }
 
+    @Override
     protected void init() {
         super.init();
         result = null;
     }
 
-    public void verifyField(String field, String value) throws ReflectiveOperationException {
-        super.verifyField(result, field, value);
+    public void verifyField(String field, String expectedValue) throws ReflectiveOperationException {
+        super.verifyField(result, field, expectedValue);
     }
 }
