@@ -152,8 +152,8 @@ project(":mobile-web") {
 
     def codacyArgs = ['--language', 'Java',
                       '--coverageReport', 'build/reports/jacoco/test/jacocoTestReport.xml',
-                      // Token is available from the Codacy website when logged in
-                      '--projectToken', 'bb910b37d3ac4032887fe0c56eb4cb59']
+                      // Token is available from the Codacy website when logged in (see Settings -> Integrations -> Project API)
+                      '--projectToken', 'f5dec866390441da991b64ab941c2061']
 
     task codacyCoverageUploader(type:JavaExec) {
         doFirst {
