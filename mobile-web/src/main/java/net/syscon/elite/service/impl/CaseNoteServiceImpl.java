@@ -14,7 +14,6 @@ import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.validation.CaseNoteTypeSubTypeValid;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -101,7 +100,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	@Override
 	@Transactional
 	@VerifyBookingAccess
-	public CaseNote updateCaseNote(Long bookingId, Long caseNoteId, String username, @NotBlank(message="{caseNoteTextBlank}") @Length(max=4000, message="{caseNoteTextTooLong}") String newCaseNoteText) {
+	public CaseNote updateCaseNote(Long bookingId, Long caseNoteId, String username, @NotBlank(message="{caseNoteTextBlank}") String newCaseNoteText) {
         CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId)
 				.orElseThrow(EntityNotFoundException.withId(caseNoteId));
 
