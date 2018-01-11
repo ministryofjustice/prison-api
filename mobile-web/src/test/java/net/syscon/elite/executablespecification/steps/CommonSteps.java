@@ -7,6 +7,7 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.test.ErrorResponseErrorHandler;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -16,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 
 import javax.annotation.PostConstruct;
 import javax.ws.rs.core.Response;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -427,14 +430,22 @@ public abstract class CommonSteps {
         verifyField(bean, propertyName, expectedValue);
     }
 
-    protected void verifyField(Object bean, String fieldName, String expected) throws ReflectiveOperationException {
+    protected void verifyField(Object bean, String fieldName, String expectedValue) throws ReflectiveOperationException {
         assertNotNull(bean);
-        final String actual = BeanUtilsBean.getInstance().getProperty(bean, fieldName);
-        if (StringUtils.isBlank(expected)) {
+        PropertyUtilsBean propertyUtilsBean = BeanUtilsBean.getInstance().getPropertyUtils();
+        final Object actual = propertyUtilsBean.getProperty(bean, fieldName);
+
+        if (StringUtils.isBlank(expectedValue)) {
             assertNull(actual);
         } else {
-            assertEquals(expected, actual);
+            if (actual instanceof BigDecimal) {
+                // Assume a monetary value with 2dp
+                assertEquals(expectedValue, ((BigDecimal) actual).setScale(2).toString());
+            } else {
+                assertEquals(expectedValue, actual.toString());
+            }
         }
+
     }
 
     protected void verifyLocalDate(LocalDate actual, String expected) {

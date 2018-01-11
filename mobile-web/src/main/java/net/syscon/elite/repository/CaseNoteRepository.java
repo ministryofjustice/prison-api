@@ -6,6 +6,8 @@ import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 
+import org.hibernate.validator.constraints.Length;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +20,7 @@ public interface CaseNoteRepository {
 
     Long createCaseNote(long bookingId, NewCaseNote caseNote, String sourceCode, String username);
 
-    void updateCaseNote(long bookingId, long caseNoteId, String additionalCaseNoteText, String userId);
+    void updateCaseNote(long bookingId, long caseNoteId, @Length(max=4000, message="{caseNoteTextTooLong}") String updatedText, String userId);
 
     Long getCaseNoteCount(long bookingId, String type, String subType, LocalDate fromDate, LocalDate toDate);
 

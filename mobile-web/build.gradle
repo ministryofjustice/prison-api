@@ -98,7 +98,7 @@ project(":mobile-web") {
         minHeapSize = "2G"
         maxHeapSize = "2G"
         def nomisEnvVars = ['api.db.target':'nomis',
-                            'cucumber.options':'--tags @global,@nomis --tags ~@elite --tags ~@wip --tags ~@broken']
+                            'cucumber.options':"--tags '@global or @nomis' --tags 'not @elite' --tags 'not @wip' --tags 'not @broken'"]
 
         exclude "**/persistence/*"
         environment nomisEnvVars
@@ -108,7 +108,7 @@ project(":mobile-web") {
         minHeapSize = "2G"
         maxHeapSize = "2G"
         def nomisEnvVars = ['api.db.target':'nomis', 'api.db.dialect':'oracle',
-                            'cucumber.options':'--tags @global,@nomis,@oracle --tags ~@elite --tags ~@wip --tags ~@broken']
+                            'cucumber.options':"--tags '@global or @nomis or @oracle' --tags 'not @elite' --tags 'not @wip' --tags 'not @broken'"]
 
         exclude "**/persistence/*"
         environment nomisEnvVars
@@ -118,7 +118,7 @@ project(":mobile-web") {
         minHeapSize = "2G"
         maxHeapSize = "2G"
         def eliteEnvVars = ['api.db.target':'elite',
-                            'cucumber.options':'--tags @global,@elite --tags ~@nomis --tags ~@wip --tags ~@broken']
+                            'cucumber.options':"--tags '@global or @elite' --tags 'not @nomis' --tags 'not @wip' --tags 'not @broken'"]
 
         exclude "**/persistence/*"
         environment eliteEnvVars

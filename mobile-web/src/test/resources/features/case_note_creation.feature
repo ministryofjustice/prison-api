@@ -113,8 +113,8 @@ Feature: Case Note Creation and Update
       |Value cannot be blank|CaseNote (type,subtype)=(GEN,) does not exist|
 
   Scenario: Update a case note
-    When existing case note is updated with text "Updated Case Note"
-    Then case note is successfully updated with "Updated Case Note"
+    When existing case note is updated with valid text
+    Then case note is successfully updated with valid text
     And the original text is not replaced
 
   Scenario: Update a case note with blank data

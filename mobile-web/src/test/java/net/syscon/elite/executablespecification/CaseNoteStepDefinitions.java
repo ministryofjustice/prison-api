@@ -97,7 +97,7 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^case note validation error \"([^\"]*)\" occurs$")
-     public void caseNoteValidationErrorOccurs(String error)  {
+    public void caseNoteValidationErrorOccurs(String error) {
         caseNote.verifyBadRequest(error);
     }
 
@@ -106,15 +106,23 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
     }
 
-    @When("^the created case note is updated with long text$")
-    public void theCaseNoteIsUpdatedWithText() throws Throwable {
-        final String caseNoteText = "A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string ";
+    @When("^existing case note is updated with valid text$")
+    public void theCaseNoteIsUpdatedWithValidText() throws Throwable {
+        // Allow 100 chars for the 1st part of the updated text which includes the
+        // original text and the user/timestamp text
+        String caseNoteText = StringUtils.repeat("a", 3900);
         updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
     }
 
-    @Then("^case note is successfully updated with \"([^\"]*)\"$")
-    public void caseNoteIsSuccessfullyUpdated(String caseNoteText) throws Throwable {
-        assertThat(updatedCaseNote.getText()).contains(caseNoteText);
+    @When("^the created case note is updated with long text$")
+    public void theCaseNoteIsUpdatedWithInvalidText() throws Throwable {
+        final String caseNoteText = StringUtils.repeat("a", 3950); // total text will be over 4000
+        updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
+    }
+
+    @Then("^case note is successfully updated with valid text$")
+    public void caseNoteIsSuccessfullyUpdated() throws Throwable {
+        assertThat(updatedCaseNote.getText()).contains(StringUtils.repeat("a", 3900));
     }
 
     @And("^the original text is not replaced$")
