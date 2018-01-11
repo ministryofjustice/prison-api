@@ -1,15 +1,20 @@
 package net.syscon.elite.service.impl;
 
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
+import net.syscon.elite.service.AllocationException;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.KeyWorkerAllocationService;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationService{
 
     private KeyWorkerAllocationRepository repository;
@@ -21,23 +26,29 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
     @Override
     @Transactional
     public void createAllocation(KeyWorkerAllocation allocation, String username) {
-        repository.deactivateAllocationForOffenderBooking(allocation.getBookingId(), username);
+        repository.getCurrentAllocationForOffenderBooking(allocation.getBookingId())
+                .orElseThrow(AllocationException.withMessage(String.format("Existing allocation found for offenderBookingId %s", allocation.getBookingId())));
         repository.createAllocation(allocation, username);
     }
 
     @Override
-    public void deactivateAllocationForKeyWorker(Long staffId, String username) {
-        repository.deactivateAllocationsForKeyWorker(staffId, username);
+    @Transactional
+    public void deactivateAllocationForKeyWorker(Long staffId, String reason, String username) {
+        repository.deactivateAllocationsForKeyWorker(staffId, reason, username);
     }
 
     @Override
-    public void deactivateAllocationForOffenderBooking(Long bookingId, String username) {
-        repository.deactivateAllocationForOffenderBooking(bookingId, username);
+    @Transactional
+    public void deactivateAllocationForOffenderBooking(Long bookingId, String reason, String username) {
+        repository.deactivateAllocationForOffenderBooking(bookingId, reason, username);
     }
 
     @Override
-    public List<KeyWorkerAllocation> getAllocationHistoryForPrisoner(Long offenderId) {
-        return repository.getAllocationHistoryForPrisoner(offenderId);
+    public List<KeyWorkerAllocation> getAllocationHistoryForPrisoner(Long offenderId, String orderByFields, Order order) {
+
+        String sortFields = StringUtils.defaultString(orderByFields, "assigned");
+        Order sortOrder = ObjectUtils.defaultIfNull(order, Order.DESC);
+        return repository.getAllocationHistoryForPrisoner(offenderId, sortFields, sortOrder);
     }
 
     @Override

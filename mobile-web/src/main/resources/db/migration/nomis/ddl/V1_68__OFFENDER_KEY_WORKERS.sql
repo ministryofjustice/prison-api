@@ -7,6 +7,7 @@ CREATE TABLE "OFFENDER_KEY_WORKERS"
   "USER_ID"                       VARCHAR2(32 CHAR)                 NOT NULL ,
   "ALLOC_REASON"                  VARCHAR2(12) DEFAULT 'MANUAL'     NOT NULL ,
   "ALLOC_TYPE"                    VARCHAR2(1) DEFAULT 'M'           NOT NULL ,
+  "DEALLOC_REASON"                VARCHAR2(12),
   "AGY_LOC_ID"                    VARCHAR2(6 CHAR)                  NOT NULL ,
   "ACTIVE_FLAG"                   VARCHAR2(1 CHAR) DEFAULT 'Y'      NOT NULL ,
   "EXPIRY_DATE"                   DATE,
