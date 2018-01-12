@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class SchedulesSteps extends CommonSteps {
     private static final String API_GROUPS_URL = API_PREFIX + "schedules/{agencyId}/groups/{name}";
-    private static final String API_LOCATION_URL = API_PREFIX + "schedules/{agencyId}/location/{locationId}/usage/{usage}";
+    private static final String API_LOCATION_URL = API_PREFIX + "schedules/{agencyId}/locations/{locationId}/usage/{usage}";
 
     private List<PrisonerSchedule> results;
     private String agency;
