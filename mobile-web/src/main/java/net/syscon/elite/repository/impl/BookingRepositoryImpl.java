@@ -1,6 +1,6 @@
 package net.syscon.elite.repository.impl;
 
-import jersey.repackaged.com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
@@ -10,7 +10,6 @@ import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
-import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +36,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     private static final StandardBeanPropertyRowMapper<Visit> VISIT_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(Visit.class);
     private static final StandardBeanPropertyRowMapper<OffenderSummary> OFFENDER_SUMMARY_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderSummary.class);
 
-    private final Map<String, FieldMapper> sentenceDetailMapping =
+    private static final Map<String, FieldMapper> SENTENCE_DETAIL_MAPPING =
             new ImmutableMap.Builder<String, FieldMapper>()
                     .put("OFFENDER_BOOK_ID", new FieldMapper("bookingId"))
                     .put("SENTENCE_START_DATE", new FieldMapper("sentenceStartDate", DateTimeConverter::toISO8601LocalDate))
@@ -65,6 +64,21 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                     .put("ADDITIONAL_DAYS_AWARDED", new FieldMapper("additionalDaysAwarded"))
                     .build();
 
+    private static final Map<String, FieldMapper> SENTENCE_DETAIL_ROW_MAPPER;
+    static {
+        Map<String, FieldMapper> builderMap = new HashMap<>();
+        builderMap.put("OFFENDER_NO", new FieldMapper("offenderNo"));
+        builderMap.put("FIRST_NAME", new FieldMapper("firstName"));
+        builderMap.put("LAST_NAME", new FieldMapper("lastName"));
+        builderMap.put("DATE_OF_BIRTH", new FieldMapper("dateOfBirth", DateTimeConverter::toISO8601LocalDate));
+        builderMap.put("AGENCY_LOCATION_ID", new FieldMapper("agencyLocationId"));
+        builderMap.put("AGENCY_LOCATION_DESC", new FieldMapper("agencyLocationDesc"));
+        builderMap.put("INTERNAL_LOCATION_DESC", new FieldMapper("internalLocationDesc"));
+        builderMap.put("FACIAL_IMAGE_ID", new FieldMapper("facialImageId"));
+        builderMap.put("CONFIRMED_RELEASE_DATE", new FieldMapper("confirmedReleaseDate", DateTimeConverter::toISO8601LocalDate));
+        SENTENCE_DETAIL_MAPPING.forEach(builderMap::putIfAbsent);
+        SENTENCE_DETAIL_ROW_MAPPER = Collections.unmodifiableMap(builderMap);
+    }
 
     @Override
     @Cacheable("verifyBookingAccess")
@@ -95,11 +109,11 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
         String initialSql = getQuery("GET_BOOKING_SENTENCE_DETAIL");
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, sentenceDetailMapping);
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, SENTENCE_DETAIL_MAPPING);
         String sql = builder.build();
 
         RowMapper<SentenceDetail> sentenceDetailRowMapper =
-                Row2BeanRowMapper.makeMapping(sql, SentenceDetail.class, sentenceDetailMapping);
+                Row2BeanRowMapper.makeMapping(sql, SentenceDetail.class, SENTENCE_DETAIL_MAPPING);
 
         SentenceDetail sentenceDetail;
 
@@ -359,12 +373,13 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    public Page<OffenderSummary> getOffenderReleaseSummary(LocalDate toReleaseDate, String query, long offset, long limit, String orderByFields, Order order, Set<String> allowedCaseloadsOnly) {
-        String initialSql = getQuery("OFFENDER_SUMMARY");
+    public Page<OffenderSentenceDetailDto> getOffenderSentenceSummary(String query, long offset, long limit, String orderByFields, Order order, Set<String> allowedCaseloadsOnly) {
+        String initialSql = getQuery("GET_OFFENDER_SENTENCE_DETAIL");
         if (!allowedCaseloadsOnly.isEmpty()) {
             initialSql += " AND " + getQuery("CASELOAD_FILTER");
         }
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_SUMMARY_ROW_MAPPER.getFieldMap());
+
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, SENTENCE_DETAIL_ROW_MAPPER);
 
         String sql = builder
                 .addRowCount()
@@ -373,14 +388,12 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                 .addQuery(query)
                 .build();
 
-        PageAwareRowMapper<OffenderSummary> paRowMapper = new PageAwareRowMapper<>(OFFENDER_SUMMARY_ROW_MAPPER);
+        PageAwareRowMapper<OffenderSentenceDetailDto> paRowMapper = new PageAwareRowMapper<>(Row2BeanRowMapper.makeMapping(sql, OffenderSentenceDetailDto.class, SENTENCE_DETAIL_ROW_MAPPER));
 
-        List<OffenderSummary> offenderReleases = jdbcTemplate.query(
+        List<OffenderSentenceDetailDto> offenderSentences = jdbcTemplate.query(
                 sql,
-                createParams("toReleaseDate", DateTimeConverter.toDate(toReleaseDate), "caseloadIds", allowedCaseloadsOnly, "offset", offset, "limit", limit),
+                createParams( "caseLoadId", allowedCaseloadsOnly, "offset", offset, "limit", limit),
                 paRowMapper);
-
-        offenderReleases.forEach(or -> or.setInternalLocationDesc(LocationProcessor.stripAgencyId(or.getInternalLocationDesc(), or.getAgencyLocationId())));
-        return new Page<>(offenderReleases, paRowMapper.getTotalRecords(), offset, limit);
+        return new Page<>(offenderSentences, paRowMapper.getTotalRecords(), offset, limit);
     }
 }

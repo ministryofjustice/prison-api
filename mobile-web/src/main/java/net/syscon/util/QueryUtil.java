@@ -70,7 +70,7 @@ public class QueryUtil {
 			String value = size == 3 ? operatorFieldValue[2] : operatorFieldValue[3];// Supply it as it is.
 			final String format = size == 5 ? operatorFieldValue[4] : "";
 			
-			if (value.contains("|") || getSqlOperator(operator).equals(QueryOperator.IN.name())) {
+			if (value != null && (value.contains("|") || QueryOperator.IN.name().equalsIgnoreCase(getSqlOperator(operator)))) {
 				value = "(" + value.replaceAll("\\|", ",") + ")";
 			}
 

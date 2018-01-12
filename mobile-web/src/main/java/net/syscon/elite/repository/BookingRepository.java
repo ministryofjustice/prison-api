@@ -36,7 +36,7 @@ public interface BookingRepository {
 
     Long createBookingAppointment(Long bookingId, NewAppointment newAppointment, String agencyId);
 
-    Page<OffenderSummary> getOffenderReleaseSummary(LocalDate toReleaseDate, String query, long offset, long limit, String orderByFields, Order order, Set<String> allowedCaseloadsOnly);
+    Page<OffenderSentenceDetailDto> getOffenderSentenceSummary(String query, long offset, long limit, String orderByFields, Order order, Set<String> allowedCaseloadsOnly);
 
     Visit getBookingVisitLast(Long bookingId, LocalDateTime cutoffDate);
 

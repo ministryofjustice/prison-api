@@ -7,14 +7,12 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.*;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.AccessDeniedException;
 
 import javax.ws.rs.Path;
 import java.util.List;
 import java.util.Optional;
 
-import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
 import static net.syscon.util.ResourceUtils.nvl;
 
 @RestResource
@@ -25,20 +23,18 @@ public class UserResourceImpl implements UserResource {
     private final AssignmentService assignmentService;
     private final AuthenticationService authenticationService;
     private final UserService userService;
-    private final BookingService bookingService;
     private final CaseLoadService caseLoadService;
     private final CaseNoteService caseNoteService;
 
     public UserResourceImpl(AuthenticationFacade authenticationFacade, LocationService locationService,
                             AssignmentService assignmentService, AuthenticationService authenticationService,
-                            UserService userService, BookingService bookingService, CaseLoadService caseLoadService,
+                            UserService userService, CaseLoadService caseLoadService,
                             CaseNoteService caseNoteService) {
         this.authenticationFacade = authenticationFacade;
         this.locationService = locationService;
         this.assignmentService = assignmentService;
         this.authenticationService = authenticationService;
         this.userService = userService;
-        this.bookingService = bookingService;
         this.caseLoadService = caseLoadService;
         this.caseNoteService = caseNoteService;
     }
@@ -84,19 +80,6 @@ public class UserResourceImpl implements UserResource {
         List<Location> userLocations = locationService.getUserLocations(authenticationFacade.getCurrentUsername());
 
         return GetMyLocationsResponse.respond200WithApplicationJson(userLocations);
-    }
-
-    @Override
-    public GetMyOffenderReleasesResponse getMyOffenderReleases(String query, String toDate, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-        Page<OffenderSummary> offenderReleaseSummary = bookingService.getOffenderReleaseSummary(
-                fromISO8601DateString(toDate),
-                authenticationFacade.getCurrentUsername(),
-                query,
-                nvl(pageOffset, 0L),
-                nvl(pageLimit, 10L),
-                StringUtils.defaultIfBlank(sortFields, "releaseDate,offenderNo"), sortOrder != null ? sortOrder : Order.DESC, true);
-
-        return GetMyOffenderReleasesResponse.respond200WithApplicationJson(offenderReleaseSummary);
     }
 
     @Override

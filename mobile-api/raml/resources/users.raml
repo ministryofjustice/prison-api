@@ -32,21 +32,6 @@
   description: Get the logged in users roles
   type: { readOnlyCollection: { type: UserRole, description: List of roles for current user. } }
 
-/me/offender-releases:
-  (javaOperationName): getMyOffenderReleases
-  description: Forthcoming offender releases for my caseloads
-  type: { readOnlyCollectionPaged: { type: OffenderSummary, description: List of offenders (with release detail) in caseloads accessible to current user. } }
-  get:
-     queryParameters:
-        toDate?:
-          description: Filter results to only display releases before a defined date, if not defined it will use 3 months from now
-          type: string
-          example: toDate=2017-02-28
-  is: [
-    searchable: {fieldsList : "offenderNo, lastName, firstName, agencyLocationId, internalLocationDesc, releaseDate"},
-    sortable: {fieldsList : "offenderNo, lastName, firstName, agencyLocationId, internalLocationDesc, releaseDate"},
-  ]
-
 /me/caseLoads:
   (javaOperationName): getMyCaseLoads
   description: Returns the list of caseloads associated to the user

@@ -9,6 +9,7 @@ import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.*;
+import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.NonDtoReleaseDate;
 import net.syscon.elite.service.support.ReferenceDomain;
 import org.apache.commons.lang3.ObjectUtils;
@@ -25,6 +26,7 @@ import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -94,11 +96,16 @@ public class BookingServiceImpl implements BookingService {
         Optional<SentenceDetail> optSentenceDetail = bookingRepository.getBookingSentenceDetail(bookingId);
         Optional<LocalDate> confirmedReleaseDate = sentenceRepository.getConfirmedReleaseDate(bookingId);
 
-        SentenceDetail sentenceDetail = optSentenceDetail.orElse(
+        final SentenceDetail sentenceDetail = optSentenceDetail.orElse(
                 SentenceDetail.builder().bookingId(bookingId).build());
 
         // Apply confirmed release date
         sentenceDetail.setConfirmedReleaseDate(confirmedReleaseDate.orElse(null));
+
+        return deriveSentenceDetail(sentenceDetail);
+    }
+
+    private SentenceDetail deriveSentenceDetail(SentenceDetail sentenceDetail) {
 
         // Determine non-DTO release date
         NonDtoReleaseDate nonDtoReleaseDate = deriveNonDtoReleaseDate(sentenceDetail);
@@ -461,8 +468,54 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Page<OffenderSummary> getOffenderReleaseSummary(LocalDate toReleaseDate, String username, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly) {
-        return bookingRepository.getOffenderReleaseSummary(toReleaseDate != null ? toReleaseDate : now().plusMonths(lastNumberOfMonths), query, offset, limit, orderByFields, order, allowedCaseloadsOnly ? getUserCaseloadIds(username) : Collections.emptySet());
+    public Page<OffenderSentenceDetail> getOffenderSentencesSummary(String username, String query, long offset, long limit, String orderByFields, Order order) {
+        final Page<OffenderSentenceDetailDto> offenderSentenceSummary = bookingRepository.getOffenderSentenceSummary(query, offset, limit, orderByFields, order, isSystemUser() ? Collections.emptySet() : getUserCaseloadIds(username));
+
+        final List<OffenderSentenceDetail> offenderSentenceDetails = offenderSentenceSummary.getItems().stream()
+                .map(os -> OffenderSentenceDetail.builder()
+                        .bookingId(os.getBookingId())
+                        .offenderNo(os.getOffenderNo())
+                        .sentenceDetail(SentenceDetail.builder()
+                                .bookingId(os.getBookingId())
+                                .sentenceStartDate(os.getSentenceStartDate())
+                                .additionalDaysAwarded(os.getAdditionalDaysAwarded())
+                                .sentenceExpiryDate(os.getSentenceExpiryDate())
+                                .automaticReleaseDate(os.getAutomaticReleaseDate())
+                                .automaticReleaseOverrideDate(os.getAutomaticReleaseOverrideDate())
+                                .conditionalReleaseDate(os.getConditionalReleaseDate())
+                                .conditionalReleaseOverrideDate(os.getConditionalReleaseOverrideDate())
+                                .nonParoleDate(os.getNonParoleDate())
+                                .nonParoleOverrideDate(os.getNonParoleOverrideDate())
+                                .postRecallReleaseDate(os.getPostRecallReleaseDate())
+                                .postRecallReleaseOverrideDate(os.getPostRecallReleaseOverrideDate())
+                                .nonDtoReleaseDate(os.getNonDtoReleaseDate())
+                                .licenceExpiryDate(os.getLicenceExpiryDate())
+                                .homeDetentionCurfewEligibilityDate(os.getHomeDetentionCurfewEligibilityDate())
+                                .paroleEligibilityDate(os.getParoleEligibilityDate())
+                                .homeDetentionCurfewActualDate(os.getHomeDetentionCurfewActualDate())
+                                .actualParoleDate(os.getActualParoleDate())
+                                .releaseOnTemporaryLicenceDate(os.getReleaseOnTemporaryLicenceDate())
+                                .earlyRemovalSchemeEligibilityDate(os.getEarlyRemovalSchemeEligibilityDate())
+                                .earlyTermDate(os.getEarlyTermDate())
+                                .midTermDate(os.getMidTermDate())
+                                .lateTermDate(os.getLateTermDate())
+                                .topupSupervisionExpiryDate(os.getTopupSupervisionExpiryDate())
+                                .confirmedReleaseDate(os.getConfirmedReleaseDate())
+                                .releaseDate(os.getReleaseDate())
+                                .tariffDate(os.getTariffDate())
+                                .build())
+                        .firstName(os.getFirstName())
+                        .lastName(os.getLastName())
+                        .dateOfBirth(os.getDateOfBirth())
+                        .agencyLocationId(os.getAgencyLocationId())
+                        .agencyLocationDesc(os.getAgencyLocationDesc())
+                        .facialImageId(os.getFacialImageId())
+                        .internalLocationDesc(LocationProcessor.stripAgencyId(os.getInternalLocationDesc(), os.getAgencyLocationId()))
+                        .build())
+                .collect(Collectors.toList());
+
+        offenderSentenceDetails.forEach(s -> deriveSentenceDetail(s.getSentenceDetail()));
+        return new Page<>(offenderSentenceDetails, offenderSentenceSummary.getTotalRecords(), offenderSentenceSummary.getPageOffset(), offenderSentenceSummary.getPageLimit());
     }
 
     private Set<String> getUserCaseloadIds(String username) {

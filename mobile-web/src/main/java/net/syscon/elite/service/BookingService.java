@@ -44,7 +44,7 @@ public interface BookingService {
 
     List<ScheduledEvent> getEventsNextWeek(Long bookingId);
 
-    Page<OffenderSummary> getOffenderReleaseSummary(LocalDate fromReleaseDate, String username, String query, long offset, long limit, String orderByFields, Order order, boolean allowedCaseloadsOnly);
+    Page<OffenderSentenceDetail> getOffenderSentencesSummary(String username, String query, long offset, long limit, String orderByFields, Order order);
 
     Visit getBookingVisitLast(Long bookingId);
 

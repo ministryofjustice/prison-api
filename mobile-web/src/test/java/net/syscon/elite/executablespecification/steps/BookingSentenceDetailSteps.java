@@ -1,10 +1,17 @@
 package net.syscon.elite.executablespecification.steps;
 
+import net.syscon.elite.api.model.OffenderSentenceDetail;
 import net.syscon.elite.api.model.SentenceDetail;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -14,11 +21,35 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BookingSentenceDetailSteps extends CommonSteps {
     private static final String BOOKING_SENTENCE_DETAIL_API_URL = API_PREFIX + "bookings/{bookingId}/sentenceDetail";
 
+    private static final String OFFENDER_SENTENCE_DETAIL_API_URL = API_PREFIX + "offender-sentences";
+
     private SentenceDetail sentenceDetail;
+
+    private List<OffenderSentenceDetail> offenderSentenceDetails;
 
     @Step("Get booking sentence detail")
     public void getBookingSentenceDetail(Long bookingId) {
         dispatchRequest(bookingId);
+    }
+
+    @Step("Get offender sentence details by booking id")
+    public void getOffenderSentenceDetails(Long bookingId) {
+        dispatchOffenderSentences(String.format("bookingId:eq:%d", bookingId), null, null, 10L);
+    }
+
+    @Step("Get offender sentence details")
+    public void getOffenderSentenceDetails() {
+        dispatchOffenderSentences(null, null, Order.ASC, 10L);
+    }
+
+    @Step("Get offender sentence details with sort and filter")
+    public void getOffenderSentenceDetails(String sortFields, String query, Long pageSize) {
+        dispatchOffenderSentences(query, sortFields, Order.ASC, pageSize);
+    }
+
+    @Step("Set row from list in context")
+    public void putARowFromListInContext(int index) {
+        sentenceDetail = offenderSentenceDetails.get(index).getSentenceDetail();
     }
 
     @Step("Verify sentence start date")
@@ -176,4 +207,37 @@ public class BookingSentenceDetailSteps extends CommonSteps {
             setErrorResponse(ex.getErrorResponse());
         }
     }
+
+    private void dispatchOffenderSentences(String query, String sortFields, Order sortOrder, long limit) {
+        init();
+        String urlModifier = "";
+
+        Map<String, String> headers = new HashMap<>();
+        final Map<String, String> sortHeaders = buildSortHeaders(sortFields, sortOrder);
+        if (sortHeaders != null) {
+            headers.putAll(sortHeaders);
+        }
+        applyPagination(0L, limit);
+        headers.putAll(addPaginationHeaders());
+
+        if (query != null) {
+            urlModifier += "?query=" + query;
+        }
+        try {
+            ResponseEntity<List<OffenderSentenceDetail>> response = restTemplate.exchange(OFFENDER_SENTENCE_DETAIL_API_URL + urlModifier,
+                    HttpMethod.GET,
+                    createEntity(null, headers),
+                    new ParameterizedTypeReference<List<OffenderSentenceDetail>>() {
+                    });
+            buildResourceData(response);
+
+            offenderSentenceDetails = response.getBody();
+            if (!offenderSentenceDetails.isEmpty() && offenderSentenceDetails.size() == 1) {
+                sentenceDetail = offenderSentenceDetails.get(0).getSentenceDetail();
+            }
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
 }

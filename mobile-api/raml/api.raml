@@ -66,11 +66,14 @@ types:
   Visit:                  !include types/Visit.raml
   NewAppointment:         !include types/NewAppointment.raml
   OffenderSummary:        !include types/OffenderSummary.raml
+  OffenderSentenceDetail: !include types/OffenderSentenceDetail.raml
   PrisonerCustodyStatus:  !include types/PrisonerCustodyStatus.raml
   UserRole:               !include types/UserRole.raml
   PrisonContactDetail:    !include types/PrisonContactDetail.raml
   Telephone:              !include types/Telephone.raml
   OffenderRelationship:   !include types/OffenderRelationship.raml
+
+  OffenderSentenceDetailDto:  !include internalTypes/OffenderSentenceDetailDto.raml
 
 securitySchemes:
   jwt:
@@ -106,7 +109,7 @@ resourceTypes: !include resourceTypes/generic-resource-types.raml
 /bookings:                !include resources/bookings.raml
 /prisoners:               !include resources/prisoners.raml
 /search-offenders:        !include resources/search-offenders.raml
-/offender-releases:       !include resources/offender-releases.raml
+/offender-sentences:      !include resources/offender-sentences.raml
 /users:                   !include resources/users.raml
 /reference-domains:       !include resources/reference-domains.raml
 /locations:               !include resources/locations.raml
