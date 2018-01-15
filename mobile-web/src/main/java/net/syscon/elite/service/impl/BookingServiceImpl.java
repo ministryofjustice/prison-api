@@ -49,7 +49,6 @@ public class BookingServiceImpl implements BookingService {
     private final LocationService locationService;
     private final ReferenceDomainService referenceDomainService;
     private final TelemetryClient telemetryClient;
-    private final int lastNumberOfMonths;
     private final String defaultIepLevel;
 
     /**
@@ -76,7 +75,6 @@ public class BookingServiceImpl implements BookingService {
                               CaseLoadService caseLoadService, LocationService locationService,
                               ReferenceDomainService referenceDomainService,
                               TelemetryClient telemetryClient,
-                              @Value("${api.offender.release.date.min.months:3}") int lastNumberOfMonths,
                               @Value("${api.bookings.iepLevel.default:Unknown}") String defaultIepLevel) {
         this.bookingRepository = bookingRepository;
         this.sentenceRepository = sentenceRepository;
@@ -85,7 +83,6 @@ public class BookingServiceImpl implements BookingService {
         this.locationService = locationService;
         this.referenceDomainService = referenceDomainService;
         this.telemetryClient = telemetryClient;
-        this.lastNumberOfMonths = lastNumberOfMonths;
         this.defaultIepLevel = defaultIepLevel;
     }
 
@@ -248,7 +245,7 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.getBookingAppointments(bookingId, fromDate, toDate, sortFields, sortOrder);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional
     @Override
     @VerifyBookingAccess
     public ScheduledEvent createBookingAppointment(Long bookingId, String username, @Valid NewAppointment newAppointment) {
@@ -406,6 +403,15 @@ public class BookingServiceImpl implements BookingService {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
         if (!bookingRepository.verifyBookingAccess(bookingId, agencyService.getAgencyIds())) {
+            throw EntityNotFoundException.withId(bookingId);
+        }
+    }
+
+    @Override
+    public void checkBookingExists(Long bookingId) {
+        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
+
+        if (!bookingRepository.checkBookingExists(bookingId)) {
             throw EntityNotFoundException.withId(bookingId);
         }
     }

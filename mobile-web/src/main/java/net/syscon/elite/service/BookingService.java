@@ -34,6 +34,8 @@ public interface BookingService {
 
     void verifyBookingAccess(Long bookingId);
 
+    void checkBookingExists(Long bookingId);
+
     boolean isSystemUser();
 
     List<OffenceDetail> getMainOffenceDetails(Long bookingId);
