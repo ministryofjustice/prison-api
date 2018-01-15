@@ -1,7 +1,6 @@
 package net.syscon.elite.aop;
 
 import lombok.extern.slf4j.Slf4j;
-
 import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.BookingService;
 import org.aspectj.lang.annotation.Aspect;
@@ -27,7 +26,9 @@ public class AuthorisationAspect {
     @Before("verifyBookingAccessPointcut(bookingId)")
     public void verifyBookingAccess(Long bookingId) {
         log.debug("Verifying booking access for booking [{}]", bookingId);
-        if (!bookingService.isSystemUser()) {
+        if (bookingService.isSystemUser()) {
+            bookingService.checkBookingExists(bookingId);
+        } else {
             bookingService.verifyBookingAccess(bookingId);
         }
     }
