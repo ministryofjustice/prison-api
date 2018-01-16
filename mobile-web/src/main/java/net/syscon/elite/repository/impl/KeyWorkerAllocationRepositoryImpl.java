@@ -1,7 +1,10 @@
 package net.syscon.elite.repository.impl;
 
+import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
+import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
@@ -12,11 +15,16 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+
+import static net.syscon.elite.service.support.LocationProcessor.stripAgencyId;
 
 @Repository
 public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements KeyWorkerAllocationRepository {
     private static final StandardBeanPropertyRowMapper<KeyWorkerAllocation> KEY_WORKER_ALLOCATION_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(KeyWorkerAllocation.class);
+    private static final StandardBeanPropertyRowMapper<OffenderSummary> OFFENDER_SUMMARY_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(OffenderSummary.class);
 
     @Override
     public void createAllocation(KeyWorkerAllocation allocation, String username) {
@@ -98,6 +106,33 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
                 KEY_WORKER_ALLOCATION_ROW_MAPPER);
 
         return allocation;
+    }
+
+
+    @Override
+    public Page<OffenderSummary> getUnallocatedOffenders(Set<String> agencyIds, Long offset, Long limit, String orderFields, Order order) {
+        String initialSql = getQuery("GET_UNALLOCATED_OFFENDERS");
+
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_SUMMARY_ROW_MAPPER.getFieldMap());
+
+        String sql = builder
+                .addPagination()
+                .addRowCount()
+                .addOrderBy(order, orderFields)
+                .build();
+
+        PageAwareRowMapper<OffenderSummary> paRowMapper = new PageAwareRowMapper<>(OFFENDER_SUMMARY_ROW_MAPPER);
+
+        final List<OffenderSummary> results = jdbcTemplate.query(
+                sql,
+                createParams("agencyIds", agencyIds,
+                        "offset", offset,
+                        "limit", limit),
+                paRowMapper);
+
+        results.forEach(os -> os.setInternalLocationDesc(stripAgencyId(os.getInternalLocationDesc(), os.getAgencyLocationId())));
+
+        return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
     }
 
     private Optional<KeyWorkerAllocation> getKeyWorkerAllocationByOffenderBooking(Long bookingId, String sql) {

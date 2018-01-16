@@ -85,3 +85,35 @@ GET_ALLOCATION_HISTORY_FOR_OFFENDER {
   JOIN OFFENDER_BOOKINGS OB on OKW.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
   WHERE OB.OFFENDER_ID = :offenderId
 }
+
+GET_UNALLOCATED_OFFENDERS {
+SELECT
+  OB.OFFENDER_BOOK_ID                            booking_id,
+  O.OFFENDER_ID_DISPLAY                          offender_no,
+  O.FIRST_NAME,
+  CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL
+    THEN concat(' ', O.middle_name_2)
+                        ELSE '' END)                MIDDLE_NAMES,
+  O.LAST_NAME,
+  O.TITLE,
+  O.SUFFIX,
+  ob.agy_loc_id                                  agency_location_id,
+  al.description                                 agency_location_desc,
+  OB.LIVING_UNIT_ID                              internal_location_id,
+  AIL.DESCRIPTION                                internal_location_desc,
+  OB.ACTIVE_FLAG                                 currently_in_prison
+FROM OFFENDERS O
+  JOIN OFFENDER_BOOKINGS OB
+    ON OB.offender_id = o.offender_id
+       AND OB.booking_seq = 1
+  JOIN agency_locations al
+    ON al.agy_loc_id = ob.agy_loc_id
+  LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
+WHERE
+  OB.ACTIVE_FLAG = 'Y'
+  AND NOT EXISTS (SELECT 1
+                  FROM OFFENDER_KEY_WORKERS OKW
+                  WHERE OKW.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID AND OKW.ACTIVE_FLAG = 'Y')
+
+  AND al.agy_loc_id IN (:agencyIds)
+}

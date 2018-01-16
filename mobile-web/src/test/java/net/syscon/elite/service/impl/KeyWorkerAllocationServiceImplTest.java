@@ -1,6 +1,10 @@
 package net.syscon.elite.service.impl;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 import net.syscon.elite.service.AllocationException;
@@ -94,8 +98,28 @@ public class KeyWorkerAllocationServiceImplTest {
         verify(repo, times(1)).deactivateAllocationForOffenderBooking(BOOKING_ID, DEALLOCATION_REASON, USER_1);
     }
 
+    @Test
+    public void shouldCallCollaboratorsWithDefaultsForGetUnallocatedOffenders() throws Exception {
+        final Page<OffenderSummary> offenderSummaryPage = new Page<>(ImmutableList.of(buildOffenderSummary()), 1, 0, 100);
+        when(repo.getUnallocatedOffenders(ImmutableSet.of("LEI"), 0L, 100L, null, null)).thenReturn(offenderSummaryPage);
+        service.getUnallocatedOffenders(ImmutableSet.of("LEI"), 0L, 100L, null, null);
+        verify(repo, times(1)).getUnallocatedOffenders(ImmutableSet.of("LEI"), 0L,100L, "lastName", Order.ASC);
+    }
+
+    @Test
+    public void shouldCallCollaboratorsForGetUnallocatedOffenders() throws Exception {
+        final Page<OffenderSummary> offenderSummaryPage = new Page<>(ImmutableList.of(buildOffenderSummary()), 1, 5, 10);
+        when(repo.getUnallocatedOffenders(ImmutableSet.of("LEI"), 5L, 10L, "firstName", Order.DESC)).thenReturn(offenderSummaryPage);
+        service.getUnallocatedOffenders(ImmutableSet.of("LEI"), 5L, 10L, "firstName", Order.DESC);
+        verify(repo, times(1)).getUnallocatedOffenders(ImmutableSet.of("LEI"), 5L,10L, "firstName", Order.DESC);
+    }
+
     private KeyWorkerAllocation buildKeyWorkerAllocation(String type) {
         return KeyWorkerAllocation.builder().agencyId("LEI").bookingId(BOOKING_ID).reason("reason").staffId(-1L).type(type).build();
+    }
+
+    private OffenderSummary buildOffenderSummary() {
+        return OffenderSummary.builder().bookingId(-1L).build();
     }
 
 }

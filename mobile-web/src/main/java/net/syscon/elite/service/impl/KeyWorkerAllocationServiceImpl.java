@@ -1,6 +1,8 @@
 package net.syscon.elite.service.impl;
 
+import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 import net.syscon.elite.service.AllocationException;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Transactional(readOnly = true)
@@ -64,4 +67,13 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
                 .orElseThrow(EntityNotFoundException.withMessage(String.format("Allocation not found for offenderBookingId %s", bookingId)));
         return keyWorkerAllocation;
     }
+
+    @Override
+    public Page<OffenderSummary> getUnallocatedOffenders(Set<String> agencyFilter, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+        String sortFieldsDefaulted = StringUtils.defaultString(sortFields, "lastName");
+        Order sortOrderDefaulted = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
+
+        return repository.getUnallocatedOffenders(agencyFilter, pageOffset, pageLimit, sortFieldsDefaulted, sortOrderDefaulted);
+    }
+
 }

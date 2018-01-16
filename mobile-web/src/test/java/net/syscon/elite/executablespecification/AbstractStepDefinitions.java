@@ -156,6 +156,11 @@ abstract class AbstractStepDefinitions {
         public PrisonContactDetailsSteps prison() {
             return new PrisonContactDetailsSteps();
         }
+
+        @Bean
+        public KeyWorkerAllocationSteps keyWorkerAllocation() {
+            return new KeyWorkerAllocationSteps();
+        }
     }
 
     protected int ord2idx(String ordinal) {

@@ -1,0 +1,12 @@
+/offenders/unallocated:
+  (javaOperationName): getUnallocatedOffenders
+  type: { readOnlyCollectionPaged: { type: OffenderSummary, description: All unallocated offenders. } }
+  get:
+    queryParameters:
+      agencyId?:
+        type: string
+        description: Agency to filter by.
+        example: LEI
+  is: [
+      sortable: {fieldsList: "firstName, lastName"}
+  ]

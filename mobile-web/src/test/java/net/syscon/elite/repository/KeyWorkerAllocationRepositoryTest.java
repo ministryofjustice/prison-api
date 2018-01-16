@@ -1,6 +1,9 @@
 package net.syscon.elite.repository;
 
+import com.google.common.collect.ImmutableSet;
+import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
@@ -42,6 +45,7 @@ public class KeyWorkerAllocationRepositoryTest {
     private static final String AUTO_ALLOCATION_TYPE = "A";
     private static final String MANUAL_ALLOCATION_TYPE = "M";
     private static final String USERNAME = "testuser";
+    private static final String OFFENDER_NO_WITH_INACTIVE_ALLOCATIONS = "A6676RS";
 
     @Autowired
     private KeyWorkerAllocationRepository repo;
@@ -118,6 +122,27 @@ public class KeyWorkerAllocationRepositoryTest {
         final List<KeyWorkerAllocation> historyForPrisoner = repo.getAllocationHistoryForPrisoner(OFFENDER_BOOKING_ID_WITH_ALLOCATION_1, "assigned", Order.DESC);
         assertThat(historyForPrisoner).extracting("active").containsExactly("N");
         assertThat(historyForPrisoner).extracting("deallocationReason").containsExactly(DEALLOCATION_REASON);
+    }
+
+    @Test
+    public void shouldGetUnallocatedOffendersPaginatedAndSorted() throws Exception {
+        final Page<OffenderSummary> unallocatedOffenders = repo.getUnallocatedOffenders(ImmutableSet.of("LEI", "BXI"), 0L, 5L, "lastName", Order.ASC);
+
+        assertThat(unallocatedOffenders.getItems()).hasSize(5);
+        assertThat(unallocatedOffenders.getItems()).extracting("offenderNo").contains(OFFENDER_NO_WITH_INACTIVE_ALLOCATIONS);
+        assertThat(unallocatedOffenders.getItems()).extracting("lastName").isSorted();
+        final OffenderSummary os = unallocatedOffenders.getItems().get(0);
+        assertThat(os.getAgencyLocationDesc()).isEqualTo("LEEDS");
+        assertThat(os.getAgencyLocationId()).isEqualTo("LEI");
+        assertThat(os.getBookingId()).isEqualTo(-29);
+        assertThat(os.getFirstName()).isEqualTo("NEIL");
+        assertThat(os.getLastName()).isEqualTo("BRADLEY");
+        assertThat(os.getMiddleNames()).isEqualTo("IAN");
+        assertThat(os.getInternalLocationDesc()).isEqualTo("H-1");
+        assertThat(os.getInternalLocationId()).isEqualTo("-14");
+        assertThat(os.getOffenderNo()).isEqualTo("A6676RS");
+        assertThat(os.getSuffix()).isEqualTo("SUF");
+        assertThat(os.getTitle()).isEqualTo("MR");
     }
 
     private KeyWorkerAllocation buildKeyWorkerAllocation(Long bookingId) {
