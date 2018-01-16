@@ -27,6 +27,7 @@ public class KeyWorkerAllocationServiceImplTest {
     private static final String AUTO_ALLOCATION_TYPE = "A";
     private static final String DEALLOCATION_REASON = "deallocating";
     private static final long BOOKING_ID = -1L;
+    private static final String AGENCY_ID = "LEI";
     private KeyWorkerAllocationService service;
 
     @Mock
@@ -112,6 +113,12 @@ public class KeyWorkerAllocationServiceImplTest {
         when(repo.getUnallocatedOffenders(ImmutableSet.of("LEI"), 5L, 10L, "firstName", Order.DESC)).thenReturn(offenderSummaryPage);
         service.getUnallocatedOffenders(ImmutableSet.of("LEI"), 5L, 10L, "firstName", Order.DESC);
         verify(repo, times(1)).getUnallocatedOffenders(ImmutableSet.of("LEI"), 5L,10L, "firstName", Order.DESC);
+    }
+
+    @Test
+    public void shouldCallCollaboratorsForGetAvailableKeyworkers() throws Exception {
+        service.getAvailableKeyworkers(AGENCY_ID);
+        verify(repo, times(1)).getAvailableKeyworkers(AGENCY_ID);
     }
 
     private KeyWorkerAllocation buildKeyWorkerAllocation(String type) {

@@ -1,10 +1,12 @@
 package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.Keyworker;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
+import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.service.AllocationException;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.KeyWorkerAllocationService;
@@ -76,4 +78,9 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
         return repository.getUnallocatedOffenders(agencyFilter, pageOffset, pageLimit, sortFieldsDefaulted, sortOrderDefaulted);
     }
 
+    @Override
+    @VerifyAgencyAccess
+    public List<Keyworker> getAvailableKeyworkers(String agencyId) {
+        return repository.getAvailableKeyworkers(agencyId);
+    }
 }
