@@ -102,9 +102,9 @@ public class KeyWorkerAllocationServiceImplTest {
     @Test
     public void shouldCallCollaboratorsWithDefaultsForGetUnallocatedOffenders() throws Exception {
         final Page<OffenderSummary> offenderSummaryPage = new Page<>(ImmutableList.of(buildOffenderSummary()), 1, 0, 100);
-        when(repo.getUnallocatedOffenders(ImmutableSet.of("LEI"), 0L, 100L, null, null)).thenReturn(offenderSummaryPage);
-        service.getUnallocatedOffenders(ImmutableSet.of("LEI"), 0L, 100L, null, null);
-        verify(repo, times(1)).getUnallocatedOffenders(ImmutableSet.of("LEI"), 0L,100L, "lastName", Order.ASC);
+        when(repo.getUnallocatedOffenders(ImmutableSet.of("LEI"), 0L, 10L, "lastName", Order.ASC)).thenReturn(offenderSummaryPage);
+        service.getUnallocatedOffenders(ImmutableSet.of("LEI"), null, null, null, null);
+        verify(repo, times(1)).getUnallocatedOffenders(ImmutableSet.of("LEI"), 0L,10L, "lastName", Order.ASC);
     }
 
     @Test
