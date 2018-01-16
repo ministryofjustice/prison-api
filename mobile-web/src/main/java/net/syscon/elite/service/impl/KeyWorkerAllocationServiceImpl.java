@@ -72,8 +72,10 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
     public Page<OffenderSummary> getUnallocatedOffenders(Set<String> agencyFilter, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         String sortFieldsDefaulted = StringUtils.defaultString(sortFields, "lastName");
         Order sortOrderDefaulted = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
+        Long pageOffsetDefaulted = ObjectUtils.defaultIfNull(pageOffset, 0L);
+        Long pageLimitDefaulted = ObjectUtils.defaultIfNull(pageLimit, 10L);
 
-        return repository.getUnallocatedOffenders(agencyFilter, pageOffset, pageLimit, sortFieldsDefaulted, sortOrderDefaulted);
+        return repository.getUnallocatedOffenders(agencyFilter, pageOffsetDefaulted, pageLimitDefaulted, sortFieldsDefaulted, sortOrderDefaulted);
     }
 
 }
