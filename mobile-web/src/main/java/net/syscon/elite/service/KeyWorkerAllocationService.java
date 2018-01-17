@@ -1,6 +1,7 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.Keyworker;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
@@ -26,4 +27,6 @@ public interface KeyWorkerAllocationService {
     KeyWorkerAllocation getLatestAllocationForOffenderBooking(Long bookingId);
 
     Page<OffenderSummary> getUnallocatedOffenders(Set<String> agencyFilter, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder);
+
+    List<Keyworker> getAvailableKeyworkers(String agencyId);
 }

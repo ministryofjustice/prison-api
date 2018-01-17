@@ -1,6 +1,7 @@
 package net.syscon.elite.repository.impl;
 
 import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.Keyworker;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
@@ -21,10 +22,13 @@ import static net.syscon.elite.service.support.LocationProcessor.stripAgencyId;
 
 @Repository
 public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements KeyWorkerAllocationRepository {
+
     private static final StandardBeanPropertyRowMapper<KeyWorkerAllocation> KEY_WORKER_ALLOCATION_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(KeyWorkerAllocation.class);
     private static final StandardBeanPropertyRowMapper<OffenderSummary> OFFENDER_SUMMARY_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(OffenderSummary.class);
+    private static final StandardBeanPropertyRowMapper<Keyworker> KEY_WORKER_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(Keyworker.class);
 
     @Override
     public void createAllocation(KeyWorkerAllocation allocation, String username) {
@@ -135,6 +139,18 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
         return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
     }
 
+    @Override
+    public List<Keyworker> getAvailableKeyworkers(String agencyId) {
+        final String sql = getQuery("GET_AVAILABLE_KEYWORKERS");
+
+        final List<Keyworker> keyworkers = jdbcTemplate.query(
+                sql,
+                createParams("agencyId", agencyId),
+                KEY_WORKER_ROW_MAPPER);
+
+        return keyworkers;
+    }
+
     private Optional<KeyWorkerAllocation> getKeyWorkerAllocationByOffenderBooking(Long bookingId, String sql) {
         KeyWorkerAllocation allocation;
         try {
@@ -148,5 +164,4 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
 
         return Optional.ofNullable(allocation);
     }
-
 }

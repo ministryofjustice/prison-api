@@ -2,6 +2,7 @@ package net.syscon.elite.repository;
 
 import com.google.common.collect.ImmutableSet;
 import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.Keyworker;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
@@ -46,6 +47,7 @@ public class KeyWorkerAllocationRepositoryTest {
     private static final String MANUAL_ALLOCATION_TYPE = "M";
     private static final String USERNAME = "testuser";
     private static final String OFFENDER_NO_WITH_INACTIVE_ALLOCATIONS = "A6676RS";
+    private static final String AGENCY_ID = "LEI";
 
     @Autowired
     private KeyWorkerAllocationRepository repo;
@@ -145,8 +147,18 @@ public class KeyWorkerAllocationRepositoryTest {
         assertThat(os.getTitle()).isEqualTo("MR");
     }
 
+    @Test
+    public void shouldGetAvailableKeyworkers() {
+        final List<Keyworker> availableKeyworkers = repo.getAvailableKeyworkers(AGENCY_ID);
+
+        assertThat(availableKeyworkers).asList().hasSize(1);
+        assertThat(availableKeyworkers.get(0).getFirstName()).isEqualTo("Another");
+        assertThat(availableKeyworkers.get(0).getLastName()).isEqualTo("User");
+        assertThat(availableKeyworkers.get(0).getStaffId()).isEqualTo(-5L);
+        assertThat(availableKeyworkers.get(0).getCapacity()).isEqualTo(11);
+    }
+
     private KeyWorkerAllocation buildKeyWorkerAllocation(Long bookingId) {
         return KeyWorkerAllocation.builder().agencyId("LEI").bookingId(bookingId).reason(NEW_ALLOCATION_REASON).staffId(KEY_WORKER_WITH_ALLOCATIONS).type(AUTO_ALLOCATION_TYPE).build();
     }
-
 }
