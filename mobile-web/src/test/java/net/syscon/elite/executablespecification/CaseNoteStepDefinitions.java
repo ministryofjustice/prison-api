@@ -252,8 +252,8 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         caseNote.getCaseNoteCount(Long.valueOf(bookingId), type, subType, fromDate, toDate);
     }
 
-    @Then("^access denied response is received from booking case notes API$")
-    public void accessDeniedResponseIsReceivedFromBookingCaseNotesAPI() throws Throwable {
-        caseNote.verifyAccessDenied();
+    @Then("^access denied response, with \"([^\"]*)\" message, is received from booking case notes API$")
+    public void accessDeniedResponseWithMessageIsReceivedFromBookingCaseNotesAPI(String userMessage) throws Throwable {
+        caseNote.verifyAccessDenied(userMessage);
     }
 }

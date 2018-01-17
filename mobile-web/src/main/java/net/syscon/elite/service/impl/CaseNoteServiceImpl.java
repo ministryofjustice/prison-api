@@ -109,7 +109,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
         UserDetail userDetail = userService.getUserByUsername(username);
 
         if (userDetail.getStaffId() != caseNote.getStaffId()) {
-            throw new AccessDeniedException("Not happening dude!");
+            throw new AccessDeniedException("User not authorised to amend case note.");
         }
 
         String amendedText = format(AMEND_CASE_NOTE_FORMAT,

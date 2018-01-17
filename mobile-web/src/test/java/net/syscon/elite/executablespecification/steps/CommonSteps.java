@@ -125,6 +125,17 @@ public abstract class CommonSteps {
         assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.FORBIDDEN.getStatusCode());
     }
 
+    @Step("Verify access denied")
+    public void verifyAccessDenied(String expectedUserMessage) {
+        verifyAccessDenied(Collections.singletonList(expectedUserMessage));
+    }
+
+    public void verifyAccessDenied(List<String> expectedUserMessages) {
+        assertThat(errorResponse).isNotNull();
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.FORBIDDEN.getStatusCode());
+        assertThat(errorResponse.getUserMessage()).contains(expectedUserMessages);
+    }
+
     @Step("Verify not authorised")
     public void verifyNotAuthorised() {
         assertThat(errorResponse).isNotNull();
