@@ -114,6 +114,13 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
     }
 
+    @When("^existing case note for a different user is updated with valid text$")
+    public void existingCaseNoteForADifferentUserIsUpdatedWithValidText() throws Throwable {
+        CaseNote existingCaseNote = caseNote.getCaseNote(-1, -1);
+        String caseNoteText = StringUtils.repeat("a", 100);
+        updatedCaseNote = caseNote.updateCaseNote(existingCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
+    }
+
     @When("^the created case note is updated with long text$")
     public void theCaseNoteIsUpdatedWithInvalidText() throws Throwable {
         final String caseNoteText = StringUtils.repeat("a", 3950); // total text will be over 4000
@@ -243,5 +250,10 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     @When("^case note count between \"([^\"]*)\" and \"([^\"]*)\" is requested for offender booking \"([^\"]*)\" for case note type \"([^\"]*)\" and sub-type \"([^\"]*)\"$")
     public void caseNoteCountBetweenAndIsRequestedForOffenderBookingForCaseNoteTypeAndSubType(String fromDate, String toDate, String bookingId, String type, String subType) throws Throwable {
         caseNote.getCaseNoteCount(Long.valueOf(bookingId), type, subType, fromDate, toDate);
+    }
+
+    @Then("^access denied response is received from booking case notes API$")
+    public void accessDeniedResponseIsReceivedFromBookingCaseNotesAPI() throws Throwable {
+        caseNote.verifyAccessDenied();
     }
 }

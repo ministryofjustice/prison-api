@@ -99,8 +99,10 @@ public class CaseNoteSteps extends CommonSteps {
     }
 
     @Step("Get case note")
-    public void getCaseNote(long bookingId, long caseNoteId) {
+    public CaseNote getCaseNote(long bookingId, long caseNoteId) {
         dispatchGetRequest(bookingId, caseNoteId);
+
+        return caseNote;
     }
 
     @Step("Get case note count")
