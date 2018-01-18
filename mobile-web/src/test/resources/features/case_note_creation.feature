@@ -8,14 +8,6 @@ Feature: Case Note Creation and Update
     Given a user has authenticated with the API
     And case note test harness initialized
 
-  Scenario: Attempt to update case note for offender that is not part of any of logged on staff user's caseloads
-    When attempt is made to update case note for booking with id "-16"
-    Then resource not found response is received from casenotes API
-
-  Scenario: Attempt to update case note for offender that does not exist
-    When attempt is made to update case note for booking with id "-99"
-    Then resource not found response is received from casenotes API
-
   Scenario: Create a case note 1
     When a case note is created for booking:
       | bookingId          | -15                                         |
@@ -111,19 +103,6 @@ Feature: Case Note Creation and Update
       | occurrenceDateTime | 2017-04-14T10:15:30                         |
     Then case note validation errors are:
       |Value cannot be blank|CaseNote (type,subtype)=(GEN,) does not exist|
-
-  Scenario: Update a case note
-    When existing case note is updated with valid text
-    Then case note is successfully updated with valid text
-    And the original text is not replaced
-
-  Scenario: Update a case note with blank data
-    When existing case note is updated with text "  "
-    Then case note validation error "Case Note text is blank" occurs
-
-  Scenario: Update a case note with data which is too long
-    When the created case note is updated with long text
-    Then case note validation error "Case Note text is over 4000 characters" occurs
 
   Scenario: Attempt to create case note for offender is not part of any of logged on staff user's caseloads
     When attempt is made to create case note for booking:

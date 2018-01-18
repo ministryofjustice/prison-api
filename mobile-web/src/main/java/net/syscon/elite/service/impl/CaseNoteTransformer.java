@@ -33,6 +33,7 @@ public class CaseNoteTransformer {
 
     public CaseNote transform(final CaseNote in) {
         CaseNote out = null;
+
         if (in != null && in.getText() != null) {
             out = CaseNote.builder()
                     .caseNoteId(in.getCaseNoteId())
@@ -45,6 +46,7 @@ public class CaseNoteTransformer {
                     .occurrenceDateTime(in.getOccurrenceDateTime())
                     .source(in.getSource())
                     .text(in.getText())
+                    .staffId(in.getStaffId())
                     .authorName(WordUtils.capitalize(StringUtils.lowerCase(in.getAuthorName())))
                     .amendments(new ArrayList<>())
                     .additionalProperties(in.getAdditionalProperties())
@@ -52,8 +54,8 @@ public class CaseNoteTransformer {
 
             // Now create matcher object.
             out = splitOutAmendments(in.getText(), out);
-
         }
+
         return out;
     }
 

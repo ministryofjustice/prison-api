@@ -137,7 +137,7 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetBookingsBookingIdCaseNotesResponse getBookingsBookingIdCaseNotes(Long bookingId, String from, String to,
+    public GetOffenderCaseNotesResponse getOffenderCaseNotes(Long bookingId, String from, String to,
             String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         Page<CaseNote> caseNotes = caseNoteService.getCaseNotes(
                 bookingId,
@@ -149,14 +149,14 @@ public class BookingResourceImpl implements BookingResource {
                 nvl(pageOffset, 0L),
                 nvl(pageLimit, 10L));
 
-        return GetBookingsBookingIdCaseNotesResponse.respond200WithApplicationJson(caseNotes);
+        return GetOffenderCaseNotesResponse.respond200WithApplicationJson(caseNotes);
     }
 
     @Override
-    public GetBookingsBookingIdCaseNotesCaseNoteIdResponse getBookingsBookingIdCaseNotesCaseNoteId(Long bookingId, Long caseNoteId) {
+    public GetOffenderCaseNoteResponse getOffenderCaseNote(Long bookingId, Long caseNoteId) {
         CaseNote caseNote = caseNoteService.getCaseNote(bookingId, caseNoteId);
 
-        return GetBookingsBookingIdCaseNotesCaseNoteIdResponse.respond200WithApplicationJson(caseNote);
+        return GetOffenderCaseNoteResponse.respond200WithApplicationJson(caseNote);
     }
 
     @Override
@@ -174,18 +174,18 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public PostBookingsBookingIdCaseNotesResponse postBookingsBookingIdCaseNotes(Long bookingId, NewCaseNote body) {
+    public CreateOffenderCaseNoteResponse createOffenderCaseNote(Long bookingId, NewCaseNote body) {
         CaseNote caseNote = caseNoteService.createCaseNote(bookingId, body, authenticationFacade.getCurrentUsername());
 
-        return PostBookingsBookingIdCaseNotesResponse.respond201WithApplicationJson(caseNote);
+        return CreateOffenderCaseNoteResponse.respond201WithApplicationJson(caseNote);
     }
 
     @Override
-    public PutBookingsBookingIdCaseNotesCaseNoteIdResponse putBookingsBookingIdCaseNotesCaseNoteId(Long bookingId, Long caseNoteId, UpdateCaseNote body) {
+    public UpdateOffenderCaseNoteResponse updateOffenderCaseNote(Long bookingId, Long caseNoteId, UpdateCaseNote body) {
         CaseNote caseNote = caseNoteService.updateCaseNote(
                 bookingId, caseNoteId, authenticationFacade.getCurrentUsername(), body.getText());
 
-        return PutBookingsBookingIdCaseNotesCaseNoteIdResponse.respond201WithApplicationJson(caseNote);
+        return UpdateOffenderCaseNoteResponse.respond201WithApplicationJson(caseNote);
     }
 
     @Override

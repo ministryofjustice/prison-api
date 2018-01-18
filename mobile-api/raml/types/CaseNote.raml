@@ -30,9 +30,13 @@ properties:
   occurrenceDateTime:
     type: datetime
     description: Date and Time of when case note contact with offender was made
-  authorName?:
+  staffId:
+    type: number
+    (javaType): Long
+    description: Id of staff member who created case note
+  authorName:
     type: string
-    description: Name of the user entering the case note (lastname, firstname)
+    description: Name of staff member who created case note (lastname, firstname)
   text:
     type: string
     description: Case Note Text
@@ -42,4 +46,3 @@ properties:
   amendments:
     type: CaseNoteAmendment[]
     description: Ordered list of amendments to the case note (oldest first)
-

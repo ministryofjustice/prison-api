@@ -1,18 +1,11 @@
 package net.syscon.elite.executablespecification;
 
-import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import net.syscon.elite.api.model.Token;
 import net.syscon.elite.executablespecification.steps.UserSteps;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * BDD step definitions for User API endpoints:
@@ -22,69 +15,28 @@ import static org.assertj.core.api.Assertions.assertThat;
  *     <li>/users/me/bookingAssignments</li>
  *     <li>/users/me/caseLoads</li>
  *     <li>/users/me/activeCaseLoad</li>
- *     <li>/users/login</li>
- *     <li>/users/refresh</li>
  *     <li>/users/staff</li>
- *     <li>/users/token</li>
  *     <li>/users/me/locations</li>
  *     <li>/users/me/roles</li>
  * </ul>
- *
- * NB: Not all API endpoints have associated tests at this point in time.
  */
 public class UserStepDefinitions extends AbstractStepDefinitions {
     @Autowired
     private UserSteps user;
 
-    private Token currentToken;
-
-    @Value("${jwt.expiration.seconds}")
-    private int expirationSeconds;
-
-    @Value("${jwt.refresh.expiration.seconds}")
-    private int refreshExpirationSeconds;
-
-    @Given("^API authentication is attempted with the following credentials:$")
-    public void apiAuthenticationIsAttemptedWithTheFollowingCredentials(DataTable rawData) {
-        final Map<String, String> loginCredentials = rawData.asMap(String.class, String.class);
-        authAndStoreToken(loginCredentials.get("username"), loginCredentials.get("password"));
-    }
-
     @Given("^a user has logged in with username \"([^\"]*)\" and password \"([^\"]*)\"$")
     public void aUserHasLoggedInWithUsernameAndPassword(String username, String password) throws Throwable {
-        authAndStoreToken(username, password);
-    }
-
-    @Then("^a valid JWT token is generated$")
-    public void aValidJWTTokenIsGenerated() {
-        user.verifyToken();
-    }
-
-    @Then("^a valid JWT refresh token is generated$")
-    public void aValidJWTrefreshTokenIsGenerated() {
-        user.verifyRefreshToken();
-    }
-
-    @And("^current user details match the following:$")
-    public void currentUserDetailsMatchTheFollowing(DataTable rawData) {
-        Map<String, String> userCheck = rawData.asMap(String.class, String.class);
-
-        user.verifyDetails(userCheck.get("username"), userCheck.get("firstName"), userCheck.get("lastName"));
+        authenticate(username, password);
     }
 
     @Given("^a user has authenticated with the API$")
     public void aUserHasAuthenticatedWithTheAPI() {
-        authAndStoreToken("itag_user", "password");
+        authenticate("itag_user", "password");
     }
 
     @Given("^user \"([^\"]*)\" with password \"([^\"]*)\" has authenticated with the API$")
     public void userWithPasswordHasAuthenticatedWithTheAPI(String username, String password) throws Throwable {
-        authAndStoreToken(username, password);
-    }
-
-    @When("^token refresh is attempted$")
-    public void tokenRefreshIsAttempted() throws Throwable {
-        user.refresh();
+        authenticate(username, password);
     }
 
     @When("^a staff member search is made using staff id \"([^\"]*)\"$")
@@ -162,34 +114,7 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.verifyCaseNoteTypesHaveSubTypes();
     }
 
-    @Then("^a new token is generated successfully$")
-    public void aNewTokenIsGeneratedSuccessfully() throws Throwable {
-        assertThat(currentToken.getToken()).isNotEqualTo(user.getAuth().getToken());
-    }
-
-    @Then("^authentication denied is returned$")
-    public void authenticationDeniedIsReturned() throws Throwable {
-        user.verifyNotAuthorised();
-    }
-
-    private void authAndStoreToken(String username, String password) {
+    private void authenticate(String username, String password) {
         user.authenticates(username, password);
-        currentToken = user.getAuth().getToken();
-    }
-
-    @And("^token timeout is valid$")
-    public void tokenTimeoutIsValid() throws Throwable {
-        final Token token = user.getAuth().getToken();
-        assertThat(token.getExpiration()).isLessThan(token.getRefreshExpiration());
-    }
-
-    @When("^I wait until the token as expired$")
-    public void iWaitUntilTheTokenAsExpired() throws Throwable {
-        Thread.sleep(expirationSeconds * 1000);
-    }
-
-    @When("^I wait until the refresh token as expired$")
-    public void iWaitUntilTheRefreshTokenAsExpired() throws Throwable {
-        Thread.sleep(refreshExpirationSeconds * 1000);
     }
 }

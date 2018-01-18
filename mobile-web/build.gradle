@@ -75,6 +75,8 @@ project(":mobile-web") {
         testCompile 'net.serenity-bdd:serenity-spring:1.8.2'
         testCompile 'net.serenity-bdd:serenity-cucumber:1.6.5'
 
+        testCompileOnly 'org.projectlombok:lombok:1.16.18'
+
         testRuntime files("${rootDir}/mobile-web/src/main/configs")
         testRuntime files("${rootDir}/mobile-web/src/main/resources")
     }

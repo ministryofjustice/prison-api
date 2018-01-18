@@ -23,9 +23,15 @@ public class AuthorisationAspect {
         // no code needed - pointcut definition
     }
 
+    @Pointcut("@annotation(net.syscon.elite.security.VerifyAgencyAccess) && execution(* *(String,..)) && args(agencyId,..)")
+    public void verifyAgencyAccessPointcut(String agencyId) {
+        // no code needed - pointcut definition
+    }
+
     @Before("verifyBookingAccessPointcut(bookingId)")
     public void verifyBookingAccess(Long bookingId) {
         log.debug("Verifying booking access for booking [{}]", bookingId);
+
         if (bookingService.isSystemUser()) {
             bookingService.checkBookingExists(bookingId);
         } else {
@@ -33,14 +39,10 @@ public class AuthorisationAspect {
         }
     }
 
-    @Pointcut("@annotation(net.syscon.elite.security.VerifyAgencyAccess) && execution(* *(String,..)) && args(agencyId,..)")
-    public void verifyAgencyAccessPointcut(String agencyId) {
-        // no code needed - pointcut definition
-    }
-
     @Before("verifyAgencyAccessPointcut(agencyId)")
     public void verifyAgencyAccess(String agencyId) {
         log.debug("Verifying agency access for agency [{}]", agencyId);
+
         if (!bookingService.isSystemUser()) {
             agencyService.verifyAgencyAccess(agencyId);
         }

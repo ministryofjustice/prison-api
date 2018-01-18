@@ -1,6 +1,7 @@
 package net.syscon.elite.executablespecification.steps;
 
 import com.google.common.collect.ImmutableMap;
+import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
@@ -17,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 
 import javax.annotation.PostConstruct;
 import javax.ws.rs.core.Response;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,13 +29,12 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * Common BDD step implementations
  */
+@Slf4j
 public abstract class CommonSteps {
     public static final String API_PREFIX = "/";
 
@@ -126,6 +125,17 @@ public abstract class CommonSteps {
         assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.FORBIDDEN.getStatusCode());
     }
 
+    @Step("Verify access denied")
+    public void verifyAccessDenied(String expectedUserMessage) {
+        verifyAccessDenied(Collections.singletonList(expectedUserMessage));
+    }
+
+    public void verifyAccessDenied(List<String> expectedUserMessages) {
+        assertThat(errorResponse).isNotNull();
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.FORBIDDEN.getStatusCode());
+        assertThat(errorResponse.getUserMessage()).contains(expectedUserMessages);
+    }
+
     @Step("Verify not authorised")
     public void verifyNotAuthorised() {
         assertThat(errorResponse).isNotNull();
@@ -165,6 +175,7 @@ public abstract class CommonSteps {
     }
 
     protected void setErrorResponse(ErrorResponse errorResponse) {
+        log.error("API error: {}", errorResponse.toString());
         this.errorResponse = errorResponse;
     }
 

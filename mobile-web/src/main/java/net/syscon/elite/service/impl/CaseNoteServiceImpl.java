@@ -2,20 +2,19 @@ package net.syscon.elite.service.impl;
 
 import com.google.common.collect.ImmutableMap;
 import com.microsoft.applicationinsights.TelemetryClient;
-import net.syscon.elite.api.model.CaseNote;
-import net.syscon.elite.api.model.CaseNoteCount;
-import net.syscon.elite.api.model.NewCaseNote;
-import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.CaseNoteRepository;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.CaseNoteService;
 import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.UserService;
 import net.syscon.elite.service.validation.CaseNoteTypeSubTypeValid;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -41,12 +40,14 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
     private final CaseNoteRepository caseNoteRepository;
     private final CaseNoteTransformer transformer;
+    private final UserService userService;
 	private final TelemetryClient telemetryClient;
 
     public CaseNoteServiceImpl(CaseNoteRepository caseNoteRepository, CaseNoteTransformer transformer,
-							   TelemetryClient telemetryClient) {
+							   UserService userService, TelemetryClient telemetryClient) {
         this.caseNoteRepository = caseNoteRepository;
         this.transformer = transformer;
+        this.userService = userService;
         this.telemetryClient = telemetryClient;
     }
 
@@ -103,6 +104,13 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	public CaseNote updateCaseNote(Long bookingId, Long caseNoteId, String username, @NotBlank(message="{caseNoteTextBlank}") String newCaseNoteText) {
         CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId)
 				.orElseThrow(EntityNotFoundException.withId(caseNoteId));
+
+        // Verify that user attempting to amend case note is same one who created it.
+        UserDetail userDetail = userService.getUserByUsername(username);
+
+        if (userDetail.getStaffId() != caseNote.getStaffId()) {
+            throw new AccessDeniedException("User not authorised to amend case note.");
+        }
 
         String amendedText = format(AMEND_CASE_NOTE_FORMAT,
                 caseNote.getText(),
