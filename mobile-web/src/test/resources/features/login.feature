@@ -39,7 +39,7 @@ Feature: Authentication
       | username  | itag_user  |
       | password  | password   |
     When I wait until the token as expired
-    And a user role request is made
+    And a user role request is made after token has expired
     Then authentication denied is returned
 
   Scenario: JWT expires after configured period of time but I can refresh
