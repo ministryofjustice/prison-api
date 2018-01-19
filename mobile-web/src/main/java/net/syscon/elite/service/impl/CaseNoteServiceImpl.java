@@ -108,7 +108,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
         // Verify that user attempting to amend case note is same one who created it.
         UserDetail userDetail = userService.getUserByUsername(username);
 
-        if (userDetail.getStaffId() != caseNote.getStaffId()) {
+		if (!caseNote.getStaffId().equals(userDetail.getStaffId())) {
             throw new AccessDeniedException("User not authorised to amend case note.");
         }
 

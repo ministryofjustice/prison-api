@@ -108,10 +108,11 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
 
     @When("^existing case note is updated with valid text$")
     public void theCaseNoteIsUpdatedWithValidText() throws Throwable {
+        CaseNote existingCaseNote = caseNote.getCaseNote(-5, -2);
         // Allow 100 chars for the 1st part of the updated text which includes the
         // original text and the user/timestamp text
-        String caseNoteText = StringUtils.repeat("a", 3900);
-        updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
+        String caseNoteText = StringUtils.repeat("a", 100);
+        updatedCaseNote = caseNote.updateCaseNote(existingCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
     }
 
     @When("^existing case note for a different user is updated with valid text$")
@@ -129,7 +130,7 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^case note is successfully updated with valid text$")
     public void caseNoteIsSuccessfullyUpdated() throws Throwable {
-        assertThat(updatedCaseNote.getText()).contains(StringUtils.repeat("a", 3900));
+        assertThat(updatedCaseNote.getText()).contains(StringUtils.repeat("a", 100));
     }
 
     @And("^the original text is not replaced$")

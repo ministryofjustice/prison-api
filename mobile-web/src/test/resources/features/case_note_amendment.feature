@@ -20,15 +20,11 @@ Feature: Case Note Amendment
   Scenario: A staff user can amend a case note they created
     When existing case note is updated with valid text
     Then case note is successfully updated with valid text
+    And the original text is not replaced
 
   Scenario: A staff user cannot amend a case note that they did not create
     When existing case note for a different user is updated with valid text
     Then access denied response, with "User not authorised to amend case note." message, is received from booking case notes API
-
-  Scenario: Update a case note
-    When existing case note is updated with valid text
-    Then case note is successfully updated with valid text
-    And the original text is not replaced
 
   Scenario: Update a case note with blank data
     When existing case note is updated with text "  "
