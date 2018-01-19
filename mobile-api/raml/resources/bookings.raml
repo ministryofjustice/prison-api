@@ -75,7 +75,6 @@
         body:
           application/json:
             CaseNote
-
   put:
     (javaOperationName): updateOffenderCaseNote
     description: Amend offender case note.
@@ -87,7 +86,31 @@
         body:
           application/json:
             type: CaseNote
-            description: The Case Note has been recorded. The updated object is returned including the status.
+            description: Case Note amendment processed successfully. Updated case note is returned.
+      400:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: Invalid request - e.g. amendment text not provided.
+            example: !include ../examples/ouput/400.sample.json
+      403:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: Forbidden - user not authorised to amend case note.
+            example: !include ../examples/ouput/403.sample.json
+      404:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: Resource not found - booking or case note does not exist or is not accessible to user.
+            example: !include ../examples/ouput/404.sample.json
+      500:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: Internal server error.
+            example: !include ../examples/ouput/500.sample.json
 
 /{bookingId}/alerts:
   (javaOperationName): getOffenderAlerts
