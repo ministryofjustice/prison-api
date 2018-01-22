@@ -1,11 +1,13 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.KeyWorkerAllocationDetail;
 import net.syscon.elite.api.model.Keyworker;
+import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -31,4 +33,6 @@ public interface KeyWorkerAllocationRepository {
     List<Keyworker> getAvailableKeyworkers(String agencyId);
 
     void checkAvailableKeyworker(Long bookingId, Long staffId);
+
+    Page<KeyWorkerAllocationDetail> getAllocatedOffenders(Set<String> agencyIds, LocalDate fromDate, LocalDate toDate, String type, Long offset, Long limit, String sortFields, Order sortOrder);
 }
