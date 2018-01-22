@@ -13,9 +13,6 @@ import net.syscon.util.IQueryBuilder;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
-
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
