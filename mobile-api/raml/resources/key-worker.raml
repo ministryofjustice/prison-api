@@ -10,3 +10,13 @@
   is: [
       sortable: {fieldsList: "firstName, lastName"}
   ]
+
+/allocate:
+  (javaOperationName): allocate
+  post:
+    description: Allocate an offender to a keyworker.
+    body:
+      application/json:
+        type: NewAllocation
+    responses:
+      201:

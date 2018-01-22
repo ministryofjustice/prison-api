@@ -7,6 +7,7 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.AllocationException;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.KeyWorkerAllocationService;
@@ -32,10 +33,12 @@ public class KeyWorkerAllocationServiceImplTest {
 
     @Mock
     private KeyWorkerAllocationRepository repo;
+    @Mock
+    private AuthenticationFacade authenticationFacade;
 
     @Before
     public void setUp() throws Exception {
-        service = new KeyWorkerAllocationServiceImpl(repo);
+        service = new KeyWorkerAllocationServiceImpl(repo, authenticationFacade, null);
     }
 
     @Test
@@ -46,7 +49,7 @@ public class KeyWorkerAllocationServiceImplTest {
         verify(repo, times(1)).getCurrentAllocationForOffenderBooking(allocation.getBookingId());
         verify(repo, times(1)).createAllocation(allocation, USER_1);
     }
-
+    
     @Test(expected = AllocationException.class)
     public void shouldThrowException_existingAllocationForOffenderBooking () throws Exception {
         when(repo.getCurrentAllocationForOffenderBooking(BOOKING_ID)).thenReturn(Optional.empty());

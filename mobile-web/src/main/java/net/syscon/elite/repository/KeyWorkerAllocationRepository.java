@@ -29,4 +29,6 @@ public interface KeyWorkerAllocationRepository {
     Page<OffenderSummary> getUnallocatedOffenders(Set<String> agencyIds, Long offset, Long limit, String sortFields, Order sortOrder);
 
     List<Keyworker> getAvailableKeyworkers(String agencyId);
+
+    void checkAvailableKeyworker(Long bookingId, Long staffId);
 }

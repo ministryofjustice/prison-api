@@ -51,6 +51,7 @@ public class KeyWorkerAllocationSteps extends CommonSteps {
         }
     }
 
+    @Override
     protected void init() {
         super.init();
         offenderSummaryList = null;

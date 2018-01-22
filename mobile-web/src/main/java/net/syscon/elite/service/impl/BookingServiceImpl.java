@@ -408,6 +408,12 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public String getBookingAgency(Long bookingId) {
+        final Optional<String> agencyId = bookingRepository.getBookingAgency(bookingId);
+        return agencyId.orElseThrow(() -> EntityNotFoundException.withId(bookingId));
+    }
+
+    @Override
     public void checkBookingExists(Long bookingId) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 

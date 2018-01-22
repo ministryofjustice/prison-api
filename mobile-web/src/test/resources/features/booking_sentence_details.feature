@@ -210,7 +210,7 @@ Feature: Booking Sentence Details
   Scenario: Retrieve sentence details as a list
     When sentence details are requested of offenders for the logged in users caseloads
     Then "10" offenders are returned
-    And "25" offenders in total
+    And "27" offenders in total
 
   Scenario Outline: Retrieve sentence details as a list filter and sort
     When sentence details are requested of offenders for the logged in users caseloads sorted by "bookingId" and filtered by "homeDetentionCurfewEligibilityDate:is:not null,and:conditionalReleaseDate:is:not null"

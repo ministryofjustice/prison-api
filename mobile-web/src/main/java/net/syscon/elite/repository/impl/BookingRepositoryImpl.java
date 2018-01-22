@@ -105,26 +105,25 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    @Cacheable("checkBookingExists")
     public boolean checkBookingExists(Long bookingId) {
+        log.debug("Verifying booking [{}] exists", bookingId);
+
+        return getBookingAgency(bookingId).isPresent();
+    }
+
+    @Override
+    @Cacheable("getBookingAgency")
+    public Optional<String> getBookingAgency(Long bookingId) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
-        String initialSql = getQuery("CHECK_OFFENDER_BOOKING_EXISTS");
-
-        Long response;
-
+        String initialSql = getQuery("GET_OFFENDER_BOOKING_AGENCY");
+        String agencyId;
         try {
-            log.debug("Verifying booking [{}] exists", bookingId);
-
-            response = jdbcTemplate.queryForObject(
-                    initialSql,
-                    createParams("bookingId", bookingId),
-                    Long.class);
+            agencyId = jdbcTemplate.queryForObject(initialSql, createParams("bookingId", bookingId), String.class);
         } catch (EmptyResultDataAccessException ex) {
-            response = null;
+            agencyId = null;
         }
-
-        return bookingId.equals(response);
+        return Optional.ofNullable(agencyId);
     }
 
     @Override
