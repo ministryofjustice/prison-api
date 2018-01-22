@@ -20,6 +20,8 @@ public interface BookingRepository {
 
     boolean verifyBookingAccess(Long bookingId, Set<String> agencyIds);
 
+    Optional<String> getBookingAgency(Long bookingId);
+
     boolean checkBookingExists(Long bookingId);
 
     Page<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);

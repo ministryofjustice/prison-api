@@ -1,6 +1,8 @@
 package net.syscon.elite.api.resource.impl;
 
 import com.google.common.collect.ImmutableSet;
+
+import net.syscon.elite.api.model.NewAllocation;
 import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.resource.KeyWorkerResource;
 import net.syscon.elite.api.support.Order;
@@ -42,5 +44,12 @@ public class KeyWorkerResourceImpl implements KeyWorkerResource {
             return ImmutableSet.of(agencyId);
         }
         return allowedAgencyIds;
+    }
+
+    @Override
+    public AllocateResponse allocate(NewAllocation body) {
+        keyWorkerService.allocate(body);
+
+        return AllocateResponse.respond201WithApplicationJson();
     }
 }

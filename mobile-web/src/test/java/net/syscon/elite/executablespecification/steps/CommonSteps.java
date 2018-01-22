@@ -142,6 +142,11 @@ public abstract class CommonSteps {
         assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
+    @Step("Verify no error")
+    public void verifyNoError() {
+        assertThat(errorResponse).isNull();
+    }
+
     @Step("Apply pagination")
     public void applyPagination(Long offset, Long limit) {
         if (limit == null) {

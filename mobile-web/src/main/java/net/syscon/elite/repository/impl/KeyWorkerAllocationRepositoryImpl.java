@@ -7,6 +7,7 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -137,6 +138,17 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
         results.forEach(os -> os.setInternalLocationDesc(stripAgencyId(os.getInternalLocationDesc(), os.getAgencyLocationId())));
 
         return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
+    }
+
+    @Override
+    public void checkAvailableKeyworker(Long bookingId, Long staffId) {
+        final String sql = getQuery("CHECK_AVAILABLE_KEYWORKER");
+        try {
+            jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "staffId", staffId), Long.class);
+        } catch (EmptyResultDataAccessException ex) {
+            throw new EntityNotFoundException(
+                    String.format("Keyworker with id %d not available for offender %d", staffId, bookingId));
+        }
     }
 
     @Override

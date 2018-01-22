@@ -2,9 +2,12 @@ package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.model.Keyworker;
+import net.syscon.elite.api.model.NewAllocation;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
+
+import javax.validation.Valid;
 
 import java.util.List;
 import java.util.Set;
@@ -19,6 +22,8 @@ public interface KeyWorkerAllocationService {
     void deactivateAllocationForKeyWorker(Long staffId, String reason, String username);
 
     void deactivateAllocationForOffenderBooking(Long bookingId, String reason, String username);
+
+    void allocate(@Valid NewAllocation newAllocation);
 
     List<KeyWorkerAllocation> getAllocationHistoryForPrisoner(Long offenderId, String orderByFields, Order order);
 
