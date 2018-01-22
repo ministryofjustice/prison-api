@@ -7566,8 +7566,6 @@ INSERT INTO REFERENCE_CODES (DOMAIN, CODE, DESCRIPTION, LIST_SEQ, ACTIVE_FLAG, S
          ('RELATIONSHIP', 'WIFE', 'Wife', 99, 'Y', 'N', null, 'CONTACTS', 'S'),
          ('RELATIONSHIP', 'YOTOM', 'YOT Offender Manager', 99, 'N', 'N', '2009-05-23', 'CONTACTS', 'O'),
          ('RELATIONSHIP', 'YOTWORKER', 'YOT Offender Supervisor/Manager', 99, 'Y', 'N', null, 'CONTACTS', 'O'),
-         ('RELATIONSHIP', 'POM', 'Prison Offender Manager', 99, 'Y', 'N', null, 'CONTACTS', 'O'),
-         ('RELATIONSHIP', 'COM', 'Case Admin (Offender Management Unit)', 99, 'Y', 'N', null, 'CONTACTS', 'O'),
          ('REL_DATE_TYP', 'APR', 'Approved Date', 2, 'Y', 'Y', null, null, null),
          ('REL_DATE_TYP', 'AUTO', 'Auto Release Date', 1, 'Y', 'Y', null, null, null),
          ('REL_DATE_TYP', 'CONF', 'Confirmed Release Date', 5, 'Y', 'Y', null, null, null),
