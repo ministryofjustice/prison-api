@@ -1,8 +1,9 @@
 package net.syscon.elite.repository;
 
 import com.google.common.collect.ImmutableSet;
-import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.KeyWorkerAllocationDetail;
 import net.syscon.elite.api.model.Keyworker;
+import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
@@ -20,6 +21,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -156,6 +158,43 @@ public class KeyWorkerAllocationRepositoryTest {
         assertThat(availableKeyworkers.get(0).getLastName()).isEqualTo("User");
         assertThat(availableKeyworkers.get(0).getStaffId()).isEqualTo(-5L);
         assertThat(availableKeyworkers.get(0).getCapacity()).isEqualTo(11);
+    }
+
+    @Test
+    public void shouldGetAutoAllocatedOffenders() {
+        final Page<KeyWorkerAllocationDetail> allocatedOffenders = repo.getAllocatedOffenders(ImmutableSet.of("LEI", "BXI"), LocalDate.parse("2017-04-01"), LocalDate.parse("2017-07-01"),"A", 0L, 5L, "assigned", Order.ASC);
+
+        assertThat(allocatedOffenders.getItems()).hasSize(1);
+        assertThat(allocatedOffenders.getItems()).hasSize(1);
+        final KeyWorkerAllocationDetail keyWorkerAllocationDetail = allocatedOffenders.getItems().get(0);
+        assertThat(keyWorkerAllocationDetail.getFirstName()).isEqualTo("HARRY");
+        assertThat(keyWorkerAllocationDetail.getLastName()).isEqualTo("SARLY");
+        assertThat(keyWorkerAllocationDetail.getStaffId()).isEqualTo("-5");
+        assertThat(keyWorkerAllocationDetail.getInternalLocationDesc()).isEqualTo("H-1");
+        assertThat(keyWorkerAllocationDetail.getAllocationType()).isEqualTo("A");
+    }
+
+    @Test
+    public void shouldGetManuallyAllocatedOffenders() {
+        final Page<KeyWorkerAllocationDetail> allocatedOffenders = repo.getAllocatedOffenders(ImmutableSet.of("LEI"), LocalDate.parse("2017-04-01"),
+                LocalDate.parse("2017-07-01"),"M", 0L, 5L, "assigned", Order.ASC);
+
+        assertThat(allocatedOffenders.getItems()).hasSize(1);
+        final KeyWorkerAllocationDetail keyWorkerAllocationDetail = allocatedOffenders.getItems().get(0);
+        assertThat(keyWorkerAllocationDetail.getFirstName()).isEqualTo("FRED");
+        assertThat(keyWorkerAllocationDetail.getLastName()).isEqualTo("JAMES");
+        assertThat(keyWorkerAllocationDetail.getStaffId()).isEqualTo("-5");
+        assertThat(keyWorkerAllocationDetail.getInternalLocationDesc()).isEqualTo("H-1");
+        assertThat(keyWorkerAllocationDetail.getAllocationType()).isEqualTo("M");
+    }
+
+    @Test
+    public void shouldGetAllAllocatedOffenders() {
+        final Page<KeyWorkerAllocationDetail> allocatedOffenders = repo.getAllocatedOffenders(ImmutableSet.of("LEI", "BXI"),
+                LocalDate.parse("2017-04-01"), LocalDate.parse("2017-07-01"), null, 0L, 30L, "assigned", Order.DESC);
+
+        assertThat(allocatedOffenders.getItems()).hasSize(2);
+        assertThat(allocatedOffenders.getItems()).isSortedAccordingTo((o1, o2) -> o2.getAssigned().compareTo(o1.getAssigned()));
     }
 
     private KeyWorkerAllocation buildKeyWorkerAllocation(Long bookingId) {

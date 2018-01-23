@@ -1,10 +1,7 @@
 package net.syscon.elite.service.impl;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.support.Order;
-import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 import net.syscon.elite.security.AuthenticationFacade;
@@ -17,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -25,7 +23,8 @@ import static org.mockito.Mockito.*;
 public class KeyWorkerAllocationServiceImplTest {
 
     private static final String USER_1 = "USER1";
-    private static final String AUTO_ALLOCATION_TYPE = "A";
+    private static final String AUTO_ALLOCATED_TYPE = "A";
+    private static final String AUTO_ALLOCATION_TYPE = AUTO_ALLOCATED_TYPE;
     private static final String DEALLOCATION_REASON = "deallocating";
     private static final long BOOKING_ID = -1L;
     private static final String AGENCY_ID = "LEI";
@@ -104,18 +103,26 @@ public class KeyWorkerAllocationServiceImplTest {
 
     @Test
     public void shouldCallCollaboratorsWithDefaultsForGetUnallocatedOffenders() throws Exception {
-        final Page<OffenderSummary> offenderSummaryPage = new Page<>(ImmutableList.of(buildOffenderSummary()), 1, 0, 100);
-        when(repo.getUnallocatedOffenders(ImmutableSet.of("LEI"), 0L, 10L, "lastName", Order.ASC)).thenReturn(offenderSummaryPage);
         service.getUnallocatedOffenders(ImmutableSet.of("LEI"), null, null, null, null);
         verify(repo, times(1)).getUnallocatedOffenders(ImmutableSet.of("LEI"), 0L,10L, "lastName", Order.ASC);
     }
 
     @Test
     public void shouldCallCollaboratorsForGetUnallocatedOffenders() throws Exception {
-        final Page<OffenderSummary> offenderSummaryPage = new Page<>(ImmutableList.of(buildOffenderSummary()), 1, 5, 10);
-        when(repo.getUnallocatedOffenders(ImmutableSet.of("LEI"), 5L, 10L, "firstName", Order.DESC)).thenReturn(offenderSummaryPage);
         service.getUnallocatedOffenders(ImmutableSet.of("LEI"), 5L, 10L, "firstName", Order.DESC);
         verify(repo, times(1)).getUnallocatedOffenders(ImmutableSet.of("LEI"), 5L,10L, "firstName", Order.DESC);
+    }
+
+    @Test
+    public void shouldCallCollaboratorsForGetAllocatedOffenders() throws Exception {
+        service.getAllocatedOffenders(ImmutableSet.of("LEI"), LocalDate.parse("2017-04-01"), LocalDate.parse("2017-07-01"), AUTO_ALLOCATED_TYPE,5L, 10L, "firstName", Order.DESC);
+        verify(repo, times(1)).getAllocatedOffenders(ImmutableSet.of("LEI"), LocalDate.parse("2017-04-01"), LocalDate.parse("2017-07-01"), AUTO_ALLOCATED_TYPE,5L,10L, "firstName", Order.DESC);
+    }
+
+    @Test
+    public void shouldCallCollaboratorsWhenAllOptionalParametersOmittedForGetAllocatedOffenders() throws Exception {
+        service.getAllocatedOffenders(ImmutableSet.of("LEI"), null, null, null, null, null, null, null);
+        verify(repo, times(1)).getAllocatedOffenders(ImmutableSet.of("LEI"), null, null, null,0L,10L, "lastName,firstName", Order.ASC);
     }
 
     @Test
@@ -126,10 +133,6 @@ public class KeyWorkerAllocationServiceImplTest {
 
     private KeyWorkerAllocation buildKeyWorkerAllocation(String type) {
         return KeyWorkerAllocation.builder().agencyId("LEI").bookingId(BOOKING_ID).reason("reason").staffId(-1L).type(type).build();
-    }
-
-    private OffenderSummary buildOffenderSummary() {
-        return OffenderSummary.builder().bookingId(-1L).build();
     }
 
 }

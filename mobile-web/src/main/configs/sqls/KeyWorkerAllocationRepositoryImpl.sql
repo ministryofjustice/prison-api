@@ -143,3 +143,36 @@ CHECK_AVAILABLE_KEYWORKER {
     AND SLR.ROLE = 'KW'
     AND TRUNC(SYSDATE) BETWEEN TRUNC(SLR.FROM_DATE) AND TRUNC(COALESCE(SLR.TO_DATE,SYSDATE))
 }
+
+GET_ALLOCATED_OFFENDERS {
+SELECT
+  OB.OFFENDER_BOOK_ID                            booking_id,
+  O.OFFENDER_ID_DISPLAY                          offender_no,
+  O.FIRST_NAME,
+  CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL
+    THEN concat(' ', O.middle_name_2)
+                        ELSE '' END)                MIDDLE_NAMES,
+  O.LAST_NAME,
+  OKW.OFFICER_ID                                 STAFF_ID,
+  OKW.ASSIGNED_TIME                              ASSIGNED,
+  OKW.AGY_LOC_ID                                 AGENCY_ID,
+  OKW.ALLOC_REASON                               REASON,
+  OKW.ALLOC_TYPE                                 allocationType,
+  AIL.DESCRIPTION                                internal_location_desc
+FROM OFFENDERS O
+  JOIN OFFENDER_BOOKINGS OB
+    ON OB.offender_id = o.offender_id
+       AND OB.booking_seq = 1
+  JOIN OFFENDER_KEY_WORKERS OKW
+    ON OKW.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
+  JOIN agency_locations al
+    ON al.agy_loc_id = ob.agy_loc_id
+  LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
+WHERE
+  OB.ACTIVE_FLAG = 'Y'
+  AND OKW.ACTIVE_FLAG = 'Y'
+  AND al.agy_loc_id IN (:agencyIds)
+  AND (:allocType is NULL OR OKW.ALLOC_TYPE = :allocType)
+  AND (:fromDate is not NULL OR TRUNC(OKW.ASSIGNED_TIME) <= TRUNC(COALESCE(:toDate,SYSDATE)))
+  AND (:fromDate is NULL OR TRUNC(OKW.ASSIGNED_TIME) BETWEEN  TRUNC(:fromDate)  AND TRUNC(COALESCE(:toDate,SYSDATE)))
+}

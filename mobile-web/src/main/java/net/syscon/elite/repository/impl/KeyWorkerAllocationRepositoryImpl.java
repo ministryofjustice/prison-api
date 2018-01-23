@@ -1,7 +1,8 @@
 package net.syscon.elite.repository.impl;
 
-import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.KeyWorkerAllocationDetail;
 import net.syscon.elite.api.model.Keyworker;
+import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
@@ -11,9 +12,12 @@ import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
+import java.sql.Types;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +30,8 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
 
     private static final StandardBeanPropertyRowMapper<KeyWorkerAllocation> KEY_WORKER_ALLOCATION_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(KeyWorkerAllocation.class);
+    private static final StandardBeanPropertyRowMapper<KeyWorkerAllocationDetail> KEY_WORKER_ALLOCATION_DETAIL_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(KeyWorkerAllocationDetail.class);
     private static final StandardBeanPropertyRowMapper<OffenderSummary> OFFENDER_SUMMARY_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(OffenderSummary.class);
     private static final StandardBeanPropertyRowMapper<Keyworker> KEY_WORKER_ROW_MAPPER =
@@ -161,6 +167,35 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
                 KEY_WORKER_ROW_MAPPER);
 
         return keyworkers;
+    }
+
+    @Override
+    public Page<KeyWorkerAllocationDetail> getAllocatedOffenders(Set<String> agencyIds, LocalDate fromDate, LocalDate toDate, String type, Long offset, Long limit, String orderFields, Order order) {
+        String initialSql = getQuery("GET_ALLOCATED_OFFENDERS");
+
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, KEY_WORKER_ALLOCATION_DETAIL_ROW_MAPPER.getFieldMap());
+
+        String sql = builder
+                .addPagination()
+                .addRowCount()
+                .addOrderBy(order, orderFields)
+                .build();
+
+        PageAwareRowMapper<KeyWorkerAllocationDetail> paRowMapper = new PageAwareRowMapper<>(KEY_WORKER_ALLOCATION_DETAIL_ROW_MAPPER);
+
+        final List<KeyWorkerAllocationDetail> results = jdbcTemplate.query(
+                sql,
+                createParams("agencyIds", agencyIds,
+                        "allocType", type,
+                        "offset", offset,
+                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
+                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate)),
+                        "limit", limit),
+                paRowMapper);
+
+        results.forEach(ka -> ka.setInternalLocationDesc(stripAgencyId(ka.getInternalLocationDesc(), ka.getAgencyId())));
+
+        return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
     }
 
     private Optional<KeyWorkerAllocation> getKeyWorkerAllocationByOffenderBooking(Long bookingId, String sql) {

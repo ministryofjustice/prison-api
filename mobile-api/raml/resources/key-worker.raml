@@ -1,14 +1,40 @@
 /offenders/unallocated:
   (javaOperationName): getUnallocatedOffenders
-  type: { readOnlyCollectionPaged: { type: OffenderSummary, description: All unallocated offenders. } }
+  type: { readOnlyCollectionPaged: { type: OffenderSummary, description: All unallocated offenders accessible to current user. } }
   get:
     queryParameters:
       agencyId?:
         type: string
-        description: Agency to filter by.
+        description: Agency to filter by. Defaults to current user's caseload if not provided.
         example: LEI
   is: [
       sortable: {fieldsList: "firstName, lastName"}
+  ]
+
+/offenders/allocated:
+  (javaOperationName): getAllocatedOffenders
+  type: { readOnlyCollectionPaged: { type: KeyWorkerAllocationDetail, description: All allocated offenders accessible to current user. } }
+  get:
+    queryParameters:
+      agencyId?:
+        type: string
+        description: Agency to filter by. Defaults to current user's caseload if not provided.
+        example: LEI
+      allocationType?:
+        type: string
+        description: Filter by type of allocation. A for auto allocations, M for manual allocations
+        example: A
+      fromDate?:
+        type: string
+        description: Returned allocations must have been assigned on or after this date (in YYYY-MM-DD format).
+        example: 2017-09-22
+      toDate?:
+        type: string
+        description: Returned allocations must have been assigned on or before this date (in YYYY-MM-DD format).
+        default: today's date
+        example: 2017-10-22
+  is: [
+      sortable: {fieldsList: "firstName, lastName, assigned"}
   ]
 
 /allocate:

@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import net.syscon.elite.api.model.KeyWorkerAllocationDetail;
 import net.syscon.elite.api.model.Keyworker;
 import net.syscon.elite.api.model.NewAllocation;
 import net.syscon.elite.api.model.OffenderSummary;
@@ -14,7 +15,6 @@ import net.syscon.elite.service.AllocationException;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.KeyWorkerAllocationService;
-
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
-
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -35,7 +35,7 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
     private final KeyWorkerAllocationRepository repository;
     private final AuthenticationFacade authenticationFacade;
     private final BookingService bookingService;
-    
+
     public KeyWorkerAllocationServiceImpl(KeyWorkerAllocationRepository repository,
             AuthenticationFacade authenticationFacade, BookingService bookingService) {
         this.repository = repository;
@@ -130,6 +130,16 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
         Long pageLimitDefaulted = ObjectUtils.defaultIfNull(pageLimit, 10L);
 
         return repository.getUnallocatedOffenders(agencyFilter, pageOffsetDefaulted, pageLimitDefaulted, sortFieldsDefaulted, sortOrderDefaulted);
+    }
+
+    @Override
+    public Page<KeyWorkerAllocationDetail> getAllocatedOffenders(Set<String> agencyFilter, LocalDate fromDate, LocalDate toDate, String allocationType, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+        String sortFieldsDefaulted = StringUtils.defaultString(sortFields, "lastName,firstName");
+        Order sortOrderDefaulted = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
+        Long pageOffsetDefaulted = ObjectUtils.defaultIfNull(pageOffset, 0L);
+        Long pageLimitDefaulted = ObjectUtils.defaultIfNull(pageLimit, 10L);
+
+        return repository.getAllocatedOffenders(agencyFilter, fromDate, toDate, allocationType, pageOffsetDefaulted, pageLimitDefaulted,  sortFieldsDefaulted, sortOrderDefaulted);
     }
 
     @Override
