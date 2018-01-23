@@ -8,10 +8,12 @@ Feature: Allocate Offender to a keyworker
   Background:
     Given a user has authenticated with the API
 
+  @allocate-database-cleanup
   Scenario: Manually override keyworker of an auto-allocated offender
     When offender booking "-33" is allocated to staff user id "-5" with reason "override" and type "M"
     Then the allocation is successfully created
 
+  @allocate-database-cleanup
   Scenario: Auto-allocate an unallocated offender
     When offender booking "-34" is allocated to staff user id "-5" with reason "autoallocate" and type "A"
     Then the allocation is successfully created
