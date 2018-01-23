@@ -12,9 +12,11 @@ import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -186,8 +188,8 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
                 createParams("agencyIds", agencyIds,
                         "allocType", type,
                         "offset", offset,
-                        "fromDate", DateTimeConverter.toDate(fromDate),
-                        "toDate", DateTimeConverter.toDate(toDate),
+                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
+                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate)),
                         "limit", limit),
                 paRowMapper);
 
