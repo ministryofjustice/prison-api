@@ -10,12 +10,12 @@ Feature: Unallocated Offenders
 
   Scenario: Request for unallocated offenders for specified agency
     When an unallocated offender request is made with agency id "LEI"
-    Then a list of "7" unallocated offenders are returned
+    Then a list of "9" unallocated offenders are returned
     And the list is sorted by lastName asc
 
   Scenario: Request for unallocated offenders without specified agency
     When an unallocated offender request is made
-    Then a list of "7" unallocated offenders are returned
+    Then a list of "9" unallocated offenders are returned
     And the list is sorted by lastName asc
 
   Scenario: Request for unallocated offenders for unauthorised agency

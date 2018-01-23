@@ -155,7 +155,7 @@ public class KeyWorkerAllocationRepositoryTest {
         assertThat(availableKeyworkers.get(0).getFirstName()).isEqualTo("Another");
         assertThat(availableKeyworkers.get(0).getLastName()).isEqualTo("User");
         assertThat(availableKeyworkers.get(0).getStaffId()).isEqualTo(-5L);
-        assertThat(availableKeyworkers.get(0).getCapacity()).isEqualTo(11);
+        assertThat(availableKeyworkers.get(0).getNumberAllocated()).isEqualTo(4);
     }
 
     private KeyWorkerAllocation buildKeyWorkerAllocation(Long bookingId) {
