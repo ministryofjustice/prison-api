@@ -1,4 +1,4 @@
-@global @nomisnew
+@global @nomis
 Feature: retrieve allocated Offenders
 
   Acceptance Criteria:
