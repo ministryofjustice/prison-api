@@ -4,7 +4,6 @@ import net.syscon.elite.executablespecification.steps.KeyWorkerAllocateSteps;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.transaction.AfterTransaction;
 
 import cucumber.api.java.After;
 import cucumber.api.java.en.And;
@@ -41,10 +40,13 @@ public class KeyWorkerAllocateStepDefinitions extends AbstractStepDefinitions {
         keyworkerSteps.verifyBadRequest(expectedMessage);
     }
 
-    @After
-    @AfterTransaction
+    /**
+     * Remove any allocations added by these tests. Note 
+     * <li>autocommit = true here
+     * <li>this runs just for a test which has the matching tag.
+     */
+    @After("@allocate-database-cleanup")
     public void afterScenario() {
-        // Remove any allocations added by these tests. Note autocommit = true here
         jdbcTemplate.update("delete from OFFENDER_KEY_WORKERS where OFFENDER_BOOK_ID in (-33,-34) and OFFICER_ID = -5");
     }
 }
