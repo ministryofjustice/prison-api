@@ -40,7 +40,7 @@ public class KeyWorkerAllocationRepositoryTest {
     private static final long OFFENDER_BOOKING_ID_WITH_ALLOCATION_2 = -32L;
     private static final long OFFENDER_BOOKING_ID_WITH_INACTIVE_ALLOCATION = -29L;
     private static final long OFFENDER_BOOKING_ID_WITHOUT_ALLOCATION = -30L;
-    private static final long OFFENDER_ID_WITH_ALLOCATION = -29L;
+    private static final long OFFENDER_BOOKING_ID_HAVING_ROOT_OFFENDER_ALIASES = -9L;
     private static final long KEY_WORKER_WITH_ALLOCATIONS = -5;
     private static final String NEW_ALLOCATION_REASON = "new reason";
     private static final String DEALLOCATION_REASON = "annual leave";
@@ -114,9 +114,16 @@ public class KeyWorkerAllocationRepositoryTest {
 
     @Test
     public void shouldGetAllocationHistoryForPrisonerInOrder_AssignedDesc() throws Exception {
-        final List<KeyWorkerAllocation> historyForPrisoner = repo.getAllocationHistoryForPrisoner(OFFENDER_ID_WITH_ALLOCATION, "assigned", Order.DESC);
+        final List<KeyWorkerAllocation> historyForPrisoner = repo.getAllocationHistoryForPrisoner(OFFENDER_BOOKING_ID_WITH_INACTIVE_ALLOCATION, "assigned", Order.DESC);
         assertThat(historyForPrisoner).extracting("bookingId").containsExactly(-29L, -29L);
         assertThat(historyForPrisoner).isSortedAccordingTo((o1, o2) -> o2.getAssigned().compareTo(o1.getAssigned()));
+    }
+
+    @Test
+    public void shouldGetAllocationHistoryForPrisonerAliases() throws Exception {
+        List<KeyWorkerAllocation> historyForPrisoner = repo.getAllocationHistoryForPrisoner(OFFENDER_BOOKING_ID_HAVING_ROOT_OFFENDER_ALIASES, "assigned", Order.DESC);
+
+        assertThat(historyForPrisoner).extracting("bookingId").containsExactly(-15L, -14L, -9L);
     }
 
     @Test

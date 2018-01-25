@@ -26,7 +26,7 @@ public interface KeyWorkerAllocationService {
 
     void allocate(@Valid NewAllocation newAllocation);
 
-    List<KeyWorkerAllocation> getAllocationHistoryForPrisoner(Long offenderId, String orderByFields, Order order);
+    List<KeyWorkerAllocation> getAllocationHistoryForPrisoner(Long bookingId, String orderByFields, Order order);
 
     KeyWorkerAllocation getCurrentAllocationForOffenderBooking(Long bookingId);
 

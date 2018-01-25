@@ -22,7 +22,7 @@ public interface KeyWorkerAllocationRepository {
 
     Optional<KeyWorkerAllocation> getCurrentAllocationForOffenderBooking(Long bookingId);
 
-    List<KeyWorkerAllocation> getAllocationHistoryForPrisoner(Long offenderId, String orderByFields, Order order);
+    List<KeyWorkerAllocation> getAllocationHistoryForPrisoner(Long bookingId, String orderByFields, Order order);
 
     Optional<KeyWorkerAllocation> getLatestAllocationForOffenderBooking(Long bookingId);
 
