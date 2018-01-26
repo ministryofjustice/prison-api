@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.PropertySources;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertiesPropertySource;
@@ -18,6 +20,10 @@ import org.springframework.core.io.ClassPathResource;
         @PropertySource(value = "classpath:mobile.yml"),
         @PropertySource(value = "classpath:groups.properties") })
 public class ApplicationContextConfigs {
+
+	@Bean public ConversionService conversionService() {
+		return new DefaultConversionService();
+	}
 
 	@Bean
 	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer(final ConfigurableEnvironment env) {
