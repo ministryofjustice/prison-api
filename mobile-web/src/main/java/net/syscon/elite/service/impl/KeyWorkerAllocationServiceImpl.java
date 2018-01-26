@@ -101,11 +101,11 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
     }
 
     @Override
-    public List<KeyWorkerAllocation> getAllocationHistoryForPrisoner(Long offenderId, String orderByFields, Order order) {
+    public List<KeyWorkerAllocation> getAllocationHistoryForPrisoner(Long bookingId, String orderByFields, Order order) {
 
         String sortFields = StringUtils.defaultString(orderByFields, "assigned");
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.DESC);
-        return repository.getAllocationHistoryForPrisoner(offenderId, sortFields, sortOrder);
+        return repository.getAllocationHistoryForPrisoner(bookingId, sortFields, sortOrder);
     }
 
     @Override

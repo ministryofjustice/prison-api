@@ -102,7 +102,7 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
     }
 
     @Override
-    public List<KeyWorkerAllocation> getAllocationHistoryForPrisoner(Long offenderId, String orderByFields, Order order) {
+    public List<KeyWorkerAllocation> getAllocationHistoryForPrisoner(Long bookingId, String orderByFields, Order order) {
         String initialSql = getQuery("GET_ALLOCATION_HISTORY_FOR_OFFENDER");
 
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, KEY_WORKER_ALLOCATION_ROW_MAPPER.getFieldMap());
@@ -113,7 +113,7 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
 
         final List<KeyWorkerAllocation> allocation = jdbcTemplate.query(
                 sql,
-                createParams("offenderId", offenderId),
+                createParams("bookingId", bookingId),
                 KEY_WORKER_ALLOCATION_ROW_MAPPER);
 
         return allocation;
