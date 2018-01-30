@@ -171,6 +171,11 @@ abstract class AbstractStepDefinitions {
         public KeyWorkerAllocatedOffendersSteps keyWorkerAllocatedOffenders() {
             return new KeyWorkerAllocatedOffendersSteps();
         }
+
+        @Bean
+        public KeyWorkerSteps keyWorker() {
+            return new KeyWorkerSteps();
+        }
     }
 
     protected int ord2idx(String ordinal) {

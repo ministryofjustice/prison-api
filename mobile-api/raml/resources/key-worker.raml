@@ -46,3 +46,13 @@
         type: NewAllocation
     responses:
       201:
+
+/available:
+  (javaOperationName): getAvailableKeyworkers
+  type: { readOnlyCollection: { type: Keyworker, description: All Key workers available for allocation. } }
+  get:
+    queryParameters:
+      agencyId?:
+        type: string
+        description: Agency to filter by. Defaults to current user's caseload if not provided.
+        example: LEI
