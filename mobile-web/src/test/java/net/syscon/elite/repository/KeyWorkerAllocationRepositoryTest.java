@@ -176,7 +176,7 @@ public class KeyWorkerAllocationRepositoryTest {
         final KeyWorkerAllocationDetail keyWorkerAllocationDetail = allocatedOffenders.getItems().get(0);
         assertThat(keyWorkerAllocationDetail.getFirstName()).isEqualTo("HARRY");
         assertThat(keyWorkerAllocationDetail.getLastName()).isEqualTo("SARLY");
-        assertThat(keyWorkerAllocationDetail.getStaffId()).isEqualTo("-5");
+        assertThat(keyWorkerAllocationDetail.getStaffId()).isEqualTo(-5);
         assertThat(keyWorkerAllocationDetail.getInternalLocationDesc()).isEqualTo("H-1");
         assertThat(keyWorkerAllocationDetail.getAllocationType()).isEqualTo("A");
     }
@@ -190,7 +190,7 @@ public class KeyWorkerAllocationRepositoryTest {
         final KeyWorkerAllocationDetail keyWorkerAllocationDetail = allocatedOffenders.getItems().get(0);
         assertThat(keyWorkerAllocationDetail.getFirstName()).isEqualTo("FRED");
         assertThat(keyWorkerAllocationDetail.getLastName()).isEqualTo("JAMES");
-        assertThat(keyWorkerAllocationDetail.getStaffId()).isEqualTo("-5");
+        assertThat(keyWorkerAllocationDetail.getStaffId()).isEqualTo(-5);
         assertThat(keyWorkerAllocationDetail.getInternalLocationDesc()).isEqualTo("H-1");
         assertThat(keyWorkerAllocationDetail.getAllocationType()).isEqualTo("M");
     }
