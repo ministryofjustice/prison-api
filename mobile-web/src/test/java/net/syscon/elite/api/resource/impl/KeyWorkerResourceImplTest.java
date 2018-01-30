@@ -93,6 +93,6 @@ public class KeyWorkerResourceImplTest {
     }
     
     private KeyWorkerAllocationDetail buildKeyWorkerAllocationDetails(String type) {
-        return KeyWorkerAllocationDetail.builder().agencyId(AGENCY_ID).bookingId(BOOKING_ID).staffId("-1").allocationType(type).build();
+        return KeyWorkerAllocationDetail.builder().agencyId(AGENCY_ID).bookingId(BOOKING_ID).staffId(-1L).allocationType(type).build();
     }
 }
