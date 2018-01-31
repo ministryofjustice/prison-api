@@ -62,7 +62,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 				query,
 				from,
 				to,
-				orderByBlank ? "occurrenceDateTime" : orderBy,
+				orderByBlank ? "creationDateTime" : orderBy,
 				orderByBlank ? Order.DESC : order,
 				offset,
 				limit);

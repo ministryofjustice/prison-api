@@ -63,21 +63,21 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
         String initialSql = getQuery("FIND_CASENOTES");
         final MapSqlParameterSource params = createParams("bookingId", bookingId, "offset", offset, "limit", limit);
         if (from != null) {
-            initialSql += " AND CN.CONTACT_TIME >= :fromDate";
+            initialSql += " AND CN.CREATE_DATETIME >= :fromDate";
             params.addValue("fromDate", DateTimeConverter.toDate(from));
         }
         if (to != null) {
-            initialSql += " AND CN.CONTACT_TIME < :toDate";
+            initialSql += " AND CN.CREATE_DATETIME < :toDate";
 
             // Adjust to be strictly less than start of *next day.
 
             // This handles a query which includes an inclusive 'date to' element of a date range filter being used to retrieve
-            // case notes based on the OFFENDER_CASE_NOTES.CONTACT_TIME falling on or between two dates
+            // case notes based on the OFFENDER_CASE_NOTES.CREATE_DATETIME falling on or between two dates
             // (inclusive date from and date to elements included) or being on or before a specified date (inclusive date to
             // element only).
             //
-            // As the CONTACT_TIME field is a TIMESTAMP (i.e. includes a time component), a clause which performs a '<='
-            // comparison between CONTACT_TIME and the provided 'date to' value will not evaluate to 'true' for CONTACT_TIME
+            // As the CREATE_DATETIME field is a TIMESTAMP (i.e. includes a time component), a clause which performs a '<='
+            // comparison between CREATE_DATETIME and the provided 'date to' value will not evaluate to 'true' for CREATE_DATETIME
             // values on the same day as the 'date to' value.
             //
             // This processing step has been introduced to ADD ONE DAY to a provided 'date to' value and replace 
