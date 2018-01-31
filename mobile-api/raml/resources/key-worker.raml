@@ -47,12 +47,11 @@
     responses:
       201:
 
-/available:
+/{agencyId}/available:
   (javaOperationName): getAvailableKeyworkers
   type: { readOnlyCollection: { type: Keyworker, description: Key workers available for allocation. } }
   get:
-    queryParameters:
-      agencyId?:
+    uriParameters:
+      domain:
         type: string
-        description: Agency to filter by.
-        example: LEI
+        description: The Agency to filter by.
