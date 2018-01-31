@@ -2,6 +2,7 @@ package net.syscon.elite.api.resource.impl;
 
 import com.google.common.collect.ImmutableSet;
 import net.syscon.elite.api.model.KeyWorkerAllocationDetail;
+import net.syscon.elite.api.model.Keyworker;
 import net.syscon.elite.api.model.NewAllocation;
 import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.resource.KeyWorkerResource;
@@ -16,6 +17,7 @@ import net.syscon.util.DateTimeConverter;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Path;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -29,6 +31,7 @@ public class KeyWorkerResourceImpl implements KeyWorkerResource {
         this.agencyService = agencyService;
         this.keyWorkerService = keyWorkerService;
     }
+
 
 
     @Override
@@ -70,6 +73,13 @@ public class KeyWorkerResourceImpl implements KeyWorkerResource {
         keyWorkerService.allocate(body);
 
         return AllocateResponse.respond201WithApplicationJson();
+    }
+
+    @Override
+    public GetAvailableKeyworkersResponse getAvailableKeyworkers(String agencyId) {
+        final List<Keyworker> availableKeyworkers = keyWorkerService.getAvailableKeyworkers(agencyId);
+
+        return GetAvailableKeyworkersResponse.respond200WithApplicationJson(availableKeyworkers);
     }
 
     private void validateAllocatedOffenderListDateRange(LocalDate fromDate, LocalDate toDate) {

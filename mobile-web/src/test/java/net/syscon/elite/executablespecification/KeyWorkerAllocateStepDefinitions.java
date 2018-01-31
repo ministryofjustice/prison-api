@@ -1,14 +1,12 @@
 package net.syscon.elite.executablespecification;
 
-import net.syscon.elite.executablespecification.steps.KeyWorkerAllocateSteps;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-
 import cucumber.api.java.After;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import net.syscon.elite.executablespecification.steps.KeyWorkerAllocateSteps;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
  * BDD step definitions for the key worker endpoints

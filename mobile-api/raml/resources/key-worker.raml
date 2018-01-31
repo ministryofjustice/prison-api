@@ -46,3 +46,12 @@
         type: NewAllocation
     responses:
       201:
+
+/{agencyId}/available:
+  (javaOperationName): getAvailableKeyworkers
+  type: { readOnlyCollection: { type: Keyworker, description: Key workers available for allocation. } }
+  get:
+    uriParameters:
+      domain:
+        type: string
+        description: The Agency to filter by.
