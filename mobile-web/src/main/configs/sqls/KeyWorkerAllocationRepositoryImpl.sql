@@ -90,7 +90,12 @@ GET_UNALLOCATED_OFFENDERS {
     OB.OFFENDER_BOOK_ID                            BOOKING_ID,
     O.OFFENDER_ID_DISPLAY                          OFFENDER_NO,
     O.FIRST_NAME,
-    O.MIDDLE_NAME                                  MIDDLE_NAMES,
+    CONCAT(O.MIDDLE_NAME,
+           CASE
+             WHEN O.MIDDLE_NAME_2 IS NOT NULL
+             THEN CONCAT(' ', O.MIDDLE_NAME_2)
+           ELSE ''
+           END)                                    MIDDLE_NAMES,
     O.LAST_NAME,
     O.TITLE,
     O.SUFFIX,
@@ -142,7 +147,12 @@ GET_ALLOCATED_OFFENDERS {
     OB.OFFENDER_BOOK_ID                            BOOKING_ID,
     O.OFFENDER_ID_DISPLAY                          OFFENDER_NO,
     O.FIRST_NAME,
-    O.MIDDLE_NAME                                  MIDDLE_NAMES,
+    CONCAT(O.MIDDLE_NAME,
+           CASE
+             WHEN O.MIDDLE_NAME_2 IS NOT NULL
+             THEN CONCAT(' ', O.MIDDLE_NAME_2)
+           ELSE ''
+           END)                                    MIDDLE_NAMES,
     O.LAST_NAME,
     OKW.OFFICER_ID                                 STAFF_ID,
     OKW.ASSIGNED_TIME                              ASSIGNED,

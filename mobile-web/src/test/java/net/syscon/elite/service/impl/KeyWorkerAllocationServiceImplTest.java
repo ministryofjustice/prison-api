@@ -83,7 +83,7 @@ public class KeyWorkerAllocationServiceImplTest {
     }
     
     @Test(expected = AllocationException.class)
-    public void shouldThrowException_existingAllocationForOffenderBooking () {
+    public void shouldThrowExceptionWhenExistingAllocationForOffenderBooking () {
         when(repo.getCurrentAllocationForOffenderBooking(BOOKING_ID)).thenReturn(Optional.empty());
         final KeyWorkerAllocation allocation = buildKeyWorkerAllocation(AUTO_ALLOCATION_TYPE);
         service.createAllocation(allocation, USER_1);
@@ -104,7 +104,7 @@ public class KeyWorkerAllocationServiceImplTest {
     }
 
     @Test(expected = EntityNotFoundException.class)
-    public void shouldThrowEmptyResultSetException_ForGetLatestAllocationForOffenderBooking () {
+    public void shouldThrowEmptyResultSetExceptionForGetLatestAllocationForOffenderBooking () {
         when(repo.getLatestAllocationForOffenderBooking(BOOKING_ID)).thenReturn(Optional.empty());
         service.getLatestAllocationForOffenderBooking(BOOKING_ID);
     }
@@ -117,7 +117,7 @@ public class KeyWorkerAllocationServiceImplTest {
     }
 
     @Test(expected = EntityNotFoundException.class)
-    public void shouldThrowEmptyResultSetException_ForGetCurrentAllocationForOffenderBooking () {
+    public void shouldThrowEmptyResultSetExceptionForGetCurrentAllocationForOffenderBooking () {
         when(repo.getCurrentAllocationForOffenderBooking(BOOKING_ID)).thenReturn(Optional.empty());
         service.getCurrentAllocationForOffenderBooking(BOOKING_ID);
     }
