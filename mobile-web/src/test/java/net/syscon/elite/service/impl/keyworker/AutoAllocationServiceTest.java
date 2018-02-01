@@ -23,7 +23,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import static net.syscon.elite.service.impl.keyworker.KeyworkerTestHelper.verifyException;
 import static net.syscon.elite.service.impl.keyworker.KeyworkerTestHelper.verifyLog;
@@ -39,7 +38,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class AutoAllocationServiceTest {
     private static final String TEST_AGENCY_ID = "TST";
-    private static final Set<String> TEST_AGENCY_SET = Collections.singleton(TEST_AGENCY_ID);
 
     private AllocationService allocationService;
 
@@ -77,7 +75,7 @@ public class AutoAllocationServiceTest {
     public void testServicePerformsNoAllocationsWhenAllOffendersAreAllocated() {
         // No unallocated offenders
         when(keyWorkerAllocationService
-                .getUnallocatedOffenders(anySetOf(String.class), anyLong(), anyLong(), anyString(), any(Order.class)))
+                .getUnallocatedOffenders(anyString(), anyLong(), anyLong(), anyString(), any(Order.class)))
                 .thenReturn(new Page<>(Collections.emptyList(), 0L, 0L, 10L));
 
         // Invoke auto-allocate
@@ -85,7 +83,7 @@ public class AutoAllocationServiceTest {
 
         // Verify collaborator interactions and log output
         verify(keyWorkerAllocationService, Mockito.times(1))
-                .getUnallocatedOffenders(eq(TEST_AGENCY_SET), eq(0L), eq(10L), anyString(), any(Order.class));
+                .getUnallocatedOffenders(eq(TEST_AGENCY_ID), eq(0L), eq(10L), anyString(), any(Order.class));
 
         verify(keyWorkerAllocationService, Mockito.never()).getAvailableKeyworkers(anyString());
         verify(keyWorkerAllocationService, Mockito.never()).allocate(any(NewAllocation.class));
@@ -104,7 +102,7 @@ public class AutoAllocationServiceTest {
         Page<OffenderSummary> someUnallocatedOffenders = someUnallocatedOffenders(TEST_AGENCY_ID, 3L, 0L, 10L);
 
         when(keyWorkerAllocationService
-                .getUnallocatedOffenders(anySetOf(String.class), anyLong(), anyLong(), anyString(), any(Order.class)))
+                .getUnallocatedOffenders(anyString(), anyLong(), anyLong(), anyString(), any(Order.class)))
                 .thenReturn(someUnallocatedOffenders);
 
         // No available Key workers
@@ -115,7 +113,7 @@ public class AutoAllocationServiceTest {
 
         // Verify collaborator interactions and log output
         verify(keyWorkerAllocationService, Mockito.times(1))
-                .getUnallocatedOffenders(eq(TEST_AGENCY_SET), eq(0L), eq(10L), anyString(), any(Order.class));
+                .getUnallocatedOffenders(eq(TEST_AGENCY_ID), eq(0L), eq(10L), anyString(), any(Order.class));
 
         verify(keyWorkerAllocationService, Mockito.times(1)).getAvailableKeyworkers(TEST_AGENCY_ID);
         verify(keyWorkerAllocationService, Mockito.never()).allocate(any(NewAllocation.class));
@@ -140,7 +138,7 @@ public class AutoAllocationServiceTest {
         Page<OffenderSummary> someUnallocatedOffenders = someUnallocatedOffenders(TEST_AGENCY_ID, 3L, 0L, 10L);
 
         when(keyWorkerAllocationService
-                .getUnallocatedOffenders(anySetOf(String.class), anyLong(), anyLong(), anyString(), any(Order.class)))
+                .getUnallocatedOffenders(anyString(), anyLong(), anyLong(), anyString(), any(Order.class)))
                 .thenReturn(someUnallocatedOffenders);
 
         // Some available Key workers (at full capacity)
@@ -163,7 +161,7 @@ public class AutoAllocationServiceTest {
 
         // Verify collaborator interactions and log output
         verify(keyWorkerAllocationService, Mockito.times(1))
-                .getUnallocatedOffenders(eq(TEST_AGENCY_SET), eq(0L), eq(10L), anyString(), any(Order.class));
+                .getUnallocatedOffenders(eq(TEST_AGENCY_ID), eq(0L), eq(10L), anyString(), any(Order.class));
 
         verify(keyWorkerAllocationService, Mockito.times(1)).getAvailableKeyworkers(TEST_AGENCY_ID);
 

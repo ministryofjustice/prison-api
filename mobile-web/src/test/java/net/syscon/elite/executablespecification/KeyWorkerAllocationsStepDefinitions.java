@@ -19,11 +19,6 @@ public class KeyWorkerAllocationsStepDefinitions extends AbstractStepDefinitions
         keyworkerSteps.getUnallocatedOffendersList(agencyId);
     }
 
-    @When("^an unallocated offender request is made$")
-    public void anUnallocatedOffenderRequestIsMade() throws Throwable {
-        keyworkerSteps.getUnallocatedOffendersList(null);
-    }
-
     @Then("^a list of \"([^\"]*)\" unallocated offenders are returned$")
     public void aListOfUnallocatedOffendersAreReturned(int count) throws Throwable {
         keyworkerSteps.verifyAListOfUnallocatedOffendersIsReturned(count);

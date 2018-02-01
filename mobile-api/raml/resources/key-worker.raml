@@ -1,28 +1,28 @@
-/offenders/unallocated:
+/{agencyId}/offenders/unallocated:
   (javaOperationName): getUnallocatedOffenders
-  type: { readOnlyCollectionPaged: { type: OffenderSummary, description: All unallocated offenders accessible to current user. } }
-  get:
-    queryParameters:
-      agencyId?:
-        type: string
-        description: Agency to filter by. Defaults to current user's caseload if not provided.
-        example: LEI
+  type: { readOnlyCollectionPaged: { type: OffenderSummary, description: All unallocated offenders in specified agency. } }
+  uriParameters:
+    agencyId:
+      type: string
+      description: The agency (prison) identifier.
+      example: LEI
   is: [
-      sortable: {fieldsList: "firstName, lastName"}
+    sortable: {fieldsList: "firstName, lastName"}
   ]
 
-/offenders/allocated:
-  (javaOperationName): getAllocatedOffenders
-  type: { readOnlyCollectionPaged: { type: KeyWorkerAllocationDetail, description: All allocated offenders accessible to current user. } }
+/{agencyId}/allocations:
+  (javaOperationName): getAllocations
+  type: { readOnlyCollectionPaged: { type: KeyWorkerAllocationDetail, description: Allocations in specified agency. } }
+  uriParameters:
+    agencyId:
+      type: string
+      description: The agency (prison) identifier.
+      example: BWI
   get:
     queryParameters:
-      agencyId?:
-        type: string
-        description: Agency to filter by. Defaults to current user's caseload if not provided.
-        example: LEI
       allocationType?:
         type: string
-        description: Filter by type of allocation. A for auto allocations, M for manual allocations
+        description: Optional filter by type of allocation. A for auto allocations, M for manual allocations.
         example: A
       fromDate?:
         type: string
@@ -46,12 +46,13 @@
         type: NewAllocation
     responses:
       201:
+        description: The allocation has been created.
 
 /{agencyId}/available:
   (javaOperationName): getAvailableKeyworkers
-  type: { readOnlyCollection: { type: Keyworker, description: Key workers available for allocation. } }
-  get:
-    uriParameters:
-      domain:
-        type: string
-        description: The Agency to filter by.
+  type: { readOnlyCollection: { type: Keyworker, description: Key workers available for allocation at specified agency. } }
+  uriParameters:
+    agencyId:
+      type: string
+      description: The agency (prison) identifier.
+      example: MDI

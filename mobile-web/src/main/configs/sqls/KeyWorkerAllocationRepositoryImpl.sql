@@ -86,35 +86,28 @@ GET_ALLOCATION_HISTORY_FOR_OFFENDER {
 }
 
 GET_UNALLOCATED_OFFENDERS {
-SELECT
-  OB.OFFENDER_BOOK_ID                            booking_id,
-  O.OFFENDER_ID_DISPLAY                          offender_no,
-  O.FIRST_NAME,
-  CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL
-    THEN concat(' ', O.middle_name_2)
-                        ELSE '' END)                MIDDLE_NAMES,
-  O.LAST_NAME,
-  O.TITLE,
-  O.SUFFIX,
-  ob.agy_loc_id                                  agency_location_id,
-  al.description                                 agency_location_desc,
-  OB.LIVING_UNIT_ID                              internal_location_id,
-  AIL.DESCRIPTION                                internal_location_desc,
-  OB.ACTIVE_FLAG                                 currently_in_prison
-FROM OFFENDERS O
-  JOIN OFFENDER_BOOKINGS OB
-    ON OB.offender_id = o.offender_id
-       AND OB.booking_seq = 1
-  JOIN agency_locations al
-    ON al.agy_loc_id = ob.agy_loc_id
-  LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
-WHERE
-  OB.ACTIVE_FLAG = 'Y'
-  AND NOT EXISTS (SELECT 1
-                  FROM OFFENDER_KEY_WORKERS OKW
-                  WHERE OKW.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID AND OKW.ACTIVE_FLAG = 'Y')
-
-  AND al.agy_loc_id IN (:agencyIds)
+  SELECT
+    OB.OFFENDER_BOOK_ID                            BOOKING_ID,
+    O.OFFENDER_ID_DISPLAY                          OFFENDER_NO,
+    O.FIRST_NAME,
+    O.MIDDLE_NAME                                  MIDDLE_NAMES,
+    O.LAST_NAME,
+    O.TITLE,
+    O.SUFFIX,
+    OB.AGY_LOC_ID                                  AGENCY_LOCATION_ID,
+    AL.DESCRIPTION                                 AGENCY_LOCATION_DESC,
+    OB.LIVING_UNIT_ID                              INTERNAL_LOCATION_ID,
+    AIL.DESCRIPTION                                INTERNAL_LOCATION_DESC,
+    OB.ACTIVE_FLAG                                 CURRENTLY_IN_PRISON
+  FROM OFFENDERS O
+    INNER JOIN OFFENDER_BOOKINGS OB ON OB.OFFENDER_ID = O.OFFENDER_ID AND OB.BOOKING_SEQ = 1
+    INNER JOIN AGENCY_LOCATIONS AL ON AL.AGY_LOC_ID = OB.AGY_LOC_ID
+    LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
+  WHERE OB.ACTIVE_FLAG = 'Y'
+    AND NOT EXISTS (SELECT 1
+                    FROM OFFENDER_KEY_WORKERS OKW
+                    WHERE OKW.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID AND OKW.ACTIVE_FLAG = 'Y')
+    AND AL.AGY_LOC_ID IN (:agencyIds)
 }
 
 GET_AVAILABLE_KEYWORKERS {
@@ -145,34 +138,27 @@ CHECK_AVAILABLE_KEYWORKER {
 }
 
 GET_ALLOCATED_OFFENDERS {
-SELECT
-  OB.OFFENDER_BOOK_ID                            booking_id,
-  O.OFFENDER_ID_DISPLAY                          offender_no,
-  O.FIRST_NAME,
-  CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL
-    THEN concat(' ', O.middle_name_2)
-                        ELSE '' END)                MIDDLE_NAMES,
-  O.LAST_NAME,
-  OKW.OFFICER_ID                                 STAFF_ID,
-  OKW.ASSIGNED_TIME                              ASSIGNED,
-  OKW.AGY_LOC_ID                                 AGENCY_ID,
-  OKW.ALLOC_REASON                               REASON,
-  OKW.ALLOC_TYPE                                 allocationType,
-  AIL.DESCRIPTION                                internal_location_desc
-FROM OFFENDERS O
-  JOIN OFFENDER_BOOKINGS OB
-    ON OB.offender_id = o.offender_id
-       AND OB.booking_seq = 1
-  JOIN OFFENDER_KEY_WORKERS OKW
-    ON OKW.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
-  JOIN agency_locations al
-    ON al.agy_loc_id = ob.agy_loc_id
-  LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
-WHERE
-  OB.ACTIVE_FLAG = 'Y'
-  AND OKW.ACTIVE_FLAG = 'Y'
-  AND al.agy_loc_id IN (:agencyIds)
-  AND (:allocType is NULL OR OKW.ALLOC_TYPE = :allocType)
-  AND (:fromDate is not NULL OR TRUNC(OKW.ASSIGNED_TIME) <= TRUNC(COALESCE(:toDate,SYSDATE)))
-  AND (:fromDate is NULL OR TRUNC(OKW.ASSIGNED_TIME) BETWEEN  TRUNC(:fromDate)  AND TRUNC(COALESCE(:toDate,SYSDATE)))
+  SELECT
+    OB.OFFENDER_BOOK_ID                            BOOKING_ID,
+    O.OFFENDER_ID_DISPLAY                          OFFENDER_NO,
+    O.FIRST_NAME,
+    O.MIDDLE_NAME                                  MIDDLE_NAMES,
+    O.LAST_NAME,
+    OKW.OFFICER_ID                                 STAFF_ID,
+    OKW.ASSIGNED_TIME                              ASSIGNED,
+    OKW.AGY_LOC_ID                                 AGENCY_ID,
+    OKW.ALLOC_REASON                               REASON,
+    OKW.ALLOC_TYPE                                 ALLOCATION_TYPE,
+    AIL.DESCRIPTION                                INTERNAL_LOCATION_DESC
+  FROM OFFENDERS O
+    INNER JOIN OFFENDER_BOOKINGS OB ON OB.OFFENDER_ID = O.OFFENDER_ID AND OB.BOOKING_SEQ = 1
+    INNER JOIN OFFENDER_KEY_WORKERS OKW ON OKW.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
+    INNER JOIN AGENCY_LOCATIONS AL ON AL.AGY_LOC_ID = OB.AGY_LOC_ID
+    LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
+  WHERE OB.ACTIVE_FLAG = 'Y'
+    AND OKW.ACTIVE_FLAG = 'Y'
+    AND AL.AGY_LOC_ID IN (:agencyIds)
+    AND OKW.ALLOC_TYPE = COALESCE(:allocType, OKW.ALLOC_TYPE)
+    AND OKW.ASSIGNED_DATE >= TRUNC(COALESCE(:fromDate, OKW.ASSIGNED_DATE))
+    AND TRUNC(OKW.ASSIGNED_DATE) <= COALESCE(:toDate, OKW.ASSIGNED_DATE)
 }

@@ -2,7 +2,6 @@ package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.test.EliteClientException;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -16,8 +15,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
  * BDD step implementations for Key worker allocation feature.
  */
 public class KeyWorkerAllocationSteps extends CommonSteps {
-    private static final String KEY_WORKER_API_URL = API_PREFIX + "key-worker/offenders/unallocated";
-    private static final String KEY_WORKER_API_URL_WITH_AGENCY_PARAM = KEY_WORKER_API_URL + "?agencyId=%s";
+    private static final String KEY_WORKER_API_URL = API_PREFIX + "key-worker/{agencyId}/offenders/unallocated";
 
     private List<OffenderSummary> offenderSummaryList;
 
@@ -32,15 +30,14 @@ public class KeyWorkerAllocationSteps extends CommonSteps {
     private void doListApiCall(String agencyId) {
         init();
 
-        String queryUrl = StringUtils.isNotBlank(agencyId) ? String.format(KEY_WORKER_API_URL_WITH_AGENCY_PARAM, agencyId) : KEY_WORKER_API_URL;
-
         try {
             ResponseEntity<List<OffenderSummary>> response =
                     restTemplate.exchange(
-                            queryUrl,
+                            KEY_WORKER_API_URL,
                             HttpMethod.GET,
                             createEntity(null, addPaginationHeaders()),
-                            new ParameterizedTypeReference<List<OffenderSummary>>() {});
+                            new ParameterizedTypeReference<List<OffenderSummary>>() {},
+                            agencyId);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
@@ -54,12 +51,11 @@ public class KeyWorkerAllocationSteps extends CommonSteps {
     @Override
     protected void init() {
         super.init();
+
         offenderSummaryList = null;
     }
-
 
     public void verifyListIsSortedByLastNameAsc() {
         assertThat(offenderSummaryList).extracting("lastName").isSorted();
     }
-
 }

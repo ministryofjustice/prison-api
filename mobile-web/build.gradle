@@ -70,10 +70,10 @@ project(":mobile-web") {
         testCompile "org.seleniumhq.selenium:selenium-support:3.7.1"
         testCompile "org.seleniumhq.selenium:selenium-remote-driver:3.7.1"
 
-        testCompile 'net.serenity-bdd:serenity-core:1.8.2'
-        testCompile 'net.serenity-bdd:serenity-junit:1.8.2'
-        testCompile 'net.serenity-bdd:serenity-spring:1.8.2'
-        testCompile 'net.serenity-bdd:serenity-cucumber:1.6.5'
+        testCompile 'net.serenity-bdd:serenity-core:1.8.21'
+        testCompile 'net.serenity-bdd:serenity-junit:1.8.21'
+        testCompile 'net.serenity-bdd:serenity-spring:1.8.21'
+        testCompile 'net.serenity-bdd:serenity-cucumber:1.6.10'
 
         testCompileOnly 'org.projectlombok:lombok:1.16.18'
 
@@ -100,7 +100,7 @@ project(":mobile-web") {
         minHeapSize = "2G"
         maxHeapSize = "2G"
         def nomisEnvVars = ['api.db.target':'nomis',
-                            'cucumber.options':"--tags '@global or @nomis' --tags 'not @elite' --tags 'not @wip' --tags 'not @broken'"]
+                            'cucumber.options':"--tags '(@global or @nomis) and not (@elite or @wip or @broken)'"]
 
         exclude "**/persistence/*"
         environment nomisEnvVars
@@ -110,7 +110,7 @@ project(":mobile-web") {
         minHeapSize = "2G"
         maxHeapSize = "2G"
         def nomisEnvVars = ['api.db.target':'nomis', 'api.db.dialect':'oracle',
-                            'cucumber.options':"--tags '@global or @nomis or @oracle' --tags 'not @elite' --tags 'not @wip' --tags 'not @broken'"]
+                            'cucumber.options':"--tags '(@global or @nomis or @oracle) and not (@elite or @wip or @broken)'"]
 
         exclude "**/persistence/*"
         environment nomisEnvVars
@@ -120,7 +120,7 @@ project(":mobile-web") {
         minHeapSize = "2G"
         maxHeapSize = "2G"
         def eliteEnvVars = ['api.db.target':'elite',
-                            'cucumber.options':"--tags '@global or @elite' --tags 'not @nomis' --tags 'not @wip' --tags 'not @broken'"]
+                            'cucumber.options':"--tags '(@global or @elite) and not (@nomis or @wip or @broken)'"]
 
         exclude "**/persistence/*"
         environment eliteEnvVars
