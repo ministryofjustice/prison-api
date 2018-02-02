@@ -11,7 +11,6 @@ import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Key Worker Allocation service interface.
@@ -32,9 +31,9 @@ public interface KeyWorkerAllocationService {
 
     KeyWorkerAllocation getLatestAllocationForOffenderBooking(Long bookingId);
 
-    Page<OffenderSummary> getUnallocatedOffenders(Set<String> agencyFilter, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder);
+    Page<OffenderSummary> getUnallocatedOffenders(String agencyId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder);
 
-    Page<KeyWorkerAllocationDetail> getAllocatedOffenders(Set<String> agencyFilter, LocalDate fromDate, LocalDate toDate, String allocationType, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder);
+    Page<KeyWorkerAllocationDetail> getAllocations(String agencyId, LocalDate fromDate, LocalDate toDate, String allocationType, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder);
 
     List<Keyworker> getAvailableKeyworkers(String agencyId);
 }

@@ -22,10 +22,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
+import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
 
 @Service
 @Transactional(readOnly = true)
@@ -88,6 +90,7 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
                 .assigned(LocalDateTime.now())//
                 .type(newAllocation.getType())//
                 .build();
+
         repository.createAllocation(allocation, username);
     }
 
@@ -101,6 +104,7 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
     }
 
     @Override
+    @VerifyBookingAccess
     public List<KeyWorkerAllocation> getAllocationHistoryForPrisoner(Long bookingId, String orderByFields, Order order) {
 
         String sortFields = StringUtils.defaultString(orderByFields, "assigned");
@@ -109,6 +113,7 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
     }
 
     @Override
+    @VerifyBookingAccess
     public KeyWorkerAllocation getCurrentAllocationForOffenderBooking(Long bookingId) {
         KeyWorkerAllocation keyWorkerAllocation = repository.getCurrentAllocationForOffenderBooking(bookingId)
                 .orElseThrow(EntityNotFoundException.withMessage(String.format("Active allocation not found for offenderBookingId %s", bookingId)));
@@ -116,6 +121,7 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
     }
 
     @Override
+    @VerifyBookingAccess
     public KeyWorkerAllocation getLatestAllocationForOffenderBooking(Long bookingId) {
         KeyWorkerAllocation keyWorkerAllocation = repository.getLatestAllocationForOffenderBooking(bookingId)
                 .orElseThrow(EntityNotFoundException.withMessage(String.format("Allocation not found for offenderBookingId %s", bookingId)));
@@ -123,28 +129,42 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
     }
 
     @Override
-    public Page<OffenderSummary> getUnallocatedOffenders(Set<String> agencyFilter, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+    @VerifyAgencyAccess
+    public Page<OffenderSummary> getUnallocatedOffenders(String agencyId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         String sortFieldsDefaulted = StringUtils.defaultString(sortFields, "lastName");
         Order sortOrderDefaulted = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
         Long pageOffsetDefaulted = ObjectUtils.defaultIfNull(pageOffset, 0L);
         Long pageLimitDefaulted = ObjectUtils.defaultIfNull(pageLimit, 10L);
 
-        return repository.getUnallocatedOffenders(agencyFilter, pageOffsetDefaulted, pageLimitDefaulted, sortFieldsDefaulted, sortOrderDefaulted);
+        return repository.getUnallocatedOffenders(Collections.singleton(agencyId), pageOffsetDefaulted, pageLimitDefaulted, sortFieldsDefaulted, sortOrderDefaulted);
     }
 
     @Override
-    public Page<KeyWorkerAllocationDetail> getAllocatedOffenders(Set<String> agencyFilter, LocalDate fromDate, LocalDate toDate, String allocationType, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+    @VerifyAgencyAccess
+    public Page<KeyWorkerAllocationDetail> getAllocations(String agencyId, LocalDate fromDate, LocalDate toDate, String allocationType, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+        validateAllocationsRequestDateRange(fromDate, toDate);
+
         String sortFieldsDefaulted = StringUtils.defaultString(sortFields, "lastName,firstName");
         Order sortOrderDefaulted = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
         Long pageOffsetDefaulted = ObjectUtils.defaultIfNull(pageOffset, 0L);
         Long pageLimitDefaulted = ObjectUtils.defaultIfNull(pageLimit, 10L);
 
-        return repository.getAllocatedOffenders(agencyFilter, fromDate, toDate, allocationType, pageOffsetDefaulted, pageLimitDefaulted,  sortFieldsDefaulted, sortOrderDefaulted);
+        return repository.getAllocatedOffenders(Collections.singleton(agencyId), fromDate, toDate, allocationType, pageOffsetDefaulted, pageLimitDefaulted,  sortFieldsDefaulted, sortOrderDefaulted);
     }
 
     @Override
     @VerifyAgencyAccess
     public List<Keyworker> getAvailableKeyworkers(String agencyId) {
         return repository.getAvailableKeyworkers(agencyId);
+    }
+
+    private void validateAllocationsRequestDateRange(LocalDate fromDate, LocalDate toDate) {
+        // Validate date range
+        if (Objects.nonNull(toDate) && toDate.isAfter(LocalDate.now())) {
+            throw new BadRequestException("Invalid date range: toDate cannot be in the future.");
+        }
+        if (Objects.nonNull(fromDate) && Objects.nonNull(toDate) && toDate.isBefore(fromDate)) {
+            throw new BadRequestException("Invalid date range: toDate is before fromDate.");
+        }
     }
 }

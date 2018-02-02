@@ -23,14 +23,9 @@ public class KeyWorkerAllocatedOffendersStepDefinitions extends AbstractStepDefi
         doRequestWithParams(agencyId,null,null,null);
     }
 
-    @When("^an allocated offender request is made$")
-    public void anUnallocatedOffenderRequestIsMade() throws Throwable {
-        doRequestWithParams(null,null,null,null);
-    }
-
     @Then("^a list of \"([^\"]*)\" allocated offenders are returned$")
     public void aListOfUnallocatedOffendersAreReturned(int count) throws Throwable {
-        allocatedSteps.verifyAListOfAllocatedOffendersIsReturned(count);
+        allocatedSteps.verifyAllocations(count);
     }
 
     @And("^the list is sorted by offender name asc")
@@ -91,9 +86,7 @@ public class KeyWorkerAllocatedOffendersStepDefinitions extends AbstractStepDefi
 
     private void doRequestWithParams(String agencyId, String allocationType, String fromDate, String toDate) {
         Map<String, String> params = new HashMap<>();
-        if (StringUtils.isNotBlank(agencyId)) {
-            params.put("agencyId", agencyId);
-        }
+
         if (StringUtils.isNotBlank(allocationType)) {
             params.put("allocationType", allocationType);
         }
@@ -103,8 +96,6 @@ public class KeyWorkerAllocatedOffendersStepDefinitions extends AbstractStepDefi
         if (StringUtils.isNotBlank(toDate)) {
             params.put("toDate", toDate);
         }
-        allocatedSteps.getAllocatedOffendersList(params);
+        allocatedSteps.getAllocations(agencyId, params);
     }
-
-
 }

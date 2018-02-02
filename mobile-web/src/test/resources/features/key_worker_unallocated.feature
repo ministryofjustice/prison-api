@@ -2,8 +2,7 @@
 Feature: Unallocated Offenders
 
   Acceptance Criteria:
-  A logged in staff user can retrieve a list of unallocated offenders using an agency id or the derived agencies based
-  on the staff user's caseload
+   A logged in staff user can retrieve a list of unallocated offenders for an agency that is accessible to them.
 
   Background:
     Given a user has authenticated with the API
@@ -13,14 +12,9 @@ Feature: Unallocated Offenders
     Then a list of "9" unallocated offenders are returned
     And the list is sorted by lastName asc
 
-  Scenario: Request for unallocated offenders without specified agency
-    When an unallocated offender request is made
-    Then a list of "9" unallocated offenders are returned
-    And the list is sorted by lastName asc
-
   Scenario: Request for unallocated offenders for unauthorised agency
     When an unallocated offender request is made with agency id "ABC"
-    Then a resource not found response is received with message "Agency with id ABC not found."
+    Then a resource not found response is received with message "Resource with id [ABC] not found."
 
   Scenario: Request for unallocated offenders returns no results
     When an unallocated offender request is made with agency id "WAI"

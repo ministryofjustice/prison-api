@@ -42,8 +42,8 @@ Feature: Allocate Offender to a keyworker
     When offender booking "-1" is allocated to staff user id "-2" with reason "autoallocate" and type "X"
     Then the allocation returns a 401 bad request with message 'Value contains invalid characters: must match '[AM]''
 
-@wip
-# PK allows multiple allocations with different start times - maybe this check isnt needed
+# PK allows multiple allocations with different start times - maybe this check isnt needed - pending clarification
+  @broken
   Scenario: Allocation already exists
     When offender booking "-1" is allocated to staff user id "-5" with reason "repeated" and type "M"
     Then the allocation returns a 401 bad request with message 'Allocation already exists'
