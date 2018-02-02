@@ -16,21 +16,21 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
  * BDD step implementations for Key worker allocation feature.
  */
 public class KeyWorkerAllocatedOffendersSteps extends CommonSteps {
-    private static final String KEY_WORKER_API_URL = API_PREFIX + "key-worker/offenders/allocated";
+    private static final String KEY_WORKER_API_URL = API_PREFIX + "key-worker/{agencyId}/allocations";
 
     private List<KeyWorkerAllocationDetail> allocationList;
 
     private KeyWorkerAllocationDetail allocation;
 
-    public void getAllocatedOffendersList(Map<String, String> queryParam) {
-        doListApiCall(queryParam);
+    public void getAllocations(String agencyId, Map<String, String> queryParam) {
+        doListApiCall(agencyId, queryParam);
     }
 
-    public void verifyAListOfAllocatedOffendersIsReturned(int count) {
+    public void verifyAllocations(int count) {
         assertThat(allocationList).hasSize(count);
     }
 
-    private void doListApiCall(Map<String, String> queryParams) {
+    private void doListApiCall(String agencyId, Map<String, String> queryParams) {
         init();
 
         final String query = buildQuery(queryParams);
@@ -41,7 +41,8 @@ public class KeyWorkerAllocatedOffendersSteps extends CommonSteps {
                             query,
                             HttpMethod.GET,
                             createEntity(null, addPaginationHeaders()),
-                            new ParameterizedTypeReference<List<KeyWorkerAllocationDetail>>() {});
+                            new ParameterizedTypeReference<List<KeyWorkerAllocationDetail>>() {},
+                            agencyId);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 

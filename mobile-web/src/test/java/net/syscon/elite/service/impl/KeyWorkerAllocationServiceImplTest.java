@@ -14,9 +14,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import static net.syscon.elite.service.impl.keyworker.KeyworkerTestHelper.verifyException;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -36,12 +39,42 @@ public class KeyWorkerAllocationServiceImplTest {
     private AuthenticationFacade authenticationFacade;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         service = new KeyWorkerAllocationServiceImpl(repo, authenticationFacade, null);
     }
 
     @Test
-    public void shouldCallCollaboratorsForCreateAllocation () throws Exception {
+    public void shouldRejectInvalidDateRangeForGetAllocations() {
+        Throwable thrown = catchThrowable(() -> service.getAllocations(
+                AGENCY_ID,
+                LocalDate.of(2017, 12, 11),
+                LocalDate.of(2016, 12, 11),
+                "A",
+                0L,
+                10L,
+                "field",
+                Order.ASC));
+
+        verifyException(thrown, BadRequestException.class, "Invalid date range: toDate is before fromDate.");
+    }
+
+    @Test
+    public void shouldRejectFutureToDateForGetAllocations() {
+        Throwable thrown = catchThrowable(() -> service.getAllocations(
+                AGENCY_ID,
+                LocalDate.of(2017, 12, 11),
+                LocalDate.of(2032, 12, 11),
+                "M",
+                0L,
+                10L,
+                "field",
+                Order.ASC));
+
+        verifyException(thrown, BadRequestException.class, "Invalid date range: toDate cannot be in the future.");
+    }
+
+    @Test
+    public void shouldCallCollaboratorsForCreateAllocation () {
         when(repo.getCurrentAllocationForOffenderBooking(BOOKING_ID)).thenReturn(Optional.of(KeyWorkerAllocation.builder().build()));
         final KeyWorkerAllocation allocation = buildKeyWorkerAllocation(AUTO_ALLOCATION_TYPE);
         service.createAllocation(allocation, USER_1);
@@ -50,83 +83,83 @@ public class KeyWorkerAllocationServiceImplTest {
     }
     
     @Test(expected = AllocationException.class)
-    public void shouldThrowException_existingAllocationForOffenderBooking () throws Exception {
+    public void shouldThrowExceptionWhenExistingAllocationForOffenderBooking () {
         when(repo.getCurrentAllocationForOffenderBooking(BOOKING_ID)).thenReturn(Optional.empty());
         final KeyWorkerAllocation allocation = buildKeyWorkerAllocation(AUTO_ALLOCATION_TYPE);
         service.createAllocation(allocation, USER_1);
     }
 
     @Test
-    public void shouldCallCollaboratorsForGetAllocationHistoryForPrisoner () throws Exception {
+    public void shouldCallCollaboratorsForGetAllocationHistoryForPrisoner () {
         service.getAllocationHistoryForPrisoner(-1L, null, null);
         verify(repo, times(1)).getAllocationHistoryForPrisoner(-1L, "assigned", Order.DESC);
     }
 
 
     @Test
-    public void shouldCallCollaboratorsForGetLatestAllocationForOffenderBooking () throws Exception {
+    public void shouldCallCollaboratorsForGetLatestAllocationForOffenderBooking () {
         when(repo.getLatestAllocationForOffenderBooking(BOOKING_ID)).thenReturn(Optional.of(KeyWorkerAllocation.builder().build()));
         service.getLatestAllocationForOffenderBooking(BOOKING_ID);
         verify(repo, times(1)).getLatestAllocationForOffenderBooking(BOOKING_ID);
     }
 
     @Test(expected = EntityNotFoundException.class)
-    public void shouldThrowEmptyResultSetException_ForGetLatestAllocationForOffenderBooking () throws Exception {
+    public void shouldThrowEmptyResultSetExceptionForGetLatestAllocationForOffenderBooking () {
         when(repo.getLatestAllocationForOffenderBooking(BOOKING_ID)).thenReturn(Optional.empty());
         service.getLatestAllocationForOffenderBooking(BOOKING_ID);
     }
 
     @Test
-    public void shouldCallCollaboratorsForGetCurrentAllocationForOffenderBooking () throws Exception {
+    public void shouldCallCollaboratorsForGetCurrentAllocationForOffenderBooking () {
         when(repo.getCurrentAllocationForOffenderBooking(BOOKING_ID)).thenReturn(Optional.of(KeyWorkerAllocation.builder().build()));
         service.getCurrentAllocationForOffenderBooking(BOOKING_ID);
         verify(repo, times(1)).getCurrentAllocationForOffenderBooking(BOOKING_ID);
     }
 
     @Test(expected = EntityNotFoundException.class)
-    public void shouldThrowEmptyResultSetException_ForGetCurrentAllocationForOffenderBooking () throws Exception {
+    public void shouldThrowEmptyResultSetExceptionForGetCurrentAllocationForOffenderBooking () {
         when(repo.getCurrentAllocationForOffenderBooking(BOOKING_ID)).thenReturn(Optional.empty());
         service.getCurrentAllocationForOffenderBooking(BOOKING_ID);
     }
 
     @Test
-    public void shouldCallCollaboratorsForDeactivateAllocationForKeyWorker () throws Exception {
+    public void shouldCallCollaboratorsForDeactivateAllocationForKeyWorker () {
         service.deactivateAllocationForKeyWorker(-1L, DEALLOCATION_REASON, USER_1);
         verify(repo, times(1)).deactivateAllocationsForKeyWorker(-1L, DEALLOCATION_REASON, USER_1);
     }
 
     @Test
-    public void shouldCallCollaboratorsForDeactivateAllocationForOffenderBooking () throws Exception {
+    public void shouldCallCollaboratorsForDeactivateAllocationForOffenderBooking () {
         service.deactivateAllocationForOffenderBooking(BOOKING_ID, DEALLOCATION_REASON, USER_1);
         verify(repo, times(1)).deactivateAllocationForOffenderBooking(BOOKING_ID, DEALLOCATION_REASON, USER_1);
     }
 
     @Test
-    public void shouldCallCollaboratorsWithDefaultsForGetUnallocatedOffenders() throws Exception {
-        service.getUnallocatedOffenders(ImmutableSet.of("LEI"), null, null, null, null);
+    public void shouldCallCollaboratorsWithDefaultsForGetUnallocatedOffenders() {
+        service.getUnallocatedOffenders("LEI", null, null, null, null);
         verify(repo, times(1)).getUnallocatedOffenders(ImmutableSet.of("LEI"), 0L,10L, "lastName", Order.ASC);
     }
 
     @Test
-    public void shouldCallCollaboratorsForGetUnallocatedOffenders() throws Exception {
-        service.getUnallocatedOffenders(ImmutableSet.of("LEI"), 5L, 10L, "firstName", Order.DESC);
+    public void shouldCallCollaboratorsForGetUnallocatedOffenders() {
+        service.getUnallocatedOffenders("LEI", 5L, 10L, "firstName", Order.DESC);
         verify(repo, times(1)).getUnallocatedOffenders(ImmutableSet.of("LEI"), 5L,10L, "firstName", Order.DESC);
     }
 
     @Test
-    public void shouldCallCollaboratorsForGetAllocatedOffenders() throws Exception {
-        service.getAllocatedOffenders(ImmutableSet.of("LEI"), LocalDate.parse("2017-04-01"), LocalDate.parse("2017-07-01"), AUTO_ALLOCATED_TYPE,5L, 10L, "firstName", Order.DESC);
+    public void shouldCallCollaboratorsForGetAllocatedOffenders() {
+        service.getAllocations("LEI", LocalDate.parse("2017-04-01"), LocalDate.parse("2017-07-01"), AUTO_ALLOCATED_TYPE,5L, 10L, "firstName", Order.DESC);
         verify(repo, times(1)).getAllocatedOffenders(ImmutableSet.of("LEI"), LocalDate.parse("2017-04-01"), LocalDate.parse("2017-07-01"), AUTO_ALLOCATED_TYPE,5L,10L, "firstName", Order.DESC);
     }
 
     @Test
-    public void shouldCallCollaboratorsWhenAllOptionalParametersOmittedForGetAllocatedOffenders() throws Exception {
-        service.getAllocatedOffenders(ImmutableSet.of("LEI"), null, null, null, null, null, null, null);
+    public void shouldCallCollaboratorsWhenAllOptionalParametersOmittedForGetAllocatedOffenders() {
+        service.getAllocations("LEI", null, null, null, null, null, null, null);
         verify(repo, times(1)).getAllocatedOffenders(ImmutableSet.of("LEI"), null, null, null,0L,10L, "lastName,firstName", Order.ASC);
     }
 
     @Test
-    public void shouldCallCollaboratorsForGetAvailableKeyworkers() throws Exception {
+    public void shouldCallCollaboratorsForGetAvailableKeyworkers() {
         service.getAvailableKeyworkers(AGENCY_ID);
         verify(repo, times(1)).getAvailableKeyworkers(AGENCY_ID);
     }
@@ -134,5 +167,4 @@ public class KeyWorkerAllocationServiceImplTest {
     private KeyWorkerAllocation buildKeyWorkerAllocation(String type) {
         return KeyWorkerAllocation.builder().agencyId("LEI").bookingId(BOOKING_ID).reason("reason").staffId(-1L).type(type).build();
     }
-
 }

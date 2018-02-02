@@ -10,7 +10,7 @@ buildscript {
         classpath "org.raml.jaxrs:jaxrs-code-generator:2.1.0"
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${version_spring_boot}"
         classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.6.1"
-        classpath "net.serenity-bdd:serenity-gradle-plugin:1.8.1"
+        classpath "net.serenity-bdd:serenity-gradle-plugin:1.8.21"
     }
 }
 
