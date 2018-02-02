@@ -5,7 +5,10 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.executablespecification.steps.KeyWorkerAllocateSteps;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
@@ -15,7 +18,10 @@ public class KeyWorkerAllocateStepDefinitions extends AbstractStepDefinitions {
 
     @Autowired
     private KeyWorkerAllocateSteps keyworkerSteps;
-    @Autowired private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    @Value("${oracle.default.schema}")
+    private String oracleDefaultSchema;
 
     @When("^offender booking \"([^\"]*)\" is allocated to staff user id \"([^\"]*)\" with reason \"([^\"]*)\" and type \"([^\"]*)\"$")
     public void offenderIsAllocated(Long bookingId, Long staffId, String reason, String type) throws Throwable {
@@ -45,6 +51,14 @@ public class KeyWorkerAllocateStepDefinitions extends AbstractStepDefinitions {
      */
     @After("@allocate-database-cleanup")
     public void afterScenario() {
-        jdbcTemplate.update("delete from OFFENDER_KEY_WORKERS where OFFENDER_BOOK_ID in (-33,-34) and OFFICER_ID = -5");
+        // TODO the oracle.default.schema property does not apply to this jdbcTemplate, so do it manually
+        if (StringUtils.isBlank(oracleDefaultSchema)) {
+            jdbcTemplate
+                    .update("delete from OFFENDER_KEY_WORKERS where OFFENDER_BOOK_ID in (-33,-34) and OFFICER_ID = -5");
+        } else {
+            jdbcTemplate.update("delete from " + oracleDefaultSchema
+                    + ".OFFENDER_KEY_WORKERS where OFFENDER_BOOK_ID in (-33,-34) and OFFICER_ID = -5");
+
+        }
     }
 }
