@@ -148,18 +148,18 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
 
     @Override
     public void checkAvailableKeyworker(Long bookingId, Long staffId) {
-        final String sql = getQuery("CHECK_AVAILABLE_KEYWORKER");
+        final String sql = getQuery("CHECK_AVAILABLE_KEY_WORKER");
         try {
             jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "staffId", staffId), Long.class);
         } catch (EmptyResultDataAccessException ex) {
             throw new EntityNotFoundException(
-                    String.format("Keyworker with id %d not available for offender %d", staffId, bookingId));
+                    String.format("Key worker with id %d not available for offender %d", staffId, bookingId));
         }
     }
 
     @Override
     public List<Keyworker> getAvailableKeyworkers(String agencyId) {
-        final String sql = getQuery("GET_AVAILABLE_KEYWORKERS");
+        final String sql = getQuery("GET_AVAILABLE_KEY_WORKERS");
 
         final List<Keyworker> keyworkers = jdbcTemplate.query(
                 sql,
@@ -205,6 +205,21 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
                     sql,
                     createParams("bookingId", bookingId),
                     KEY_WORKER_ALLOCATION_ROW_MAPPER);
+        } catch (EmptyResultDataAccessException e) {
+            allocation = null;
+        }
+
+        return Optional.ofNullable(allocation);
+    }
+
+    @Override
+    public Optional<Keyworker> getKeyworkerDetails(Long staffId, Set<String> caseload) {
+        Keyworker allocation;
+        try {
+            allocation = jdbcTemplate.queryForObject(
+                    getQuery("GET_KEY_WORKER_DETAILS"),
+                    createParams("staffId", staffId, "caseload", caseload),
+                    KEY_WORKER_ROW_MAPPER);
         } catch (EmptyResultDataAccessException e) {
             allocation = null;
         }

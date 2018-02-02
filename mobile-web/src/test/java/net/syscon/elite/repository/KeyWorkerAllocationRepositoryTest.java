@@ -22,6 +22,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -202,6 +203,19 @@ public class KeyWorkerAllocationRepositoryTest {
 
         assertThat(allocatedOffenders.getItems()).hasSize(2);
         assertThat(allocatedOffenders.getItems()).isSortedAccordingTo((o1, o2) -> o2.getAssigned().compareTo(o1.getAssigned()));
+    }
+    
+    @Test
+    public void shouldGetKeyworkerDetails() {
+       final Optional<Keyworker> keyworker = repo.getKeyworkerDetails(KEY_WORKER_WITH_ALLOCATIONS, Collections.singleton("LEI"));
+
+        assertThat(keyworker.isPresent()).isTrue();
+        final Keyworker kw = keyworker.get();
+        assertThat(kw.getAgencyId()).isEqualTo("LEI");
+        assertThat(kw.getFirstName()).isEqualTo("Another");
+        assertThat(kw.getLastName()).isEqualTo("User");
+        assertThat(kw.getStaffId()).isEqualTo(KEY_WORKER_WITH_ALLOCATIONS);
+        assertThat(kw.getNumberAllocated()).isEqualTo(4);
     }
 
     private KeyWorkerAllocation buildKeyWorkerAllocation(Long bookingId) {

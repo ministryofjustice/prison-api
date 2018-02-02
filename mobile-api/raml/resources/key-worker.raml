@@ -56,3 +56,11 @@
       type: string
       description: The agency (prison) identifier.
       example: MDI
+
+/{staffId}:
+  (javaOperationName): getKeyworkerDetails
+  type: {readOnlyItem: {type: Keyworker, description: Key worker details. }}
+  uriParameters:
+    staffId:
+      (javaType): Long
+      description: The key worker staff id

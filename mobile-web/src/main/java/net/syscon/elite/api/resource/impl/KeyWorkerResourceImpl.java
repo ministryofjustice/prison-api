@@ -64,4 +64,11 @@ public class KeyWorkerResourceImpl implements KeyWorkerResource {
 
         return GetAvailableKeyworkersResponse.respond200WithApplicationJson(availableKeyworkers);
     }
+
+    @Override
+    public GetKeyworkerDetailsResponse getKeyworkerDetails(Long staffId) {
+        Keyworker keyWorker = keyWorkerService.getKeyworkerDetails(staffId);
+
+        return GetKeyworkerDetailsResponse.respond200WithApplicationJson(keyWorker);
+    }
 }

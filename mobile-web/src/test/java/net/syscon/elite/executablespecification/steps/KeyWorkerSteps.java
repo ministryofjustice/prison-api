@@ -13,8 +13,10 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 public class KeyWorkerSteps extends CommonSteps{
     private static final String KEY_WORKER_API_URL_WITH_AGENCY_PARAM = API_PREFIX + "key-worker/%s/available";
+    private static final String KEY_WORKER_API_DETAILS = API_PREFIX + "key-worker/{staffId}";
 
     private List<Keyworker> keyworkerList;
+    private Keyworker keyworker;
 
     public void getAvailableKeyworkersList(String agencyId) {
         doListApiCall(agencyId);
@@ -45,10 +47,39 @@ public class KeyWorkerSteps extends CommonSteps{
             setErrorResponse(ex.getErrorResponse());
         }
     }
+    
+    private void doDetailsApiCall(Long staffId) {
+        init();
+
+        ResponseEntity<Keyworker> response;
+
+        try {
+            response = restTemplate.exchange(KEY_WORKER_API_DETAILS, HttpMethod.GET, createEntity(),
+                    Keyworker.class, staffId);
+
+            keyworker = response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
 
     @Override
     protected void init() {
         super.init();
         keyworkerList = null;
+        keyworker = null;
+    }
+
+    public void getKeyworkerDetails(Long staffId) {
+        doDetailsApiCall(staffId);
+    }
+
+    public void verifyKeyworkerDetails() {
+        assertThat(keyworker.getStaffId()).isEqualTo(-5);
+        assertThat(keyworker.getAgencyId()).isEqualTo("LEI");
+        assertThat(keyworker.getFirstName()).isEqualTo("Another");
+        assertThat(keyworker.getLastName()).isEqualTo("User");
+        assertThat(keyworker.getNumberAllocated()).isEqualTo(4);
+
     }
 }
