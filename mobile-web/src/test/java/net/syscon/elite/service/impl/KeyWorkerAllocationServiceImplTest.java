@@ -7,7 +7,6 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 import net.syscon.elite.security.AuthenticationFacade;
-import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.AllocationException;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -46,8 +45,6 @@ public class KeyWorkerAllocationServiceImplTest {
     private AuthenticationFacade authenticationFacade;
     @Mock
     private  BookingService bookingService;
-    @Mock
-    private AgencyService agencyService;
 
     @Before
     public void setUp() {
