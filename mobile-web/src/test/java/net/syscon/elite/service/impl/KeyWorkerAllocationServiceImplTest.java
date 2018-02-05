@@ -1,11 +1,14 @@
 package net.syscon.elite.service.impl;
 
 import com.google.common.collect.ImmutableSet;
+
+import net.syscon.elite.api.model.Keyworker;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.AllocationException;
+import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.KeyWorkerAllocationService;
 import org.junit.Before;
@@ -20,6 +23,7 @@ import java.util.Optional;
 
 import static net.syscon.elite.service.impl.keyworker.KeyworkerTestHelper.verifyException;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -31,16 +35,20 @@ public class KeyWorkerAllocationServiceImplTest {
     private static final String DEALLOCATION_REASON = "deallocating";
     private static final long BOOKING_ID = -1L;
     private static final String AGENCY_ID = "LEI";
+    private static final long STAFF_ID = -2L;
+
     private KeyWorkerAllocationService service;
 
     @Mock
     private KeyWorkerAllocationRepository repo;
     @Mock
     private AuthenticationFacade authenticationFacade;
+    @Mock
+    private  BookingService bookingService;
 
     @Before
     public void setUp() {
-        service = new KeyWorkerAllocationServiceImpl(repo, authenticationFacade, null);
+        service = new KeyWorkerAllocationServiceImpl(repo, authenticationFacade, bookingService);
     }
 
     @Test
@@ -162,6 +170,23 @@ public class KeyWorkerAllocationServiceImplTest {
     public void shouldCallCollaboratorsForGetAvailableKeyworkers() {
         service.getAvailableKeyworkers(AGENCY_ID);
         verify(repo, times(1)).getAvailableKeyworkers(AGENCY_ID);
+    }
+
+    @Test
+    public void testGetKeyworkerDetails() throws Exception {
+
+        when(repo.getKeyworkerDetails(STAFF_ID))
+                .thenReturn(Optional.of(Keyworker.builder().firstName("me").build()));
+
+        final Keyworker keyworker = service.getKeyworkerDetails(STAFF_ID);
+        assertThat(keyworker.getFirstName()).isEqualTo("me");
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void testGetKeyworkerDetailsNotFound() throws Exception {
+        when(repo.getKeyworkerDetails(STAFF_ID)).thenReturn(Optional.empty());
+
+        service.getKeyworkerDetails(STAFF_ID);
     }
 
     private KeyWorkerAllocation buildKeyWorkerAllocation(String type) {

@@ -19,4 +19,20 @@ public class KeyworkerStepDefinitions extends AbstractStepDefinitions {
     public void aListOfKeyWorkersAreReturned(int count) throws Throwable {
         keyworkerSteps.verifyAListOfKeyworkersIsReturned(count);
     }
+
+    @When("^a key worker details request is made with staff id \"([^\"]*)\"$")
+    public void anAvailableKeyWorkerRequestIsMadeWithAgencyId(Long staffId) throws Throwable {
+        keyworkerSteps.getKeyworkerDetails(staffId);
+    }
+
+    @Then("^the key worker details are returned$")
+    public void aListOfKeyWorkersAreReturned() throws Throwable {
+        keyworkerSteps.verifyKeyworkerDetails();
+    }
+
+    @Then("^the key worker service returns a resource not found response with message \"([^\"]*)\"$")
+    public void aResourceNotFoundResponseIsReceivedWithMessage(String message) throws Throwable {
+        keyworkerSteps.verifyResourceNotFound();
+        keyworkerSteps.verifyErrorUserMessage(message);
+    }
 }

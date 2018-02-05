@@ -158,6 +158,14 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
         return repository.getAvailableKeyworkers(agencyId);
     }
 
+    @Override
+    public Keyworker getKeyworkerDetails(Long staffId) {
+        final Keyworker keyworker = repository.getKeyworkerDetails(staffId)
+                .orElseThrow(EntityNotFoundException.withMessage(String.format("Key worker with id %d not found", staffId)));
+
+        return keyworker;
+    }
+
     private void validateAllocationsRequestDateRange(LocalDate fromDate, LocalDate toDate) {
         // Validate date range
         if (Objects.nonNull(toDate) && toDate.isAfter(LocalDate.now())) {

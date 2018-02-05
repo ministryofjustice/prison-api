@@ -203,6 +203,18 @@ public class KeyWorkerAllocationRepositoryTest {
         assertThat(allocatedOffenders.getItems()).hasSize(2);
         assertThat(allocatedOffenders.getItems()).isSortedAccordingTo((o1, o2) -> o2.getAssigned().compareTo(o1.getAssigned()));
     }
+    
+    @Test
+    public void shouldGetKeyworkerDetails() {
+       final Optional<Keyworker> keyworker = repo.getKeyworkerDetails(KEY_WORKER_WITH_ALLOCATIONS);
+
+        assertThat(keyworker.isPresent()).isTrue();
+        final Keyworker kw = keyworker.get();
+        assertThat(kw.getFirstName()).isEqualTo("Another");
+        assertThat(kw.getLastName()).isEqualTo("User");
+        assertThat(kw.getStaffId()).isEqualTo(KEY_WORKER_WITH_ALLOCATIONS);
+        assertThat(kw.getNumberAllocated()).isEqualTo(4);
+    }
 
     private KeyWorkerAllocation buildKeyWorkerAllocation(Long bookingId) {
         return KeyWorkerAllocation.builder().agencyId("LEI").bookingId(bookingId).reason(NEW_ALLOCATION_REASON).staffId(KEY_WORKER_WITH_ALLOCATIONS).type(AUTO_ALLOCATION_TYPE).build();

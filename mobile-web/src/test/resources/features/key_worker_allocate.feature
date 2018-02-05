@@ -28,11 +28,11 @@ Feature: Allocate Offender to a keyworker
 
   Scenario: Staff user doesnt exist
     When offender booking "-1" is allocated to staff user id "-999" with reason "autoallocate" and type "A"
-    Then the allocation returns a 404 resource not found with message 'Keyworker with id -999 not available for offender -1'
+    Then the allocation returns a 404 resource not found with message 'Key worker with id -999 not available for offender -1'
 
   Scenario: Staff user in wrong prison
     When offender booking "-1" is allocated to staff user id "-4" with reason "autoallocate" and type "A"
-    Then the allocation returns a 404 resource not found with message 'Keyworker with id -4 not available for offender -1'
+    Then the allocation returns a 404 resource not found with message 'Key worker with id -4 not available for offender -1'
 
   Scenario: Invalid reason code
     When offender booking "-1" is allocated to staff user id "-2" with reason "strnglength13" and type "M"
