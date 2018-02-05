@@ -20,9 +20,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.Optional;
-import java.util.Set;
 
 import static net.syscon.elite.service.impl.keyworker.KeyworkerTestHelper.verifyException;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -39,7 +37,6 @@ public class KeyWorkerAllocationServiceImplTest {
     private static final long BOOKING_ID = -1L;
     private static final String AGENCY_ID = "LEI";
     private static final long STAFF_ID = -2L;
-    private static final Set<String> CASELOAD = Collections.singleton(AGENCY_ID);
 
     private KeyWorkerAllocationService service;
 
@@ -54,7 +51,7 @@ public class KeyWorkerAllocationServiceImplTest {
 
     @Before
     public void setUp() {
-        service = new KeyWorkerAllocationServiceImpl(repo, authenticationFacade, bookingService, agencyService);
+        service = new KeyWorkerAllocationServiceImpl(repo, authenticationFacade, bookingService);
     }
 
     @Test
@@ -181,30 +178,19 @@ public class KeyWorkerAllocationServiceImplTest {
     @Test
     public void testGetKeyworkerDetails() throws Exception {
 
-        when(agencyService.getAgencyIds()).thenReturn(CASELOAD);
-        when(repo.getKeyworkerDetails(STAFF_ID, CASELOAD))
-                .thenReturn(Optional.of(Keyworker.builder().agencyId(AGENCY_ID).build()));
+        when(repo.getKeyworkerDetails(STAFF_ID))
+                .thenReturn(Optional.of(Keyworker.builder().firstName("me").build()));
 
         final Keyworker keyworker = service.getKeyworkerDetails(STAFF_ID);
-        assertThat(keyworker.getAgencyId()).isEqualTo(AGENCY_ID);
+        assertThat(keyworker.getFirstName()).isEqualTo("me");
     }
 
     @Test(expected = EntityNotFoundException.class)
     public void testGetKeyworkerDetailsNotFound() throws Exception {
-        when(agencyService.getAgencyIds()).thenReturn(CASELOAD);
-        when(repo.getKeyworkerDetails(STAFF_ID, CASELOAD)).thenReturn(Optional.empty());
+        when(repo.getKeyworkerDetails(STAFF_ID)).thenReturn(Optional.empty());
 
         service.getKeyworkerDetails(STAFF_ID);
     }
-
-   /* @Test(expected = EntityNotFoundException.class)
-    public void testGetKeyworkerDetailsWrongAgency() throws Exception {
-        when(repo.getKeyworkerDetails(STAFF_ID, CASELOAD))
-                .thenReturn(Optional.of(Keyworker.builder().agencyId(OTHER_AGENCY_ID).build()));
-        when(agencyService.getAgencyIds()).thenReturn(Collections.singleton(AGENCY_ID));
-
-        service.getKeyworkerDetails(STAFF_ID);
-    }*/
 
     private KeyWorkerAllocation buildKeyWorkerAllocation(String type) {
         return KeyWorkerAllocation.builder().agencyId("LEI").bookingId(BOOKING_ID).reason("reason").staffId(-1L).type(type).build();

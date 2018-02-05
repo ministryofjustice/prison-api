@@ -22,7 +22,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -207,11 +206,10 @@ public class KeyWorkerAllocationRepositoryTest {
     
     @Test
     public void shouldGetKeyworkerDetails() {
-       final Optional<Keyworker> keyworker = repo.getKeyworkerDetails(KEY_WORKER_WITH_ALLOCATIONS, Collections.singleton("LEI"));
+       final Optional<Keyworker> keyworker = repo.getKeyworkerDetails(KEY_WORKER_WITH_ALLOCATIONS);
 
         assertThat(keyworker.isPresent()).isTrue();
         final Keyworker kw = keyworker.get();
-        assertThat(kw.getAgencyId()).isEqualTo("LEI");
         assertThat(kw.getFirstName()).isEqualTo("Another");
         assertThat(kw.getLastName()).isEqualTo("User");
         assertThat(kw.getStaffId()).isEqualTo(KEY_WORKER_WITH_ALLOCATIONS);

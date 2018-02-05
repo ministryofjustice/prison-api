@@ -76,7 +76,6 @@ public class KeyWorkerSteps extends CommonSteps{
 
     public void verifyKeyworkerDetails() {
         assertThat(keyworker.getStaffId()).isEqualTo(-5);
-        assertThat(keyworker.getAgencyId()).isEqualTo("LEI");
         assertThat(keyworker.getFirstName()).isEqualTo("Another");
         assertThat(keyworker.getLastName()).isEqualTo("User");
         assertThat(keyworker.getNumberAllocated()).isEqualTo(4);

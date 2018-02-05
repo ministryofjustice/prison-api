@@ -11,7 +11,6 @@ import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.security.VerifyBookingAccess;
-import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.AllocationException;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -38,14 +37,12 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
     private final KeyWorkerAllocationRepository repository;
     private final AuthenticationFacade authenticationFacade;
     private final BookingService bookingService;
-    private final AgencyService agencyService;
 
     public KeyWorkerAllocationServiceImpl(KeyWorkerAllocationRepository repository,
-            AuthenticationFacade authenticationFacade, BookingService bookingService, AgencyService agencyService) {
+            AuthenticationFacade authenticationFacade, BookingService bookingService) {
         this.repository = repository;
         this.authenticationFacade = authenticationFacade;
         this.bookingService = bookingService;
-        this.agencyService = agencyService;
     }
 
     @Override
@@ -106,14 +103,6 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
         repository.checkAvailableKeyworker(bookingId, staffId);
     }
 
-    /*private void validateStaffId(String agencyId, Long staffId) {
-        final Set<String> agencyIds = agencyService.getAgencyIds();
-
-        if (!agencyIds.contains(agencyId)) {
-            throw EntityNotFoundException.withMessage(String.format("Key worker %d not found", staffId));
-        }
-    }*/
-
     @Override
     @VerifyBookingAccess
     public List<KeyWorkerAllocation> getAllocationHistoryForPrisoner(Long bookingId, String orderByFields, Order order) {
@@ -171,10 +160,8 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
 
     @Override
     public Keyworker getKeyworkerDetails(Long staffId) {
-        final Keyworker keyworker = repository.getKeyworkerDetails(staffId, agencyService.getAgencyIds())
+        final Keyworker keyworker = repository.getKeyworkerDetails(staffId)
                 .orElseThrow(EntityNotFoundException.withMessage(String.format("Key worker with id %d not found", staffId)));
-
-        // !! validateStaffId(keyworkerDetails.getAgencyId(), staffId);
 
         return keyworker;
     }
