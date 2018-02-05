@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.util.Map;
+
 /**
  * BDD step definitions for the key worker endpoints
  */
@@ -48,17 +50,17 @@ public class KeyWorkerAllocateStepDefinitions extends AbstractStepDefinitions {
      * Remove any allocations added by these tests. Note 
      * <li>autocommit = true here
      * <li>this runs just for a test which has the matching tag.
+     * <li>the oracle.default.schema property does not apply to this jdbcTemplate, so do it manually.
+     * <li>this runs as API_PROXY_OWNER due to being client-side with no access to the security thread-local
      */
     @After("@allocate-database-cleanup")
     public void afterScenario() {
-        // TODO the oracle.default.schema property does not apply to this jdbcTemplate, so do it manually
         if (StringUtils.isBlank(oracleDefaultSchema)) {
             jdbcTemplate
                     .update("delete from OFFENDER_KEY_WORKERS where OFFENDER_BOOK_ID in (-33,-34) and OFFICER_ID = -5");
         } else {
             jdbcTemplate.update("delete from " + oracleDefaultSchema
                     + ".OFFENDER_KEY_WORKERS where OFFENDER_BOOK_ID in (-33,-34) and OFFICER_ID = -5");
-
         }
     }
 }
