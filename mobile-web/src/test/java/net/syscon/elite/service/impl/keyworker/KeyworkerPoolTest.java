@@ -47,7 +47,7 @@ public class KeyworkerPoolTest {
         capacityTiers.add(CAPACITY_TIER_2);
 
         // Set-up mock appender to enable verification of log output
-        KeyworkerTestHelper.initMockLogging(mockAppender);
+        initMockLogging(mockAppender);
     }
 
     // Each unit test below is preceded by acceptance criteria in Given-When-Then form
@@ -98,7 +98,7 @@ public class KeyworkerPoolTest {
         Throwable thrown = catchThrowable(() -> keyworkerPool.getKeyworker(1));
 
         // Verify log output and exception
-        KeyworkerTestHelper.verifyLog(mockAppender, Level.ERROR, KeyworkerPool.OUTCOME_ALL_KEY_WORKERS_AT_CAPACITY);
+        verifyLog(mockAppender, Level.ERROR, KeyworkerPool.OUTCOME_ALL_KEY_WORKERS_AT_CAPACITY);
 
         assertThat(thrown)
                 .isInstanceOf(AllocationException.class)

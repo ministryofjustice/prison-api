@@ -54,7 +54,7 @@ public class AutoAllocationServiceTest {
     @Before
     public void setUp() {
         // Set-up mock appender to enable verification of log output
-        KeyworkerTestHelper.initMockLogging(mockAppender);
+        initMockLogging(mockAppender);
 
         // Construct service under test (using mock collaborators)
         allocationService = new AutoAllocationServiceImpl(keyWorkerAllocationService, keyworkerPoolFactory);
