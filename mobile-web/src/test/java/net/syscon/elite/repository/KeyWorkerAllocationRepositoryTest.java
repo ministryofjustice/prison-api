@@ -105,7 +105,7 @@ public class KeyWorkerAllocationRepositoryTest {
     }
 
     @Test
-    public void shouldHandleEmptyResult_getLatestAllocationForOffenderBooking() throws Exception {
+    public void shouldHandleEmptyResultGetLatestAllocationForOffenderBooking() throws Exception {
 
         final Optional<KeyWorkerAllocation> allocation = repo.getLatestAllocationForOffenderBooking(OFFENDER_BOOKING_ID_WITHOUT_ALLOCATION);
 
@@ -113,7 +113,7 @@ public class KeyWorkerAllocationRepositoryTest {
     }
 
     @Test
-    public void shouldGetAllocationHistoryForPrisonerInOrder_AssignedDesc() throws Exception {
+    public void shouldGetAllocationHistoryForPrisonerInOrderAssignedDesc() throws Exception {
         final List<KeyWorkerAllocation> historyForPrisoner = repo.getAllocationHistoryForPrisoner(OFFENDER_BOOKING_ID_WITH_INACTIVE_ALLOCATION, "assigned", Order.DESC);
         assertThat(historyForPrisoner).extracting("bookingId").containsExactly(-29L, -29L);
         assertThat(historyForPrisoner).isSortedAccordingTo((o1, o2) -> o2.getAssigned().compareTo(o1.getAssigned()));
@@ -214,6 +214,13 @@ public class KeyWorkerAllocationRepositoryTest {
         assertThat(kw.getLastName()).isEqualTo("User");
         assertThat(kw.getStaffId()).isEqualTo(KEY_WORKER_WITH_ALLOCATIONS);
         assertThat(kw.getNumberAllocated()).isEqualTo(4);
+    }
+
+    @Test
+    public void testGetAllocationsForKeyworker() {
+        List<KeyWorkerAllocation> allocations = repo.getAllocationsForKeyworker(KEY_WORKER_WITH_ALLOCATIONS);
+
+        assertThat(allocations.size()).isEqualTo(7);
     }
 
     private KeyWorkerAllocation buildKeyWorkerAllocation(Long bookingId) {
