@@ -1,4 +1,4 @@
-@global @wip
+@global
 Feature: Users and Staff
 
   Acceptance Criteria:
