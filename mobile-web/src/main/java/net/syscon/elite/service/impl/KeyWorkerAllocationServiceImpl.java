@@ -17,6 +17,7 @@ import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.KeyWorkerAllocationService;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -32,7 +33,7 @@ import java.util.Objects;
 @Service
 @Transactional(readOnly = true)
 @Validated
-public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationService{
+public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationService {
 
     private final KeyWorkerAllocationRepository repository;
     private final AuthenticationFacade authenticationFacade;
@@ -164,6 +165,13 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
                 .orElseThrow(EntityNotFoundException.withMessage(String.format("Key worker with id %d not found", staffId)));
 
         return keyworker;
+    }
+
+    @Override
+    public List<KeyWorkerAllocation> getAllocationsForKeyworker(Long staffId) {
+        Validate.notNull(staffId, "Key worker staffId must be specified.");
+
+        return repository.getAllocationsForKeyworker(staffId);
     }
 
     private void validateAllocationsRequestDateRange(LocalDate fromDate, LocalDate toDate) {

@@ -214,16 +214,29 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
 
     @Override
     public Optional<Keyworker> getKeyworkerDetails(Long staffId) {
-        Keyworker allocation;
+        Keyworker keyworker;
+
         try {
-            allocation = jdbcTemplate.queryForObject(
+            keyworker = jdbcTemplate.queryForObject(
                     getQuery("GET_KEY_WORKER_DETAILS"),
                     createParams("staffId", staffId),
                     KEY_WORKER_ROW_MAPPER);
         } catch (EmptyResultDataAccessException e) {
-            allocation = null;
+            keyworker = null;
         }
 
-        return Optional.ofNullable(allocation);
+        return Optional.ofNullable(keyworker);
+    }
+
+    @Override
+    public List<KeyWorkerAllocation> getAllocationsForKeyworker(Long staffId) {
+        String sql = getQuery("GET_ALLOCATIONS_FOR_KEY_WORKER");
+
+        final List<KeyWorkerAllocation> allocations = jdbcTemplate.query(
+                sql,
+                createParams("staffId", staffId),
+                KEY_WORKER_ALLOCATION_ROW_MAPPER);
+
+        return allocations;
     }
 }

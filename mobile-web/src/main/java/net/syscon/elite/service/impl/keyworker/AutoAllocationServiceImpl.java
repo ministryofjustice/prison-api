@@ -2,9 +2,9 @@ package net.syscon.elite.service.impl.keyworker;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Keyworker;
+import net.syscon.elite.api.model.NewAllocation;
 import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.support.Page;
-import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 import net.syscon.elite.service.AllocationException;
 import net.syscon.elite.service.KeyWorkerAllocationService;
 import net.syscon.elite.service.keyworker.AllocationService;
@@ -19,8 +19,13 @@ import java.util.List;
 @Transactional
 @Slf4j
 public class AutoAllocationServiceImpl implements AllocationService {
-    private KeyWorkerAllocationService keyWorkerAllocationService;
-    private KeyworkerPoolFactory keyworkerPoolFactory;
+    public static final String OUTCOME_NO_UNALLOCATED_OFFENDERS = "No unallocated offenders.";
+    public static final String OUTCOME_NO_AVAILABLE_KEY_WORKERS = "No Key workers available for allocation.";
+    public static final String OUTCOME_AUTO_ALLOCATION_SUCCESS = "Offender with bookingId [{}] successfully auto-allocated to Key worker.";
+
+    private final KeyWorkerAllocationService keyWorkerAllocationService;
+    private final KeyworkerPoolFactory keyworkerPoolFactory;
+    private final long offenderPageLimit;
 
     /**
      * Constructor.
@@ -32,15 +37,17 @@ public class AutoAllocationServiceImpl implements AllocationService {
                                      KeyworkerPoolFactory keyworkerPoolFactory) {
         this.keyWorkerAllocationService = keyWorkerAllocationService;
         this.keyworkerPoolFactory = keyworkerPoolFactory;
+
+        this.offenderPageLimit = 10L;
     }
 
     @Override
     public void autoAllocate(String agencyId) throws AllocationException {
         // Confirm a valid agency has been supplied.
-        Validate.isTrue(!StringUtils.isBlank(agencyId), "Agency id must be provided.");
+        Validate.isTrue(StringUtils.isNotBlank(agencyId), "Agency id must be provided.");
 
         // Get initial page of unallocated offenders for agency
-        Page<OffenderSummary> unallocatedOffenders = getFirstPageUnallocatedOffenders(agencyId, 10L);
+        Page<OffenderSummary> unallocatedOffenders = getPageUnallocatedOffenders(agencyId, 0L, offenderPageLimit);
 
         // Are there any unallocated offenders? If not, log and exit, otherwise proceed.
         if (unallocatedOffenders.getItems().isEmpty()) {
@@ -57,40 +64,61 @@ public class AutoAllocationServiceImpl implements AllocationService {
             // At this point, we have some unallocated offenders and some available Key workers. Let's put the Key
             // workers into a pool then start processing allocations.
             KeyworkerPool keyworkerPool = keyworkerPoolFactory.getKeyworkerPool(availableKeyworkers);
-            processAllocations(unallocatedOffenders, keyworkerPool);
+
+            processAllocations(agencyId, unallocatedOffenders, keyworkerPool);
         }
     }
 
-    private void processAllocations(Page<OffenderSummary> offenders, KeyworkerPool keyworkerPool) {
-        log.debug("Processing allocation for {} unallocated offenders to {} available Key workers.",
-                offenders.getItems().size(), keyworkerPool.getPoolSize());
+    private void processAllocations(String agencyId, Page<OffenderSummary> offenderPage, KeyworkerPool keyworkerPool) {
+        log.debug("Processing allocations for {} unallocated offenders to {} available Key workers.",
+                offenderPage.getTotalRecords(), keyworkerPool.getPoolSize());
 
         // Process allocation for each unallocated offender
-        for (OffenderSummary offender : offenders.getItems()) {
-            processAllocation(offender, keyworkerPool);
+        for (OffenderSummary offender : offenderPage.getItems()) {
+            processAllocation(offender.getBookingId(), keyworkerPool);
+        }
+
+        // Process allocations for next page of offenders, if required
+        long nextPageOffset = offenderPage.getPageOffset() + offenderPageLimit;
+
+        if (nextPageOffset < offenderPage.getTotalRecords()) {
+            Page<OffenderSummary> nextPage = getPageUnallocatedOffenders(agencyId, nextPageOffset, offenderPageLimit);
+
+            processAllocations(agencyId, nextPage, keyworkerPool);
         }
     }
 
-    private void processAllocation(OffenderSummary offender, KeyworkerPool keyworkerPool) {
-        // Retrieve previous allocations for offender
-        List<KeyWorkerAllocation> keyWorkerAllocations = getKeyWorkerAllocations(offender.getBookingId());
+    private void processAllocation(long bookingId, KeyworkerPool keyworkerPool) {
+        Keyworker keyworker = keyworkerPool.getKeyworker(bookingId);
 
-        // If there are previous allocations, check if any were with a currently available Key worker. If no
-        // previous allocations, allocate to one of the available Key workers according to allocation rules.
-        if (keyWorkerAllocations.isEmpty()) {
-            // Get priority Key worker from pool
-            Keyworker keyworker = keyworkerPool.getPriorityKeyworker();
-        } else {
-            // Check if offender was previously allocated to one of the currently available Key workers
-        }
+        // At this point, Key worker to which offender will be allocated has been identified - create allocation
+        confirmAllocation(bookingId, keyworker);
+
+        // Update Key worker pool with refreshed Key worker (following successful allocation)
+        Keyworker refreshedKeyworker = keyWorkerAllocationService.getKeyworkerDetails(keyworker.getStaffId());
+
+        keyworkerPool.refreshKeyworker(refreshedKeyworker);
     }
 
-    private Page<OffenderSummary> getFirstPageUnallocatedOffenders(String agencyId, long pageLimit) {
+    private Page<OffenderSummary> getPageUnallocatedOffenders(String agencyId, long pageOffset, long pageLimit) {
         return keyWorkerAllocationService.getUnallocatedOffenders(
-                agencyId, 0L, pageLimit, null, null);
+                agencyId, pageOffset, pageLimit, null, null);
     }
 
-    private List<KeyWorkerAllocation> getKeyWorkerAllocations(long bookingId) {
-        return keyWorkerAllocationService.getAllocationHistoryForPrisoner(bookingId, null, null);
+    private void confirmAllocation(long bookingId, Keyworker keyworker) {
+        NewAllocation newAllocation = buildNewAutoAllocation(bookingId, keyworker);
+
+        keyWorkerAllocationService.allocate(newAllocation);
+
+        log.info(OUTCOME_AUTO_ALLOCATION_SUCCESS, bookingId);
+    }
+
+    private NewAllocation buildNewAutoAllocation(long bookingId, Keyworker keyworker) {
+        return NewAllocation.builder()
+                .bookingId(bookingId)
+                .staffId(keyworker.getStaffId())
+                .type(AllocationType.AUTO.getIndicator())
+                .reason(AllocationService.ALLOCATION_REASON_AUTO)
+                .build();
     }
 }

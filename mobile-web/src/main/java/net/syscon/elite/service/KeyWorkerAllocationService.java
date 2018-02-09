@@ -38,4 +38,6 @@ public interface KeyWorkerAllocationService {
     List<Keyworker> getAvailableKeyworkers(String agencyId);
 
     Keyworker getKeyworkerDetails(Long staffId);
+
+    List<KeyWorkerAllocation> getAllocationsForKeyworker(Long staffId);
 }

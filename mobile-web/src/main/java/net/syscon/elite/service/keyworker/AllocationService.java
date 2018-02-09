@@ -3,9 +3,8 @@ package net.syscon.elite.service.keyworker;
 import net.syscon.elite.service.AllocationException;
 
 public interface AllocationService {
-    String OUTCOME_NO_UNALLOCATED_OFFENDERS = "No unallocated offenders.";
-    String OUTCOME_NO_AVAILABLE_KEY_WORKERS = "No Key workers available for allocation.";
-    String OUTCOME_ALL_KEY_WORKERS_AT_CAPACITY = "All available Key workers are at full capacity.";
+    String ALLOCATION_REASON_AUTO = "AUTO";
+    String ALLOCATION_REASON_MANUAL = "MANUAL";
 
     void autoAllocate(String agencyId) throws AllocationException;
 }
