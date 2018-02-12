@@ -6,6 +6,7 @@ import net.syscon.elite.api.resource.KeyWorkerResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.service.KeyWorkerAllocationService;
+import net.syscon.elite.service.keyworker.KeyworkerAutoAllocationService;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,11 +38,14 @@ public class KeyWorkerResourceImplTest {
     @Mock
     private KeyWorkerAllocationService allocationService;
 
+    @Mock
+    private KeyworkerAutoAllocationService autoAllocationService;
+
     private KeyWorkerResourceImpl resource;
 
     @Before
     public void setUp(){
-        resource = new KeyWorkerResourceImpl(allocationService);
+        resource = new KeyWorkerResourceImpl(allocationService, autoAllocationService);
     }
 
     @Test

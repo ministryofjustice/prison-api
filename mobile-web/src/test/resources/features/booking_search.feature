@@ -15,7 +15,7 @@ Feature: Booking Search
   Scenario: Search all offenders
     When a booking search is made without any criteria
     Then "10" booking records are returned
-    And  "27" total booking records are available
+    And  "34" total booking records are available
 
   Scenario Outline: Search based on full offender last name
     When a booking search is made with full last "<name>" of existing offender
@@ -70,12 +70,12 @@ Feature: Booking Search
     And offender middle names match "<middle name list>"
 
     Examples:
-      | name | number | last name list                    | middle name list |
-      | CH%  | 4      | CHAPLIN,THOMPSON,THOMPSON,THOMSON | JAMES,JAMES      |
-      | ch%  | 4      | CHAPLIN,THOMPSON,THOMPSON,THOMSON | JAMES,JAMES      |
-      | Ch%  | 4      | CHAPLIN,THOMPSON,THOMPSON,THOMSON | JAMES,JAMES      |
-      | XX%  | 0      |                                   |                  |
-      |      | 0      |                                   |                  |
+      | name | number | last name list                           | middle name list |
+      | CH%  | 5      | CHAPLIN,THOMPSON,THOMPSON,THOMSON,WOAKES | JAMES,JAMES      |
+      | ch%  | 5      | CHAPLIN,THOMPSON,THOMPSON,THOMSON,WOAKES | JAMES,JAMES      |
+      | Ch%  | 5      | CHAPLIN,THOMPSON,THOMPSON,THOMSON,WOAKES | JAMES,JAMES      |
+      | XX%  | 0      |                                          |                  |
+      |      | 0      |                                          |                  |
 
   Scenario Outline: Search based on offender first name and last name
     When a booking search is made with "<first name>" and "<last name>" of existing offender

@@ -1,9 +1,8 @@
-@global @nomis
+@nomis
 Feature: Allocate Offender to a keyworker
 
   Acceptance Criteria:
-  A logged in staff user can allocate a keyworker to an offender
-  on the staff user's caseload
+  A logged in staff user can allocate an offender to a Key worker within an agency that is accessible to staff user.
 
   Background:
     Given a user has authenticated with the API

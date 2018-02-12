@@ -94,15 +94,6 @@ public class KeyworkerPool {
     }
 
     /**
-     * Gets number of Key workers in pool.
-     *
-     * @return count of Key workers in pool.
-     */
-    public long getPoolSize() {
-        return keyworkerPool.size();
-    }
-
-    /**
      * Identifies and returns Key worker to whom offender should be allocated, as determined by allocation rules. Note
      * that if the returned Key worker is used for allocation of an offender, the pool must be updated with refreshed
      * Key worker details (via {@link #refreshKeyworker(Keyworker)}).
@@ -134,13 +125,9 @@ public class KeyworkerPool {
 
             // Check allocation level for Key worker at head of pool list - if at or beyond maximum capacity, then
             // error as no Key worker currently in pool can accept any further allocations.
+            checkMaxCapacity();
+
             priorityKeyworker = keyworkerPool.first();
-
-            if (priorityKeyworker.getNumberAllocated() >= maxCapacity) {
-                log.error(OUTCOME_ALL_KEY_WORKERS_AT_CAPACITY);
-
-                throw AllocationException.withMessage(OUTCOME_ALL_KEY_WORKERS_AT_CAPACITY);
-            }
         }
 
         log.debug("Key worker with staffId [{}] selected for allocation of offender with bookingId [{}].",
@@ -181,8 +168,7 @@ public class KeyworkerPool {
         } else {
             Optional<KeyWorkerAllocation> latestAllocation = keyWorkerAllocations.stream()
                     .filter(kwa -> kwa.getBookingId().equals(bookingId) && keyworkerStaffIds.contains(kwa.getStaffId()))
-                    .sorted(Comparator.comparing(KeyWorkerAllocation::getAssigned).reversed())
-                    .findFirst();
+                    .max(Comparator.comparing(KeyWorkerAllocation::getAssigned));
 
             if (latestAllocation.isPresent()) {
                 // Key worker staff id of latest allocation
@@ -200,6 +186,8 @@ public class KeyworkerPool {
     // Applies sorting algorithm to Key worker list to determine allocation priority of Key workers. Must be called
     // prior to each request for priority Key worker.
     private void prioritiseKeyworkers() {
+        checkMaxCapacity();
+
         // Identify Key worker(s) with least number of allocations - first Key worker in pool will have least allocations
         int fewestAllocs = keyworkerPool.first().getNumberAllocated();
 
@@ -226,6 +214,14 @@ public class KeyworkerPool {
 
         log.debug("Key worker pool prioritised - priority Key worker has {} allocations.",
                 keyworkerPool.first().getNumberAllocated());
+    }
+
+    private void checkMaxCapacity() {
+        if (keyworkerPool.first().getNumberAllocated() >= maxCapacity) {
+            log.error(OUTCOME_ALL_KEY_WORKERS_AT_CAPACITY);
+
+            throw AllocationException.withMessage(OUTCOME_ALL_KEY_WORKERS_AT_CAPACITY);
+        }
     }
 
     private Optional<Keyworker> removeKeyworker(long staffId) {

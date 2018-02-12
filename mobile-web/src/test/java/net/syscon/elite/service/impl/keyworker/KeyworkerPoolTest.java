@@ -1,7 +1,5 @@
 package net.syscon.elite.service.impl.keyworker;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.core.Appender;
 import net.syscon.elite.api.model.Keyworker;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 import net.syscon.elite.service.AllocationException;
@@ -35,9 +33,6 @@ public class KeyworkerPoolTest {
     @Mock
     private KeyWorkerAllocationService keyWorkerAllocationService;
 
-    @Mock
-    private Appender mockAppender;
-
     @Before
     public void setUp() {
         // Initialise Key worker allocation capacity tiers
@@ -45,9 +40,6 @@ public class KeyworkerPoolTest {
 
         capacityTiers.add(CAPACITY_TIER_1);
         capacityTiers.add(CAPACITY_TIER_2);
-
-        // Set-up mock appender to enable verification of log output
-        initMockLogging(mockAppender);
     }
 
     // Each unit test below is preceded by acceptance criteria in Given-When-Then form
@@ -96,9 +88,6 @@ public class KeyworkerPoolTest {
 
         // Request KW from pool (catching expected exception)
         Throwable thrown = catchThrowable(() -> keyworkerPool.getKeyworker(1));
-
-        // Verify log output and exception
-        verifyLog(mockAppender, Level.ERROR, KeyworkerPool.OUTCOME_ALL_KEY_WORKERS_AT_CAPACITY);
 
         assertThat(thrown)
                 .isInstanceOf(AllocationException.class)
