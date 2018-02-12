@@ -142,6 +142,17 @@ public abstract class CommonSteps {
         assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
+    @Step("Verify resource conflict")
+    public void verifyResourceConflict(String expectedUserMessage) {
+        verifyResourceConflict(Collections.singletonList(expectedUserMessage));
+    }
+
+    public void verifyResourceConflict(List<String> expectedUserMessages) {
+        assertThat(errorResponse).isNotNull();
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        assertThat(errorResponse.getUserMessage()).contains(expectedUserMessages);
+    }
+
     @Step("Verify no error")
     public void verifyNoError() {
         assertThat(errorResponse).isNull();
