@@ -12,13 +12,13 @@ Feature: Prisoner Search
   Scenario: Can perform global search with ADMIN role
     Given a user has logged in with username "elite2_api_user" and password "password"
     When a search is made for prisoners with DOB on or after 1970-01-01 for range 0 -> 15
-    Then "9" prisoner records are returned
+    Then "11" prisoner records are returned
 
   Scenario: Search prisoners within a date of birth range
     Given a user has logged in with username "hpa_user" and password "password"
     When a search is made for prisoners with DOB on or after 1970-01-01 for range 0 -> 2
     Then "2" prisoner records are returned
-    And  "9" total prisoner records are available
+    And  "11" total prisoner records are available
 
   Scenario Outline: Search prisoners within a dates of birth range not allowing more than 10 years
     Given a user has logged in with username "hpa_user" and password "password"
@@ -27,17 +27,16 @@ Feature: Prisoner Search
     And the prisoners dob matches "<DOB>"
 
   Examples:
-  | dobFrom    | dobTo      | numberResults | DOB                                                    |
-  | 1970-01-01 | 1971-01-01 | 3             | 1970-01-01,1970-01-01,1970-03-01                       |
-  | 1970-01-01 | 1980-01-01 | 9             | 1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1977-01-02,1977-07-07,1979-12-31            |
-  | 1970-01-01 | 1980-01-02 | 9             | 1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1977-01-02,1977-07-07,1979-12-31            |
-  | 1969-12-30 |            | 9             | 1969-12-30,1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1977-01-02,1977-07-07            |
-  | 1965-01-01 | 1970-01-02 | 6             | 1966-01-01,1968-01-01,1968-01-01,1969-12-30,1970-01-01,1970-01-01                       |
-  | 1970-01-01 |            | 9             | 1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1977-01-02,1977-07-07,1979-12-31            |
-  | 1990-01-01 | 2000-01-01 | 4             | 1995-08-21,1998-08-28,1998-11-01,1999-10-27            |
-  | 1995-12-31 | 2000-01-01 | 3             | 1998-08-28,1998-11-01,1999-10-27                       |
-  |            | 2000-01-01 | 4             | 1995-08-21,1998-08-28,1998-11-01,1999-10-27            |
-
+  | dobFrom    | dobTo      | numberResults | DOB                                                                                                                      |
+  | 1970-01-01 | 1971-01-01 | 3             | 1970-01-01,1970-01-01,1970-03-01                                                                                         |
+  | 1970-01-01 | 1980-01-01 | 11            | 1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07,1979-12-31 |
+  | 1970-01-01 | 1980-01-02 | 11            | 1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07,1979-12-31 |
+  | 1969-12-30 |            | 11            | 1969-12-30,1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07 |
+  | 1965-01-01 | 1970-01-02 | 7             | 1966-01-01,1968-01-01,1968-01-01,1968-03-23,1969-12-30,1970-01-01,1970-01-01                                             |
+  | 1970-01-01 |            | 11            | 1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07,1979-12-31 |
+  | 1990-01-01 | 2000-01-01 | 6             | 1990-12-30,1991-06-04,1995-08-21,1998-08-28,1998-11-01,1999-10-27                                                        |
+  | 1995-12-31 | 2000-01-01 | 3             | 1998-08-28,1998-11-01,1999-10-27                                                                                         |
+  |            | 2000-01-01 | 6             | 1990-12-30,1991-06-04,1995-08-21,1998-08-28,1998-11-01,1999-10-27                                                        |
 
   Scenario Outline: Search for prisoners by names
     Given a user has logged in with username "hpa_user" and password "password"
@@ -80,4 +79,3 @@ Feature: Prisoner Search
       | PNC112234  |            | 0             |                  |
       |            | CRO112233  | 1             | BATES            |
       |            | CRO112234  | 0             |                  |
-

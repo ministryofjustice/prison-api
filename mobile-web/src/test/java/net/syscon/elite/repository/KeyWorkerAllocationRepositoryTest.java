@@ -142,7 +142,9 @@ public class KeyWorkerAllocationRepositoryTest {
         assertThat(unallocatedOffenders.getItems()).hasSize(5);
         assertThat(unallocatedOffenders.getItems()).extracting("offenderNo").contains(OFFENDER_NO_WITH_INACTIVE_ALLOCATIONS);
         assertThat(unallocatedOffenders.getItems()).extracting("lastName").isSorted();
-        final OffenderSummary os = unallocatedOffenders.getItems().get(0);
+
+        final OffenderSummary os = unallocatedOffenders.getItems().get(1);
+
         assertThat(os.getAgencyLocationDesc()).isEqualTo("LEEDS");
         assertThat(os.getAgencyLocationId()).isEqualTo("LEI");
         assertThat(os.getBookingId()).isEqualTo(-29);

@@ -40,10 +40,11 @@
 /allocate:
   (javaOperationName): allocate
   post:
-    description: Allocate an offender to a keyworker.
+    description: Process manual allocation of an offender to a Key worker.
     body:
       application/json:
         type: NewAllocation
+        description: New allocation details.
     responses:
       201:
         description: The allocation has been created.
@@ -64,3 +65,40 @@
     staffId:
       (javaType): Long
       description: The key worker staff id
+
+/{agencyId}/allocate/start:
+  (javaOperationName): autoAllocate
+  post:
+    description: Initiate auto-allocation process for specified agency.
+    responses:
+      200:
+        description: Request to initiate auto-allocation process has been successfully processed.
+                     (NOT YET IMPLEMENTED - Use returned process id to monitor process execution and outcome.)
+                     Note that until asynchronous processing is implemented, this request will execute synchronously
+                     and return total number of allocations processed.)
+        body:
+          application/json:
+            type: string
+      404:
+        description: Agency id provided is not valid or is not accessible to user.
+        body:
+          application/json:
+            type: ErrorResponse
+            example:  !include ../examples/ouput/404.sample.json
+      409:
+        description: Auto-allocation processing not able to proceed or halted due to state of dependent resources.
+        body:
+          application/json:
+            type: ErrorResponse
+            example:  !include ../examples/ouput/409.sample.json
+      500:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: Unrecoverable error occurred whilst processing request.
+            example: !include ../examples/ouput/500.sample.json
+  uriParameters:
+    agencyId:
+      type: string
+      description: The agency (prison) identifier.
+      example: MDI
