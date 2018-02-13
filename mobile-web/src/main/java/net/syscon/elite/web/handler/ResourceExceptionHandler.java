@@ -3,6 +3,7 @@ package net.syscon.elite.web.handler;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.support.OperationResponse;
+import net.syscon.elite.service.AllocationException;
 import net.syscon.elite.service.ConfigException;
 import net.syscon.elite.service.EntityNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
@@ -61,6 +62,10 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
             status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
             userMessage = ex.getMessage();
             log.error("Internal Server Error", ex);
+        } else if (ex instanceof AllocationException) {
+            status = Response.Status.CONFLICT.getStatusCode();
+            userMessage = ex.getMessage();
+            log.error("Resource Conflict Error", ex);
         } else {
             status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
             userMessage = "An internal error has occurred - please try again later.";

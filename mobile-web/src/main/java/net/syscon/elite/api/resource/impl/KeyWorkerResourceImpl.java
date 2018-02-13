@@ -9,6 +9,7 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.KeyWorkerAllocationService;
+import net.syscon.elite.service.keyworker.KeyworkerAutoAllocationService;
 
 import javax.ws.rs.Path;
 import java.util.List;
@@ -19,9 +20,12 @@ import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
 @Path("/key-worker")
 public class KeyWorkerResourceImpl implements KeyWorkerResource {
     private final KeyWorkerAllocationService keyWorkerService;
+    private final KeyworkerAutoAllocationService keyworkerAutoAllocationService;
 
-    public KeyWorkerResourceImpl(KeyWorkerAllocationService keyWorkerService) {
+    public KeyWorkerResourceImpl(KeyWorkerAllocationService keyWorkerService,
+                                 KeyworkerAutoAllocationService keyworkerAutoAllocationService) {
         this.keyWorkerService = keyWorkerService;
+        this.keyworkerAutoAllocationService = keyworkerAutoAllocationService;
     }
 
     @Override
@@ -70,5 +74,12 @@ public class KeyWorkerResourceImpl implements KeyWorkerResource {
         Keyworker keyWorker = keyWorkerService.getKeyworkerDetails(staffId);
 
         return GetKeyworkerDetailsResponse.respond200WithApplicationJson(keyWorker);
+    }
+
+    @Override
+    public AutoAllocateResponse autoAllocate(String agencyId) {
+        Long allocCount = keyworkerAutoAllocationService.autoAllocate(agencyId);
+
+        return AutoAllocateResponse.respond200WithApplicationJson(allocCount.toString());
     }
 }

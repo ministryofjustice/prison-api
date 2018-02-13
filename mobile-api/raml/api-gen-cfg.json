@@ -7,7 +7,7 @@
   "dateLibrary": "java8-localdatetime",
   "groupId": "net.syscon",
   "artifactId": "elite2-api",
-  "artifactVersion": "1.12",
+  "artifactVersion": "1.0.20",
   "developerName": "Syscon Sheffield Studio Development Team",
   "developerEmail": "andrew.eastgaard@syscon.net",
   "developerOrganization": "Syscon Justice Systems",

@@ -1,0 +1,7 @@
+{
+  "status": 409,
+  "errorCode": 409,
+  "userMessage": "Resource Conflict",
+  "developerMessage": "The request could not be completed due to invalid state of a dependent resource.",
+  "moreInfo": "Auto-allocation process was halted prematurely due to insufficient Key worker capacity."
+}

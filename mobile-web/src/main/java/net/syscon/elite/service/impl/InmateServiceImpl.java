@@ -153,7 +153,7 @@ public class InmateServiceImpl implements InmateService {
             return repository.searchForOffenders(query, calcDates.getDobDateFrom(), calcDates.getDobDateTo(),
                     StringUtils.isNotBlank(orderBy) ? orderBy : DEFAULT_OFFENDER_SORT, Order.ASC == sortOrder, offset, limit);
         }
-        return null;
+        return new Page<>(Collections.emptyList(), 0, offset, limit );
     }
 
     private String generateQuery(PrisonerDetailSearchCriteria criteria) {

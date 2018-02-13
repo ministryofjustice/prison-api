@@ -20,9 +20,10 @@ import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Schedules API service implementation.
@@ -30,6 +31,8 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(readOnly = true)
 public class SchedulesServiceImpl implements SchedulesService {
+    private static final Comparator<PrisonerSchedule> BY_CELL_LOCATION = Comparator.comparing(PrisonerSchedule::getCellLocation);
+
     private final LocationService locationService;
     private final InmateService inmateService;
     private final BookingService bookingService;
@@ -52,36 +55,70 @@ public class SchedulesServiceImpl implements SchedulesService {
     @VerifyAgencyAccess
     public List<PrisonerSchedule> getLocationGroupTodaysEvents(String agencyId, String groupName, TimeSlot timeSlot) {
 
-        final List<Location> locations = locationService.getGroup(agencyId, groupName);
-        final List<PrisonerSchedule> results = new ArrayList<>();
-        final LocalDateTime middayToday = LocalDateTime.of(LocalDate.now(), LocalTime.of(12, 0));
-        final String currentUsername = authenticationFacade.getCurrentUsername();
+        final List<InmateDto> inmates = inmateService.findInmatesByLocation(
+                currentUsername(),
+                agencyId,
+                locationIdsForGroup(agencyId, groupName));
 
-        final List<Long> locationIdList = locations.stream().mapToLong(Location::getLocationId).boxed()
+        final LocalDateTime middayToday = middayToday();
+
+        return inmates
+                .stream()
+                .flatMap(inmate -> prisonerScheduleForInmate(inmate, timeSlot, middayToday))
+                .sorted(BY_CELL_LOCATION)
                 .collect(Collectors.toList());
-        final List<InmateDto> inmates = inmateService.findInmatesByLocation(currentUsername, agencyId, locationIdList);
-        for (InmateDto inmate : inmates) {
-            final List<ScheduledEvent> eventsToday = bookingService.getEventsToday(inmate.getBookingId());
-            for (ScheduledEvent event : eventsToday) {
-                if (timeSlot == null //
-                        || (timeSlot == TimeSlot.AM && event.getStartTime().isBefore(middayToday))
-                        || (timeSlot == TimeSlot.PM && !event.getStartTime().isBefore(middayToday))) {
-                    final PrisonerSchedule result = PrisonerSchedule.builder()//
-                            .cellLocation(inmate.getLocationDescription())//
-                            .lastName(inmate.getLastName())//
-                            .firstName(inmate.getFirstName())//
-                            .offenderNo(inmate.getOffenderNo())//
-                            .comment(event.getEventSourceDesc())//
-                            .endTime(event.getEndTime())//
-                            .event(event.getEventSubType())//
-                            .eventDescription(event.getEventSubTypeDesc())//
-                            .startTime(event.getStartTime())//
-                            .build();
-                    results.add(result);
-                }
-            }
-        }
-        return results;
+    }
+
+    private String currentUsername() {
+        return authenticationFacade.getCurrentUsername();
+    }
+
+    private List<Long> locationIdsForGroup(String agencyId, String groupName) {
+        final List<Location> locations = locationService.getGroup(agencyId, groupName);
+        return idsOfLocations(locations);
+    }
+
+    private List<Long> idsOfLocations(List<Location> locations) {
+        return locations
+                .stream()
+                .mapToLong(Location::getLocationId)
+                .boxed()
+                .collect(Collectors.toList());
+    }
+
+    private LocalDateTime middayToday() {
+        return LocalDateTime.of(LocalDate.now(), LocalTime.of(12, 0));
+    }
+
+    private Stream<PrisonerSchedule> prisonerScheduleForInmate(InmateDto inmate, TimeSlot timeSlot, LocalDateTime middayToday) {
+        return todaysEventsForInmate(inmate)
+            .filter( event -> eventStartsInTimeslot(event, timeSlot, middayToday))
+            .map(event -> prisonerSchedule(inmate, event));
+    }
+
+    private Stream<ScheduledEvent> todaysEventsForInmate(InmateDto inmate) {
+        return bookingService.getEventsToday(inmate.getBookingId()).stream();
+    }
+
+
+    private boolean eventStartsInTimeslot(ScheduledEvent event, TimeSlot timeSlot, LocalDateTime middayToday) {
+        return timeSlot == null //
+                || (timeSlot == TimeSlot.AM && event.getStartTime().isBefore(middayToday))
+                || (timeSlot == TimeSlot.PM && !event.getStartTime().isBefore(middayToday));
+    }
+
+    private PrisonerSchedule prisonerSchedule(InmateDto inmate, ScheduledEvent event) {
+        return PrisonerSchedule.builder()//
+                .cellLocation(inmate.getLocationDescription())//
+                .lastName(inmate.getLastName())//
+                .firstName(inmate.getFirstName())//
+                .offenderNo(inmate.getOffenderNo())//
+                .comment(event.getEventSourceDesc())//
+                .endTime(event.getEndTime())//
+                .event(event.getEventSubType())//
+                .eventDescription(event.getEventSubTypeDesc())//
+                .startTime(event.getStartTime())//
+                .build();
     }
 
     @Override
@@ -92,7 +129,7 @@ public class SchedulesServiceImpl implements SchedulesService {
         validateLocation(locationId);
         validateUsage(usage);
         final LocalDate today = LocalDate.now();
-        final LocalDateTime middayToday = LocalDateTime.of(LocalDate.now(), LocalTime.of(12, 0));
+        final LocalDateTime middayToday = middayToday();
         final List<PrisonerSchedule> events;
         switch (usage) {
         case "APP":

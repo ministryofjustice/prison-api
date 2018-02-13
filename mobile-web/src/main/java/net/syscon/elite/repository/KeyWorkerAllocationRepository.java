@@ -37,4 +37,6 @@ public interface KeyWorkerAllocationRepository {
     Page<KeyWorkerAllocationDetail> getAllocatedOffenders(Set<String> agencyIds, LocalDate fromDate, LocalDate toDate, String type, Long offset, Long limit, String sortFields, Order sortOrder);
 
     Optional<Keyworker> getKeyworkerDetails(Long staffId);
+
+    List<KeyWorkerAllocation> getAllocationsForKeyworker(Long staffId);
 }
