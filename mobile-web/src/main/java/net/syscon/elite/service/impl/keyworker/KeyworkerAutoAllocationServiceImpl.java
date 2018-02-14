@@ -2,9 +2,11 @@ package net.syscon.elite.service.impl.keyworker;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Keyworker;
-import net.syscon.elite.api.model.NewAllocation;
 import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.repository.KeyWorkerAllocationRepository;
+import net.syscon.elite.repository.impl.KeyWorkerAllocation;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.service.AllocationException;
 import net.syscon.elite.service.KeyWorkerAllocationService;
@@ -17,6 +19,7 @@ import org.springframework.boot.actuate.metrics.buffer.BufferMetricReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -32,10 +35,12 @@ public class KeyworkerAutoAllocationServiceImpl implements KeyworkerAutoAllocati
     public static final String COUNTER_METRIC_KEYWORKER_AUTO_ALLOCATIONS = "counter.keyworker.allocations.auto";
     public static final String OUTCOME_NO_UNALLOCATED_OFFENDERS = "No unallocated offenders.";
     public static final String OUTCOME_NO_AVAILABLE_KEY_WORKERS = "No Key workers available for allocation.";
-    public static final String OUTCOME_AUTO_ALLOCATION_SUCCESS = "Offender with bookingId [{}] successfully auto-allocated to Key worker.";
+    public static final String OUTCOME_AUTO_ALLOCATION_SUCCESS = "Offender with bookingId [{}] successfully auto-allocated to Key worker with staffId [{}].";
 
     private final KeyWorkerAllocationService keyWorkerAllocationService;
+    private final KeyWorkerAllocationRepository repository;
     private final KeyworkerPoolFactory keyworkerPoolFactory;
+    private final AuthenticationFacade authenticationFacade;
     private final CounterService counterService;
     private final BufferMetricReader metricReader;
     private final long offenderPageLimit;
@@ -47,11 +52,15 @@ public class KeyworkerAutoAllocationServiceImpl implements KeyworkerAutoAllocati
      * @param keyworkerPoolFactory factory that facilitates creation of Key worker pools.
      */
     public KeyworkerAutoAllocationServiceImpl(KeyWorkerAllocationService keyWorkerAllocationService,
+                                              KeyWorkerAllocationRepository repository,
                                               KeyworkerPoolFactory keyworkerPoolFactory,
+                                              AuthenticationFacade authenticationFacade,
                                               CounterService counterService,
                                               BufferMetricReader metricReader) {
         this.keyWorkerAllocationService = keyWorkerAllocationService;
+        this.repository = repository;
         this.keyworkerPoolFactory = keyworkerPoolFactory;
+        this.authenticationFacade = authenticationFacade;
         this.counterService = counterService;
         this.metricReader = metricReader;
 
@@ -95,7 +104,7 @@ public class KeyworkerAutoAllocationServiceImpl implements KeyworkerAutoAllocati
             // or Key workers no longer have capacity.
             try {
                 while (!unallocatedOffenders.getItems().isEmpty()) {
-                    processAllocations(unallocatedOffenders, keyworkerPool);
+                    processAllocations(unallocatedOffenders.getItems(), keyworkerPool);
 
                     unallocatedOffenders = getPageUnallocatedOffenders(agencyId, offenderPageLimit);
                 }
@@ -112,18 +121,18 @@ public class KeyworkerAutoAllocationServiceImpl implements KeyworkerAutoAllocati
         return calcAndLogAllocationsProcessed(agencyId, startAllocCount);
     }
 
-    private void processAllocations(Page<OffenderSummary> offenderPage, KeyworkerPool keyworkerPool) {
+    private void processAllocations(List<OffenderSummary> offenders, KeyworkerPool keyworkerPool) {
         // Process allocation for each unallocated offender
-        for (OffenderSummary offender : offenderPage.getItems()) {
-            processAllocation(offender.getBookingId(), keyworkerPool);
+        for (OffenderSummary offender : offenders) {
+            processAllocation(offender, keyworkerPool);
         }
     }
 
-    private void processAllocation(long bookingId, KeyworkerPool keyworkerPool) {
-        Keyworker keyworker = keyworkerPool.getKeyworker(bookingId);
+    private void processAllocation(OffenderSummary offender, KeyworkerPool keyworkerPool) {
+        Keyworker keyworker = keyworkerPool.getKeyworker(offender.getBookingId());
 
         // At this point, Key worker to which offender will be allocated has been identified - create allocation
-        confirmAllocation(bookingId, keyworker);
+        confirmAllocation(offender, keyworker);
 
         // Update Key worker pool with refreshed Key worker (following successful allocation)
         Keyworker refreshedKeyworker = keyWorkerAllocationService.getKeyworkerDetails(keyworker.getStaffId());
@@ -136,22 +145,25 @@ public class KeyworkerAutoAllocationServiceImpl implements KeyworkerAutoAllocati
                 agencyId, 0L, pageLimit, null, null);
     }
 
-    private void confirmAllocation(long bookingId, Keyworker keyworker) {
-        NewAllocation newAllocation = buildNewAutoAllocation(bookingId, keyworker);
+    private void confirmAllocation(OffenderSummary offender, Keyworker keyworker) {
+        KeyWorkerAllocation keyWorkerAllocation = buildKeyWorkerAllocation(offender, keyworker);
 
-        keyWorkerAllocationService.allocate(newAllocation);
+        repository.createAllocation(keyWorkerAllocation, authenticationFacade.getCurrentUsername());
 
         counterService.increment(COUNTER_METRIC_KEYWORKER_AUTO_ALLOCATIONS);
 
-        log.info(OUTCOME_AUTO_ALLOCATION_SUCCESS, bookingId);
+        log.info(OUTCOME_AUTO_ALLOCATION_SUCCESS, offender.getBookingId(), keyworker.getStaffId());
     }
 
-    private NewAllocation buildNewAutoAllocation(long bookingId, Keyworker keyworker) {
-        return NewAllocation.builder()
-                .bookingId(bookingId)
+    private KeyWorkerAllocation buildKeyWorkerAllocation(OffenderSummary offender, Keyworker keyworker) {
+        return KeyWorkerAllocation.builder()
+                .bookingId(offender.getBookingId())
                 .staffId(keyworker.getStaffId())
-                .type(AllocationType.AUTO.getIndicator())
+                .agencyId(offender.getAgencyLocationId())
                 .reason(KeyworkerAutoAllocationService.ALLOCATION_REASON_AUTO)
+                .active("Y")
+                .assigned(LocalDateTime.now())
+                .type(AllocationType.AUTO.getIndicator())
                 .build();
     }
 

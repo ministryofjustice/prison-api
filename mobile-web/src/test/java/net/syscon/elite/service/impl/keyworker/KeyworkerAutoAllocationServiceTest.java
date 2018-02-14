@@ -1,11 +1,12 @@
 package net.syscon.elite.service.impl.keyworker;
 
 import net.syscon.elite.api.model.Keyworker;
-import net.syscon.elite.api.model.NewAllocation;
 import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.AllocationException;
 import net.syscon.elite.service.KeyWorkerAllocationService;
 import net.syscon.elite.service.keyworker.KeyworkerAutoAllocationService;
@@ -54,6 +55,12 @@ public class KeyworkerAutoAllocationServiceTest {
     private KeyworkerPoolFactory keyworkerPoolFactory;
 
     @Mock
+    private KeyWorkerAllocationRepository repository;
+
+    @Mock
+    private AuthenticationFacade authenticationFacade;
+
+    @Mock
     private BufferMetricReader metricReader;
 
     private long allocCount;
@@ -88,7 +95,9 @@ public class KeyworkerAutoAllocationServiceTest {
                 .when(metricReader).findOne(COUNTER_METRIC_KEYWORKER_AUTO_ALLOCATIONS);
 
         // Construct service under test (using mock collaborators)
-        keyworkerAutoAllocationService = new KeyworkerAutoAllocationServiceImpl(keyWorkerAllocationService, keyworkerPoolFactory, counterService, metricReader);
+        keyworkerAutoAllocationService =
+                new KeyworkerAutoAllocationServiceImpl(keyWorkerAllocationService,
+                        repository, keyworkerPoolFactory, authenticationFacade, counterService, metricReader);
     }
 
     // Each unit test below is preceded by acceptance criteria in Given-When-Then form
@@ -118,7 +127,7 @@ public class KeyworkerAutoAllocationServiceTest {
                 .getUnallocatedOffenders(eq(TEST_AGENCY_ID), eq(0L), eq(10L), anyString(), any(Order.class));
 
         verify(keyWorkerAllocationService, never()).getAvailableKeyworkers(anyString());
-        verify(keyWorkerAllocationService, never()).allocate(any(NewAllocation.class));
+        verify(repository, never()).createAllocation(any(KeyWorkerAllocation.class), anyString());
     }
 
     // Given there are one or more offenders at an agency that are not allocated to a KW
@@ -145,7 +154,7 @@ public class KeyworkerAutoAllocationServiceTest {
                 .getUnallocatedOffenders(eq(TEST_AGENCY_ID), eq(0L), eq(10L), anyString(), any(Order.class));
 
         verify(keyWorkerAllocationService, times(1)).getAvailableKeyworkers(TEST_AGENCY_ID);
-        verify(keyWorkerAllocationService, never()).allocate(any(NewAllocation.class));
+        verify(repository, never()).createAllocation(any(KeyWorkerAllocation.class), anyString());
 
         verifyException(thrown, AllocationException.class, KeyworkerAutoAllocationServiceImpl.OUTCOME_NO_AVAILABLE_KEY_WORKERS);
     }
@@ -187,7 +196,7 @@ public class KeyworkerAutoAllocationServiceTest {
         verify(keyWorkerAllocationService, times(1))
                 .getAllocationHistoryForPrisoner(isLongBetween(1,3), anyString(), any(Order.class));
 
-        verify(keyWorkerAllocationService, never()).allocate(any(NewAllocation.class));
+        verify(repository, never()).createAllocation(any(KeyWorkerAllocation.class), anyString());
         verifyException(thrown, AllocationException.class, KeyworkerPool.OUTCOME_ALL_KEY_WORKERS_AT_CAPACITY);
     }
 
@@ -243,11 +252,11 @@ public class KeyworkerAutoAllocationServiceTest {
                 .getAllocationHistoryForPrisoner(eq(1L), anyString(), any(Order.class));
 
         // Expecting allocation to succeed - verify request includes expected values
-        ArgumentCaptor<NewAllocation> newAllocArg = ArgumentCaptor.forClass(NewAllocation.class);
+        ArgumentCaptor<KeyWorkerAllocation> kwaArg = ArgumentCaptor.forClass(KeyWorkerAllocation.class);
 
-        verify(keyWorkerAllocationService, times(1)).allocate(newAllocArg.capture());
+        verify(repository, times(1)).createAllocation(kwaArg.capture(), anyString());
 
-        verifyAutoAllocation(newAllocArg.getValue(), allocBookingId, allocStaffId);
+        verifyAutoAllocation(kwaArg.getValue(), allocBookingId, allocStaffId);
 
         verify(keyWorkerAllocationService, times(1)).getKeyworkerDetails(allocStaffId);
     }
@@ -310,11 +319,11 @@ public class KeyworkerAutoAllocationServiceTest {
                 .getAllocationHistoryForPrisoner(eq(1L), anyString(), any(Order.class));
 
         // Expecting allocation to succeed - verify request includes expected values
-        ArgumentCaptor<NewAllocation> newAllocArg = ArgumentCaptor.forClass(NewAllocation.class);
+        ArgumentCaptor<KeyWorkerAllocation> kwaArg = ArgumentCaptor.forClass(KeyWorkerAllocation.class);
 
-        verify(keyWorkerAllocationService, times(1)).allocate(newAllocArg.capture());
+        verify(repository, times(1)).createAllocation(kwaArg.capture(), anyString());
 
-        verifyAutoAllocation(newAllocArg.getValue(), allocBookingId, allocLaterStaffId);
+        verifyAutoAllocation(kwaArg.getValue(), allocBookingId, allocLaterStaffId);
 
         verify(keyWorkerAllocationService, times(1)).getKeyworkerDetails(allocLaterStaffId);
     }
@@ -369,11 +378,11 @@ public class KeyworkerAutoAllocationServiceTest {
                 .getAllocationHistoryForPrisoner(eq(1L), anyString(), any(Order.class));
 
         // Expecting allocation to succeed - verify request includes expected values
-        ArgumentCaptor<NewAllocation> newAllocArg = ArgumentCaptor.forClass(NewAllocation.class);
+        ArgumentCaptor<KeyWorkerAllocation> kwaArg = ArgumentCaptor.forClass(KeyWorkerAllocation.class);
 
-        verify(keyWorkerAllocationService, times(1)).allocate(newAllocArg.capture());
+        verify(repository, times(1)).createAllocation(kwaArg.capture(), anyString());
 
-        verifyAutoAllocation(newAllocArg.getValue(), allocBookingId, leastAllocStaffId);
+        verifyAutoAllocation(kwaArg.getValue(), allocBookingId, leastAllocStaffId);
 
         verify(keyWorkerAllocationService, times(1)).getKeyworkerDetails(eq(leastAllocStaffId));
     }
@@ -449,11 +458,11 @@ public class KeyworkerAutoAllocationServiceTest {
                 .getAllocationsForKeyworker(anyLong());
 
         // Expecting allocation to succeed - verify request includes expected values
-        ArgumentCaptor<NewAllocation> newAllocArg = ArgumentCaptor.forClass(NewAllocation.class);
+        ArgumentCaptor<KeyWorkerAllocation> kwaArg = ArgumentCaptor.forClass(KeyWorkerAllocation.class);
 
-        verify(keyWorkerAllocationService, times(1)).allocate(newAllocArg.capture());
+        verify(repository, times(1)).createAllocation(kwaArg.capture(), anyString());
 
-        verifyAutoAllocation(newAllocArg.getValue(), allocBookingId, olderLeastAllocStaffId);
+        verifyAutoAllocation(kwaArg.getValue(), allocBookingId, olderLeastAllocStaffId);
 
         verify(keyWorkerAllocationService, times(1)).getKeyworkerDetails(eq(olderLeastAllocStaffId));
     }
@@ -502,15 +511,15 @@ public class KeyworkerAutoAllocationServiceTest {
                 .getAllocationHistoryForPrisoner(isLongBetween(1L, totalOffenders), anyString(), any(Order.class));
 
         // Expecting allocation to succeed - verify request includes expected values
-        ArgumentCaptor<NewAllocation> newAllocArg = ArgumentCaptor.forClass(NewAllocation.class);
+        ArgumentCaptor<KeyWorkerAllocation> kwaArg = ArgumentCaptor.forClass(KeyWorkerAllocation.class);
 
-        verify(keyWorkerAllocationService, times(totalOffenders)).allocate(newAllocArg.capture());
+        verify(repository, times(totalOffenders)).createAllocation(kwaArg.capture(), anyString());
 
-        newAllocArg.getAllValues().forEach(newAlloc -> {
-            assertThat(newAlloc.getBookingId()).isBetween(1L, totalOffenders.longValue());
-            assertThat(newAlloc.getStaffId()).isBetween(1L, totalKeyworkers.longValue());
-            assertThat(newAlloc.getType()).isEqualTo(AllocationType.AUTO.getIndicator());
-            assertThat(newAlloc.getReason()).isEqualTo(KeyworkerAutoAllocationService.ALLOCATION_REASON_AUTO);
+        kwaArg.getAllValues().forEach(kwAlloc -> {
+            assertThat(kwAlloc.getBookingId()).isBetween(1L, totalOffenders.longValue());
+            assertThat(kwAlloc.getStaffId()).isBetween(1L, totalKeyworkers.longValue());
+            assertThat(kwAlloc.getType()).isEqualTo(AllocationType.AUTO.getIndicator());
+            assertThat(kwAlloc.getReason()).isEqualTo(KeyworkerAutoAllocationService.ALLOCATION_REASON_AUTO);
         });
 
         verify(keyWorkerAllocationService, times(totalOffenders)).getKeyworkerDetails(isLongBetween(1L, totalKeyworkers));
@@ -566,15 +575,15 @@ public class KeyworkerAutoAllocationServiceTest {
                 .getAllocationHistoryForPrisoner(isLongBetween(1L, totalOffenders), anyString(), any(Order.class));
 
         // Expecting allocation to succeed - verify request includes expected values
-        ArgumentCaptor<NewAllocation> newAllocArg = ArgumentCaptor.forClass(NewAllocation.class);
+        ArgumentCaptor<KeyWorkerAllocation> kwaArg = ArgumentCaptor.forClass(KeyWorkerAllocation.class);
 
-        verify(keyWorkerAllocationService, times(totalCapacity)).allocate(newAllocArg.capture());
+        verify(repository, times(totalCapacity)).createAllocation(kwaArg.capture(), anyString());
 
-        newAllocArg.getAllValues().forEach(newAlloc -> {
-            assertThat(newAlloc.getBookingId()).isBetween(1L, totalOffenders.longValue());
-            assertThat(newAlloc.getStaffId()).isBetween(1L, totalKeyworkers.longValue());
-            assertThat(newAlloc.getType()).isEqualTo(AllocationType.AUTO.getIndicator());
-            assertThat(newAlloc.getReason()).isEqualTo(KeyworkerAutoAllocationService.ALLOCATION_REASON_AUTO);
+        kwaArg.getAllValues().forEach(kwAlloc -> {
+            assertThat(kwAlloc.getBookingId()).isBetween(1L, totalOffenders.longValue());
+            assertThat(kwAlloc.getStaffId()).isBetween(1L, totalKeyworkers.longValue());
+            assertThat(kwAlloc.getType()).isEqualTo(AllocationType.AUTO.getIndicator());
+            assertThat(kwAlloc.getReason()).isEqualTo(KeyworkerAutoAllocationService.ALLOCATION_REASON_AUTO);
         });
 
         verify(keyWorkerAllocationService, times(totalCapacity)).getKeyworkerDetails(isLongBetween(1L, totalKeyworkers));
