@@ -44,6 +44,10 @@
         </logger>
     </springProfile>
 
+    <logger name="net.syscon.elite.repository.mapping" additivity="false" level="INFO">
+        <appender-ref ref="consoleAppender"/>
+    </logger>
+
     <logger name="org.springframework" additivity="false" level="INFO" >
         <appender-ref ref="consoleAppender"/>
     </logger>

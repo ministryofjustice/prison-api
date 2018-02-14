@@ -14,6 +14,10 @@ import java.util.stream.Collectors;
 /**
  * Represents a collection of Key workers that are available for allocation and encapsulates the implementation of
  * allocation rules which govern which Key worker is next in line for allocation at any particular moment.
+ *
+ * NB: KeyworkerPool is not thread safe. The pool is designed for short-lived, single-threaded operation. As a result
+ * an instance of KeyworkerPool will not support multiple auto-allocation processes. Each auto-allocation process
+ * should instantiate and use its own KeyworkerPool.
  */
 @Slf4j
 public class KeyworkerPool {
@@ -80,13 +84,18 @@ public class KeyworkerPool {
 
                     int result;
 
-                    // If neither Key worker has any auto-allocations, arbitrarily sort by staffId (to ensure uniqueness)
+                    // If neither Key worker has any auto-allocations, or both have auto-allocations and an identical
+                    // assigned datetime for most recent allocation, arbitrarily sort by staffId (to ensure uniqueness).
                     if (id1Allocations.isEmpty()) {
                         result = id2Allocations.isEmpty() ? (id1.compareTo(id2)) : -1;
                     } else if (id2Allocations.isEmpty()) {
                         result = 1;
                     } else {
                         result = id1Allocations.first().getAssigned().compareTo(id2Allocations.first().getAssigned());
+
+                        if (result == 0) {
+                            result = id1.compareTo(id2);
+                        }
                     }
 
                     return result;
@@ -239,14 +248,20 @@ public class KeyworkerPool {
     }
 
     private void reinstateKeyworker(Keyworker keyworker, List<KeyWorkerAllocation> allocations) {
-        log.debug("Reinstating Key worker with staffIf [{}] to pool.", keyworker.getStaffId());
+        Long staffId = keyworker.getStaffId();
+
+        log.debug("Reinstating Key worker with staffIf [{}], and having [{}] allocations, to pool.",
+                staffId, keyworker.getNumberAllocated());
 
         // Filter out manual allocations (only interested in auto-allocations)
         List<KeyWorkerAllocation> autoAllocations = (allocations == null) ? null :
                 allocations.stream().filter(kwa -> !kwa.isManualAllocation()).collect(Collectors.toList());
 
-        keyworkerAllocations.put(keyworker.getStaffId(), autoAllocations);
+        keyworkerAllocations.put(staffId, autoAllocations);
         keyworkerPool.add(keyworker);
-        keyworkerStaffIds.add(keyworker.getStaffId());
+        keyworkerStaffIds.add(staffId);
+
+        log.debug("Key worker with staffId [{}] reinstated to pool. New pool size is [{}] and priority Key worker has staffId [{}] and [{}] allocations.",
+                staffId, keyworkerPool.size(), keyworkerPool.first().getStaffId(), keyworkerPool.first().getNumberAllocated());
     }
 }
