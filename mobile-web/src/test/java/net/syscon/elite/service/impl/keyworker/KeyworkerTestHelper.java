@@ -1,7 +1,6 @@
 package net.syscon.elite.service.impl.keyworker;
 
 import net.syscon.elite.api.model.Keyworker;
-import net.syscon.elite.api.model.NewAllocation;
 import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
@@ -57,18 +56,11 @@ public class KeyworkerTestHelper {
                 .build();
     }
 
-    public static void verifyAutoAllocation(NewAllocation newAlloc, long bookingId, long staffId) {
-        assertThat(newAlloc.getBookingId()).isEqualTo(bookingId);
-        assertThat(newAlloc.getStaffId()).isEqualTo(staffId);
-        assertThat(newAlloc.getType()).isEqualTo(AllocationType.AUTO.getIndicator());
-        assertThat(newAlloc.getReason()).isEqualTo(KeyworkerAutoAllocationService.ALLOCATION_REASON_AUTO);
-    }
-
-    public static void verifyManualAllocation(NewAllocation newAlloc, long bookingId, long staffId) {
-        assertThat(newAlloc.getBookingId()).isEqualTo(bookingId);
-        assertThat(newAlloc.getStaffId()).isEqualTo(staffId);
-        assertThat(newAlloc.getType()).isEqualTo(AllocationType.MANUAL.getIndicator());
-        assertThat(newAlloc.getReason()).isEqualTo(KeyworkerAutoAllocationService.ALLOCATION_REASON_MANUAL);
+    public static void verifyAutoAllocation(KeyWorkerAllocation kwAlloc, long bookingId, long staffId) {
+        assertThat(kwAlloc.getBookingId()).isEqualTo(bookingId);
+        assertThat(kwAlloc.getStaffId()).isEqualTo(staffId);
+        assertThat(kwAlloc.getType()).isEqualTo(AllocationType.AUTO.getIndicator());
+        assertThat(kwAlloc.getReason()).isEqualTo(KeyworkerAutoAllocationService.ALLOCATION_REASON_AUTO);
     }
 
     public static void mockPrisonerAllocationHistory(KeyWorkerAllocationService keyWorkerAllocationService,
