@@ -10,6 +10,7 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.KeyWorkerAllocationService;
 import net.syscon.elite.service.keyworker.KeyworkerAutoAllocationService;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.ws.rs.Path;
 import java.util.List;
@@ -56,6 +57,7 @@ public class KeyWorkerResourceImpl implements KeyWorkerResource {
     }
 
     @Override
+    @PreAuthorize("#oauth2.hasScope('write')")
     public AllocateResponse allocate(NewAllocation body) {
         keyWorkerService.allocate(body);
 

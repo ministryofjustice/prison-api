@@ -34,6 +34,7 @@ Feature: Authentication
     Then a new token is generated successfully
     And token timeout is valid
 
+@wip
   Scenario: JWT expires after configured period of time
     Given API authentication is attempted with the following credentials:
       | username  | itag_user  |
@@ -51,6 +52,7 @@ Feature: Authentication
     Then a new token is generated successfully
     And token timeout is valid
 
+@wip
   Scenario: JWT refresh expires after configured period of time and I can no longer refresh
     Given API authentication is attempted with the following credentials:
       | username  | itag_user  |

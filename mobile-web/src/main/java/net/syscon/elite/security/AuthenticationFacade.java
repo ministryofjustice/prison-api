@@ -7,9 +7,5 @@ public interface AuthenticationFacade {
 
     String getCurrentUsername();
 
-    boolean isAnonymousAuthentication();
-
-    boolean isPreAuthenticatedAuthenticationToken();
-
     boolean isIdentifiedAuthentication();
 }

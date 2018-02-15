@@ -72,9 +72,7 @@ public class OracleConnectionAspect {
         log.debug("Enter: {}.{}()", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
         try {
             final Connection conn = (Connection) joinPoint.proceed();
-
             if (authenticationFacade.isIdentifiedAuthentication()) {
-                assignRolePassword();
 
                 final OracleConnection oracleConn = (OracleConnection) conn.unwrap(Connection.class);
                 final Properties info = new Properties();
@@ -89,15 +87,9 @@ public class OracleConnectionAspect {
                 final Connection proxyConn = (Connection) proxyFactory.getProxy();
 
                 setDefaultSchema(proxyConn);
-
-                final String startSessionSQL = format("SET ROLE %s IDENTIFIED BY %s", tagUser, rolePassword);
-                final PreparedStatement stmt = oracleConn.prepareStatement(startSessionSQL);
-
-                stmt.execute();
-                stmt.close();
+                setRolePrivs(oracleConn);
 
                 log.debug("Exit: {}.{}() with result = {}", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(), conn);
-
                 return proxyConn;
             } else {
                 return conn;
@@ -107,6 +99,16 @@ public class OracleConnectionAspect {
 
             throw e;
         }
+    }
+
+    private void setRolePrivs(Connection conn) throws SQLException {
+        assignRolePassword();
+
+        final String startSessionSQL = format("SET ROLE %s IDENTIFIED BY %s", tagUser, rolePassword);
+        final PreparedStatement stmt = conn.prepareStatement(startSessionSQL);
+
+        stmt.execute();
+        stmt.close();
     }
 
     private void setDefaultSchema(final Connection conn) throws SQLException {

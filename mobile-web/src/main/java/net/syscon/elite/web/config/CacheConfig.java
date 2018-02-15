@@ -53,6 +53,7 @@ public class CacheConfig implements CachingConfigurer {
 
         config.addCache(config("findByStaffId", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("findRolesByUsername", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("findApiRolesByUsername", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("loadUserByUsername", 5000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config("getCaseLoadsByUsername", 1000, caseLoadTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));

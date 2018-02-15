@@ -7,6 +7,7 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.ws.rs.Path;
 import java.time.LocalDate;
@@ -174,6 +175,7 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    @PreAuthorize("#oauth2.hasScope('write')")
     public CreateOffenderCaseNoteResponse createOffenderCaseNote(Long bookingId, NewCaseNote body) {
         CaseNote caseNote = caseNoteService.createCaseNote(bookingId, body, authenticationFacade.getCurrentUsername());
 
@@ -181,6 +183,7 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    @PreAuthorize("#oauth2.hasScope('write')")
     public UpdateOffenderCaseNoteResponse updateOffenderCaseNote(Long bookingId, Long caseNoteId, UpdateCaseNote body) {
         CaseNote caseNote = caseNoteService.updateCaseNote(
                 bookingId, caseNoteId, authenticationFacade.getCurrentUsername(), body.getText());
@@ -215,12 +218,14 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    @PreAuthorize("#oauth2.hasScope('write')")
     public CreateRelationshipResponse createRelationship(Long bookingId, OffenderRelationship relationshipDetail) {
         final Contact relationship = contactService.createRelationship(bookingId, relationshipDetail);
         return CreateRelationshipResponse.respond201WithApplicationJson(relationship);
     }
 
     @Override
+    @PreAuthorize("#oauth2.hasScope('write')")
     public CreateRelationshipByOffenderNoResponse createRelationshipByOffenderNo(String offenderNo, OffenderRelationship relationshipDetail) {
         final Contact relationship = contactService.createRelationshipByOffenderNo(offenderNo, relationshipDetail);
         return CreateRelationshipByOffenderNoResponse.respond201WithApplicationJson(relationship);
@@ -368,6 +373,7 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    @PreAuthorize("#oauth2.hasScope('write')")
     public PostBookingsBookingIdAppointmentsResponse postBookingsBookingIdAppointments(Long bookingId, NewAppointment newAppointment) {
         ScheduledEvent createdEvent = bookingService.createBookingAppointment(
                 bookingId, authenticationFacade.getCurrentUsername(), newAppointment);

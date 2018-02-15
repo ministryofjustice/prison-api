@@ -22,15 +22,18 @@ project(":mobile-web") {
         compile("org.springframework.boot:spring-boot-devtools")
         compile("org.springframework.mobile:spring-mobile-device")
 
+        compile("org.springframework.security.oauth:spring-security-oauth2:2.2.1.RELEASE")
+        compile("org.springframework.security:spring-security-jwt:1.0.9.RELEASE")
+
         compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.2")
         compile("com.github.jsqlparser:jsqlparser:1.1")
         compile("net.sf.ehcache:ehcache:2.10.4")
         compile("io.jsonwebtoken:jjwt:${version_jjwt}")
         compile("com.zaxxer:HikariCP:${version_hikaricp}")
 
-        compile("io.swagger:swagger-jersey2-jaxrs:1.5.17")
-        compile("io.springfox:springfox-swagger-ui:2.7.0")
-        compile("io.springfox:springfox-swagger2:2.7.0")
+        compile("io.swagger:swagger-jersey2-jaxrs:1.5.18")
+        compile("io.springfox:springfox-swagger-ui:2.8.0")
+        compile("io.springfox:springfox-swagger2:2.8.0")
         compile("net.logstash.logback:logstash-logback-encoder:4.11")
         compile("com.microsoft.azure:applicationinsights-core:${version_applicationinsights}")
         compile("com.microsoft.azure:applicationinsights-web:${version_applicationinsights}")

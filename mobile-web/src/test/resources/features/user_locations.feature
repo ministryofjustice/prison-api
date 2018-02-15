@@ -19,4 +19,3 @@ Feature: User Locations
       | username        | password | number | agency id           | description                                 | prefix              |
       | itag_user       | password | 5      | BXI,LEI,WAI,MDI,SYI | BRIXTON,LEEDS,THE WEARE,MOORLAND,SHREWSBURY | BXI,LEI,WAI,MDI,SYI |
       | api_test_user   | password | 2      | BXI,LEI             | BRIXTON,LEEDS                               | BXI,LEI             |
-      | elite2_api_user | password | 3      | LEI,LEI,LEI         | LEEDS,Block A,Block H                       | LEI,LEI-A,LEI-H     |

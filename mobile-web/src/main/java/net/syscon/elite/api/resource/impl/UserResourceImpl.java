@@ -8,6 +8,7 @@ import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.*;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.ws.rs.Path;
 import java.util.List;
@@ -21,19 +22,17 @@ public class UserResourceImpl implements UserResource {
     private final AuthenticationFacade authenticationFacade;
     private final LocationService locationService;
     private final AssignmentService assignmentService;
-    private final AuthenticationService authenticationService;
     private final UserService userService;
     private final CaseLoadService caseLoadService;
     private final CaseNoteService caseNoteService;
 
     public UserResourceImpl(AuthenticationFacade authenticationFacade, LocationService locationService,
-                            AssignmentService assignmentService, AuthenticationService authenticationService,
+                            AssignmentService assignmentService,
                             UserService userService, CaseLoadService caseLoadService,
                             CaseNoteService caseNoteService) {
         this.authenticationFacade = authenticationFacade;
         this.locationService = locationService;
         this.assignmentService = assignmentService;
-        this.authenticationService = authenticationService;
         this.userService = userService;
         this.caseLoadService = caseLoadService;
         this.caseNoteService = caseNoteService;
@@ -90,6 +89,7 @@ public class UserResourceImpl implements UserResource {
     }
 
     @Override
+    @PreAuthorize("#oauth2.hasScope('write')")
     public UpdateMyActiveCaseLoadResponse updateMyActiveCaseLoad(CaseLoad caseLoad) {
         try {
             userService.setActiveCaseLoad(authenticationFacade.getCurrentUsername(), caseLoad.getCaseLoadId());
@@ -115,28 +115,5 @@ public class UserResourceImpl implements UserResource {
         return GetUserDetailsResponse.respond200WithApplicationJson(userByUsername);
     }
 
-    @Override
-    public LoginResponse login(AuthLogin authLogin, String authorization) {
-        Token token = authenticationService.getAuthenticationToken(authorization, authLogin);
 
-        if (token != null) {
-            return LoginResponse.respond201WithApplicationJson(token, authorization);
-        } else {
-            return LoginResponse.respond401WithApplicationJson(ErrorResponse.builder().userMessage("Access Denied").build());
-        }
-    }
-
-    @Override
-    public TokenRefreshResponse tokenRefresh(String authorization) {
-        Token token = authenticationService.refreshToken(authorization);
-
-        if (token != null) {
-            return TokenRefreshResponse.respond201WithApplicationJson(token, authorization);
-        } else {
-            return TokenRefreshResponse.respond401WithApplicationJson(ErrorResponse.builder()
-                    .userMessage("Authentication Error")
-                    .errorCode(401)
-                    .build());
-        }
-    }
 }
