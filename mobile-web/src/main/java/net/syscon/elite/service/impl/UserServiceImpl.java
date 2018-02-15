@@ -69,4 +69,10 @@ public class UserServiceImpl implements UserService {
 	public List<UserRole> getRolesByUsername(String username) {
 		return userRepository.findRolesByUsername(username);
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<UserRole> getApiRolesByUsername(String username) {
+		return userRepository.findApiRolesByUsername(username);
+	}
 }

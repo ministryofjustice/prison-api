@@ -12,8 +12,6 @@ import java.util.List;
  * Bookings API service interface.
  */
 public interface BookingService {
-    String SYSTEM_USER_ROLE = "SYSTEM_USER";
-
     SentenceDetail getBookingSentenceDetail(Long bookingId);
 
     PrivilegeSummary getBookingIEPSummary(Long bookingId, boolean withDetails);

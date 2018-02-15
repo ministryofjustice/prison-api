@@ -21,4 +21,6 @@ public interface UserService {
 	void setActiveCaseLoad(String username, String caseLoadId);
 
 	List<UserRole> getRolesByUsername(String username);
+
+	List<UserRole> getApiRolesByUsername(String username);
 }

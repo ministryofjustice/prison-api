@@ -12,7 +12,6 @@ import net.syscon.elite.core.RestResource;
 import net.syscon.elite.web.handler.ConstraintViolationExceptionHandler;
 import net.syscon.elite.web.handler.ResourceExceptionHandler;
 import net.syscon.elite.web.listener.EndpointLoggingListener;
-import org.apache.commons.lang3.StringUtils;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -24,7 +23,6 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,26 +33,23 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 import org.springframework.validation.beanvalidation.SpringConstraintValidatorFactory;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Singleton;
 import javax.ws.rs.ext.ExceptionMapper;
-import java.util.Arrays;
 
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
+
 
 @Configuration
 @EnableWebMvc
 @EnableScheduling
-@EnableCaching
-@EnableAsync
+@EnableCaching(proxyTargetClass = true)
+@EnableAsync(proxyTargetClass = true)
 public class ServletContextConfigs extends ResourceConfig implements BeanFactoryAware  {
 
-    @Value("${spring.jersey.application-path:/}")
+    @Value("${spring.jersey.application-path:/api}")
     private String apiPath;
 
     @Value("${api.resource.packages}")
@@ -75,7 +70,7 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
 
         registerClasses(restResources);
 
-        String contextPath = env.getProperty("server.contextPath");
+        String contextPath = env.getProperty("spring.jersey.application-path");
 
         register(new EndpointLoggingListener(contextPath));
 
@@ -122,21 +117,6 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
         final MethodValidationPostProcessor methodValidationPostProcessor = new MethodValidationPostProcessor();
         methodValidationPostProcessor.setValidator(localValidatorFactoryBean);
         return methodValidationPostProcessor;
-    }
-
-    @Bean
-    public FilterRegistrationBean corsFilter(final ConfigurableEnvironment env) {
-        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        final CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(env.getProperty("endpoints.cors.allow-credentials", Boolean.class));
-        Arrays.asList(StringUtils.split(env.getProperty("endpoints.cors.allowed-origins"), ",")).forEach(config::addAllowedOrigin);
-        Arrays.asList(StringUtils.split(env.getProperty("endpoints.cors.allow-headers"), ",")).forEach(config::addAllowedHeader);
-        Arrays.asList(StringUtils.split(env.getProperty("endpoints.cors.allow-methods"), ",")).forEach(config::addAllowedMethod);
-        config.setMaxAge(0L);
-        source.registerCorsConfiguration("/**", config);
-        final FilterRegistrationBean bean = new FilterRegistrationBean(new CorsFilter(source));
-        bean.setOrder(0);
-        return bean;
     }
 
     @PostConstruct

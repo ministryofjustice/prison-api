@@ -25,7 +25,7 @@ public class CustodyStatusResourceImpl implements CustodyStatusResource {
     }
 
     @Override
-    @PreAuthorize("authentication.authorities.?[authority.contains('SYSTEM_USER')].size() != 0")
+    @PreAuthorize("#oauth2.hasScope('admin')")
     public GetPrisonerCustodyStatusesResponse getPrisonerCustodyStatuses(List<String> custodyStatusCodes, String onDateString, String sortFields, Order sortOrder) {
         LocalDate onDate = DateTimeConverter.fromISO8601DateString(onDateString);
         if (onDate == null) {
@@ -41,7 +41,7 @@ public class CustodyStatusResourceImpl implements CustodyStatusResource {
     }
 
     @Override
-    @PreAuthorize("authentication.authorities.?[authority.contains('SYSTEM_USER')].size() != 0")
+    @PreAuthorize("#oauth2.hasScope('admin')")
     public GetPrisonerCustodyStatusResponse getPrisonerCustodyStatus(String offenderNo) {
         final PrisonerCustodyStatus custodyStatus = custodyStatusService.getCustodyStatus(offenderNo, LocalDate.now());
         return GetPrisonerCustodyStatusResponse.respond200WithApplicationJson(custodyStatus);

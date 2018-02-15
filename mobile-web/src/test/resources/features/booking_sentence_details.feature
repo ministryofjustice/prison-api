@@ -207,6 +207,7 @@ Feature: Booking Sentence Details
       | -27       | 2014-09-09 |            |            |            |            |            |             |             | 2029-09-08 |
       | -28       | 2014-09-09 |            |            |            |            |            |             |             | 2031-03-08 |
 
+
   Scenario: Retrieve sentence details as a list
     When sentence details are requested of offenders for the logged in users caseloads
     Then "10" offenders are returned

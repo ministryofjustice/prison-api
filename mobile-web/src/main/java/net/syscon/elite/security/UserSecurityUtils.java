@@ -1,17 +1,21 @@
 package net.syscon.elite.security;
 
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Component
 public class UserSecurityUtils implements AuthenticationFacade {
+
+	@Value("${application.client.username}")
+	private String clientLoginUsername;
+
 	@Override
 	public Authentication getAuthentication() {
 		return SecurityContextHolder.getContext().getAuthentication();
@@ -39,37 +43,31 @@ public class UserSecurityUtils implements AuthenticationFacade {
 
 	@Override
 	public boolean isIdentifiedAuthentication() {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-		return ((!(auth instanceof AnonymousAuthenticationToken) ||
-				(auth instanceof PreAuthenticatedAuthenticationToken)) && StringUtils.isNotEmpty(getCurrentUsername()));
-	}
-
-	@Override
-	public boolean isAnonymousAuthentication() {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-		return auth instanceof AnonymousAuthenticationToken;
-	}
-
-	@Override
-	public boolean isPreAuthenticatedAuthenticationToken() {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-		return auth instanceof PreAuthenticatedAuthenticationToken;
+		Authentication auth = getAuthentication();
+		return auth != null && (
+				(auth instanceof UsernamePasswordAuthenticationToken)
+				||
+				(auth instanceof OAuth2Authentication && auth.isAuthenticated())
+		);
 	}
 
 	private Object getUserPrincipal() {
-		Object userPrincipal;
+		Object userPrincipal = null;
 
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		final Authentication auth = getAuthentication();
 
-		if (auth == null) {
-			userPrincipal = null;
+		if (auth instanceof UsernamePasswordAuthenticationToken && auth.isAuthenticated()) {
+			// This is a client auth
+			userPrincipal = clientLoginUsername;
 		} else {
-			userPrincipal = auth.getPrincipal();
+			if (auth instanceof OAuth2Authentication && ((OAuth2Authentication) auth).isClientOnly()) {
+				userPrincipal = clientLoginUsername;
+			}
 		}
 
+		if (userPrincipal == null && auth != null) {
+			userPrincipal = auth.getPrincipal();
+		}
 		return userPrincipal;
 	}
 }

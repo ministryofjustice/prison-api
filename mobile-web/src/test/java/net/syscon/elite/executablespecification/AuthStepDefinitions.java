@@ -5,10 +5,10 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import net.syscon.elite.api.model.Token;
 import net.syscon.elite.executablespecification.steps.UserSteps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.test.context.TestPropertySource;
 
 import java.util.Map;
@@ -16,19 +16,15 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * BDD step definitions for User authentication API endpoints:
- * <ul>
- *     <li>/users/login</li>
- *     <li>/users/refresh</li>
- *     <li>/users/token</li>
- * </ul>
+ * BDD step definitions for OAUTH2 authentication API endpoints:
  */
 @TestPropertySource({ "/application-test-auth.properties" })
 public class AuthStepDefinitions extends AbstractStepDefinitions {
     @Autowired
     private UserSteps user;
 
-    private Token currentToken;
+    private OAuth2AccessToken previousToken;
+    private OAuth2AccessToken currentToken;
 
     @Value("${jwt.expiration.seconds}")
     private int expirationSeconds;
@@ -60,18 +56,20 @@ public class AuthStepDefinitions extends AbstractStepDefinitions {
     }
 
     @When("^token refresh is attempted$")
-    public void tokenRefreshIsAttempted() throws Throwable {
-        user.refresh();
+    public void tokenRefreshIsAttempted() {
+        previousToken = currentToken;
+        user.refresh(previousToken);
+        currentToken = user.getAuth().getToken();
     }
 
     @When("^a user role request is made after token has expired$")
-    public void aUserRoleRequestIsMade() throws Throwable {
+    public void aUserRoleRequestIsMade() {
         user.getUserRoles();
     }
 
     @Then("^a new token is generated successfully$")
     public void aNewTokenIsGeneratedSuccessfully() throws Throwable {
-        assertThat(currentToken.getToken()).isNotEqualTo(user.getAuth().getToken());
+        assertThat(currentToken.getValue()).isNotEqualTo(user.getAuth().getToken());
     }
 
     @Then("^authentication denied is returned$")
@@ -80,23 +78,22 @@ public class AuthStepDefinitions extends AbstractStepDefinitions {
     }
 
     private void authAndStoreToken(String username, String password) {
-        user.authenticates(username, password);
+        user.authenticates(username, password, false);
         currentToken = user.getAuth().getToken();
     }
 
     @And("^token timeout is valid$")
-    public void tokenTimeoutIsValid() throws Throwable {
-        final Token token = user.getAuth().getToken();
-        assertThat(token.getExpiration()).isLessThan(token.getRefreshExpiration());
+    public void tokenTimeoutIsValid() {
+        assertThat(previousToken.getExpiration()).isBefore(currentToken.getExpiration());
     }
 
     @When("^I wait until the token as expired$")
     public void iWaitUntilTheTokenAsExpired() throws Throwable {
-        Thread.sleep(expirationSeconds * 1000);
+        Thread.sleep(( expirationSeconds + 1 ) * 1000);
     }
 
     @When("^I wait until the refresh token as expired$")
     public void iWaitUntilTheRefreshTokenAsExpired() throws Throwable {
-        Thread.sleep(refreshExpirationSeconds * 1000);
+        Thread.sleep(( refreshExpirationSeconds + 1 ) * 1000);
     }
 }
