@@ -10,7 +10,7 @@ CREATE TABLE "OFFENDER_IDENTIFIERS"
   "CASELOAD_TYPE"                 VARCHAR2(12 CHAR),
   "MODIFY_USER_ID"                VARCHAR2(32 CHAR),
   "MODIFY_DATETIME"               TIMESTAMP(9),
-  "VERIFIED_FLAG"                 VARCHAR2(1 CHAR) DEFAULT 'N',
+  "VERIFIED_FLAG"                 VARCHAR2(1 CHAR) DEFAULT 'N', -- Elite Schema has default 'Y'
   "CREATE_DATETIME"               TIMESTAMP(9) DEFAULT systimestamp NOT NULL ,
   "CREATE_USER_ID"                VARCHAR2(32 CHAR) DEFAULT USER    NOT NULL ,
   "AUDIT_TIMESTAMP"               TIMESTAMP(9),
