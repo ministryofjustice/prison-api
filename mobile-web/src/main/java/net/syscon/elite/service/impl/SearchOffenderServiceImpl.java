@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,6 +41,7 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
 
     @Override
     public Page<OffenderBooking> findOffenders(SearchOffenderRequest request) {
+        Objects.requireNonNull(request.getLocationPrefix(), "locationPrefix is a required parameter");
         String keywordSearch = StringUtils.upperCase(StringUtils.trimToEmpty(request.getKeywords()));
         String offenderNo = null;
         String lastName = null;
@@ -65,9 +68,11 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
             pageRequest = request;
         }
 
+        final Set<String> caseloads = bookingService.isSystemUser() ? Collections.emptySet() : userService.getCaseLoadIds(request.getUsername());
+
         Page<OffenderBooking> bookings = repository.searchForOffenderBookings(
-                bookingService.isSystemUser() ? Collections.emptySet() : userService.getCaseLoadIds(request.getUsername()), offenderNo, lastName, firstName,
-                StringUtils.replaceAll(request.getLocationPrefix(), "_", ""),
+                caseloads, offenderNo, lastName, firstName,
+                request.getLocationPrefix(),
                 locationTypeGranularity, pageRequest);
 
         bookings.getItems().forEach(booking -> {

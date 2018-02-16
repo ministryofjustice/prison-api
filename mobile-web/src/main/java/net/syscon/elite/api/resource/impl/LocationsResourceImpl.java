@@ -8,6 +8,8 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.LocationService;
+import net.syscon.elite.service.SearchOffenderService;
+import net.syscon.elite.service.support.SearchOffenderRequest;
 
 import javax.ws.rs.Path;
 
@@ -18,10 +20,12 @@ import static net.syscon.util.ResourceUtils.nvl;
 public class LocationsResourceImpl implements LocationResource {
 	private final AuthenticationFacade authenticationFacade;
 	private final LocationService locationService;
+	private final SearchOffenderService searchOffenderService;
 
-	public LocationsResourceImpl(AuthenticationFacade authenticationFacade, LocationService locationService) {
+	public LocationsResourceImpl(AuthenticationFacade authenticationFacade, LocationService locationService, SearchOffenderService searchOffenderService) {
 		this.authenticationFacade = authenticationFacade;
 		this.locationService = locationService;
+		this.searchOffenderService = searchOffenderService;
 	}
 
 	@Override
@@ -35,6 +39,23 @@ public class LocationsResourceImpl implements LocationResource {
 				nvl(pageLimit, 10L));
 
 		return GetLocationsResponse.respond200WithApplicationJson(locationsResult);
+	}
+
+	@Override
+	public GetOffendersAtLocationDescriptionResponse getOffendersAtLocationDescription(String locationPrefix, String query, String keywords, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+		SearchOffenderRequest request = SearchOffenderRequest.builder()
+				.username(authenticationFacade.getCurrentUsername())
+				.keywords(keywords)
+				.locationPrefix(locationPrefix)
+				.orderBy(sortFields)
+				.order(sortOrder)
+				.offset(nvl(pageOffset, 0L))
+				.limit(nvl(pageLimit, 10L))
+				.build();
+
+		Page<OffenderBooking> offenders = searchOffenderService.findOffenders(request);
+
+		return GetOffendersAtLocationDescriptionResponse.respond200WithApplicationJson(offenders);
 	}
 
 	@Override

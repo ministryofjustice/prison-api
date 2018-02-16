@@ -7,7 +7,6 @@ import net.syscon.elite.repository.LocationRepository;
 import net.syscon.elite.service.ConfigException;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.LocationService;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,11 +16,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.regex.PatternSyntaxException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,7 +51,7 @@ public class LocationServiceImplTest {
         
         List<Agency> agencies =  Collections.singletonList(Agency.builder().agencyId("LEI").build());
  
-        Mockito.when(agencyRepository.findAgenciesByUsername("me")).thenReturn(agencies);
+        Mockito.when(agencyRepository.findAgenciesForCurrentCaseloadByUsername("me")).thenReturn(agencies);
         
         List<Location> locations = new ArrayList<>();
         Location location = createTestLocation();
