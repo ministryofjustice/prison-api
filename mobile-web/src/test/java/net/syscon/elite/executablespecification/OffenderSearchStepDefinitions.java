@@ -4,9 +4,7 @@ package net.syscon.elite.executablespecification;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-
 import net.syscon.elite.executablespecification.steps.OffenderSearchSteps;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -23,19 +21,14 @@ public class OffenderSearchStepDefinitions extends AbstractStepDefinitions {
     private OffenderSearchSteps offenderSearch;
 
 
-    @When("^an offender search is made without prisoner name or ID and across all locations$")
-    public void aOffenderSearchIsMadeWithoutPrisonerNameOrIDAndAcrossAllLocations() throws Throwable {
-        offenderSearch.findAll();
+    @When("^an offender search is made without prisoner name or ID and across \"([^\"]*)\" location$")
+    public void aOffenderSearchIsMadeWithoutPrisonerNameOrIDAndAcrossAllLocations(String locationPrefix) throws Throwable {
+        offenderSearch.findAll(locationPrefix);
     }
 
     @When("^an offender search is made for location \"([^\"]*)\"$")
     public void aOffenderSearchIsMadeForLocation(String locationPrefix) throws Throwable {
         offenderSearch.search(locationPrefix, null);
-    }
-
-    @When("^an offender search is made with keywords \"([^\"]*)\" of existing offender$")
-    public void aOffenderSearchIsMadeWithKeywordsExistingOffender(String keywords) throws Throwable {
-        offenderSearch.search(null, keywords);
     }
 
     @When("^an offender search is made with keywords \"([^\"]*)\" in location \"([^\"]*)\"$")

@@ -8,27 +8,27 @@ Feature: Offender Search V2
     Given a user has authenticated with the API
 
   Scenario: Search all offenders across all allowed locations
-    When an offender search is made without prisoner name or ID and across all locations
+    When an offender search is made without prisoner name or ID and across "LEI" location
     Then "10" offender records are returned
-    And  "34" total offender records are available
+    And  "27" total offender records are available
 
   Scenario Outline: Search based on keywords
-    When an offender search is made with keywords "<keywords>" of existing offender
+    When an offender search is made with keywords "<keywords>" in location "<location>"
     Then "<number>" offender records are returned
     And the offender first names match "<first name list>"
     And the offender middle names match "<middle name list>"
     And location name match "<living unit list>"
 
     Examples:
-      | keywords             | number | first name list         | middle name list | living unit list   |
-      | ANDERSON             | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | A-1-1,H-1-5        |
-      | DUCK                 | 1      | DONALD                  | JEFFREY          | A-1-10             |
-      | anderson             | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | A-1-1,H-1-5        |
-      | AnDersOn             | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | A-1-1,H-1-5        |
-      | UNKNOWN              | 0      |                         |                  |                    |
-      | ,CHESNEY             | 1      | CHESNEY                 |                  | H                  |
-      | A1234AB              | 1      | GILLIAN                 | EVE              | H-1-5              |
-      | ANDERSON, GILLIAN    | 1      | GILLIAN                 | EVE              | H-1-5              |
+      | keywords             | location | number | first name list         | middle name list | living unit list   |
+      | ANDERSON             | LEI      | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | A-1-1,H-1-5        |
+      | DUCK                 | LEI      | 1      | DONALD                  | JEFFREY          | A-1-10             |
+      | anderson             | LEI      | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | A-1-1,H-1-5        |
+      | AnDersOn             | LEI      | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | A-1-1,H-1-5        |
+      | UNKNOWN              | LEI      | 0      |                         |                  |                    |
+      | ,CHESNEY             | LEI      | 1      | CHESNEY                 |                  | H                  |
+      | A1234AB              | LEI      | 1      | GILLIAN                 | EVE              | H-1-5              |
+      | ANDERSON, GILLIAN    | LEI      | 1      | GILLIAN                 | EVE              | H-1-5              |
 
   Scenario Outline: Search all offenders across a specified locations
     When an offender search is made for location "<location>"
@@ -37,7 +37,7 @@ Feature: Offender Search V2
     Examples:
       | location  | number |
       | LEI-A     | 12     |
-      | LEI-H     | 15      |
+      | LEI-H     | 15     |
       | BXI       | 0      |
       | LEI       | 27     |
       | XXX       | 0      |

@@ -195,11 +195,10 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	@Cacheable("searchForOffenderBookings")
 	public Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String lastName, String firstName, String locationPrefix, String locationTypeRoot, PageRequest pageRequest) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
+		initialSql += " AND " + getQuery("LOCATION_FILTER_SQL");
+
 		if (!caseloads.isEmpty()) {
 			initialSql += " AND " + getQuery("CASELOAD_FILTER");
-		}
-		if (StringUtils.isNotBlank(locationPrefix)) {
-			initialSql += " AND " + getQuery("LOCATION_FILTER_SQL");
 		}
 
 		if (StringUtils.isNotBlank(offenderNo)) {
