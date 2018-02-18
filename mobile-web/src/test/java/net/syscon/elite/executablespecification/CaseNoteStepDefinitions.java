@@ -35,7 +35,7 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     private CaseNote seededCaseNote;
     private CaseNote updatedCaseNote;
 
-    private Long caseNoteBookingId = -15L; // this must exist
+    private Long caseNoteBookingId = -32L; // this must exist and must be accessible to test user
 
     @And("^case note test harness initialized$")
     public void caseNoteTestHarnessInitialized() throws Throwable {

@@ -25,8 +25,9 @@ public class PrisonerResourceImpl implements PrisonerResource {
 
     @Override
     @PreAuthorize("#oauth2.hasScope('admin')")
-    public GetPrisonersResponse getPrisoners(String firstName, String middleNames, String lastName, String pncNumber, String croNumber, String dob, String dobFrom, String dobTo, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+    public GetPrisonersResponse getPrisoners(String offenderNo, String pncNumber, String croNumber, String firstName, String middleNames, String lastName, String dob, String dobFrom, String dobTo, boolean partialNameMatch, boolean prioritisedMatch, boolean anyMatch, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         PrisonerDetailSearchCriteria criteria = PrisonerDetailSearchCriteria.builder()
+                .offenderNo(offenderNo)
                 .firstName(firstName)
                 .middleNames(middleNames)
                 .lastName(lastName)
@@ -35,6 +36,7 @@ public class PrisonerResourceImpl implements PrisonerResource {
                 .dob(fromISO8601DateString(dob))
                 .dobFrom(fromISO8601DateString(dobFrom))
                 .dobTo(fromISO8601DateString(dobTo))
+                .partialNameMatch(partialNameMatch)
                 .build();
 
         Page<PrisonerDetail> prisoners = inmateService.findPrisoners(

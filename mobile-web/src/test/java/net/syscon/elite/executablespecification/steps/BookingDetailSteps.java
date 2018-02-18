@@ -19,8 +19,17 @@ public class BookingDetailSteps extends CommonSteps {
 
     private InmateDetail inmateDetail;
 
+    @Override
+    protected void init() {
+        super.init();
+
+        inmateDetail = null;
+    }
+
     @Step("Retrieve offender booking details record")
     public void findBookingDetails(Long bookingId) {
+        init();
+
         ResponseEntity<InmateDetail> response;
 
         try {

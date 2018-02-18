@@ -27,5 +27,5 @@ Feature: Booking Main Offence Detail
     Then resource not found response is received from sentence API
 
   Scenario: Request main offence details for offender that does not yet have any on record
-    When a sentence with booking id -15 is requested
+    When a sentence with booking id -9 is requested
     Then 0 offence detail records are returned

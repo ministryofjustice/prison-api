@@ -23,7 +23,7 @@ Feature: Finances
     Then resource not found response is received from finance API
 
   Scenario: Request balances for offender that has no finance records
-    When an account with booking id -15 is requested
+    When an account with booking id -32 is requested
     Then the returned account cash is 0.00
     And the returned account spends is 0.00
     And the returned account savings is 0.00

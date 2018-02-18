@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @ToString
 public class PrisonerDetailSearchCriteria {
+    private String offenderNo;
     private String firstName;
     private String middleNames;
     private String lastName;
@@ -20,4 +21,5 @@ public class PrisonerDetailSearchCriteria {
     private LocalDate dob;
     private LocalDate dobFrom;
     private LocalDate dobTo;
+    private boolean partialNameMatch;
 }

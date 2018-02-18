@@ -10,7 +10,7 @@ Feature: Offender Search V2
   Scenario: Search all offenders across all allowed locations
     When an offender search is made without prisoner name or ID and across "LEI" location
     Then "10" offender records are returned
-    And  "27" total offender records are available
+    And  "24" total offender records are available
 
   Scenario Outline: Search based on keywords
     When an offender search is made with keywords "<keywords>" in location "<location>"
@@ -26,7 +26,7 @@ Feature: Offender Search V2
       | anderson             | LEI      | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | A-1-1,H-1-5        |
       | AnDersOn             | LEI      | 2      | ARTHUR,GILLIAN          | BORIS,EVE        | A-1-1,H-1-5        |
       | UNKNOWN              | LEI      | 0      |                         |                  |                    |
-      | ,CHESNEY             | LEI      | 1      | CHESNEY                 |                  | H                  |
+      | ,CHESNEY             | LEI      | 0      |                         |                  |                    |
       | A1234AB              | LEI      | 1      | GILLIAN                 | EVE              | H-1-5              |
       | ANDERSON, GILLIAN    | LEI      | 1      | GILLIAN                 | EVE              | H-1-5              |
 
@@ -36,10 +36,10 @@ Feature: Offender Search V2
 
     Examples:
       | location  | number |
-      | LEI-A     | 12     |
-      | LEI-H     | 15     |
+      | LEI-A     | 11     |
+      | LEI-H     | 13     |
       | BXI       | 0      |
-      | LEI       | 27     |
+      | LEI       | 24     |
       | XXX       | 0      |
 
   Scenario Outline: Search based on keywords and locations
@@ -66,4 +66,3 @@ Feature: Offender Search V2
       | A1234AB            | LEI-H     | 1      |
       | ANDERSON           | LEI-H     | 1      |
       | ANDERSON, GILLIAN  | LEI-H     | 1      |
-
