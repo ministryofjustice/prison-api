@@ -137,37 +137,6 @@ ALTER TABLE OFFENDER_COURSE_ATTENDANCES ADD CONSTRAINT OFFENDER_COURSE_ATTENDANC
 ALTER TABLE OFFENDER_COURSE_ATTENDANCES ADD CHECK (EVENT_CLASS IN ('INT_MOV','COMM','EXT_MOV'));
 
 
--------------------------------------------------------
--- Source tables for Visits (VISIT) Scheduled Events --
--------------------------------------------------------
-CREATE TABLE OFFENDER_VISITS
-(
-	OFFENDER_VISIT_ID               NUMBER(10)                          NOT NULL,
-	OFFENDER_BOOK_ID                NUMBER(10)                          NOT NULL,
-	COMMENT_TEXT                    VARCHAR2(240),
-	RAISED_INCIDENT_TYPE            VARCHAR2(12),
-	RAISED_INCIDENT_NUMBER          NUMBER(10),
-	VISIT_DATE                      DATE                                NOT NULL,
-	START_TIME                      DATE                                NOT NULL,
-	END_TIME                        DATE                                NOT NULL,
-	EVENT_OUTCOME                   VARCHAR2(12),
-	VISIT_TYPE                      VARCHAR2(12)                        NOT NULL,
-	VISIT_STATUS                    VARCHAR2(12)                        NOT NULL,
-	OUTCOME_REASON_CODE             VARCHAR2(12),
-	VISIT_INTERNAL_LOCATION_ID      NUMBER(10),
-	AGENCY_VISIT_SLOT_ID            NUMBER(10),
-	AGY_LOC_ID                      VARCHAR2(6)                         NOT NULL,
-	CREATE_DATETIME                 TIMESTAMP(9)  DEFAULT SYSTIMESTAMP  NOT NULL,
-	CREATE_USER_ID                  VARCHAR2(32)  DEFAULT USER          NOT NULL,
-	MODIFY_DATETIME                 TIMESTAMP(9)  DEFAULT SYSTIMESTAMP,
-	MODIFY_USER_ID                  VARCHAR2(32),
-	RECORD_USER_ID                  VARCHAR2(30)  DEFAULT USER          NOT NULL,
-	SEAL_FLAG                       VARCHAR2(1)
-);
-
-ALTER TABLE OFFENDER_VISITS ADD CONSTRAINT OFFENDER_VISIT_PK PRIMARY KEY (OFFENDER_VISIT_ID);
---ALTER TABLE OFFENDER_VISITS ADD FOREIGN KEY (OFFENDER_BOOK_ID) REFERENCES OFFENDER_BOOKINGS;
---ALTER TABLE OFFENDER_VISITS ADD FOREIGN KEY (AGENCY_VISIT_SLOT_ID) REFERENCES AGENCY_VISIT_SLOTS;
 
 
 -----------------------------------------------------------
