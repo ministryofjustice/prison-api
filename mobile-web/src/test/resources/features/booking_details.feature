@@ -58,9 +58,6 @@ Feature: Booking Details
       | -10       | A00120    | Complexion=Fair                          |
       | -11       | A00121    | Hair Colour=Brunette,Complexion=Blotched |
       | -12       | A00122    | Hair Colour=Bald                         |
-      | -13       | A00123    | Hair Colour=Ginger                       |
-      | -14       | A00124    | Hair Colour=Dyed,Build=Slight            |
-      | -15       | A00125    | Facial Hair=Sideburns,Build=Heavy        |
 
   Scenario: Request for specific offender booking record that does not exist
     When an offender booking request is made with booking id "-9999"
@@ -83,9 +80,8 @@ Feature: Booking Details
       | -6        | CSR            | true  | Standard       | 2018-06-06     |
       | -6        | PAROLE         | false | High           | 2018-06-08     |
 
-
   Scenario: Request for assessment information for booking that does not have requested assessment
-    When an offender booking assessment information request is made with booking id -15 and "CSR"
+    When an offender booking assessment information request is made with booking id -9 and "CSR"
     Then resource not found response is received from booking assessments API
     And user message in resource not found response from booking assessments API is "Offender does not have a [CSR] assessment on record."
 
@@ -97,7 +93,7 @@ Feature: Booking Details
     When an offender booking assessment information request is made with booking id -16 and "CSR"
     Then resource not found response is received from booking assessments API
 
-@nomis
+  @nomis
   Scenario Outline: Request for specific offender booking record returns religion
     When an offender booking request is made with booking id "<bookingId>"
     Then religion of offender booking returned is "<religion>"
@@ -117,7 +113,6 @@ Feature: Booking Details
       | -11       | Other Christian Religion  |
       | -12       | Orthodox (Greek/Russian)  |
 
-
   Scenario Outline: When requesting offender details a count of active and inactive alerts are returned
     When an offender booking request is made with booking id "<bookingId>"
     Then the number of active alerts is <activeAlerts>
@@ -125,7 +120,4 @@ Feature: Booking Details
 
     Examples:
       | bookingId | activeAlerts | inactiveAlerts |
-      | -15       | 1            | 0              |
       | -1        | 2            | 1              |
-      | -13       | 0            | 1              |
-

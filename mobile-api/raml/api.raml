@@ -5,6 +5,9 @@ version: v2
 mediaType: application/json
 
 annotationTypes:
+  beta:
+    type: boolean
+    description: Indicate that operation is to be treated as a beta release.
   deprecated:
     type: string
     description: Indicate that operation or parameter is deprecated and provide alternatives and/or further details.
@@ -37,8 +40,6 @@ types:
   StaffDetail:                !include types/StaffDetail.raml
   CaseLoad:                   !include types/CaseLoad.raml
   Account:                    !include types/Account.raml
-  AuthLogin:                  !include types/AuthLogin.raml
-  Token:                      !include types/Token.raml
   CaseNote:                   !include types/CaseNote.raml
   CaseNoteAmendment:          !include types/CaseNoteAmendment.raml
   CaseNoteCount:              !include types/CaseNoteCount.raml

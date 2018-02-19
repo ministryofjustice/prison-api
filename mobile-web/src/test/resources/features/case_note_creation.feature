@@ -10,7 +10,7 @@ Feature: Case Note Creation and Update
 
   Scenario: Create a case note 1
     When a case note is created for booking:
-      | bookingId          | -15                                         |
+      | bookingId          | -32                                         |
       | type               | OBSERVE                                     |
       | subType            | OBS_GEN                                     |
       | text               | A new case note (from Serenity BDD test **) |
@@ -20,7 +20,7 @@ Feature: Case Note Creation and Update
 
   Scenario: Create a case note 2
     When a case note is created for booking:
-      | bookingId          | -15                                         |
+      | bookingId          | -32                                         |
       | type               | OBSERVE                                     |
       | subType            | OBS_GEN                                     |
       | text               | A new case note (from Serenity BDD test **) |
@@ -30,7 +30,7 @@ Feature: Case Note Creation and Update
 
   Scenario: Create a case note with invalid type
     When a case note is created for booking:
-      | bookingId          | -15                                         |
+      | bookingId          | -32                                         |
       | type               | doesnotexist                                |
       | subType            | OSE                                         |
       | text               | A new case note (from Serenity BDD test **) |
@@ -39,7 +39,7 @@ Feature: Case Note Creation and Update
 
   Scenario: Create a case note with valid type but invalid subType
     When a case note is created for booking:
-      | bookingId          | -15                                         |
+      | bookingId          | -32                                         |
       | type               | GEN                                         |
       | subType            | doesnotexist                                |
       | text               | A new case note (from Serenity BDD test **) |
@@ -48,7 +48,7 @@ Feature: Case Note Creation and Update
 
   Scenario: Create a case note with invalid combination of type and sub-type for any caseload
     When a case note is created for booking:
-      | bookingId          | -15                                         |
+      | bookingId          | -32                                         |
       | type               | DRR                                         |
       | subType            | HIS                                         |
       | text               | A new case note (from Serenity BDD test **) |
@@ -57,7 +57,7 @@ Feature: Case Note Creation and Update
 
   Scenario: Create a case note with a type and sub-type combination that is valid for different caseload but not current caseload
     When a case note is created for booking:
-      | bookingId          | -15                                         |
+      | bookingId          | -32                                         |
       | type               | REC                                         |
       | subType            | RECRP                                       |
       | text               | A new case note (from Serenity BDD test **) |
@@ -66,7 +66,7 @@ Feature: Case Note Creation and Update
 
   Scenario: Create a case note with invalid type
     When a case note is created for booking:
-      | bookingId          | -15                                         |
+      | bookingId          | -32                                         |
       | type               | invalid%charsandtoolong                     |
       | subType            | OSE                                         |
       | text               | A new case note (from Serenity BDD test **) |
@@ -76,7 +76,7 @@ Feature: Case Note Creation and Update
 
   Scenario: Create a case note with invalid sub-type
     When a case note is created for booking:
-      | bookingId          | -15                                         |
+      | bookingId          | -32                                         |
       | type               | GEN                                         |
       | subType            | invalid%charsandtoolong                     |
       | text               | A new case note (from Serenity BDD test **) |
@@ -86,7 +86,7 @@ Feature: Case Note Creation and Update
 
   Scenario: Create a case note with blank type
     When a case note is created for booking:
-      | bookingId          | -15                                         |
+      | bookingId          | -32                                         |
       | type               |                                             |
       | subType            | OSE                                         |
       | text               | A new case note (from Serenity BDD test **) |
@@ -96,7 +96,7 @@ Feature: Case Note Creation and Update
 
   Scenario: Create a case note with blank sub-type
     When a case note is created for booking:
-      | bookingId          | -15                                         |
+      | bookingId          | -32                                         |
       | type               | GEN                                         |
       | subType            |                                             |
       | text               | A new case note (from Serenity BDD test **) |

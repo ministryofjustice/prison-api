@@ -8,6 +8,7 @@ import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
@@ -19,6 +20,9 @@ import java.util.Optional;
 
 @Repository
 public class UserRepositoryImpl extends RepositoryBase implements UserRepository {
+
+	@Value("${application.caseload.id:NEWB}")
+	private String apiCaseloadId;
 
 	private final Map<String, FieldMapper> userMapping = new ImmutableMap.Builder<String, FieldMapper>()
 		.put("STAFF_ID", new FieldMapper("staffId"))
@@ -84,6 +88,12 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 		return jdbcTemplate.query(sql, createParams("username", username), USER_ROLE_MAPPER);
 	}
 
+	@Override
+	@Cacheable("findApiRolesByUsername")
+	public List<UserRole> findApiRolesByUsername(final String username) {
+		String sql = getQuery("FIND_API_ROLES_BY_USERNAME");
+		return jdbcTemplate.query(sql, createParams("username", username, "apiCaseloadId", apiCaseloadId), USER_ROLE_MAPPER);
+	}
 
 	@Override
 	public void updateWorkingCaseLoad(final Long staffId, final String caseLoadId) {

@@ -15,6 +15,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 
 import javax.annotation.PostConstruct;
 import javax.ws.rs.core.Response;
@@ -36,7 +37,7 @@ import static org.junit.Assert.*;
  */
 @Slf4j
 public abstract class CommonSteps {
-    public static final String API_PREFIX = "/";
+    public static final String API_PREFIX = "/api/";
 
     @Autowired
     private AuthenticationSteps auth;
@@ -71,23 +72,23 @@ public abstract class CommonSteps {
     }
 
     @Step("User {0} authenticates with password {1}")
-    public void authenticates(String username, String password) {
-        errorResponse = auth.authenticate(username, password);
+    public void authenticates(String username, String password, boolean clientCredentials) {
+        errorResponse = auth.authenticate(StringUtils.upperCase(username), password, clientCredentials);
     }
 
     @Step("Refreshes with token")
-    public void refresh() {
-        errorResponse = auth.refresh();
+    public void refresh(OAuth2AccessToken token) {
+        errorResponse = auth.refresh(token);
     }
 
     @Step("Verify authentication token")
     public void verifyToken() {
-        assertThat(auth.getToken().getToken()).isNotEmpty();
+        assertThat(auth.getToken().getValue()).isNotEmpty();
     }
 
     @Step("Verify authentication refresh token")
     public void verifyRefreshToken() {
-        assertThat(auth.getToken().getRefreshToken()).isNotEmpty();
+        assertThat(auth.getToken().getRefreshToken().getValue()).isNotEmpty();
     }
 
     @Step("Verify resource not found")
@@ -207,7 +208,7 @@ public abstract class CommonSteps {
         HttpHeaders headers = new HttpHeaders();
 
         if (auth.getToken() != null) {
-            headers.add(auth.getAuthenticationHeader(), auth.getToken().getToken());
+            headers.add(auth.getAuthenticationHeader(), "bearer "+auth.getToken().getValue());
         }
 
         if (extraHeaders != null) {

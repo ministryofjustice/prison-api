@@ -26,6 +26,7 @@ Feature: Authentication
       | password  | wrongpass  |
     Then authentication denied is returned
 
+  @broken
   Scenario: As a user I can login and refresh the token
     Given API authentication is attempted with the following credentials:
       | username  | itag_user  |
@@ -34,6 +35,7 @@ Feature: Authentication
     Then a new token is generated successfully
     And token timeout is valid
 
+  @broken
   Scenario: JWT expires after configured period of time
     Given API authentication is attempted with the following credentials:
       | username  | itag_user  |
@@ -42,6 +44,7 @@ Feature: Authentication
     And a user role request is made after token has expired
     Then authentication denied is returned
 
+  @broken
   Scenario: JWT expires after configured period of time but I can refresh
     Given API authentication is attempted with the following credentials:
       | username  | itag_user  |
@@ -51,6 +54,7 @@ Feature: Authentication
     Then a new token is generated successfully
     And token timeout is valid
 
+  @broken
   Scenario: JWT refresh expires after configured period of time and I can no longer refresh
     Given API authentication is attempted with the following credentials:
       | username  | itag_user  |

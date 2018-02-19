@@ -1,11 +1,13 @@
-/{locationPrefix}:
-  (javaOperationName): searchForOffendersLocationOnly
-  description: Search for Offender Bookings in the system by location
-  type: { readOnlyCollectionPaged: { type: OffenderBooking, description: List of offenders by location. } }
-  is: [ sortable ]
-
 /{locationPrefix}/{keywords}:
+  (deprecated): Use <b>/locations/description/{locationPrefix}/inmates</b> instead. This API will be removed in a future release.
   (javaOperationName): searchForOffendersLocationAndKeyword
   description: Search for Offender Bookings in the system by location and keywords
+    uriParameters:
+      locationPrefix:
+        type: string
+        description: The location description of location
+      keywords?:
+        type: string
+        description: offender name or id to match
   type: { readOnlyCollectionPaged: { type: OffenderBooking, description: List offenders by location (matching keywords). } }
   is: [ sortable ]

@@ -46,31 +46,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("IEP_LEVEL", new FieldMapper("iepLevel"))
             .build();
 
-    private static final Map<String, FieldMapper> OFFENDER_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
-			.put("OFFENDER_ID_DISPLAY", new FieldMapper("offenderNo"))
-			.put("TITLE", 				new FieldMapper("title", null, null, StringUtils::upperCase))
-			.put("SUFFIX", 				new FieldMapper("suffix", null, null, StringUtils::upperCase))
-            .put("FIRST_NAME", 			new FieldMapper("firstName", null, null, StringUtils::upperCase))
-            .put("MIDDLE_NAMES", 		new FieldMapper("middleNames", null, null, StringUtils::upperCase))
-            .put("LAST_NAME", 			new FieldMapper("lastName", null, null, StringUtils::upperCase))
-            .put("BIRTH_DATE", 			new FieldMapper("dateOfBirth", DateTimeConverter::toISO8601LocalDate))
-            .put("ETHNICITY", 			new FieldMapper("ethnicity"))
-            .put("SEX", 			    new FieldMapper("gender"))
-            .put("BIRTH_COUNTRY", 		new FieldMapper("birthCountry"))
-			.put("CONVICTED_STATUS", 	new FieldMapper("convictedStatus"))
-			.put("NATIONALITIES", 		new FieldMapper("nationalities"))
-			.put("RELIGION", 	        new FieldMapper("religion"))
-			.put("MARITAL_STATUS", 	    new FieldMapper("maritalStatus"))
-			.put("IMPRISONMENT_STATUS", new FieldMapper("imprisonmentStatus"))
-			.put("PNC_NUMBER", 			new FieldMapper("pncNumber"))
-			.put("CRO_NUMBER", 			new FieldMapper("croNumber"))
-			.put("ACTIVE_FLAG", 		new FieldMapper("currentlyInPrison"))
-			.put("BOOKING_BEGIN_DATE", 	new FieldMapper("receptionDate", DateTimeConverter::toISO8601LocalDate))
-			.put("RELEASE_DATE",    	new FieldMapper("releaseDate", DateTimeConverter::toISO8601LocalDate))
-			.put("AGY_LOC_ID", 			new FieldMapper("latestLocationId"))
-			.put("AGY_LOC_DESC", 		new FieldMapper("latestLocation"))
-            .build();
-
     private final Map<String, FieldMapper> inmateDetailsMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("OFFENDER_BOOK_ID", 	new FieldMapper("bookingId"))
 			.put("BOOKING_NO", 			new FieldMapper("bookingNo"))
@@ -110,6 +85,10 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     private final StandardBeanPropertyRowMapper<PhysicalCharacteristic> PHYSICAL_CHARACTERISTIC_MAPPER = new StandardBeanPropertyRowMapper<>(PhysicalCharacteristic.class);
     private final StandardBeanPropertyRowMapper<InmateDto> INMATE_MAPPER = new StandardBeanPropertyRowMapper<>(InmateDto.class);
 	private final StandardBeanPropertyRowMapper<ProfileInformation> PROFILE_INFORMATION_MAPPER = new StandardBeanPropertyRowMapper<>(ProfileInformation.class);
+
+
+    private final StandardBeanPropertyRowMapper<PrisonerDetail> PRISONER_DETAIL_MAPPER =
+            new StandardBeanPropertyRowMapper<>(PrisonerDetail.class);
 
 	private final Map<String, FieldMapper> aliasMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("LAST_NAME",		new FieldMapper("lastName"))
@@ -195,11 +174,10 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	@Cacheable("searchForOffenderBookings")
 	public Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String lastName, String firstName, String locationPrefix, String locationTypeRoot, PageRequest pageRequest) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
+		initialSql += " AND " + getQuery("LOCATION_FILTER_SQL");
+
 		if (!caseloads.isEmpty()) {
 			initialSql += " AND " + getQuery("CASELOAD_FILTER");
-		}
-		if (StringUtils.isNotBlank(locationPrefix)) {
-			initialSql += " AND " + getQuery("LOCATION_FILTER_SQL");
 		}
 
 		if (StringUtils.isNotBlank(offenderNo)) {
@@ -282,7 +260,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             log.debug("Running between {} and {}", fromDobDate, toDobDate);
         }
 
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_MAPPING);
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, PRISONER_DETAIL_MAPPER.getFieldMap());
 
         String sql = builder
                 .addQuery(query)
@@ -291,10 +269,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 .addOrderBy(sortAscending, sortFields)
                 .build();
 
-        RowMapper<PrisonerDetail> prisonerDetailRowMapper =
-                Row2BeanRowMapper.makeMapping(sql, PrisonerDetail.class, OFFENDER_MAPPING);
-
-		PageAwareRowMapper<PrisonerDetail> paRowMapper = new PageAwareRowMapper<>(prisonerDetailRowMapper);
+		PageAwareRowMapper<PrisonerDetail> paRowMapper = new PageAwareRowMapper<>(PRISONER_DETAIL_MAPPER);
 
         List<PrisonerDetail> prisonerDetails = jdbcTemplate.query(
                 sql,

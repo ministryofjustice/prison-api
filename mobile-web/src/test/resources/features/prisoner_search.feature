@@ -10,72 +10,125 @@ Feature: Prisoner Search
     Then access is denied
 
   Scenario: Can perform global search with ADMIN role
-    Given a user has logged in with username "elite2_api_user" and password "password"
+    Given a trusted client has authenticated with the API
     When a search is made for prisoners with DOB on or after 1970-01-01 for range 0 -> 15
     Then "11" prisoner records are returned
 
   Scenario: Search prisoners within a date of birth range
-    Given a user has logged in with username "hpa_user" and password "password"
+    Given a trusted client has authenticated with the API
     When a search is made for prisoners with DOB on or after 1970-01-01 for range 0 -> 2
     Then "2" prisoner records are returned
     And  "11" total prisoner records are available
 
+  @nomis
   Scenario Outline: Search prisoners within a dates of birth range not allowing more than 10 years
-    Given a user has logged in with username "hpa_user" and password "password"
+    Given a trusted client has authenticated with the API
     When a search is made for prisoners with DOB between "<dobFrom>" and "<dobTo>" for range 0 -> 100
     Then "<numberResults>" prisoner records are returned
     And the prisoners dob matches "<DOB>"
 
-  Examples:
-  | dobFrom    | dobTo      | numberResults | DOB                                                                                                                      |
-  | 1970-01-01 | 1971-01-01 | 3             | 1970-01-01,1970-01-01,1970-03-01                                                                                         |
-  | 1970-01-01 | 1980-01-01 | 11            | 1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07,1979-12-31 |
-  | 1970-01-01 | 1980-01-02 | 11            | 1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07,1979-12-31 |
-  | 1969-12-30 |            | 11            | 1969-12-30,1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07 |
-  | 1965-01-01 | 1970-01-02 | 7             | 1966-01-01,1968-01-01,1968-01-01,1968-03-23,1969-12-30,1970-01-01,1970-01-01                                             |
-  | 1970-01-01 |            | 11            | 1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07,1979-12-31 |
-  | 1990-01-01 | 2000-01-01 | 6             | 1990-12-30,1991-06-04,1995-08-21,1998-08-28,1998-11-01,1999-10-27                                                        |
-  | 1995-12-31 | 2000-01-01 | 3             | 1998-08-28,1998-11-01,1999-10-27                                                                                         |
-  |            | 2000-01-01 | 6             | 1990-12-30,1991-06-04,1995-08-21,1998-08-28,1998-11-01,1999-10-27                                                        |
+    Examples:
+    | dobFrom    | dobTo      | numberResults | DOB                                                                                                                      |
+    | 1970-01-01 | 1971-01-01 | 3             | 1970-01-01,1970-01-01,1970-03-01                                                                                         |
+    | 1970-01-01 | 1980-01-01 | 11            | 1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07,1979-12-31 |
+    | 1970-01-01 | 1980-01-02 | 11            | 1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07,1979-12-31 |
+    | 1969-12-30 |            | 11            | 1969-12-30,1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07 |
+    | 1965-01-01 | 1970-01-02 | 7             | 1966-01-01,1968-01-01,1968-01-01,1968-03-23,1969-12-30,1970-01-01,1970-01-01                                             |
+    | 1970-01-01 |            | 11            | 1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07,1979-12-31 |
+    | 1990-01-01 | 2000-01-01 | 4             | 1990-12-30,1991-06-04,1998-08-28,1999-10-27                                                        |
+    | 1995-12-31 | 2000-01-01 | 2             | 1998-08-28,1999-10-27                                                                                         |
+    |            | 2000-01-01 | 4             | 1990-12-30,1991-06-04,1998-08-28,1999-10-27                                                        |
 
-  Scenario Outline: Search for prisoners by names
-    Given a user has logged in with username "hpa_user" and password "password"
-    When a search is made for prisoners with first name "<search-firstName>", middle names "<search-middleNames>" and last name "<search-lastName>"
+  @elite
+  Scenario Outline: Search prisoners within a dates of birth range not allowing more than 10 years
+    Given a trusted client has authenticated with the API
+    When a search is made for prisoners with DOB between "<dobFrom>" and "<dobTo>" for range 0 -> 100
     Then "<numberResults>" prisoner records are returned
-    And the prisoners first names match "<firstNames>"
-    And the prisoners middle names match "<middleNames>"
-    And the prisoners last names match "<lastNames>"
+    And the prisoners dob matches "<DOB>"
 
     Examples:
-      | search-firstName | search-middleNames | search-lastName | numberResults | firstNames          | middleNames    | lastNames              |
-      |                  |                    | ANDERSON        | 2             |  ARTHUR,GILLIAN     | BORIS,EVE      | ANDERSON,ANDERSON      |
-      |                  | JEFFREY ROBERT     |                 | 1             |  DONALD             | JEFFREY ROBERT | DUCK                   |
-      | CHESNEY          |                    |                 | 1             |  CHESNEY            |                | THOMSON                |
-      |                  |                    | WILLIS          | 0             |                     |                |                        |
+    | dobFrom    | dobTo      | numberResults | DOB                                                                                                                      |
+    | 1970-01-01 | 1971-01-01 | 3             | 1970-01-01,1970-01-01,1970-03-01                                                                                         |
+    | 1970-01-01 | 1980-01-01 | 11            | 1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07,1979-12-31 |
+    | 1970-01-01 | 1980-01-02 | 11            | 1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07,1979-12-31 |
+    | 1969-12-30 |            | 11            | 1969-12-30,1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07 |
+    | 1965-01-01 | 1970-01-02 | 7             | 1966-01-01,1968-01-01,1968-01-01,1968-03-23,1969-12-30,1970-01-01,1970-01-01                                             |
+    | 1970-01-01 |            | 11            | 1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07,1979-12-31 |
+    | 1990-01-01 | 2000-01-01 | 6             | 1990-12-30,1991-06-04,1995-08-21,1998-08-28,1998-11-01,1999-10-27                                                        |
+    | 1995-12-31 | 2000-01-01 | 3             | 1998-08-28,1998-11-01,1999-10-27                                                                                         |
+    |            | 2000-01-01 | 6             | 1990-12-30,1991-06-04,1995-08-21,1998-08-28,1998-11-01,1999-10-27                                                        |
+
+  Scenario Outline: Search for prisoners by names, without partial name matching
+    Given a trusted client has authenticated with the API
+    When a search is made for prisoners with first name "<firstName>", middle names "<middleNames>" and last name "<lastName>"
+    Then "<numberResults>" prisoner records are returned
+    And prisoner offender numbers match "<offenderNos>"
+
+    Examples:
+      | firstName | middleNames    | lastName | numberResults | offenderNos     |
+      |           |                | ANDERSON | 2             | A1234AA,A1234AB |
+      |           | EVE            | ANDERSON | 1             | A1234AB         |
+      |           | JAMES          |          | 2             | A1234AD,A1234AI |
+      | CHESTER   | JAMES          |          | 1             | A1234AI         |
+      |           | JEFFREY ROBERT |          | 1             | A1234AE         |
+      | DANIEL    |                |          | 2             | A1234AJ,A1234AL |
+      | DANIEL    | JOSEPH         |          | 1             | A1234AJ         |
+      |           |                | WILLIS   | 0             |                 |
+      |           |                | AND      | 0             |                 |
+      | CHES      |                |          | 0             |                 |
+      |           | JEFF           |          | 0             |                 |
+
+  @broken
+  Scenario Outline: Search for prisoners by names, with partial name matching
+    Given a trusted client has authenticated with the API
+    When a partial name search is made for prisoners with first name "<firstName>", middle names "<middleNames>" and last name "<lastName>"
+    Then "<numberResults>" prisoner records are returned
+    And prisoner offender numbers match "<offenderNos>"
+    And the prisoners first names match "<foundFirstNames>"
+    And the prisoners middle names match "<foundMiddleNames>"
+    And the prisoners last names match "<foundLastNames>"
+
+    Examples:
+      | firstName | middleNames    | lastName | numberResults | offenderNos             | foundFirstNames        | foundMiddleNames | foundLastNames            |
+      |           |                | AND      | 3             | A1234AA,A1234AB,A1234AF | ARTHUR,GILLIAN,ANTHONY | BORIS,EVE        | ANDERSON,ANDERSON,ANDREWS |
+      | CHES      |                |          | 2             | A1234AI                 | CHESTER                | JAMES            | THOMPSON                  |
+      |           | JEFF           |          | 1             | A1234AE                 | DONALD                 | JEFFREY ROBERT   | DUCK                      |
 
   Scenario Outline: Search prisoners for a specified Date of Birth
-    Given a user has logged in with username "hpa_user" and password "password"
+    Given a trusted client has authenticated with the API
     When a search is made for prisoners with date of birth of "<dob>"
     Then "<numberResults>" prisoner records are returned
     And the prisoners last names match "<lastNames>"
 
     Examples:
-      | dob        | numberResults | lastNames        |
-      | 1970-01-01 | 2             |  CHAPLIN,TALBOT         |
-      | 1969-12-30 | 1             |  ANDERSON        |
-      | 1999-10-27 | 1             |  BATES           |
-      | 1959-10-28 | 0             |                  |
+      | dob        | numberResults | lastNames      |
+      | 1970-01-01 | 2             | CHAPLIN,TALBOT |
+      | 1969-12-30 | 1             | ANDERSON       |
+      | 1999-10-27 | 1             | BATES          |
+      | 1959-10-28 | 0             |                |
+
+  Scenario Outline: Search for prisoners with specified offender number
+    Given a trusted client has authenticated with the API
+    When a search is made for prisoners with an offender number of "<offenderNo>"
+    Then "<numberResults>" prisoner records are returned
+    And the prisoners last names match "<lastNames>"
+
+    Examples:
+      | offenderNo | numberResults | lastNames |
+      | A1234AC    | 1             | BATES     |
+      | A1476AE    | 0             |           |
+      | A1181MV    | 1             | VAUGHAN   |
 
   @nomis
   Scenario Outline: Search prisoners for a CRO or PNC number
-    Given a user has logged in with username "hpa_user" and password "password"
+    Given a trusted client has authenticated with the API
     When a search is made for prisoners with PNC number of "<pnc>" and/or CRO number of "<cro>"
     Then "<numberResults>" prisoner records are returned
     And the prisoners last names match "<lastNames>"
 
     Examples:
-      | pnc        | cro        | numberResults | lastNames        |
-      | PNC112233  |            | 1             | CHAPLIN          |
-      | PNC112234  |            | 0             |                  |
-      |            | CRO112233  | 1             | BATES            |
-      |            | CRO112234  | 0             |                  |
+      | pnc        | cro        | numberResults | lastNames |
+      | PNC112233  |            | 1             | CHAPLIN   |
+      | PNC112234  |            | 0             |           |
+      |            | CRO112233  | 1             | BATES     |
+      |            | CRO112234  | 0             |           |

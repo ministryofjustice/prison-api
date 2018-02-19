@@ -159,16 +159,22 @@ public class InmateServiceImpl implements InmateService {
     private String generateQuery(PrisonerDetailSearchCriteria criteria) {
         final StringBuilder query = new StringBuilder();
 
+        String nameMatchingClause = criteria.isPartialNameMatch() ? "%s:like:'%s%%'" : "%s:eq:'%s'";
+
+        if (StringUtils.isNotBlank(criteria.getOffenderNo())) {
+            query.append(format("offenderNo:eq:'%s'", criteria.getOffenderNo()));
+        }
         if (StringUtils.isNotBlank(criteria.getFirstName())) {
-            query.append(format("firstName:like:'%s%%'", criteria.getFirstName()));
+            addAnd(query);
+            query.append(format(nameMatchingClause, "firstName", criteria.getFirstName()));
         }
         if (StringUtils.isNotBlank(criteria.getMiddleNames())) {
             addAnd(query);
-            query.append(format("middleNames:like:'%s%%'", criteria.getMiddleNames()));
+            query.append(format(nameMatchingClause, "middleNames", criteria.getMiddleNames()));
         }
         if (StringUtils.isNotBlank(criteria.getLastName())) {
             addAnd(query);
-            query.append(format("lastName:like:'%s%%'", criteria.getLastName()));
+            query.append(format(nameMatchingClause, "lastName", criteria.getLastName()));
         }
         if (StringUtils.isNotBlank(criteria.getPncNumber())) {
             addAnd(query);

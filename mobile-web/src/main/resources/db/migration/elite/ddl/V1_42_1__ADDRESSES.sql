@@ -1,0 +1,38 @@
+CREATE TABLE ADDRESSES
+(
+  ADDRESS_ID                      NUMBER(10)                          NOT NULL,
+  OWNER_CLASS                     VARCHAR2(12)                        NOT NULL,
+  OWNER_ID                        NUMBER(10),
+  OWNER_SEQ                       NUMBER(6),
+  OWNER_CODE                      VARCHAR2(12),
+  ADDRESS_TYPE                    VARCHAR2(12),
+  CITY_CODE                       VARCHAR2(12),
+  COUNTRY_CODE                    VARCHAR2(12),
+  VALIDATED_PAF_FLAG              VARCHAR2(1),
+  PRIMARY_FLAG                    VARCHAR2(1)                         NOT NULL,
+  MAIL_FLAG                       VARCHAR2(1)                         NOT NULL,
+  CAPACITY                        NUMBER(5),
+  COMMENT_TEXT                    VARCHAR2(240),
+  CREATE_DATETIME                 TIMESTAMP(9)   DEFAULT SYSTIMESTAMP NOT NULL,
+  CREATE_USER_ID                  VARCHAR2(32)   DEFAULT USER         NOT NULL,
+  MODIFY_DATETIME                 TIMESTAMP(9)   DEFAULT SYSTIMESTAMP,
+  MODIFY_USER_ID                  VARCHAR2(32),
+  NO_FIXED_ADDRESS_FLAG           VARCHAR2(1),
+  SERVICES_FLAG                   VARCHAR2(1),
+  SPECIAL_NEEDS_CODE              VARCHAR2(12),
+  CONTACT_PERSON_NAME             VARCHAR2(40),
+  BUSINESS_HOUR                   VARCHAR2(60),
+  START_DATE                      DATE,
+  END_DATE                        DATE,
+  CITY_NAME                       VARCHAR2(40),
+  PROV_STATE_CODE                 VARCHAR2(12),
+  STREET                          VARCHAR2(160),
+  ZIP_POSTAL_CODE                 VARCHAR2(12),
+  SUITE_NUMBER                    VARCHAR2(30),
+  STREET_NUMBER                   VARCHAR2(12),
+  STREET_DIRECTION                VARCHAR2(12),
+  MAIL_CARE_OF                    VARCHAR2(40),
+  SEAL_FLAG                       VARCHAR2(1)
+);
+
+ALTER TABLE ADDRESSES ADD CONSTRAINT ADDRESSES_PK PRIMARY KEY (ADDRESS_ID);

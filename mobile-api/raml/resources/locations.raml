@@ -16,12 +16,28 @@
   type: { readOnlyItem: { type: Location, description: Location detail. } }
 
 /{locationId}/inmates:
-  (deprecated): Use <b>/search-offenders/{locationPrefix}</b> instead. This API will be removed in a future release.
   (javaOperationName): getOffendersAtLocation
   uriParameters:
     locationId:
       (javaType): Long
       description: The location id of location
+  type: { readOnlyCollectionPaged: { type: OffenderBooking, description: List of offenders at location. } }
+  is: [
+    searchable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId"},
+    sortable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId"},
+  ]
+
+/description/{locationPrefix}/inmates:
+  (javaOperationName): getOffendersAtLocationDescription
+  uriParameters:
+    locationDesc:
+      type: string
+      description: The location description of location
+  get:
+    queryParameters:
+      keywords?:
+        type : string
+        description: offender name or id to match
   type: { readOnlyCollectionPaged: { type: OffenderBooking, description: List of offenders at location. } }
   is: [
     searchable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId"},

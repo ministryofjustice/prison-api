@@ -18,7 +18,6 @@ public interface LocationService {
     @Deprecated
     Page<Location> getLocations(String username, String query, String orderBy, Order order, long offset, long limit);
 
-    @Deprecated
     Page<OffenderBooking> getInmatesFromLocation(long locationId, String username, String query, String orderByField, Order order, long offset, long limit);
 
     List<Location> getGroup(String agencyId, String name);
