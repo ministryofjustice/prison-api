@@ -36,7 +36,7 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
 
     @Given("^a admin user has authenticated with the API$")
     public void aNonAdminUserHasAuthenticatedWithTheAPI() {
-        authenticate("ELITE2_API_USER", "password");
+        authenticate("ELITE2_API_USER", "password", false);
     }
 
     @Given("^user \"([^\"]*)\" with password \"([^\"]*)\" has authenticated with the API$")
