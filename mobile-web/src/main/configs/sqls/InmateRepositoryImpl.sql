@@ -292,46 +292,39 @@ FIND_MY_ASSIGNMENTS {
 
 FIND_PRISONERS {
   SELECT
-    O.OFFENDER_ID_DISPLAY,
-    O.TITLE,
-    O.SUFFIX,
-    O.FIRST_NAME,
-    CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL
-      THEN concat(' ', O.middle_name_2)
-                          ELSE '' END) MIDDLE_NAMES,
-    O.LAST_NAME,
-    O.BIRTH_DATE,
-    RCE.DESCRIPTION       AS       ETHNICITY,
-    RCS.DESCRIPTION       AS       SEX,
-    RCC.DESCRIPTION       AS       BIRTH_COUNTRY,
-    ob.booking_begin_date,
-    ob.active_flag,
-    ob.agy_loc_id,
-    al.description                 AGY_LOC_DESC,
-    COALESCE(ord.release_date, ord.auto_release_date) RELEASE_DATE,
-    ois.imprisonment_status,
-    NULL PNC_NUMBER,
-    NULL CRO_NUMBVER
+    O.OFFENDER_ID_DISPLAY             OFFENDER_NO,
+    UPPER(O.TITLE)                    TITLE,
+    UPPER(O.SUFFIX)                   SUFFIX,
+    UPPER(O.FIRST_NAME)               FIRST_NAME,
+    UPPER(CONCAT(O.MIDDLE_NAME,
+      CASE WHEN MIDDLE_NAME_2 IS NOT NULL
+        THEN CONCAT(' ', O.MIDDLE_NAME_2)
+      ELSE '' END))                   MIDDLE_NAMES,
+    UPPER(O.LAST_NAME)                LAST_NAME,
+    O.BIRTH_DATE                      DATE_OF_BIRTH,
+    RCE.DESCRIPTION                   ETHNICITY,
+    RCS.DESCRIPTION                   GENDER,
+    RCC.DESCRIPTION                   BIRTH_COUNTRY,
+    OB.BOOKING_BEGIN_DATE             RECEPTION_DATE,
+    OB.ACTIVE_FLAG                    CURRENTLY_IN_PRISON,
+    OB.AGY_LOC_ID                     LATEST_LOCATION_ID,
+    AL.DESCRIPTION                    LATEST_LOCATION,
+    COALESCE(ORD.RELEASE_DATE, ORD.AUTO_RELEASE_DATE) RELEASE_DATE,
+    (SELECT OIS.IMPRISONMENT_STATUS
+     FROM OFFENDER_IMPRISON_STATUSES OIS
+     WHERE OIS.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
+       AND OIS.IMPRISON_STATUS_SEQ = (SELECT MAX(OIS1.IMPRISON_STATUS_SEQ)
+                                      FROM OFFENDER_IMPRISON_STATUSES OIS1
+                                      WHERE OIS1.OFFENDER_BOOK_ID = OIS.OFFENDER_BOOK_ID)) IMPRISONMENT_STATUS
   FROM OFFENDERS O
-    JOIN OFFENDER_BOOKINGS OB
-      ON OB.offender_id = o.offender_id
-    join agency_locations al
-      on al.agy_loc_id = ob.agy_loc_id
-    left join offender_release_details ord
-      on ord.offender_book_id = ob.offender_book_id
-    LEFT JOIN offender_imprison_statuses ois
-      ON ois.offender_book_id = OB.offender_book_id
-         AND ois.IMPRISON_STATUS_SEQ = (select MAX(IMPRISON_STATUS_SEQ) FROM offender_imprison_statuses ois1 WHERE ois1.OFFENDER_BOOK_ID = ois.OFFENDER_BOOK_ID)
-    LEFT JOIN REFERENCE_CODES RCE ON O.RACE_CODE = RCE.CODE
-                                     AND RCE.DOMAIN = 'ETHNICITY'
-    LEFT JOIN REFERENCE_CODES RCS ON O.SEX_CODE = RCS.CODE
-                                     AND RCS.DOMAIN = 'SEX'
-    LEFT JOIN REFERENCE_CODES RCC ON O.BIRTH_COUNTRY_CODE = RCC.CODE
-                                     AND RCC.DOMAIN = 'COUNTRY'
+    INNER JOIN OFFENDER_BOOKINGS OB ON OB.OFFENDER_ID = O.OFFENDER_ID
+    INNER JOIN AGENCY_LOCATIONS AL ON AL.AGY_LOC_ID = OB.AGY_LOC_ID
+    LEFT JOIN OFFENDER_RELEASE_DETAILS ORD ON ORD.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
+    LEFT JOIN REFERENCE_CODES RCE ON O.RACE_CODE = RCE.CODE AND RCE.DOMAIN = 'ETHNICITY'
+    LEFT JOIN REFERENCE_CODES RCS ON O.SEX_CODE = RCS.CODE AND RCS.DOMAIN = 'SEX'
+    LEFT JOIN REFERENCE_CODES RCC ON O.BIRTH_COUNTRY_CODE = RCC.CODE AND RCC.DOMAIN = 'COUNTRY'
 }
-
 
 LOCATION_FILTER_SQL {
     AIL.DESCRIPTION LIKE :locationPrefix
 }
-

@@ -15,7 +15,7 @@ Feature: Booking Search
   Scenario: Search all offenders
     When a booking search is made without any criteria
     Then "10" booking records are returned
-    And  "34" total booking records are available
+    And  "31" total booking records are available
 
   Scenario Outline: Search based on full offender last name
     When a booking search is made with full last "<name>" of existing offender
@@ -70,12 +70,12 @@ Feature: Booking Search
     And offender middle names match "<middle name list>"
 
     Examples:
-      | name | number | last name list                           | middle name list |
-      | CH%  | 5      | CHAPLIN,THOMPSON,THOMPSON,THOMSON,WOAKES | JAMES,JAMES      |
-      | ch%  | 5      | CHAPLIN,THOMPSON,THOMPSON,THOMSON,WOAKES | JAMES,JAMES      |
-      | Ch%  | 5      | CHAPLIN,THOMPSON,THOMPSON,THOMSON,WOAKES | JAMES,JAMES      |
-      | XX%  | 0      |                                          |                  |
-      |      | 0      |                                          |                  |
+      | name | number | last name list          | middle name list |
+      | CH%  | 3      | CHAPLIN,THOMPSON,WOAKES | JAMES,JAMES      |
+      | ch%  | 3      | CHAPLIN,THOMPSON,WOAKES | JAMES,JAMES      |
+      | Ch%  | 3      | CHAPLIN,THOMPSON,WOAKES | JAMES,JAMES      |
+      | XX%  | 0      |                         |                  |
+      |      | 0      |                         |                  |
 
   Scenario Outline: Search based on offender first name and last name
     When a booking search is made with "<first name>" and "<last name>" of existing offender
@@ -90,7 +90,7 @@ Feature: Booking Search
       | JOHN       | DOE       | 0      |                            |                            |
       | DA%        | SMITH     | 2      | DANIEL,DARIUS              | SMITH,SMITH                |
       | DANIEL     | SM%       | 2      | DANIEL,DANIEL              | SMITH,SMELLEY              |
-      | DA%        | SM%       | 4      | DANIEL,DANIEL,DARIUS,DANNY | SMITH,SMITH,SMELLEY,SMILEY |
+      | DA%        | SM%       | 3      | DANIEL,DANIEL,DARIUS       | SMITH,SMITH,SMELLEY        |
       |            | SM%       | 0      |                            |                            |
       | DA%        |           | 0      |                            |                            |
       |            |           | 0      |                            |                            |
@@ -102,10 +102,10 @@ Feature: Booking Search
     And offender last names match "<last name list>"
 
     Examples:
-      | first name | last name | number | first name list                  | last name list                   |
-      | DONALD     | CHAPLIN   | 3      | CHARLES,DONALD,DONALD            | CHAPLIN,DUCK,TRUMP               |
-      | CHARLES    | TRUMP     | 2      | CHARLES,DONALD                   | CHAPLIN,TRUMP                    |
-      | JOHN       | DOE       | 0      |                                  |                                  |
-      | DA%        | SMITH     | 6      | DANIEL,DANIEL,DARIUS,GILES,DANNY,MATTHEW | SMITH,SMITH,SMITH,SMITH,SMELLEY,SMILEY |
-      | DANIEL     | SM%       | 6      | DANIEL,DANIEL,DARIUS,GILES,DANNY,MATTHEW | SMITH,SMITH,SMITH,SMITH,SMELLEY,SMILEY |
-      | DA%        | SM%       | 6      | DANIEL,DANIEL,DARIUS,GILES,DANNY,MATTHEW | SMITH,SMITH,SMITH,SMITH,SMELLEY,SMILEY |
+      | first name | last name | number | first name list                    | last name list                   |
+      | DONALD     | CHAPLIN   | 3      | CHARLES,DONALD,DONALD              | CHAPLIN,DUCK,TRUMP               |
+      | CHARLES    | TRUMP     | 2      | CHARLES,DONALD                     | CHAPLIN,TRUMP                    |
+      | JOHN       | DOE       | 0      |                                    |                                  |
+      | DA%        | SMITH     | 5      | DANIEL,DANIEL,DARIUS,GILES,MATTHEW | SMITH,SMITH,SMITH,SMITH,SMELLEY  |
+      | DANIEL     | SM%       | 5      | DANIEL,DANIEL,DARIUS,GILES,MATTHEW | SMITH,SMITH,SMITH,SMITH,SMELLEY  |
+      | DA%        | SM%       | 5      | DANIEL,DANIEL,DARIUS,GILES,MATTHEW | SMITH,SMITH,SMITH,SMITH,SMELLEY  |

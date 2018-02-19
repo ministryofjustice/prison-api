@@ -5,15 +5,14 @@ import com.google.common.collect.ImmutableMap;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-
 import net.syscon.elite.executablespecification.steps.PrisonerSearchSteps;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * BDD step definitions for the following Offender Search API endpoints:
@@ -36,6 +35,11 @@ public class PrisonerSearchStepDefinitions extends AbstractStepDefinitions {
     @Then("^\"([^\"]*)\" total prisoner records are available$")
     public void totalBookingRecordsAreAvailable(String expectedCount) throws Throwable {
         prisonerSearch.verifyTotalResourceRecordsAvailable(Long.valueOf(expectedCount));
+    }
+
+    @And("^prisoner offender numbers match \"([^\"]*)\"$")
+    public void offenderNumbersMatch(String offenderNoList) throws Throwable {
+        prisonerSearch.verifyOffenderNumbers(offenderNoList);
     }
 
     @And("^the prisoners first names match \"([^\"]*)\"$")
@@ -81,22 +85,40 @@ public class PrisonerSearchStepDefinitions extends AbstractStepDefinitions {
 
     @When("^a search is made for prisoners with first name \"([^\"]*)\", middle names \"([^\"]*)\" and last name \"([^\"]*)\"$")
     public void aSearchIsMadeForPrisonersWithFirstNameMiddleNamesAndLastName(String firstName, String middleNames, String lastName) throws Throwable {
-        Map<String, String> params = new HashMap<>();
-        if (StringUtils.isNotBlank(firstName)) {
-            params.put("firstName", firstName);
-        }
-        if (StringUtils.isNotBlank(middleNames)) {
-            params.put("middleNames", middleNames);
-        }
-        if (StringUtils.isNotBlank(lastName)) {
-            params.put("lastName", lastName);
-        }
+        Map<String,String> params = buildNameSearch(firstName, middleNames, lastName, false);
+
         prisonerSearch.search(params, 0, 100, HttpStatus.OK);
+    }
+
+    @When("^a partial name search is made for prisoners with first name \"([^\"]*)\", middle names \"([^\"]*)\" and last name \"([^\"]*)\"$")
+    public void aPartialNameSearchIsMadeForPrisonersWithFirstNameMiddleNamesAndLastName(String firstName, String middleNames, String lastName) throws Throwable {
+        Map<String,String> params = buildNameSearch(firstName, middleNames, lastName, true);
+
+        prisonerSearch.search(params, 0, 100, HttpStatus.OK);
+    }
+
+    private Map<String,String> buildNameSearch(String firstName, String middleNames, String lastName, boolean partialNameMatch) {
+        Map<String, String> params = new HashMap<>();
+
+        Optional.ofNullable(StringUtils.trimToNull(firstName)).ifPresent(name -> params.put("firstName", name));
+        Optional.ofNullable(StringUtils.trimToNull(middleNames)).ifPresent(name -> params.put("middleNames", name));
+        Optional.ofNullable(StringUtils.trimToNull(lastName)).ifPresent(name -> params.put("lastName", name));
+
+        if (partialNameMatch) {
+            params.put("partialNameMatch", Boolean.TRUE.toString());
+        }
+
+        return params;
     }
 
     @When("^a search is made for prisoners with date of birth of \"([^\"]*)\"$")
     public void aSearchIsMadeForPrisonersWithDateOfBirthOf(String dob) throws Throwable {
         prisonerSearch.search(ImmutableMap.of("dob", dob), 0, 100, HttpStatus.OK);
+    }
+
+    @When("a search is made for prisoners with an offender number of \"([^\"]*)\"$")
+    public void aSearchIsMadeForPrisonersWithAnOffenderNumberOf(String offenderNo) throws Throwable {
+        prisonerSearch.search(ImmutableMap.of("offenderNo", offenderNo), 0, 100, HttpStatus.OK);
     }
 
     @When("^a search is made for prisoners with PNC number of \"([^\"]*)\" and/or CRO number of \"([^\"]*)\"$")
