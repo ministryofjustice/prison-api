@@ -50,6 +50,15 @@ public class AgencyServiceImpl implements AgencyService {
     }
 
     @Override
+    public void checkAgencyExists(String agencyId) {
+        Objects.requireNonNull(agencyId, "agencyId is a required parameter");
+
+        if(! agencyRepository.getAgency(agencyId).isPresent()) {
+            throw EntityNotFoundException.withId(agencyId);
+        }
+    }
+
+    @Override
     public Page<Agency> getAgencies(long offset, long limit) {
         return agencyRepository.getAgencies("agencyId", Order.ASC, offset, limit);
     }

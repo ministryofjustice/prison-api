@@ -34,6 +34,11 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         authenticate("itag_user", "password");
     }
 
+    @Given("^a admin user has authenticated with the API$")
+    public void aNonAdminUserHasAuthenticatedWithTheAPI() {
+        authenticate("ELITE2_API_USER", "password");
+    }
+
     @Given("^user \"([^\"]*)\" with password \"([^\"]*)\" has authenticated with the API$")
     public void userWithPasswordHasAuthenticatedWithTheAPI(String username, String password) throws Throwable {
         authenticate(username, password);
