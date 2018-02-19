@@ -110,6 +110,12 @@ public class SchedulesSteps extends CommonSteps {
         usage = "APP";
     }
 
+    public void givenNoneExistentAgency() {
+        agency = "TEST_AGENCY";
+        location = -4L;
+        usage = "APP";
+    }
+
     // public void verifyField(String field, String value) throws
     // ReflectiveOperationException {
     // super.verifyField(result, field, value);

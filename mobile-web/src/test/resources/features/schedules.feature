@@ -81,6 +81,16 @@ Scenario: usage not valid
     When schedules are requested for agency and location
     Then bad request response, with "Usage not recognised." message, is received from schedules API
 
+Scenario: agency does not exist for none system users
+    Given an agency which does not exists has been set
+    And schedules are requested for agency and location
+    And schedules response error message is "Resource with id [TEST_AGENCY] not found."
+
+Scenario: agency does not exist for system users
+    Given a admin user has authenticated with the API
+    And an agency which does not exists has been set
+    And schedules are requested for agency and location
+    And schedules response error message is "Resource with id [TEST_AGENCY] not found."
 
 Scenario: no location scheduled events
     Given the location within the agency has no scheduled events for current day
