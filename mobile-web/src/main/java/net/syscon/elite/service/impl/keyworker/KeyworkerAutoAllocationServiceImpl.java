@@ -9,7 +9,7 @@ import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.service.AllocationException;
-import net.syscon.elite.service.KeyWorkerAllocationService;
+import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
 import net.syscon.elite.service.keyworker.KeyworkerAutoAllocationService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;

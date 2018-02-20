@@ -1,4 +1,4 @@
-package net.syscon.elite.service.impl;
+package net.syscon.elite.service.impl.keyworker;
 
 import net.syscon.elite.api.model.KeyWorkerAllocationDetail;
 import net.syscon.elite.api.model.Keyworker;
@@ -14,7 +14,7 @@ import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.AllocationException;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.service.KeyWorkerAllocationService;
+import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
