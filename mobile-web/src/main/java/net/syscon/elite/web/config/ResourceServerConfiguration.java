@@ -19,7 +19,6 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     @Autowired
     private ResourceServerTokenServices tokenServices;
 
-
     @Bean
     public EntryPointUnauthorizedHandler unauthorizedHandler() {
         return new EntryPointUnauthorizedHandler();
@@ -33,6 +32,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
                 .and().authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers(            "/api/swagger*").permitAll()
+                .antMatchers(            "/swagger-resources/**").permitAll()
                 .antMatchers("/api/**").authenticated();
     }
 
@@ -40,7 +40,4 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     public void configure(ResourceServerSecurityConfigurer config) {
         config.tokenServices(tokenServices);
     }
-
-
-
 }
