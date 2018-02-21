@@ -76,8 +76,9 @@ types:
   NewAllocation:              !include types/NewAllocation.raml
   Keyworker:                  !include types/Keyworker.raml
   KeyWorkerAllocationDetail:  !include types/KeyWorkerAllocationDetail.raml
-
   OffenderSentenceDetailDto:  !include internalTypes/OffenderSentenceDetailDto.raml
+  NewBooking:                 !include types/NewBooking.raml
+  RecallBooking:              !include types/RecallBooking.raml
 
 securitySchemes:
   jwt:
@@ -121,4 +122,3 @@ resourceTypes: !include resourceTypes/generic-resource-types.raml
 /custody-statuses:        !include resources/custody-statuses.raml
 /offender-relationships:  !include resources/offender-relationships.raml
 /key-worker:              !include resources/key-worker.raml
-

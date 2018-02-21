@@ -1,10 +1,88 @@
 /:
-  (javaOperationName): getOffenderBookings
-  type: { readOnlyCollectionPaged: { type: OffenderBooking, description: Summary information for all offenders accessible to current user. } }
-  is: [
-    searchable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, assignedLivingUnitId, assignedOfficerUserId"},
-    sortable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, assignedLivingUnitId"},
-  ]
+  get:
+    (javaOperationName): getOffenderBookings
+    description: Summary information for all offenders accessible to current user.
+    responses:
+      200:
+        body:
+          application/json:
+            type: OffenderBooking[]
+            description: Summary information for all offenders accessible to current user.
+      500:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: Unrecoverable error occurred whilst processing request.
+            example: !include ../examples/ouput/500.sample.json
+    is: [
+      pageable, hasResponsePagination,
+      searchable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, assignedLivingUnitId, assignedOfficerUserId"},
+      sortable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, assignedLivingUnitId"}
+    ]
+  post:
+    (beta): true
+    (javaOperationName): createOffenderBooking
+    description: Create booking for offender (additionally creating offender record if one does not already exist).
+    body:
+      application/json:
+        type: NewBooking
+        description: Details required to enable creation of new offender booking (and offender, if necessary).
+    responses:
+      201:
+        body:
+          application/json:
+            type: OffenderSummary
+            description: Offender booking created.
+      400:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: Request to create offender booking failed. Consult response for reason.
+            example: !include ../examples/ouput/400.sample.json
+     403:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: User not authorised to create offender booking.
+            example: !include ../examples/ouput/403.sample.json
+      500:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: Unrecoverable error occurred whilst processing request.
+            example: !include ../examples/ouput/500.sample.json
+  put:
+    (beta): true
+    (javaOperationName): recallOffenderBooking
+    description: Process recall for offender.
+    body:
+      application/json:
+        type: RecallBooking
+        description: Details required to enable recall of offender.
+    responses:
+      200:
+        body:
+          application/json:
+            type: OffenderSummary
+            description: Offender successfully recalled.
+      400:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: Request to recall offender failed. Consult response for reason.
+            example: !include ../examples/ouput/400.sample.json
+     403:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: User not authorised to recall offender.
+            example: !include ../examples/ouput/403.sample.json
+      500:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: Unrecoverable error occurred whilst processing request.
+            example: !include ../examples/ouput/500.sample.json
 
 /{bookingId}:
   (javaOperationName): getOffenderBooking
