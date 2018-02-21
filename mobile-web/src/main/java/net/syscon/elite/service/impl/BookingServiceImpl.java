@@ -530,6 +530,25 @@ public class BookingServiceImpl implements BookingService {
         return new Page<>(offenderSentenceDetails, offenderSentenceSummary.getTotalRecords(), offenderSentenceSummary.getPageOffset(), offenderSentenceSummary.getPageLimit());
     }
 
+    @Override
+    public OffenderSummary createBooking(@Valid NewBooking newBooking) {
+        return OffenderSummary.builder()
+                .firstName(newBooking.getFirstName())
+                .lastName(newBooking.getLastName())
+                .middleNames((StringUtils.trimToNull(StringUtils.join(newBooking.getMiddleName1(), " ", newBooking.getMiddleName2()))))
+                .offenderNo(newBooking.getOffenderNo())
+                .build();
+    }
+
+    @Override
+    public OffenderSummary recallBooking(@Valid RecallBooking recallBooking) {
+        return OffenderSummary.builder()
+                .offenderNo(recallBooking.getOffenderNo())
+                .firstName(recallBooking.getFirstName())
+                .lastName(recallBooking.getLastName())
+                .build();
+    }
+
     private Set<String> getUserCaseloadIds(String username) {
         return caseLoadService.getCaseLoadIdsForUser(username);
     }

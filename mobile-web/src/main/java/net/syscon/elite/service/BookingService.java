@@ -55,4 +55,8 @@ public interface BookingService {
     List<OffenderSummary> getBookingsByPersonIdAndType(Long personId, String relationshipType);
 
     Long getBookingIdByOffenderNo(String offenderNo);
+
+    OffenderSummary createBooking(@Valid NewBooking newBooking);
+
+    OffenderSummary recallBooking(@Valid RecallBooking recallBooking);
 }

@@ -60,6 +60,22 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    @PreAuthorize("#oauth2.hasScope('write')")
+    public CreateOffenderBookingResponse createOffenderBooking(NewBooking newBooking) {
+        OffenderSummary offenderSummary = bookingService.createBooking(newBooking);
+
+        return CreateOffenderBookingResponse.respond201WithApplicationJson(offenderSummary);
+    }
+
+    @Override
+    @PreAuthorize("#oauth2.hasScope('write')")
+    public RecallOffenderBookingResponse recallOffenderBooking(RecallBooking recallBooking) {
+        OffenderSummary offenderSummary = bookingService.recallBooking(recallBooking);
+
+        return RecallOffenderBookingResponse.respond200WithApplicationJson(offenderSummary);
+    }
+
+    @Override
     public GetOffenderBookingResponse getOffenderBooking(Long bookingId) {
         InmateDetail inmate = inmateService.findInmate(bookingId, authenticationFacade.getCurrentUsername());
 
