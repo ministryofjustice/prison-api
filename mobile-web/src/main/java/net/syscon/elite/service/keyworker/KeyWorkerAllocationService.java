@@ -1,4 +1,4 @@
-package net.syscon.elite.service;
+package net.syscon.elite.service.keyworker;
 
 import net.syscon.elite.api.model.KeyWorkerAllocationDetail;
 import net.syscon.elite.api.model.Keyworker;

@@ -3,7 +3,7 @@ package net.syscon.elite.service.impl.keyworker;
 import net.syscon.elite.api.model.Keyworker;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 import net.syscon.elite.service.AllocationException;
-import net.syscon.elite.service.KeyWorkerAllocationService;
+import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

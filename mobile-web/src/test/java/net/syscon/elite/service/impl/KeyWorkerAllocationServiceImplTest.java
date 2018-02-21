@@ -1,7 +1,6 @@
 package net.syscon.elite.service.impl;
 
 import com.google.common.collect.ImmutableSet;
-
 import net.syscon.elite.api.model.Keyworker;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
@@ -10,7 +9,8 @@ import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.AllocationException;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.service.KeyWorkerAllocationService;
+import net.syscon.elite.service.impl.keyworker.KeyWorkerAllocationServiceImpl;
+import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,8 +22,8 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static net.syscon.elite.service.impl.keyworker.KeyworkerTestHelper.verifyException;
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)

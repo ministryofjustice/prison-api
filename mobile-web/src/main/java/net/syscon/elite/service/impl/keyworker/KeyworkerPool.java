@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Keyworker;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 import net.syscon.elite.service.AllocationException;
-import net.syscon.elite.service.KeyWorkerAllocationService;
+import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
 import org.apache.commons.lang3.Validate;
 import org.springframework.util.ObjectUtils;
 
