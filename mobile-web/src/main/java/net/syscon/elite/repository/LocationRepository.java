@@ -16,5 +16,5 @@ public interface LocationRepository {
 	@Deprecated
 	Page<Location> findLocations(String username, String query, String orderByField, Order order, long offset, long limit);
 
-	List<Location> findLocationsByAgencyAndType(String agencyId, String locationType, int depthAllowed);
+	List<Location> findLocationsByAgencyAndType(String agencyId, String locationType, boolean noParentLocation);
 }

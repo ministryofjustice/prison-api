@@ -41,7 +41,7 @@ public class LocationServiceImplTest {
 
     @Before
     public void init() throws IOException {
-        locationService = new LocationServiceImpl(agencyRepository, locationRepository, null, null, "WING", 2, null);
+        locationService = new LocationServiceImpl(agencyRepository, locationRepository, null, null, "WING", null);
         groupsProperties = new Properties();
         ReflectionTestUtils.setField(locationService, "groupsProperties", groupsProperties);
     }
@@ -56,7 +56,7 @@ public class LocationServiceImplTest {
         List<Location> locations = new ArrayList<>();
         Location location = createTestLocation();
         locations.add(location);
-        Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI","WING",2)).thenReturn(locations);
+        Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI","WING", true)).thenReturn(locations);
 
         List<Location> returnedLocations = locationService.getUserLocations("me");
 
@@ -82,7 +82,7 @@ public class LocationServiceImplTest {
     @Test
     public void testGetGroupSinglePattern() {
 
-        Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", 1)).thenReturn(Arrays.asList(//
+        Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", false)).thenReturn(Arrays.asList(//
                 cell1, cell2, cell3, cell4));
         groupsProperties.setProperty("LEI_mylist", "cell[13]||cell4");
 
@@ -94,7 +94,7 @@ public class LocationServiceImplTest {
     @Test
     public void testGetGroupMultipleMatches() {
 
-        Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", 1)).thenReturn(Arrays.asList(//
+        Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", false)).thenReturn(Arrays.asList(//
                 cell1, cell2, cell3, cell4));
         groupsProperties.setProperty("LEI_mylist", "cell3,cell[13]");
 
@@ -117,7 +117,7 @@ public class LocationServiceImplTest {
 
     @Test(expected = PatternSyntaxException.class)
     public void testGetGroupInvalidPattern() throws Exception {
-        Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", 1)).thenReturn(Arrays.asList(//
+        Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", false)).thenReturn(Arrays.asList(//
                 cell1, cell2, cell3, cell4));
         groupsProperties.setProperty("LEI_mylist", "cell[13]||[");
 
@@ -126,7 +126,7 @@ public class LocationServiceImplTest {
 
     @Test(expected=ConfigException.class)
     public void testGetGroupNoCells() throws Exception {
-        Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", 1)).thenReturn(Arrays.asList(//
+        Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", false)).thenReturn(Arrays.asList(//
                 cell1, cell2, cell3, cell4));
         groupsProperties.setProperty("LEI_mylist", "");
 

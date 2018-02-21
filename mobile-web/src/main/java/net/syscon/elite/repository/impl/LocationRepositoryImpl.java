@@ -86,8 +86,16 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 
 	@Override
 	@Cacheable("findLocationsByAgencyAndType")
-	public List<Location> findLocationsByAgencyAndType(String agencyId, String locationType, int depthAllowed) {
-		String sql = getQuery("FIND_LOCATIONS_BY_AGENCY_AND_TYPE");
+	public List<Location> findLocationsByAgencyAndType(String agencyId, String locationType, boolean noParentLocation) {
+		String initialSql = getQuery("FIND_LOCATIONS_BY_AGENCY_AND_TYPE");
+		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, LOCATION_ROW_MAPPER);
+
+		if (noParentLocation) {
+			builder = builder.addQuery("parentLocationId:is:null");
+		}
+		String sql = builder
+				.addOrderBy(Order.ASC, "description")
+				.build();
 
 		List<Location> rawLocations = jdbcTemplate.query(
 				sql,

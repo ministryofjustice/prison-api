@@ -43,13 +43,11 @@ public class LocationServiceImpl implements LocationService {
     private final InmateRepository inmateRepository;
     private final CaseLoadService caseLoadService;
     private final String locationTypeGranularity;
-    private final Integer locationDepth;
     private final Properties groupsProperties;
 
     public LocationServiceImpl(AgencyRepository agencyRepository, LocationRepository locationRepository,
             InmateRepository inmateRepository, CaseLoadService caseLoadService,
             @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity,
-            @Value("${api.users.me.locations.depth:1}") Integer locationDepth,
             @Value("groups.properties") ClassPathResource groupPropertiesFile) throws IOException {
         this.locationRepository = locationRepository;
         this.inmateRepository = inmateRepository;
@@ -57,7 +55,6 @@ public class LocationServiceImpl implements LocationService {
         this.agencyRepository = agencyRepository;
         this.groupsProperties = groupPropertiesFile == null ? null : PropertiesLoaderUtils.loadProperties(groupPropertiesFile);
         this.locationTypeGranularity = locationTypeGranularity;
-        this.locationDepth = locationDepth;
     }
 
     @Override
@@ -72,7 +69,7 @@ public class LocationServiceImpl implements LocationService {
 
                     // Then retrieve all associated internal locations at configured level of granularity.
                     final List<Location> agencyLocations = locationRepository.findLocationsByAgencyAndType(
-                            agency.getAgencyId(), locationTypeGranularity, locationDepth);
+                            agency.getAgencyId(), locationTypeGranularity, true);
 
                     locations.addAll(agencyLocations);
                 }
@@ -125,7 +122,7 @@ public class LocationServiceImpl implements LocationService {
             throw new EntityNotFoundException(
                     "Group '" + name + "' does not exist for agencyId '" + agencyId + "'.");
         }
-        final List<Location> cells = locationRepository.findLocationsByAgencyAndType(agencyId, "CELL", 1);
+        final List<Location> cells = locationRepository.findLocationsByAgencyAndType(agencyId, "CELL", false);
 
         final Set<String> patternSet = commaDelimitedListToSet(patterns);
         final List<Location> results = new ArrayList<>();
