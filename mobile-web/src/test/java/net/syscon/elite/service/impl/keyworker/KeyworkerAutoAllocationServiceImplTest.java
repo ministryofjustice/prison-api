@@ -43,7 +43,7 @@ import static org.mockito.Mockito.*;
  * Unit test for Key worker auto-allocation service.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class KeyworkerAutoAllocationServiceTest {
+public class KeyworkerAutoAllocationServiceImplTest {
     private static final String TEST_AGENCY_ID = "TST";
 
     private KeyworkerAutoAllocationService keyworkerAutoAllocationService;
@@ -231,7 +231,7 @@ public class KeyworkerAutoAllocationServiceTest {
         mockKeyworkerPool(someKeyworkers);
 
         // A previous allocation between the unallocated offender and Key worker with staffId = 2
-        KeyWorkerAllocation previousAllocation = getPreviousKeyworkerAllocation(allocBookingId, allocStaffId);
+        KeyWorkerAllocation previousAllocation = getPreviousKeyworkerAutoAllocation(TEST_AGENCY_ID, allocBookingId, allocStaffId);
 
         mockPrisonerAllocationHistory(previousAllocation);
 
@@ -297,8 +297,8 @@ public class KeyworkerAutoAllocationServiceTest {
         // Previous allocations between the unallocated offender and different Key workers at different date/times
         LocalDateTime assignedEarlier = LocalDateTime.now().minusMonths(9);
         LocalDateTime assignedLater = assignedEarlier.plusMonths(3);
-        KeyWorkerAllocation prevEarlierAllocation = getPreviousKeyworkerAllocation(allocBookingId, allocEarlierStaffId, assignedEarlier);
-        KeyWorkerAllocation prevLaterAllocation = getPreviousKeyworkerAllocation(allocBookingId, allocLaterStaffId, assignedLater);
+        KeyWorkerAllocation prevEarlierAllocation = getPreviousKeyworkerAutoAllocation(TEST_AGENCY_ID, allocBookingId, allocEarlierStaffId, assignedEarlier);
+        KeyWorkerAllocation prevLaterAllocation = getPreviousKeyworkerAutoAllocation(TEST_AGENCY_ID, allocBookingId, allocLaterStaffId, assignedLater);
 
         mockPrisonerAllocationHistory(prevEarlierAllocation, prevLaterAllocation);
 
@@ -430,10 +430,10 @@ public class KeyworkerAutoAllocationServiceTest {
         LocalDateTime refDateTime = LocalDateTime.now();
 
         KeyWorkerAllocation recentAllocation =
-                getPreviousKeyworkerAllocation(5, recentLeastAllocStaffId, refDateTime.minusDays(2));
+                getPreviousKeyworkerAutoAllocation(TEST_AGENCY_ID, 5, recentLeastAllocStaffId, refDateTime.minusDays(2));
 
         KeyWorkerAllocation olderAllocation =
-                getPreviousKeyworkerAllocation(7, olderLeastAllocStaffId, refDateTime.minusDays(7));
+                getPreviousKeyworkerAutoAllocation(TEST_AGENCY_ID, 7, olderLeastAllocStaffId, refDateTime.minusDays(7));
 
         mockKeyworkerAllocationHistory(recentLeastAllocStaffId, recentAllocation);
         mockKeyworkerAllocationHistory(olderLeastAllocStaffId, olderAllocation);

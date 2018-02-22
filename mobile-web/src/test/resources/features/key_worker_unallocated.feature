@@ -1,4 +1,4 @@
-@global @nomis
+@nomis
 Feature: Unallocated Offenders
 
   Acceptance Criteria:
