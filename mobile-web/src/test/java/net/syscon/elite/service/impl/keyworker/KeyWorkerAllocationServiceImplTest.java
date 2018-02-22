@@ -35,7 +35,6 @@ public class KeyWorkerAllocationServiceImplTest {
 
     private static final String USER_1 = "USER1";
     private static final String AUTO_ALLOCATED_TYPE = "A";
-    private static final String AUTO_ALLOCATION_TYPE = AUTO_ALLOCATED_TYPE;
     private static final String DEALLOCATION_REASON = "deallocating";
     private static final long BOOKING_ID = -1L;
     private static final String AGENCY_ID = "LEI";
