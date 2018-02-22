@@ -9,6 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static java.lang.String.format;
 
 @Service
 @Transactional(readOnly = true)
@@ -25,8 +28,12 @@ public class CaseLoadServiceImpl implements CaseLoadService {
     }
 
     @Override
-    public List<CaseLoad> getCaseLoadsForUser(String username) {
-        return caseLoadRepository.getCaseLoadsByUsername(username);
+    public List<CaseLoad> getCaseLoadsForUser(String username, boolean allCaseloads) {
+        String query = null;
+        if (!allCaseloads) {
+            query = format("type:eq:'%s',and:caseloadFunction:neq:'%s'", "INST", "ADMIN");
+        }
+        return caseLoadRepository.getCaseLoadsByUsername(username, query);
     }
 
     @Override
@@ -35,7 +42,8 @@ public class CaseLoadServiceImpl implements CaseLoadService {
     }
 
     @Override
-    public Set<String> getCaseLoadIdsForUser(String username) {
-        return caseLoadRepository.getCaseLoadIdsByUsername(username);
+    public Set<String> getCaseLoadIdsForUser(String username, boolean allCaseloads) {
+        return getCaseLoadsForUser(username, allCaseloads).stream().map(CaseLoad::getCaseLoadId).collect(Collectors.toSet());
     }
+
 }

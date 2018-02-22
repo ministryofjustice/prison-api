@@ -12,8 +12,7 @@ public interface UserRepository {
 
 	Optional<UserDetail> findByUsername(String username);
 
-	List<UserRole> findRolesByUsername(String username);
-	List<UserRole> findApiRolesByUsername(final String username);
+	List<UserRole> findRolesByUsername(String username, String query);
 
 	void updateWorkingCaseLoad(Long staffId, String caseLoadId);
 }

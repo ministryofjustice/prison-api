@@ -14,13 +14,11 @@ public interface UserService {
 
 	UserDetail getUserByUsername(String username);
 
-	List<CaseLoad> getCaseLoads(String username);
+	List<CaseLoad> getCaseLoads(String username, boolean allCaseloads);
 
 	Set<String> getCaseLoadIds(String username);
 
 	void setActiveCaseLoad(String username, String caseLoadId);
 
-	List<UserRole> getRolesByUsername(String username);
-
-	List<UserRole> getApiRolesByUsername(String username);
+	List<UserRole> getRolesByUsername(String username, boolean allRoles);
 }

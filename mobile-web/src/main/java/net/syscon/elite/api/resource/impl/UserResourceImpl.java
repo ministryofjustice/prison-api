@@ -56,8 +56,8 @@ public class UserResourceImpl implements UserResource {
     }
 
     @Override
-    public GetMyCaseLoadsResponse getMyCaseLoads() {
-        List<CaseLoad> caseLoads = userService.getCaseLoads(authenticationFacade.getCurrentUsername());
+    public GetMyCaseLoadsResponse getMyCaseLoads(boolean allCaseloads) {
+        List<CaseLoad> caseLoads = userService.getCaseLoads(authenticationFacade.getCurrentUsername(), allCaseloads);
 
         return GetMyCaseLoadsResponse.respond200WithApplicationJson(caseLoads);
     }
@@ -82,8 +82,8 @@ public class UserResourceImpl implements UserResource {
     }
 
     @Override
-    public GetMyRolesResponse getMyRoles() {
-        List<UserRole> rolesByUsername = userService.getRolesByUsername(authenticationFacade.getCurrentUsername());
+    public GetMyRolesResponse getMyRoles(boolean allRoles) {
+        List<UserRole> rolesByUsername = userService.getRolesByUsername(authenticationFacade.getCurrentUsername(), allRoles);
 
         return GetMyRolesResponse.respond200WithApplicationJson(rolesByUsername);
     }

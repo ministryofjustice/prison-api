@@ -33,7 +33,7 @@ public class UserDetailsServiceImpl implements UserDetailsService, Authenticatio
 	@Cacheable("loadUserByUsername")
 	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
 		final UserDetail userDetail = userService.getUserByUsername(username);
-		List<UserRole> roles = userService.getApiRolesByUsername(username);
+		List<UserRole> roles = userService.getRolesByUsername(username, false);
 
 		Set<GrantedAuthority> authorities = roles.stream()
 				.filter(Objects::nonNull)

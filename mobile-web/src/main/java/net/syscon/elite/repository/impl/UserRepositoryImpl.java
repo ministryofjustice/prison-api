@@ -4,11 +4,13 @@ import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
-import org.springframework.beans.factory.annotation.Value;
+import net.syscon.util.IQueryBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
@@ -20,9 +22,6 @@ import java.util.Optional;
 
 @Repository
 public class UserRepositoryImpl extends RepositoryBase implements UserRepository {
-
-	@Value("${application.caseload.id:NEWB}")
-	private String apiCaseloadId;
 
 	private final Map<String, FieldMapper> userMapping = new ImmutableMap.Builder<String, FieldMapper>()
 		.put("STAFF_ID", new FieldMapper("staffId"))
@@ -83,16 +82,17 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
 	@Override
 	@Cacheable("findRolesByUsername")
-	public List<UserRole> findRolesByUsername(final String username) {
-		String sql = getQuery("FIND_ROLES_BY_USERNAME");
-		return jdbcTemplate.query(sql, createParams("username", username), USER_ROLE_MAPPER);
-	}
+	public List<UserRole> findRolesByUsername(final String username, String query) {
+		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(getQuery("FIND_ROLES_BY_USERNAME"), USER_ROLE_MAPPER);
 
-	@Override
-	@Cacheable("findApiRolesByUsername")
-	public List<UserRole> findApiRolesByUsername(final String username) {
-		String sql = getQuery("FIND_API_ROLES_BY_USERNAME");
-		return jdbcTemplate.query(sql, createParams("username", username, "apiCaseloadId", apiCaseloadId), USER_ROLE_MAPPER);
+		if (StringUtils.isNotBlank(query)) {
+			builder = builder.addQuery(query);
+		}
+		String sql = builder
+			.addOrderBy(Order.ASC, "roleCode")
+			.build();
+
+		return jdbcTemplate.query(sql, createParams("username", username), USER_ROLE_MAPPER);
 	}
 
 	@Override

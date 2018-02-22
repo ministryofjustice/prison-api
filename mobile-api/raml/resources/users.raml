@@ -31,11 +31,26 @@
   (javaOperationName): getMyRoles
   description: Get the logged in users roles
   type: { readOnlyCollection: { type: UserRole, description: List of roles for current user. } }
+  get:
+    queryParameters:
+      allRoles?:
+        type: boolean
+        description: If set to true then all roles are returned rather than just API roles
+        example: false
+        default: false
 
 /me/caseLoads:
   (javaOperationName): getMyCaseLoads
   description: Returns the list of caseloads associated to the user
   type: { readOnlyCollection: { type: CaseLoad, description: List of caseloads accessible to current user. } }
+  get:
+    queryParameters:
+      allCaseloads?:
+        type: boolean
+        description: If set to true then all caseloads are returned
+        example: false
+        default: false
+
   
 /me/caseNoteTypes:
   (javaOperationName): getMyCaseNoteTypes

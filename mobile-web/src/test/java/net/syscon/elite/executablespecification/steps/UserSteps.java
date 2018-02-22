@@ -107,8 +107,8 @@ public class UserSteps extends CommonSteps {
     }
 
     @Step("Get roles for current user")
-    public void getUserRoles() {
-        dispatchUserRolesRequest();
+    public void getUserRoles(boolean allRoles) {
+        dispatchUserRolesRequest(allRoles);
     }
 
     @Step("Verify roles retrieved for current user")
@@ -128,12 +128,12 @@ public class UserSteps extends CommonSteps {
         assertThat(caseNoteTypes.stream().filter(type -> type.getSubCodes().isEmpty()).count()).isEqualTo(0);
     }
 
-    private void dispatchUserRolesRequest() {
+    private void dispatchUserRolesRequest(boolean allRoles) {
         init();
 
         try {
             ResponseEntity<List<UserRole>> response = restTemplate.exchange(
-                    API_USERS_ME_ROLES_REQUEST_URL,
+                    API_USERS_ME_ROLES_REQUEST_URL + (allRoles ? "?allRoles=true" : ""),
                     HttpMethod.GET,
                     createEntity(),
                     new ParameterizedTypeReference<List<UserRole>>() {});

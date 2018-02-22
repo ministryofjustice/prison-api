@@ -194,6 +194,6 @@ public class InmateServiceImpl implements InmateService {
     }
 
     private Set<String> getUserCaseloadIds(String username) {
-        return caseLoadService.getCaseLoadIdsForUser(username);
+        return caseLoadService.getCaseLoadIdsForUser(username, true);
     }
 }

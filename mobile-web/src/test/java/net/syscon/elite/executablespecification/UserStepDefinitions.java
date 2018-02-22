@@ -99,9 +99,14 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.verifyResourceNotFound();
     }
 
+    @When("^a user role request is made for all roles$")
+    public void aUserRoleRequestIsMadeForAllRoles() throws Throwable {
+        user.getUserRoles(true);
+    }
+
     @When("^a user role request is made$")
     public void aUserRoleRequestIsMade() throws Throwable {
-        user.getUserRoles();
+        user.getUserRoles(false);
     }
 
     @Then("^the roles returned are \"([^\"]*)\"$")

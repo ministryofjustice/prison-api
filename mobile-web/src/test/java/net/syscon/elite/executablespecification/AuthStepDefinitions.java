@@ -64,7 +64,7 @@ public class AuthStepDefinitions extends AbstractStepDefinitions {
 
     @When("^a user role request is made after token has expired$")
     public void aUserRoleRequestIsMade() {
-        user.getUserRoles();
+        user.getUserRoles(true);
     }
 
     @Then("^a new token is generated successfully$")
