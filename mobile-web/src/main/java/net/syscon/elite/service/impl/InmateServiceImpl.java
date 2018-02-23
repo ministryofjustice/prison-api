@@ -14,7 +14,6 @@ import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +26,6 @@ import static java.lang.String.format;
 @Service
 @Transactional(readOnly = true)
 public class InmateServiceImpl implements InmateService {
-    public static final String DEFAULT_OFFENDER_SORT = "lastName,firstName,offenderNo";
 
     private final InmateRepository repository;
     private final CaseLoadService caseLoadService;
@@ -66,35 +64,80 @@ public class InmateServiceImpl implements InmateService {
     }
     
     @Override
-    @Cacheable("findInmate")
     @VerifyBookingAccess
     public InmateDetail findInmate(Long bookingId, String username) {
         final InmateDetail inmate = repository.findInmate(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
 
-        PhysicalAttributes physicalAttributes = repository.findPhysicalAttributes(bookingId).orElse(null);
-        if (physicalAttributes != null && physicalAttributes.getHeightCentimetres() != null) {
-            physicalAttributes.setHeightMetres(BigDecimal.valueOf(physicalAttributes.getHeightCentimetres()).movePointLeft(2));
-        }
-
-        inmate.setPhysicalAttributes(physicalAttributes);
-        inmate.setPhysicalCharacteristics(repository.findPhysicalCharacteristics(bookingId));
-        inmate.setProfileInformation(repository.getProfileInformation(bookingId));
-        inmate.setPhysicalMarks(repository.findPhysicalMarks(bookingId));
+        inmate.setPhysicalAttributes(getPhysicalAttributes(bookingId));
+        inmate.setPhysicalCharacteristics(getPhysicalCharacteristics(bookingId));
+        inmate.setProfileInformation(getProfileInformation(bookingId));
+        inmate.setPhysicalMarks(getPhysicalMarks(bookingId));
         inmate.setAssignedLivingUnit(repository.findAssignedLivingUnit(bookingId, locationTypeGranularity).orElse(null));
         inmate.setAlertsCodes(repository.findActiveAlertCodes(bookingId));
         inmate.setActiveAlertCount(inmateAlertRepository.getAlertCounts(bookingId, "ACTIVE"));
         inmate.setInactiveAlertCount(inmateAlertRepository.getAlertCounts(bookingId, "INACTIVE"));
-
-        final Map<String, List<AssessmentDto>> mapOfAssessments = getAssessmentsAsMap(bookingId);
-        final List<Assessment> assessments = new ArrayList<>();
-        mapOfAssessments.forEach((assessmentCode, assessment) -> assessments.add(createAssessment(assessment.get(0))));
-        inmate.setAssessments(assessments);
+        inmate.setAssessments(getAssessments(bookingId));
 
         return inmate;
     }
 
     @Override
-    @Cacheable("getInmateAssessmentByCode")
+    @VerifyBookingAccess
+    public List<Assessment> getAssessments(Long bookingId) {
+        final Map<String, List<AssessmentDto>> mapOfAssessments = getAssessmentsAsMap(bookingId);
+        final List<Assessment> assessments = new ArrayList<>();
+        mapOfAssessments.forEach((assessmentCode, assessment) -> assessments.add(createAssessment(assessment.get(0))));
+        return assessments;
+    }
+
+    @Override
+    @VerifyBookingAccess
+    public List<PhysicalMark> getPhysicalMarks(Long bookingId) {
+        return repository.findPhysicalMarks(bookingId);
+    }
+
+    @Override
+    @VerifyBookingAccess
+    public List<ProfileInformation> getProfileInformation(Long bookingId) {
+        return repository.getProfileInformation(bookingId);
+    }
+
+    @Override
+    @VerifyBookingAccess
+    public ImageDetail getMainBookingImage(Long bookingId) {
+        return repository.getMainBookingImage(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
+    }
+
+    @Override
+    @VerifyBookingAccess
+    public List<PhysicalCharacteristic> getPhysicalCharacteristics(Long bookingId) {
+        return repository.findPhysicalCharacteristics(bookingId);
+    }
+
+    @Override
+    @VerifyBookingAccess
+    public PhysicalAttributes getPhysicalAttributes(Long bookingId) {
+        PhysicalAttributes physicalAttributes = repository.findPhysicalAttributes(bookingId).orElse(null);
+        if (physicalAttributes != null && physicalAttributes.getHeightCentimetres() != null) {
+            physicalAttributes.setHeightMetres(BigDecimal.valueOf(physicalAttributes.getHeightCentimetres()).movePointLeft(2));
+        }
+        return physicalAttributes;
+    }
+
+    @Override
+    @VerifyBookingAccess
+    public List<OffenderIdentifier> getOffenderIdentifiers(Long bookingId) {
+        return repository.getOffenderIdentifiers(bookingId);
+    }
+
+    @Override
+    @VerifyBookingAccess
+    public InmateDetail getBasicInmateDetail(Long bookingId) {
+        return repository.getBasicInmateDetail(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
+    }
+
+
+    @Override
     @VerifyBookingAccess
     public Optional<Assessment> getInmateAssessmentByCode(Long bookingId, String assessmentCode) {
         final Map<String, List<AssessmentDto>> mapOfAssessments = getAssessmentsAsMap(bookingId);
