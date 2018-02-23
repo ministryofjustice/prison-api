@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
-import net.syscon.elite.repository.ImageRepository;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
@@ -24,6 +23,8 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.*;
+
+import static net.syscon.elite.repository.ImageRepository.IMAGE_DETAIL_MAPPER;
 
 @Repository
 @Slf4j
@@ -328,10 +329,11 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     @Cacheable("bookingImage")
     public Optional<ImageDetail> getMainBookingImage(long bookingId) {
         final String sql = getQuery("GET_IMAGE_DATA_FOR_BOOKING");
-        final RowMapper<ImageDetail> imageRowMapper = Row2BeanRowMapper.makeMapping(sql, ImageDetail.class, ImageRepository.IMAGE_SUMMARY_MAPPING);
         ImageDetail imageDetail;
         try {
-            imageDetail = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId), imageRowMapper);
+            imageDetail = jdbcTemplate.queryForObject(sql,
+					createParams("bookingId", bookingId),
+					IMAGE_DETAIL_MAPPER);
         } catch (EmptyResultDataAccessException e) {
             imageDetail = null;
         }

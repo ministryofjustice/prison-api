@@ -2,13 +2,11 @@ package net.syscon.elite.repository.impl;
 
 import net.syscon.elite.api.model.ImageDetail;
 import net.syscon.elite.repository.ImageRepository;
-import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.RecoverableDataAccessException;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Blob;
@@ -23,10 +21,11 @@ public class ImageRepositoryImpl extends RepositoryBase implements ImageReposito
 	@Override
 	public Optional<ImageDetail> findImageDetail(final Long imageId) {
 		final String sql = getQuery("FIND_IMAGE_DETAIL");
-		final RowMapper<ImageDetail> imageRowMapper = Row2BeanRowMapper.makeMapping(sql, ImageDetail.class, IMAGE_SUMMARY_MAPPING);
 		ImageDetail imageDetail;
 		try {
-			imageDetail = jdbcTemplate.queryForObject(sql, createParams("imageId", imageId), imageRowMapper);
+			imageDetail = jdbcTemplate.queryForObject(sql,
+					createParams("imageId", imageId),
+					IMAGE_DETAIL_MAPPER);
 		} catch (EmptyResultDataAccessException e) {
 			imageDetail = null;
 		}
