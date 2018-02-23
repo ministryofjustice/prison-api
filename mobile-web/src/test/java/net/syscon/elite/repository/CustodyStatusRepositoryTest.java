@@ -28,7 +28,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = PersistenceConfigs.class)
-public class CustodyStatusRepositoryImplTest {
+public class CustodyStatusRepositoryTest {
 
     @Autowired
     private CustodyStatusRepository repository;

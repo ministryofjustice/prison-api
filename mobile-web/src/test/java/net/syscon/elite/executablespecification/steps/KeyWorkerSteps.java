@@ -2,6 +2,7 @@ package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.Keyworker;
 import net.syscon.elite.test.EliteClientException;
+import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -70,15 +71,21 @@ public class KeyWorkerSteps extends CommonSteps{
         keyworker = null;
     }
 
+    @Step("Get Key worker details")
     public void getKeyworkerDetails(Long staffId) {
         doDetailsApiCall(staffId);
     }
 
+    @Step("Verify Key worker details")
     public void verifyKeyworkerDetails() {
         assertThat(keyworker.getStaffId()).isEqualTo(-5);
         assertThat(keyworker.getFirstName()).isEqualTo("Another");
         assertThat(keyworker.getLastName()).isEqualTo("User");
         assertThat(keyworker.getNumberAllocated()).isEqualTo(4);
+    }
 
+    @Step("Verify number of allocations for Key worker")
+    public void verifyKeyWorkerAllocationCount(int expectedAllocationCount) {
+        assertThat(keyworker.getNumberAllocated()).isEqualTo(expectedAllocationCount);
     }
 }

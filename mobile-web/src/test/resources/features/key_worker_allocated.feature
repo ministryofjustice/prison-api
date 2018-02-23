@@ -1,4 +1,4 @@
-@global @nomis
+@nomis
 Feature: Keyworker Allocations
 
   Acceptance Criteria:

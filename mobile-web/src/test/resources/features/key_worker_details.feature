@@ -1,4 +1,4 @@
-@global @nomis
+@nomis @wip
 Feature: Key worker details
 
   Acceptance Criteria:
@@ -10,6 +10,7 @@ Feature: Key worker details
   Scenario: Request for key worker details
     When a key worker details request is made with staff id "-5"
     Then the key worker details are returned
+    And the key worker has 4 allocations
     
   Scenario: Request for key worker details which does not exist
     When a key worker details request is made with staff id "-99"
