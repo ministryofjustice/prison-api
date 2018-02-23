@@ -17,6 +17,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class BookingAssessmentSteps extends CommonSteps {
     private static final String API_BOOKING_PREFIX = API_PREFIX + "bookings/";
+    private static final String API_ASSESSMENTS_PREFIX = API_PREFIX + "offender-assessments/";
 
     private Assessment assessment;
     private List<Assessment> assessments;
@@ -77,7 +78,7 @@ public class BookingAssessmentSteps extends CommonSteps {
 
     public void getAssessmentsByCode(String bookingIdList, String assessmentCode) {
         final String query = "?bookingId=" + bookingIdList.replace(",", "&bookingId=");
-        assessments = doMultipleResultApiCall(API_BOOKING_PREFIX + "/assessments/" + assessmentCode + query);
+        assessments = doMultipleResultApiCall(API_ASSESSMENTS_PREFIX + "/assessments/" + assessmentCode + query);
     }
 
     public void verifyMultipleAssessments() {

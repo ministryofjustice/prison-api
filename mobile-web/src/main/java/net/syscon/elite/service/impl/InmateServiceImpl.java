@@ -121,20 +121,22 @@ public class InmateServiceImpl implements InmateService {
             }
         }).collect(Collectors.toList());
 
-        final List<AssessmentDto> assessmentsDto = repository.findAssessments(validIds);
-
-        final Map<Long, List<AssessmentDto>> mapOfBookings = assessmentsDto.stream()
-                .collect(Collectors.groupingBy(AssessmentDto::getBookingId));
-
         List<Assessment> results = new ArrayList<>();
-        for (Entry<Long, List<AssessmentDto>> e : mapOfBookings.entrySet()) {
+        if (!validIds.isEmpty()) {
+            final List<AssessmentDto> assessmentsDto = repository.findAssessments(validIds);
 
-            final Map<String, List<AssessmentDto>> mapOfAssessments = e.getValue().stream()
-                    .collect(Collectors.groupingBy(AssessmentDto::getAssessmentCode));
-            final List<AssessmentDto> assessmentForCodeType = mapOfAssessments.get(assessmentCode);
+            final Map<Long, List<AssessmentDto>> mapOfBookings = assessmentsDto.stream()
+                    .collect(Collectors.groupingBy(AssessmentDto::getBookingId));
 
-            if (assessmentForCodeType != null && !assessmentForCodeType.isEmpty()) {
-                results.add(createAssessment(assessmentForCodeType.get(0)));
+            for (Entry<Long, List<AssessmentDto>> e : mapOfBookings.entrySet()) {
+
+                final Map<String, List<AssessmentDto>> mapOfAssessments = e.getValue().stream()
+                        .collect(Collectors.groupingBy(AssessmentDto::getAssessmentCode));
+                final List<AssessmentDto> assessmentForCodeType = mapOfAssessments.get(assessmentCode);
+
+                if (assessmentForCodeType != null && !assessmentForCodeType.isEmpty()) {
+                    results.add(createAssessment(assessmentForCodeType.get(0)));
+                }
             }
         }
         return results;
