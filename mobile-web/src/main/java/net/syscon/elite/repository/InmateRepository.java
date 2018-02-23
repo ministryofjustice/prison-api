@@ -37,9 +37,10 @@ public interface InmateRepository {
 
 	List<PhysicalMark> findPhysicalMarks(long inmateId);
 
-	List<AssessmentDto> findAssessments(long bookingId);
+    List<AssessmentDto> findAssessments(List<Long> bookingIds);
 
 	Optional<AssignedLivingUnit> findAssignedLivingUnit(long bookingId, String locationTypeGranularity);
 
 	List<String> findActiveAlertCodes(long bookingId);
+
 }

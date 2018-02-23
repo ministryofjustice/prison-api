@@ -154,6 +154,12 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    public GetAssessmentsByCodeResponse getAssessmentsByCode(String assessmentCode, List<Long> bookingId) {
+        final List<Assessment> results = inmateService.getInmatesAssessmentsByCode(bookingId, assessmentCode);
+        return GetAssessmentsByCodeResponse.respond200WithApplicationJson(results);
+    }
+
+    @Override
     public GetOffenderCaseNotesResponse getOffenderCaseNotes(Long bookingId, String from, String to,
             String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         Page<CaseNote> caseNotes = caseNoteService.getCaseNotes(

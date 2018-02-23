@@ -206,6 +206,7 @@ FIND_PHYSICAL_ATTRIBUTES_BY_BOOKING {
 
 FIND_ACTIVE_APPROVED_ASSESSMENT {
   SELECT
+    off_ass.OFFENDER_BOOK_ID AS BOOKING_ID,
     ass.ASSESSMENT_CODE,
     ass.DESCRIPTION          AS ASSESSMENT_DESCRIPTION,
     off_ass.review_sup_level_type,
@@ -229,7 +230,7 @@ FIND_ACTIVE_APPROVED_ASSESSMENT {
     LEFT JOIN REFERENCE_CODES ref_cal_sup
       ON off_ass.calc_sup_level_type = ref_cal_sup.CODE AND ref_cal_sup.DOMAIN = 'SUP_LVL_TYPE'
   WHERE off_ass.ASSESS_STATUS = 'A'
-        AND off_ass.OFFENDER_BOOK_ID = :bookingId
+        AND off_ass.OFFENDER_BOOK_ID in (:bookingIds)
   ORDER BY ASSESSMENT_CODE, ASSESSMENT_DATE desc, ASSESSMENT_SEQ desc
   }
 

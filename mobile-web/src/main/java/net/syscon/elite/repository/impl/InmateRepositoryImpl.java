@@ -336,12 +336,12 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-    public List<AssessmentDto> findAssessments(long bookingId) {
+    public List<AssessmentDto> findAssessments(List<Long> bookingIds) {
 		String sql = getQuery("FIND_ACTIVE_APPROVED_ASSESSMENT");
 
 		return jdbcTemplate.query(
 				sql,
-				createParams("bookingId", bookingId),
+				createParams("bookingIds", bookingIds),
 				ASSESSMENT_MAPPER);
 	}
 

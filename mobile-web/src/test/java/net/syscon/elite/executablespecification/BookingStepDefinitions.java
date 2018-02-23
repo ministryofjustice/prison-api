@@ -486,6 +486,17 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAssessment.verifyNextReviewDate(nextReviewDate);
     }
 
+    @When("^an offender booking assessment information request is made with booking ids \"([^\"]*)\" and \"([^\"]*)\"$")
+    public void anOffenderBookingAssessmentInformationRequestIsMadeWithBookingIdAnd(String bookingIdList,
+            String assessmentCode) {
+        bookingAssessment.getAssessmentsByCode(bookingIdList, assessmentCode);
+    }
+
+    @Then("^correct results are returned as for single assessment$")
+    public void multipleIsCorrect() throws Throwable {
+        bookingAssessment.verifyMultipleAssessments();
+    }
+
     @Then("^resource not found response is received from booking assessments API$")
     public void resourceNotFoundResponseIsReceivedFromBookingAssessmentsAPI() {
         bookingAssessment.verifyResourceNotFound();

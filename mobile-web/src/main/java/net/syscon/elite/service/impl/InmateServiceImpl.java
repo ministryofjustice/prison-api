@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -109,15 +110,45 @@ public class InmateServiceImpl implements InmateService {
         return Optional.ofNullable(assessment);
     }
 
-    private Map<String, List<AssessmentDto>> getAssessmentsAsMap(Long bookingId) {
-        final List<AssessmentDto> assessmentsDto = repository.findAssessments(bookingId);
+    @Override
+    public List<Assessment> getInmatesAssessmentsByCode(List<Long> bookingIds, String assessmentCode) {
 
-        return assessmentsDto.stream()
-                .collect(Collectors.groupingBy(AssessmentDto::getAssessmentCode));
+        List<Long> validIds = bookingIds.stream().filter(bookingId -> {
+            if (bookingService.isSystemUser()) {
+                return bookingService.testBookingExists(bookingId);
+            } else {
+                return bookingService.testBookingAccess(bookingId);
+            }
+        }).collect(Collectors.toList());
+
+        final List<AssessmentDto> assessmentsDto = repository.findAssessments(validIds);
+
+        final Map<Long, List<AssessmentDto>> mapOfBookings = assessmentsDto.stream()
+                .collect(Collectors.groupingBy(AssessmentDto::getBookingId));
+
+        List<Assessment> results = new ArrayList<>();
+        for (Entry<Long, List<AssessmentDto>> e : mapOfBookings.entrySet()) {
+
+            final Map<String, List<AssessmentDto>> mapOfAssessments = e.getValue().stream()
+                    .collect(Collectors.groupingBy(AssessmentDto::getAssessmentCode));
+            final List<AssessmentDto> assessmentForCodeType = mapOfAssessments.get(assessmentCode);
+
+            if (assessmentForCodeType != null && !assessmentForCodeType.isEmpty()) {
+                results.add(createAssessment(assessmentForCodeType.get(0)));
+            }
+        }
+        return results;
+    }
+
+    private Map<String, List<AssessmentDto>> getAssessmentsAsMap(Long bookingId) {
+        final List<AssessmentDto> assessmentsDto = repository.findAssessments(Collections.singletonList(bookingId));
+
+        return assessmentsDto.stream().collect(Collectors.groupingBy(AssessmentDto::getAssessmentCode));
     }
 
     private Assessment createAssessment(AssessmentDto assessmentDto) {
         return Assessment.builder()
+                .bookingId(assessmentDto.getBookingId())
                 .assessmentCode(assessmentDto.getAssessmentCode())
                 .assessmentDescription(assessmentDto.getAssessmentDescription())
                 .classification(deriveClassification(assessmentDto))
