@@ -50,39 +50,29 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
     }
 
     private String generateQuery(PrisonerDetailSearchCriteria criteria) {
+        final String likeTemplate = "%s:like:'%s%%'";
+        final String eqTemplate = "%s:eq:'%s'";
+        final String nameMatchingTemplate = criteria.isPartialNameMatch() ? likeTemplate : eqTemplate;
+
         final StringBuilder query = new StringBuilder();
 
-        String nameMatchingClause = criteria.isPartialNameMatch() ? "%s:like:'%s%%'" : "%s:eq:'%s'";
+        appendNonBlankCriteria(query, "offenderNo", criteria.getOffenderNo(), eqTemplate);
+        appendNonBlankCriteria(query, "firstName", criteria.getFirstName(), nameMatchingTemplate);
+        appendNonBlankCriteria(query, "middleNames", criteria.getMiddleNames(), nameMatchingTemplate);
+        appendNonBlankCriteria(query, "lastName", criteria.getLastName(), nameMatchingTemplate);
+        appendNonBlankCriteria(query, "pncNumber", criteria.getPncNumber(), eqTemplate);
+        appendNonBlankCriteria(query, "croNumber", criteria.getCroNumber(), eqTemplate);
 
-        if (StringUtils.isNotBlank(criteria.getOffenderNo())) {
-            query.append(format("offenderNo:eq:'%s'", criteria.getOffenderNo()));
-        }
-        if (StringUtils.isNotBlank(criteria.getFirstName())) {
-            addAnd(query);
-            query.append(format(nameMatchingClause, "firstName", criteria.getFirstName()));
-        }
-        if (StringUtils.isNotBlank(criteria.getMiddleNames())) {
-            addAnd(query);
-            query.append(format(nameMatchingClause, "middleNames", criteria.getMiddleNames()));
-        }
-        if (StringUtils.isNotBlank(criteria.getLastName())) {
-            addAnd(query);
-            query.append(format(nameMatchingClause, "lastName", criteria.getLastName()));
-        }
-        if (StringUtils.isNotBlank(criteria.getPncNumber())) {
-            addAnd(query);
-            query.append(format("pncNumber:eq:'%s'", criteria.getPncNumber()));
-        }
-        if (StringUtils.isNotBlank(criteria.getCroNumber())) {
-            addAnd(query);
-            query.append(format("croNumber:eq:'%s'", criteria.getCroNumber()));
-        }
         return StringUtils.trimToNull(query.toString());
     }
 
-    private void addAnd(StringBuilder query) {
-        if (query.length() > 0) {
-            query.append(",and:");
+    private void appendNonBlankCriteria(StringBuilder query, String criteriaName, String criteriaValue, String operatorTemplate) {
+        if (StringUtils.isNotBlank(criteriaValue)) {
+            if (query.length() > 0) {
+                query.append(",and:");
+            }
+
+            query.append(format(operatorTemplate, criteriaName, criteriaValue));
         }
     }
 }

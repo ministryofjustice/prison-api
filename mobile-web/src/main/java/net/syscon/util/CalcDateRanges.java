@@ -8,6 +8,11 @@ import java.util.Comparator;
 import static java.time.temporal.ChronoUnit.YEARS;
 
 public class CalcDateRanges {
+    private static final Comparator<LocalDate> LOCAL_DATE_COMPARATOR =
+            Comparator.comparingInt(LocalDate::getYear)
+                    .thenComparingInt(LocalDate::getMonthValue)
+                    .thenComparingInt(LocalDate::getDayOfMonth);
+
     private final LocalDate dateFrom;
     private final LocalDate dateTo;
 
@@ -56,9 +61,6 @@ public class CalcDateRanges {
     }
 
     public Range<LocalDate> getDateRange() {
-        return hasDateRange() ? Range.between(dateFrom, dateTo, localDateComparator) : null;
+        return hasDateRange() ? Range.between(dateFrom, dateTo, LOCAL_DATE_COMPARATOR) : null;
     }
-
-    private Comparator<LocalDate> localDateComparator =
-            Comparator.comparingInt(LocalDate::getYear).thenComparingInt(LocalDate::getMonthValue).thenComparingInt(LocalDate::getDayOfMonth);
 }
