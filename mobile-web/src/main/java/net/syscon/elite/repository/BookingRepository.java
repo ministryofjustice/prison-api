@@ -50,4 +50,21 @@ public interface BookingRepository {
 
     List<OffenderSummary> getBookingsByRelationship(Long personId, String relationshipType);
 
+    /**
+     * Gets summary details of latest offender booking (whether active or not) for offender associated with booking
+     * identified by specified booking id.
+     *
+     * @param bookingId booking id.
+     * @return summary details of latest offender booking for offender.
+     */
+    Optional<OffenderSummary> getLatestBookingByBookingId(Long bookingId);
+
+    /**
+     * Gets summary details of latest offender booking (whether active or not) for offender identified by specified
+     * offender number.
+     *
+     * @param offenderNo offender number.
+     * @return summary details of latest offender booking for offender.
+     */
+    Optional<OffenderSummary> getLatestBookingByOffenderNo(String offenderNo);
 }
