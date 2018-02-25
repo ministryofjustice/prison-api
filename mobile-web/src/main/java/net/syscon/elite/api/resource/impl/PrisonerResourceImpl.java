@@ -43,13 +43,13 @@ public class PrisonerResourceImpl implements PrisonerResource {
                 .partialNameMatch(partialNameMatch)
                 .build();
 
-        Page<PrisonerDetail> prisoners = globalSearchService.findPrisoners(
+        Page<PrisonerDetail> offenders = globalSearchService.findOffenders(
                 criteria,
                 sortFields,
                 sortOrder,
                 nvl(pageOffset,0L),
                 nvl(pageLimit,10L));
 
-        return GetPrisonersResponse.respond200WithApplicationJson(prisoners);
+        return GetPrisonersResponse.respond200WithApplicationJson(offenders);
     }
 }

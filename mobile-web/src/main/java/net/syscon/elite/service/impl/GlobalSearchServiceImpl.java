@@ -34,7 +34,7 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
     }
 
     @Override
-    public Page<PrisonerDetail> findPrisoners(PrisonerDetailSearchCriteria criteria, String orderBy, Order order, long offset, long limit) {
+    public Page<PrisonerDetail> findOffenders(PrisonerDetailSearchCriteria criteria, String orderBy, Order order, long offset, long limit) {
         String query = generateQuery(criteria);
 
         CalcDateRanges calcDates = new CalcDateRanges(criteria.getDob(), criteria.getDobFrom(), criteria.getDobTo(), maxYears);
