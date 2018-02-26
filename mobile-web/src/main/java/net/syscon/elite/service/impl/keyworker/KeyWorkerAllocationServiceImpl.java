@@ -111,22 +111,6 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
     }
 
     @Override
-    @VerifyBookingAccess
-    public KeyWorkerAllocation getCurrentAllocationForOffenderBooking(Long bookingId) {
-        KeyWorkerAllocation keyWorkerAllocation = repository.getCurrentAllocationForOffenderBooking(bookingId)
-                .orElseThrow(EntityNotFoundException.withMessage(String.format("Active allocation not found for offenderBookingId %s", bookingId)));
-        return keyWorkerAllocation;
-    }
-
-    @Override
-    @VerifyBookingAccess
-    public KeyWorkerAllocation getLatestAllocationForOffenderBooking(Long bookingId) {
-        KeyWorkerAllocation keyWorkerAllocation = repository.getLatestAllocationForOffenderBooking(bookingId)
-                .orElseThrow(EntityNotFoundException.withMessage(String.format("Allocation not found for offenderBookingId %s", bookingId)));
-        return keyWorkerAllocation;
-    }
-
-    @Override
     @VerifyAgencyAccess
     public Page<OffenderSummary> getUnallocatedOffenders(String agencyId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         String sortFieldsDefaulted = StringUtils.defaultString(sortFields, "lastName");
