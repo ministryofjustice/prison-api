@@ -6,13 +6,26 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
 import net.syscon.elite.service.support.PageRequest;
+import org.apache.commons.lang3.Range;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Inmate repository interface.
+ * <p>
+ * Terminology guidance:
+ * <ul>
+ *     <li>Inmate - someone currently in prison (prefer use of 'Prisoner')</li>
+ *     <li>Prisoner - someone currently in prison (preferred over use of 'Inmate')</li>
+ *     <li>Offender - more general reference to a past or present Prisoner</li>
+ * </ul>
+ */
 public interface InmateRepository {
+	String DEFAULT_OFFENDER_SORT = "lastName,firstName,offenderNo";
+
 	Page<OffenderBooking> findAllInmates(Set<String> caseloads, String locationTypeRoot, String query, PageRequest pageRequest);
 
 	Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String lastName, String firstName, String locationPrefix, String locationTypeRoot, PageRequest pageRequest);
@@ -29,7 +42,16 @@ public interface InmateRepository {
 
 	Page<OffenderBooking> findMyAssignments(long staffId, String currentCaseLoad, String locationTypeRoot, String orderBy, boolean sortAscending, long offset, long limit);
 
-	Page<PrisonerDetail> searchForOffenders(String query, LocalDate fromDobDate, LocalDate toDobDate, String sortFields, boolean ascendingOrder, long offset, long limit);
+	/**
+	 * Perform global search for offenders, based on specified criteria.
+	 *
+	 * @param query query criteria using internal query DSL.
+	 * @param dobRange start date and end date for a range search based on offender's date of birth.
+	 * @param pageRequest encapsulates sorting and pagination directives.
+
+	 * @return list of prisoner details matching specified query criteria.
+	 */
+	Page<PrisonerDetail> findOffenders(String query, Range<LocalDate> dobRange, PageRequest pageRequest);
 
 	Optional<PhysicalAttributes> findPhysicalAttributes(long bookingId);
 

@@ -6,11 +6,13 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.security.VerifyBookingAccess;
-import net.syscon.elite.service.*;
+import net.syscon.elite.service.BookingService;
+import net.syscon.elite.service.CaseLoadService;
+import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
 import net.syscon.elite.service.support.PageRequest;
-import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,37 +23,31 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static java.lang.String.format;
-
 @Service
 @Transactional(readOnly = true)
 public class InmateServiceImpl implements InmateService {
-
     private final InmateRepository repository;
     private final CaseLoadService caseLoadService;
     private final BookingService bookingService;
     private final InmateAlertRepository inmateAlertRepository;
 
-    private final int maxYears;
     private final String locationTypeGranularity;
 
     public InmateServiceImpl(InmateRepository repository,
                              CaseLoadService caseLoadService,
                              InmateAlertRepository inmateAlertRepository,
                              BookingService bookingService,
-                             @Value("${offender.dob.max.range.years:10}") int maxYears,
                              @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity) {
         this.repository = repository;
         this.caseLoadService = caseLoadService;
         this.inmateAlertRepository = inmateAlertRepository;
-        this.maxYears = maxYears;
         this.locationTypeGranularity = locationTypeGranularity;
         this.bookingService = bookingService;
     }
 
     @Override
     public Page<OffenderBooking> findAllInmates(String username, String query, String orderBy, Order order, long offset, long limit) {
-        String colSort = StringUtils.isNotBlank(orderBy) ? orderBy : DEFAULT_OFFENDER_SORT;
+        String colSort = StringUtils.isNotBlank(orderBy) ? orderBy : InmateRepository.DEFAULT_OFFENDER_SORT;
 
         return repository.findAllInmates(bookingService.isSystemUser() ? Collections.emptySet() : getUserCaseloadIds(username), locationTypeGranularity, query, new PageRequest(colSort, order, offset, limit));
     }
@@ -185,55 +181,6 @@ public class InmateServiceImpl implements InmateService {
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.DESC);
 
         return repository.findInmateAliases(bookingId, defaultOrderBy, sortOrder, offset, limit);
-    }
-
-    @Override
-    public Page<PrisonerDetail> findPrisoners(PrisonerDetailSearchCriteria criteria, String orderBy, Order sortOrder, long offset, long limit) {
-        final String query = generateQuery(criteria);
-        CalcDateRanges calcDates = new CalcDateRanges(criteria.getDob(), criteria.getDobFrom(), criteria.getDobTo(), maxYears);
-        if (query != null || calcDates.hasDobRange()) {
-
-            return repository.searchForOffenders(query, calcDates.getDobDateFrom(), calcDates.getDobDateTo(),
-                    StringUtils.isNotBlank(orderBy) ? orderBy : DEFAULT_OFFENDER_SORT, Order.ASC == sortOrder, offset, limit);
-        }
-        return new Page<>(Collections.emptyList(), 0, offset, limit );
-    }
-
-    private String generateQuery(PrisonerDetailSearchCriteria criteria) {
-        final StringBuilder query = new StringBuilder();
-
-        String nameMatchingClause = criteria.isPartialNameMatch() ? "%s:like:'%s%%'" : "%s:eq:'%s'";
-
-        if (StringUtils.isNotBlank(criteria.getOffenderNo())) {
-            query.append(format("offenderNo:eq:'%s'", criteria.getOffenderNo()));
-        }
-        if (StringUtils.isNotBlank(criteria.getFirstName())) {
-            addAnd(query);
-            query.append(format(nameMatchingClause, "firstName", criteria.getFirstName()));
-        }
-        if (StringUtils.isNotBlank(criteria.getMiddleNames())) {
-            addAnd(query);
-            query.append(format(nameMatchingClause, "middleNames", criteria.getMiddleNames()));
-        }
-        if (StringUtils.isNotBlank(criteria.getLastName())) {
-            addAnd(query);
-            query.append(format(nameMatchingClause, "lastName", criteria.getLastName()));
-        }
-        if (StringUtils.isNotBlank(criteria.getPncNumber())) {
-            addAnd(query);
-            query.append(format("pncNumber:eq:'%s'", criteria.getPncNumber()));
-        }
-        if (StringUtils.isNotBlank(criteria.getCroNumber())) {
-            addAnd(query);
-            query.append(format("croNumber:eq:'%s'", criteria.getCroNumber()));
-        }
-        return StringUtils.trimToNull(query.toString());
-    }
-
-    private void addAnd(StringBuilder query) {
-        if (query.length() > 0) {
-            query.append(",and:");
-        }
     }
 
     private Set<String> getUserCaseloadIds(String username) {

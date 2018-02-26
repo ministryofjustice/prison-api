@@ -269,6 +269,18 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.getBookingAppointment(bookingId, eventId);
     }
 
+    // FOR INTERNAL USE - ONLY CALL FROM SERVICE LAYER
+    @Override
+    public OffenderSummary getLatestBookingByBookingId(Long bookingId) {
+        return bookingRepository.getLatestBookingByBookingId(bookingId).orElse(null);
+    }
+
+    // FOR INTERNAL USE - ONLY CALL FROM SERVICE LAYER
+    @Override
+    public OffenderSummary getLatestBookingByOffenderNo(String offenderNo) {
+        return bookingRepository.getLatestBookingByOffenderNo(offenderNo).orElse(null);
+    }
+
     private void validateStartTime(NewAppointment newAppointment) {
         if (newAppointment.getStartTime().isBefore(LocalDateTime.now())) {
             throw new BadRequestException("Appointment time is in the past.");

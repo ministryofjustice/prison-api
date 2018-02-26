@@ -51,9 +51,15 @@ public class KeyworkerTestHelper {
     }
 
     public static OffenderSummary getOffender(long bookingId, String agencyId) {
+        return getOffender(bookingId, agencyId, null, true);
+    }
+
+    public static OffenderSummary getOffender(long bookingId, String agencyId, String offenderNo, boolean currentlyInPrison) {
         return OffenderSummary.builder()
                 .bookingId(bookingId)
                 .agencyLocationId(agencyId)
+                .offenderNo(offenderNo)
+                .currentlyInPrison(currentlyInPrison ? "Y" : "N")
                 .build();
     }
 
