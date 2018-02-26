@@ -5,7 +5,7 @@ import net.syscon.elite.api.model.KeyWorkerAllocationDetail;
 import net.syscon.elite.api.resource.KeyWorkerResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
-import net.syscon.elite.service.KeyWorkerAllocationService;
+import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
 import net.syscon.elite.service.keyworker.KeyworkerAutoAllocationService;
 import org.junit.Before;
 import org.junit.Rule;

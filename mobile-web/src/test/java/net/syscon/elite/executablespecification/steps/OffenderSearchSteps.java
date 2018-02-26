@@ -16,14 +16,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  * BDD step implementations for Offender search feature.
  */
 public class OffenderSearchSteps extends CommonSteps {
-    private static final String LOCATION_SEARCH = API_PREFIX + "search-offenders/%s";
-    private static final String LOCATION_KEYWORD_SEARCH = API_PREFIX + "search-offenders/%s/%s";
+    private static final String LOCATION_SEARCH = API_PREFIX + "locations/description/%s/inmates";
 
     private List<OffenderBooking> offenderBookings;
 
     @Step("Perform offender search without any criteria")
-    public void findAll() {
-        search(null, null);
+    public void findAll(String locationPrefix) {
+        search(locationPrefix, null);
     }
 
     @Step("Verify first names of offender returned by search")
@@ -49,12 +48,8 @@ public class OffenderSearchSteps extends CommonSteps {
 
     public void search(String locationPrefix, String keywords) {
         init();
-        String queryUrl;
-        if (StringUtils.isNotBlank(keywords)) {
-            queryUrl = String.format(LOCATION_KEYWORD_SEARCH, StringUtils.isNotBlank(locationPrefix) ? locationPrefix.trim() : "_", keywords.trim());
-        } else {
-            queryUrl = String.format(LOCATION_SEARCH, StringUtils.isNotBlank(locationPrefix) ? locationPrefix.trim() : "_");
-        }
+        String queryUrl = String.format(LOCATION_SEARCH + (StringUtils.isNotBlank(keywords) ? "?keywords="+keywords : ""), locationPrefix.trim());
+
         ResponseEntity<List<OffenderBooking>> responseEntity = restTemplate.exchange(queryUrl,
                 HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<OffenderBooking>>() {});
 

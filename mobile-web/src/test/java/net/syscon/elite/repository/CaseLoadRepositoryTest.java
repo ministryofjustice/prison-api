@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -50,7 +49,7 @@ public class CaseLoadRepositoryTest {
     
     @Test
     public void testGetCaseLoadsByUsername() {
-        List<CaseLoad> caseLoads = repository.getCaseLoadsByUsername(TEST_USERNAME);
+        List<CaseLoad> caseLoads = repository.getCaseLoadsByUsername(TEST_USERNAME, "type:eq:'INST'");
 
         assertThat(caseLoads).isNotEmpty();
         assertThat(caseLoads).hasSize(5);
@@ -65,12 +64,4 @@ public class CaseLoadRepositoryTest {
         assertThat(caseLoad.get().getDescription()).isEqualTo("LEEDS (HMP)");
     }
 
-    @Test
-    public void testGetCaseLoadIdsByUsername() {
-        Set<String> caseLoadIds = repository.getCaseLoadIdsByUsername(TEST_USERNAME);
-
-        assertThat(caseLoadIds).isNotEmpty();
-        assertThat(caseLoadIds).hasSize(5);
-        assertThat(caseLoadIds).contains("LEI", "BXI", "SYI", "MDI", "WAI");
-    }
 }

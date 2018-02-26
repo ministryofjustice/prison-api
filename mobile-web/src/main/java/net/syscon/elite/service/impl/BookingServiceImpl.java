@@ -15,8 +15,8 @@ import net.syscon.elite.service.support.ReferenceDomain;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -424,8 +424,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public boolean isSystemUser() {
-        final Collection<? extends GrantedAuthority> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
-        return authorities.stream().anyMatch(a -> a.getAuthority().contains(SYSTEM_USER_ROLE));
+        final OAuth2Authentication authentication = (OAuth2Authentication) SecurityContextHolder.getContext().getAuthentication();
+        return authentication.isClientOnly();
     }
 
     @Override
@@ -530,7 +530,26 @@ public class BookingServiceImpl implements BookingService {
         return new Page<>(offenderSentenceDetails, offenderSentenceSummary.getTotalRecords(), offenderSentenceSummary.getPageOffset(), offenderSentenceSummary.getPageLimit());
     }
 
+    @Override
+    public OffenderSummary createBooking(@Valid NewBooking newBooking) {
+        return OffenderSummary.builder()
+                .firstName(newBooking.getFirstName())
+                .lastName(newBooking.getLastName())
+                .middleNames((StringUtils.trimToNull(StringUtils.join(newBooking.getMiddleName1(), " ", newBooking.getMiddleName2()))))
+                .offenderNo(newBooking.getOffenderNo())
+                .build();
+    }
+
+    @Override
+    public OffenderSummary recallBooking(@Valid RecallBooking recallBooking) {
+        return OffenderSummary.builder()
+                .offenderNo(recallBooking.getOffenderNo())
+                .firstName(recallBooking.getFirstName())
+                .lastName(recallBooking.getLastName())
+                .build();
+    }
+
     private Set<String> getUserCaseloadIds(String username) {
-        return caseLoadService.getCaseLoadIdsForUser(username);
+        return caseLoadService.getCaseLoadIdsForUser(username, true);
     }
 }

@@ -2,7 +2,7 @@ package net.syscon.elite.service.impl.keyworker;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Keyworker;
-import net.syscon.elite.service.KeyWorkerAllocationService;
+import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

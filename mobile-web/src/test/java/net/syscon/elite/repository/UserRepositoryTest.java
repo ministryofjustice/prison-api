@@ -66,7 +66,7 @@ public class UserRepositoryTest {
 
     @Test
     public final void testFindRolesByUsername() {
-        List<UserRole> roles = repository.findRolesByUsername("ITAG_USER");
+        List<UserRole> roles = repository.findRolesByUsername("ITAG_USER", null);
         assertThat(roles).isNotEmpty();
         assertThat(roles).extracting("roleCode").contains("LEI_WING_OFF");
     }

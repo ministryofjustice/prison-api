@@ -5,12 +5,15 @@ import net.syscon.elite.repository.mapping.FieldMapper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
  * Created by andrewk on 13/06/2017.
  */
 public abstract class AbstractQueryBuilder implements IQueryBuilder {
+
+    private static final Pattern COMMA_PATTERN = Pattern.compile(",");
     protected final String initialSQL;
     protected final Map<String, FieldMapper> fieldMap;
     protected final Map<String, String> fieldNameToColumnMap;
@@ -84,17 +87,14 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
 
     @Override
     public IQueryBuilder addOrderBy(boolean isAscending, String fields) {
-        final String[] colOrder = StringUtils.split(fields, ",");
-        if (colOrder != null && colOrder.length > 0) {
-            List<String> cols = Arrays.stream(colOrder)
-                    .map(fieldNameToColumnMap::get)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
 
-            if (!cols.isEmpty()) {
-                extraOrderBy += StringUtils.join(cols, " " + addOrderDirection(isAscending)+ ",")+ " " + addOrderDirection(isAscending);
-            }
-        }
+        extraOrderBy += COMMA_PATTERN
+                .splitAsStream(fields == null ? "" : fields)
+                .map(fieldNameToColumnMap::get)
+                .filter(Objects::nonNull)
+                .map(s -> s + " " + addOrderDirection(isAscending))
+                .collect(Collectors.joining(", "));
+
         return this;
     }
 

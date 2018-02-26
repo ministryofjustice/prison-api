@@ -24,6 +24,8 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.*;
 
+import static net.syscon.elite.repository.ImageRepository.IMAGE_DETAIL_MAPPER;
+
 @Repository
 @Slf4j
 public class InmateRepositoryImpl extends RepositoryBase implements InmateRepository {
@@ -46,31 +48,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("IEP_LEVEL", new FieldMapper("iepLevel"))
             .build();
 
-    private static final Map<String, FieldMapper> OFFENDER_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
-			.put("OFFENDER_ID_DISPLAY", new FieldMapper("offenderNo"))
-			.put("TITLE", 				new FieldMapper("title", null, null, StringUtils::upperCase))
-			.put("SUFFIX", 				new FieldMapper("suffix", null, null, StringUtils::upperCase))
-            .put("FIRST_NAME", 			new FieldMapper("firstName", null, null, StringUtils::upperCase))
-            .put("MIDDLE_NAMES", 		new FieldMapper("middleNames", null, null, StringUtils::upperCase))
-            .put("LAST_NAME", 			new FieldMapper("lastName", null, null, StringUtils::upperCase))
-            .put("BIRTH_DATE", 			new FieldMapper("dateOfBirth", DateTimeConverter::toISO8601LocalDate))
-            .put("ETHNICITY", 			new FieldMapper("ethnicity"))
-            .put("SEX", 			    new FieldMapper("gender"))
-            .put("BIRTH_COUNTRY", 		new FieldMapper("birthCountry"))
-			.put("CONVICTED_STATUS", 	new FieldMapper("convictedStatus"))
-			.put("NATIONALITIES", 		new FieldMapper("nationalities"))
-			.put("RELIGION", 	        new FieldMapper("religion"))
-			.put("MARITAL_STATUS", 	    new FieldMapper("maritalStatus"))
-			.put("IMPRISONMENT_STATUS", new FieldMapper("imprisonmentStatus"))
-			.put("PNC_NUMBER", 			new FieldMapper("pncNumber"))
-			.put("CRO_NUMBER", 			new FieldMapper("croNumber"))
-			.put("ACTIVE_FLAG", 		new FieldMapper("currentlyInPrison"))
-			.put("BOOKING_BEGIN_DATE", 	new FieldMapper("receptionDate", DateTimeConverter::toISO8601LocalDate))
-			.put("RELEASE_DATE",    	new FieldMapper("releaseDate", DateTimeConverter::toISO8601LocalDate))
-			.put("AGY_LOC_ID", 			new FieldMapper("latestLocationId"))
-			.put("AGY_LOC_DESC", 		new FieldMapper("latestLocation"))
-            .build();
-
     private final Map<String, FieldMapper> inmateDetailsMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("OFFENDER_BOOK_ID", 	new FieldMapper("bookingId"))
 			.put("BOOKING_NO", 			new FieldMapper("bookingNo"))
@@ -78,10 +55,13 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("FIRST_NAME", 			new FieldMapper("firstName"))
 			.put("MIDDLE_NAME", 		new FieldMapper("middleName"))
 			.put("LAST_NAME", 			new FieldMapper("lastName"))
+			.put("AGY_LOC_ID", 			new FieldMapper("agencyId"))
+			.put("LIVING_UNIT_ID",      new FieldMapper("assignedLivingUnitId"))
             .put("RELIGION", 			new FieldMapper("religion"))
 			.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
 			.put("BIRTH_DATE", 			new FieldMapper("dateOfBirth", DateTimeConverter::toISO8601LocalDate))
 			.put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerId"))
+			.put("ACTIVE_FLAG",         new FieldMapper("activeFlag", value -> "Y".equalsIgnoreCase(value.toString())))
 			.build();
 
 	private final Map<String, FieldMapper> physicalAttributesMapping = new ImmutableMap.Builder<String, FieldMapper>()
@@ -110,6 +90,11 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     private final StandardBeanPropertyRowMapper<PhysicalCharacteristic> PHYSICAL_CHARACTERISTIC_MAPPER = new StandardBeanPropertyRowMapper<>(PhysicalCharacteristic.class);
     private final StandardBeanPropertyRowMapper<InmateDto> INMATE_MAPPER = new StandardBeanPropertyRowMapper<>(InmateDto.class);
 	private final StandardBeanPropertyRowMapper<ProfileInformation> PROFILE_INFORMATION_MAPPER = new StandardBeanPropertyRowMapper<>(ProfileInformation.class);
+	private final StandardBeanPropertyRowMapper<OffenderIdentifier> OFFENDER_IDENTIFIER_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderIdentifier.class);
+
+
+    private final StandardBeanPropertyRowMapper<PrisonerDetail> PRISONER_DETAIL_MAPPER =
+            new StandardBeanPropertyRowMapper<>(PrisonerDetail.class);
 
 	private final Map<String, FieldMapper> aliasMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("LAST_NAME",		new FieldMapper("lastName"))
@@ -195,11 +180,10 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	@Cacheable("searchForOffenderBookings")
 	public Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String lastName, String firstName, String locationPrefix, String locationTypeRoot, PageRequest pageRequest) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
+		initialSql += " AND " + getQuery("LOCATION_FILTER_SQL");
+
 		if (!caseloads.isEmpty()) {
 			initialSql += " AND " + getQuery("CASELOAD_FILTER");
-		}
-		if (StringUtils.isNotBlank(locationPrefix)) {
-			initialSql += " AND " + getQuery("LOCATION_FILTER_SQL");
 		}
 
 		if (StringUtils.isNotBlank(offenderNo)) {
@@ -282,7 +266,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             log.debug("Running between {} and {}", fromDobDate, toDobDate);
         }
 
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_MAPPING);
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, PRISONER_DETAIL_MAPPER.getFieldMap());
 
         String sql = builder
                 .addQuery(query)
@@ -291,10 +275,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 .addOrderBy(sortAscending, sortFields)
                 .build();
 
-        RowMapper<PrisonerDetail> prisonerDetailRowMapper =
-                Row2BeanRowMapper.makeMapping(sql, PrisonerDetail.class, OFFENDER_MAPPING);
-
-		PageAwareRowMapper<PrisonerDetail> paRowMapper = new PageAwareRowMapper<>(prisonerDetailRowMapper);
+		PageAwareRowMapper<PrisonerDetail> paRowMapper = new PageAwareRowMapper<>(PRISONER_DETAIL_MAPPER);
 
         List<PrisonerDetail> prisonerDetails = jdbcTemplate.query(
                 sql,
@@ -309,6 +290,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     }
 
 	@Override
+    @Cacheable("bookingPhysicalMarks")
     public List<PhysicalMark> findPhysicalMarks(long bookingId) {
 		String sql = getQuery("FIND_PHYSICAL_MARKS_BY_BOOKING");
 
@@ -322,6 +304,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
+    @Cacheable("bookingPhysicalCharacteristics")
     public List<PhysicalCharacteristic> findPhysicalCharacteristics(long bookingId) {
 		String sql = getQuery("FIND_PHYSICAL_CHARACTERISTICS_BY_BOOKING");
 
@@ -332,6 +315,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
+    @Cacheable("bookingProfileInformation")
     public List<ProfileInformation> getProfileInformation(long bookingId) {
 		String sql = getQuery("FIND_PROFILE_INFORMATION_BY_BOOKING");
 
@@ -341,7 +325,34 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 PROFILE_INFORMATION_MAPPER);
 	}
 
+    @Override
+    @Cacheable("bookingImage")
+    public Optional<ImageDetail> getMainBookingImage(long bookingId) {
+        final String sql = getQuery("GET_IMAGE_DATA_FOR_BOOKING");
+        ImageDetail imageDetail;
+        try {
+            imageDetail = jdbcTemplate.queryForObject(sql,
+					createParams("bookingId", bookingId),
+					IMAGE_DETAIL_MAPPER);
+        } catch (EmptyResultDataAccessException e) {
+            imageDetail = null;
+        }
+        return Optional.ofNullable(imageDetail);
+    }
+
 	@Override
+    @Cacheable("offenderIdentifiers")
+	public List<OffenderIdentifier> getOffenderIdentifiers(long bookingId) {
+		String sql = getQuery("GET_OFFENDER_IDENTIFIERS_BY_BOOKING");
+
+		return jdbcTemplate.query(
+				sql,
+				createParams("bookingId", bookingId),
+				OFFENDER_IDENTIFIER_MAPPER);
+	}
+
+	@Override
+    @Cacheable("bookingPhysicalAttributes")
     public Optional<PhysicalAttributes> findPhysicalAttributes(long bookingId) {
 		String sql = getQuery("FIND_PHYSICAL_ATTRIBUTES_BY_BOOKING");
 
@@ -361,6 +372,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
+    @Cacheable("bookingAssessments")
     public List<AssessmentDto> findAssessments(long bookingId) {
 		String sql = getQuery("FIND_ACTIVE_APPROVED_ASSESSMENT");
 
@@ -391,8 +403,10 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
+    @Cacheable("findInmate")
 	public Optional<InmateDetail> findInmate(Long bookingId) {
-		String sql = getQuery("FIND_INMATE_DETAIL");
+		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(getQuery("FIND_INMATE_DETAIL"), inmateDetailsMapping);
+		String sql = builder.build();
 
 		RowMapper<InmateDetail> inmateRowMapper =Row2BeanRowMapper.makeMapping(sql, InmateDetail.class, inmateDetailsMapping);
 		InmateDetail inmate;
@@ -402,6 +416,26 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 					createParams("bookingId", bookingId, "currentDate", DateTimeConverter.toDate(LocalDate.now())),
 					inmateRowMapper);
 			inmate.setAge(DateTimeConverter.getAge(inmate.getDateOfBirth()));
+		} catch (EmptyResultDataAccessException ex) {
+			inmate = null;
+		}
+
+		return Optional.ofNullable(inmate);
+	}
+
+	@Override
+    @Cacheable("basicInmateDetail")
+	public Optional<InmateDetail> getBasicInmateDetail(Long bookingId) {
+		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(getQuery("FIND_BASIC_INMATE_DETAIL"), inmateDetailsMapping);
+		String sql = builder.build();
+
+		RowMapper<InmateDetail> inmateRowMapper = Row2BeanRowMapper.makeMapping(sql, InmateDetail.class, inmateDetailsMapping);
+		InmateDetail inmate;
+		try {
+			inmate = jdbcTemplate.queryForObject(
+					sql,
+					createParams("bookingId", bookingId),
+					inmateRowMapper);
 		} catch (EmptyResultDataAccessException ex) {
 			inmate = null;
 		}

@@ -1,5 +1,6 @@
 package net.syscon.elite.executablespecification;
 
+import cucumber.api.PendingException;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.executablespecification.steps.SchedulesSteps;
 
@@ -185,5 +186,10 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
     @Then("^returned schedules are only for offenders due to attend a scheduled event on current day for requested agency and location$")
     public void schedulesAreOnlyForOffendersOnCurrentDayAgencyLocation() throws Throwable {
         schedulesSteps.schedulesAreOnlyForOffendersOnCurrentDay();
+    }
+
+    @Given("^an agency which does not exists has been set")
+    public void anAgencyWhichDoesNotExists() throws Throwable {
+       schedulesSteps.givenNoneExistentAgency();
     }
 }

@@ -17,6 +17,20 @@ Feature: Booking Details
       | -1        | A00111    | -2                |
       | -8        | A00118    | -2                |
 
+  Scenario Outline: Request for specific offender booking record basic details only
+    When a basic offender booking request is made with booking id "<bookingId>"
+    Then booking number of offender booking returned is "<bookingNo>"
+    And firstname of offender booking returned is "<firstName>"
+    And lastName of offender booking returned is "<lastName>"
+    And offenderNo of offender booking returned is "<offenderNo>"
+    And activeFlag of offender booking returned is "<activeFlag>"
+
+    Examples:
+      | bookingId | bookingNo | firstName | lastName | offenderNo | activeFlag |
+      | -1        | A00111    | ARTHUR    | ANDERSON | A1234AA    | true       |
+      | -2        | A00112    | GILLIAN   | ANDERSON | A1234AB    | true       |
+
+
   Scenario Outline: Request for specific offender booking record - physical attributes
     When an offender booking request is made with booking id "<bookingId>"
     Then booking number of offender booking returned is "<bookingNo>"
@@ -58,12 +72,13 @@ Feature: Booking Details
       | -10       | A00120    | Complexion=Fair                          |
       | -11       | A00121    | Hair Colour=Brunette,Complexion=Blotched |
       | -12       | A00122    | Hair Colour=Bald                         |
-      | -13       | A00123    | Hair Colour=Ginger                       |
-      | -14       | A00124    | Hair Colour=Dyed,Build=Slight            |
-      | -15       | A00125    | Facial Hair=Sideburns,Build=Heavy        |
 
   Scenario: Request for specific offender booking record that does not exist
     When an offender booking request is made with booking id "-9999"
+    Then resource not found response is received from bookings API
+
+  Scenario: Request for specific offender inactive booking record
+    When a basic offender booking request is made with booking id "-13"
     Then resource not found response is received from bookings API
 
   Scenario Outline: Request for assessment information about an offender
@@ -83,9 +98,8 @@ Feature: Booking Details
       | -6        | CSR            | true  | Standard       | 2018-06-06     |
       | -6        | PAROLE         | false | High           | 2018-06-08     |
 
-
   Scenario: Request for assessment information for booking that does not have requested assessment
-    When an offender booking assessment information request is made with booking id -15 and "CSR"
+    When an offender booking assessment information request is made with booking id -9 and "CSR"
     Then resource not found response is received from booking assessments API
     And user message in resource not found response from booking assessments API is "Offender does not have a [CSR] assessment on record."
 
@@ -97,7 +111,7 @@ Feature: Booking Details
     When an offender booking assessment information request is made with booking id -16 and "CSR"
     Then resource not found response is received from booking assessments API
 
-@nomis
+  @nomis
   Scenario Outline: Request for specific offender booking record returns religion
     When an offender booking request is made with booking id "<bookingId>"
     Then religion of offender booking returned is "<religion>"
@@ -117,7 +131,6 @@ Feature: Booking Details
       | -11       | Other Christian Religion  |
       | -12       | Orthodox (Greek/Russian)  |
 
-
   Scenario Outline: When requesting offender details a count of active and inactive alerts are returned
     When an offender booking request is made with booking id "<bookingId>"
     Then the number of active alerts is <activeAlerts>
@@ -125,7 +138,48 @@ Feature: Booking Details
 
     Examples:
       | bookingId | activeAlerts | inactiveAlerts |
-      | -15       | 1            | 0              |
       | -1        | 2            | 1              |
-      | -13       | 0            | 1              |
 
+  Scenario: Request for assessment data
+    When assessment information is requested for Booking Id "-6"
+    Then "3" row of assessment data is returned
+
+  Scenario Outline: Request for physical attributes
+    When an physical attributes request is made with booking id "<bookingId>"
+    And gender matches "<gender>"
+    And ethnicity matches "<ethnicity>"
+    And height in feet matches "<ft>"
+    And height in inches matches "<in>"
+    And height in centimetres matches "<cm>"
+    And height in metres matches "<m>"
+    And weight in pounds matches "<lb>"
+    And weight in kilograms matches "<kg>"
+
+  Examples:
+    | bookingId | gender | ethnicity                      | ft | in | cm  | m    | lb  | kg  |
+    | -1        | Male   | White: British                 | 5  | 6  | 168 | 1.68 | 165 | 75  |
+    | -2        | Female | White: Irish                   |    |    |     |      | 120 | 55  |
+    | -3        | Male   | White: British                 | 5  | 10 | 178 | 1.78 |     |     |
+    | -4        | Male   | White: British                 | 6  | 1  | 185 | 1.85 | 218 | 99  |
+    | -5        | Male   | White: British                 | 6  | 0  | 183 | 1.83 | 190 | 86  |
+    | -6        | Male   | White: British                 | 6  | 2  | 188 | 1.88 |     |     |
+    | -7        | Male   | White: British                 | 5  | 11 | 180 | 1.80 | 196 | 89  |
+    | -8        | Male   | White: British                 | 5  | 11 | 180 | 1.80 |     |     |
+    | -9        | Male   | Mixed: White and Black African | 5  | 10 | 178 | 1.78 | 185 | 84  |
+    | -10       | Male   | White: British                 | 6  | 6  | 198 | 1.98 | 235 | 107 |
+
+ Scenario: Request for offender identifiers
+    When offender identifiers are requested for Booking Id "-4"
+    Then "1" row of offender identifiers is returned
+
+  Scenario: Request for profile information
+    When profile information is requested for Booking Id "-1"
+    Then "2" row of profile information is returned
+
+  Scenario: Request for physical characteristics
+    When physical characteristic information is requested for Booking Id "-1"
+    Then "2" row of physical characteristics is returned
+
+  Scenario: Request for image metadata
+    When image metadata is requested for Booking Id "-1"
+    Then image data is returned

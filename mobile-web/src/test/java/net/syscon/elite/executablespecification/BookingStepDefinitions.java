@@ -157,7 +157,12 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @When("^an offender booking request is made with booking id \"([^\"]*)\"$")
     public void anOffenderBookingRequestIsMadeWithBookingId(String bookingId) {
-        bookingDetail.findBookingDetails(Long.valueOf(bookingId));
+        bookingDetail.findBookingDetails(Long.valueOf(bookingId), false);
+    }
+
+    @When("^a basic offender booking request is made with booking id \"([^\"]*)\"$")
+    public void aBasicOffenderBookingRequestIsMadeWithBookingId(String bookingId) {
+        bookingDetail.findBookingDetails(Long.valueOf(bookingId), true);
     }
 
     @Then("^resource not found response is received from bookings API$")
@@ -178,6 +183,26 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @And("^religion of offender booking returned is \"([^\"]*)\"$")
     public void religionOfOffenderBookingReturnedIs(String religion) {
         bookingDetail.verifyReligion(religion);
+    }
+
+    @And("^firstname of offender booking returned is \"([^\"]*)\"$")
+    public void firstnameOfOffenderBookingReturnedIs(String firstname) throws Throwable {
+        bookingDetail.verifyOffenderFirstName(firstname);
+    }
+
+    @And("^lastName of offender booking returned is \"([^\"]*)\"$")
+    public void lastnameOfOffenderBookingReturnedIs(String lastName) throws Throwable {
+        bookingDetail.verifyOffenderLastName(lastName);
+    }
+
+    @And("^offenderNo of offender booking returned is \"([^\"]*)\"$")
+    public void offendernoOfOffenderBookingReturnedIs(String offenderNo) throws Throwable {
+        bookingDetail.verifyOffenderNo(offenderNo);
+    }
+
+    @And("^activeFlag of offender booking returned is \"(true|false)\"$")
+    public void activeflagOfOffenderBookingReturnedIs(boolean activeFlag) throws Throwable {
+        bookingDetail.verifyOffenderActiveFlag(activeFlag);
     }
 
     // Sentence Detail Step Definitions (for testing of /bookings/{bookingId}/sentenceDetail endpoint)
@@ -536,4 +561,58 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingSentenceDetail.getOffenderSentenceDetails(sortFields, filterQuery, pageSize);
     }
 
+    @When("^assessment information is requested for Booking Id \"([^\"]*)\"$")
+    public void assessmentInformationIsRequestedForBookingId(String bookingId) throws Throwable {
+        bookingAssessment.getAssessments(Long.valueOf(bookingId));
+    }
+
+    @Then("^\"(\\d+)\" row of assessment data is returned$")
+    public void rowOfDataIsReturned(long expectedCount) {
+        bookingAssessment.verifyResourceRecordsReturned(expectedCount);
+    }
+
+    @When("^offender identifiers are requested for Booking Id \"([^\"]*)\"$")
+    public void offenderIdentifiersAreRequestedForBookingId(String bookingId) throws Throwable {
+        bookingDetail.getOffenderIdentifiers(Long.valueOf(bookingId));
+    }
+
+    @When("^profile information is requested for Booking Id \"([^\"]*)\"$")
+    public void profileInformationIsRequestedForBookingId(String bookingId) throws Throwable {
+        bookingDetail.getProfileInformation(Long.valueOf(bookingId));
+    }
+
+    @When("^physical characteristic information is requested for Booking Id \"([^\"]*)\"$")
+    public void physicalCharacteristicInformationIsRequestedForBookingId(String bookingId) throws Throwable {
+        bookingDetail.getPhysicalCharacteristics(Long.valueOf(bookingId));
+    }
+
+    @When("^image metadata is requested for Booking Id \"([^\"]*)\"$")
+    public void imageMetadataIsRequestedForBookingId(String bookingId) throws Throwable {
+        bookingDetail.getImageMetadata(Long.valueOf(bookingId));
+    }
+
+    @When("^an physical attributes request is made with booking id \"([^\"]*)\"$")
+    public void anPhysicalAttributesRequestIsMadeWithBookingId(String bookingId) throws Throwable {
+        bookingDetail.getPhysicalAttributes(Long.valueOf(bookingId));
+    }
+
+    @Then("^\"(\\d+)\" row of offender identifiers is returned$")
+    public void rowOfOffenderIdentifiersIsReturned(long expectedCount) throws Throwable {
+        bookingDetail.verifyResourceRecordsReturned(expectedCount);
+    }
+
+    @Then("^\"(\\d+)\" row of profile information is returned$")
+    public void rowOfProfileInformationIsReturned(long expectedCount) throws Throwable {
+        bookingDetail.verifyResourceRecordsReturned(expectedCount);
+    }
+
+    @Then("^\"(\\d+)\" row of physical characteristics is returned$")
+    public void rowOfPhysicalCharacteristicsIsReturned(long expectedCount) {
+        bookingDetail.verifyResourceRecordsReturned(expectedCount);
+    }
+
+    @Then("^image data is returned$")
+    public void imageDataIsReturned() throws Throwable {
+        bookingDetail.verifyImageMetadataExists();
+    }
 }

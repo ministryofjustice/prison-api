@@ -60,4 +60,13 @@ public class InmateRepositoryTest {
 
         assertThat(inmate).isPresent();
     }
+
+    @Test
+    public void testGetBasicOffenderDetails() {
+        Optional<InmateDetail> inmate = repository.getBasicInmateDetail(
+                -1L
+        );
+
+        assertThat(inmate).isPresent();
+    }
 }

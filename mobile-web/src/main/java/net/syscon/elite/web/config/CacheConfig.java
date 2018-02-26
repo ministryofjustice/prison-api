@@ -53,6 +53,7 @@ public class CacheConfig implements CachingConfigurer {
 
         config.addCache(config("findByStaffId", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("findRolesByUsername", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("findApiRolesByUsername", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("loadUserByUsername", 5000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config("getCaseLoadsByUsername", 1000, caseLoadTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
@@ -66,7 +67,15 @@ public class CacheConfig implements CachingConfigurer {
         config.addCache(config("getGroup", 200, locationTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("searchForOffenderBookings", 1000, offenderSearchTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("findInmate", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("getInmateAssessmentByCode", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("basicInmateDetail", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+
+        config.addCache(config("bookingAssessments", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("bookingPhysicalMarks", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("bookingProfileInformation", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("bookingPhysicalCharacteristics", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("bookingPhysicalAttributes", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("offenderIdentifiers", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("bookingImage", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         return net.sf.ehcache.CacheManager.newInstance(config);
     }

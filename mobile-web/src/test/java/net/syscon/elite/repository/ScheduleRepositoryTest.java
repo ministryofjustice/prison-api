@@ -1,12 +1,8 @@
 package net.syscon.elite.repository;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
-
 import net.syscon.elite.api.model.PrisonerSchedule;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.web.config.PersistenceConfigs;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("nomis-hsqldb")
 @RunWith(SpringRunner.class)
@@ -57,7 +57,7 @@ public class ScheduleRepositoryTest {
     public void testGetLocationActivities() {
         final LocalDate date = LocalDate.parse("2015-12-11");
         final LocalDate toDate = LocalDate.now();
-        final List<PrisonerSchedule> results = repository.getLocationActivities(-26L, date, toDate, null, null);
+        final List<PrisonerSchedule> results = repository.getLocationActivities(-26L, date, toDate, "lastName,startTime", Order.ASC);
         assertThat(results).hasSize(14);
         assertPrisonerDetails(results.get(0));
         // assert at least 1 field from all results

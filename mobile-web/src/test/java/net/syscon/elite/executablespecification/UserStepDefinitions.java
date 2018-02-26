@@ -26,17 +26,27 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
 
     @Given("^a user has logged in with username \"([^\"]*)\" and password \"([^\"]*)\"$")
     public void aUserHasLoggedInWithUsernameAndPassword(String username, String password) throws Throwable {
-        authenticate(username, password);
+        authenticate(username, password, false);
     }
 
     @Given("^a user has authenticated with the API$")
     public void aUserHasAuthenticatedWithTheAPI() {
-        authenticate("itag_user", "password");
+        authenticate("itag_user", "password", false);
+    }
+
+    @Given("^a admin user has authenticated with the API$")
+    public void aNonAdminUserHasAuthenticatedWithTheAPI() {
+        authenticate("ELITE2_API_USER", "password", false);
     }
 
     @Given("^user \"([^\"]*)\" with password \"([^\"]*)\" has authenticated with the API$")
     public void userWithPasswordHasAuthenticatedWithTheAPI(String username, String password) throws Throwable {
-        authenticate(username, password);
+        authenticate(username, password, false);
+    }
+
+    @Given("^a trusted client has authenticated with the API$")
+    public void trustedClientWithPasswordHasAuthenticatedWithTheAPI() throws Throwable {
+        authenticate(null, null, true);
     }
 
     @When("^a staff member search is made using staff id \"([^\"]*)\"$")
@@ -89,9 +99,14 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.verifyResourceNotFound();
     }
 
+    @When("^a user role request is made for all roles$")
+    public void aUserRoleRequestIsMadeForAllRoles() throws Throwable {
+        user.getUserRoles(true);
+    }
+
     @When("^a user role request is made$")
     public void aUserRoleRequestIsMade() throws Throwable {
-        user.getUserRoles();
+        user.getUserRoles(false);
     }
 
     @Then("^the roles returned are \"([^\"]*)\"$")
@@ -114,7 +129,7 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.verifyCaseNoteTypesHaveSubTypes();
     }
 
-    private void authenticate(String username, String password) {
-        user.authenticates(username, password);
+    private void authenticate(String username, String password, boolean clientCredentials) {
+        user.authenticates(username, password, clientCredentials);
     }
 }

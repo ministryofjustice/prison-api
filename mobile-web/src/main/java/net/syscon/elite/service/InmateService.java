@@ -9,11 +9,23 @@ import java.util.List;
 import java.util.Optional;
 
 public interface InmateService {
+	String DEFAULT_OFFENDER_SORT = "lastName,firstName,offenderNo";
+
 	Page<OffenderBooking> findAllInmates(String username, String query, String orderBy, Order order, long offset, long limit);
 
 	InmateDetail findInmate(Long bookingId, String username);
 
+	InmateDetail getBasicInmateDetail(Long bookingId);
+
 	Page<Alias> findInmateAliases(Long bookingId, String orderBy, Order order, long offset, long limit);
+
+	List<Assessment> getAssessments(Long bookingId) ;
+	List<PhysicalMark> getPhysicalMarks(Long bookingId);
+	List<ProfileInformation> getProfileInformation(Long bookingId) ;
+	List<PhysicalCharacteristic> getPhysicalCharacteristics(Long bookingId);
+	PhysicalAttributes getPhysicalAttributes(Long bookingId);
+	List<OffenderIdentifier> getOffenderIdentifiers(Long bookingId);
+	ImageDetail getMainBookingImage(Long bookingId);
 
 	Page<PrisonerDetail> findPrisoners(PrisonerDetailSearchCriteria criteria, String orderBy, Order order, long offset, long limit);
 

@@ -7,6 +7,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 
@@ -17,6 +19,10 @@ public class BookingAssessmentSteps extends CommonSteps {
 
     public void getAssessmentByCode(Long bookingId, String assessmentCode) {
         doSingleResultApiCall(API_BOOKING_PREFIX + bookingId + "/assessment/" + assessmentCode);
+    }
+
+    public void getAssessments(Long bookingId) {
+        doListResultApiCall(API_BOOKING_PREFIX + bookingId + "/assessments");
     }
 
     private void doSingleResultApiCall(String url) {
@@ -31,6 +37,18 @@ public class BookingAssessmentSteps extends CommonSteps {
         }
     }
 
+    private void doListResultApiCall(String url) {
+        init();
+        try {
+            ResponseEntity<List<Assessment>> response = restTemplate.exchange(url, HttpMethod.GET,
+                    createEntity(null, null), new ParameterizedTypeReference<List<Assessment>>() {});
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assessment = response.getBody().isEmpty() ? null : response.getBody().get(0);
+            buildResourceData(response);
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
     protected void init() {
         super.init();
         assessment = null;

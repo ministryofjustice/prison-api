@@ -20,7 +20,7 @@ Feature: Case Note Retrieval and Filtering
       | -1        | 1      | CHAP                                                            | FAMMAR                                                          |
       | -2        | 4      | COMMS,APP,ETE,COMMS                                             | COM_IN,OUTCOME,ETERTO,COM_OUT                                   |
       | -3        | 8      | OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE | OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN |
-      | -14       | 0      |                                                                 |                                                                 |
+      | -31       | 0      |                                                                 |                                                                 |
 
   Scenario Outline: Retrieve filtered case notes
     When case note type "<case note type>" filter applied

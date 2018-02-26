@@ -17,12 +17,13 @@ public interface InmateRepository {
 
 	Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String lastName, String firstName, String locationPrefix, String locationTypeRoot, PageRequest pageRequest);
 
-	@Deprecated
 	Page<OffenderBooking> findInmatesByLocation(Long locationId, String locationTypeRoot, String caseLoadId, String query, String orderByField, Order order, long offset, long limit);
 
     List<InmateDto> findInmatesByLocation(String agencyId, List<Long> locations, Set<String> caseLoadIds);
 
 	Optional<InmateDetail> findInmate(Long inmateId);
+
+	Optional<InmateDetail> getBasicInmateDetail(Long bookingId);
 
 	Page<Alias> findInmateAliases(Long bookingId, String orderByFields, Order order, long offset, long limit);
 
@@ -40,7 +41,11 @@ public interface InmateRepository {
 
 	List<AssessmentDto> findAssessments(long bookingId);
 
+	Optional<ImageDetail> getMainBookingImage(long bookingId);
+
 	Optional<AssignedLivingUnit> findAssignedLivingUnit(long bookingId, String locationTypeGranularity);
 
 	List<String> findActiveAlertCodes(long bookingId);
+
+	List<OffenderIdentifier> getOffenderIdentifiers(long bookingId);
 }

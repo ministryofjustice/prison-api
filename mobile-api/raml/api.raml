@@ -5,6 +5,9 @@ version: v2
 mediaType: application/json
 
 annotationTypes:
+  beta:
+    type: boolean
+    description: Indicate that operation is to be treated as a beta release.
   deprecated:
     type: string
     description: Indicate that operation or parameter is deprecated and provide alternatives and/or further details.
@@ -37,8 +40,6 @@ types:
   StaffDetail:                !include types/StaffDetail.raml
   CaseLoad:                   !include types/CaseLoad.raml
   Account:                    !include types/Account.raml
-  AuthLogin:                  !include types/AuthLogin.raml
-  Token:                      !include types/Token.raml
   CaseNote:                   !include types/CaseNote.raml
   CaseNoteAmendment:          !include types/CaseNoteAmendment.raml
   CaseNoteCount:              !include types/CaseNoteCount.raml
@@ -54,6 +55,7 @@ types:
   PhysicalAttributes:         !include types/PhysicalAttributes.raml
   PhysicalCharacteristic:     !include types/PhysicalCharacteristic.raml
   ProfileInformation:         !include types/ProfileInformation.raml
+  OffenderIdentifier:         !include types/OffenderIdentifier.raml
   PhysicalMark:               !include types/PhysicalMark.raml
   InmateDetail:               !include types/InmateDetail.raml
   Contact:                    !include types/Contact.raml
@@ -75,8 +77,9 @@ types:
   NewAllocation:              !include types/NewAllocation.raml
   Keyworker:                  !include types/Keyworker.raml
   KeyWorkerAllocationDetail:  !include types/KeyWorkerAllocationDetail.raml
-
   OffenderSentenceDetailDto:  !include internalTypes/OffenderSentenceDetailDto.raml
+  NewBooking:                 !include types/NewBooking.raml
+  RecallBooking:              !include types/RecallBooking.raml
 
 securitySchemes:
   jwt:
@@ -120,4 +123,3 @@ resourceTypes: !include resourceTypes/generic-resource-types.raml
 /custody-statuses:        !include resources/custody-statuses.raml
 /offender-relationships:  !include resources/offender-relationships.raml
 /key-worker:              !include resources/key-worker.raml
-

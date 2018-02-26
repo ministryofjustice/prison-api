@@ -66,13 +66,13 @@ Feature: Booking Sentence Details
       | -10       | 2017-09-01 |            |             | 2018-01-31 |             |            |             | 2018-03-31 |              | 2018-03-31        | PRRD                  |
       | -11       | 2017-09-01 |            |             |            |             | 2017-12-31 |             | 2018-03-31 |              | 2018-03-31        | PRRD                  |
       | -12       | 2017-09-01 |            |             |            |             |            |             | 2018-03-31 |              | 2018-03-31        | PRRD                  |
-      | -13       | 2017-02-08 |            |             |            |             | 2017-12-31 |             |            |              | 2017-12-31        | NPD                   |
-      | -14       | 2007-10-16 |            |             |            |             |            |             |            |              |                   |                       |
-      | -15       |            |            |             |            |             |            |             |            |              |                   |                       |
       | -17       | 2015-05-05 |            |             |            |             |            |             |            |              |                   |                       |
       | -18       | 2016-11-17 |            |             |            |             |            |             |            |              |                   |                       |
       | -24       | 2017-07-07 |            |             |            |             |            |             |            |              |                   |                       |
       | -25       | 2009-09-09 |            |             |            |             |            |             |            |              |                   |                       |
+      | -29       | 2017-02-08 |            |             |            |             | 2017-12-31 |             |            |              | 2017-12-31        | NPD                   |
+      | -30       | 2007-10-16 |            |             |            |             |            |             |            |              |                   |                       |
+      | -32       |            |            |             |            |             |            |             |            |              |                   |                       |
 
   Scenario Outline: Retrieve sentence details for an offender, check DTO sentence details
     When sentence details are requested for an offender with booking id "<bookingId>"
@@ -97,13 +97,13 @@ Feature: Booking Sentence Details
       | -10       | 2017-09-01 | 2018-05-31 |     |            |            |            |
       | -11       | 2017-09-01 | 2018-05-31 |     |            |            |            |
       | -12       | 2017-09-01 | 2018-05-31 |     |            |            |            |
-      | -13       | 2017-02-08 | 2023-08-07 |     |            |            |            |
-      | -14       | 2007-10-16 | 2022-10-20 |     | 2021-02-28 | 2021-03-25 | 2021-04-28 |
-      | -15       |            |            |     |            |            |            |
       | -17       | 2015-05-05 |            |     |            |            |            |
       | -18       | 2016-11-17 |            |     |            |            |            |
       | -24       | 2017-07-07 |            |     |            |            |            |
       | -25       | 2009-09-09 |            |     | 2023-09-08 | 2024-09-08 | 2025-09-08 |
+      | -29       | 2017-02-08 | 2023-08-07 |     |            |            |            |
+      | -30       | 2007-10-16 | 2022-10-20 |     | 2021-02-28 | 2021-03-25 | 2021-04-28 |
+      | -32       |            |            |     |            |            |            |
 
   Scenario Outline: Retrieve sentence details for an offender, check other dates
     When sentence details are requested for an offender with booking id "<bookingId>"
@@ -131,15 +131,15 @@ Feature: Booking Sentence Details
       | -10       | 2017-09-01 |            |            |            |            | 2018-02-22 |             | 2018-02-22  |            |
       | -11       | 2017-09-01 |            |            |            |            |            |             | 2018-03-31  |            |
       | -12       | 2017-09-01 |            |            |            |            |            |             | 2018-03-31  |            |
-      | -13       | 2017-02-08 |            | 2021-05-05 | 2020-08-07 |            |            |             | 2017-12-31  |            |
-      | -14       | 2007-10-16 | 2020-12-30 |            | 2021-09-24 |            | 2021-01-02 |             | 2021-01-02  |            |
-      | -15       |            |            |            |            |            |            |             |             |            |
       | -17       | 2015-05-05 |            |            |            |            |            | 2018-01-16  | 2018-01-16  |            |
       | -18       | 2016-11-17 |            |            |            | 2019-09-19 |            |             | 2019-09-19  |            |
       | -24       | 2017-07-07 |            |            |            |            | 2022-06-06 | 2022-02-02  | 2022-02-02  |            |
       | -25       | 2009-09-09 |            |            |            |            | 2019-09-08 | 2023-03-03  | 2023-03-03  |            |
       | -27       | 2014-09-09 |            |            |            |            |            |             |             | 2029-09-08 |
       | -28       | 2014-09-09 |            |            |            |            |            |             |             | 2031-03-08 |
+      | -29       | 2017-02-08 |            | 2021-05-05 | 2020-08-07 |            |            |             | 2017-12-31  |            |
+      | -30       | 2007-10-16 | 2020-12-30 |            | 2021-09-24 |            | 2021-01-02 |             | 2021-01-02  |            |
+      | -32       |            |            |            |            |            |            |             |             |            |
 
   @nomis
   Scenario Outline: Retrieve sentence details for an offender, check other dates - NOMIS only - for ROTL, ERSED and TUSED
@@ -163,13 +163,13 @@ Feature: Booking Sentence Details
       | -10       | 2017-09-01 |            |            |            |
       | -11       | 2017-09-01 |            |            |            |
       | -12       | 2017-09-01 |            |            |            |
-      | -13       | 2017-02-08 |            |            |            |
-      | -14       | 2007-10-16 |            |            |            |
-      | -15       |            |            |            |            |
       | -17       | 2015-05-05 |            |            |            |
       | -18       | 2016-11-17 |            |            |            |
       | -24       | 2017-07-07 |            |            |            |
       | -25       | 2009-09-09 |            |            |            |
+      | -29       | 2017-02-08 |            |            |            |
+      | -30       | 2007-10-16 |            |            |            |
+      | -32       |            |            |            |            |
 
   Scenario Outline: Retrieve sentence details as a list and filter by booking id and check data matches
     When sentence details are requested for an offenders in logged in users caseloads with booking id "<bookingId>"
@@ -197,20 +197,20 @@ Feature: Booking Sentence Details
       | -10       | 2017-09-01 |            |            |            |            | 2018-02-22 |             | 2018-02-22  |            |
       | -11       | 2017-09-01 |            |            |            |            |            |             | 2018-03-31  |            |
       | -12       | 2017-09-01 |            |            |            |            |            |             | 2018-03-31  |            |
-      | -13       | 2017-02-08 |            | 2021-05-05 | 2020-08-07 |            |            |             | 2017-12-31  |            |
-      | -14       | 2007-10-16 | 2020-12-30 |            | 2021-09-24 |            | 2021-01-02 |             | 2021-01-02  |            |
-      | -15       |            |            |            |            |            |            |             |             |            |
       | -17       | 2015-05-05 |            |            |            |            |            | 2018-01-16  | 2018-01-16  |            |
       | -18       | 2016-11-17 |            |            |            | 2019-09-19 |            |             | 2019-09-19  |            |
       | -24       | 2017-07-07 |            |            |            |            | 2022-06-06 | 2022-02-02  | 2022-02-02  |            |
       | -25       | 2009-09-09 |            |            |            |            | 2019-09-08 | 2023-03-03  | 2023-03-03  |            |
       | -27       | 2014-09-09 |            |            |            |            |            |             |             | 2029-09-08 |
       | -28       | 2014-09-09 |            |            |            |            |            |             |             | 2031-03-08 |
+      | -29       | 2017-02-08 |            | 2021-05-05 | 2020-08-07 |            |            |             | 2017-12-31  |            |
+      | -30       | 2007-10-16 | 2020-12-30 |            | 2021-09-24 |            | 2021-01-02 |             | 2021-01-02  |            |
+      | -32       |            |            |            |            |            |            |             |             |            |
 
   Scenario: Retrieve sentence details as a list
     When sentence details are requested of offenders for the logged in users caseloads
     Then "10" offenders are returned
-    And "34" offenders in total
+    And "31" offenders in total
 
   Scenario Outline: Retrieve sentence details as a list filter and sort
     When sentence details are requested of offenders for the logged in users caseloads sorted by "bookingId" and filtered by "homeDetentionCurfewEligibilityDate:is:not null,and:conditionalReleaseDate:is:not null"
@@ -218,9 +218,9 @@ Feature: Booking Sentence Details
     And confirmed release date matches "<confRelDate>"
     And release date matches "<releaseDate>"
 
-  Examples:
-  | hdced      | confRelDate | releaseDate |
-  | 2019-06-02 |             | 2023-05-07  |
+    Examples:
+      | hdced      | confRelDate | releaseDate |
+      | 2019-06-02 |             | 2023-05-07  |
 
   Scenario Outline: Retrieve sentence details with sorting and with sentence date set
     When sentence details are requested of offenders for the logged in users caseloads sorted by "homeDetentionCurfewEligibilityDate,sentenceStartDate,bookingId", filtered by "sentenceStartDate:is:not null" with page size of "30"
@@ -232,25 +232,25 @@ Feature: Booking Sentence Details
     And confirmed release date matches "<confRelDate>"
     And release date matches "<releaseDate>"
 
-  Examples:
-  | row_num | ssd        | hdced      | confRelDate | releaseDate |
-  | 1       | 2017-02-08 | 2019-06-02 |             | 2023-05-07  |
-  | 2       | 2007-10-16 | 2020-12-30 |             | 2021-01-02  |
-  | 3       | 2007-10-16 |            |             | 2021-08-31  |
-  | 4       | 2009-09-09 |            | 2023-03-03  | 2023-03-03  |
-  | 5       | 2014-09-09 |            |             |             |
-  | 6       | 2014-09-09 |            |             |             |
-  | 7       | 2015-03-16 |            |             | 2018-03-15  |
-  | 8       | 2015-05-05 |            | 2018-01-16  | 2018-01-16  |
-  | 9       | 2016-11-17 |            |             | 2019-09-19  |
-  | 10      | 2016-11-22 |            | 2018-04-19  | 2018-04-19  |
-  | 11      | 2017-02-08 |            |             | 2017-12-31  |
-  | 12      | 2017-03-25 |            | 2018-04-23  | 2018-04-23  |
-  | 13      | 2017-07-07 |            | 2022-02-02  | 2022-02-02  |
-  | 14      | 2017-09-01 |            |             | 2018-03-31  |
-  | 15      | 2017-09-01 |            |             | 2018-03-31  |
-  | 16      | 2017-09-01 |            |             | 2018-02-22  |
-  | 17      | 2017-09-01 |            | 2018-01-13  | 2018-01-13  |
-  | 18      | 2017-09-01 |            |             | 2017-12-23  |
-  | 19      | 2017-09-01 |            | 2018-01-05  | 2018-01-05  |
-  | 20      | 2017-09-01 |            |             | 2018-05-15  |
+    Examples:
+      | row_num | ssd        | hdced      | confRelDate | releaseDate |
+      | 1       | 2017-02-08 | 2019-06-02 |             | 2023-05-07  |
+      | 2       | 2007-10-16 | 2020-12-30 |             | 2021-01-02  |
+      | 3       | 2007-10-16 |            |             | 2021-08-31  |
+      | 4       | 2009-09-09 |            | 2023-03-03  | 2023-03-03  |
+      | 5       | 2014-09-09 |            |             |             |
+      | 6       | 2014-09-09 |            |             |             |
+      | 7       | 2015-03-16 |            |             | 2018-03-15  |
+      | 8       | 2015-05-05 |            | 2018-01-16  | 2018-01-16  |
+      | 9       | 2016-11-17 |            |             | 2019-09-19  |
+      | 10      | 2016-11-22 |            | 2018-04-19  | 2018-04-19  |
+      | 11      | 2017-02-08 |            |             | 2017-12-31  |
+      | 12      | 2017-03-25 |            | 2018-04-23  | 2018-04-23  |
+      | 13      | 2017-07-07 |            | 2022-02-02  | 2022-02-02  |
+      | 14      | 2017-09-01 |            |             | 2018-03-31  |
+      | 15      | 2017-09-01 |            |             | 2018-03-31  |
+      | 16      | 2017-09-01 |            |             | 2018-02-22  |
+      | 17      | 2017-09-01 |            | 2018-01-13  | 2018-01-13  |
+      | 18      | 2017-09-01 |            |             | 2017-12-23  |
+      | 19      | 2017-09-01 |            | 2018-01-05  | 2018-01-05  |
+      | 20      | 2017-09-01 |            |             | 2018-05-15  |

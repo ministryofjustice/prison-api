@@ -4,10 +4,11 @@ import net.syscon.elite.api.model.Keyworker;
 import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
-import net.syscon.elite.service.KeyWorkerAllocationService;
+import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
 import net.syscon.elite.service.keyworker.KeyworkerAutoAllocationService;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import java.time.LocalDateTime;
@@ -30,8 +31,8 @@ public class KeyworkerTestHelper {
         return Keyworker.builder()
                 .staffId(staffId)
                 .numberAllocated(numberOfAllocations)
-                .firstName(RandomStringUtils.random(35))
-                .lastName(RandomStringUtils.random(35))
+                .firstName(RandomStringUtils.randomAscii(35))
+                .lastName(RandomStringUtils.randomAscii(35))
                 .build();
     }
 
@@ -84,19 +85,36 @@ public class KeyworkerTestHelper {
 
     // Provides a previous Key worker allocation between specified offender and Key worker with an assigned datetime 7
     // days prior to now.
-    public static KeyWorkerAllocation getPreviousKeyworkerAllocation(long bookingId, long staffId) {
-        return getPreviousKeyworkerAllocation(bookingId, staffId, LocalDateTime.now().minusDays(7));
+    public static KeyWorkerAllocation getPreviousKeyworkerAutoAllocation(String agencyId, long bookingId, long staffId) {
+        return getPreviousKeyworkerAutoAllocation(agencyId, bookingId, staffId, LocalDateTime.now().minusDays(7));
     }
 
     // Provides a previous Key worker allocation between specified offender and Key worker, assigned at specified datetime.
-    public static KeyWorkerAllocation getPreviousKeyworkerAllocation(long bookingId, long staffId, LocalDateTime assigned) {
+    public static KeyWorkerAllocation getPreviousKeyworkerAutoAllocation(String agencyId, long bookingId, long staffId, LocalDateTime assigned) {
         Validate.notNull(assigned, "Allocation must have assigned datetime.");
 
         return KeyWorkerAllocation.builder()
+                .agencyId(agencyId)
                 .bookingId(bookingId)
                 .staffId(staffId)
+                .active("Y")
                 .assigned(assigned)
                 .type(AllocationType.AUTO.getIndicator())
+                .build();
+    }
+
+    // Expires a Key worker allocation using specified reason and expiry datetime.
+    public static KeyWorkerAllocation expireAllocation(KeyWorkerAllocation allocation, String reason, LocalDateTime expiry) {
+        Validate.notNull(allocation, "Allocation to expire must be specified.");
+        Validate.notNull(expiry, "Expiry datetime must be specified.");
+
+        return KeyWorkerAllocation.builder()
+                .agencyId(allocation.getAgencyId())
+                .bookingId(allocation.getBookingId())
+                .staffId(allocation.getStaffId())
+                .active("N")
+                .deallocationReason(StringUtils.trimToNull(reason))
+                .expiry(expiry)
                 .build();
     }
 }

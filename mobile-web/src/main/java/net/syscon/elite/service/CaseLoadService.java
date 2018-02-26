@@ -10,9 +10,9 @@ public interface CaseLoadService {
 
     Optional<CaseLoad> getCaseLoad(String caseLoadId);
 
-    List<CaseLoad> getCaseLoadsForUser(String username);
+    List<CaseLoad> getCaseLoadsForUser(String username, boolean allCaseloads);
 
     Optional<CaseLoad> getWorkingCaseLoadForUser(String username);
 
-    Set<String> getCaseLoadIdsForUser(String username);
+    Set<String> getCaseLoadIdsForUser(String username, boolean allCaseloads);
 }

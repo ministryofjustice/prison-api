@@ -3,24 +3,21 @@ package net.syscon.elite.repository.impl;
 import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.repository.CaseLoadRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.util.IQueryBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Repository
 public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRepository {
-	private static final RowMapper<CaseLoad> CASELOAD_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(CaseLoad.class);
 
-	@Override
-	public Set<String> getCaseLoadIdsByUsername(String username) {
-		return getCaseLoadsByUsername(username).stream().map(CaseLoad::getCaseLoadId).collect(Collectors.toSet());
-	}
+	private static final StandardBeanPropertyRowMapper<CaseLoad> CASELOAD_ROW_MAPPER =
+			new StandardBeanPropertyRowMapper<>(CaseLoad.class);
+
 
 	@Override
 	public Optional<CaseLoad> getCaseLoad(final String caseLoadId) {
@@ -42,8 +39,15 @@ public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRe
 	
 	@Override
 	@Cacheable("getCaseLoadsByUsername")
-	public List<CaseLoad> getCaseLoadsByUsername(String username) {
-		String sql = getQuery("FIND_CASE_LOADS_BY_USERNAME");
+	public List<CaseLoad> getCaseLoadsByUsername(String username, String query) {
+
+		String initialSql = getQuery("FIND_CASE_LOADS_BY_USERNAME");
+		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, CASELOAD_ROW_MAPPER);
+
+		if (StringUtils.isNotBlank(query)) {
+			builder = builder.addQuery(query);
+		}
+		String sql = builder.build();
 
 		return jdbcTemplate.query(
 				sql,

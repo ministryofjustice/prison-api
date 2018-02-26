@@ -4,10 +4,13 @@ import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.util.IQueryBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
@@ -79,11 +82,18 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
 	@Override
 	@Cacheable("findRolesByUsername")
-	public List<UserRole> findRolesByUsername(final String username) {
-		String sql = getQuery("FIND_ROLES_BY_USERNAME");
+	public List<UserRole> findRolesByUsername(final String username, String query) {
+		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(getQuery("FIND_ROLES_BY_USERNAME"), USER_ROLE_MAPPER);
+
+		if (StringUtils.isNotBlank(query)) {
+			builder = builder.addQuery(query);
+		}
+		String sql = builder
+			.addOrderBy(Order.ASC, "roleCode")
+			.build();
+
 		return jdbcTemplate.query(sql, createParams("username", username), USER_ROLE_MAPPER);
 	}
-
 
 	@Override
 	public void updateWorkingCaseLoad(final Long staffId, final String caseLoadId) {

@@ -43,7 +43,9 @@ public class AuthorisationAspect {
     public void verifyAgencyAccess(String agencyId) {
         log.debug("Verifying agency access for agency [{}]", agencyId);
 
-        if (!bookingService.isSystemUser()) {
+        if (bookingService.isSystemUser()) {
+            agencyService.checkAgencyExists(agencyId);
+        }else {
             agencyService.verifyAgencyAccess(agencyId);
         }
     }

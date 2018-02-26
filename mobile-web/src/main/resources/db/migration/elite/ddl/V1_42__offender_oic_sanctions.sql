@@ -1,8 +1,5 @@
-CREATE TABLE OFFENDER_OIC_SANCTIONS (
-  --'A punishment imposed upon an offender after having been found guilty of an offence defined in Prison Rule 51 or YOI Rule 55. The touchy-feely New-Labour term for
-  -- punishment is now award..... A punishment can be made to run consecutively from other punishments imposed as a result of charges arising from unrelated incidents
-  -- or from the same incident. NOTE : the primary key structure is not logical. It contains the Offender Booking Id of the guilty offender which, in fact, is inherited
-  -- via parent entities.';
+CREATE TABLE OFFENDER_OIC_SANCTIONS
+(
   OFFENDER_BOOK_ID              NUMBER(10)                          NOT NULL, --Unique identifer for an offender booking.';
   SANCTION_SEQ                  NUMBER(6)                           NOT NULL, --Sequence number on sanction forming part of primary key.';
   OIC_SANCTION_CODE             VARCHAR2(12),                                 --Reference Code ( OIC_SANCT )';
@@ -25,10 +22,11 @@ CREATE TABLE OFFENDER_OIC_SANCTIONS (
   STATUS_DATE                   DATE,                                         --The date when the status changed';
   OIC_INCIDENT_ID               NUMBER(10),
   LIDS_SANCTION_NUMBER          NUMBER(6),
-  SEAL_FLAG                     VARCHAR2(1)
-);
+  SEAL_FLAG                     VARCHAR2(1),
 
-ALTER TABLE OFFENDER_OIC_SANCTIONS ADD PRIMARY KEY (OFFENDER_BOOK_ID, SANCTION_SEQ);
---ALTER TABLE OFFENDER_OIC_SANCTIONS ADD FOREIGN KEY (OFFENDER_BOOK_ID) REFERENCES OFFENDER_BOOKINGS (OFFENDER_BOOK_ID);
---ALTER TABLE OFFENDER_OIC_SANCTIONS ADD FOREIGN KEY (CONSECUTIVE_OFFENDER_BOOK_ID, CONSECUTIVE_SANCTION_SEQ) REFERENCES OFFENDER_OIC_SANCTIONS;
-ALTER TABLE OFFENDER_OIC_SANCTIONS ADD FOREIGN KEY (OIC_HEARING_ID, RESULT_SEQ) REFERENCES OIC_HEARING_RESULTS (OIC_HEARING_ID, RESULT_SEQ);
+  CONSTRAINT OFFENDER_OIC_SANCTIONS_PK PRIMARY KEY (OFFENDER_BOOK_ID, SANCTION_SEQ),
+
+  CONSTRAINT OFF_OS_OFF_BKG_F1 FOREIGN KEY (OFFENDER_BOOK_ID)                                       REFERENCES OFFENDER_BOOKINGS,
+  CONSTRAINT OFF_OS_OFF_OS_F1  FOREIGN KEY (CONSECUTIVE_OFFENDER_BOOK_ID, CONSECUTIVE_SANCTION_SEQ) REFERENCES OFFENDER_OIC_SANCTIONS,
+  CONSTRAINT OIC_OS_OIC_HR_FK1 FOREIGN KEY (OIC_HEARING_ID, RESULT_SEQ)                             REFERENCES OIC_HEARING_RESULTS
+);

@@ -25,22 +25,6 @@ public class SearchResourceImpl implements SearchOffenderResource {
     }
 
     @Override
-    public SearchForOffendersLocationOnlyResponse searchForOffendersLocationOnly(String locationPrefix, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-        SearchOffenderRequest request = SearchOffenderRequest.builder()
-                .username(authenticationFacade.getCurrentUsername())
-                .locationPrefix(locationPrefix)
-                .orderBy(sortFields)
-                .order(sortOrder)
-                .offset(nvl(pageOffset, 0L))
-                .limit(nvl(pageLimit, 10L))
-                .build();
-
-        Page<OffenderBooking> offenders = searchOffenderService.findOffenders(request);
-
-        return SearchForOffendersLocationOnlyResponse.respond200WithApplicationJson(offenders);
-    }
-
-    @Override
     public SearchForOffendersLocationAndKeywordResponse searchForOffendersLocationAndKeyword(String locationPrefix, String keywords, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         SearchOffenderRequest request = SearchOffenderRequest.builder()
                 .username(authenticationFacade.getCurrentUsername())

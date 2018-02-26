@@ -12,8 +12,6 @@ import java.util.List;
  * Bookings API service interface.
  */
 public interface BookingService {
-    String SYSTEM_USER_ROLE = "SYSTEM_USER";
-
     SentenceDetail getBookingSentenceDetail(Long bookingId);
 
     PrivilegeSummary getBookingIEPSummary(Long bookingId, boolean withDetails);
@@ -57,4 +55,8 @@ public interface BookingService {
     List<OffenderSummary> getBookingsByPersonIdAndType(Long personId, String relationshipType);
 
     Long getBookingIdByOffenderNo(String offenderNo);
+
+    OffenderSummary createBooking(@Valid NewBooking newBooking);
+
+    OffenderSummary recallBooking(@Valid RecallBooking recallBooking);
 }
