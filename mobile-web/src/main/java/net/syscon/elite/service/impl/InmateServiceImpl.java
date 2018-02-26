@@ -5,12 +5,14 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.repository.InmateRepository;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
 import net.syscon.elite.service.support.PageRequest;
 import net.syscon.util.CalcDateRanges;
+
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -32,6 +33,7 @@ public class InmateServiceImpl implements InmateService {
     private final CaseLoadService caseLoadService;
     private final BookingService bookingService;
     private final InmateAlertRepository inmateAlertRepository;
+    private final AuthenticationFacade authenticationFacade;
 
     private final int maxYears;
     private final String locationTypeGranularity;
@@ -40,6 +42,7 @@ public class InmateServiceImpl implements InmateService {
                              CaseLoadService caseLoadService,
                              InmateAlertRepository inmateAlertRepository,
                              BookingService bookingService,
+                             AuthenticationFacade authenticationFacade,
                              @Value("${offender.dob.max.range.years:10}") int maxYears,
                              @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity) {
         this.repository = repository;
@@ -48,6 +51,7 @@ public class InmateServiceImpl implements InmateService {
         this.maxYears = maxYears;
         this.locationTypeGranularity = locationTypeGranularity;
         this.bookingService = bookingService;
+        this.authenticationFacade = authenticationFacade;
     }
 
     @Override
@@ -156,37 +160,27 @@ public class InmateServiceImpl implements InmateService {
     @Override
     public List<Assessment> getInmatesAssessmentsByCode(List<Long> bookingIds, String assessmentCode) {
 
-        List<Long> validIds = bookingIds.stream().filter(bookingId -> {
-            if (bookingService.isSystemUser()) {
-                return bookingService.testBookingExists(bookingId);
-            } else {
-                return bookingService.testBookingAccess(bookingId);
-            }
-        }).collect(Collectors.toList());
-
         List<Assessment> results = new ArrayList<>();
-        if (!validIds.isEmpty()) {
-            final List<AssessmentDto> assessmentsDto = repository.findAssessments(validIds);
+        if (!bookingIds.isEmpty()) {
+            final Set<String> caseLoadIds = bookingService.isSystemUser() ? Collections.emptySet()
+                    : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), true);
 
-            final Map<Long, List<AssessmentDto>> mapOfBookings = assessmentsDto.stream()
+            final List<AssessmentDto> assessments = repository.findAssessments(bookingIds, assessmentCode, caseLoadIds);
+
+            final Map<Long, List<AssessmentDto>> mapOfBookings = assessments.stream()
                     .collect(Collectors.groupingBy(AssessmentDto::getBookingId));
 
-            for (Entry<Long, List<AssessmentDto>> e : mapOfBookings.entrySet()) {
+            for (List<AssessmentDto> assessmentForCodeType : mapOfBookings.values()) {
 
-                final Map<String, List<AssessmentDto>> mapOfAssessments = e.getValue().stream()
-                        .collect(Collectors.groupingBy(AssessmentDto::getAssessmentCode));
-                final List<AssessmentDto> assessmentForCodeType = mapOfAssessments.get(assessmentCode);
-
-                if (assessmentForCodeType != null && !assessmentForCodeType.isEmpty()) {
-                    results.add(createAssessment(assessmentForCodeType.get(0)));
-                }
+                // The 1st is the most recent date / seq for each booking
+                results.add(createAssessment(assessmentForCodeType.get(0)));
             }
         }
         return results;
     }
 
     private Map<String, List<AssessmentDto>> getAssessmentsAsMap(Long bookingId) {
-        final List<AssessmentDto> assessmentsDto = repository.findAssessments(Collections.singletonList(bookingId));
+        final List<AssessmentDto> assessmentsDto = repository.findAssessments(Collections.singletonList(bookingId), null, Collections.emptySet());
 
         return assessmentsDto.stream().collect(Collectors.groupingBy(AssessmentDto::getAssessmentCode));
     }

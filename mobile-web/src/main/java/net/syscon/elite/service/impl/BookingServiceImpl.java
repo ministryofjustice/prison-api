@@ -407,18 +407,6 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    /**
-     * Verifies that current user is authorised to access specified offender booking as for @see {@link BookingServiceImpl#verifyBookingAccess(Long)}
-     * @param bookingId
-     * @return true if the user has access to the booking id
-     */
-    @Override
-    public boolean testBookingAccess(Long bookingId) {
-        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
-
-        return bookingRepository.verifyBookingAccess(bookingId, agencyService.getAgencyIds());
-    }
-
     @Override
     public String getBookingAgency(Long bookingId) {
         final Optional<String> agencyId = bookingRepository.getBookingAgency(bookingId);
@@ -432,13 +420,6 @@ public class BookingServiceImpl implements BookingService {
         if (!bookingRepository.checkBookingExists(bookingId)) {
             throw EntityNotFoundException.withId(bookingId);
         }
-    }
-
-    @Override
-    public boolean testBookingExists(Long bookingId) {
-        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
-
-        return bookingRepository.checkBookingExists(bookingId);
     }
 
     @Override

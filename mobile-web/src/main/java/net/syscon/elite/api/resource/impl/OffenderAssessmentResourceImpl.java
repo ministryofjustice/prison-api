@@ -10,7 +10,7 @@ import javax.ws.rs.Path;
 import java.util.List;
 
 /**
- * Implementation of Booking (/bookings) endpoint.
+ * Implementation of Offender Assessments (/offender-assessments) endpoint.
  */
 @RestResource
 @Path("/offender-assessments")

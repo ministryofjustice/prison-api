@@ -31,12 +31,10 @@ public interface BookingService {
     ScheduledEvent createBookingAppointment(Long bookingId, String username, @Valid NewAppointment newAppointment);
 
     void verifyBookingAccess(Long bookingId);
-    boolean testBookingAccess(Long bookingId);
 
     String getBookingAgency(Long bookingId);
 
     void checkBookingExists(Long bookingId);
-    boolean testBookingExists(Long bookingId);
 
     boolean isSystemUser();
 

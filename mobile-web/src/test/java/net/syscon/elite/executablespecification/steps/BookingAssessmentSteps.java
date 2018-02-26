@@ -95,7 +95,7 @@ public class BookingAssessmentSteps extends CommonSteps {
 
     public void getAssessmentsByCode(String bookingIdList, String assessmentCode) {
         final String query = "?bookingId=" + bookingIdList.replace(",", "&bookingId=");
-        assessments = doMultipleResultApiCall(API_ASSESSMENTS_PREFIX + "/assessments/" + assessmentCode + query);
+        assessments = doMultipleResultApiCall(API_ASSESSMENTS_PREFIX + assessmentCode + query);
     }
 
     public void verifyMultipleAssessments() {

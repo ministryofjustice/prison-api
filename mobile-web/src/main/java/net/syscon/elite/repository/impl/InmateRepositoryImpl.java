@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -371,16 +372,27 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		return Optional.ofNullable(physicalAttributes);
 	}
 
-	@Override
+    @Override
     @Cacheable("bookingAssessments")
-    public List<AssessmentDto> findAssessments(List<Long> bookingIds) {
-		String sql = getQuery("FIND_ACTIVE_APPROVED_ASSESSMENT");
+    public List<AssessmentDto> findAssessments(List<Long> bookingIds, String assessmentCode, Set<String> caseLoadId) {
+        String initialSql = getQuery("FIND_ACTIVE_APPROVED_ASSESSMENT");
+        if (!caseLoadId.isEmpty()) {
+            initialSql += " AND " + getQuery("ASSESSMENT_CASELOAD_FILTER");
+        }
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, ASSESSMENT_MAPPER.getFieldMap());
 
-		return jdbcTemplate.query(
-				sql,
-				createParams("bookingIds", bookingIds),
-				ASSESSMENT_MAPPER);
-	}
+        String sql = builder
+                .addOrderBy(Order.ASC, "assessmentCode")
+                .addOrderBy(Order.DESC, "assessmentDate,assessmentSeq")
+                .build();
+        
+        final SqlParameterSource params = createParams(
+                "bookingIds", bookingIds,
+                "assessmentCode", assessmentCode,
+                "caseLoadId", caseLoadId);
+
+        return jdbcTemplate.query(sql, params, ASSESSMENT_MAPPER);
+    }
 
 	@Override
     public Optional<AssignedLivingUnit> findAssignedLivingUnit(long bookingId, String locationTypeRoot) {

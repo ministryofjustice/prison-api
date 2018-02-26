@@ -467,6 +467,4 @@ public class BookingResourceImpl implements BookingResource {
 
         return PostBookingsBookingIdAppointmentsResponse.respond201WithApplicationJson(createdEvent);
     }
-
-   
 }
