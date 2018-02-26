@@ -27,6 +27,8 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class KeyworkerPoolTest {
+    private static final String TEST_AGENCY_ID = "LEI";
+
     private KeyworkerPool keyworkerPool;
     private Set<Integer> capacityTiers;
 
@@ -148,13 +150,13 @@ public class KeyworkerPoolTest {
         LocalDateTime refDateTime = LocalDateTime.now();
 
         KeyWorkerAllocation staff1Allocation =
-                getPreviousKeyworkerAllocation(5, staffId1, refDateTime.minusDays(2));
+                getPreviousKeyworkerAutoAllocation(TEST_AGENCY_ID, 5, staffId1, refDateTime.minusDays(2));
 
         KeyWorkerAllocation staff2Allocation =
-                getPreviousKeyworkerAllocation(7, staffId2, refDateTime.minusDays(7));
+                getPreviousKeyworkerAutoAllocation(TEST_AGENCY_ID, 7, staffId2, refDateTime.minusDays(7));
 
         KeyWorkerAllocation staff3Allocation =
-                getPreviousKeyworkerAllocation(3, staffId3, refDateTime.minusDays(5));
+                getPreviousKeyworkerAutoAllocation(TEST_AGENCY_ID, 3, staffId3, refDateTime.minusDays(5));
 
         when(keyWorkerAllocationService.getAllocationsForKeyworker(eq(staffId1))).thenReturn(Collections.singletonList(staff1Allocation));
         when(keyWorkerAllocationService.getAllocationsForKeyworker(eq(staffId2))).thenReturn(Collections.singletonList(staff2Allocation));
@@ -190,7 +192,7 @@ public class KeyworkerPoolTest {
 
         // A previous allocation between the unallocated offender and Key worker with staffId = 2
         mockPrisonerAllocationHistory(keyWorkerAllocationService,
-                getPreviousKeyworkerAllocation(allocBookingId, allocStaffId));
+                getPreviousKeyworkerAutoAllocation(TEST_AGENCY_ID, allocBookingId, allocStaffId));
 
         // Request KW from pool for offender
         Keyworker allocatedKeyworker = keyworkerPool.getKeyworker(allocBookingId);
@@ -224,9 +226,9 @@ public class KeyworkerPoolTest {
 
         // Previous allocations between the unallocated offender and previous KWs
         mockPrisonerAllocationHistory(keyWorkerAllocationService,
-                getPreviousKeyworkerAllocation(allocBookingId, allocStaffIdMostRecent, ldtMostRecent),
-                getPreviousKeyworkerAllocation(allocBookingId, allocStaffIdOther, ldtOther),
-                getPreviousKeyworkerAllocation(allocBookingId, allocStaffIdLeastRecent, ldtLeastRecent));
+                getPreviousKeyworkerAutoAllocation(TEST_AGENCY_ID, allocBookingId, allocStaffIdMostRecent, ldtMostRecent),
+                getPreviousKeyworkerAutoAllocation(TEST_AGENCY_ID, allocBookingId, allocStaffIdOther, ldtOther),
+                getPreviousKeyworkerAutoAllocation(TEST_AGENCY_ID, allocBookingId, allocStaffIdLeastRecent, ldtLeastRecent));
 
         // Request KW from pool for offender
         Keyworker allocatedKeyworker = keyworkerPool.getKeyworker(allocBookingId);

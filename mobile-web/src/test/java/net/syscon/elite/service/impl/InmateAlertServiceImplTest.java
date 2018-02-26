@@ -1,9 +1,8 @@
-package net.syscon.elite.service;
+package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
-import net.syscon.elite.service.impl.InmateAlertServiceImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -20,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class InmateAlertServiceTest {
+public class InmateAlertServiceImplTest {
     @Mock
     private InmateAlertRepository inmateAlertRepository;
 

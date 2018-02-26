@@ -5,6 +5,9 @@ FIND_INMATE_DETAIL {
          O.FIRST_NAME,
          CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL THEN concat(' ', O.middle_name_2) ELSE '' END) MIDDLE_NAME,
          O.LAST_NAME,
+         B.AGY_LOC_ID,
+         B.LIVING_UNIT_ID,
+         B.ACTIVE_FLAG,
          pc3.description                RELIGION,
          (SELECT OI.OFFENDER_IMAGE_ID
           FROM OFFENDER_IMAGES OI
@@ -31,6 +34,49 @@ FIND_INMATE_DETAIL {
     LEFT JOIN profile_codes pc3 ON pc3.profile_type = opd3.profile_type AND pc3.profile_code = opd3.profile_code
   WHERE B.ACTIVE_FLAG = 'Y' AND B.OFFENDER_BOOK_ID = :bookingId
 }
+
+FIND_BASIC_INMATE_DETAIL {
+  SELECT B.OFFENDER_BOOK_ID,
+    B.BOOKING_NO,
+    O.OFFENDER_ID_DISPLAY,
+    O.FIRST_NAME,
+    CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL THEN concat(' ', O.middle_name_2) ELSE '' END) MIDDLE_NAME,
+    O.LAST_NAME,
+    O.BIRTH_DATE,
+    B.AGY_LOC_ID,
+    B.LIVING_UNIT_ID,
+    B.ACTIVE_FLAG
+  FROM OFFENDER_BOOKINGS B
+    INNER JOIN OFFENDERS O ON B.OFFENDER_ID = O.OFFENDER_ID
+  WHERE B.ACTIVE_FLAG = 'Y' AND B.OFFENDER_BOOK_ID = :bookingId
+  }
+
+GET_IMAGE_DATA_FOR_BOOKING {
+  SELECT
+    I.OFFENDER_IMAGE_ID AS IMAGE_ID,
+    I.CAPTURE_DATETIME AS CAPTURE_DATE,
+    I.IMAGE_VIEW_TYPE,
+    I.ORIENTATION_TYPE,
+    I.IMAGE_OBJECT_TYPE,
+    I.IMAGE_OBJECT_ID
+  FROM OFFENDER_IMAGES I
+  WHERE I.OFFENDER_IMAGE_ID =
+         (SELECT OI.OFFENDER_IMAGE_ID
+          FROM OFFENDER_IMAGES OI
+          WHERE OI.ACTIVE_FLAG = 'Y'
+                AND IMAGE_OBJECT_TYPE = 'OFF_BKG'
+                AND OI.OFFENDER_BOOK_ID = :bookingId
+                AND OI.IMAGE_VIEW_TYPE = 'FACE'
+                AND OI.ORIENTATION_TYPE = 'FRONT'
+                AND CREATE_DATETIME = (SELECT MAX(CREATE_DATETIME)
+                                       FROM OFFENDER_IMAGES
+                                       WHERE ACTIVE_FLAG = 'Y'
+                                             AND IMAGE_OBJECT_TYPE = 'OFF_BKG'
+                                             AND OFFENDER_BOOK_ID = :bookingId
+                                             AND IMAGE_VIEW_TYPE = 'FACE'
+                                             AND ORIENTATION_TYPE = 'FRONT'))
+}
+
 
 FIND_ASSIGNED_LIVING_UNIT {
   SELECT B.AGY_LOC_ID,

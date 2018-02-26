@@ -23,6 +23,8 @@ public interface InmateRepository {
 
 	Optional<InmateDetail> findInmate(Long inmateId);
 
+	Optional<InmateDetail> getBasicInmateDetail(Long bookingId);
+
 	Page<Alias> findInmateAliases(Long bookingId, String orderByFields, Order order, long offset, long limit);
 
 	Page<OffenderBooking> findMyAssignments(long staffId, String currentCaseLoad, String locationTypeRoot, String orderBy, boolean sortAscending, long offset, long limit);
@@ -39,8 +41,11 @@ public interface InmateRepository {
 
     List<AssessmentDto> findAssessments(List<Long> bookingIds);
 
+	Optional<ImageDetail> getMainBookingImage(long bookingId);
+
 	Optional<AssignedLivingUnit> findAssignedLivingUnit(long bookingId, String locationTypeGranularity);
 
 	List<String> findActiveAlertCodes(long bookingId);
 
+	List<OffenderIdentifier> getOffenderIdentifiers(long bookingId);
 }

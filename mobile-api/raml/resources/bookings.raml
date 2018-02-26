@@ -91,6 +91,13 @@
     bookingId:
       (javaType): Long
       description: The booking id of offender
+  get:
+    queryParameters:
+      basicInfo?:
+        type: boolean
+        description: If set to true then only basic data is returned
+        example: true
+        default: false
 
 /{bookingId}/caseNotes:
   description: Offender Case Notes
@@ -223,6 +230,79 @@
     assessmentCode:
       type: string
       description: Assessment Type Code
+
+/{bookingId}/assessments:
+  (javaOperationName): getAssessments
+  type: { readOnlyCollection: { type: Assessment, description: Assessment Information } }
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+
+/{bookingId}/physicalMarks:
+  (javaOperationName): getPhysicalMarks
+  type: { readOnlyCollection: { type: PhysicalMark, description: Physical Mark Information } }
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+
+/{bookingId}/profileInformation:
+  (javaOperationName): getProfileInformation
+  type: { readOnlyCollection: { type: ProfileInformation, description: Profile Information } }
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+
+/{bookingId}/physicalCharacteristics:
+  (javaOperationName): getPhysicalCharacteristics
+  type: { readOnlyCollection: { type: PhysicalCharacteristic, description: Physical Characteristics } }
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+
+/{bookingId}/physicalAttributes:
+  (javaOperationName): getPhysicalAttributes
+  type: { readOnlyItem: { type: PhysicalAttributes, description: Offender Physical Attributes. } }
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+
+/{bookingId}/identifiers:
+  (javaOperationName): getOffenderIdentifiers
+  type: { readOnlyCollection: { type: OffenderIdentifier, description: Identifiers for this booking } }
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+
+/{bookingId}/image:
+  (javaOperationName): getMainImageForBookings
+  type: {
+    readOnlyItem: {
+      type: ImageDetail,
+      description: Image detail (without image data).
+    }
+  }
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The booking id of offender
+
+/{bookingId}/image/data:
+  (javaOperationName): getMainBookingImageData
+  type: {
+    userPicture: {
+      description: Image data (as bytes).
+    }
+  }
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The booking id of offender
 
 /{bookingId}/aliases:
   (javaOperationName): getOffenderAliases

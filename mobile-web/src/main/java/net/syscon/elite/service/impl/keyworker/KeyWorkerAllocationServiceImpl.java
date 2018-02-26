@@ -18,17 +18,21 @@ import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
 import javax.ws.rs.BadRequestException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -38,6 +42,9 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
     private final KeyWorkerAllocationRepository repository;
     private final AuthenticationFacade authenticationFacade;
     private final BookingService bookingService;
+
+    @Value("${api.keyworker.deallocation.buffer.hours:48}")
+    private int deallocationBufferHours;
 
     public KeyWorkerAllocationServiceImpl(KeyWorkerAllocationRepository repository,
             AuthenticationFacade authenticationFacade, BookingService bookingService) {
@@ -164,7 +171,23 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
         final Keyworker keyworker = repository.getKeyworkerDetails(staffId)
                 .orElseThrow(EntityNotFoundException.withMessage(String.format("Key worker with id %d not found", staffId)));
 
+        int activeAllocCount = Optional.ofNullable(keyworker.getNumberAllocated()).orElse(0);
+
+        List<KeyWorkerAllocation> recentDeallocations = getRecentDeallocations(staffId, Duration.ofHours(deallocationBufferHours));
+
+        keyworker.setNumberAllocated(activeAllocCount + recentDeallocations.size());
+
         return keyworker;
+    }
+
+    private List<KeyWorkerAllocation> getRecentDeallocations(Long staffId, Duration lookBackDuration) {
+        List<KeyWorkerAllocation> keyWorkerAllocations = getAllocationsForKeyworker(staffId);
+        LocalDateTime cutOff = LocalDateTime.now().minus(lookBackDuration);
+
+        return keyWorkerAllocations.stream()
+                .filter(kwa -> !(StringUtils.equalsIgnoreCase("Y", kwa.getActive()) || Objects.isNull(kwa.getExpiry())))
+                .filter(kwa -> kwa.getExpiry().isAfter(cutOff))
+                .collect(Collectors.toList());
     }
 
     @Override
