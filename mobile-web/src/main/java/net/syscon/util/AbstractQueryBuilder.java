@@ -88,6 +88,9 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
     @Override
     public IQueryBuilder addOrderBy(boolean isAscending, String fields) {
 
+        if (extraOrderBy.length() > 0) {
+            extraOrderBy += ", ";
+        }
         extraOrderBy += COMMA_PATTERN
                 .splitAsStream(fields == null ? "" : fields)
                 .map(fieldNameToColumnMap::get)

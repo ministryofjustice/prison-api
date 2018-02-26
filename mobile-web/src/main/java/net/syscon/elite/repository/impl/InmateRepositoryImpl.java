@@ -374,16 +374,27 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		return Optional.ofNullable(physicalAttributes);
 	}
 
-	@Override
+    @Override
     @Cacheable("bookingAssessments")
-    public List<AssessmentDto> findAssessments(long bookingId) {
-		String sql = getQuery("FIND_ACTIVE_APPROVED_ASSESSMENT");
+    public List<AssessmentDto> findAssessments(List<Long> bookingIds, String assessmentCode, Set<String> caseLoadId) {
+        String initialSql = getQuery("FIND_ACTIVE_APPROVED_ASSESSMENT");
+        if (!caseLoadId.isEmpty()) {
+            initialSql += " AND " + getQuery("ASSESSMENT_CASELOAD_FILTER");
+        }
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, ASSESSMENT_MAPPER.getFieldMap());
 
-		return jdbcTemplate.query(
-				sql,
-				createParams("bookingId", bookingId),
-				ASSESSMENT_MAPPER);
-	}
+        String sql = builder
+                .addOrderBy(Order.ASC, "assessmentCode")
+                .addOrderBy(Order.DESC, "assessmentDate,assessmentSeq")
+                .build();
+        
+        final MapSqlParameterSource params = createParams(
+                "bookingIds", bookingIds,
+                "assessmentCode", assessmentCode,
+                "caseLoadId", caseLoadId);
+
+        return jdbcTemplate.query(sql, params, ASSESSMENT_MAPPER);
+    }
 
 	@Override
     public Optional<AssignedLivingUnit> findAssignedLivingUnit(long bookingId, String locationTypeRoot) {

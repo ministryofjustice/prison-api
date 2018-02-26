@@ -5,6 +5,7 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.repository.InmateRepository;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.CaseLoadService;
@@ -13,6 +14,7 @@ import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
 import net.syscon.elite.service.support.PageRequest;
+
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +32,7 @@ public class InmateServiceImpl implements InmateService {
     private final CaseLoadService caseLoadService;
     private final BookingService bookingService;
     private final InmateAlertRepository inmateAlertRepository;
+    private final AuthenticationFacade authenticationFacade;
 
     private final String locationTypeGranularity;
 
@@ -37,12 +40,14 @@ public class InmateServiceImpl implements InmateService {
                              CaseLoadService caseLoadService,
                              InmateAlertRepository inmateAlertRepository,
                              BookingService bookingService,
+                             AuthenticationFacade authenticationFacade,
                              @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity) {
         this.repository = repository;
         this.caseLoadService = caseLoadService;
         this.inmateAlertRepository = inmateAlertRepository;
         this.locationTypeGranularity = locationTypeGranularity;
         this.bookingService = bookingService;
+        this.authenticationFacade = authenticationFacade;
     }
 
     @Override
@@ -148,15 +153,37 @@ public class InmateServiceImpl implements InmateService {
         return Optional.ofNullable(assessment);
     }
 
-    private Map<String, List<AssessmentDto>> getAssessmentsAsMap(Long bookingId) {
-        final List<AssessmentDto> assessmentsDto = repository.findAssessments(bookingId);
+    @Override
+    public List<Assessment> getInmatesAssessmentsByCode(List<Long> bookingIds, String assessmentCode) {
 
-        return assessmentsDto.stream()
-                .collect(Collectors.groupingBy(AssessmentDto::getAssessmentCode));
+        List<Assessment> results = new ArrayList<>();
+        if (!bookingIds.isEmpty()) {
+            final Set<String> caseLoadIds = bookingService.isSystemUser() ? Collections.emptySet()
+                    : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), true);
+
+            final List<AssessmentDto> assessments = repository.findAssessments(bookingIds, assessmentCode, caseLoadIds);
+
+            final Map<Long, List<AssessmentDto>> mapOfBookings = assessments.stream()
+                    .collect(Collectors.groupingBy(AssessmentDto::getBookingId));
+
+            for (List<AssessmentDto> assessmentForCodeType : mapOfBookings.values()) {
+
+                // The 1st is the most recent date / seq for each booking
+                results.add(createAssessment(assessmentForCodeType.get(0)));
+            }
+        }
+        return results;
+    }
+
+    private Map<String, List<AssessmentDto>> getAssessmentsAsMap(Long bookingId) {
+        final List<AssessmentDto> assessmentsDto = repository.findAssessments(Collections.singletonList(bookingId), null, Collections.emptySet());
+
+        return assessmentsDto.stream().collect(Collectors.groupingBy(AssessmentDto::getAssessmentCode));
     }
 
     private Assessment createAssessment(AssessmentDto assessmentDto) {
         return Assessment.builder()
+                .bookingId(assessmentDto.getBookingId())
                 .assessmentCode(assessmentDto.getAssessmentCode())
                 .assessmentDescription(assessmentDto.getAssessmentDescription())
                 .classification(deriveClassification(assessmentDto))
