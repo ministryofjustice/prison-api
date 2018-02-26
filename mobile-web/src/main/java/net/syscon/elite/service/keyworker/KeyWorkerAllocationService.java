@@ -17,8 +17,6 @@ import java.util.List;
  */
 public interface KeyWorkerAllocationService {
 
-    void createAllocation(KeyWorkerAllocation allocation, String username);
-
     void deactivateAllocationForKeyWorker(Long staffId, String reason, String username);
 
     void deactivateAllocationForOffenderBooking(Long bookingId, String reason, String username);

@@ -90,27 +90,10 @@ public class KeyWorkerAllocationServiceImplTest {
     }
 
     @Test
-    public void shouldCallCollaboratorsForCreateAllocation () {
-        when(repo.getCurrentAllocationForOffenderBooking(BOOKING_ID)).thenReturn(Optional.of(KeyWorkerAllocation.builder().build()));
-        KeyWorkerAllocation allocation = getPreviousKeyworkerAutoAllocation(AGENCY_ID, BOOKING_ID, STAFF_ID);
-        service.createAllocation(allocation, USER_1);
-        verify(repo, times(1)).getCurrentAllocationForOffenderBooking(allocation.getBookingId());
-        verify(repo, times(1)).createAllocation(allocation, USER_1);
-    }
-    
-    @Test(expected = AllocationException.class)
-    public void shouldThrowExceptionWhenExistingAllocationForOffenderBooking () {
-        when(repo.getCurrentAllocationForOffenderBooking(BOOKING_ID)).thenReturn(Optional.empty());
-        KeyWorkerAllocation allocation = getPreviousKeyworkerAutoAllocation(AGENCY_ID, BOOKING_ID, STAFF_ID);
-        service.createAllocation(allocation, USER_1);
-    }
-
-    @Test
     public void shouldCallCollaboratorsForGetAllocationHistoryForPrisoner () {
         service.getAllocationHistoryForPrisoner(-1L, null, null);
         verify(repo, times(1)).getAllocationHistoryForPrisoner(-1L, "assigned", Order.DESC);
     }
-
 
     @Test
     public void shouldCallCollaboratorsForGetLatestAllocationForOffenderBooking () {
