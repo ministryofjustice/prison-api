@@ -55,14 +55,6 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
 
     @Override
     @Transactional
-    public void createAllocation(KeyWorkerAllocation allocation, String username) {
-        repository.getCurrentAllocationForOffenderBooking(allocation.getBookingId())
-                .orElseThrow(AllocationException.withMessage(String.format("Existing allocation found for offenderBookingId %s", allocation.getBookingId())));
-        repository.createAllocation(allocation, username);
-    }
-
-    @Override
-    @Transactional
     public void deactivateAllocationForKeyWorker(Long staffId, String reason, String username) {
         repository.deactivateAllocationsForKeyWorker(staffId, reason, username);
     }
