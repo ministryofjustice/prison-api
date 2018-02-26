@@ -1,6 +1,7 @@
 package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.NewAppointment;
+import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.model.Visit;
 import net.syscon.elite.web.config.PersistenceConfigs;
@@ -19,9 +20,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("nomis-hsqldb")
@@ -37,46 +38,51 @@ public class BookingRepositoryTest {
 
     @Before
     public void init() {
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
+        SecurityContextHolder.getContext()
+                .setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
     }
 
-    private static void assertVisitDetails(final Visit visit) {
-        assertEquals("2016-12-11T14:30", visit.getStartTime().toString());
-        assertEquals("2016-12-11T15:30", visit.getEndTime().toString());
-        assertEquals("ABS", visit.getEventOutcome());
-        assertEquals("Absence", visit.getEventOutcomeDescription());
-        assertEquals("JESSY SMITH1", visit.getLeadVisitor());
-        assertEquals("UN", visit.getRelationship());
-        assertEquals("Uncle", visit.getRelationshipDescription());
-        assertEquals("Visiting Room", visit.getLocation());
-        assertEquals("CANC", visit.getEventStatus());
-        assertEquals("Cancelled", visit.getEventStatusDescription());
-        assertEquals("NSHOW", visit.getCancellationReason());
-        assertEquals("Visitor Did Not Arrive", visit.getCancelReasonDescription());
-        assertEquals("SCON", visit.getVisitType());
-        assertEquals("Social Contact", visit.getVisitTypeDescription());
+    private static void assertVisitDetails(Visit visit) {
+        assertThat(visit).isNotNull();
+
+        assertThat(visit.getStartTime().toString()).isEqualTo("2016-12-11T14:30");
+        assertThat(visit.getEndTime().toString()).isEqualTo("2016-12-11T15:30");
+        assertThat(visit.getEventOutcome()).isEqualTo("ABS");
+        assertThat(visit.getEventOutcomeDescription()).isEqualTo("Absence");
+        assertThat(visit.getLeadVisitor()).isEqualTo("JESSY SMITH1");
+        assertThat(visit.getRelationship()).isEqualTo("UN");
+        assertThat(visit.getRelationshipDescription()).isEqualTo("Uncle");
+        assertThat(visit.getLocation()).isEqualTo("Visiting Room");
+        assertThat(visit.getEventStatus()).isEqualTo("CANC");
+        assertThat(visit.getEventStatusDescription()).isEqualTo("Cancelled");
+        assertThat(visit.getCancellationReason()).isEqualTo("NSHOW");
+        assertThat(visit.getCancelReasonDescription()).isEqualTo("Visitor Did Not Arrive");
+        assertThat(visit.getVisitType()).isEqualTo("SCON");
+        assertThat(visit.getVisitTypeDescription()).isEqualTo("Social Contact");
     }
 
     @Test
     public void testCreateBookingAppointment() {
-        final NewAppointment appt = NewAppointment.builder()
+        NewAppointment appt = NewAppointment.builder()
                 .appointmentType("APT_TYPE")
                 .locationId(-29L)
                 .startTime(LocalDateTime.parse("2017-12-23T10:15:30"))
                 .build();
 
-        final Long eventId = repository.createBookingAppointment(-2L, appt, "LEI");
+        Long eventId = repository.createBookingAppointment(-2L, appt, "LEI");
 
-        final ScheduledEvent event = repository.getBookingAppointment(-2L, eventId);
-        assertEquals(appt.getAppointmentType(), event.getEventSubType());
-        assertEquals("Medical Centre", event.getEventLocation());
-        assertEquals(appt.getStartTime(), event.getStartTime());
-        assertEquals(appt.getStartTime().toLocalDate(), event.getEventDate());
+        ScheduledEvent event = repository.getBookingAppointment(-2L, eventId);
+
+        assertThat(event).isNotNull();
+        assertThat(event.getEventSubType()).isEqualTo(appt.getAppointmentType());
+        assertThat(event.getEventLocation()).isEqualTo("Medical Centre");
+        assertThat(event.getStartTime()).isEqualTo(appt.getStartTime());
+        assertThat(event.getEventDate()).isEqualTo(appt.getStartTime().toLocalDate());
     }
     
     @Test
     public void testCreateBookingAppointmentWithEndComment() {
-        final NewAppointment appt = NewAppointment.builder()
+        NewAppointment appt = NewAppointment.builder()
                 .appointmentType("APT_TYPE")
                 .locationId(-29L)
                 .startTime(LocalDateTime.parse("2017-12-24T10:15:30"))
@@ -84,47 +90,164 @@ public class BookingRepositoryTest {
                 .comment("Hi there")
                 .build();
 
-        final Long eventId = repository.createBookingAppointment(-2L, appt, "LEI");
+        Long eventId = repository.createBookingAppointment(-2L, appt, "LEI");
 
-        final ScheduledEvent event = repository.getBookingAppointment(-2L, eventId);
-        assertEquals(appt.getAppointmentType(), event.getEventSubType());
-        assertEquals("Medical Centre", event.getEventLocation());
-        assertEquals(appt.getStartTime(), event.getStartTime());
-        assertEquals(appt.getEndTime(), event.getEndTime());
-        assertEquals(appt.getComment(), event.getEventSourceDesc());
-        assertEquals(appt.getStartTime().toLocalDate(), event.getEventDate());
+        ScheduledEvent event = repository.getBookingAppointment(-2L, eventId);
+
+        assertThat(event).isNotNull();
+        assertThat(event.getEventSubType()).isEqualTo(appt.getAppointmentType());
+        assertThat(event.getEventLocation()).isEqualTo("Medical Centre");
+        assertThat(event.getStartTime()).isEqualTo(appt.getStartTime());
+        assertThat(event.getEndTime()).isEqualTo(appt.getEndTime());
+        assertThat(event.getEventSourceDesc()).isEqualTo(appt.getComment());
+        assertThat(event.getEventDate()).isEqualTo(appt.getStartTime().toLocalDate());
     }
 
     @Test
     public void testGetBookingVisitLastSameDay() {
-        final Visit visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2016-12-11T16:00"));
+        Visit visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2016-12-11T16:00"));
+
         assertVisitDetails(visit);
     }
 
     @Test
     public void testGetBookingVisitLastDifferentDay() {
-        final Visit visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2016-12-20T00:00"));
+        Visit visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2016-12-20T00:00"));
+
         assertVisitDetails(visit);
     }
 
     @Test
     public void testGetBookingVisitLastMultipleCandidates() {
-        final Visit visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2017-12-07T00:00"));
-        assertEquals("2017-11-13T14:30", visit.getStartTime().toString());
-        assertEquals("2017-11-13T15:30", visit.getEndTime().toString());
-        assertNull(visit.getLeadVisitor());
-        assertNull(visit.getRelationship());
+        Visit visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2017-12-07T00:00"));
+
+        assertThat(visit).isNotNull();
+        assertThat(visit.getStartTime().toString()).isEqualTo("2017-11-13T14:30");
+        assertThat(visit.getEndTime().toString()).isEqualTo("2017-11-13T15:30");
+        assertThat(visit.getLeadVisitor()).isNull();
+        assertThat(visit.getRelationship()).isNull();
     }
 
     @Test
     public void testGetBookingVisitLastNonexistentBooking() {
-        final Visit visit = repository.getBookingVisitLast(-99L, LocalDateTime.parse("2016-12-11T16:00:00"));
-        assertNull(visit);
+        Visit visit = repository.getBookingVisitLast(-99L, LocalDateTime.parse("2016-12-11T16:00:00"));
+
+        assertThat(visit).isNull();
     }
 
     @Test
     public void testGetBookingVisitLastEarlyDate() {
-        final Visit visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2011-12-11T16:00:00"));
-        assertNull(visit);
+        Visit visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2011-12-11T16:00:00"));
+
+        assertThat(visit).isNull();
+    }
+
+    @Test
+    public void testGetLatestBookingByBookingIdInvalidBookingId() {
+        Optional<OffenderSummary> response = repository.getLatestBookingByBookingId(99999L);
+
+        assertThat(response.isPresent()).isFalse();
+    }
+
+    @Test
+    public void testGetLatestBookingByBookingIdHavingActiveBooking() {
+        Long bookingIdForActiveBooking = -5L;
+
+        Optional<OffenderSummary> response = repository.getLatestBookingByBookingId(bookingIdForActiveBooking);
+
+        assertThat(response.isPresent()).isTrue();
+
+        OffenderSummary summary = response.get();
+
+        assertThat(summary.getOffenderNo()).isEqualTo("A1234AE");
+        assertThat(summary.getFirstName()).isEqualTo("DONALD");
+        assertThat(summary.getMiddleNames()).isEqualTo("JEFFREY ROBERT");
+        assertThat(summary.getLastName()).isEqualTo("DUCK");
+        assertThat(summary.getBookingId()).isEqualTo(bookingIdForActiveBooking);
+        assertThat(summary.getAgencyLocationId()).isEqualTo("LEI");
+        assertThat(summary.getCurrentlyInPrison()).isEqualTo("Y");
+    }
+
+    @Test
+    public void testGetLatestBookingByBookingIdHavingInactiveBooking() {
+        Long bookingIdForInactiveBooking = -20L;
+
+        Optional<OffenderSummary> response = repository.getLatestBookingByBookingId(bookingIdForInactiveBooking);
+
+        assertThat(response.isPresent()).isTrue();
+
+        OffenderSummary summary = response.get();
+
+        assertThat(summary.getOffenderNo()).isEqualTo("Z0020ZZ");
+        assertThat(summary.getFirstName()).isEqualTo("BURT");
+        assertThat(summary.getMiddleNames()).isNull();
+        assertThat(summary.getLastName()).isEqualTo("REYNOLDS");
+        assertThat(summary.getBookingId()).isEqualTo(bookingIdForInactiveBooking);
+        assertThat(summary.getAgencyLocationId()).isEqualTo("LEI");
+        assertThat(summary.getCurrentlyInPrison()).isEqualTo("N");
+    }
+
+    @Test
+    public void testGetLatestBookingByBookingIdHavingLaterActiveBooking() {
+        Long bookingIdForInactiveBooking = -15L;
+
+        Optional<OffenderSummary> response = repository.getLatestBookingByBookingId(bookingIdForInactiveBooking);
+
+        assertThat(response.isPresent()).isTrue();
+
+        OffenderSummary summary = response.get();
+
+        assertThat(summary.getOffenderNo()).isEqualTo("A1234AI");
+        assertThat(summary.getFirstName()).isEqualTo("CHESTER");
+        assertThat(summary.getMiddleNames()).isEqualTo("JAMES");
+        assertThat(summary.getLastName()).isEqualTo("THOMPSON");
+        assertThat(summary.getBookingId()).isNotEqualTo(bookingIdForInactiveBooking);
+        assertThat(summary.getAgencyLocationId()).isEqualTo("LEI");
+        assertThat(summary.getCurrentlyInPrison()).isEqualTo("Y");
+    }
+
+    @Test
+    public void testGetLatestBookingByOffenderNoInvalidOffenderNo() {
+        Optional<OffenderSummary> response = repository.getLatestBookingByOffenderNo("X9999XX");
+
+        assertThat(response.isPresent()).isFalse();
+    }
+
+    @Test
+    public void testGetLatestBookingByOffenderNoHavingActiveBooking() {
+        String offenderNoWithActiveBooking = "A1234AA";
+
+        Optional<OffenderSummary> response = repository.getLatestBookingByOffenderNo(offenderNoWithActiveBooking);
+
+        assertThat(response.isPresent()).isTrue();
+
+        OffenderSummary summary = response.get();
+
+        assertThat(summary.getOffenderNo()).isEqualTo(offenderNoWithActiveBooking);
+        assertThat(summary.getFirstName()).isEqualTo("ARTHUR");
+        assertThat(summary.getMiddleNames()).isEqualTo("BORIS");
+        assertThat(summary.getLastName()).isEqualTo("ANDERSON");
+        assertThat(summary.getBookingId()).isEqualTo(-1L);
+        assertThat(summary.getAgencyLocationId()).isEqualTo("LEI");
+        assertThat(summary.getCurrentlyInPrison()).isEqualTo("Y");
+    }
+
+    @Test
+    public void testGetLatestBookingByOffenderNoHavingInactiveBooking() {
+        String offenderNoWithInactiveBooking = "Z0023ZZ";
+
+        Optional<OffenderSummary> response = repository.getLatestBookingByOffenderNo(offenderNoWithInactiveBooking);
+
+        assertThat(response.isPresent()).isTrue();
+
+        OffenderSummary summary = response.get();
+
+        assertThat(summary.getOffenderNo()).isEqualTo(offenderNoWithInactiveBooking);
+        assertThat(summary.getFirstName()).isEqualTo("RICHARD");
+        assertThat(summary.getMiddleNames()).isNull();
+        assertThat(summary.getLastName()).isEqualTo("GRAYSON");
+        assertThat(summary.getBookingId()).isEqualTo(-23L);
+        assertThat(summary.getAgencyLocationId()).isEqualTo("LEI");
+        assertThat(summary.getCurrentlyInPrison()).isEqualTo("N");
     }
 }
