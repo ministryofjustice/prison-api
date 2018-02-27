@@ -1,6 +1,9 @@
 package net.syscon.elite.executablespecification.steps;
 
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.model.UserDetail;
+import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
@@ -16,12 +19,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class UserSteps extends CommonSteps {
     private static final String API_USERS_ME_REQUEST_URL = API_PREFIX + "users/me";
-    private static final String API_STAFF_REQUEST_URL = API_PREFIX + "users/staff/{staffId}";
     private static final String API_USERS_ME_LOCATIONS_REQUEST_URL = API_USERS_ME_REQUEST_URL + "/locations";
     private static final String API_USERS_ME_ROLES_REQUEST_URL = API_USERS_ME_REQUEST_URL + "/roles";
     private static final String API_USERS_ME_CASE_NOTE_TYPES_REQUEST_URL = API_USERS_ME_REQUEST_URL + "/caseNoteTypes";
 
-    private StaffDetail staffDetail;
     private List<Location> userLocations;
     private List<UserRole> userRoles;
     private List<ReferenceCode> caseNoteTypes;
@@ -30,7 +31,6 @@ public class UserSteps extends CommonSteps {
     protected void init() {
         super.init();
 
-        staffDetail = null;
         userLocations = null;
         userRoles = null;
         caseNoteTypes = null;
@@ -53,37 +53,6 @@ public class UserSteps extends CommonSteps {
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
-    }
-
-    @Step("Find staff details")
-    public void findStaffDetails(Long staffId) {
-        try {
-            ResponseEntity<StaffDetail> response = restTemplate.exchange(
-                            API_STAFF_REQUEST_URL,
-                            HttpMethod.GET,
-                            createEntity(),
-                            StaffDetail.class,
-                            staffId);
-
-            staffDetail = response.getBody();
-        } catch (EliteClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
-    @Step("Verify staff details - first name")
-    public void verifyStaffFirstName(String firstName) {
-        assertThat(staffDetail.getFirstName()).isEqualTo(firstName);
-    }
-
-    @Step("Verify staff details - last name")
-    public void verifyStaffLastName(String lastName) {
-        assertThat(staffDetail.getLastName()).isEqualTo(lastName);
-    }
-
-    @Step("Verify staff details - email")
-    public void verifyStaffEmail(String email) {
-        assertThat(staffDetail.getEmail()).isEqualTo(email);
     }
 
     @Step("Retrieve user locations")

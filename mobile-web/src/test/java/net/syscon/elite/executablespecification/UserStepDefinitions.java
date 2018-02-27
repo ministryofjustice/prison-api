@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  *     <li>/users/me/bookingAssignments</li>
  *     <li>/users/me/caseLoads</li>
  *     <li>/users/me/activeCaseLoad</li>
- *     <li>/users/staff</li>
  *     <li>/users/me/locations</li>
  *     <li>/users/me/roles</li>
  * </ul>
@@ -47,26 +46,6 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     @Given("^a trusted client has authenticated with the API$")
     public void trustedClientWithPasswordHasAuthenticatedWithTheAPI() throws Throwable {
         authenticate(null, null, true);
-    }
-
-    @When("^a staff member search is made using staff id \"([^\"]*)\"$")
-    public void aStaffMemberSearchIsMadeUsingStaffId(String staffId) throws Throwable {
-        user.findStaffDetails(Long.valueOf(staffId));
-    }
-
-    @Then("^first name of staff details returned is \"([^\"]*)\"$")
-    public void firstNameOfStaffDetailsReturnedIs(String firstName) throws Throwable {
-        user.verifyStaffFirstName(firstName);
-    }
-
-    @And("^last name of staff details returned is \"([^\"]*)\"$")
-    public void lastNameOfStaffDetailsReturnedIs(String lastName) throws Throwable {
-        user.verifyStaffLastName(lastName);
-    }
-
-    @And("^email address of staff details returned is \"([^\"]*)\"$")
-    public void emailAddressOfStaffDetailsReturnedIs(String email) throws Throwable {
-        user.verifyStaffEmail(email);
     }
 
     @When("^a request is made to retrieve user locations$")

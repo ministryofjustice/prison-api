@@ -1,0 +1,33 @@
+/{staffId}:
+  (javaOperationName): getStaffDetail
+  type: { readOnlyItem: { type: StaffDetail, description: Staff detail. } }
+  uriParameters:
+    staffId:
+      type: number
+      (javaType): Long
+      description: The staff id of the staff member.
+
+/roles/{agencyId}/positions/{position}/roles/{role}:
+  (beta): Work In Progress - not currently operational.
+  (javaOperationName): getStaffByAgencyPositionRole
+  type: { readOnlyCollectionPaged: { type: StaffDetail, description: Get active staff members within agency who are currently assigned the specified position and/or role. } }
+  is: [ sortable: { fieldsList: "firstName, lastName" } ]
+  uriParameters:
+    agencyId:
+      type: string
+      description: The agency (prison) id.
+      example: MDI
+    position:
+      type: string
+      description: The staff position.
+      example: AO
+    role:
+      type: string
+      description: The staff role.
+      example: KW
+  get:
+    queryParameters:
+      filterByName?:
+        type: string
+        description: Filter results by first name and/or last name of staff member.
+        example: John Hopkins

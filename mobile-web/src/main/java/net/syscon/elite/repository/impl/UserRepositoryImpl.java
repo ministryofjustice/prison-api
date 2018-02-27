@@ -1,7 +1,6 @@
 package net.syscon.elite.repository.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
-import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.api.support.Order;
@@ -33,13 +32,6 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 		.put("ASSIGNED_CASELOAD_ID", new FieldMapper("activeCaseLoadId")
 	).build();
 
-	private final Map<String, FieldMapper> staffMapping = new ImmutableMap.Builder<String, FieldMapper>()
-			.put("STAFF_ID", new FieldMapper("staffId"))
-			.put("FIRST_NAME", new FieldMapper("firstName"))
-			.put("LAST_NAME", new FieldMapper("lastName"))
-			.put("EMAIL", new FieldMapper("email"))
-			.put("IMAGE_ID", new FieldMapper("thumbnailId")).build();
-
 	private final StandardBeanPropertyRowMapper<UserRole> USER_ROLE_MAPPER =
 			new StandardBeanPropertyRowMapper<>(UserRole.class);
 
@@ -58,26 +50,6 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 			userDetails = null;
 		}
 		return Optional.ofNullable(userDetails);
-	}
-
-	@Override
-	@Cacheable("findByStaffId")
-	public Optional<StaffDetail> findByStaffId(Long staffId) {
-		String sql = getQuery("FIND_USER_BY_STAFF_ID");
-		RowMapper<StaffDetail> staffRowMapper = Row2BeanRowMapper.makeMapping(sql, StaffDetail.class, staffMapping);
-
-		StaffDetail staffDetails;
-
-		try {
-			staffDetails = jdbcTemplate.queryForObject(
-					sql,
-					createParams("staffId", staffId),
-					staffRowMapper);
-		} catch (EmptyResultDataAccessException ex) {
-			staffDetails = null;
-		}
-
-		return Optional.ofNullable(staffDetails);
 	}
 
 	@Override

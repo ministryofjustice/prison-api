@@ -1,7 +1,6 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.UserDetail;
-import net.syscon.elite.api.model.UserRole;
+import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Test;
@@ -15,7 +14,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,29 +25,23 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = PersistenceConfigs.class)
-public class UserRepositoryTest {
+public class StaffRepositoryTest {
 
     @Autowired
-    private UserRepository repository;
+    private StaffRepository repository;
 
     @Test
-    public final void testFindUserByUsername() {
-        UserDetail user = repository.findByUsername("ITAG_USER").orElseThrow(new EntityNotFoundException("not found"));
+    public final void testFindUserByStaffId() {
+        final StaffDetail staffDetails = repository.findByStaffId(-1L).orElseThrow(new EntityNotFoundException("not found"));
 
-        assertThat(user.getLastName()).isEqualTo("User");
-        assertThat(user.getEmail()).isEqualTo("itaguser@syscon.net");
+        assertThat(staffDetails.getFirstName()).isEqualTo("Elite2");
+        assertThat(staffDetails.getEmail()).isEqualTo("elite2-api-user@syscon.net");
     }
 
     @Test
-    public final void testFindUserByUsernameNotExists() {
-        Optional<UserDetail> user = repository.findByUsername("XXXXXXXX");
-        assertThat(user).isNotPresent();
-    }
+    public final void testFindUserByStaffIdNotExists() {
+        Optional<StaffDetail> staffDetails = repository.findByStaffId(9999999999L);
 
-    @Test
-    public final void testFindRolesByUsername() {
-        List<UserRole> roles = repository.findRolesByUsername("ITAG_USER", null);
-        assertThat(roles).isNotEmpty();
-        assertThat(roles).extracting("roleCode").contains("LEI_WING_OFF");
+        assertThat(staffDetails).isNotPresent();
     }
 }
