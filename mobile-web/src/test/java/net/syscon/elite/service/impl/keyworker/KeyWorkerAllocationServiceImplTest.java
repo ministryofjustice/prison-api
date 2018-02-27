@@ -7,7 +7,6 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 import net.syscon.elite.security.AuthenticationFacade;
-import net.syscon.elite.service.AllocationException;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
@@ -93,32 +92,6 @@ public class KeyWorkerAllocationServiceImplTest {
     public void shouldCallCollaboratorsForGetAllocationHistoryForPrisoner () {
         service.getAllocationHistoryForPrisoner(-1L, null, null);
         verify(repo, times(1)).getAllocationHistoryForPrisoner(-1L, "assigned", Order.DESC);
-    }
-
-    @Test
-    public void shouldCallCollaboratorsForGetLatestAllocationForOffenderBooking () {
-        when(repo.getLatestAllocationForOffenderBooking(BOOKING_ID)).thenReturn(Optional.of(KeyWorkerAllocation.builder().build()));
-        service.getLatestAllocationForOffenderBooking(BOOKING_ID);
-        verify(repo, times(1)).getLatestAllocationForOffenderBooking(BOOKING_ID);
-    }
-
-    @Test(expected = EntityNotFoundException.class)
-    public void shouldThrowEmptyResultSetExceptionForGetLatestAllocationForOffenderBooking () {
-        when(repo.getLatestAllocationForOffenderBooking(BOOKING_ID)).thenReturn(Optional.empty());
-        service.getLatestAllocationForOffenderBooking(BOOKING_ID);
-    }
-
-    @Test
-    public void shouldCallCollaboratorsForGetCurrentAllocationForOffenderBooking () {
-        when(repo.getCurrentAllocationForOffenderBooking(BOOKING_ID)).thenReturn(Optional.of(KeyWorkerAllocation.builder().build()));
-        service.getCurrentAllocationForOffenderBooking(BOOKING_ID);
-        verify(repo, times(1)).getCurrentAllocationForOffenderBooking(BOOKING_ID);
-    }
-
-    @Test(expected = EntityNotFoundException.class)
-    public void shouldThrowEmptyResultSetExceptionForGetCurrentAllocationForOffenderBooking () {
-        when(repo.getCurrentAllocationForOffenderBooking(BOOKING_ID)).thenReturn(Optional.empty());
-        service.getCurrentAllocationForOffenderBooking(BOOKING_ID);
     }
 
     @Test

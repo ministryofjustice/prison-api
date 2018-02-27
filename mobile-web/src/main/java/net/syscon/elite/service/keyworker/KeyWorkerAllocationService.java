@@ -25,10 +25,6 @@ public interface KeyWorkerAllocationService {
 
     List<KeyWorkerAllocation> getAllocationHistoryForPrisoner(Long bookingId, String orderByFields, Order order);
 
-    KeyWorkerAllocation getCurrentAllocationForOffenderBooking(Long bookingId);
-
-    KeyWorkerAllocation getLatestAllocationForOffenderBooking(Long bookingId);
-
     Page<OffenderSummary> getUnallocatedOffenders(String agencyId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder);
 
     Page<KeyWorkerAllocationDetail> getAllocations(String agencyId, LocalDate fromDate, LocalDate toDate, String allocationType, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder);
