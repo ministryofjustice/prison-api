@@ -120,11 +120,11 @@ public class KeyWorkerSteps extends CommonSteps{
 
     public void verifyKeyWorkerAllocations() {
         assertThat(allocationsList).asList()
-        .extracting("bookingId", "offenderNo", "firstName", "lastName", "internalLocationDesc", "agencyId", "assigned", "allocationType")
+        .extracting("bookingId", "offenderNo", "staffId", "firstName", "lastName", "internalLocationDesc", "agencyId", "assigned", "allocationType")
         .contains(
-            tuple(-16L, "A1234AP", "EDWARD", "SCISSORHANDS", "LEI-H-1-1", "LEI", LocalDateTime.of(2017, Month.JANUARY, 1,11,14), "M"),
-            tuple(-28L, "A9876RS", "RODERICK", "STEWART", "LEI-H-1", "LEI", LocalDateTime.of(2017, Month.JANUARY, 1,11,14), "M"),
-            tuple(-31L, "A5576RS", "HARRY", "SARLY", "LEI-H-1", "LEI", LocalDateTime.of(2017, Month.MAY, 1,11,14), "A"),
-            tuple(-32L, "A1176RS", "FRED", "JAMES", "LEI-H-1", "LEI", LocalDateTime.of(2017, Month.JUNE, 1,12,14), "M"));
+            tuple(-16L, "A1234AP", -5L, "EDWARD", "SCISSORHANDS", "LEI-H-1-1", "LEI", LocalDateTime.of(2017, Month.JANUARY, 1,11,14), "M"),
+            tuple(-28L, "A9876RS", -5L, "RODERICK", "STEWART", "LEI-H-1", "LEI", LocalDateTime.of(2017, Month.JANUARY, 1,11,14), "M"),
+            tuple(-31L, "A5576RS", -5L, "HARRY", "SARLY", "LEI-H-1", "LEI", LocalDateTime.of(2017, Month.MAY, 1,11,14), "A"),
+            tuple(-32L, "A1176RS", -5L, "FRED", "JAMES", "LEI-H-1", "LEI", LocalDateTime.of(2017, Month.JUNE, 1,12,14), "M"));
     }
 }
