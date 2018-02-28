@@ -9,6 +9,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.tuple;
@@ -118,10 +120,11 @@ public class KeyWorkerSteps extends CommonSteps{
 
     public void verifyKeyWorkerAllocations() {
         assertThat(allocationsList).asList()
-                .extracting("bookingId", "offenderNo", "firstName", "lastName", "internalLocationDesc")
-                .contains(tuple(-16L, "A1234AP", "EDWARD", "SCISSORHANDS", "LEI-H-1-1"),
-                        tuple(-28L, "A9876RS", "RODERICK", "STEWART", "LEI-H-1"),
-                        tuple(-31L, "A5576RS", "HARRY", "SARLY", "LEI-H-1"),
-                        tuple(-32L, "A1176RS", "FRED", "JAMES", "LEI-H-1"));
+        .extracting("bookingId", "offenderNo", "firstName", "lastName", "internalLocationDesc", "agencyId", "assigned", "allocationType")
+        .contains(
+            tuple(-16L, "A1234AP", "EDWARD", "SCISSORHANDS", "LEI-H-1-1", "LEI", LocalDateTime.of(2017, Month.JANUARY, 1,11,14), "M"),
+            tuple(-28L, "A9876RS", "RODERICK", "STEWART", "LEI-H-1", "LEI", LocalDateTime.of(2017, Month.JANUARY, 1,11,14), "M"),
+            tuple(-31L, "A5576RS", "HARRY", "SARLY", "LEI-H-1", "LEI", LocalDateTime.of(2017, Month.MAY, 1,11,14), "A"),
+            tuple(-32L, "A1176RS", "FRED", "JAMES", "LEI-H-1", "LEI", LocalDateTime.of(2017, Month.JUNE, 1,12,14), "M"));
     }
 }
