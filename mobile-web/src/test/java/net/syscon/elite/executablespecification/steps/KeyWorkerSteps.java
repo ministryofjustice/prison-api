@@ -9,7 +9,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
@@ -127,57 +126,5 @@ public class KeyWorkerSteps extends CommonSteps{
             tuple(-28L, "A9876RS", "RODERICK", "STEWART", "LEI-H-1", "LEI", LocalDateTime.of(2017, Month.JANUARY, 1,11,14), "M"),
             tuple(-31L, "A5576RS", "HARRY", "SARLY", "LEI-H-1", "LEI", LocalDateTime.of(2017, Month.MAY, 1,11,14), "A"),
             tuple(-32L, "A1176RS", "FRED", "JAMES", "LEI-H-1", "LEI", LocalDateTime.of(2017, Month.JUNE, 1,12,14), "M"));
-        /*
-         * [class KeyWorkerAllocationDetail {
-  bookingId: -16
-  offenderNo: A1234AP
-  firstName: EDWARD
-  middleNames: null
-  lastName: SCISSORHANDS
-  staffId: null
-  agencyId: LEI
-  assigned: 2017-01-01T11:14
-  allocationType: M
-  internalLocationDesc: LEI-H-1-1
-}
-, class KeyWorkerAllocationDetail {
-  bookingId: -28
-  offenderNo: A9876RS
-  firstName: RODERICK
-  middleNames: null
-  lastName: STEWART
-  staffId: null
-  agencyId: LEI
-  assigned: 2017-01-01T11:14
-  allocationType: M
-  internalLocationDesc: LEI-H-1
-}
-, class KeyWorkerAllocationDetail {
-  bookingId: -31
-  offenderNo: A5576RS
-  firstName: HARRY
-  middleNames: null
-  lastName: SARLY
-  staffId: null
-  agencyId: LEI
-  assigned: 2017-05-01T11:14
-  allocationType: A
-  internalLocationDesc: LEI-H-1
-}
-, class KeyWorkerAllocationDetail {
-  bookingId: -32
-  offenderNo: A1176RS
-  firstName: FRED
-  middleNames: null
-  lastName: JAMES
-  staffId: null
-  agencyId: LEI
-  assigned: 2017-06-01T12:14
-  allocationType: M
-  internalLocationDesc: LEI-H-1
-}
-]
-         * 
-         */
     }
 }
