@@ -41,4 +41,16 @@ public class KeyworkerStepDefinitions extends AbstractStepDefinitions {
     public void theKeyWorkerHasAllocations(int expectedAllocationCount) throws Throwable {
         keyworker.verifyKeyWorkerAllocationCount(expectedAllocationCount);
     }
+
+    @When("^a key worker allocations request is made with staff id \"([^\"]*)\"$")
+    public void keyWorkerAllocationsRequestIsMade(Long staffId) throws Throwable {
+        keyworker.getKeyworkerAllocations(staffId);
+    }
+    
+
+    @Then("^the correct key worker allocations are returned$")
+    public void correctKeyWorkerAllocationsReceived() throws Throwable {
+        keyworker.verifyKeyWorkerAllocations();
+    }
+
 }

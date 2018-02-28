@@ -34,4 +34,6 @@ public interface KeyWorkerAllocationService {
     Keyworker getKeyworkerDetails(Long staffId);
 
     List<KeyWorkerAllocation> getAllocationsForKeyworker(Long staffId);
+
+    List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworker(Long staffId);
 }
