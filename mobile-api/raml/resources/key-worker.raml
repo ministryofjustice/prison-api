@@ -102,3 +102,11 @@
       type: string
       description: The agency (prison) identifier.
       example: MDI
+
+/{staffId}/offenders:
+  (javaOperationName): getAllocationsForKeyworker
+  type: {readOnlyCollection: {type: KeyWorkerAllocationDetail, description: Specified key worker's currently assigned offenders. }}
+  uriParameters:
+    staffId:
+      (javaType): Long
+      description: The key worker staff id

@@ -1,5 +1,6 @@
 package net.syscon.elite.executablespecification.steps;
 
+import net.syscon.elite.api.model.KeyWorkerAllocationDetail;
 import net.syscon.elite.api.model.Keyworker;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
@@ -10,14 +11,17 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 public class KeyWorkerSteps extends CommonSteps{
     private static final String KEY_WORKER_API_URL_WITH_AGENCY_PARAM = API_PREFIX + "key-worker/%s/available";
     private static final String KEY_WORKER_API_DETAILS = API_PREFIX + "key-worker/{staffId}";
+    private static final String KEY_WORKER_API_URL_WITH_STAFF_ID_PARAM = API_PREFIX + "key-worker/{staffId}/offenders";
 
     private List<Keyworker> keyworkerList;
     private Keyworker keyworker;
+    private List<KeyWorkerAllocationDetail> allocationsList;
 
     public void getAvailableKeyworkersList(String agencyId) {
         doListApiCall(agencyId);
@@ -48,7 +52,26 @@ public class KeyWorkerSteps extends CommonSteps{
             setErrorResponse(ex.getErrorResponse());
         }
     }
-    
+
+    private void doAllocationsApiCall(Long staffId) {
+        init();
+        try {
+            ResponseEntity<List<KeyWorkerAllocationDetail>> response =
+                    restTemplate.exchange(
+                            KEY_WORKER_API_URL_WITH_STAFF_ID_PARAM,
+                            HttpMethod.GET,
+                            createEntity(),
+                            new ParameterizedTypeReference<List<KeyWorkerAllocationDetail>>() {}, staffId);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+            allocationsList = response.getBody();
+
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
     private void doDetailsApiCall(Long staffId) {
         init();
 
@@ -87,5 +110,18 @@ public class KeyWorkerSteps extends CommonSteps{
     @Step("Verify number of allocations for Key worker")
     public void verifyKeyWorkerAllocationCount(int expectedAllocationCount) {
         assertThat(keyworker.getNumberAllocated()).isEqualTo(expectedAllocationCount);
+    }
+
+    public void getKeyworkerAllocations(Long staffId) {
+        doAllocationsApiCall(staffId);
+    }
+
+    public void verifyKeyWorkerAllocations() {
+        assertThat(allocationsList).asList()
+                .extracting("bookingId", "offenderNo", "firstName", "lastName", "internalLocationDesc")
+                .contains(tuple(-16L, "A1234AP", "EDWARD", "SCISSORHANDS", "LEI-H-1-1"),
+                        tuple(-28L, "A9876RS", "RODERICK", "STEWART", "LEI-H-1"),
+                        tuple(-31L, "A5576RS", "HARRY", "SARLY", "LEI-H-1"),
+                        tuple(-32L, "A1176RS", "FRED", "JAMES", "LEI-H-1"));
     }
 }

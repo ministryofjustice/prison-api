@@ -11,7 +11,6 @@ import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.security.VerifyBookingAccess;
-import net.syscon.elite.service.AllocationException;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
@@ -216,6 +215,16 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
         Validate.notNull(staffId, "Key worker staffId must be specified.");
 
         return repository.getAllocationsForKeyworker(staffId);
+    }
+
+    @Override
+    public List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworker(Long staffId) {
+        Validate.notNull(staffId, "Key worker staffId must be specified.");
+        if (repository.checkKeyworkerExists(staffId)) {
+            return repository.getAllocationDetailsForKeyworker(staffId);
+        } else {
+            throw EntityNotFoundException.withId(staffId);
+        }
     }
 
     private void validateAllocationsRequestDateRange(LocalDate fromDate, LocalDate toDate) {

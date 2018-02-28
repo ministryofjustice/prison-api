@@ -39,4 +39,8 @@ public interface KeyWorkerAllocationRepository {
     Optional<Keyworker> getKeyworkerDetails(Long staffId);
 
     List<KeyWorkerAllocation> getAllocationsForKeyworker(Long staffId);
+
+    List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworker(Long staffId);
+
+    boolean checkKeyworkerExists(Long staffId);
 }
