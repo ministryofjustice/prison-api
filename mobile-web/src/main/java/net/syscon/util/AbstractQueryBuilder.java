@@ -1,6 +1,7 @@
 package net.syscon.util;
 
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.mapping.FieldMapper;
 import org.apache.commons.lang3.StringUtils;
 
@@ -106,6 +107,11 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
         return addOrderBy(Order.ASC == order, fields);
     }
 
+    @Override
+    public IQueryBuilder addOrderBy(PageRequest pageRequest) {
+        return addOrderBy(pageRequest.isAscendingOrder(), pageRequest.getOrderBy());
+    }
+
     private SQLKeyword addOrderDirection(boolean isAscending) {
         return isAscending ? SQLKeyword.ASC : SQLKeyword.DESC;
     }
@@ -158,4 +164,7 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
 
         return Optional.ofNullable(statementType);
     }
+
+    @Override
+    public abstract String build();
 }

@@ -3,6 +3,7 @@ package net.syscon.elite.service.impl;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.security.AuthenticationFacade;
@@ -13,8 +14,6 @@ import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.InmateService;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
-import net.syscon.elite.service.support.PageRequest;
-
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;

@@ -7,8 +7,7 @@
       (javaType): Long
       description: The staff id of the staff member.
 
-/roles/{agencyId}/positions/{position}/roles/{role}:
-  (beta): Work In Progress - not currently operational.
+/roles/{agencyId}/position/{position}/role/{role}:
   (javaOperationName): getStaffByAgencyPositionRole
   type: { readOnlyCollectionPaged: { type: StaffDetail, description: Get active staff members within agency who are currently assigned the specified position and/or role. } }
   is: [ sortable: { fieldsList: "firstName, lastName" } ]
@@ -27,7 +26,27 @@
       example: KW
   get:
     queryParameters:
-      filterByName?:
+      nameFilter?:
         type: string
         description: Filter results by first name and/or last name of staff member.
         example: John Hopkins
+
+/roles/{agencyId}/role/{role}:
+  (javaOperationName): getStaffByAgencyRole
+  type: { readOnlyCollectionPaged: { type: StaffDetail, description: Get active staff members within agency who are currently assigned the specified role. } }
+  is: [ sortable: { fieldsList: "firstName, lastName" } ]
+  uriParameters:
+    agencyId:
+      type: string
+      description: The agency (prison) id.
+      example: MDI
+    role:
+      type: string
+      description: The staff role.
+      example: KW
+  get:
+    queryParameters:
+      nameFilter?:
+        type: string
+        description: Filter results by first name and/or last name of staff member. Supplied filter term is matched to start of staff member's first and last name.
+        example: John

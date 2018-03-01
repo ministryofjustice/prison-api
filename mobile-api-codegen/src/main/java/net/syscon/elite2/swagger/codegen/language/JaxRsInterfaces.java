@@ -106,6 +106,9 @@ public class JaxRsInterfaces extends JavaClientCodegen implements CodegenConfig,
         supportingFiles.add(new SupportingFile("Page.mustache",
                 (supportPackage()).replace(".", File.separator), "Page.java"));
 
+        supportingFiles.add(new SupportingFile("PageRequest.mustache",
+                (supportPackage()).replace(".", File.separator), "PageRequest.java"));
+
         languageSpecificPrimitives = new HashSet<>(
                 Arrays.asList("String", "boolean", "Boolean", "Double", "Integer", "Long", "Float"));
 

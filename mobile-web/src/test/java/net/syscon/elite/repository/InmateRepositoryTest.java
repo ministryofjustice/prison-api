@@ -2,9 +2,8 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.InmateDetail;
 import net.syscon.elite.api.model.OffenderBooking;
-import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
-import net.syscon.elite.service.support.PageRequest;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +44,7 @@ public class InmateRepositoryTest {
 
     @Test
     public void testFindAllImates() {
-        final PageRequest pageRequest = new PageRequest("lastName, firstName", Order.ASC, 0 ,10);
+        final PageRequest pageRequest = new PageRequest("lastName, firstName");
         final HashSet<String> caseloads = new HashSet<>(Arrays.asList("LEI", "BXI"));
         Page<OffenderBooking> foundInmates = repository.findAllInmates(caseloads, "WING", "", pageRequest);
 
