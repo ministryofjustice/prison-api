@@ -41,4 +41,35 @@ public class StaffStepDefinitions extends AbstractStepDefinitions {
     public void resourceNotFoundResponseIsReceivedFromStaffAPI() throws Throwable {
         staff.verifyResourceNotFound();
     }
+
+    @When("^request is submitted for staff members having position \"([^\"]*)\" and role \"([^\"]*)\" in agency \"([^\"]*)\"$")
+    public void requestIsSubmittedForStaffMembersHavingPositionAndRoleInAgency(String position, String role, String agencyId) throws Throwable {
+        staff.findStaffByAgencyPositionRole(agencyId, position, role, null);
+    }
+
+    @When("^request is submitted for staff members having role \"([^\"]*)\" in agency \"([^\"]*)\"$")
+    public void requestIsSubmittedForStaffMembersHavingRoleInAgency(String role, String agencyId) throws Throwable {
+        staff.findStaffByAgencyRole(agencyId, role, null);
+    }
+
+
+    @When("^request is submitted for staff members having role \"([^\"]*)\" in agency \"([^\"]*)\" with name filter \"([^\"]*)\"$")
+    public void requestIsSubmittedForStaffMembersHavingRoleInAgencyWithNameFilter(String role, String agencyId, String nameFilter) throws Throwable {
+        staff.findStaffByAgencyRole(agencyId, role, nameFilter);
+    }
+
+    @When("^request is submitted for staff members having position \"([^\"]*)\" and role \"([^\"]*)\" in agency \"([^\"]*)\" with name filter \"([^\"]*)\"$")
+    public void requestIsSubmittedForStaffMembersHavingPositionAndRoleInAgencyWithNameFilter(String position, String role, String agencyId, String nameFilter) throws Throwable {
+        staff.findStaffByAgencyPositionRole(agencyId, position, role, nameFilter);
+    }
+
+    @Then("^\"([^\"]*)\" staff detail records are returned$")
+    public void staffDetailRecordsAreReturned(String expectedCount) throws Throwable {
+        staff.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
+    }
+
+    @And("^staff ids match \"([^\"]*)\"$")
+    public void staffIdsMatch(String staffIds) throws Throwable {
+        staff.verifyStaffIds(staffIds);
+    }
 }
