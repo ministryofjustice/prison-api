@@ -8,7 +8,6 @@
       description: The staff id of the staff member.
 
 /roles/{agencyId}/position/{position}/role/{role}:
-  (beta): Work In Progress - not currently operational.
   (javaOperationName): getStaffByAgencyPositionRole
   type: { readOnlyCollectionPaged: { type: StaffDetail, description: Get active staff members within agency who are currently assigned the specified position and/or role. } }
   is: [ sortable: { fieldsList: "firstName, lastName" } ]
@@ -33,7 +32,6 @@
         example: John Hopkins
 
 /roles/{agencyId}/role/{role}:
-  (beta): Work In Progress - not currently operational.
   (javaOperationName): getStaffByAgencyRole
   type: { readOnlyCollectionPaged: { type: StaffDetail, description: Get active staff members within agency who are currently assigned the specified role. } }
   is: [ sortable: { fieldsList: "firstName, lastName" } ]
