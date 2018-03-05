@@ -56,6 +56,29 @@ public interface BookingService {
 
     Long getBookingIdByOffenderNo(String offenderNo);
 
+    /**
+     * <<< FOR INTERNAL USE - ONLY CALL FROM SERVICE LAYER >>>
+     * <p>
+     * Get latest booking summary details for offender associated with booking identified by specified booking id.
+     * Booking may be inactive but it will represent the latest known booking for the offender.
+     *
+     * @param bookingId booking id.
+     * @return offender booking summary or {@code null} if there is no offender booking for specified booking id.
+     */
+    OffenderSummary getLatestBookingByBookingId(Long bookingId);
+
+    /**
+     * <<< FOR INTERNAL USE - ONLY CALL FROM SERVICE LAYER >>>
+     * <p>
+     * Get latest booking summary details for offender identified by specified offender number. Booking may be inactive
+     * but it will represent the latest known booking for the offender.
+     *
+     * @param offenderNo offender number.
+     * @return offender booking summary or {@code null} if no offender with specified offender number exists or if a
+     *         latest booking cannot be located for offender.
+     */
+    OffenderSummary getLatestBookingByOffenderNo(String offenderNo);
+
     OffenderSummary createBooking(@Valid NewBooking newBooking);
 
     OffenderSummary recallBooking(@Valid RecallBooking recallBooking);

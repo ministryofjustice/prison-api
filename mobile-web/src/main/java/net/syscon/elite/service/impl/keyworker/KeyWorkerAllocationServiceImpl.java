@@ -11,7 +11,6 @@ import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.security.VerifyBookingAccess;
-import net.syscon.elite.service.AllocationException;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
@@ -28,10 +27,8 @@ import javax.ws.rs.BadRequestException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,14 +48,6 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
         this.repository = repository;
         this.authenticationFacade = authenticationFacade;
         this.bookingService = bookingService;
-    }
-
-    @Override
-    @Transactional
-    public void createAllocation(KeyWorkerAllocation allocation, String username) {
-        repository.getCurrentAllocationForOffenderBooking(allocation.getBookingId())
-                .orElseThrow(AllocationException.withMessage(String.format("Existing allocation found for offenderBookingId %s", allocation.getBookingId())));
-        repository.createAllocation(allocation, username);
     }
 
     @Override
@@ -121,22 +110,6 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
     }
 
     @Override
-    @VerifyBookingAccess
-    public KeyWorkerAllocation getCurrentAllocationForOffenderBooking(Long bookingId) {
-        KeyWorkerAllocation keyWorkerAllocation = repository.getCurrentAllocationForOffenderBooking(bookingId)
-                .orElseThrow(EntityNotFoundException.withMessage(String.format("Active allocation not found for offenderBookingId %s", bookingId)));
-        return keyWorkerAllocation;
-    }
-
-    @Override
-    @VerifyBookingAccess
-    public KeyWorkerAllocation getLatestAllocationForOffenderBooking(Long bookingId) {
-        KeyWorkerAllocation keyWorkerAllocation = repository.getLatestAllocationForOffenderBooking(bookingId)
-                .orElseThrow(EntityNotFoundException.withMessage(String.format("Allocation not found for offenderBookingId %s", bookingId)));
-        return keyWorkerAllocation;
-    }
-
-    @Override
     @VerifyAgencyAccess
     public Page<OffenderSummary> getUnallocatedOffenders(String agencyId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         String sortFieldsDefaulted = StringUtils.defaultString(sortFields, "lastName");
@@ -175,19 +148,66 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
 
         List<KeyWorkerAllocation> recentDeallocations = getRecentDeallocations(staffId, Duration.ofHours(deallocationBufferHours));
 
+        recentDeallocations = filterDeallocations(recentDeallocations);
+
         keyworker.setNumberAllocated(activeAllocCount + recentDeallocations.size());
 
         return keyworker;
     }
 
+    // Gets allocations for Key worker that have expired recently (between start of look back period and current time)
     private List<KeyWorkerAllocation> getRecentDeallocations(Long staffId, Duration lookBackDuration) {
         List<KeyWorkerAllocation> keyWorkerAllocations = getAllocationsForKeyworker(staffId);
         LocalDateTime cutOff = LocalDateTime.now().minus(lookBackDuration);
 
-        return keyWorkerAllocations.stream()
-                .filter(kwa -> !(StringUtils.equalsIgnoreCase("Y", kwa.getActive()) || Objects.isNull(kwa.getExpiry())))
+        // Extract set of booking id for active allocations
+        Set<Long> activeBookingIds = keyWorkerAllocations.stream()
+                .filter(kwa -> StringUtils.equalsIgnoreCase("Y", kwa.getActive()))
+                .map(KeyWorkerAllocation::getBookingId)
+                .collect(Collectors.toSet());
+
+        // Allocation record is of interest if:
+        //  - if it is for booking that is not in set of active allocation booking ids, and
+        //  - it has an expiry datetime set, and
+        //  - expiry datetime is after start of 'lookBackDuration' period.
+        List<KeyWorkerAllocation> deallocations = keyWorkerAllocations.stream()
+                .filter(kwa -> !activeBookingIds.contains(kwa.getBookingId()))
+                .filter(kwa -> Objects.nonNull(kwa.getExpiry()))
                 .filter(kwa -> kwa.getExpiry().isAfter(cutOff))
                 .collect(Collectors.toList());
+
+        return deallocations;
+    }
+
+    // Removes deallocations where:
+    //  - offender has active booking (in different agency)
+    //  - offender has active booking in same agency and is allocated to a different Key worker
+    private List<KeyWorkerAllocation> filterDeallocations(List<KeyWorkerAllocation> deallocations) {
+        Predicate<KeyWorkerAllocation> kwaDeallocPredicate = (kwa -> {
+            boolean keepDeallocation = true;
+
+            OffenderSummary summary = bookingService.getLatestBookingByBookingId(kwa.getBookingId());
+
+            // Keep deallocation if:
+            //  - no offender summary found for booking id (should not happen)
+            //  - latest offender booking indicates they are not currently in prison, or
+            //  - latest offender booking indicates they are in same agency as allocation and
+            //    they have an active allocation (to same or a different Key worker)
+            if (Objects.nonNull(summary) && StringUtils.equalsIgnoreCase(summary.getCurrentlyInPrison(), "Y")) {
+                if (StringUtils.equals(kwa.getAgencyId(), summary.getAgencyLocationId())) {
+                    Optional<KeyWorkerAllocation> latestOffenderAlloc =
+                            repository.getCurrentAllocationForOffenderBooking(summary.getBookingId());
+
+                    keepDeallocation = !latestOffenderAlloc.isPresent();
+                } else {
+                    keepDeallocation = false;
+                }
+            }
+
+            return keepDeallocation;
+        });
+
+        return deallocations.stream().filter(kwaDeallocPredicate).collect(Collectors.toList());
     }
 
     @Override
@@ -195,6 +215,16 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
         Validate.notNull(staffId, "Key worker staffId must be specified.");
 
         return repository.getAllocationsForKeyworker(staffId);
+    }
+
+    @Override
+    public List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworker(Long staffId) {
+        Validate.notNull(staffId, "Key worker staffId must be specified.");
+        if (repository.checkKeyworkerExists(staffId)) {
+            return repository.getAllocationDetailsForKeyworker(staffId);
+        } else {
+            throw EntityNotFoundException.withId(staffId);
+        }
     }
 
     private void validateAllocationsRequestDateRange(LocalDate fromDate, LocalDate toDate) {

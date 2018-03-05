@@ -84,4 +84,11 @@ public class KeyWorkerResourceImpl implements KeyWorkerResource {
 
         return AutoAllocateResponse.respond200WithApplicationJson(allocCount.toString());
     }
+
+    @Override
+    public GetAllocationsForKeyworkerResponse getAllocationsForKeyworker(Long staffId) {
+        final List<KeyWorkerAllocationDetail> allocationDetails = keyWorkerService.getAllocationDetailsForKeyworker(staffId);
+
+        return GetAllocationsForKeyworkerResponse.respond200WithApplicationJson(allocationDetails);
+    }
 }

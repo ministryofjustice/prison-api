@@ -17,8 +17,6 @@ import java.util.List;
  */
 public interface KeyWorkerAllocationService {
 
-    void createAllocation(KeyWorkerAllocation allocation, String username);
-
     void deactivateAllocationForKeyWorker(Long staffId, String reason, String username);
 
     void deactivateAllocationForOffenderBooking(Long bookingId, String reason, String username);
@@ -26,10 +24,6 @@ public interface KeyWorkerAllocationService {
     void allocate(@Valid NewAllocation newAllocation);
 
     List<KeyWorkerAllocation> getAllocationHistoryForPrisoner(Long bookingId, String orderByFields, Order order);
-
-    KeyWorkerAllocation getCurrentAllocationForOffenderBooking(Long bookingId);
-
-    KeyWorkerAllocation getLatestAllocationForOffenderBooking(Long bookingId);
 
     Page<OffenderSummary> getUnallocatedOffenders(String agencyId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder);
 
@@ -40,4 +34,6 @@ public interface KeyWorkerAllocationService {
     Keyworker getKeyworkerDetails(Long staffId);
 
     List<KeyWorkerAllocation> getAllocationsForKeyworker(Long staffId);
+
+    List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworker(Long staffId);
 }

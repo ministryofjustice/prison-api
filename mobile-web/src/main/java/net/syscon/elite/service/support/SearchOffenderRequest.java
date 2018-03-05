@@ -3,6 +3,7 @@ package net.syscon.elite.service.support;
 import lombok.Builder;
 import lombok.Getter;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.PageRequest;
 
 @Getter
 public class SearchOffenderRequest extends PageRequest {

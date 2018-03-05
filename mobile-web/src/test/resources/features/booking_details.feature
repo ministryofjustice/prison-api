@@ -111,6 +111,10 @@ Feature: Booking Details
     When an offender booking assessment information request is made with booking id -16 and "CSR"
     Then resource not found response is received from booking assessments API
 
+  Scenario: Request for assessment information for multiple bookings
+    When an offender booking assessment information request is made with booking ids "-1,-2,-3,-4,-5,-6,-7,-16,-99" and "CSR"
+    Then correct results are returned as for single assessment
+
   @nomis
   Scenario Outline: Request for specific offender booking record returns religion
     When an offender booking request is made with booking id "<bookingId>"

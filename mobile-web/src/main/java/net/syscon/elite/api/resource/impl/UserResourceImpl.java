@@ -23,17 +23,19 @@ public class UserResourceImpl implements UserResource {
     private final LocationService locationService;
     private final AssignmentService assignmentService;
     private final UserService userService;
+    private final StaffService staffService;
     private final CaseLoadService caseLoadService;
     private final CaseNoteService caseNoteService;
 
     public UserResourceImpl(AuthenticationFacade authenticationFacade, LocationService locationService,
                             AssignmentService assignmentService,
-                            UserService userService, CaseLoadService caseLoadService,
+                            UserService userService, StaffService staffService, CaseLoadService caseLoadService,
                             CaseNoteService caseNoteService) {
         this.authenticationFacade = authenticationFacade;
         this.locationService = locationService;
         this.assignmentService = assignmentService;
         this.userService = userService;
+        this.staffService = staffService;
         this.caseLoadService = caseLoadService;
         this.caseNoteService = caseNoteService;
     }
@@ -105,7 +107,7 @@ public class UserResourceImpl implements UserResource {
 
     @Override
     public GetStaffDetailResponse getStaffDetail(Long staffId) {
-        return GetStaffDetailResponse.respond200WithApplicationJson(userService.getUserByStaffId(staffId));
+        return GetStaffDetailResponse.respond200WithApplicationJson(staffService.getStaffDetail(staffId));
     }
 
     @Override
@@ -114,6 +116,4 @@ public class UserResourceImpl implements UserResource {
 
         return GetUserDetailsResponse.respond200WithApplicationJson(userByUsername);
     }
-
-
 }

@@ -239,4 +239,27 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
 
         return allocations;
     }
+    
+    @Override
+    public List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworker(Long staffId) {
+        String sql = getQuery("GET_ALLOCATION_DETAIL_FOR_KEY_WORKER");
+
+        final List<KeyWorkerAllocationDetail> allocations = jdbcTemplate.query(
+                sql,
+                createParams("staffId", staffId),
+                KEY_WORKER_ALLOCATION_DETAIL_ROW_MAPPER);
+
+        return allocations;
+    }
+
+    @Override
+    public boolean checkKeyworkerExists(Long staffId) {
+        try {
+            jdbcTemplate.queryForObject(getQuery("CHECK_KEY_WORKER_EXISTS"), createParams("staffId", staffId),
+                    KEY_WORKER_ROW_MAPPER);
+            return true;
+        } catch (EmptyResultDataAccessException e) {
+            return false;
+        }
+    }
 }

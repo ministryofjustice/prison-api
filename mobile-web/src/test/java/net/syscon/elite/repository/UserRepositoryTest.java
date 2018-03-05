@@ -1,6 +1,5 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -45,23 +44,6 @@ public class UserRepositoryTest {
     public final void testFindUserByUsernameNotExists() {
         Optional<UserDetail> user = repository.findByUsername("XXXXXXXX");
         assertThat(user).isNotPresent();
-    }
-
-    @Test
-    public final void testFindUserByStaffId() {
-        UserDetail user = repository.findByUsername("ELITE2_API_USER").orElseThrow(new EntityNotFoundException("not found"));
-
-        final StaffDetail staffDetails = repository.findByStaffId(user.getStaffId()).orElseThrow(new EntityNotFoundException("not found"));
-
-        assertThat(staffDetails.getFirstName()).isEqualTo("Elite2");
-        assertThat(staffDetails.getEmail()).isEqualTo("elite2-api-user@syscon.net");
-    }
-
-    @Test
-    public final void testFindUserByStaffIdNotExists() {
-        Optional<StaffDetail> staffDetails = repository.findByStaffId(9999999999L);
-
-        assertThat(staffDetails).isNotPresent();
     }
 
     @Test

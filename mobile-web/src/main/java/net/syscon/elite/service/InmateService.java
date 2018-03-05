@@ -27,9 +27,9 @@ public interface InmateService {
 	List<OffenderIdentifier> getOffenderIdentifiers(Long bookingId);
 	ImageDetail getMainBookingImage(Long bookingId);
 
-	Page<PrisonerDetail> findPrisoners(PrisonerDetailSearchCriteria criteria, String orderBy, Order order, long offset, long limit);
-
 	Optional<Assessment> getInmateAssessmentByCode(Long bookingId, String assessmentCode);
+
+    List<Assessment> getInmatesAssessmentsByCode(List<Long> bookingIds, String assessmentCode);
 
     List<InmateDto> findInmatesByLocation(String username, String agencyId, List<Long> locations);
 }

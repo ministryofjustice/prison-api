@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
@@ -12,13 +13,14 @@ import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
-import net.syscon.elite.service.support.PageRequest;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
+import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -255,15 +257,15 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
     @Override
-    public Page<PrisonerDetail> searchForOffenders(String query, LocalDate fromDobDate, LocalDate toDobDate, String sortFields, boolean sortAscending, long offset, long limit) {
-        String initialSql = getQuery("FIND_PRISONERS");
+    public Page<PrisonerDetail> findOffenders(String query, Range<LocalDate> dobRange, PageRequest pageRequest) {
+        String initialSql = getQuery("FIND_OFFENDERS");
 
-        boolean hasDateRange = fromDobDate != null && toDobDate != null;
+        boolean hasDobRange = Objects.nonNull(dobRange);
 
-        if (hasDateRange) {
+        if (hasDobRange) {
             initialSql += " WHERE O.BIRTH_DATE BETWEEN :fromDob AND :toDob ";
 
-            log.debug("Running between {} and {}", fromDobDate, toDobDate);
+            log.debug("Running between {} and {}", dobRange.getMinimum(), dobRange.getMaximum());
         }
 
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, PRISONER_DETAIL_MAPPER.getFieldMap());
@@ -272,21 +274,22 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 .addQuery(query)
                 .addRowCount()
                 .addPagination()
-                .addOrderBy(sortAscending, sortFields)
+                .addOrderBy(pageRequest.getOrder(), pageRequest.getOrderBy())
                 .build();
 
 		PageAwareRowMapper<PrisonerDetail> paRowMapper = new PageAwareRowMapper<>(PRISONER_DETAIL_MAPPER);
 
-        List<PrisonerDetail> prisonerDetails = jdbcTemplate.query(
-                sql,
-                hasDateRange ? createParams("limit", limit,
-                        "offset", offset,
-                        "fromDob", DateTimeConverter.toDate(fromDobDate),
-                        "toDob", DateTimeConverter.toDate(toDobDate))
-                        : createParams("limit", limit, "offset", offset),
-                paRowMapper);
+		MapSqlParameterSource params =
+				createParams( "offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
 
-        return new Page<>(prisonerDetails, paRowMapper.getTotalRecords(), offset, limit);
+		if (hasDobRange) {
+			params.addValue("fromDob", DateTimeConverter.toDate(dobRange.getMinimum()));
+			params.addValue("toDob", DateTimeConverter.toDate(dobRange.getMaximum()));
+		}
+
+        List<PrisonerDetail> prisonerDetails = jdbcTemplate.query( sql, params, paRowMapper);
+
+        return new Page<>(prisonerDetails, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
 
 	@Override
@@ -371,16 +374,27 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		return Optional.ofNullable(physicalAttributes);
 	}
 
-	@Override
+    @Override
     @Cacheable("bookingAssessments")
-    public List<AssessmentDto> findAssessments(long bookingId) {
-		String sql = getQuery("FIND_ACTIVE_APPROVED_ASSESSMENT");
+    public List<AssessmentDto> findAssessments(List<Long> bookingIds, String assessmentCode, Set<String> caseLoadId) {
+        String initialSql = getQuery("FIND_ACTIVE_APPROVED_ASSESSMENT");
+        if (!caseLoadId.isEmpty()) {
+            initialSql += " AND " + getQuery("ASSESSMENT_CASELOAD_FILTER");
+        }
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, ASSESSMENT_MAPPER.getFieldMap());
 
-		return jdbcTemplate.query(
-				sql,
-				createParams("bookingId", bookingId),
-				ASSESSMENT_MAPPER);
-	}
+        String sql = builder
+                .addOrderBy(Order.ASC, "assessmentCode")
+                .addOrderBy(Order.DESC, "assessmentDate,assessmentSeq")
+                .build();
+        
+        final MapSqlParameterSource params = createParams(
+                "bookingIds", bookingIds,
+                "assessmentCode", assessmentCode,
+                "caseLoadId", caseLoadId);
+
+        return jdbcTemplate.query(sql, params, ASSESSMENT_MAPPER);
+    }
 
 	@Override
     public Optional<AssignedLivingUnit> findAssignedLivingUnit(long bookingId, String locationTypeRoot) {

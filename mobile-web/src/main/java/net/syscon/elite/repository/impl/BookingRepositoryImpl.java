@@ -13,6 +13,7 @@ import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
@@ -31,10 +32,17 @@ import java.util.*;
 @Repository
 @Slf4j
 public class BookingRepositoryImpl extends RepositoryBase implements BookingRepository {
-    private static final StandardBeanPropertyRowMapper<PrivilegeDetail> PRIV_DETAIL_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(PrivilegeDetail.class);
-    private static final StandardBeanPropertyRowMapper<ScheduledEvent> EVENT_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(ScheduledEvent.class);
-    private static final StandardBeanPropertyRowMapper<Visit> VISIT_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(Visit.class);
-    private static final StandardBeanPropertyRowMapper<OffenderSummary> OFFENDER_SUMMARY_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderSummary.class);
+    private static final StandardBeanPropertyRowMapper<PrivilegeDetail> PRIV_DETAIL_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(PrivilegeDetail.class);
+
+    private static final StandardBeanPropertyRowMapper<ScheduledEvent> EVENT_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(ScheduledEvent.class);
+
+    private static final StandardBeanPropertyRowMapper<Visit> VISIT_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(Visit.class);
+
+    private static final StandardBeanPropertyRowMapper<OffenderSummary> OFFENDER_SUMMARY_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(OffenderSummary.class);
 
     private static final Map<String, FieldMapper> SENTENCE_DETAIL_MAPPING =
             new ImmutableMap.Builder<String, FieldMapper>()
@@ -279,10 +287,12 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
 
     @Override
     public Optional<Long> getBookingIdByOffenderNo(String offenderNo) {
-        Objects.requireNonNull(offenderNo, "offenderNo is a required parameter");
+        Validate.notBlank("Offender number must be specified.");
 
         String sql = getQuery("FIND_BOOKING_ID_BY_OFFENDER_NO");
+
         Long bookingId;
+
         try {
             bookingId = jdbcTemplate.queryForObject(
                     sql,
@@ -417,5 +427,45 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                 createParams( "caseLoadId", allowedCaseloadsOnly, "offset", offset, "limit", limit),
                 paRowMapper);
         return new Page<>(offenderSentences, paRowMapper.getTotalRecords(), offset, limit);
+    }
+
+    @Override
+    public Optional<OffenderSummary> getLatestBookingByBookingId(Long bookingId) {
+        Validate.notNull("Booking id must be specified.");
+
+        String sql = getQuery("GET_LATEST_BOOKING_BY_BOOKING_ID");
+
+        OffenderSummary summary;
+
+        try {
+            summary = jdbcTemplate.queryForObject(
+                    sql,
+                    createParams("bookingId", bookingId),
+                    OFFENDER_SUMMARY_ROW_MAPPER);
+        } catch (EmptyResultDataAccessException ex) {
+            summary = null;
+        }
+
+        return Optional.ofNullable(summary);
+    }
+
+    @Override
+    public Optional<OffenderSummary> getLatestBookingByOffenderNo(String offenderNo) {
+        Validate.notBlank("Offender number must be specified.");
+
+        String sql = getQuery("GET_LATEST_BOOKING_BY_OFFENDER_NO");
+
+        OffenderSummary summary;
+
+        try {
+            summary = jdbcTemplate.queryForObject(
+                    sql,
+                    createParams("offenderNo", offenderNo),
+                    OFFENDER_SUMMARY_ROW_MAPPER);
+        } catch (EmptyResultDataAccessException ex) {
+            summary = null;
+        }
+
+        return Optional.ofNullable(summary);
     }
 }

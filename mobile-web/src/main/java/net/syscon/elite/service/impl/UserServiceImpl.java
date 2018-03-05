@@ -1,7 +1,6 @@
 package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.CaseLoad;
-import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.repository.UserRepository;
@@ -29,12 +28,6 @@ public class UserServiceImpl implements UserService {
 		this.caseLoadService = caseLoadService;
 		this.userRepository = userRepository;
 		this.apiCaseloadId = apiCaseloadId;
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public StaffDetail getUserByStaffId(Long staffId) {
-		return userRepository.findByStaffId(staffId).orElseThrow(EntityNotFoundException.withId(staffId));
 	}
 
 	@Override
