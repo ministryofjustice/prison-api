@@ -32,12 +32,35 @@ public class PageRequest {
     }
 
     /**
+     * Constructor. Constructs page request without sorting directives but with specified offset and limit.
+     *
+     * @param offset page offset. Defaults to 0 if not specified.
+     * @param limit page limit. Defaults to 10 if not specified.
+     */
+    public PageRequest(Long offset, Long limit) {
+        this.orderBy = null;
+        this.order = null;
+        this.offset = (offset == null) ? 0 : offset;
+        this.limit = (limit == null) ? 10 : limit;
+    }
+
+    /**
      * Constructor. Constructs page request with specified sort fields, ascending sort order, offset of 0 and limit of 10.
      *
      * @param orderBy comma-seperated list of fields to order results by.
      */
     public PageRequest(String orderBy) {
         this(orderBy, null, null, null);
+    }
+
+    /**
+     * Constructor. Constructs page request without sorting directives but with offset of 0 and limit of 10.
+     */
+    public PageRequest() {
+        this.orderBy = null;
+        this.order = null;
+        this.offset = 0L;
+        this.limit = 10L;
     }
 
     public String getOrderBy() {

@@ -2,15 +2,18 @@ package net.syscon.elite.repository.impl;
 
 import net.syscon.elite.api.model.KeyWorkerAllocationDetail;
 import net.syscon.elite.api.model.Keyworker;
+import net.syscon.elite.api.model.OffenderKeyWorker;
 import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
+import org.apache.commons.lang3.Validate;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.stereotype.Repository;
@@ -30,12 +33,18 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
 
     private static final StandardBeanPropertyRowMapper<KeyWorkerAllocation> KEY_WORKER_ALLOCATION_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(KeyWorkerAllocation.class);
+
     private static final StandardBeanPropertyRowMapper<KeyWorkerAllocationDetail> KEY_WORKER_ALLOCATION_DETAIL_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(KeyWorkerAllocationDetail.class);
+
     private static final StandardBeanPropertyRowMapper<OffenderSummary> OFFENDER_SUMMARY_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(OffenderSummary.class);
+
     private static final StandardBeanPropertyRowMapper<Keyworker> KEY_WORKER_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(Keyworker.class);
+
+    private static final StandardBeanPropertyRowMapper<OffenderKeyWorker> OFFENDER_KEY_WORKER_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(OffenderKeyWorker.class);
 
     @Override
     public void createAllocation(KeyWorkerAllocation allocation, String username) {
@@ -261,5 +270,29 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
         } catch (EmptyResultDataAccessException e) {
             return false;
         }
+    }
+
+    @Override
+    public Page<OffenderKeyWorker> getAllocationHistoryByAgency(String agencyId, PageRequest pageRequest) {
+        Validate.notBlank(agencyId, "Agency id is required.");
+        Validate.notNull(pageRequest, "Page request details are requreid.");
+
+        String initialSql = getQuery("GET_ALLOCATION_HISTORY_BY_AGENCY");
+
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_KEY_WORKER_ROW_MAPPER.getFieldMap());
+
+        String sql = builder
+                .addRowCount()
+                .addPagination()
+                .build();
+
+        PageAwareRowMapper<OffenderKeyWorker> paRowMapper = new PageAwareRowMapper<>(OFFENDER_KEY_WORKER_ROW_MAPPER);
+
+        final List<OffenderKeyWorker> results = jdbcTemplate.query(
+                sql,
+                createParamSource(pageRequest, "agencyId", agencyId),
+                paRowMapper);
+
+        return new Page<>(results, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
 }
