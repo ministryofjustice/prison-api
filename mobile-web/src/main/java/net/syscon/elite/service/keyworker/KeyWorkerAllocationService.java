@@ -1,11 +1,9 @@
 package net.syscon.elite.service.keyworker;
 
-import net.syscon.elite.api.model.KeyWorkerAllocationDetail;
-import net.syscon.elite.api.model.Keyworker;
-import net.syscon.elite.api.model.NewAllocation;
-import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 
 import javax.validation.Valid;
@@ -36,4 +34,6 @@ public interface KeyWorkerAllocationService {
     List<KeyWorkerAllocation> getAllocationsForKeyworker(Long staffId);
 
     List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworker(Long staffId);
+
+    Page<OffenderKeyWorker> getAllocationHistoryByAgency(String agencyId, PageRequest pageRequest);
 }

@@ -2,9 +2,11 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.KeyWorkerAllocationDetail;
 import net.syscon.elite.api.model.Keyworker;
+import net.syscon.elite.api.model.OffenderKeyWorker;
 import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 
 import java.time.LocalDate;
@@ -43,4 +45,6 @@ public interface KeyWorkerAllocationRepository {
     List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworker(Long staffId);
 
     boolean checkKeyworkerExists(Long staffId);
+
+    Page<OffenderKeyWorker> getAllocationHistoryByAgency(String agencyId, PageRequest pageRequest);
 }

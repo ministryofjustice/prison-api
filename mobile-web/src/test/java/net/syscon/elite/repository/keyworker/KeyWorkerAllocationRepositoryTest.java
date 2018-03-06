@@ -3,9 +3,11 @@ package net.syscon.elite.repository.keyworker;
 import com.google.common.collect.ImmutableSet;
 import net.syscon.elite.api.model.KeyWorkerAllocationDetail;
 import net.syscon.elite.api.model.Keyworker;
+import net.syscon.elite.api.model.OffenderKeyWorker;
 import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 import net.syscon.elite.web.config.PersistenceConfigs;
@@ -224,6 +226,15 @@ public class KeyWorkerAllocationRepositoryTest {
         List<KeyWorkerAllocation> allocations = repo.getAllocationsForKeyworker(KEY_WORKER_WITH_ALLOCATIONS);
 
         assertThat(allocations.size()).isEqualTo(7);
+    }
+
+    @Test
+    public void testGetAllocationHistoryByAgency() {
+        PageRequest pageRequest = new PageRequest();
+        Page<OffenderKeyWorker> allocations = repo.getAllocationHistoryByAgency(AGENCY_ID, pageRequest);
+
+        assertThat(allocations.getItems().size()).isEqualTo(pageRequest.getLimit().intValue());
+        assertThat(allocations.getTotalRecords()).isEqualTo(23L);
     }
 
     private KeyWorkerAllocation buildKeyWorkerAllocation(Long bookingId) {

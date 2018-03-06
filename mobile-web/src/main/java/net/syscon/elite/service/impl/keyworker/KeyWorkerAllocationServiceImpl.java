@@ -1,11 +1,9 @@
 package net.syscon.elite.service.impl.keyworker;
 
-import net.syscon.elite.api.model.KeyWorkerAllocationDetail;
-import net.syscon.elite.api.model.Keyworker;
-import net.syscon.elite.api.model.NewAllocation;
-import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.impl.KeyWorkerAllocation;
 import net.syscon.elite.security.AuthenticationFacade;
@@ -225,6 +223,15 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
         } else {
             throw EntityNotFoundException.withId(staffId);
         }
+    }
+
+    @Override
+    @VerifyAgencyAccess
+    public Page<OffenderKeyWorker> getAllocationHistoryByAgency(String agencyId, PageRequest pageRequest) {
+        Validate.notBlank(agencyId, "Agency id is required.");
+        Validate.notNull(pageRequest, "Page request details are requreid.");
+
+        return repository.getAllocationHistoryByAgency(agencyId, pageRequest);
     }
 
     private void validateAllocationsRequestDateRange(LocalDate fromDate, LocalDate toDate) {

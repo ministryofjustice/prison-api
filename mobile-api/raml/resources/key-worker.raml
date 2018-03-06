@@ -110,3 +110,12 @@
     staffId:
       (javaType): Long
       description: The key worker staff id
+
+/{agencyId}/allocationHistory:
+  (javaOperationName): getAllocationHistory
+  type: { readOnlyCollectionPaged: { type: OffenderKeyWorker, description: All allocations in specified agency. } }
+  uriParameters:
+    agencyId:
+      type: string
+      description: The agency (prison) identifier.
+      example: BWI

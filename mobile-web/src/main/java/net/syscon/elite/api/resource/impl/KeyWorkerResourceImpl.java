@@ -1,12 +1,10 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.KeyWorkerAllocationDetail;
-import net.syscon.elite.api.model.Keyworker;
-import net.syscon.elite.api.model.NewAllocation;
-import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.resource.KeyWorkerResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
 import net.syscon.elite.service.keyworker.KeyworkerAutoAllocationService;
@@ -90,5 +88,13 @@ public class KeyWorkerResourceImpl implements KeyWorkerResource {
         final List<KeyWorkerAllocationDetail> allocationDetails = keyWorkerService.getAllocationDetailsForKeyworker(staffId);
 
         return GetAllocationsForKeyworkerResponse.respond200WithApplicationJson(allocationDetails);
+    }
+
+    @Override
+    public GetAllocationHistoryResponse getAllocationHistory(String agencyId, Long pageOffset, Long pageLimit) {
+        PageRequest pageRequest = new PageRequest(pageOffset, pageLimit);
+        Page<OffenderKeyWorker> allocations = keyWorkerService.getAllocationHistoryByAgency(agencyId, pageRequest);
+
+        return GetAllocationHistoryResponse.respond200WithApplicationJson(allocations);
     }
 }
