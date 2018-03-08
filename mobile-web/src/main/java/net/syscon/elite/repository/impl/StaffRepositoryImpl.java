@@ -1,6 +1,7 @@
 package net.syscon.elite.repository.impl;
 
 import net.syscon.elite.api.model.StaffDetail;
+import net.syscon.elite.api.model.StaffLocationRole;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.StaffRepository;
@@ -22,6 +23,9 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
 
     private static final StandardBeanPropertyRowMapper<StaffDetail> STAFF_DETAIL_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(StaffDetail.class);
+
+    private static final StandardBeanPropertyRowMapper<StaffLocationRole> STAFF_LOCATION_ROLE_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(StaffLocationRole.class);
 
     @Override
     @Cacheable("findByStaffId")
@@ -45,7 +49,7 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
     }
 
     @Override
-    public Page<StaffDetail> findStaffByAgencyPositionRole(String agencyId, String position, String role, String nameFilter, PageRequest pageRequest) {
+    public Page<StaffLocationRole> findStaffByAgencyPositionRole(String agencyId, String position, String role, String nameFilter, PageRequest pageRequest) {
         Validate.notBlank(agencyId, "An agency id is required.");
         Validate.notBlank(position, "A position code is required.");
         Validate.notBlank(role, "A role code is required.");
@@ -53,7 +57,7 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
 
         String baseSql = applyNameFilterQuery(getQuery("FIND_STAFF_BY_AGENCY_POSITION_ROLE"), nameFilter);
 
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(baseSql, STAFF_DETAIL_ROW_MAPPER.getFieldMap());
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(baseSql, STAFF_LOCATION_ROLE_ROW_MAPPER.getFieldMap());
 
         String sql = builder
                 .addRowCount()
@@ -61,9 +65,9 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
                 .addPagination()
                 .build();
 
-        PageAwareRowMapper<StaffDetail> paRowMapper = new PageAwareRowMapper<>(STAFF_DETAIL_ROW_MAPPER);
+        PageAwareRowMapper<StaffLocationRole> paRowMapper = new PageAwareRowMapper<>(STAFF_LOCATION_ROLE_ROW_MAPPER);
 
-        List<StaffDetail> staffDetails = jdbcTemplate.query(
+        List<StaffLocationRole> staffDetails = jdbcTemplate.query(
                 sql,
                 createParamSource(pageRequest, "agencyId", agencyId, "position", position, "role", role),
                 paRowMapper);
@@ -72,14 +76,14 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
     }
 
     @Override
-    public Page<StaffDetail> findStaffByAgencyRole(String agencyId, String role, String nameFilter, PageRequest pageRequest) {
+    public Page<StaffLocationRole> findStaffByAgencyRole(String agencyId, String role, String nameFilter, PageRequest pageRequest) {
         Validate.notBlank(agencyId, "An agency id is required.");
         Validate.notBlank(role, "A role code is required.");
         Validate.notNull(pageRequest, "Page request details are required.");
 
         String baseSql = applyNameFilterQuery(getQuery("FIND_STAFF_BY_AGENCY_AND_ROLE"), nameFilter);
 
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(baseSql, STAFF_DETAIL_ROW_MAPPER.getFieldMap());
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(baseSql, STAFF_LOCATION_ROLE_ROW_MAPPER.getFieldMap());
 
         String sql = builder
                 .addRowCount()
@@ -87,9 +91,9 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
                 .addPagination()
                 .build();
 
-        PageAwareRowMapper<StaffDetail> paRowMapper = new PageAwareRowMapper<>(STAFF_DETAIL_ROW_MAPPER);
+        PageAwareRowMapper<StaffLocationRole> paRowMapper = new PageAwareRowMapper<>(STAFF_LOCATION_ROLE_ROW_MAPPER);
 
-        List<StaffDetail> staffDetails = jdbcTemplate.query(
+        List<StaffLocationRole> staffDetails = jdbcTemplate.query(
                 sql,
                 createParamSource(pageRequest, "agencyId", agencyId, "role", role),
                 paRowMapper);
