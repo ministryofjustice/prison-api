@@ -1,6 +1,7 @@
 package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.StaffDetail;
+import net.syscon.elite.api.model.StaffLocationRole;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +25,7 @@ public class StaffSteps extends CommonSteps {
     private static final String QUERY_PARAM_NAME_FILTER = "nameFilter";
 
     private StaffDetail staffDetail;
-    private List<StaffDetail> staffDetails;
+    private List<StaffLocationRole> staffDetails;
 
     @Override
     protected void init() {
@@ -91,13 +92,13 @@ public class StaffSteps extends CommonSteps {
 
     @Step("Verify staff ids returned")
     public void verifyStaffIds(String staffIds) {
-        verifyLongValues(staffDetails, StaffDetail::getStaffId, staffIds);
+        verifyLongValues(staffDetails, StaffLocationRole::getStaffId, staffIds);
     }
 
     private void dispatchStaffByAgencyPositionRoleRequest(URI uri) {
         init();
 
-        ResponseEntity<List<StaffDetail>> response;
+        ResponseEntity<List<StaffLocationRole>> response;
 
         try {
             response =
@@ -105,7 +106,7 @@ public class StaffSteps extends CommonSteps {
                             uri,
                             HttpMethod.GET,
                             createEntity(),
-                            new ParameterizedTypeReference<List<StaffDetail>>() {});
+                            new ParameterizedTypeReference<List<StaffLocationRole>>() {});
 
             staffDetails = response.getBody();
 

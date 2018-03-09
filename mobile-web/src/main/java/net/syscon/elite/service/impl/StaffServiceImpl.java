@@ -1,6 +1,7 @@
 package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.StaffDetail;
+import net.syscon.elite.api.model.StaffLocationRole;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.StaffRepository;
@@ -31,11 +32,11 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     @VerifyAgencyAccess
-    public Page<StaffDetail> getStaffByAgencyPositionRole(GetStaffRoleRequest request, PageRequest pageRequest) {
+    public Page<StaffLocationRole> getStaffByAgencyPositionRole(GetStaffRoleRequest request, PageRequest pageRequest) {
         Validate.notNull(request, "Staff role request details are required.");
         Validate.notNull(pageRequest, "Page request details are required.");
 
-        Page<StaffDetail> staffDetails;
+        Page<StaffLocationRole> staffDetails;
 
         if (StringUtils.isBlank(request.getPosition())) {
             staffDetails = staffRepository.findStaffByAgencyRole(request.getAgencyId(), request.getRole(), request.getNameFilter(), pageRequest);
