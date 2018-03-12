@@ -24,6 +24,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
 
+import javax.annotation.Nullable;
+import java.lang.ref.Reference;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Instant;
@@ -31,6 +33,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Repository
@@ -249,6 +252,20 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
             }
         });
 
-        return caseNoteTypes.values().stream().filter(type -> !type.getSubCodes().isEmpty()).collect(Collectors.toList());
+		Predicate<ReferenceCode> typesWithSubTypes = type -> !type.getSubCodes().isEmpty();
+
+		caseNoteTypes.values().stream().filter(typesWithSubTypes).forEach(caseNoteType -> {
+
+       	   List<ReferenceCode> sortedSubTypes = caseNoteType.getSubCodes().stream()
+					.sorted(Comparator.comparing(ReferenceCode::getDescription))
+					.collect(Collectors.toList());
+
+        	caseNoteType.setSubCodes(sortedSubTypes);
+		});
+
+        return caseNoteTypes.values().stream()
+				.filter(typesWithSubTypes)
+				.sorted(Comparator.comparing(ReferenceCode::getDescription))
+				.collect(Collectors.toList());
     }
 }

@@ -57,8 +57,8 @@ public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
     }
 
     @And("^description for \"([^\"]*)\" returned item is \"([^\"]*)\"$")
-    public void descriptionForReturnedItemIs(String ordinal, String expectedDescription) throws Throwable {
-        referenceDomains.verifyDescription(ord2idx(ordinal), expectedDescription);
+    public void descriptionForReturnedItemIs(String ordinal, String expecteDescription) throws Throwable {
+        referenceDomains.verifyDescription(ord2idx(ordinal), expecteDescription);
     }
 
     @And("^codes of returned items are \"([^\"]*)\"$")
