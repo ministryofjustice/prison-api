@@ -2,6 +2,7 @@ package net.syscon.elite.service;
 
 import lombok.Getter;
 import net.syscon.elite.api.model.StaffDetail;
+import net.syscon.elite.api.model.StaffLocationRole;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.support.AgencyRequest;
@@ -10,7 +11,7 @@ import org.apache.commons.lang3.Validate;
 public interface StaffService {
     StaffDetail getStaffDetail(Long staffId);
 
-    Page<StaffDetail> getStaffByAgencyPositionRole(GetStaffRoleRequest request, PageRequest pageRequest);
+    Page<StaffLocationRole> getStaffByAgencyPositionRole(GetStaffRoleRequest request, PageRequest pageRequest);
 
     @Getter
     class GetStaffRoleRequest extends AgencyRequest {

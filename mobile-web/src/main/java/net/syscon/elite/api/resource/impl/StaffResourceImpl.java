@@ -1,6 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.StaffDetail;
+import net.syscon.elite.api.model.StaffLocationRole;
 import net.syscon.elite.api.resource.StaffResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
@@ -33,7 +33,7 @@ public class StaffResourceImpl implements StaffResource {
         GetStaffRoleRequest staffRoleRequest = new GetStaffRoleRequest(agencyId, position, role, nameFilter);
         PageRequest pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
 
-        Page<StaffDetail> staffDetails = staffService.getStaffByAgencyPositionRole(staffRoleRequest, pageRequest);
+        Page<StaffLocationRole> staffDetails = staffService.getStaffByAgencyPositionRole(staffRoleRequest, pageRequest);
 
         return GetStaffByAgencyPositionRoleResponse.respond200WithApplicationJson(staffDetails);
     }
@@ -46,7 +46,7 @@ public class StaffResourceImpl implements StaffResource {
         GetStaffRoleRequest staffRoleRequest = new GetStaffRoleRequest(agencyId, null, role, nameFilter);
         PageRequest pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
 
-        Page<StaffDetail> staffDetails = staffService.getStaffByAgencyPositionRole(staffRoleRequest, pageRequest);
+        Page<StaffLocationRole> staffDetails = staffService.getStaffByAgencyPositionRole(staffRoleRequest, pageRequest);
 
         return GetStaffByAgencyRoleResponse.respond200WithApplicationJson(staffDetails);
     }
