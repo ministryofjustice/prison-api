@@ -54,6 +54,7 @@ public class StaffRepositoryTest {
     @Test
     public void testFindStaffLocationRolesByRole() {
         final String TEST_AGENCY = "SYI";
+        final String TEST_AGENCY_DESCRIPTION = "SHREWSBURY";
         final String TEST_ROLE = "KW";
 
         Page<StaffLocationRole> page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE, null, new PageRequest());
@@ -65,6 +66,7 @@ public class StaffRepositoryTest {
         StaffLocationRole slr = items.get(0);
 
         assertThat(slr.getAgencyId()).isEqualTo(TEST_AGENCY);
+        assertThat(slr.getAgencyDescription()).isEqualTo(TEST_AGENCY_DESCRIPTION);
         assertThat(slr.getStaffId()).isEqualTo(-9);
         assertThat(slr.getFirstName()).isEqualTo("Wing");
         assertThat(slr.getLastName()).isEqualTo("Officer4");
@@ -84,6 +86,7 @@ public class StaffRepositoryTest {
     public void testFindStaffLocationRolesByPositionAndRole() {
         final String TEST_AGENCY = "LEI";
         final String TEST_POSITION = "PRO";
+        final String TEST_AGENCY_DESCRIPTION = "LEEDS";
         final String TEST_ROLE = "OS";
 
         Page<StaffLocationRole> page = repository.findStaffByAgencyPositionRole(TEST_AGENCY, TEST_POSITION, TEST_ROLE, null, new PageRequest());
@@ -95,6 +98,7 @@ public class StaffRepositoryTest {
         StaffLocationRole slr = items.get(0);
 
         assertThat(slr.getAgencyId()).isEqualTo(TEST_AGENCY);
+        assertThat(slr.getAgencyDescription()).isEqualTo(TEST_AGENCY_DESCRIPTION);
         assertThat(slr.getStaffId()).isEqualTo(-2);
         assertThat(slr.getFirstName()).isEqualTo("API");
         assertThat(slr.getLastName()).isEqualTo("User");
