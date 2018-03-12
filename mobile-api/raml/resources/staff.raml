@@ -9,7 +9,7 @@
 
 /roles/{agencyId}/position/{position}/role/{role}:
   (javaOperationName): getStaffByAgencyPositionRole
-  type: { readOnlyCollectionPaged: { type: StaffDetail, description: Get active staff members within agency who are currently assigned the specified position and/or role. } }
+  type: { readOnlyCollectionPaged: { type: StaffLocationRole, description: Get active staff members within agency who are currently assigned the specified position and/or role. } }
   is: [ sortable: { fieldsList: "firstName, lastName" } ]
   uriParameters:
     agencyId:
@@ -23,17 +23,17 @@
     role:
       type: string
       description: The staff role.
-      example: KW
+      example: HDCP
   get:
     queryParameters:
       nameFilter?:
         type: string
         description: Filter results by first name and/or last name of staff member.
-        example: John Hopkins
+        example: Kirsty
 
 /roles/{agencyId}/role/{role}:
   (javaOperationName): getStaffByAgencyRole
-  type: { readOnlyCollectionPaged: { type: StaffDetail, description: Get active staff members within agency who are currently assigned the specified role. } }
+  type: { readOnlyCollectionPaged: { type: StaffLocationRole, description: Get active staff members within agency who are currently assigned the specified role. } }
   is: [ sortable: { fieldsList: "firstName, lastName" } ]
   uriParameters:
     agencyId:
