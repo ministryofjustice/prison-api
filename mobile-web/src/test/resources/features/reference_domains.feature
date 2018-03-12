@@ -40,12 +40,12 @@ Feature: Reference Domains
     When request submitted to retrieve used case note types
     Then "30" reference code items are returned
     And domain for all returned items is "TASK_TYPE"
-    And code for "1st" returned item is "ACP"
-    And code for "30th" returned item is "UW"
+    And description for "1st" returned item is "Accredited Programme"
+    And description for "30th" returned item is "Unplanned contact"
     And there are one or more sub codes for every returned item
-    And code for "1st" sub-code of "1st" returned item is "ASSESSMENT"
-    And code for "7th" sub-code of "1st" returned item is "POS2"
-    And code for "1st" sub-code of "30th" returned item is "PSI"
+    And description for "1st" sub-code of "1st" returned item is "Assessment"
+    And description for "7th" sub-code of "1st" returned item is "Post Programme OM Session four"
+    And description for "1st" sub-code of "30th" returned item is "Report to Office"
 
   Scenario: Retrieve reference codes, without sub-codes, for a domain that does not exist
     When request submitted to retrieve all reference codes, without sub-codes, for domain "UNKNOWN"
