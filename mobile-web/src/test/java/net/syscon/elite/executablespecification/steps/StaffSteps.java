@@ -23,6 +23,7 @@ public class StaffSteps extends CommonSteps {
     private static final String API_STAFF_BY_AGENCY_POSITION_ROLE_REQUEST_URL = API_PREFIX + "staff/roles/{agencyId}/position/{position}/role/{role}";
     private static final String API_STAFF_BY_AGENCY_ROLE_REQUEST_URL = API_PREFIX + "staff/roles/{agencyId}/role/{role}";
     private static final String QUERY_PARAM_NAME_FILTER = "nameFilter";
+    private static final String QUERY_PARAM_STAFF_ID_FILTER = "staffId";
 
     private StaffDetail staffDetail;
     private List<StaffLocationRole> staffDetails;
@@ -54,22 +55,28 @@ public class StaffSteps extends CommonSteps {
     }
 
     @Step("Find staff members having position and role in agency")
-    public void findStaffByAgencyPositionRole(String agencyId, String position, String role, String nameFilter) {
+    public void findStaffByAgencyPositionRole(String agencyId, String position, String role, String nameFilter, Long staffId) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(API_STAFF_BY_AGENCY_POSITION_ROLE_REQUEST_URL);
 
         if (StringUtils.isNotBlank(nameFilter)) {
             builder = builder.queryParam(QUERY_PARAM_NAME_FILTER, nameFilter);
+        }
+        if (staffId != null) {
+            builder = builder.queryParam(QUERY_PARAM_STAFF_ID_FILTER, staffId);
         }
 
         dispatchStaffByAgencyPositionRoleRequest(builder.buildAndExpand(agencyId, position, role).toUri());
     }
 
     @Step("Find staff members having role in agency")
-    public void findStaffByAgencyRole(String agencyId, String role, String nameFilter) {
+    public void findStaffByAgencyRole(String agencyId, String role, String nameFilter, Long staffId) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(API_STAFF_BY_AGENCY_ROLE_REQUEST_URL);
 
         if (StringUtils.isNotBlank(nameFilter)) {
             builder = builder.queryParam(QUERY_PARAM_NAME_FILTER, nameFilter);
+        }
+        if (staffId != null) {
+            builder = builder.queryParam(QUERY_PARAM_STAFF_ID_FILTER, staffId);
         }
 
         dispatchStaffByAgencyPositionRoleRequest(builder.buildAndExpand(agencyId, role).toUri());
