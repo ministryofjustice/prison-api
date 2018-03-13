@@ -257,15 +257,15 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 		caseNoteTypes.values().stream().filter(typesWithSubTypes).forEach(caseNoteType -> {
 
        	   List<ReferenceCode> sortedSubTypes = caseNoteType.getSubCodes().stream()
-					.sorted(Comparator.comparing(ReferenceCode::getDescription))
-					.collect(Collectors.toList());
+                   .sorted(Comparator.comparing(a -> a.getDescription().toLowerCase()))
+				   .collect(Collectors.toList());
 
         	caseNoteType.setSubCodes(sortedSubTypes);
 		});
 
         return caseNoteTypes.values().stream()
 				.filter(typesWithSubTypes)
-				.sorted(Comparator.comparing(ReferenceCode::getDescription))
+                .sorted(Comparator.comparing(a -> a.getDescription().toLowerCase()))
 				.collect(Collectors.toList());
     }
 }
