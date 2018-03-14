@@ -19,7 +19,6 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Properties;
 
 import static java.lang.String.format;
@@ -89,13 +88,20 @@ public class OracleConnectionAspect {
                 setDefaultSchema(proxyConn);
                 setRolePrivs(oracleConn);
 
-                log.debug("Exit: {}.{}() with result = {}", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(), conn);
+                log.debug(
+                        "Exit: {}.{}()",
+                        joinPoint.getSignature().getDeclaringTypeName(),
+                        joinPoint.getSignature().getName());
                 return proxyConn;
             } else {
                 return conn;
             }
         } catch (final Throwable e) {
-            log.error("Illegal argument: {} in {}.{}()", Arrays.toString(joinPoint.getArgs()), joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName(), e);
+            log.error(
+                    "Exception thrown in OracleConnectionAspect.connectionAround(), join point {}.{}(): {}",
+                    joinPoint.getSignature().getDeclaringTypeName(),
+                    joinPoint.getSignature().getName(),
+                    e.getMessage());
 
             throw e;
         }
