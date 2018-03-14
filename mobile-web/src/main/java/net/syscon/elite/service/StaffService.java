@@ -18,16 +18,17 @@ public interface StaffService {
         private final String position;
         private final String role;
         private final String nameFilter;
+        private final Long staffId;
 
         public GetStaffRoleRequest(String agencyId, String role) {
-            this(agencyId, null, role, null);
+            this(agencyId, null, role, null, null);
         }
 
         public GetStaffRoleRequest(String agencyId, String position, String role) {
-            this(agencyId, position, role,null);
+            this(agencyId, position, role, null, null);
         }
 
-        public GetStaffRoleRequest(String agencyId, String position, String role, String nameFilter) {
+        public GetStaffRoleRequest(String agencyId, String position, String role, String nameFilter, Long staffId) {
             super(agencyId);
 
             Validate.notBlank(role, "Role is required.");
@@ -35,6 +36,7 @@ public interface StaffService {
             this.position = position;
             this.role = role;
             this.nameFilter = nameFilter;
+            this.staffId = staffId;
         }
     }
 }

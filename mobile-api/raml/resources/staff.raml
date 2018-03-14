@@ -30,6 +30,10 @@
         type: string
         description: Filter results by first name and/or last name of staff member.
         example: Kirsty
+      staffId?:
+        type: number
+        (javaType): Long
+        description: The staff id of a staff member.
 
 /roles/{agencyId}/role/{role}:
   (javaOperationName): getStaffByAgencyRole
@@ -50,3 +54,7 @@
         type: string
         description: Filter results by first name and/or last name of staff member. Supplied filter term is matched to start of staff member's first and last name.
         example: John
+      staffId?:
+        type: number
+        (javaType): Long
+        description: The staff id of a staff member.

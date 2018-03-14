@@ -55,29 +55,33 @@ Feature: Staff Details and Roles
       | SYI    | PRO      | KW   | 0     |               |
 
   Scenario Outline: Search for staff members having specified role at an agency
-    When request is submitted for staff members having role "<role>" in agency "<agency>" with name filter "<name filter>"
+    When request is submitted for staff members having role "<role>" in agency "<agency>" with name filter "<name filter>" and staff id filter "<staff id>"
     Then "<count>" staff detail records are returned
     And staff ids match "<staff id list>"
 
     Examples:
-      | agency | role | name filter | count | staff id list |
-      | LEI    | KW   | Another     | 1     | -5            |
-      | SYI    | KW   |             | 1     | -9            |
-      | WAI    | OS   | Ronald      | 0     |               |
-      | LEI    | KW   | USE         | 2     | -1,-5         |
-      | LEI    | KW   | user        | 2     | -1,-5         |
-      | LEI    | KW   | Uses        | 0     |               |
+      | agency | role | name filter | staff id | count | staff id list |
+      | LEI    | KW   | Another     |          | 1     | -5            |
+      | SYI    | KW   |             |          | 1     | -9            |
+      | WAI    | OS   | Ronald      |          | 0     |               |
+      | LEI    | KW   | USE         |          | 2     | -1,-5         |
+      | LEI    | KW   | user        |          | 2     | -1,-5         |
+      | LEI    | KW   | Uses        |          | 0     |               |
+      | LEI    | KW   |             | -1       | 1     | -1            |
+      | LEI    | KW   |             | -999     | 0     |               |
 
   Scenario Outline: Search for staff members having specified position and role at an agency
-    When request is submitted for staff members having position "<position>" and role "<role>" in agency "<agency>" with name filter "<name filter>"
+    When request is submitted for staff members having position "<position>" and role "<role>" in agency "<agency>" with name filter "<name filter>" and staff id filter "<staff id>"
     Then "<count>" staff detail records are returned
     And staff ids match "<staff id list>"
 
     Examples:
-      | agency | position | role | name filter | count | staff id list |
-      | LEI    | AO       | KW   | Another     | 1     | -5            |
-      | SYI    | AO       | KW   |             | 1     | -9            |
-      | WAI    | PRO      | OS   | Ronald      | 0     |               |
-      | LEI    | PRO      | KW   | USE         | 1     | -1            |
-      | LEI    | AO       | KW   | user        | 1     | -5            |
-      | LEI    | AO       | KW   | Uses        | 0     |               |
+      | agency | position | role | name filter | staff id | count | staff id list |
+      | LEI    | AO       | KW   | Another     |          | 1     | -5            |
+      | SYI    | AO       | KW   |             |          | 1     | -9            |
+      | WAI    | PRO      | OS   | Ronald      |          | 0     |               |
+      | LEI    | PRO      | KW   | USE         |          | 1     | -1            |
+      | LEI    | AO       | KW   | user        |          | 1     | -5            |
+      | LEI    | AO       | KW   | Uses        |          | 0     |               |
+      | LEI    | AO       | KW   |             | -5       | 1     | -5            |
+      | LEI    | AO       | KW   |             | -999     | 0     |               |
