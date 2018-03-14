@@ -39,9 +39,9 @@ public class StaffServiceImpl implements StaffService {
         Page<StaffLocationRole> staffDetails;
 
         if (StringUtils.isBlank(request.getPosition())) {
-            staffDetails = staffRepository.findStaffByAgencyRole(request.getAgencyId(), request.getRole(), request.getNameFilter(), pageRequest);
+            staffDetails = staffRepository.findStaffByAgencyRole(request.getAgencyId(), request.getRole(), request.getNameFilter(), request.getStaffId(), pageRequest);
         } else {
-            staffDetails = staffRepository.findStaffByAgencyPositionRole(request.getAgencyId(), request.getPosition(), request.getRole(), request.getNameFilter(), pageRequest);
+            staffDetails = staffRepository.findStaffByAgencyPositionRole(request.getAgencyId(), request.getPosition(), request.getRole(), request.getNameFilter(), request.getStaffId(), pageRequest);
         }
 
         return staffDetails;

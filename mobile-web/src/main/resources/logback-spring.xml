@@ -17,7 +17,6 @@
     <springProfile name="logstash">
         <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
             <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-                <includeCallerInfo>true</includeCallerInfo>
             </encoder>
         </appender>
     </springProfile>
@@ -64,7 +63,7 @@
         <appender-ref ref="consoleAppender"/>
     </logger>
 
-    <logger name="com.zaxxer.hikari" additivity="false" level="INFO" >
+    <logger name="com.zaxxer.hikari" additivity="false" level="DEBUG" >
         <appender-ref ref="consoleAppender"/>
     </logger>
 
