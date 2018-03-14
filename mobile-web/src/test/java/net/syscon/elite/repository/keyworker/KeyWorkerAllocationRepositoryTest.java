@@ -169,7 +169,7 @@ public class KeyWorkerAllocationRepositoryTest {
         assertThat(availableKeyworkers.get(0).getFirstName()).isEqualTo("Another");
         assertThat(availableKeyworkers.get(0).getLastName()).isEqualTo("User");
         assertThat(availableKeyworkers.get(0).getStaffId()).isEqualTo(-5L);
-        assertThat(availableKeyworkers.get(0).getNumberAllocated()).isEqualTo(4);
+        assertThat(availableKeyworkers.get(0).getNumberAllocated()).isEqualTo(3);
     }
 
     @Test
@@ -218,7 +218,7 @@ public class KeyWorkerAllocationRepositoryTest {
         assertThat(kw.getFirstName()).isEqualTo("Another");
         assertThat(kw.getLastName()).isEqualTo("User");
         assertThat(kw.getStaffId()).isEqualTo(KEY_WORKER_WITH_ALLOCATIONS);
-        assertThat(kw.getNumberAllocated()).isEqualTo(4);
+        assertThat(kw.getNumberAllocated()).isEqualTo(3);
     }
 
     @Test
