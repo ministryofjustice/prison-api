@@ -15,7 +15,7 @@ Feature: User Details and Roles
 
   Examples:
   | username            | roles                                                                            |
-  | itag_user           | BXI_WING_OFF,LEI_WING_OFF,MDI_WING_OFF,NWEB_LICENCE_CA,SYI_WING_OFF,WAI_WING_OFF |
+  | itag_user           | BXI_WING_OFF,LEI_WING_OFF,MDI_WING_OFF,NWEB_LICENCE_CA,NWEB_KW_ADMIN,SYI_WING_OFF,WAI_WING_OFF |
   | api_test_user       | MUL_WING_OFF,NWEB_LICENCE_RO                                                     |
 
   @nomis
@@ -25,9 +25,9 @@ Feature: User Details and Roles
     Then the roles returned are "<roles>"
 
     Examples:
-      | username            | roles      |
-      | itag_user           | LICENCE_CA |
-      | api_test_user       | LICENCE_RO |
+      | username            | roles               |
+      | itag_user           | LICENCE_CA,KW_ADMIN |
+      | api_test_user       | LICENCE_RO          |
 
   @elite
   Scenario Outline: As a logged in user I can find out my roles
@@ -36,6 +36,6 @@ Feature: User Details and Roles
     Then the roles returned are "<roles>"
 
     Examples:
-      | username            | roles               |
-      | itag_user           | WING_OFF,LICENCE_CA |
-      | api_test_user       | WING_OFF,LICENCE_RO |
+      | username            | roles                        |
+      | itag_user           | WING_OFF,LICENCE_CA,KW_ADMIN |
+      | api_test_user       | WING_OFF,LICENCE_RO          |
