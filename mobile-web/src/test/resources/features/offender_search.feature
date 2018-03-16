@@ -1,4 +1,4 @@
-@global @wip
+@global
 Feature: Offender Search V2
 
   Acceptance Criteria:
