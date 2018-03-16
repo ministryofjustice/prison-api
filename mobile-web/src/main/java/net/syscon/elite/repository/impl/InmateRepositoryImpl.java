@@ -180,7 +180,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 	@Override
 	@Cacheable("searchForOffenderBookings")
-	public Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String lastName, String firstName, String locationPrefix, String locationTypeRoot, PageRequest pageRequest) {
+	public Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String searchTerm1, String searchTerm2, String locationPrefix, String locationTypeRoot, PageRequest pageRequest) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
 		initialSql += " AND " + getQuery("LOCATION_FILTER_SQL");
 
@@ -192,12 +192,13 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			initialSql += " AND O.OFFENDER_ID_DISPLAY = :offenderNo ";
 		}
 
-		if (StringUtils.isNotBlank(lastName)) {
-			initialSql += " AND O.LAST_NAME like :lastName ";
-		}
-
-		if (StringUtils.isNotBlank(firstName)) {
-			initialSql += " AND O.FIRST_NAME like :firstName ";
+		if (StringUtils.isNotBlank(searchTerm1) && StringUtils.isNotBlank(searchTerm2)) {
+			initialSql += " AND ((O.LAST_NAME like :searchTerm1 and O.FIRST_NAME like :searchTerm2) " +
+					"OR (O.FIRST_NAME like :searchTerm1 and O.LAST_NAME like :searchTerm2) ) ";
+		} else if (StringUtils.isNotBlank(searchTerm1)) {
+			initialSql += " AND (O.FIRST_NAME like :searchTerm1 OR O.LAST_NAME like :searchTerm1) ";
+		} else if (StringUtils.isNotBlank(searchTerm2)) {
+			initialSql += " AND (O.FIRST_NAME like :searchTerm2 OR O.LAST_NAME like :searchTerm2) ";
 		}
 
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_BOOKING_MAPPING);
@@ -216,8 +217,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		List<OffenderBooking> offenderBookings = jdbcTemplate.query(
 		        sql,
                 createParams("offenderNo", offenderNo,
-                        "lastName", StringUtils.trimToEmpty(lastName) + "%",
-                        "firstName", StringUtils.trimToEmpty(firstName) + "%",
+                        "searchTerm1", StringUtils.trimToEmpty(searchTerm1) + "%",
+                        "searchTerm2", StringUtils.trimToEmpty(searchTerm2) + "%",
                         "locationPrefix", StringUtils.trimToEmpty(locationPrefix) + "%",
                         "caseLoadId", caseloads,
                         "locationTypeRoot", locationTypeRoot,

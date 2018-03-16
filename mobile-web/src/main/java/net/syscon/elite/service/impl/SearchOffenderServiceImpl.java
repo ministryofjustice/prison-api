@@ -44,18 +44,18 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
         Objects.requireNonNull(request.getLocationPrefix(), "locationPrefix is a required parameter");
         String keywordSearch = StringUtils.upperCase(StringUtils.trimToEmpty(request.getKeywords()));
         String offenderNo = null;
-        String lastName = null;
-        String firstName = null;
+        String searchTerm1 = null;
+        String searchTerm2 = null;
 
         if (StringUtils.isNotBlank(keywordSearch)) {
             if (isOffenderNo(keywordSearch)) {
                 offenderNo = keywordSearch;
             } else {
-                String [] nameSplit = StringUtils.splitByWholeSeparatorPreserveAllTokens(keywordSearch, ",");
-                lastName = nameSplit[0];
+                String [] nameSplit = StringUtils.split(keywordSearch, " ,");
+                searchTerm1 = nameSplit[0];
 
                 if (nameSplit.length > 1) {
-                    firstName = nameSplit[1];
+                    searchTerm2 = nameSplit[1];
                 }
             }
         }
@@ -71,7 +71,7 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
         final Set<String> caseloads = bookingService.isSystemUser() ? Collections.emptySet() : userService.getCaseLoadIds(request.getUsername());
 
         Page<OffenderBooking> bookings = repository.searchForOffenderBookings(
-                caseloads, offenderNo, lastName, firstName,
+                caseloads, offenderNo, searchTerm1, searchTerm2,
                 request.getLocationPrefix(),
                 locationTypeGranularity, pageRequest);
 
