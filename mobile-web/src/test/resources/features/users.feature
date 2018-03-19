@@ -1,4 +1,4 @@
-@global @wip
+@global
 Feature: User Details and Roles
 
   Acceptance Criteria:
