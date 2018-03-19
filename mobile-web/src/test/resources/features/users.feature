@@ -1,4 +1,4 @@
-@global
+@global @wip
 Feature: User Details and Roles
 
   Acceptance Criteria:
@@ -14,9 +14,9 @@ Feature: User Details and Roles
     Then the roles returned are "<roles>"
 
   Examples:
-  | username            | roles                                                                            |
+  | username            | roles                                                                                          |
   | itag_user           | BXI_WING_OFF,LEI_WING_OFF,MDI_WING_OFF,NWEB_LICENCE_CA,NWEB_KW_ADMIN,SYI_WING_OFF,WAI_WING_OFF |
-  | api_test_user       | MUL_WING_OFF,NWEB_LICENCE_RO                                                     |
+  | api_test_user       | MUL_WING_OFF,NWEB_LICENCE_RO                                                                   |
 
   @nomis
   Scenario Outline: As a logged in user I can find out just my api roles
