@@ -17,7 +17,6 @@ import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.LocationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.stereotype.Service;
@@ -113,7 +112,6 @@ public class LocationServiceImpl implements LocationService {
      */
     @Override
     @VerifyAgencyAccess
-    @Cacheable("getGroup")
     public List<Location> getGroup(String agencyId, String name) {
 
         final String patterns = groupsProperties.getProperty(agencyId + '_' + name);

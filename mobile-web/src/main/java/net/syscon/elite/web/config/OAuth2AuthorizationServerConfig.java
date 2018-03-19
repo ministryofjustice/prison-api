@@ -9,11 +9,14 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.oauth2.config.annotation.builders.ClientDetailsServiceBuilder;
+import org.springframework.security.oauth2.config.annotation.builders.InMemoryClientDetailsServiceBuilder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
@@ -22,6 +25,7 @@ import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenCo
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableAuthorizationServer
@@ -29,29 +33,22 @@ import java.util.Arrays;
 @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
 public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
 
+    private final String privateKey;
+    private final List<OauthClientConfig> oauthClientConfig;
+
+    @Autowired
+    private ClientDetailsService clientDetailsService;
+
     @Autowired
     private AuthenticationManager authManager;
 
-    @Value("${jwt.signing.key}")
-    private String privateKey;
-
-    @Value("${jwt.expiration.seconds}")
-    private int expirationSeconds;
-
-    @Value("${jwt.refresh.expiration.seconds}")
-    private int refreshExpirationSeconds;
-
-    @Value("${oauth.client.id}")
-    private String clientId;
-
-    @Value("${oauth.client.secret}")
-    private String clientSecret;
-
-    @Value("${oauth.standard.client.id}")
-    private String standardClientId;
-
-    @Value("${oauth.standard.client.secret}")
-    private String standardClientSecret;
+    @Autowired
+    public OAuth2AuthorizationServerConfig(@Value("${jwt.signing.key}") String privateKey,
+                                           ClientConfigExtractor clientConfigExtractor,
+                                           @Value("${oauth.client.data}") String clientData) {
+        this.privateKey = privateKey;
+        this.oauthClientConfig = clientConfigExtractor.getClientConfigurations(clientData);
+    }
 
     @Bean
     public TokenStore tokenStore() {
@@ -104,27 +101,49 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
         defaultTokenServices.setTokenStore(tokenStore());
         defaultTokenServices.setReuseRefreshToken(true);
         defaultTokenServices.setSupportRefreshToken(true);
-        defaultTokenServices.setAccessTokenValiditySeconds(expirationSeconds);
-        defaultTokenServices.setRefreshTokenValiditySeconds(refreshExpirationSeconds);
         defaultTokenServices.setAuthenticationManager(authManager);
+        defaultTokenServices.setClientDetailsService(clientDetailsService);
         return defaultTokenServices;
     }
-
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 
-        clients.inMemory()
-                .withClient(clientId).secret(clientSecret)
-                .authorities("ROLE_SYSTEM_USER")
-                .authorizedGrantTypes("client_credentials", "refresh_token")
-                .scopes("read", "admin")
-                .autoApprove("read")
-        .and()
-                .withClient(standardClientId).secret(standardClientSecret)
-                .authorizedGrantTypes("password", "authorization_code", "refresh_token")
-                .scopes("read", "write")
-                .autoApprove("read", "write");
+        if (oauthClientConfig != null) {
+            ClientDetailsServiceBuilder<InMemoryClientDetailsServiceBuilder>.ClientBuilder clientBuilder = null;
+            for (OauthClientConfig client : oauthClientConfig) {
+                if (clientBuilder == null) {
+                    clientBuilder = clients.inMemory().withClient(client.getClientId());
+                } else {
+                    clientBuilder = clientBuilder.and().withClient(client.getClientId());
+                }
+                clientBuilder = clientBuilder
+                        .secret(client.getClientSecret())
+                        .accessTokenValiditySeconds(client.getAccessTokenValidity())
+                        .refreshTokenValiditySeconds(client.getRefreshTokenValidity())
+                        .redirectUris(client.getWebServerRedirectUri());
+
+                if (client.getScope() != null) {
+                    clientBuilder = clientBuilder.scopes(toArray(client.getScope()));
+                }
+                if (client.getAutoApprove() != null) {
+                    clientBuilder = clientBuilder.autoApprove(toArray(client.getAutoApprove()));
+                }
+                if (client.getAuthorities() != null) {
+                    clientBuilder = clientBuilder.authorities(toArray(client.getAuthorities()));
+                }
+                if (client.getAuthorizedGrantTypes() != null) {
+                    clientBuilder = clientBuilder.authorizedGrantTypes(toArray(client.getAuthorizedGrantTypes()));
+                }
+            }
+        }
+    }
+
+    private String[] toArray(List<String> array) {
+        if (array != null) {
+            return array.toArray(new String[array.size()]);
+        }
+        return null;
     }
 
 }
