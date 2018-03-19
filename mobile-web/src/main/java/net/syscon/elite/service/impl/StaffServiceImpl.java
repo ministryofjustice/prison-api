@@ -31,6 +31,16 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
+    public StaffDetail getStaffDetailByPersonnelIdentifier(String idType, String id) {
+        Validate.notBlank(idType, "An id type is required.");
+        Validate.notBlank(id, "An id is required.");
+
+        return staffRepository.findStaffByPersonnelIdentifier(idType, id)
+                .orElseThrow(EntityNotFoundException.withMessage(
+                        "Staff member not found for external identifier with idType [{}] and id [{}].", idType, id));
+    }
+
+    @Override
     @VerifyAgencyAccess
     public Page<StaffLocationRole> getStaffByAgencyPositionRole(GetStaffRoleRequest request, PageRequest pageRequest) {
         Validate.notNull(request, "Staff role request details are required.");

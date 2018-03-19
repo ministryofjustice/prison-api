@@ -10,6 +10,7 @@ import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
@@ -34,6 +35,9 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
 	private final StandardBeanPropertyRowMapper<UserRole> USER_ROLE_MAPPER =
 			new StandardBeanPropertyRowMapper<>(UserRole.class);
+
+	private final StandardBeanPropertyRowMapper<UserDetail> USER_DETAIL_ROW_MAPPER =
+			new StandardBeanPropertyRowMapper<>(UserDetail.class);
 
 	@Override
 	public Optional<UserDetail> findByUsername(final String username) {
@@ -73,4 +77,24 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 		jdbcTemplate.update(sql, createParams("caseLoadId", caseLoadId, "staffId", staffId));
 	}
 
+	@Override
+	public Optional<UserDetail> findByStaffIdAndStaffUserType(Long staffId, String staffUserType) {
+		Validate.notNull(staffId, "Staff id is required.");
+		Validate.notBlank(staffUserType, "Staff user type is required.");
+
+		String sql = getQuery("FIND_USER_BY_STAFF_ID_STAFF_USER_TYPE");
+
+		UserDetail userDetail;
+
+		try {
+			userDetail = jdbcTemplate.queryForObject(
+					sql,
+					createParams("staffId", staffId, "staffUserType", staffUserType),
+					USER_DETAIL_ROW_MAPPER);
+		} catch (EmptyResultDataAccessException ex) {
+			userDetail = null;
+		}
+
+		return Optional.ofNullable(userDetail);
+	}
 }

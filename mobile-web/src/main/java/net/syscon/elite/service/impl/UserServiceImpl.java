@@ -1,11 +1,13 @@
 package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.CaseLoad;
+import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.StaffService;
 import net.syscon.elite.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,18 +16,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static java.lang.String.format;
 
 @Service
 public class UserServiceImpl implements UserService {
+    private static final String STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION = "GENERAL";
+
 	private final CaseLoadService caseLoadService;
+	private final StaffService staffService;
 	private final UserRepository userRepository;
 	private final String apiCaseloadId;
 
-	public UserServiceImpl(CaseLoadService caseLoadService, UserRepository userRepository, @Value("${application.caseload.id:NEWB}") String apiCaseloadId) {
+	public UserServiceImpl(CaseLoadService caseLoadService, StaffService staffService,
+                           UserRepository userRepository, @Value("${application.caseload.id:NEWB}") String apiCaseloadId) {
 		this.caseLoadService = caseLoadService;
+		this.staffService = staffService;
 		this.userRepository = userRepository;
 		this.apiCaseloadId = apiCaseloadId;
 	}
@@ -71,5 +79,17 @@ public class UserServiceImpl implements UserService {
 			rolesByUsername.forEach(role -> role.setRoleCode(StringUtils.replaceFirst(role.getRoleCode(), apiCaseloadId + "_", "")));
 		}
 		return rolesByUsername;
+	}
+
+	@Override
+    @Transactional(readOnly = true)
+	public UserDetail getUserByExternalIdentifier(String idType, String id) {
+	    StaffDetail staffDetail = staffService.getStaffDetailByPersonnelIdentifier(idType, id);
+
+        Optional<UserDetail> userDetail =
+                userRepository.findByStaffIdAndStaffUserType(staffDetail.getStaffId(), STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION);
+
+		return userDetail.orElseThrow(EntityNotFoundException
+                .withMessage("User not found for external identifier with idType [{}] and id [{}].", idType, id));
 	}
 }
