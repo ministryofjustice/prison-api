@@ -1,7 +1,10 @@
 package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.ErrorResponse;
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.test.EliteClientException;
+import net.syscon.elite.web.config.ClientConfigExtractor;
+import net.syscon.elite.web.config.OauthClientConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext;
@@ -17,6 +20,7 @@ import org.springframework.security.oauth2.client.token.grant.password.ResourceO
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,25 +29,18 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class AuthenticationSteps {
 
-
     @Value("${security.authentication.header:Authorization}")
     private String authenticationHeader;
     private OAuth2AccessToken token;
 
-    @Value("${oauth.client.id}")
-    private String clientId;
-
-    @Value("${oauth.client.secret}")
-    private String clientSecret;
-
-    @Value("${oauth.standard.client.id}")
-    private String standardClientId;
-
-    @Value("${oauth.standard.client.secret}")
-    private String standardClientSecret;
+    private final List<OauthClientConfig> clientConfigurations;
 
     @Autowired
     private ConfigurableApplicationContext context;
+
+    public AuthenticationSteps(String clientConfig, ClientConfigExtractor clientConfigExtractor) {
+        clientConfigurations = clientConfigExtractor.getClientConfigurations(clientConfig);
+    }
 
     protected BaseOAuth2ProtectedResourceDetails resource(String username, String password, boolean clientCredentials) {
 
@@ -51,14 +48,16 @@ public class AuthenticationSteps {
         int port = (((AnnotationConfigEmbeddedWebApplicationContext)context).getEmbeddedServletContainer()).getPort();
         if (clientCredentials) {
             resource = new ClientCredentialsResourceDetails();
-            resource.setClientId(clientId);
-            resource.setClientSecret(clientSecret);
+            OauthClientConfig client = clientConfigurations.stream().filter(config -> config.getClientId().equals("elite2apitrustedclient")).findFirst().orElseThrow(new EntityNotFoundException("client"));
+            resource.setClientId(client.getClientId());
+            resource.setClientSecret(client.getClientSecret());
             resource.setScope(Arrays.asList("read", "admin"));
 
         } else {
+            OauthClientConfig client = clientConfigurations.stream().filter(config -> config.getClientId().equals("elite2apiclient")).findFirst().orElseThrow(new EntityNotFoundException("client"));
             resource = new ResourceOwnerPasswordResourceDetails();
-            resource.setClientId(standardClientId);
-            resource.setClientSecret(standardClientSecret);
+            resource.setClientId(client.getClientId());
+            resource.setClientSecret(client.getClientSecret());
             ((ResourceOwnerPasswordResourceDetails)resource).setUsername(username);
             ((ResourceOwnerPasswordResourceDetails)resource).setPassword(password);
         }
