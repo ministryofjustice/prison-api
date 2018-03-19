@@ -1,7 +1,5 @@
 package net.syscon.elite.security;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,9 +10,6 @@ import java.util.Map;
 
 @Component
 public class UserSecurityUtils implements AuthenticationFacade {
-
-	@Value("${application.client.username}")
-	private String clientLoginUsername;
 
 	@Override
 	public Authentication getAuthentication() {
@@ -27,10 +22,10 @@ public class UserSecurityUtils implements AuthenticationFacade {
 
 		Object userPrincipal = getUserPrincipal();
 
-		if (userPrincipal instanceof UserDetails) {
-			username = ((UserDetails)userPrincipal).getUsername();
-		} else if (userPrincipal instanceof String) {
+	    if (userPrincipal instanceof String) {
 			username = (String) userPrincipal;
+		} else if (userPrincipal instanceof UserDetails) {
+			username = ((UserDetails)userPrincipal).getUsername();
 		} else if (userPrincipal instanceof Map) {
 			Map userPrincipalMap = (Map) userPrincipal;
 			username = (String) userPrincipalMap.get("username");
@@ -45,9 +40,7 @@ public class UserSecurityUtils implements AuthenticationFacade {
 	public boolean isIdentifiedAuthentication() {
 		Authentication auth = getAuthentication();
 		return auth != null && (
-				(auth instanceof UsernamePasswordAuthenticationToken)
-				||
-				(auth instanceof OAuth2Authentication && auth.isAuthenticated())
+				(auth instanceof OAuth2Authentication && auth.isAuthenticated() && !((OAuth2Authentication) auth).isClientOnly())
 		);
 	}
 
@@ -56,16 +49,7 @@ public class UserSecurityUtils implements AuthenticationFacade {
 
 		final Authentication auth = getAuthentication();
 
-		if (auth instanceof UsernamePasswordAuthenticationToken && auth.isAuthenticated()) {
-			// This is a client auth
-			userPrincipal = clientLoginUsername;
-		} else {
-			if (auth instanceof OAuth2Authentication && ((OAuth2Authentication) auth).isClientOnly()) {
-				userPrincipal = clientLoginUsername;
-			}
-		}
-
-		if (userPrincipal == null && auth != null) {
+		if (auth != null) {
 			userPrincipal = auth.getPrincipal();
 		}
 		return userPrincipal;
