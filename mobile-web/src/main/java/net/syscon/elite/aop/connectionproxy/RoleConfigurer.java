@@ -1,8 +1,8 @@
 package net.syscon.elite.aop.connectionproxy;
 
 import lombok.extern.slf4j.Slf4j;
-import oracle.jdbc.driver.OracleConnection;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -23,7 +23,7 @@ public class RoleConfigurer {
         this.rolePasswordSupplier = rolePasswordSupplier;
     }
 
-    protected void setRoleForConnection(OracleConnection conn) throws SQLException {
+    protected void setRoleForConnection(Connection conn) throws SQLException {
 
         final String startSessionSQL = format(
                 "SET ROLE %s IDENTIFIED BY %s",
