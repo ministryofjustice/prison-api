@@ -70,25 +70,28 @@ public class OracleConnectionAspect {
         }
     }
 
-    private Connection openProxySessionIfIdentifiedAuthentication(final Connection pooledConnection) throws SQLException {
-        final Connection connection = getConnection(pooledConnection);
-        setDefaultSchema(connection);
-        roleConfigurer.setRoleForConnection(connection);
-        return connection;
-    }
-
-    private Connection getConnection(final Connection pooledConnection) throws SQLException {
+    private Connection openProxySessionIfIdentifiedAuthentication(Connection pooledConnection) throws SQLException {
         if (authenticationFacade.isIdentifiedAuthentication()) {
             log.debug("Configuring Oracle Proxy Session.");
             return openAndConfigureProxySessionForConnection(pooledConnection);
+        } else {
+            setDefaultSchema(pooledConnection);
+            roleConfigurer.setRoleForConnection(pooledConnection);
+            return pooledConnection;
         }
-        return pooledConnection;
     }
 
     private Connection openAndConfigureProxySessionForConnection(Connection pooledConnection) throws SQLException {
 
         final OracleConnection oracleConnection = openProxySessionForCurrentUsername(pooledConnection);
-        return new ProxySessionClosingConnection(oracleConnection);
+
+        final Connection wrappedConnection = new ProxySessionClosingConnection(pooledConnection);
+
+        setDefaultSchema(wrappedConnection);
+
+        roleConfigurer.setRoleForConnection(oracleConnection);
+
+        return wrappedConnection;
     }
 
     private OracleConnection openProxySessionForCurrentUsername(Connection pooledConnection) throws SQLException {
