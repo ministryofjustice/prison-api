@@ -24,8 +24,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
 
-import javax.annotation.Nullable;
-import java.lang.ref.Reference;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Instant;
