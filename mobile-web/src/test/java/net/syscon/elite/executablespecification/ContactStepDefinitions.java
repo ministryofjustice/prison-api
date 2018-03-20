@@ -1,14 +1,12 @@
 package net.syscon.elite.executablespecification;
 
-import net.syscon.elite.executablespecification.steps.ContactSteps;
+import cucumber.api.java.en.Then;
+import cucumber.api.java.en.When;
 import net.syscon.elite.api.model.Contact;
-
+import net.syscon.elite.executablespecification.steps.ContactSteps;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
 
 /**
  * BDD step definitions for the following Booking API endpoints:

@@ -7,7 +7,6 @@ import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.ReferenceDomainService;
-
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,15 +1,13 @@
 package net.syscon.elite.executablespecification;
 
-import net.syscon.elite.api.model.ScheduledEvent;
-import net.syscon.elite.executablespecification.steps.BookingEventSteps;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
-
 import cucumber.api.DataTable;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.executablespecification.steps.BookingEventSteps;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * BDD step definitions for finance endpoints:

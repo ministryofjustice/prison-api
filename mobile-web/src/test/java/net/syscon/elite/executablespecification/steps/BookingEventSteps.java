@@ -1,12 +1,12 @@
 package net.syscon.elite.executablespecification.steps;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-
 import net.syscon.elite.api.model.ScheduledEvent;
 
 import java.util.Iterator;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * BDD step implementations for Scheduled Events service.

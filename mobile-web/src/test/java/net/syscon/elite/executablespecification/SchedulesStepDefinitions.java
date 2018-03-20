@@ -1,14 +1,11 @@
 package net.syscon.elite.executablespecification;
 
-import cucumber.api.PendingException;
-import net.syscon.elite.api.support.TimeSlot;
-import net.syscon.elite.executablespecification.steps.SchedulesSteps;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import net.syscon.elite.api.support.TimeSlot;
+import net.syscon.elite.executablespecification.steps.SchedulesSteps;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * BDD step definitions for the following API endpoints:
