@@ -1,7 +1,6 @@
 package net.syscon.elite.repository;
 
 import jersey.repackaged.com.google.common.collect.ImmutableList;
-
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.model.Telephone;
@@ -80,7 +79,7 @@ public class AgencyRepositoryTest {
     }
 
     @Test
-    public void testGetAllPrisonContactDetailsByAgencyId_multipleAddresses_onePrimary() {
+    public void testGetAllPrisonContactDetailsByAgencyIdMultipleAddresses_onePrimary() {
         final List<PrisonContactDetail> prisonContactDetailList = repository.getPrisonContactDetails("TRO");
         assertThat(prisonContactDetailList).extracting("agencyId")
                 .containsExactly(
