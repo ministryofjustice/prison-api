@@ -1,12 +1,9 @@
 package net.syscon.elite.executablespecification.steps;
 
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.test.EliteClientException;
-
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -14,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * BDD step implementations for Schedules service.
