@@ -45,7 +45,7 @@ public class ExternalIdAuthenticationHelper {
             UserDetail userDetail;
 
             try {
-                userDetail = userService.getUserByExternalIdentifier(userIdType, userId);
+                userDetail = userService.getUserByExternalIdentifier(userIdType, userId, true);
             } catch (EntityNotFoundException ex) {
                 throw new OAuth2AccessDeniedException("No user found matching external user identifier details.");
             }

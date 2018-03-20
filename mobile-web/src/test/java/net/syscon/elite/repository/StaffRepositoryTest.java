@@ -86,7 +86,7 @@ public class StaffRepositoryTest {
     }
 
     @Test
-    public void testFindStaffByPersonnelIdentifier() {
+    public void testFindStaffByPersonnelIdentifierActive() {
         final String testIdType = "SYS1";
         final String testId = "sysuser@system1.com";
 
@@ -95,6 +95,20 @@ public class StaffRepositoryTest {
 
         assertThat(staffDetail.getStaffId()).isEqualTo(-1L);
         assertThat(staffDetail.getFirstName()).isEqualTo("Elite2");
+        assertThat(staffDetail.getStatus()).isEqualTo("ACTIVE");
+    }
+
+    @Test
+    public void testFindStaffByPersonnelIdentifierInactive() {
+        final String testIdType = "ITAG";
+        final String testId = "ex.officer5@itag.com";
+
+        StaffDetail staffDetail = repository.findStaffByPersonnelIdentifier(testIdType, testId)
+                .orElseThrow(EntityNotFoundException.withId(testId));
+
+        assertThat(staffDetail.getStaffId()).isEqualTo(-10L);
+        assertThat(staffDetail.getFirstName()).isEqualTo("Ex");
+        assertThat(staffDetail.getStatus()).isEqualTo("INACTIVE");
     }
 
     @Test

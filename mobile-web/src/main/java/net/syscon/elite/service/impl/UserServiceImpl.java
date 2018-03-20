@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.UserDetail;
@@ -22,6 +23,7 @@ import java.util.Set;
 import static java.lang.String.format;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
     private static final String STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION = "GENERAL";
 
@@ -83,11 +85,19 @@ public class UserServiceImpl implements UserService {
 
 	@Override
     @Transactional(readOnly = true)
-	public UserDetail getUserByExternalIdentifier(String idType, String id) {
+	public UserDetail getUserByExternalIdentifier(String idType, String id, boolean activeOnly) {
 	    StaffDetail staffDetail = staffService.getStaffDetailByPersonnelIdentifier(idType, id);
 
-        Optional<UserDetail> userDetail =
-                userRepository.findByStaffIdAndStaffUserType(staffDetail.getStaffId(), STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION);
+        Optional<UserDetail> userDetail;
+
+        if (activeOnly && !StaffService.isStaffActive(staffDetail)) {
+        	log.info("Staff member found for external identifier with idType [{}] and id [{}] but not active.", idType, id);
+
+        	userDetail = Optional.empty();
+		} else {
+			userDetail = userRepository.findByStaffIdAndStaffUserType(
+					staffDetail.getStaffId(), STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION);
+		}
 
 		return userDetail.orElseThrow(EntityNotFoundException
                 .withMessage("User not found for external identifier with idType [{}] and id [{}].", idType, id));
