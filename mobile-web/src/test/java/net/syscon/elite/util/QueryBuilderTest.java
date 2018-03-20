@@ -1,10 +1,10 @@
 package net.syscon.elite.util;
 
 
+import com.google.common.collect.ImmutableMap;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.util.QueryBuilderFactory;
 import org.junit.Test;

@@ -4,7 +4,6 @@ import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-
 import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.executablespecification.steps.ReferenceDomainsSteps;
 import org.springframework.beans.factory.annotation.Autowired;

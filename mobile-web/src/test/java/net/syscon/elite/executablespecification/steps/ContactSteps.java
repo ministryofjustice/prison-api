@@ -1,19 +1,16 @@
 package net.syscon.elite.executablespecification.steps;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import net.syscon.elite.api.model.ContactDetail;
 import net.syscon.elite.api.model.Contact;
+import net.syscon.elite.api.model.ContactDetail;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
-
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Iterator;
 import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class ContactSteps extends CommonSteps {
     private static final String BOOKING_CONTACTS_API_URL = API_PREFIX + "bookings/{bookingId}/contacts";

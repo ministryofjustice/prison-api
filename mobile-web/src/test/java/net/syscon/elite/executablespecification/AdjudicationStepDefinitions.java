@@ -1,15 +1,13 @@
 package net.syscon.elite.executablespecification;
 
-import net.syscon.elite.executablespecification.steps.AdjudicationSteps;
-import net.syscon.elite.executablespecification.steps.AdjudicationSteps.AwardOldDate;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
-
 import cucumber.api.Format;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import net.syscon.elite.executablespecification.steps.AdjudicationSteps;
+import net.syscon.elite.executablespecification.steps.AdjudicationSteps.AwardOldDate;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * BDD step definitions for the following Booking API endpoints:

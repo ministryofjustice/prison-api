@@ -1,9 +1,5 @@
 package net.syscon.util;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.Properties;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.CompositePropertySource;
@@ -11,6 +7,10 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.Properties;
 
 
 public class PropertiesUtil {

@@ -1,9 +1,9 @@
 package net.syscon.elite.security;
 
-import java.util.*;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.*;
 
 @SuppressWarnings("serial")
 public class UserDetailsImpl implements UserDetails {
