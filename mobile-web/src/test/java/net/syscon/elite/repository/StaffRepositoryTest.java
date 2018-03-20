@@ -38,17 +38,63 @@ public class StaffRepositoryTest {
 
     @Test
     public void testFindStaffDetailsByValidStaffId() {
-        final StaffDetail staffDetails = repository.findByStaffId(-1L).orElseThrow(new EntityNotFoundException("not found"));
+        final Long testStaffId = -1L;
 
-        assertThat(staffDetails.getFirstName()).isEqualTo("Elite2");
-        assertThat(staffDetails.getEmail()).isEqualTo("elite2-api-user@syscon.net");
+        final StaffDetail staffDetail = repository.findByStaffId(testStaffId)
+                .orElseThrow(EntityNotFoundException.withId(testStaffId));
+
+        assertThat(staffDetail.getFirstName()).isEqualTo("Elite2");
+        assertThat(staffDetail.getEmail()).isEqualTo("elite2-api-user@syscon.net");
     }
 
     @Test
     public void testFindStaffDetailsByInvalidStaffId() {
-        Optional<StaffDetail> staffDetails = repository.findByStaffId(9999999999L);
+        Optional<StaffDetail> staffDetail = repository.findByStaffId(9999999999L);
 
-        assertThat(staffDetails).isNotPresent();
+        assertThat(staffDetail).isNotPresent();
+    }
+
+    @Test
+    public void testFindStaffByPersonnelIdentifierInvalidIdentifier() {
+        Optional<StaffDetail> staffDetail = repository.findStaffByPersonnelIdentifier("X", "X");
+
+        assertThat(staffDetail).isNotPresent();
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void testFindStaffByPersonnelIdentifierWrongIdType() {
+        final String testIdType = "SYS2";
+        final String testId = "sysuser@system1.com";
+
+        repository.findStaffByPersonnelIdentifier(testIdType, testId).orElseThrow(EntityNotFoundException.withId(testId));
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void testFindStaffByPersonnelIdentifierWrongId() {
+        final String testIdType = "SYS1";
+        final String testId = "sysuser@system2.com";
+
+        repository.findStaffByPersonnelIdentifier(testIdType, testId).orElseThrow(EntityNotFoundException.withId(testId));
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void testFindStaffByPersonnelIdentifierDuplicateIdentifier() {
+        final String testIdType = "SYS9";
+        final String testId = "sysuser@system9.com";
+
+        repository.findStaffByPersonnelIdentifier(testIdType, testId).orElseThrow(EntityNotFoundException.withId(testId));
+    }
+
+    @Test
+    public void testFindStaffByPersonnelIdentifier() {
+        final String testIdType = "SYS1";
+        final String testId = "sysuser@system1.com";
+
+        StaffDetail staffDetail = repository.findStaffByPersonnelIdentifier(testIdType, testId)
+                .orElseThrow(EntityNotFoundException.withId(testId));
+
+        assertThat(staffDetail.getStaffId()).isEqualTo(-1L);
+        assertThat(staffDetail.getFirstName()).isEqualTo("Elite2");
     }
 
     @Test

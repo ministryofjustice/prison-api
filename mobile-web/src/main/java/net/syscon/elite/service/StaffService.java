@@ -13,6 +13,8 @@ public interface StaffService {
 
     Page<StaffLocationRole> getStaffByAgencyPositionRole(GetStaffRoleRequest request, PageRequest pageRequest);
 
+    StaffDetail getStaffDetailByPersonnelIdentifier(String idType, String id);
+
     @Getter
     class GetStaffRoleRequest extends AgencyRequest {
         private final String position;
