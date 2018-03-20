@@ -79,7 +79,7 @@ public class AgencyRepositoryTest {
     }
 
     @Test
-    public void testGetAllPrisonContactDetailsByAgencyIdMultipleAddresses_onePrimary() {
+    public void testGetAllPrisonContactDetailsByAgencyIdMultipleAddressesOnePrimary() {
         final List<PrisonContactDetail> prisonContactDetailList = repository.getPrisonContactDetails("TRO");
         assertThat(prisonContactDetailList).extracting("agencyId")
                 .containsExactly(
