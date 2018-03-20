@@ -27,7 +27,7 @@ public class JWTTokenEnhancer implements TokenEnhancer {
         Map<String, Object> additionalInfo = new HashMap<>();
 
         if (authentication.isClientOnly()) {
-            if (addUserFromExternalId(accessToken, authentication, additionalInfo)) {
+            if (addUserFromExternalId(authentication, additionalInfo)) {
                 additionalInfo.put(ADD_INFO_INTERNAL_USER, Boolean.TRUE);
             } else {
                 additionalInfo.put(ADD_INFO_INTERNAL_USER, Boolean.FALSE);
@@ -47,8 +47,7 @@ public class JWTTokenEnhancer implements TokenEnhancer {
     // authentication fails. If a system user account is identified, the user id will be added to the token,
     // the token's scope will be 'narrowed' to include 'write' scope and the system user's roles will be added
     // to token authorities.
-    private boolean addUserFromExternalId(OAuth2AccessToken accessToken, OAuth2Authentication authentication,
-                                       Map<String,Object> additionalInfo) {
+    private boolean addUserFromExternalId(OAuth2Authentication authentication, Map<String,Object> additionalInfo) {
         // Determine if both user_id_type and user_id request parameters exist.
         OAuth2Request request = authentication.getOAuth2Request();
 
