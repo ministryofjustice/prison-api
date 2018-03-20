@@ -18,5 +18,5 @@ public interface UserService {
 
     List<UserRole> getRolesByUsername(String username, boolean allRoles);
 
-    UserDetail getUserByExternalIdentifier(String idType, String id);
+    UserDetail getUserByExternalIdentifier(String idType, String id, boolean activeOnly);
 }

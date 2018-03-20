@@ -60,7 +60,7 @@ public class ExternalIdAuthenticationHelperTest {
 
         Map<String,String> requestParams = mockRequestParams(TEST_USER_ID_TYPE, TEST_USER_ID);
 
-        when(userService.getUserByExternalIdentifier(eq(TEST_USER_ID_TYPE), eq(TEST_USER_ID)))
+        when(userService.getUserByExternalIdentifier(eq(TEST_USER_ID_TYPE), eq(TEST_USER_ID), eq(Boolean.TRUE)))
                 .thenThrow(EntityNotFoundException.withMessage("Not found."));
 
         authHelper.getUserDetails(requestParams);
@@ -76,14 +76,14 @@ public class ExternalIdAuthenticationHelperTest {
         UserDetail mockUserDetail = UserDetail.builder().username(TEST_USER_NAME).build();
         UserDetails mockUserDetails = new UserDetailsImpl(TEST_USER_NAME, null, Collections.emptySet(), null);
 
-        when(userService.getUserByExternalIdentifier(eq(TEST_USER_ID_TYPE), eq(TEST_USER_ID))).thenReturn(mockUserDetail);
+        when(userService.getUserByExternalIdentifier(eq(TEST_USER_ID_TYPE), eq(TEST_USER_ID), eq(Boolean.TRUE))).thenReturn(mockUserDetail);
         when(userDetailsService.loadUserByUsername(eq(TEST_USER_NAME))).thenReturn(mockUserDetails);
 
         UserDetails userDetails = authHelper.getUserDetails(requestParams);
 
         assertThat(userDetails.getUsername()).isEqualTo(TEST_USER_NAME);
 
-        verify(userService, times(1)).getUserByExternalIdentifier(eq(TEST_USER_ID_TYPE), eq(TEST_USER_ID));
+        verify(userService, times(1)).getUserByExternalIdentifier(eq(TEST_USER_ID_TYPE), eq(TEST_USER_ID), eq(Boolean.TRUE));
         verify(userDetailsService, times(1)).loadUserByUsername(eq(TEST_USER_NAME));
     }
 

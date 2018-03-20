@@ -6,9 +6,18 @@ import net.syscon.elite.api.model.StaffLocationRole;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.support.AgencyRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 public interface StaffService {
+    String STAFF_STATUS_ACTIVE = "ACTIVE";
+
+    static boolean isStaffActive(StaffDetail staffDetail) {
+        Validate.notNull(staffDetail);
+
+        return StringUtils.equals(STAFF_STATUS_ACTIVE, staffDetail.getStatus());
+    }
+
     StaffDetail getStaffDetail(Long staffId);
 
     Page<StaffLocationRole> getStaffByAgencyPositionRole(GetStaffRoleRequest request, PageRequest pageRequest);
