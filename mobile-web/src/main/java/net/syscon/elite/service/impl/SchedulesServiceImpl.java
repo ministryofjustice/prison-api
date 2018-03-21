@@ -11,12 +11,10 @@ import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.InmateDto;
 import net.syscon.elite.service.support.ReferenceDomain;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.ws.rs.BadRequestException;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;

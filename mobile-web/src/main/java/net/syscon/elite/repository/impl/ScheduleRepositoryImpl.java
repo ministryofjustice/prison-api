@@ -6,7 +6,6 @@ import net.syscon.elite.repository.ScheduleRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
-
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.stereotype.Repository;
 

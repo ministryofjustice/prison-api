@@ -1,19 +1,18 @@
 package net.syscon.elite.executablespecification.steps;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import net.syscon.elite.api.model.NewAppointment;
 import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
-
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * BDD step implementations for Booking Appointments feature.

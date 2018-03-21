@@ -1,7 +1,6 @@
 package net.syscon.elite.security;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -17,9 +16,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 @Configurable
+@Slf4j
 public class ApiAuthenticationProvider extends DaoAuthenticationProvider {
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Value("${spring.datasource.url}")
     private String jdbcUrl;

@@ -1,5 +1,6 @@
 package net.syscon.elite.repository.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.StaffLocationRole;
 import net.syscon.elite.api.support.Page;
@@ -12,12 +13,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
+@Slf4j
 public class StaffRepositoryImpl extends RepositoryBase implements StaffRepository {
     private static final String NAME_FILTER_QUERY_TEMPLATE = " AND (UPPER(FIRST_NAME) LIKE '%s%%' OR UPPER(LAST_NAME) LIKE '%s%%')";
     private static final String STAFF_ID_FILTER_QUERY_TEMPLATE = " AND STAFF_ID = %d";
@@ -33,7 +36,7 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
     public Optional<StaffDetail> findByStaffId(Long staffId) {
         Validate.notNull(staffId, "A staff id is required in order to retrieve staff details.");
 
-        String sql = getQuery("FIND_USER_BY_STAFF_ID");
+        String sql = getQuery("FIND_STAFF_BY_STAFF_ID");
 
         StaffDetail staffDetail;
 
@@ -43,6 +46,31 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
                     createParams("staffId", staffId),
                     STAFF_DETAIL_ROW_MAPPER);
         } catch (EmptyResultDataAccessException ex) {
+            staffDetail = null;
+        }
+
+        return Optional.ofNullable(staffDetail);
+    }
+
+    @Override
+    public Optional<StaffDetail> findStaffByPersonnelIdentifier(String idType, String id) {
+        Validate.notBlank(idType, "An id type is required.");
+        Validate.notBlank(id, "An id is required.");
+
+        String sql = getQuery("FIND_STAFF_BY_PERSONNEL_IDENTIFIER");
+
+        StaffDetail staffDetail;
+
+        try {
+            staffDetail = jdbcTemplate.queryForObject(
+                    sql,
+                    createParams("idType", idType, "id", id),
+                    STAFF_DETAIL_ROW_MAPPER);
+        } catch (EmptyResultDataAccessException ex) {
+            staffDetail = null;
+        } catch (IncorrectResultSizeDataAccessException ex) {
+            log.error("Duplicate personnel identification records found for idType [{}] and id [{}].", idType, id);
+
             staffDetail = null;
         }
 

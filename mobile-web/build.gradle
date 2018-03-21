@@ -25,6 +25,7 @@ project(":mobile-web") {
         compile("org.springframework.security.oauth:spring-security-oauth2:2.2.1.RELEASE")
         compile("org.springframework.security:spring-security-jwt:1.0.9.RELEASE")
 
+        compile group: 'commons-codec', name: 'commons-codec', version: '1.11'
         compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.2")
         compile("com.github.jsqlparser:jsqlparser:1.1")
         compile("net.sf.ehcache:ehcache:2.10.4")
@@ -97,6 +98,12 @@ project(":mobile-web") {
         }
     }
 
+    task testIntegration(type:Test) {
+        minHeapSize = "2G"
+        maxHeapSize = "2G"
+        include "**/*IntTest*"
+    }
+
     task testWithSchemaNomis(type:Test) {
     // Limit the JVM, otherwise on CircleCi if the memory used gets too close to the 4G container
     // maximum the test process is somewhat viciously killed and exits with code 137
@@ -137,13 +144,14 @@ project(":mobile-web") {
 
     // Exclude Serenity BDD integration tests from 'test' task so they can be controlled independently
     test {
-        exclude "**/executablespecification/*"
+        exclude "**/executablespecification/*", "**/*IntTest*"
     }
 
-    test.dependsOn testWithSchemaElite, testWithSchemaNomis
+    test.dependsOn testIntegration, testWithSchemaElite, testWithSchemaNomis
 
     jacocoTestReport.executionData ([
-      file("${rootDir}/mobile-web/build/jacoco/test.exec"), 
+      file("${rootDir}/mobile-web/build/jacoco/test.exec"),
+      file("${rootDir}/mobile-web/build/jacoco/testIntegration.exec"),
       file("${rootDir}/mobile-web/build/jacoco/testWithSchemaElite.exec"),
       file("${rootDir}/mobile-web/build/jacoco/testWithSchemaNomis.exec")
     ])

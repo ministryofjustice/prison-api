@@ -1,17 +1,10 @@
 package net.syscon.elite.executablespecification.steps;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import net.syscon.elite.api.model.AdjudicationDetail;
 import net.syscon.elite.api.model.Award;
 import net.syscon.elite.test.EliteClientException;
 import net.syscon.util.DateTimeConverter;
 import net.thucydides.core.annotations.Step;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +12,9 @@ import org.springframework.http.ResponseEntity;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 public class AdjudicationSteps extends CommonSteps {
     private static final String BOOKING_ADJUDICATIONS_API_URL = API_PREFIX + "bookings/{bookingId}/adjudications?";

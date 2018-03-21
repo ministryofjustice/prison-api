@@ -5,7 +5,6 @@ import net.syscon.elite.api.model.NewCaseNote;
 import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
-
 import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDate;

@@ -33,23 +33,49 @@ public class UserRepositoryTest {
     private UserRepository repository;
 
     @Test
-    public final void testFindUserByUsername() {
-        UserDetail user = repository.findByUsername("ITAG_USER").orElseThrow(new EntityNotFoundException("not found"));
+    public void testFindUserByUsername() {
+        UserDetail user = repository.findByUsername("ITAG_USER").orElseThrow(EntityNotFoundException.withId("ITAG_USER"));
 
         assertThat(user.getLastName()).isEqualTo("User");
         assertThat(user.getEmail()).isEqualTo("itaguser@syscon.net");
     }
 
     @Test
-    public final void testFindUserByUsernameNotExists() {
+    public void testFindUserByUsernameNotExists() {
         Optional<UserDetail> user = repository.findByUsername("XXXXXXXX");
         assertThat(user).isNotPresent();
     }
 
     @Test
-    public final void testFindRolesByUsername() {
+    public void testFindRolesByUsername() {
         List<UserRole> roles = repository.findRolesByUsername("ITAG_USER", null);
         assertThat(roles).isNotEmpty();
         assertThat(roles).extracting("roleCode").contains("LEI_WING_OFF");
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void testFindUserByStaffIdAndStaffUserTypeUnknownStaffId() {
+        final Long staffId = -99L;
+        final String staffUserType = "GENERAL";
+
+        repository.findByStaffIdAndStaffUserType(staffId, staffUserType).orElseThrow(EntityNotFoundException.withId(staffId));
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void testFindUserByStaffIdAndStaffUserTypeInvalidUserType() {
+        final Long staffId = -1L;
+        final String staffUserType = "INVALID";
+
+        repository.findByStaffIdAndStaffUserType(staffId, staffUserType).orElseThrow(EntityNotFoundException.withId(staffId));
+    }
+
+    @Test
+    public void testFindUserByStaffIdAndStaffUserType() {
+        final Long staffId = -1L;
+        final String staffUserType = "GENERAL";
+
+        UserDetail user = repository.findByStaffIdAndStaffUserType(staffId, staffUserType).orElseThrow(EntityNotFoundException.withId(staffId));
+
+        assertThat(user.getUsername()).isEqualTo("ELITE2_API_USER");
     }
 }
