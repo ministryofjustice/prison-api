@@ -7,6 +7,7 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.*;
+import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
 import org.apache.commons.io.FileUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -36,12 +37,13 @@ public class BookingResourceImpl implements BookingResource {
     private final ContactService contactService;
     private final AdjudicationService adjudicationService;
     private final ImageService imageService;
+    private final KeyWorkerAllocationService keyworkerService;
 
     public BookingResourceImpl(AuthenticationFacade authenticationFacade, BookingService bookingService,
                                InmateService inmateService, CaseNoteService caseNoteService,
                                InmateAlertService inmateAlertService, FinanceService financeService,
                                ContactService contactService, AdjudicationService adjudicationService,
-                               ImageService imageService) {
+                               ImageService imageService, KeyWorkerAllocationService keyworkerService) {
         this.authenticationFacade = authenticationFacade;
         this.bookingService = bookingService;
         this.inmateService = inmateService;
@@ -51,6 +53,7 @@ public class BookingResourceImpl implements BookingResource {
         this.contactService = contactService;
         this.adjudicationService = adjudicationService;
         this.imageService = imageService;
+        this.keyworkerService = keyworkerService;
     }
 
     @Override
@@ -91,6 +94,19 @@ public class BookingResourceImpl implements BookingResource {
 
         return GetOffenderBookingResponse.respond200WithApplicationJson(inmate);
     }
+
+    @Override
+    public GetOffenderBookingByOffenderNoResponse getOffenderBookingByOffenderNo(String offenderNo, boolean fullInfo) {
+
+        Long bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
+
+        InmateDetail inmate = fullInfo ?
+                inmateService.findInmate(bookingId, authenticationFacade.getCurrentUsername()) :
+                inmateService.getBasicInmateDetail(bookingId);
+
+        return GetOffenderBookingByOffenderNoResponse.respond200WithApplicationJson(inmate);
+    }
+
 
     @Override
     public GetBookingActivitiesResponse getBookingActivities(Long bookingId, String fromDate, String toDate, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
@@ -392,6 +408,15 @@ public class BookingResourceImpl implements BookingResource {
                 sortOrder);
 
         return GetBookingVisitsForTodayResponse.respond200WithApplicationJson(visits);
+    }
+
+
+    @Override
+    public GetKeyworkerByOffenderNoResponse getKeyworkerByOffenderNo(String offenderNo) {
+        Long bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
+
+        Keyworker keyworker = keyworkerService.getKeyworkerDetailsByBooking(bookingId);
+        return GetKeyworkerByOffenderNoResponse.respond200WithApplicationJson(keyworker);
     }
 
     @Override
