@@ -1,5 +1,6 @@
 package net.syscon.elite.repository;
 
+import net.syscon.elite.api.model.StaffUserRole;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
 
@@ -14,4 +15,16 @@ public interface UserRepository {
 	void updateWorkingCaseLoad(Long staffId, String caseLoadId);
 
 	Optional<UserDetail> findByStaffIdAndStaffUserType(Long staffId, String userType);
+
+	Optional<Long> getRoleIdForCode(String roleCode);
+
+	boolean isUserAssessibleCaseloadAvailable(String caseload, String username);
+
+	void addUserAssessibleCaseload(String caseload, String username);
+
+	List<StaffUserRole> getAllStaffRolesForCaseload(String caseload, String roleCode);
+
+	void addRole(String username, String caseload, Long roleId);
+
+	void removeRole(String username, String caseload, Long roleId);
 }

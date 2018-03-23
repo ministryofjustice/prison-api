@@ -58,3 +58,87 @@
         type: number
         (javaType): Long
         description: The staff id of a staff member.
+
+/access-roles/caseload/{caseload}/access-role/{roleCode}:
+  (javaOperationName): getAllStaffAccessRolesForCaseload
+  description: List access roles for staff by type and caseload
+  type: { readOnlyCollection: { type: StaffUserRole, description: List access roles for staff by type and caseload } }
+  uriParameters:
+    caseload:
+      type: string
+      description: Caseload Id
+      example: LEI
+    roleCode:
+      type: string
+      description: access role code
+      example: KW_ADMIN
+
+/{staffId}/access-roles:
+  (javaOperationName): getStaffAccessRoles
+  description: List all access roles for a staff user
+  type: { readOnlyCollection: { type: StaffUserRole, description: List of access roles for specified staff user } }
+  uriParameters:
+    staffId:
+      type: number
+      (javaType): Long
+      description: The staff id of the staff user.
+      example: 23413
+
+/{staffId}/access-roles/caseload/{caseload}:
+  type: { readOnlyCollection: { type: StaffUserRole, description: List of access roles for specified staff user and caseload } }
+  uriParameters:
+    staffId:
+      type: number
+      (javaType): Long
+      description: The staff id of the staff member.
+      example: 23413
+    caseload:
+      type: string
+      description: Caseload Id
+      example: LEI
+  get:
+    (javaOperationName): getAccessRolesByCaseload
+    description: List of access roles for specified staff user and caseload
+  post:
+    (javaOperationName): addStaffAccessRole
+    description: add access role to staff user
+    body:
+      application/json:
+        type: string
+        name: roleCode
+        description: new access role code required
+        example: KW_ADMIN
+    responses:
+      201:
+        body:
+          application/json:
+            type: StaffUserRole
+            description: The access role has been created.
+
+/{staffId}/access-roles/caseload/{caseload}/access-role/{roleCode}:
+  (javaOperationName): removeStaffAccessRole
+  description: Remove access role from user in caseload
+  uriParameters:
+    staffId:
+      type: number
+      (javaType): Long
+      description: The staff id of the staff member.
+    caseload:
+      type: string
+      description: Caseload Id
+      example: LEI
+    roleCode:
+      type: string
+      description: access role code
+      example: KW_ADMIN
+  delete:
+    description: remove access roles from user and specific caseload
+    responses:
+      200:
+        body:
+          application/json:
+            type: string
+            example: KW_ADMIN
+            description: The access role has been removed
+
+

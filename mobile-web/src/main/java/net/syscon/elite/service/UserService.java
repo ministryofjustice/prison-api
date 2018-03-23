@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Set;
 
 public interface UserService {
+    String STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION = "GENERAL";
+
     UserDetail getUserByUsername(String username);
 
     List<CaseLoad> getCaseLoads(String username, boolean allCaseloads);
