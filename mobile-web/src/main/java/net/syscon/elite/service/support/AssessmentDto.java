@@ -8,9 +8,10 @@ import java.time.LocalDate;
 
 @Data
 @ToString
-@EqualsAndHashCode(of = { "assessmentCode", "assessmentSeq", "assessmentDate", "bookingId"})
+@EqualsAndHashCode(of = { "assessmentCode", "assessmentSeq", "assessmentDate", "bookingId", "offenderNo"})
 public class AssessmentDto {
     private Long bookingId;
+    private String offenderNo;
     private String assessmentCode;
     private String assessmentDescription;
     private LocalDate assessmentDate;
