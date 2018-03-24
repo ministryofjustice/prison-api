@@ -7,6 +7,7 @@ import net.syscon.elite.api.support.Page;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -17,6 +18,8 @@ public interface BookingRepository {
     Optional<SentenceDetail> getBookingSentenceDetail(Long bookingId);
 
     List<PrivilegeDetail> getBookingIEPDetails(Long bookingId);
+
+    Map<Long, List<PrivilegeDetail>> getBookingIEPDetailsByBookingIds(List<Long> bookingIds);
 
     boolean verifyBookingAccess(Long bookingId, Set<String> agencyIds);
 

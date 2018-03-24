@@ -1,5 +1,6 @@
 package net.syscon.elite.web.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -31,6 +32,7 @@ import java.util.List;
 @EnableAuthorizationServer
 @EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
 @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
+@Slf4j
 public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
 
     private final String privateKey;
@@ -117,6 +119,7 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
                 } else {
                     clientBuilder = clientBuilder.and().withClient(client.getClientId());
                 }
+                log.info("Initialising OAUTH2 Client ID {}", client.getClientId());
                 clientBuilder = clientBuilder
                         .secret(client.getClientSecret())
                         .accessTokenValiditySeconds(client.getAccessTokenValidity())

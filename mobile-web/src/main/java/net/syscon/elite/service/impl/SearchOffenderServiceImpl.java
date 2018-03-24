@@ -14,11 +14,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -75,11 +74,9 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
                 request.getLocationPrefix(),
                 locationTypeGranularity, pageRequest);
 
-        bookings.getItems().forEach(booking -> {
-            PrivilegeSummary iepSummary = bookingService.getBookingIEPSummary(booking.getBookingId(), false);
-
-            booking.setIepLevel(iepSummary.getIepLevel());
-        });
+        List<Long> bookingIds = bookings.getItems().stream().map(OffenderBooking::getBookingId).collect(Collectors.toList());
+        Map<Long, PrivilegeSummary> bookingIEPSummary = bookingService.getBookingIEPSummary(bookingIds, false);
+        bookings.getItems().forEach(booking -> booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel()));
 
         return bookings;
     }
