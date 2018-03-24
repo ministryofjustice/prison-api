@@ -17,8 +17,6 @@ import java.util.Set;
 public interface BookingRepository {
     Optional<SentenceDetail> getBookingSentenceDetail(Long bookingId);
 
-    List<PrivilegeDetail> getBookingIEPDetails(Long bookingId);
-
     Map<Long, List<PrivilegeDetail>> getBookingIEPDetailsByBookingIds(List<Long> bookingIds);
 
     boolean verifyBookingAccess(Long bookingId, Set<String> agencyIds);

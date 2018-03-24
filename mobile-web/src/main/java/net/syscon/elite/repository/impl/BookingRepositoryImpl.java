@@ -163,20 +163,6 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    public List<PrivilegeDetail> getBookingIEPDetails(Long bookingId) {
-        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
-
-        String initialSql = getQuery("GET_BOOKING_IEP_DETAILS");
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, PRIV_DETAIL_ROW_MAPPER.getFieldMap());
-        String sql = builder.build();
-
-        return jdbcTemplate.query(
-                sql,
-                createParams("bookingId", bookingId),
-                PRIV_DETAIL_ROW_MAPPER);
-    }
-
-    @Override
     public Map<Long, List<PrivilegeDetail>> getBookingIEPDetailsByBookingIds(List<Long> bookingIds) {
         Objects.requireNonNull(bookingIds, "bookingIds are a required parameter");
         List<PrivilegeDetail> privs = jdbcTemplate.query(
