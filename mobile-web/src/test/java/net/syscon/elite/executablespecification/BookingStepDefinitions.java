@@ -511,10 +511,9 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAssessment.verifyNextReviewDate(nextReviewDate);
     }
 
-    @When("^an offender booking assessment information request is made with booking ids \"([^\"]*)\" and \"([^\"]*)\"$")
-    public void anOffenderBookingAssessmentInformationRequestIsMadeWithBookingIdAnd(String bookingIdList,
-            String assessmentCode) {
-        bookingAssessment.getAssessmentsByCode(bookingIdList, assessmentCode);
+    @When("^an offender booking assessment information request is made with offender numbers \"([^\"]*)\" and \"([^\"]*)\"$")
+    public void anOffenderBookingAssessmentInformationRequestIsMadeWithBookingIdAnd(String offenderNoList, String assessmentCode) {
+        bookingAssessment.getAssessmentsByCode(offenderNoList, assessmentCode);
     }
 
     @Then("^correct results are returned as for single assessment$")
