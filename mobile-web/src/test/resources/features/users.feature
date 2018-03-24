@@ -29,7 +29,7 @@ Feature: User Details and Roles
       | itag_user           | LICENCE_CA,KW_ADMIN |
       | api_test_user       | LICENCE_RO          |
 
-  @elite
+  @elite @wip
   Scenario Outline: As a logged in user I can find out my roles
     Given user "<username>" with password "password" has authenticated with the API
     When a user role request is made
