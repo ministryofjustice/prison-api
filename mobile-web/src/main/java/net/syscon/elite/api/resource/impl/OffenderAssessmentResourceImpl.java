@@ -21,8 +21,8 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
     }
 
     @Override
-    public GetAssessmentsByCodeResponse getAssessmentsByCode(String assessmentCode, List<Long> bookingId) {
-        final List<Assessment> results = inmateService.getInmatesAssessmentsByCode(bookingId, assessmentCode);
+    public GetAssessmentsByCodeResponse getAssessmentsByCode(String assessmentCode, List<String> offenderNo) {
+        final List<Assessment> results = inmateService.getInmatesAssessmentsByCode(offenderNo, assessmentCode);
         return GetAssessmentsByCodeResponse.respond200WithApplicationJson(results);
     }
 }
