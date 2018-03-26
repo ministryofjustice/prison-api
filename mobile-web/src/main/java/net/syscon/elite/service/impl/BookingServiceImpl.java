@@ -124,35 +124,51 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @VerifyBookingAccess
     public PrivilegeSummary getBookingIEPSummary(Long bookingId, boolean withDetails) {
-        List<PrivilegeDetail> iepDetails = bookingRepository.getBookingIEPDetails(bookingId);
+        Map<Long, PrivilegeSummary> bookingIEPSummary = getBookingIEPSummary(Collections.singletonList(bookingId), withDetails);
+        PrivilegeSummary privilegeSummary = bookingIEPSummary.get(bookingId);
+        if (privilegeSummary == null) {
+            throw EntityNotFoundException.withId(bookingId);
+        }
+        return privilegeSummary;
+    }
 
-        PrivilegeSummary privilegeSummary;
+    @Override
+    public Map<Long, PrivilegeSummary> getBookingIEPSummary(List<Long> bookingIds, boolean withDetails) {
+        final Map<Long, PrivilegeSummary> mapOfEip = new HashMap<>();
 
-        // If no IEP details exist for offender, cannot derive an IEP summary.
-        if (iepDetails.isEmpty()) {
-            privilegeSummary = PrivilegeSummary.builder()
-                    .bookingId(bookingId)
-                    .iepLevel(defaultIepLevel)
-                    .iepDetails(Collections.emptyList())
-                    .build();
-        } else {
-            // Extract most recent detail from list
-            PrivilegeDetail currentDetail = iepDetails.get(0);
+        if (!bookingIds.isEmpty()) {
+            Map<Long, List<PrivilegeDetail>> mapOfIEPResults = bookingRepository.getBookingIEPDetailsByBookingIds(bookingIds);
+            mapOfIEPResults.forEach((key, iepDetails) -> {
 
-            // Determine number of days since current detail became effective
-            long daysSinceReview = DAYS.between(currentDetail.getIepDate(), now());
+                // Extract most recent detail from list
+                PrivilegeDetail currentDetail = iepDetails.get(0);
 
-            privilegeSummary = PrivilegeSummary.builder()
-                    .bookingId(bookingId)
-                    .iepDate(currentDetail.getIepDate())
-                    .iepTime(currentDetail.getIepTime())
-                    .iepLevel(currentDetail.getIepLevel())
-                    .daysSinceReview(Long.valueOf(daysSinceReview).intValue())
-                    .iepDetails(withDetails ? iepDetails : Collections.emptyList())
-                    .build();
+                // Determine number of days since current detail became effective
+                long daysSinceReview = DAYS.between(currentDetail.getIepDate(), now());
+
+                mapOfEip.put(key, PrivilegeSummary.builder()
+                        .bookingId(currentDetail.getBookingId())
+                        .iepDate(currentDetail.getIepDate())
+                        .iepTime(currentDetail.getIepTime())
+                        .iepLevel(currentDetail.getIepLevel())
+                        .daysSinceReview(Long.valueOf(daysSinceReview).intValue())
+                        .iepDetails(withDetails ? iepDetails : Collections.emptyList())
+                        .build());
+            });
+
         }
 
-        return privilegeSummary;
+        // If no IEP details exist for offender, cannot derive an IEP summary.
+        bookingIds.stream()
+                .filter(bookingId -> !mapOfEip.containsKey(bookingId))
+                .collect(Collectors.toList())
+                .forEach( bookingId -> mapOfEip.put(bookingId, PrivilegeSummary.builder()
+                                        .bookingId(bookingId)
+                                        .iepLevel(defaultIepLevel)
+                                        .iepDetails(Collections.emptyList())
+                                        .build()));
+
+        return mapOfEip;
     }
 
     @Override

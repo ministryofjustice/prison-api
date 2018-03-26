@@ -25,6 +25,7 @@ import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Bookings API repository implementation.
@@ -162,17 +163,14 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    public List<PrivilegeDetail> getBookingIEPDetails(Long bookingId) {
-        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
-
-        String initialSql = getQuery("GET_BOOKING_IEP_DETAILS");
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, PRIV_DETAIL_ROW_MAPPER.getFieldMap());
-        String sql = builder.build();
-
-        return jdbcTemplate.query(
-                sql,
-                createParams("bookingId", bookingId),
+    public Map<Long, List<PrivilegeDetail>> getBookingIEPDetailsByBookingIds(List<Long> bookingIds) {
+        Objects.requireNonNull(bookingIds, "bookingIds are a required parameter");
+        List<PrivilegeDetail> privs = jdbcTemplate.query(
+                getQuery("GET_BOOKING_IEP_DETAILS_BY_IDS"),
+                createParams("bookingIds", bookingIds),
                 PRIV_DETAIL_ROW_MAPPER);
+
+        return privs.stream().collect(Collectors.groupingBy(PrivilegeDetail::getBookingId));
     }
 
     @Override
