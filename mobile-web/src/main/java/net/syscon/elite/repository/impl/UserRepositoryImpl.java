@@ -45,7 +45,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	}
 
 	@Override
-	@Cacheable("findRolesByUsername")
+	//@Cacheable("findRolesByUsername")
 	public List<UserRole> findRolesByUsername(final String username, String query) {
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(getQuery("FIND_ROLES_BY_USERNAME"), USER_ROLE_MAPPER);
 
@@ -141,7 +141,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	}
 
 	@Override
-    @CacheEvict(value="findRolesByUsername", key="")
+    @CacheEvict(value="findRolesByUsername")
     public void addRole(String username, String caseload, Long roleId) {
 		Validate.notBlank(caseload, "caseload is required.");
 		Validate.notBlank(username, "username is required.");
@@ -153,7 +153,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	}
 
 	@Override
-    @CacheEvict(value="findRolesByUsername", key="")
+    @CacheEvict(value="findRolesByUsername")
 	public void removeRole(String username, String caseload, Long roleId) {
 		Validate.notBlank(caseload, "caseload is required.");
 		Validate.notBlank(username, "username is required.");

@@ -100,7 +100,7 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    @PreAuthorize("#oauth2.hasScope('admin')")
+    @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
     public StaffUserRole addStaffRole(Long staffId, String caseload, String roleCode) {
         UserDetail userDetail = userRepository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION).orElseThrow(EntityNotFoundException.withId(staffId));
 
@@ -122,7 +122,7 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    @PreAuthorize("#oauth2.hasScope('admin')")
+    @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
     public void removeStaffRole(Long staffId, String caseload, String roleCode) {
         UserDetail userDetail = userRepository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION).orElseThrow(EntityNotFoundException.withId(staffId));
 
