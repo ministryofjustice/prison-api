@@ -25,7 +25,6 @@ import static java.lang.String.format;
 @Service
 @Slf4j
 public class UserServiceImpl implements UserService {
-    private static final String STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION = "GENERAL";
 
 	private final CaseLoadService caseLoadService;
 	private final StaffService staffService;
