@@ -37,6 +37,13 @@ properties:
     description: A code representing the offender's gender (from the SEX reference domain).
     maxLength: 12
     example: F
+  reason:
+    type: string
+    description: A code representing the reason for the offender's admission.
+    example: W
+  youthOffender?:
+    type: boolean
+    description: A flag to indicate that the offender is a youth/young offender (or not). Defaults to false if not specified.
   ethnicity?:
     type: string
     description: A code representing the offender's ethnicity (from the ETHNICITY reference domain).
