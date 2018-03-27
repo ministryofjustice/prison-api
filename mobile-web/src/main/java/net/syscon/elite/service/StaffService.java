@@ -3,11 +3,14 @@ package net.syscon.elite.service;
 import lombok.Getter;
 import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.StaffLocationRole;
+import net.syscon.elite.api.model.StaffUserRole;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.support.AgencyRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+
+import java.util.List;
 
 public interface StaffService {
     String STAFF_STATUS_ACTIVE = "ACTIVE";
@@ -23,6 +26,16 @@ public interface StaffService {
     Page<StaffLocationRole> getStaffByAgencyPositionRole(GetStaffRoleRequest request, PageRequest pageRequest);
 
     StaffDetail getStaffDetailByPersonnelIdentifier(String idType, String id);
+
+    List<StaffUserRole> getStaffRoles(Long staffId);
+
+    List<StaffUserRole> getRolesByCaseload(Long staffId, String caseload);
+
+    List<StaffUserRole> getAllStaffRolesForCaseload(String caseload, String roleCode);
+
+    StaffUserRole addStaffRole(Long staffId, String caseload, String roleCode);
+
+    void removeStaffRole(Long staffId, String caseload, String roleCode);
 
     @Getter
     class GetStaffRoleRequest extends AgencyRequest {

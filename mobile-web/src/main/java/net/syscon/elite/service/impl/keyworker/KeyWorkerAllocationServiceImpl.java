@@ -138,6 +138,12 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
     }
 
     @Override
+    public Keyworker getKeyworkerDetailsByBooking(Long bookingId) {
+        return repository.getKeyworkerDetailsByBooking(bookingId)
+                .orElseThrow(EntityNotFoundException.withMessage(String.format("Key worker not found for booking Id %d", bookingId)));
+    }
+
+    @Override
     public Keyworker getKeyworkerDetails(Long staffId) {
         final Keyworker keyworker = repository.getKeyworkerDetails(staffId)
                 .orElseThrow(EntityNotFoundException.withMessage(String.format("Key worker with id %d not found", staffId)));

@@ -27,6 +27,8 @@ public interface KeyWorkerAllocationService {
 
     Page<KeyWorkerAllocationDetail> getAllocations(String agencyId, LocalDate fromDate, LocalDate toDate, String allocationType, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder);
 
+    Keyworker getKeyworkerDetailsByBooking(Long bookingId);
+
     List<Keyworker> getAvailableKeyworkers(String agencyId);
 
     Keyworker getKeyworkerDetails(Long staffId);

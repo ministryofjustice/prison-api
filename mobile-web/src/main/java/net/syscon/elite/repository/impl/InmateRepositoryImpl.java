@@ -378,7 +378,18 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     @Override
     @Cacheable("bookingAssessments")
     public List<AssessmentDto> findAssessments(List<Long> bookingIds, String assessmentCode, Set<String> caseLoadId) {
-        String initialSql = getQuery("FIND_ACTIVE_APPROVED_ASSESSMENT");
+        return doFindAssessments(bookingIds, assessmentCode, caseLoadId, "FIND_ACTIVE_APPROVED_ASSESSMENT", "bookingIds");
+    }
+
+    @Override
+    @Cacheable("offenderAssessments")
+    public List<AssessmentDto> findAssessmentsByOffenderNo(List<String> offenderNos, String assessmentCode, Set<String> caseLoadId) {
+        return doFindAssessments(offenderNos, assessmentCode, caseLoadId, "FIND_ACTIVE_APPROVED_ASSESSMENT_BY_OFFENDER_NO", "offenderNos");
+    }
+
+    private List<AssessmentDto> doFindAssessments(List<?> ids, String assessmentCode,
+            Set<String> caseLoadId, final String queryName, final String idParam) {
+        String initialSql = getQuery(queryName);
         if (!caseLoadId.isEmpty()) {
             initialSql += " AND " + getQuery("ASSESSMENT_CASELOAD_FILTER");
         }
@@ -390,7 +401,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 .build();
         
         final MapSqlParameterSource params = createParams(
-                "bookingIds", bookingIds,
+                idParam, ids,
                 "assessmentCode", assessmentCode,
                 "caseLoadId", caseLoadId);
 

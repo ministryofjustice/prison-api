@@ -7,6 +7,7 @@ import net.syscon.elite.api.support.Page;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Bookings API service interface.
@@ -15,6 +16,7 @@ public interface BookingService {
     SentenceDetail getBookingSentenceDetail(Long bookingId);
 
     PrivilegeSummary getBookingIEPSummary(Long bookingId, boolean withDetails);
+    Map<Long, PrivilegeSummary> getBookingIEPSummary(List<Long> bookings, boolean withDetails);
 
     Page<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);
 

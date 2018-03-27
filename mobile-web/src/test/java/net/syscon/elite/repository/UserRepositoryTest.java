@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+import static net.syscon.elite.service.UserService.STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
@@ -56,9 +57,8 @@ public class UserRepositoryTest {
     @Test(expected = EntityNotFoundException.class)
     public void testFindUserByStaffIdAndStaffUserTypeUnknownStaffId() {
         final Long staffId = -99L;
-        final String staffUserType = "GENERAL";
 
-        repository.findByStaffIdAndStaffUserType(staffId, staffUserType).orElseThrow(EntityNotFoundException.withId(staffId));
+        repository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION).orElseThrow(EntityNotFoundException.withId(staffId));
     }
 
     @Test(expected = EntityNotFoundException.class)
@@ -72,9 +72,8 @@ public class UserRepositoryTest {
     @Test
     public void testFindUserByStaffIdAndStaffUserType() {
         final Long staffId = -1L;
-        final String staffUserType = "GENERAL";
 
-        UserDetail user = repository.findByStaffIdAndStaffUserType(staffId, staffUserType).orElseThrow(EntityNotFoundException.withId(staffId));
+        UserDetail user = repository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION).orElseThrow(EntityNotFoundException.withId(staffId));
 
         assertThat(user.getUsername()).isEqualTo("ELITE2_API_USER");
     }

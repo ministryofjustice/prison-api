@@ -40,6 +40,8 @@ public interface KeyWorkerAllocationRepository {
 
     Optional<Keyworker> getKeyworkerDetails(Long staffId);
 
+    Optional<Keyworker> getKeyworkerDetailsByBooking(Long bookingId);
+
     List<KeyWorkerAllocation> getAllocationsForKeyworker(Long staffId);
 
     List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworker(Long staffId);

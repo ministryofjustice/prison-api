@@ -99,6 +99,21 @@
         example: true
         default: false
 
+/offenderNo/{offenderNo}:
+  (javaOperationName): getOffenderBookingByOffenderNo
+  type: { readOnlyItem: { type: InmateDetail, description: Offender detail. } }
+  uriParameters:
+    offenderNo:
+      type: string
+      description: The offenderNo of offender
+  get:
+    queryParameters:
+      fullInfo?:
+        type: boolean
+        description: If set to true then full data is returned
+        example: true
+        default: false
+
 /{bookingId}/caseNotes:
   description: Offender Case Notes
   uriParameters:
@@ -470,6 +485,14 @@
         body:
           application/json:
             type: Contact
+
+/offenderNo/{offenderNo}/key-worker:
+  (javaOperationName): getKeyworkerByOffenderNo
+  type: {readOnlyItem: {type: Keyworker, description: Key worker details. }}
+  uriParameters:
+    offenderNo:
+      type: string
+      description: The offenderNo of offender
 
 /{bookingId}/adjudications:
   (javaOperationName): getAdjudications

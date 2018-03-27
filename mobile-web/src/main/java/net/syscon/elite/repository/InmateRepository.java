@@ -62,6 +62,7 @@ public interface InmateRepository {
 	List<PhysicalMark> findPhysicalMarks(long inmateId);
 
     List<AssessmentDto> findAssessments(List<Long> bookingIds, String assessmentCode, Set<String> caseLoadIdsForUser);
+    List<AssessmentDto> findAssessmentsByOffenderNo(List<String> offenderNos, String assessmentCode, Set<String> caseLoadId);
 
 	Optional<ImageDetail> getMainBookingImage(long bookingId);
 

@@ -40,6 +40,9 @@ properties:
     description: A code representing the reason for the offender's recall. 'B' = Recall from HDC. 'Y' = Recall from DTO.
     pattern: ^[BY]$
     example: B
+  youthOffender?:
+    type: boolean
+    description: A flag to indicate that the offender is a youth/young offender (or not). Defaults to false if not specified.
   ethnicity?:
     type: string
     description: A code representing the offender's ethnicity (from the ETHNICITY reference domain).

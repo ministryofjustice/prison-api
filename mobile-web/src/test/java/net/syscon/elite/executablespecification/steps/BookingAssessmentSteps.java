@@ -93,19 +93,19 @@ public class BookingAssessmentSteps extends CommonSteps {
         verifyLocalDate(assessment.getNextReviewDate(), nextReviewDate);
     }
 
-    public void getAssessmentsByCode(String bookingIdList, String assessmentCode) {
-        final String query = "?bookingId=" + bookingIdList.replace(",", "&bookingId=");
+    public void getAssessmentsByCode(String offenderList, String assessmentCode) {
+        final String query = "?offenderNo=" + offenderList.replace(",", "&offenderNo=");
         assessments = doMultipleResultApiCall(API_ASSESSMENTS_PREFIX + assessmentCode + query);
     }
 
     public void verifyMultipleAssessments() {
         assertThat(assessments).asList()
-                .extracting("bookingId", "classification", "assessmentCode", "cellSharingAlertFlag", "nextReviewDate")
-                .contains(tuple(-1L, "High", "CSR", true, LocalDate.of(2018, Month.JUNE, 1)),
-                        tuple(-2L, null, "CSR", true, LocalDate.of(2018, Month.JUNE, 2)),
-                        tuple(-3L, "Low", "CSR", true, LocalDate.of(2018, Month.JUNE, 3)),
-                        tuple(-4L, "Medium", "CSR", true, LocalDate.of(2018, Month.JUNE, 4)),
-                        tuple(-5L, "High", "CSR", true, LocalDate.of(2018, Month.JUNE, 5)),
-                        tuple(-6L, "Standard", "CSR", true, LocalDate.of(2018, Month.JUNE, 6)));
+                .extracting("bookingId", "offenderNo", "classification", "assessmentCode", "cellSharingAlertFlag", "nextReviewDate")
+                .contains(tuple(-1L, "A1234AA", "High", "CSR", true, LocalDate.of(2018, Month.JUNE, 1)),
+                        tuple(-2L, "A1234AB", null, "CSR", true, LocalDate.of(2018, Month.JUNE, 2)),
+                        tuple(-3L, "A1234AC", "Low", "CSR", true, LocalDate.of(2018, Month.JUNE, 3)),
+                        tuple(-4L, "A1234AD", "Medium", "CSR", true, LocalDate.of(2018, Month.JUNE, 4)),
+                        tuple(-5L, "A1234AE", "High", "CSR", true, LocalDate.of(2018, Month.JUNE, 5)),
+                        tuple(-6L, "A1234AF", "Standard", "CSR", true, LocalDate.of(2018, Month.JUNE, 6)));
     }
 }

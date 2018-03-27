@@ -1,14 +1,14 @@
 /{assessmentCode}:
   (javaOperationName): getAssessmentsByCode
-  type: { readOnlyCollection: { type: Assessment, description: Offender assessment detail for multiple booking ids. } }
+  type: { readOnlyCollection: { type: Assessment, description: Offender assessment detail for multiple offenders. } }
   uriParameters:
     assessmentCode:
       type: string
       description: Assessment Type Code
   get:
     queryParameters:
-      bookingId:
+      offenderNo:
         type: array
-        (javaType): List<Long>
-        description: The booking ids of offenders
-  
+        (javaType): List<String>
+        description: The required offender numbers
+        example: offenderNo=A1234AA&offenderNo=A1234AB

@@ -153,14 +153,14 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<Assessment> getInmatesAssessmentsByCode(List<Long> bookingIds, String assessmentCode) {
+    public List<Assessment> getInmatesAssessmentsByCode(List<String> offenderNos, String assessmentCode) {
 
         List<Assessment> results = new ArrayList<>();
-        if (!bookingIds.isEmpty()) {
+        if (!offenderNos.isEmpty()) {
             final Set<String> caseLoadIds = bookingService.isSystemUser() ? Collections.emptySet()
                     : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), true);
 
-            final List<AssessmentDto> assessments = repository.findAssessments(bookingIds, assessmentCode, caseLoadIds);
+            final List<AssessmentDto> assessments = repository.findAssessmentsByOffenderNo(offenderNos, assessmentCode, caseLoadIds);
 
             final Map<Long, List<AssessmentDto>> mapOfBookings = assessments.stream()
                     .collect(Collectors.groupingBy(AssessmentDto::getBookingId));
@@ -183,6 +183,7 @@ public class InmateServiceImpl implements InmateService {
     private Assessment createAssessment(AssessmentDto assessmentDto) {
         return Assessment.builder()
                 .bookingId(assessmentDto.getBookingId())
+                .offenderNo(assessmentDto.getOffenderNo())
                 .assessmentCode(assessmentDto.getAssessmentCode())
                 .assessmentDescription(assessmentDto.getAssessmentDescription())
                 .classification(deriveClassification(assessmentDto))

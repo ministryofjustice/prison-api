@@ -56,6 +56,8 @@ public class CacheConfig implements CachingConfigurer {
         config.addCache(config("findApiRolesByUsername", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("loadUserByUsername", 5000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
+        config.addCache(config("findByStaffIdAndStaffUserType", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+
         config.addCache(config("getCaseLoadsByUsername", 1000, caseLoadTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config("findAgenciesByUsername", 1000, agencyTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
@@ -70,6 +72,7 @@ public class CacheConfig implements CachingConfigurer {
         config.addCache(config("basicInmateDetail", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config("bookingAssessments", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("offenderAssessments", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("bookingPhysicalMarks", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("bookingProfileInformation", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("bookingPhysicalCharacteristics", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
