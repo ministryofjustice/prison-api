@@ -40,7 +40,6 @@
         description: offender name or id to match
   type: { readOnlyCollectionPaged: { type: OffenderBooking, description: List of offenders at location. } }
   is: [
-    searchable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId"},
     sortable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId"},
   ]
 

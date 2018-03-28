@@ -113,6 +113,7 @@ project(":mobile-web") {
                             'cucumber.options':"--tags '(@global or @nomis) and not (@elite or @wip or @broken)'"]
 
         exclude "**/persistence/*"
+        exclude "**/*IntTest*"
         environment nomisEnvVars
     }
 
@@ -123,6 +124,7 @@ project(":mobile-web") {
                             'cucumber.options':"--tags '(@global or @nomis or @oracle) and not (@elite or @wip or @broken)'"]
 
         exclude "**/persistence/*"
+        exclude "**/IntTest*"
         environment nomisEnvVars
     }
 
@@ -133,6 +135,7 @@ project(":mobile-web") {
                             'cucumber.options':"--tags '(@global or @elite) and not (@nomis or @wip or @broken)'"]
 
         exclude "**/persistence/*"
+        exclude "**/IntTest*"
         environment eliteEnvVars
     }
 
@@ -142,7 +145,7 @@ project(":mobile-web") {
     checkstyleMain.enabled = false
     checkstyleTest.enabled = false
 
-    // Exclude Serenity BDD integration tests from 'test' task so they can be controlled independently
+    // Exclude Serenity BDD integration and IntTest tests from 'test' task so they can be controlled independently
     test {
         exclude "**/executablespecification/*", "**/*IntTest*"
     }

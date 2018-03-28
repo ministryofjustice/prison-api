@@ -1,6 +1,7 @@
 package net.syscon.elite.web.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
@@ -8,6 +9,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.oauth2.config.annotation.builders.ClientDetailsServiceBuilder;
@@ -24,6 +27,7 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
+import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,8 +39,10 @@ import java.util.List;
 @Slf4j
 public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
 
-    private final String privateKey;
+    private final Resource privateKeyPair;
     private final List<OauthClientConfig> oauthClientConfig;
+    private final String keystorePassword;
+    private final String keystoreAlias;
 
     @Autowired
     private ClientDetailsService clientDetailsService;
@@ -45,10 +51,15 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
     private AuthenticationManager authManager;
 
     @Autowired
-    public OAuth2AuthorizationServerConfig(@Value("${jwt.signing.key}") String privateKey,
-                                           ClientConfigExtractor clientConfigExtractor,
-                                           @Value("${oauth.client.data}") String clientData) {
-        this.privateKey = privateKey;
+    public OAuth2AuthorizationServerConfig(@Value("${jwt.signing.key.pair}") String privateKeyPair,
+                                           @Value("${jwt.keystore.password}") String keystorePassword,
+                                           @Value("${jwt.keystore.alias:elite2api}") String keystoreAlias,
+                                           @Value("${oauth.client.data}") String clientData,
+                                           ClientConfigExtractor clientConfigExtractor) {
+
+        this.privateKeyPair = new ByteArrayResource(Base64.decodeBase64(privateKeyPair));
+        this.keystorePassword = keystorePassword;
+        this.keystoreAlias = keystoreAlias;
         this.oauthClientConfig = clientConfigExtractor.getClientConfigurations(clientData);
     }
 
@@ -60,9 +71,9 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
     @Bean
     public JwtAccessTokenConverter accessTokenConverter() {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-        converter.setSigningKey(privateKey);
+        KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(privateKeyPair, keystorePassword.toCharArray());
+        converter.setKeyPair(keyStoreKeyFactory.getKeyPair(keystoreAlias));
         return converter;
-
     }
 
     @Override

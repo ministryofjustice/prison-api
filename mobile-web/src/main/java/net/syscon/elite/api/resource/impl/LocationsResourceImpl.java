@@ -42,7 +42,7 @@ public class LocationsResourceImpl implements LocationResource {
 	}
 
 	@Override
-	public GetOffendersAtLocationDescriptionResponse getOffendersAtLocationDescription(String locationPrefix, String query, String keywords, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+	public GetOffendersAtLocationDescriptionResponse getOffendersAtLocationDescription(String locationPrefix, String keywords, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
 		SearchOffenderRequest request = SearchOffenderRequest.builder()
 				.username(authenticationFacade.getCurrentUsername())
 				.keywords(keywords)

@@ -4,40 +4,52 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.resource.UserResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.*;
+import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
+import org.springframework.core.env.Environment;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.ws.rs.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import static net.syscon.util.ResourceUtils.nvl;
+import java.util.stream.Collectors;
 
 @RestResource
 @Path("/users")
 public class UserResourceImpl implements UserResource {
     private final AuthenticationFacade authenticationFacade;
-    private final LocationService locationService;
-    private final AssignmentService assignmentService;
     private final UserService userService;
+    private final InmateService inmateService;
+    private final LocationService locationService;
     private final StaffService staffService;
     private final CaseLoadService caseLoadService;
     private final CaseNoteService caseNoteService;
+    private final KeyWorkerAllocationService keyWorkerAllocationService;
+    private final Environment env;
 
-    public UserResourceImpl(AuthenticationFacade authenticationFacade, LocationService locationService,
-                            AssignmentService assignmentService,
-                            UserService userService, StaffService staffService, CaseLoadService caseLoadService,
-                            CaseNoteService caseNoteService) {
+    public UserResourceImpl(AuthenticationFacade authenticationFacade,
+                            LocationService locationService,
+                            UserService userService,
+                            StaffService staffService,
+                            CaseLoadService caseLoadService,
+                            CaseNoteService caseNoteService,
+                            InmateService inmateService,
+                            KeyWorkerAllocationService keyWorkerAllocationService,
+                            Environment env) {
         this.authenticationFacade = authenticationFacade;
         this.locationService = locationService;
-        this.assignmentService = assignmentService;
         this.userService = userService;
         this.staffService = staffService;
         this.caseLoadService = caseLoadService;
         this.caseNoteService = caseNoteService;
+        this.inmateService = inmateService;
+        this.keyWorkerAllocationService = keyWorkerAllocationService;
+        this.env = env;
     }
 
     @Override
@@ -47,15 +59,7 @@ public class UserResourceImpl implements UserResource {
         return GetMyUserInformationResponse.respond200WithApplicationJson(user);
     }
 
-    @Override
-    public GetMyAssignmentsResponse getMyAssignments(Long pageOffset, Long pageLimit) {
-        Page<OffenderBooking> assignments = assignmentService.findMyAssignments(
-                authenticationFacade.getCurrentUsername(),
-                nvl(pageOffset, 0L),
-                nvl(pageLimit, 10L));
 
-        return GetMyAssignmentsResponse.respond200WithApplicationJson(assignments);
-    }
 
     @Override
     public GetMyCaseLoadsResponse getMyCaseLoads(boolean allCaseloads) {
@@ -115,5 +119,33 @@ public class UserResourceImpl implements UserResource {
         UserDetail userByUsername = userService.getUserByUsername(username.toUpperCase());
 
         return GetUserDetailsResponse.respond200WithApplicationJson(userByUsername);
+    }
+
+    @Override
+    public GetMyAssignmentsResponse getMyAssignments(Long pageOffset, Long pageLimit) {
+        boolean nomisProfile = Arrays.stream(env.getActiveProfiles()).anyMatch(p -> p.contains("nomis"));
+        boolean iepLevel = false;
+        List<Long> bookingIds = null;
+        List<String> offenderNos = null;
+
+        if (nomisProfile) {
+            iepLevel = true;
+            UserDetail userByUsername = userService.getUserByUsername(authenticationFacade.getCurrentUsername());
+            List<KeyWorkerAllocationDetail> allocations = keyWorkerAllocationService.getAllocationDetailsForKeyworker(userByUsername.getStaffId());
+            offenderNos = allocations.stream().map(KeyWorkerAllocationDetail::getOffenderNo).collect(Collectors.toList());
+        } else {
+            bookingIds = inmateService.getPersonalOfficerBookings(authenticationFacade.getCurrentUsername());
+
+        }
+        Page<OffenderBooking> assignments = inmateService.findAllInmates(
+                InmateSearchCriteria.builder()
+                        .username(authenticationFacade.getCurrentUsername())
+                        .iepLevel(iepLevel)
+                        .offenderNos(offenderNos)
+                        .bookingIds(bookingIds)
+                        .pageRequest(new PageRequest(null, Order.ASC, pageOffset, pageLimit))
+                        .build());
+
+        return GetMyAssignmentsResponse.respond200WithApplicationJson(assignments);
     }
 }

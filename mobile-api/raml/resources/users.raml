@@ -24,6 +24,7 @@
   type: { readOnlyItem: { type: UserDetail, description: Current user detail. } }
 
 /me/bookingAssignments:
+  (deprecated): Use <b>/bookings?iepLevel=true&offenderNo=&offenderNo=</b> instead. This API will be removed in a future release as keyworker holds the relationship to offender
   (javaOperationName): getMyAssignments
   description: Offender Assignments for this logged in user
   type: { readOnlyCollectionPaged: { type: OffenderBooking, description: List of offender bookings assigned to current user. } }

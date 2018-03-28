@@ -9,9 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface InmateService {
-	String DEFAULT_OFFENDER_SORT = "lastName,firstName,offenderNo";
 
-	Page<OffenderBooking> findAllInmates(String username, String query, String orderBy, Order order, long offset, long limit);
+	Page<OffenderBooking> findAllInmates(InmateSearchCriteria inmateSearchCriteria);
 
 	InmateDetail findInmate(Long bookingId, String username);
 
@@ -30,6 +29,6 @@ public interface InmateService {
 	Optional<Assessment> getInmateAssessmentByCode(Long bookingId, String assessmentCode);
 
     List<Assessment> getInmatesAssessmentsByCode(List<String> offenderNos, String assessmentCode);
-
-    List<InmateDto> findInmatesByLocation(String username, String agencyId, List<Long> locations);
+	List<Long> getPersonalOfficerBookings(String username);
+	List<InmateDto> findInmatesByLocation(String username, String agencyId, List<Long> locations);
 }

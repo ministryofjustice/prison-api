@@ -24,7 +24,6 @@ import java.util.Set;
  * </ul>
  */
 public interface InmateRepository {
-	String DEFAULT_OFFENDER_SORT = "lastName,firstName,offenderNo";
 
 	Page<OffenderBooking> findAllInmates(Set<String> caseloads, String locationTypeRoot, String query, PageRequest pageRequest);
 
@@ -40,7 +39,7 @@ public interface InmateRepository {
 
 	Page<Alias> findInmateAliases(Long bookingId, String orderByFields, Order order, long offset, long limit);
 
-	Page<OffenderBooking> findMyAssignments(long staffId, String currentCaseLoad, String locationTypeRoot, String orderBy, boolean sortAscending, long offset, long limit);
+	List<Long> getPersonalOfficerBookings(long staffId);
 
 	/**
 	 * Perform global search for offenders, based on specified criteria.
