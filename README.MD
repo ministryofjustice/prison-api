@@ -57,14 +57,75 @@ If you need to build against Oracle 11 use:-
 ./gradlew clean assemble
 ```
 
+### Environment Variables
+
+Below are the key environment variables that can be set per service:-
+```properties
+SPRING_PROFILES_ACTIVE=nomis
+SPRING_DATASOURCE_URL=<jdbc datasource url>
+SPRING_DATASOURCE_PASSWORD=<db password>
+APPLICATION_INSIGHTS_IKEY=<app insights key>  - ignored if empty 
+JWT_SIGNING_KEY_PAIR=jtk public private base64 encoded key
+OAUTH_CLIENT_DATA=base64 encoded json string for client data
+```
+
+The `OAUTH_CLIENT_DATA` conforms to the following structure:-
+e.g.
+```json
+[
+  {
+    "clientId": "delius",
+    "authorities": [
+      "ROLE_SYSTEM_USER"
+    ],
+    "clientSecret": "alittledeliussecretthing",
+    "scope": [
+      "read"
+    ],
+    "authorizedGrantTypes": [
+      "client_credentials"
+    ],
+    "autoApprove": [
+      "read"
+    ],
+    "accessTokenValidity": 1800
+  },
+  {
+    "clientId": "uiclient",
+    "clientSecret": "clientsecret",
+    "scope": [
+      "read",
+      "write"
+    ],
+    "accessTokenValidity": 28800,
+    "refreshTokenValidity": 43200,
+    "authorizedGrantTypes": [
+      "password",
+      "authorization_code",
+      "refresh_token"
+    ],
+    "autoApprove": [
+      "read",
+      "write"
+    ]
+  }
+]
+```
+
 4) In a Docker container
 
 Build Docker image and run
 
 ```bash
 ./gradlew clean assemble
+
 docker build -t sysconjusticesystems/elite2-api .
-docker run -d -p 8888:8080 -e SERVER_PORT=8080 -e SPRING_PROFILES_ACTIVE=dev,nomis -e SPRING_DATASOURCE_URL=jdbc:oracle:thin:@lonlx01:1521:pvb_dev --name=elite2-api sysconjusticesystems/elite2-api 
+
+docker run -d -p 8888:8080             \
+       -h elite2-api                   \
+       --name=elite2-api               \
+       --env-file environment-file.env \
+    sysconjusticesystems/elite2-api:latest
 ```
 
 ### Using Docker compose ###
