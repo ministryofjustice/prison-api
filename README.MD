@@ -66,6 +66,7 @@ SPRING_DATASOURCE_URL=<jdbc datasource url>
 SPRING_DATASOURCE_PASSWORD=<db password>
 APPLICATION_INSIGHTS_IKEY=<app insights key>  - ignored if empty 
 JWT_SIGNING_KEY_PAIR=jtk public private base64 encoded key
+JWT_KEYSTORE_PASSWORD=<password used to create key>
 OAUTH_CLIENT_DATA=base64 encoded json string for client data
 ```
 
@@ -134,15 +135,16 @@ docker-compose up -d
 ```
 
 ### Generate JWT private / public key ###
+Run the following, obviously changing the **<password>**
 ```bash
-keytool -genkeypair -alias elite2api -keyalg RSA -keypass s3cre3tK3y -keystore elite2api.jks -storepass s3cre3tK3y
+keytool -genkeypair -alias elite2api -keyalg RSA -keypass <password> -keystore elite2api.jks -storepass <password>
+cat elite2api.jks | base64 | tr -d "\n\r"
 ```
 
-Obviously changing the passwords
+Take the output and enter it into the `jwt.signing.key.pair` environment var or `JWT_SIGNING_KEY_PAIR` 
+and `JWT_KEYSTORE_PASSWORD=<password>`
 
-Take the elite2api.jks file and base64encode it and store it in the `jwt.signing.key.pair` environment var
-
-Then get the public part:
+To get the public part: (not needed for elite2api)
 ```bash
 keytool -list -rfc --keystore elite2api.jks | openssl x509 -inform pem -pubkey -noout
 ```
