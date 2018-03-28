@@ -37,7 +37,6 @@ public class AccessRoleMaintenanceIntTest {
                 .build());
     }
 
-    @Test
     @WithUserDetails("ITAG_USER")
     public void testGetSpecificRoles() {
         List<StaffUserRole> roles = staffService.getRolesByCaseload(-2L, "NWEB");

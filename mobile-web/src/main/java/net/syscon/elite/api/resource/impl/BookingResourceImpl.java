@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.resource.BookingResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.*;
@@ -57,14 +58,16 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public GetOffenderBookingsResponse getOffenderBookings(String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+    public GetOffenderBookingsResponse getOffenderBookings(String query, List<Long> bookingId, List<String> offenderNo, boolean iepLevel, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         Page<OffenderBooking> allInmates = inmateService.findAllInmates(
-                authenticationFacade.getCurrentUsername(),
-                query,
-                sortFields,
-                sortOrder,
-                nvl(pageOffset, 0L),
-                nvl(pageLimit, 10L));
+                InmateSearchCriteria.builder()
+                    .username(authenticationFacade.getCurrentUsername())
+                    .query(query)
+                    .iepLevel(iepLevel)
+                    .offenderNos(offenderNo)
+                    .bookingIds(bookingId)
+                    .pageRequest(new PageRequest(sortFields, sortOrder, pageOffset, pageLimit))
+                .build());
 
         return GetOffenderBookingsResponse.respond200WithApplicationJson(allInmates);
     }

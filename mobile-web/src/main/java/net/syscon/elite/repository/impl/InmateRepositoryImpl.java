@@ -229,32 +229,11 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public Page<OffenderBooking> findMyAssignments(long staffId, String currentCaseLoad, String locationTypeRoot, String orderBy, boolean sortAscending, long offset, long limit) {
-		String initialSql = getQuery("FIND_MY_ASSIGNMENTS");
-		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_BOOKING_MAPPING);
-
-		String sql = builder
-				.addRowCount()
-				.addOrderBy(sortAscending, orderBy)
-				.addPagination()
-				.build();
-
-		RowMapper<OffenderBooking> assignedInmateRowMapper =
-				Row2BeanRowMapper.makeMapping(sql, OffenderBooking.class, OFFENDER_BOOKING_MAPPING);
-
-		PageAwareRowMapper<OffenderBooking> paRowMapper = new PageAwareRowMapper<>(assignedInmateRowMapper);
-
-		List<OffenderBooking> results = jdbcTemplate.query(
-                sql,
-                createParams("staffId", staffId,
-                        "caseLoadId", currentCaseLoad,
-                        "locationTypeRoot", locationTypeRoot,
-                        "currentDate", DateTimeConverter.toDate(LocalDate.now()),
-                        "offset", offset,
-                        "limit", limit),
-                paRowMapper);
-		results.forEach(b -> b.setAge(DateTimeConverter.getAge(b.getDateOfBirth())));
-		return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
+	public List<Long> getPersonalOfficerBookings(long staffId) {
+		return jdbcTemplate.queryForList(
+				getQuery("FIND_PERSONAL_OFFICER_BOOKINGS"),
+				createParams("staffId", staffId),
+				Long.class);
 	}
 
     @Override

@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 
 import static java.lang.String.format;
+import static net.syscon.elite.service.SearchOffenderService.DEFAULT_OFFENDER_SORT;
 
 /**
  * Implementation of global search service.
@@ -41,7 +42,7 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
 
         if (StringUtils.isNotBlank(query) || calcDates.hasDateRange()) {
             PageRequest pageRequest = new PageRequest(
-                    StringUtils.defaultIfBlank(orderBy, InmateRepository.DEFAULT_OFFENDER_SORT), order, offset, limit);
+                    StringUtils.defaultIfBlank(orderBy, DEFAULT_OFFENDER_SORT), order, offset, limit);
 
             return inmateRepository.findOffenders(query, calcDates.getDateRange(), pageRequest);
         }

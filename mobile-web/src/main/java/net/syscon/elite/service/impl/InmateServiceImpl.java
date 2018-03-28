@@ -6,12 +6,10 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.repository.InmateRepository;
+import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
-import net.syscon.elite.service.BookingService;
-import net.syscon.elite.service.CaseLoadService;
-import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.service.InmateService;
+import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
 import org.apache.commons.lang3.ObjectUtils;
@@ -19,10 +17,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static net.syscon.elite.service.SearchOffenderService.DEFAULT_OFFENDER_SORT;
 
 @Service
 @Transactional(readOnly = true)
@@ -32,6 +33,7 @@ public class InmateServiceImpl implements InmateService {
     private final BookingService bookingService;
     private final InmateAlertRepository inmateAlertRepository;
     private final AuthenticationFacade authenticationFacade;
+    private final UserRepository userRepository;
 
     private final String locationTypeGranularity;
 
@@ -39,6 +41,7 @@ public class InmateServiceImpl implements InmateService {
                              CaseLoadService caseLoadService,
                              InmateAlertRepository inmateAlertRepository,
                              BookingService bookingService,
+                             UserRepository userRepository,
                              AuthenticationFacade authenticationFacade,
                              @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity) {
         this.repository = repository;
@@ -46,14 +49,51 @@ public class InmateServiceImpl implements InmateService {
         this.inmateAlertRepository = inmateAlertRepository;
         this.locationTypeGranularity = locationTypeGranularity;
         this.bookingService = bookingService;
+        this.userRepository = userRepository;
         this.authenticationFacade = authenticationFacade;
     }
 
     @Override
-    public Page<OffenderBooking> findAllInmates(String username, String query, String orderBy, Order order, long offset, long limit) {
-        String colSort = StringUtils.isNotBlank(orderBy) ? orderBy : InmateRepository.DEFAULT_OFFENDER_SORT;
+    public Page<OffenderBooking> findAllInmates(InmateSearchCriteria criteria) {
 
-        return repository.findAllInmates(bookingService.isSystemUser() ? Collections.emptySet() : getUserCaseloadIds(username), locationTypeGranularity, query, new PageRequest(colSort, order, offset, limit));
+        PageRequest pageRequest = new PageRequest(StringUtils.isNotBlank(criteria.getPageRequest().getOrderBy()) ? criteria.getPageRequest().getOrderBy() : DEFAULT_OFFENDER_SORT,
+                criteria.getPageRequest().getOrder(), criteria.getPageRequest().getOffset(), criteria.getPageRequest().getLimit());
+
+        StringBuilder query = new StringBuilder(StringUtils.isNotBlank(criteria.getQuery()) ? criteria.getQuery() : "");
+
+        String inBookingIds = generateIn(criteria.getBookingIds(), "bookingId", "");
+        query.append((query.length() == 0) ? inBookingIds : StringUtils.isNotEmpty(inBookingIds) ? ",and:" + inBookingIds : "");
+
+        String inOffenderNos = generateIn(criteria.getOffenderNos(), "offenderNo", "'");
+        query.append((query.length() == 0) ? inOffenderNos : StringUtils.isNotEmpty(inOffenderNos) ? ",and:" + inOffenderNos : "");
+
+        Page<OffenderBooking> bookings = repository.findAllInmates(
+                bookingService.isSystemUser() ? Collections.emptySet() : getUserCaseloadIds(criteria.getUsername()),
+                locationTypeGranularity,
+                query.toString(),
+                pageRequest);
+
+        if (criteria.isIepLevel()) {
+            List<Long> bookingIds = bookings.getItems().stream().map(OffenderBooking::getBookingId).collect(Collectors.toList());
+            Map<Long, PrivilegeSummary> bookingIEPSummary = bookingService.getBookingIEPSummary(bookingIds, false);
+            bookings.getItems().forEach(booking -> booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel()));
+        }
+        return bookings;
+    }
+
+    private String generateIn(List<?> aList, String field, String wrappingText) {
+        StringBuilder newQuery = new StringBuilder();
+
+        if (!CollectionUtils.isEmpty(aList)) {
+            newQuery.append(field).append(":in:");
+            for (int i = 0; i < aList.size(); i++) {
+                if (i > 0) {
+                    newQuery.append("|");
+                }
+                newQuery.append(wrappingText).append(aList.get(i)).append(wrappingText);
+            }
+        }
+        return newQuery.toString();
     }
 
     @Override
@@ -208,6 +248,14 @@ public class InmateServiceImpl implements InmateService {
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.DESC);
 
         return repository.findInmateAliases(bookingId, defaultOrderBy, sortOrder, offset, limit);
+    }
+
+    @Override
+    public List<Long> getPersonalOfficerBookings(String username) {
+        UserDetail loggedInUser = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
+
+        return repository.getPersonalOfficerBookings(loggedInUser.getStaffId());
+
     }
 
     private Set<String> getUserCaseloadIds(String username) {

@@ -2,6 +2,22 @@
   get:
     (javaOperationName): getOffenderBookings
     description: Summary information for all offenders accessible to current user.
+    queryParameters:
+      bookingId?:
+        type: array
+        (javaType): List<Long>
+        description: The booking ids of offender
+        example: bookingId=342342&bookingId=564545
+      offenderNo?:
+        type: array
+        (javaType): List<String>
+        description: The required offender numbers
+        example: offenderNo=A1234AA&offenderNo=A1234AB
+      iepLevel?:
+        type: boolean
+        description: return IEP level data
+        example: iepLevel=true
+        default: false
     responses:
       200:
         body:

@@ -27,6 +27,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static net.syscon.elite.service.SearchOffenderService.DEFAULT_OFFENDER_SORT;
 import static org.springframework.util.StringUtils.commaDelimitedListToSet;
 
 /**
@@ -86,7 +87,7 @@ public class LocationServiceImpl implements LocationService {
         // validation check?
         locationRepository.findLocation(locationId, username);
 
-        String colSort = StringUtils.isNotBlank(orderByField) ? orderByField : InmateRepository.DEFAULT_OFFENDER_SORT;
+        String colSort = StringUtils.isNotBlank(orderByField) ? orderByField : DEFAULT_OFFENDER_SORT;
 
         Page<OffenderBooking> inmates = inmateRepository.findInmatesByLocation(
                 locationId,
