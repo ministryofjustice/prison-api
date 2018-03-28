@@ -72,6 +72,20 @@ docker run -d -p 8888:8080 -e SERVER_PORT=8080 -e SPRING_PROFILES_ACTIVE=dev,nom
 docker-compose up -d
 ```
 
+### Generate JWT private / public key ###
+```bash
+keytool -genkeypair -alias elite2api -keyalg RSA -keypass s3cre3tK3y -keystore elite2api.jks -storepass s3cre3tK3y
+```
+
+Obviously changing the passwords
+
+Take the elite2api.jks file and base64encode it and store it in the `jwt.signing.key.pair` environment var
+
+Then get the public part:
+```bash
+keytool -list -rfc --keystore elite2api.jks | openssl x509 -inform pem -pubkey -noout
+```
+This too can be used by resource application (againt base64 encode to store)
 
 ### TODO: ###
 * Automated Tests
