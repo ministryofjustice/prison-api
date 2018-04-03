@@ -160,12 +160,7 @@ abstract class AbstractStepDefinitions {
         public PrisonContactDetailsSteps prison() {
             return new PrisonContactDetailsSteps();
         }
-        
-        @Bean
-        public KeyWorkerAllocateSteps keyWorkerAllocate() {
-            return new KeyWorkerAllocateSteps();
-        }
-        
+
         @Bean
         public KeyWorkerAllocationSteps keyWorkerAllocation() {
             return new KeyWorkerAllocationSteps();

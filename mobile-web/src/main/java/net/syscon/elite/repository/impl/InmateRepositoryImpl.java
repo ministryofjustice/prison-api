@@ -46,7 +46,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             .put("LIVING_UNIT_ID",      new FieldMapper("assignedLivingUnitId"))
             .put("LIVING_UNIT_DESC",    new FieldMapper("assignedLivingUnitDesc", value -> StringUtils.replaceFirst((String)value, "^[A-Z|a-z|0-9]+\\-", "")))
             .put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerId"))
-			.put("IEP_LEVEL", new FieldMapper("iepLevel"))
             .build();
 
     private final Map<String, FieldMapper> inmateDetailsMapping = new ImmutableMap.Builder<String, FieldMapper>()
@@ -404,7 +403,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		try {
 			inmate = jdbcTemplate.queryForObject(
 					sql,
-					createParams("bookingId", bookingId, "currentDate", DateTimeConverter.toDate(LocalDate.now())),
+					createParams("bookingId", bookingId),
 					inmateRowMapper);
 			inmate.setAge(DateTimeConverter.getAge(inmate.getDateOfBirth()));
 		} catch (EmptyResultDataAccessException ex) {

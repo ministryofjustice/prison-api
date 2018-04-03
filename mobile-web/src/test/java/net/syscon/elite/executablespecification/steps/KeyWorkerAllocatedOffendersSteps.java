@@ -86,9 +86,6 @@ public class KeyWorkerAllocatedOffendersSteps extends CommonSteps {
         assertThat(allocation.getAgencyId()).isEqualTo(value);
     }
 
-    public void verifyAllocationType(String value) {
-        assertThat(allocation.getAllocationType()).isEqualTo(value);
-    }
 
     public void verifyAllocationInternalLocationDesc(String value) {
         assertThat(allocation.getInternalLocationDesc()).isEqualTo(value);
