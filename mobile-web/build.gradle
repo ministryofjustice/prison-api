@@ -124,7 +124,7 @@ project(":mobile-web") {
                             'cucumber.options':"--tags '(@global or @nomis or @oracle) and not (@elite or @wip or @broken)'"]
 
         exclude "**/persistence/*"
-        exclude "**/IntTest*"
+        exclude "**/*IntTest*"
         environment nomisEnvVars
     }
 
@@ -135,7 +135,7 @@ project(":mobile-web") {
                             'cucumber.options':"--tags '(@global or @elite) and not (@nomis or @wip or @broken)'"]
 
         exclude "**/persistence/*"
-        exclude "**/IntTest*"
+        exclude "**/*IntTest*"
         environment eliteEnvVars
     }
 

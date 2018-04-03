@@ -28,7 +28,7 @@ public class CalcDateRanges {
             this.dateTo = dateTo;
         } else if (dateFrom != null) {
             this.dateFrom = dateFrom;
-            if (isGreaterThanYearSpan(dateFrom, dateTo, maxYears)) {
+            if (isGreaterThanMaxYearsSpan(dateFrom, dateTo, maxYears)) {
                 this.dateTo = adjustYears(dateFrom, maxYears);
             } else {
                 this.dateTo = dateTo;
@@ -47,9 +47,9 @@ public class CalcDateRanges {
         return dateTo;
     }
 
-    private boolean isGreaterThanYearSpan(LocalDate fromDate, LocalDate toDate, int maxYearSpan) {
+    private boolean isGreaterThanMaxYearsSpan(LocalDate fromDate, LocalDate toDate, int maxYearsSpan) {
         long years = YEARS.between(fromDate, toDate);
-        return years >= maxYearSpan;
+        return years >= maxYearsSpan;
     }
 
     private LocalDate adjustYears(LocalDate fromLocal, int years) {

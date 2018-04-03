@@ -41,6 +41,8 @@ public class PrisonerResourceImpl implements PrisonerResource {
                 .dobFrom(fromISO8601DateString(dobFrom))
                 .dobTo(fromISO8601DateString(dobTo))
                 .partialNameMatch(partialNameMatch)
+                .anyMatch(anyMatch)
+                .prioritisedMatch(prioritisedMatch)
                 .build();
 
         Page<PrisonerDetail> offenders = globalSearchService.findOffenders(

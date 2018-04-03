@@ -1,5 +1,6 @@
 package net.syscon.elite.web.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.syscon.elite.security.ExternalIdAuthenticationHelper;
 import net.syscon.elite.security.UserDetailsImpl;
 import org.junit.Before;
@@ -56,13 +57,15 @@ public class JWTTokenEnhancerTest {
     // When client credentials authentication request is made
     // Then internal user property is false
     @Test
-    public void testEnhanceClientOnly() {
+    public void testEnhanceClientOnly() throws Exception {
         when(authentication.isClientOnly()).thenReturn(true);
 
         OAuth2AccessToken enhancedToken = tokenEnhancer.enhance(accessToken, authentication);
 
         assertThat(enhancedToken.getAdditionalInformation()).containsKey(ADD_INFO_INTERNAL_USER);
         assertThat(enhancedToken.getAdditionalInformation().get(ADD_INFO_INTERNAL_USER)).isEqualTo(Boolean.FALSE);
+
+        verifyTokenSerializationDeserialization(enhancedToken);
 
         verify(authentication, times(1)).isClientOnly();
     }
@@ -71,13 +74,15 @@ public class JWTTokenEnhancerTest {
     // And external user identifiers are not provided as request parameters
     // Then internal user property is true
     @Test
-    public void testEnhanceUserOnly() {
+    public void testEnhanceUserOnly() throws Exception {
         when(authentication.isClientOnly()).thenReturn(false);
 
         OAuth2AccessToken enhancedToken = tokenEnhancer.enhance(accessToken, authentication);
 
         assertThat(enhancedToken.getAdditionalInformation()).containsKey(ADD_INFO_INTERNAL_USER);
         assertThat(enhancedToken.getAdditionalInformation().get(ADD_INFO_INTERNAL_USER)).isEqualTo(Boolean.TRUE);
+
+        verifyTokenSerializationDeserialization(enhancedToken);
 
         verify(authentication, times(1)).isClientOnly();
     }
@@ -87,13 +92,15 @@ public class JWTTokenEnhancerTest {
     // Then internal user property is true
     // And no attempt is made to process the request parameters
     @Test
-    public void testEnhanceUserOnlyWithExternalUserIdParams() {
+    public void testEnhanceUserOnlyWithExternalUserIdParams() throws Exception {
         when(authentication.isClientOnly()).thenReturn(false);
 
         OAuth2AccessToken enhancedToken = tokenEnhancer.enhance(accessToken, authentication);
 
         assertThat(enhancedToken.getAdditionalInformation()).containsKey(ADD_INFO_INTERNAL_USER);
         assertThat(enhancedToken.getAdditionalInformation().get(ADD_INFO_INTERNAL_USER)).isEqualTo(Boolean.TRUE);
+
+        verifyTokenSerializationDeserialization(enhancedToken);
 
         verify(authentication, times(1)).isClientOnly();
         verify(externalIdAuthenticationHelper, never()).getUserDetails(anyMap());
@@ -103,7 +110,7 @@ public class JWTTokenEnhancerTest {
     // And valid external user identifiers are provided as request parameters
     // Then internal user property is true
     @Test
-    public void testEnhanceClientWithValidUserIdentity() {
+    public void testEnhanceClientWithValidUserIdentity() throws Exception {
         String TEST_USER_NAME = "NJ6F4X";
 
         Set<GrantedAuthority> authorities =
@@ -122,16 +129,23 @@ public class JWTTokenEnhancerTest {
         assertThat(enhancedToken.getAdditionalInformation()).containsKey(ADD_INFO_USER_NAME);
         assertThat(enhancedToken.getAdditionalInformation().get(ADD_INFO_USER_NAME)).isEqualTo(TEST_USER_NAME);
 
-        assertThat(enhancedToken.getAdditionalInformation()).containsKey(ADD_INFO_SCOPE);
-
-        assertThat((Set<String>) enhancedToken.getAdditionalInformation().get(ADD_INFO_SCOPE))
-                .containsExactlyInAnyOrder("read", "write", "admin");
+        assertThat(enhancedToken.getScope()).containsExactlyInAnyOrder("read", "write", "admin");
 
         assertThat(enhancedToken.getAdditionalInformation()).containsKey(ADD_INFO_AUTHORITIES);
 
         assertThat((Set<String>) enhancedToken.getAdditionalInformation().get(ADD_INFO_AUTHORITIES))
                 .containsExactlyInAnyOrder("ROLE_SYSTEM_USER", "ROLE_A", "ROLE_Z");
 
+        verifyTokenSerializationDeserialization(enhancedToken);
+
         verify(authentication, times(1)).isClientOnly();
+    }
+
+    private void verifyTokenSerializationDeserialization(OAuth2AccessToken accessToken) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        String serializedToken = objectMapper.writeValueAsString(accessToken);
+
+        objectMapper.readValue(serializedToken, OAuth2AccessToken.class);
     }
 }

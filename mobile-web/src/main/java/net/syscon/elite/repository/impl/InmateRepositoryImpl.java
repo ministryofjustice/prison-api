@@ -15,7 +15,6 @@ import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
-import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -237,16 +236,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
     @Override
-    public Page<PrisonerDetail> findOffenders(String query, Range<LocalDate> dobRange, PageRequest pageRequest) {
+    public Page<PrisonerDetail> findOffenders(String query, PageRequest pageRequest) {
         String initialSql = getQuery("FIND_OFFENDERS");
-
-        boolean hasDobRange = Objects.nonNull(dobRange);
-
-        if (hasDobRange) {
-            initialSql += " WHERE O.BIRTH_DATE BETWEEN :fromDob AND :toDob ";
-
-            log.debug("Running between {} and {}", dobRange.getMinimum(), dobRange.getMaximum());
-        }
 
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, PRISONER_DETAIL_MAPPER.getFieldMap());
 
@@ -261,11 +252,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 		MapSqlParameterSource params =
 				createParams( "offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
-
-		if (hasDobRange) {
-			params.addValue("fromDob", DateTimeConverter.toDate(dobRange.getMinimum()));
-			params.addValue("toDob", DateTimeConverter.toDate(dobRange.getMaximum()));
-		}
 
         List<PrisonerDetail> prisonerDetails = jdbcTemplate.query( sql, params, paRowMapper);
 
