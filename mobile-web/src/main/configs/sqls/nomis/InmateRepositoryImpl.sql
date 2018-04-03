@@ -185,14 +185,14 @@ WHERE B.OFFENDER_BOOK_ID = :bookingId
 FIND_OFFENDERS {
   SELECT
     O.OFFENDER_ID_DISPLAY             OFFENDER_NO,
-    UPPER(O.TITLE)                    TITLE,
-    UPPER(O.SUFFIX)                   SUFFIX,
-    UPPER(O.FIRST_NAME)               FIRST_NAME,
-    UPPER(CONCAT(O.MIDDLE_NAME,
+    O.TITLE                           TITLE,
+    O.SUFFIX                          SUFFIX,
+    O.FIRST_NAME                      FIRST_NAME,
+    CONCAT(O.MIDDLE_NAME,
       CASE WHEN MIDDLE_NAME_2 IS NOT NULL
         THEN CONCAT(' ', O.MIDDLE_NAME_2)
-      ELSE '' END))                   MIDDLE_NAMES,
-    UPPER(O.LAST_NAME)                LAST_NAME,
+      ELSE '' END)                    MIDDLE_NAMES,
+    O.LAST_NAME                       LAST_NAME,
     O.BIRTH_DATE                      DATE_OF_BIRTH,
     RCE.DESCRIPTION                   ETHNICITY,
     RCS.DESCRIPTION                   GENDER,
