@@ -69,10 +69,6 @@ public class KeyWorkerAllocatedOffendersStepDefinitions extends AbstractStepDefi
         allocatedSteps.verifyAllocationAgencyId(value);
     }
 
-    @And("^allocated allocation type matches \"([^\"]*)\"$")
-    public void allocationTypeMatches(String value) {
-        allocatedSteps.verifyAllocationType(value);
-    }
 
     @And("^allocated internal location matches \"([^\"]*)\"$")
     public void allocationInternalLocationDescMatches(String value) {
