@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.PrisonerDetail;
 import net.syscon.elite.api.resource.PrisonerResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.GlobalSearchService;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
@@ -12,7 +13,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import javax.ws.rs.Path;
 
 import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
-import static net.syscon.util.ResourceUtils.nvl;
 
 @RestResource
 @Path("prisoners")
@@ -47,10 +47,7 @@ public class PrisonerResourceImpl implements PrisonerResource {
 
         Page<PrisonerDetail> offenders = globalSearchService.findOffenders(
                 criteria,
-                sortFields,
-                sortOrder,
-                nvl(pageOffset,0L),
-                nvl(pageLimit,10L));
+                new PageRequest(sortFields, sortOrder, pageOffset, pageLimit));
 
         return GetPrisonersResponse.respond200WithApplicationJson(offenders);
     }

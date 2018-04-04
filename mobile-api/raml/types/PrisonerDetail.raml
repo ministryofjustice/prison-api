@@ -38,6 +38,11 @@ properties:
     type: string
     description: Flag (Y or N) to indicate if prisoner is currently in prison.
     example: Y
+  latestBookingId?:
+    type: number
+    (javaType): Long
+    description: ID of prisoner's latest booking.
+    example: 67433
   latestLocationId?:
     type: string
     description: Latest location ID of a prisoner (if in prison).

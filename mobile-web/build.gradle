@@ -57,6 +57,8 @@ project(":mobile-web") {
         testCompile("org.springframework.security:spring-security-test:4.2.3.RELEASE")
         testCompile("com.google.code.gson:gson:2.8.2")
         testCompile("org.assertj:assertj-core:3.8.0")
+        testCompile("org.powermock:powermock-module-junit4:1.7.3")
+        testCompile("org.powermock:powermock-api-mockito:1.7.3")
 
         testCompile 'com.tngtech.java:junit-dataprovider:1.13.1'
         testCompile "org.seleniumhq.selenium:htmlunit-driver:2.28.2"

@@ -376,6 +376,7 @@ FIND_OFFENDERS {
     RCE.DESCRIPTION                   ETHNICITY,
     RCS.DESCRIPTION                   GENDER,
     RCC.DESCRIPTION                   BIRTH_COUNTRY,
+    OB.OFFENDER_BOOK_ID               LATEST_BOOKING_ID,
     OB.BOOKING_BEGIN_DATE             RECEPTION_DATE,
     OB.ACTIVE_FLAG                    CURRENTLY_IN_PRISON,
     OB.AGY_LOC_ID                     LATEST_LOCATION_ID,
