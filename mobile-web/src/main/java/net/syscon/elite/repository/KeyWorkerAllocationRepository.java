@@ -18,7 +18,7 @@ public interface KeyWorkerAllocationRepository {
 
     Optional<Keyworker> getKeyworkerDetailsByBooking(Long bookingId);
 
-    List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworker(Long staffId);
+    List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworker(Long staffId, List<String> agencyIds);
 
     boolean checkKeyworkerExists(Long staffId);
 

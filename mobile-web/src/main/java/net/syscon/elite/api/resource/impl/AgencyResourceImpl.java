@@ -60,6 +60,12 @@ public class AgencyResourceImpl implements AgencyResource {
     }
 
     @Override
+    public GetAgenciesByCaseloadResponse getAgenciesByCaseload(String caseload) {
+        List<Agency> agenciesByCaseload = agencyService.getAgenciesByCaseload(caseload);
+        return GetAgenciesByCaseloadResponse.respond200WithApplicationJson(agenciesByCaseload);
+    }
+
+    @Override
     public GetPrisonContactDetailListResponse getPrisonContactDetailList() {
         final List<PrisonContactDetail> prisonContactDetail = agencyService.getPrisonContactDetail();
         return GetPrisonContactDetailListResponse.respond200WithApplicationJson(prisonContactDetail);

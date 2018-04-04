@@ -29,6 +29,11 @@ public class AgencyStepDefinitions extends AbstractStepDefinitions {
         agencySteps.getAllAgencies();
     }
 
+    @When("^a request is submitted to retrieve all agencies by caseload \"([^\"]*)\"$")
+    public void requestSubmittedToRetrieveAgenciesByCaseload(String caseload) throws Throwable {
+        agencySteps.getAgenciesByCaseload(caseload);
+    }
+
     @Then("^the returned agencies are as follows:$")
     public void agenciesAreReturnedAsFollows(DataTable table) throws Throwable {
         final List<Agency> expected = table.asList(Agency.class);

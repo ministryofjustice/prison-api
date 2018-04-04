@@ -23,4 +23,5 @@ public interface AgencyService {
     List<Location> getAgencyEventLocations(String agencyId, String sortFields, Order sortOrder);
     List<PrisonContactDetail> getPrisonContactDetail();
     PrisonContactDetail getPrisonContactDetail(String agencyId);
+    List<Agency> getAgenciesByCaseload(String caseload);
 }

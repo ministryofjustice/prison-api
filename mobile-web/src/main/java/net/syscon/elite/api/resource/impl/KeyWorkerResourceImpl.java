@@ -29,8 +29,8 @@ public class KeyWorkerResourceImpl implements KeyWorkerResource {
     }
 
     @Override
-    public GetAllocationsForKeyworkerResponse getAllocationsForKeyworker(Long staffId) {
-        final List<KeyWorkerAllocationDetail> allocationDetails = keyWorkerService.getAllocationDetailsForKeyworker(staffId);
+    public GetAllocationsForKeyworkerResponse getAllocationsForKeyworker(Long staffId, String agencyId) {
+        final List<KeyWorkerAllocationDetail> allocationDetails = keyWorkerService.getAllocationDetailsForKeyworker(staffId, agencyId);
 
         return GetAllocationsForKeyworkerResponse.respond200WithApplicationJson(allocationDetails);
     }

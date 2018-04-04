@@ -27,6 +27,7 @@ public class AgencySteps extends CommonSteps {
     public static final String API_AGENCY_URL = API_REF_PREFIX + "{agencyId}";
     private static final String API_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/locations";
     private static final String API_EVENT_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/eventLocations";
+    private static final String API_CASELOAD_URL = API_REF_PREFIX + "caseload/{caseload}";
     private List<Agency> agencies;
     private Agency agency;
     private List<Location> locations;
@@ -101,6 +102,19 @@ public class AgencySteps extends CommonSteps {
         }
     }
 
+    private void dispatchObjectRequestForCaseload(String resourcePath, String caseload) {
+        init();
+        try {
+            ResponseEntity<List<Agency>> response = restTemplate.exchange(resourcePath, HttpMethod.GET, createEntity(),
+                    new ParameterizedTypeReference<List<Agency>>() {}, caseload);
+
+            agencies = response.getBody();
+            buildResourceData(response);
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -161,5 +175,9 @@ public class AgencySteps extends CommonSteps {
             assertEquals(expectedThis.getUserDescription(), actualThis.getUserDescription());
         }
         assertFalse("Too many actual events", actualIterator.hasNext());
+    }
+
+    public void getAgenciesByCaseload(String caseload) {
+        dispatchObjectRequestForCaseload(API_CASELOAD_URL, caseload);
     }
 }

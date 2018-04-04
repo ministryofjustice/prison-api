@@ -141,6 +141,11 @@ public class AgencyServiceImpl implements AgencyService {
         return prisonContactDetailList.get(0);
     }
 
+    @Override
+    public List<Agency> getAgenciesByCaseload(String caseload) {
+        return agencyRepository.findAgenciesByCaseload(caseload);
+    }
+
     //It is possible for invalid/empty address records to be persisted
     @VisibleForTesting
     List<PrisonContactDetail> removeBlankAddresses(List<PrisonContactDetail> list) {
