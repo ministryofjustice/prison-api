@@ -1,9 +1,6 @@
 package net.syscon.elite.service;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.Wither;
 
 import java.time.LocalDate;
@@ -13,6 +10,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @ToString
 @Wither
+@EqualsAndHashCode
 public class PrisonerDetailSearchCriteria {
     private String offenderNo;
     private String firstName;
