@@ -28,6 +28,21 @@ Feature: Agencies
       | TRO      | INST       | TROOM        |
       | WAI      | INST       | THE WEARE    |
 
+  Scenario: Retrieve agency by caseload for single agency
+    When a request is submitted to retrieve all agencies by caseload "LEI"
+    Then "1" agency records are returned
+    Then the returned agencies are as follows:
+      | agencyId | agencyType | description  |
+      | LEI      | INST       | LEEDS        |
+
+  Scenario: Retrieve agency by caseload for multi agency
+    When a request is submitted to retrieve all agencies by caseload "MUL"
+    Then "2" agency records are returned
+    Then the returned agencies are as follows:
+      | agencyId | agencyType | description  |
+      | BXI      | INST       | BRIXTON      |
+      | LEI      | INST       | LEEDS        |
+
   Scenario Outline: Retrieve agency details
     When a request is submitted to retrieve agency "<agencyId>"
     Then the returned agency agencyId is "<agencyId>"

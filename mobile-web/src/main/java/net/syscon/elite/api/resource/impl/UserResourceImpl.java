@@ -12,9 +12,11 @@ import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
 import org.springframework.core.env.Environment;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.CollectionUtils;
 
 import javax.ws.rs.Path;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -58,8 +60,6 @@ public class UserResourceImpl implements UserResource {
 
         return GetMyUserInformationResponse.respond200WithApplicationJson(user);
     }
-
-
 
     @Override
     public GetMyCaseLoadsResponse getMyCaseLoads(boolean allCaseloads) {
@@ -130,22 +130,25 @@ public class UserResourceImpl implements UserResource {
 
         if (nomisProfile) {
             iepLevel = true;
-            UserDetail userByUsername = userService.getUserByUsername(authenticationFacade.getCurrentUsername());
-            List<KeyWorkerAllocationDetail> allocations = keyWorkerAllocationService.getAllocationDetailsForKeyworker(userByUsername.getStaffId());
+            List<KeyWorkerAllocationDetail> allocations = keyWorkerAllocationService.getAllocationsForCurrentCaseload(authenticationFacade.getCurrentUsername());
             offenderNos = allocations.stream().map(KeyWorkerAllocationDetail::getOffenderNo).collect(Collectors.toList());
         } else {
             bookingIds = inmateService.getPersonalOfficerBookings(authenticationFacade.getCurrentUsername());
-
         }
-        Page<OffenderBooking> assignments = inmateService.findAllInmates(
-                InmateSearchCriteria.builder()
-                        .username(authenticationFacade.getCurrentUsername())
-                        .iepLevel(iepLevel)
-                        .offenderNos(offenderNos)
-                        .bookingIds(bookingIds)
-                        .pageRequest(new PageRequest(null, Order.ASC, pageOffset, pageLimit))
-                        .build());
 
+        final PageRequest pageRequest = new PageRequest(null, Order.ASC, pageOffset, pageLimit);
+        Page<OffenderBooking> assignments = new Page<>(Collections.emptyList(), 0, pageRequest.getOffset(), pageRequest.getLimit());
+
+        if (!(CollectionUtils.isEmpty(bookingIds) && CollectionUtils.isEmpty(offenderNos))) {
+            assignments = inmateService.findAllInmates(
+                    InmateSearchCriteria.builder()
+                            .username(authenticationFacade.getCurrentUsername())
+                            .iepLevel(iepLevel)
+                            .offenderNos(offenderNos)
+                            .bookingIds(bookingIds)
+                            .pageRequest(pageRequest)
+                            .build());
+        }
         return GetMyAssignmentsResponse.respond200WithApplicationJson(assignments);
     }
 }

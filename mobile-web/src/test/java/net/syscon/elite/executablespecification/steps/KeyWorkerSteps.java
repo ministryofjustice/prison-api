@@ -19,7 +19,7 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 public class KeyWorkerSteps extends CommonSteps{
     private static final String KEY_WORKER_API_URL_WITH_AGENCY_PARAM = API_PREFIX + "key-worker/%s/available";
     private static final String KEY_WORKER_API_DETAILS = API_PREFIX + "key-worker/{staffId}";
-    private static final String KEY_WORKER_API_URL_WITH_STAFF_ID_PARAM = API_PREFIX + "key-worker/{staffId}/offenders";
+    private static final String KEY_WORKER_API_URL_WITH_STAFF_ID_PARAM = API_PREFIX + "key-worker/{staffId}/agency/{agencyId}/offenders";
 
     private List<Keyworker> keyworkerList;
     private Keyworker keyworker;
@@ -55,7 +55,7 @@ public class KeyWorkerSteps extends CommonSteps{
         }
     }
 
-    private void doAllocationsApiCall(Long staffId) {
+    private void doAllocationsApiCall(Long staffId, String agencyId) {
         init();
         try {
             ResponseEntity<List<KeyWorkerAllocationDetail>> response =
@@ -63,7 +63,7 @@ public class KeyWorkerSteps extends CommonSteps{
                             KEY_WORKER_API_URL_WITH_STAFF_ID_PARAM,
                             HttpMethod.GET,
                             createEntity(),
-                            new ParameterizedTypeReference<List<KeyWorkerAllocationDetail>>() {}, staffId);
+                            new ParameterizedTypeReference<List<KeyWorkerAllocationDetail>>() {}, staffId, agencyId);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
@@ -108,13 +108,13 @@ public class KeyWorkerSteps extends CommonSteps{
         assertThat(keyworker.getLastName()).isEqualTo("User");
     }
 
-    @Step("Verify number of allocations for Key worker")
+    @Step("Verify number of offender allocations for Key worker")
     public void verifyKeyWorkerAllocationCount(int expectedAllocationCount) {
-        assertThat(keyworker.getNumberAllocated()).isEqualTo(expectedAllocationCount);
+        assertThat(allocationsList).hasSize(expectedAllocationCount);
     }
 
-    public void getKeyworkerAllocations(Long staffId) {
-        doAllocationsApiCall(staffId);
+    public void getKeyworkerAllocations(Long staffId, String agencyId) {
+        doAllocationsApiCall(staffId, agencyId);
     }
 
     public void verifyKeyWorkerAllocations() {

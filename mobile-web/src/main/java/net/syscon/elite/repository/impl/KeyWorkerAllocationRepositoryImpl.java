@@ -58,12 +58,12 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
     }
 
     @Override
-    public List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworker(Long staffId) {
+    public List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworker(Long staffId, List<String> agencyIds) {
         String sql = getQuery("GET_ALLOCATION_DETAIL_FOR_KEY_WORKER");
 
         return jdbcTemplate.query(
                 sql,
-                createParams("staffId", staffId),
+                createParams("staffId", staffId, "agencyIds", agencyIds),
                 KEY_WORKER_ALLOCATION_DETAIL_ROW_MAPPER);
     }
 

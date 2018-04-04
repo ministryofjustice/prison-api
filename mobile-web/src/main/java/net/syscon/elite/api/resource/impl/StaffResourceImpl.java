@@ -9,6 +9,7 @@ import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.StaffService;
 import net.syscon.elite.service.StaffService.GetStaffRoleRequest;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.ws.rs.Path;
 import java.util.List;
@@ -16,10 +17,13 @@ import java.util.List;
 @RestResource
 @Path("staff")
 public class StaffResourceImpl implements StaffResource {
+    private final String apiCaseloadId;
     private final StaffService staffService;
 
-    public StaffResourceImpl(StaffService staffService) {
+    public StaffResourceImpl(StaffService staffService,
+                             @Value("${application.caseload.id}") String apiCaseloadId ) {
         this.staffService = staffService;
+        this.apiCaseloadId = apiCaseloadId;
     }
 
     @Override
@@ -63,6 +67,12 @@ public class StaffResourceImpl implements StaffResource {
     public GetAccessRolesByCaseloadResponse getAccessRolesByCaseload(Long staffId, String caseload) {
         List<StaffUserRole> staffUserRoleList = staffService.getRolesByCaseload(staffId, caseload);
         return GetAccessRolesByCaseloadResponse.respond200WithApplicationJson(staffUserRoleList);
+    }
+
+    @Override
+    public AddStaffAccessRoleForApiCaseloadResponse addStaffAccessRoleForApiCaseload(Long staffId, String body) {
+        StaffUserRole staffUserRole = staffService.addStaffRole(staffId, apiCaseloadId, body);
+        return AddStaffAccessRoleForApiCaseloadResponse.respond201WithApplicationJson(staffUserRole);
     }
 
     @Override

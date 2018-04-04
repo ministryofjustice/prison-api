@@ -82,6 +82,19 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
     }
 
     @Override
+    public List<Agency> findAgenciesByCaseload(String caseload) {
+        String initialSql = getQuery("FIND_AGENCIES_BY_CASELOAD");
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, AGENCY_ROW_MAPPER);
+
+        String sql = builder.build();
+        return jdbcTemplate.query(
+                sql,
+                createParams("caseloadId", caseload),
+                AGENCY_ROW_MAPPER);
+    }
+
+
+    @Override
     public Optional<Agency> getAgency(String agencyId) {
         String initialSql = getQuery("GET_AGENCY");
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, AGENCY_ROW_MAPPER);

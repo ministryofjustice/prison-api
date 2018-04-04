@@ -42,9 +42,9 @@ public class KeyworkerStepDefinitions extends AbstractStepDefinitions {
         keyworker.verifyKeyWorkerAllocationCount(expectedAllocationCount);
     }
 
-    @When("^a key worker allocations request is made with staff id \"([^\"]*)\"$")
-    public void keyWorkerAllocationsRequestIsMade(Long staffId) throws Throwable {
-        keyworker.getKeyworkerAllocations(staffId);
+    @When("^a key worker allocations request is made with staff id \"([^\"]*)\" and agency \"([^\"]*)\"$")
+    public void keyWorkerAllocationsRequestIsMade(Long staffId, String agency) throws Throwable {
+        keyworker.getKeyworkerAllocations(staffId, agency);
     }
     
 
