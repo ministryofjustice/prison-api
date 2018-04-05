@@ -14,6 +14,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.NotSupportedException;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -66,6 +67,10 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
             status = Response.Status.CONFLICT.getStatusCode();
             userMessage = ex.getMessage();
             log.error("Resource Conflict Error", ex);
+        } else if (ex instanceof NotSupportedException) {
+            status = Response.Status.NOT_IMPLEMENTED.getStatusCode();
+            userMessage = ex.getMessage();
+            log.error("Service Not Implemented", ex);
         } else {
             status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
             userMessage = "An internal error has occurred - please try again later.";
