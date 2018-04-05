@@ -24,7 +24,7 @@ public class PrisonerResourceImpl implements PrisonerResource {
     }
 
     @Override
-    @PreAuthorize("hasRole('SYSTEM_USER')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
     public GetPrisonersResponse getPrisoners(String offenderNo, String pncNumber, String croNumber, String firstName,
                                              String middleNames, String lastName, String dob, String dobFrom,
                                              String dobTo, boolean partialNameMatch, boolean prioritisedMatch,

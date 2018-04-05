@@ -23,6 +23,7 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotSupportedException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -560,21 +561,12 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public OffenderSummary createBooking(@Valid NewBooking newBooking) {
-        return OffenderSummary.builder()
-                .firstName(newBooking.getFirstName())
-                .lastName(newBooking.getLastName())
-                .middleNames((StringUtils.trimToNull(StringUtils.join(newBooking.getMiddleName1(), " ", newBooking.getMiddleName2()))))
-                .offenderNo(newBooking.getOffenderNo())
-                .build();
+        throw new NotSupportedException("Service not implemented here.");
     }
 
     @Override
     public OffenderSummary recallBooking(@Valid RecallBooking recallBooking) {
-        return OffenderSummary.builder()
-                .offenderNo(recallBooking.getOffenderNo())
-                .firstName(recallBooking.getFirstName())
-                .lastName(recallBooking.getLastName())
-                .build();
+        throw new NotSupportedException("Service not implemented here.");
     }
 
     private Set<String> getUserCaseloadIds(String username) {
