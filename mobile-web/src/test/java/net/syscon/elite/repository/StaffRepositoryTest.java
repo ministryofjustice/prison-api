@@ -44,7 +44,8 @@ public class StaffRepositoryTest {
                 .orElseThrow(EntityNotFoundException.withId(testStaffId));
 
         assertThat(staffDetail.getFirstName()).isEqualTo("Elite2");
-        assertThat(staffDetail.getEmail()).isEqualTo("elite2-api-user@syscon.net");
+        // Email removed (Note staff member can have more than one email address)
+        // assertThat(staffDetail.getEmail()).isEqualTo("elite2-api-user@syscon.net");
     }
 
     @Test
@@ -130,7 +131,6 @@ public class StaffRepositoryTest {
         assertThat(slr.getStaffId()).isEqualTo(-9);
         assertThat(slr.getFirstName()).isEqualTo("Wing");
         assertThat(slr.getLastName()).isEqualTo("Officer4");
-        assertThat(slr.getEmail()).isNull();
         assertThat(slr.getFromDate()).isEqualTo(LocalDate.of(2018,1,2));
         assertThat(slr.getToDate()).isNull();
         assertThat(slr.getPosition()).isEqualTo("AO");
@@ -162,7 +162,7 @@ public class StaffRepositoryTest {
         assertThat(slr.getStaffId()).isEqualTo(-2);
         assertThat(slr.getFirstName()).isEqualTo("API");
         assertThat(slr.getLastName()).isEqualTo("User");
-        assertThat(slr.getEmail()).isEqualTo("itaguser@syscon.net");
+        // assertThat(slr.getEmail()).isEqualTo("itaguser@syscon.net");
         assertThat(slr.getFromDate()).isEqualTo(LocalDate.of(2016,8,8));
         assertThat(slr.getToDate()).isNull();
         assertThat(slr.getPosition()).isEqualTo("PRO");

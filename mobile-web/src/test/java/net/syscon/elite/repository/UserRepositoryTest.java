@@ -38,7 +38,6 @@ public class UserRepositoryTest {
         UserDetail user = repository.findByUsername("ITAG_USER").orElseThrow(EntityNotFoundException.withId("ITAG_USER"));
 
         assertThat(user.getLastName()).isEqualTo("User");
-        assertThat(user.getEmail()).isEqualTo("itaguser@syscon.net");
     }
 
     @Test
