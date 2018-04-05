@@ -92,11 +92,6 @@ public class StaffSteps extends CommonSteps {
         assertThat(staffDetail.getLastName()).isEqualTo(lastName);
     }
 
-//    @Step("Verify staff details - email")
-//    public void verifyStaffEmail(String email) {
-//        assertThat(staffDetail.getEmail()).isEqualTo(email);
-//    }
-
     @Step("Verify staff ids returned")
     public void verifyStaffIds(String staffIds) {
         verifyLongValues(staffDetails, StaffLocationRole::getStaffId, staffIds);

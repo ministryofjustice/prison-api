@@ -44,8 +44,6 @@ public class StaffRepositoryTest {
                 .orElseThrow(EntityNotFoundException.withId(testStaffId));
 
         assertThat(staffDetail.getFirstName()).isEqualTo("Elite2");
-        // Email removed (Note staff member can have more than one email address)
-        // assertThat(staffDetail.getEmail()).isEqualTo("elite2-api-user@syscon.net");
     }
 
     @Test
