@@ -14,7 +14,8 @@ Feature: Staff Details and Roles
     When a staff member search is made using staff id "<staffId>"
     Then first name of staff details returned is "<firstName>"
     And last name of staff details returned is "<lastName>"
-    And email address of staff details returned is "<email>"
+# Email removed (Note staff member can have more than one email address)
+#    And email address of staff details returned is "<email>"
 
     Examples:
       | staffId | firstName | lastName | email                      |

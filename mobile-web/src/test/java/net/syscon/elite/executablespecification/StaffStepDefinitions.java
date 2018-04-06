@@ -32,11 +32,6 @@ public class StaffStepDefinitions extends AbstractStepDefinitions {
         staff.verifyStaffLastName(lastName);
     }
 
-    @And("^email address of staff details returned is \"([^\"]*)\"$")
-    public void emailAddressOfStaffDetailsReturnedIs(String email) throws Throwable {
-        staff.verifyStaffEmail(email);
-    }
-
     @Then("^resource not found response is received from staff API$")
     public void resourceNotFoundResponseIsReceivedFromStaffAPI() throws Throwable {
         staff.verifyResourceNotFound();
