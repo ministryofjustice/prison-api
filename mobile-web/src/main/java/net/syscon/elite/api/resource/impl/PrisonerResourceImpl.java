@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.PrisonerDetail;
 import net.syscon.elite.api.resource.PrisonerResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.GlobalSearchService;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
@@ -12,7 +13,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import javax.ws.rs.Path;
 
 import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
-import static net.syscon.util.ResourceUtils.nvl;
 
 @RestResource
 @Path("prisoners")
@@ -24,7 +24,7 @@ public class PrisonerResourceImpl implements PrisonerResource {
     }
 
     @Override
-    @PreAuthorize("hasRole('SYSTEM_USER')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
     public GetPrisonersResponse getPrisoners(String offenderNo, String pncNumber, String croNumber, String firstName,
                                              String middleNames, String lastName, String dob, String dobFrom,
                                              String dobTo, boolean partialNameMatch, boolean prioritisedMatch,
@@ -41,14 +41,13 @@ public class PrisonerResourceImpl implements PrisonerResource {
                 .dobFrom(fromISO8601DateString(dobFrom))
                 .dobTo(fromISO8601DateString(dobTo))
                 .partialNameMatch(partialNameMatch)
+                .anyMatch(anyMatch)
+                .prioritisedMatch(prioritisedMatch)
                 .build();
 
         Page<PrisonerDetail> offenders = globalSearchService.findOffenders(
                 criteria,
-                sortFields,
-                sortOrder,
-                nvl(pageOffset,0L),
-                nvl(pageLimit,10L));
+                new PageRequest(sortFields, sortOrder, pageOffset, pageLimit));
 
         return GetPrisonersResponse.respond200WithApplicationJson(offenders);
     }

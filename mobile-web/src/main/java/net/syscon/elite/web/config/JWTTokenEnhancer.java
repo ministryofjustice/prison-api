@@ -10,13 +10,15 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class JWTTokenEnhancer implements TokenEnhancer {
     public static final String ADD_INFO_INTERNAL_USER = "internalUser";
     public static final String ADD_INFO_USER_NAME = "user_name";
-    public static final String ADD_INFO_SCOPE = "scope";
     public static final String ADD_INFO_AUTHORITIES = "authorities";
 
     @Autowired
@@ -27,11 +29,7 @@ public class JWTTokenEnhancer implements TokenEnhancer {
         Map<String, Object> additionalInfo = new HashMap<>();
 
         if (authentication.isClientOnly()) {
-            if (addUserFromExternalId(authentication, additionalInfo)) {
-                additionalInfo.put(ADD_INFO_INTERNAL_USER, Boolean.TRUE);
-            } else {
-                additionalInfo.put(ADD_INFO_INTERNAL_USER, Boolean.FALSE);
-            }
+            additionalInfo.putAll(addUserFromExternalId(authentication, accessToken));
         } else {
             additionalInfo.put(ADD_INFO_INTERNAL_USER, Boolean.TRUE);
         }
@@ -47,7 +45,9 @@ public class JWTTokenEnhancer implements TokenEnhancer {
     // authentication fails. If a system user account is identified, the user id will be added to the token,
     // the token's scope will be 'narrowed' to include 'write' scope and the system user's roles will be added
     // to token authorities.
-    private boolean addUserFromExternalId(OAuth2Authentication authentication, Map<String,Object> additionalInfo) {
+    private Map<String, Object> addUserFromExternalId(OAuth2Authentication authentication, OAuth2AccessToken accessToken) {
+        Map<String, Object> additionalInfo = new HashMap<>();
+
         // Determine if both user_id_type and user_id request parameters exist.
         OAuth2Request request = authentication.getOAuth2Request();
 
@@ -57,6 +57,7 @@ public class JWTTokenEnhancer implements TokenEnhancer {
         UserDetails userDetails = externalIdAuthenticationHelper.getUserDetails(requestParams);
 
         if (userDetails != null) {
+            additionalInfo.put(ADD_INFO_INTERNAL_USER, Boolean.TRUE);
             additionalInfo.put(ADD_INFO_USER_NAME, userDetails.getUsername());
 
             // Merge standard user credential scopes with those for client credentials
@@ -65,7 +66,7 @@ public class JWTTokenEnhancer implements TokenEnhancer {
             scope.add("read");
             scope.add("write");
 
-            additionalInfo.put(ADD_INFO_SCOPE, scope);
+            ((DefaultOAuth2AccessToken) accessToken).setScope(scope);
 
             // Merge user authorities with those associated with client credentials
             Set<GrantedAuthority> authorities = new HashSet<>(request.getAuthorities());
@@ -74,8 +75,10 @@ public class JWTTokenEnhancer implements TokenEnhancer {
 
             additionalInfo.put(ADD_INFO_AUTHORITIES,
                     authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet()));
+        } else {
+            additionalInfo.put(ADD_INFO_INTERNAL_USER, Boolean.FALSE);
         }
 
-        return !Objects.isNull(userDetails);
+        return additionalInfo;
     }
 }

@@ -42,3 +42,8 @@
 /prison/{agencyId}:
   (javaOperationName): getPrisonContactDetail
   type: { readOnlyItem: { type: PrisonContactDetail, description: Prison contact detail. } }
+
+/caseload/{caseload}:
+  description: Returns list of active agencies for the caseload
+  (javaOperationName): getAgenciesByCaseload
+  type: { readOnlyCollection: { type: Agency, description: List of agencies for caseload. } }

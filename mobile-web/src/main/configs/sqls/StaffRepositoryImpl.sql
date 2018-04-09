@@ -2,11 +2,6 @@ FIND_STAFF_BY_STAFF_ID {
   SELECT SM.STAFF_ID,
          SM.FIRST_NAME,
          SM.LAST_NAME,
-         (SELECT IA.INTERNET_ADDRESS
-          FROM INTERNET_ADDRESSES IA
-          WHERE IA.OWNER_ID = SM.STAFF_ID
-            AND IA.OWNER_CLASS = 'STF'
-            AND IA.INTERNET_ADDRESS_CLASS = 'EMAIL') EMAIL,
          (SELECT MAX(I.IMAGE_ID)
           FROM IMAGES I
           WHERE SM.STAFF_ID = I.IMAGE_OBJECT_ID
@@ -21,11 +16,7 @@ FIND_STAFF_BY_PERSONNEL_IDENTIFIER {
          SM.FIRST_NAME,
          SM.LAST_NAME,
          SM.STATUS,
-         (SELECT IA.INTERNET_ADDRESS
-          FROM INTERNET_ADDRESSES IA
-          WHERE IA.OWNER_ID = SM.STAFF_ID
-            AND IA.OWNER_CLASS = 'STF'
-            AND IA.INTERNET_ADDRESS_CLASS = 'EMAIL') EMAIL,
+-- NOTE staff member could have >1 email
          (SELECT MAX(I.IMAGE_ID)
           FROM IMAGES I
           WHERE SM.STAFF_ID = I.IMAGE_OBJECT_ID
@@ -40,11 +31,7 @@ FIND_STAFF_BY_AGENCY_AND_ROLE {
   SELECT SLR.SAC_STAFF_ID                             STAFF_ID,
          SM.FIRST_NAME,
          SM.LAST_NAME,
-         (SELECT IA.INTERNET_ADDRESS
-            FROM INTERNET_ADDRESSES IA
-           WHERE IA.OWNER_ID = SM.STAFF_ID
-             AND IA.OWNER_CLASS = 'STF'
-             AND IA.INTERNET_ADDRESS_CLASS = 'EMAIL') EMAIL,
+-- NOTE staff member could have >1 email
          (SELECT MAX(I.IMAGE_ID)
             FROM IMAGES I
            WHERE SM.STAFF_ID = I.IMAGE_OBJECT_ID
@@ -81,11 +68,7 @@ FIND_STAFF_BY_AGENCY_POSITION_ROLE {
   SELECT SLR.SAC_STAFF_ID                             STAFF_ID,
          SM.FIRST_NAME,
          SM.LAST_NAME,
-         (SELECT IA.INTERNET_ADDRESS
-            FROM INTERNET_ADDRESSES IA
-           WHERE IA.OWNER_ID = SM.STAFF_ID
-             AND IA.OWNER_CLASS = 'STF'
-             AND IA.INTERNET_ADDRESS_CLASS = 'EMAIL') EMAIL,
+-- NOTE staff member could have >1 email
          (SELECT MAX(I.IMAGE_ID)
             FROM IMAGES I
            WHERE SM.STAFF_ID = I.IMAGE_OBJECT_ID

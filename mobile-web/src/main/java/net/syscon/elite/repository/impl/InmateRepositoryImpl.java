@@ -15,7 +15,6 @@ import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
-import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -23,7 +22,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.util.*;
 
 import static net.syscon.elite.repository.ImageRepository.IMAGE_DETAIL_MAPPER;
@@ -47,7 +45,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             .put("LIVING_UNIT_ID",      new FieldMapper("assignedLivingUnitId"))
             .put("LIVING_UNIT_DESC",    new FieldMapper("assignedLivingUnitDesc", value -> StringUtils.replaceFirst((String)value, "^[A-Z|a-z|0-9]+\\-", "")))
             .put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerId"))
-			.put("IEP_LEVEL", new FieldMapper("iepLevel"))
             .build();
 
     private final Map<String, FieldMapper> inmateDetailsMapping = new ImmutableMap.Builder<String, FieldMapper>()
@@ -237,16 +234,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
     @Override
-    public Page<PrisonerDetail> findOffenders(String query, Range<LocalDate> dobRange, PageRequest pageRequest) {
+    public Page<PrisonerDetail> findOffenders(String query, PageRequest pageRequest) {
         String initialSql = getQuery("FIND_OFFENDERS");
-
-        boolean hasDobRange = Objects.nonNull(dobRange);
-
-        if (hasDobRange) {
-            initialSql += " WHERE O.BIRTH_DATE BETWEEN :fromDob AND :toDob ";
-
-            log.debug("Running between {} and {}", dobRange.getMinimum(), dobRange.getMaximum());
-        }
 
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, PRISONER_DETAIL_MAPPER.getFieldMap());
 
@@ -261,11 +250,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 		MapSqlParameterSource params =
 				createParams( "offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
-
-		if (hasDobRange) {
-			params.addValue("fromDob", DateTimeConverter.toDate(dobRange.getMinimum()));
-			params.addValue("toDob", DateTimeConverter.toDate(dobRange.getMaximum()));
-		}
 
         List<PrisonerDetail> prisonerDetails = jdbcTemplate.query( sql, params, paRowMapper);
 
@@ -418,7 +402,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		try {
 			inmate = jdbcTemplate.queryForObject(
 					sql,
-					createParams("bookingId", bookingId, "currentDate", DateTimeConverter.toDate(LocalDate.now())),
+					createParams("bookingId", bookingId),
 					inmateRowMapper);
 			inmate.setAge(DateTimeConverter.getAge(inmate.getDateOfBirth()));
 		} catch (EmptyResultDataAccessException ex) {

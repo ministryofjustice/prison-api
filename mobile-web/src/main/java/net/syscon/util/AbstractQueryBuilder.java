@@ -9,9 +9,8 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-/**
- * Created by andrewk on 13/06/2017.
- */
+import static net.syscon.util.QueryUtil.prepareQuery;
+
 public abstract class AbstractQueryBuilder implements IQueryBuilder {
 
     private static final Pattern COMMA_PATTERN = Pattern.compile(",");
@@ -64,6 +63,8 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
     @Override
     public IQueryBuilder addQuery(final String query) {
         if (StringUtils.isNotBlank(query)) {
+            List<String> queryTerms = new ArrayList<>();
+
             List<String> queryList = QueryUtil.checkPrecedencyAndSplit(query, new ArrayList<>());
 
             queryList.stream()
@@ -74,13 +75,19 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
                                     .replace("(", "")
                                     .replace(")", "");
 
-                            extraWhere.append(
-                                    QueryUtil.prepareQuery(modifiedQueryItem, true, fieldMap));
+                            queryTerms.add(prepareQuery(modifiedQueryItem, true, fieldMap));
                         } else {
-                            extraWhere.append(
-                                    QueryUtil.prepareQuery(queryItem, false, fieldMap));
+                            queryTerms.add(prepareQuery(queryItem, false, fieldMap));
                         }
                     });
+
+            String fullQuery = StringUtils.normalizeSpace(StringUtils.join(queryTerms, " "));
+
+            if (fullQuery.startsWith("AND ")) {
+                extraWhere.append(fullQuery.substring(4));
+		    } else if (fullQuery.startsWith("OR ")) {
+                extraWhere.append(fullQuery.substring(3));
+		    }
         }
 
         return this;

@@ -364,18 +364,19 @@ FIND_PERSONAL_OFFICER_BOOKINGS {
 FIND_OFFENDERS {
   SELECT
     O.OFFENDER_ID_DISPLAY             OFFENDER_NO,
-    UPPER(O.TITLE)                    TITLE,
-    UPPER(O.SUFFIX)                   SUFFIX,
-    UPPER(O.FIRST_NAME)               FIRST_NAME,
-    UPPER(CONCAT(O.MIDDLE_NAME,
+    O.TITLE                           TITLE,
+    O.SUFFIX                          SUFFIX,
+    O.FIRST_NAME                      FIRST_NAME,
+    CONCAT(O.MIDDLE_NAME,
       CASE WHEN MIDDLE_NAME_2 IS NOT NULL
         THEN CONCAT(' ', O.MIDDLE_NAME_2)
-      ELSE '' END))                   MIDDLE_NAMES,
-    UPPER(O.LAST_NAME)                LAST_NAME,
+      ELSE '' END)                    MIDDLE_NAMES,
+    O.LAST_NAME                       LAST_NAME,
     O.BIRTH_DATE                      DATE_OF_BIRTH,
     RCE.DESCRIPTION                   ETHNICITY,
     RCS.DESCRIPTION                   GENDER,
     RCC.DESCRIPTION                   BIRTH_COUNTRY,
+    OB.OFFENDER_BOOK_ID               LATEST_BOOKING_ID,
     OB.BOOKING_BEGIN_DATE             RECEPTION_DATE,
     OB.ACTIVE_FLAG                    CURRENTLY_IN_PRISON,
     OB.AGY_LOC_ID                     LATEST_LOCATION_ID,

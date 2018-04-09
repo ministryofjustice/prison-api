@@ -6,6 +6,7 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.repository.InmateRepository;
+import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
@@ -15,6 +16,7 @@ import net.syscon.elite.service.support.InmateDto;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -34,6 +36,8 @@ public class InmateServiceImpl implements InmateService {
     private final InmateAlertRepository inmateAlertRepository;
     private final AuthenticationFacade authenticationFacade;
     private final UserRepository userRepository;
+    private final KeyWorkerAllocationRepository keyWorkerAllocationRepository;
+    private final Environment env;
 
     private final String locationTypeGranularity;
 
@@ -43,6 +47,8 @@ public class InmateServiceImpl implements InmateService {
                              BookingService bookingService,
                              UserRepository userRepository,
                              AuthenticationFacade authenticationFacade,
+                             KeyWorkerAllocationRepository keyWorkerAllocationRepository,
+                             Environment env,
                              @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity) {
         this.repository = repository;
         this.caseLoadService = caseLoadService;
@@ -50,6 +56,8 @@ public class InmateServiceImpl implements InmateService {
         this.locationTypeGranularity = locationTypeGranularity;
         this.bookingService = bookingService;
         this.userRepository = userRepository;
+        this.keyWorkerAllocationRepository = keyWorkerAllocationRepository;
+        this.env = env;
         this.authenticationFacade = authenticationFacade;
     }
 
@@ -118,6 +126,11 @@ public class InmateServiceImpl implements InmateService {
         inmate.setInactiveAlertCount(inmateAlertRepository.getAlertCounts(bookingId, "INACTIVE"));
         inmate.setAssessments(getAssessments(bookingId));
 
+        //TODO: Remove once KW service available - Nomis only!
+        boolean nomisProfile = Arrays.stream(env.getActiveProfiles()).anyMatch(p -> p.contains("nomis"));
+        if (nomisProfile) {
+            keyWorkerAllocationRepository.getKeyworkerDetailsByBooking(inmate.getBookingId()).ifPresent(kw -> inmate.setAssignedOfficerId(kw.getStaffId()));
+        }
         return inmate;
     }
 

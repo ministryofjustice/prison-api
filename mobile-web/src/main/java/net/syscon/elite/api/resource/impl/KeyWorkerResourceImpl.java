@@ -1,65 +1,24 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.KeyWorkerAllocationDetail;
+import net.syscon.elite.api.model.Keyworker;
+import net.syscon.elite.api.model.OffenderKeyWorker;
 import net.syscon.elite.api.resource.KeyWorkerResource;
-import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
-import net.syscon.elite.service.keyworker.KeyworkerAutoAllocationService;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.ws.rs.Path;
 import java.util.List;
-
-import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
 
 @RestResource
 @Path("/key-worker")
 public class KeyWorkerResourceImpl implements KeyWorkerResource {
     private final KeyWorkerAllocationService keyWorkerService;
-    private final KeyworkerAutoAllocationService keyworkerAutoAllocationService;
 
-    public KeyWorkerResourceImpl(KeyWorkerAllocationService keyWorkerService,
-                                 KeyworkerAutoAllocationService keyworkerAutoAllocationService) {
+    public KeyWorkerResourceImpl(KeyWorkerAllocationService keyWorkerService) {
         this.keyWorkerService = keyWorkerService;
-        this.keyworkerAutoAllocationService = keyworkerAutoAllocationService;
-    }
-
-    @Override
-    public GetAllocationsResponse getAllocations(String agencyId, String allocationType, String fromDate, String toDate, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-        final Page<KeyWorkerAllocationDetail> allocations = keyWorkerService.getAllocations(
-                agencyId,
-                fromISO8601DateString(fromDate),
-                fromISO8601DateString(toDate),
-                allocationType,
-                pageOffset,
-                pageLimit,
-                sortFields,
-                sortOrder);
-
-        return GetAllocationsResponse.respond200WithApplicationJson(allocations);
-    }
-
-    @Override
-    public GetUnallocatedOffendersResponse getUnallocatedOffenders(String agencyId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-        final Page<OffenderSummary> unallocatedOffenders = keyWorkerService.getUnallocatedOffenders(
-                agencyId,
-                pageOffset,
-                pageLimit,
-                sortFields,
-                sortOrder);
-
-        return GetUnallocatedOffendersResponse.respond200WithApplicationJson(unallocatedOffenders);
-    }
-
-    @Override
-    @PreAuthorize("#oauth2.hasScope('write')")
-    public AllocateResponse allocate(NewAllocation body) {
-        keyWorkerService.allocate(body);
-
-        return AllocateResponse.respond201WithApplicationJson();
     }
 
     @Override
@@ -70,22 +29,8 @@ public class KeyWorkerResourceImpl implements KeyWorkerResource {
     }
 
     @Override
-    public GetKeyworkerDetailsResponse getKeyworkerDetails(Long staffId) {
-        Keyworker keyWorker = keyWorkerService.getKeyworkerDetails(staffId);
-
-        return GetKeyworkerDetailsResponse.respond200WithApplicationJson(keyWorker);
-    }
-
-    @Override
-    public AutoAllocateResponse autoAllocate(String agencyId) {
-        Long allocCount = keyworkerAutoAllocationService.autoAllocate(agencyId);
-
-        return AutoAllocateResponse.respond200WithApplicationJson(allocCount.toString());
-    }
-
-    @Override
-    public GetAllocationsForKeyworkerResponse getAllocationsForKeyworker(Long staffId) {
-        final List<KeyWorkerAllocationDetail> allocationDetails = keyWorkerService.getAllocationDetailsForKeyworker(staffId);
+    public GetAllocationsForKeyworkerResponse getAllocationsForKeyworker(Long staffId, String agencyId) {
+        final List<KeyWorkerAllocationDetail> allocationDetails = keyWorkerService.getAllocationDetailsForKeyworker(staffId, agencyId);
 
         return GetAllocationsForKeyworkerResponse.respond200WithApplicationJson(allocationDetails);
     }

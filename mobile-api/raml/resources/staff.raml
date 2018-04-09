@@ -74,8 +74,6 @@
       example: KW_ADMIN
 
 /{staffId}/access-roles:
-  (javaOperationName): getStaffAccessRoles
-  description: List all access roles for a staff user
   type: { readOnlyCollection: { type: StaffUserRole, description: List of access roles for specified staff user } }
   uriParameters:
     staffId:
@@ -83,6 +81,25 @@
       (javaType): Long
       description: The staff id of the staff user.
       example: 23413
+  get:
+    (javaOperationName): getStaffAccessRoles
+    description: List of access roles for specified staff user and caseload
+  post:
+    (javaOperationName): addStaffAccessRoleForApiCaseload
+    description: add access role to staff user for API caseload
+    body:
+      application/json:
+        type: string
+        name: roleCode
+        description: new access role code required
+        example: KW_ADMIN
+    responses:
+      201:
+        body:
+          application/json:
+            type: StaffUserRole
+            description: The access role has been created.
+
 
 /{staffId}/access-roles/caseload/{caseload}:
   type: { readOnlyCollection: { type: StaffUserRole, description: List of access roles for specified staff user and caseload } }

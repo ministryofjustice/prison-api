@@ -4,14 +4,20 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
+import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
+import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.Range;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import static java.lang.String.format;
 
 /**
  * Inmate repository interface.
@@ -24,6 +30,8 @@ import java.util.Set;
  * </ul>
  */
 public interface InmateRepository {
+	String QUERY_OPERATOR_AND = "and:";
+	String QUERY_OPERATOR_OR = "or:";
 
 	Page<OffenderBooking> findAllInmates(Set<String> caseloads, String locationTypeRoot, String query, PageRequest pageRequest);
 
@@ -45,12 +53,11 @@ public interface InmateRepository {
 	 * Perform global search for offenders, based on specified criteria.
 	 *
 	 * @param query query criteria using internal query DSL.
-	 * @param dobRange start date and end date for a range search based on offender's date of birth.
 	 * @param pageRequest encapsulates sorting and pagination directives.
 
 	 * @return list of prisoner details matching specified query criteria.
 	 */
-	Page<PrisonerDetail> findOffenders(String query, Range<LocalDate> dobRange, PageRequest pageRequest);
+	Page<PrisonerDetail> findOffenders(String query, PageRequest pageRequest);
 
 	Optional<PhysicalAttributes> findPhysicalAttributes(long bookingId);
 
@@ -70,4 +77,51 @@ public interface InmateRepository {
 	List<String> findActiveAlertCodes(long bookingId);
 
 	List<OffenderIdentifier> getOffenderIdentifiers(long bookingId);
+
+	static String generateFindOffendersQuery(PrisonerDetailSearchCriteria criteria) {
+		final String likeTemplate = "%s:like:'%s%%'";
+		final String eqTemplate = "%s:eq:'%s'";
+		final String dateRangeTemplate = "(%s%s:gteq:'%s':'YYYY-MM-DD',and:%s:lteq:'%s':'YYYY-MM-DD')";
+
+		final String nameMatchingTemplate = criteria.isPartialNameMatch() ? likeTemplate : eqTemplate;
+		final String logicOperator = criteria.isAnyMatch() ? QUERY_OPERATOR_OR : QUERY_OPERATOR_AND;
+
+		final StringBuilder query = new StringBuilder();
+
+		appendNonBlankCriteria(query, "offenderNo", criteria.getOffenderNo(), eqTemplate, logicOperator);
+		appendNonBlankCriteria(query, "firstName", criteria.getFirstName(), nameMatchingTemplate, logicOperator);
+		appendNonBlankCriteria(query, "middleNames", criteria.getMiddleNames(), nameMatchingTemplate, logicOperator);
+		appendNonBlankCriteria(query, "lastName", criteria.getLastName(), nameMatchingTemplate, logicOperator);
+		appendNonBlankCriteria(query, "pncNumber", criteria.getPncNumber(), eqTemplate, logicOperator);
+		appendNonBlankCriteria(query, "croNumber", criteria.getCroNumber(), eqTemplate, logicOperator);
+
+        appendDateRangeCriteria(query, "dateOfBirth", criteria, dateRangeTemplate, logicOperator);
+
+		return StringUtils.trimToNull(query.toString());
+	}
+
+	static void appendNonBlankCriteria(StringBuilder query, String criteriaName, String criteriaValue,
+									   String operatorTemplate, String logicOperator) {
+		if (StringUtils.isNotBlank(criteriaValue)) {
+			if (query.length() > 0) {
+				query.append(",").append(logicOperator);
+			}
+
+			query.append(format(operatorTemplate, criteriaName, criteriaValue.toUpperCase()));
+		}
+	}
+
+	static void appendDateRangeCriteria(StringBuilder query, String criteriaName, PrisonerDetailSearchCriteria criteria,
+                                        String operatorTemplate, String logicOperator) {
+        CalcDateRanges calcDates = new CalcDateRanges(
+        		criteria.getDob(), criteria.getDobFrom(), criteria.getDobTo(), criteria.getMaxYearsRange());
+
+        if (calcDates.hasDateRange()) {
+            Range<LocalDate> dateRange = calcDates.getDateRange();
+
+            query.append(format(operatorTemplate, logicOperator, criteriaName,
+                    DateTimeFormatter.ISO_LOCAL_DATE.format(dateRange.getMinimum()), criteriaName,
+                    DateTimeFormatter.ISO_LOCAL_DATE.format(dateRange.getMaximum())));
+        }
+    }
 }

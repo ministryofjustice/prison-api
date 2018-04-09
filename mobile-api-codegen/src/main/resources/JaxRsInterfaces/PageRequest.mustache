@@ -82,4 +82,20 @@ public class PageRequest {
     public boolean isAscendingOrder() {
         return Order.ASC == order;
     }
+
+    /**
+     * Applies specified default order by fields (if not null) if this PageRequest does not have any order by fields
+     * defined.
+     * @param defaultOrderBy default order by fields to be applied.
+     * @return new {@code PageRequest} if default order by fields are applied, otherwise this unaltered {@code PageRequest}.
+     */
+    public PageRequest withDefaultOrderBy(String defaultOrderBy) {
+        PageRequest response = this;
+
+        if ((defaultOrderBy != null) && (defaultOrderBy.length() > 0) && ((orderBy == null) || "".equals(orderBy.trim()))) {
+            response = new PageRequest(defaultOrderBy, this.order, this.offset, this.limit);
+        }
+
+        return response;
+    }
 }
