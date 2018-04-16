@@ -1,22 +1,18 @@
 FROM openjdk:8-jdk-alpine
-MAINTAINER Digital Studio <DigitalStudio@syscon.net>
-RUN apk update && apk upgrade && apk add --update curl && rm -rf /var/cache/apk/*
+MAINTAINER HMPPS Digital Studio <info@digital.justice.gov.uk>
 
-ENV NAME mobile-web
-ENV JAR_PATH mobile-web/build/libs
-
-ARG VERSION
-
+RUN apk update \
+  && apk upgrade \
+  && apk add netcat-openbsd \
+  && apk add --update curl \
+  && rm -rf /var/cache/apk/*
+docker
 WORKDIR /app
 
-COPY ${JAR_PATH}/${NAME}*.jar /app
+COPY mobile-web/build/libs/mobile-web*.jar /app/app.jar
 COPY run.sh /app
-
-RUN chmod a+x /app/run.sh
-
-EXPOSE 8080
 
 ENV TZ=Europe/London
 RUN ln -snf "/usr/share/zoneinfo/$TZ" /etc/localtime && echo "$TZ" > /etc/timezone
 
-ENTRYPOINT /app/run.sh
+ENTRYPOINT ["/bin/sh", "/app/run.sh"]

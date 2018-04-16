@@ -1,5 +1,5 @@
 defaults: &defaults
-  working_directory: /tmp/circleci-elite2-api
+  working_directory: ~/app
 
 version: 2
 jobs:
@@ -9,7 +9,15 @@ jobs:
       - image: sysconjusticesystems/ci-java-node:latest
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - gradle-{{ checksum "build.gradle" }}
+            - gradle-
       - run: ./gradlew build aggregate --stacktrace
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: gradle-{{ checksum "build.gradle" }}
       - store_test_results:
           path: mobile-web/build/test-results
       - store_test_results:
@@ -37,10 +45,11 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: /tmp/circleci-elite2-api/
+          at: ~/app
       - setup_remote_docker:
           exclusive: true
       - run:
+          name: Build container and publish to docker hub
           command: |
             jar xvf mobile-web/build/libs/mobile-web-*.jar META-INF/build-info.properties
             API_VERSION=$(grep 'build.version=' META-INF/build-info.properties | awk -F= '{print $2}')
@@ -51,7 +60,7 @@ jobs:
             fi
             docker build --rm=false . \
                --tag "sysconjusticesystems/elite2-api:$TAG" \
-               --label "maintainer=michael.willis@syscon.net" \
+               --label "maintainer=michael.willis@digital.justice.gov.uk" \
                --label "app.version=$TAG" \
                --label "build.version=$TAG" \
                --label "build.number=$CIRCLE_BUILD_NUM" \
@@ -67,20 +76,6 @@ jobs:
               git push --tags
             fi
 
-  build_docker_stage:
-    <<: *defaults
-    docker:
-      - image: circleci/python:latest-browsers
-    steps:
-      - setup_remote_docker:
-          exclusive: true
-      - run:
-          command: |
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker pull sysconjusticesystems/elite2-api:latest
-            docker tag sysconjusticesystems/elite2-api:latest sysconjusticesystems/elite2-api:stage-latest
-            docker push sysconjusticesystems/elite2-api:stage-latest
-
 workflows:
   version: 2
   build-test-and-deploy:
@@ -92,9 +87,6 @@ workflows:
       - build_docker:
           requires:
             - build
-      - build_docker_stage:
           filters:
-            tags:
-              only: /^stage-release.*/
             branches:
-              ignore: /.*/
+              only: nomis-api
