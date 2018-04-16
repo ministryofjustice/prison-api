@@ -37,44 +37,45 @@ jobs:
           paths:
             - mobile-web/build/libs
             - build.gradle
+            - Dockerfile
+            - run.sh
 
   build_docker:
     <<: *defaults
     docker:
       - image: circleci/python:latest-browsers
     steps:
-      - checkout
-      - attach_workspace:
-          at: ~/app
       - setup_remote_docker:
           exclusive: true
+      - attach_workspace:
+          at: ~/app
       - run:
           name: Build container and publish to docker hub
           command: |
-            jar xvf mobile-web/build/libs/mobile-web-*.jar META-INF/build-info.properties
-            API_VERSION=$(grep 'build.version=' META-INF/build-info.properties | awk -F= '{print $2}')
-            rm META-INF/build-info.properties
-            TAG=${API_VERSION}.${CIRCLE_BRANCH}
-            if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
-              TAG=ELITE2_API_${API_VERSION}
-            fi
-            docker build --rm=false . \
-               --tag "sysconjusticesystems/elite2-api:$TAG" \
-               --label "maintainer=michael.willis@digital.justice.gov.uk" \
-               --label "app.version=$TAG" \
-               --label "build.version=$TAG" \
-               --label "build.number=$CIRCLE_BUILD_NUM" \
-               --label "build.url=$CIRCLE_BUILD_URL" \
-               --label "build.gitref=$CIRCLE_SHA1"
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker push sysconjusticesystems/elite2-api:$TAG
+             jar xvf mobile-web/build/libs/mobile-web-*.jar META-INF/build-info.properties
+             API_VERSION=$(grep 'build.version=' META-INF/build-info.properties | awk -F= '{print $2}')
+             rm META-INF/build-info.properties
+             TAG=${API_VERSION}.${CIRCLE_BRANCH}
+             if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
+               TAG=ELITE2_API_${API_VERSION}
+             fi
+             docker build --rm=false . \
+                --tag "sysconjusticesystems/elite2-api:$TAG" \
+                --label "maintainer=michael.willis@digital.justice.gov.uk" \
+                --label "app.version=$TAG" \
+                --label "build.version=$TAG" \
+                --label "build.number=$CIRCLE_BUILD_NUM" \
+                --label "build.url=$CIRCLE_BUILD_URL" \
+                --label "build.gitref=$CIRCLE_SHA1"
+             docker login -u $DOCKER_USER -p $DOCKER_PASS
+             docker push sysconjusticesystems/elite2-api:$TAG
 
-            if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
-              docker tag sysconjusticesystems/elite2-api:$TAG sysconjusticesystems/elite2-api:latest
-              docker push sysconjusticesystems/elite2-api:latest
-              git tag $TAG
-              git push --tags
-            fi
+             if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
+               docker tag sysconjusticesystems/elite2-api:$TAG sysconjusticesystems/elite2-api:latest
+               docker push sysconjusticesystems/elite2-api:latest
+               git tag $TAG
+               git push --tags
+             fi
 
 workflows:
   version: 2
