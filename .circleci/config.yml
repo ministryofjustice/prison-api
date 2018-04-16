@@ -37,6 +37,8 @@ jobs:
           paths:
             - mobile-web/build/libs
             - build.gradle
+            - Dockerfile
+            - run.sh
 
   build_docker:
     <<: *defaults
