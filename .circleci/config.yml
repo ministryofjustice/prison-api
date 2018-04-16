@@ -73,8 +73,6 @@ jobs:
              if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
                docker tag sysconjusticesystems/elite2-api:$TAG sysconjusticesystems/elite2-api:latest
                docker push sysconjusticesystems/elite2-api:latest
-               git tag $TAG
-               git push --tags
              fi
 
 workflows:
