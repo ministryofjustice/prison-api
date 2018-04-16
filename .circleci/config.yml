@@ -88,6 +88,6 @@ workflows:
       - build_docker:
           requires:
             - build
-#          filters:
-#            branches:
-#              only: nomis-api
+          filters:
+            branches:
+              only: nomis-api

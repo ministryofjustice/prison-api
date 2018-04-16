@@ -6,7 +6,7 @@ RUN apk update \
   && apk add netcat-openbsd \
   && apk add --update curl \
   && rm -rf /var/cache/apk/*
-docker
+
 WORKDIR /app
 
 COPY mobile-web/build/libs/mobile-web*.jar /app/app.jar
