@@ -1,11 +1,11 @@
-@global
+@global @wip
 Feature: Prisoner Search
 
   Acceptance Criteria:
   A logged in staff user can search for prisoners across the entire prison system
 
   Scenario: Cannot perform global search without correct role
-    Given a user has logged in with username "itag_user" and password "password"
+    Given a user has logged in with username "API_TEST_USER" and password "password"
     When a search is made for prisoners
     Then access is denied
 
