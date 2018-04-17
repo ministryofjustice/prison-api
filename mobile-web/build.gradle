@@ -209,6 +209,8 @@ project(":mobile-web") {
 
     def applicationMainClass = 'net.syscon.elite.MobileApiServer'
     def dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    def dateOnlyFormat = new java.text.SimpleDateFormat("yyyy-MM-dd")
+    def today = dateOnlyFormat.format(new Date());
 
     bootRepackage {
         mainClass = applicationMainClass
@@ -226,7 +228,7 @@ project(":mobile-web") {
                     machine              : InetAddress.localHost.hostName,
                     time                 : dateFormat.format(new Date()),
                     name                 : 'elite2-api',
-                    version              : System.getenv('CI') ? "${version}.${System.getenv('CIRCLE_BUILD_NUM')}" : version
+                    version              : System.getenv('CI') ? "${today}.${System.getenv('CIRCLE_BUILD_NUM')}" : today
             ]
         }
         executable = true
