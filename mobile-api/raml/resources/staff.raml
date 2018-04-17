@@ -9,7 +9,7 @@
 
 /roles/{agencyId}/position/{position}/role/{role}:
   (javaOperationName): getStaffByAgencyPositionRole
-  type: { readOnlyCollectionPaged: { type: StaffLocationRole, description: Get active staff members within agency who are currently assigned the specified position and/or role. } }
+  type: { readOnlyCollectionPaged: { type: StaffLocationRole, description: Get staff members within agency who are currently assigned the specified position and/or role. } }
   is: [ sortable: { fieldsList: "firstName, lastName" } ]
   uriParameters:
     agencyId:
@@ -34,10 +34,16 @@
         type: number
         (javaType): Long
         description: The staff id of a staff member.
+      activeOnly?:
+        type: boolean
+        (javaType): Boolean
+        description: Filters results by activeOnly staff members.
+        example: true
+        default: true
 
 /roles/{agencyId}/role/{role}:
   (javaOperationName): getStaffByAgencyRole
-  type: { readOnlyCollectionPaged: { type: StaffLocationRole, description: Get active staff members within agency who are currently assigned the specified role. } }
+  type: { readOnlyCollectionPaged: { type: StaffLocationRole, description: Get staff members within agency who are currently assigned the specified role. } }
   is: [ sortable: { fieldsList: "firstName, lastName" } ]
   uriParameters:
     agencyId:
@@ -58,6 +64,12 @@
         type: number
         (javaType): Long
         description: The staff id of a staff member.
+      activeOnly?:
+        type: boolean
+        (javaType): Boolean
+        description: Filters results by activeOnly staff members.
+        example: true
+        default: true
 
 /access-roles/caseload/{caseload}/access-role/{roleCode}:
   (javaOperationName): getAllStaffAccessRolesForCaseload

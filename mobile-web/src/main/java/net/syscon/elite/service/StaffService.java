@@ -42,18 +42,20 @@ public interface StaffService {
         private final String position;
         private final String role;
         private final String nameFilter;
+        private final Boolean activeOnly;
         private final Long staffId;
 
-        public GetStaffRoleRequest(String agencyId, String role) {
-            this(agencyId, null, role, null, null);
+        public GetStaffRoleRequest(String agencyId, String role, Boolean activeOnly) {
+            this(agencyId, null, role, null, activeOnly, null);
         }
 
-        public GetStaffRoleRequest(String agencyId, String position, String role) {
-            this(agencyId, position, role, null, null);
+        public GetStaffRoleRequest(String agencyId, String position, String role, Boolean activeOnly) {
+            this(agencyId, position, role, null, activeOnly, null);
         }
 
-        public GetStaffRoleRequest(String agencyId, String position, String role, String nameFilter, Long staffId) {
+        public GetStaffRoleRequest(String agencyId, String position, String role, String nameFilter, Boolean activeOnly, Long staffId) {
             super(agencyId);
+            this.activeOnly = activeOnly;
 
             Validate.notBlank(role, "Role is required.");
 

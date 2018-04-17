@@ -24,6 +24,7 @@ import java.util.Optional;
 public class StaffRepositoryImpl extends RepositoryBase implements StaffRepository {
     private static final String NAME_FILTER_QUERY_TEMPLATE = " AND (UPPER(FIRST_NAME) LIKE '%s%%' OR UPPER(LAST_NAME) LIKE '%s%%')";
     private static final String STAFF_ID_FILTER_QUERY_TEMPLATE = " AND STAFF_ID = %d";
+    private static final String ACTIVE_FILTER_CLAUSE = " AND SM.STATUS = 'ACTIVE'";
 
     private static final StandardBeanPropertyRowMapper<StaffDetail> STAFF_DETAIL_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(StaffDetail.class);
@@ -78,13 +79,14 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
     }
 
     @Override
-    public Page<StaffLocationRole> findStaffByAgencyPositionRole(String agencyId, String position, String role, String nameFilter, Long staffId, PageRequest pageRequest) {
+    public Page<StaffLocationRole> findStaffByAgencyPositionRole(String agencyId, String position, String role, String nameFilter, Long staffId, Boolean activeOnly, PageRequest pageRequest) {
         Validate.notBlank(agencyId, "An agency id is required.");
         Validate.notBlank(position, "A position code is required.");
         Validate.notBlank(role, "A role code is required.");
         Validate.notNull(pageRequest, "Page request details are required.");
 
         String baseSql = applyStaffIdFilterQuery(applyNameFilterQuery(getQuery("FIND_STAFF_BY_AGENCY_POSITION_ROLE"), nameFilter), staffId);
+        baseSql = applyActiveClause(baseSql, activeOnly);
 
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(baseSql, STAFF_LOCATION_ROLE_ROW_MAPPER.getFieldMap());
         String sql = builder
@@ -104,12 +106,13 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
     }
 
     @Override
-    public Page<StaffLocationRole> findStaffByAgencyRole(String agencyId, String role, String nameFilter, Long staffId, PageRequest pageRequest) {
+    public Page<StaffLocationRole> findStaffByAgencyRole(String agencyId, String role, String nameFilter, Long staffId, Boolean activeOnly, PageRequest pageRequest) {
         Validate.notBlank(agencyId, "An agency id is required.");
         Validate.notBlank(role, "A role code is required.");
         Validate.notNull(pageRequest, "Page request details are required.");
 
         String baseSql = applyStaffIdFilterQuery(applyNameFilterQuery(getQuery("FIND_STAFF_BY_AGENCY_AND_ROLE"), nameFilter), staffId);
+        baseSql = applyActiveClause(baseSql, activeOnly);
 
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(baseSql, STAFF_LOCATION_ROLE_ROW_MAPPER.getFieldMap());
         String sql = builder
@@ -146,5 +149,14 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
             nameFilterQuery += String.format(STAFF_ID_FILTER_QUERY_TEMPLATE, staffIdFilter);
         }
         return nameFilterQuery;
+    }
+
+    private String applyActiveClause(String baseSql, Boolean activeOnly) {
+        String query = baseSql;
+
+        if (activeOnly != null && activeOnly) {
+            query += ACTIVE_FILTER_CLAUSE;
+        }
+        return query;
     }
 }
