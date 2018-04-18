@@ -1,6 +1,5 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -19,10 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+import static net.syscon.elite.service.UserService.STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
-@ActiveProfiles("nomis,nomis-hsqldb")
+@ActiveProfiles("nomis-hsqldb")
 @RunWith(SpringRunner.class)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @JdbcTest
@@ -34,40 +34,46 @@ public class UserRepositoryTest {
     private UserRepository repository;
 
     @Test
-    public final void testFindUserByUsername() {
-        UserDetail user = repository.findByUsername("itag_user").orElseThrow(new EntityNotFoundException("not found"));
+    public void testFindUserByUsername() {
+        UserDetail user = repository.findByUsername("ITAG_USER").orElseThrow(EntityNotFoundException.withId("ITAG_USER"));
 
         assertThat(user.getLastName()).isEqualTo("User");
-        assertThat(user.getEmail()).isEqualTo("itaguser@syscon.net");
     }
 
     @Test
-    public final void testFindUserByUsernameNotExists() {
+    public void testFindUserByUsernameNotExists() {
         Optional<UserDetail> user = repository.findByUsername("XXXXXXXX");
         assertThat(user).isNotPresent();
     }
 
     @Test
-    public final void testFindUserByStaffId() {
-        UserDetail user = repository.findByUsername("elite2_api_user").orElseThrow(new EntityNotFoundException("not found"));
-
-        final StaffDetail staffDetails = repository.findByStaffId(user.getStaffId()).orElseThrow(new EntityNotFoundException("not found"));
-
-        assertThat(staffDetails.getFirstName()).isEqualTo("Elite2");
-        assertThat(staffDetails.getEmail()).isEqualTo("elite2-api-user@syscon.net");
-    }
-
-    @Test
-    public final void testFindUserByStaffIdNotExists() {
-        Optional<StaffDetail> staffDetails = repository.findByStaffId(9999999999L);
-
-        assertThat(staffDetails).isNotPresent();
-    }
-
-    @Test
-    public final void testFindRolesByUsername() {
-        List<UserRole> roles = repository.findRolesByUsername("itag_user");
+    public void testFindRolesByUsername() {
+        List<UserRole> roles = repository.findRolesByUsername("ITAG_USER", null);
         assertThat(roles).isNotEmpty();
         assertThat(roles).extracting("roleCode").contains("LEI_WING_OFF");
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void testFindUserByStaffIdAndStaffUserTypeUnknownStaffId() {
+        final Long staffId = -99L;
+
+        repository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION).orElseThrow(EntityNotFoundException.withId(staffId));
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void testFindUserByStaffIdAndStaffUserTypeInvalidUserType() {
+        final Long staffId = -1L;
+        final String staffUserType = "INVALID";
+
+        repository.findByStaffIdAndStaffUserType(staffId, staffUserType).orElseThrow(EntityNotFoundException.withId(staffId));
+    }
+
+    @Test
+    public void testFindUserByStaffIdAndStaffUserType() {
+        final Long staffId = -1L;
+
+        UserDetail user = repository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION).orElseThrow(EntityNotFoundException.withId(staffId));
+
+        assertThat(user.getUsername()).isEqualTo("ELITE2_API_USER");
     }
 }

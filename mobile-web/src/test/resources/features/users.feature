@@ -1,50 +1,41 @@
-Feature: Users and Staff
+@global
+Feature: User Details and Roles
 
   Acceptance Criteria:
-  A logged in user can find staff details for any valid staff id
+  A logged in user can find their roles.
 
   Background:
     Given a user has authenticated with the API
 
-  @global
-  Scenario Outline: Find staff member using staff id
-    When a staff member search is made using staff id "<staffId>"
-    Then first name of staff details returned is "<firstName>"
-    And last name of staff details returned is "<lastName>"
-    And email address of staff details returned is "<email>"
-
-    Examples:
-      | staffId | firstName | lastName | email                      |
-      | -1      | Elite2    | User     | elite2-api-user@syscon.net |
-      | -2      | API       | User     | itaguser@syscon.net        |
-
-  @global
-  Scenario: Find staff member using staff id that does not exist
-    When a staff member search is made using staff id "-9999"
-    Then resource not found response is received from users API
-
   @nomis
-  Scenario Outline: As a logged in user I can find out my roles
+  Scenario Outline: As a logged in user I can find out all my roles
     Given user "<username>" with password "password" has authenticated with the API
-    When a user role request is made
+    When a user role request is made for all roles
     Then the roles returned are "<roles>"
 
   Examples:
-  | username            | roles                                  |
-  | itag_user           | BXI_WING_OFF,LEI_WING_OFF,WAI_WING_OFF |
-  | elite2_api_user     | LEI_CENTRAL_ADMIN                      |
-  | hpa_user            | LEI_GLOBAL_SEARCH,LEI_WING_OFF         |
-  | api_test_user       | MUL_WING_OFF                           |
+  | username            | roles                                                                                          |
+  | itag_user           | BXI_WING_OFF,LEI_WING_OFF,MDI_WING_OFF,NWEB_LICENCE_CA,NWEB_KW_ADMIN,SYI_WING_OFF,WAI_WING_OFF |
+  | api_test_user       | MUL_WING_OFF,NWEB_LICENCE_RO                                                                   |
 
-  @elite
+  @nomis
+  Scenario Outline: As a logged in user I can find out just my api roles
+    Given user "<username>" with password "password" has authenticated with the API
+    When a user role request is made
+    Then the roles returned are "<roles>"
+
+    Examples:
+      | username            | roles               |
+      | itag_user           | LICENCE_CA,KW_ADMIN |
+      | api_test_user       | LICENCE_RO          |
+
+  @elite @wip
   Scenario Outline: As a logged in user I can find out my roles
     Given user "<username>" with password "password" has authenticated with the API
     When a user role request is made
     Then the roles returned are "<roles>"
 
     Examples:
-      | username            | roles                  |
-      | itag_user           | WING_OFF               |
-      | elite2_api_user     | CENTRAL_ADMIN          |
-      | hpa_user            | GLOBAL_SEARCH,WING_OFF |
-      | api_test_user       | WING_OFF               |
+      | username            | roles                        |
+      | itag_user           | WING_OFF,LICENCE_CA,KW_ADMIN |
+      | api_test_user       | WING_OFF,LICENCE_RO          |

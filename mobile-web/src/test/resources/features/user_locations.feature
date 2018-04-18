@@ -16,7 +16,6 @@ Feature: User Locations
     And user location prefixes are "<prefix>"
 
     Examples:
-      | username        | password | number | agency id   | description             | prefix          |
-      | itag_user       | password | 3      | BXI,LEI,WAI | BRIXTON,LEEDS,THE WEARE | BXI,LEI,WAI     |
-      | api_test_user   | password | 2      | BXI,LEI     | BRIXTON,LEEDS           | BXI,LEI         |
-      | elite2_api_user | password | 3      | LEI,LEI,LEI | LEEDS,Block A,Block H   | LEI,LEI-A,LEI-H |
+      | username        | password | number | agency id           | description                   | prefix              |
+      | itag_user       | password | 3      | LEI,LEI,LEI         | LEEDS,Block A,Block H         | LEI,LEI-A,LEI-H     |
+      | api_test_user   | password | 4      | BXI,LEI,LEI,LEI     | BRIXTON,LEEDS,Block A,Block H | BXI,LEI,LEI-A,LEI-H |

@@ -1,28 +1,20 @@
 package net.syscon.elite.repository.impl;
 
-
-import jersey.repackaged.com.google.common.collect.ImmutableMap;
-import net.syscon.elite.repository.mapping.FieldMapper;
-import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.util.QueryBuilderFactory;
 import net.syscon.util.SQLProvider;
+import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.HashMap;
 import java.util.Map;
 
 @Component
 public abstract class RepositoryBase  {
-
-	protected final Map<String, FieldMapper> caseLoadMapping = new ImmutableMap.Builder<String, FieldMapper>()
-			.put("CASELOAD_ID", 			new FieldMapper("caseLoadId"))
-			.put("DESCRIPTION", 			new FieldMapper("description"))
-			.put("CASELOAD_TYPE", 			new FieldMapper("type")).build();
-
 	@Autowired
 	protected NamedParameterJdbcOperations jdbcTemplate;
 
@@ -37,29 +29,40 @@ public abstract class RepositoryBase  {
 		sqlProvider.loadSql(getClass().getSimpleName().replace('.', '/'));
 	}
 
-	protected String getCurrentCaseLoad() {
-		final String sql = getQuery("GET_CASELOAD_ID");
-		try {
-			return jdbcTemplate.queryForObject(sql, createParams("username", UserSecurityUtils.getCurrentUsername()), String.class);
-		} catch (EmptyResultDataAccessException e) {
-			return null;
-		}
+	protected MapSqlParameterSource createParams(Object ... params) {
+		return new MapSqlParameterSource(array2map(params));
 	}
 
-	public MapSqlParameterSource createParams(final Object ... keysValues) {
-		if (keysValues.length %2 != 0) throw new IllegalArgumentException("The keysValues must always be in pairs");
-		final MapSqlParameterSource params = new MapSqlParameterSource();
-		for (int i = 0; i < keysValues.length / 2; i++) {
-			final int j = i * 2;
-			params.addValue(keysValues[j].toString(), keysValues[j + 1]);
-		}
-		return params;
+	protected MapSqlParameterSource createParamSource(PageRequest pageRequest, Object... params) {
+		Validate.notNull(pageRequest, "Page request must be provided.");
+
+
+		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+
+		parameterSource.addValue("offset", pageRequest.getOffset());
+		parameterSource.addValue("limit", pageRequest.getLimit());
+
+		parameterSource.addValues(array2map(params));
+
+		return parameterSource;
 	}
 
+	// Converts one-dimensional array of key/value pairs to map
+	private Map<String,Object> array2map(Object... params) {
+		Validate.isTrue(params.length % 2 == 0, "Additional parameters must be provided as key/value pairs.");
+
+		Map<String,Object> theMap = new HashMap<>();
+
+		for (int i = 0; i < params.length / 2; i++) {
+			int j = i * 2;
+
+			theMap.put(params[j].toString(), params[j + 1]);
+		}
+
+		return theMap;
+	}
 
 	public String getQuery(final String name) {
 		return sqlProvider.get(name);
 	}
-
-
 }

@@ -1,0 +1,29 @@
+/{agencyId}/available:
+  (javaOperationName): getAvailableKeyworkers
+  type: { readOnlyCollection: { type: Keyworker, description: Key workers available for allocation at specified agency. } }
+  uriParameters:
+    agencyId:
+      type: string
+      description: The agency (prison) identifier.
+      example: MDI
+
+/{staffId}/agency/{agencyId}/offenders:
+  (javaOperationName): getAllocationsForKeyworker
+  type: {readOnlyCollection: {type: KeyWorkerAllocationDetail, description: Specified key worker's currently assigned offenders. }}
+  uriParameters:
+    staffId:
+      (javaType): Long
+      description: The key worker staff id
+    agencyId:
+      type: string
+      description: The agency (prison) identifier.
+      example: MDI
+
+/{agencyId}/allocationHistory:
+  (javaOperationName): getAllocationHistory
+  type: { readOnlyCollectionPaged: { type: OffenderKeyWorker, description: All allocations in specified agency. } }
+  uriParameters:
+    agencyId:
+      type: string
+      description: The agency (prison) identifier.
+      example: BWI

@@ -1,14 +1,18 @@
 package net.syscon.elite.executablespecification;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.executablespecification.steps.*;
 import net.syscon.elite.test.DatasourceActiveProfilesResolver;
+import net.syscon.elite.web.config.ClientConfigExtractor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -19,12 +23,14 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SuppressWarnings("SpringJavaAutowiringInspection")
 @ContextConfiguration
 @SpringBootTest(webEnvironment = RANDOM_PORT)
+@TestPropertySource({ "/application-test.properties" })
 abstract class AbstractStepDefinitions {
     @TestConfiguration
     static class Config {
+
         @Bean
-        public AuthenticationSteps auth() {
-            return new AuthenticationSteps();
+        public AuthenticationSteps auth(@Value("${oauth.client.data}") String clientConfig) {
+            return new AuthenticationSteps(clientConfig, new ClientConfigExtractor(new ObjectMapper()));
         }
 
         @Bean
@@ -33,9 +39,17 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
+        public AgencySteps agency() {
+            return new AgencySteps();
+        }
+
+        @Bean
         public CaseNoteSteps caseNote() {
             return new CaseNoteSteps();
         }
+
+        @Bean
+        public CustodyStatusSteps custodyStatus() { return new CustodyStatusSteps(); }
 
         @Bean
         public BookingSearchSteps bookingSearch() {
@@ -88,17 +102,17 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public ReferenceDomainsSteps referenceDomains() {
+        public ReferenceDomainsSteps referenceDomain() {
             return new ReferenceDomainsSteps();
         }
 
         @Bean
-        public MyAssignmentsSteps myAssignments() {
+        public MyAssignmentsSteps userAssignment() {
             return new MyAssignmentsSteps();
         }
 
         @Bean
-        public FinanceSteps finance() {
+        public FinanceSteps bookingFinance() {
             return new FinanceSteps();
         }
 
@@ -108,8 +122,63 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
+        public ContactSteps bookingContact() {
+            return new ContactSteps();
+        }
+
+        @Bean
+        public AdjudicationSteps bookingAdjudication() {
+            return new AdjudicationSteps();
+        }
+
+        @Bean
         public BookingAssessmentSteps bookingAssessment() {
             return new BookingAssessmentSteps();
+        }
+
+        @Bean
+        public BookingVisitSteps bookingVisit() {
+            return new BookingVisitSteps();
+        }
+        
+        @Bean
+        public BookingEventSteps bookingEvent() {
+            return new BookingEventSteps();
+        }
+
+        @Bean
+        public BookingAppointmentSteps bookingAppointment() {
+            return new BookingAppointmentSteps();
+        }
+
+        @Bean
+        public SchedulesSteps schedules() {
+            return new SchedulesSteps();
+        }
+
+        @Bean
+        public PrisonContactDetailsSteps prison() {
+            return new PrisonContactDetailsSteps();
+        }
+
+        @Bean
+        public KeyWorkerAllocationSteps keyWorkerAllocation() {
+            return new KeyWorkerAllocationSteps();
+        }
+
+        @Bean
+        public KeyWorkerAllocatedOffendersSteps keyWorkerAllocatedOffenders() {
+            return new KeyWorkerAllocatedOffendersSteps();
+        }
+
+        @Bean
+        public KeyWorkerSteps keyWorker() {
+            return new KeyWorkerSteps();
+        }
+
+        @Bean
+        public StaffSteps staff() {
+            return new StaffSteps();
         }
     }
 

@@ -1,0 +1,34 @@
+/externalRef/{externalRef}/{relationshipType}:
+  description: Returns a list of offender nos and their related to an external reference Id
+  (javaOperationName): getBookingsByExternalRefAndType
+  type:
+    readOnlyCollection:
+      type: OffenderSummary
+      description: List of offenders
+  get:
+  uriParameters:
+    externalRef:
+      type: string
+      description: External Unique Reference to Contact Person
+    relationshipType:
+      type: string
+      description: Relationship Type
+      example: COM, POM
+
+/person/{personId}/{relationshipType}:
+  description: Returns a list of offender nos and their related to an external reference Id
+  (javaOperationName): getBookingsByPersonIdAndType
+  type:
+    readOnlyCollection:
+      type: OffenderSummary
+      description: List of offenders that are related to this person Id and relationship type
+  get:
+  uriParameters:
+    personId:
+      (javaType): Long
+      type: number
+      description: Person Id of the contact person
+    relationshipType:
+      type: string
+      description: Relationship Type
+      example: COM, POM

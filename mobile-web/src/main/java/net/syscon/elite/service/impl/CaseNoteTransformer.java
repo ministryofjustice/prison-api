@@ -6,7 +6,7 @@ import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.service.UserService;
 import net.syscon.util.DateTimeConverter;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.text.WordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -33,6 +33,7 @@ public class CaseNoteTransformer {
 
     public CaseNote transform(final CaseNote in) {
         CaseNote out = null;
+
         if (in != null && in.getText() != null) {
             out = CaseNote.builder()
                     .caseNoteId(in.getCaseNoteId())
@@ -45,6 +46,7 @@ public class CaseNoteTransformer {
                     .occurrenceDateTime(in.getOccurrenceDateTime())
                     .source(in.getSource())
                     .text(in.getText())
+                    .staffId(in.getStaffId())
                     .authorName(WordUtils.capitalize(StringUtils.lowerCase(in.getAuthorName())))
                     .amendments(new ArrayList<>())
                     .additionalProperties(in.getAdditionalProperties())
@@ -52,8 +54,8 @@ public class CaseNoteTransformer {
 
             // Now create matcher object.
             out = splitOutAmendments(in.getText(), out);
-
         }
+
         return out;
     }
 

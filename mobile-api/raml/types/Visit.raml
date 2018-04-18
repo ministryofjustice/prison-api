@@ -1,0 +1,54 @@
+#%RAML 1.0 DataType
+description: Visit details
+properties:
+  eventStatus:
+    type: string
+    description: Status of event
+    example: EXP / CANC / SCH
+  eventStatusDescription?:
+    type: string
+    description: Description of eventStatus code
+  visitType:
+    type: string
+    description: Social or official
+    example: SCON (Social Contact)
+  visitTypeDescription?:
+    type: string
+    description: Description of visitType code
+  leadVisitor?:
+    type: string
+    description: Name of main visitor
+    example: Joe Bloggs
+  relationship?:
+    type: string
+    description: Relationship of main visitor to offender
+  relationshipDescription?:
+    type: string
+    description: Description of relationship code
+    example: Father
+  startTime:
+    type: datetime
+    description: Date and time at which event starts
+    example: 2017-09-13 09:30:00
+  endTime?:
+    type: datetime
+    description: Date and time at which event ends
+    example: 2017-09-13 11:30:00
+  location?:
+    type: string
+    description: Location at which event takes place (could be an internal location, agency or external address).
+    example: HMP Leeds
+  eventOutcome:
+    type: string
+    description: Whether attended or not
+    example: ATT (Attended)
+  eventOutcomeDescription?:
+    type: string
+    description: Description of eventOutcome code
+  cancellationReason?:
+    type: string
+    description: Reason if not attended
+    example: NSHOW (Visitor Did Not Arrive)
+  cancelReasonDescription?:
+    type: string
+    description: Description of cancellationReason code

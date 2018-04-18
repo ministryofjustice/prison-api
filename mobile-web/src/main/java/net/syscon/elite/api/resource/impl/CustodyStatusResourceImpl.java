@@ -6,12 +6,11 @@ import net.syscon.elite.api.support.CustodyStatusCode;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.CustodyStatusService;
-import org.apache.commons.lang3.StringUtils;
+import net.syscon.util.DateTimeConverter;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.ws.rs.Path;
-
-import java.util.Arrays;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,22 +25,25 @@ public class CustodyStatusResourceImpl implements CustodyStatusResource {
     }
 
     @Override
-    @PreAuthorize("authentication.authorities.?[authority.contains('_ADMIN')].size() != 0 || authentication.authorities.?[authority.contains('GLOBAL_SEARCH')].size() != 0")
-    public GetPrisonerCustodyStatusesResponse getPrisonerCustodyStatuses(String custodyStatusCodes, String sortFields, Order sortOrder) {
-        final List<PrisonerCustodyStatus> custodyStatuses = custodyStatusService.listCustodyStatuses(asValidCustodyStatusCode(custodyStatusCodes), sortOrder);
+    @PreAuthorize("hasRole('SYSTEM_USER')")
+    public GetPrisonerCustodyStatusesResponse getPrisonerCustodyStatuses(List<String> custodyStatusCodes, String onDateString, String sortFields, Order sortOrder) {
+        LocalDate onDate = DateTimeConverter.fromISO8601DateString(onDateString);
+        if (onDate == null) {
+            onDate = LocalDate.now();
+        }
+
+        final List<CustodyStatusCode> statusCodes = custodyStatusCodes.stream()
+                .map(CustodyStatusCode::valueOf)
+                .collect(Collectors.toList());
+
+        final List<PrisonerCustodyStatus> custodyStatuses = custodyStatusService.listCustodyStatuses(statusCodes, onDate, sortOrder);
         return GetPrisonerCustodyStatusesResponse.respond200WithApplicationJson(custodyStatuses);
     }
 
     @Override
-    @PreAuthorize("authentication.authorities.?[authority.contains('_ADMIN')].size() != 0 || authentication.authorities.?[authority.contains('GLOBAL_SEARCH')].size() != 0")
+    @PreAuthorize("hasRole('SYSTEM_USER')")
     public GetPrisonerCustodyStatusResponse getPrisonerCustodyStatus(String offenderNo) {
-        final PrisonerCustodyStatus custodyStatus = custodyStatusService.getCustodyStatus(offenderNo);
+        final PrisonerCustodyStatus custodyStatus = custodyStatusService.getCustodyStatus(offenderNo, LocalDate.now());
         return GetPrisonerCustodyStatusResponse.respond200WithApplicationJson(custodyStatus);
-    }
-
-    private List<CustodyStatusCode> asValidCustodyStatusCode(String codes) {
-        return StringUtils.isNotBlank(codes) ?
-                Arrays.stream(codes.split(",")).map(CustodyStatusCode::valueOf).collect(Collectors.toList()) :
-                Arrays.asList();
     }
 }

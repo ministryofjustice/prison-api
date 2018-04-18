@@ -1,0 +1,35 @@
+#%RAML 1.0 DataType
+description: Recall Offender Booking
+properties:
+  offenderNo:
+    type: string
+    description: A unique offender number.
+    maxLength: 10
+    pattern: ^[A-Z]\d{4}[A-Z]{2}$
+    example: AG1694A
+  lastName:
+    type: string
+    description: The offender's first name.
+    maxLength: 35
+  firstName:
+    type: string
+    description: The offender's lsst name.
+    maxLength: 35
+  dateOfBirth:
+    type: string
+    description: The offender's date of birth. Must be specified in YYYY-MM-DD format.
+    pattern: ^([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))$
+    example: 1977-07-27
+  gender:
+    type: string
+    description: A code representing the offender's gender (from the SEX reference domain).
+    maxLength: 12
+    example: F
+  reason:
+    type: string
+    description: A code representing the reason for the offender's recall. 'B' = Recall from HDC. 'Y' = Recall from DTO.
+    pattern: ^[BY]$
+    example: B
+  youthOffender?:
+    type: boolean
+    description: A flag to indicate that the offender is a youth/young offender (or not). Defaults to false if not specified.

@@ -7,7 +7,7 @@ public class ReferenceCodeDetail {
     private String domain;
     private String code;
     private String description;
-    private String parentDomainId;
+    private String parentDomain;
     private String parentCode;
     private String activeFlag;
 

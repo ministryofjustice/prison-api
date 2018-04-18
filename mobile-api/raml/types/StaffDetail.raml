@@ -4,13 +4,22 @@ properties:
   staffId:
     type: number
     (javaType): Long
-    description: Staff Id
+    description: Unique identifier for staff member.
+    example: 16745
   firstName:
     type: string
+    description: Staff member's first name.
+    example: KIRSTY
   lastName:
     type: string
-  email?:
+    description: Staff member's last name.
+    example: DAVIES
+  status:
     type: string
+    description: Status of staff member.
+    example: INACTIVE
   thumbnailId?:
     type: number
     (javaType): Long
+    description: Identifier for staff member image.
+    example: 4768333

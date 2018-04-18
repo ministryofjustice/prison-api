@@ -1,0 +1,49 @@
+CREATE TABLE "IEP_LEVELS"
+(
+  "IEP_LEVEL"                     VARCHAR2(12 CHAR)                 NOT NULL ,
+  "AGY_LOC_ID"                    VARCHAR2(6 CHAR)                  NOT NULL ,
+  "ACTIVE_FLAG"                   VARCHAR2(1 CHAR)                  NOT NULL ,
+  "EXPIRY_DATE"                   DATE,
+  "USER_ID"                       VARCHAR2(40 CHAR),
+  "DEFAULT_FLAG"                  VARCHAR2(1 CHAR)                  NOT NULL ,
+  "CREATE_DATETIME"               TIMESTAMP(9) DEFAULT systimestamp NOT NULL ,
+  "CREATE_USER_ID"                VARCHAR2(32 CHAR) DEFAULT USER    NOT NULL ,
+  "MODIFY_DATETIME"               TIMESTAMP(9),
+  "MODIFY_USER_ID"                VARCHAR2(32 CHAR),
+  "REMAND_TRANSFER_LIMIT"         NUMBER(12, 2),
+  "REMAND_SPEND_LIMIT"            NUMBER(12, 2),
+  "CONVICTED_TRANSFER_LIMIT"      NUMBER(12, 2),
+  "CONVICTED_SPEND_LIMIT"         NUMBER(12, 2),
+  "RECORD_USER_ID"                VARCHAR2(30 CHAR) DEFAULT user,
+  "AUDIT_TIMESTAMP"               TIMESTAMP(9),
+  "AUDIT_USER_ID"                 VARCHAR2(32 CHAR),
+  "AUDIT_MODULE_NAME"             VARCHAR2(65 CHAR),
+  "AUDIT_CLIENT_USER_ID"          VARCHAR2(64 CHAR),
+  "AUDIT_CLIENT_IP_ADDRESS"       VARCHAR2(39 CHAR),
+  "AUDIT_CLIENT_WORKSTATION_NAME" VARCHAR2(64 CHAR),
+  "AUDIT_ADDITIONAL_INFO"         VARCHAR2(256 CHAR),
+  CONSTRAINT "IEP_LEVELS_PK" PRIMARY KEY ("IEP_LEVEL", "AGY_LOC_ID"),
+  CONSTRAINT "IEP_LEVELS_AGY_LOC_FK" FOREIGN KEY ("AGY_LOC_ID")
+  REFERENCES "AGENCY_LOCATIONS" ("AGY_LOC_ID")
+);
+
+
+COMMENT ON COLUMN "IEP_LEVELS"."AGY_LOC_ID" IS 'The Related Agency Location Identifier';
+
+COMMENT ON COLUMN "IEP_LEVELS"."ACTIVE_FLAG" IS 'Active data indicator';
+
+COMMENT ON COLUMN "IEP_LEVELS"."EXPIRY_DATE" IS 'Expiry date for the data';
+
+COMMENT ON COLUMN "IEP_LEVELS"."CREATE_DATETIME" IS 'The timestamp when the record is created';
+
+COMMENT ON COLUMN "IEP_LEVELS"."CREATE_USER_ID" IS 'The user who creates the record';
+
+COMMENT ON COLUMN "IEP_LEVELS"."MODIFY_DATETIME" IS 'The timestamp when the record is modified ';
+
+COMMENT ON COLUMN "IEP_LEVELS"."MODIFY_USER_ID" IS 'The user who modifies the record';
+
+
+CREATE INDEX "IEP_LEVELS_AGY_LOC_FK"
+  ON "IEP_LEVELS" ("AGY_LOC_ID");
+
+

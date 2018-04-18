@@ -31,9 +31,9 @@ public class CaseNoteTransformerTest {
         transformer = new CaseNoteTransformer(userService, "yyyy/MM/dd HH:mm:ss");
         caseNote = CaseNote.builder().amendments(new ArrayList<>()).build();
 
-        when(userService.getUserByUsername(eq("MWILLIS_GEN"))).thenReturn(UserDetail.builder().firstName("MICHAEL").lastName("WILLIS").build());
-        when(userService.getUserByUsername(eq("JOHN"))).thenReturn(UserDetail.builder().firstName("John").lastName("Saunders").build());
-        when(userService.getUserByUsername(eq("SRENDELL"))).thenReturn(UserDetail.builder().firstName("Steven").lastName("MC'RENDELL").build());
+        when(userService.getUserByUsername(eq("MWILLIS_GEN"))).thenReturn(UserDetail.builder().staffId(-1L).firstName("MICHAEL").lastName("WILLIS").build());
+        when(userService.getUserByUsername(eq("JOHN"))).thenReturn(UserDetail.builder().staffId(-2L).firstName("John").lastName("Saunders").build());
+        when(userService.getUserByUsername(eq("SRENDELL"))).thenReturn(UserDetail.builder().staffId(-3L).firstName("Steven").lastName("MC'RENDELL").build());
     }
 
     @Test
@@ -54,7 +54,6 @@ public class CaseNoteTransformerTest {
         assertThat(secondAmendment.getAdditionalNoteText()).isEqualTo("hi again");
         assertThat(secondAmendment.getAuthorName()).isEqualTo("Mc'rendell, Steven");
         assertThat(secondAmendment.getCreationDateTime()).isEqualTo(LocalDateTime.of(2017, 10, 4, 12,0, 6));
-
     }
 
     @Test
@@ -74,8 +73,12 @@ public class CaseNoteTransformerTest {
     @Test
     public void singleCaseNoteTest() {
         caseNote.setText("Case Note with no ammendments");
+        caseNote.setStaffId(-1L);
+
         final CaseNote returnedCaseNote = transformer.transform(caseNote);
+
         assertThat(returnedCaseNote.getOriginalNoteText()).isEqualTo("Case Note with no ammendments");
+        assertThat(returnedCaseNote.getStaffId()).isEqualTo(-1L);
         assertThat(returnedCaseNote.getAmendments()).hasSize(0);
     }
 

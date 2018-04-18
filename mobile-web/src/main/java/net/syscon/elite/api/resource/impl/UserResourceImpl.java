@@ -4,101 +4,101 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.resource.UserResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.core.RestResource;
-import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.*;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
+import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
+import org.springframework.core.env.Environment;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.CollectionUtils;
 
 import javax.ws.rs.Path;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-
-import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
-import static net.syscon.util.ResourceUtils.nvl;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestResource
 @Path("/users")
 public class UserResourceImpl implements UserResource {
-    private final LocationService locationService;
-    private final AssignmentService assignmentService;
-    private final AuthenticationService authenticationService;
-    private final ReferenceDomainService referenceDomainService;
+    private final AuthenticationFacade authenticationFacade;
     private final UserService userService;
-    private final BookingService bookingService;
+    private final InmateService inmateService;
+    private final LocationService locationService;
+    private final StaffService staffService;
+    private final CaseLoadService caseLoadService;
+    private final CaseNoteService caseNoteService;
+    private final KeyWorkerAllocationService keyWorkerAllocationService;
+    private final Environment env;
 
-    @Value("${token.username.stored.caps:true}")
-    private boolean upperCaseUsername;
-
-    public UserResourceImpl(LocationService locationService, AssignmentService assignmentService, AuthenticationService authenticationService, ReferenceDomainService referenceDomainService, UserService userService, BookingService bookingService) {
+    public UserResourceImpl(AuthenticationFacade authenticationFacade,
+                            LocationService locationService,
+                            UserService userService,
+                            StaffService staffService,
+                            CaseLoadService caseLoadService,
+                            CaseNoteService caseNoteService,
+                            InmateService inmateService,
+                            KeyWorkerAllocationService keyWorkerAllocationService,
+                            Environment env) {
+        this.authenticationFacade = authenticationFacade;
         this.locationService = locationService;
-        this.assignmentService = assignmentService;
-        this.authenticationService = authenticationService;
-        this.referenceDomainService = referenceDomainService;
         this.userService = userService;
-        this.bookingService = bookingService;
+        this.staffService = staffService;
+        this.caseLoadService = caseLoadService;
+        this.caseNoteService = caseNoteService;
+        this.inmateService = inmateService;
+        this.keyWorkerAllocationService = keyWorkerAllocationService;
+        this.env = env;
     }
 
     @Override
     public GetMyUserInformationResponse getMyUserInformation() {
-        return GetMyUserInformationResponse.respond200WithApplicationJson(userService.getUserByUsername(UserSecurityUtils.getCurrentUsername()));
+        UserDetail user = userService.getUserByUsername(authenticationFacade.getCurrentUsername());
+
+        return GetMyUserInformationResponse.respond200WithApplicationJson(user);
     }
 
     @Override
-    public GetMyAssignmentsResponse getMyAssignments(Long pageOffset, Long pageLimit) {
-        Page<OffenderBooking> assignments = assignmentService.findMyAssignments(
-                nvl(pageOffset, 0L),
-                nvl(pageLimit, 10L));
-
-        return GetMyAssignmentsResponse.respond200WithApplicationJson(assignments);
-    }
-
-    @Override
-    public GetMyCaseLoadsResponse getMyCaseLoads() {
-        List<CaseLoad> caseLoads = userService.getCaseLoads(UserSecurityUtils.getCurrentUsername());
+    public GetMyCaseLoadsResponse getMyCaseLoads(boolean allCaseloads) {
+        List<CaseLoad> caseLoads = userService.getCaseLoads(authenticationFacade.getCurrentUsername(), allCaseloads);
 
         return GetMyCaseLoadsResponse.respond200WithApplicationJson(caseLoads);
     }
 
     @Override
-    public GetMyCaseNoteTypesResponse getMyCaseNoteTypes(boolean includeSubTypes, String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-        Page<ReferenceCode> caseNoteTypes = referenceDomainService.getCaseNoteTypeByCurrentCaseLoad(
-                query,
-                sortFields,
-                sortOrder,
-                nvl(pageOffset, 0L),
-                nvl(pageLimit, 10L),
-                includeSubTypes);
+    public GetMyCaseNoteTypesResponse getMyCaseNoteTypes(String sortFields, Order sortOrder) {
+        Optional<CaseLoad> currentCaseLoad =
+                caseLoadService.getWorkingCaseLoadForUser(authenticationFacade.getCurrentUsername());
+
+        String caseLoadType = currentCaseLoad.isPresent() ? currentCaseLoad.get().getType() : "BOTH";
+
+        List<ReferenceCode> caseNoteTypes = caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType);
 
         return GetMyCaseNoteTypesResponse.respond200WithApplicationJson(caseNoteTypes);
     }
 
     @Override
     public GetMyLocationsResponse getMyLocations() {
-        List<Location> userLocations = locationService.getUserLocations(UserSecurityUtils.getCurrentUsername());
+        List<Location> userLocations = locationService.getUserLocations(authenticationFacade.getCurrentUsername());
 
         return GetMyLocationsResponse.respond200WithApplicationJson(userLocations);
     }
 
     @Override
-    public GetMyOffenderReleasesResponse getMyOffenderReleases(String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder, String toDate) {
-        final Page<OffenderRelease> offenderReleaseSummary = bookingService.getOffenderReleaseSummary(fromISO8601DateString(toDate), query,
-                nvl(pageOffset, 0L),
-                nvl(pageLimit, 10L),
-                StringUtils.defaultIfBlank(sortFields, "releaseDate,offenderNo"), sortOrder != null ? sortOrder : Order.DESC, true);
-        return GetMyOffenderReleasesResponse.respond200WithApplicationJson(offenderReleaseSummary);
-    }
+    public GetMyRolesResponse getMyRoles(boolean allRoles) {
+        List<UserRole> rolesByUsername = userService.getRolesByUsername(authenticationFacade.getCurrentUsername(), allRoles);
 
-    @Override
-    public GetMyRolesResponse getMyRoles() {
-        final List<UserRole> rolesByUsername = userService.getRolesByUsername(UserSecurityUtils.getCurrentUsername());
         return GetMyRolesResponse.respond200WithApplicationJson(rolesByUsername);
     }
 
     @Override
+    @PreAuthorize("#oauth2.hasScope('write')")
     public UpdateMyActiveCaseLoadResponse updateMyActiveCaseLoad(CaseLoad caseLoad) {
         try {
-            userService.setActiveCaseLoad(UserSecurityUtils.getCurrentUsername(), caseLoad.getCaseLoadId());
+            userService.setActiveCaseLoad(authenticationFacade.getCurrentUsername(), caseLoad.getCaseLoadId());
         } catch (final AccessDeniedException ex) {
             return UpdateMyActiveCaseLoadResponse.respond403WithApplicationJson(ErrorResponse.builder()
                     .userMessage("Not Authorized")
@@ -111,38 +111,44 @@ public class UserResourceImpl implements UserResource {
 
     @Override
     public GetStaffDetailResponse getStaffDetail(Long staffId) {
-        return GetStaffDetailResponse.respond200WithApplicationJson(userService.getUserByStaffId(staffId));
+        return GetStaffDetailResponse.respond200WithApplicationJson(staffService.getStaffDetail(staffId));
     }
 
     @Override
     public GetUserDetailsResponse getUserDetails(String username) {
-        UserDetail userByUsername = userService.getUserByUsername(upperCaseUsername ? username.toUpperCase() : username);
+        UserDetail userByUsername = userService.getUserByUsername(username.toUpperCase());
 
         return GetUserDetailsResponse.respond200WithApplicationJson(userByUsername);
     }
 
     @Override
-    public LoginResponse login(AuthLogin authLogin, String authorization) {
-        Token token = authenticationService.getAuthenticationToken(authorization, authLogin);
+    public GetMyAssignmentsResponse getMyAssignments(Long pageOffset, Long pageLimit) {
+        boolean nomisProfile = Arrays.stream(env.getActiveProfiles()).anyMatch(p -> p.contains("nomis"));
+        boolean iepLevel = false;
+        List<Long> bookingIds = null;
+        List<String> offenderNos = null;
 
-        if (token != null) {
-            return LoginResponse.respond201WithApplicationJson(token, authorization);
+        if (nomisProfile) {
+            iepLevel = true;
+            List<KeyWorkerAllocationDetail> allocations = keyWorkerAllocationService.getAllocationsForCurrentCaseload(authenticationFacade.getCurrentUsername());
+            offenderNos = allocations.stream().map(KeyWorkerAllocationDetail::getOffenderNo).collect(Collectors.toList());
         } else {
-            return LoginResponse.respond401WithApplicationJson(ErrorResponse.builder().userMessage("Access Denied").build());
+            bookingIds = inmateService.getPersonalOfficerBookings(authenticationFacade.getCurrentUsername());
         }
-    }
 
-    @Override
-    public TokenRefreshResponse tokenRefresh(String authorization) {
-        Token token = authenticationService.refreshToken(authorization);
+        final PageRequest pageRequest = new PageRequest(null, Order.ASC, pageOffset, pageLimit);
+        Page<OffenderBooking> assignments = new Page<>(Collections.emptyList(), 0, pageRequest.getOffset(), pageRequest.getLimit());
 
-        if (token != null) {
-            return TokenRefreshResponse.respond201WithApplicationJson(token, authorization);
-        } else {
-            return TokenRefreshResponse.respond401WithApplicationJson(ErrorResponse.builder()
-                    .userMessage("Authentication Error")
-                    .errorCode(401)
-                    .build());
+        if (!(CollectionUtils.isEmpty(bookingIds) && CollectionUtils.isEmpty(offenderNos))) {
+            assignments = inmateService.findAllInmates(
+                    InmateSearchCriteria.builder()
+                            .username(authenticationFacade.getCurrentUsername())
+                            .iepLevel(iepLevel)
+                            .offenderNos(offenderNos)
+                            .bookingIds(bookingIds)
+                            .pageRequest(pageRequest)
+                            .build());
         }
+        return GetMyAssignmentsResponse.respond200WithApplicationJson(assignments);
     }
 }

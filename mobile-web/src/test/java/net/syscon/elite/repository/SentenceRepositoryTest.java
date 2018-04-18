@@ -1,14 +1,7 @@
 package net.syscon.elite.repository;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
-
-import net.syscon.elite.api.model.MainSentence;
-import net.syscon.elite.repository.SentenceRepository;
+import net.syscon.elite.api.model.OffenceDetail;
 import net.syscon.elite.web.config.PersistenceConfigs;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +16,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@ActiveProfiles("nomis,nomis-hsqldb")
+import java.util.List;
+
+import static org.junit.Assert.*;
+import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
+
+@ActiveProfiles("nomis-hsqldb")
 @RunWith(SpringRunner.class)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 @JdbcTest
@@ -40,20 +38,26 @@ public class SentenceRepositoryTest {
     }
 
     @Test
-    public final void testGetMainSentence() {
-        final MainSentence sentence = repository.getMainSentence(-1L);
-        assertNotNull(sentence);
-        assertEquals("Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)", sentence.getMainOffenceDescription());
-        assertEquals("6 months", sentence.getSentenceLength());
-        assertEquals("2018-04-23", sentence.getReleaseDate().toString());
+    public final void testGetMainOffenceDetailsSingleOffence() {
+        List<OffenceDetail> offenceDetails = repository.getMainOffenceDetails(-1L);
+        assertNotNull(offenceDetails);
+        assertEquals(1, offenceDetails.size());
+        assertEquals("Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)", offenceDetails.get(0).getOffenceDescription());
     }
 
     @Test
-    public final void testGetMainSentenceInvalidBookingId() {
-        final MainSentence sentence = repository.getMainSentence(1001L);
-        assertNotNull(sentence);
-        assertNull(sentence.getMainOffenceDescription());
-        assertNull(sentence.getSentenceLength());
-        assertNull(sentence.getReleaseDate());
+    public final void testGetMainOffenceDetailsMultipleOffences() {
+        List<OffenceDetail> offenceDetails = repository.getMainOffenceDetails(-7L);
+        assertNotNull(offenceDetails);
+        assertEquals(2, offenceDetails.size());
+        assertEquals("Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury", offenceDetails.get(0).getOffenceDescription());
+        assertEquals("Cause another to use a vehicle where the seat belt is not securely fastened to the anchorage point.", offenceDetails.get(1).getOffenceDescription());
+    }
+
+    @Test
+    public final void testGetMainOffenceDetailsInvalidBookingId() {
+        List<OffenceDetail> offenceDetails = repository.getMainOffenceDetails(1001L);
+        assertNotNull(offenceDetails);
+        assertTrue(offenceDetails.isEmpty());
     }
 }

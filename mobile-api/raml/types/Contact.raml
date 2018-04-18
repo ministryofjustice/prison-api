@@ -1,0 +1,38 @@
+#%RAML 1.0 DataType
+description: Contact
+properties:
+  lastName:
+    type: string
+    description: Surname
+  firstName:
+    type: string
+    description: First Name
+  middleName?:
+    type: string
+    description: Middle Names
+  contactType:
+    type: string
+    description: Contact type
+  contactTypeDescription?:
+    type: string
+    description: Contact type text
+  relationship:
+    type: string
+    description: Relationship to inmate
+  relationshipDescription?:
+    type: string
+    description: Relationship text
+  emergencyContact:
+    type: boolean
+    description: Is an emergency contact
+  nextOfKin:
+    type: boolean
+    description: Indicates that the contact is Next of Kin Type
+  relationshipId?:
+    (javaType): Long
+    type: number
+    description: id of the relationship (internal)
+  personId?:
+    (javaType): Long
+    type: number
+    description: id of the person contact

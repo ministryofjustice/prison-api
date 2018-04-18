@@ -1,23 +1,24 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.CaseLoad;
-import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
 
 import java.util.List;
+import java.util.Set;
 
 public interface UserService {
+    String STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION = "GENERAL";
 
-	StaffDetail getUserByStaffId(Long staffId);
+    UserDetail getUserByUsername(String username);
 
-	UserDetail getUserByUsername(String username);
+    List<CaseLoad> getCaseLoads(String username, boolean allCaseloads);
 
-	CaseLoad getActiveCaseLoad(String username);
+    Set<String> getCaseLoadIds(String username);
 
-	List<CaseLoad> getCaseLoads(String username);
+    void setActiveCaseLoad(String username, String caseLoadId);
 
-	void setActiveCaseLoad(String username, String caseLoadId);
+    List<UserRole> getRolesByUsername(String username, boolean allRoles);
 
-	List<UserRole> getRolesByUsername(String username);
+    UserDetail getUserByExternalIdentifier(String idType, String id, boolean activeOnly);
 }

@@ -1,0 +1,119 @@
+CREATE TABLE PERSONS
+(   PERSON_ID               NUMBER(10) ,
+    LAST_NAME               VARCHAR2(35)                        NOT NULL,
+    FIRST_NAME              VARCHAR2(35)                        NOT NULL,
+    MIDDLE_NAME             VARCHAR2(35),
+    BIRTHDATE               DATE,
+    OCCUPATION_CODE         VARCHAR2(12),
+    CRIMINAL_HISTORY_TEXT   VARCHAR2(240),
+    NAME_TYPE               VARCHAR2(12),
+    ALIAS_PERSON_ID         NUMBER(10),
+    ROOT_PERSON_ID          NUMBER(10),
+    LANGUAGE_CODE           VARCHAR2(12),
+    COMPREHEND_ENGLISH_FLAG VARCHAR2(1),
+    SEX                     VARCHAR2(12),
+    BIRTH_PLACE             VARCHAR2(25),
+    EMPLOYER                VARCHAR2(60),
+    PROFILE_CODE            VARCHAR2(12),
+    INTERPRETER_REQUIRED    VARCHAR2(1),
+    PRIMARY_LANGUAGE_CODE   VARCHAR2(12),
+    MEMO_TEXT               VARCHAR2(40),
+    SUSPENDED_FLAG          VARCHAR2(1),
+    MARITAL_STATUS          VARCHAR2(12),
+    CITIZENSHIP             VARCHAR2(12),
+    DECEASED_DATE           DATE,
+    CORONER_NUMBER          VARCHAR2(32),
+    ATTENTION               VARCHAR2(40),
+    CARE_OF                 VARCHAR2(40),
+    SUSPENDED_DATE          DATE,
+    CREATE_DATETIME         TIMESTAMP     DEFAULT SYSTIMESTAMP  NOT NULL,
+    CREATE_USER_ID          VARCHAR2(32)  DEFAULT user          NOT NULL,
+    MODIFY_DATETIME         TIMESTAMP     DEFAULT SYSTIMESTAMP,
+    MODIFY_USER_ID          VARCHAR2(32),
+    STAFF_FLAG              VARCHAR2(1)   DEFAULT 'N',
+    REMITTER_FLAG           VARCHAR2(1),
+    LAST_NAME_SOUNDEX       VARCHAR2(6),
+    FIRST_NAME_KEY          VARCHAR2(35),
+    MIDDLE_NAME_KEY         VARCHAR2(35),
+    LAST_NAME_KEY           VARCHAR2(35),
+    SEAL_FLAG               VARCHAR2(1),
+
+    CONSTRAINT PERSONS_PK PRIMARY KEY (PERSON_ID),
+
+    CONSTRAINT PERSONS_PERSONS_FK FOREIGN KEY (ROOT_PERSON_ID) REFERENCES PERSONS(PERSON_ID)
+);
+
+CREATE INDEX PERSONS_NI1 ON PERSONS (LAST_NAME, FIRST_NAME)  ;
+CREATE INDEX PERSONS_NI4 ON PERSONS (ALIAS_PERSON_ID) ;
+CREATE INDEX PERSONS_NI5 ON PERSONS (BIRTHDATE)  ;
+CREATE INDEX PERSONS_NI7 ON PERSONS (ROOT_PERSON_ID) ;
+--CREATE INDEX PERSONS_NI6 ON PERSONS (SOUNDEX(LAST_NAME)) ;
+--CREATE INDEX PERSONS_NI2 ON PERSONS (UPPER(LAST_NAME), UPPER(FIRST_NAME)) ;
+
+COMMENT ON TABLE PERSONS IS 'This entity store all kinds of persons, including
+1. Person
+2. Offender : person with active bookings
+3. Staff       :  person with system user account
+';
+
+COMMENT ON COLUMN PERSONS.PERSON_ID is 'Primary Key of the Person';
+
+COMMENT ON COLUMN PERSONS.LAST_NAME is 'Last name of the offender';
+
+COMMENT ON COLUMN PERSONS.FIRST_NAME is 'Indicates the first name fo the offender.';
+
+COMMENT ON COLUMN PERSONS.MIDDLE_NAME is 'Indicates middle name of the offender.';
+
+COMMENT ON COLUMN PERSONS.BIRTHDATE is 'The birthdate';
+
+COMMENT ON COLUMN PERSONS.OCCUPATION_CODE is 'Reference Code(OCCUPATION)';
+
+COMMENT ON COLUMN PERSONS.CRIMINAL_HISTORY_TEXT is 'The criminal history';
+
+COMMENT ON COLUMN PERSONS.NAME_TYPE is 'Reference Code ( NAME_TYPE ) : Name qualifier - Given Name, Maiden Name ..';
+
+COMMENT ON COLUMN PERSONS.ALIAS_PERSON_ID is 'FK to Persons';
+
+COMMENT ON COLUMN PERSONS.ROOT_PERSON_ID is 'Point to the same person with different name';
+
+COMMENT ON COLUMN PERSONS.LANGUAGE_CODE is 'Reference Code (LANG)';
+
+COMMENT ON COLUMN PERSONS.COMPREHEND_ENGLISH_FLAG is 'If the person can comprehed English';
+
+COMMENT ON COLUMN PERSONS.SEX is 'Reference Code (SEX)';
+
+COMMENT ON COLUMN PERSONS.BIRTH_PLACE is 'Place where the offender was born.';
+
+COMMENT ON COLUMN PERSONS.EMPLOYER is 'The name of the employer';
+
+COMMENT ON COLUMN PERSONS.INTERPRETER_REQUIRED is 'Interpreter required';
+
+COMMENT ON COLUMN PERSONS.PRIMARY_LANGUAGE_CODE is 'The primary language of the person';
+
+COMMENT ON COLUMN PERSONS.MEMO_TEXT is 'General momo text';
+
+COMMENT ON COLUMN PERSONS.SUSPENDED_FLAG is 'If the person record supsended';
+
+COMMENT ON COLUMN PERSONS.MARITAL_STATUS is 'Reference Code(MARITAL_STAT)';
+
+COMMENT ON COLUMN PERSONS.CITIZENSHIP is 'Reference Code(COUNTRY)';
+
+COMMENT ON COLUMN PERSONS.DECEASED_DATE is 'The deceased date of the record';
+
+COMMENT ON COLUMN PERSONS.CORONER_NUMBER is 'Coroner reference number';
+
+COMMENT ON COLUMN PERSONS.ATTENTION is 'The name of the attendtion';
+
+COMMENT ON COLUMN PERSONS.CARE_OF is 'The name of the care of';
+
+COMMENT ON COLUMN PERSONS.SUSPENDED_DATE is 'The date of the record suspension';
+
+COMMENT ON COLUMN PERSONS.CREATE_DATETIME is 'The timestamp when the record is created';
+
+COMMENT ON COLUMN PERSONS.CREATE_USER_ID is 'The user who creates the record';
+
+COMMENT ON COLUMN PERSONS.MODIFY_DATETIME is 'The timestamp when the record is modified';
+
+COMMENT ON COLUMN PERSONS.MODIFY_USER_ID is 'The user who modifies the record';
+
+COMMENT ON COLUMN PERSONS.STAFF_FLAG is 'If the person a staff member?';

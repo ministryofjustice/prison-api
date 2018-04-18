@@ -38,6 +38,9 @@ public class DateTimeConverter {
 	}
 
 	public static Timestamp fromLocalDateTime(LocalDateTime localDateTime) {
+	    if (localDateTime == null) {
+	        return null;
+	    }
 		return Timestamp.valueOf(localDateTime);
 	}
 
@@ -48,20 +51,29 @@ public class DateTimeConverter {
 	}
 
 	public static java.sql.Date fromTimestamp(Timestamp timestamp) {
+	    if (timestamp == null) {
+            return null;
+        }
 		LocalDateTime localDateTime = timestamp.toLocalDateTime();
 
 		return java.sql.Date.valueOf(localDateTime.toLocalDate());
 	}
 
 	public static Timestamp fromISO8601DateTime(String iso8601DateTime, ZoneOffset zoneOffset) {
-		LocalDateTime ldt;
+        if (StringUtils.isBlank(iso8601DateTime)) {
+            return null;
+        }
+	    LocalDateTime ldt;
 
 		ldt = fromISO8601DateTimeToLocalDateTime(iso8601DateTime, zoneOffset);
 		return Timestamp.valueOf(ldt);
 	}
 
 	public static LocalDateTime fromISO8601DateTimeToLocalDateTime(String iso8601DateTime, ZoneOffset zoneOffset) {
-		LocalDateTime ldt;
+        if (StringUtils.isBlank(iso8601DateTime)) {
+            return null;
+        }
+        LocalDateTime ldt;
 		try {
 			OffsetDateTime odt = OffsetDateTime.parse(iso8601DateTime);
 
@@ -74,7 +86,10 @@ public class DateTimeConverter {
 	}
 
 	public static LocalDateTime fromStringToLocalDateTime(String strLocalDate, String localDateTimeFormat) {
-		LocalDateTime ldt;
+        if (StringUtils.isBlank(strLocalDate)) {
+            return null;
+        }
+        LocalDateTime ldt;
 		try {
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(localDateTimeFormat);
 			ldt = LocalDateTime.parse(strLocalDate, formatter);
@@ -158,6 +173,9 @@ public class DateTimeConverter {
 	 * @throws IllegalArgumentException if provided dateTime object is not of a supported type.
 	 */
 	public static OffsetDateTime toISO8601OffsetDateTime(Object dateTime) {
+        if (dateTime == null) {
+            return null;
+        }
 		LocalDateTime ldt = toISO8601LocalDateTime(dateTime);
 
 		return OffsetDateTime.of(ldt, ZoneOffset.UTC);

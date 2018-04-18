@@ -51,361 +51,411 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     private BookingAssessmentSteps bookingAssessment;
 
     @When("^a booking search is made with full last \"([^\"]*)\" of existing offender$")
-    public void aBookingSearchIsMadeWithFullLastNameOfExistingOffender(String fullLastName) throws Throwable {
+    public void aBookingSearchIsMadeWithFullLastNameOfExistingOffender(String fullLastName) {
         bookingSearch.fullLastNameSearch(fullLastName);
     }
 
     @When("^a booking search is made with partial last \"([^\"]*)\" of existing offender$")
-    public void aBookingSearchIsMadeWithPartialLastNameOfExistingOffender(String partialLastName) throws Throwable {
+    public void aBookingSearchIsMadeWithPartialLastNameOfExistingOffender(String partialLastName) {
         bookingSearch.partialLastNameSearch(partialLastName);
     }
 
     @When("^a booking search is made with full first \"([^\"]*)\" of existing offender$")
-    public void aBookingSearchIsMadeWithFullFirstNameOfExistingOffender(String fullFirstName) throws Throwable {
+    public void aBookingSearchIsMadeWithFullFirstNameOfExistingOffender(String fullFirstName) {
         bookingSearch.fullFirstNameSearch(fullFirstName);
     }
 
     @When("^a booking search is made with partial first \"([^\"]*)\" of existing offender$")
-    public void aBookingSearchIsMadeWithPartialFirstNameOfExistingOffender(String partialFirstName) throws Throwable {
+    public void aBookingSearchIsMadeWithPartialFirstNameOfExistingOffender(String partialFirstName) {
         bookingSearch.partialFirstNameSearch(partialFirstName);
     }
 
     @And("^offender first names match \"([^\"]*)\"$")
-    public void offenderFirstNamesMatch(String firstNames) throws Throwable {
+    public void offenderFirstNamesMatch(String firstNames) {
         bookingSearch.verifyFirstNames(firstNames);
     }
 
     @And("^offender middle names match \"([^\"]*)\"$")
-    public void offenderMiddleNamesMatch(String middleNames) throws Throwable {
+    public void offenderMiddleNamesMatch(String middleNames) {
         bookingSearch.verifyMiddleNames(middleNames);
     }
 
     @When("^a booking search is made without any criteria$")
-    public void aBookingSearchIsMadeWithoutAnyCriteria() throws Throwable {
+    public void aBookingSearchIsMadeWithoutAnyCriteria() {
         bookingSearch.findAll();
     }
 
     @And("^offender last names match \"([^\"]*)\"$")
-    public void offenderLastNamesMatch(String lastNames) throws Throwable {
+    public void offenderLastNamesMatch(String lastNames) {
         bookingSearch.verifyLastNames(lastNames);
     }
 
     @And("^living unit descriptions match \"([^\"]*)\"$")
-    public void livingUnitDescriptionsMatch(String livingUnits) throws Throwable {
+    public void livingUnitDescriptionsMatch(String livingUnits) {
         bookingSearch.verifyLivingUnits(livingUnits);
     }
 
     @And("^image id match \"([^\"]*)\"$")
-    public void imageIdMatch(String imageIds) throws Throwable {
+    public void imageIdMatch(String imageIds) {
        bookingSearch.verifyImageIds(imageIds);
     }
 
     @And("^their dob match \"([^\"]*)\"$")
-    public void dateOfBirthMatch(String dobs) throws Throwable {
+    public void dateOfBirthMatch(String dobs) {
         bookingSearch.verifyDobs(dobs);
     }
 
     @When("^a booking search is made with \"([^\"]*)\" and \"([^\"]*)\" of existing offender$")
-    public void aBookingSearchIsMadeWithAndOfExistingOffender(String firstName, String lastName) throws Throwable {
+    public void aBookingSearchIsMadeWithAndOfExistingOffender(String firstName, String lastName) {
         bookingSearch.firstNameAndLastNameSearch(firstName, lastName);
     }
 
     @When("^a booking search is made with \"([^\"]*)\" or \"([^\"]*)\" of existing offender$")
-    public void aBookingSearchIsMadeWithOrOfExistingOffender(String firstName, String lastName) throws Throwable {
+    public void aBookingSearchIsMadeWithOrOfExistingOffender(String firstName, String lastName) {
         bookingSearch.firstNameOrLastNameSearch(firstName, lastName);
     }
 
     @Then("^\"([^\"]*)\" booking records are returned$")
-    public void bookingRecordsAreReturned(String expectedCount) throws Throwable {
+    public void bookingRecordsAreReturned(String expectedCount) {
         bookingSearch.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
     }
 
     @Then("^\"([^\"]*)\" total booking records are available$")
-    public void totalBookingRecordsAreAvailable(String expectedCount) throws Throwable {
+    public void totalBookingRecordsAreAvailable(String expectedCount) {
         bookingSearch.verifyTotalResourceRecordsAvailable(Long.valueOf(expectedCount));
     }
 
     @When("^aliases are requested for an offender booking \"([^\"]*)\"$")
-    public void aliasesAreRequestedForAnOffenderBooking(String bookingId) throws Throwable {
+    public void aliasesAreRequestedForAnOffenderBooking(String bookingId) {
         bookingAlias.getAliasesForBooking(Long.valueOf(bookingId));
     }
 
     @Then("^\"([^\"]*)\" aliases are returned$")
-    public void aliasesAreReturned(String expectedCount) throws Throwable {
+    public void aliasesAreReturned(String expectedCount) {
         bookingAlias.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
     }
 
     @And("^alias first names match \"([^\"]*)\"$")
-    public void aliasFirstNamesMatch(String firstNames) throws Throwable {
+    public void aliasFirstNamesMatch(String firstNames) {
         bookingAlias.verifyAliasFirstNames(firstNames);
     }
 
     @And("^alias last names match \"([^\"]*)\"$")
-    public void aliasLastNamesMatch(String lastNames) throws Throwable {
+    public void aliasLastNamesMatch(String lastNames) {
         bookingAlias.verifyAliasLastNames(lastNames);
     }
 
     @And("^alias ethnicities match \"([^\"]*)\"$")
-    public void aliasEthnicitiesMatch(String ethnicities) throws Throwable {
+    public void aliasEthnicitiesMatch(String ethnicities) {
         bookingAlias.verifyAliasEthnicities(ethnicities);
     }
 
     @Then("^resource not found response is received from offender aliases API$")
-    public void resourceNotFoundResponseIsReceivedFromOffenderAliasesAPI() throws Throwable {
+    public void resourceNotFoundResponseIsReceivedFromOffenderAliasesAPI() {
         bookingAlias.verifyResourceNotFound();
     }
 
     @When("^an offender booking request is made with booking id \"([^\"]*)\"$")
-    public void anOffenderBookingRequestIsMadeWithBookingId(String bookingId) throws Throwable {
-        bookingDetail.findBookingDetails(Long.valueOf(bookingId));
+    public void anOffenderBookingRequestIsMadeWithBookingId(String bookingId) {
+        bookingDetail.findBookingDetails(Long.valueOf(bookingId), false);
+    }
+
+    @When("^a basic offender booking request is made with booking id \"([^\"]*)\"$")
+    public void aBasicOffenderBookingRequestIsMadeWithBookingId(String bookingId) {
+        bookingDetail.findBookingDetails(Long.valueOf(bookingId), true);
     }
 
     @Then("^resource not found response is received from bookings API$")
-    public void resourceNotFoundResponseIsReceivedFromBookingsAPI() throws Throwable {
+    public void resourceNotFoundResponseIsReceivedFromBookingsAPI() {
         bookingDetail.verifyResourceNotFound();
     }
 
     @Then("^booking number of offender booking returned is \"([^\"]*)\"$")
-    public void bookingNumberOfOffenderBookingReturnedIs(String bookingNo) throws Throwable {
+    public void bookingNumberOfOffenderBookingReturnedIs(String bookingNo) {
         bookingDetail.verifyOffenderBookingNo(bookingNo);
     }
 
     @And("^assigned officer id of offender booking returned is \"([^\"]*)\"$")
-    public void assignedOfficerIdOfOffenderBookingReturnedIs(Long assignedOfficerId) throws Throwable {
+    public void assignedOfficerIdOfOffenderBookingReturnedIs(Long assignedOfficerId) {
         bookingDetail.verifyOffenderAssignedOfficerId(assignedOfficerId);
     }
 
     @And("^religion of offender booking returned is \"([^\"]*)\"$")
-    public void religionOfOffenderBookingReturnedIs(String religion) throws Throwable {
+    public void religionOfOffenderBookingReturnedIs(String religion) {
         bookingDetail.verifyReligion(religion);
+    }
+
+    @And("^firstname of offender booking returned is \"([^\"]*)\"$")
+    public void firstnameOfOffenderBookingReturnedIs(String firstname) throws Throwable {
+        bookingDetail.verifyOffenderFirstName(firstname);
+    }
+
+    @And("^lastName of offender booking returned is \"([^\"]*)\"$")
+    public void lastnameOfOffenderBookingReturnedIs(String lastName) throws Throwable {
+        bookingDetail.verifyOffenderLastName(lastName);
+    }
+
+    @And("^offenderNo of offender booking returned is \"([^\"]*)\"$")
+    public void offendernoOfOffenderBookingReturnedIs(String offenderNo) throws Throwable {
+        bookingDetail.verifyOffenderNo(offenderNo);
+    }
+
+    @And("^activeFlag of offender booking returned is \"(true|false)\"$")
+    public void activeflagOfOffenderBookingReturnedIs(boolean activeFlag) throws Throwable {
+        bookingDetail.verifyOffenderActiveFlag(activeFlag);
     }
 
     // Sentence Detail Step Definitions (for testing of /bookings/{bookingId}/sentenceDetail endpoint)
     @When("^sentence details are requested for an offender with booking id \"([^\"]*)\"$")
-    public void sentenceDetailsAreRequestedForAnOffenderWithBookingId(String bookingId) throws Throwable {
+    public void sentenceDetailsAreRequestedForAnOffenderWithBookingId(String bookingId) {
         bookingSentenceDetail.getBookingSentenceDetail(Long.valueOf(bookingId));
     }
 
+    @When("^I look at row \"([^\"]*)\"$")
+    public void iLookAtRow(String index) {
+        bookingSentenceDetail.putARowFromListInContext(Integer.valueOf(index)-1);
+    }
+
     @Then("^sentence start date matches \"([^\"]*)\"$")
-    public void sentenceStartDateMatches(String sentenceStartDate) throws Throwable {
+    public void sentenceStartDateMatches(String sentenceStartDate) {
         bookingSentenceDetail.verifySentenceStartDate(sentenceStartDate);
     }
 
     @And("^sentence expiry date matches \"([^\"]*)\"$")
-    public void sentenceExpiryDateMatches(String sentenceExpiryDate) throws Throwable {
+    public void sentenceExpiryDateMatches(String sentenceExpiryDate) {
         bookingSentenceDetail.verifySentenceExpiryDate(sentenceExpiryDate);
     }
 
     @And("^early term date matches \"([^\"]*)\"$")
-    public void earlyTermDateMatches(String earlyTermDate) throws Throwable {
+    public void earlyTermDateMatches(String earlyTermDate) {
         bookingSentenceDetail.verifyEarlyTermDate(earlyTermDate);
     }
 
     @And("^mid term date matches \"([^\"]*)\"$")
-    public void midTermDateMatches(String midTermDate) throws Throwable {
+    public void midTermDateMatches(String midTermDate) {
         bookingSentenceDetail.verifyMidTermDate(midTermDate);
     }
 
     @And("^late term date matches \"([^\"]*)\"$")
-    public void lateTermDateMatches(String lateTermDate) throws Throwable {
+    public void lateTermDateMatches(String lateTermDate) {
         bookingSentenceDetail.verifyLateTermDate(lateTermDate);
     }
 
     @And("^automatic release date matches \"([^\"]*)\"$")
-    public void automaticReleaseDateMatches(String automaticReleaseDate) throws Throwable {
+    public void automaticReleaseDateMatches(String automaticReleaseDate) {
         bookingSentenceDetail.verifyAutomaticReleaseDate(automaticReleaseDate);
     }
 
     @And("^override automatic release date matches \"([^\"]*)\"$")
-    public void automaticOverrideReleaseDateMatches(String overrideAutomaticReleaseDate) throws Throwable {
+    public void automaticOverrideReleaseDateMatches(String overrideAutomaticReleaseDate) {
         bookingSentenceDetail.verifyOverrideAutomaticReleaseDate(overrideAutomaticReleaseDate);
     }
 
     @And("^conditional release date matches \"([^\"]*)\"$")
-    public void conditionalReleaseDateMatches(String conditionalReleaseDate) throws Throwable {
+    public void conditionalReleaseDateMatches(String conditionalReleaseDate) {
         bookingSentenceDetail.verifyConditionalReleaseDate(conditionalReleaseDate);
     }
 
     @And("^override conditional release date matches \"([^\"]*)\"$")
-    public void conditionalOverrideReleaseDateMatches(String overrideConditionalReleaseDate) throws Throwable {
+    public void conditionalOverrideReleaseDateMatches(String overrideConditionalReleaseDate) {
         bookingSentenceDetail.verifyOverrideConditionalReleaseDate(overrideConditionalReleaseDate);
     }
 
     @And("^non-parole date matches \"([^\"]*)\"$")
-    public void nonParoleDateMatches(String nonParoleDate) throws Throwable {
+    public void nonParoleDateMatches(String nonParoleDate) {
         bookingSentenceDetail.verifyNonParoleDate(nonParoleDate);
     }
 
     @And("^override non-parole date matches \"([^\"]*)\"$")
-    public void nonParoleOverrideDateMatches(String overrideNonParoleDate) throws Throwable {
+    public void nonParoleOverrideDateMatches(String overrideNonParoleDate) {
         bookingSentenceDetail.verifyOverrideNonParoleDate(overrideNonParoleDate);
     }
 
     @And("^post-recall release date matches \"([^\"]*)\"$")
-    public void postRecallReleaseDateMatches(String postRecallReleaseDate) throws Throwable {
+    public void postRecallReleaseDateMatches(String postRecallReleaseDate) {
         bookingSentenceDetail.verifyPostRecallReleaseDate(postRecallReleaseDate);
     }
 
     @And("^override post-recall release date matches \"([^\"]*)\"$")
-    public void postRecallOverrideReleaseDateMatches(String overridePostRecallReleaseDate) throws Throwable {
+    public void postRecallOverrideReleaseDateMatches(String overridePostRecallReleaseDate) {
         bookingSentenceDetail.verifyOverridePostRecallReleaseDate(overridePostRecallReleaseDate);
     }
 
     @And("^home detention curfew eligibility date matches \"([^\"]*)\"$")
-    public void homeDetentionCurfewEligibilityDateMatches(String homeDetentionCurfewEligibilityDate) throws Throwable {
+    public void homeDetentionCurfewEligibilityDateMatches(String homeDetentionCurfewEligibilityDate) {
         bookingSentenceDetail.verifyHomeDetentionCurfewEligibilityDate(homeDetentionCurfewEligibilityDate);
     }
 
     @And("^parole eligibility date matches \"([^\"]*)\"$")
-    public void paroleEligibilityDateMatches(String paroleEligibilityDate) throws Throwable {
+    public void paroleEligibilityDateMatches(String paroleEligibilityDate) {
         bookingSentenceDetail.verifyParoleEligibilityDate(paroleEligibilityDate);
     }
 
     @And("^licence expiry date matches \"([^\"]*)\"$")
-    public void licenceExpiryDateMatches(String licenceExpiryDate) throws Throwable {
+    public void licenceExpiryDateMatches(String licenceExpiryDate) {
         bookingSentenceDetail.verifyLicenceExpiryDate(licenceExpiryDate);
     }
 
-    @And("^release date matches \"([^\"]*)\"$")
-    public void releaseDateMatches(String releaseDate) throws Throwable {
+    @And("^non-DTO release date matches \"([^\"]*)\"$")
+    public void nonDtoReleaseDateMatches(String releaseDate) {
         bookingSentenceDetail.verifyNonDtoReleaseDate(releaseDate);
     }
 
     @And("^additional days awarded matches \"([^\"]*)\"$")
-    public void additionalDaysAwardedMatches(String additionalDaysAwarded) throws Throwable {
+    public void additionalDaysAwardedMatches(String additionalDaysAwarded) {
         bookingSentenceDetail.verifyAdditionalDaysAwarded(
                 isBlank(additionalDaysAwarded) ? null : Integer.valueOf(additionalDaysAwarded));
     }
 
-    @And("^release date type matches \"([^\"]*)\"$")
-    public void releaseDateTypeMatches(String releaseDateType) throws Throwable {
+    @And("^non-DTO release date type matches \"([^\"]*)\"$")
+    public void nonDtoReleaseDateTypeMatches(String releaseDateType) {
         bookingSentenceDetail.verifyNonDtoReleaseDateType(releaseDateType);
     }
 
-    @And("^home detention curfew approved date matches \"([^\"]*)\"$")
-    public void homeDetentionCurfewApprovedDateMatches(String homeDetentionCurfewApprovedDate) throws Throwable {
-        bookingSentenceDetail.verifyHomeDetentionCurfewApprovedDate(homeDetentionCurfewApprovedDate);
+    @And("^home detention curfew actual date matches \"([^\"]*)\"$")
+    public void homeDetentionCurfewActualDateMatches(String homeDetentionCurfewActualDate) {
+        bookingSentenceDetail.verifyHomeDetentionCurfewActualDate(homeDetentionCurfewActualDate);
     }
 
-    @And("^approved parole date matches \"([^\"]*)\"$")
-    public void approvedParoleDateMatches(String approvedParoleDate) throws Throwable {
-        bookingSentenceDetail.verifyApprovedParoleDate(approvedParoleDate);
+    @And("^actual parole date matches \"([^\"]*)\"$")
+    public void actualParoleDateMatches(String actualParoleDate) {
+        bookingSentenceDetail.verifyActualParoleDate(actualParoleDate);
     }
 
     @And("^release on temporary licence date matches \"([^\"]*)\"$")
-    public void releaseOnTemporaryLicenceDateMatches(String releaseOnTemporaryLicenceDate) throws Throwable {
+    public void releaseOnTemporaryLicenceDateMatches(String releaseOnTemporaryLicenceDate) {
         bookingSentenceDetail.verifyReleaseOnTemporaryLicenceDate(releaseOnTemporaryLicenceDate);
     }
 
-    @And("^early release scheme eligibility date matches \"([^\"]*)\"$")
-    public void earlyReleaseSchemeEligibilityDateMatches(String earlyReleaseSchemeEligibilityDate) throws Throwable {
-        bookingSentenceDetail.verifyEarlyReleaseSchemeEligibilityDate(earlyReleaseSchemeEligibilityDate);
+    @And("^early removal scheme eligibility date matches \"([^\"]*)\"$")
+    public void earlyRemovalSchemeEligibilityDateMatches(String earlyRemovalSchemeEligibilityDate) {
+        bookingSentenceDetail.verifyEarlyRemovalSchemeEligibilityDate(earlyRemovalSchemeEligibilityDate);
     }
 
     @Then("^resource not found response is received from sentence details API$")
-    public void resourceNotFoundResponseIsReceivedFromSentenceDetailsAPI() throws Throwable {
+    public void resourceNotFoundResponseIsReceivedFromSentenceDetailsAPI() {
         bookingSentenceDetail.verifyResourceNotFound();
     }
 
+    @And("^confirmed release date matches \"([^\"]*)\"$")
+    public void confirmedReleaseDateMatches(String confirmedReleaseDate) {
+        bookingSentenceDetail.verifyConfirmedReleaseDate(confirmedReleaseDate);
+    }
+
+    @And("^topup supervision expiry date matches \"([^\"]*)\"$")
+    public void topupSupervisionExpiryDateMatches(String topupSupervisionExpiryDate) {
+        bookingSentenceDetail.verifyTopupSupervisionExpiryDate(topupSupervisionExpiryDate);
+    }
+
+    @And("^release date matches \"([^\"]*)\"$")
+    public void releaseDateMatches(String releaseDate) {
+        bookingSentenceDetail.verifyReleaseDate(releaseDate);
+    }
+
+    @And("^tariff date matches \"([^\"]*)\"$")
+    public void tariffDateMatches(String tariffDate) {
+        bookingSentenceDetail.verifyTariffDate(tariffDate);
+    }
+
     @When("^an IEP summary only is requested for an offender with booking id \"([^\"]*)\"$")
-    public void anIEPSummaryOnlyIsRequestedForAnOffenderWithBookingId(String bookingId) throws Throwable {
+    public void anIEPSummaryOnlyIsRequestedForAnOffenderWithBookingId(String bookingId) {
         bookingIEP.getBookingIEPSummary(Long.valueOf(bookingId), false);
     }
 
     @When("^an IEP summary, with details, is requested for an offender with booking id \"([^\"]*)\"$")
-    public void anIEPSummaryWithDetailsIsRequestedForAnOffenderWithBookingId(String bookingId) throws Throwable {
+    public void anIEPSummaryWithDetailsIsRequestedForAnOffenderWithBookingId(String bookingId) {
         bookingIEP.getBookingIEPSummary(Long.valueOf(bookingId), true);
     }
 
     @Then("^IEP summary is returned with IEP level of \"([^\"]*)\"$")
-    public void iepSummaryIsReturnedWithIEPLevelOf(String iepLevel) throws Throwable {
+    public void iepSummaryIsReturnedWithIEPLevelOf(String iepLevel) {
         bookingIEP.verifyCurrentIEPLevel(iepLevel);
     }
 
     @And("^IEP summary contains \"([^\"]*)\" detail records$")
-    public void iepSummaryContainsDetailRecords(String detailRecordCount) throws Throwable {
+    public void iepSummaryContainsDetailRecords(String detailRecordCount) {
         bookingIEP.verifyIEPDetailRecordCount(Integer.parseInt(detailRecordCount));
     }
 
     @And("^IEP days since review is correct for IEP date of \"([^\"]*)\"$")
-    public void iepDaysSinceReviewIsCorrectForIEPDateOf(String iepDate) throws Throwable {
+    public void iepDaysSinceReviewIsCorrectForIEPDateOf(String iepDate) {
         bookingIEP.verifyDaysSinceReview(iepDate);
     }
 
     @Then("^resource not found response is received from bookings IEP summary API$")
-    public void resourceNotFoundResponseIsReceivedFromBookingsIEPSummaryAPI() throws Throwable {
+    public void resourceNotFoundResponseIsReceivedFromBookingsIEPSummaryAPI() {
         bookingIEP.verifyResourceNotFound();
     }
 
     @And("^user message in resource not found response from bookings IEP summary API is \"([^\"]*)\"$")
-    public void userMessageInResourceNotFoundResponseFromBookingsIEPSummaryAPIIs(String expectedUserMessage) throws Throwable {
-        bookingIEP.verifyResourceNotFoundUserMessage(expectedUserMessage);
+    public void userMessageInResourceNotFoundResponseFromBookingsIEPSummaryAPIIs(String expectedUserMessage) {
+        bookingIEP.verifyErrorUserMessage(expectedUserMessage);
     }
 
     @And("^gender matches \"([^\"]*)\"$")
-    public void genderMatches(String gender) throws Throwable {
+    public void genderMatches(String gender) {
         bookingDetail.verifyOffenderGender(gender);
     }
 
     @And("^ethnicity matches \"([^\"]*)\"$")
-    public void ethnicityMatches(String ethnicity) throws Throwable {
+    public void ethnicityMatches(String ethnicity) {
         bookingDetail.verifyOffenderEthnicity(ethnicity);
     }
 
     @And("^height in feet matches \"([^\"]*)\"$")
-    public void heightInFeetMatches(String feet) throws Throwable {
+    public void heightInFeetMatches(String feet) {
         bookingDetail.verifyOffenderHeightInFeet(isBlank(feet) ? null : Integer.parseInt(feet));
     }
 
     @And("^height in inches matches \"([^\"]*)\"$")
-    public void heightInInchesMatches(String inches) throws Throwable {
+    public void heightInInchesMatches(String inches) {
         bookingDetail.verifyOffenderHeightInInches(isBlank(inches) ? null : Integer.parseInt(inches));
     }
 
     @And("^height in centimetres matches \"([^\"]*)\"$")
-    public void heightInCentimetresMatches(String centimetres) throws Throwable {
+    public void heightInCentimetresMatches(String centimetres) {
         bookingDetail.verifyOffenderHeightInCentimetres(isBlank(centimetres) ? null : Integer.parseInt(centimetres));
     }
 
     @And("^height in metres matches \"([^\"]*)\"$")
-    public void heightInMetresMatches(String metres) throws Throwable {
+    public void heightInMetresMatches(String metres) {
         bookingDetail.verifyOffenderHeightInMetres(isBlank(metres) ? null : new BigDecimal(metres));
     }
 
     @And("^weight in pounds matches \"([^\"]*)\"$")
-    public void weightInPoundsMatches(String pounds) throws Throwable {
+    public void weightInPoundsMatches(String pounds) {
         bookingDetail.verifyOffenderWeightInPounds(isBlank(pounds) ? null : Integer.parseInt(pounds));
     }
 
     @And("^weight in kilograms matches \"([^\"]*)\"$")
-    public void weightInKilogramsMatches(String kilograms) throws Throwable {
+    public void weightInKilogramsMatches(String kilograms) {
         bookingDetail.verifyOffenderWeightInKilograms(isBlank(kilograms) ? null : Integer.parseInt(kilograms));
     }
 
     @And("^characteristics match \"([^\"]*)\"$")
-    public void characteristicsMatch(String characteristicsList) throws Throwable {
+    public void characteristicsMatch(String characteristicsList) {
         bookingDetail.verifyOffenderPhysicalCharacteristics(characteristicsList);
     }
 
     // ----------------------------- Alerts --------------------------
 
     @When("^alerts are requested for an offender booking \"([^\"]*)\"$")
-    public void alertsAreRequestedForOffenderBooking(Long bookingId) throws Throwable {
+    public void alertsAreRequestedForOffenderBooking(Long bookingId) {
         bookingAlerts.getAlerts(bookingId);
     }
 
     @Then("^\"([^\"]*)\" alerts are returned$")
-    public void numberAlertsAreReturned(String expectedCount) throws Throwable {
+    public void numberAlertsAreReturned(String expectedCount) {
         bookingAlerts.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
     }
 
     @And("alerts codes match \"([^\"]*)\"$")
-    public void alertsCodesMatch(String codes) throws Throwable {
+    public void alertsCodesMatch(String codes) {
         bookingAlerts.verifyCodeList(codes);
     }
 
     @When("^alert is requested for an offender booking \"([^\"]*)\" and alert id \"([^\"]*)\"$")
-    public void alertIsRequestedForOffenderBooking(Long bookingId, Long alertId) throws Throwable {
+    public void alertIsRequestedForOffenderBooking(Long bookingId, Long alertId) {
         bookingAlerts.getAlert(bookingId, alertId);
     }
 
@@ -415,20 +465,24 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^resource not found response is received from alert API$")
-    public void resourceNotFoundResponseIsReceivedFromAlertAPI() throws Throwable {
+    public void resourceNotFoundResponseIsReceivedFromAlertAPI() {
         bookingAlerts.verifyResourceNotFound();
     }
 
     // ----------------------------- Main Sentence --------------------------
-
     @When("^a sentence with booking id ([0-9-]+) is requested$")
-    public void sentenceWithBookingId(Long id) {
-        bookingSentence.getMainSentence(id);
+    public void sentenceWithBookingId(Long bookingId) {
+        bookingSentence.getMainOffenceDetails(bookingId);
     }
 
-    @Then("^the returned mainSentence ([^\"]+) is \"([^\"]*)\"$")
-    public void theFieldIs(String field, String value) throws ReflectiveOperationException {
-        bookingSentence.verifyField(field, value);
+    @Then("^(\\d+) offence detail records are returned$")
+    public void offenceDetailRecordsAreReturned(long expectedCount) {
+        bookingSentence.verifyResourceRecordsReturned(expectedCount);
+    }
+
+    @And("^offence description of \"([^\"]*)\" offence detail record is \"([^\"]*)\"$")
+    public void offenceDescriptionOfOffenceDetailRecordIs(String ordinal, String expectedDescription) {
+        bookingSentence.verifyOffenceDescription(ord2idx(ordinal), expectedDescription);
     }
 
     @Then("resource not found response is received from sentence API")
@@ -438,7 +492,7 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     // ----------------------------- Assessments --------------------------
     @When("^an offender booking assessment information request is made with booking id ([0-9-]+) and \"([^\"]*)\"$")
-    public void anOffenderBookingAssessmentInformationRequestIsMadeWithBookingIdAnd(Long bookingId, String assessmentCode) throws Throwable {
+    public void anOffenderBookingAssessmentInformationRequestIsMadeWithBookingIdAnd(Long bookingId, String assessmentCode) {
         bookingAssessment.getAssessmentByCode(bookingId, assessmentCode);
     }
 
@@ -448,17 +502,127 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     }
 
     @And("^the Cell Sharing Alert is (true|false)$")
-    public void theCellSharingAlertIs(boolean csra) throws Throwable {
+    public void theCellSharingAlertIs(boolean csra) {
         bookingAssessment.verifyCsra(csra);
     }
 
+    @And("^the Next Review Date is \"([^\"]*)\"$")
+    public void theNextReviewDateIs(String nextReviewDate) {
+        bookingAssessment.verifyNextReviewDate(nextReviewDate);
+    }
+
+    @When("^an offender booking assessment information request is made with offender numbers \"([^\"]*)\" and \"([^\"]*)\"$")
+    public void anOffenderBookingAssessmentInformationRequestIsMadeWithBookingIdAnd(String offenderNoList, String assessmentCode) {
+        bookingAssessment.getAssessmentsByCode(offenderNoList, assessmentCode);
+    }
+
+    @Then("^correct results are returned as for single assessment$")
+    public void multipleIsCorrect() throws Throwable {
+        bookingAssessment.verifyMultipleAssessments();
+    }
+
     @Then("^resource not found response is received from booking assessments API$")
-    public void resourceNotFoundResponseIsReceivedFromBookingAssessmentsAPI() throws Throwable {
+    public void resourceNotFoundResponseIsReceivedFromBookingAssessmentsAPI() {
         bookingAssessment.verifyResourceNotFound();
     }
 
     @And("^user message in resource not found response from booking assessments API is \"([^\"]*)\"$")
-    public void userMessageInResourceNotFoundResponseFromBookingAssessmentsAPIIs(String expectedUserMessage) throws Throwable {
-        bookingAssessment.verifyResourceNotFoundUserMessage(expectedUserMessage);
+    public void userMessageInResourceNotFoundResponseFromBookingAssessmentsAPIIs(String expectedUserMessage) {
+        bookingAssessment.verifyErrorUserMessage(expectedUserMessage);
+    }
+
+    @Then("^the number of active alerts is ([0-9-]+)$")
+    public void theNumberOfActiveAlertsIs(int count) {
+        bookingDetail.verifyActiveCount(count);
+    }
+
+    @And("^the number of inactive alerts is ([0-9-]+)$")
+    public void theNumberOfInactiveAlertsIs(int count) {
+        bookingDetail.verifyInactiveCount(count);
+    }
+
+    @When("^sentence details are requested for an offenders in logged in users caseloads with booking id \"([0-9-]+)\"$")
+    public void sentenceDetailsAreRequestedForAnOffendersInLoggedInUsersCaseloadsWithBookingId(String bookingId) {
+        bookingSentenceDetail.getOffenderSentenceDetails(Long.valueOf(bookingId));
+    }
+
+    @When("^sentence details are requested of offenders for the logged in users caseloads$")
+    public void sentenceDetailsAreRequestedForAnOffendersInLoggedInUsersCaseloads() {
+        bookingSentenceDetail.getOffenderSentenceDetails();
+    }
+
+    @Then("^\"([0-9-]+)\" offenders are returned$")
+    public void offendersAreReturned(long total) {
+        bookingSentenceDetail.verifyResourceRecordsReturned(total);
+    }
+
+    @And("^\"([0-9-]+)\" offenders in total$")
+    public void offendersInTotal(long total) {
+        bookingSentenceDetail.verifyTotalResourceRecordsAvailable(total);
+    }
+
+    @When("^sentence details are requested of offenders for the logged in users caseloads sorted by \"([^\"]*)\" and filtered by \"([^\"]*)\"$")
+    public void sentenceDetailsAreRequestedOfOffendersForTheLoggedInUsersCaseloadsSortedByAndFilteredBy(String sortFields, String filterQuery) throws Throwable {
+        bookingSentenceDetail.getOffenderSentenceDetails(sortFields, filterQuery, 10L);
+    }
+
+    @When("^sentence details are requested of offenders for the logged in users caseloads sorted by \"([^\"]*)\", filtered by \"([^\"]*)\" with page size of \"([0-9-]+)\"$")
+    public void sentenceDetailsAreRequestedOfOffendersForTheLoggedInUsersCaseloadsSortedByAndFilteredBy(String sortFields, String filterQuery, Long pageSize) throws Throwable {
+        bookingSentenceDetail.getOffenderSentenceDetails(sortFields, filterQuery, pageSize);
+    }
+
+    @When("^assessment information is requested for Booking Id \"([^\"]*)\"$")
+    public void assessmentInformationIsRequestedForBookingId(String bookingId) throws Throwable {
+        bookingAssessment.getAssessments(Long.valueOf(bookingId));
+    }
+
+    @Then("^\"(\\d+)\" row of assessment data is returned$")
+    public void rowOfDataIsReturned(long expectedCount) {
+        bookingAssessment.verifyResourceRecordsReturned(expectedCount);
+    }
+
+    @When("^offender identifiers are requested for Booking Id \"([^\"]*)\"$")
+    public void offenderIdentifiersAreRequestedForBookingId(String bookingId) throws Throwable {
+        bookingDetail.getOffenderIdentifiers(Long.valueOf(bookingId));
+    }
+
+    @When("^profile information is requested for Booking Id \"([^\"]*)\"$")
+    public void profileInformationIsRequestedForBookingId(String bookingId) throws Throwable {
+        bookingDetail.getProfileInformation(Long.valueOf(bookingId));
+    }
+
+    @When("^physical characteristic information is requested for Booking Id \"([^\"]*)\"$")
+    public void physicalCharacteristicInformationIsRequestedForBookingId(String bookingId) throws Throwable {
+        bookingDetail.getPhysicalCharacteristics(Long.valueOf(bookingId));
+    }
+
+    @When("^image metadata is requested for Booking Id \"([^\"]*)\"$")
+    public void imageMetadataIsRequestedForBookingId(String bookingId) throws Throwable {
+        bookingDetail.getImageMetadata(Long.valueOf(bookingId));
+    }
+
+    @When("^an physical attributes request is made with booking id \"([^\"]*)\"$")
+    public void anPhysicalAttributesRequestIsMadeWithBookingId(String bookingId) throws Throwable {
+        bookingDetail.getPhysicalAttributes(Long.valueOf(bookingId));
+    }
+
+    @Then("^\"(\\d+)\" row of offender identifiers is returned$")
+    public void rowOfOffenderIdentifiersIsReturned(long expectedCount) throws Throwable {
+        bookingDetail.verifyResourceRecordsReturned(expectedCount);
+    }
+
+    @Then("^\"(\\d+)\" row of profile information is returned$")
+    public void rowOfProfileInformationIsReturned(long expectedCount) throws Throwable {
+        bookingDetail.verifyResourceRecordsReturned(expectedCount);
+    }
+
+    @Then("^\"(\\d+)\" row of physical characteristics is returned$")
+    public void rowOfPhysicalCharacteristicsIsReturned(long expectedCount) {
+        bookingDetail.verifyResourceRecordsReturned(expectedCount);
+    }
+
+    @Then("^image data is returned$")
+    public void imageDataIsReturned() throws Throwable {
+        bookingDetail.verifyImageMetadataExists();
     }
 }

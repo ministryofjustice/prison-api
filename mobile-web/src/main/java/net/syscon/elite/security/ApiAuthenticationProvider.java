@@ -1,7 +1,6 @@
 package net.syscon.elite.security;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -17,19 +16,15 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 @Configurable
+@Slf4j
 public class ApiAuthenticationProvider extends DaoAuthenticationProvider {
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Value("${spring.datasource.url}")
     private String jdbcUrl;
 
-    @Value("${token.username.stored.caps:true}")
-    private boolean upperCaseUsername;
-
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        String username = upperCaseUsername ? authentication.getName().toUpperCase() : authentication.getName();
+        String username = authentication.getName().toUpperCase();
         String password = authentication.getCredentials().toString();
 
         try (Connection conn = DriverManager.getConnection(jdbcUrl, username, password)) {

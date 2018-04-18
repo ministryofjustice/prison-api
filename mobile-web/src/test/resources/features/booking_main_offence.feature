@@ -1,17 +1,22 @@
 @nomis
-Feature: Booking Main Sentence Summary
+Feature: Booking Main Offence Detail
 
   Acceptence Criteria
-  A logged on staff user can retrieve a sentence summary for an offender booking.
+  A logged on staff user can retrieve details of main offences for an offender booking.
 
   Background:
     Given a user has authenticated with the API
 
-  Scenario: Retrieve sentence
+  Scenario: Retrieve single main offence
     When a sentence with booking id -1 is requested
-    Then the returned mainSentence sentenceLength is "6 months"
-    And the returned mainSentence releaseDate is "2018-04-23"
-    And the returned mainSentence mainOffenceDescription is "Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)"
+    Then 1 offence detail records are returned
+    And offence description of "1st" offence detail record is "Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)"
+
+  Scenario: Retrieve multiple main offences
+    When a sentence with booking id -7 is requested
+    Then 2 offence detail records are returned
+    And offence description of "1st" offence detail record is "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury"
+    And offence description of "2nd" offence detail record is "Cause another to use a vehicle where the seat belt is not securely fastened to the anchorage point."
 
   Scenario: Booking id does not exist
     When a sentence with booking id -99 is requested
@@ -22,7 +27,5 @@ Feature: Booking Main Sentence Summary
     Then resource not found response is received from sentence API
 
   Scenario: Request main offence details for offender that does not yet have any on record
-    When a sentence with booking id -15 is requested
-    Then the returned mainSentence sentenceLength is ""
-    And the returned mainSentence releaseDate is ""
-    And the returned mainSentence mainOffenceDescription is ""
+    When a sentence with booking id -9 is requested
+    Then 0 offence detail records are returned

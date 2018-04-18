@@ -3,33 +3,45 @@ package net.syscon.elite.repository.impl;
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.CaseNote;
 import net.syscon.elite.api.model.NewCaseNote;
+import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.CaseNoteRepository;
 import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
-import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
-
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.validator.constraints.Length;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.validation.annotation.Validated;
 
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Repository
+@Validated
 public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRepository {
+	private static final RowMapper<ReferenceCode> REF_CODE_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(ReferenceCode.class);
+
+	private static final RowMapper<ReferenceCodeDetail> REF_CODE_DETAIL_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(ReferenceCodeDetail.class);
 
 	private final Map<String, FieldMapper> CASE_NOTE_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("OFFENDER_BOOK_ID", 			new FieldMapper("bookingId"))
@@ -52,21 +64,21 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
         String initialSql = getQuery("FIND_CASENOTES");
         final MapSqlParameterSource params = createParams("bookingId", bookingId, "offset", offset, "limit", limit);
         if (from != null) {
-            initialSql += " AND CN.CONTACT_TIME >= :fromDate";
+            initialSql += " AND CN.CREATE_DATETIME >= :fromDate";
             params.addValue("fromDate", DateTimeConverter.toDate(from));
         }
         if (to != null) {
-            initialSql += " AND CN.CONTACT_TIME < :toDate";
+            initialSql += " AND CN.CREATE_DATETIME < :toDate";
 
             // Adjust to be strictly less than start of *next day.
 
             // This handles a query which includes an inclusive 'date to' element of a date range filter being used to retrieve
-            // case notes based on the OFFENDER_CASE_NOTES.CONTACT_TIME falling on or between two dates
+            // case notes based on the OFFENDER_CASE_NOTES.CREATE_DATETIME falling on or between two dates
             // (inclusive date from and date to elements included) or being on or before a specified date (inclusive date to
             // element only).
             //
-            // As the CONTACT_TIME field is a TIMESTAMP (i.e. includes a time component), a clause which performs a '<='
-            // comparison between CONTACT_TIME and the provided 'date to' value will not evaluate to 'true' for CONTACT_TIME
+            // As the CREATE_DATETIME field is a TIMESTAMP (i.e. includes a time component), a clause which performs a '<='
+            // comparison between CREATE_DATETIME and the provided 'date to' value will not evaluate to 'true' for CREATE_DATETIME
             // values on the same day as the 'date to' value.
             //
             // This processing step has been introduced to ADD ONE DAY to a provided 'date to' value and replace 
@@ -109,11 +121,10 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
-	public Long createCaseNote(long bookingId, NewCaseNote newCaseNote, String sourceCode) {
+	public Long createCaseNote(long bookingId, NewCaseNote newCaseNote, String sourceCode, String username) {
 		String initialSql = getQuery("INSERT_CASE_NOTE");
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, CASE_NOTE_MAPPING);
 		String sql = builder.build();
-		String user = UserSecurityUtils.getCurrentUsername();
 
 		LocalDateTime now = Instant.now().atOffset(ZoneOffset.UTC).toLocalDateTime();
 
@@ -143,8 +154,8 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 										"createTime", createdDateTime,
 										"contactDate", occurrenceDate,
 										"contactTime", occurrenceTime,
-										"createdBy", user,
-										"userId", user),
+										"createdBy", username,
+										"userId", username),
 				generatedKeyHolder,
 				new String[] {"CASE_NOTE_ID"});
 
@@ -152,11 +163,107 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
-	public void updateCaseNote(long bookingId, long caseNoteId, String updatedText, String userId) {
+	public void updateCaseNote(long bookingId, long caseNoteId, @Length(max=4000, message="{caseNoteTextTooLong}") String updatedText, String userId) {
 		String sql = queryBuilderFactory.getQueryBuilder(getQuery("UPDATE_CASE_NOTE"), CASE_NOTE_MAPPING).build();
 
 		jdbcTemplate.update(sql, createParams("modifyBy", userId,
 												"caseNoteId", caseNoteId,
 												"text", updatedText));
 	}
+
+	@Override
+	public Long getCaseNoteCount(long bookingId, String type, String subType, LocalDate fromDate, LocalDate toDate) {
+		String sql = getQuery("GET_CASE_NOTE_COUNT");
+
+		return jdbcTemplate.queryForObject(
+				sql,
+				createParams("bookingId", bookingId,
+						"type", type,
+						"subType", subType,
+						"fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
+						"toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
+				Long.class);
+	}
+
+	@Override
+    @Cacheable("caseNoteTypesByCaseLoadType")
+	public List<ReferenceCode> getCaseNoteTypesByCaseLoadType(String caseLoadType) {
+		String sql = getQuery("GET_CASE_NOTE_TYPES_BY_CASELOAD_TYPE");
+
+		return jdbcTemplate.query(sql,
+				createParams("caseLoadType", caseLoadType),
+                REF_CODE_ROW_MAPPER);
+	}
+
+	@Override
+    @Cacheable("caseNoteTypesWithSubTypesByCaseLoadType")
+	public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(String caseLoadType) {
+		String sql = getQuery("GET_CASE_NOTE_TYPES_WITH_SUB_TYPES_BY_CASELOAD_TYPE");
+
+		List<ReferenceCodeDetail> referenceCodeDetails = jdbcTemplate.query(sql,
+				createParams("caseLoadType", caseLoadType),
+                REF_CODE_DETAIL_ROW_MAPPER);
+
+		return buildCaseNoteTypes(referenceCodeDetails);
+	}
+
+	@Override
+	@Cacheable("usedCaseNoteTypesWithSubTypes")
+	public List<ReferenceCode> getUsedCaseNoteTypesWithSubTypes() {
+		String sql = getQuery("GET_USED_CASE_NOTE_TYPES_WITH_SUB_TYPES");
+
+		List<ReferenceCodeDetail> referenceCodeDetails = jdbcTemplate.query(sql,
+					REF_CODE_DETAIL_ROW_MAPPER);
+
+		return buildCaseNoteTypes(referenceCodeDetails);
+	}
+
+	private List<ReferenceCode> buildCaseNoteTypes(List<ReferenceCodeDetail> results) {
+        Map<String,ReferenceCode> caseNoteTypes = new TreeMap<>();
+
+        results.forEach(ref -> {
+            ReferenceCode caseNoteType = caseNoteTypes.get(ref.getCode());
+
+            if (caseNoteType == null) {
+                caseNoteType = ReferenceCode.builder()
+                        .code(ref.getCode())
+                        .domain(ref.getDomain())
+                        .description(ref.getDescription())
+                        .activeFlag(ref.getActiveFlag())
+                        .parentCode(ref.getParentCode())
+                        .parentDomain(ref.getParentDomain())
+                        .subCodes(new ArrayList<>())
+                        .build();
+
+                caseNoteTypes.put(ref.getCode(), caseNoteType);
+            }
+
+            if (StringUtils.isNotBlank(ref.getSubCode())) {
+                ReferenceCode caseNoteSubType = ReferenceCode.builder()
+                        .code(ref.getSubCode())
+                        .domain(ref.getSubDomain())
+                        .description(ref.getSubDescription())
+                        .activeFlag(ref.getSubActiveFlag())
+                        .build();
+
+                caseNoteType.getSubCodes().add(caseNoteSubType);
+            }
+        });
+
+		Predicate<ReferenceCode> typesWithSubTypes = type -> !type.getSubCodes().isEmpty();
+
+		caseNoteTypes.values().stream().filter(typesWithSubTypes).forEach(caseNoteType -> {
+
+       	   List<ReferenceCode> sortedSubTypes = caseNoteType.getSubCodes().stream()
+                   .sorted(Comparator.comparing(a -> a.getDescription().toLowerCase()))
+				   .collect(Collectors.toList());
+
+        	caseNoteType.setSubCodes(sortedSubTypes);
+		});
+
+        return caseNoteTypes.values().stream()
+				.filter(typesWithSubTypes)
+                .sorted(Comparator.comparing(a -> a.getDescription().toLowerCase()))
+				.collect(Collectors.toList());
+    }
 }

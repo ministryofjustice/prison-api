@@ -35,7 +35,7 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     private CaseNote seededCaseNote;
     private CaseNote updatedCaseNote;
 
-    private Long caseNoteBookingId = -15L; // this must exist
+    private Long caseNoteBookingId = -32L; // this must exist and must be accessible to test user
 
     @And("^case note test harness initialized$")
     public void caseNoteTestHarnessInitialized() throws Throwable {
@@ -97,7 +97,7 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^case note validation error \"([^\"]*)\" occurs$")
-     public void caseNoteValidationErrorOccurs(String error)  {
+    public void caseNoteValidationErrorOccurs(String error) {
         caseNote.verifyBadRequest(error);
     }
 
@@ -106,15 +106,31 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
     }
 
+    @When("^existing case note is updated with valid text$")
+    public void theCaseNoteIsUpdatedWithValidText() throws Throwable {
+        CaseNote existingCaseNote = caseNote.getCaseNote(-5, -2);
+        // Allow 100 chars for the 1st part of the updated text which includes the
+        // original text and the user/timestamp text
+        String caseNoteText = StringUtils.repeat("a", 100);
+        updatedCaseNote = caseNote.updateCaseNote(existingCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
+    }
+
+    @When("^existing case note for a different user is updated with valid text$")
+    public void existingCaseNoteForADifferentUserIsUpdatedWithValidText() throws Throwable {
+        CaseNote existingCaseNote = caseNote.getCaseNote(-1, -1);
+        String caseNoteText = StringUtils.repeat("a", 100);
+        updatedCaseNote = caseNote.updateCaseNote(existingCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
+    }
+
     @When("^the created case note is updated with long text$")
-    public void theCaseNoteIsUpdatedWithText() throws Throwable {
-        final String caseNoteText = "A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string A really long string ";
+    public void theCaseNoteIsUpdatedWithInvalidText() throws Throwable {
+        final String caseNoteText = StringUtils.repeat("a", 3950); // total text will be over 4000
         updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
     }
 
-    @Then("^case note is successfully updated with \"([^\"]*)\"$")
-    public void caseNoteIsSuccessfullyUpdated(String caseNoteText) throws Throwable {
-        assertThat(updatedCaseNote.getText()).contains(caseNoteText);
+    @Then("^case note is successfully updated with valid text$")
+    public void caseNoteIsSuccessfullyUpdated() throws Throwable {
+        assertThat(updatedCaseNote.getText()).contains(StringUtils.repeat("a", 100));
     }
 
     @And("^the original text is not replaced$")
@@ -201,9 +217,9 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         caseNote.verifyTotalResourceRecordsAvailable(Long.valueOf(count));
     }
 
-    @When("^attempt is made to update case note for booking with id -(\\d+)$")
-    public void attemptIsMadeToUpdateCaseNoteForBookingWithId(long bookingId) throws Throwable {
-        seededCaseNote.setBookingId(bookingId);
+    @When("^attempt is made to update case note for booking with id \"([^\"]*)\"$")
+    public void attemptIsMadeToUpdateCaseNoteForBookingWithId(String bookingId) throws Throwable {
+        seededCaseNote.setBookingId(Long.valueOf(bookingId));
         caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text("Updated text").build());
     }
 
@@ -215,5 +231,30 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     @Then("^resource not found response is received from casenotes API")
     public void caseNotesVerifyResourceNotFound() throws Throwable {
         caseNote.verifyResourceNotFound();
+    }
+
+    @When("^case note count is requested for offender booking \"([^\"]*)\" for case note type \"([^\"]*)\" and sub-type \"([^\"]*)\"$")
+    public void caseNoteCountIsRequestedForOffenderBookingForCaseNoteTypeAndSubType(String bookingId, String type, String subType) throws Throwable {
+        caseNote.getCaseNoteCount(Long.valueOf(bookingId), type, subType, null, null);
+    }
+
+    @Then("^case note count response \"([^\"]*)\" is \"([^\"]*)\"$")
+    public void caseNoteCountResponseIs(String propertyName, String expectedValue) throws Throwable {
+        caseNote.verifyCaseNoteCountPropertyValue(propertyName, expectedValue);
+    }
+
+    @Then("^bad request response, with \"([^\"]*)\" message, is received from casenotes API$")
+    public void badRequestResponseWithMessageIsReceivedFromCasenotesAPI(String expectedUserMessage) throws Throwable {
+        caseNote.verifyBadRequest(expectedUserMessage);
+    }
+
+    @When("^case note count between \"([^\"]*)\" and \"([^\"]*)\" is requested for offender booking \"([^\"]*)\" for case note type \"([^\"]*)\" and sub-type \"([^\"]*)\"$")
+    public void caseNoteCountBetweenAndIsRequestedForOffenderBookingForCaseNoteTypeAndSubType(String fromDate, String toDate, String bookingId, String type, String subType) throws Throwable {
+        caseNote.getCaseNoteCount(Long.valueOf(bookingId), type, subType, fromDate, toDate);
+    }
+
+    @Then("^access denied response, with \"([^\"]*)\" message, is received from booking case notes API$")
+    public void accessDeniedResponseWithMessageIsReceivedFromBookingCaseNotesAPI(String userMessage) throws Throwable {
+        caseNote.verifyAccessDenied(userMessage);
     }
 }

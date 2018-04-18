@@ -1,21 +1,25 @@
 package net.syscon.elite.executablespecification.steps;
 
 import com.google.common.collect.ImmutableMap;
+import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.test.ErrorResponseErrorHandler;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 
 import javax.annotation.PostConstruct;
 import javax.ws.rs.core.Response;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -26,14 +30,14 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * Common BDD step implementations
  */
+@Slf4j
 public abstract class CommonSteps {
-    public static final String API_PREFIX = "/";
+    public static final String API_PREFIX = "/api/";
 
     @Autowired
     private AuthenticationSteps auth;
@@ -68,27 +72,41 @@ public abstract class CommonSteps {
     }
 
     @Step("User {0} authenticates with password {1}")
-    public void authenticates(String username, String password) {
-        auth.authenticate(username, password);
+    public void authenticates(String username, String password, boolean clientCredentials) {
+        errorResponse = auth.authenticate(StringUtils.upperCase(username), password, clientCredentials);
+    }
+
+    @Step("Refreshes with token")
+    public void refresh(OAuth2AccessToken token) {
+        errorResponse = auth.refresh(token);
     }
 
     @Step("Verify authentication token")
     public void verifyToken() {
-        assertThat(auth.getToken()).isNotEmpty();
+        assertThat(auth.getToken().getValue()).isNotEmpty();
+    }
+
+    @Step("Verify authentication refresh token")
+    public void verifyRefreshToken() {
+        assertThat(auth.getToken().getRefreshToken().getValue()).isNotEmpty();
     }
 
     @Step("Verify resource not found")
     public void verifyResourceNotFound() {
         assertThat(errorResponse).isNotNull();
         assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-
-        // If developerMessage is not empty, test is calling incorrect path/uri.
-        assertThat(errorResponse.getDeveloperMessage()).isEmpty();
+        assertThat(errorResponse.getDeveloperMessage()).as("Test is calling incorrect path/uri").isEmpty();
     }
 
-    @Step("Verify user message in resource not found response")
-    public void verifyResourceNotFoundUserMessage(String expectedUserMessage) {
+    @Step("Verify user message in error response")
+    public void verifyErrorUserMessage(String expectedUserMessage) {
         assertThat(errorResponse.getUserMessage()).isEqualTo(expectedUserMessage);
+    }
+
+    @Step("Verify 500 error")
+    public void verify500Error() {
+        assertThat(errorResponse).isNotNull();
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
     }
 
     @Step("Verify bad request")
@@ -106,6 +124,39 @@ public abstract class CommonSteps {
     public void verifyAccessDenied() {
         assertThat(errorResponse).isNotNull();
         assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.FORBIDDEN.getStatusCode());
+    }
+
+    @Step("Verify access denied")
+    public void verifyAccessDenied(String expectedUserMessage) {
+        verifyAccessDenied(Collections.singletonList(expectedUserMessage));
+    }
+
+    public void verifyAccessDenied(List<String> expectedUserMessages) {
+        assertThat(errorResponse).isNotNull();
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.FORBIDDEN.getStatusCode());
+        assertThat(errorResponse.getUserMessage()).contains(expectedUserMessages);
+    }
+
+    @Step("Verify not authorised")
+    public void verifyNotAuthorised() {
+        assertThat(errorResponse).isNotNull();
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
+    }
+
+    @Step("Verify resource conflict")
+    public void verifyResourceConflict(String expectedUserMessage) {
+        verifyResourceConflict(Collections.singletonList(expectedUserMessage));
+    }
+
+    public void verifyResourceConflict(List<String> expectedUserMessages) {
+        assertThat(errorResponse).isNotNull();
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        assertThat(errorResponse.getUserMessage()).contains(expectedUserMessages);
+    }
+
+    @Step("Verify no error")
+    public void verifyNoError() {
+        assertThat(errorResponse).isNull();
     }
 
     @Step("Apply pagination")
@@ -141,6 +192,7 @@ public abstract class CommonSteps {
     }
 
     protected void setErrorResponse(ErrorResponse errorResponse) {
+        log.error("API error: {}", errorResponse.toString());
         this.errorResponse = errorResponse;
     }
 
@@ -156,7 +208,7 @@ public abstract class CommonSteps {
         HttpHeaders headers = new HttpHeaders();
 
         if (auth.getToken() != null) {
-            headers.add(auth.getAuthenticationHeader(), auth.getToken());
+            headers.add(auth.getAuthenticationHeader(), "bearer "+auth.getToken().getValue());
         }
 
         if (extraHeaders != null) {
@@ -269,6 +321,42 @@ public abstract class CommonSteps {
         return extractedVals;
     }
 
+    protected <T> List<String> extractLocalDateTimeValues(Collection<T> actualCollection, Function<T,LocalDateTime> mapper) {
+        List<String> extractedVals = new ArrayList<>();
+        final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        if (actualCollection != null) {
+            extractedVals.addAll(
+                    actualCollection
+                            .stream()
+                            .map(mapper)
+                            .filter(Objects::nonNull)
+                            .map(date -> date.format(dateTimeFormatter))
+                            .collect(Collectors.toList())
+            );
+        }
+
+        return extractedVals;
+    }
+
+    protected <T> List<String> extractLocalTimeValues(Collection<T> actualCollection, Function<T,LocalDateTime> mapper) {
+        List<String> extractedVals = new ArrayList<>();
+        final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+        if (actualCollection != null) {
+            extractedVals.addAll(
+                    actualCollection
+                            .stream()
+                            .map(mapper)
+                            .filter(Objects::nonNull)
+                            .map(date -> date.format(dateTimeFormatter))
+                            .collect(Collectors.toList())
+            );
+        }
+
+        return extractedVals;
+    }
+
     protected <T> List<String> extractDateValues(Collection<T> actualCollection, Function<T,Date> mapper) {
         List<String> extractedVals = new ArrayList<>();
         final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -331,6 +419,22 @@ public abstract class CommonSteps {
         verifyIdentical(actualValList, expectedValList);
     }
 
+    protected <T> void verifyLocalDateTimeValues(Collection<T> actualCollection, Function<T, LocalDateTime> mapper,
+            String expectedValues) {
+        List<String> actualValList = extractLocalDateTimeValues(actualCollection, mapper);
+        List<String> expectedValList = csv2list(expectedValues);
+
+        verifyIdentical(actualValList, expectedValList);
+    }
+
+    protected <T> void verifyLocalTimeValues(Collection<T> actualCollection, Function<T, LocalDateTime> mapper,
+            String expectedValues) {
+        List<String> actualValList = extractLocalTimeValues(actualCollection, mapper);
+        List<String> expectedValList = csv2list(expectedValues);
+
+        verifyIdentical(actualValList, expectedValList);
+    }
+
     protected <T> void verifyDateValues(Collection<T> actualCollection,
                                             Function<T,Date> mapper,
                                             String expectedValues) {
@@ -350,13 +454,26 @@ public abstract class CommonSteps {
         verifyIdentical(actualPropertyMap, expectedPropertyMap);
     }
 
-    protected void verifyField(Object bean, String fieldName, String expected) throws ReflectiveOperationException {
-        final String actual = BeanUtilsBean.getInstance().getProperty(bean, fieldName);
-        if (StringUtils.isBlank(expected)) {
+    protected void verifyPropertyValue(Object bean, String propertyName, String expectedValue) throws ReflectiveOperationException {
+        verifyField(bean, propertyName, expectedValue);
+    }
+
+    protected void verifyField(Object bean, String fieldName, String expectedValue) throws ReflectiveOperationException {
+        assertNotNull(bean);
+        PropertyUtilsBean propertyUtilsBean = BeanUtilsBean.getInstance().getPropertyUtils();
+        final Object actual = propertyUtilsBean.getProperty(bean, fieldName);
+
+        if (StringUtils.isBlank(expectedValue)) {
             assertNull(actual);
         } else {
-            assertEquals(expected, actual);
+            if (actual instanceof BigDecimal) {
+                // Assume a monetary value with 2dp
+                assertEquals(expectedValue, ((BigDecimal) actual).setScale(2).toString());
+            } else {
+                assertEquals(expectedValue, actual.toString());
+            }
         }
+
     }
 
     protected void verifyLocalDate(LocalDate actual, String expected) {
@@ -411,7 +528,7 @@ public abstract class CommonSteps {
     }
 
     private Page<?> buildPageMetaData(HttpHeaders headers) {
-        Page<?> pageMetaData;
+        Page<?> metaData;
 
         List<String> totals = headers.get("Total-Records");
 
@@ -422,11 +539,25 @@ public abstract class CommonSteps {
             List<String> limits = headers.get("Page-Limit");
             Long returnedLimit = Long.valueOf(limits.get(0));
 
-            pageMetaData = new Page<>(null, totalRecords, returnedOffset, returnedLimit);
+            metaData = new Page<>(null, totalRecords, returnedOffset, returnedLimit);
         } else {
-            pageMetaData = null;
+            metaData = null;
         }
 
-        return pageMetaData;
+        return metaData;
+    }
+
+    /**
+     * Equality assertion where blank and null are treated as equal
+     */
+    protected static void assertEqualsBlankIsNull(String expected, String actual) {
+        if (StringUtils.isBlank(actual) && StringUtils.isBlank(expected) ) {
+            return;
+        }
+        assertEquals(expected, actual);
+    }
+
+    public AuthenticationSteps getAuth() {
+        return auth;
     }
 }

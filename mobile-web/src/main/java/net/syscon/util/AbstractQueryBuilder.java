@@ -1,16 +1,19 @@
 package net.syscon.util;
 
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.mapping.FieldMapper;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-/**
- * Created by andrewk on 13/06/2017.
- */
+import static net.syscon.util.QueryUtil.prepareQuery;
+
 public abstract class AbstractQueryBuilder implements IQueryBuilder {
+
+    private static final Pattern COMMA_PATTERN = Pattern.compile(",");
     protected final String initialSQL;
     protected final Map<String, FieldMapper> fieldMap;
     protected final Map<String, String> fieldNameToColumnMap;
@@ -33,29 +36,35 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
                     .collect(Collectors.toMap(v -> v.getValue().getName(),
                             Map.Entry::getKey));
         } else {
-            this.fieldNameToColumnMap = Collections.EMPTY_MAP;
+            this.fieldNameToColumnMap = Collections.emptyMap();
         }
     }
 
+    @Override
     public IQueryBuilder removeSpecialChars() {
         this.removeSpecialChars = true;
         return this;
     }
 
+    @Override
     public IQueryBuilder addPagination() {
         includePagination = true;
 
         return this;
     }
 
+    @Override
     public IQueryBuilder addRowCount() {
         includeRowCount = true;
 
         return this;
     }
 
+    @Override
     public IQueryBuilder addQuery(final String query) {
         if (StringUtils.isNotBlank(query)) {
+            List<String> queryTerms = new ArrayList<>();
+
             List<String> queryList = QueryUtil.checkPrecedencyAndSplit(query, new ArrayList<>());
 
             queryList.stream()
@@ -66,35 +75,48 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
                                     .replace("(", "")
                                     .replace(")", "");
 
-                            extraWhere.append(
-                                    QueryUtil.prepareQuery(modifiedQueryItem, true, fieldMap));
+                            queryTerms.add(prepareQuery(modifiedQueryItem, true, fieldMap));
                         } else {
-                            extraWhere.append(
-                                    QueryUtil.prepareQuery(queryItem, false, fieldMap));
+                            queryTerms.add(prepareQuery(queryItem, false, fieldMap));
                         }
                     });
+
+            String fullQuery = StringUtils.normalizeSpace(StringUtils.join(queryTerms, " "));
+
+            if (fullQuery.startsWith("AND ")) {
+                extraWhere.append(fullQuery.substring(4));
+		    } else if (fullQuery.startsWith("OR ")) {
+                extraWhere.append(fullQuery.substring(3));
+		    }
         }
 
         return this;
     }
 
+    @Override
     public IQueryBuilder addOrderBy(boolean isAscending, String fields) {
-        final String[] colOrder = StringUtils.split(fields, ",");
-        if (colOrder != null && colOrder.length > 0) {
-            List<String> cols = Arrays.stream(colOrder)
-                    .map(fieldNameToColumnMap::get)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
 
-            if (!cols.isEmpty()) {
-                extraOrderBy += StringUtils.join(cols, " " + addOrderDirection(isAscending)+ ",")+ " " + addOrderDirection(isAscending);
-            }
+        if (extraOrderBy.length() > 0) {
+            extraOrderBy += ", ";
         }
+        extraOrderBy += COMMA_PATTERN
+                .splitAsStream(fields == null ? "" : fields)
+                .map(fieldNameToColumnMap::get)
+                .filter(Objects::nonNull)
+                .map(s -> s + " " + addOrderDirection(isAscending))
+                .collect(Collectors.joining(", "));
+
         return this;
     }
 
+    @Override
     public IQueryBuilder addOrderBy(Order order, String fields) {
         return addOrderBy(Order.ASC == order, fields);
+    }
+
+    @Override
+    public IQueryBuilder addOrderBy(PageRequest pageRequest) {
+        return addOrderBy(pageRequest.isAscendingOrder(), pageRequest.getOrderBy());
     }
 
     private SQLKeyword addOrderDirection(boolean isAscending) {
@@ -149,4 +171,7 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
 
         return Optional.ofNullable(statementType);
     }
+
+    @Override
+    public abstract String build();
 }

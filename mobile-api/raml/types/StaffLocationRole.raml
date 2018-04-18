@@ -1,0 +1,48 @@
+#%RAML 1.0 DataType
+description: Staff Details
+type: StaffDetail
+properties:
+  agencyId:
+    type:
+    description: Agency at which staff member is performing role.
+    example: MDI
+  agencyDescription?:
+    type:
+    description: Agency description.
+    example: LEEDS
+  fromDate:
+    type: date-only
+    description: Date from which staff member is actively performing role.
+    example: 2016-09-01
+  toDate?:
+    type: date-only
+    description: Date on which staff member stops actively performing role.
+    example: 2018-05-24
+  position:
+    type: string
+    description: A code that defines staff member's position at agency.
+    example: PRO
+  positionDescription?:
+    type: string
+    description: Description of staff member's position at agency.
+    example: Prison Officer
+  role:
+    type: string
+    description: A code that defines staff member's role at agency.
+    example: KW
+  roleDescription?:
+    type: string
+    description: Description of staff member's role at agency.
+    example: Key Worker
+  scheduleType?:
+    type: string
+    description: A code the defines staff member's schedule type.
+    example: FT
+  scheduleTypeDescription?:
+    type: string
+    description: Description of staff member's schedule type.
+    example: Full Time
+  hoursPerWeek?:
+    type: number
+    description: Number of hours worked per week by staff member.
+    example: 35.00

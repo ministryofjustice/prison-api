@@ -1,77 +1,63 @@
 /alertTypes:
   (javaOperationName): getAlertTypes
-  description: Give all Alert types
-  type: { readOnlyCollectionPaged: { type: ReferenceCode } }
-  get:
-    queryParameters:
-      includeSubTypes:
-        description: Include the Subtypes in the response
-        type: boolean
-        default: false
+  type: { readOnlyCollectionPaged: { type: ReferenceCode, description: List of alert types (with alert codes). } }
   is: [
-    searchable: {fieldsList: "code, description, activeFlag and parentCode"},
-    sortable: {fieldsList: "code"}
+    sortable: {fieldsList: "code, description"}
   ]
-
-/alertTypes/{alertType}:
-  (javaOperationName): getAlertType
-  description: Return Alert Type for specific Alert type
-  type: { readOnlyItem : { type: ReferenceCode, description: Get Alert Type for specified type }}
-  
-/alertTypes/{alertType}/codes:
-  (javaOperationName): getAlertTypesByType
-  description: Give all Alert Codes for specific Alert type
-  type: { readOnlyCollectionPaged : { type: ReferenceCode }}
-  is: [
-    searchable: {fieldsList: "code, description, activeFlag and parentCode"},
-    sortable: {fieldsList: "code"}
-  ]
-  
-/alertTypes/{alertType}/codes/{alertCode}:
-  (javaOperationName): getAlertTypeCode
-  description: Give specific code details of alerts.
-  type: { readOnlyItem : { type: ReferenceCode, description: Get Alert Types  for specified parent alert code }}
 
 /caseNoteSources:
   (javaOperationName): getCaseNoteSources
-  description: Give all Case Note Sources
-  type: { readOnlyCollectionPaged : { type: ReferenceCode }}
+  type: { readOnlyCollectionPaged : { type: ReferenceCode, description: List of case note source codes. } }
   is: [
-    searchable: {fieldsList: "code, description, activeFlag and parentCode"},
-    sortable: {fieldsList: "code"}
+    sortable: {fieldsList: "code, description"}
   ]
-
-/caseNoteSources/{sourceCode}:
-  (javaOperationName): getCaseNoteSource
-  description: Get the Case Note Source
-  type: { readOnlyItem : { type: ReferenceCode, description: Get Case Note Source for specified source }}
 
 /caseNoteTypes:
   (javaOperationName): getCaseNoteTypes
-  description: Give all Case Note Types
-  type: { readOnlyCollectionPaged : { type: ReferenceCode }}
+  type: { readOnlyCollection : { type: ReferenceCode, description: List of all used case note types (with sub-types). } }
+
+/domains/{domain}:
+  (javaOperationName): getReferenceCodesByDomain
+  type: { readOnlyCollectionPaged : { type: ReferenceCode, description: List of reference codes for reference domain. } }
+  uriParameters:
+    domain:
+      type: string
+      description: The domain identifier/name.
   get:
     queryParameters:
-      includeSubTypes:
-        description: Include the Subtypes in the response
+      withSubCodes?:
+        description: Specify whether or not to return reference codes with their associated sub-codes.
         type: boolean
         default: false
+        example: true
   is: [
-    searchable: {fieldsList: "code, description, activeFlag and parentCode"},
-    sortable: {fieldsList: "code"}
+    sortable: {fieldsList: "code, description"}
   ]
 
-/caseNoteTypes/{typeCode}:
-  (javaOperationName): getCaseNoteType
-  description: Get the Case Note Type
-  type: { readOnlyItem : { type: ReferenceCode, description: Get Case Note Type for specified note type } }
+/domains/{domain}/codes/{code}:
+  (javaOperationName): getReferenceCodeByDomainAndCode
+  type: { readOnlyItem : { type: ReferenceCode, description: Reference code detail for reference domain and code (with sub-codes). } }
+  uriParameters:
+    domain:
+      type: string
+      description: The domain identifier/name.
+    code:
+      type: string
+      description: The reference code.
+  get:
+    queryParameters:
+      withSubCodes?:
+        description: Specify whether or not to return the reference code with its associated sub-codes.
+        type: boolean
+        default: false
+        example: true
 
-/caseNoteSubTypes/{typeCode}:
-  (javaOperationName): getCaseNoteSubTypes
-  description: Give all Case Note SubTypes
-  type: { readOnlyCollectionPaged : { type: ReferenceCode }}
-
-/caseNoteSubTypes/{typeCode}/subTypes/{subTypeCode}:
-  (javaOperationName): getCaseNoteSubType
-  description: Get the Case Note SubType
-  type: { readOnlyItem : { type: ReferenceCode, description: Get Case Note Subtype for specified type and subtype }}
+/scheduleReasons:
+  (javaOperationName): getScheduleReasons
+  type: { readOnlyCollection : { type: ReferenceCode, description: Get possible reason codes for created event. } }
+  get:
+    queryParameters:
+      eventType:
+        description: Specify event type.
+        type: string
+        example: APP (appointment)

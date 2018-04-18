@@ -1,58 +1,38 @@
 package net.syscon.elite.repository.impl;
 
-import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.LocationRepository;
-import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
-import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
-import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.util.IQueryBuilder;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Repository
 public class LocationRepositoryImpl extends RepositoryBase implements LocationRepository {
-
-	private final Map<String, FieldMapper> locationMapping  =
-			new ImmutableMap.Builder<String, FieldMapper>()
-					.put("INTERNAL_LOCATION_ID", new FieldMapper("locationId"))
-					.put("AGY_LOC_ID", new FieldMapper("agencyId"))
-					.put("INTERNAL_LOCATION_TYPE", new FieldMapper("locationType"))
-					.put("DESCRIPTION", new FieldMapper("description"))
-					.put("AGENCY_LOCATION_TYPE", new FieldMapper("agencyType"))
-					.put("PARENT_INTERNAL_LOCATION_ID", new FieldMapper("parentLocationId"))
-					.put("NO_OF_OCCUPANT", new FieldMapper("currentOccupancy"))
-					.put("LOCATION_PREFIX", new FieldMapper("locationPrefix"))
-					.put("LEVEL", new FieldMapper("level"))
-					.put("LIST_SEQ", new FieldMapper("listSequence"))
-					.build();
+	private static final StandardBeanPropertyRowMapper<Location> LOCATION_ROW_MAPPER =
+			new StandardBeanPropertyRowMapper<>(Location.class);
 
 	@Override
-	public Optional<Location> findLocation(long locationId) {
-		String sql = getQuery("FIND_LOCATION");
-
-		RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
+	public Optional<Location> getLocation(long locationId) {
+		String sql = getQuery("GET_LOCATION");
 
 		Location location;
 
 		try {
-			location = jdbcTemplate.queryForObject(
+			Location rawLocation = jdbcTemplate.queryForObject(
 					sql,
-					createParams("username", UserSecurityUtils.getCurrentUsername(),
-							"locationId", locationId),
-					locationRowMapper);
+					createParams("locationId", locationId),
+					LOCATION_ROW_MAPPER);
 
-			location.setDescription(removeAgencyId(location.getDescription(), location.getAgencyId()));
+			location = LocationProcessor.processLocation(rawLocation, true);
 		} catch (EmptyResultDataAccessException e) {
 			location = null;
 		}
@@ -61,36 +41,29 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 	}
 
 	@Override
-	public Page<Location> findLocations(String query, String orderByField, Order order, long offset, long limit) {
-		String initialSql = getQuery("FIND_ALL_LOCATIONS");
-		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, locationMapping);
+	public Optional<Location> findLocation(long locationId, String username) {
+		String sql = getQuery("FIND_LOCATION");
 
-		String sql = builder
-				.addRowCount()
-				.addQuery(query)
-				.addOrderBy(order, orderByField)
-				.addPagination()
-				.build();
+		Location location;
 
-		RowMapper<Location> locationRowMapper =
-				Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
+		try {
+			Location rawLocation = jdbcTemplate.queryForObject(
+					sql,
+					createParams("locationId", locationId, "username", username),
+                    LOCATION_ROW_MAPPER);
 
-		PageAwareRowMapper<Location> paRowMapper = new PageAwareRowMapper<>(locationRowMapper);
+			location = LocationProcessor.processLocation(rawLocation, true);
+		} catch (EmptyResultDataAccessException e) {
+			location = null;
+		}
 
-		List<Location> locations = removeAgencyId(jdbcTemplate.query(
-				sql,
-				createParams("username", UserSecurityUtils.getCurrentUsername(),
-						"offset", offset,
-						"limit", limit),
-				paRowMapper));
-
-		return new Page<>(locations, paRowMapper.getTotalRecords(), offset, limit);
+		return Optional.ofNullable(location);
 	}
 
 	@Override
-	public Page<Location> findLocationsByAgencyId(String caseLoadId, String agencyId, String query, long offset, long limit, String orderByField, Order order) {
-		String initialSql = getQuery("FIND_LOCATIONS_BY_AGENCY_ID");
-		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, locationMapping);
+	public Page<Location> findLocations(String username, String query, String orderByField, Order order, long offset, long limit) {
+		String initialSql = getQuery("FIND_ALL_LOCATIONS");
+		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, LOCATION_ROW_MAPPER);
 
 		String sql = builder
 				.addRowCount()
@@ -99,47 +72,38 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 				.addPagination()
 				.build();
 
-		RowMapper<Location> locationRowMapper =
-				Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
+		PageAwareRowMapper<Location> paRowMapper = new PageAwareRowMapper<>(LOCATION_ROW_MAPPER);
 
-		PageAwareRowMapper<Location> paRowMapper = new PageAwareRowMapper<>(locationRowMapper);
-
-		List<Location> locations = removeAgencyId(jdbcTemplate.query(
+		List<Location> rawLocations = jdbcTemplate.query(
 				sql,
-				createParams("caseLoadId", caseLoadId,
-						"agencyId", agencyId,
-						"offset", offset,
-						"limit", limit),
-				paRowMapper));
+				createParams("username", username, "offset", offset, "limit", limit),
+				paRowMapper);
+
+		List<Location> locations = LocationProcessor.processLocations(rawLocations, true);
 
 		return new Page<>(locations, paRowMapper.getTotalRecords(), offset, limit);
 	}
 
 	@Override
 	@Cacheable("findLocationsByAgencyAndType")
-	public List<Location> findLocationsByAgencyAndType(String agencyId, String locationType, int depthAllowed) {
+	public List<Location> findLocationsByAgencyAndType(String agencyId, String locationType, boolean noParentLocation) {
 		String initialSql = getQuery("FIND_LOCATIONS_BY_AGENCY_AND_TYPE");
-		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, locationMapping);
-		String sql = builder.build();
-		RowMapper<Location> locationRowMapper = Row2BeanRowMapper.makeMapping(sql, Location.class, locationMapping);
+		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, LOCATION_ROW_MAPPER);
 
-		return removeAgencyId(jdbcTemplate.query(
+		if (noParentLocation) {
+			builder = builder.addQuery("parentLocationId:is:null");
+		}
+		String sql = builder
+				.addOrderBy(Order.ASC, "description")
+				.build();
+
+		List<Location> rawLocations = jdbcTemplate.query(
 				sql,
 				createParams(
 						"agencyId", agencyId,
-						"locationType", locationType,
-						"depth", depthAllowed),
-				locationRowMapper));
-	}
+						"locationType", locationType),
+				LOCATION_ROW_MAPPER);
 
-	private List<Location> removeAgencyId(final List<Location> locations) {
-		if (locations != null) {
-			locations.forEach(l -> l.setDescription(removeAgencyId(l.getDescription(), l.getAgencyId())));
-		}
-		return locations;
-	}
-
-	public static String removeAgencyId(final String description, final String agencyId) {
-		return StringUtils.replaceFirst(description,StringUtils.trimToEmpty(agencyId)+"-", "");
+		return LocationProcessor.processLocations(rawLocations, true);
 	}
 }

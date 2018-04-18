@@ -1,26 +1,23 @@
 package net.syscon.elite.executablespecification;
 
+import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-
+import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.executablespecification.steps.ReferenceDomainsSteps;
-
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * BDD step definitions for reference domains endpoints:
  * <ul>
  * <li>/reference-domains/alertTypes</li>
- * <li>/reference-domains/alertTypes/{alertType}</li>
- * <li>/reference-domains/alertTypes/{alertType}/codes</li>
- * <li>/reference-domains/alertTypes/{alertType}/codes/{alertCode}</li>
- * <li>/reference-domains/caseNoteTypes</li>
- * <li>/reference-domains/caseNoteTypes/{typeCode}</li>
- * <li>/reference-domains/caseNoteSubTypes/{typeCode}</li>
- * <li>/reference-domains/caseNoteSubTypes/{typeCode}/subTypes/{subTypeCode}</li>
  * <li>/reference-domains/caseNoteSources</li>
- * <li>/reference-domains/caseNoteSources/{sourceCode}</li>
+ * <li>/reference-domains/caseNoteTypes</li>
+ * <li>/reference-domains/domains/{domain}</li>
+ * <li>/reference-domains/domains/{domain}/codes/{code}</li>
  * </ul>
  */
 public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
@@ -28,105 +25,169 @@ public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
     @Autowired
     private ReferenceDomainsSteps referenceDomains;
 
-    @When("^all types are requested$")
-    public void allTypesAreRequested() {
-        referenceDomains.getAllTypes(false);
-    }
-
-    @Then("^all types are returned$")
-    public void allTypesAreReturned() {
-        referenceDomains.verifySomeSampleTypeData();
-    }
-
-    @When("^all types with subtypes are requested$")
-    public void allTypesAndSubTypesAreRequested() {
-        referenceDomains.getAllTypes(true);
-    }
-
-    @Then("^all types with subtypes are returned$")
-    public void allTypesAndSubTypesAreReturned() {
-        referenceDomains.verifySomeTypesAndSubtypes();
-    }
-
-    @When("^all alert types are requested$")
-    public void allAlertTypesAreRequested() {
+    @When("^request submitted to retrieve all alert types with alert codes$")
+    public void requestSubmittedToRetrieveAllAlertTypesWithAlertCodes() throws Throwable {
         referenceDomains.getAllAlertTypes();
     }
 
-    @Then("^all alert types are returned$")
-    public void allAlertTypesAreReturned() {
-        referenceDomains.verifySomeAlertTypes();
-    }
-
-    @When("^all sources are requested$")
-    public void allSourcesAreRequested() {
+    @When("^request submitted to retrieve all case note sources$")
+    public void requestSubmittedToRetrieveAllCaseNoteSources() throws Throwable {
         referenceDomains.getAllSources();
     }
 
-    @Then("^all sources are returned$")
-    public void allSourcesAreReturned() {
-        referenceDomains.verifyAllSources();
+    @When("^request submitted to retrieve used case note types$")
+    public void requestSubmittedToRetrieveUsedCaseNoteTypes() throws Throwable {
+        referenceDomains.getUsedCaseNoteTypes();
     }
 
-    @When("^alert type with code \"([^\"]*)\" is requested$")
-    public void anAlertTypeIsRequested(String code) {
-        referenceDomains.getAlertType(code);
+    @Then("^\"([^\"]*)\" reference code items are returned$")
+    public void caseNoteSourcesAreReturned(String expectedCount) throws Throwable {
+        referenceDomains.verifyResourceRecordsReturned(Long.parseLong(expectedCount));
     }
 
-    @When("^type with code \"([^\"]*)\" is requested$")
-    public void aTypeIsRequested(String code) {
-        referenceDomains.getType(code);
+    @And("^domain for all returned items is \"([^\"]*)\"$")
+    public void domainForAllReturnedItemsIs(String expectedDomain) throws Throwable {
+        referenceDomains.verifyDomain(expectedDomain);
     }
 
-    @When("^subtype with code \"([^\"]*)\" and subCode \"([^\"]*)\" is requested$")
-    public void aSubtypeIsRequested(String code, String subCode) {
-        referenceDomains.getSubtype(code, subCode);
+    @And("^code for \"([^\"]*)\" returned item is \"([^\"]*)\"$")
+    public void codeForReturnedItemIs(String ordinal, String expectedCode) throws Throwable {
+        referenceDomains.verifyCode(ord2idx(ordinal), expectedCode);
     }
 
-    @When("^alert code with code \"([^\"]*)\" and subCode \"([^\"]*)\" is requested$")
-    public void anAlertCodeIsRequested(String code, String subCode) {
-        referenceDomains.getAlertCode(code, subCode);
+    @And("^description for \"([^\"]*)\" returned item is \"([^\"]*)\"$")
+    public void descriptionForReturnedItemIs(String ordinal, String expecteDescription) throws Throwable {
+        referenceDomains.verifyDescription(ord2idx(ordinal), expecteDescription);
     }
 
-    @When("^source with code \"([^\"]*)\" is requested$")
-    public void aSourceIsRequested(String code) {
-        referenceDomains.getSource(code);
+    @And("^codes of returned items are \"([^\"]*)\"$")
+    public void codesOfReturnedItemsAre(String expectedCodes) throws Throwable {
+        referenceDomains.verifyCodeList(expectedCodes);
     }
 
-    @Then("^the .+ returned ([^\"]+) is \"([^\"]*)\"$")
-    public void theFieldIs(String field, String value) throws ReflectiveOperationException {
-        referenceDomains.verifyField(field, value);
+    @And("^domains of returned items are \"([^\"]*)\"$")
+    public void domainsOfReturnedItemsAre(String expectedDomains) throws Throwable {
+        referenceDomains.verifyDomainList(expectedDomains);
     }
 
-    @When("^subtype list with code \"([^\"]*)\" is requested$")
-    public void aSubtypeListIsRequested(String code) {
-        referenceDomains.getSubtypeList(code);
+    @And("^parent domain for all returned items is \"([^\"]*)\"$")
+    public void parentDomainForAllReturnedItemsIs(String expectedParentDomain) throws Throwable {
+        referenceDomains.verifyParentDomain(expectedParentDomain);
     }
 
-    @When("^alert code list with code \"([^\"]*)\" is requested$")
-    public void anAlertCodeListIsRequested(String code) {
-        referenceDomains.getAlertCodeList(code);
+    @And("^there are no sub codes for any returned item$")
+    public void thereAreNoSubCodesForAnyReturnedItem() throws Throwable {
+        referenceDomains.verifyNoSubCodes();
     }
 
-    @Then("^the list size is \"([0-9]+)\"$")
-    public void listSize(int size) {
-        referenceDomains.verifyListSize(size);
+    @And("^descriptions of returned items are \"([^\"]*)\"$")
+    public void descriptionsOfReturnedItemsAre(String expectedDescriptions) throws Throwable {
+        referenceDomains.verifyDescriptionList(expectedDescriptions);
     }
 
-    @And("^the list domain is \"([^\"]*)\"$")
-    public void listDomain(String domain) {
-        referenceDomains.verifyListDomain(domain);
+    @And("^there is no parent domain for any returned item$")
+    public void thereIsNoParentDomainForAnyReturnedItem() throws Throwable {
+        referenceDomains.verifyNoParentDomain();
     }
 
-    @And("^the list first code is \"([^\"]*)\"$")
-    public void listFirstCode(String code) {
-        referenceDomains.verifyListFirstCode(code);
+    @And("^there are one or more sub codes for every returned item$")
+    public void thereAreOneOrMoreSubCodesForEveryReturnedItem() throws Throwable {
+        referenceDomains.verifyAlwaysSubCodes();
     }
 
-    @And("^the list first description is \"([^\"]*)\"$")
-    public void listfirstDescription(String description) {
-        referenceDomains.verifyListFirstDescription(description);
+    @And("^domain for all returned item sub-codes is \"([^\"]*)\"$")
+    public void domainForAllReturnedItemSubCodesIs(String expectedSubCodeDomain) throws Throwable {
+        referenceDomains.verifySubCodeDomain(expectedSubCodeDomain);
     }
 
+    @And("^there are one or more sub codes for every returned item except \"([^\"]*)\"$")
+    public void thereAreOneOrMoreSubCodesForEveryReturnedItemExcept(String exceptedCodes) throws Throwable {
+        referenceDomains.verifyAlwaysSubCodesExcept(exceptedCodes);
+    }
 
+    @When("^request submitted to retrieve all reference codes, without sub-codes, for domain \"([^\"]*)\"$")
+    public void requestSubmittedToRetrieveAllReferenceCodesWithoutSubCodesForDomain(String domain) throws Throwable {
+        referenceDomains.getRefCodesForDomain(domain, false);
+    }
+
+    @When("^request submitted to retrieve all reference codes, with sub-codes, for domain \"([^\"]*)\"$")
+    public void requestSubmittedToRetrieveAllReferenceCodesWithSubCodesForDomain(String domain) throws Throwable {
+        referenceDomains.getRefCodesForDomain(domain, true);
+    }
+
+    @And("^\"([^\"]*)\" returned item has \"([^\"]*)\" sub-codes$")
+    public void returnedItemHasSubCodes(String ordinal, String expectedCount) throws Throwable {
+        referenceDomains.verifySubCodeCount(ord2idx(ordinal), Long.parseLong(expectedCount));
+    }
+
+    @And("^domain for all sub-codes of \"([^\"]*)\" returned item is \"([^\"]*)\"$")
+    public void domainForAllSubCodesOfReturnedItemIs(String ordinal, String expectedSubCodeDomain) throws Throwable {
+        referenceDomains.verifySubCodeDomain(ord2idx(ordinal), expectedSubCodeDomain);
+    }
+
+    @And("^domains for sub-codes of \"([^\"]*)\" returned item are \"([^\"]*)\"$")
+    public void domainsForSubCodesOfReturnedItemAre(String ordinal, String expectedSubCodeDomains) throws Throwable {
+        referenceDomains.verifySubCodeDomains(ord2idx(ordinal), expectedSubCodeDomains);
+    }
+
+    @And("^code for \"([^\"]*)\" sub-code of \"([^\"]*)\" returned item is \"([^\"]*)\"$")
+    public void codeForSubCodeOfReturnedItemIs(String subCodeOrdinal, String refCodeOrdinal, String expectedCode) throws Throwable {
+        referenceDomains.verifyCodeForSubCode(ord2idx(subCodeOrdinal), ord2idx(refCodeOrdinal), expectedCode);
+    }
+
+    @And("^description for \"([^\"]*)\" sub-code of \"([^\"]*)\" returned item is \"([^\"]*)\"$")
+    public void descriptionForSubCodeOfReturnedItemIs(String subCodeOrdinal, String refCodeOrdinal, String expectedDescription) throws Throwable {
+        referenceDomains.verifyDescriptionForSubCode(ord2idx(subCodeOrdinal), ord2idx(refCodeOrdinal), expectedDescription);
+    }
+
+    @When("^request submitted to retrieve reference code, without sub-codes, for domain \"([^\"]*)\" and code \"([^\"]*)\"$")
+    public void requestSubmittedToRetrieveReferenceCodeWithoutSubCodesForDomainAndCode(String domain, String code) throws Throwable {
+        referenceDomains.getRefCodeForDomainAndCode(domain, code, false);
+    }
+
+    @And("^\"([^\"]*)\" for returned item is \"([^\"]*)\"$")
+    public void forReturnedItemIs(String propertyName, String propertyValue) throws Throwable {
+        referenceDomains.verifyRefCodePropertyValue(propertyName, propertyValue);
+    }
+
+    @And("^returned item has \"([^\"]*)\" sub-codes$")
+    public void returnedItemHasSubCodes(String expectedCount) throws Throwable {
+        referenceDomains.verifySubCodeCount(Long.parseLong(expectedCount));
+    }
+
+    @And("^returned item has no sub-codes$")
+    public void returnedItemHasNoSubCodes() throws Throwable {
+        referenceDomains.verifyRefCodeNoSubCodes();
+    }
+
+    @When("^request submitted to retrieve reference code, with sub-codes, for domain \"([^\"]*)\" and code \"([^\"]*)\"$")
+    public void requestSubmittedToRetrieveReferenceCodeWithSubCodesForDomainAndCode(String domain, String code) throws Throwable {
+        referenceDomains.getRefCodeForDomainAndCode(domain, code, true);
+    }
+
+    @Then("^resource not found response is received from reference domains API$")
+    public void resourceNotFoundResponseIsReceivedFromReferenceDomainsAPI() throws Throwable {
+        referenceDomains.verifyResourceNotFound();
+    }
+
+    @And("^user message in resource not found response from reference domains API is \"([^\"]*)\"$")
+    public void userMessageInResourceNotFoundResponseFromReferenceDomainsAPIIs(String expectedUserMessage) throws Throwable {
+        referenceDomains.verifyErrorUserMessage(expectedUserMessage);
+    }
+
+    @Then("^bad request response is received from reference domains API and user message is \"([^\"]*)\"$")
+    public void badRequestResponseIsReceivedFromReferenceDomainsAPIAndUserMessageIs(String expectedUserMessage) throws Throwable {
+        referenceDomains.verifyBadRequest(expectedUserMessage);
+    }
+
+    @When("^a request is submitted to retrieve all reason codes for event type \"([^\"]*)\"$")
+    public void requestSubmittedToRetrieveReasonCodesForEventType(String eventType) throws Throwable {
+        referenceDomains.getReasonCodes(eventType);
+    }
+
+    @Then("^the returned reason codes are as follows:$")
+    public void reasonCodesAreReturnedAsFollows(DataTable table) throws Throwable {
+        final List<ReferenceCode> expected = table.asList(ReferenceCode.class);
+        referenceDomains.verifyReasonCodes(expected);
+    }
 }

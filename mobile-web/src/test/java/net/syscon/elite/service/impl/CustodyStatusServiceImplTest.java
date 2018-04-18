@@ -1,21 +1,22 @@
 package net.syscon.elite.service.impl;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import net.syscon.elite.api.model.PrisonerCustodyStatus;
 import net.syscon.elite.api.support.CustodyStatusCode;
 import net.syscon.elite.api.support.Order;
-import net.syscon.elite.service.support.CustodyStatusDto;
 import net.syscon.elite.repository.CustodyStatusRepository;
 import net.syscon.elite.service.CustodyStatusCalculatorTest;
 import net.syscon.elite.service.CustodyStatusService;
+import net.syscon.elite.service.support.CustodyStatusDto;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Arrays;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,6 +35,8 @@ public class CustodyStatusServiceImplTest {
     private CustodyStatusRepository custodyStatusRepository = mock(CustodyStatusRepository.class);
 
     private CustodyStatusService service = new CustodyStatusServiceImpl(custodyStatusRepository);
+
+    private LocalDate nowDate = LocalDate.now();
 
     @DataProvider
     public static Object[][] custodyStatusRecords() {
@@ -60,17 +63,16 @@ public class CustodyStatusServiceImplTest {
                         .build()
         );
 
-        when(custodyStatusRepository.listCustodyStatuses())
+        when(custodyStatusRepository.listCustodyStatuses(nowDate))
                 .thenReturn(records);
     }
 
-
     @Test
     @UseDataProvider("custodyStatusRecords")
-    public void getCustodyStatus(String booking_status, String active_flag, String direction_code, String movement_type, String movement_reason_code, CustodyStatusCode expectedCustodyStatus) {
+    public void canRetrieveCustodyStatusRecordsWithCorrectCustodyStatusCodesAttached(String booking_status, String active_flag, String direction_code, String movement_type, String movement_reason_code, CustodyStatusCode expectedCustodyStatus) {
         String randomOffenderNo = UUID.randomUUID().toString();
 
-        when(custodyStatusRepository.getCustodyStatus(randomOffenderNo))
+        when(custodyStatusRepository.getCustodyStatus(randomOffenderNo, nowDate))
                 .thenReturn(Optional.of(CustodyStatusDto
                         .builder()
                         .offenderIdDisplay(randomOffenderNo)
@@ -81,64 +83,83 @@ public class CustodyStatusServiceImplTest {
                         .movementReasonCode(movement_reason_code)
                         .build()));
 
-        PrisonerCustodyStatus custodyStatus = service.getCustodyStatus(randomOffenderNo);
+        PrisonerCustodyStatus custodyStatus = service.getCustodyStatus(randomOffenderNo, nowDate);
 
         assertEquals("has the correct offenderNo", custodyStatus.getOffenderNo(), randomOffenderNo);
         assertEquals("identifies correct custody status", custodyStatus.getCustodyStatusCode(), expectedCustodyStatus);
     }
 
     @Test
-    public void listCustodyStatusesWithoutACustodyStatusFilter() {
-        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(null, null);
+    public void canRetrieveAllCustodyStatusesWhenTheFilterListIsEmpty() {
+        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(Lists.newArrayList(), nowDate, null);
 
         assertEquals(3, records.size());
     }
 
     @Test
-    public void listCustodyStatusesWithACustodyStatusFilterSetToACTIVEIN() {
-        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(CustodyStatusCode.ACTIVE_IN);
+    public void canRetrieveAllActiveINCustodyStatusesWhenTheFilterListIsSetToACTIVEIN() {
+        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(Lists.newArrayList(CustodyStatusCode.ACTIVE_IN), nowDate, null);
 
         assertEquals(1, records.size());
-        PrisonerCustodyStatus record = records.get(0);
-
-        assertNotNull(record);
-        assertEquals("C", record.getOffenderNo());
-        assertEquals(CustodyStatusCode.ACTIVE_IN, record.getCustodyStatusCode());
-        assertEquals(CustodyStatusCode.ACTIVE_IN.toString(), record.getCustodyStatusDescription());
+        assertEquals("C", records.get(0).getOffenderNo());
     }
 
     @Test
-    public void listCustodyStatusesWithACustodyStatusFilterSetToACTIVEOUTCRT() {
-        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(CustodyStatusCode.ACTIVE_OUT_CRT);
+    public void canRetrieveAllACTIVEOUTCRTCustodyStatusesWhenTheFilterListIsSetToACTIVEOUTCRT() {
+        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(Lists.newArrayList(CustodyStatusCode.ACTIVE_OUT_CRT), nowDate, null);
 
         assertEquals(1, records.size());
-        PrisonerCustodyStatus record = records.get(0);
-
-        assertNotNull(record);
-        assertEquals("B", record.getOffenderNo());
-        assertEquals(CustodyStatusCode.ACTIVE_OUT_CRT, record.getCustodyStatusCode());
-        assertEquals(CustodyStatusCode.ACTIVE_OUT_CRT.toString(), record.getCustodyStatusDescription());
+        assertEquals("B", records.get(0).getOffenderNo());
     }
 
     @Test
-    public void listCustodyStatusesWithACustodyStatusFilterSetToTwoCodes() {
-        List<CustodyStatusCode> codes = Arrays.asList(CustodyStatusCode.ACTIVE_OUT_CRT, CustodyStatusCode.ACTIVE_IN);
-        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(codes, Order.ASC);
+    public void canRetrieveAllACTIVEOUTCRTandACTIVEINCustodyStatusesWhenTheFilterListIsSetToACTIVEOUTCRTandACTIVEIN() {
+        List<CustodyStatusCode> codes = Lists.newArrayList(CustodyStatusCode.ACTIVE_OUT_CRT, CustodyStatusCode.ACTIVE_IN);
+        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(codes, nowDate, Order.ASC);
 
         assertEquals(2, records.size());
-        PrisonerCustodyStatus record = records.get(0);
+        assertEquals("C", records.get(0).getOffenderNo());
+        assertEquals("B", records.get(1).getOffenderNo());
+    }
 
-        assertNotNull(record);
-        assertEquals("C", record.getOffenderNo());
-        assertEquals(CustodyStatusCode.ACTIVE_IN, record.getCustodyStatusCode());
-        assertEquals(CustodyStatusCode.ACTIVE_IN.toString(), record.getCustodyStatusDescription());
+    @Test
+    public void canRetrieveCustodyStatusesInDescendingOrder() {
+        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(Lists.newArrayList(), nowDate, Order.DESC);
 
-        PrisonerCustodyStatus record2 = records.get(1);
+        assertEquals("A", records.get(0).getOffenderNo());
+        assertEquals("C", records.get(2).getOffenderNo());
+    }
 
-        assertNotNull(record2);
-        assertEquals("B", record2.getOffenderNo());
-        assertEquals(CustodyStatusCode.ACTIVE_OUT_CRT, record2.getCustodyStatusCode());
-        assertEquals(CustodyStatusCode.ACTIVE_OUT_CRT.toString(), record2.getCustodyStatusDescription());
+    @Test
+    public void canRetrieveCustodyStatusesInAscendingOrder() {
+        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(Lists.newArrayList(), nowDate, Order.ASC);
+
+        assertEquals("C", records.get(0).getOffenderNo());
+        assertEquals("A", records.get(2).getOffenderNo());
+    }
+
+    @Test
+    public void canPassLocalDateToTheRepositoryToTailorListOfResultsToASpecificPointInTime() {
+        final List emptyList = Lists.newArrayList();
+        final LocalDate localDate = LocalDate.of(2016,5,7);
+
+        when(custodyStatusRepository.listCustodyStatuses(localDate))
+                .thenReturn(ImmutableList.of(CustodyStatusDto.builder().build()));
+
+        List<PrisonerCustodyStatus> records = service.listCustodyStatuses(emptyList, localDate, null);
+
+        assertEquals("A list of results is returned", 1, records.size());
+    }
+
+    @Test
+    public void canPassLocalDateToTheRepositoryToTailorResultToASpecificPointInTime() {
+        final String offenderNo = "X";
+        final LocalDate localDate = LocalDate.of(2016,5,7);
+
+        when(custodyStatusRepository.getCustodyStatus(offenderNo, localDate))
+                .thenReturn(Optional.of(CustodyStatusDto.builder().build()));
+
+        assertNotNull("A Custody Status is returned", service.getCustodyStatus(offenderNo, localDate));
     }
 
 }

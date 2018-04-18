@@ -5,6 +5,9 @@ FIND_INMATE_DETAIL {
          O.FIRST_NAME,
          CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL THEN concat(' ', O.middle_name_2) ELSE '' END) MIDDLE_NAME,
          O.LAST_NAME,
+         B.AGY_LOC_ID,
+         B.LIVING_UNIT_ID,
+         B.ACTIVE_FLAG,
          pc3.description                RELIGION,
          (SELECT OI.OFFENDER_IMAGE_ID
           FROM OFFENDER_IMAGES OI
@@ -21,17 +24,56 @@ FIND_INMATE_DETAIL {
                                              AND IMAGE_VIEW_TYPE = 'FACE'
                                              AND ORIENTATION_TYPE = 'FRONT')) AS FACE_IMAGE_ID,
          O.BIRTH_DATE,
-         (SELECT OKW.OFFICER_ID
-          FROM OFFENDER_KEY_WORKERS OKW
-          WHERE B.OFFENDER_BOOK_ID = OKW.OFFENDER_BOOK_ID
-          AND OKW.ACTIVE_FLAG = 'Y' AND (OKW.EXPIRY_DATE is null OR OKW.EXPIRY_DATE >= :currentDate)) AS ASSIGNED_OFFICER_ID
+         B.ASSIGNED_STAFF_ID AS ASSIGNED_OFFICER_ID
   FROM OFFENDER_BOOKINGS B
     INNER JOIN OFFENDERS O ON B.OFFENDER_ID = O.OFFENDER_ID
     LEFT JOIN offender_profile_details opd3 ON opd3.offender_book_id = B.offender_book_id AND opd3.profile_type = 'RELF'
     LEFT JOIN profile_codes pc3 ON pc3.profile_type = opd3.profile_type AND pc3.profile_code = opd3.profile_code
   WHERE B.ACTIVE_FLAG = 'Y' AND B.OFFENDER_BOOK_ID = :bookingId
-  AND EXISTS (select 1 from CASELOAD_AGENCY_LOCATIONS C WHERE B.AGY_LOC_ID = C.AGY_LOC_ID AND C.CASELOAD_ID IN (:caseLoadId))
 }
+
+FIND_BASIC_INMATE_DETAIL {
+  SELECT B.OFFENDER_BOOK_ID,
+    B.BOOKING_NO,
+    O.OFFENDER_ID_DISPLAY,
+    O.FIRST_NAME,
+    CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL THEN concat(' ', O.middle_name_2) ELSE '' END) MIDDLE_NAME,
+    O.LAST_NAME,
+    O.BIRTH_DATE,
+    B.AGY_LOC_ID,
+    B.LIVING_UNIT_ID,
+    B.ACTIVE_FLAG
+  FROM OFFENDER_BOOKINGS B
+    INNER JOIN OFFENDERS O ON B.OFFENDER_ID = O.OFFENDER_ID
+  WHERE B.ACTIVE_FLAG = 'Y' AND B.OFFENDER_BOOK_ID = :bookingId
+  }
+
+GET_IMAGE_DATA_FOR_BOOKING {
+  SELECT
+    I.OFFENDER_IMAGE_ID AS IMAGE_ID,
+    I.CAPTURE_DATETIME AS CAPTURE_DATE,
+    I.IMAGE_VIEW_TYPE,
+    I.ORIENTATION_TYPE,
+    I.IMAGE_OBJECT_TYPE,
+    I.IMAGE_OBJECT_ID
+  FROM OFFENDER_IMAGES I
+  WHERE I.OFFENDER_IMAGE_ID =
+         (SELECT OI.OFFENDER_IMAGE_ID
+          FROM OFFENDER_IMAGES OI
+          WHERE OI.ACTIVE_FLAG = 'Y'
+                AND IMAGE_OBJECT_TYPE = 'OFF_BKG'
+                AND OI.OFFENDER_BOOK_ID = :bookingId
+                AND OI.IMAGE_VIEW_TYPE = 'FACE'
+                AND OI.ORIENTATION_TYPE = 'FRONT'
+                AND CREATE_DATETIME = (SELECT MAX(CREATE_DATETIME)
+                                       FROM OFFENDER_IMAGES
+                                       WHERE ACTIVE_FLAG = 'Y'
+                                             AND IMAGE_OBJECT_TYPE = 'OFF_BKG'
+                                             AND OFFENDER_BOOK_ID = :bookingId
+                                             AND IMAGE_VIEW_TYPE = 'FACE'
+                                             AND ORIENTATION_TYPE = 'FRONT'))
+}
+
 
 FIND_ASSIGNED_LIVING_UNIT {
   SELECT B.AGY_LOC_ID,
@@ -46,24 +88,24 @@ FIND_ASSIGNED_LIVING_UNIT {
 
 FIND_ALL_INMATES {
       SELECT
-        B.OFFENDER_BOOK_ID,
-        B.BOOKING_NO,
+        OB.OFFENDER_BOOK_ID,
+        OB.BOOKING_NO,
         O.OFFENDER_ID_DISPLAY,
-        B.AGY_LOC_ID,
+        OB.AGY_LOC_ID,
         O.FIRST_NAME,
         O.MIDDLE_NAME,
         O.LAST_NAME,
         O.BIRTH_DATE,
         NULL AS ALERT_TYPES,
         NULL AS ALIASES,
-        B.LIVING_UNIT_ID,
+        OB.LIVING_UNIT_ID,
         AIL.DESCRIPTION as LIVING_UNIT_DESC,
         (
           SELECT OI.OFFENDER_IMAGE_ID
           FROM OFFENDER_IMAGES OI
           WHERE OI.ACTIVE_FLAG = 'Y'
                 AND IMAGE_OBJECT_TYPE = 'OFF_BKG'
-                AND OI.OFFENDER_BOOK_ID = B.OFFENDER_BOOK_ID
+                AND OI.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
                 AND OI.IMAGE_VIEW_TYPE = 'FACE'
                 AND OI.ORIENTATION_TYPE = 'FRONT'
                 AND CREATE_DATETIME = (SELECT MAX(CREATE_DATETIME)
@@ -74,14 +116,11 @@ FIND_ALL_INMATES {
                                              AND IMAGE_VIEW_TYPE = 'FACE'
                                              AND ORIENTATION_TYPE = 'FRONT')
     ) AS FACE_IMAGE_ID,
-    NULL AS ASSIGNED_OFFICER_ID,
-    (SELECT COALESCE(RCIEP.DESCRIPTION, OIL.IEP_LEVEL) FROM OFFENDER_IEP_LEVELS OIL LEFT JOIN REFERENCE_CODES RCIEP ON RCIEP.CODE = OIL.IEP_LEVEL AND RCIEP.DOMAIN = 'IEP_LEVEL'
-    WHERE OIL.OFFENDER_BOOK_ID = B.OFFENDER_BOOK_ID and OIL.IEP_LEVEL_SEQ = (SELECT MAX(OIL2.IEP_LEVEL_SEQ) FROM OFFENDER_IEP_LEVELS OIL2 WHERE OIL2.OFFENDER_BOOK_ID = OIL.OFFENDER_BOOK_ID)) AS IEP_LEVEL
-  FROM OFFENDER_BOOKINGS B
-    INNER JOIN OFFENDERS O ON B.OFFENDER_ID = O.OFFENDER_ID
-    LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON B.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
-  WHERE B.ACTIVE_FLAG = 'Y'
-  AND EXISTS (select 1 from CASELOAD_AGENCY_LOCATIONS C WHERE B.AGY_LOC_ID = C.AGY_LOC_ID AND C.CASELOAD_ID IN (:caseLoadId))
+    NULL AS ASSIGNED_OFFICER_ID
+  FROM OFFENDER_BOOKINGS OB
+    INNER JOIN OFFENDERS O ON OB.OFFENDER_ID = O.OFFENDER_ID
+    LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
+  WHERE OB.ACTIVE_FLAG = 'Y'
 }
 
 FIND_INMATES_BY_LOCATION {
@@ -110,9 +149,7 @@ FIND_INMATES_BY_LOCATION {
                                          AND OFFENDER_BOOK_ID = OI.OFFENDER_BOOK_ID
                                          AND IMAGE_VIEW_TYPE = 'FACE'
                                          AND ORIENTATION_TYPE = 'FRONT')
-    ) AS FACE_IMAGE_ID,
-    (SELECT COALESCE(RCIEP.DESCRIPTION, OIL.IEP_LEVEL) FROM OFFENDER_IEP_LEVELS OIL LEFT JOIN REFERENCE_CODES RCIEP ON RCIEP.CODE = OIL.IEP_LEVEL AND RCIEP.DOMAIN = 'IEP_LEVEL'
-    WHERE OIL.OFFENDER_BOOK_ID = B.OFFENDER_BOOK_ID and OIL.IEP_LEVEL_SEQ = (SELECT MAX(OIL2.IEP_LEVEL_SEQ) FROM OFFENDER_IEP_LEVELS OIL2 WHERE OIL2.OFFENDER_BOOK_ID = OIL.OFFENDER_BOOK_ID)) AS IEP_LEVEL
+    ) AS FACE_IMAGE_ID
   FROM OFFENDER_BOOKINGS B
     INNER JOIN CASELOAD_AGENCY_LOCATIONS C ON C.CASELOAD_ID = :caseLoadId AND B.AGY_LOC_ID = C.AGY_LOC_ID
     LEFT JOIN OFFENDERS O ON B.OFFENDER_ID = O.OFFENDER_ID
@@ -145,124 +182,66 @@ WHERE B.OFFENDER_BOOK_ID = :bookingId
       AND M.BODY_PART_CODE != 'CONV'
 }
 
-FIND_MY_ASSIGNMENTS {
-  SELECT B.OFFENDER_BOOK_ID,
-         B.BOOKING_NO,
-         O.OFFENDER_ID_DISPLAY,
-         B.AGY_LOC_ID,
-         O.FIRST_NAME,
-         O.MIDDLE_NAME,
-         O.LAST_NAME,
-         O.BIRTH_DATE,
-         NULL AS ALERT_TYPES,
-         NULL AS ALIASES,
-         B.LIVING_UNIT_ID,
-         AIL.DESCRIPTION as LIVING_UNIT_DESC,
-         (SELECT OI.OFFENDER_IMAGE_ID
-          FROM OFFENDER_IMAGES OI
-          WHERE OI.ACTIVE_FLAG = 'Y'
-                AND IMAGE_OBJECT_TYPE = 'OFF_BKG'
-                AND OI.OFFENDER_BOOK_ID = B.OFFENDER_BOOK_ID
-                AND OI.IMAGE_VIEW_TYPE = 'FACE'
-                AND OI.ORIENTATION_TYPE = 'FRONT'
-                AND CREATE_DATETIME = (SELECT MAX(CREATE_DATETIME)
-                                       FROM OFFENDER_IMAGES
-                                       WHERE ACTIVE_FLAG = 'Y'
-                                             AND IMAGE_OBJECT_TYPE = 'OFF_BKG'
-                                             AND OFFENDER_BOOK_ID = OI.OFFENDER_BOOK_ID
-                                             AND IMAGE_VIEW_TYPE = 'FACE'
-                                             AND ORIENTATION_TYPE = 'FRONT')) AS FACE_IMAGE_ID,
-    (SELECT COALESCE(RCIEP.DESCRIPTION, OIL.IEP_LEVEL) FROM OFFENDER_IEP_LEVELS OIL LEFT JOIN REFERENCE_CODES RCIEP ON RCIEP.CODE = OIL.IEP_LEVEL AND RCIEP.DOMAIN = 'IEP_LEVEL'
-    WHERE OIL.OFFENDER_BOOK_ID = B.OFFENDER_BOOK_ID and OIL.IEP_LEVEL_SEQ = (SELECT MAX(OIL2.IEP_LEVEL_SEQ) FROM OFFENDER_IEP_LEVELS OIL2 WHERE OIL2.OFFENDER_BOOK_ID = OIL.OFFENDER_BOOK_ID)) AS IEP_LEVEL
-  FROM OFFENDER_BOOKINGS B
-    INNER JOIN OFFENDERS O ON B.OFFENDER_ID = O.OFFENDER_ID
-    INNER JOIN CASELOAD_AGENCY_LOCATIONS C ON B.AGY_LOC_ID = C.AGY_LOC_ID AND C.CASELOAD_ID = :caseLoadId
-    INNER JOIN OFFENDER_KEY_WORKERS OKW ON OKW.OFFENDER_BOOK_ID = B.OFFENDER_BOOK_ID
-      AND OKW.ACTIVE_FLAG = 'Y'
-      AND (OKW.EXPIRY_DATE is null OR OKW.EXPIRY_DATE >= :currentDate)
-    LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON B.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
-  WHERE B.ACTIVE_FLAG = 'Y'
-  AND OKW.OFFICER_ID = :staffId
-}
-
-FIND_PRISONERS {
+FIND_OFFENDERS {
   SELECT
-    O.OFFENDER_ID_DISPLAY,
-    O.TITLE,
-    O.SUFFIX,
-    O.FIRST_NAME,
-    CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL
-      THEN concat(' ', O.middle_name_2)
-                          ELSE '' END) MIDDLE_NAMES,
-    O.LAST_NAME,
-    O.BIRTH_DATE,
-    RCE.DESCRIPTION       AS       ETHNICITY,
-    RCS.DESCRIPTION       AS       SEX,
-    RCC.DESCRIPTION       AS       BIRTH_COUNTRY,
-    ob.booking_begin_date,
-    ob.active_flag,
-    ob.agy_loc_id,
-    al.description                 AGY_LOC_DESC,
-    COALESCE(ord.release_date, ord.auto_release_date) RELEASE_DATE,
-    CASE WHEN CAST(ist.band_code AS int) <= 8
+    O.OFFENDER_ID_DISPLAY             OFFENDER_NO,
+    O.TITLE                           TITLE,
+    O.SUFFIX                          SUFFIX,
+    O.FIRST_NAME                      FIRST_NAME,
+    CONCAT(O.MIDDLE_NAME,
+      CASE WHEN MIDDLE_NAME_2 IS NOT NULL
+        THEN CONCAT(' ', O.MIDDLE_NAME_2)
+      ELSE '' END)                    MIDDLE_NAMES,
+    O.LAST_NAME                       LAST_NAME,
+    O.BIRTH_DATE                      DATE_OF_BIRTH,
+    RCE.DESCRIPTION                   ETHNICITY,
+    RCS.DESCRIPTION                   GENDER,
+    RCC.DESCRIPTION                   BIRTH_COUNTRY,
+    OB.OFFENDER_BOOK_ID               LATEST_BOOKING_ID,
+    OB.BOOKING_BEGIN_DATE             RECEPTION_DATE,
+    OB.ACTIVE_FLAG                    CURRENTLY_IN_PRISON,
+    OB.AGY_LOC_ID                     LATEST_LOCATION_ID,
+    AL.DESCRIPTION                    LATEST_LOCATION,
+    CASE WHEN CAST(IST.BAND_CODE AS int) <= 8
       THEN 'Convicted'
-    WHEN CAST(ist.band_code AS int) > 8
+    WHEN CAST(IST.BAND_CODE AS int) > 8
       THEN 'Remand'
-    ELSE NULL END                  CONVICTED_STATUS,
-    CASE WHEN opd2.profile_code IS NOT NULL
-      THEN opd2.profile_code
-    ELSE pc.description END        NATIONALITIES,
-    pc3.description                RELIGION,
-    pc2.description                MARITAL_STATUS,
-    ois.imprisonment_status,
-    (SELECT oi1.identifier
-     FROM offender_identifiers oi1
-     WHERE oi1.offender_id = ob.offender_id
-           AND oi1.identifier_type = 'PNC'
-           AND oi1.OFFENDER_ID_SEQ = (SELECT MAX(OFFENDER_ID_SEQ)  FROM offender_identifiers oi11 where oi11.OFFENDER_ID = oi1.offender_id AND oi11.identifier_type = oi1.identifier_type )) PNC_NUMBER,
-    (SELECT oi2.identifier
-     FROM offender_identifiers oi2
-     WHERE oi2.offender_id = ob.offender_id
-           AND oi2.identifier_type = 'CRO'
-           AND oi2.OFFENDER_ID_SEQ = (SELECT MAX(OFFENDER_ID_SEQ)  FROM offender_identifiers oi21 where oi21.OFFENDER_ID = oi2.offender_id AND oi21.identifier_type = oi2.identifier_type )) CRO_NUMBER
+    ELSE NULL END                     CONVICTED_STATUS,
+    CASE WHEN OPD2.PROFILE_CODE IS NOT NULL
+      THEN OPD2.PROFILE_CODE
+    ELSE PC.DESCRIPTION END           NATIONALITIES,
+    PC3.DESCRIPTION                   RELIGION,
+    PC2.DESCRIPTION                   MARITAL_STATUS,
+    OIS.IMPRISONMENT_STATUS,
+    (SELECT OI1.IDENTIFIER
+     FROM OFFENDER_IDENTIFIERS OI1
+     WHERE OI1.OFFENDER_ID = OB.OFFENDER_ID
+       AND OI1.IDENTIFIER_TYPE = 'PNC'
+       AND OI1.OFFENDER_ID_SEQ = (SELECT MAX(OFFENDER_ID_SEQ)
+                                  FROM OFFENDER_IDENTIFIERS OI11
+                                  WHERE OI11.OFFENDER_ID = OI1.OFFENDER_ID
+                                    AND OI11.IDENTIFIER_TYPE = OI1.IDENTIFIER_TYPE )) PNC_NUMBER,
+    (SELECT OI2.IDENTIFIER
+     FROM OFFENDER_IDENTIFIERS OI2
+     WHERE OI2.OFFENDER_ID = OB.OFFENDER_ID
+       AND OI2.IDENTIFIER_TYPE = 'CRO'
+       AND OI2.OFFENDER_ID_SEQ = (SELECT MAX(OFFENDER_ID_SEQ)
+                                  FROM OFFENDER_IDENTIFIERS OI21
+                                  WHERE OI21.OFFENDER_ID = OI2.OFFENDER_ID
+                                    AND OI21.IDENTIFIER_TYPE = OI2.IDENTIFIER_TYPE )) CRO_NUMBER
   FROM OFFENDERS O
-    JOIN OFFENDER_BOOKINGS OB
-      ON OB.offender_id = o.offender_id
-         AND OB.booking_seq = 1
-    join agency_locations al
-      on al.agy_loc_id = ob.agy_loc_id
-    left join offender_release_details ord
-      on ord.offender_book_id = ob.offender_book_id
-    LEFT JOIN offender_imprison_statuses ois
-      ON ois.offender_book_id = OB.offender_book_id
-         AND ois.latest_status = 'Y'
-    LEFT JOIN imprisonment_statuses ist
-      ON ist.imprisonment_status = ois.imprisonment_status
-    LEFT JOIN REFERENCE_CODES RCE ON O.RACE_CODE = RCE.CODE
-                                     AND RCE.DOMAIN = 'ETHNICITY'
-    LEFT JOIN REFERENCE_CODES RCS ON O.SEX_CODE = RCS.CODE
-                                     AND RCS.DOMAIN = 'SEX'
-    LEFT JOIN REFERENCE_CODES RCC ON O.BIRTH_COUNTRY_CODE = RCC.CODE
-                                     AND RCC.DOMAIN = 'COUNTRY'
-    LEFT JOIN offender_profile_details opd1
-      ON opd1.offender_book_id = ob.offender_book_id
-         AND opd1.profile_type = 'NAT'
-    LEFT JOIN offender_profile_details opd2
-      ON opd2.offender_book_id = ob.offender_book_id
-         AND opd2.profile_type = 'NATIO'
-    LEFT JOIN offender_profile_details opd3
-      ON opd3.offender_book_id = ob.offender_book_id
-         AND opd3.profile_type = 'RELF'
-    LEFT JOIN offender_profile_details opd4
-      ON opd4.offender_book_id = ob.offender_book_id
-         AND opd4.profile_type = 'MARITAL'
-    LEFT JOIN profile_codes pc
-      ON pc.profile_type = opd1.profile_type
-         AND pc.profile_code = opd1.profile_code
-    LEFT JOIN profile_codes pc2
-      ON pc2.profile_type = opd4.profile_type
-         AND pc2.profile_code = opd4.profile_code
-    LEFT JOIN profile_codes pc3
-      ON pc3.profile_type = opd3.profile_type
-         AND pc3.profile_code = opd3.profile_code
+    INNER JOIN OFFENDER_BOOKINGS OB ON OB.OFFENDER_ID = O.OFFENDER_ID AND OB.BOOKING_SEQ = 1
+    INNER JOIN AGENCY_LOCATIONS AL ON AL.AGY_LOC_ID = OB.AGY_LOC_ID
+    LEFT JOIN OFFENDER_IMPRISON_STATUSES OIS ON OIS.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID AND OIS.LATEST_STATUS = 'Y'
+    LEFT JOIN IMPRISONMENT_STATUSES IST ON IST.IMPRISONMENT_STATUS = OIS.IMPRISONMENT_STATUS
+    LEFT JOIN REFERENCE_CODES RCE ON O.RACE_CODE = RCE.CODE AND RCE.DOMAIN = 'ETHNICITY'
+    LEFT JOIN REFERENCE_CODES RCS ON O.SEX_CODE = RCS.CODE AND RCS.DOMAIN = 'SEX'
+    LEFT JOIN REFERENCE_CODES RCC ON O.BIRTH_COUNTRY_CODE = RCC.CODE AND RCC.DOMAIN = 'COUNTRY'
+    LEFT JOIN OFFENDER_PROFILE_DETAILS OPD1 ON OPD1.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID AND OPD1.PROFILE_TYPE = 'NAT'
+    LEFT JOIN OFFENDER_PROFILE_DETAILS OPD2 ON OPD2.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID AND OPD2.PROFILE_TYPE = 'NATIO'
+    LEFT JOIN OFFENDER_PROFILE_DETAILS OPD3 ON OPD3.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID AND OPD3.PROFILE_TYPE = 'RELF'
+    LEFT JOIN OFFENDER_PROFILE_DETAILS OPD4 ON OPD4.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID AND OPD4.PROFILE_TYPE = 'MARITAL'
+    LEFT JOIN PROFILE_CODES PC ON PC.PROFILE_TYPE = OPD1.PROFILE_TYPE AND PC.PROFILE_CODE = OPD1.PROFILE_CODE
+    LEFT JOIN PROFILE_CODES PC2 ON PC2.PROFILE_TYPE = OPD4.PROFILE_TYPE AND PC2.PROFILE_CODE = OPD4.PROFILE_CODE
+    LEFT JOIN PROFILE_CODES PC3 ON PC3.PROFILE_TYPE = OPD3.PROFILE_TYPE AND PC3.PROFILE_CODE = OPD3.PROFILE_CODE
 }

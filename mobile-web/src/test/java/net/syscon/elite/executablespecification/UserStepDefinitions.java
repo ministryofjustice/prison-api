@@ -1,14 +1,11 @@
 package net.syscon.elite.executablespecification;
 
-import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.executablespecification.steps.UserSteps;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Map;
 
 /**
  * BDD step definitions for User API endpoints:
@@ -18,70 +15,37 @@ import java.util.Map;
  *     <li>/users/me/bookingAssignments</li>
  *     <li>/users/me/caseLoads</li>
  *     <li>/users/me/activeCaseLoad</li>
- *     <li>/users/login</li>
- *     <li>/users/staff</li>
- *     <li>/users/token</li>
  *     <li>/users/me/locations</li>
  *     <li>/users/me/roles</li>
  * </ul>
- *
- * NB: Not all API endpoints have associated tests at this point in time.
  */
 public class UserStepDefinitions extends AbstractStepDefinitions {
     @Autowired
     private UserSteps user;
 
-    @When("^API authentication is attempted with the following credentials:$")
-    public void apiAuthenticationIsAttemptedWithTheFollowingCredentials(DataTable rawData) {
-        final Map<String, String> loginCredentials = rawData.asMap(String.class, String.class);
-        user.authenticates(loginCredentials.get("username"), loginCredentials.get("password"));
-    }
-
     @Given("^a user has logged in with username \"([^\"]*)\" and password \"([^\"]*)\"$")
     public void aUserHasLoggedInWithUsernameAndPassword(String username, String password) throws Throwable {
-        user.authenticates(username, password);
-    }
-
-    @Then("^a valid JWT token is generated$")
-    public void aValidJWTTokenIsGenerated() {
-        user.verifyToken();
-    }
-
-    @And("^current user details match the following:$")
-    public void currentUserDetailsMatchTheFollowing(DataTable rawData) {
-        Map<String, String> userCheck = rawData.asMap(String.class, String.class);
-
-        user.verifyDetails(userCheck.get("username"), userCheck.get("firstName"), userCheck.get("lastName"));
+        authenticate(username, password, false);
     }
 
     @Given("^a user has authenticated with the API$")
     public void aUserHasAuthenticatedWithTheAPI() {
-        user.authenticates("itag_user", "password");
+        authenticate("itag_user", "password", false);
+    }
+
+    @Given("^a admin user has authenticated with the API$")
+    public void aNonAdminUserHasAuthenticatedWithTheAPI() {
+        authenticate("ELITE2_API_USER", "password", false);
     }
 
     @Given("^user \"([^\"]*)\" with password \"([^\"]*)\" has authenticated with the API$")
     public void userWithPasswordHasAuthenticatedWithTheAPI(String username, String password) throws Throwable {
-        user.authenticates(username, password);
+        authenticate(username, password, false);
     }
 
-    @When("^a staff member search is made using staff id \"([^\"]*)\"$")
-    public void aStaffMemberSearchIsMadeUsingStaffId(String staffId) throws Throwable {
-        user.findStaffDetails(Long.valueOf(staffId));
-    }
-
-    @Then("^first name of staff details returned is \"([^\"]*)\"$")
-    public void firstNameOfStaffDetailsReturnedIs(String firstName) throws Throwable {
-        user.verifyStaffFirstName(firstName);
-    }
-
-    @And("^last name of staff details returned is \"([^\"]*)\"$")
-    public void lastNameOfStaffDetailsReturnedIs(String lastName) throws Throwable {
-        user.verifyStaffLastName(lastName);
-    }
-
-    @And("^email address of staff details returned is \"([^\"]*)\"$")
-    public void emailAddressOfStaffDetailsReturnedIs(String email) throws Throwable {
-        user.verifyStaffEmail(email);
+    @Given("^a trusted client has authenticated with the API$")
+    public void trustedClientWithPasswordHasAuthenticatedWithTheAPI() throws Throwable {
+        authenticate(null, null, true);
     }
 
     @When("^a request is made to retrieve user locations$")
@@ -114,13 +78,37 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.verifyResourceNotFound();
     }
 
+    @When("^a user role request is made for all roles$")
+    public void aUserRoleRequestIsMadeForAllRoles() throws Throwable {
+        user.getUserRoles(true);
+    }
+
     @When("^a user role request is made$")
     public void aUserRoleRequestIsMade() throws Throwable {
-        user.getUserRoles();
+        user.getUserRoles(false);
     }
 
     @Then("^the roles returned are \"([^\"]*)\"$")
     public void theRolesReturnedAre(String roles) throws Throwable {
         user.verifyRoles(roles);
+    }
+
+    @When("^request is made to retrieve valid case note types for current user$")
+    public void requestIsMadeToRetrieveValidCaseNoteTypesForCurrentUser() throws Throwable {
+        user.getUserCaseNoteTypes();
+    }
+
+    @Then("^\"([^\"]*)\" case note types are returned$")
+    public void caseNoteTypesAreReturned(String expectedCount) throws Throwable {
+        user.verifyResourceRecordsReturned(Long.parseLong(expectedCount));
+    }
+
+    @And("^each case note type is returned with one or more sub-types$")
+    public void eachCaseNoteTypeIsReturnedWithOneOrMoreSubTypes() throws Throwable {
+        user.verifyCaseNoteTypesHaveSubTypes();
+    }
+
+    private void authenticate(String username, String password, boolean clientCredentials) {
+        user.authenticates(username, password, clientCredentials);
     }
 }

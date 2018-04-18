@@ -1,6 +1,7 @@
 /:
+  (deprecated): Use <b>/users/me/locations</b> instead. This API will be removed or re-purposed in a future release.
   (javaOperationName): getLocations
-  type: { readOnlyCollectionPaged: { type: Location, description: Returns the list of locations viewable by the user } }
+  type: { readOnlyCollectionPaged: { type: Location, description: List of locations accessible to current user. } }
   is: [
     searchable: {fieldsList : "locationId, agencyId, locationType, and parentLocationId"},
     sortable: {fieldsList : "locationId, agencyId, locationType, and parentLocationId"},
@@ -12,7 +13,7 @@
     locationId:
       (javaType): Long
       description: The location id of location
-  type: { readOnlyItem: { type: Location, description: Returns details about the specified location }}
+  type: { readOnlyItem: { type: Location, description: Location detail. } }
 
 /{locationId}/inmates:
   (javaOperationName): getOffendersAtLocation
@@ -20,8 +21,35 @@
     locationId:
       (javaType): Long
       description: The location id of location
-  type: { readOnlyCollectionPaged: { type: OffenderBooking, description: The collection of inmates present at the specified location. } }
+  type: { readOnlyCollectionPaged: { type: OffenderBooking, description: List of offenders at location. } }
   is: [
     searchable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId"},
     sortable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId"},
   ]
+
+/description/{locationPrefix}/inmates:
+  (javaOperationName): getOffendersAtLocationDescription
+  uriParameters:
+    locationDesc:
+      type: string
+      description: The location description of location
+  get:
+    queryParameters:
+      keywords?:
+        type : string
+        description: offender name or id to match
+  type: { readOnlyCollectionPaged: { type: OffenderBooking, description: List of offenders at location. } }
+  is: [
+    sortable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId"},
+  ]
+
+/groups/{agencyId}/{name}:
+  (javaOperationName): getGroup
+  uriParameters:
+    name:
+      type: string
+      description: The group name
+    agencyId:
+      type: string
+      description: The prison
+  type: { readOnlyCollection: { type: Location, description: List of cell locations by group at agency location. } }

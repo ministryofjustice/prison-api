@@ -1,24 +1,31 @@
 package net.syscon.elite.security;
 
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-public class UserSecurityUtils {
+@Component
+public class UserSecurityUtils implements AuthenticationFacade {
 
-	public static String getCurrentUsername() {
+	@Override
+	public Authentication getAuthentication() {
+		return SecurityContextHolder.getContext().getAuthentication();
+	}
+
+	@Override
+	public String getCurrentUsername() {
 		String username;
 
 		Object userPrincipal = getUserPrincipal();
 
-		if (userPrincipal instanceof UserDetails) {
-			username = ((UserDetails)userPrincipal).getUsername();
-		} else if (userPrincipal instanceof String) {
+	    if (userPrincipal instanceof String) {
 			username = (String) userPrincipal;
+		} else if (userPrincipal instanceof UserDetails) {
+			username = ((UserDetails)userPrincipal).getUsername();
 		} else if (userPrincipal instanceof Map) {
 			Map userPrincipalMap = (Map) userPrincipal;
 			username = (String) userPrincipalMap.get("username");
@@ -29,30 +36,22 @@ public class UserSecurityUtils {
 		return username;
 	}
 
-	public static boolean isAnonymousAuthentication() {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-		return auth instanceof AnonymousAuthenticationToken;
+	@Override
+	public boolean isIdentifiedAuthentication() {
+		Authentication auth = getAuthentication();
+		return auth != null && (
+				(auth instanceof OAuth2Authentication && auth.isAuthenticated() && !((OAuth2Authentication) auth).isClientOnly())
+		);
 	}
 
-	public static boolean isPreAuthenticatedAuthenticationToken() {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	private Object getUserPrincipal() {
+		Object userPrincipal = null;
 
-		return auth instanceof PreAuthenticatedAuthenticationToken;
-	}
+		final Authentication auth = getAuthentication();
 
-
-	private static Object getUserPrincipal() {
-		Object userPrincipal;
-
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-		if (auth == null) {
-			userPrincipal = null;
-		} else {
+		if (auth != null) {
 			userPrincipal = auth.getPrincipal();
 		}
-
 		return userPrincipal;
 	}
 }

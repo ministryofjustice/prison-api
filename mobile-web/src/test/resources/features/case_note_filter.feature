@@ -20,7 +20,7 @@ Feature: Case Note Retrieval and Filtering
       | -1        | 1      | CHAP                                                            | FAMMAR                                                          |
       | -2        | 4      | COMMS,APP,ETE,COMMS                                             | COM_IN,OUTCOME,ETERTO,COM_OUT                                   |
       | -3        | 8      | OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE,OBSERVE | OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN,OBS_GEN |
-      | -14       | 0      |                                                                 |                                                                 |
+      | -31       | 0      |                                                                 |                                                                 |
 
   Scenario Outline: Retrieve filtered case notes
     When case note type "<case note type>" filter applied
@@ -52,9 +52,9 @@ Feature: Case Note Retrieval and Filtering
       | -3        |                |                    |            |            | 2     | 0      | 2      | 8     |
       | -3        |                |                    |            |            | 4     | 2      | 4      | 8     |
       | -3        |                |                    |            |            | 10    | 5      | 3      | 8     |
-      | -3        |                |                    | 2017-05-10 |            | 10    | 0      | 4      | 4     |
-      | -3        |                |                    |            | 2017-05-09 | 2     | 0      | 2      | 4     |
-      | -3        |                |                    | 2017-05-07 | 2017-05-12 | 3     | 3      | 3      | 6     |
+      | -3        |                |                    | 2017-07-01 |            | 10    | 0      | 4      | 4     |
+      | -3        |                |                    |            | 2017-06-30 | 2     | 0      | 2      | 4     |
+      | -3        |                |                    | 2017-06-01 | 2017-08-31 | 3     | 3      | 3      | 6     |
 
   Scenario: A specific case note is requested for booking that is not part of any of logged on staff user's caseloads
     When a case note is requested for offender booking "-16"

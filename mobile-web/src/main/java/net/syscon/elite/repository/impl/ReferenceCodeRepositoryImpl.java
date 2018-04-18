@@ -1,6 +1,7 @@
 package net.syscon.elite.repository.impl;
 
 import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.model.ReferenceDomain;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.ReferenceCodeRepository;
@@ -8,33 +9,83 @@ import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class ReferenceCodeRepositoryImpl extends RepositoryBase implements ReferenceCodeRepository {
+	private static final StandardBeanPropertyRowMapper<ReferenceDomain> REF_DOMAIN_ROW_MAPPER =
+			new StandardBeanPropertyRowMapper<>(ReferenceDomain.class);
 
-    private final StandardBeanPropertyRowMapper<ReferenceCode> referenceCodeMapper =
-            new StandardBeanPropertyRowMapper<>(ReferenceCode.class);
+	private static final StandardBeanPropertyRowMapper<ReferenceCode> REF_CODE_ROW_MAPPER =
+			new StandardBeanPropertyRowMapper<>(ReferenceCode.class);
 
-    private final StandardBeanPropertyRowMapper<ReferenceCodeDetail> referenceCodeDetailMapper =
-            new StandardBeanPropertyRowMapper<>(ReferenceCodeDetail.class);
+	private static final StandardBeanPropertyRowMapper<ReferenceCodeDetail> REF_CODE_DETAIL_ROW_MAPPER =
+			new StandardBeanPropertyRowMapper<>(ReferenceCodeDetail.class);
+
+	private static final StandardBeanPropertyRowMapper<ReferenceCode> SCHEDULE_REASON_ROW_MAPPER =
+	        new StandardBeanPropertyRowMapper<>(ReferenceCode.class);
 
 	@Override
-	public Optional<ReferenceCode> getReferenceCodeByDomainAndCode(String domain, String code) {
-		String sql = getQuery("FIND_REFERENCE_CODE_BY_DOMAIN_CODE");
+	@Cacheable("referenceDomain")
+	public Optional<ReferenceDomain> getReferenceDomain(String domain) {
+		String sql = getQuery("FIND_REFERENCE_DOMAIN");
 
-        ReferenceCode referenceCode;
+		ReferenceDomain referenceDomain;
 
 		try {
-            referenceCode = jdbcTemplate.queryForObject(
-                    sql,
-                    createParams("domain", domain, "code", code),
-                    referenceCodeMapper);
+			referenceDomain = jdbcTemplate.queryForObject(
+					sql,
+					createParams("domain", domain),
+					REF_DOMAIN_ROW_MAPPER);
+		} catch (EmptyResultDataAccessException e) {
+			referenceDomain = null;
+		}
+
+		return Optional.ofNullable(referenceDomain);
+	}
+
+	@Override
+	@Cacheable("referenceCodeByDomainAndCode")
+	public Optional<ReferenceCode> getReferenceCodeByDomainAndCode(String domain, String code, boolean withSubCodes) {
+		Optional<ReferenceCode> referenceCode;
+
+		if (withSubCodes) {
+			referenceCode = getReferenceCodeWithSubCodesByDomainAndCode(domain, code);
+		} else {
+			referenceCode = getReferenceCodeByDomainAndCode(domain, code);
+		}
+
+		return referenceCode;
+	}
+
+	private Optional<ReferenceCode> getReferenceCodeWithSubCodesByDomainAndCode(String domain, String code) {
+		String sql = getQuery("FIND_REFERENCE_CODES_BY_DOMAIN_AND_CODE_WITH_CHILDREN");
+
+		List<ReferenceCodeDetail> rcdResults = jdbcTemplate.query(
+				sql,
+				createParams("domain", domain, "code", code),
+				REF_CODE_DETAIL_ROW_MAPPER);
+
+		List<ReferenceCode> referenceCodeAsList = convertToReferenceCodes(rcdResults, false);
+
+		return referenceCodeAsList.isEmpty() ? Optional.empty() : Optional.of(referenceCodeAsList.get(0));
+	}
+
+	private Optional<ReferenceCode> getReferenceCodeByDomainAndCode(String domain, String code) {
+		String sql = getQuery("FIND_REFERENCE_CODE_BY_DOMAIN_AND_CODE");
+
+		ReferenceCode referenceCode;
+
+		try {
+			referenceCode = jdbcTemplate.queryForObject(
+					sql,
+					createParams("domain", domain, "code", code),
+					REF_CODE_ROW_MAPPER);
 		} catch (EmptyResultDataAccessException e) {
 			referenceCode = null;
 		}
@@ -43,66 +94,95 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 	}
 
 	@Override
-	public Optional<ReferenceCode> getReferenceCodeByDomainAndParentAndCode(String domain, String parentCode, String code) {
-		String sql = getQuery("FIND_REFERENCE_CODE_BY_DOMAIN_PARENT_CODE");
-
-        ReferenceCode referenceCode;
-
-		try {
-            referenceCode = jdbcTemplate.queryForObject(
-                    sql,
-                    createParams("domain", domain, "parentCode", parentCode, "code", code),
-                    referenceCodeMapper);
-        } catch (EmptyResultDataAccessException e) {
-            referenceCode = null;
-        }
-
-        return Optional.ofNullable(referenceCode);
-	}
-
-    // TODO: Have to fix this - pagination only applied when not retrieving with sub-types - very confusing.
-	@Override
-	public Page<ReferenceCode> getReferenceCodesByDomain(String domain, String query, String orderBy, Order order, long offset, long limit, boolean includeSubTypes) {
+	@Cacheable("referenceCodesByDomain")
+	public Page<ReferenceCode> getReferenceCodesByDomain(String domain, boolean witSubCodes, String orderBy, Order order, long offset, long limit) {
 		Page<ReferenceCode> page;
 
-        if (includeSubTypes) {
-            String initialSql = getQuery("FIND_REFERENCE_CODES_BY_DOMAIN_PLUS_SUBTYPES");
-            IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, referenceCodeDetailMapper.getFieldMap());
-            String sql = builder.build();
-
-            List<ReferenceCodeDetail> rcdResults = jdbcTemplate.query(
-                    sql,
-                    createParams("domain", domain),
-                    referenceCodeDetailMapper);
-
-            List<ReferenceCode> results = convertToReferenceCodes(rcdResults, false);
-            page = new Page<>(results, results.size(), 0, results.size());
+        if (witSubCodes) {
+            page = getReferenceCodesWithSubCodes(domain, orderBy, order, offset, limit);
         } else {
-            String initialSql = getQuery("FIND_REFERENCE_CODES_BY_DOMAIN");
-            IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, referenceCodeMapper.getFieldMap());
-
-            String sql = builder
-                    .addQuery(query)
-                    .addOrderBy(order, orderBy)
-                    .addRowCount()
-                    .addPagination()
-                    .build();
-
-            PageAwareRowMapper<ReferenceCode> paRowMapper = new PageAwareRowMapper<>(referenceCodeMapper);
-
-            List<ReferenceCode> results = jdbcTemplate.query(
-                    sql,
-                    createParams("domain", domain, "offset", offset, "limit", limit),
-                    paRowMapper);
-
-            page = new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
+            page = getReferenceCodes(domain, false, orderBy, order, offset, limit);
         }
 
 		return page;
 	}
 
+	private Page<ReferenceCode> getReferenceCodes(String domain, boolean havingSubCodes, String orderBy, Order order, long offset, long limit) {
+        String initialSql = getQuery(havingSubCodes ? "FIND_REFERENCE_CODES_BY_DOMAIN_HAVING_SUB_CODES" : "FIND_REFERENCE_CODES_BY_DOMAIN");
+
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, REF_CODE_ROW_MAPPER.getFieldMap());
+
+        String sql = builder
+                .addRowCount()
+                .addOrderBy(order, orderBy)
+                .addPagination()
+                .build();
+
+        PageAwareRowMapper<ReferenceCode> paRowMapper = new PageAwareRowMapper<>(REF_CODE_ROW_MAPPER);
+
+        List<ReferenceCode> results = jdbcTemplate.query(
+                sql,
+                createParams("domain", domain, "offset", offset, "limit", limit),
+                paRowMapper);
+
+        return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
+    }
+
+    private Page<ReferenceCode> getReferenceCodesWithSubCodes(String domain, String orderBy, Order order, long offset, long limit) {
+		// First, obtain 'parent' codes (but only those that have sub-codes) using specified sorting and pagination
+		Page<ReferenceCode> refCodes = getReferenceCodes(domain, true, orderBy, order, offset, limit);
+
+		// Extract codes to list
+		List<String> codes = refCodes.getItems().stream().map(ReferenceCode::getCode).collect(Collectors.toList());
+
+		// Build query to obtain sub-codes for domain (as parent domain) and codes (as parent codes) - this query is
+		// not paginated as it must get every sub-code for the specified parent domain and codes. It is, however,
+		// subject to sorting.
+        String initialSql = getQuery("FIND_REFERENCE_CODES_BY_PARENT_DOMAIN_AND_CODE");
+
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, REF_CODE_ROW_MAPPER.getFieldMap());
+
+        String sql = builder
+				.addOrderBy(order, orderBy)
+				.build();
+
+        List<ReferenceCode> subCodes = jdbcTemplate.query(
+                sql,
+                createParams("parentDomain", domain, "parentCodes", codes),
+				REF_CODE_ROW_MAPPER);
+
+        // Now collect all the sub-codes by parent code
+		Map<String, List<ReferenceCode>> collectedSubCodes = collectByParentCode(subCodes);
+
+		// Inject associated sub-codes into each 'parent' reference code
+		refCodes.getItems().forEach(rc -> {
+			rc.setSubCodes(collectedSubCodes.get(rc.getCode()));
+		});
+
+        return new Page<>(refCodes.getItems(), refCodes.getTotalRecords(), offset, limit);
+    }
+
+    private Map<String, List<ReferenceCode>> collectByParentCode(List<ReferenceCode> referenceCodes) {
+		Map<String, List<ReferenceCode>> refCodeMap = new HashMap<>();
+
+		// Seed map
+		List<String> parentCodes = referenceCodes.stream().map(ReferenceCode::getParentCode).distinct().collect(Collectors.toList());
+
+		parentCodes.forEach(pc -> {
+			refCodeMap.put(pc, new ArrayList<>());
+		});
+
+		// Populate map
+		referenceCodes.forEach(rc -> {
+			refCodeMap.get(rc.getParentCode()).add(rc);
+		});
+
+		return refCodeMap;
+	}
+
 	private List<ReferenceCode> convertToReferenceCodes(List<ReferenceCodeDetail> results, boolean suppressEmptySubTypes) {
-		final List<ReferenceCode> referenceCodes = new ArrayList<>();
+		List<ReferenceCode> referenceCodes = new ArrayList<>();
+
 		ReferenceCode activeRef = null;
 
 		for (ReferenceCodeDetail ref : results) {
@@ -117,7 +197,7 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
                         .description(ref.getDescription())
                         .activeFlag(ref.getActiveFlag())
                         .parentCode(ref.getParentCode())
-                        .parentDomainId(ref.getParentDomainId())
+                        .parentDomain(ref.getParentDomain())
                         .subCodes(new ArrayList<>())
                         .build();
 
@@ -141,98 +221,15 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 		return referenceCodes;
 	}
 
-	private void removeWhereSubTypesAreEmpty(List<ReferenceCode> referenceCodes, ReferenceCode activeRef) {
+	private static void removeWhereSubTypesAreEmpty(List<ReferenceCode> referenceCodes, ReferenceCode activeRef) {
 		if (activeRef != null && activeRef.getSubCodes().isEmpty()) {
 			referenceCodes.remove(activeRef);
 		}
-	}
+    }
 
-	@Override
-	public Page<ReferenceCode> getReferenceCodesByDomainAndParent(String domain, String parentCode, String query, String orderBy, Order order, long offset, long limit) {
-		String initialSql = getQuery("FIND_REFERENCE_CODES_BY_DOMAIN_PARENT");
-		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, referenceCodeMapper.getFieldMap());
-
-		String sql = builder
-				.addQuery(query)
-				.addOrderBy(order, orderBy)
-				.addRowCount()
-				.addPagination()
-				.build();
-
-		PageAwareRowMapper<ReferenceCode> paRowMapper = new PageAwareRowMapper<>(referenceCodeMapper);
-
-		List<ReferenceCode> results = jdbcTemplate.query(
-		        sql,
-                createParams("domain", domain,
-                        "parentCode", parentCode,
-                        "offset", offset,
-                        "limit", limit),
-                paRowMapper);
-
-        return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
-	}
-
-    // TODO: Have to fix this - pagination only applied when not retrieving with sub-types - very confusing.
     @Override
-	public Page<ReferenceCode> getCaseNoteTypeByCurrentCaseLoad(String caseLoadType, boolean includeSubTypes, String query, String orderBy, Order order, long offset, long limit) {
-        Page<ReferenceCode> page;
-
-        if (includeSubTypes) {
-            String initialSql = getQuery("FIND_CNOTE_TYPES_AND_SUBTYPES_BY_CASELOAD");
-            IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, referenceCodeDetailMapper.getFieldMap());
-            String sql = builder.build();
-
-            List<ReferenceCodeDetail> rcdResults = jdbcTemplate.query(
-                    sql,
-                    createParams("caseLoadType", caseLoadType),
-                    referenceCodeDetailMapper);
-
-            List<ReferenceCode> results = convertToReferenceCodes(rcdResults, true);
-
-            page = new Page<>(results, results.size(), 0, results.size());
-        } else {
-            String initialSql = getQuery("FIND_CNOTE_TYPES_BY_CASELOAD");
-            IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, referenceCodeMapper.getFieldMap());
-
-            String sql = builder
-                    .addQuery(query)
-                    .addOrderBy(order, orderBy)
-                    .addRowCount()
-                    .addPagination()
-                    .build();
-
-            PageAwareRowMapper<ReferenceCode> paRowMapper = new PageAwareRowMapper<>(referenceCodeMapper);
-
-            List<ReferenceCode> results = jdbcTemplate.query(
-                    sql,
-                    createParams("caseLoadType", caseLoadType, "offset", offset, "limit", limit),
-                    paRowMapper);
-
-            page = new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
-        }
-
-        return page;
-	}
-
-	@Override
-	public Page<ReferenceCode> getCaseNoteSubType(String typeCode, String query, String orderBy, Order order, long offset, long limit) {
-        String initialSql = getQuery("FIND_CNOTE_SUB_TYPES_BY_CASE_NOTE_TYPE");
-	    IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, referenceCodeMapper.getFieldMap());
-
-	    String sql = builder
-				.addQuery(query)
-				.addOrderBy(order, orderBy)
-				.addRowCount()
-				.addPagination()
-				.build();
-
-        PageAwareRowMapper<ReferenceCode> paRowMapper = new PageAwareRowMapper<>(referenceCodeMapper);
-
-        List<ReferenceCode> results = jdbcTemplate.query(
-                    sql,
-                    createParams("caseNoteType", typeCode, "offset", offset, "limit", limit),
-                    paRowMapper);
-
-        return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
-	}
+    public List<ReferenceCode> getScheduleReasons(String eventType) {
+        final String sql = getQuery("GET_AVAILABLE_EVENT_SUBTYPES");
+        return jdbcTemplate.query(sql, createParams("eventType", eventType), SCHEDULE_REASON_ROW_MAPPER);
+    }
 }

@@ -14,9 +14,9 @@ Feature: Booking Aliases
     And alias last names match "<alias last name list>"
 
     Examples:
-       | booking id | number | alias first name list           | alias last name list               |
-       | -12        | 1      | DANNY                           | SMILEY                             |
-       | -9         | 5      | CHARLEY,MARK,PAUL,SANJAY,TREVOR | BASIS,DEMUNK,SIMONS,SMITH,THOMPSON |
+       | booking id | number | alias first name list | alias last name list |
+       | -12        | 1      | DANNY                 | SMILEY               |
+       | -9         | 2      | CHESNEY,CHARLEY       | THOMSON,THOMPSON     |
 
   Scenario: Aliases are requested for booking that does not exist
     When aliases are requested for an offender booking "-99"

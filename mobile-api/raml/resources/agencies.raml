@@ -1,8 +1,49 @@
-description: Returns list of active agencies.
-(javaOperationName): getAgencies
-type: { readOnlyCollectionPaged: { type: Agency } }
+/:
+  description: Returns list of active agencies.
+  (javaOperationName): getAgencies
+  type: { readOnlyCollectionPaged: { type: Agency, description: List of active agencies. } }
 
 /{agencyId}:
   (javaOperationName): getAgency
-  description: Returns specified agency.
-  type: { readOnlyItem: { type: Agency } }
+  type: { readOnlyItem: { type: Agency, description: Agency detail. } }
+
+/{agencyId}/locations:
+  (javaOperationName): getAgencyLocations
+  type: { readOnlyCollection: { type: Location, description: List of active internal locations for agency. } }
+  get:
+    queryParameters:
+      eventType?:
+        type: string
+        description: Restricts list of locations returned to those that can be used for the specified event type.
+        example: APP (appointment)
+  is: [
+    sortable: {fieldsList : "description, userDescription"}
+  ]
+
+/{agencyId}/eventLocations:
+  (javaOperationName): getAgencyEventLocations
+  type: { readOnlyCollection: { type: Location, description: "List of locations for agency where events (appointments, visits, activities) could be held." } }
+  is: [
+    sortable: {fieldsList : "description, userDescription"}
+  ]
+
+/{agencyId}/locations/groups:
+  (javaOperationName): getAvailableGroups
+  uriParameters:
+    agencyId:
+      type: string
+      description: The prison
+  type: { readOnlyCollection: { type: String, description: List of all available groups at agency. } }
+
+/prison:
+  (javaOperationName): getPrisonContactDetailList
+  type: { readOnlyCollection: { type: PrisonContactDetail, description: List of prison contact details. } }
+
+/prison/{agencyId}:
+  (javaOperationName): getPrisonContactDetail
+  type: { readOnlyItem: { type: PrisonContactDetail, description: Prison contact detail. } }
+
+/caseload/{caseload}:
+  description: Returns list of active agencies for the caseload
+  (javaOperationName): getAgenciesByCaseload
+  type: { readOnlyCollection: { type: Agency, description: List of agencies for caseload. } }

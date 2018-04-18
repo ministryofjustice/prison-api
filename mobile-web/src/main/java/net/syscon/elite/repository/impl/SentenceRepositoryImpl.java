@@ -1,44 +1,52 @@
 package net.syscon.elite.repository.impl;
 
-import net.syscon.elite.api.model.MainSentence;
-import net.syscon.elite.repository.impl.RepositoryBase;
-import net.syscon.util.DateTimeConverter;
+import net.syscon.elite.api.model.OffenceDetail;
 import net.syscon.elite.repository.SentenceRepository;
-
+import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.util.DateTimeConverter;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Repository
 public class SentenceRepositoryImpl extends RepositoryBase implements SentenceRepository {
 
+    private final StandardBeanPropertyRowMapper<OffenceDetail> offenceDetailMapper = new StandardBeanPropertyRowMapper<>(OffenceDetail.class);
+
     @Override
-    public MainSentence getMainSentence(Long bookingId) {
-        final MapSqlParameterSource params = createParams("bookingId", bookingId);
-        String description = null;
-        String length = null;
-        LocalDate date = null;
+    public List<OffenceDetail> getMainOffenceDetails(Long bookingId) {
+        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
+        String sql = getQuery("GET_BOOKING_MAIN_OFFENCES");
+
+        List<OffenceDetail> offences = jdbcTemplate.query(
+                sql,
+                createParams("bookingId", bookingId),
+                offenceDetailMapper);
+
+        return offences;
+    }
+
+    @Override
+    public Optional<LocalDate> getConfirmedReleaseDate(Long bookingId) {
+        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
+        String sql = getQuery("GET_BOOKING_CONFIRMED_RELEASE_DATE");
+
+        Date releaseDate;
+
         try {
-            description = jdbcTemplate.queryForObject(getQuery("GET_MAIN_OFFENCE"), params, String.class);
+            releaseDate = jdbcTemplate.queryForObject(
+                    sql,
+                    createParams("bookingId", bookingId),
+                    Date.class);
         } catch (EmptyResultDataAccessException e) {
-            // leave as null if not found
+            releaseDate = null;
         }
-        try {
-            length = jdbcTemplate.queryForObject(getQuery("GET_SENTENCE_LENGTH"), params, String.class);
-        } catch (EmptyResultDataAccessException e) {
-            // leave as null if not found
-        }
-        try {
-            date = DateTimeConverter.toISO8601LocalDate(jdbcTemplate.queryForObject(getQuery("GET_RELEASE_DATE"), params, Object.class));
-        } catch (EmptyResultDataAccessException e) {
-            // leave as null if not found
-        }
-        return MainSentence.builder()//
-                .mainOffenceDescription(description)//
-                .sentenceLength(length)//
-                .releaseDate(date)//
-                .build();
+
+        return Optional.ofNullable(DateTimeConverter.toISO8601LocalDate(releaseDate));
     }
 }

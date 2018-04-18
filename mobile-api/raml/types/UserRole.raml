@@ -5,9 +5,19 @@ properties:
     type: number
     (javaType): Long
     description: Role Id
+    example: 10232
   roleCode:
     type: string
+    description: code for this role
+    example: KW_ADMIN
   roleName:
     type: string
+    description: Full text description of the role type
+    example: Keyworker Admin Role
   parentRoleCode?:
     type: string
+    description: role code of the parent role
+  caseloadId?:
+    type: string
+    description: caseload that this role belongs to, (NOMIS only)
+    example: NWEB

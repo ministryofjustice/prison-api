@@ -1,0 +1,72 @@
+CREATE TABLE "MOVEMENT_REASONS"
+(
+  "MOVEMENT_TYPE"                 VARCHAR2(12 CHAR)                 NOT NULL ,
+  "MOVEMENT_REASON_CODE"          VARCHAR2(12 CHAR)                 NOT NULL ,
+  "DESCRIPTION"                   VARCHAR2(40 CHAR)                 NOT NULL ,
+  "OPEN_CONTACT_FLAG"             VARCHAR2(1 CHAR) DEFAULT 'Y'      NOT NULL ,
+  "CLOSE_CONTACT_FLAG"            VARCHAR2(1 CHAR) DEFAULT 'Y'      NOT NULL ,
+  "ACTIVE_FLAG"                   VARCHAR2(1 CHAR) DEFAULT 'Y'      NOT NULL ,
+  "LIST_SEQ"                      NUMBER(6, 0),
+  "UPDATE_ALLOWED_FLAG"           VARCHAR2(1 CHAR) DEFAULT 'Y'      NOT NULL ,
+  "EXPIRY_DATE"                   DATE,
+  "CREATE_USER_ID"                VARCHAR2(32 CHAR) DEFAULT USER    NOT NULL ,
+  "NOTIFICATION_TYPE"             VARCHAR2(1 CHAR) DEFAULT 'N',
+  "NOTIFICATION_FLAG"             VARCHAR2(1 CHAR) DEFAULT 'N',
+  "BILLING_SERVICE_FLAG"          VARCHAR2(1 CHAR) DEFAULT 'N',
+  "TRANSPORTATION_FLAG"           VARCHAR2(1 CHAR) DEFAULT 'N',
+  "HEADER_STATUS_FLAG"            VARCHAR2(1 CHAR) DEFAULT 'N',
+  "IN_MOVEMENT_TYPE"              VARCHAR2(12 CHAR),
+  "IN_MOVEMENT_REASON_CODE"       VARCHAR2(12 CHAR),
+  "ESC_RECAP_FLAG"                VARCHAR2(1 CHAR) DEFAULT 'N',
+  "CREATE_DATETIME"               TIMESTAMP(9) DEFAULT systimestamp NOT NULL ,
+  "MODIFY_DATETIME"               TIMESTAMP(9),
+  "MODIFY_USER_ID"                VARCHAR2(32 CHAR),
+  "AUDIT_TIMESTAMP"               TIMESTAMP(9),
+  "AUDIT_USER_ID"                 VARCHAR2(32 CHAR),
+  "AUDIT_MODULE_NAME"             VARCHAR2(65 CHAR),
+  "AUDIT_CLIENT_USER_ID"          VARCHAR2(64 CHAR),
+  "AUDIT_CLIENT_IP_ADDRESS"       VARCHAR2(39 CHAR),
+  "AUDIT_CLIENT_WORKSTATION_NAME" VARCHAR2(64 CHAR),
+  "AUDIT_ADDITIONAL_INFO"         VARCHAR2(256 CHAR),
+  "UNEMPLOYMENT_PAY"              VARCHAR2(1 CHAR) DEFAULT 'N'      NOT NULL ,
+  CONSTRAINT "MOVEMENT_REASONS_PK" PRIMARY KEY ("MOVEMENT_TYPE", "MOVEMENT_REASON_CODE")
+);
+
+
+COMMENT ON COLUMN "MOVEMENT_REASONS"."MOVEMENT_TYPE" IS 'Reference Code ( MOVE_TYPE )';
+
+COMMENT ON COLUMN "MOVEMENT_REASONS"."MOVEMENT_REASON_CODE" IS 'Reference Code ( MOVE_RSN ). The reason for the movement.';
+
+COMMENT ON COLUMN "MOVEMENT_REASONS"."DESCRIPTION" IS 'Description of movement reason.';
+
+COMMENT ON COLUMN "MOVEMENT_REASONS"."OPEN_CONTACT_FLAG" IS ' Flag signalling the opening of a new offender booking.';
+
+COMMENT ON COLUMN "MOVEMENT_REASONS"."CLOSE_CONTACT_FLAG" IS 'Signals the fact that an offender booking should be closed.';
+
+COMMENT ON COLUMN "MOVEMENT_REASONS"."ACTIVE_FLAG" IS 'Active flag on movement reasons.';
+
+COMMENT ON COLUMN "MOVEMENT_REASONS"."LIST_SEQ" IS ' Sequencing for list of values.';
+
+COMMENT ON COLUMN "MOVEMENT_REASONS"."UPDATE_ALLOWED_FLAG" IS 'Can record be updated?';
+
+COMMENT ON COLUMN "MOVEMENT_REASONS"."EXPIRY_DATE" IS 'Date code deactivated.';
+
+COMMENT ON COLUMN "MOVEMENT_REASONS"."CREATE_USER_ID" IS 'The user who creates the record';
+
+COMMENT ON COLUMN "MOVEMENT_REASONS"."HEADER_STATUS_FLAG" IS 'For Ontario Header Status';
+
+COMMENT ON COLUMN "MOVEMENT_REASONS"."IN_MOVEMENT_TYPE" IS 'Domain = "MOVE_TYPE".  The Default Incoming Movement Type.';
+
+COMMENT ON COLUMN "MOVEMENT_REASONS"."IN_MOVEMENT_REASON_CODE" IS 'Domain = "MOVE_RSN".  The Default Incoming Movement Reason.';
+
+COMMENT ON COLUMN "MOVEMENT_REASONS"."ESC_RECAP_FLAG" IS 'When Admission and Release screens see this flag is checked, a record will be created in Offender_Escapes table.';
+
+COMMENT ON COLUMN "MOVEMENT_REASONS"."CREATE_DATETIME" IS 'The timestamp when the record is created';
+
+COMMENT ON COLUMN "MOVEMENT_REASONS"."MODIFY_DATETIME" IS 'The timestamp when the record is modified ';
+
+COMMENT ON COLUMN "MOVEMENT_REASONS"."MODIFY_USER_ID" IS 'The user who modifies the record';
+
+COMMENT ON TABLE "MOVEMENT_REASONS" IS 'Reasons associated with movement types.';
+
+

@@ -15,11 +15,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-/**
- * 
- * @author om.pandey
- *
- */
 public class QueryUtil {
 	private QueryUtil() {
 	}
@@ -27,7 +22,7 @@ public class QueryUtil {
 	public static String getSqlFieldName(final Map<String,FieldMapper> fieldMap, final String jsonField) {
 		return fieldMap.entrySet()
 										.stream()
-										.filter(entry -> {return entry.getValue().getName().equals(jsonField);})
+										.filter(entry -> entry.getValue().getName().equals(jsonField))
 										.map(Map.Entry::getKey)
 										.findAny()
 										.orElse(null);
@@ -57,10 +52,12 @@ public class QueryUtil {
 	public static String prepareQuery(final String queryItem, final boolean isPrecedence, final Map<String, FieldMapper> fieldMap) {
 		final StringBuilder stringBuilder = new StringBuilder();
 		final String[] fields = queryItem.split(",");
-		Arrays.stream(fields).filter(fieldItem ->fieldItem.length()>0).forEach(fieldItem ->{
-			if(fieldItem.equals(fields[0])) {
-				fieldItem="and:"+fieldItem;
+
+		Arrays.stream(fields).filter(StringUtils::isNotBlank).forEach(fieldItem -> {
+			if (StringUtils.equals(fieldItem, fields[0]) && !StringUtils.startsWithAny(fieldItem, "and:", "or:")) {
+				fieldItem = "and:" + fieldItem;
 			}
+
 			final String[] operatorFieldValue = fieldItem.split(":");
 			final int size = operatorFieldValue.length;
 			
@@ -70,7 +67,7 @@ public class QueryUtil {
 			String value = size == 3 ? operatorFieldValue[2] : operatorFieldValue[3];// Supply it as it is.
 			final String format = size == 5 ? operatorFieldValue[4] : "";
 			
-			if (value.contains("|") || getSqlOperator(operator).equals(QueryOperator.IN.name())) {
+			if (value != null && (value.contains("|") || QueryOperator.IN.name().equalsIgnoreCase(getSqlOperator(operator)))) {
 				value = "(" + value.replaceAll("\\|", ",") + ")";
 			}
 
@@ -79,9 +76,9 @@ public class QueryUtil {
 			String encodedValue = fieldMapper.getEncodedValue(value);
 
 			stringBuilder.append(" ")
-				.append(!"".equals(connector)? getSqlOperator(connector): "")
+				.append(StringUtils.isNotBlank(connector) ? getSqlOperator(connector) : "")
 				.append(" ")
-				.append(isPrecedence && fieldItem.equals("and:"+fields[0])? "(": "")
+				.append(isPrecedence && StringUtils.equalsAny(fieldItem,"and:" + fields[0], fields[0]) ? "(" : "")
 				.append(" ")
 				.append(sqlFieldName)
 				.append(" ")
@@ -89,17 +86,11 @@ public class QueryUtil {
 				.append(" ")
                 .append(applyFormat(encodedValue, format))
 				.append(" ")
-				.append(isPrecedence && fieldItem.equals(fields[fields.length-1])? ")": "")
+				.append(isPrecedence && StringUtils.equals(fieldItem, fields[fields.length-1]) ? ")" : "")
 				.append(" ");
-
 		});
-		String result = stringBuilder.toString().trim();
-		if (result.startsWith("AND")) {
-			result = result.substring(3);
-		} else if (result.startsWith("OR")) {
-			result = result.substring(2);
-		}
-		return result;
+
+		return stringBuilder.toString().trim();
 	}
 
 	public static String getCriteriaFromQuery(final String sql) {

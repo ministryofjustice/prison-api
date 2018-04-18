@@ -13,17 +13,19 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Api(tags = {"/{{baseName}}"})
+@SuppressWarnings("unused")
 {{#operations}}
 public interface {{classname}} {
     {{#operation}}
 
     @{{httpMethod}}{{#subresourceOperation}}
-    @Path("{{path}}"){{/subresourceOperation}}
-    {{#hasConsumes}}@Consumes({ {{#consumes}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }){{/hasConsumes}}
-    {{#hasProduces}}@Produces({ {{#produces}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }){{/hasProduces}}
-    @ApiOperation(value = "{{{summary}}}"{{#notes}}, notes = "{{{notes}}}"{{/notes}}, nickname="{{{nickname}}}")
+    @Path("{{path}}"){{/subresourceOperation}}{{#hasConsumes}}
+    @Consumes({ {{#consumes}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/consumes}} }){{/hasConsumes}}{{#hasProduces}}
+    @Produces({ {{#produces}}"{{mediaType}}"{{#hasMore}}, {{/hasMore}}{{/produces}} }){{/hasProduces}}{{#vendorExtensions.x-annotation-deprecated}}
+    @Deprecated{{/vendorExtensions.x-annotation-deprecated}}
+    @ApiOperation(value = "{{{summary}}}"{{>apiNotes}}, nickname="{{{nickname}}}")
     @ApiResponses(value = { {{#responses}}
-        @ApiResponse(code = {{{code}}}, message = "{{{message}}}", response = {{{baseType}}}.class{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#hasHeaders}},
+        @ApiResponse(code = {{{code}}}, message = "{{{message}}}"{{#baseType}}, response = {{{baseType}}}.class{{/baseType}}{{#returnContainer}}, responseContainer = "{{{returnContainer}}}"{{/returnContainer}}{{#hasHeaders}},
         responseHeaders = { {{#headers}}
             @ResponseHeader(name = "{{baseName}}", description = "{{unescapedDescription}}", response = {{baseType}}.class),{{/headers}}
         }{{/hasHeaders}}){{#hasMore}},{{/hasMore}}{{/responses}} })
@@ -36,19 +38,18 @@ public interface {{classname}} {
 
     class {{operationIdCamelCase}}Response extends ResponseDelegate {
 
-        private {{operationIdCamelCase}}Response(Response response, Object entity) {
-            super(response, entity);
-        }
+        private {{operationIdCamelCase}}Response(Response response) { super(response); }
+        private {{operationIdCamelCase}}Response(Response response, Object entity) { super(response, entity); }
         {{#responses}}
 
-        public static {{operationIdCamelCase}}Response respond{{{code}}}WithApplicationJson({{{dataType}}} {{#isPageable}}page{{/isPageable}}{{^isPageable}}entity{{/isPageable}}{{#hasHeaders}}{{#headers}}, {{baseType}} {{name}}{{/headers}}{{/hasHeaders}}) {
+        public static {{operationIdCamelCase}}Response respond{{{code}}}WithApplicationJson({{#dataType}}{{{dataType}}} {{#isPageable}}page{{/isPageable}}{{^isPageable}}entity{{/isPageable}}{{/dataType}}{{#hasHeaders}}{{#headers}}, {{baseType}} {{name}}{{/headers}}{{/hasHeaders}}) {
             Response.ResponseBuilder responseBuilder = Response.status({{{code}}})
                     .header("Content-Type", MediaType.APPLICATION_JSON){{#hasHeaders}}{{#headers}}
                     .header("{{baseName}}", {{name}}){{/headers}}{{/hasHeaders}}{{#isPageable}}{{#paginationHeaders}}
                     .header("{{baseName}}", page.{{name}}){{/paginationHeaders}}{{/isPageable}};
-            responseBuilder.entity({{#isPageable}}page.getItems(){{/isPageable}}{{^isPageable}}entity{{/isPageable}});
-
-            return new {{operationIdCamelCase}}Response(responseBuilder.build(), {{#isPageable}}page.getItems(){{/isPageable}}{{^isPageable}}entity{{/isPageable}});
+{{#dataType}}            responseBuilder.entity({{#isPageable}}page.getItems(){{/isPageable}}{{^isPageable}}entity{{/isPageable}});
+{{/dataType}}
+            return new {{operationIdCamelCase}}Response(responseBuilder.build(){{#dataType}}, {{#isPageable}}page.getItems(){{/isPageable}}{{^isPageable}}entity{{/isPageable}}{{/dataType}});
         }
         {{/responses}}
     }

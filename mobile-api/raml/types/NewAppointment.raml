@@ -1,0 +1,26 @@
+#%RAML 1.0 DataType
+description: Creation details for a new appointment
+properties:
+  appointmentType:
+    type: string
+    description: Corresponds to the scheduled event subType
+    example: MEDE (medical appointment)
+    pattern: \w*
+    maxLength: 12
+  locationId:
+    type: number
+    (javaType): Long
+    description: Location at which the appointment takes place.
+  startTime:
+    type: datetime
+    description: Date and time at which event starts
+    example: 2017-09-13 09:30:00
+  endTime?:
+    type: datetime
+    description: Date and time at which event ends
+    example: 2017-09-13 10:00:00
+  comment?:
+    type: string
+    description: Details of appointment
+    maxLength: 4000
+# TODO: repeating event params

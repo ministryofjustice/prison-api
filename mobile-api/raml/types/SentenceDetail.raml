@@ -16,25 +16,25 @@ properties:
     description: SED - date on which sentence expires.
   automaticReleaseDate?:
     type: date-only
-    description: ARD - automatic (unconditional) release date for offender.
+    description: ARD - calculated automatic (unconditional) release date for offender.
   automaticReleaseOverrideDate?:
     type: date-only
     description: ARD (override) - automatic (unconditional) release override date for offender.
   conditionalReleaseDate?:
     type: date-only
-    description: CRD - conditional release date for offender.
+    description: CRD - calculated conditional release date for offender.
   conditionalReleaseOverrideDate?:
     type: date-only
     description: CRD (override) - conditional release override date for offender.
   nonParoleDate?:
     type: date-only
-    description: NPD - non-parole date for offender.
+    description: NPD - calculated non-parole date for offender (relating to the 1991 act).
   nonParoleOverrideDate?:
     type: date-only
     description: NPD (override) - non-parole override date for offender.
   postRecallReleaseDate?:
     type: date-only
-    description: PRRD - post-recall release date for offender.
+    description: PRRD - calculated post-recall release date for offender.
   postRecallReleaseOverrideDate?:
     type: date-only
     description: PRRD (override) - post-recall release override date for offender.
@@ -53,18 +53,18 @@ properties:
   paroleEligibilityDate?:
     type: date-only
     description: PED - date on which offender is eligible for parole.
-  homeDetentionCurfewApprovedDate?:
+  homeDetentionCurfewActualDate?:
     type: date-only
-    description: HDCAD - the offender's approved home detention curfew date.
-  approvedParoleDate?:
+    description: HDCAD - the offender's actual home detention curfew date.
+  actualParoleDate?:
     type: date-only
-    description: APD - the offender's approved parole date.
+    description: APD - the offender's actual parole date.
   releaseOnTemporaryLicenceDate?:
     type: date-only
     description: ROTL - the date on which offender will be released on temporary licence.
-  earlyReleaseSchemeEligibilityDate?:
+  earlyRemovalSchemeEligibilityDate?:
     type: date-only
-    description: ERSED - the date on which offender will be eligible for early release (under the Early Release Scheme).
+    description: ERSED - the date on which offender will be eligible for early removal (under the Early Removal Scheme for foreign nationals).
   earlyTermDate?:
     type: date-only
     description: ETD - early term date for offender.
@@ -74,3 +74,15 @@ properties:
   lateTermDate?:
     type: date-only
     description: LTD - late term date for offender.
+  topupSupervisionExpiryDate?:
+    type: date-only
+    description: TUSED - top-up supervision expiry date for offender.
+  confirmedReleaseDate?:
+    type: date-only
+    description: Confirmed release date for offender.
+  releaseDate?:
+    type: date-only
+    description: Confirmed, actual, approved, provisional or calculated release date for offender, according to offender release date algorithm.
+  tariffDate?:
+    type: date-only
+    description: Date on which minimum term is reached for parole (indeterminate/life sentences).

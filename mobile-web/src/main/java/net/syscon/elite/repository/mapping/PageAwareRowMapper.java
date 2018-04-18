@@ -1,5 +1,6 @@
 package net.syscon.elite.repository.mapping;
 
+import net.syscon.elite.core.Constants;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -18,7 +19,7 @@ public class PageAwareRowMapper<T> implements RowMapper<T> {
     @Override
     public T mapRow(ResultSet rs, int rowNum) throws SQLException {
         if (!recordCountSet) {
-            Object val = rs.getObject("RECORD_COUNT");
+            Object val = rs.getObject(Constants.RECORD_COUNT_COLUMN);
 
             totalRecords = ((Number) ObjectUtils.defaultIfNull(val, 0)).longValue();
 

@@ -17,22 +17,35 @@
     <springProfile name="logstash">
         <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
             <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-                <includeCallerInfo>true</includeCallerInfo>
             </encoder>
         </appender>
     </springProfile>
 
-    <springProfile name="dev">
+    <springProfile name="ai">
+        <appender name="aiAppender"
+                  class="com.microsoft.applicationinsights.logback.ApplicationInsightsAppender">
+        </appender>
+    </springProfile>
+
+    <logger name="net.syscon" additivity="false" level="DEBUG">
+        <appender-ref ref="consoleAppender"/>
+    </logger>
+
+    <springProfile name="ai">
         <logger name="net.syscon" additivity="false" level="DEBUG">
-            <appender-ref ref="consoleAppender"/>
+            <appender-ref ref="aiAppender"/>
+        </logger>
+        <logger name="org.springframework" additivity="false" level="INFO" >
+            <appender-ref ref="aiAppender"/>
+        </logger>
+        <logger name="org.glassfish.jersey" additivity="false" level="INFO" >
+            <appender-ref ref="aiAppender"/>
         </logger>
     </springProfile>
 
-    <springProfile name="!dev">
-        <logger name="net.syscon" additivity="false" level="INFO">
-            <appender-ref ref="consoleAppender"/>
-        </logger>
-    </springProfile>
+    <logger name="net.syscon.elite.repository.mapping" additivity="false" level="INFO">
+        <appender-ref ref="consoleAppender"/>
+    </logger>
 
     <logger name="org.springframework" additivity="false" level="INFO" >
         <appender-ref ref="consoleAppender"/>
@@ -46,7 +59,11 @@
         <appender-ref ref="consoleAppender"/>
     </logger>
 
-    <logger name="com.zaxxer.hikari" additivity="false" level="INFO" >
+    <logger name="com.microsoft.applicationinsights" additivity="false" level="INFO" >
+        <appender-ref ref="consoleAppender"/>
+    </logger>
+
+    <logger name="com.zaxxer.hikari" additivity="false" level="DEBUG" >
         <appender-ref ref="consoleAppender"/>
     </logger>
 
@@ -58,4 +75,9 @@
         <appender-ref ref="consoleAppender"/>
     </root>
 
+    <springProfile name="ai">
+        <root level="INFO">
+            <appender-ref ref="aiAppender"/>
+        </root>
+    </springProfile>
 </configuration>

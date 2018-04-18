@@ -3,9 +3,7 @@ package net.syscon.elite.executablespecification;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-
 import net.syscon.elite.executablespecification.steps.LocationsSteps;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -55,5 +53,30 @@ public class LocationsStepDefinitions extends AbstractStepDefinitions {
     @Then("^resource not found response is received from locations API$")
     public void resourceNotFoundResponseIsReceivedFromLocationsAPI() throws Throwable {
         location.verifyResourceNotFound();
+    }
+
+    @When("^a request is made at agency \"([^\"]*)\" to retrieve the list named \"([^\"]*)\"$")
+    public void aRequestIsMadeToRetrieveListNamed(String agencyId, String name) throws Throwable {
+        location.findList(agencyId, name);
+    }
+
+    @Then("^locations are \"([^\"]*)\"$")
+    public void locationsAre(String list) throws Throwable {
+        location.verifyLocationList(list);
+    }
+    
+    @Then("^location ids are \"([^\"]*)\"$")
+    public void locationIdsAre(String list) throws Throwable {
+        location.verifyLocationIdList(list);
+    }
+    
+    @When("^a request is made at agency \"([^\"]*)\" to retrieve all the groups$")
+    public void aRequestIsMadeToRetrieveAllGroups(String agencyId) throws Throwable {
+        location.aRequestIsMadeToRetrieveAllGroups(agencyId);
+    }
+
+    @Then("^location groups are \"([^\"]*)\"$")
+    public void groupsAre(String list) throws Throwable {
+        location.groupsAre(list);
     }
 }

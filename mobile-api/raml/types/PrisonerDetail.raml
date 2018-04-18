@@ -3,67 +3,80 @@ description: Prisoner Details
 properties:
   offenderNo:
     type: string
-    description: Display Prisoner Number (UK is NOMS ID)
-  title:
+    description: The prisoner's unique offender number (aka NOMS Number in the UK).
+    example: A1234AB
+  title?:
     type: string
-    description: Title of the prisoner (e.g Mr)
-  suffix:
+    description: The prisoner's title.
+    example: Mr
+  suffix?:
     type: string
-    description: Initials of prisoner
+    description: The prisoner's name suffix.
+    example: Jr
   firstName:
     type: string
-    description: First name of the prisoner
-  middleNames:
+    description: The prisoner's first name.
+  middleNames?:
     type: string
-    description: Middle name(s) of the prisoner
+    description: The prisoner's middle name(s).
   lastName:
     type: string
-    description: Last name of the prisoner
+    description: The prisoner's last name.
   dateOfBirth:
     type: date-only
-    description: Date of Birth of prisoner in YYYY-MM-DD format
+    description: The prisoner's date of birth (in YYYY-MM-DD format).
+    example: 1970-11-02
   gender:
     type: string
-    description: Gender of the prisoner
-  nationalities:
+    description: The prisoner's gender.
+    example: M
+  nationalities?:
     type: string
-    description: Nationality of the prisoner
+    description: The prisoner's nationality.
+    example: British
   currentlyInPrison:
     type: string
-    description: Flag to indicate if the person is currently in prison
-  latestLocationId:
+    description: Flag (Y or N) to indicate if prisoner is currently in prison.
+    example: Y
+  latestBookingId?:
+    type: number
+    (javaType): Long
+    description: ID of prisoner's latest booking.
+    example: 67433
+  latestLocationId?:
     type: string
-    description: Latest location ID of a prisoner (if in prison)
-  latestLocation:
+    description: Latest location ID of a prisoner (if in prison).
+    example: LEI
+  latestLocation?:
     type: string
-    description: Name of the prison where the prisoner resides (if in prison)
-  pncNumber:
+    description: Name of the prison where the prisoner resides (if in prison).
+    example: LEEDS (HMP)
+  pncNumber?:
     type: string
-    description: PNC Number
-  croNumber:
+    description: The prisoner's PNC (Police National Computer) number.
+    example: PNC1338494
+  croNumber?:
     type: string
-    description: CRO Number
-  ethnicity:
+    description: The prisoner's CRO (Criminal Records Office) number.
+    example: CRO3332/343
+  ethnicity?:
     type: string
-    description: Ethnicity of the prisoner
-  birthCountry:
+    description: The prisoner's ethnicity.
+  birthCountry?:
     type: string
-    description: Country of birth of the prisoner
-  religion:
+    description: The prisoner's country of birth.
+  religion?:
     type: string
-    description: Religion of the prisoner
-  convictedStatus:
+    description: The prisoner's religion.
+  convictedStatus?:
     type: string
-    description: Status code of latest conviction
-  imprisonmentStatus:
+    description: Status code of prisoner's latest conviction.
+  imprisonmentStatus?:
     type: string
-    description: Imprisonment Status
-  receptionDate:
+    description: The prisoner's imprisonment status.
+  receptionDate?:
     type: date-only
-    description: Date received into the prison
-  releaseDate:
-    type: date-only
-    description: Date of release from prison
-  maritalStatus:
+    description: Date prisoner was received into the prison.
+  maritalStatus?:
     type: string
-    description: Marital Status
+    description: The prisoner's marital status.

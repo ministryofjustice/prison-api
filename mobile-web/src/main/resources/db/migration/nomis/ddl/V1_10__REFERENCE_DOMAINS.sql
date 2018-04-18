@@ -1,0 +1,53 @@
+CREATE TABLE "REFERENCE_DOMAINS"
+(
+  "DOMAIN"                        VARCHAR2(12 CHAR)                 NOT NULL ,
+  "DESCRIPTION"                   VARCHAR2(40 CHAR)                 NOT NULL ,
+  "DOMAIN_STATUS"                 VARCHAR2(12 CHAR)                 NOT NULL ,
+  "OWNER_CODE"                    VARCHAR2(12 CHAR)                 NOT NULL ,
+  "APPLN_CODE"                    VARCHAR2(12 CHAR)                 NOT NULL ,
+  "OLD_CODE_TABLE"                VARCHAR2(40 CHAR),
+  "PARENT_DOMAIN"                 VARCHAR2(12 CHAR),
+  "CODE_LENGTH"                   NUMBER(3, 0),
+  "CREATE_DATETIME"               TIMESTAMP(9) DEFAULT systimestamp NOT NULL ,
+  "CREATE_USER_ID"                VARCHAR2(32 CHAR) DEFAULT user    NOT NULL ,
+  "MODIFY_DATETIME"               TIMESTAMP(9),
+  "MODIFY_USER_ID"                VARCHAR2(32 CHAR),
+  "SUPER_SET_DOMAIN"              VARCHAR2(12 CHAR),
+  "AUDIT_TIMESTAMP"               TIMESTAMP(9),
+  "AUDIT_USER_ID"                 VARCHAR2(32 CHAR),
+  "AUDIT_MODULE_NAME"             VARCHAR2(65 CHAR),
+  "AUDIT_CLIENT_USER_ID"          VARCHAR2(64 CHAR),
+  "AUDIT_CLIENT_IP_ADDRESS"       VARCHAR2(39 CHAR),
+  "AUDIT_CLIENT_WORKSTATION_NAME" VARCHAR2(64 CHAR),
+  "AUDIT_ADDITIONAL_INFO"         VARCHAR2(256 CHAR),
+  CONSTRAINT "REFERENCE_DOMAINS_PK" PRIMARY KEY ("DOMAIN") ,
+  CONSTRAINT "REF_DOMAIN_REF_DOMAIN_FK1" FOREIGN KEY ("PARENT_DOMAIN")
+  REFERENCES "REFERENCE_DOMAINS" ("DOMAIN") ,
+  CONSTRAINT "REF_DOMAIN_REF_DOMAIN_FK2" FOREIGN KEY ("SUPER_SET_DOMAIN")
+  REFERENCES "REFERENCE_DOMAINS" ("DOMAIN")
+);
+
+
+COMMENT ON COLUMN "REFERENCE_DOMAINS"."DOMAIN" IS 'Domain of the Reference Code';
+COMMENT ON COLUMN "REFERENCE_DOMAINS"."DESCRIPTION" IS 'Description of the Domain';
+COMMENT ON COLUMN "REFERENCE_DOMAINS"."DOMAIN_STATUS" IS 'Reference Code ( DOMAIN_STS ) Status of the Domain';
+COMMENT ON COLUMN "REFERENCE_DOMAINS"."OWNER_CODE" IS 'Reference Code ( USER_CLS ) : Domain Owner Type (Party who have the right to modify codes)';
+COMMENT ON COLUMN "REFERENCE_DOMAINS"."APPLN_CODE" IS 'Reference Code ( APPLN ) Business Application Which uses the Domain';
+COMMENT ON COLUMN "REFERENCE_DOMAINS"."OLD_CODE_TABLE" IS 'The name of the old table in Previous Version';
+COMMENT ON COLUMN "REFERENCE_DOMAINS"."PARENT_DOMAIN" IS 'The parent domain of this domain (It is for modeling hierachical structure of domain)';
+COMMENT ON COLUMN "REFERENCE_DOMAINS"."CODE_LENGTH" IS 'The length of the code in previous version';
+COMMENT ON COLUMN "REFERENCE_DOMAINS"."CREATE_DATETIME" IS 'The timestamp when the record is created';
+COMMENT ON COLUMN "REFERENCE_DOMAINS"."CREATE_USER_ID" IS 'The user who creates the record';
+COMMENT ON COLUMN "REFERENCE_DOMAINS"."MODIFY_DATETIME" IS 'The timestamp when the record is modified ';
+COMMENT ON COLUMN "REFERENCE_DOMAINS"."MODIFY_USER_ID" IS 'The user who modifies the record';
+COMMENT ON TABLE "REFERENCE_DOMAINS" IS 'The reference doamin- Retrofitted- Retrofitted';
+
+
+CREATE INDEX "REF_DOMAIN_REF_DOMAIN_FK1"
+  ON "REFERENCE_DOMAINS" ("PARENT_DOMAIN");
+
+
+CREATE INDEX "REF_DOMAIN_REF_DOMAIN_FK2"
+  ON "REFERENCE_DOMAINS" ("SUPER_SET_DOMAIN");
+
+

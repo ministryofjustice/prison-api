@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import java.time.LocalDate;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CalcDateRangesTest {
 
@@ -14,16 +14,16 @@ public class CalcDateRangesTest {
     @Test
     public void testDateRangeIsNullForNoDates() {
         testClass = new CalcDateRanges(null, null,null, TEN_YEARS);
-        assertThat(testClass.getDobDateFrom()).isNull();
-        assertThat(testClass.getDobDateTo()).isNull();
+        assertThat(testClass.getDateFrom()).isNull();
+        assertThat(testClass.getDateTo()).isNull();
     }
 
     @Test
     public void testFromAndToDateSetForDobOnly() {
         final LocalDate dob = LocalDate.now().atStartOfDay().toLocalDate();
         testClass = new CalcDateRanges(dob, null,null, TEN_YEARS);
-        assertThat(testClass.getDobDateFrom()).isEqualTo(dob);
-        assertThat(testClass.getDobDateTo()).isEqualTo(dob);
+        assertThat(testClass.getDateFrom()).isEqualTo(dob);
+        assertThat(testClass.getDateTo()).isEqualTo(dob);
     }
 
     @Test
@@ -32,8 +32,8 @@ public class CalcDateRangesTest {
         LocalDate toDate = fromDate.plusYears(3);
 
         testClass = new CalcDateRanges(null, fromDate, toDate, TEN_YEARS);
-        assertThat(testClass.getDobDateFrom()).isEqualTo(fromDate);
-        assertThat(testClass.getDobDateTo()).isEqualTo(toDate);
+        assertThat(testClass.getDateFrom()).isEqualTo(fromDate);
+        assertThat(testClass.getDateTo()).isEqualTo(toDate);
     }
 
     @Test
@@ -42,8 +42,8 @@ public class CalcDateRangesTest {
         LocalDate toDate = fromDate.plusYears(TEN_YEARS);
 
         testClass = new CalcDateRanges(null, fromDate, toDate, TEN_YEARS);
-        assertThat(testClass.getDobDateFrom()).isEqualTo(fromDate);
-        assertThat(testClass.getDobDateTo()).isEqualTo(toDate);
+        assertThat(testClass.getDateFrom()).isEqualTo(fromDate);
+        assertThat(testClass.getDateTo()).isEqualTo(toDate);
     }
 
     @Test
@@ -52,9 +52,9 @@ public class CalcDateRangesTest {
         LocalDate toDate = fromDate.plusYears(30);
 
         testClass = new CalcDateRanges(null, fromDate, toDate, TEN_YEARS);
-        assertThat(testClass.getDobDateFrom()).isEqualTo(fromDate);
-        assertThat(testClass.getDobDateTo()).isNotEqualTo(toDate);
-        assertThat(testClass.getDobDateTo()).isEqualTo(fromDate.plusYears(TEN_YEARS));
+        assertThat(testClass.getDateFrom()).isEqualTo(fromDate);
+        assertThat(testClass.getDateTo()).isNotEqualTo(toDate);
+        assertThat(testClass.getDateTo()).isEqualTo(fromDate.plusYears(TEN_YEARS));
     }
 
 
@@ -63,8 +63,8 @@ public class CalcDateRangesTest {
         LocalDate fromDate = LocalDate.now().atStartOfDay().toLocalDate();
 
         testClass = new CalcDateRanges(null, fromDate, null, TEN_YEARS);
-        assertThat(testClass.getDobDateFrom()).isEqualTo(fromDate);
-        assertThat(testClass.getDobDateTo()).isEqualTo(fromDate.plusYears(TEN_YEARS));
+        assertThat(testClass.getDateFrom()).isEqualTo(fromDate);
+        assertThat(testClass.getDateTo()).isEqualTo(fromDate.plusYears(TEN_YEARS));
     }
 
     @Test
@@ -72,7 +72,7 @@ public class CalcDateRangesTest {
         LocalDate toDate = LocalDate.now().atStartOfDay().toLocalDate();
 
         testClass = new CalcDateRanges(null, null, toDate, TEN_YEARS);
-        assertThat(testClass.getDobDateTo()).isEqualTo(toDate);
-        assertThat(testClass.getDobDateFrom()).isEqualTo(toDate.minusYears(TEN_YEARS));
+        assertThat(testClass.getDateTo()).isEqualTo(toDate);
+        assertThat(testClass.getDateFrom()).isEqualTo(toDate.minusYears(TEN_YEARS));
     }
 }

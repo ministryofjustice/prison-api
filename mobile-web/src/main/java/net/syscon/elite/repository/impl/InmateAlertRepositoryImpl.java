@@ -75,4 +75,10 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 
 		return Optional.ofNullable(alert);
 	}
+
+	public long getAlertCounts(long bookingId, String status) {
+        return jdbcTemplate.queryForObject(getQuery("ALERT_COUNTS"),
+                createParams("bookingId", bookingId, "status", status),
+                Long.class);
+	}
 }

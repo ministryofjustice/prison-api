@@ -8,8 +8,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LocationRepository {
-	Optional<Location> findLocation(long locationId);
-	Page<Location> findLocations(String query, String orderByField, Order order, long offset, long limit);
-	Page<Location> findLocationsByAgencyId(String caseLoadId, String agencyId, String query, long offset, long limit, String orderByField, Order order);
-	List<Location> findLocationsByAgencyAndType(String agencyId, String locationType, int depthAllowed);
+	Optional<Location> getLocation(long locationId);
+
+	@Deprecated
+	Optional<Location> findLocation(long locationId, String username);
+
+	@Deprecated
+	Page<Location> findLocations(String username, String query, String orderByField, Order order, long offset, long limit);
+
+	List<Location> findLocationsByAgencyAndType(String agencyId, String locationType, boolean noParentLocation);
 }

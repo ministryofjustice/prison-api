@@ -3,6 +3,8 @@ package net.syscon.elite.web.handler;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.support.OperationResponse;
+import net.syscon.elite.service.AllocationException;
+import net.syscon.elite.service.ConfigException;
 import net.syscon.elite.service.EntityNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -12,12 +14,12 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.NotSupportedException;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-
 import java.util.Set;
 
 @Provider
@@ -47,7 +49,7 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
             log.info(userMessage);
         } else if (ex instanceof AccessDeniedException) {
             status = Response.Status.FORBIDDEN.getStatusCode();
-            userMessage = "You do not have sufficient privileges to access this resource.";
+            userMessage = ex.getMessage();
             log.warn("Insufficient privileges to access resource.", ex);
         } else if (ex instanceof ConstraintViolationException) {
             status = Response.Status.BAD_REQUEST.getStatusCode();
@@ -57,6 +59,18 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
             status = Response.Status.BAD_REQUEST.getStatusCode();
             userMessage = ex.getMessage();
             log.warn("Client submitted invalid request.", ex);
+        } else if (ex instanceof ConfigException) {
+            status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
+            userMessage = ex.getMessage();
+            log.error("Internal Server Error", ex);
+        } else if (ex instanceof AllocationException) {
+            status = Response.Status.CONFLICT.getStatusCode();
+            userMessage = ex.getMessage();
+            log.error("Resource Conflict Error", ex);
+        } else if (ex instanceof NotSupportedException) {
+            status = Response.Status.NOT_IMPLEMENTED.getStatusCode();
+            userMessage = ex.getMessage();
+            log.error("Service Not Implemented", ex);
         } else {
             status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
             userMessage = "An internal error has occurred - please try again later.";

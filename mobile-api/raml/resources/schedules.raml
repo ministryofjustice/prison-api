@@ -1,0 +1,38 @@
+
+/{agencyId}/groups/{name}:
+  (javaOperationName): getGroupEvents
+  uriParameters:
+    agencyId:
+      type: string
+      description: The prison.
+    name:
+      type: string
+      description: The list name.
+  get:
+    queryParameters:
+      timeSlot?:
+        type : enum
+        (javaType): TimeSlot
+        description: AM or PM
+  type: { readOnlyCollection: { type: PrisonerSchedule, description: Get all events for today for prisoners in listed cells. } }
+
+/{agencyId}/locations/{locationId}/usage/{usage}:
+  (javaOperationName): getLocationEvents
+  uriParameters:
+    agencyId:
+      type: string
+      description: The prison.
+    locationId:
+      (javaType): Long
+      description: The location id where event is held.
+    usage:
+      type: string
+      description: The locationUsage code from the location object.
+  get:
+    queryParameters:
+      timeSlot?:
+        type : enum
+        (javaType): TimeSlot
+        description: AM or PM
+  type: { readOnlyCollection: { type: PrisonerSchedule, description: Get all Prisoner events for today at location. } }
+
