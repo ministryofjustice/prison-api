@@ -12,6 +12,7 @@ import net.syscon.elite.core.RestResource;
 import net.syscon.elite.web.handler.ConstraintViolationExceptionHandler;
 import net.syscon.elite.web.handler.ResourceExceptionHandler;
 import net.syscon.elite.web.listener.EndpointLoggingListener;
+import net.syscon.elite.web.provider.LocalDateTimeProvider;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -128,6 +129,7 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
         // Available at localhost:port/api/swagger.json
         register(ApiListingResource.class);
         register(SwaggerSerializers.class);
+        register(LocalDateTimeProvider.class);
 
         BeanConfig config = new BeanConfig();
 

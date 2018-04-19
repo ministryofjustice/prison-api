@@ -4,12 +4,6 @@ properties:
   offenderNo:
     type: string
     description: Display Prisoner Number (UK is NOMS ID)
-    required: true
-  custodyStatusCode:
-    (javaType): CustodyStatusCode
-    description: Custody Status code
-    required: true
-  custodyStatusDescription:
-    type: string
-    description: Custody Status description
-    required: true
+  createDateTime:
+    type: datetime
+    description: Timestamp when the external movement record was created

@@ -1,18 +1,11 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.PrisonerCustodyStatus;
 import net.syscon.elite.api.resource.CustodyStatusResource;
-import net.syscon.elite.api.support.CustodyStatusCode;
-import net.syscon.elite.api.support.Order;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.CustodyStatusService;
-import net.syscon.util.DateTimeConverter;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.ws.rs.Path;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 @RestResource
 @Path("/custody-statuses")
@@ -25,25 +18,8 @@ public class CustodyStatusResourceImpl implements CustodyStatusResource {
     }
 
     @Override
-    @PreAuthorize("hasRole('SYSTEM_USER')")
-    public GetPrisonerCustodyStatusesResponse getPrisonerCustodyStatuses(List<String> custodyStatusCodes, String onDateString, String sortFields, Order sortOrder) {
-        LocalDate onDate = DateTimeConverter.fromISO8601DateString(onDateString);
-        if (onDate == null) {
-            onDate = LocalDate.now();
-        }
-
-        final List<CustodyStatusCode> statusCodes = custodyStatusCodes.stream()
-                .map(CustodyStatusCode::valueOf)
-                .collect(Collectors.toList());
-
-        final List<PrisonerCustodyStatus> custodyStatuses = custodyStatusService.listCustodyStatuses(statusCodes, onDate, sortOrder);
-        return GetPrisonerCustodyStatusesResponse.respond200WithApplicationJson(custodyStatuses);
-    }
-
-    @Override
-    @PreAuthorize("hasRole('SYSTEM_USER')")
-    public GetPrisonerCustodyStatusResponse getPrisonerCustodyStatus(String offenderNo) {
-        final PrisonerCustodyStatus custodyStatus = custodyStatusService.getCustodyStatus(offenderNo, LocalDate.now());
-        return GetPrisonerCustodyStatusResponse.respond200WithApplicationJson(custodyStatus);
+    public GetRecentMovementsResponse getRecentMovements(LocalDateTime fromDateTime) {
+        return GetRecentMovementsResponse
+                .respond200WithApplicationJson(custodyStatusService.getRecentMovements(fromDateTime));
     }
 }

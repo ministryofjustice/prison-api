@@ -1,45 +1,12 @@
 /:
-  description: Returns a list of offender nos and their respective custody status.
-  (javaOperationName): getPrisonerCustodyStatuses
+  (javaOperationName): getRecentMovements
   type:
     readOnlyCollection:
       type: PrisonerCustodyStatus
-      description: List of offenders (with associated custody status detail).
+      description: Returns a list of recently released or moved offender nos and the associated timestamp.
   get:
-    queryParameters?:
-      custodyStatusCodes:
-        description: Prisoner with the specified Custody Status
-        type: array
-        items:
-          (javaType): CustodyStatusCode
-#          enum:
-#            - ACTIVE_OUT_CRT
-#            - ACTIVE_OUT_TAP
-#            - ACTIVE_IN
-#            - IN_TRANSIT
-#            - ACTIVE_UAL
-#            - ACTIVE_UAL_ECL
-#            - ACTIVE_ESCP
-#            - IN_ACTIVE
-#            - IN_ACTIVE_OUT
-#            - OTHER
-      onDate?:
-        description: A date that is to be used to identify when custody status should be calculated for
-        type: date
-    is:
-      - sortable:
-          fieldsList: "custodyStatusCode"
-
-/{offenderNo}:
-  description: Returns the custody status for a specific offender no.
-  (javaOperationName): getPrisonerCustodyStatus
-  type:
-    readOnlyItem:
-      type: PrisonerCustodyStatus
-      description: Offender custody status detail.
-  get:
-    uriParameters:
-      offenderNo:
-        description: The OffenderNo of an offender
-        type: string
-        required: true
+    queryParameters:
+      fromDateTime:
+        type: datetime
+        description: A timestamp that indicates the earliest record required
+        example: 2018-04-19T12:31:59
