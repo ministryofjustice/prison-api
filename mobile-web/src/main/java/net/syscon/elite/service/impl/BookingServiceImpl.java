@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.SentenceDetail.NonDtoReleaseDateType;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static java.util.stream.Collectors.toList;
 import static net.syscon.elite.service.ContactService.EXTERNAL_REF;
 
 /**
@@ -161,7 +163,7 @@ public class BookingServiceImpl implements BookingService {
         // If no IEP details exist for offender, cannot derive an IEP summary.
         bookingIds.stream()
                 .filter(bookingId -> !mapOfEip.containsKey(bookingId))
-                .collect(Collectors.toList())
+                .collect(toList())
                 .forEach( bookingId -> mapOfEip.put(bookingId, PrivilegeSummary.builder()
                                         .bookingId(bookingId)
                                         .iepLevel(defaultIepLevel)
@@ -509,10 +511,30 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Page<OffenderSentenceDetail> getOffenderSentencesSummary(String username, String query, long offset, long limit, String orderByFields, Order order) {
-        final Page<OffenderSentenceDetailDto> offenderSentenceSummary = bookingRepository.getOffenderSentenceSummary(query, offset, limit, orderByFields, order, isSystemUser() ? Collections.emptySet() : getUserCaseloadIds(username));
+    public List<OffenderSentenceDetail> getOffenderSentencesSummary(String agencyId, String username, List<String> offenderNos) {
 
-        final List<OffenderSentenceDetail> offenderSentenceDetails = offenderSentenceSummary.getItems().stream()
+        final Set<String> caseloads = isSystemUser() ? Collections.emptySet() : getUserCaseloadIds(username);
+
+        final List<OffenderSentenceDetailDto> offenderSentenceSummary = new ArrayList<>();
+
+        if (!offenderNos.isEmpty()) {
+            List<List<String>> batch = Lists.partition(offenderNos, 1000);
+
+            batch.forEach(b -> {
+                final String ids = b.stream().map(offenderNo -> "'"+offenderNo+"'").collect(Collectors.joining("|"));
+                String query = "offenderNo:in:"+ids;
+                offenderSentenceSummary.addAll(bookingRepository.getOffenderSentenceSummary(query, caseloads));
+            });
+
+        } else {
+            String query = buildAgencyQuery(agencyId, username);
+            if (StringUtils.isEmpty(query) && caseloads.isEmpty()) {
+                throw new BadRequestException("Request must be restricted to either a caseload, agency or list of offenders");
+            }
+            offenderSentenceSummary.addAll(bookingRepository.getOffenderSentenceSummary(query, caseloads));
+        }
+
+        final List<OffenderSentenceDetail> offenderSentenceDetails = offenderSentenceSummary.stream()
                 .map(os -> OffenderSentenceDetail.builder()
                         .bookingId(os.getBookingId())
                         .offenderNo(os.getOffenderNo())
@@ -553,10 +575,31 @@ public class BookingServiceImpl implements BookingService {
                         .facialImageId(os.getFacialImageId())
                         .internalLocationDesc(LocationProcessor.stripAgencyId(os.getInternalLocationDesc(), os.getAgencyLocationId()))
                         .build())
-                .collect(Collectors.toList());
+                .collect(toList());
 
         offenderSentenceDetails.forEach(s -> deriveSentenceDetail(s.getSentenceDetail()));
-        return new Page<>(offenderSentenceDetails, offenderSentenceSummary.getTotalRecords(), offenderSentenceSummary.getPageOffset(), offenderSentenceSummary.getPageLimit());
+
+        final Comparator<OffenderSentenceDetail> compareDate = Comparator.comparing(
+                s -> s.getSentenceDetail().getReleaseDate(), Comparator.nullsLast(Comparator.naturalOrder())
+        );
+
+        return offenderSentenceDetails.stream().sorted(compareDate).collect(toList());
+    }
+
+    private String buildAgencyQuery(String agencyId, String username) {
+        final StringBuilder query = new StringBuilder();
+        if (StringUtils.isBlank(agencyId)) {
+            Optional<CaseLoad> workingCaseLoadForUser = caseLoadService.getWorkingCaseLoadForUser(username);
+
+            if (workingCaseLoadForUser.isPresent()) {
+                List<Agency> agenciesByCaseload = agencyService.getAgenciesByCaseload(workingCaseLoadForUser.get().getCaseLoadId());
+                final String agencies = agenciesByCaseload.stream().map(agency -> "'"+agency.getAgencyId()+"'").collect(Collectors.joining("|"));
+                query.append("agencyLocationId:in:").append(agencies);
+            }
+        } else {
+            query.append("agencyLocationId:eq:'").append(agencyId).append("'");
+        }
+        return StringUtils.trimToEmpty(query.toString());
     }
 
     @Override
@@ -572,4 +615,5 @@ public class BookingServiceImpl implements BookingService {
     private Set<String> getUserCaseloadIds(String username) {
         return caseLoadService.getCaseLoadIdsForUser(username, true);
     }
+
 }

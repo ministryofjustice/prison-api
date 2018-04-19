@@ -403,7 +403,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    public Page<OffenderSentenceDetailDto> getOffenderSentenceSummary(String query, long offset, long limit, String orderByFields, Order order, Set<String> allowedCaseloadsOnly) {
+    public List<OffenderSentenceDetailDto> getOffenderSentenceSummary(String query, Set<String> allowedCaseloadsOnly) {
         String initialSql = getQuery("GET_OFFENDER_SENTENCE_DETAIL");
         if (!allowedCaseloadsOnly.isEmpty()) {
             initialSql += " AND " + getQuery("CASELOAD_FILTER");
@@ -412,24 +412,21 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, SENTENCE_DETAIL_ROW_MAPPER);
 
         String sql = builder
-                .addRowCount()
-                .addOrderBy(order, orderByFields)
-                .addPagination()
                 .addQuery(query)
                 .build();
 
-        PageAwareRowMapper<OffenderSentenceDetailDto> paRowMapper = new PageAwareRowMapper<>(Row2BeanRowMapper.makeMapping(sql, OffenderSentenceDetailDto.class, SENTENCE_DETAIL_ROW_MAPPER));
+        RowMapper<OffenderSentenceDetailDto> offenderSentenceDetailDtoRowMapper = Row2BeanRowMapper.makeMapping(sql, OffenderSentenceDetailDto.class, SENTENCE_DETAIL_ROW_MAPPER);
 
-        List<OffenderSentenceDetailDto> offenderSentences = jdbcTemplate.query(
+        return jdbcTemplate.query(
                 sql,
-                createParams( "caseLoadId", allowedCaseloadsOnly, "offset", offset, "limit", limit),
-                paRowMapper);
-        return new Page<>(offenderSentences, paRowMapper.getTotalRecords(), offset, limit);
+                createParams( "caseLoadId", allowedCaseloadsOnly),
+                offenderSentenceDetailDtoRowMapper);
+
     }
 
     @Override
     public Optional<OffenderSummary> getLatestBookingByBookingId(Long bookingId) {
-        Validate.notNull("Booking id must be specified.");
+        Validate.notNull(bookingId, "Booking id must be specified.");
 
         String sql = getQuery("GET_LATEST_BOOKING_BY_BOOKING_ID");
 
