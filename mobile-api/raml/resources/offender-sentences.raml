@@ -1,12 +1,12 @@
 description:  Find sentence details for offenders
-type: { readOnlyCollectionPaged: { type: OffenderSentenceDetail, description: List of offenders (with associated sentence detail). } }
+type: { readOnlyCollection: { type: OffenderSentenceDetail, description: List of offenders (with associated sentence detail). } }
 get:
   queryParameters:
+    agencyId?:
+      type: string
+      description: agency/prison to restrict results, if none provided current active caseload will be used, unless offenderNo list is specified
+      example: LEI
     offenderNo?:
       type: array
       description: a list of offender numbers to search.
       example: offenderNo=A1234AA&offenderNo=A1234AB
-is: [
-    searchable: {fieldsList : "bookingId, offenderNo, lastName, firstName, agencyLocationId, internalLocationDesc, sentenceStartDate, homeDetentionCurfewEligibilityDate, homeDetentionCurfewActualDate, conditionalReleaseDate, conditionalReleaseOverrideDate"},
-    sortable: {fieldsList : "bookingId, offenderNo, lastName, firstName, agencyLocationId, internalLocationDesc, sentenceStartDate, homeDetentionCurfewEligibilityDate, homeDetentionCurfewActualDate, conditionalReleaseDate, conditionalReleaseOverrideDate"},
-  ]
