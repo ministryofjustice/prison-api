@@ -111,7 +111,7 @@ public class StaffServiceImpl implements StaffService {
             throw new EntityAlreadyExistsException(roleCode);
         }
 
-        // check if user caseload exists
+        // ensure that user accessible caseload exists...
         if (!userRepository.isUserAssessibleCaseloadAvailable(caseload, userDetail.getUsername())) {
             userRepository.addUserAssessibleCaseload(caseload, userDetail.getUsername());
         }

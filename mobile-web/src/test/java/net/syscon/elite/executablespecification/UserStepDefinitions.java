@@ -1,5 +1,6 @@
 package net.syscon.elite.executablespecification;
 
+import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -47,6 +48,12 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     public void trustedClientWithPasswordHasAuthenticatedWithTheAPI() throws Throwable {
         authenticate(null, null, true);
     }
+
+    @Given("^a trusted client that can maintain access roles has authenticated with the API$")
+    public void aTrustedClientThatCanMaintainAccessRolesHasAuthenticatedWithTheAPI() throws Throwable {
+        user.authenticateAsClient("omicadmin");
+    }
+
 
     @When("^a request is made to retrieve user locations$")
     public void aRequestIsMadeToRetrieveUserLocations() throws Throwable {
@@ -110,5 +117,35 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
 
     private void authenticate(String username, String password, boolean clientCredentials) {
         user.authenticates(username, password, clientCredentials);
+    }
+
+    @When("^a request for users having role \"([^\"]*)\" at caseload \"([^\"]*)\" is made$")
+    public void aRequestForUsersHavingAtIsMade(String role, String caseload) throws Throwable {
+        user.findUsernamesHavingRoleAtCaseload(role, caseload);
+    }
+
+    @Then("^the matching \"([^\"]*)\" are returned$")
+    public void theMatchingAreReturned(String usernames) throws Throwable {
+        user.verifyUsernames(usernames);
+    }
+
+    @When("^the client assigns api-role \"([^\"]*)\" to user \"([^\"]*)\"$")
+    public void theClientAssignsApiRoleToUser(String role, String username) throws Throwable {
+        user.assignApiRoleToUser(role, username);
+    }
+
+    @Then("^user \"([^\"]*)\" has been assgined api-role \"([^\"]*)\"$")
+    public void userHasBeenAssginedApiRole(String username, String role) throws Throwable {
+        user.verifyApiRoleAssignment(username, role);
+    }
+
+    @When("^the client removes role \"([^\"]*)\" from user \"([^\"]*)\" at caseload \"([^\"]*)\"$")
+    public void theClientRemovesRoleFromUserAtCaseload(String role, String username, String caseload) throws Throwable {
+        user.removeRole(role, username, caseload);
+    }
+
+    @Then("^user \"([^\"]*)\" does not have role \"([^\"]*)\" at caseload \"([^\"]*)\"$")
+    public void userDoesNotHaveRoleAtCaseload(String username, String role, String caseload) throws Throwable {
+        user.userDoesNotHaveRoleAtCaseload( username,  role,  caseload);
     }
 }

@@ -24,6 +24,8 @@ public interface UserRepository {
 
 	List<StaffUserRole> getAllStaffRolesForCaseload(String caseload, String roleCode);
 
+	boolean isRoleAssigned(String username, String caseload, long roleId);
+
 	void addRole(String username, String caseload, Long roleId);
 
 	void removeRole(String username, String caseload, Long roleId);
