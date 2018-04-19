@@ -53,6 +53,7 @@ public class BookingServiceImpl implements BookingService {
     private final ReferenceDomainService referenceDomainService;
     private final TelemetryClient telemetryClient;
     private final String defaultIepLevel;
+    private final int maxBatchSize;
 
     /**
      * Order ScheduledEvents by startTime with null coming last
@@ -78,7 +79,8 @@ public class BookingServiceImpl implements BookingService {
                               CaseLoadService caseLoadService, LocationService locationService,
                               ReferenceDomainService referenceDomainService,
                               TelemetryClient telemetryClient,
-                              @Value("${api.bookings.iepLevel.default:Unknown}") String defaultIepLevel) {
+                              @Value("${api.bookings.iepLevel.default:Unknown}") String defaultIepLevel,
+                              @Value("${batch.max.size:1000}") int maxBatchSize) {
         this.bookingRepository = bookingRepository;
         this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
@@ -87,6 +89,7 @@ public class BookingServiceImpl implements BookingService {
         this.referenceDomainService = referenceDomainService;
         this.telemetryClient = telemetryClient;
         this.defaultIepLevel = defaultIepLevel;
+        this.maxBatchSize = maxBatchSize;
     }
 
     @Override
@@ -139,25 +142,27 @@ public class BookingServiceImpl implements BookingService {
         final Map<Long, PrivilegeSummary> mapOfEip = new HashMap<>();
 
         if (!bookingIds.isEmpty()) {
-            Map<Long, List<PrivilegeDetail>> mapOfIEPResults = bookingRepository.getBookingIEPDetailsByBookingIds(bookingIds);
-            mapOfIEPResults.forEach((key, iepDetails) -> {
+            List<List<Long>> batch = Lists.partition(bookingIds, maxBatchSize);
+            batch.forEach(bookingIdList ->  {
+                Map<Long, List<PrivilegeDetail>> mapOfIEPResults = bookingRepository.getBookingIEPDetailsByBookingIds(bookingIds);
+                mapOfIEPResults.forEach((key, iepDetails) -> {
 
-                // Extract most recent detail from list
-                PrivilegeDetail currentDetail = iepDetails.get(0);
+                    // Extract most recent detail from list
+                    PrivilegeDetail currentDetail = iepDetails.get(0);
 
-                // Determine number of days since current detail became effective
-                long daysSinceReview = DAYS.between(currentDetail.getIepDate(), now());
+                    // Determine number of days since current detail became effective
+                    long daysSinceReview = DAYS.between(currentDetail.getIepDate(), now());
 
-                mapOfEip.put(key, PrivilegeSummary.builder()
-                        .bookingId(currentDetail.getBookingId())
-                        .iepDate(currentDetail.getIepDate())
-                        .iepTime(currentDetail.getIepTime())
-                        .iepLevel(currentDetail.getIepLevel())
-                        .daysSinceReview(Long.valueOf(daysSinceReview).intValue())
-                        .iepDetails(withDetails ? iepDetails : Collections.emptyList())
-                        .build());
+                    mapOfEip.put(key, PrivilegeSummary.builder()
+                            .bookingId(currentDetail.getBookingId())
+                            .iepDate(currentDetail.getIepDate())
+                            .iepTime(currentDetail.getIepTime())
+                            .iepLevel(currentDetail.getIepLevel())
+                            .daysSinceReview(Long.valueOf(daysSinceReview).intValue())
+                            .iepDetails(withDetails ? iepDetails : Collections.emptyList())
+                            .build());
+                });
             });
-
         }
 
         // If no IEP details exist for offender, cannot derive an IEP summary.
@@ -487,20 +492,20 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private List<ScheduledEvent> getEvents(Long bookingId, LocalDate from, LocalDate to) {
-        final Page<ScheduledEvent> activitiesPaged = getBookingActivities(bookingId, from, to, 0, 1000, null, null);
+        final Page<ScheduledEvent> activitiesPaged = getBookingActivities(bookingId, from, to, 0, maxBatchSize, null, null);
         final List<ScheduledEvent> activities = activitiesPaged.getItems();
         if (activitiesPaged.getTotalRecords() > activitiesPaged.getPageLimit()) {
-            activities.addAll(getBookingActivities(bookingId, from, to, 1000, activitiesPaged.getTotalRecords(), null, null).getItems());
+            activities.addAll(getBookingActivities(bookingId, from, to, maxBatchSize, activitiesPaged.getTotalRecords(), null, null).getItems());
         }
-        final Page<ScheduledEvent> visitsPaged = getBookingVisits(bookingId, from, to, 0, 1000, null, null);
+        final Page<ScheduledEvent> visitsPaged = getBookingVisits(bookingId, from, to, 0, maxBatchSize, null, null);
         final List<ScheduledEvent> visits = visitsPaged.getItems();
         if (visitsPaged.getTotalRecords() > visitsPaged.getPageLimit()) {
-            visits.addAll(getBookingVisits(bookingId, from, to, 1000, visitsPaged.getTotalRecords(), null, null).getItems());
+            visits.addAll(getBookingVisits(bookingId, from, to, maxBatchSize, visitsPaged.getTotalRecords(), null, null).getItems());
         }
-        final Page<ScheduledEvent> appointmentsPaged = getBookingAppointments(bookingId, from, to, 0, 1000, null, null);
+        final Page<ScheduledEvent> appointmentsPaged = getBookingAppointments(bookingId, from, to, 0, maxBatchSize, null, null);
         final List<ScheduledEvent> appointments = appointmentsPaged.getItems();
         if (appointmentsPaged.getTotalRecords() > appointmentsPaged.getPageLimit()) {
-            appointments.addAll(getBookingAppointments(bookingId, from, to, 1000, appointmentsPaged.getTotalRecords(), null, null).getItems());
+            appointments.addAll(getBookingAppointments(bookingId, from, to, maxBatchSize, appointmentsPaged.getTotalRecords(), null, null).getItems());
         }
         List<ScheduledEvent> results = new ArrayList<>();
         results.addAll(activities);
@@ -518,10 +523,10 @@ public class BookingServiceImpl implements BookingService {
         final List<OffenderSentenceDetailDto> offenderSentenceSummary = new ArrayList<>();
 
         if (!offenderNos.isEmpty()) {
-            List<List<String>> batch = Lists.partition(offenderNos, 1000);
+            List<List<String>> batch = Lists.partition(offenderNos, maxBatchSize);
 
-            batch.forEach(b -> {
-                final String ids = b.stream().map(offenderNo -> "'"+offenderNo+"'").collect(Collectors.joining("|"));
+            batch.forEach(offenderNoList -> {
+                final String ids = offenderNoList.stream().map(offenderNo -> "'"+offenderNo+"'").collect(Collectors.joining("|"));
                 String query = "offenderNo:in:"+ids;
                 offenderSentenceSummary.addAll(bookingRepository.getOffenderSentenceSummary(query, caseloads));
             });

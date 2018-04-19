@@ -2,13 +2,14 @@ package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.OffenderSentenceDetail;
 import net.syscon.elite.api.model.SentenceDetail;
-import net.syscon.elite.api.support.Order;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,19 +33,14 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         dispatchRequest(bookingId);
     }
 
-    @Step("Get offender sentence details by booking id")
-    public void getOffenderSentenceDetails(Long bookingId) {
-        dispatchOffenderSentences(String.format("bookingId:eq:%d", bookingId), null, null, 10L);
+    @Step("Get offender sentence details by offender nos and agency id")
+    public void getOffenderSentenceDetails(String offenderNos, String agencyId) {
+        dispatchOffenderSentences(offenderNos, agencyId);
     }
 
     @Step("Get offender sentence details")
     public void getOffenderSentenceDetails() {
-        dispatchOffenderSentences(null, null, Order.ASC, 10L);
-    }
-
-    @Step("Get offender sentence details with sort and filter")
-    public void getOffenderSentenceDetails(String sortFields, String query, Long pageSize) {
-        dispatchOffenderSentences(query, sortFields, Order.ASC, pageSize);
+        dispatchOffenderSentences(null, null);
     }
 
     @Step("Set row from list in context")
@@ -208,21 +204,19 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         }
     }
 
-    private void dispatchOffenderSentences(String query, String sortFields, Order sortOrder, long limit) {
+    private void dispatchOffenderSentences(String offenderNos, String agencyId) {
         init();
-        String urlModifier = "";
+
+        StringBuilder urlModifier = new StringBuilder();
+        if (StringUtils.isNotBlank(offenderNos)) {
+            Arrays.asList(offenderNos.split(",")).forEach(offenderNo -> urlModifier.append(initialiseUrlModifier(urlModifier)).append("offenderNo=").append(offenderNo));
+        }
+
+        if (StringUtils.isNotBlank(agencyId)) {
+            urlModifier.append(initialiseUrlModifier(urlModifier)).append("agencyId=").append(agencyId);
+        }
 
         Map<String, String> headers = new HashMap<>();
-        final Map<String, String> sortHeaders = buildSortHeaders(sortFields, sortOrder);
-        if (sortHeaders != null) {
-            headers.putAll(sortHeaders);
-        }
-        applyPagination(0L, limit);
-        headers.putAll(addPaginationHeaders());
-
-        if (query != null) {
-            urlModifier += "?query=" + query;
-        }
         try {
             ResponseEntity<List<OffenderSentenceDetail>> response = restTemplate.exchange(OFFENDER_SENTENCE_DETAIL_API_URL + urlModifier,
                     HttpMethod.GET,
@@ -238,6 +232,10 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
+    }
+
+    private String initialiseUrlModifier(StringBuilder urlModifier) {
+        return urlModifier.length() > 0 ? "&" : "?";
     }
 
 }

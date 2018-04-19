@@ -541,9 +541,9 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.verifyInactiveCount(count);
     }
 
-    @When("^sentence details are requested for an offenders in logged in users caseloads with booking id \"([0-9-]+)\"$")
-    public void sentenceDetailsAreRequestedForAnOffendersInLoggedInUsersCaseloadsWithBookingId(String bookingId) {
-        bookingSentenceDetail.getOffenderSentenceDetails(Long.valueOf(bookingId));
+    @When("^sentence details are requested for an offenders in logged in users caseloads with offender No \"([^\"]*)\"$")
+    public void sentenceDetailsAreRequestedForAnOffendersInLoggedInUsersCaseloadsWithBookingId(String offenderNos) {
+        bookingSentenceDetail.getOffenderSentenceDetails(offenderNos, null);
     }
 
     @When("^sentence details are requested of offenders for the logged in users caseloads$")
@@ -561,14 +561,10 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingSentenceDetail.verifyTotalResourceRecordsAvailable(total);
     }
 
-    @When("^sentence details are requested of offenders for the logged in users caseloads sorted by \"([^\"]*)\" and filtered by \"([^\"]*)\"$")
-    public void sentenceDetailsAreRequestedOfOffendersForTheLoggedInUsersCaseloadsSortedByAndFilteredBy(String sortFields, String filterQuery) throws Throwable {
-        bookingSentenceDetail.getOffenderSentenceDetails(sortFields, filterQuery, 10L);
-    }
 
-    @When("^sentence details are requested of offenders for the logged in users caseloads sorted by \"([^\"]*)\", filtered by \"([^\"]*)\" with page size of \"([0-9-]+)\"$")
-    public void sentenceDetailsAreRequestedOfOffendersForTheLoggedInUsersCaseloadsSortedByAndFilteredBy(String sortFields, String filterQuery, Long pageSize) throws Throwable {
-        bookingSentenceDetail.getOffenderSentenceDetails(sortFields, filterQuery, pageSize);
+    @When("^sentence details are requested for offender Nos of \"([^\"]*)\"$")
+    public void sentenceDetailsAreRequestedForOffenderNosOf(String offenderNos) throws Throwable {
+        bookingSentenceDetail.getOffenderSentenceDetails(offenderNos, null);
     }
 
     @When("^assessment information is requested for Booking Id \"([^\"]*)\"$")
@@ -625,4 +621,5 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     public void imageDataIsReturned() throws Throwable {
         bookingDetail.verifyImageMetadataExists();
     }
+
 }
