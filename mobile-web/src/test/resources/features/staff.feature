@@ -75,6 +75,7 @@ Feature: Staff Details and Roles
     When request is submitted for staff members having position "<position>" and role "<role>" in agency "<agency>" with name filter "<name filter>" and staff id filter "<staff id>"
     Then "<count>" staff detail records are returned
     And staff ids match "<staff id list>"
+    #staff -10 is inactive
 
     Examples:
       | agency | position | role | name filter | staff id | count | staff id list |
@@ -86,3 +87,14 @@ Feature: Staff Details and Roles
       | LEI    | AO       | KW   | Uses        |          | 0     |               |
       | LEI    | AO       | KW   |             | -5       | 1     | -5            |
       | LEI    | AO       | KW   |             | -999     | 0     |               |
+
+  Scenario Outline: Search for 'Active Only' staff members having specified position and role at an agency
+    When request is submitted for staff members having position "<position>" and role "<role>" in agency "<agency>" with name filter "<name filter>" and staff id filter "<staff id>" and include inactive staff members
+    Then "<count>" staff detail records are returned
+    And staff ids match "<staff id list>"
+    #staff - -10 is inactive
+
+    Examples:
+      | agency | position | role | name filter | staff id | count | staff id list |
+      | LEI    | AO       | KW   | Another     |          | 1     | -5            |
+      | SYI    | AO       | KW   |             |          | 2     | -9,-10            |

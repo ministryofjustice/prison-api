@@ -116,7 +116,7 @@ public class StaffRepositoryTest {
         final String TEST_AGENCY_DESCRIPTION = "SHREWSBURY";
         final String TEST_ROLE = "KW";
 
-        Page<StaffLocationRole> page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE, null, null, new PageRequest());
+        Page<StaffLocationRole> page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE, null, null, true, new PageRequest());
 
         List<StaffLocationRole> items = page.getItems();
 
@@ -147,7 +147,7 @@ public class StaffRepositoryTest {
         final String TEST_AGENCY_DESCRIPTION = "LEEDS";
         final String TEST_ROLE = "OS";
 
-        Page<StaffLocationRole> page = repository.findStaffByAgencyPositionRole(TEST_AGENCY, TEST_POSITION, TEST_ROLE, null, null, new PageRequest());
+        Page<StaffLocationRole> page = repository.findStaffByAgencyPositionRole(TEST_AGENCY, TEST_POSITION, TEST_ROLE, null, null, true, new PageRequest());
 
         List<StaffLocationRole> items = page.getItems();
 
@@ -177,7 +177,7 @@ public class StaffRepositoryTest {
         final String TEST_AGENCY = "LEI";
         final String TEST_ROLE = "KW";
 
-        Page<StaffLocationRole> page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE, null, -5L,
+        Page<StaffLocationRole> page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE, null, -5L, true,
                 new PageRequest());
 
         List<StaffLocationRole> items = page.getItems();
@@ -191,13 +191,44 @@ public class StaffRepositoryTest {
     }
 
     @Test
+    public void testFindStaffLocationRolesByStaffId_activeOnly() {
+        final String TEST_AGENCY = "SYI";
+        final String TEST_ROLE = "KW";
+
+        Page<StaffLocationRole> page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE, null, -10L, true,
+                new PageRequest());
+
+        List<StaffLocationRole> items = page.getItems();
+
+        assertThat(items.size()).isEqualTo(0);
+    }
+
+    @Test
+    public void testFindStaffLocationRolesByStaffId_include_inactive() {
+        final String TEST_AGENCY = "SYI";
+        final String TEST_ROLE = "KW";
+
+        Page<StaffLocationRole> page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE, null, -10L, false,
+                new PageRequest());
+
+        List<StaffLocationRole> items = page.getItems();
+
+        assertThat(items.size()).isEqualTo(1);
+
+        StaffLocationRole slr = items.get(0);
+        assertThat(slr.getAgencyId()).isEqualTo(TEST_AGENCY);
+        assertThat(slr.getStaffId()).isEqualTo(-10);
+        assertThat(slr.getRole()).isEqualTo(TEST_ROLE);
+    }
+
+    @Test
     public void testFindStaffLocationPositionRolesByStaffId() {
         final String TEST_AGENCY = "LEI";
         final String TEST_POSITION = "AO";
         final String TEST_ROLE = "KW";
 
         Page<StaffLocationRole> page = repository.findStaffByAgencyPositionRole(TEST_AGENCY, TEST_POSITION, TEST_ROLE,
-                null, -5L, new PageRequest());
+                null, -5L, true, new PageRequest());
 
         List<StaffLocationRole> items = page.getItems();
 
@@ -214,7 +245,7 @@ public class StaffRepositoryTest {
         final String TEST_ROLE = "KW";
 
         Page<StaffLocationRole> page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE,
-                null, -999999L, new PageRequest());
+                null, -999999L, true, new PageRequest());
 
         List<StaffLocationRole> items = page.getItems();
 
@@ -228,7 +259,7 @@ public class StaffRepositoryTest {
         final String TEST_ROLE = "KW";
 
         Page<StaffLocationRole> page = repository.findStaffByAgencyPositionRole(TEST_AGENCY, TEST_POSITION, TEST_ROLE,
-                null, -999999L, new PageRequest());
+                null, -999999L, true, new PageRequest());
 
         List<StaffLocationRole> items = page.getItems();
 

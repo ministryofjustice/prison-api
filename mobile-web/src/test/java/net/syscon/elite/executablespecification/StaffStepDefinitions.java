@@ -39,7 +39,7 @@ public class StaffStepDefinitions extends AbstractStepDefinitions {
 
     @When("^request is submitted for staff members having position \"([^\"]*)\" and role \"([^\"]*)\" in agency \"([^\"]*)\"$")
     public void requestIsSubmittedForStaffMembersHavingPositionAndRoleInAgency(String position, String role, String agencyId) throws Throwable {
-        staff.findStaffByAgencyPositionRole(agencyId, position, role, null, null);
+        staff.findStaffByAgencyPositionRole(agencyId, position, role, null, null, null);
     }
 
     @When("^request is submitted for staff members having role \"([^\"]*)\" in agency \"([^\"]*)\"$")
@@ -55,7 +55,12 @@ public class StaffStepDefinitions extends AbstractStepDefinitions {
 
     @When("^request is submitted for staff members having position \"([^\"]*)\" and role \"([^\"]*)\" in agency \"([^\"]*)\" with name filter \"([^\"]*)\" and staff id filter \"([^\"]*)\"$")
     public void requestIsSubmittedForStaffMembersHavingPositionAndRoleInAgencyWithNameFilter(String position, String role, String agencyId, String nameFilter, Long staffId) throws Throwable {
-        staff.findStaffByAgencyPositionRole(agencyId, position, role, nameFilter, staffId);
+        staff.findStaffByAgencyPositionRole(agencyId, position, role, nameFilter, staffId, null);
+    }
+
+    @When("^request is submitted for staff members having position \"([^\"]*)\" and role \"([^\"]*)\" in agency \"([^\"]*)\" with name filter \"([^\"]*)\" and staff id filter \"([^\"]*)\" and include inactive staff members$")
+    public void requestIsSubmittedForStaffMembersHavingPositionAndRoleInAgencyWithNameFilterIncludingInactive(String position, String role, String agencyId, String nameFilter, Long staffId) throws Throwable {
+        staff.findStaffByAgencyPositionRole(agencyId, position, role, nameFilter, staffId, Boolean.FALSE);
     }
 
     @Then("^\"([^\"]*)\" staff detail records are returned$")

@@ -33,10 +33,12 @@ public class StaffResourceImpl implements StaffResource {
 
     @Override
     public GetStaffByAgencyPositionRoleResponse getStaffByAgencyPositionRole(
-            String agencyId, String position, String role, String nameFilter, Long staffId,
+            String agencyId, String position, String role, String nameFilter, Long staffId, Boolean activeOnly,
             Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
 
-        GetStaffRoleRequest staffRoleRequest = new GetStaffRoleRequest(agencyId, position, role, nameFilter, staffId);
+        Boolean defaultedActiveOnly = activeOnly!=null ? activeOnly : Boolean.TRUE;
+
+        GetStaffRoleRequest staffRoleRequest = new GetStaffRoleRequest(agencyId, position, role, nameFilter, defaultedActiveOnly, staffId);
         PageRequest pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
 
         Page<StaffLocationRole> staffDetails = staffService.getStaffByAgencyPositionRole(staffRoleRequest, pageRequest);
@@ -46,10 +48,12 @@ public class StaffResourceImpl implements StaffResource {
 
     @Override
     public GetStaffByAgencyRoleResponse getStaffByAgencyRole(
-            String agencyId, String role, String nameFilter, Long staffId,
+            String agencyId, String role, String nameFilter, Long staffId, Boolean activeOnly,
             Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
 
-        GetStaffRoleRequest staffRoleRequest = new GetStaffRoleRequest(agencyId, null, role, nameFilter, staffId);
+        Boolean defaultedActiveOnly = activeOnly!=null? activeOnly : Boolean.TRUE;
+
+        GetStaffRoleRequest staffRoleRequest = new GetStaffRoleRequest(agencyId, null, role, nameFilter, defaultedActiveOnly , staffId);
         PageRequest pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
 
         Page<StaffLocationRole> staffDetails = staffService.getStaffByAgencyPositionRole(staffRoleRequest, pageRequest);
