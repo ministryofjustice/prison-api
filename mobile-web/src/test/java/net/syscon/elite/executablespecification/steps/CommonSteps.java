@@ -560,4 +560,8 @@ public abstract class CommonSteps {
     public AuthenticationSteps getAuth() {
         return auth;
     }
+
+    public   void authenticateAsClient(String clientId){
+        auth.authenticateAsClient(clientId);
+    }
 }
