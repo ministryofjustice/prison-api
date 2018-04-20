@@ -88,6 +88,22 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	}
 
 	@Override
+	public boolean isRoleAssigned(String username, String caseload, long roleId) {
+		Validate.notBlank(caseload, "caseload is required.");
+		Validate.notBlank(username, "username is required.");
+
+		Long count = jdbcTemplate.queryForObject(
+				getQuery("ROLE_ASSIGNED_COUNT"),
+				createParams(
+						"caseloadId", caseload,
+						"username", username,
+						"roleId", roleId),
+				Long.class);
+
+		return count != null && count > 0;
+	}
+
+	@Override
 	public boolean isUserAssessibleCaseloadAvailable(String caseload, String username) {
 		Validate.notBlank(caseload, "caseload is required.");
 		Validate.notBlank(username, "username is required.");
@@ -163,5 +179,4 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
                 getQuery("DELETE_USER_ROLE"),
                 createParams("caseloadId", caseload, "username", username, "roleId", roleId));
 	}
-
 }

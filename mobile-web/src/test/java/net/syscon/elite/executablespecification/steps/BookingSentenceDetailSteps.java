@@ -1,5 +1,6 @@
 package net.syscon.elite.executablespecification.steps;
 
+import com.google.common.collect.ImmutableList;
 import net.syscon.elite.api.model.OffenderSentenceDetail;
 import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.test.EliteClientException;
@@ -9,10 +10,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,6 +34,12 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     @Step("Get offender sentence details by offender nos and agency id")
     public void getOffenderSentenceDetails(String offenderNos, String agencyId) {
         dispatchOffenderSentences(offenderNos, agencyId);
+    }
+
+    @Step("Get offender sentence details by offender nos (using post request)")
+    public void getOffenderSentenceDetailsUsingPostRequest(String offenderNos) {
+        List<String> offenderList = StringUtils.isNotBlank(offenderNos) ? ImmutableList.copyOf(offenderNos.split(",")) : Collections.emptyList();
+        dispatchOffenderSentencesForPostRequest(offenderList);
     }
 
     @Step("Get offender sentence details")
@@ -229,6 +233,23 @@ public class BookingSentenceDetailSteps extends CommonSteps {
             if (!offenderSentenceDetails.isEmpty() && offenderSentenceDetails.size() == 1) {
                 sentenceDetail = offenderSentenceDetails.get(0).getSentenceDetail();
             }
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    private void dispatchOffenderSentencesForPostRequest(List<String> OffenderList) {
+        init();
+
+        try {
+            ResponseEntity<List<OffenderSentenceDetail>> response = restTemplate.exchange(OFFENDER_SENTENCE_DETAIL_API_URL ,
+                    HttpMethod.POST,
+                    createEntity(OffenderList),
+                    new ParameterizedTypeReference<List<OffenderSentenceDetail>>() {
+                    });
+            buildResourceData(response);
+
+            offenderSentenceDetails = response.getBody();
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }

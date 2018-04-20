@@ -26,7 +26,7 @@ import static org.junit.Assert.fail;
  * Test cases for {@link BookingServiceImpl}.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class BookingServiceImplTest {
+public class  BookingServiceImplTest {
     @Mock
     private BookingRepository bookingRepository;
 

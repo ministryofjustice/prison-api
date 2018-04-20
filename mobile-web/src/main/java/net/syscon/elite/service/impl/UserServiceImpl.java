@@ -1,24 +1,21 @@
 package net.syscon.elite.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.CaseLoad;
-import net.syscon.elite.api.model.StaffDetail;
-import net.syscon.elite.api.model.UserDetail;
-import net.syscon.elite.api.model.UserRole;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.UserRepository;
-import net.syscon.elite.service.CaseLoadService;
-import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.service.StaffService;
-import net.syscon.elite.service.UserService;
+import net.syscon.elite.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -100,5 +97,51 @@ public class UserServiceImpl implements UserService {
 
 		return userDetail.orElseThrow(EntityNotFoundException
                 .withMessage("User not found for external identifier with idType [{}] and id [{}].", idType, id));
+	}
+
+	@Override
+    public Set<String> getAllUsernamesForCaseloadAndRole(String caseload, String roleCode) {
+		return userRepository
+                .getAllStaffRolesForCaseload(caseload, roleCode)
+                .stream()
+                .map(sur -> sur.getUsername())
+                .collect(Collectors.toSet());
+	}
+
+	@Override
+    @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
+
+    public void removeUsersAccessRoleForCaseload(String username, String caseload, String roleCode) {
+		final Long roleId = userRepository.getRoleIdForCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
+
+		if(! userRepository.isRoleAssigned(username, caseload, roleId)) {
+			throw  EntityNotFoundException.withMessage("Role [%s] not assigned to user [%s] at caseload [%s]", roleCode, username, caseload);
+		}
+		userRepository.removeRole(username, caseload, roleId); // Don't care if it doesn't exist...
+	}
+
+	/**
+	 * Add an 'access' role - a role assigned to the special 'API Caseload'.
+	 * @param username The user to whom the role is being assigned
+	 * @param roleCode The role to assign
+	 * @return true if the role was added, false if the role assignment already exists (no change).
+	 */
+	@Override
+    @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
+
+    public boolean addAccessRole(String username, String roleCode) {
+
+		final Long roleId = userRepository.getRoleIdForCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
+
+		if (userRepository.isRoleAssigned(username, apiCaseloadId, roleId)) {
+			return false;
+		}
+		// ensure that user accessible caseload exists...
+		if (!userRepository.isUserAssessibleCaseloadAvailable(apiCaseloadId, username)) {
+			userRepository.addUserAssessibleCaseload(apiCaseloadId, username);
+		}
+
+		userRepository.addRole(username, apiCaseloadId, roleId);
+		return true;
 	}
 }

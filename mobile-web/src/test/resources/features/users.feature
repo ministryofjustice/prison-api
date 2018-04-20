@@ -39,3 +39,37 @@ Feature: User Details and Roles
       | username            | roles                        |
       | itag_user           | WING_OFF,LICENCE_CA,KW_ADMIN |
       | api_test_user       | WING_OFF,LICENCE_RO          |
+
+  @nomis
+  Scenario Outline: As a logged in user I can find out which users have a given role at a particular caseload
+    Given a user has authenticated with the API
+    When a request for users having role "<role>" at caseload "<caseload>" is made
+    Then the matching "<usernames>" are returned
+
+    Examples:
+    | role     | caseload | usernames     |
+    | WING_OFF | LEI      | ITAG_USER     |
+    | WING_OFF | MUL      | API_TEST_USER |
+    | WING_OFF | XXXXXX   |               |
+    | XXXXX    | LEI      |               |
+    | KW_ADMIN | NWEB     | ITAG_USER     |
+
+  @nomis
+  Scenario: A trusted client can make api-role assignments to users.
+    Given a trusted client that can maintain access roles has authenticated with the API
+    When the client assigns api-role "KW_ADMIN" to user "API_TEST_USER"
+    Then user "API_TEST_USER" has been assgined api-role "KW_ADMIN"
+
+  @nomis
+  Scenario: A trusted client can make the same api-role assignments to a user more than once
+    Given a trusted client that can maintain access roles has authenticated with the API
+    And the client assigns api-role "KW_ADMIN" to user "API_TEST_USER"
+    When the client assigns api-role "KW_ADMIN" to user "API_TEST_USER"
+    Then user "API_TEST_USER" has been assgined api-role "KW_ADMIN"
+
+  @nomis
+  Scenario: A trusted client can remove a role assginment
+    Given a trusted client that can maintain access roles has authenticated with the API
+    And the client assigns api-role "KW_ADMIN" to user "API_TEST_USER"
+    When the client removes role "KW_ADMIN" from user "API_TEST_USER" at caseload "NWEB"
+    Then user "API_TEST_USER" does not have role "KW_ADMIN" at caseload "NWEB"

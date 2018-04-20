@@ -1,6 +1,7 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.CaseLoad;
+import net.syscon.elite.api.model.StaffUserRole;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
 
@@ -21,4 +22,17 @@ public interface UserService {
     List<UserRole> getRolesByUsername(String username, boolean allRoles);
 
     UserDetail getUserByExternalIdentifier(String idType, String id, boolean activeOnly);
+
+    Set<String> getAllUsernamesForCaseloadAndRole(String caseload, String roleCode);
+
+    void removeUsersAccessRoleForCaseload(String username, String caseload, String roleCode);
+
+    /**
+     * Add an 'access' role - a role assigned to the special 'API Caseload'.
+     * @param username The user to whom the role is being assigned
+     * @param roleCode The role to assign
+     * @return true if the role was added, false if the role assignment already exists (no change).
+     */
+
+    boolean addAccessRole(String username, String roleCode);
 }

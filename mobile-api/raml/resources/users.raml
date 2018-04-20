@@ -10,6 +10,44 @@
     username:
       description: The username of the user.
 
+/{username}/access-role/{roleCode}:
+  uriParameters:
+    username:
+      description: The username of the user.
+    roleCode:
+      type: string
+      description: access role code
+      example: KW_ADMIN
+  put:
+    (javaOperationName): addAccessRole
+    description: Add the given access role to the user.
+    responses:
+      200:
+        mediaType:
+      201:
+        mediaType:
+
+/{username}/caseload/{caseload}/access-role/{roleCode}:
+  uriParameters:
+    username:
+      description: The username of the user.
+    caseload:
+      type: string
+      description: Caseload Id
+      example: LEI
+    roleCode:
+      type: string
+      description: access role code
+      example: KW_ADMIN
+  delete:
+    (javaOperationName): removeUsersAccessRoleForCaseload
+    description: Remove the given access role from the user.
+    responses:
+      200:
+        mediaType:
+      404:
+        mediaType:
+
 /staff/{staffId}:
   (deprecated): Use <b>/staff/{staffId}</b> instead. This API will be removed in a future release.
   (javaOperationName): getStaffDetail
@@ -82,3 +120,17 @@
             type: ErrorResponse
             description: the user does not have permission to view the caseload.
             example:  !include ../examples/ouput/403.sample.json
+
+/access-roles/caseload/{caseload}/access-role/{roleCode}:
+  (javaOperationName): getAllUsersHavingRoleAtCaseload
+  description: List users having role at caseload
+  type: { readOnlyCollection: { type: string, description: List of users who have the named role at the named caseload   } }
+  uriParameters:
+    caseload:
+      type: string
+      description: Caseload Id
+      example: LEI
+    roleCode:
+      type: string
+      description: access role code
+      example: KW_ADMIN
