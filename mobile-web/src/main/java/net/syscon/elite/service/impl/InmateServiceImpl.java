@@ -217,8 +217,8 @@ public class InmateServiceImpl implements InmateService {
                     : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), true);
 
             List<List<String>> batch = Lists.partition(offenderNos, maxBatchSize);
-            batch.forEach(bookingIdList -> {
-                final List<AssessmentDto> assessments = repository.findAssessmentsByOffenderNo(offenderNos, assessmentCode, caseLoadIds);
+            batch.forEach(offenderBatch -> {
+                final List<AssessmentDto> assessments = repository.findAssessmentsByOffenderNo(offenderBatch, assessmentCode, caseLoadIds);
 
                 final Map<Long, List<AssessmentDto>> mapOfBookings = assessments.stream()
                         .collect(Collectors.groupingBy(AssessmentDto::getBookingId));
