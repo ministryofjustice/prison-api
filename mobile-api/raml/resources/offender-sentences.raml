@@ -10,3 +10,18 @@ get:
       type: array
       description: a list of offender numbers to search.
       example: offenderNo=A1234AA&offenderNo=A1234AB
+post:
+  description: Retrieves list of offenders (with associated sentence detail) - POST version to allow large offender lists.
+  body:
+    application/json:
+      (javaType): List<String>
+      description: The required offender numbers (mandatory)
+  responses:
+    200:
+      description: The list of offenders is returned.
+      body:
+        application/json:
+         type: OffenderSentenceDetail[]
+         description: List of offenders (with associated sentence detail).
+
+

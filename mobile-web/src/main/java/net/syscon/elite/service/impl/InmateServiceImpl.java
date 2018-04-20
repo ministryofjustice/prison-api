@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import com.google.common.collect.Lists;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
@@ -35,6 +36,7 @@ public class InmateServiceImpl implements InmateService {
     private final BookingService bookingService;
     private final InmateAlertRepository inmateAlertRepository;
     private final AuthenticationFacade authenticationFacade;
+    private final int maxBatchSize;
     private final UserRepository userRepository;
     private final KeyWorkerAllocationRepository keyWorkerAllocationRepository;
     private final Environment env;
@@ -49,7 +51,8 @@ public class InmateServiceImpl implements InmateService {
                              AuthenticationFacade authenticationFacade,
                              KeyWorkerAllocationRepository keyWorkerAllocationRepository,
                              Environment env,
-                             @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity) {
+                             @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity,
+                             @Value("${batch.max.size:1000}") int maxBatchSize) {
         this.repository = repository;
         this.caseLoadService = caseLoadService;
         this.inmateAlertRepository = inmateAlertRepository;
@@ -59,6 +62,7 @@ public class InmateServiceImpl implements InmateService {
         this.keyWorkerAllocationRepository = keyWorkerAllocationRepository;
         this.env = env;
         this.authenticationFacade = authenticationFacade;
+        this.maxBatchSize = maxBatchSize;
     }
 
     @Override
@@ -207,22 +211,24 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     public List<Assessment> getInmatesAssessmentsByCode(List<String> offenderNos, String assessmentCode) {
-
         List<Assessment> results = new ArrayList<>();
         if (!offenderNos.isEmpty()) {
             final Set<String> caseLoadIds = bookingService.isSystemUser() ? Collections.emptySet()
                     : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), true);
 
-            final List<AssessmentDto> assessments = repository.findAssessmentsByOffenderNo(offenderNos, assessmentCode, caseLoadIds);
+            List<List<String>> batch = Lists.partition(offenderNos, maxBatchSize);
+            batch.forEach(offenderBatch -> {
+                final List<AssessmentDto> assessments = repository.findAssessmentsByOffenderNo(offenderBatch, assessmentCode, caseLoadIds);
 
-            final Map<Long, List<AssessmentDto>> mapOfBookings = assessments.stream()
-                    .collect(Collectors.groupingBy(AssessmentDto::getBookingId));
+                final Map<Long, List<AssessmentDto>> mapOfBookings = assessments.stream()
+                        .collect(Collectors.groupingBy(AssessmentDto::getBookingId));
 
-            for (List<AssessmentDto> assessmentForCodeType : mapOfBookings.values()) {
+                for (List<AssessmentDto> assessmentForCodeType : mapOfBookings.values()) {
 
-                // The 1st is the most recent date / seq for each booking
-                results.add(createAssessment(assessmentForCodeType.get(0)));
-            }
+                    // The 1st is the most recent date / seq for each booking
+                    results.add(createAssessment(assessmentForCodeType.get(0)));
+                }
+            });
         }
         return results;
     }

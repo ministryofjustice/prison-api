@@ -516,6 +516,16 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAssessment.getAssessmentsByCode(offenderNoList, assessmentCode);
     }
 
+    @When("^an offender booking assessment information POST request is made with offender numbers \"([^\"]*)\" and \"([^\"]*)\"$")
+    public void anOffenderBookingAssessmentInformationRequestIsMadeUsingPost(String offenderNoList, String assessmentCode) {
+        bookingAssessment.getAssessmentsByCodeUsingPost(offenderNoList, assessmentCode);
+    }
+
+    @Then("^bad request response is received from booking assessments API$")
+    public void badRequestResponseIsReceivedFromBookingAssessmentsAPI() {
+        bookingAssessment.verifyBadRequest("List of Offender Ids must be provided");
+    }
+
     @Then("^correct results are returned as for single assessment$")
     public void multipleIsCorrect() throws Throwable {
         bookingAssessment.verifyMultipleAssessments();
@@ -544,6 +554,16 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @When("^sentence details are requested for an offenders in logged in users caseloads with offender No \"([^\"]*)\"$")
     public void sentenceDetailsAreRequestedForAnOffendersInLoggedInUsersCaseloadsWithBookingId(String offenderNos) {
         bookingSentenceDetail.getOffenderSentenceDetails(offenderNos, null);
+    }
+
+    @When("^sentence details are requested by a POST request for offender Nos \"([^\"]*)\"$")
+    public void sentenceDetailsAreRequestedByPostForOffenderNos(String offenderNos) {
+        bookingSentenceDetail.getOffenderSentenceDetailsUsingPostRequest(offenderNos);
+    }
+
+    @Then("^bad request response is received from booking sentence API$")
+    public void badRequestResponseIsReceivedFromBookingSentenceAPI() {
+        bookingSentenceDetail.verifyBadRequest("List of Offender Ids must be provided");
     }
 
     @When("^sentence details are requested of offenders for the logged in users caseloads$")
