@@ -144,7 +144,7 @@ public class BookingServiceImpl implements BookingService {
         if (!bookingIds.isEmpty()) {
             List<List<Long>> batch = Lists.partition(bookingIds, maxBatchSize);
             batch.forEach(bookingIdList ->  {
-                Map<Long, List<PrivilegeDetail>> mapOfIEPResults = bookingRepository.getBookingIEPDetailsByBookingIds(bookingIds);
+                Map<Long, List<PrivilegeDetail>> mapOfIEPResults = bookingRepository.getBookingIEPDetailsByBookingIds(bookingIdList);
                 mapOfIEPResults.forEach((key, iepDetails) -> {
 
                     // Extract most recent detail from list
