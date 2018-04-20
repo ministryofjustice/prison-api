@@ -8,54 +8,47 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 /**
  * BDD step implementations for Custody Status Records feature.
  */
 public class CustodyStatusSteps extends CommonSteps {
     private static final String API_REQUEST_BASE_URL = API_PREFIX + "custody-statuses";
-    private static final String API_REQUEST_CUSTODY_STATUS_URL = API_PREFIX + "custody-statuses/{offenderNo}";
 
-    private List<PrisonerCustodyStatus> custodyStatuses;
-    private PrisonerCustodyStatus custodyStatus;
-
+    private List<PrisonerCustodyStatus> movements;
 
     @Step("Retrieve all custody status records")
-    public void retrieveAllCustodyStatusRecords() { doListApiCall(); }
-
-    @Step("Verify a list of records are returned")
-    public void verifyAListOfRecordsIsReturned() {
-        assertThat(custodyStatuses)
-                .hasOnlyElementsOfType(PrisonerCustodyStatus.class)
-                .size().isGreaterThan(0);
+    public void retrieveAllCustodyStatusRecords() {
+        doListApiCall();
     }
 
-    @Step("Retrieve a specific custody status record")
-    public void retrieveASpecificCustodyStatusRecord() { doSingleResultApiCall("Z0017ZZ"); }
+    @Step("Verify a list of records are returned")
+    public void verifyListOfRecords() {
+        assertThat(movements).hasOnlyElementsOfType(PrisonerCustodyStatus.class).size().isEqualTo(2);
 
-    @Step("Verify a single record is returned")
-    public void verifyASingleRecordIsReturned() {
-        assertThat(custodyStatus).isNotNull();
+        assertThat(movements).asList().extracting("offenderNo", "createDateTime").contains(
+                tuple("Z0024ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 24, 0, 0)),
+                tuple("Z0021ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 21, 0, 0)));
     }
 
     private void doListApiCall() {
         init();
 
         try {
-            ResponseEntity<List<PrisonerCustodyStatus>> response =
-                    restTemplate.exchange(
-                            API_REQUEST_BASE_URL,
-                            HttpMethod.GET,
-                            createEntity(),
-                            new ParameterizedTypeReference<List<PrisonerCustodyStatus>>() {}
-                            );
+            ResponseEntity<List<PrisonerCustodyStatus>> response = restTemplate.exchange(
+                    API_REQUEST_BASE_URL + "?fromDateTime=2017-02-20T13:56:00", HttpMethod.GET, createEntity(),
+                    new ParameterizedTypeReference<List<PrisonerCustodyStatus>>() {
+                    });
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-            custodyStatuses = response.getBody();
+            movements = response.getBody();
 
             buildResourceData(response);
         } catch (EliteClientException ex) {
@@ -63,31 +56,10 @@ public class CustodyStatusSteps extends CommonSteps {
         }
     }
 
-    private void doSingleResultApiCall(String offenderNo) {
-        init();
-
-        try {
-            ResponseEntity<PrisonerCustodyStatus> response =
-                    restTemplate.exchange(
-                            API_REQUEST_CUSTODY_STATUS_URL,
-                            HttpMethod.GET,
-                            createEntity(),
-                            new ParameterizedTypeReference<PrisonerCustodyStatus>() {},
-                            offenderNo);
-
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-            custodyStatus = response.getBody();
-        } catch (EliteClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
+    @Override
     protected void init() {
         super.init();
 
-        custodyStatuses = null;
-        custodyStatus = null;
+        movements = null;
     }
-
 }

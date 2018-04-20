@@ -2,18 +2,12 @@
 Feature: Custody Status
 
   Acceptance Criteria:
-  A logged in user can retrieve a list of custody status records
-  A logged in user can retrieve a specific custody status record
+  A logged in user can retrieve a list of offenders with recent movements
 
   Background:
     Given a trusted client has authenticated with the API
 
   @nomis
-  Scenario: Retrieve a list of all custody status records
-    When a request is made to retrieve all custody status records
-    Then a list of records are returned
-
-  @nomis
-  Scenario: Retrieve a specific custody status record
-    When a request is made to retrieve a specific custody status record
-    Then a single record is returned
+  Scenario: Retrieve a list of recent movements
+    When a request is made to retrieve recent movements
+    Then a correct list of records are returned
