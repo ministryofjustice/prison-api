@@ -22,7 +22,7 @@ public class CustodyStatusServiceImpl implements CustodyStatusService {
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH', 'KW_ADMIN')")
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
     public List<PrisonerCustodyStatus> getRecentMovements(LocalDateTime fromDateTime) {
         return custodyStatusRepository.getRecentMovements(fromDateTime);
     }
