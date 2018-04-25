@@ -45,11 +45,11 @@ public class KeyWorkerAllocationRepositoryTest {
     public void shouldGetAvailableKeyworkers() {
         final List<Keyworker> availableKeyworkers = repo.getAvailableKeyworkers(AGENCY_ID);
 
-        assertThat(availableKeyworkers).asList().hasSize(1);
+        assertThat(availableKeyworkers).asList().hasSize(2);
         assertThat(availableKeyworkers.get(0).getFirstName()).isEqualTo("Another");
         assertThat(availableKeyworkers.get(0).getLastName()).isEqualTo("User");
         assertThat(availableKeyworkers.get(0).getStaffId()).isEqualTo(-5L);
-        assertThat(availableKeyworkers.get(0).getNumberAllocated()).isEqualTo(3);
+        assertThat(availableKeyworkers.get(0).getNumberAllocated()).isEqualTo(0);
     }
 
     @Test
