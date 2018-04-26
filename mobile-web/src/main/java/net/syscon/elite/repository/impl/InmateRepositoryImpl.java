@@ -293,7 +293,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
     @Override
-    @Cacheable("bookingImage")
     public Optional<ImageDetail> getMainBookingImage(long bookingId) {
         final String sql = getQuery("GET_IMAGE_DATA_FOR_BOOKING");
         ImageDetail imageDetail;
