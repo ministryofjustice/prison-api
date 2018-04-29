@@ -1,20 +1,15 @@
 package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.PrisonerCustodyStatus;
-import net.syscon.elite.api.support.CustodyStatusCode;
-import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.CustodyStatusRepository;
-import net.syscon.elite.service.CustodyStatusCalculator;
 import net.syscon.elite.service.CustodyStatusService;
-import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.service.support.CustodyStatusDto;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.util.Comparator;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -22,57 +17,13 @@ public class CustodyStatusServiceImpl implements CustodyStatusService {
 
     private final CustodyStatusRepository custodyStatusRepository;
 
-    private CustodyStatusCalculator calculator = new CustodyStatusCalculator();
-
     public CustodyStatusServiceImpl(CustodyStatusRepository custodyStatusRepository) {
         this.custodyStatusRepository = custodyStatusRepository;
     }
 
     @Override
-    public PrisonerCustodyStatus getCustodyStatus(String offenderNo, LocalDate onDate) {
-        return custodyStatusRepository.getCustodyStatus(offenderNo, onDate)
-                .map(this::toCustodyStatus)
-                .orElseThrow(new EntityNotFoundException(offenderNo));
-    }
-
-    @Override
-    public List<PrisonerCustodyStatus> listCustodyStatuses(List<CustodyStatusCode> custodyStatusCodes, LocalDate onDate, Order order) {
-        return custodyStatusRepository.listCustodyStatuses(onDate)
-                .stream()
-                .map(this::toCustodyStatus)
-                .filter(x -> filterOnCustodyStatus(x, custodyStatusCodes))
-                .sorted(new PrisonerCustodyStatusComparator(order))
-                .collect(Collectors.toList());
-    }
-
-    private boolean filterOnCustodyStatus(PrisonerCustodyStatus record, List<CustodyStatusCode> custodyStatusCodes) {
-        return custodyStatusCodes.size() <= 0 || custodyStatusCodes.contains(record.getCustodyStatusCode());
-    }
-
-    private PrisonerCustodyStatus toCustodyStatus(CustodyStatusDto record) {
-        CustodyStatusCode custodyStatusCode = calculator.custodyStatusCodeOf(record);
-
-        return PrisonerCustodyStatus
-                .builder()
-                .offenderNo(record.getOffenderIdDisplay())
-                .custodyStatusCode(custodyStatusCode)
-                .custodyStatusDescription(custodyStatusCode.toString())
-                .build();
-    }
-
-    private class PrisonerCustodyStatusComparator implements Comparator<PrisonerCustodyStatus> {
-        private final Order order;
-
-        private PrisonerCustodyStatusComparator(Order order) {
-            this.order = order;
-        }
-
-        @Override
-        public int compare(PrisonerCustodyStatus a, PrisonerCustodyStatus b) {
-            return order == Order.ASC ?
-                    a.getCustodyStatusDescription().compareTo(b.getCustodyStatusDescription()) :
-                    b.getCustodyStatusDescription().compareTo(a.getCustodyStatusDescription());
-        }
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
+    public List<PrisonerCustodyStatus> getRecentMovements(LocalDateTime fromDateTime) {
+        return custodyStatusRepository.getRecentMovements(fromDateTime);
     }
 }
-

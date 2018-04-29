@@ -76,4 +76,13 @@ public class UserRepositoryTest {
 
         assertThat(user.getUsername()).isEqualTo("ELITE2_API_USER");
     }
+
+    @Test
+    public void testIsRoleAssigned() {
+
+        assertThat(repository.isRoleAssigned("ITAG_USER", "LEI", -2)).isTrue();
+        assertThat(repository.isRoleAssigned("ITAG_USERR", "LEI", -2)).isFalse();
+        assertThat(repository.isRoleAssigned("ITAG_USER", "XXX", -2)).isFalse();
+        assertThat(repository.isRoleAssigned("ITAG_USER", "LEI", -3)).isFalse();
+    }
 }

@@ -49,7 +49,9 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public CustodyStatusSteps custodyStatus() { return new CustodyStatusSteps(); }
+        public CustodyStatusSteps custodyStatus() {
+            return new CustodyStatusSteps();
+        }
 
         @Bean
         public BookingSearchSteps bookingSearch() {

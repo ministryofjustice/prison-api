@@ -16,19 +16,11 @@ public class CustodyStatusStepDefinitions extends AbstractStepDefinitions {
     @Autowired
     private CustodyStatusSteps custodyStatus;
 
-    @When("^a request is made to retrieve all custody status records$")
-    public void aRequestIsMadeToRetrieveAllCustodyStatusRecords() {
+    @When("^a request is made to retrieve recent movements")
+    public void aRequestIsMadeToRetrieveAllRecords() {
         custodyStatus.retrieveAllCustodyStatusRecords();
     }
 
-    @When("^a request is made to retrieve a specific custody status record$")
-    public void aRequestIsMadeToRetrieveASpecificCustodyStatusRecord() { custodyStatus.retrieveASpecificCustodyStatusRecord(); }
-
-    @Then("^a list of records are returned$")
-    public void aListOfRecordsAreReturned() { custodyStatus.verifyAListOfRecordsIsReturned(); }
-
-    @Then("^a single record is returned$")
-    public void aSingleRecordIsReturned() {
-        custodyStatus.verifyASingleRecordIsReturned();
-    }
+    @Then("^a correct list of records are returned$")
+    public void aListOfRecordsAreReturned() { custodyStatus.verifyListOfRecords(); }
 }

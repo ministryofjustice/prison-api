@@ -1,12 +1,11 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.service.support.CustodyStatusDto;
+import net.syscon.elite.api.model.PrisonerCustodyStatus;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface CustodyStatusRepository {
-    List<CustodyStatusDto> listCustodyStatuses(LocalDate onDate);
-    Optional<CustodyStatusDto> getCustodyStatus(String offenderNo, LocalDate onDate);
+
+    List<PrisonerCustodyStatus> getRecentMovements(LocalDateTime fromDateTime);
 }

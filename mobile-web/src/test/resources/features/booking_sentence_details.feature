@@ -172,7 +172,7 @@ Feature: Booking Sentence Details
       | -32       |            |            |            |            |
 
   Scenario Outline: Retrieve sentence details as a list and filter by booking id and check data matches
-    When sentence details are requested for an offenders in logged in users caseloads with booking id "<bookingId>"
+    When sentence details are requested for an offenders in logged in users caseloads with offender No "<offenderNo>"
     Then sentence start date matches "<ssd>"
     And home detention curfew eligibility date matches "<hdced>"
     And parole eligibility date matches "<ped>"
@@ -184,48 +184,50 @@ Feature: Booking Sentence Details
     And tariff date matches "<tariffDate>"
 
     Examples:
-      | bookingId | ssd        | hdced      | ped        | led        | hdcad      | apd        | confRelDate | releaseDate | tariffDate |
-      | -1        | 2017-03-25 |            |            |            |            | 2018-09-27 | 2018-04-23  | 2018-04-23  |            |
-      | -2        | 2016-11-22 |            |            |            |            |            | 2018-04-19  | 2018-04-19  |            |
-      | -3        | 2015-03-16 |            |            |            |            |            |             | 2018-03-15  |            |
-      | -4        | 2007-10-16 |            |            |            |            |            |             | 2021-08-31  |            |
-      | -5        | 2017-02-08 | 2019-06-02 | 2019-06-01 |            |            |            |             | 2023-05-07  |            |
-      | -6        | 2017-09-01 |            |            |            | 2018-05-15 |            |             | 2018-05-15  |            |
-      | -7        | 2017-09-01 |            |            |            |            |            | 2018-01-05  | 2018-01-05  |            |
-      | -8        | 2017-09-01 |            |            |            |            | 2017-12-23 |             | 2017-12-23  |            |
-      | -9        | 2017-09-01 |            |            |            | 2018-01-15 |            | 2018-01-13  | 2018-01-13  |            |
-      | -10       | 2017-09-01 |            |            |            |            | 2018-02-22 |             | 2018-02-22  |            |
-      | -11       | 2017-09-01 |            |            |            |            |            |             | 2018-03-31  |            |
-      | -12       | 2017-09-01 |            |            |            |            |            |             | 2018-03-31  |            |
-      | -17       | 2015-05-05 |            |            |            |            |            | 2018-01-16  | 2018-01-16  |            |
-      | -18       | 2016-11-17 |            |            |            | 2019-09-19 |            |             | 2019-09-19  |            |
-      | -24       | 2017-07-07 |            |            |            |            | 2022-06-06 | 2022-02-02  | 2022-02-02  |            |
-      | -25       | 2009-09-09 |            |            |            |            | 2019-09-08 | 2023-03-03  | 2023-03-03  |            |
-      | -27       | 2014-09-09 |            |            |            |            |            |             |             | 2029-09-08 |
-      | -28       | 2014-09-09 |            |            |            |            |            |             |             | 2031-03-08 |
-      | -29       | 2017-02-08 |            | 2021-05-05 | 2020-08-07 |            |            |             | 2017-12-31  |            |
-      | -30       | 2007-10-16 | 2020-12-30 |            | 2021-09-24 |            | 2021-01-02 |             | 2021-01-02  |            |
-      | -32       |            |            |            |            |            |            |             |             |            |
+      | offenderNo| ssd        | hdced      | ped        | led        | hdcad      | apd        | confRelDate | releaseDate | tariffDate |
+      | A1234AA   | 2017-03-25 |            |            |            |            | 2018-09-27 | 2018-04-23  | 2018-04-23  |            |
+      | A1234AB   | 2016-11-22 |            |            |            |            |            | 2018-04-19  | 2018-04-19  |            |
+      | A1234AC   | 2015-03-16 |            |            |            |            |            |             | 2018-03-15  |            |
+      | A1234AD   | 2007-10-16 |            |            |            |            |            |             | 2021-08-31  |            |
+      | A1234AE   | 2017-02-08 | 2019-06-02 | 2019-06-01 |            |            |            |             | 2023-05-07  |            |
+      | A1234AF   | 2017-09-01 |            |            |            | 2018-05-15 |            |             | 2018-05-15  |            |
+      | A1234AG   | 2017-09-01 |            |            |            |            |            | 2018-01-05  | 2018-01-05  |            |
+      | A1234AH   | 2017-09-01 |            |            |            |            | 2017-12-23 |             | 2017-12-23  |            |
+      | A1234AI   | 2017-09-01 |            |            |            | 2018-01-15 |            | 2018-01-13  | 2018-01-13  |            |
+      | A1234AJ   | 2017-09-01 |            |            |            |            | 2018-02-22 |             | 2018-02-22  |            |
+      | A1234AK   | 2017-09-01 |            |            |            |            |            |             | 2018-03-31  |            |
+      | A1234AL   | 2017-09-01 |            |            |            |            |            |             | 2018-03-31  |            |
 
   Scenario: Retrieve sentence details as a list
     When sentence details are requested of offenders for the logged in users caseloads
-    Then "10" offenders are returned
-    And "31" offenders in total
+    Then "24" offenders are returned
 
-  Scenario Outline: Retrieve sentence details as a list filter and sort
-    When sentence details are requested of offenders for the logged in users caseloads sorted by "bookingId" and filtered by "homeDetentionCurfewEligibilityDate:is:not null,and:conditionalReleaseDate:is:not null"
+  Scenario: Retrieve sentence details as a list using post request for multiple offender Nos
+    When sentence details are requested by a POST request for offender Nos "A1234AK,A1234AE,A1234AJ,A1234AC"
+    Then "4" offenders are returned
+
+  Scenario: Retrieve sentence details as a list using post request for empty list of offender Nos
+    When sentence details are requested by a POST request for offender Nos ""
+    Then bad request response is received from booking sentence API
+
+  Scenario Outline: Retrieve sentence details multiple offender Nos
+    When sentence details are requested for an offenders in logged in users caseloads with offender No "A1234AK,A1234AE,A1234AJ,A1234AC"
+    Then "4" offenders are returned
+    When I look at row "<row_num>"
+    And sentence start date matches "<ssd>"
     And home detention curfew eligibility date matches "<hdced>"
-    And confirmed release date matches "<confRelDate>"
     And release date matches "<releaseDate>"
 
     Examples:
-      | hdced      | confRelDate | releaseDate |
-      | 2019-06-02 |             | 2023-05-07  |
+      | row_num | ssd        | hdced      | releaseDate |
+      | 1       | 2017-09-01 |            | 2018-02-22  |
+      | 2       | 2015-03-16 |            | 2018-03-15  |
+      | 3       | 2017-09-01 |            | 2018-03-31  |
+      | 4       | 2017-02-08 | 2019-06-02 | 2023-05-07  |
 
   Scenario Outline: Retrieve sentence details with sorting and with sentence date set
-    When sentence details are requested of offenders for the logged in users caseloads sorted by "homeDetentionCurfewEligibilityDate,sentenceStartDate,bookingId", filtered by "sentenceStartDate:is:not null" with page size of "30"
-    Then "20" offenders are returned
-    And "20" offenders in total
+    When sentence details are requested of offenders for the logged in users caseloads
+    Then "24" offenders are returned
     When I look at row "<row_num>"
     And sentence start date matches "<ssd>"
     And home detention curfew eligibility date matches "<hdced>"
@@ -234,23 +236,24 @@ Feature: Booking Sentence Details
 
     Examples:
       | row_num | ssd        | hdced      | confRelDate | releaseDate |
-      | 1       | 2017-02-08 | 2019-06-02 |             | 2023-05-07  |
-      | 2       | 2007-10-16 | 2020-12-30 |             | 2021-01-02  |
-      | 3       | 2007-10-16 |            |             | 2021-08-31  |
-      | 4       | 2009-09-09 |            | 2023-03-03  | 2023-03-03  |
-      | 5       | 2014-09-09 |            |             |             |
-      | 6       | 2014-09-09 |            |             |             |
+      | 1       | 2017-09-01 |            |             | 2017-12-23  |
+      | 2       | 2017-02-08 |            |             | 2017-12-31  |
+      | 3       | 2017-09-01 |            | 2018-01-05  | 2018-01-05  |
+      | 4       | 2017-09-01 |            | 2018-01-13  | 2018-01-13  |
+      | 5       | 2015-05-05 |            | 2018-01-16  | 2018-01-16  |
+      | 6       | 2017-09-01 |            |             | 2018-02-22  |
       | 7       | 2015-03-16 |            |             | 2018-03-15  |
-      | 8       | 2015-05-05 |            | 2018-01-16  | 2018-01-16  |
-      | 9       | 2016-11-17 |            |             | 2019-09-19  |
+      | 8       | 2017-09-01 |            |             | 2018-03-31  |
+      | 9       | 2017-09-01 |            |             | 2018-03-31  |
       | 10      | 2016-11-22 |            | 2018-04-19  | 2018-04-19  |
-      | 11      | 2017-02-08 |            |             | 2017-12-31  |
-      | 12      | 2017-03-25 |            | 2018-04-23  | 2018-04-23  |
-      | 13      | 2017-07-07 |            | 2022-02-02  | 2022-02-02  |
-      | 14      | 2017-09-01 |            |             | 2018-03-31  |
-      | 15      | 2017-09-01 |            |             | 2018-03-31  |
-      | 16      | 2017-09-01 |            |             | 2018-02-22  |
-      | 17      | 2017-09-01 |            | 2018-01-13  | 2018-01-13  |
-      | 18      | 2017-09-01 |            |             | 2017-12-23  |
-      | 19      | 2017-09-01 |            | 2018-01-05  | 2018-01-05  |
-      | 20      | 2017-09-01 |            |             | 2018-05-15  |
+      | 11      | 2017-03-25 |            | 2018-04-23  | 2018-04-23  |
+      | 12      | 2017-09-01 |            |             | 2018-05-15  |
+      | 13      | 2016-11-17 |            |             | 2019-09-19  |
+      | 14      | 2007-10-16 | 2020-12-30 |             | 2021-01-02  |
+      | 15      | 2007-10-16 |            |             | 2021-08-31  |
+      | 16      | 2017-07-07 |            | 2022-02-02  | 2022-02-02  |
+      | 17      | 2009-09-09 |            | 2023-03-03  | 2023-03-03  |
+      | 18      | 2017-02-08 | 2019-06-02 |             | 2023-05-07  |
+      | 19      | 2014-09-09 |            |             |             |
+      | 20      | 2014-09-09 |            |             |             |
+

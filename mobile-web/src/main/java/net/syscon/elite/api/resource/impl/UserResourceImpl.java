@@ -15,10 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 
 import javax.ws.rs.Path;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestResource
@@ -52,6 +49,24 @@ public class UserResourceImpl implements UserResource {
         this.inmateService = inmateService;
         this.keyWorkerAllocationService = keyWorkerAllocationService;
         this.env = env;
+    }
+
+    @Override
+    public GetAllUsersHavingRoleAtCaseloadResponse getAllUsersHavingRoleAtCaseload(String caseload, String roleCode) {
+        Set<String> users = userService.getAllUsernamesForCaseloadAndRole(caseload, roleCode);
+        return GetAllUsersHavingRoleAtCaseloadResponse.respond200WithApplicationJson(new ArrayList<>(users));
+    }
+
+    @Override
+    public RemoveUsersAccessRoleForCaseloadResponse removeUsersAccessRoleForCaseload(String username, String caseload, String roleCode) {
+        userService.removeUsersAccessRoleForCaseload( username,  caseload,  roleCode);
+        return RemoveUsersAccessRoleForCaseloadResponse.respond200WithApplicationJson();
+    }
+
+    @Override
+    public AddAccessRoleResponse addAccessRole(String username, String roleCode) {
+        boolean added = userService.addAccessRole(username, roleCode);
+        return added? AddAccessRoleResponse.respond201WithApplicationJson() : AddAccessRoleResponse.respond200WithApplicationJson();
     }
 
     @Override

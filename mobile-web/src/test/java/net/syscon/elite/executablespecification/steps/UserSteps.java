@@ -6,6 +6,7 @@ import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
+import net.thucydides.core.steps.StepFailureException;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -22,10 +23,14 @@ public class UserSteps extends CommonSteps {
     private static final String API_USERS_ME_LOCATIONS_REQUEST_URL = API_USERS_ME_REQUEST_URL + "/locations";
     private static final String API_USERS_ME_ROLES_REQUEST_URL = API_USERS_ME_REQUEST_URL + "/roles";
     private static final String API_USERS_ME_CASE_NOTE_TYPES_REQUEST_URL = API_USERS_ME_REQUEST_URL + "/caseNoteTypes";
+    private static final String API_USERS_USERNAMES_HAVING_ROLE_AT_CASELOAD = API_PREFIX + "/users/access-roles/caseload/{caseload}/access-role/{roleCode}";
+    private static final String API_ASSIGN_API_ROLE_TO_USER = API_PREFIX + "/users/{username}/access-role/{roleCode}";
+    private static final String API_REMOVE_ROLE_FROM_USER_AT_CASELOAD = API_PREFIX + "/users/{username}/caseload/{caseload}/access-role/{roleCode}";
 
     private List<Location> userLocations;
     private List<UserRole> userRoles;
     private List<ReferenceCode> caseNoteTypes;
+    private List<String> usernames;
 
     @Override
     protected void init() {
@@ -39,11 +44,11 @@ public class UserSteps extends CommonSteps {
     @Step("Verify current user details")
     public void verifyDetails(String username, String firstName, String lastName) {
         try {
-        ResponseEntity<UserDetail> response = restTemplate.exchange(
-                        API_USERS_ME_REQUEST_URL,
-                        HttpMethod.GET,
-                        createEntity(),
-                        UserDetail.class);
+            ResponseEntity<UserDetail> response = restTemplate.exchange(
+                    API_USERS_ME_REQUEST_URL,
+                    HttpMethod.GET,
+                    createEntity(),
+                    UserDetail.class);
 
             UserDetail userDetails = response.getBody();
 
@@ -97,6 +102,77 @@ public class UserSteps extends CommonSteps {
         assertThat(caseNoteTypes.stream().filter(type -> type.getSubCodes().isEmpty()).count()).isEqualTo(0);
     }
 
+    //    @Step("Find usernames having role at caseload")
+    public void findUsernamesHavingRoleAtCaseload(String role, String caseload) {
+        dispatchUsernamesHavingRoleAtCaseloadRequest(role, caseload);
+    }
+
+    //    @Step("Verify usernames")
+    public void verifyUsernames(String expectedUsernames) {
+        verifyIdentical(usernames, csv2list(expectedUsernames));
+    }
+
+    public void assignApiRoleToUser(String role, String username) {
+        dispatchAssignApiRoleToUser(role, username);
+    }
+
+    public void removeRole(String role, String username, String caseload) {
+        dispatchRemoveRoleFromUserAtCaseload(role, username, caseload);
+    }
+
+    public void verifyApiRoleAssignment(String username, String role) {
+        dispatchUsernamesHavingRoleAtCaseloadRequest(role, "NWEB");
+        assertThat(username).isIn(usernames);
+    }
+
+    public void userDoesNotHaveRoleAtCaseload(String username, String role, String caseload) {
+        dispatchUsernamesHavingRoleAtCaseloadRequest(role, caseload);
+        assertThat(username).isNotIn(usernames);
+
+    }
+
+    private void dispatchRemoveRoleFromUserAtCaseload(String role, String username, String caseload) {
+        init();
+
+        restTemplate.exchange(
+                API_REMOVE_ROLE_FROM_USER_AT_CASELOAD,
+                HttpMethod.DELETE,
+                createEntity(),
+                Object.class,
+                username,
+                caseload,
+                role);
+    }
+
+
+    private void dispatchAssignApiRoleToUser(String role, String username) {
+        init();
+
+        restTemplate.exchange(
+                API_ASSIGN_API_ROLE_TO_USER,
+                HttpMethod.PUT,
+                createEntity(),
+                Object.class,
+                username,
+                role);
+    }
+
+
+    private void dispatchUsernamesHavingRoleAtCaseloadRequest(String role, String caseload) {
+        init();
+
+        ResponseEntity<List<String>> response = restTemplate.exchange(
+                API_USERS_USERNAMES_HAVING_ROLE_AT_CASELOAD,
+                HttpMethod.GET,
+                createEntity(),
+                new ParameterizedTypeReference<List<String>>() {
+                },
+                caseload,
+                role);
+
+        usernames = response.getBody();
+    }
+
     private void dispatchUserRolesRequest(boolean allRoles) {
         init();
 
@@ -105,7 +181,8 @@ public class UserSteps extends CommonSteps {
                     API_USERS_ME_ROLES_REQUEST_URL + (allRoles ? "?allRoles=true" : ""),
                     HttpMethod.GET,
                     createEntity(),
-                    new ParameterizedTypeReference<List<UserRole>>() {});
+                    new ParameterizedTypeReference<List<UserRole>>() {
+                    });
 
             userRoles = response.getBody();
 
@@ -123,7 +200,8 @@ public class UserSteps extends CommonSteps {
                     API_USERS_ME_LOCATIONS_REQUEST_URL,
                     HttpMethod.GET,
                     createEntity(),
-                    new ParameterizedTypeReference<List<Location>>() {});
+                    new ParameterizedTypeReference<List<Location>>() {
+                    });
 
             userLocations = response.getBody();
 
@@ -143,7 +221,8 @@ public class UserSteps extends CommonSteps {
                     API_USERS_ME_CASE_NOTE_TYPES_REQUEST_URL,
                     HttpMethod.GET,
                     createEntity(),
-                    new ParameterizedTypeReference<List<ReferenceCode>>() {});
+                    new ParameterizedTypeReference<List<ReferenceCode>>() {
+                    });
 
             caseNoteTypes = response.getBody();
 

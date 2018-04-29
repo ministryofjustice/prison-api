@@ -26,7 +26,7 @@ import static org.junit.Assert.fail;
  * Test cases for {@link BookingServiceImpl}.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class BookingServiceImplTest {
+public class  BookingServiceImplTest {
     @Mock
     private BookingRepository bookingRepository;
 
@@ -71,7 +71,7 @@ public class BookingServiceImplTest {
     @Before
     public void init() {
         bookingService = new BookingServiceImpl(bookingRepository, null, agencyService, null,
-                locationService, referenceDomainService, telemetryClient, "1");
+                locationService, referenceDomainService, telemetryClient, "1", 10);
     }
 
     @Test
