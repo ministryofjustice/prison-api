@@ -6,7 +6,6 @@ import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
-import net.thucydides.core.steps.StepFailureException;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;

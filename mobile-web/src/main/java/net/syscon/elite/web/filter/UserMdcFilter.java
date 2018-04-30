@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import javax.servlet.*;
 import java.io.IOException;
 
-import static net.syscon.elite.web.filter.MdcUtility.USER_ID_HEADER;
+import static net.syscon.util.MdcUtility.USER_ID_HEADER;
 
 @Slf4j
 @Component
@@ -24,6 +24,7 @@ public class UserMdcFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) {
+        // Initialise - no functionality
     }
 
     @Override
@@ -46,5 +47,6 @@ public class UserMdcFilter implements Filter {
 
     @Override
     public void destroy() {
+        // Destroy - no functionality
     }
 }

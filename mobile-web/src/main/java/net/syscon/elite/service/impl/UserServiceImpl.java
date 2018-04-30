@@ -1,9 +1,15 @@
 package net.syscon.elite.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.CaseLoad;
+import net.syscon.elite.api.model.StaffDetail;
+import net.syscon.elite.api.model.UserDetail;
+import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.repository.UserRepository;
-import net.syscon.elite.service.*;
+import net.syscon.elite.service.CaseLoadService;
+import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.StaffService;
+import net.syscon.elite.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
@@ -11,7 +17,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;

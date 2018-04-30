@@ -1,6 +1,7 @@
 package net.syscon.elite.web.filter;
 
 import lombok.extern.slf4j.Slf4j;
+import net.syscon.util.MdcUtility;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -10,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Optional;
 
-import static net.syscon.elite.web.filter.MdcUtility.CORRELATION_ID_HEADER;
+import static net.syscon.util.MdcUtility.CORRELATION_ID_HEADER;
 
 @Slf4j
 @Component
@@ -24,7 +25,8 @@ public class CorrelationHeaderFilter implements Filter {
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) {
+        // Initialise - no functionality
     }
 
     @Override
@@ -43,6 +45,7 @@ public class CorrelationHeaderFilter implements Filter {
 
     @Override
     public void destroy() {
+        // destroy - no functionality
     }
 
 }

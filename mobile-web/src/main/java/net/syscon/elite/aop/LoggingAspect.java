@@ -22,7 +22,7 @@ public class LoggingAspect {
     @Autowired
     private Environment env;
 
-    @Pointcut("within(net.syscon.elite.repository..*) || within(net.syscon.elite.service..*) || within(net.syscon.elite.api..*) || within(net.syscon.elite.aop..*)")
+    @Pointcut("within(net.syscon.elite.repository..*) || within(net.syscon.elite.service..*) || within(net.syscon.elite.aop..*)")
     public void loggingPointcut() {
         // No code needed
     }
