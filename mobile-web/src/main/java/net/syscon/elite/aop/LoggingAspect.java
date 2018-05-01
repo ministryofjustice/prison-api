@@ -11,6 +11,8 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 
 @Aspect
@@ -20,7 +22,7 @@ public class LoggingAspect {
     @Autowired
     private Environment env;
 
-    @Pointcut("within(net.syscon.elite.repository..*) || within(net.syscon.elite.service..*) || within(net.syscon.elite.api..*) || within(net.syscon.elite.aop..*)")
+    @Pointcut("within(net.syscon.elite.repository..*) || within(net.syscon.elite.service..*) || within(net.syscon.elite.aop..*)")
     public void loggingPointcut() {
         // No code needed
     }
@@ -40,6 +42,7 @@ public class LoggingAspect {
 
     @Around("loggingPointcut()")
     public Object logAround(final ProceedingJoinPoint joinPoint) throws Throwable {
+        LocalDateTime start = LocalDateTime.now();
         if (log.isDebugEnabled()) {
             log.debug(
                     "Enter: {}.{}()",
@@ -50,9 +53,10 @@ public class LoggingAspect {
             final Object result = joinPoint.proceed();
             if (log.isDebugEnabled()) {
                 log.debug(
-                        "Exit: {}.{}()",
+                        "Exit: {}.{}() - Duration {} ms",
                         joinPoint.getSignature().getDeclaringTypeName(),
-                        joinPoint.getSignature().getName());
+                        joinPoint.getSignature().getName(),
+                        Duration.between(start, LocalDateTime.now()).toMillis());
             }
             return result;
         } catch (final IllegalArgumentException e) {
