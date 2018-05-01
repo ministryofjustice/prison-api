@@ -284,6 +284,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
+    @Cacheable("bookingIdByOffenderNo")
     public Optional<Long> getBookingIdByOffenderNo(String offenderNo) {
         Validate.notBlank("Offender number must be specified.");
 

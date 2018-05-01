@@ -9,6 +9,7 @@ public class MdcUtility {
 
     public static final String USER_ID_HEADER = "userId";
     public static final String CORRELATION_ID_HEADER = "correlationId";
+    public static final String REQUEST_ID = "requestId";
     public static final String REQUEST_DURATION = "duration";
     public static final String RESPONSE_STATUS = "status";
 
