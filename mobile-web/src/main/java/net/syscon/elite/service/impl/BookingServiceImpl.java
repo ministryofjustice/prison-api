@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.stream.Collectors.toList;
-import static net.syscon.elite.service.ContactService.EXTERNAL_REF;
+import static net.syscon.elite.service.ContactService.EXTERNAL_REL;
 
 /**
  * Bookings API service implementation.
@@ -230,7 +230,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<OffenderSummary> getBookingsByExternalRefAndType(String externalRef, String relationshipType) {
-        return bookingRepository.getBookingsByRelationship(externalRef, relationshipType, EXTERNAL_REF);
+        return bookingRepository.getBookingsByRelationship(externalRef, relationshipType, EXTERNAL_REL);
     }
 
     @Override

@@ -116,7 +116,7 @@ public class ContactServiceImpl implements ContactService {
         Optional<Person> person = Optional.empty();
         // check if person ref set
         if (StringUtils.isNotBlank(relationshipDetail.getExternalRef())) {
-            person = repository.getPersonByRef(relationshipDetail.getExternalRef(), EXTERNAL_REF);
+            person = repository.getPersonByRef(relationshipDetail.getExternalRef(), EXTERNAL_REL);
             foundRef = person.isPresent();
         } else if (personId != null) {
             person = repository.getPersonById(personId);
@@ -133,7 +133,7 @@ public class ContactServiceImpl implements ContactService {
 
         // if the external ref was not found add as identifier
         if (StringUtils.isNotBlank(relationshipDetail.getExternalRef()) && !foundRef) {
-            repository.createExternalReference(newPersonId, relationshipDetail.getExternalRef(), EXTERNAL_REF);
+            repository.createExternalReference(newPersonId, relationshipDetail.getExternalRef(), EXTERNAL_REL);
         }
 
         return repository.getPersonById(newPersonId).orElseThrow(EntityNotFoundException.withId(newPersonId));
