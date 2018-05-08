@@ -34,7 +34,7 @@ import static java.lang.String.format;
 @Validated
 public class CaseNoteServiceImpl implements CaseNoteService {
 	private static final String AMEND_CASE_NOTE_FORMAT = "%s ...[%s updated the case notes on %s] %s";
-	private static int MAXIMUM_CHARACTER_LIMIT = 4000;
+	private static final int MAXIMUM_CHARACTER_LIMIT = 4000;
 
 	@Value("${api.caseNote.sourceCode:AUTO}")
 	private String caseNoteSource;
