@@ -128,6 +128,12 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
     }
 
+    @When("^a case note is created to use up all free space$")
+    public void aCaseNoteIsCreatedToUseUpAllFreeSpace() throws Throwable {
+        final String caseNoteText = StringUtils.repeat("a", 3900);
+        updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
+    }
+
     @Then("^case note is successfully updated with valid text$")
     public void caseNoteIsSuccessfullyUpdated() throws Throwable {
         assertThat(updatedCaseNote.getText()).contains(StringUtils.repeat("a", 100));

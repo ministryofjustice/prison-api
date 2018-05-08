@@ -34,6 +34,7 @@ import static java.lang.String.format;
 @Validated
 public class CaseNoteServiceImpl implements CaseNoteService {
 	private static final String AMEND_CASE_NOTE_FORMAT = "%s ...[%s updated the case notes on %s] %s";
+	private static final int MAXIMUM_CHARACTER_LIMIT = 4000;
 
 	@Value("${api.caseNote.sourceCode:AUTO}")
 	private String caseNoteSource;
@@ -117,6 +118,17 @@ public class CaseNoteServiceImpl implements CaseNoteService {
                 username,
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")),
                 newCaseNoteText);
+
+		if (amendedText.length() > MAXIMUM_CHARACTER_LIMIT) {
+
+			int spaceLeft = MAXIMUM_CHARACTER_LIMIT - (caseNote.getText().length() + (amendedText.length() - newCaseNoteText.length()));
+
+			String errorMessage = spaceLeft <= 0 ?
+                    "Amendments can no longer be made due to the maximum character limit being reached" :
+                    String.format("Length should not exceed %d characters", spaceLeft);
+
+		 	throw new BadRequestException(errorMessage);
+		}
 
         caseNoteRepository.updateCaseNote(bookingId, caseNoteId, amendedText, username);
 

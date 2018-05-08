@@ -32,4 +32,9 @@ Feature: Case Note Amendment
 
   Scenario: Update a case note with data which is too long
     When the created case note is updated with long text
-    Then case note validation error "Case Note text is over 4000 characters" occurs
+    Then case note validation error "Length should not exceed 3880 characters" occurs
+
+  Scenario: Update a case note when there is no space left
+    When a case note is created to use up all free space
+    When the created case note is updated with long text
+    Then case note validation error "Amendments can no longer be made due to the maximum character limit being reached" occurs
