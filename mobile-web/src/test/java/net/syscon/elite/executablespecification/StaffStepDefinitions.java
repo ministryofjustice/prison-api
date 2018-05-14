@@ -1,5 +1,6 @@
 package net.syscon.elite.executablespecification;
 
+import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -71,5 +72,25 @@ public class StaffStepDefinitions extends AbstractStepDefinitions {
     @And("^staff ids match \"([^\"]*)\"$")
     public void staffIdsMatch(String staffIds) throws Throwable {
         staff.verifyStaffIds(staffIds);
+    }
+
+    @When("^request is submitted using \"([^\"]*)\"$")
+    public void requestIsSubmittedUsing(Long staffId) throws Throwable {
+         staff.getJobRoles(staffId);
+    }
+
+    @When("^request is submitted using \"([^\"]*)\" and \"([^\"]*)\"$")
+    public void requestIsSubmittedUsingAnd(Long staffId, String agencyId) throws Throwable {
+        staff.getJobRoles(staffId, agencyId);
+    }
+
+    @Then("^a job role containing \"([^\"]*)\" \"([^\"]*)\" is returned$")
+    public void aJobRoleContainingIsReturned(String role, String roleDescription) throws Throwable {
+        staff.verifyStaffJobRole(role, roleDescription);
+    }
+
+    @Then("^a job role containing only \"([^\"]*)\" \"([^\"]*)\" is returned$")
+    public void aJobRoleContainingOnlyIsReturned(String role, String roleDescription) throws Throwable {
+        staff.verifyOnlyOneStaffJobRole(role, roleDescription);
     }
 }

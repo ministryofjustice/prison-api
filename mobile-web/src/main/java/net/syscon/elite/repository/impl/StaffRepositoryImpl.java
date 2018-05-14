@@ -3,6 +3,7 @@ package net.syscon.elite.repository.impl;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.StaffLocationRole;
+import net.syscon.elite.api.model.StaffJobRole;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.StaffRepository;
@@ -31,6 +32,10 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
 
     private static final StandardBeanPropertyRowMapper<StaffLocationRole> STAFF_LOCATION_ROLE_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(StaffLocationRole.class);
+
+    private static final StandardBeanPropertyRowMapper<StaffJobRole> STAFF_JOB_ROLES_MAPPER =
+            new StandardBeanPropertyRowMapper<>(StaffJobRole.class);
+
 
     @Override
     @Cacheable("findByStaffId")
@@ -129,6 +134,31 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
                 paRowMapper);
 
         return new Page<>(staffDetails, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
+    }
+
+    @Override
+    public List<StaffJobRole> getJobRoles(Long staffId) {
+       Validate.notNaN(staffId, "A staffId code is required.");
+
+       String sql = getQuery("GET_STAFF_ROLES");
+
+       return jdbcTemplate.query(
+               sql,
+               createParams("staffId", staffId),
+               STAFF_JOB_ROLES_MAPPER);
+    }
+
+    @Override
+    public List<StaffJobRole> getJobRolesForAgency(Long staffId, String agencyId) {
+        Validate.notNaN(staffId, "A staffId code is required.");
+        Validate.notBlank(agencyId, "An agency id is required.");
+
+        String sql = getQuery("GET_STAFF_ROLES_FOR_AGENCY");
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("staffId", staffId, "agencyId", agencyId),
+                STAFF_JOB_ROLES_MAPPER);
     }
 
     private String applyNameFilterQuery(String baseSql, String nameFilter) {

@@ -98,3 +98,23 @@ Feature: Staff Details and Roles
       | agency | position | role | name filter | staff id | count | staff id list |
       | LEI    | AO       | KW   | Another     |          | 1     | -5            |
       | SYI    | AO       | KW   |             |          | 2     | -9,-10            |
+
+  Scenario Outline: List all active job roles for staff member
+      When request is submitted using "<staffId>"
+      Then a job role containing "<role>" "<roleDescription>" is returned
+
+   Examples:
+      | staffId |role | roleDescription |
+      | -2      |OS    | Offender Supervisor|
+      | -2      |KW    | Key Worker         |
+
+
+  Scenario Outline: List all active job roles for staff member
+    When request is submitted using "<staffId>" and "<agencyId>"
+    Then a job role containing only "<role>" "<roleDescription>" is returned
+
+    Examples:
+      | staffId |agencyId|role | roleDescription |
+      | -2      |LEI     |OS    | Offender Supervisor|
+      | -2      |LEI-X   |KW    | Key Worker         |
+

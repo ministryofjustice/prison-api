@@ -133,6 +133,27 @@ public class StaffServiceImpl implements StaffService {
         userRepository.removeRole(userDetail.getUsername(), caseload, roleId);
     }
 
+    @Override
+    public List<StaffJobRole> getJobRoles(Long staffId) {
+        Validate.notNull(staffId, "A staff id is required.");
+
+        userRepository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION)
+                .orElseThrow(EntityNotFoundException.withId(staffId));
+
+        return staffRepository.getJobRoles(staffId);
+    }
+
+    @Override
+    public List<StaffJobRole> getJobRolesForAgency(Long staffId, String agencyId) {
+        Validate.notNull(staffId, "A staff id is required.");
+        Validate.notBlank(agencyId, "An agency id is required.");
+
+        userRepository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION)
+                .orElseThrow(EntityNotFoundException.withId(staffId));
+
+        return staffRepository.getJobRolesForAgency(staffId, agencyId);
+    }
+
     private Optional<StaffUserRole> getRoleByCaseload(Long staffId, String username, String caseload, String roleCode) {
         final List<UserRole> rolesByUsername = userRepository.findRolesByUsername(username, format("roleCode:eq:'%s',and:caseloadId:eq:'%s'", caseload + "_" + roleCode, caseload));
         List<StaffUserRole> staffUserRoles = mapToStaffUserRole(staffId, username, rolesByUsername);
