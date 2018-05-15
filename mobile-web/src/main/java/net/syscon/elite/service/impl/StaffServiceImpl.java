@@ -134,24 +134,11 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public List<StaffJobRole> getJobRoles(Long staffId) {
-        Validate.notNull(staffId, "A staff id is required.");
-
-        userRepository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION)
-                .orElseThrow(EntityNotFoundException.withId(staffId));
-
-        return staffRepository.getJobRoles(staffId);
-    }
-
-    @Override
-    public List<StaffJobRole> getJobRolesForAgency(Long staffId, String agencyId) {
+    public List<StaffRole> getAllRolesForAgency(Long staffId, String agencyId) {
         Validate.notNull(staffId, "A staff id is required.");
         Validate.notBlank(agencyId, "An agency id is required.");
 
-        userRepository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION)
-                .orElseThrow(EntityNotFoundException.withId(staffId));
-
-        return staffRepository.getJobRolesForAgency(staffId, agencyId);
+        return staffRepository.getAllRolesForAgency(staffId, agencyId);
     }
 
     private Optional<StaffUserRole> getRoleByCaseload(Long staffId, String username, String caseload, String roleCode) {

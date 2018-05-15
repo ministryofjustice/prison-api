@@ -1,6 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.StaffJobRole;
+import net.syscon.elite.api.model.StaffRole;
 import net.syscon.elite.api.model.StaffLocationRole;
 import net.syscon.elite.api.model.StaffUserRole;
 import net.syscon.elite.api.resource.StaffResource;
@@ -75,15 +75,9 @@ public class StaffResourceImpl implements StaffResource {
     }
 
     @Override
-    public GetAllJobRolesResponse getAllJobRoles(Long staffId) {
-        List<StaffJobRole> roles = staffService.getJobRoles(staffId);
-        return GetAllJobRolesResponse.respond200WithApplicationJson(roles);
-    }
-
-    @Override
-    public GetAllJobRolesForAgencyResponse getAllJobRolesForAgency(Long staffId, String agencyId) {
-        List<StaffJobRole> roles = staffService.getJobRolesForAgency(staffId, agencyId);
-        return GetAllJobRolesForAgencyResponse.respond200WithApplicationJson(roles);
+    public GetAllRolesForAgencyResponse getAllRolesForAgency(Long staffId, String agencyId) {
+        List<StaffRole> roles = staffService.getAllRolesForAgency(staffId, agencyId);
+        return GetAllRolesForAgencyResponse.respond200WithApplicationJson(roles);
     }
 
     @Override

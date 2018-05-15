@@ -170,21 +170,8 @@
             example: KW_ADMIN
             description: The access role has been removed
 
-/{staffId}/job-roles:
-  type: { readOnlyCollection: { type: StaffJobRole, description: List of job roles for specified staff } }
-  uriParameters:
-    staffId:
-      type: number
-      (javaType): Long
-      description: The staff id of the staff member.
-      example: 23413
-  get:
-    (javaOperationName): getAllJobRoles
-    description: List of job roles for specified staffd
-
-
-/{staffId}/job-roles/{agencyId}:
-  type: { readOnlyCollection: { type: StaffJobRole, description: List of job roles for specified staff and agency Id} }
+/{staffId}/{agencyId}/roles:
+  type: { readOnlyCollection: { type: StaffRole, description: List of job roles for specified staff and agency Id} }
   uriParameters:
     staffId:
       type: number
@@ -197,5 +184,5 @@
       description: Agency Id.
       example: LEI
   get:
-    (javaOperationName): getAllJobRolesForAgency
+    (javaOperationName): getAllRolesForAgency
     description: List of job roles for specified staff and agency Id

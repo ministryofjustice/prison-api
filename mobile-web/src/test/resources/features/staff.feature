@@ -52,7 +52,7 @@ Feature: Staff Details and Roles
 
     Examples:
       | agency | position | role | count | staff id list |
-      | LEI    | PRO      | KW   | 1     | -1            |
+      | LEI    | PRO      | KW   | 2     | -1, -2        |
       | SYI    | PRO      | KW   | 0     |               |
 
   Scenario Outline: Search for staff members having specified role at an agency
@@ -82,7 +82,7 @@ Feature: Staff Details and Roles
       | LEI    | AO       | KW   | Another     |          | 1     | -5            |
       | SYI    | AO       | KW   |             |          | 1     | -9            |
       | WAI    | PRO      | OS   | Ronald      |          | 0     |               |
-      | LEI    | PRO      | KW   | USE         |          | 1     | -1            |
+      | LEI    | PRO      | KW   | USE         |          | 2     | -1, -2        |
       | LEI    | AO       | KW   | user        |          | 1     | -5            |
       | LEI    | AO       | KW   | Uses        |          | 0     |               |
       | LEI    | AO       | KW   |             | -5       | 1     | -5            |
@@ -99,22 +99,14 @@ Feature: Staff Details and Roles
       | LEI    | AO       | KW   | Another     |          | 1     | -5            |
       | SYI    | AO       | KW   |             |          | 2     | -9,-10            |
 
-  Scenario Outline: List all active job roles for staff member
-      When request is submitted using "<staffId>"
+  Scenario Outline: List all active job roles for staff member at an agency
+      When request is submitted using "<staffId>" and "<agencyId>"
       Then a job role containing "<role>" "<roleDescription>" is returned
 
    Examples:
-      | staffId |role | roleDescription |
-      | -2      |OS    | Offender Supervisor|
-      | -2      |KW    | Key Worker         |
+      | staffId |agencyId  |role | roleDescription |
+      | -2      |LEI       |OS    | Offender Supervisor|
+      | -2      |LEI       |KW    | Key Worker         |
+      | -2      |LEI-X     |KW    | Key Worker         |
 
-
-  Scenario Outline: List all active job roles for staff member
-    When request is submitted using "<staffId>" and "<agencyId>"
-    Then a job role containing only "<role>" "<roleDescription>" is returned
-
-    Examples:
-      | staffId |agencyId|role | roleDescription |
-      | -2      |LEI     |OS    | Offender Supervisor|
-      | -2      |LEI-X   |KW    | Key Worker         |
 

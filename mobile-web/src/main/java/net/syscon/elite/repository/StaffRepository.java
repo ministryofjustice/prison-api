@@ -2,7 +2,7 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.StaffLocationRole;
-import net.syscon.elite.api.model.StaffJobRole;
+import net.syscon.elite.api.model.StaffRole;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 
@@ -18,7 +18,5 @@ public interface StaffRepository {
 
     Page<StaffLocationRole> findStaffByAgencyRole(String agencyId, String role, String nameFilter, Long staffId, Boolean activeOnly, PageRequest pageRequest);
 
-    List<StaffJobRole> getJobRoles(Long staffId);
-
-    List<StaffJobRole> getJobRolesForAgency(Long staffId, String agencyId);
+    List<StaffRole> getAllRolesForAgency(Long staffId, String agencyId);
 }
