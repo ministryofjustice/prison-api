@@ -105,11 +105,12 @@ public class StaffSteps extends CommonSteps {
         verifyLongValues(staffDetails, StaffLocationRole::getStaffId, staffIds);
     }
 
-    public void verifyStaffRole(String role, String roleDescription) {
-        boolean rolesFound  = roles.stream()
-                .anyMatch(r -> r.getRole().equals(role) && r.getRoleDescription().equals(roleDescription));
+    public void verifyStaffRoleWithNoDuplicates(String role, String roleDescription) {
+        long roleCount  = roles.stream()
+                .filter(r -> r.getRole().equals(role) && r.getRoleDescription().equals(roleDescription))
+                .count();
 
-        assertThat(rolesFound).isEqualTo(true);
+        assertThat(roleCount == 1).isTrue();
     }
 
     public void getRoles(Long staffId, String agencyId) {

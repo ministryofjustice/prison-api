@@ -101,12 +101,12 @@ Feature: Staff Details and Roles
 
   Scenario Outline: List all active job roles for staff member at an agency
       When request is submitted using "<staffId>" and "<agencyId>"
-      Then a job role containing "<role>" "<roleDescription>" is returned
-
+      Then a role containing "<role>" "<roleDescription>" is returned without duplicates
    Examples:
       | staffId |agencyId  |role | roleDescription |
       | -2      |LEI       |OS    | Offender Supervisor|
       | -2      |LEI       |KW    | Key Worker         |
       | -2      |LEI-X     |KW    | Key Worker         |
+
 
 
