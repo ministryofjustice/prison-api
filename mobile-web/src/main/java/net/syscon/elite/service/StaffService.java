@@ -4,6 +4,7 @@ import lombok.Getter;
 import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.StaffLocationRole;
 import net.syscon.elite.api.model.StaffUserRole;
+import net.syscon.elite.api.model.StaffRole;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.support.AgencyRequest;
@@ -36,6 +37,9 @@ public interface StaffService {
     StaffUserRole addStaffRole(Long staffId, String caseload, String roleCode);
 
     void removeStaffRole(Long staffId, String caseload, String roleCode);
+
+    List<StaffRole> getAllRolesForAgency(Long staffId, String agencyId);
+
 
     @Getter
     class GetStaffRoleRequest extends AgencyRequest {

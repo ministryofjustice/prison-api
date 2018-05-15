@@ -133,6 +133,14 @@ public class StaffServiceImpl implements StaffService {
         userRepository.removeRole(userDetail.getUsername(), caseload, roleId);
     }
 
+    @Override
+    public List<StaffRole> getAllRolesForAgency(Long staffId, String agencyId) {
+        Validate.notNull(staffId, "A staff id is required.");
+        Validate.notBlank(agencyId, "An agency id is required.");
+
+        return staffRepository.getAllRolesForAgency(staffId, agencyId);
+    }
+
     private Optional<StaffUserRole> getRoleByCaseload(Long staffId, String username, String caseload, String roleCode) {
         final List<UserRole> rolesByUsername = userRepository.findRolesByUsername(username, format("roleCode:eq:'%s',and:caseloadId:eq:'%s'", caseload + "_" + roleCode, caseload));
         List<StaffUserRole> staffUserRoles = mapToStaffUserRole(staffId, username, rolesByUsername);

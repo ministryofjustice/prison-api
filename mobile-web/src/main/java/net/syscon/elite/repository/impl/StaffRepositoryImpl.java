@@ -3,11 +3,13 @@ package net.syscon.elite.repository.impl;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.StaffLocationRole;
+import net.syscon.elite.api.model.StaffRole;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.StaffRepository;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -16,6 +18,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +34,10 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
 
     private static final StandardBeanPropertyRowMapper<StaffLocationRole> STAFF_LOCATION_ROLE_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(StaffLocationRole.class);
+
+    private static final StandardBeanPropertyRowMapper<StaffRole> STAFF_ROLES_MAPPER =
+            new StandardBeanPropertyRowMapper<>(StaffRole.class);
+
 
     @Override
     @Cacheable("findByStaffId")
@@ -129,6 +136,19 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
                 paRowMapper);
 
         return new Page<>(staffDetails, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
+    }
+
+    @Override
+    public List<StaffRole> getAllRolesForAgency(Long staffId, String agencyId) {
+        Validate.notNaN(staffId, "A staffId code is required.");
+        Validate.notBlank(agencyId, "An agency id is required.");
+
+        String sql = getQuery("GET_STAFF_ROLES_FOR_AGENCY");
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("staffId", staffId, "agencyId", agencyId, "currentDate", DateTimeConverter.toDate(LocalDate.now())),
+                STAFF_ROLES_MAPPER);
     }
 
     private String applyNameFilterQuery(String baseSql, String nameFilter) {
