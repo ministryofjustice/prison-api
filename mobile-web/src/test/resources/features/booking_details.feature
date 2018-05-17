@@ -14,8 +14,8 @@ Feature: Booking Details
 
     Examples:
       | bookingId | bookingNo | assignedOfficerId |
-      | -1        | A00111    | -2                |
-      | -8        | A00118    | -2                |
+      | -1        | A00111    | -1                |
+      | -8        | A00118    | -1                |
 
   Scenario Outline: Request for specific offender booking record basic details only
     When a basic offender booking request is made with booking id "<bookingId>"
