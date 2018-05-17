@@ -177,7 +177,7 @@ public class StaffRepositoryTest {
         final String TEST_AGENCY = "LEI";
         final String TEST_ROLE = "KW";
 
-        Page<StaffLocationRole> page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE, null, -5L, true,
+        Page<StaffLocationRole> page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE, null, -1L, true,
                 new PageRequest());
 
         List<StaffLocationRole> items = page.getItems();
@@ -186,7 +186,7 @@ public class StaffRepositoryTest {
 
         StaffLocationRole slr = items.get(0);
         assertThat(slr.getAgencyId()).isEqualTo(TEST_AGENCY);
-        assertThat(slr.getStaffId()).isEqualTo(-5);
+        assertThat(slr.getStaffId()).isEqualTo(-1);
         assertThat(slr.getRole()).isEqualTo(TEST_ROLE);
     }
 
@@ -204,7 +204,7 @@ public class StaffRepositoryTest {
     }
 
     @Test
-    public void testFindStaffLocationRolesByStaffId_include_inactive() {
+    public void testFindStaffLocationRolesByStaffId_dont_include_inactive() {
         final String TEST_AGENCY = "SYI";
         final String TEST_ROLE = "KW";
 
@@ -213,12 +213,7 @@ public class StaffRepositoryTest {
 
         List<StaffLocationRole> items = page.getItems();
 
-        assertThat(items.size()).isEqualTo(1);
-
-        StaffLocationRole slr = items.get(0);
-        assertThat(slr.getAgencyId()).isEqualTo(TEST_AGENCY);
-        assertThat(slr.getStaffId()).isEqualTo(-10);
-        assertThat(slr.getRole()).isEqualTo(TEST_ROLE);
+        assertThat(items.size()).isEqualTo(0);
     }
 
     @Test
@@ -228,7 +223,7 @@ public class StaffRepositoryTest {
         final String TEST_ROLE = "KW";
 
         Page<StaffLocationRole> page = repository.findStaffByAgencyPositionRole(TEST_AGENCY, TEST_POSITION, TEST_ROLE,
-                null, -5L, true, new PageRequest());
+                null, -4L, true, new PageRequest());
 
         List<StaffLocationRole> items = page.getItems();
 
@@ -236,7 +231,7 @@ public class StaffRepositoryTest {
 
         StaffLocationRole slr = items.get(0);
         assertThat(slr.getAgencyId()).isEqualTo(TEST_AGENCY);
-        assertThat(slr.getStaffId()).isEqualTo(-5);
+        assertThat(slr.getStaffId()).isEqualTo(-4);
     }
 
     @Test

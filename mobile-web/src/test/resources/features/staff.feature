@@ -18,9 +18,12 @@ Feature: Staff Details and Roles
 #    And email address of staff details returned is "<email>"
 
     Examples:
-      | staffId | firstName | lastName | email                      |
-      | -1      | Elite2    | User     | elite2-api-user@syscon.net |
-      | -2      | API       | User     | itaguser@syscon.net        |
+      | staffId | firstName | lastName |
+      | -1      | Elite2    | User     |
+      | -2      | API       | User     |
+      | -3      | CA        | User     |
+      | -5      | RO        | User     |
+      | -6      | DM        | User     |
 
   Scenario: Find staff member using staff id that does not exist
     When a staff member search is made using staff id "-9999"
@@ -41,7 +44,7 @@ Feature: Staff Details and Roles
 
     Examples:
       | agency | role | count | staff id list |
-      | LEI    | KW   | 2     | -1,-5         |
+      | LEI    | KW   | 2     | -1,-4         |
       | SYI    | KW   | 1     | -9            |
       | WAI    | OS   | 0     |               |
 
@@ -52,8 +55,8 @@ Feature: Staff Details and Roles
 
     Examples:
       | agency | position | role | count | staff id list |
-      | LEI    | PRO      | KW   | 2     | -1, -2        |
-      | SYI    | PRO      | KW   | 0     |               |
+      | LEI    | PRO      | KW   | 1     | -1            |
+      | BXI    | PRO      | KW   | 1     | -2            |
 
   Scenario Outline: Search for staff members having specified role at an agency
     When request is submitted for staff members having role "<role>" in agency "<agency>" with name filter "<name filter>" and staff id filter "<staff id>"
@@ -62,11 +65,10 @@ Feature: Staff Details and Roles
 
     Examples:
       | agency | role | name filter | staff id | count | staff id list |
-      | LEI    | KW   | Another     |          | 1     | -5            |
       | SYI    | KW   |             |          | 1     | -9            |
       | WAI    | OS   | Ronald      |          | 0     |               |
-      | LEI    | KW   | USE         |          | 2     | -1,-5         |
-      | LEI    | KW   | user        |          | 2     | -1,-5         |
+      | LEI    | KW   | USE         |          | 2     | -1,-4         |
+      | LEI    | KW   | user        |          | 2     | -1,-4         |
       | LEI    | KW   | Uses        |          | 0     |               |
       | LEI    | KW   |             | -1       | 1     | -1            |
       | LEI    | KW   |             | -999     | 0     |               |
@@ -79,13 +81,11 @@ Feature: Staff Details and Roles
 
     Examples:
       | agency | position | role | name filter | staff id | count | staff id list |
-      | LEI    | AO       | KW   | Another     |          | 1     | -5            |
       | SYI    | AO       | KW   |             |          | 1     | -9            |
       | WAI    | PRO      | OS   | Ronald      |          | 0     |               |
-      | LEI    | PRO      | KW   | USE         |          | 2     | -1, -2        |
-      | LEI    | AO       | KW   | user        |          | 1     | -5            |
+      | LEI    | PRO      | KW   | USE         |          | 1     | -1            |
+      | LEI    | AO       | KW   | user        |          | 1     | -4            |
       | LEI    | AO       | KW   | Uses        |          | 0     |               |
-      | LEI    | AO       | KW   |             | -5       | 1     | -5            |
       | LEI    | AO       | KW   |             | -999     | 0     |               |
 
   Scenario Outline: Search for 'Active Only' staff members having specified position and role at an agency
@@ -96,17 +96,17 @@ Feature: Staff Details and Roles
 
     Examples:
       | agency | position | role | name filter | staff id | count | staff id list |
-      | LEI    | AO       | KW   | Another     |          | 1     | -5            |
-      | SYI    | AO       | KW   |             |          | 2     | -9,-10            |
+      | BXI    | AO       | KW   | Api         |          | 1     | -2            |
+      | SYI    | AO       | KW   |             |          | 1     | -9            |
 
   Scenario Outline: List all active job roles for staff member at an agency
       When request is submitted using "<staffId>" and "<agencyId>"
       Then a role containing "<role>" "<roleDescription>" is returned without duplicates
    Examples:
-      | staffId |agencyId  |role | roleDescription |
+      | staffId |agencyId  |role | roleDescription     |
       | -2      |LEI       |OS    | Offender Supervisor|
-      | -2      |LEI       |KW    | Key Worker         |
-      | -2      |LEI-X     |KW    | Key Worker         |
+      | -1      |LEI       |KW    | Key Worker         |
+      | -2      |BXI       |KW    | Key Worker         |
 
 
 

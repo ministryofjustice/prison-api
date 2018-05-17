@@ -27,14 +27,23 @@ public class AccessRoleMaintenanceIntTest {
     @WithUserDetails("ITAG_USER")
     public void testGetAllRolesInCaseload() {
         List<StaffUserRole> allRolesInCaseload = staffService.getAllStaffRolesForCaseload("NWEB", "KW_ADMIN");
-        assertThat(allRolesInCaseload).containsExactly(StaffUserRole.builder()
-                .roleId(-201L)
-                .roleCode("KW_ADMIN")
-                .roleName("Keyworker Admin")
-                .caseloadId("NWEB")
-                .username("ITAG_USER")
-                .staffId(-2L)
-                .build());
+        assertThat(allRolesInCaseload).containsExactly(
+                StaffUserRole.builder()
+                    .roleId(-201L)
+                    .roleCode("KW_ADMIN")
+                    .roleName("Keyworker Admin")
+                    .caseloadId("NWEB")
+                    .username("API_TEST_USER")
+                    .staffId(-4L)
+                    .build(),
+                StaffUserRole.builder()
+                        .roleId(-201L)
+                        .roleCode("KW_ADMIN")
+                        .roleName("Keyworker Admin")
+                        .caseloadId("NWEB")
+                        .username("ITAG_USER")
+                        .staffId(-2L)
+                        .build());
     }
 
     @Test
@@ -49,37 +58,21 @@ public class AccessRoleMaintenanceIntTest {
                         .caseloadId("NWEB")
                         .username("ITAG_USER")
                         .staffId(-2L)
-                        .build(),
-                StaffUserRole.builder()
-                        .roleId(-100L)
-                        .roleCode("LICENCE_CA")
-                        .roleName("Case Admin")
-                        .caseloadId("NWEB")
-                        .username("ITAG_USER")
-                        .staffId(-2L)
                         .build());
     }
 
     @Test
     @WithUserDetails("API_TEST_USER")
     public void testGetAllRolesForStaffMember() {
-        List<StaffUserRole> roles = staffService.getStaffRoles(-4L);
+        List<StaffUserRole> roles = staffService.getStaffRoles(-5L);
         assertThat(roles).containsExactly(
-                StaffUserRole.builder()
-                        .roleId(-2L)
-                        .roleCode("WING_OFF")
-                        .roleName("Wing Officer")
-                        .caseloadId("MUL")
-                        .username("API_TEST_USER")
-                        .staffId(-4L)
-                        .build(),
                 StaffUserRole.builder()
                         .roleId(-101L)
                         .roleCode("LICENCE_RO")
                         .roleName("Responsible Officer")
                         .caseloadId("NWEB")
-                        .username("API_TEST_USER")
-                        .staffId(-4L)
+                        .username("RO_USER")
+                        .staffId(-5L)
                         .build());
     }
 
