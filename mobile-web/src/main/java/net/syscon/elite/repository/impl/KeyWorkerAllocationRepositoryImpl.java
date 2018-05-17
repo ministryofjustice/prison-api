@@ -37,7 +37,7 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
 
         return jdbcTemplate.query(
                 sql,
-                createParams("agencyId", agencyId),
+                createParams("agencyId", agencyId, "role", "KW"),
                 KEY_WORKER_ROW_MAPPER);
     }
 
