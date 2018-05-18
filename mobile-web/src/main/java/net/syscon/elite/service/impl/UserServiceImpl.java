@@ -17,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -26,6 +27,7 @@ import static java.lang.String.format;
 
 @Service
 @Slf4j
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
 	private final CaseLoadService caseLoadService;
@@ -42,13 +44,11 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@Transactional(readOnly = true)
 	public UserDetail getUserByUsername(String username) {
 		return userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
 	}
 
 	@Override
-	@Transactional(readOnly = true)
 	public List<CaseLoad> getCaseLoads(String username, boolean allCaseloads) {
 		return caseLoadService.getCaseLoadsForUser(username, allCaseloads);
 	}
@@ -73,7 +73,6 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@Transactional(readOnly = true)
 	public List<UserRole> getRolesByUsername(String username, boolean allRoles) {
 		String query = allRoles ? null : format("caseloadId:eq:'%s',or:caseloadId:is:null", apiCaseloadId);
 		final List<UserRole> rolesByUsername = userRepository.findRolesByUsername(username, query);
@@ -85,7 +84,6 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-    @Transactional(readOnly = true)
 	public UserDetail getUserByExternalIdentifier(String idType, String id, boolean activeOnly) {
 	    StaffDetail staffDetail = staffService.getStaffDetailByPersonnelIdentifier(idType, id);
 
@@ -115,8 +113,8 @@ public class UserServiceImpl implements UserService {
 
 	@Override
     @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
-
-    public void removeUsersAccessRoleForCaseload(String username, String caseload, String roleCode) {
+	@Transactional
+	public void removeUsersAccessRoleForCaseload(String username, String caseload, String roleCode) {
 		final Long roleId = userRepository.getRoleIdForCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
 
 		if(! userRepository.isRoleAssigned(username, caseload, roleId)) {
@@ -133,7 +131,7 @@ public class UserServiceImpl implements UserService {
 	 */
 	@Override
     @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
-
+	@Transactional
     public boolean addAccessRole(String username, String roleCode) {
 
 		final Long roleId = userRepository.getRoleIdForCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
@@ -148,5 +146,25 @@ public class UserServiceImpl implements UserService {
 
 		userRepository.addRole(username, apiCaseloadId, roleId);
 		return true;
+	}
+
+	@Override
+	@PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
+	@Transactional
+	public int addDefaultCaseloadForPrison(String caseloadId) {
+		List<UserDetail> users = userRepository.findAllUsersWithCaseload(caseloadId);
+
+		log.debug("Found {} users with caseload {}", users.size(), caseloadId);
+		final List<UserDetail> caseloadsAdded = new ArrayList<>();
+		users.forEach(user -> {
+		    final String username = user.getUsername();
+            if (!userRepository.isUserAssessibleCaseloadAvailable(apiCaseloadId, username)) {
+                userRepository.addUserAssessibleCaseload(apiCaseloadId, username);
+                caseloadsAdded.add(user);
+            }
+        });
+
+        log.debug("{} Users added to caseload {}", caseloadsAdded.size(), apiCaseloadId);
+        return caseloadsAdded.size();
 	}
 }

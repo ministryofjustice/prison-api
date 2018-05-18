@@ -32,6 +32,7 @@ import static java.lang.String.format;
 
 @Service
 @Validated
+@Transactional
 public class CaseNoteServiceImpl implements CaseNoteService {
 	private static final String AMEND_CASE_NOTE_FORMAT = "%s ...[%s updated the case notes on %s] %s";
 	private static final int MAXIMUM_CHARACTER_LIMIT = 4000;
@@ -85,7 +86,6 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	}
 
 	@Override
-	@Transactional
 	@VerifyBookingAccess
     public CaseNote createCaseNote(Long bookingId, @Valid @CaseNoteTypeSubTypeValid NewCaseNote caseNote, String username) {
 		// TODO: For Elite - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
@@ -100,7 +100,6 @@ public class CaseNoteServiceImpl implements CaseNoteService {
     }
 
 	@Override
-	@Transactional
 	@VerifyBookingAccess
 	public CaseNote updateCaseNote(Long bookingId, Long caseNoteId, String username, @NotBlank(message="{caseNoteTextBlank}") String newCaseNoteText) {
         CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId)

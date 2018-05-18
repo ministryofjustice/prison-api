@@ -1,7 +1,6 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.CaseLoad;
-import net.syscon.elite.api.model.StaffUserRole;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
 
@@ -35,4 +34,11 @@ public interface UserService {
      */
 
     boolean addAccessRole(String username, String roleCode);
+
+    /**
+     * add all active users with a specified caseload to the default API caseload
+     * @param caseloadId
+     * @return number of users added to the api caseload
+     */
+    int addDefaultCaseloadForPrison(String caseloadId);
 }
