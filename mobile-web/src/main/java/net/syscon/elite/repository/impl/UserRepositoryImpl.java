@@ -179,4 +179,16 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
                 getQuery("DELETE_USER_ROLE"),
                 createParams("caseloadId", caseload, "username", username, "roleId", roleId));
 	}
+
+	@Override
+	public List<UserDetail> findAllUsersWithCaseload(String caseloadId) {
+		Validate.notBlank(caseloadId, "An caseload id is required.");
+
+		String sql = getQuery("FIND_ACTIVE_STAFF_USERS_WITH_ACCESSIBLE_CASELOAD");
+
+		return jdbcTemplate.query(
+				sql,
+				createParams("caseloadId", caseloadId),
+				USER_DETAIL_ROW_MAPPER);
+	}
 }

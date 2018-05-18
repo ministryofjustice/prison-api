@@ -137,6 +137,12 @@ public class UserResourceImpl implements UserResource {
     }
 
     @Override
+    public AddApiAccessForCaseloadResponse addApiAccessForCaseload(String caseload) {
+        userService.addDefaultCaseloadForPrison(caseload);
+        return AddApiAccessForCaseloadResponse.respond200WithApplicationJson();
+    }
+
+    @Override
     public GetMyAssignmentsResponse getMyAssignments(Long pageOffset, Long pageLimit) {
         boolean nomisProfile = Arrays.stream(env.getActiveProfiles()).anyMatch(p -> p.contains("nomis"));
         boolean iepLevel = false;

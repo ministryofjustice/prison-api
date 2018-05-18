@@ -27,6 +27,21 @@
       201:
         mediaType:
 
+/add/default/{caseload}:
+  description: Add the default caseload for API access to a specified caseload (prison) for all active staff
+  uriParameters:
+    caseload:
+      type: string
+      description: The caseload (equates to prison) id to add all active users to default API caseload (NWEB)
+  put:
+    (javaOperationName): addApiAccessForCaseload
+    description: Add the NWEB caseload to specified caseload.
+    responses:
+      200:
+        mediaType:
+      201:
+        mediaType:
+
 /{username}/caseload/{caseload}/access-role/{roleCode}:
   uriParameters:
     username:

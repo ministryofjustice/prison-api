@@ -50,12 +50,12 @@ Feature: User Details and Roles
     Then the matching "<usernames>" are returned
 
     Examples:
-    | role     | caseload | usernames                   |
-    | WING_OFF | LEI      | ELITE2_API_USER,ITAG_USER   |
-    | WING_OFF | MUL      | API_TEST_USER               |
-    | WING_OFF | XXXXXX   |                             |
-    | XXXXX    | LEI      |                             |
-    | KW_ADMIN | NWEB     | API_TEST_USER,ITAG_USER     |
+    | role     | caseload | usernames                          |
+    | WING_OFF | LEI      | ELITE2_API_USER,ITAG_USER,RENEGADE |
+    | WING_OFF | MUL      | API_TEST_USER                      |
+    | WING_OFF | XXXXXX   |                                    |
+    | XXXXX    | LEI      |                                    |
+    | KW_ADMIN | NWEB     | API_TEST_USER,ITAG_USER            |
 
   @nomis
   Scenario: A trusted client can make api-role assignments to users.

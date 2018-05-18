@@ -29,4 +29,6 @@ public interface UserRepository {
 	void addRole(String username, String caseload, Long roleId);
 
 	void removeRole(String username, String caseload, Long roleId);
+
+	List<UserDetail> findAllUsersWithCaseload(String caseloadId);
 }
