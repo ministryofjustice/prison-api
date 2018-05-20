@@ -160,7 +160,7 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public ImageDetail getMainBookingImage(Long bookingId) {
         return repository.getMainBookingImage(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
     }
@@ -261,7 +261,7 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public Page<Alias> findInmateAliases(Long bookingId, String orderBy, Order order, long offset, long limit) {
         String defaultOrderBy = StringUtils.defaultString(StringUtils.trimToNull(orderBy), "createDate");
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.DESC);
@@ -272,9 +272,7 @@ public class InmateServiceImpl implements InmateService {
     @Override
     public List<Long> getPersonalOfficerBookings(String username) {
         UserDetail loggedInUser = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
-
         return repository.getPersonalOfficerBookings(loggedInUser.getStaffId());
-
     }
 
     private Set<String> getUserCaseloadIds(String username) {

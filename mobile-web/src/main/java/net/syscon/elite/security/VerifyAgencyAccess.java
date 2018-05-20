@@ -8,4 +8,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface VerifyAgencyAccess {
+    String [] overrideRoles() default "SYSTEM_USER";
 }
