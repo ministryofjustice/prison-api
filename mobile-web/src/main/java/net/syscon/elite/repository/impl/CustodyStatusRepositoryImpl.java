@@ -7,6 +7,7 @@ import net.syscon.util.DateTimeConverter;
 
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,9 +17,10 @@ public class CustodyStatusRepositoryImpl extends RepositoryBase implements Custo
     private final StandardBeanPropertyRowMapper<PrisonerCustodyStatus> CUSTODY_STATUS_MAPPER = new StandardBeanPropertyRowMapper<>(PrisonerCustodyStatus.class);
 
     @Override
-    public List<PrisonerCustodyStatus> getRecentMovements(LocalDateTime fromDateTime) {
+    public List<PrisonerCustodyStatus> getRecentMovements(LocalDateTime fromDateTime, LocalDate movementDate) {
         String sql = getQuery("GET_RECENT_MOVEMENTS");
-        return jdbcTemplate.query(sql, createParams("fromDateTime", DateTimeConverter.fromLocalDateTime(fromDateTime)), CUSTODY_STATUS_MAPPER);
+        return jdbcTemplate.query(sql, createParams("fromDateTime", DateTimeConverter.fromLocalDateTime(fromDateTime),
+                "movementDate", DateTimeConverter.toDate(movementDate) ), CUSTODY_STATUS_MAPPER);
     }
 }
 

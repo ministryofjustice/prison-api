@@ -21,6 +21,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
@@ -42,14 +43,24 @@ public class CustodyStatusRepositoryTest {
     }
 
     @Test
-    public final void canRetrieveAListOfCustodyStatusDetails() {
+    public final void canRetrieveAListOfCustodyStatusDetails1() {
         final LocalDateTime threshold = LocalDateTime.of(2017, Month.JANUARY, 1, 0, 0, 0);
-        final List<PrisonerCustodyStatus> recentMovements = repository.getRecentMovements(threshold);
+        final List<PrisonerCustodyStatus> recentMovements = repository.getRecentMovements(threshold, LocalDate.of(2017, Month.JULY, 16));
         assertThat(recentMovements.size()).isEqualTo(3);
         assertThat(recentMovements).asList()
                 .extracting("offenderNo", "createDateTime")
-                .contains(tuple("Z0024ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 24, 0, 0)),
-                        tuple("Z0021ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 21, 0, 0)),
+                .contains(tuple("Z0024ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 24, 0, 0)));
+    }
+
+
+    @Test
+    public final void canRetrieveAListOfCustodyStatusDetails2() {
+        final LocalDateTime threshold = LocalDateTime.of(2017, Month.JANUARY, 1, 0, 0, 0);
+        final List<PrisonerCustodyStatus> recentMovements = repository.getRecentMovements(threshold, LocalDate.of(2017, Month.AUGUST, 16));
+        assertThat(recentMovements.size()).isEqualTo(3);
+        assertThat(recentMovements).asList()
+                .extracting("offenderNo", "createDateTime")
+                .contains(tuple("Z0021ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 21, 0, 0)),
                         tuple("Z0019ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 19, 0, 0)));
     }
 }

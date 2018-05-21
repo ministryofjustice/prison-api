@@ -5,6 +5,7 @@ import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.CustodyStatusService;
 
 import javax.ws.rs.Path;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @RestResource
@@ -18,8 +19,8 @@ public class CustodyStatusResourceImpl implements CustodyStatusResource {
     }
 
     @Override
-    public GetRecentMovementsResponse getRecentMovements(LocalDateTime fromDateTime) {
+    public GetRecentMovementsResponse getRecentMovements(LocalDateTime fromDateTime, LocalDate movementDate) {
         return GetRecentMovementsResponse
-                .respond200WithApplicationJson(custodyStatusService.getRecentMovements(fromDateTime));
+                .respond200WithApplicationJson(custodyStatusService.getRecentMovements(fromDateTime, movementDate));
     }
 }

@@ -19,13 +19,13 @@ import static org.assertj.core.api.Assertions.tuple;
  * BDD step implementations for Custody Status Records feature.
  */
 public class CustodyStatusSteps extends CommonSteps {
-    private static final String API_REQUEST_BASE_URL = API_PREFIX + "custody-statuses";
+    private static final String API_REQUEST_BASE_URL = API_PREFIX + "custody-statuses?fromDateTime=%s&movementDate=%s";
 
     private List<PrisonerCustodyStatus> movements;
 
     @Step("Retrieve all custody status records")
-    public void retrieveAllCustodyStatusRecords() {
-        doListApiCall();
+    public void retrieveAllCustodyStatusRecords(String fromDateTime, String movementDate) {
+        doListApiCall(fromDateTime, movementDate);
     }
 
     @Step("Verify a list of records are returned")
@@ -33,16 +33,16 @@ public class CustodyStatusSteps extends CommonSteps {
         assertThat(movements).hasOnlyElementsOfType(PrisonerCustodyStatus.class).size().isEqualTo(2);
 
         assertThat(movements).asList().extracting("offenderNo", "createDateTime").contains(
-                tuple("Z0024ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 24, 0, 0)),
                 tuple("Z0021ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 21, 0, 0)));
     }
 
-    private void doListApiCall() {
+    private void doListApiCall(String fromDateTime, String movementDate) {
         init();
 
         try {
             ResponseEntity<List<PrisonerCustodyStatus>> response = restTemplate.exchange(
-                    API_REQUEST_BASE_URL + "?fromDateTime=2017-02-20T13:56:00", HttpMethod.GET, createEntity(),
+                    String.format(API_REQUEST_BASE_URL, fromDateTime, movementDate),
+                    HttpMethod.GET, createEntity(),
                     new ParameterizedTypeReference<List<PrisonerCustodyStatus>>() {
                     });
 

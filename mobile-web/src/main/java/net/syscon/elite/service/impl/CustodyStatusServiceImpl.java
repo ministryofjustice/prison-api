@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class CustodyStatusServiceImpl implements CustodyStatusService {
 
     @Override
     @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
-    public List<PrisonerCustodyStatus> getRecentMovements(LocalDateTime fromDateTime) {
-        return custodyStatusRepository.getRecentMovements(fromDateTime);
+    public List<PrisonerCustodyStatus> getRecentMovements(LocalDateTime fromDateTime, LocalDate movementDate) {
+        return custodyStatusRepository.getRecentMovements(fromDateTime, movementDate);
     }
 }
