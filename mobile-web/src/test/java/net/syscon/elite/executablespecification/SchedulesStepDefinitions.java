@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * BDD step definitions for the following API endpoints:
  * <ul>
  * <li>/schedules/{agencyId}/groups/{name}</li>
+ * <li>/schedules/{agencyId}/locations/{locationId}/usage/{usage}</li>
  * </ul>
  */
 public class SchedulesStepDefinitions extends AbstractStepDefinitions {
@@ -68,14 +69,19 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
         schedulesSteps.getSchedulesForLocationGroup("LEI", "BlockA");
     }
 
-    @When("^schedules are requested for a valid agency and location group with 'timeSlot' = '([APM]+)'$")
+    @When("^schedules are requested for a valid agency and location group with 'timeSlot' = '([APMED]+)'$")
     public void schedulesAreRequestedForValidAgencyAndLocationGroupwithTimeSlot(TimeSlot timeSlot) {
-        schedulesSteps.getSchedulesForLocationGroup("LEI", "BlockA", timeSlot);
+        schedulesSteps.getSchedulesForLocationGroup("LEI", "BlockA", null, timeSlot);
     }
 
-    @Then("^response is a list of offender's schedules for the current day with size ([0-9]+)$")
+    @When("^schedules are requested for a valid agency and location group with date = '([0-9-]+)' and 'timeSlot' = '([APMED]+)'$")
+    public void schedulesAreRequestedForValidAgencyAndLocationGroupwithTimeSlot(String date, TimeSlot timeSlot) {
+        schedulesSteps.getSchedulesForLocationGroup("LEI", "BlockA", date, timeSlot);
+    }
+
+    @Then("^response is a list of offender's schedules with size ([0-9]+)$")
     public void listOfOffendersSchedulesForCurrentDay(int size) throws Throwable {
-        schedulesSteps.verifyListOfOffendersSchedulesForCurrentDay(size);
+        schedulesSteps.verifyListOfOffendersSchedules(size);
     }
 
     @Then("^returned schedules are ordered as defined by requested location group$")
@@ -93,9 +99,14 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
         schedulesSteps.schedulesAreOnlyBefore12h00();
     }
 
-    @Then("^start time of all returned schedules is on or after 12h00$")
-    public void schedulesAreOnlyOnOrAfter12h00() throws Throwable {
-        schedulesSteps.schedulesAreOnlyOnOrAfter12h00();
+    @Then("^start time of all returned schedules is between 12h00 and 18h00$")
+    public void schedulesAreOnlyBetween1And18() throws Throwable {
+        schedulesSteps.schedulesAreOnlyBetween12And18();
+    }
+
+    @Then("^start time of all returned schedules is on or after 18h00$")
+    public void schedulesAreOnlyOnOrAfter18h00() throws Throwable {
+        schedulesSteps.schedulesAreOnlyOnOrAfter18h00();
     }
 
     @Then("^schedules response is HTTP 404 resource not found$")

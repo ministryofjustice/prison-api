@@ -4,6 +4,7 @@ package net.syscon.elite.executablespecification.steps;
 import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.test.EliteClientException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -37,11 +38,14 @@ public class SchedulesSteps extends CommonSteps {
         usage = null;
     }
 
-    private List<PrisonerSchedule> dispatchGroupRequest(String url, String agencyId, String name, TimeSlot timeSlot) {
+    private List<PrisonerSchedule> dispatchGroupRequest(String url, String agencyId, String name, String date, TimeSlot timeSlot) {
         init();
         String urlModifier = "";
+        if (date != null) {
+            urlModifier += "?date=" + date;
+        }
         if (timeSlot != null) {
-            urlModifier += "?timeSlot=" + timeSlot.name();
+            urlModifier += (StringUtils.isEmpty(urlModifier) ? '?' : '&') + "timeSlot=" + timeSlot.name();
         }
         HttpEntity<?> httpEntity = createEntity();
         try {
@@ -129,98 +133,19 @@ public class SchedulesSteps extends CommonSteps {
     }
 
     public void getSchedulesForLocationGroup(String agencyId, String group) {
-        results = dispatchGroupRequest(API_GROUPS_URL, agencyId, group, null);
+        results = dispatchGroupRequest(API_GROUPS_URL, agencyId, group, null, null);
     }
 
-    public void getSchedulesForLocationGroup(String agencyId, String group, TimeSlot timeSlot) {
-        results = dispatchGroupRequest(API_GROUPS_URL, agencyId, group, timeSlot);
+    public void getSchedulesForLocationGroup(String agencyId, String group, String date, TimeSlot timeSlot) {
+        results = dispatchGroupRequest(API_GROUPS_URL, agencyId, group, date, timeSlot);
     }
 
     public void getSchedulesForLocationGroup() {
-        results = dispatchGroupRequest(API_GROUPS_URL, agency, groupName, null);
+        results = dispatchGroupRequest(API_GROUPS_URL, agency, groupName, null, null);
     }
 
-    public void verifyListOfOffendersSchedulesForCurrentDay(int size) {
+    public void verifyListOfOffendersSchedules(int size) {
         assertThat(results).asList().hasSize(size);
-        /*
- {
-        "offenderNo": "A1234AC",
-        "firstName": "NORMAN",
-        "lastName": "BATES",
-        "cellLocation": "LEI-A-1-1",
-        "event": "VISIT",
-        "eventDescription": "Visits",
-        "comment": "Official Visit",
-        "startTime": "2017-12-29T00:00:00",
-        "endTime": "2017-12-29T00:00:00"
-    },
-    {
-        "offenderNo": "A1234AC",
-        "firstName": "NORMAN",
-        "lastName": "BATES",
-        "cellLocation": "LEI-A-1-1",
-        "event": "VISIT",
-        "eventDescription": "Visits",
-        "comment": "Social Contact",
-        "startTime": "2017-12-29T01:00:00",
-        "endTime": "2017-12-29T01:00:00"
-    },
-    {
-        "offenderNo": "A1234AC",
-        "firstName": "NORMAN",
-        "lastName": "BATES",
-        "cellLocation": "LEI-A-1-1",
-        "event": "MEDE",
-        "eventDescription": "Medical - Dentist",
-        "comment": "comment17",
-        "startTime": "2017-12-29T03:00:00",
-        "endTime": "2017-12-29T03:00:00"
-    },
-    {
-        "offenderNo": "A1234AC",
-        "firstName": "NORMAN",
-        "lastName": "BATES",
-        "cellLocation": "LEI-A-1-1",
-        "event": "EDUC",
-        "eventDescription": "Education",
-        "comment": "comment18",
-        "startTime": "2017-12-29T04:00:00",
-        "endTime": "2017-12-29T04:00:00"
-    },
-    {
-        "offenderNo": "A1234AC",
-        "firstName": "NORMAN",
-        "lastName": "BATES",
-        "cellLocation": "LEI-A-1-1",
-        "event": "EDUC",
-        "eventDescription": "Education",
-        "comment": "Woodwork",
-        "startTime": "2017-12-29T12:00:00",
-        "endTime": "2017-12-29T12:00:00"
-    },
-    {
-        "offenderNo": "A1234AC",
-        "firstName": "NORMAN",
-        "lastName": "BATES",
-        "cellLocation": "LEI-A-1-1",
-        "event": "EDUC",
-        "eventDescription": "Education",
-        "comment": "Woodwork",
-        "startTime": "2017-12-29T13:00:00",
-        "endTime": "2017-12-29T13:00:00"
-    },
-    {
-        "offenderNo": "A1234AE",
-        "firstName": "DONALD",
-        "lastName": "DUCK",
-        "cellLocation": "LEI-A-1-10",
-        "event": "EDUC",
-        "eventDescription": "Education",
-        "comment": "comment23",
-        "startTime": "2017-12-29T01:00:00",
-        "endTime": "2017-12-29T01:00:00"
-    }
-         */
     }
 
     public void verifySchedulesAreOrdered() {
@@ -241,9 +166,13 @@ public class SchedulesSteps extends CommonSteps {
         assertThat(results.get(4).getStartTime().getHour()).isEqualTo(1);
     }
 
-    public void schedulesAreOnlyOnOrAfter12h00() {
+    public void schedulesAreOnlyBetween12And18() {
         assertThat(results.get(0).getStartTime().getHour()).isEqualTo(12);
         assertThat(results.get(1).getStartTime().getHour()).isEqualTo(13);
+    }
+
+    public void schedulesAreOnlyOnOrAfter18h00() {
+        assertThat(results.get(0).getStartTime().getHour()).isEqualTo(18);
     }
 
 // --------------------------------------------------------------------------------

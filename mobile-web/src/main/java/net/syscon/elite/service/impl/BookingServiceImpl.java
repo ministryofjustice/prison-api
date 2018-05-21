@@ -481,6 +481,12 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @VerifyBookingAccess
+    public List<ScheduledEvent> getEventsOnDay(Long bookingId, LocalDate day) {
+        return getEvents(bookingId, day, day);
+    }
+
+    @Override
+    @VerifyBookingAccess
     public List<ScheduledEvent> getEventsThisWeek(Long bookingId) {
         final LocalDate today = now();
         return getEvents(bookingId, today, today.plusDays(6));

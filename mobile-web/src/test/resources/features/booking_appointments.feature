@@ -112,7 +112,7 @@ Feature: Booking Appointments
     And "10" appointments in total are available
     And start time for "1st" returned appointment is "2017-03-15 14:30:00"
     And event sub type for "4th" returned appointment is "MEPS"
-    And end time for "10th" returned appointment is "2017-10-15 15:00:00"
+    And end time for "10th" returned appointment is "2017-10-15 18:30:00"
     And event location for "6th" returned appointment is "LEEDS"
 
   Scenario: Retrieve scheduled appointments for an existing offender having one or more appointments, sorted by descending appointment end date
