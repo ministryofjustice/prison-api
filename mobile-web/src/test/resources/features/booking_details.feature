@@ -115,7 +115,6 @@ Feature: Booking Details
     When an offender booking assessment information request is made with offender numbers "A1234AA,A1234AB,A1234AC,A1234AD,A1234AE,A1234AF,A1234AG,A1234AP,NEXIST" and "CSR"
     Then correct results are returned as for single assessment
 
-  @nomisnew
   Scenario: Request for assessment information for multiple offenders (using post request which allows large sets of offenders)
     When an offender booking assessment information POST request is made with offender numbers "A1234AA,A1234AB,A1234AC,A1234AD,A1234AE,A1234AF,A1234AG,A1234AP,NEXIST" and "CSR"
     Then correct results are returned as for single assessment
