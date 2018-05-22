@@ -3,7 +3,6 @@ package net.syscon.elite.web.provider;
 import org.junit.Test;
 
 import javax.ws.rs.ext.ParamConverter;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeParseException;
