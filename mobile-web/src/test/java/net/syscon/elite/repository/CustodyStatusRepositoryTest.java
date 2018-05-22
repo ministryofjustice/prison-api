@@ -46,18 +46,17 @@ public class CustodyStatusRepositoryTest {
     public final void canRetrieveAListOfCustodyStatusDetails1() {
         final LocalDateTime threshold = LocalDateTime.of(2017, Month.JANUARY, 1, 0, 0, 0);
         final List<PrisonerCustodyStatus> recentMovements = repository.getRecentMovements(threshold, LocalDate.of(2017, Month.JULY, 16));
-        assertThat(recentMovements.size()).isEqualTo(3);
+        assertThat(recentMovements.size()).isEqualTo(1);
         assertThat(recentMovements).asList()
                 .extracting("offenderNo", "createDateTime")
                 .contains(tuple("Z0024ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 24, 0, 0)));
     }
 
-
     @Test
     public final void canRetrieveAListOfCustodyStatusDetails2() {
         final LocalDateTime threshold = LocalDateTime.of(2017, Month.JANUARY, 1, 0, 0, 0);
         final List<PrisonerCustodyStatus> recentMovements = repository.getRecentMovements(threshold, LocalDate.of(2017, Month.AUGUST, 16));
-        assertThat(recentMovements.size()).isEqualTo(3);
+        assertThat(recentMovements.size()).isEqualTo(2);
         assertThat(recentMovements).asList()
                 .extracting("offenderNo", "createDateTime")
                 .contains(tuple("Z0021ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 21, 0, 0)),
