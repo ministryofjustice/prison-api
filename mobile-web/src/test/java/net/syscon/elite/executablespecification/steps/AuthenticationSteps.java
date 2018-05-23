@@ -29,7 +29,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AuthenticationSteps {
 
     private static final String CLIENT_ID = "elite2apiclient";
-    private static final String TRUSTED_CLIENT_ID = "elite2apitrustedclient";
 
     private final List<OauthClientConfig> clientConfigurations;
 
@@ -44,9 +43,9 @@ public class AuthenticationSteps {
         clientConfigurations = clientConfigExtractor.getClientConfigurations(clientConfig);
     }
 
-    public ErrorResponse authenticate(String username, String password, boolean clientCredentials) {
+    public ErrorResponse authenticate(String username, String password, boolean clientCredentials, String clientId) {
         if (clientCredentials) {
-            return authenticate(clientCredentialsResource(TRUSTED_CLIENT_ID));
+            return authenticate(clientCredentialsResource(clientId));
         } else {
             return authenticate(ownerPasswordResource(username, password, CLIENT_ID));
         }

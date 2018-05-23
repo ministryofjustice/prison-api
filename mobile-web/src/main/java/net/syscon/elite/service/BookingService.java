@@ -38,7 +38,7 @@ public interface BookingService {
 
     void checkBookingExists(Long bookingId);
 
-    boolean isSystemUser();
+    boolean isOverrideRole(String... overrideRoles);
 
     List<OffenceDetail> getMainOffenceDetails(Long bookingId);
 

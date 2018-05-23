@@ -72,8 +72,8 @@ public abstract class CommonSteps {
     }
 
     @Step("User {0} authenticates with password {1}")
-    public void authenticates(String username, String password, boolean clientCredentials) {
-        errorResponse = auth.authenticate(StringUtils.upperCase(username), password, clientCredentials);
+    public void authenticates(String username, String password, boolean clientCredentials, String clientId) {
+        errorResponse = auth.authenticate(StringUtils.upperCase(username), password, clientCredentials, clientId);
     }
 
     @Step("Refreshes with token")

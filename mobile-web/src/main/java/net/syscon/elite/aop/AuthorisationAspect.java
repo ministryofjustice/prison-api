@@ -6,6 +6,7 @@ import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.support.AgencyRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -94,6 +95,6 @@ public class AuthorisationAspect {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication != null &&
                 authentication.getAuthorities().stream()
-                    .anyMatch(a ->  roles.contains(a.getAuthority()));
+                    .anyMatch(a ->  roles.contains(StringUtils.replaceFirst(a.getAuthority(), "ROLE_", "")));
     }
 }

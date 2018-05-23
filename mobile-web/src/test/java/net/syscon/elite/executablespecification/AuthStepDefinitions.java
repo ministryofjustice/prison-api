@@ -78,7 +78,7 @@ public class AuthStepDefinitions extends AbstractStepDefinitions {
     }
 
     private void authAndStoreToken(String username, String password) {
-        user.authenticates(username, password, false);
+        user.authenticates(username, password, false, null);
         currentToken = user.getAuth().getToken();
     }
 

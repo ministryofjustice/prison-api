@@ -241,7 +241,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Long getBookingIdByOffenderNo(String offenderNo) {
         final Long bookingId = bookingRepository.getBookingIdByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
-        if (!isSystemUser()) {
+        if (!isOverrideRole()) {
             verifyBookingAccess(bookingId);
         }
         return bookingId;
@@ -459,9 +459,11 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public boolean isSystemUser() {
+    public boolean isOverrideRole(String... overrideRoles) {
+        final List<String> roles = Arrays.asList(overrideRoles.length > 0 ? overrideRoles : new String[] {"SYSTEM_USER"});
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication != null && authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().contains("SYSTEM_USER"));
+        return authentication != null && authentication.getAuthorities().stream().anyMatch(a -> roles.contains(StringUtils.replaceFirst(a.getAuthority(), "ROLE_", "")));
     }
 
     @Override
@@ -518,7 +520,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<OffenderSentenceDetail> getOffenderSentencesSummary(String agencyId, String username, List<String> offenderNos) {
 
-        final Set<String> caseloads = isSystemUser() ? Collections.emptySet() : getUserCaseloadIds(username);
+        final Set<String> caseloads = isOverrideRole() ? Collections.emptySet() : getUserCaseloadIds(username);
 
         final List<OffenderSentenceDetailDto> offenderSentenceSummary = new ArrayList<>();
 

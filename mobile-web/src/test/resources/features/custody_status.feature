@@ -5,7 +5,7 @@ Feature: Custody Status
   A logged in user can retrieve a list of offenders with recent movements
 
   Background:
-    Given a trusted client has authenticated with the API
+    Given a system client "batchadmin" has authenticated with the API
 
   @nomis
   Scenario: Retrieve a list of recent movements
