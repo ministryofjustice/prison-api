@@ -80,7 +80,7 @@ public class InmateServiceImpl implements InmateService {
         query.append((query.length() == 0) ? inOffenderNos : StringUtils.isNotEmpty(inOffenderNos) ? ",and:" + inOffenderNos : "");
 
         Page<OffenderBooking> bookings = repository.findAllInmates(
-                bookingService.isSystemUser() ? Collections.emptySet() : getUserCaseloadIds(criteria.getUsername()),
+                bookingService.isOverrideRole() ? Collections.emptySet() : getUserCaseloadIds(criteria.getUsername()),
                 locationTypeGranularity,
                 query.toString(),
                 pageRequest);
@@ -213,7 +213,7 @@ public class InmateServiceImpl implements InmateService {
     public List<Assessment> getInmatesAssessmentsByCode(List<String> offenderNos, String assessmentCode) {
         List<Assessment> results = new ArrayList<>();
         if (!offenderNos.isEmpty()) {
-            final Set<String> caseLoadIds = bookingService.isSystemUser() ? Collections.emptySet()
+            final Set<String> caseLoadIds = bookingService.isOverrideRole() ? Collections.emptySet()
                     : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), true);
 
             List<List<String>> batch = Lists.partition(offenderNos, maxBatchSize);

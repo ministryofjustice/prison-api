@@ -67,7 +67,7 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
             pageRequest = request;
         }
 
-        final Set<String> caseloads = bookingService.isSystemUser() ? Collections.emptySet() : userService.getCaseLoadIds(request.getUsername());
+        final Set<String> caseloads = bookingService.isOverrideRole() ? Collections.emptySet() : userService.getCaseLoadIds(request.getUsername());
 
         Page<OffenderBooking> bookings = repository.searchForOffenderBookings(
                 caseloads, offenderNo, searchTerm1, searchTerm2,
