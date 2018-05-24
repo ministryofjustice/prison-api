@@ -1,8 +1,10 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.PrisonerSchedule;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
 
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -10,7 +12,8 @@ import java.util.List;
  */
 public interface SchedulesService {
 
-    List<PrisonerSchedule> getLocationGroupTodaysEvents(String agencyId, String groupName, TimeSlot timeSlot);
+    List<PrisonerSchedule> getLocationGroupEvents(String agencyId, String groupName, LocalDate date, TimeSlot timeSlot);
 
-    List<PrisonerSchedule> getLocationTodaysEvents(String agencyId, Long locationId, String usage, TimeSlot timeSlot);
+    List<PrisonerSchedule> getLocationEvents(String agencyId, Long locationId, String usage,
+                                             LocalDate date, TimeSlot timeSlot, String sortFields, Order sortOrder);
 }

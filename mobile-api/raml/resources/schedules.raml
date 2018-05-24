@@ -7,14 +7,17 @@
       description: The prison.
     name:
       type: string
-      description: The list name.
+      description: The location list name.
   get:
     queryParameters:
+      date?:
+        type : date-only
+        description: Date of whereabouts list, default today
       timeSlot?:
         type : enum
         (javaType): TimeSlot
-        description: AM or PM
-  type: { readOnlyCollection: { type: PrisonerSchedule, description: Get all events for today for prisoners in listed cells. } }
+        description: AM, PM or ED
+  type: { readOnlyCollection: { type: PrisonerSchedule, description: Get all events for given date for prisoners in listed cells. } }
 
 /{agencyId}/locations/{locationId}/usage/{usage}:
   (javaOperationName): getLocationEvents
@@ -30,9 +33,14 @@
       description: The locationUsage code from the location object.
   get:
     queryParameters:
+      date?:
+        type : date-only
+        description: Date of whereabouts list, default today
       timeSlot?:
         type : enum
         (javaType): TimeSlot
-        description: AM or PM
-  type: { readOnlyCollection: { type: PrisonerSchedule, description: Get all Prisoner events for today at location. } }
-
+        description: AM, PM or ED
+  type: { readOnlyCollection: { type: PrisonerSchedule, description: Get all Prisoner events for given date at location. } }
+  is: [
+      sortable: {fieldsList : "cellLocation or lastName"},
+  ]

@@ -37,7 +37,7 @@ Scenario: location group scheduled events in order
     Given one or more offenders have scheduled events for current day
     And offenders are located in a location that belongs to requested agency and location group
     When schedules are requested for a valid agency and location group
-    Then response is a list of offender's schedules for the current day with size 7
+    Then response is a list of offender's schedules with size 7
     And returned schedules are ordered as defined by requested location group
     And returned schedules are only for offenders located in locations that belong to requested agency and location group
 
@@ -45,7 +45,7 @@ Scenario: location group AM timeslot
     Given one or more offenders have scheduled events for current day
     And offenders are located in a location that belongs to requested agency and location group
     When schedules are requested for a valid agency and location group with 'timeSlot' = 'AM'
-    Then response is a list of offender's schedules for the current day with size 5
+    Then response is a list of offender's schedules with size 5
     And start time of all returned schedules is before 12h00
     And returned schedules are ordered as defined by requested location group
     And returned schedules are only for offenders located in locations that belong to requested agency and location group
@@ -54,9 +54,16 @@ Scenario: location group PM timeslot
     Given one or more offenders have scheduled events for current day
     And offenders are located in a location that belongs to requested agency and location group
     When schedules are requested for a valid agency and location group with 'timeSlot' = 'PM'
-    Then response is a list of offender's schedules for the current day with size 2
-    And start time of all returned schedules is on or after 12h00
+    Then response is a list of offender's schedules with size 2
+    And start time of all returned schedules is between 12h00 and 18h00
     And returned schedules are ordered as defined by requested location group
+    And returned schedules are only for offenders located in locations that belong to requested agency and location group
+
+Scenario: location group ED timeslot
+    Given offenders are located in a location that belongs to requested agency and location group
+    When schedules are requested for a valid agency and location group with date = '2017-10-15' and 'timeSlot' = 'ED'
+    Then response is a list of offender's schedules with size 1
+    And start time of all returned schedules is on or after 18h00
     And returned schedules are only for offenders located in locations that belong to requested agency and location group
 
 ###############################################################

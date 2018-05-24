@@ -1,10 +1,11 @@
 package net.syscon.elite.service.support;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString
 @EqualsAndHashCode(of = { "bookingId" })
 public class InmateDto {

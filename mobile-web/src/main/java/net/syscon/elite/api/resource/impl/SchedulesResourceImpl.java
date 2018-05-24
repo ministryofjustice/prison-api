@@ -2,11 +2,13 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.resource.ScheduleResource;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.SchedulesService;
 
 import javax.ws.rs.Path;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -22,19 +24,19 @@ public class SchedulesResourceImpl implements ScheduleResource {
     }
 
     @Override
-    public GetGroupEventsResponse getGroupEvents(String agencyId, String name, TimeSlot timeSlot) {
+    public GetGroupEventsResponse getGroupEvents(String agencyId, String name, LocalDate date, TimeSlot timeSlot) {
 
-        final List<PrisonerSchedule> events = schedulesService.getLocationGroupTodaysEvents(agencyId, name, timeSlot);
+        final List<PrisonerSchedule> events = schedulesService.getLocationGroupEvents(agencyId, name, date, timeSlot);
 
         return GetGroupEventsResponse.respond200WithApplicationJson(events);
     }
 
     @Override
     public GetLocationEventsResponse getLocationEvents(String agencyId, Long locationId, String usage,
-            TimeSlot timeSlot) {
+                                                       LocalDate date, TimeSlot timeSlot, String sortFields, Order sortOrder) {
 
-        final List<PrisonerSchedule> events = schedulesService.getLocationTodaysEvents(agencyId, locationId, usage,
-                timeSlot);
+        final List<PrisonerSchedule> events = schedulesService.getLocationEvents(agencyId, locationId, usage,
+                date, timeSlot, sortFields, sortOrder);
 
         return GetLocationEventsResponse.respond200WithApplicationJson(events);
     }

@@ -11,6 +11,8 @@ import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.InmateDto;
 import net.syscon.elite.service.support.ReferenceDomain;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,7 +31,7 @@ import java.util.stream.Stream;
 @Service
 @Transactional(readOnly = true)
 public class SchedulesServiceImpl implements SchedulesService {
-    private static final Comparator<PrisonerSchedule> BY_CELL_LOCATION = Comparator.comparing(PrisonerSchedule::getCellLocation);
+    private static final Comparator<PrisonerSchedule> BY_CELL_LOCATION = Comparator.comparing(PrisonerSchedule::getCellLocation).thenComparing(PrisonerSchedule::getStartTime);
 
     private final LocationService locationService;
     private final InmateService inmateService;
@@ -39,8 +41,8 @@ public class SchedulesServiceImpl implements SchedulesService {
     private final AuthenticationFacade authenticationFacade;
 
     public SchedulesServiceImpl(LocationService locationService, InmateService inmateService,
-            BookingService bookingService, ReferenceDomainService referenceDomainService,
-            ScheduleRepository scheduleRepository, AuthenticationFacade authenticationFacade) {
+                                BookingService bookingService, ReferenceDomainService referenceDomainService,
+                                ScheduleRepository scheduleRepository, AuthenticationFacade authenticationFacade) {
         this.locationService = locationService;
         this.inmateService = inmateService;
         this.bookingService = bookingService;
@@ -51,18 +53,18 @@ public class SchedulesServiceImpl implements SchedulesService {
 
     @Override
     @VerifyAgencyAccess
-    public List<PrisonerSchedule> getLocationGroupTodaysEvents(String agencyId, String groupName, TimeSlot timeSlot) {
+    public List<PrisonerSchedule> getLocationGroupEvents(String agencyId, String groupName, LocalDate date, TimeSlot timeSlot) {
 
         final List<InmateDto> inmates = inmateService.findInmatesByLocation(
                 currentUsername(),
                 agencyId,
                 locationIdsForGroup(agencyId, groupName));
+        final LocalDate day = date == null ? LocalDate.now() : date;
+        final LocalDateTime midday = midday(day);
+        final LocalDateTime evening = evening(day);
 
-        final LocalDateTime middayToday = middayToday();
-
-        return inmates
-                .stream()
-                .flatMap(inmate -> prisonerScheduleForInmate(inmate, timeSlot, middayToday))
+        return inmates.stream()
+                .flatMap(inmate -> prisonerScheduleForInmate(inmate, timeSlot, day, midday, evening))
                 .sorted(BY_CELL_LOCATION)
                 .collect(Collectors.toList());
     }
@@ -84,25 +86,30 @@ public class SchedulesServiceImpl implements SchedulesService {
                 .collect(Collectors.toList());
     }
 
-    private LocalDateTime middayToday() {
-        return LocalDateTime.of(LocalDate.now(), LocalTime.of(12, 0));
+    private LocalDateTime midday(LocalDate date) {
+        return LocalDateTime.of(date, LocalTime.of(12, 0));
     }
 
-    private Stream<PrisonerSchedule> prisonerScheduleForInmate(InmateDto inmate, TimeSlot timeSlot, LocalDateTime middayToday) {
-        return todaysEventsForInmate(inmate)
-            .filter( event -> eventStartsInTimeslot(event, timeSlot, middayToday))
-            .map(event -> prisonerSchedule(inmate, event));
+    private LocalDateTime evening(LocalDate date) {
+        return LocalDateTime.of(date, LocalTime.of(17, 0));
     }
 
-    private Stream<ScheduledEvent> todaysEventsForInmate(InmateDto inmate) {
-        return bookingService.getEventsToday(inmate.getBookingId()).stream();
+    private Stream<PrisonerSchedule> prisonerScheduleForInmate(InmateDto inmate, TimeSlot timeSlot, LocalDate date, LocalDateTime midday, LocalDateTime evening) {
+        return daysEventsForInmate(inmate, date)
+                .filter(event -> eventStartsInTimeslot(event.getStartTime(), timeSlot, midday, evening))
+                .map(event -> prisonerSchedule(inmate, event));
     }
 
+    private Stream<ScheduledEvent> daysEventsForInmate(InmateDto inmate, LocalDate date) {
+        return bookingService.getEventsOnDay(inmate.getBookingId(), date).stream();
+    }
 
-    private boolean eventStartsInTimeslot(ScheduledEvent event, TimeSlot timeSlot, LocalDateTime middayToday) {
-        return timeSlot == null //
-                || (timeSlot == TimeSlot.AM && event.getStartTime().isBefore(middayToday))
-                || (timeSlot == TimeSlot.PM && !event.getStartTime().isBefore(middayToday));
+    private boolean eventStartsInTimeslot(LocalDateTime start, TimeSlot timeSlot,
+                                          LocalDateTime midday, LocalDateTime evening) {
+        return timeSlot == null
+                || (timeSlot == TimeSlot.AM && start.isBefore(midday))
+                || (timeSlot == TimeSlot.PM && !start.isBefore(midday) && start.isBefore(evening))
+                || (timeSlot == TimeSlot.ED && !start.isBefore(evening));
     }
 
     private PrisonerSchedule prisonerSchedule(InmateDto inmate, ScheduledEvent event) {
@@ -121,31 +128,34 @@ public class SchedulesServiceImpl implements SchedulesService {
 
     @Override
     @VerifyAgencyAccess
-    public List<PrisonerSchedule> getLocationTodaysEvents(String agencyId, Long locationId, String usage,
-            TimeSlot timeSlot) {
+    public List<PrisonerSchedule> getLocationEvents(String agencyId, Long locationId, String usage,
+                                                    LocalDate date, TimeSlot timeSlot, String sortFields, Order sortOrder) {
 
         validateLocation(locationId);
         validateUsage(usage);
-        final LocalDate today = LocalDate.now();
-        final LocalDateTime middayToday = middayToday();
+        final LocalDate day = date == null ? LocalDate.now() : date;
+        final LocalDateTime midday = midday(day);
+        final LocalDateTime evening = evening(day);
         final List<PrisonerSchedule> events;
+        final String orderByFields = StringUtils.defaultString(sortFields, "lastName");
+        final Order order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
         switch (usage) {
-        case "APP":
-            events = scheduleRepository.getLocationAppointments(locationId, today, today, "lastName", Order.ASC);
-            break;
-        case "VISIT":
-            events = scheduleRepository.getLocationVisits(locationId, today, today, "lastName", Order.ASC);
-            break;
-        default:
-            events = scheduleRepository.getLocationActivities(locationId, today, today, "lastName", Order.ASC);
-            break;
+            case "APP":
+                events = scheduleRepository.getLocationAppointments(locationId, day, day, orderByFields, order);
+                break;
+            case "VISIT":
+                events = scheduleRepository.getLocationVisits(locationId, day, day, orderByFields, order);
+                break;
+            default:
+                events = scheduleRepository.getLocationActivities(locationId, day, day, orderByFields, order);
+                break;
         }
         if (timeSlot == null) {
             return events;
         }
-        return events.stream().filter(p -> (timeSlot == TimeSlot.AM && p.getStartTime().isBefore(middayToday))//
-                                        || (timeSlot == TimeSlot.PM && !p.getStartTime().isBefore(middayToday)))//
-                     .collect(Collectors.toList());
+        return events.stream()
+                .filter(p -> eventStartsInTimeslot(p.getStartTime(), timeSlot, midday, evening))
+                .collect(Collectors.toList());
     }
 
     private void validateLocation(Long locationId) {
