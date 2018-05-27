@@ -460,8 +460,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public boolean isOverrideRole(String... overrideRoles) {
-        final List<String> roles = Arrays.asList(overrideRoles.length > 0 ? overrideRoles : new String[] {"SYSTEM_USER"});
-
+        final List<String> defaultRoles = Arrays.asList(overrideRoles.length > 0 ? overrideRoles : new String[] {"ROLE_SYSTEM_USER"});
+        List<String> roles = defaultRoles.stream().map(r -> StringUtils.replaceFirst(r, "ROLE_", "")).collect(Collectors.toList());
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication != null && authentication.getAuthorities().stream().anyMatch(a -> roles.contains(StringUtils.replaceFirst(a.getAuthority(), "ROLE_", "")));
     }
