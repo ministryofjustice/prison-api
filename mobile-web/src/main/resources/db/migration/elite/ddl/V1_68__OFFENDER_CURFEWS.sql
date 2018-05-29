@@ -34,7 +34,7 @@ create table OFFENDER_CURFEWS
   CONTRACTOR_CORP_ID           NUMBER(10),
   REVIEW_REASON                VARCHAR2(12),
   CREATE_DATETIME              TIMESTAMP(9) default SYSTIMESTAMP not null,
-  CREATE_USER_ID               VARCHAR2(32)                      not null,
+  CREATE_USER_ID               VARCHAR2(32) default USER         not null,
   MODIFY_DATETIME              TIMESTAMP(9) default SYSTIMESTAMP,
   MODIFY_USER_ID               VARCHAR2(32),
   SEAL_FLAG                    VARCHAR2(1)
