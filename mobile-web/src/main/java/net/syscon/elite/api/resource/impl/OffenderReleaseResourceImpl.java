@@ -9,6 +9,7 @@ import net.syscon.elite.service.BookingService;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Path;
+import static java.util.Collections.emptyList;
 import java.util.List;
 
 @RestResource
@@ -25,9 +26,21 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     @Override
     public GetOffenderSentencesResponse getOffenderSentences(String agencyId, List<String> offenderNos) {
         List<OffenderSentenceDetail> sentences = bookingService.getOffenderSentencesSummary(
-                agencyId, authenticationFacade.getCurrentUsername(), offenderNos);
+                agencyId,
+                authenticationFacade.getCurrentUsername(),
+                offenderNos);
 
         return GetOffenderSentencesResponse.respond200WithApplicationJson(sentences);
+    }
+
+    @Override
+    public GetOffenderSentencesEligibleForHomeDetentionCurfewResponse getOffenderSentencesEligibleForHomeDetentionCurfew(String agencyId) {
+        List<OffenderSentenceDetail> sentences = bookingService.getOffenderSentencesSummary(
+                agencyId,
+                authenticationFacade.getCurrentUsername(),
+                emptyList());
+
+        return GetOffenderSentencesEligibleForHomeDetentionCurfewResponse.respond200WithApplicationJson(sentences);
     }
 
     @Override
