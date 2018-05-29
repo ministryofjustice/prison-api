@@ -18,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Aspect
 @Slf4j
@@ -91,7 +92,7 @@ public class AuthorisationAspect {
     }
 
     private boolean isAccessAllowed(String[] overrideRoles) {
-        final List<String> roles = Arrays.asList(overrideRoles);
+        final List<String> roles = Arrays.stream(overrideRoles).map(r -> StringUtils.replaceFirst(r, "ROLE_", "")).collect(Collectors.toList());
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication != null &&
                 authentication.getAuthorities().stream()

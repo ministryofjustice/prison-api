@@ -1,10 +1,7 @@
 package net.syscon.elite.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.CaseLoad;
-import net.syscon.elite.api.model.StaffDetail;
-import net.syscon.elite.api.model.UserDetail;
-import net.syscon.elite.api.model.UserRole;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -107,7 +104,7 @@ public class UserServiceImpl implements UserService {
 		return userRepository
                 .getAllStaffRolesForCaseload(caseload, roleCode)
                 .stream()
-                .map(sur -> sur.getUsername())
+                .map(StaffUserRole::getUsername)
                 .collect(Collectors.toSet());
 	}
 
