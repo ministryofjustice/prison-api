@@ -11,10 +11,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.time.Clock;
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -24,6 +21,11 @@ import java.util.stream.Collectors;
 public class OffenderCurfewServiceImpl implements OffenderCurfewService {
 
     private static final int DAYS_TO_ADD = 27;
+
+    private static final  Comparator<LocalDate> NULL_SAFE_LOCAL_DATE_COMPARATOR = Comparator.nullsLast(Comparator.naturalOrder());
+    private static final Comparator<OffenderSentenceDetail> HDCED_COMPARATOR = Comparator.comparing(
+                    osd -> osd.getSentenceDetail().getHomeDetentionCurfewEligibilityDate(),
+                    NULL_SAFE_LOCAL_DATE_COMPARATOR);
 
     private final OffenderCurfewRepository offenderCurfewRepository;
     private final BookingService bookingService;
@@ -41,9 +43,11 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
     @Override
     public List<OffenderSentenceDetail> getHomeDetentionCurfewCandidates(String agencyId, String username) {
 
-        return filterList(
-                bookingService.getOffenderSentencesSummary(agencyId, username, Collections.emptyList()),
-                offenderEligibleForHomeCurfew(agencyId, username));
+        return bookingService.getOffenderSentencesSummary(agencyId, username, Collections.emptyList())
+                .stream()
+                .sorted(HDCED_COMPARATOR)
+                .filter(offenderEligibleForHomeCurfew(agencyId, username))
+                .collect(Collectors.toList());
     }
 
     private Predicate<OffenderSentenceDetail> offenderEligibleForHomeCurfew(String agencyId, String username) {
@@ -53,13 +57,6 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
         final LocalDate twentySevenDaysAfterToday = LocalDate.now(clock).plusDays(DAYS_TO_ADD);
 
         return os -> offenderIsEligibleForHomeCurfew(os, bookingIdsForOffendersWithoutCurfewApprovalStatus, twentySevenDaysAfterToday);
-    }
-
-    private static <T> List<T> filterList(List<T> list, Predicate<T> predicate) {
-        return list
-                .stream()
-                .filter(predicate)
-                .collect(Collectors.toList());
     }
 
     private static boolean offenderIsEligibleForHomeCurfew(OffenderSentenceDetail os,

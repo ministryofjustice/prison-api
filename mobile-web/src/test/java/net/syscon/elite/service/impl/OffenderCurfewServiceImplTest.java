@@ -85,7 +85,10 @@ public class OffenderCurfewServiceImplTest {
                 .stream()
                 .map(OffenderSentenceDetail::getBookingId)
                 .collect(Collectors.toList())
-        ).containsOnly(3L, 4L, 13L, 14L);
+        ).containsExactly(
+                13L, 14L,
+                 3L,  4L
+        );
 
     }
 
@@ -106,29 +109,30 @@ public class OffenderCurfewServiceImplTest {
                 .stream()
                 .map(OffenderSentenceDetail::getBookingId)
                 .collect(Collectors.toList())
-        ).containsOnly(
-                 1L,  2L,  3L,  4L,
+        ).containsExactly(
                      12L, 13L, 14L,
-                25L);
+                25L,
+                 1L,  2L,  3L,  4L
+        );
 
     }
 
     private List<OffenderSentenceDetail> offenderSentenceDetails() {
 
         return Arrays.asList(
-                offenderSentenceDetail(1L, TODAY.plusDays(CUTOFF_DAYS_OFFSET - 2), null, HDCED),
-                offenderSentenceDetail(2L, TODAY.plusDays(CUTOFF_DAYS_OFFSET - 1), null, HDCED),
-                offenderSentenceDetail(3L, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 0), null, HDCED),
-                offenderSentenceDetail(4L, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 1), null, HDCED),
+                offenderSentenceDetail(1L, TODAY.plusDays(CUTOFF_DAYS_OFFSET - 2), null, HDCED.plusDays(10)),
+                offenderSentenceDetail(2L, TODAY.plusDays(CUTOFF_DAYS_OFFSET - 1), null, HDCED.plusDays(11)),
+                offenderSentenceDetail(3L, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 0), null, HDCED.plusDays(12)),
+                offenderSentenceDetail(4L, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 1), null, HDCED.plusDays(13)),
                 offenderSentenceDetail(5L, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 2), null, null),
 
                 offenderSentenceDetail(11L, null, TODAY.plusDays(CUTOFF_DAYS_OFFSET - 2), null),
-                offenderSentenceDetail(12L, null, TODAY.plusDays(CUTOFF_DAYS_OFFSET - 1), HDCED),
-                offenderSentenceDetail(13L, null, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 0), HDCED),
-                offenderSentenceDetail(14L, null, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 1), HDCED),
+                offenderSentenceDetail(12L, null, TODAY.plusDays(CUTOFF_DAYS_OFFSET - 1), HDCED.plusDays(4)),
+                offenderSentenceDetail(13L, null, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 0), HDCED.plusDays(5)),
+                offenderSentenceDetail(14L, null, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 1), HDCED.plusDays(6)),
                 offenderSentenceDetail(15L, null, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 2), null),
 
-                offenderSentenceDetail(25L, null, null, HDCED)
+                offenderSentenceDetail(25L, null, null, HDCED.plusDays(7))
         );
     }
 
