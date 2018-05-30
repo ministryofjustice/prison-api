@@ -35,6 +35,7 @@ public class OffenderCurfewServiceImplTest {
     private static final String DUMMY_AGENCY_QUERY = "dummyQuery";
 
     private static final LocalDate TODAY = LocalDate.of(2017, 6, 15);
+    private static final LocalDate HDCED = LocalDate.of(2018, 12, 12);
 
     // Meh. There is no mapping from a LocalDate to an Instant - because a LocalDate doesn't fully encode an instant.
     // Nevertheless, clock and TODAY should be aligned in the sense asserted by the first test below.
@@ -84,7 +85,7 @@ public class OffenderCurfewServiceImplTest {
                 .stream()
                 .map(OffenderSentenceDetail::getBookingId)
                 .collect(Collectors.toList())
-        ).containsOnly(3L, 4L, 5L, 13L, 14L, 15L);
+        ).containsOnly(3L, 4L, 13L, 14L);
 
     }
 
@@ -106,8 +107,8 @@ public class OffenderCurfewServiceImplTest {
                 .map(OffenderSentenceDetail::getBookingId)
                 .collect(Collectors.toList())
         ).containsOnly(
-                1L,   2L,  3L,  4L,  5L,
-                11L, 12L, 13L, 14L, 15L,
+                 1L,  2L,  3L,  4L,
+                     12L, 13L, 14L,
                 25L);
 
     }
@@ -115,27 +116,32 @@ public class OffenderCurfewServiceImplTest {
     private List<OffenderSentenceDetail> offenderSentenceDetails() {
 
         return Arrays.asList(
-                offenderSentenceDetail(1L, TODAY.plusDays(CUTOFF_DAYS_OFFSET - 2), null),
-                offenderSentenceDetail(2L, TODAY.plusDays(CUTOFF_DAYS_OFFSET - 1), null),
-                offenderSentenceDetail(3L, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 0), null),
-                offenderSentenceDetail(4L, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 1), null),
-                offenderSentenceDetail(5L, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 2), null),
+                offenderSentenceDetail(1L, TODAY.plusDays(CUTOFF_DAYS_OFFSET - 2), null, HDCED),
+                offenderSentenceDetail(2L, TODAY.plusDays(CUTOFF_DAYS_OFFSET - 1), null, HDCED),
+                offenderSentenceDetail(3L, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 0), null, HDCED),
+                offenderSentenceDetail(4L, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 1), null, HDCED),
+                offenderSentenceDetail(5L, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 2), null, null),
 
-                offenderSentenceDetail(11L, null, TODAY.plusDays(CUTOFF_DAYS_OFFSET - 2)),
-                offenderSentenceDetail(12L, null, TODAY.plusDays(CUTOFF_DAYS_OFFSET - 1)),
-                offenderSentenceDetail(13L, null, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 0)),
-                offenderSentenceDetail(14L, null, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 1)),
-                offenderSentenceDetail(15L, null, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 2)),
+                offenderSentenceDetail(11L, null, TODAY.plusDays(CUTOFF_DAYS_OFFSET - 2), null),
+                offenderSentenceDetail(12L, null, TODAY.plusDays(CUTOFF_DAYS_OFFSET - 1), HDCED),
+                offenderSentenceDetail(13L, null, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 0), HDCED),
+                offenderSentenceDetail(14L, null, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 1), HDCED),
+                offenderSentenceDetail(15L, null, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 2), null),
 
-                offenderSentenceDetail(25L, null, null)
+                offenderSentenceDetail(25L, null, null, HDCED)
         );
     }
 
-    private OffenderSentenceDetail offenderSentenceDetail(Long bookingId, LocalDate automaticReleaseDate, LocalDate cofirmedReleaseDate) {
+    private OffenderSentenceDetail offenderSentenceDetail(
+            Long bookingId,
+            LocalDate automaticReleaseDate,
+            LocalDate cofirmedReleaseDate,
+            LocalDate homeDetentionCurfewEligibilityDate) {
         SentenceDetail detail = SentenceDetail
                 .builder()
                 .automaticReleaseDate(automaticReleaseDate)
                 .confirmedReleaseDate(cofirmedReleaseDate)
+                .homeDetentionCurfewEligibilityDate(homeDetentionCurfewEligibilityDate)
                 .build();
 
         return OffenderSentenceDetail

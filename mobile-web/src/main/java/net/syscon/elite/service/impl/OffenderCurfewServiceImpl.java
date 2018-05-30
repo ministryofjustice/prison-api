@@ -69,9 +69,12 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
         final SentenceDetail sentenceDetail = os.getSentenceDetail();
 
         return
-                offendersWithoutCurfewApprovalStatus.contains(os.getBookingId()) ||
+            (sentenceDetail.getHomeDetentionCurfewEligibilityDate() != null) &&
+            (
                 isBefore(earliestDateForArdOrCrd, sentenceDetail.getAutomaticReleaseDate()) ||
-                isBefore(earliestDateForArdOrCrd, sentenceDetail.getConfirmedReleaseDate());
+                isBefore(earliestDateForArdOrCrd, sentenceDetail.getConfirmedReleaseDate()) ||
+                offendersWithoutCurfewApprovalStatus.contains(os.getBookingId())
+            );
     }
 
     private static boolean isBefore(LocalDate d1, LocalDate d2) {
