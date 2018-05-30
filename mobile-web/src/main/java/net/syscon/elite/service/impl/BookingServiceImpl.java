@@ -44,6 +44,8 @@ import static net.syscon.elite.service.ContactService.EXTERNAL_REL;
 @Validated
 public class BookingServiceImpl implements BookingService {
 
+    private static final String AGENCY_LOCATION_ID_KEY = "agencyLocationId";
+
     private final StartTimeComparator startTimeComparator = new StartTimeComparator();
 
     private final BookingRepository bookingRepository;
@@ -588,19 +590,20 @@ public class BookingServiceImpl implements BookingService {
         return offenderSentenceDetails.stream().sorted(compareDate).collect(toList());
     }
 
-    private Set<String> caseLoadsForUser(String username) {
-        return isOverrideRole() ? Collections.emptySet() : getUserCaseloadIds(username);
-    }
 
     private List<OffenderSentenceDetailDto> offenderSentenceSummaries(String agencyId, String username, List<String> offenderNos) {
 
-        final Set<String> caseloads = caseLoadsForUser(username);
+        final Set<String> caseloads = caseLoadIdsForUser(username);
 
         if (offenderNos.isEmpty()) {
             return offenderSentenceSummaries(agencyId, username, caseloads);
         } else {
             return offenderSentenceSummaries(offenderNos, caseloads);
         }
+    }
+
+    private Set<String> caseLoadIdsForUser(String username) {
+        return isOverrideRole() ? Collections.emptySet() : caseLoadService.getCaseLoadIdsForUser(username, true);
     }
 
     private List<OffenderSentenceDetailDto> offenderSentenceSummaries(String agencyId, String username, Set<String> caseloads) {
@@ -613,35 +616,48 @@ public class BookingServiceImpl implements BookingService {
 
     private List<OffenderSentenceDetailDto> offenderSentenceSummaries(List<String> offenderNos, Set<String> caseloads) {
 
-        final List<OffenderSentenceDetailDto> offenderSentenceSummaries = new ArrayList<>();
-
-        List<List<String>> offenderNumberBatches = Lists.partition(offenderNos, maxBatchSize);
-        offenderNumberBatches.forEach(offenderNumbers -> {
-            String query = "offenderNo:in:" + quotedAndPipeDelimited(offenderNumbers.stream());
-            offenderSentenceSummaries.addAll(bookingRepository.getOffenderSentenceSummary(query, caseloads));
-        });
-        return offenderSentenceSummaries;
+        return Lists
+                .partition(offenderNos, maxBatchSize)
+                .stream()
+                .flatMap( numbers -> {
+                    String query = "offenderNo:in:" + quotedAndPipeDelimited(numbers.stream());
+                    return bookingRepository.getOffenderSentenceSummary(query, caseloads).stream();
+                })
+                .collect(Collectors.toList());
     }
 
-    private String quotedAndPipeDelimited(Stream<String> values) {
+    private static String quotedAndPipeDelimited(Stream<String> values) {
         return values.collect(Collectors.joining("'|'","'", "'"));
     }
 
+    @Override
+    public String buildAgencyQuery(String agencyId, String username) {
+        return StringUtils.isBlank(agencyId) ?
+                forAgenciesInWorkingCaseload(username) :
+                forAgency(agencyId);
+    }
 
-    private String buildAgencyQuery(String agencyId, String username) {
-        final StringBuilder query = new StringBuilder();
-        if (StringUtils.isBlank(agencyId)) {
-            Optional<CaseLoad> workingCaseLoadForUser = caseLoadService.getWorkingCaseLoadForUser(username);
+    private String forAgenciesInWorkingCaseload(String username) {
 
-            if (workingCaseLoadForUser.isPresent()) {
-                List<Agency> agenciesByCaseload = agencyService.getAgenciesByCaseload(workingCaseLoadForUser.get().getCaseLoadId());
-                final String agencies = quotedAndPipeDelimited(agenciesByCaseload.stream().map(Agency::getAgencyId));
-                query.append("agencyLocationId:in:").append(agencies);
-            }
-        } else {
-            query.append("agencyLocationId:eq:'").append(agencyId).append("'");
-        }
-        return StringUtils.trimToEmpty(query.toString());
+        final List<Agency> agencies = workingCaseloadAgenciesForUser(username);
+
+        return agencies.isEmpty() ? "" : AGENCY_LOCATION_ID_KEY + ":in:" +
+                quotedAndPipeDelimited(
+                        agencies
+                        .stream()
+                        .map(Agency::getAgencyId));
+    }
+
+    private static String forAgency(String agencyId) {
+        return AGENCY_LOCATION_ID_KEY + ":eq:" + agencyId;
+    }
+
+    private List<Agency> workingCaseloadAgenciesForUser(String username) {
+        return caseLoadService
+                .getWorkingCaseLoadForUser(username)
+                .map(CaseLoad::getCaseLoadId)
+                .map(agencyService::getAgenciesByCaseload)
+                .orElse(Collections.emptyList());
     }
 
     @Override
@@ -652,10 +668,6 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public OffenderSummary recallBooking(@Valid RecallBooking recallBooking) {
         throw new NotSupportedException("Service not implemented here.");
-    }
-
-    private Set<String> getUserCaseloadIds(String username) {
-        return caseLoadService.getCaseLoadIdsForUser(username, true);
     }
 
 }

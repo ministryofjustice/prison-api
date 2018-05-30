@@ -6,10 +6,10 @@ import net.syscon.elite.api.resource.OffenderSentenceResource;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.BookingService;
+import net.syscon.elite.service.OffenderCurfewService;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Path;
-import static java.util.Collections.emptyList;
 import java.util.List;
 
 @RestResource
@@ -17,10 +17,15 @@ import java.util.List;
 public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     private final AuthenticationFacade authenticationFacade;
     private final BookingService bookingService;
+    private final OffenderCurfewService offenderCurfewService;
 
-    public OffenderReleaseResourceImpl(AuthenticationFacade authenticationFacade, BookingService bookingService) {
+    public OffenderReleaseResourceImpl(
+            AuthenticationFacade authenticationFacade,
+            BookingService bookingService,
+            OffenderCurfewService offenderCurfewService) {
         this.authenticationFacade = authenticationFacade;
         this.bookingService = bookingService;
+        this.offenderCurfewService = offenderCurfewService;
     }
 
     @Override
@@ -34,13 +39,12 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     }
 
     @Override
-    public GetOffenderSentencesEligibleForHomeDetentionCurfewResponse getOffenderSentencesEligibleForHomeDetentionCurfew(String agencyId) {
-        List<OffenderSentenceDetail> sentences = bookingService.getOffenderSentencesSummary(
+    public GetOffenderSentencesHomeDetentionCurfewCandidatesResponse getOffenderSentencesHomeDetentionCurfewCandidates(String agencyId) {
+        List<OffenderSentenceDetail> sentences = offenderCurfewService.getHomeDetentionCurfewCandidates(
                 agencyId,
-                authenticationFacade.getCurrentUsername(),
-                emptyList());
+                authenticationFacade.getCurrentUsername());
 
-        return GetOffenderSentencesEligibleForHomeDetentionCurfewResponse.respond200WithApplicationJson(sentences);
+        return GetOffenderSentencesHomeDetentionCurfewCandidatesResponse.respond200WithApplicationJson(sentences);
     }
 
     @Override

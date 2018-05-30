@@ -23,8 +23,8 @@ post:
         application/json:
          type: OffenderSentenceDetail[]
          description: List of offenders (with associated sentence detail).
-/eligible-for-home-detention-curfew:
-  description:  Find sentence details for offenders, restricted to those eligible for Home Detention Curfew (HDC)
+/home-detention-curfew-candidates:
+  description:  Find sentence details for offenders, restricted to those who are candidates for Home Detention Curfew (HDC)
   type: { readOnlyCollection: { type: OffenderSentenceDetail, description: List of offenders (with associated sentence detail). } }
   get:
     queryParameters:
@@ -34,7 +34,7 @@ post:
         example: LEI
     responses:
       200:
-        description: The list of offenders is returned.
+        description: The list of matching offenders is returned.
         body:
           application/json:
            type: OffenderSentenceDetail[]

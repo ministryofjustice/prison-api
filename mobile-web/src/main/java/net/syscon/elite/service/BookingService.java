@@ -13,6 +13,11 @@ import java.util.Map;
  * Bookings API service interface.
  */
 public interface BookingService {
+    // TODO: Doesn't really belong here now because its shared with OffenderCurfewServiceImpl. Create a CaseloadToAgencyMappingService?
+    // TODO: Is this a symptom of Repository implementation details leaking into the service layer??? This method *could* return a list of AgencyId which
+    // is passed to the repository layer...
+    String buildAgencyQuery(String agencyId, String username);
+
     SentenceDetail getBookingSentenceDetail(Long bookingId);
 
     PrivilegeSummary getBookingIEPSummary(Long bookingId, boolean withDetails);
