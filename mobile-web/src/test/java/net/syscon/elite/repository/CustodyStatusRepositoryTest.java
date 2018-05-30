@@ -48,8 +48,8 @@ public class CustodyStatusRepositoryTest {
         final List<PrisonerCustodyStatus> recentMovements = repository.getRecentMovements(threshold, LocalDate.of(2017, Month.JULY, 16));
         assertThat(recentMovements.size()).isEqualTo(1);
         assertThat(recentMovements).asList()
-                .extracting("offenderNo", "createDateTime")
-                .contains(tuple("Z0024ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 24, 0, 0)));
+                .extracting("offenderNo", "createDateTime", "fromAgency", "toAgency", "movementType", "directionCode")
+                .contains(tuple("Z0024ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 24, 0, 0), "OUT", "LEI", "ADM", "IN"));
     }
 
     @Test
@@ -58,8 +58,9 @@ public class CustodyStatusRepositoryTest {
         final List<PrisonerCustodyStatus> recentMovements = repository.getRecentMovements(threshold, LocalDate.of(2017, Month.AUGUST, 16));
         assertThat(recentMovements.size()).isEqualTo(2);
         assertThat(recentMovements).asList()
-                .extracting("offenderNo", "createDateTime")
-                .contains(tuple("Z0021ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 21, 0, 0)),
-                        tuple("Z0019ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 19, 0, 0)));
+                .extracting("offenderNo", "createDateTime", "fromAgency", "toAgency", "movementType", "directionCode")
+                .contains(
+                        tuple("Z0021ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 21, 0, 0), "LEI", "OUT", "REL", "OUT"),
+                        tuple("Z0019ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 19, 0, 0), "LEI", "BMI", "TRN", "OUT"));
     }
 }
