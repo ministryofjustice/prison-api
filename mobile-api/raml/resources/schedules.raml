@@ -17,7 +17,7 @@
         type : enum
         (javaType): TimeSlot
         description: AM, PM or ED
-  type: { readOnlyCollection: { type: PrisonerSchedule, description: Get all events for given date for prisoners in listed cells. } }
+  type: { readOnlyCollection: { type: PrisonerSchedule, description: Get all events for given date for prisoners in listed cells, sorted by start time. } }
 
 /{agencyId}/locations/{locationId}/usage/{usage}:
   (javaOperationName): getLocationEvents

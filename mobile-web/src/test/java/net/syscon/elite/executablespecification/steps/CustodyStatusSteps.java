@@ -31,8 +31,11 @@ public class CustodyStatusSteps extends CommonSteps {
     @Step("Verify a list of records are returned")
     public void verifyListOfRecords() {
         assertThat(movements).hasOnlyElementsOfType(PrisonerCustodyStatus.class).size().isEqualTo(1);
-        assertThat(movements).asList().extracting("offenderNo", "createDateTime").contains(
-                tuple("Z0021ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 21, 0, 0)));
+        assertThat(movements).asList()
+                .extracting("offenderNo", "createDateTime", "fromAgency", "toAgency", "movementType", "directionCode")
+                .contains(
+                        tuple("Z0021ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 21, 0, 0),
+                                "LEI", "OUT", "REL", "OUT"));
     }
 
     private void doListApiCall(String fromDateTime, String movementDate) {
