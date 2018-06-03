@@ -70,8 +70,17 @@ public class  BookingServiceImplTest {
 
     @Before
     public void init() {
-        bookingService = new BookingServiceImpl(bookingRepository, null, agencyService, null,
-                locationService, referenceDomainService, telemetryClient, "1", 10);
+        bookingService = new BookingServiceImpl(
+                bookingRepository,
+                null,
+                agencyService,
+                null,
+                locationService,
+                referenceDomainService,
+                null,
+                telemetryClient,
+                "1",
+                10);
     }
 
     @Test

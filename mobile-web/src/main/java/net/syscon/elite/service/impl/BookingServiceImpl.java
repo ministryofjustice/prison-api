@@ -54,6 +54,7 @@ public class BookingServiceImpl implements BookingService {
     private final CaseLoadService caseLoadService;
     private final LocationService locationService;
     private final ReferenceDomainService referenceDomainService;
+    private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
     private final TelemetryClient telemetryClient;
     private final String defaultIepLevel;
     private final int maxBatchSize;
@@ -81,6 +82,7 @@ public class BookingServiceImpl implements BookingService {
                               SentenceRepository sentenceRepository, AgencyService agencyService,
                               CaseLoadService caseLoadService, LocationService locationService,
                               ReferenceDomainService referenceDomainService,
+                              CaseloadToAgencyMappingService caseloadToAgencyMappingService,
                               TelemetryClient telemetryClient,
                               @Value("${api.bookings.iepLevel.default:Unknown}") String defaultIepLevel,
                               @Value("${batch.max.size:1000}") int maxBatchSize) {
@@ -90,6 +92,7 @@ public class BookingServiceImpl implements BookingService {
         this.caseLoadService = caseLoadService;
         this.locationService = locationService;
         this.referenceDomainService = referenceDomainService;
+        this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
         this.telemetryClient = telemetryClient;
         this.defaultIepLevel = defaultIepLevel;
         this.maxBatchSize = maxBatchSize;
@@ -630,8 +633,7 @@ public class BookingServiceImpl implements BookingService {
         return values.collect(Collectors.joining("'|'","'", "'"));
     }
 
-    @Override
-    public String buildAgencyQuery(String agencyId, String username) {
+    private String buildAgencyQuery(String agencyId, String username) {
         return StringUtils.isBlank(agencyId) ?
                 forAgenciesInWorkingCaseload(username) :
                 forAgency(agencyId);
@@ -639,7 +641,7 @@ public class BookingServiceImpl implements BookingService {
 
     private String forAgenciesInWorkingCaseload(String username) {
 
-        final List<Agency> agencies = workingCaseloadAgenciesForUser(username);
+        final List<Agency> agencies = caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(username);
 
         return agencies.isEmpty() ? "" : AGENCY_LOCATION_ID_KEY + ":in:" +
                 quotedAndPipeDelimited(
@@ -650,14 +652,6 @@ public class BookingServiceImpl implements BookingService {
 
     private static String forAgency(String agencyId) {
         return AGENCY_LOCATION_ID_KEY + ":eq:" + agencyId;
-    }
-
-    private List<Agency> workingCaseloadAgenciesForUser(String username) {
-        return caseLoadService
-                .getWorkingCaseLoadForUser(username)
-                .map(CaseLoad::getCaseLoadId)
-                .map(agencyService::getAgenciesByCaseload)
-                .orElse(Collections.emptyList());
     }
 
     @Override
