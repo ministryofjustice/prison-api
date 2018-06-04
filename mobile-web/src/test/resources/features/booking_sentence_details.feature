@@ -257,20 +257,10 @@ Feature: Booking Sentence Details
       | 19      | 2014-09-09 |            |             |             |
       | 20      | 2014-09-09 |            |             |             |
 
-@wip
-Scenario: Retrieve sentence details for offenders who are candidates for Home Detention Curfew.
-  When sentence details are requested for offenders who are candidates for Home Detention Curfew
-#  The query is date sensitive, but the data is fixed. This means that the results from this query
-#  change depending upon the date.  The date based behaviour is fully tested by the service tests,
-#  therefore treat this test a a check that the end-point exists, returns data and nothing more.
-#  Alternatively, change the API so that the client has to specify the cut-off date...
-  Then some offender sentence details are returned
+  Scenario: Retrieve sentence details for offenders who are candidates for Home Detention Curfew.
+    When sentence details are requested for offenders who are candidates for Home Detention Curfew
+    Then some offender sentence details are returned
 
-  @wip
   Scenario: Retrieve sentence details for offenders within an Agency who are candidates for Home Detention Curfew.
     When sentence details are requested for offenders who are candidates for Home Detention Curfew within an Agency
-#  The query is date sensitive, but the data is fixed. This means that the results from this query
-#  change depending upon the date.  The date based behaviour is fully tested by the service tests,
-#  therefore treat this test a a check that the end-point exists, returns data and nothing more.
-#  Alternatively, change the API so that the client has to specify the cut-off date...
     Then some offender sentence details are returned
