@@ -581,6 +581,10 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingSentenceDetail.verifyTotalResourceRecordsAvailable(total);
     }
 
+    @Then("some offender sentence details are returned")
+    public void someOffenderSentenceDetailsAreReturned() {
+        bookingSentenceDetail.verifySomeResourceRecordsReturned();
+    }
 
     @When("^sentence details are requested for offender Nos of \"([^\"]*)\"$")
     public void sentenceDetailsAreRequestedForOffenderNosOf(String offenderNos) throws Throwable {
@@ -640,6 +644,17 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @Then("^image data is returned$")
     public void imageDataIsReturned() throws Throwable {
         bookingDetail.verifyImageMetadataExists();
+    }
+
+    @When("^sentence details are requested for offenders who are candidates for Home Detention Curfew$")
+    public void sentenceDetailsAreRequestedForHomeDetentionCurfewCandidates() {
+        bookingSentenceDetail.requestSentenceDetailsForHomeDetentionCurfewCandidates();
+    }
+
+    @When("sentence details are requested for offenders who are candidates for Home Detention Curfew within an Agency")
+    public void sentenceDetailsAreRequestedForHomeDetentionCurfewCandidatesWithinAnAgency() {
+        bookingSentenceDetail.requestSentenceDetailsForHomeDetentionCurfewCandidatesWithinAnAgency("LEI");
+
     }
 
 }
