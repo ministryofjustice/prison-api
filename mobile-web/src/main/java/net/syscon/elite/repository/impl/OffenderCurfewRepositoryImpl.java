@@ -23,20 +23,6 @@ public class OffenderCurfewRepositoryImpl extends RepositoryBase implements Offe
     private static final RowMapper<OffenderCurfew> OFFENDER_CURFEW_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderCurfew.class);
 
     @Override
-    public Collection<Long> offendersWithoutCurfewApprovalStatus(String agencyFilterClause) {
-        String initialSql = getQuery( "OFFENDERS_WITHOUT_CURFEW_APPROVAL_STATUS");
-
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, FIELD_MAP);
-
-        String sql = builder.addQuery(agencyFilterClause).build();
-
-        return jdbcTemplate.query(
-                sql,
-                Collections.emptyMap(),
-                (rs, rowNum) -> rs.getLong("OFFENDER_BOOK_ID"));
-    }
-
-    @Override
     public Collection<OffenderCurfew> offenderCurfews(Set<String> agencyIds) {
 
         String sql = queryBuilderFactory

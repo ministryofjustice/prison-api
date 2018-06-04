@@ -3,7 +3,6 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.service.support.OffenderCurfew;
 import net.syscon.elite.web.config.PersistenceConfigs;
-import org.apache.commons.collections.collection.CompositeCollection;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +18,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -65,18 +67,6 @@ public class OffenderCurfewRepositoryTest {
     public void init() {
         SecurityContextHolder.getContext()
                 .setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
-    }
-
-    @Test
-    public void shouldReturnOffenderBookIdsWhereLatestCurfewRecordsHaveNullApprovalStatus_LEI_only() {
-        Collection<Long> results = repository.offendersWithoutCurfewApprovalStatus("agencyLocationId:eq:'LEI'");
-        assertThat(results).containsOnly(-3L, -4L, -6L, -7L);
-    }
-
-    @Test
-    public void shouldReturnOffenderBookIdsWhereLatestCurfewRecordsHaveNullApprovalStatus_BXI_only() {
-        Collection<Long> results = repository.offendersWithoutCurfewApprovalStatus("agencyLocationId:eq:'BXI'");
-        assertThat(results).containsOnly(-36L);
     }
 
     @Test
