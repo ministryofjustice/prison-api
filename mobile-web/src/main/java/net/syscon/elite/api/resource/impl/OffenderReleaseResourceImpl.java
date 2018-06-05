@@ -6,6 +6,7 @@ import net.syscon.elite.api.resource.OffenderSentenceResource;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.BookingService;
+import net.syscon.elite.service.OffenderCurfewService;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Path;
@@ -16,18 +17,33 @@ import java.util.List;
 public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     private final AuthenticationFacade authenticationFacade;
     private final BookingService bookingService;
+    private final OffenderCurfewService offenderCurfewService;
 
-    public OffenderReleaseResourceImpl(AuthenticationFacade authenticationFacade, BookingService bookingService) {
+    public OffenderReleaseResourceImpl(
+            AuthenticationFacade authenticationFacade,
+            BookingService bookingService,
+            OffenderCurfewService offenderCurfewService) {
         this.authenticationFacade = authenticationFacade;
         this.bookingService = bookingService;
+        this.offenderCurfewService = offenderCurfewService;
     }
 
     @Override
     public GetOffenderSentencesResponse getOffenderSentences(String agencyId, List<String> offenderNos) {
         List<OffenderSentenceDetail> sentences = bookingService.getOffenderSentencesSummary(
-                agencyId, authenticationFacade.getCurrentUsername(), offenderNos);
+                agencyId,
+                authenticationFacade.getCurrentUsername(),
+                offenderNos);
 
         return GetOffenderSentencesResponse.respond200WithApplicationJson(sentences);
+    }
+
+    @Override
+    public GetOffenderSentencesHomeDetentionCurfewCandidatesResponse getOffenderSentencesHomeDetentionCurfewCandidates() {
+        List<OffenderSentenceDetail> sentences =
+                offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentUsername());
+
+        return GetOffenderSentencesHomeDetentionCurfewCandidatesResponse.respond200WithApplicationJson(sentences);
     }
 
     @Override

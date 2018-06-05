@@ -191,7 +191,7 @@ public class StaffRepositoryTest {
     }
 
     @Test
-    public void testFindStaffLocationRolesByStaffId_activeOnly() {
+    public void testFindStaffLocationRolesByStaffIdActiveOnly() {
         final String TEST_AGENCY = "SYI";
         final String TEST_ROLE = "KW";
 
@@ -204,7 +204,7 @@ public class StaffRepositoryTest {
     }
 
     @Test
-    public void testFindStaffLocationRolesByStaffId_dont_include_inactive() {
+    public void testFindStaffLocationRolesByStaffIdDontIncludeInactive() {
         final String TEST_AGENCY = "SYI";
         final String TEST_ROLE = "KW";
 

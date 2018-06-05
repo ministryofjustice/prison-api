@@ -22,6 +22,8 @@ public class BookingSentenceDetailSteps extends CommonSteps {
 
     private static final String OFFENDER_SENTENCE_DETAIL_API_URL = API_PREFIX + "offender-sentences";
 
+    private static final String HOME_DETENTION_CURFEW_CANDIDATES = OFFENDER_SENTENCE_DETAIL_API_URL + "/home-detention-curfew-candidates";
+
     private SentenceDetail sentenceDetail;
 
     private List<OffenderSentenceDetail> offenderSentenceDetails;
@@ -187,6 +189,23 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         verifyLocalDate(sentenceDetail.getTopupSupervisionExpiryDate(), topupSupervisionExpiryDate);
     }
 
+    @Step("Request sentence details fro Home Detention Curfew Candidates")
+    public void requestSentenceDetailsForHomeDetentionCurfewCandidates() {
+        dispatchOffenderSentencesForHomeDetentionCurfewCandidates();
+    }
+
+    @Step("Request sentence details fro Home Detention Curfew Candidates")
+    public void requestSentenceDetailsForHomeDetentionCurfewCandidatesWithinAnAgency() {
+        dispatchOffenderSentencesForHomeDetentionCurfewCandidates();
+    }
+
+    @Step("Verify some resource records returned")
+    public void verifySomeResourceRecordsReturned() {
+        assertThat(offenderSentenceDetails).isNotEmpty();
+    }
+
+
+
     protected void init() {
         super.init();
 
@@ -233,6 +252,22 @@ public class BookingSentenceDetailSteps extends CommonSteps {
             if (!offenderSentenceDetails.isEmpty() && offenderSentenceDetails.size() == 1) {
                 sentenceDetail = offenderSentenceDetails.get(0).getSentenceDetail();
             }
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    private void dispatchOffenderSentencesForHomeDetentionCurfewCandidates() {
+        init();
+
+        try {
+            ResponseEntity<List<OffenderSentenceDetail>> response = restTemplate.exchange(HOME_DETENTION_CURFEW_CANDIDATES,
+                    HttpMethod.GET,
+                    createEntity(null, Collections.emptyMap()),
+                    new ParameterizedTypeReference<List<OffenderSentenceDetail>>() {});
+            buildResourceData(response);
+
+            offenderSentenceDetails = response.getBody();
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }

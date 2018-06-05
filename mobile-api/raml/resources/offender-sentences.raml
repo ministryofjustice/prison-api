@@ -23,5 +23,17 @@ post:
         application/json:
          type: OffenderSentenceDetail[]
          description: List of offenders (with associated sentence detail).
+/home-detention-curfew-candidates:
+  description:  Find sentence details for offenders who are candidates for Home Detention Curfew. Results are restricted to the invoking user's 'Working Caseload'.
+  type: { readOnlyCollection: { type: OffenderSentenceDetail, description: List of offenders with associated sentence detail. } }
+  get:
+    responses:
+      200:
+        description: Sentence details for offenders who are candidates for Home Detention Curfew.
+        body:
+          application/json:
+           type: OffenderSentenceDetail[]
+           description: Sentence details for offenders who are candidates for Home Detention Curfew.
+
 
 

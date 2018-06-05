@@ -29,6 +29,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -43,6 +44,8 @@ import static net.syscon.elite.service.ContactService.EXTERNAL_REL;
 @Validated
 public class BookingServiceImpl implements BookingService {
 
+    private static final String AGENCY_LOCATION_ID_KEY = "agencyLocationId";
+
     private final StartTimeComparator startTimeComparator = new StartTimeComparator();
 
     private final BookingRepository bookingRepository;
@@ -51,6 +54,7 @@ public class BookingServiceImpl implements BookingService {
     private final CaseLoadService caseLoadService;
     private final LocationService locationService;
     private final ReferenceDomainService referenceDomainService;
+    private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
     private final TelemetryClient telemetryClient;
     private final String defaultIepLevel;
     private final int maxBatchSize;
@@ -78,6 +82,7 @@ public class BookingServiceImpl implements BookingService {
                               SentenceRepository sentenceRepository, AgencyService agencyService,
                               CaseLoadService caseLoadService, LocationService locationService,
                               ReferenceDomainService referenceDomainService,
+                              CaseloadToAgencyMappingService caseloadToAgencyMappingService,
                               TelemetryClient telemetryClient,
                               @Value("${api.bookings.iepLevel.default:Unknown}") String defaultIepLevel,
                               @Value("${batch.max.size:1000}") int maxBatchSize) {
@@ -87,6 +92,7 @@ public class BookingServiceImpl implements BookingService {
         this.caseLoadService = caseLoadService;
         this.locationService = locationService;
         this.referenceDomainService = referenceDomainService;
+        this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
         this.telemetryClient = telemetryClient;
         this.defaultIepLevel = defaultIepLevel;
         this.maxBatchSize = maxBatchSize;
@@ -95,17 +101,23 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @VerifyBookingAccess
     public SentenceDetail getBookingSentenceDetail(Long bookingId) {
-        // Get sentence detail and confirmed release date.
-        Optional<SentenceDetail> optSentenceDetail = bookingRepository.getBookingSentenceDetail(bookingId);
+
+        final SentenceDetail sentenceDetail = getSentenceDetail(bookingId);
+
         Optional<LocalDate> confirmedReleaseDate = sentenceRepository.getConfirmedReleaseDate(bookingId);
-
-        final SentenceDetail sentenceDetail = optSentenceDetail.orElse(
-                SentenceDetail.builder().bookingId(bookingId).build());
-
-        // Apply confirmed release date
         sentenceDetail.setConfirmedReleaseDate(confirmedReleaseDate.orElse(null));
 
         return deriveSentenceDetail(sentenceDetail);
+    }
+
+    private SentenceDetail getSentenceDetail(Long bookingId) {
+        Optional<SentenceDetail> optSentenceDetail = bookingRepository.getBookingSentenceDetail(bookingId);
+
+        return optSentenceDetail.orElse(emptySentenceDetail(bookingId));
+    }
+
+    private SentenceDetail emptySentenceDetail(Long bookingId) {
+        return SentenceDetail.builder().bookingId(bookingId).build();
     }
 
     private SentenceDetail deriveSentenceDetail(SentenceDetail sentenceDetail) {
@@ -525,26 +537,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<OffenderSentenceDetail> getOffenderSentencesSummary(String agencyId, String username, List<String> offenderNos) {
 
-        final Set<String> caseloads = isOverrideRole() ? Collections.emptySet() : getUserCaseloadIds(username);
 
-        final List<OffenderSentenceDetailDto> offenderSentenceSummary = new ArrayList<>();
-
-        if (!offenderNos.isEmpty()) {
-            List<List<String>> batch = Lists.partition(offenderNos, maxBatchSize);
-
-            batch.forEach(offenderNoList -> {
-                final String ids = offenderNoList.stream().map(offenderNo -> "'"+offenderNo+"'").collect(Collectors.joining("|"));
-                String query = "offenderNo:in:"+ids;
-                offenderSentenceSummary.addAll(bookingRepository.getOffenderSentenceSummary(query, caseloads));
-            });
-
-        } else {
-            String query = buildAgencyQuery(agencyId, username);
-            if (StringUtils.isEmpty(query) && caseloads.isEmpty()) {
-                throw new BadRequestException("Request must be restricted to either a caseload, agency or list of offenders");
-            }
-            offenderSentenceSummary.addAll(bookingRepository.getOffenderSentenceSummary(query, caseloads));
-        }
+        final List<OffenderSentenceDetailDto> offenderSentenceSummary = offenderSentenceSummaries(agencyId, username, offenderNos);
 
         final List<OffenderSentenceDetail> offenderSentenceDetails = offenderSentenceSummary.stream()
                 .map(os -> OffenderSentenceDetail.builder()
@@ -592,26 +586,72 @@ public class BookingServiceImpl implements BookingService {
         offenderSentenceDetails.forEach(s -> deriveSentenceDetail(s.getSentenceDetail()));
 
         final Comparator<OffenderSentenceDetail> compareDate = Comparator.comparing(
-                s -> s.getSentenceDetail().getReleaseDate(), Comparator.nullsLast(Comparator.naturalOrder())
+                s -> s.getSentenceDetail().getReleaseDate(),
+                Comparator.nullsLast(Comparator.naturalOrder())
         );
 
         return offenderSentenceDetails.stream().sorted(compareDate).collect(toList());
     }
 
-    private String buildAgencyQuery(String agencyId, String username) {
-        final StringBuilder query = new StringBuilder();
-        if (StringUtils.isBlank(agencyId)) {
-            Optional<CaseLoad> workingCaseLoadForUser = caseLoadService.getWorkingCaseLoadForUser(username);
 
-            if (workingCaseLoadForUser.isPresent()) {
-                List<Agency> agenciesByCaseload = agencyService.getAgenciesByCaseload(workingCaseLoadForUser.get().getCaseLoadId());
-                final String agencies = agenciesByCaseload.stream().map(agency -> "'"+agency.getAgencyId()+"'").collect(Collectors.joining("|"));
-                query.append("agencyLocationId:in:").append(agencies);
-            }
+    private List<OffenderSentenceDetailDto> offenderSentenceSummaries(String agencyId, String username, List<String> offenderNos) {
+
+        final Set<String> caseloads = caseLoadIdsForUser(username);
+
+        if (offenderNos.isEmpty()) {
+            return offenderSentenceSummaries(agencyId, username, caseloads);
         } else {
-            query.append("agencyLocationId:eq:'").append(agencyId).append("'");
+            return offenderSentenceSummaries(offenderNos, caseloads);
         }
-        return StringUtils.trimToEmpty(query.toString());
+    }
+
+    private Set<String> caseLoadIdsForUser(String username) {
+        return isOverrideRole() ? Collections.emptySet() : caseLoadService.getCaseLoadIdsForUser(username, true);
+    }
+
+    private List<OffenderSentenceDetailDto> offenderSentenceSummaries(String agencyId, String username, Set<String> caseloads) {
+        String query = buildAgencyQuery(agencyId, username);
+        if (StringUtils.isEmpty(query) && caseloads.isEmpty()) {
+            throw new BadRequestException("Request must be restricted to either a caseload, agency or list of offenders");
+        }
+        return bookingRepository.getOffenderSentenceSummary(query, caseloads);
+    }
+
+    private List<OffenderSentenceDetailDto> offenderSentenceSummaries(List<String> offenderNos, Set<String> caseloads) {
+
+        return Lists
+                .partition(offenderNos, maxBatchSize)
+                .stream()
+                .flatMap( numbers -> {
+                    String query = "offenderNo:in:" + quotedAndPipeDelimited(numbers.stream());
+                    return bookingRepository.getOffenderSentenceSummary(query, caseloads).stream();
+                })
+                .collect(Collectors.toList());
+    }
+
+    private static String quotedAndPipeDelimited(Stream<String> values) {
+        return values.collect(Collectors.joining("'|'","'", "'"));
+    }
+
+    private String buildAgencyQuery(String agencyId, String username) {
+        return StringUtils.isBlank(agencyId) ?
+                forAgenciesInWorkingCaseload(username) :
+                forAgency(agencyId);
+    }
+
+    private String forAgenciesInWorkingCaseload(String username) {
+
+        final List<Agency> agencies = caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(username);
+
+        return agencies.isEmpty() ? "" : AGENCY_LOCATION_ID_KEY + ":in:" +
+                quotedAndPipeDelimited(
+                        agencies
+                        .stream()
+                        .map(Agency::getAgencyId));
+    }
+
+    private static String forAgency(String agencyId) {
+        return AGENCY_LOCATION_ID_KEY + ":eq:" + agencyId;
     }
 
     @Override
@@ -622,10 +662,6 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public OffenderSummary recallBooking(@Valid RecallBooking recallBooking) {
         throw new NotSupportedException("Service not implemented here.");
-    }
-
-    private Set<String> getUserCaseloadIds(String username) {
-        return caseLoadService.getCaseLoadIdsForUser(username, true);
     }
 
 }

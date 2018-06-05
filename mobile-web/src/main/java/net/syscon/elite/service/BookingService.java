@@ -13,6 +13,7 @@ import java.util.Map;
  * Bookings API service interface.
  */
 public interface BookingService {
+
     SentenceDetail getBookingSentenceDetail(Long bookingId);
 
     PrivilegeSummary getBookingIEPSummary(Long bookingId, boolean withDetails);

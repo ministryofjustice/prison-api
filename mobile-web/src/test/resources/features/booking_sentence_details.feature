@@ -257,3 +257,6 @@ Feature: Booking Sentence Details
       | 19      | 2014-09-09 |            |             |             |
       | 20      | 2014-09-09 |            |             |             |
 
+  Scenario: Retrieve sentence details for offenders who are candidates for Home Detention Curfew.
+    When sentence details are requested for offenders who are candidates for Home Detention Curfew
+    Then some offender sentence details are returned

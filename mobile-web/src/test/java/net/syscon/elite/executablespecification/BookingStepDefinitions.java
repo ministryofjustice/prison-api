@@ -186,22 +186,22 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     }
 
     @And("^firstname of offender booking returned is \"([^\"]*)\"$")
-    public void firstnameOfOffenderBookingReturnedIs(String firstname) throws Throwable {
+    public void firstnameOfOffenderBookingReturnedIs(String firstname) {
         bookingDetail.verifyOffenderFirstName(firstname);
     }
 
     @And("^lastName of offender booking returned is \"([^\"]*)\"$")
-    public void lastnameOfOffenderBookingReturnedIs(String lastName) throws Throwable {
+    public void lastnameOfOffenderBookingReturnedIs(String lastName) {
         bookingDetail.verifyOffenderLastName(lastName);
     }
 
     @And("^offenderNo of offender booking returned is \"([^\"]*)\"$")
-    public void offendernoOfOffenderBookingReturnedIs(String offenderNo) throws Throwable {
+    public void offendernoOfOffenderBookingReturnedIs(String offenderNo) {
         bookingDetail.verifyOffenderNo(offenderNo);
     }
 
     @And("^activeFlag of offender booking returned is \"(true|false)\"$")
-    public void activeflagOfOffenderBookingReturnedIs(boolean activeFlag) throws Throwable {
+    public void activeflagOfOffenderBookingReturnedIs(boolean activeFlag) {
         bookingDetail.verifyOffenderActiveFlag(activeFlag);
     }
 
@@ -527,7 +527,7 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^correct results are returned as for single assessment$")
-    public void multipleIsCorrect() throws Throwable {
+    public void multipleIsCorrect() {
         bookingAssessment.verifyMultipleAssessments();
     }
 
@@ -581,14 +581,18 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingSentenceDetail.verifyTotalResourceRecordsAvailable(total);
     }
 
+    @Then("some offender sentence details are returned")
+    public void someOffenderSentenceDetailsAreReturned() {
+        bookingSentenceDetail.verifySomeResourceRecordsReturned();
+    }
 
     @When("^sentence details are requested for offender Nos of \"([^\"]*)\"$")
-    public void sentenceDetailsAreRequestedForOffenderNosOf(String offenderNos) throws Throwable {
+    public void sentenceDetailsAreRequestedForOffenderNosOf(String offenderNos) {
         bookingSentenceDetail.getOffenderSentenceDetails(offenderNos, null);
     }
 
     @When("^assessment information is requested for Booking Id \"([^\"]*)\"$")
-    public void assessmentInformationIsRequestedForBookingId(String bookingId) throws Throwable {
+    public void assessmentInformationIsRequestedForBookingId(String bookingId) {
         bookingAssessment.getAssessments(Long.valueOf(bookingId));
     }
 
@@ -598,37 +602,37 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     }
 
     @When("^offender identifiers are requested for Booking Id \"([^\"]*)\"$")
-    public void offenderIdentifiersAreRequestedForBookingId(String bookingId) throws Throwable {
+    public void offenderIdentifiersAreRequestedForBookingId(String bookingId) {
         bookingDetail.getOffenderIdentifiers(Long.valueOf(bookingId));
     }
 
     @When("^profile information is requested for Booking Id \"([^\"]*)\"$")
-    public void profileInformationIsRequestedForBookingId(String bookingId) throws Throwable {
+    public void profileInformationIsRequestedForBookingId(String bookingId) {
         bookingDetail.getProfileInformation(Long.valueOf(bookingId));
     }
 
     @When("^physical characteristic information is requested for Booking Id \"([^\"]*)\"$")
-    public void physicalCharacteristicInformationIsRequestedForBookingId(String bookingId) throws Throwable {
+    public void physicalCharacteristicInformationIsRequestedForBookingId(String bookingId) {
         bookingDetail.getPhysicalCharacteristics(Long.valueOf(bookingId));
     }
 
     @When("^image metadata is requested for Booking Id \"([^\"]*)\"$")
-    public void imageMetadataIsRequestedForBookingId(String bookingId) throws Throwable {
+    public void imageMetadataIsRequestedForBookingId(String bookingId) {
         bookingDetail.getImageMetadata(Long.valueOf(bookingId));
     }
 
     @When("^an physical attributes request is made with booking id \"([^\"]*)\"$")
-    public void anPhysicalAttributesRequestIsMadeWithBookingId(String bookingId) throws Throwable {
+    public void anPhysicalAttributesRequestIsMadeWithBookingId(String bookingId) {
         bookingDetail.getPhysicalAttributes(Long.valueOf(bookingId));
     }
 
     @Then("^\"(\\d+)\" row of offender identifiers is returned$")
-    public void rowOfOffenderIdentifiersIsReturned(long expectedCount) throws Throwable {
+    public void rowOfOffenderIdentifiersIsReturned(long expectedCount) {
         bookingDetail.verifyResourceRecordsReturned(expectedCount);
     }
 
     @Then("^\"(\\d+)\" row of profile information is returned$")
-    public void rowOfProfileInformationIsReturned(long expectedCount) throws Throwable {
+    public void rowOfProfileInformationIsReturned(long expectedCount) {
         bookingDetail.verifyResourceRecordsReturned(expectedCount);
     }
 
@@ -638,8 +642,12 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^image data is returned$")
-    public void imageDataIsReturned() throws Throwable {
+    public void imageDataIsReturned() {
         bookingDetail.verifyImageMetadataExists();
     }
 
+    @When("^sentence details are requested for offenders who are candidates for Home Detention Curfew$")
+    public void sentenceDetailsAreRequestedForHomeDetentionCurfewCandidates() {
+        bookingSentenceDetail.requestSentenceDetailsForHomeDetentionCurfewCandidates();
+    }
 }
