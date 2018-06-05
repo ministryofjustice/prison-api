@@ -65,20 +65,16 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
     }
 
     @Override
-    public List<OffenderSentenceDetail> getHomeDetentionCurfewCandidates(String agencyId, String username) {
+    public List<OffenderSentenceDetail> getHomeDetentionCurfewCandidates(String username) {
 
         final LocalDate earliestArdOrCrd = LocalDate.now(clock).plusDays(DAYS_TO_ADD);
-        final List<OffenderSentenceDetail> offenderSentences = bookingService.getOffenderSentencesSummary(agencyId, username, Collections.emptyList());
-        final Collection<OffenderCurfew> curfews = offenderCurfewRepository.offenderCurfews(agencyIdsFor(agencyId, username));
+        final List<OffenderSentenceDetail> offenderSentences = bookingService.getOffenderSentencesSummary(null, username, Collections.emptyList());
+        final Collection<OffenderCurfew> curfews = offenderCurfewRepository.offenderCurfews(agencyIdsFor(username));
 
         return getHomeDetentionCurfewCandidates(curfews, earliestArdOrCrd, offenderSentences);
     }
 
-    private Set<String> agencyIdsFor(String agencyId, String username) {
-        if (agencyId != null) {
-            return Collections.singleton(agencyId);
-        }
-
+    private Set<String> agencyIdsFor(String username) {
         return caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(username)
                 .stream()
                 .map(Agency::getAgencyId)

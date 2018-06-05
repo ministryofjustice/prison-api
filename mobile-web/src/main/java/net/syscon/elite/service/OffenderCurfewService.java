@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface OffenderCurfewService {
 
-    List<OffenderSentenceDetail> getHomeDetentionCurfewCandidates(String agencyId, String username);
+    List<OffenderSentenceDetail> getHomeDetentionCurfewCandidates(String username);
 }
