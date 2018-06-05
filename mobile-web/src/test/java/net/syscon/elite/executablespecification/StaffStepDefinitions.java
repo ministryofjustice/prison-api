@@ -18,68 +18,68 @@ public class StaffStepDefinitions extends AbstractStepDefinitions {
     private StaffSteps staff;
 
     @When("^a staff member search is made using staff id \"([^\"]*)\"$")
-    public void aStaffMemberSearchIsMadeUsingStaffId(String staffId) throws Throwable {
+    public void aStaffMemberSearchIsMadeUsingStaffId(String staffId) {
         staff.findStaffDetails(Long.valueOf(staffId));
     }
 
     @Then("^first name of staff details returned is \"([^\"]*)\"$")
-    public void firstNameOfStaffDetailsReturnedIs(String firstName) throws Throwable {
+    public void firstNameOfStaffDetailsReturnedIs(String firstName) {
         staff.verifyStaffFirstName(firstName);
     }
 
     @And("^last name of staff details returned is \"([^\"]*)\"$")
-    public void lastNameOfStaffDetailsReturnedIs(String lastName) throws Throwable {
+    public void lastNameOfStaffDetailsReturnedIs(String lastName) {
         staff.verifyStaffLastName(lastName);
     }
 
     @Then("^resource not found response is received from staff API$")
-    public void resourceNotFoundResponseIsReceivedFromStaffAPI() throws Throwable {
+    public void resourceNotFoundResponseIsReceivedFromStaffAPI() {
         staff.verifyResourceNotFound();
     }
 
     @When("^request is submitted for staff members having position \"([^\"]*)\" and role \"([^\"]*)\" in agency \"([^\"]*)\"$")
-    public void requestIsSubmittedForStaffMembersHavingPositionAndRoleInAgency(String position, String role, String agencyId) throws Throwable {
+    public void requestIsSubmittedForStaffMembersHavingPositionAndRoleInAgency(String position, String role, String agencyId) {
         staff.findStaffByAgencyPositionRole(agencyId, position, role, null, null, null);
     }
 
     @When("^request is submitted for staff members having role \"([^\"]*)\" in agency \"([^\"]*)\"$")
-    public void requestIsSubmittedForStaffMembersHavingRoleInAgency(String role, String agencyId) throws Throwable {
+    public void requestIsSubmittedForStaffMembersHavingRoleInAgency(String role, String agencyId) {
         staff.findStaffByAgencyRole(agencyId, role, null, null);
     }
 
 
     @When("^request is submitted for staff members having role \"([^\"]*)\" in agency \"([^\"]*)\" with name filter \"([^\"]*)\" and staff id filter \"([^\"]*)\"$")
-    public void requestIsSubmittedForStaffMembersHavingRoleInAgencyWithNameFilter(String role, String agencyId, String nameFilter, Long staffId) throws Throwable {
+    public void requestIsSubmittedForStaffMembersHavingRoleInAgencyWithNameFilter(String role, String agencyId, String nameFilter, Long staffId) {
         staff.findStaffByAgencyRole(agencyId, role, nameFilter, staffId);
     }
 
     @When("^request is submitted for staff members having position \"([^\"]*)\" and role \"([^\"]*)\" in agency \"([^\"]*)\" with name filter \"([^\"]*)\" and staff id filter \"([^\"]*)\"$")
-    public void requestIsSubmittedForStaffMembersHavingPositionAndRoleInAgencyWithNameFilter(String position, String role, String agencyId, String nameFilter, Long staffId) throws Throwable {
+    public void requestIsSubmittedForStaffMembersHavingPositionAndRoleInAgencyWithNameFilter(String position, String role, String agencyId, String nameFilter, Long staffId) {
         staff.findStaffByAgencyPositionRole(agencyId, position, role, nameFilter, staffId, null);
     }
 
     @When("^request is submitted for staff members having position \"([^\"]*)\" and role \"([^\"]*)\" in agency \"([^\"]*)\" with name filter \"([^\"]*)\" and staff id filter \"([^\"]*)\" and include inactive staff members$")
-    public void requestIsSubmittedForStaffMembersHavingPositionAndRoleInAgencyWithNameFilterIncludingInactive(String position, String role, String agencyId, String nameFilter, Long staffId) throws Throwable {
+    public void requestIsSubmittedForStaffMembersHavingPositionAndRoleInAgencyWithNameFilterIncludingInactive(String position, String role, String agencyId, String nameFilter, Long staffId) {
         staff.findStaffByAgencyPositionRole(agencyId, position, role, nameFilter, staffId, Boolean.FALSE);
     }
 
     @Then("^\"([^\"]*)\" staff detail records are returned$")
-    public void staffDetailRecordsAreReturned(String expectedCount) throws Throwable {
+    public void staffDetailRecordsAreReturned(String expectedCount) {
         staff.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
     }
 
     @And("^staff ids match \"([^\"]*)\"$")
-    public void staffIdsMatch(String staffIds) throws Throwable {
+    public void staffIdsMatch(String staffIds) {
         staff.verifyStaffIds(staffIds);
     }
 
     @When("^request is submitted using \"([^\"]*)\" and \"([^\"]*)\"$")
-    public void requestIsSubmittedUsingAnd(Long staffId, String agencyId) throws Throwable {
+    public void requestIsSubmittedUsingAnd(Long staffId, String agencyId) {
         staff.getRoles(staffId, agencyId);
     }
 
     @Then("^a role containing \"([^\"]*)\" \"([^\"]*)\" is returned without duplicates$")
-    public void aRoleContainingIsReturnedWithoutDuplicates(String role, String roleDescription) throws Throwable {
+    public void aRoleContainingIsReturnedWithoutDuplicates(String role, String roleDescription) {
         staff.verifyStaffRoleWithNoDuplicates(role, roleDescription);
     }
 }
