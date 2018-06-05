@@ -57,7 +57,7 @@ public class SchedulesServiceImplTest {
     public void testGetLocationGroupEventsAM() {
         setupGroupExpectations();
         List<PrisonerSchedule> results = schedulesService.getLocationGroupEvents("LEI", "myWing",
-                DATE, TimeSlot.AM);
+                DATE, TimeSlot.AM, null, null);
 
         assertThat(results).asList().extracting("cellLocation", "startTime", "eventDescription")
                 .containsExactly(
@@ -67,10 +67,49 @@ public class SchedulesServiceImplTest {
     }
 
     @Test
+    public void testGetLocationGroupEventsOrder1() {
+        setupGroupExpectations();
+        List<PrisonerSchedule> results = schedulesService.getLocationGroupEvents("LEI", "myWing",
+                DATE, TimeSlot.AM, "lastName", Order.ASC);
+
+        assertThat(results).asList().extracting("cellLocation", "lastName")
+                .containsExactly(
+                        tuple("H2", "Anderson"),
+                        tuple("M0", "Bloggs"),
+                        tuple("H1", "Zed"));
+    }
+
+    @Test
+    public void testGetLocationGroupEventsOrder2() {
+        setupGroupExpectations();
+        List<PrisonerSchedule> results = schedulesService.getLocationGroupEvents("LEI", "myWing",
+                DATE, TimeSlot.AM, "cellLocation", Order.DESC);
+
+        assertThat(results).asList().extracting("cellLocation", "lastName")
+                .containsExactly(
+                        tuple("M0", "Bloggs"),
+                        tuple("H2", "Anderson"),
+                        tuple("H1", "Zed"));
+    }
+
+    @Test
+    public void testGetLocationGroupEventsOrder3() {
+        setupGroupExpectations();
+        List<PrisonerSchedule> results = schedulesService.getLocationGroupEvents("LEI", "myWing",
+                DATE, TimeSlot.AM, "lastName", Order.DESC);
+
+        assertThat(results).asList().extracting("cellLocation", "lastName")
+                .containsExactly(
+                        tuple("H1", "Zed"),
+                        tuple("M0", "Bloggs"),
+                        tuple("H2", "Anderson"));
+    }
+
+    @Test
     public void testGetLocationGroupEventsPM() {
         setupGroupExpectations();
         List<PrisonerSchedule> results = schedulesService.getLocationGroupEvents("LEI", "myWing",
-                DATE, TimeSlot.PM);
+                DATE, TimeSlot.PM, null, null);
 
         assertThat(results).asList().extracting("cellLocation", "startTime", "eventDescription")
                 .containsExactly(
@@ -82,7 +121,7 @@ public class SchedulesServiceImplTest {
     public void testGetLocationGroupEventsED() {
         setupGroupExpectations();
         List<PrisonerSchedule> results = schedulesService.getLocationGroupEvents("LEI", "myWing",
-                DATE, TimeSlot.ED);
+                DATE, TimeSlot.ED, null, null);
 
         assertThat(results).asList().extracting("cellLocation", "startTime", "eventDescription")
                 .containsExactly(
@@ -96,7 +135,7 @@ public class SchedulesServiceImplTest {
     public void testGetLocationGroupEventsMapping() {
         setupGroupExpectations();
         List<PrisonerSchedule> results = schedulesService.getLocationGroupEvents("LEI", "myWing",
-                DATE, TimeSlot.AM);
+                DATE, TimeSlot.AM, null, null);
 
         assertThat(results).asList()
                 .contains(PrisonerSchedule.builder()
@@ -116,8 +155,8 @@ public class SchedulesServiceImplTest {
     private void setupGroupExpectations() {
         final List<InmateDto> inmatesOnMyWing = Arrays.asList(
                 InmateDto.builder().bookingId(-10L).offenderNo("A10").locationDescription("M0").firstName("Joe").lastName("Bloggs").build(),
-                InmateDto.builder().bookingId(-11L).locationDescription("H1").build(),
-                InmateDto.builder().bookingId(-12L).locationDescription("H2").build()
+                InmateDto.builder().bookingId(-11L).locationDescription("H1").lastName("Zed").build(),
+                InmateDto.builder().bookingId(-12L).locationDescription("H2").lastName("Anderson").build()
         );
         when(inmateService.findInmatesByLocation("me",
                 "LEI", Arrays.asList(-100L, -101L))).thenReturn(inmatesOnMyWing);

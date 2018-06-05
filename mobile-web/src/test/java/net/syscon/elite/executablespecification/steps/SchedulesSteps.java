@@ -2,6 +2,7 @@ package net.syscon.elite.executablespecification.steps;
 
 
 import net.syscon.elite.api.model.PrisonerSchedule;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.test.EliteClientException;
 import org.apache.commons.lang3.StringUtils;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,6 +42,7 @@ public class SchedulesSteps extends CommonSteps {
 
     private List<PrisonerSchedule> dispatchGroupRequest(String url, String agencyId, String name, String date, TimeSlot timeSlot) {
         init();
+        Map<String,String> headers = buildSortHeaders("cellLocation", Order.ASC);
         String urlModifier = "";
         if (date != null) {
             urlModifier += "?date=" + date;
@@ -47,7 +50,7 @@ public class SchedulesSteps extends CommonSteps {
         if (timeSlot != null) {
             urlModifier += (StringUtils.isEmpty(urlModifier) ? '?' : '&') + "timeSlot=" + timeSlot.name();
         }
-        HttpEntity<?> httpEntity = createEntity();
+        HttpEntity<?> httpEntity = createEntity(null, headers);
         try {
             ResponseEntity<List<PrisonerSchedule>> response = restTemplate.exchange(url + urlModifier, HttpMethod.GET,
                     httpEntity, new ParameterizedTypeReference<List<PrisonerSchedule>>() {
