@@ -40,12 +40,12 @@ public class SchedulesSteps extends CommonSteps {
 
     private List<PrisonerSchedule> dispatchGroupRequest(String url, String agencyId, String name, String date, TimeSlot timeSlot) {
         init();
-        String urlModifier = "";
+        String urlModifier = "?sortFields=cellLocation&sortOrder=ASC";
         if (date != null) {
-            urlModifier += "?date=" + date;
+            urlModifier += "&date=" + date;
         }
         if (timeSlot != null) {
-            urlModifier += (StringUtils.isEmpty(urlModifier) ? '?' : '&') + "timeSlot=" + timeSlot.name();
+            urlModifier += "&timeSlot=" + timeSlot.name();
         }
         HttpEntity<?> httpEntity = createEntity();
         try {

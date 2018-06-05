@@ -12,7 +12,8 @@ import java.util.List;
  */
 public interface SchedulesService {
 
-    List<PrisonerSchedule> getLocationGroupEvents(String agencyId, String groupName, LocalDate date, TimeSlot timeSlot);
+    List<PrisonerSchedule> getLocationGroupEvents(String agencyId, String groupName,
+                                                  LocalDate date, TimeSlot timeSlot, String sortFields, Order sortOrder);
 
     List<PrisonerSchedule> getLocationEvents(String agencyId, Long locationId, String usage,
                                              LocalDate date, TimeSlot timeSlot, String sortFields, Order sortOrder);
