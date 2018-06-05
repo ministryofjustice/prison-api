@@ -124,7 +124,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
 			String errorMessage = spaceLeft <= 0 ?
                     "Amendments can no longer be made due to the maximum character limit being reached" :
-                    String.format("Length should not exceed %d characters", spaceLeft);
+                    format("Length should not exceed %d characters", spaceLeft);
 
 		 	throw new BadRequestException(errorMessage);
 		}

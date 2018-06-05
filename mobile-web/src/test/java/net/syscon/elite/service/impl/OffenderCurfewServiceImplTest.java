@@ -68,12 +68,12 @@ public class OffenderCurfewServiceImplTest {
      * Demonstrates that 'clock' and TODAY are aligned...
      */
     @Test
-    public void dayRepresentedByFixedClockAndTODAY_shouldBeEquivalent() {
+    public void dayRepresentedByFixedClockAndTODAYshouldBeEquivalent() {
         assertThat(LocalDate.now(clock)).isEqualTo(TODAY);
     }
 
     @Test
-    public void givenTwoOffenderCurfew_whenCompared_thenOrderingIsCorrect() {
+    public void givenTwoOffenderCurfewWhenComparedThenOrderingIsCorrect() {
 
         assertThat(
                 OffenderCurfewServiceImpl.OFFENDER_CURFEW_COMPARATOR.compare(
@@ -120,19 +120,19 @@ public class OffenderCurfewServiceImplTest {
 
 
     @Test
-    public void givenNoCurfewsForAgency_whenFilteredForCurrentCurfew_thenTheResultShouldBeEmpty() {
+    public void givenNoCurfewsForAgencyWhenFilteredForCurrentCurfewThenTheResultShouldBeEmpty() {
         assertThat(currentOffenderCurfews(Collections.emptyList()).collect(toList())).isEmpty();
     }
 
 
     @Test
-    public void givenOneCurfew_whenFilteredForCurrentCurfew_thenTheCurfewShouldBeReturned() {
+    public void givenOneCurfewWhenFilteredForCurrentCurfewThenTheCurfewShouldBeReturned() {
         OffenderCurfew curfew = offenderCurfew(1, 2, null);
         assertThat(extractCurfewIds(currentOffenderCurfews(singleton(curfew)))).containsOnly(1L);
     }
 
     @Test
-    public void givenTwoCurfewsForOneOffenderBookIdHavingNullAssessmentDate_whenFilteredForCurrentCurfew_thenhigherOffenderCurfewIdWins() {
+    public void givenTwoCurfewsForOneOffenderBookIdHavingNullAssessmentDateWhenFilteredForCurrentCurfewThenhigherOffenderCurfewIdWins() {
         List<OffenderCurfew> curfews = asList(
                 offenderCurfew(1, 1, null),
                 offenderCurfew(2, 1, null)
@@ -142,7 +142,7 @@ public class OffenderCurfewServiceImplTest {
     }
 
     @Test
-    public void givenTwoCurfewsForOneOffenderBookIdHavingSameAssessmentDate_whenFilteredForCurrentCurfew_thenhigherOffenderCurfewIdWins() {
+    public void givenTwoCurfewsForOneOffenderBookIdHavingSameAssessmentDateWhenFilteredForCurrentCurfewThenhigherOffenderCurfewIdWins() {
         List<OffenderCurfew> curfews = asList(
                 offenderCurfew(2, 1, "2018-05-01"),
                 offenderCurfew(1, 1, "2018-05-01")
@@ -152,7 +152,7 @@ public class OffenderCurfewServiceImplTest {
     }
 
     @Test
-    public void givenTwoCurfewsForOneOffenderBookIdHavingDifferentAssessmentDates_whenFilteredForCurrentCurfew_thenhighestAssessmentDateWins() {
+    public void givenTwoCurfewsForOneOffenderBookIdHavingDifferentAssessmentDatesWhenFilteredForCurrentCurfewThenhighestAssessmentDateWins() {
         List<OffenderCurfew> curfews = asList(
                 offenderCurfew(1, 1, "2018-05-02"),
                 offenderCurfew(2, 1, "2018-05-01")
@@ -162,7 +162,7 @@ public class OffenderCurfewServiceImplTest {
     }
 
     @Test
-    public void givenTwoCurfewsForOneOffenderBookIdHavingDifferent_whenFilteredForCurrentCurfew_thenhighestAssessmentDateWins() {
+    public void givenTwoCurfewsForOneOffenderBookIdHavingDifferentWhenFilteredForCurrentCurfewThenhighestAssessmentDateWins() {
         List<OffenderCurfew> curfews = asList(
                 offenderCurfew(2, 1, "2018-05-01"),
                 offenderCurfew(1, 1, null)
@@ -174,7 +174,7 @@ public class OffenderCurfewServiceImplTest {
 
 
     @Test
-    public void givenCurfewsForSeveralOffenderBookIds_whenFilteredForCurrentCurfew_theHighestCurfewForEachOffenderBookIdIsRetained() {
+    public void givenCurfewsForSeveralOffenderBookIdsWhenFilteredForCurrentCurfewTheHighestCurfewForEachOffenderBookIdIsRetained() {
         List<OffenderCurfew> curfews = asList(
                 offenderCurfew(1, 1, null),
                 offenderCurfew(2, 1, null),
@@ -201,7 +201,7 @@ public class OffenderCurfewServiceImplTest {
     }
 
     @Test
-    public void givenOffenders_whenFilteringForThoseWithoutApprovalStatus_thenCorrectSubsetOfOffenderBookIdIsReturned() {
+    public void givenOffendersWhenFilteringForThoseWithoutApprovalStatusThenCorrectSubsetOfOffenderBookIdIsReturned() {
         assertThat(OffenderCurfewServiceImpl.offendersLackingCurfewApprovalStatus(
                 Stream.of(
                         offenderCurfew(1, 1,  null, null),
@@ -212,7 +212,7 @@ public class OffenderCurfewServiceImplTest {
     }
 
     @Test
-    public void givenNoOffenderCurfewsWithoutApprovalStatusAndAnEarliestDateForArdOrCrd_thenOffenderSentencesAreFilteredCorrectly() {
+    public void givenNoOffenderCurfewsWithoutApprovalStatusAndAnEarliestDateForArdOrCrdThenOffenderSentencesAreFilteredCorrectly() {
         final LocalDate HDCED = LocalDate.of(9999,1,1);
         final LocalDate EARLIEST_DATE = LocalDate.of(2081, 1, 1);
         final LocalDate DAY_BEFORE = EARLIEST_DATE.minusDays(1);
@@ -234,7 +234,7 @@ public class OffenderCurfewServiceImplTest {
     }
 
     @Test
-    public void givenOffenderCurfewsWithoutApprovalStatus_thenOffenderSentencesAreFilteredCorrectly() {
+    public void givenOffenderCurfewsWithoutApprovalStatusThenOffenderSentencesAreFilteredCorrectly() {
         final LocalDate HDCED = LocalDate.of(9999,1,1);
         final LocalDate EARLIEST_DATE = LocalDate.of(2081, 1, 1);
         final LocalDate DAY_BEFORE = EARLIEST_DATE.minusDays(1);
@@ -252,13 +252,13 @@ public class OffenderCurfewServiceImplTest {
     }
 
     @Test
-    public void givenNoOffendersInAgency_thenNoResults() {
+    public void givenNoOffendersInAgencyThenNoResults() {
         when(caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(USERNAME)).thenReturn(agencyIdsToAgencies(AGENCY_ID));
         assertThat(offenderCurfewService.getHomeDetentionCurfewCandidates(USERNAME)).isEmpty();
     }
 
     @Test
-    public void givenOffenders_whenEveryOffenderHasANOMISApprovalStatus_thenResultsAreFilteredByClockDate() {
+    public void givenOffendersWhenEveryOffenderHasANOMISApprovalStatusThenResultsAreFilteredByClockDate() {
 
         when(bookingService.getOffenderSentencesSummary(null, USERNAME, Collections.emptyList() ))
                 .thenReturn(offenderSentenceDetails());
@@ -278,7 +278,7 @@ public class OffenderCurfewServiceImplTest {
 
 
         @Test
-    public void givenOffenders_whenNoOffenderHasANOMISApprovalStatus_thenAllOffendersAreCandidates() {
+    public void givenOffendersWhenNoOffenderHasANOMISApprovalStatusThenAllOffendersAreCandidates() {
 
         when(offenderCurfewRepository.offenderCurfews(Collections.singleton(AGENCY_ID))).thenReturn(
                 Arrays.asList(
