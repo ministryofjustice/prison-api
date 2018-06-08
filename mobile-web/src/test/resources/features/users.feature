@@ -15,8 +15,8 @@ Feature: User Details and Roles
 
   Examples:
   | username            | roles                                                                          |
-  | itag_user           | BXI_WING_OFF,LEI_WING_OFF,MDI_WING_OFF,NWEB_KW_ADMIN,SYI_WING_OFF,WAI_WING_OFF |
-  | api_test_user       | MUL_WING_OFF,NWEB_KW_ADMIN                                                   |
+  | itag_user           | BXI_WING_OFF,LEI_WING_OFF,MDI_WING_OFF,NWEB_KW_ADMIN,NWEB_OMIC_ADMIN,SYI_WING_OFF,WAI_WING_OFF |
+  | api_test_user       | MUL_WING_OFF,NWEB_KW_ADMIN,NWEB_OMIC_ADMIN                                                     |
 
   @nomis
   Scenario Outline: As a logged in user I can find out just my api roles
@@ -25,12 +25,12 @@ Feature: User Details and Roles
     Then the roles returned are "<roles>"
 
     Examples:
-      | username            | roles               |
-      | itag_user           | KW_ADMIN            |
-      | api_test_user       | KW_ADMIN            |
-      | ca_user             | LICENCE_CA          |
-      | ro_user             | LICENCE_RO          |
-      | dm_user             | LICENCE_DM          |
+      | username            | roles                |
+      | itag_user           | KW_ADMIN,OMIC_ADMIN  |
+      | api_test_user       | KW_ADMIN,OMIC_ADMIN  |
+      | ca_user             | LICENCE_CA           |
+      | ro_user             | LICENCE_RO           |
+      | dm_user             | LICENCE_DM           |
 
   @elite
   Scenario Outline: As a logged in user I can find out my roles
@@ -39,9 +39,9 @@ Feature: User Details and Roles
     Then the roles returned are "<roles>"
 
     Examples:
-      | username            | roles             |
-      | itag_user           | WING_OFF,KW_ADMIN |
-      | api_test_user       | WING_OFF          |
+      | username            | roles                        |
+      | itag_user           | WING_OFF,KW_ADMIN,OMIC_ADMIN |
+      | api_test_user       | WING_OFF                     |
 
   @nomis
   Scenario Outline: As a logged in user I can find out which users have a given role at a particular caseload

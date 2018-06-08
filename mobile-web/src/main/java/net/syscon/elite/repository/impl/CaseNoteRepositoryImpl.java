@@ -2,6 +2,7 @@ package net.syscon.elite.repository.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.CaseNote;
+import net.syscon.elite.api.model.CaseNoteUsage;
 import net.syscon.elite.api.model.NewCaseNote;
 import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.support.Order;
@@ -57,7 +58,10 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 			.put("STAFF_NAME", 				    new FieldMapper("authorName"))
 			.build();
 
-    @Override
+	private static final StandardBeanPropertyRowMapper<CaseNoteUsage> CASE_NOTE_USAGE_MAPPER =
+			new StandardBeanPropertyRowMapper<>(CaseNoteUsage.class);
+
+	@Override
     public Page<CaseNote> getCaseNotes(long bookingId, String query, LocalDate from, LocalDate to, String orderByField,
             Order order, long offset, long limit) {
 
@@ -104,6 +108,20 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 				paRowMapper);
 
 		return new Page<>(caseNotes, paRowMapper.getTotalRecords(), offset, limit);
+	}
+
+	@Override
+	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, List<String> offenderNos, LocalDate fromDate, LocalDate toDate) {
+
+		List<CaseNoteUsage> caseNoteUsages = jdbcTemplate.query(getQuery("GROUP_BY_TYPES_AND_OFFENDERS"),
+				createParams("offenderNos", offenderNos,
+						"type", type,
+						"subType", subType,
+						"fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
+						"toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
+				CASE_NOTE_USAGE_MAPPER);
+
+		return caseNoteUsages;
 	}
 
     @Override

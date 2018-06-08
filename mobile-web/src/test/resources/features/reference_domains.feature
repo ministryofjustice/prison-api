@@ -38,14 +38,14 @@ Feature: Reference Domains
 
   Scenario: Retrieve used case note types with sub-types
     When request submitted to retrieve used case note types
-    Then "30" reference code items are returned
+    Then "31" reference code items are returned
     And domain for all returned items is "TASK_TYPE"
     And description for "1st" returned item is "Accredited Programme"
-    And description for "30th" returned item is "Unplanned contact"
+    And description for "30th" returned item is "Unpaid Work"
     And there are one or more sub codes for every returned item
     And description for "1st" sub-code of "1st" returned item is "Assessment"
     And description for "7th" sub-code of "1st" returned item is "Post Programme OM Session four"
-    And description for "1st" sub-code of "30th" returned item is "Report to Office"
+    And description for "1st" sub-code of "30th" returned item is "Post Sentence Interview"
 
   Scenario: Retrieve reference codes, without sub-codes, for a domain that does not exist
     When request submitted to retrieve all reference codes, without sub-codes, for domain "UNKNOWN"
