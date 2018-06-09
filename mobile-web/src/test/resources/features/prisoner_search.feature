@@ -120,15 +120,30 @@ Feature: Prisoner Search
       | A1181MV    | 1             | VAUGHAN   |
 
   @nomis
-  Scenario Outline: Search prisoners for a CRO or PNC number
+  Scenario Outline: Search prisoners with a CRO number
     Given a system client "yjaftrustedclient" has authenticated with the API
-    When a search is made for prisoners with PNC number of "<pnc>" and/or CRO number of "<cro>"
+    When a search is made for prisoners with CRO number of "<cro>"
     Then "<numberResults>" prisoner records are returned
     And the prisoners last names match "<lastNames>"
 
     Examples:
-      | pnc        | cro        | numberResults | lastNames |
-      | PNC112233  |            | 1             | CHAPLIN   |
-      | PNC112234  |            | 0             |           |
-      |            | CRO112233  | 1             | BATES     |
-      |            | CRO112234  | 0             |           |
+      | cro        | numberResults | lastNames |
+      | CRO112233  | 1             | BATES     |
+      | CRO112234  | 0             |           |
+
+  @nomis
+  Scenario Outline: Search prisoners with a PNC number
+    Given a system client "yjaftrustedclient" has authenticated with the API
+    When a search is made for prisoners with PNC number of "<pnc>"
+    Then "<numberResults>" prisoner records are returned
+    And the prisoners last names match "<lastNames>"
+
+    Examples:
+      | pnc           | numberResults | lastNames |
+      | 1998/1234567L | 1             | CHAPLIN   |
+      | 1998/1234567D | 0             |           |
+      | 98/1234567L   | 1             | CHAPLIN   |
+      | 1898/1234567L | 0             |           |
+      | 14/12345F     | 1             | ANDREWS   |
+      | 2014/12345F   | 1             | ANDREWS   |
+      | 1914/12345F   | 1             | ANDREWS   |
