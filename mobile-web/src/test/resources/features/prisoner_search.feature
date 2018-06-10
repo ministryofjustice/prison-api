@@ -78,7 +78,7 @@ Feature: Prisoner Search
       | CHES      |                |          | 0             |                 |
       |           | JEFF           |          | 0             |                 |
 
-  @broken
+  @nomis
   Scenario Outline: Search for prisoners by names, with partial name matching
     Given a system client "yjaftrustedclient" has authenticated with the API
     When a partial name search is made for prisoners with first name "<firstName>", middle names "<middleNames>" and last name "<lastName>"
@@ -91,7 +91,7 @@ Feature: Prisoner Search
     Examples:
       | firstName | middleNames    | lastName | numberResults | offenderNos             | foundFirstNames        | foundMiddleNames | foundLastNames            |
       |           |                | AND      | 3             | A1234AA,A1234AB,A1234AF | ARTHUR,GILLIAN,ANTHONY | BORIS,EVE        | ANDERSON,ANDERSON,ANDREWS |
-      | CHES      |                |          | 2             | A1234AI                 | CHESTER                | JAMES            | THOMPSON                  |
+      | CHES      |                |          | 1             | A1234AI                 | CHESTER                | JAMES            | THOMPSON                  |
       |           | JEFF           |          | 1             | A1234AE                 | DONALD                 | JEFFREY ROBERT   | DUCK                      |
 
   Scenario Outline: Search prisoners for a specified Date of Birth
@@ -132,7 +132,7 @@ Feature: Prisoner Search
       | CRO112234  | 0             |           |
 
   @nomis
-  Scenario Outline: Search prisoners with a PNC number
+  Scenario Outline: Search prisoners with a valid PNC number
     Given a system client "yjaftrustedclient" has authenticated with the API
     When a search is made for prisoners with PNC number of "<pnc>"
     Then "<numberResults>" prisoner records are returned
@@ -147,3 +147,9 @@ Feature: Prisoner Search
       | 14/12345F     | 1             | ANDREWS   |
       | 2014/12345F   | 1             | ANDREWS   |
       | 1914/12345F   | 1             | ANDREWS   |
+
+  @nomis
+  Scenario: Search prisoners with an invalid PNC number
+    Given a system client "yjaftrustedclient" has authenticated with the API
+    When an invalid search is made for prisoners with PNC number of "234/EE45FX"
+    Then bad request response is received from prisoner search API

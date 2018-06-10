@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.ws.rs.BadRequestException;
 import java.util.Collections;
 
 /**
@@ -35,10 +36,14 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
 
         Page<PrisonerDetail> response;
 
-        if (decoratedCriteria.isPrioritisedMatch()) {
-            response = executePrioritisedQuery(decoratedCriteria, adjustedPageRequest);
-        } else {
-            response = executeQuery(decoratedCriteria, adjustedPageRequest);
+        try {
+            if (decoratedCriteria.isPrioritisedMatch()) {
+                response = executePrioritisedQuery(decoratedCriteria, adjustedPageRequest);
+            } else {
+                response = executeQuery(decoratedCriteria, adjustedPageRequest);
+            }
+        } catch (IllegalArgumentException iaex) {
+            throw new BadRequestException("Invalid search criteria.", iaex);
         }
 
         return response;

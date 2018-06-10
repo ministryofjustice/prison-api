@@ -96,14 +96,21 @@ public class InmateRepositoryTest {
 
     @Test
     public void testfindOffendersWithValidPNCNumberOnly() {
-        final String TEST_PNC_NUMBER = "PNC112233";
+        final String TEST_PNC_NUMBER = "14/12345F";
 
         String query = buildQuery(criteriaForPNCNumber(TEST_PNC_NUMBER));
 
         PrisonerDetail offender = findOffender(query);
 
-        assertThat(offender.getOffenderNo()).isEqualTo("A1234AD");
-        assertThat(offender.getLastName()).isEqualTo("CHAPLIN");
+        assertThat(offender.getOffenderNo()).isEqualTo("A1234AF");
+        assertThat(offender.getLastName()).isEqualTo("ANDREWS");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testfindOffendersWithInvalidPNCNumberOnly() {
+        final String TEST_PNC_NUMBER = "PNC0193032";
+
+        buildQuery(criteriaForPNCNumber(TEST_PNC_NUMBER));
     }
 
     @Test
