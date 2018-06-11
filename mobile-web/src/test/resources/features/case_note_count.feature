@@ -57,6 +57,7 @@ Feature: Case Note Count
       | A1234AC    | OBSERVE | OBS_GEN | 2016-01-01 | 2017-07-31 | 6     | 2017-07-31T12:00 |
       | A1234AC    | OBSERVE | OBS_GEN | 2017-08-01 | 2017-08-31 | 2     | 2017-08-13T12:00 |
 
+    @wip
   Scenario Outline: Get case note usage for a list of staff Is and date ranges
     When case note usage between "<fromDate>" and "<toDate>" is requested of staff ID "<staffIds>" for case note type "<type>"  and sub-type "<subType>"
     Then case note staff usage response "numCaseNotes" is "<count>"
@@ -66,3 +67,4 @@ Feature: Case Note Count
       | staffIds | type    | subType | fromDate   | toDate     | count | latestNote       |
       | -1       | CHAP    | FAMMAR  |            | 2017-03-25 | 1     | 2017-03-25T14:35 |
       | -2       |         |         | 2016-01-01 | 2017-07-31 | 1     | 2017-05-06T17:11 |
+      | -1       | OBSERVE |         | 2016-01-01 | 2017-07-31 | 7     | 2017-07-31T12:00 |
