@@ -249,6 +249,16 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         caseNote.verifyCaseNoteCountPropertyValue(propertyName, expectedValue);
     }
 
+    @Then("^case note size is \"([^\"]*)\"$")
+    public void caseNoteSizeIs(String size) throws Throwable {
+        caseNote.verifyCaseNoteUsageSize(Integer.valueOf(size));
+    }
+
+    @Then("^case note usage response \"([^\"]*)\" is \"([^\"]*)\"$")
+    public void caseNoteUsageResponseIs(String propertyName, String expectedValue) throws Throwable {
+        caseNote.verifyCaseNoteUsagePropertyValue(propertyName, expectedValue);
+    }
+
     @Then("^bad request response, with \"([^\"]*)\" message, is received from casenotes API$")
     public void badRequestResponseWithMessageIsReceivedFromCasenotesAPI(String expectedUserMessage) throws Throwable {
         caseNote.verifyBadRequest(expectedUserMessage);
@@ -263,4 +273,11 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     public void accessDeniedResponseWithMessageIsReceivedFromBookingCaseNotesAPI(String userMessage) throws Throwable {
         caseNote.verifyAccessDenied(userMessage);
     }
+
+    @When("^case note usage between \"([^\"]*)\" and \"([^\"]*)\" is requested of offender No \"([^\"]*)\" for case note type \"([^\"]*)\"  and sub-type \"([^\"]*)\"$")
+    public void caseNoteUsageBetweenAndIsRequestedOfOffenderNoForCaseNoteTypeAndSubType(String fromDate, String toDate, String offenderNos, String type, String subType) throws Throwable {
+        caseNote.getCaseNoteUsage(offenderNos, type, subType, fromDate, toDate);
+    }
+
+
 }

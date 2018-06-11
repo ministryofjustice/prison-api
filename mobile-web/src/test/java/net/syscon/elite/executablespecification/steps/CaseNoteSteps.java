@@ -1,9 +1,6 @@
 package net.syscon.elite.executablespecification.steps;
 
-import net.syscon.elite.api.model.CaseNote;
-import net.syscon.elite.api.model.CaseNoteCount;
-import net.syscon.elite.api.model.NewCaseNote;
-import net.syscon.elite.api.model.UpdateCaseNote;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
@@ -13,9 +10,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 /**
  * BDD step implementations for Case Note domain.
@@ -24,14 +23,20 @@ public class CaseNoteSteps extends CommonSteps {
     private static final String API_REQUEST_BASE_URL = API_PREFIX + "bookings/{bookingId}/caseNotes";
     private static final String API_REQUEST_FOR_CASENOTE = API_REQUEST_BASE_URL + "/{caseNoteId}";
     private static final String API_REQUEST_FOR_CASENOTE_COUNT = API_REQUEST_BASE_URL + "/{type}/{subType}/count";
+    private static final String API_REQUEST_FOR_CASENOTE_USAGE = API_PREFIX + "case-notes/usage";
     private static final String FROM_DATE_QUERY_PARAM_PREFIX = "&fromDate=";
     private static final String TO_DATE_QUERY_PARAM_PREFIX = "&toDate=";
+    private static final String OFFENDER_NOS_QUERY_PARAM_PREFIX = "&offenderNo=";
+    private static final String CASENOTE_TYPE_QUERY_PARAM_PREFIX = "&type=";
+    private static final String CASENOTE_SUBTYPE_QUERY_PARAM_PREFIX = "&subType=";
 
     private CaseNote caseNote;
     private NewCaseNote pendingCaseNote;
     private String caseNoteFilter;
     private List<CaseNote> caseNotes;
     private CaseNoteCount caseNoteCount;
+    private List<CaseNoteUsage> caseNoteUsageList;
+    private CaseNoteUsage caseNoteUsage;
 
     @Value("${api.caseNote.sourceCode:AUTO}")
     private String caseNoteSource;
@@ -110,6 +115,11 @@ public class CaseNoteSteps extends CommonSteps {
         dispatchGetCaseNoteCountRequest(bookingId, type, subType, fromDate, toDate);
     }
 
+    @Step("Get case note usage")
+    public void getCaseNoteUsage(String offenderNos, String type, String subType, String fromDate, String toDate) {
+        dispatchGetCaseNoteUsageRequest(offenderNos, type, subType, fromDate, toDate);
+    }
+
     @Step("Verify case note types")
     public void verifyCaseNoteTypes(String caseNoteTypes) {
         verifyPropertyValues(caseNotes, CaseNote::getType, caseNoteTypes);
@@ -123,6 +133,16 @@ public class CaseNoteSteps extends CommonSteps {
     @Step("Verify case note count response property value")
     public void verifyCaseNoteCountPropertyValue(String propertyName, String expectedValue) throws Exception {
         verifyPropertyValue(caseNoteCount, propertyName, expectedValue);
+    }
+
+    @Step("Verify case note usage response property value")
+    public void verifyCaseNoteUsagePropertyValue(String propertyName, String expectedValue) throws Exception {
+        verifyPropertyValue(caseNoteUsage, propertyName, expectedValue);
+    }
+
+    @Step("Verify case note usage size")
+    public void verifyCaseNoteUsageSize(int size) throws Exception {
+        assertEquals(caseNoteUsageList.size(), size);
     }
 
     @Step("Apply case note type filter")
@@ -259,6 +279,56 @@ public class CaseNoteSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
             caseNoteCount = response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    private void dispatchGetCaseNoteUsageRequest(String offenderNos, String type, String subType, String fromDate, String toDate) {
+        init();
+
+        final StringBuilder queryBuilder = new StringBuilder();
+
+        if (StringUtils.isNotBlank(offenderNos)) {
+            List<String> nos = Arrays.asList(offenderNos.split(","));
+            nos.forEach(offenderNo -> queryBuilder.append(OFFENDER_NOS_QUERY_PARAM_PREFIX).append(offenderNo));
+        }
+
+        if (StringUtils.isNotBlank(type)) {
+            queryBuilder.append(CASENOTE_TYPE_QUERY_PARAM_PREFIX).append(type);
+        }
+
+        if (StringUtils.isNotBlank(subType)) {
+            queryBuilder.append(CASENOTE_SUBTYPE_QUERY_PARAM_PREFIX).append(subType);
+        }
+
+        if (StringUtils.isNotBlank(fromDate)) {
+            queryBuilder.append(FROM_DATE_QUERY_PARAM_PREFIX).append(fromDate);
+        }
+
+        if (StringUtils.isNotBlank(toDate)) {
+            queryBuilder.append(TO_DATE_QUERY_PARAM_PREFIX).append(toDate);
+        }
+
+        String urlModifier = "";
+
+        if (queryBuilder.length() > 0) {
+            urlModifier = "?" + queryBuilder.substring(1);
+        }
+
+        String url = API_REQUEST_FOR_CASENOTE_USAGE + urlModifier;
+
+        try {
+            ResponseEntity<List<CaseNoteUsage>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    createEntity(),
+                        new ParameterizedTypeReference<List<CaseNoteUsage>>() {});
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+            caseNoteUsageList = response.getBody();
+            caseNoteUsage = caseNoteUsageList.isEmpty() ? null : caseNoteUsageList.get(0);
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }

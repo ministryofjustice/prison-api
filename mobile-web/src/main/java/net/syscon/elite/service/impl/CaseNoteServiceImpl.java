@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -177,7 +176,22 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	}
 
 	@Override
-	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, @NotEmpty List<String> offenderNo, @NotNull LocalDate fromDate, @NotNull LocalDate toDate) {
-		return caseNoteRepository.getCaseNoteUsage(type, subType, offenderNo, fromDate, toDate);
+	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, @NotEmpty List<String> offenderNo, LocalDate fromDate, LocalDate toDate) {
+
+		LocalDate now = LocalDate.now();
+		LocalDate fromDateToUse = now.minusMonths(1);
+    	LocalDate toDateToUse = now;
+
+    	if (fromDate != null && toDate != null) {
+    		fromDateToUse = fromDate;
+    		toDateToUse = toDate;
+		} else if (fromDate != null) {
+    		fromDateToUse = fromDate;
+			toDateToUse = fromDate.plusMonths(1);
+		} else if (toDate != null) {
+			fromDateToUse = toDate.minusMonths(1);
+			toDateToUse = toDate;
+		}
+		return caseNoteRepository.getCaseNoteUsage(type, subType, offenderNo, fromDateToUse, toDateToUse);
 	}
 }

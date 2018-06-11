@@ -8,7 +8,6 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -29,5 +28,5 @@ public interface CaseNoteService {
 
     List<ReferenceCode> getUsedCaseNoteTypesWithSubTypes();
 
-    List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, @NotEmpty List<String> offenderNo, @NotNull LocalDate fromDate, @NotNull LocalDate toDate);
+    List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, @NotEmpty List<String> offenderNo, LocalDate fromDate, LocalDate toDate);
 }
