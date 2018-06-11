@@ -259,6 +259,12 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         caseNote.verifyCaseNoteUsagePropertyValue(propertyName, expectedValue);
     }
 
+    @Then("^case note staff usage response \"([^\"]*)\" is \"([^\"]*)\"$")
+    public void caseNoteStaffUsageResponseIs(String propertyName, String expectedValue) throws Throwable {
+        caseNote.verifyCaseNoteStaffUsagePropertyValue(propertyName, expectedValue);
+    }
+
+
     @Then("^bad request response, with \"([^\"]*)\" message, is received from casenotes API$")
     public void badRequestResponseWithMessageIsReceivedFromCasenotesAPI(String expectedUserMessage) throws Throwable {
         caseNote.verifyBadRequest(expectedUserMessage);
@@ -280,4 +286,8 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     }
 
 
+    @When("^case note usage between \"([^\"]*)\" and \"([^\"]*)\" is requested of staff ID \"([^\"]*)\" for case note type \"([^\"]*)\"  and sub-type \"([^\"]*)\"$")
+    public void caseNoteUsageBetweenAndIsRequestedOfStaffIDForCaseNoteTypeAndSubType(String fromDate, String toDate, String staffIds, String type, String subType) throws Throwable {
+        caseNote.getCaseNoteStaffUsage(staffIds, type, subType, fromDate, toDate);
+    }
 }

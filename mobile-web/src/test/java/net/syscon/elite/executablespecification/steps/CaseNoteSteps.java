@@ -24,9 +24,11 @@ public class CaseNoteSteps extends CommonSteps {
     private static final String API_REQUEST_FOR_CASENOTE = API_REQUEST_BASE_URL + "/{caseNoteId}";
     private static final String API_REQUEST_FOR_CASENOTE_COUNT = API_REQUEST_BASE_URL + "/{type}/{subType}/count";
     private static final String API_REQUEST_FOR_CASENOTE_USAGE = API_PREFIX + "case-notes/usage";
+    private static final String API_REQUEST_FOR_CASENOTE_STAFF_USAGE = API_PREFIX + "case-notes/staff-usage";
     private static final String FROM_DATE_QUERY_PARAM_PREFIX = "&fromDate=";
     private static final String TO_DATE_QUERY_PARAM_PREFIX = "&toDate=";
     private static final String OFFENDER_NOS_QUERY_PARAM_PREFIX = "&offenderNo=";
+    private static final String STAFF_IDS_QUERY_PARAM_PREFIX = "&staffIds=";
     private static final String CASENOTE_TYPE_QUERY_PARAM_PREFIX = "&type=";
     private static final String CASENOTE_SUBTYPE_QUERY_PARAM_PREFIX = "&subType=";
 
@@ -37,6 +39,8 @@ public class CaseNoteSteps extends CommonSteps {
     private CaseNoteCount caseNoteCount;
     private List<CaseNoteUsage> caseNoteUsageList;
     private CaseNoteUsage caseNoteUsage;
+    private List<CaseNoteStaffUsage> caseNoteStaffUsageList;
+    private CaseNoteStaffUsage caseNoteStaffUsage;
 
     @Value("${api.caseNote.sourceCode:AUTO}")
     private String caseNoteSource;
@@ -120,6 +124,11 @@ public class CaseNoteSteps extends CommonSteps {
         dispatchGetCaseNoteUsageRequest(offenderNos, type, subType, fromDate, toDate);
     }
 
+    @Step("Get case note staff usage")
+    public void getCaseNoteStaffUsage(String staffIds, String type, String subType, String fromDate, String toDate) {
+        dispatchGetCaseNoteStaffUsageRequest(staffIds, type, subType, fromDate, toDate);
+    }
+
     @Step("Verify case note types")
     public void verifyCaseNoteTypes(String caseNoteTypes) {
         verifyPropertyValues(caseNotes, CaseNote::getType, caseNoteTypes);
@@ -138,6 +147,11 @@ public class CaseNoteSteps extends CommonSteps {
     @Step("Verify case note usage response property value")
     public void verifyCaseNoteUsagePropertyValue(String propertyName, String expectedValue) throws Exception {
         verifyPropertyValue(caseNoteUsage, propertyName, expectedValue);
+    }
+
+    @Step("Verify case note staff usage response property value")
+    public void verifyCaseNoteStaffUsagePropertyValue(String propertyName, String expectedValue) throws Exception {
+        verifyPropertyValue(caseNoteStaffUsage, propertyName, expectedValue);
     }
 
     @Step("Verify case note usage size")
@@ -333,4 +347,55 @@ public class CaseNoteSteps extends CommonSteps {
             setErrorResponse(ex.getErrorResponse());
         }
     }
+
+    private void dispatchGetCaseNoteStaffUsageRequest(String staffIds, String type, String subType, String fromDate, String toDate) {
+        init();
+
+        final StringBuilder queryBuilder = new StringBuilder();
+
+        if (StringUtils.isNotBlank(staffIds)) {
+            List<String> ids = Arrays.asList(staffIds.split(","));
+            ids.forEach(staffId -> queryBuilder.append(STAFF_IDS_QUERY_PARAM_PREFIX).append(staffId));
+        }
+
+        if (StringUtils.isNotBlank(type)) {
+            queryBuilder.append(CASENOTE_TYPE_QUERY_PARAM_PREFIX).append(type);
+        }
+
+        if (StringUtils.isNotBlank(subType)) {
+            queryBuilder.append(CASENOTE_SUBTYPE_QUERY_PARAM_PREFIX).append(subType);
+        }
+
+        if (StringUtils.isNotBlank(fromDate)) {
+            queryBuilder.append(FROM_DATE_QUERY_PARAM_PREFIX).append(fromDate);
+        }
+
+        if (StringUtils.isNotBlank(toDate)) {
+            queryBuilder.append(TO_DATE_QUERY_PARAM_PREFIX).append(toDate);
+        }
+
+        String urlModifier = "";
+
+        if (queryBuilder.length() > 0) {
+            urlModifier = "?" + queryBuilder.substring(1);
+        }
+
+        String url = API_REQUEST_FOR_CASENOTE_STAFF_USAGE + urlModifier;
+
+        try {
+            ResponseEntity<List<CaseNoteStaffUsage>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    createEntity(),
+                    new ParameterizedTypeReference<List<CaseNoteStaffUsage>>() {});
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+            caseNoteStaffUsageList = response.getBody();
+            caseNoteStaffUsage = caseNoteStaffUsageList.isEmpty() ? null : caseNoteStaffUsageList.get(0);
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
 }

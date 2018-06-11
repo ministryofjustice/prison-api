@@ -1,10 +1,7 @@
 package net.syscon.elite.repository.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
-import net.syscon.elite.api.model.CaseNote;
-import net.syscon.elite.api.model.CaseNoteUsage;
-import net.syscon.elite.api.model.NewCaseNote;
-import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.CaseNoteRepository;
@@ -61,7 +58,10 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	private static final RowMapper<CaseNoteUsage> CASE_NOTE_USAGE_MAPPER =
 			new StandardBeanPropertyRowMapper<>(CaseNoteUsage.class);
 
-	@Override
+    private static final RowMapper<CaseNoteStaffUsage> CASE_NOTE_STAFF_USAGE_MAPPER =
+            new StandardBeanPropertyRowMapper<>(CaseNoteStaffUsage.class);
+
+    @Override
     public Page<CaseNote> getCaseNotes(long bookingId, String query, LocalDate from, LocalDate to, String orderByField,
             Order order, long offset, long limit) {
 
@@ -113,16 +113,26 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	@Override
 	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, List<String> offenderNos, LocalDate fromDate, LocalDate toDate) {
 
-		List<CaseNoteUsage> caseNoteUsages = jdbcTemplate.query(getQuery("GROUP_BY_TYPES_AND_OFFENDERS"),
+		return jdbcTemplate.query(getQuery("GROUP_BY_TYPES_AND_OFFENDERS"),
 				createParams("offenderNos", offenderNos,
 						"type", type,
 						"subType", subType,
 						"fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
 						"toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
 				CASE_NOTE_USAGE_MAPPER);
-
-		return caseNoteUsages;
 	}
+
+    @Override
+    public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(String type, String subType, List<Integer> staffIds, LocalDate fromDate, LocalDate toDate) {
+
+        return jdbcTemplate.query(getQuery("GROUP_BY_TYPES_AND_STAFF"),
+                createParams("staffIds", staffIds,
+                        "type", type,
+                        "subType", subType,
+                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
+                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
+                CASE_NOTE_STAFF_USAGE_MAPPER);
+    }
 
     @Override
 	public Optional<CaseNote> getCaseNote(long bookingId, long caseNoteId) {
