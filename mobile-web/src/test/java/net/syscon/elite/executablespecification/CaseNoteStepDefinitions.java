@@ -35,8 +35,6 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     private CaseNote seededCaseNote;
     private CaseNote updatedCaseNote;
 
-    private Long caseNoteBookingId = -32L; // this must exist and must be accessible to test user
-
     @And("^case note test harness initialized$")
     public void caseNoteTestHarnessInitialized() throws Throwable {
         caseNote.init();
@@ -51,6 +49,8 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
                 "Hello this is a new case note",
                 null);
 
+        // this must exist and must be accessible to test user
+        Long caseNoteBookingId = -32L;
         seededCaseNote = caseNote.createCaseNote(caseNoteBookingId, newCaseNote);
     }
 
@@ -252,6 +252,11 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     @Then("^case note size is \"([^\"]*)\"$")
     public void caseNoteSizeIs(String size) throws Throwable {
         caseNote.verifyCaseNoteUsageSize(Integer.valueOf(size));
+    }
+
+    @Then("^case note staff usage size is \"([^\"]*)\"$")
+    public void caseNoteStaffUsageSizeIs(String size) throws Throwable {
+        caseNote.verifyCaseNoteStaffUsageSize(Integer.valueOf(size));
     }
 
     @Then("^case note usage response \"([^\"]*)\" is \"([^\"]*)\"$")

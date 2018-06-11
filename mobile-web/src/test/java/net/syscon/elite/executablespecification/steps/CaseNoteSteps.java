@@ -155,9 +155,15 @@ public class CaseNoteSteps extends CommonSteps {
     }
 
     @Step("Verify case note usage size")
-    public void verifyCaseNoteUsageSize(int size) throws Exception {
+    public void verifyCaseNoteUsageSize(int size) {
         assertEquals(caseNoteUsageList.size(), size);
     }
+
+    @Step("Verify case note usage size")
+    public void verifyCaseNoteStaffUsageSize(int size) {
+        assertEquals(caseNoteStaffUsageList.size(), size);
+    }
+
 
     @Step("Apply case note type filter")
     public void applyCaseNoteTypeFilter(String caseNoteType) {
@@ -308,21 +314,7 @@ public class CaseNoteSteps extends CommonSteps {
             nos.forEach(offenderNo -> queryBuilder.append(OFFENDER_NOS_QUERY_PARAM_PREFIX).append(offenderNo));
         }
 
-        if (StringUtils.isNotBlank(type)) {
-            queryBuilder.append(CASENOTE_TYPE_QUERY_PARAM_PREFIX).append(type);
-        }
-
-        if (StringUtils.isNotBlank(subType)) {
-            queryBuilder.append(CASENOTE_SUBTYPE_QUERY_PARAM_PREFIX).append(subType);
-        }
-
-        if (StringUtils.isNotBlank(fromDate)) {
-            queryBuilder.append(FROM_DATE_QUERY_PARAM_PREFIX).append(fromDate);
-        }
-
-        if (StringUtils.isNotBlank(toDate)) {
-            queryBuilder.append(TO_DATE_QUERY_PARAM_PREFIX).append(toDate);
-        }
+        setQueryParams(type, subType, fromDate, toDate, queryBuilder);
 
         String urlModifier = "";
 
@@ -358,21 +350,7 @@ public class CaseNoteSteps extends CommonSteps {
             ids.forEach(staffId -> queryBuilder.append(STAFF_IDS_QUERY_PARAM_PREFIX).append(staffId));
         }
 
-        if (StringUtils.isNotBlank(type)) {
-            queryBuilder.append(CASENOTE_TYPE_QUERY_PARAM_PREFIX).append(type);
-        }
-
-        if (StringUtils.isNotBlank(subType)) {
-            queryBuilder.append(CASENOTE_SUBTYPE_QUERY_PARAM_PREFIX).append(subType);
-        }
-
-        if (StringUtils.isNotBlank(fromDate)) {
-            queryBuilder.append(FROM_DATE_QUERY_PARAM_PREFIX).append(fromDate);
-        }
-
-        if (StringUtils.isNotBlank(toDate)) {
-            queryBuilder.append(TO_DATE_QUERY_PARAM_PREFIX).append(toDate);
-        }
+        setQueryParams(type, subType, fromDate, toDate, queryBuilder);
 
         String urlModifier = "";
 
@@ -395,6 +373,24 @@ public class CaseNoteSteps extends CommonSteps {
             caseNoteStaffUsage = caseNoteStaffUsageList.isEmpty() ? null : caseNoteStaffUsageList.get(0);
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    private void setQueryParams(String type, String subType, String fromDate, String toDate, StringBuilder queryBuilder) {
+        if (StringUtils.isNotBlank(type)) {
+            queryBuilder.append(CASENOTE_TYPE_QUERY_PARAM_PREFIX).append(type);
+        }
+
+        if (StringUtils.isNotBlank(subType)) {
+            queryBuilder.append(CASENOTE_SUBTYPE_QUERY_PARAM_PREFIX).append(subType);
+        }
+
+        if (StringUtils.isNotBlank(fromDate)) {
+            queryBuilder.append(FROM_DATE_QUERY_PARAM_PREFIX).append(fromDate);
+        }
+
+        if (StringUtils.isNotBlank(toDate)) {
+            queryBuilder.append(TO_DATE_QUERY_PARAM_PREFIX).append(toDate);
         }
     }
 

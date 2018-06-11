@@ -177,36 +177,21 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
 	@Override
 	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, @NotEmpty List<String> offenderNo, LocalDate fromDate, LocalDate toDate) {
-		DeriveDates deriveDates = new DeriveDates(fromDate, toDate).invoke();
+		DeriveDates deriveDates = new DeriveDates(fromDate, toDate);
 		return caseNoteRepository.getCaseNoteUsage(type, subType, offenderNo, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse());
 	}
 
 	@Override
 	public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(String type, String subType, @NotEmpty List<Integer> staffIds, LocalDate fromDate, LocalDate toDate) {
-		DeriveDates deriveDates = new DeriveDates(fromDate, toDate).invoke();
+		DeriveDates deriveDates = new DeriveDates(fromDate, toDate);
 		return caseNoteRepository.getCaseNoteStaffUsage(type, subType, staffIds, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse());
 	}
 
-	private class DeriveDates {
-		private LocalDate fromDate;
-		private LocalDate toDate;
+	private static class DeriveDates {
 		private LocalDate fromDateToUse;
 		private LocalDate toDateToUse;
 
-		DeriveDates(LocalDate fromDate, LocalDate toDate) {
-			this.fromDate = fromDate;
-			this.toDate = toDate;
-		}
-
-		LocalDate getFromDateToUse() {
-			return fromDateToUse;
-		}
-
-		LocalDate getToDateToUse() {
-			return toDateToUse;
-		}
-
-		DeriveDates invoke() {
+		public DeriveDates(LocalDate fromDate, LocalDate toDate) {
 			LocalDate now = LocalDate.now();
 			fromDateToUse = now.minusMonths(1);
 			toDateToUse = now;
@@ -223,7 +208,15 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 			}
 
 			toDateToUse = toDateToUse.plusDays(1);
-			return this;
 		}
+
+		public LocalDate getFromDateToUse() {
+			return fromDateToUse;
+		}
+
+		public LocalDate getToDateToUse() {
+			return toDateToUse;
+		}
+
 	}
 }
