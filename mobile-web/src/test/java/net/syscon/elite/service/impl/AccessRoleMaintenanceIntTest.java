@@ -58,6 +58,14 @@ public class AccessRoleMaintenanceIntTest {
                         .caseloadId("NWEB")
                         .username("ITAG_USER")
                         .staffId(-2L)
+                        .build(),
+                StaffUserRole.builder()
+                        .roleId(-203L)
+                        .roleCode("OMIC_ADMIN")
+                        .roleName("Omic Admin")
+                        .caseloadId("NWEB")
+                        .username("ITAG_USER")
+                        .staffId(-2L)
                         .build());
     }
 
@@ -80,11 +88,11 @@ public class AccessRoleMaintenanceIntTest {
     @WithMockUser(username="ITAG_USER",roles={"MAINTAIN_ACCESS_ROLES"})
     public void addAndRemoveRoleFromStaffMember() {
         List<StaffUserRole> roles = staffService.getStaffRoles(-4L);
-        assertThat(roles).hasSize(2);
+        assertThat(roles).hasSize(3);
 
         StaffUserRole addedRole = staffService.addStaffRole(-4L, "NWEB", "LICENCE_CA");
         roles = staffService.getStaffRoles(-4L);
-        assertThat(roles).hasSize(3);
+        assertThat(roles).hasSize(4);
 
         staffService.removeStaffRole(-4L, "NWEB", "LICENCE_CA");
         assertThat(addedRole).isEqualToComparingFieldByField(
@@ -98,7 +106,7 @@ public class AccessRoleMaintenanceIntTest {
                         .build());
 
         roles = staffService.getStaffRoles(-4L);
-        assertThat(roles).hasSize(2);
+        assertThat(roles).hasSize(3);
     }
 
 }

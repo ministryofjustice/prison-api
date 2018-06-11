@@ -90,8 +90,9 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	@Override
 	@VerifyBookingAccess
     public CaseNote createCaseNote(Long bookingId, @Valid @CaseNoteTypeSubTypeValid NewCaseNote caseNote, String username) {
+    	final UserDetail userDetail = userService.getUserByUsername(username);
 		// TODO: For Elite - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
-        Long caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote, caseNoteSource, username);
+		Long caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote, caseNoteSource, userDetail.getUsername(), userDetail.getStaffId());
 
 		final CaseNote caseNoteCreated = getCaseNote(bookingId, caseNoteId);
 

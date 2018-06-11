@@ -58,7 +58,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 			.put("STAFF_NAME", 				    new FieldMapper("authorName"))
 			.build();
 
-	private static final StandardBeanPropertyRowMapper<CaseNoteUsage> CASE_NOTE_USAGE_MAPPER =
+	private static final RowMapper<CaseNoteUsage> CASE_NOTE_USAGE_MAPPER =
 			new StandardBeanPropertyRowMapper<>(CaseNoteUsage.class);
 
 	@Override
@@ -68,11 +68,11 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
         String initialSql = getQuery("FIND_CASENOTES");
         final MapSqlParameterSource params = createParams("bookingId", bookingId, "offset", offset, "limit", limit);
         if (from != null) {
-            initialSql += " AND CN.CREATE_DATETIME >= :fromDate";
+            initialSql += " AND CN.CONTACT_DATE >= :fromDate";
             params.addValue("fromDate", DateTimeConverter.toDate(from));
         }
         if (to != null) {
-            initialSql += " AND CN.CREATE_DATETIME < :toDate";
+            initialSql += " AND CN.CONTACT_DATE < :toDate";
 
             // Adjust to be strictly less than start of *next day.
 
@@ -139,7 +139,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
-	public Long createCaseNote(long bookingId, NewCaseNote newCaseNote, String sourceCode, String username) {
+	public Long createCaseNote(long bookingId, NewCaseNote newCaseNote, String sourceCode, String username, Long staffId) {
 		String initialSql = getQuery("INSERT_CASE_NOTE");
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, CASE_NOTE_MAPPING);
 		String sql = builder.build();
@@ -173,7 +173,8 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 										"contactDate", occurrenceDate,
 										"contactTime", occurrenceTime,
 										"createdBy", username,
-										"userId", username),
+										"userId", username,
+										"staffId", staffId),
 				generatedKeyHolder,
 				new String[] {"CASE_NOTE_ID"});
 

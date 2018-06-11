@@ -18,7 +18,7 @@ public interface CaseNoteRepository {
 
     Optional<CaseNote> getCaseNote(long bookingId, long caseNoteId);
 
-    Long createCaseNote(long bookingId, NewCaseNote caseNote, String sourceCode, String username);
+    Long createCaseNote(long bookingId, NewCaseNote caseNote, String sourceCode, String username, Long staffId);
 
     void updateCaseNote(long bookingId, long caseNoteId, @Length(max = 4000, message = "{caseNoteTextTooLong}") String updatedText, String userId);
 
