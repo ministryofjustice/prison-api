@@ -121,20 +121,40 @@ public class PrisonerSearchStepDefinitions extends AbstractStepDefinitions {
         prisonerSearch.search(ImmutableMap.of("offenderNo", offenderNo), 0, 100, HttpStatus.OK);
     }
 
-    @When("^a search is made for prisoners with PNC number of \"([^\"]*)\" and/or CRO number of \"([^\"]*)\"$")
-    public void aSearchIsMadeForPrisonersWithPNCNumberOfAndOrCRONumberOf(String pnc, String cro) throws Throwable {
+    @When("^a search is made for prisoners with CRO number of \"([^\"]*)\"$")
+    public void aSearchIsMadeForPrisonersWithCRONumberOf(String cro) throws Throwable {
         Map<String, String> params = new HashMap<>();
-        if (StringUtils.isNotBlank(pnc)) {
-            params.put("pncNumber", pnc);
-        }
-        if (StringUtils.isNotBlank(cro)) {
-            params.put("croNumber", cro);
-        }
+
+        params.put("croNumber", cro);
+
         prisonerSearch.search(params, 0, 100, HttpStatus.OK);
+    }
+
+    @When("^a search is made for prisoners with PNC number of \"([^\"]*)\"$")
+    public void aSearchIsMadeForPrisonersWithPNCNumberOf(String pnc) throws Throwable {
+        Map<String, String> params = new HashMap<>();
+
+        params.put("pncNumber", pnc);
+
+        prisonerSearch.search(params, 0, 100, HttpStatus.OK);
+    }
+
+    @When("^an invalid search is made for prisoners with PNC number of \"([^\"]*)\"$")
+    public void anInvalidSearchIsMadeForPrisonersWithPNCNumberOf(String pnc) throws Throwable {
+        Map<String, String> params = new HashMap<>();
+
+        params.put("pncNumber", pnc);
+
+        prisonerSearch.search(params, 0, 100, HttpStatus.BAD_REQUEST);
     }
 
     @Then("^access is denied$")
     public void accessIsDenied() throws Throwable {
         prisonerSearch.verifyAccessDenied();
+    }
+
+    @Then("^bad request response is received from prisoner search API$")
+    public void badRequestResponseIsReceivedFromPrisonerSearchAPI() {
+        prisonerSearch.verifyBadRequest("Invalid search criteria.");
     }
 }
