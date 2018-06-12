@@ -35,8 +35,6 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     private CaseNote seededCaseNote;
     private CaseNote updatedCaseNote;
 
-    private Long caseNoteBookingId = -32L; // this must exist and must be accessible to test user
-
     @And("^case note test harness initialized$")
     public void caseNoteTestHarnessInitialized() throws Throwable {
         caseNote.init();
@@ -51,6 +49,8 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
                 "Hello this is a new case note",
                 null);
 
+        // this must exist and must be accessible to test user
+        Long caseNoteBookingId = -32L;
         seededCaseNote = caseNote.createCaseNote(caseNoteBookingId, newCaseNote);
     }
 
@@ -249,6 +249,27 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         caseNote.verifyCaseNoteCountPropertyValue(propertyName, expectedValue);
     }
 
+    @Then("^case note size is \"([^\"]*)\"$")
+    public void caseNoteSizeIs(String size) throws Throwable {
+        caseNote.verifyCaseNoteUsageSize(Integer.valueOf(size));
+    }
+
+    @Then("^case note staff usage size is \"([^\"]*)\"$")
+    public void caseNoteStaffUsageSizeIs(String size) throws Throwable {
+        caseNote.verifyCaseNoteStaffUsageSize(Integer.valueOf(size));
+    }
+
+    @Then("^case note usage response \"([^\"]*)\" is \"([^\"]*)\"$")
+    public void caseNoteUsageResponseIs(String propertyName, String expectedValue) throws Throwable {
+        caseNote.verifyCaseNoteUsagePropertyValue(propertyName, expectedValue);
+    }
+
+    @Then("^case note staff usage response \"([^\"]*)\" is \"([^\"]*)\"$")
+    public void caseNoteStaffUsageResponseIs(String propertyName, String expectedValue) throws Throwable {
+        caseNote.verifyCaseNoteStaffUsagePropertyValue(propertyName, expectedValue);
+    }
+
+
     @Then("^bad request response, with \"([^\"]*)\" message, is received from casenotes API$")
     public void badRequestResponseWithMessageIsReceivedFromCasenotesAPI(String expectedUserMessage) throws Throwable {
         caseNote.verifyBadRequest(expectedUserMessage);
@@ -262,5 +283,16 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     @Then("^access denied response, with \"([^\"]*)\" message, is received from booking case notes API$")
     public void accessDeniedResponseWithMessageIsReceivedFromBookingCaseNotesAPI(String userMessage) throws Throwable {
         caseNote.verifyAccessDenied(userMessage);
+    }
+
+    @When("^case note usage between \"([^\"]*)\" and \"([^\"]*)\" is requested of offender No \"([^\"]*)\" for case note type \"([^\"]*)\"  and sub-type \"([^\"]*)\"$")
+    public void caseNoteUsageBetweenAndIsRequestedOfOffenderNoForCaseNoteTypeAndSubType(String fromDate, String toDate, String offenderNos, String type, String subType) throws Throwable {
+        caseNote.getCaseNoteUsage(offenderNos, type, subType, fromDate, toDate);
+    }
+
+
+    @When("^case note usage between \"([^\"]*)\" and \"([^\"]*)\" is requested of staff ID \"([^\"]*)\" for case note type \"([^\"]*)\"  and sub-type \"([^\"]*)\"$")
+    public void caseNoteUsageBetweenAndIsRequestedOfStaffIDForCaseNoteTypeAndSubType(String fromDate, String toDate, String staffIds, String type, String subType) throws Throwable {
+        caseNote.getCaseNoteStaffUsage(staffIds, type, subType, fromDate, toDate);
     }
 }

@@ -1,0 +1,47 @@
+/usage:
+  (javaOperationName): getCaseNoteUsageSummary
+  type: { readOnlyCollection: { type: CaseNoteUsage, description: Count of case notes, of specified type and sub-type, for offenders. } }
+  get:
+    queryParameters:
+     offenderNo:
+        type: array
+        description: a list of offender numbers to search.
+        example: offenderNo=A1234AA&offenderNo=A1234AB
+     fromDate?:
+        type: date-only
+        description: Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.
+        example: 2017-06-01
+     toDate?:
+        type: date-only
+        description: Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered.
+        example: 2017-09-01
+     type?:
+        type: string
+        description: Case note type.
+     subType?:
+        type: string
+        description: Case note sub-type.
+
+/staff-usage:
+  (javaOperationName): getCaseNoteStaffUsageSummary
+  type: { readOnlyCollection: { type: CaseNoteStaffUsage, description: Count of case notes, of specified type and sub-type, for staff. } }
+  get:
+    queryParameters:
+     staffIds:
+        type: array
+        description: a list of staffId numbers to use.
+        example: staffId=131231&staffId=321423
+     fromDate?:
+        type: date-only
+        description: Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.
+        example: 2017-06-01
+     toDate?:
+        type: date-only
+        description: Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered.
+        example: 2017-09-01
+     type?:
+        type: string
+        description: Case note type.
+     subType?:
+        type: string
+        description: Case note sub-type.

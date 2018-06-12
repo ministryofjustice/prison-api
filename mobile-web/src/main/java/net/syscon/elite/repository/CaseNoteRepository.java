@@ -1,8 +1,6 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.CaseNote;
-import net.syscon.elite.api.model.NewCaseNote;
-import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import org.hibernate.validator.constraints.Length;
@@ -17,9 +15,9 @@ public interface CaseNoteRepository {
 
     Optional<CaseNote> getCaseNote(long bookingId, long caseNoteId);
 
-    Long createCaseNote(long bookingId, NewCaseNote caseNote, String sourceCode, String username);
+    Long createCaseNote(long bookingId, NewCaseNote caseNote, String sourceCode, String username, Long staffId);
 
-    void updateCaseNote(long bookingId, long caseNoteId, @Length(max=4000, message="{caseNoteTextTooLong}") String updatedText, String userId);
+    void updateCaseNote(long bookingId, long caseNoteId, @Length(max = 4000, message = "{caseNoteTextTooLong}") String updatedText, String userId);
 
     Long getCaseNoteCount(long bookingId, String type, String subType, LocalDate fromDate, LocalDate toDate);
 
@@ -28,4 +26,8 @@ public interface CaseNoteRepository {
     List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(String caseLoadType);
 
     List<ReferenceCode> getUsedCaseNoteTypesWithSubTypes();
+
+    List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, List<String> offenderNos, LocalDate fromDate, LocalDate toDate);
+
+    List<CaseNoteStaffUsage> getCaseNoteStaffUsage(String type, String subType, List<Integer> staffIds, LocalDate fromDate, LocalDate toDate);
 }

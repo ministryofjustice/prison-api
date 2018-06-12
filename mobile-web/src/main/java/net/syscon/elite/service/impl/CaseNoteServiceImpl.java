@@ -13,6 +13,7 @@ import net.syscon.elite.service.UserService;
 import net.syscon.elite.service.validation.CaseNoteTypeSubTypeValid;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -88,8 +89,9 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	@Override
 	@VerifyBookingAccess
     public CaseNote createCaseNote(Long bookingId, @Valid @CaseNoteTypeSubTypeValid NewCaseNote caseNote, String username) {
+    	final UserDetail userDetail = userService.getUserByUsername(username);
 		// TODO: For Elite - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
-        Long caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote, caseNoteSource, username);
+		Long caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote, caseNoteSource, userDetail.getUsername(), userDetail.getStaffId());
 
 		final CaseNote caseNoteCreated = getCaseNote(bookingId, caseNoteId);
 
@@ -171,5 +173,50 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	@Transactional(readOnly = true)
 	public List<ReferenceCode> getUsedCaseNoteTypesWithSubTypes() {
 		return caseNoteRepository.getUsedCaseNoteTypesWithSubTypes();
+	}
+
+	@Override
+	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, @NotEmpty List<String> offenderNo, LocalDate fromDate, LocalDate toDate) {
+		DeriveDates deriveDates = new DeriveDates(fromDate, toDate);
+		return caseNoteRepository.getCaseNoteUsage(type, subType, offenderNo, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse());
+	}
+
+	@Override
+	public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(String type, String subType, @NotEmpty List<Integer> staffIds, LocalDate fromDate, LocalDate toDate) {
+		DeriveDates deriveDates = new DeriveDates(fromDate, toDate);
+		return caseNoteRepository.getCaseNoteStaffUsage(type, subType, staffIds, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse());
+	}
+
+	private static class DeriveDates {
+		private LocalDate fromDateToUse;
+		private LocalDate toDateToUse;
+
+		public DeriveDates(LocalDate fromDate, LocalDate toDate) {
+			LocalDate now = LocalDate.now();
+			fromDateToUse = now.minusMonths(1);
+			toDateToUse = now;
+
+			if (fromDate != null && toDate != null) {
+				fromDateToUse = fromDate;
+				toDateToUse = toDate;
+			} else if (fromDate != null) {
+				fromDateToUse = fromDate;
+				toDateToUse = fromDate.plusMonths(1);
+			} else if (toDate != null) {
+				fromDateToUse = toDate.minusMonths(1);
+				toDateToUse = toDate;
+			}
+
+			toDateToUse = toDateToUse.plusDays(1);
+		}
+
+		public LocalDate getFromDateToUse() {
+			return fromDateToUse;
+		}
+
+		public LocalDate getToDateToUse() {
+			return toDateToUse;
+		}
+
 	}
 }
