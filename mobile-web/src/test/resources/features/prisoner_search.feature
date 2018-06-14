@@ -65,18 +65,19 @@ Feature: Prisoner Search
     And prisoner offender numbers match "<offenderNos>"
 
     Examples:
-      | firstName | middleNames    | lastName | numberResults | offenderNos     |
-      |           |                | ANDERSON | 2             | A1234AA,A1234AB |
-      |           | EVE            | ANDERSON | 1             | A1234AB         |
-      |           | JAMES          |          | 2             | A1234AD,A1234AI |
-      | CHESTER   | JAMES          |          | 1             | A1234AI         |
-      |           | JEFFREY ROBERT |          | 1             | A1234AE         |
-      | DANIEL    |                |          | 2             | A1234AJ,A1234AL |
-      | DANIEL    | JOSEPH         |          | 1             | A1234AJ         |
-      |           |                | WILLIS   | 0             |                 |
-      |           |                | AND      | 0             |                 |
-      | CHES      |                |          | 0             |                 |
-      |           | JEFF           |          | 0             |                 |
+      | firstName | middleNames    | lastName  | numberResults | offenderNos     |
+      |           |                | ANDERSON  | 2             | A1234AA,A1234AB |
+      |           | EVE            | ANDERSON  | 1             | A1234AB         |
+      |           | JAMES          |           | 2             | A1234AD,A1234AI |
+      | CHESTER   | JAMES          |           | 1             | A1234AI         |
+      |           | JEFFREY ROBERT |           | 1             | A1234AE         |
+      | DANIEL    |                |           | 2             | A1234AJ,A1234AL |
+      | DANIEL    | JOSEPH         |           | 1             | A1234AJ         |
+      |           |                | WILLIS    | 0             |                 |
+      |           |                | AND       | 0             |                 |
+      | CHES      |                |           | 0             |                 |
+      |           | JEFF           |           | 0             |                 |
+      |           |                | O'VAUGHAN | 1             | A1181MV         |
 
   @nomis
   Scenario Outline: Search for prisoners by names, with partial name matching
@@ -117,7 +118,7 @@ Feature: Prisoner Search
       | offenderNo | numberResults | lastNames |
       | A1234AC    | 1             | BATES     |
       | A1476AE    | 0             |           |
-      | A1181MV    | 1             | VAUGHAN   |
+      | A1181MV    | 1             | O'VAUGHAN |
 
   @nomis
   Scenario Outline: Search prisoners with a CRO number

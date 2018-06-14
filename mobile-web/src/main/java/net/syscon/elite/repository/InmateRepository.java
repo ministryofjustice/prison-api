@@ -89,15 +89,30 @@ public interface InmateRepository {
 		final StringBuilder query = new StringBuilder();
 
 		appendNonBlankCriteria(query, "offenderNo", criteria.getOffenderNo(), eqTemplate, logicOperator);
-		appendNonBlankCriteria(query, "firstName", criteria.getFirstName(), nameMatchingTemplate, logicOperator);
-		appendNonBlankCriteria(query, "middleNames", criteria.getMiddleNames(), nameMatchingTemplate, logicOperator);
-		appendNonBlankCriteria(query, "lastName", criteria.getLastName(), nameMatchingTemplate, logicOperator);
+		appendNonBlankNameCriteria(query, "firstName", criteria.getFirstName(), nameMatchingTemplate, logicOperator);
+		appendNonBlankNameCriteria(query, "middleNames", criteria.getMiddleNames(), nameMatchingTemplate, logicOperator);
+		appendNonBlankNameCriteria(query, "lastName", criteria.getLastName(), nameMatchingTemplate, logicOperator);
 		appendPNCNumberCriteria(query, criteria.getPncNumber(), logicOperator);
 		appendNonBlankCriteria(query, "croNumber", criteria.getCroNumber(), eqTemplate, logicOperator);
 
         appendDateRangeCriteria(query, "dateOfBirth", criteria, dateRangeTemplate, logicOperator);
 
 		return StringUtils.trimToNull(query.toString());
+	}
+
+	static void appendNonBlankNameCriteria(StringBuilder query, String criteriaName, String criteriaValue,
+									       String operatorTemplate, String logicOperator) {
+		if (StringUtils.isNotBlank(criteriaValue)) {
+			String escapedCriteriaValue;
+
+			if (StringUtils.contains(criteriaValue, "''")) {
+				escapedCriteriaValue = criteriaValue;
+			} else {
+				escapedCriteriaValue = StringUtils.replaceAll(criteriaValue, "'", "''");
+			}
+
+			appendNonBlankCriteria(query, criteriaName, escapedCriteriaValue, operatorTemplate, logicOperator);
+		}
 	}
 
 	static void appendNonBlankCriteria(StringBuilder query, String criteriaName, String criteriaValue,
