@@ -2,6 +2,7 @@ package net.syscon.elite.service.support;
 
 import net.syscon.elite.api.model.Location;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.WordUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -117,7 +118,14 @@ public class LocationProcessor {
                 .locationType(location.getLocationType())
                 .operationalCapacity(location.getOperationalCapacity())
                 .parentLocationId(location.getParentLocationId())
-                .userDescription(location.getUserDescription())
+                .userDescription(formatLocation(location.getUserDescription()))
                 .build();
+    }
+
+    public static String formatLocation(String locationDescription) {
+        String description = WordUtils.capitalizeFully(locationDescription);
+        description = StringUtils.replaceAll(description, "hmp|Hmp", "HMP");
+        description = StringUtils.replaceAll(description, "yoi|Yoi", "YOI");
+        return description;
     }
 }

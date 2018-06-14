@@ -45,7 +45,9 @@ public class AgencyServiceImpl implements AgencyService {
 
     @Override
     public Agency getAgency(String agencyId) {
-        return agencyRepository.getAgency(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
+        Agency agency = agencyRepository.getAgency(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
+        agency.setDescription(LocationProcessor.formatLocation(agency.getDescription()));
+        return agency;
     }
 
     @Override
@@ -64,7 +66,9 @@ public class AgencyServiceImpl implements AgencyService {
 
     @Override
     public List<Agency> findAgenciesByUsername(String username) {
-        return agencyRepository.findAgenciesByUsername(username);
+        List<Agency> agenciesByUsername = agencyRepository.findAgenciesByUsername(username);
+        agenciesByUsername.forEach(a -> a.setDescription(LocationProcessor.formatLocation(a.getDescription())));
+        return agenciesByUsername;
     }
 
     /**
@@ -143,7 +147,9 @@ public class AgencyServiceImpl implements AgencyService {
 
     @Override
     public List<Agency> getAgenciesByCaseload(String caseload) {
-        return agencyRepository.findAgenciesByCaseload(caseload);
+        List<Agency> agenciesByCaseload = agencyRepository.findAgenciesByCaseload(caseload);
+        agenciesByCaseload.forEach(a -> a.setDescription(LocationProcessor.formatLocation(a.getDescription())));
+        return agenciesByCaseload;
     }
 
     //It is possible for invalid/empty address records to be persisted

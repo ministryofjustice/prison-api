@@ -14,6 +14,7 @@ import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
+import net.syscon.elite.service.support.LocationProcessor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -88,7 +89,10 @@ public class InmateServiceImpl implements InmateService {
         if (criteria.isIepLevel()) {
             List<Long> bookingIds = bookings.getItems().stream().map(OffenderBooking::getBookingId).collect(Collectors.toList());
             Map<Long, PrivilegeSummary> bookingIEPSummary = bookingService.getBookingIEPSummary(bookingIds, false);
-            bookings.getItems().forEach(booking -> booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel()));
+            bookings.getItems().forEach(booking -> {
+                booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel());
+                booking.setAssignedLivingUnitDesc(LocationProcessor.formatLocation(booking.getAssignedLivingUnitDesc()));
+            });
         }
         return bookings;
     }
@@ -124,7 +128,9 @@ public class InmateServiceImpl implements InmateService {
         inmate.setPhysicalCharacteristics(getPhysicalCharacteristics(bookingId));
         inmate.setProfileInformation(getProfileInformation(bookingId));
         inmate.setPhysicalMarks(getPhysicalMarks(bookingId));
-        inmate.setAssignedLivingUnit(repository.findAssignedLivingUnit(bookingId, locationTypeGranularity).orElse(null));
+        AssignedLivingUnit assignedLivingUnit = repository.findAssignedLivingUnit(bookingId, locationTypeGranularity).orElse(null);
+        formatLocationDescription(assignedLivingUnit);
+        inmate.setAssignedLivingUnit(assignedLivingUnit);
         inmate.setAlertsCodes(repository.findActiveAlertCodes(bookingId));
         inmate.setActiveAlertCount(inmateAlertRepository.getAlertCounts(bookingId, "ACTIVE"));
         inmate.setInactiveAlertCount(inmateAlertRepository.getAlertCounts(bookingId, "INACTIVE"));
@@ -136,6 +142,13 @@ public class InmateServiceImpl implements InmateService {
             keyWorkerAllocationRepository.getKeyworkerDetailsByBooking(inmate.getBookingId()).ifPresent(kw -> inmate.setAssignedOfficerId(kw.getStaffId()));
         }
         return inmate;
+    }
+
+    private void formatLocationDescription(AssignedLivingUnit assignedLivingUnit) {
+        if (assignedLivingUnit != null) {
+            assignedLivingUnit.setDescription(LocationProcessor.formatLocation(assignedLivingUnit.getDescription()));
+            assignedLivingUnit.setAgencyName(LocationProcessor.formatLocation(assignedLivingUnit.getAgencyName()));
+        }
     }
 
     @Override

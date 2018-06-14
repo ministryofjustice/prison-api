@@ -26,6 +26,7 @@ project(":mobile-web") {
         compile("org.springframework.security:spring-security-jwt:1.0.9.RELEASE")
 
         compile group: 'commons-codec', name: 'commons-codec', version: '1.11'
+        compile("org.apache.commons:commons-text:1.4")
         compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.2")
         compile("com.github.jsqlparser:jsqlparser:1.1")
         compile("net.sf.ehcache:ehcache:2.10.4")
