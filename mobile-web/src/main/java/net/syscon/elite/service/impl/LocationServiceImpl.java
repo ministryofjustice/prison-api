@@ -15,6 +15,7 @@ import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.ConfigException;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.LocationService;
+import net.syscon.elite.service.support.LocationProcessor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -70,6 +71,7 @@ public class LocationServiceImpl implements LocationService {
                     final List<Location> agencyLocations = locationRepository.findLocationsByAgencyAndType(
                             agency.getAgencyId(), locationTypeGranularity, true);
 
+                    agencyLocations.forEach(a -> a.setDescription(LocationProcessor.formatLocation(a.getDescription())));
                     locations.addAll(agencyLocations);
                 }
         );
@@ -99,6 +101,8 @@ public class LocationServiceImpl implements LocationService {
                 offset,
                 limit);
 
+        inmates.getItems().forEach(ob -> ob.setAssignedLivingUnitDesc(LocationProcessor.formatLocation(ob.getAssignedLivingUnitDesc())));
+
         return inmates;
     }
 
@@ -121,7 +125,7 @@ public class LocationServiceImpl implements LocationService {
                     "Group '" + name + "' does not exist for agencyId '" + agencyId + "'.");
         }
         final List<Location> cells = locationRepository.findLocationsByAgencyAndType(agencyId, "CELL", false);
-
+        cells.forEach(c -> c.setDescription(LocationProcessor.formatLocation(c.getDescription())));
         final Set<String> patternSet = commaDelimitedListToSet(patterns);
         final List<Location> results = new ArrayList<>();
         for (String patternString : patternSet) {
@@ -166,7 +170,7 @@ public class LocationServiceImpl implements LocationService {
                 .locationId(-1L)
                 .agencyId(agency.getAgencyId())
                 .locationType(agency.getAgencyType())
-                .description(agency.getDescription())
+                .description(LocationProcessor.formatLocation(agency.getDescription()))
                 .locationPrefix(agency.getAgencyId())
                 .build();
     }

@@ -3,6 +3,7 @@ package net.syscon.elite.service.impl;
 import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.repository.CaseLoadRepository;
 import net.syscon.elite.service.CaseLoadService;
+import net.syscon.elite.service.support.LocationProcessor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,12 +34,19 @@ public class CaseLoadServiceImpl implements CaseLoadService {
         if (!allCaseloads) {
             query = format("type:eq:'%s',and:caseloadFunction:neq:'%s'", "INST", "ADMIN");
         }
-        return caseLoadRepository.getCaseLoadsByUsername(username, query);
+        List<CaseLoad> caseLoadsByUsername = caseLoadRepository.getCaseLoadsByUsername(username, query);
+        caseLoadsByUsername.forEach(cl -> cl.setDescription(LocationProcessor.formatLocation(cl.getDescription())));
+        return caseLoadsByUsername;
     }
 
     @Override
     public Optional<CaseLoad> getWorkingCaseLoadForUser(String username) {
-        return caseLoadRepository.getWorkingCaseLoadByUsername(username);
+        Optional<CaseLoad> workingCaseLoadByUsername = caseLoadRepository.getWorkingCaseLoadByUsername(username);
+        if (workingCaseLoadByUsername.isPresent()) {
+            CaseLoad caseLoad = workingCaseLoadByUsername.get();
+            caseLoad.setDescription(LocationProcessor.formatLocation(caseLoad.getDescription()));
+        }
+        return workingCaseLoadByUsername;
     }
 
     @Override

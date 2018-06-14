@@ -33,15 +33,15 @@ Feature: Agencies
     Then "1" agency records are returned
     Then the returned agencies are as follows:
       | agencyId | agencyType | description  |
-      | LEI      | INST       | LEEDS        |
+      | LEI      | INST       | Leeds        |
 
   Scenario: Retrieve agency by caseload for multi agency
     When a request is submitted to retrieve all agencies by caseload "MUL"
     Then "2" agency records are returned
     Then the returned agencies are as follows:
       | agencyId | agencyType | description  |
-      | BXI      | INST       | BRIXTON      |
-      | LEI      | INST       | LEEDS        |
+      | BXI      | INST       | Brixton      |
+      | LEI      | INST       | Leeds        |
 
   Scenario Outline: Retrieve agency details
     When a request is submitted to retrieve agency "<agencyId>"
@@ -50,8 +50,8 @@ Feature: Agencies
     And the returned agency description is "<description>"
     Examples:
       | agencyId | agencyType | description |
-      | LEI      | INST       | LEEDS       |
-      | WAI      | INST       | THE WEARE   |
+      | LEI      | INST       | Leeds       |
+      | WAI      | INST       | The Weare   |
 
 
   Scenario: Retrieve all locations for an agency
