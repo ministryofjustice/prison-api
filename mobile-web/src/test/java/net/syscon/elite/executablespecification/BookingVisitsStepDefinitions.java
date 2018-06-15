@@ -5,6 +5,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.executablespecification.steps.BookingVisitSteps;
 import org.springframework.beans.factory.annotation.Autowired;
+import java.time.LocalDateTime;
 
 /**
  * BDD step definitions for the Booking Visits API endpoints:
@@ -151,5 +152,22 @@ public class BookingVisitsStepDefinitions extends AbstractStepDefinitions {
     @Then("the visit ([^\\\"]*) is \"([^\"]*)\"$")
     public void theVisitFieldIs(String field, String value) throws Throwable {
         bookingVisits.verifyVisitField(field, value);
+    }
+
+    @When("^the next visit is requested for an offender with booking id \"([^\"]*)\"$")
+    public void theNextVisitIsRequestedForAnOffenderWithBookingId(Long bookingId) throws Throwable {
+        bookingVisits.getBookingVisitNext(Long.valueOf(bookingId));
+    }
+
+
+    @And("^the visit startTime is one day from now$")
+    public void theVisitStartTimeIsOneDayFromNow() throws Throwable {
+        bookingVisits.verifyStartDateTime(LocalDateTime.now().plusDays(1));
+    }
+
+    @And("^the visit endTime is one day from now$")
+    public void theVisitEndTimeIsOneDayFromNow() throws Throwable {
+        bookingVisits.verifyEndDateTime(LocalDateTime.now().plusDays(1));
+
     }
 }

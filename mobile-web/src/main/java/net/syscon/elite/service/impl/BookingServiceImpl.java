@@ -241,6 +241,12 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @VerifyBookingAccess
+    public Visit getBookingVisitNext(Long bookingId) {
+        return bookingRepository.getBookingVisitNext(bookingId, LocalDateTime.now());
+    }
+
+    @Override
     public List<OffenderSummary> getBookingsByExternalRefAndType(String externalRef, String relationshipType) {
         return bookingRepository.getBookingsByRelationship(externalRef, relationshipType, EXTERNAL_REL);
     }
