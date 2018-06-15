@@ -7,10 +7,11 @@ import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 /**
  * BDD step implementations for Booking Visits feature.
@@ -70,31 +71,12 @@ public class BookingVisitSteps extends ScheduledEventSteps {
     }
 
     public void verifyStartDateTime(LocalDateTime dateTime) {
-        LocalDateTime date1 = lastVisit.getStartTime()
-                .withNano(0)
-                .withSecond(0)
-                .withMinute(0);
 
-        LocalDateTime date2 = dateTime
-                .withNano(0)
-                .withSecond(0)
-                .withMinute(0);
-
-        assertEquals(date1, date2);
+        assertThat(dateTime).isCloseTo(lastVisit.getStartTime(), within(1, ChronoUnit.HOURS));
     }
 
     public void verifyEndDateTime(LocalDateTime dateTime) {
-        LocalDateTime date1 = lastVisit
-                .getEndTime()
-                .withNano(0)
-                .withSecond(0)
-                .withMinute(0);
+        assertThat(dateTime).isCloseTo(lastVisit.getEndTime(), within(1, ChronoUnit.HOURS));
 
-        LocalDateTime date2 = dateTime
-                .withNano(0)
-                .withSecond(0)
-                .withMinute(0);
-
-        assertEquals(date1, date2);
     }
 }
