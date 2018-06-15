@@ -1,4 +1,5 @@
 @global
+
 Feature: Booking Visits
 
   Acceptance Criteria
@@ -125,3 +126,19 @@ Feature: Booking Visits
   Scenario: Retrieve last visit for an offender that does not exist
     When the last visit is requested for an offender with booking id "-99"
     Then resource not found response is received from booking visits API
+
+  Scenario Outline: Retrieve the next visit for an offender
+    When the next visit is requested for an offender with booking id "<booking id>"
+    Then the visit visitType is "<visitType>"
+    And the visit visitTypeDescription is "<visitTypeDescription>"
+    And the visit eventStatus is "<eventStatus>"
+    And the visit eventStatusDescription is "<eventStatusDescription>"
+    And the visit leadVisitor is "<leadVisitor>"
+    And the visit relationship is "<relationship>"
+    And the visit relationshipDescription is "<relationshipDescription>"
+    And the visit location is "<location>"
+    And the visit startTime is one day from now
+    And the visit endTime is one day from now
+    Examples:
+    | booking id | visitType | visitTypeDescription | eventStatus  | eventStatusDescription | leadVisitor  | relationship  | relationshipDescription   | location      |
+    | -3         | SCON      | Social Contact       |  SCH         | Scheduled (Approved)   | JOHN JOHNSON | BRO           | Brother                   | Carpentry Workshop |

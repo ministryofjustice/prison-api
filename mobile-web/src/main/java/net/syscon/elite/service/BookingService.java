@@ -51,6 +51,7 @@ public interface BookingService {
     List<OffenderSentenceDetail> getOffenderSentencesSummary(String agencyId, String username, List<String> offenderNos);
 
     Visit getBookingVisitLast(Long bookingId);
+    Visit getBookingVisitNext(Long bookingId);
 
     List<OffenderSummary> getBookingsByExternalRefAndType(String externalRef, String relationshipType);
 
@@ -84,4 +85,5 @@ public interface BookingService {
     OffenderSummary createBooking(@Valid NewBooking newBooking);
 
     OffenderSummary recallBooking(@Valid RecallBooking recallBooking);
+
 }

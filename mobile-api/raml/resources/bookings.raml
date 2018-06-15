@@ -601,6 +601,14 @@
       (javaType): Long
       description: The offender booking id
 
+/{bookingId}/visits/next:
+  (javaOperationName): getBookingVisitsNext
+  type: {readOnlyItem: {type: Visit, description: The next visit for the offender. }}
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+
 /{bookingId}/appointments:
   uriParameters:
     bookingId:

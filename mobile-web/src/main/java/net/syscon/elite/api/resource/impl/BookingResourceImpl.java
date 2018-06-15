@@ -430,6 +430,13 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    public GetBookingVisitsNextResponse getBookingVisitsNext(Long bookingId) {
+        Visit visit = bookingService.getBookingVisitNext(bookingId);
+
+        return GetBookingVisitsNextResponse.respond200WithApplicationJson(visit);
+    }
+
+    @Override
     public GetBookingsBookingIdAppointmentsResponse getBookingsBookingIdAppointments(Long bookingId, String fromDate, String toDate, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         Page<ScheduledEvent> appointments =  bookingService.getBookingAppointments(
                 bookingId,

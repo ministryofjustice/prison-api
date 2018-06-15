@@ -284,6 +284,23 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
+    public Visit getBookingVisitNext(Long bookingId, LocalDateTime from) {
+        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
+        Objects.requireNonNull(from, "from is a required parameter");
+
+        try {
+            final Visit result = jdbcTemplate.queryForObject(
+                    getQuery("GET_NEXT_BOOKING_VISIT"),
+                    createParams("bookingId", bookingId, "fromDate", DateTimeConverter.fromLocalDateTime(from)),
+                    VISIT_ROW_MAPPER);
+            result.setLeadVisitor(StringUtils.trimToNull(result.getLeadVisitor()));
+            return result;
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
     @Cacheable("bookingIdByOffenderNo")
     public Optional<Long> getBookingIdByOffenderNo(String offenderNo) {
         Validate.notBlank("Offender number must be specified.");
