@@ -101,8 +101,6 @@ public class LocationServiceImpl implements LocationService {
                 offset,
                 limit);
 
-        inmates.getItems().forEach(ob -> ob.setAssignedLivingUnitDesc(LocationProcessor.formatLocation(ob.getAssignedLivingUnitDesc())));
-
         return inmates;
     }
 

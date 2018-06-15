@@ -91,7 +91,6 @@ public class InmateServiceImpl implements InmateService {
             Map<Long, PrivilegeSummary> bookingIEPSummary = bookingService.getBookingIEPSummary(bookingIds, false);
             bookings.getItems().forEach(booking -> {
                 booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel());
-                booking.setAssignedLivingUnitDesc(LocationProcessor.formatLocation(booking.getAssignedLivingUnitDesc()));
             });
         }
         return bookings;
@@ -146,7 +145,6 @@ public class InmateServiceImpl implements InmateService {
 
     private void formatLocationDescription(AssignedLivingUnit assignedLivingUnit) {
         if (assignedLivingUnit != null) {
-            assignedLivingUnit.setDescription(LocationProcessor.formatLocation(assignedLivingUnit.getDescription()));
             assignedLivingUnit.setAgencyName(LocationProcessor.formatLocation(assignedLivingUnit.getAgencyName()));
         }
     }
