@@ -28,7 +28,7 @@ public class CaseNoteSteps extends CommonSteps {
     private static final String FROM_DATE_QUERY_PARAM_PREFIX = "&fromDate=";
     private static final String TO_DATE_QUERY_PARAM_PREFIX = "&toDate=";
     private static final String OFFENDER_NOS_QUERY_PARAM_PREFIX = "&offenderNo=";
-    private static final String STAFF_IDS_QUERY_PARAM_PREFIX = "&staffIds=";
+    private static final String STAFF_IDS_QUERY_PARAM_PREFIX = "&staffId=";
     private static final String CASENOTE_TYPE_QUERY_PARAM_PREFIX = "&type=";
     private static final String CASENOTE_SUBTYPE_QUERY_PARAM_PREFIX = "&subType=";
 
