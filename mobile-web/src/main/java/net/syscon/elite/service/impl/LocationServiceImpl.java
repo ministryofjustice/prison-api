@@ -135,7 +135,7 @@ public class LocationServiceImpl implements LocationService {
             }
         }
         if (results.isEmpty()) {
-            throw ConfigException.withMessage("Group '%s' defines no locations for agencyId '%s'", name, agencyId);
+            throw ConfigException.withMessage("There are no cells set up for sub-location '%s'", name);
         }
         return results; 
     }
