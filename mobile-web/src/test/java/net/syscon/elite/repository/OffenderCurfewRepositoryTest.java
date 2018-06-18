@@ -36,25 +36,25 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 public class OffenderCurfewRepositoryTest {
 
     private static final Set<OffenderCurfew> CURFEWS_LEI = new HashSet<>(Arrays.asList(
-            offenderCurfew(1, -1, "2018-01-01", null, "2018-03-01"),
-            offenderCurfew(2, -1, "2018-02-01", "APPROVED", "2018-03-01"),
-            offenderCurfew(3, -1, "2018-02-01", "REJECTED", "2018-03-01"),
-            offenderCurfew(4, -2, "2018-01-01", "APPROVED", "2018-03-01"),
+            offenderCurfew(1, -1, "2018-01-01", null, null),
+            offenderCurfew(2, -1, "2018-02-01", null, null),
+            offenderCurfew(3, -1, "2018-02-01", null, null),
+            offenderCurfew(4, -2, "2018-01-01", null, null),
             offenderCurfew(5, -2, "2018-02-01", null, null),
-            offenderCurfew(6, -2, "2018-02-01", "APPROVED", null),
-            offenderCurfew(7, -3, "2018-01-01", "REJECTED", null),
-            offenderCurfew(8, -3, "2018-02-01", "REJECTED", null),
+            offenderCurfew(6, -2, "2018-02-01", null, null),
+            offenderCurfew(7, -3, "2018-01-01", null, null),
+            offenderCurfew(8, -3, "2018-02-01", null, null),
             offenderCurfew(9, -3, "2018-02-01", null, null),
             offenderCurfew(10, -4, "2018-01-01", null, null),
-            offenderCurfew(11, -5, "2018-01-01", "APPROVED", null),
-            offenderCurfew(12, -6, "2018-01-01", "APPROVED", "2018-04-01"),
+            offenderCurfew(11, -5, "2018-01-01", null, null),
+            offenderCurfew(12, -6, "2018-01-01", null, null),
             offenderCurfew(13, -6, null, null, null),
-            offenderCurfew(14, -6, "2018-02-01", "APPROVED", null),
+            offenderCurfew(14, -6, "2018-02-01", null, null),
             offenderCurfew(15, -7, null, "REJECTED", null),
-            offenderCurfew(16, -7, "2018-01-01", "REJECTED", null),
-            offenderCurfew(17, -7, "2018-01-01", "REJECTED", "2018-04-01"),
+            offenderCurfew(16, -7, "2018-01-01", "APPROVED", null),
+            offenderCurfew(17, -7, "2018-01-01", "APPROVED", "2018-04-01"),
             offenderCurfew(18, -7, null, null, null),
-            offenderCurfew(19, -7, "2018-02-01", "REJECTED", null)));
+            offenderCurfew(19, -7, "2018-02-01", null, null)));
 
     private static final Set<OffenderCurfew> CURFEWS_BXI = Collections.singleton(
             offenderCurfew(30, -36, "2018-01-01", null, null)

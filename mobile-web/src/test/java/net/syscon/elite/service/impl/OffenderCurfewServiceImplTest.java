@@ -222,14 +222,14 @@ public class OffenderCurfewServiceImplTest {
         assertThat(filter.test(offenderSentenceDetail(1L, null, null, HDCED))).isFalse();
         assertThat(filter.test(offenderSentenceDetail(1L, EARLIEST_DATE, EARLIEST_DATE, null))).isFalse();
 
-        assertThat(filter.test(offenderSentenceDetail(1L, EARLIEST_DATE, null, HDCED))).isTrue();
+        assertThat(filter.test(offenderSentenceDetail(1L, EARLIEST_DATE, null, HDCED))).isFalse();
         assertThat(filter.test(offenderSentenceDetail(1L, DAY_BEFORE, null, HDCED))).isFalse();
-        assertThat(filter.test(offenderSentenceDetail(1L, null, EARLIEST_DATE, HDCED))).isTrue();
+        assertThat(filter.test(offenderSentenceDetail(1L, null, EARLIEST_DATE, HDCED))).isFalse();
         assertThat(filter.test(offenderSentenceDetail(1L, null, DAY_BEFORE, HDCED))).isFalse();
 
-        assertThat(filter.test(offenderSentenceDetail(1L, EARLIEST_DATE, DAY_BEFORE, HDCED))).isTrue();
+        assertThat(filter.test(offenderSentenceDetail(1L, EARLIEST_DATE, DAY_BEFORE, HDCED))).isFalse();
         assertThat(filter.test(offenderSentenceDetail(1L, DAY_BEFORE, DAY_BEFORE, HDCED))).isFalse();
-        assertThat(filter.test(offenderSentenceDetail(1L, DAY_BEFORE, EARLIEST_DATE, HDCED))).isTrue();
+        assertThat(filter.test(offenderSentenceDetail(1L, DAY_BEFORE, EARLIEST_DATE, HDCED))).isFalse();
         assertThat(filter.test(offenderSentenceDetail(1L, DAY_BEFORE, DAY_BEFORE, HDCED))).isFalse();
     }
 
@@ -241,14 +241,42 @@ public class OffenderCurfewServiceImplTest {
 
         Predicate<OffenderSentenceDetail> filter = OffenderCurfewServiceImpl.offenderIsEligibleForHomeCurfew(Collections.singleton(1L), EARLIEST_DATE);
 
-        assertThat(filter.test(offenderSentenceDetail(1L, null, null, HDCED))).isTrue();
+        // Rule is hdced != null && approvalStatus == null && (ard >= earliest_date || crd >= earliest date)
+        // approvalStatus == null for all tests below...
+
+        // no ard or crd
+        assertThat(filter.test(offenderSentenceDetail(1L, null, null, HDCED))).isFalse();
+
+        // no hdced
         assertThat(filter.test(offenderSentenceDetail(1L, EARLIEST_DATE, EARLIEST_DATE, null))).isFalse();
 
-        assertThat(filter.test(offenderSentenceDetail(1L, DAY_BEFORE, null, HDCED))).isTrue();
-        assertThat(filter.test(offenderSentenceDetail(1L, null, DAY_BEFORE, HDCED))).isTrue();
+        // ard too early
+        assertThat(filter.test(offenderSentenceDetail(1L, DAY_BEFORE, null, HDCED))).isFalse();
 
-        assertThat(filter.test(offenderSentenceDetail(1L, DAY_BEFORE, DAY_BEFORE, HDCED))).isTrue();
-        assertThat(filter.test(offenderSentenceDetail(1L, DAY_BEFORE, DAY_BEFORE, HDCED))).isTrue();
+        // crd too early
+        assertThat(filter.test(offenderSentenceDetail(1L, null, DAY_BEFORE, HDCED))).isFalse();
+
+        // both ard and crd too early
+        assertThat(filter.test(offenderSentenceDetail(1L, DAY_BEFORE, DAY_BEFORE, HDCED))).isFalse();
+
+        // ard on earliest date
+        assertThat(filter.test(offenderSentenceDetail(1L, EARLIEST_DATE, null, HDCED))).isTrue();
+
+        // crd on earliest date
+        assertThat(filter.test(offenderSentenceDetail(1L, null, EARLIEST_DATE, HDCED))).isTrue();
+
+        // ard and crd on earliest date
+        assertThat(filter.test(offenderSentenceDetail(1L, EARLIEST_DATE, EARLIEST_DATE, HDCED))).isTrue();
+
+        // ard before, crd on earliest date
+        assertThat(filter.test(offenderSentenceDetail(1L, DAY_BEFORE, EARLIEST_DATE, HDCED))).isTrue();
+
+        //  ard on earliest date, crd before earliest date
+        assertThat(filter.test(offenderSentenceDetail(1L, EARLIEST_DATE, DAY_BEFORE, HDCED))).isTrue();
+
+        // ard and crd after earliest date
+        assertThat(filter.test(offenderSentenceDetail(1L, EARLIEST_DATE.plusDays(1), EARLIEST_DATE.plusDays(1), HDCED))).isTrue();
+
     }
 
     @Test
@@ -265,7 +293,13 @@ public class OffenderCurfewServiceImplTest {
 
         when(caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(USERNAME)).thenReturn(agencyIdsToAgencies(AGENCY_ID));
 
-        when(offenderCurfewRepository.offenderCurfews(singleton(AGENCY_ID))).thenReturn(Collections.emptyList());
+        when(offenderCurfewRepository.offenderCurfews(Collections.singleton(AGENCY_ID))).thenReturn(
+                Arrays.asList(
+                        offenderCurfew(1, 1,  null, "ANY"),
+                        offenderCurfew(1, 2,  null, "ANY"),
+                        offenderCurfew(1, 3,  null, "ANY"),
+                        offenderCurfew(1, 4,  null, "ANY"),
+                        offenderCurfew(1, 5,  null, "ANY")));
 
         final List<OffenderSentenceDetail> eligibleOffenders = offenderCurfewService.getHomeDetentionCurfewCandidates(USERNAME);
 
@@ -273,7 +307,7 @@ public class OffenderCurfewServiceImplTest {
                 .stream()
                 .map(OffenderSentenceDetail::getBookingId)
                 .collect(toList())
-        ).containsExactly(3L, 4L);
+        ).isEmpty();
     }
 
 
@@ -299,7 +333,7 @@ public class OffenderCurfewServiceImplTest {
                 .stream()
                 .map(OffenderSentenceDetail::getBookingId)
                 .collect(Collectors.toList())
-        ).containsExactly(1L,  2L,  3L,  4L);
+        ).containsExactly(3L,  4L);
     }
 
     private List<OffenderSentenceDetail> offenderSentenceDetails() {
