@@ -9,6 +9,7 @@ import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.StaffRepository;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -109,6 +110,7 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
                 createParamSource(pageRequest, "agencyId", agencyId, "position", position, "role", role),
                 paRowMapper);
 
+        staffDetails.forEach(sd -> sd.setAgencyDescription(LocationProcessor.formatLocation(sd.getAgencyDescription())));
         return new Page<>(staffDetails, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
 
@@ -134,6 +136,7 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
                 sql,
                 createParamSource(pageRequest, "agencyId", agencyId, "role", role),
                 paRowMapper);
+        staffDetails.forEach(sd -> sd.setAgencyDescription(LocationProcessor.formatLocation(sd.getAgencyDescription())));
 
         return new Page<>(staffDetails, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
