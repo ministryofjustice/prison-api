@@ -31,7 +31,7 @@ Scenario: no locations in group
     And location group does not define any locations
     When schedules are requested for agency and location group
     Then schedules response is HTTP 500 server error
-    And schedules response error message is "Group 'BlockE' defines no locations for agencyId 'LEI'"
+    And schedules response error message is "There are no cells set up for sub-location 'BlockE'"
 
 Scenario: location group scheduled events in order
     Given one or more offenders have scheduled events for current day
