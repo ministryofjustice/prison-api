@@ -113,7 +113,7 @@ public class StaffRepositoryTest {
     @Test
     public void testFindStaffLocationRolesByRole() {
         final String TEST_AGENCY = "SYI";
-        final String TEST_AGENCY_DESCRIPTION = "SHREWSBURY";
+        final String TEST_AGENCY_DESCRIPTION = "Shrewsbury";
         final String TEST_ROLE = "KW";
 
         Page<StaffLocationRole> page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE, null, null, true, new PageRequest());
@@ -144,7 +144,7 @@ public class StaffRepositoryTest {
     public void testFindStaffLocationRolesByPositionAndRole() {
         final String TEST_AGENCY = "LEI";
         final String TEST_POSITION = "PRO";
-        final String TEST_AGENCY_DESCRIPTION = "LEEDS";
+        final String TEST_AGENCY_DESCRIPTION = "Leeds";
         final String TEST_ROLE = "OS";
 
         Page<StaffLocationRole> page = repository.findStaffByAgencyPositionRole(TEST_AGENCY, TEST_POSITION, TEST_ROLE, null, null, true, new PageRequest());
