@@ -176,14 +176,14 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	}
 
 	@Override
-	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, @NotEmpty List<String> offenderNo, LocalDate fromDate, LocalDate toDate) {
-		DeriveDates deriveDates = new DeriveDates(fromDate, toDate);
+	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, @NotEmpty List<String> offenderNo, LocalDate fromDate, LocalDate toDate, int numMonths) {
+		DeriveDates deriveDates = new DeriveDates(fromDate, toDate, numMonths);
 		return caseNoteRepository.getCaseNoteUsage(type, subType, offenderNo, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse());
 	}
 
 	@Override
-	public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(String type, String subType, @NotEmpty List<Integer> staffIds, LocalDate fromDate, LocalDate toDate) {
-		DeriveDates deriveDates = new DeriveDates(fromDate, toDate);
+	public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(String type, String subType, @NotEmpty List<Integer> staffIds, LocalDate fromDate, LocalDate toDate, int numMonths) {
+		DeriveDates deriveDates = new DeriveDates(fromDate, toDate, numMonths);
 		return caseNoteRepository.getCaseNoteStaffUsage(type, subType, staffIds, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse());
 	}
 
@@ -191,9 +191,9 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 		private LocalDate fromDateToUse;
 		private LocalDate toDateToUse;
 
-		public DeriveDates(LocalDate fromDate, LocalDate toDate) {
+		public DeriveDates(LocalDate fromDate, LocalDate toDate, int numMonths) {
 			LocalDate now = LocalDate.now();
-			fromDateToUse = now.minusMonths(1);
+			fromDateToUse = now.minusMonths(numMonths);
 			toDateToUse = now;
 
 			if (fromDate != null && toDate != null) {
@@ -201,13 +201,13 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 				toDateToUse = toDate;
 			} else if (fromDate != null) {
 				fromDateToUse = fromDate;
-				toDateToUse = fromDate.plusMonths(1);
+				toDateToUse = fromDate.plusMonths(numMonths);
 			} else if (toDate != null) {
-				fromDateToUse = toDate.minusMonths(1);
+				fromDateToUse = toDate.minusMonths(numMonths);
 				toDateToUse = toDate;
 			}
 
-			toDateToUse = toDateToUse.plusDays(1);
+			toDateToUse = toDateToUse.plusDays(numMonths);
 		}
 
 		public LocalDate getFromDateToUse() {
