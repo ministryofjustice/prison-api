@@ -1,4 +1,4 @@
-@global
+@global @sdar
 Feature: Locations
 
   Acceptance Criteria:
@@ -52,7 +52,7 @@ Feature: Locations
 
   Scenario: Retrieve all groups for agency
     When a request is made at agency "MDI" to retrieve all the groups
-    Then location groups are "Block1-A-Wing,Block1-B-Wing,Block1-C-Wing,Block2-A-Wing,Block2-B-Wing,Block2-C-Wing,Block3-A-Wing,Block3-B-Wing,Block3-C-Wing,Block4-A-Wing,Block4-B-Wing,Block4-C-Wing,Block5-A-Wing,Block5-B-Wing,Block6-All-temp,Block7"
+    Then location groups are "Block1-A-Wing,Block1-B-Wing,Block1-C-Wing,Block2-A-Wing,Block2-B-Wing,Block2-C-Wing,Block3-A-Wing,Block3-B-Wing,Block3-C-Wing,Block4-A-Wing,Block4-B-Wing,Block4-C-Wing,Block5-A-Wing,Block5-B-Wing,Block6-A-Wing,Block6-B-Wing,Block7"
 
   Scenario: Retrieve groups for agency which is not in caseload
     When a request is made at agency "ZZGHI" to retrieve all the groups
