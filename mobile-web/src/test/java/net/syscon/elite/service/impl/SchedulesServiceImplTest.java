@@ -19,7 +19,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -59,11 +60,11 @@ public class SchedulesServiceImplTest {
         List<PrisonerSchedule> results = schedulesService.getLocationGroupEvents("LEI", "myWing",
                 DATE, TimeSlot.AM, null, null);
 
-        assertThat(results).asList().extracting("cellLocation", "startTime", "eventDescription")
+        assertThat(results).asList().extracting("cellLocation", "startTime", "eventDescription", "eventType")
                 .containsExactly(
-                        tuple("H1", LocalDateTime.of(2018, Month.AUGUST, 31, 11, 0), "Morning-11"),
-                        tuple("H2", LocalDateTime.of(2018, Month.AUGUST, 31, 9, 0), "Morning-12"),
-                        tuple("M0", LocalDateTime.of(2018, Month.AUGUST, 31, 10, 0), "Morning-10"));
+                        tuple("H1", LocalDateTime.of(2018, Month.AUGUST, 31, 11, 0), "Morning-11", "VISIT"),
+                        tuple("H2", LocalDateTime.of(2018, Month.AUGUST, 31, 9, 0), "Morning-12", "APP"),
+                        tuple("M0", LocalDateTime.of(2018, Month.AUGUST, 31, 10, 0), "Morning-10", null));
     }
 
     @Test
@@ -146,7 +147,7 @@ public class SchedulesServiceImplTest {
                         .comment("Fully populated event")
                         .startTime(TIME_1000)
                         .endTime(TIME_1040)
-                        .event("APP")
+                        .event("APP sub type")
                         .eventDescription("Morning-10")
                         .build()
                 );
@@ -173,23 +174,23 @@ public class SchedulesServiceImplTest {
                 .startTime(TIME_1000)
                 .endTime(TIME_1040)
                 .eventSourceDesc("Fully populated event")
-                .eventSubType("APP")
+                .eventSubType("APP sub type")
                 .eventSubTypeDesc("Morning-10")
                 .build();
         List<ScheduledEvent> eventsFor10 = Arrays.asList(
                 complete,
-                ScheduledEvent.builder().bookingId(-10L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(18, 30))).eventSubTypeDesc("Eve2-10").build(),
-                ScheduledEvent.builder().bookingId(-10L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(18, 0))).eventSubTypeDesc("Eve1-10").build()
+                ScheduledEvent.builder().bookingId(-10L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(18, 30))).eventSubTypeDesc("Eve2-10").eventType("PRISON_ACT").build(),
+                ScheduledEvent.builder().bookingId(-10L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(18, 0))).eventSubTypeDesc("Eve1-10").eventType("PRISON_ACT").build()
         );
         List<ScheduledEvent> eventsFor11 = Arrays.asList(
-                ScheduledEvent.builder().bookingId(-11L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(12, 0))).eventSubTypeDesc("Afternoon-11").build(),
-                ScheduledEvent.builder().bookingId(-11L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(17, 0))).eventSubTypeDesc("Eve-11").build(),
-                ScheduledEvent.builder().bookingId(-11L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(11, 0))).eventSubTypeDesc("Morning-11").build()
+                ScheduledEvent.builder().bookingId(-11L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(12, 0))).eventSubTypeDesc("Afternoon-11").eventType("VISIT").build(),
+                ScheduledEvent.builder().bookingId(-11L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(17, 0))).eventSubTypeDesc("Eve-11").eventType("VISIT").build(),
+                ScheduledEvent.builder().bookingId(-11L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(11, 0))).eventSubTypeDesc("Morning-11").eventType("VISIT").build()
         );
         List<ScheduledEvent> eventsFor12 = Arrays.asList(
-                ScheduledEvent.builder().bookingId(-12L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(9, 0))).eventSubTypeDesc("Morning-12").build(),
-                ScheduledEvent.builder().bookingId(-12L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(18, 30))).eventSubTypeDesc("Eve-12").build(),
-                ScheduledEvent.builder().bookingId(-12L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(14, 0))).eventSubTypeDesc("Afternoon-12").build()
+                ScheduledEvent.builder().bookingId(-12L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(9, 0))).eventSubTypeDesc("Morning-12").eventType("APP").build(),
+                ScheduledEvent.builder().bookingId(-12L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(18, 30))).eventSubTypeDesc("Eve-12").eventType("APP").build(),
+                ScheduledEvent.builder().bookingId(-12L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(14, 0))).eventSubTypeDesc("Afternoon-12").eventType("APP").build()
         );
         when(bookingService.getEventsOnDay(-10L, SchedulesServiceImplTest.DATE)).thenReturn(eventsFor10);
         when(bookingService.getEventsOnDay(-11L, SchedulesServiceImplTest.DATE)).thenReturn(eventsFor11);
@@ -240,4 +241,5 @@ public class SchedulesServiceImplTest {
         List<PrisonerSchedule> results = schedulesService.getLocationEvents("LEI", -100L, "PROG", DATE, TimeSlot.ED, null, null);
         assertThat(results.get(0).getOffenderNo()).isEqualTo("A10");
     }
+
 }
