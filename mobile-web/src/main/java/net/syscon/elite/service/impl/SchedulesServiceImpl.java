@@ -123,6 +123,7 @@ public class SchedulesServiceImpl implements SchedulesService {
                 .comment(event.getEventSourceDesc())//
                 .endTime(event.getEndTime())//
                 .event(event.getEventSubType())//
+                .eventType(event.getEventType())
                 .eventDescription(event.getEventSubTypeDesc())//
                 .startTime(event.getStartTime())//
                 .build();
