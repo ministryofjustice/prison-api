@@ -8,7 +8,6 @@ import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.GlobalSearchService;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.ws.rs.Path;
 
@@ -24,7 +23,6 @@ public class PrisonerResourceImpl implements PrisonerResource {
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH', 'KW_ADMIN', 'OMIC_ADMIN')")
     public GetPrisonersResponse getPrisoners(String offenderNo, String pncNumber, String croNumber, String firstName,
                                              String middleNames, String lastName, String dob, String dobFrom,
                                              String dobTo, boolean partialNameMatch, boolean prioritisedMatch,

@@ -335,6 +335,18 @@
       (javaType): Long
       description: The booking id of offender
 
+/offenderNo/{offenderNo}/image/data:
+  (javaOperationName): getMainBookingImageDataByNo
+  type: {
+    userPicture: {
+      description: Image data (as bytes).
+    }
+  }
+  uriParameters:
+    offenderNo:
+      type: string
+      description: The offender No of offender
+
 /{bookingId}/aliases:
   (javaOperationName): getOffenderAliases
   type: { readOnlyCollectionPaged: { type: Alias, description: Offender aliases. } }

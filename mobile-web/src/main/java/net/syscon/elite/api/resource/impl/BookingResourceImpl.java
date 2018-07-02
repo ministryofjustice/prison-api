@@ -222,6 +222,31 @@ public class BookingResourceImpl implements BookingResource {
         return GetMainImageForBookingsResponse.respond200WithApplicationJson(inmateService.getMainBookingImage(bookingId));
     }
 
+
+    @Override
+    public GetMainBookingImageDataByNoResponse getMainBookingImageDataByNo(String offenderNo) {
+        final byte[] data = imageService.getImageContent(offenderNo);
+        if (data != null) {
+            try {
+                File temp = File.createTempFile("userimage", ".tmp");
+                FileUtils.copyInputStreamToFile(new ByteArrayInputStream(data), temp);
+                return GetMainBookingImageDataByNoResponse.respond200WithApplicationJson(temp);
+            } catch (IOException e) {
+                final ErrorResponse errorResponse = ErrorResponse.builder()
+                        .errorCode(500)
+                        .userMessage("An error occurred loading the image for offender No "+ offenderNo)
+                        .build();
+                return GetMainBookingImageDataByNoResponse.respond500WithApplicationJson(errorResponse);
+            }
+        } else {
+            final ErrorResponse errorResponse = ErrorResponse.builder()
+                    .errorCode(404)
+                    .userMessage("No image was found for offender No "+ offenderNo)
+                    .build();
+            return GetMainBookingImageDataByNoResponse.respond404WithApplicationJson(errorResponse);
+        }
+    }
+
     @Override
     public GetMainBookingImageDataResponse getMainBookingImageData(Long bookingId) {
         final ImageDetail mainBookingImage = inmateService.getMainBookingImage(bookingId);

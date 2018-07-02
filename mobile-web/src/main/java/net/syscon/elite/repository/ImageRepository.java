@@ -12,7 +12,6 @@ public interface ImageRepository {
 
 	Optional<ImageDetail> findImageDetail(Long imageId);
 	byte[] getImageContent(Long imageId);
-
-
+	byte[] getImageContent(final String offenderNo);
 }
 

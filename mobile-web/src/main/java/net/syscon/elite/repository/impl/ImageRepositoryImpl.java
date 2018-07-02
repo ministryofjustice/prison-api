@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.dao.RecoverableDataAccessException;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Blob;
@@ -34,8 +33,9 @@ public class ImageRepositoryImpl extends RepositoryBase implements ImageReposito
 
 	@Override
 	public byte[] getImageContent(final Long imageId) {
-		try {
-			byte[] content = null;
+        byte[] content = null;
+	    try {
+
 			final String sql = getQuery("FIND_IMAGE_CONTENT");
 			final Blob blob = jdbcTemplate.queryForObject(sql, createParams("imageId", imageId), Blob.class);
 			if (blob != null) {
@@ -43,10 +43,26 @@ public class ImageRepositoryImpl extends RepositoryBase implements ImageReposito
 				content = blob.getBytes(1, length);
 				blob.free();
 			}
-			return content;
+        } catch (final DataAccessException | SQLException ex) {
+            content = null;
+        }
+        return content;
+	}
+
+	@Override
+	public byte[] getImageContent(final String offenderNo) {
+        byte[] content = null;
+        try {
+			final String sql = getQuery("FIND_IMAGE_CONTENT_BY_OFFENDER_NO");
+			final Blob blob = jdbcTemplate.queryForObject(sql, createParams("offenderNo", offenderNo), Blob.class);
+			if (blob != null) {
+				final int length = (int) blob.length();
+				content = blob.getBytes(1, length);
+				blob.free();
+			}
 		} catch (final DataAccessException | SQLException ex) {
-			log.error(ex.getMessage(), ex);
-			throw new RecoverableDataAccessException(ex.getMessage(), ex);
+            content = null;
 		}
+        return content;
 	}
 }
