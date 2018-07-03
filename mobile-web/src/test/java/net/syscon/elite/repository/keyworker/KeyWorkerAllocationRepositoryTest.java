@@ -44,7 +44,7 @@ public class KeyWorkerAllocationRepositoryTest {
     @Test
     public void shouldGetAvailableKeyworkers() {
         final List<Keyworker> availableKeyworkers = repo.getAvailableKeyworkers(AGENCY_ID);
-        assertThat(availableKeyworkers).asList().hasSize(3);
+        assertThat(availableKeyworkers).asList().hasSize(4);
     }
 
     @Test
