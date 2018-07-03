@@ -44,7 +44,7 @@ Feature: Staff Details and Roles
 
     Examples:
       | agency | role | count | staff id list |
-      | LEI    | KW   | 3     | -1,-4,-11     |
+      | LEI    | KW   | 4     | -1,-4,-11, -12     |
       | SYI    | KW   | 1     | -9            |
       | WAI    | OS   | 0     |               |
 
