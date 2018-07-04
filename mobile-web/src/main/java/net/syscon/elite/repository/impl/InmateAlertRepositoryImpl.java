@@ -28,6 +28,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 		.put("ALERT_CODE", 			new FieldMapper("alertCode"))
 		.put("ALERT_CODE_DESC", 	new FieldMapper("alertCodeDescription"))
 		.put("COMMENT_TEXT", 		new FieldMapper("comment", value -> value == null ? "" : value))
+		.put("ALERT_STATUS", 		new FieldMapper("active", value -> "ACTIVE".equals(value)))
 		.put("ALERT_DATE", 			new FieldMapper("dateCreated", DateTimeConverter::toISO8601LocalDate))
 		.put("EXPIRY_DATE", 		new FieldMapper("dateExpires", DateTimeConverter::toISO8601LocalDate))
 		.build();
@@ -74,11 +75,5 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 		}
 
 		return Optional.ofNullable(alert);
-	}
-
-	public long getAlertCounts(long bookingId, String status) {
-        return jdbcTemplate.queryForObject(getQuery("ALERT_COUNTS"),
-                createParams("bookingId", bookingId, "status", status),
-                Long.class);
 	}
 }

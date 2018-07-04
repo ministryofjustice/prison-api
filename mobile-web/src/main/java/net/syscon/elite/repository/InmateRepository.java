@@ -74,8 +74,6 @@ public interface InmateRepository {
 
 	Optional<AssignedLivingUnit> findAssignedLivingUnit(long bookingId, String locationTypeGranularity);
 
-	List<String> findActiveAlertCodes(long bookingId);
-
 	List<OffenderIdentifier> getOffenderIdentifiers(long bookingId);
 
 	static String generateFindOffendersQuery(PrisonerDetailSearchCriteria criteria) {
