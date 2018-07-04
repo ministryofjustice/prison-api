@@ -7,6 +7,8 @@ import net.syscon.elite.executablespecification.steps.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -549,6 +551,11 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @And("^the number of inactive alerts is ([0-9-]+)$")
     public void theNumberOfInactiveAlertsIs(int count) {
         bookingDetail.verifyInactiveCount(count);
+    }
+
+    @And("^the list of active alert types is \"([^\"]*)\"$")
+    public void theListOfActiveAlertTypesIs(String types) {
+        bookingDetail.verifyAlertTypes(types);
     }
 
     @When("^sentence details are requested for an offenders in logged in users caseloads with offender No \"([^\"]*)\"$")

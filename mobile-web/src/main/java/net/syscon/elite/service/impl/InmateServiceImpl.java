@@ -25,6 +25,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static net.syscon.elite.service.SearchOffenderService.DEFAULT_OFFENDER_SORT;
@@ -117,7 +118,7 @@ public class InmateServiceImpl implements InmateService {
 
         return repository.findInmatesByLocation(agencyId, locations, caseLoadIds);
     }
-    
+
     @Override
     @VerifyBookingAccess
     public InmateDetail findInmate(Long bookingId, String username) {
@@ -130,9 +131,7 @@ public class InmateServiceImpl implements InmateService {
         AssignedLivingUnit assignedLivingUnit = repository.findAssignedLivingUnit(bookingId, locationTypeGranularity).orElse(null);
         formatLocationDescription(assignedLivingUnit);
         inmate.setAssignedLivingUnit(assignedLivingUnit);
-        inmate.setAlertsCodes(repository.findActiveAlertCodes(bookingId));
-        inmate.setActiveAlertCount(inmateAlertRepository.getAlertCounts(bookingId, "ACTIVE"));
-        inmate.setInactiveAlertCount(inmateAlertRepository.getAlertCounts(bookingId, "INACTIVE"));
+        setAlertsFields(inmate);
         inmate.setAssessments(getAssessments(bookingId));
 
         //TODO: Remove once KW service available - Nomis only!
@@ -147,6 +146,25 @@ public class InmateServiceImpl implements InmateService {
         if (assignedLivingUnit != null) {
             assignedLivingUnit.setAgencyName(LocationProcessor.formatLocation(assignedLivingUnit.getAgencyName()));
         }
+    }
+
+    private void setAlertsFields(InmateDetail inmate) {
+        final Long bookingId = inmate.getBookingId();
+        final Page<Alert> inmateAlertPage = inmateAlertRepository.getInmateAlert(bookingId, "", null, null, 0, 1000);
+        final List<Alert> items = inmateAlertPage.getItems();
+        if (inmateAlertPage.getTotalRecords() > inmateAlertPage.getPageLimit()) {
+            items.addAll(inmateAlertRepository.getInmateAlert(bookingId, "", null, null, 1000, inmateAlertPage.getTotalRecords()).getItems());
+        }
+        Set<String> alertTypes = new HashSet<>();
+        final AtomicInteger activeAlertCount = new AtomicInteger(0);
+        items.stream().filter(a -> a.getActive()).forEach(a -> {
+            activeAlertCount.incrementAndGet();
+            alertTypes.add(a.getAlertType());
+        });
+        inmate.setAlerts(items);
+        inmate.setAlertsCodes(new ArrayList<>(alertTypes));
+        inmate.setActiveAlertCount(activeAlertCount.longValue());
+        inmate.setInactiveAlertCount(items.size() - activeAlertCount.longValue());
     }
 
     @Override

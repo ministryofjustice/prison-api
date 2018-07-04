@@ -240,4 +240,7 @@ public class BookingDetailSteps extends CommonSteps {
         assertThat(imageDetail).isNotNull();
     }
 
+    public void verifyAlertTypes(String types) {
+        assertThat(inmateDetail.getAlertsCodes()).asList().containsAll(csv2list(types));
+    }
 }

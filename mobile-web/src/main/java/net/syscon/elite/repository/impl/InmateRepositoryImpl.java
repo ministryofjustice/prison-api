@@ -432,16 +432,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-    public List<String> findActiveAlertCodes(long bookingId) {
-		String sql = getQuery("FIND_ALERT_TYPES_FOR_OFFENDER");
-
-		return jdbcTemplate.query(
-				sql,
-				createParams("bookingId", bookingId),
-				(rs, rowNum) -> rs.getString("ALERT_TYPE"));
-	}
-
-	@Override
 	public Page<Alias> findInmateAliases(Long bookingId, String orderByFields, Order order, long offset, long limit) {
 		String initialSql = getQuery("FIND_INMATE_ALIASES");
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, aliasMapping);

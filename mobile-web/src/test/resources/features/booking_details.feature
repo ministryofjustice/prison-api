@@ -147,10 +147,13 @@ Feature: Booking Details
     When an offender booking request is made with booking id "<bookingId>"
     Then the number of active alerts is <activeAlerts>
     And the number of inactive alerts is <inactiveAlerts>
+    And the list of active alert types is "<alertTypes>"
 
     Examples:
-      | bookingId | activeAlerts | inactiveAlerts |
-      | -1        | 2            | 1              |
+      | bookingId | activeAlerts | inactiveAlerts | alertTypes |
+      | -1        | 2            | 1              | H,X        |
+      | -2        | 1            | 0              | H          |
+      | -11       | 0            | 0              |            |
 
   Scenario: Request for assessment data
     When assessment information is requested for Booking Id "-6"
