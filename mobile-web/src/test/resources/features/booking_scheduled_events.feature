@@ -29,6 +29,7 @@ Feature: Booking Scheduled Events
       | APP        | Visiting Room      |
       | PRISON_ACT | Carpentry Workshop |
       | PRISON_ACT | Carpentry Workshop |
+      | VISIT      |Carpentry Workshop  |
 
   Scenario: Retrieve this week's scheduled events for an offender in correct time order
     When this week's scheduled events are requested for an offender with booking id -3
@@ -41,6 +42,7 @@ Feature: Booking Scheduled Events
       | APP        | Visiting Room      |
       | PRISON_ACT | Carpentry Workshop |
       | PRISON_ACT | Carpentry Workshop |
+      | VISIT      | Carpentry Workshop |
       | VISIT      | Carpentry Workshop |
       | APP        | Visiting Room      |
       | VISIT      | Medical Centre     |
