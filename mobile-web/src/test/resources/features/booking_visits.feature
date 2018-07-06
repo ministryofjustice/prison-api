@@ -65,7 +65,7 @@ Feature: Booking Visits
 
   Scenario: Retrieve current day's scheduled visits for an existing offender having one or more visits on current day
     When scheduled visits for current day are requested for an offender with booking id "-3"
-    Then "2" visits are returned
+    Then "3" visits are returned
 
   Scenario: Retrieve scheduled visits for an existing offender having one or more visits, from a specified date
     When scheduled visits from "2017-05-01" are requested for an offender with booking id "-1"
