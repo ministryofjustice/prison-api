@@ -20,6 +20,7 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
 
     protected boolean includePagination;
     protected boolean includeRowCount;
+    protected boolean includeDirectRowCount;
 
     protected final StringBuilder extraWhere = new StringBuilder();
 
@@ -41,6 +42,11 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
     }
 
     @Override
+    public DatabaseDialect getDialect() {
+        return this.dialect;
+    }
+
+    @Override
     public IQueryBuilder removeSpecialChars() {
         this.removeSpecialChars = true;
         return this;
@@ -56,6 +62,13 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
     @Override
     public IQueryBuilder addRowCount() {
         includeRowCount = true;
+
+        return this;
+    }
+
+    @Override
+    public IQueryBuilder addDirectRowCount() {
+        includeDirectRowCount = true;
 
         return this;
     }
@@ -88,6 +101,22 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
 		    } else if (fullQuery.startsWith("OR ")) {
                 extraWhere.append(fullQuery.substring(3));
 		    }
+        }
+
+        return this;
+    }
+
+    @Override
+    public IQueryBuilder addWhereClause(String whereClause) {
+        if (StringUtils.isNotBlank(whereClause)) {
+
+            if (whereClause.startsWith("AND ")) {
+                extraWhere.append(whereClause.substring(4));
+            } else if (whereClause.startsWith("OR ")) {
+                extraWhere.append(whereClause.substring(3));
+            } else {
+                extraWhere.append(whereClause);
+            }
         }
 
         return this;

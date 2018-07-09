@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.PrisonerDetail;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.InmateRepository;
+import net.syscon.elite.repository.OffenderRepository;
 import net.syscon.elite.service.GlobalSearchService;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import org.apache.commons.lang3.StringUtils;
@@ -21,12 +22,14 @@ import java.util.Collections;
 @Transactional(readOnly = true)
 public class GlobalSearchServiceImpl implements GlobalSearchService {
     private final InmateRepository inmateRepository;
+    private final OffenderRepository offenderRepository;
 
     @Value("${offender.dob.max.range.years:10}")
     private int maxYears;
 
-    public GlobalSearchServiceImpl(InmateRepository inmateRepository) {
+    public GlobalSearchServiceImpl(InmateRepository inmateRepository, OffenderRepository offenderRepository) {
         this.inmateRepository = inmateRepository;
+        this.offenderRepository = offenderRepository;
     }
 
     @Override
@@ -64,12 +67,20 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
     }
 
     private Page<PrisonerDetail> executeOffenderNoQuery(PrisonerDetailSearchCriteria originalCriteria, PageRequest pageRequest) {
-        PrisonerDetailSearchCriteria criteria = PrisonerDetailSearchCriteria.builder()
-                .offenderNo(originalCriteria.getOffenderNo()).build();
+        Page<PrisonerDetail> response;
 
-        Page<PrisonerDetail> response = executeQuery(criteria, pageRequest);
+        String offenderNoCriteria = originalCriteria.getOffenderNo();
 
-        if (response.getItems().isEmpty()) {
+        if (StringUtils.isNotBlank(offenderNoCriteria)) {
+            PrisonerDetailSearchCriteria criteria = PrisonerDetailSearchCriteria.builder()
+                    .offenderNo(offenderNoCriteria).build();
+
+            response = executeQuery(criteria, pageRequest);
+
+            if (response.getItems().isEmpty()) {
+                response = executePncNumberQuery(originalCriteria, pageRequest);
+            }
+        } else {
             response = executePncNumberQuery(originalCriteria, pageRequest);
         }
 
@@ -77,12 +88,20 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
     }
 
     private Page<PrisonerDetail> executePncNumberQuery(PrisonerDetailSearchCriteria originalCriteria, PageRequest pageRequest) {
-        PrisonerDetailSearchCriteria criteria = PrisonerDetailSearchCriteria.builder()
-                .pncNumber(originalCriteria.getPncNumber()).build();
+        Page<PrisonerDetail> response;
 
-        Page<PrisonerDetail> response = executeQuery(criteria, pageRequest);
+        String pncNumberCriteria = originalCriteria.getPncNumber();
 
-        if (response.getItems().isEmpty()) {
+        if (StringUtils.isNotBlank(pncNumberCriteria)) {
+            PrisonerDetailSearchCriteria criteria = PrisonerDetailSearchCriteria.builder()
+                    .pncNumber(pncNumberCriteria).build();
+
+            response = offenderRepository.findOffenders(criteria, pageRequest);
+
+            if (response.getItems().isEmpty()) {
+                response = executeCroNumberQuery(originalCriteria, pageRequest);
+            }
+        } else {
             response = executeCroNumberQuery(originalCriteria, pageRequest);
         }
 
@@ -90,12 +109,20 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
     }
 
     private Page<PrisonerDetail> executeCroNumberQuery(PrisonerDetailSearchCriteria originalCriteria, PageRequest pageRequest) {
-        PrisonerDetailSearchCriteria criteria = PrisonerDetailSearchCriteria.builder()
-                .croNumber(originalCriteria.getCroNumber()).build();
+        Page<PrisonerDetail> response;
 
-        Page<PrisonerDetail> response = executeQuery(criteria, pageRequest);
+        String croNumberCriteria = originalCriteria.getCroNumber();
 
-        if (response.getItems().isEmpty()) {
+        if (StringUtils.isNotBlank(croNumberCriteria)) {
+            PrisonerDetailSearchCriteria criteria = PrisonerDetailSearchCriteria.builder()
+                    .croNumber(croNumberCriteria).build();
+
+            response = offenderRepository.findOffenders(criteria, pageRequest);
+
+            if (response.getItems().isEmpty()) {
+                response = executePersonalAttrsQuery(originalCriteria, pageRequest);
+            }
+        } else {
             response = executePersonalAttrsQuery(originalCriteria, pageRequest);
         }
 
