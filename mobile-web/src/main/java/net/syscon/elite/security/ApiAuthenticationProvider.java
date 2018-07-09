@@ -1,6 +1,8 @@
 package net.syscon.elite.security;
 
 import lombok.extern.slf4j.Slf4j;
+import net.syscon.elite.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -10,10 +12,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.common.exceptions.UnapprovedClientAuthenticationException;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+
+import static java.lang.String.format;
 
 @Configurable
 @Slf4j
@@ -21,6 +26,12 @@ public class ApiAuthenticationProvider extends DaoAuthenticationProvider {
 
     @Value("${spring.datasource.url}")
     private String jdbcUrl;
+
+    @Autowired
+    private UserService userService;
+
+    @Value("${application.caseload.id:NEWB}")
+    private String apiCaseloadId;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -31,6 +42,12 @@ public class ApiAuthenticationProvider extends DaoAuthenticationProvider {
             logger.debug(String.format("Verified database connection for user: %s", username));
             // Username and credentials are now validated. Must set authentication in security context now
             // so that subsequent user details queries will work.
+
+            // Check that user has the correct caseload and return access denied if not
+            if (!userService.isUserAssessibleCaseloadAvailable(apiCaseloadId, username)) {
+                throw new UnapprovedClientAuthenticationException(format("User does not have access to caseload %s", apiCaseloadId));
+            }
+
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (final SQLException ex) {
             throw new BadCredentialsException(ex.getMessage(), ex);

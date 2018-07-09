@@ -2,7 +2,6 @@ package net.syscon.elite.web.config;
 
 import net.syscon.elite.security.ApiAuthenticationProvider;
 import net.syscon.elite.security.UserDetailsServiceImpl;
-import net.syscon.elite.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,28 +15,25 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 public class AuthenticationManagerConfiguration extends GlobalAuthenticationConfigurerAdapter {
 
     @Autowired
-    private UserService userService;
-
+    private UserDetailsServiceImpl userService;
 
     @Override
     public void init(AuthenticationManagerBuilder auth) {
         auth.authenticationProvider(authenticationProvider()).authenticationProvider(preAuthProvider());
     }
 
-
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new ApiAuthenticationProvider();
-        provider.setUserDetailsService(new UserDetailsServiceImpl(userService));
+        provider.setUserDetailsService(userService);
         return provider;
     }
 
     @Bean
     public PreAuthenticatedAuthenticationProvider preAuthProvider() {
         PreAuthenticatedAuthenticationProvider preAuth = new PreAuthenticatedAuthenticationProvider();
-        preAuth.setPreAuthenticatedUserDetailsService(new UserDetailsServiceImpl(userService));
+        preAuth.setPreAuthenticatedUserDetailsService(userService);
         return preAuth;
     }
-
 
 }
