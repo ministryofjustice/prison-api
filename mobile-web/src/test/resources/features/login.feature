@@ -26,7 +26,6 @@ Feature: Authentication
       | password  | wrongpass  |
     Then authentication denied is returned
 
-  @lucy
   Scenario: Authentication fails for a user without api caseload (NWEB)
     Given API authentication is attempted with the following credentials:
       | username  | nonweb  |
