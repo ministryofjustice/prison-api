@@ -51,7 +51,7 @@ Feature: User Details and Roles
 
     Examples:
     | role     | caseload | usernames                          |
-    | WING_OFF | LEI      | ELITE2_API_USER,ITAG_USER,JBRIEN, RENEGADE |
+    | WING_OFF | LEI      | ELITE2_API_USER,ITAG_USER,JBRIEN,NONWEB,RENEGADE |
     | WING_OFF | MUL      | API_TEST_USER                      |
     | WING_OFF | XXXXXX   |                                    |
     | XXXXX    | LEI      |                                    |
