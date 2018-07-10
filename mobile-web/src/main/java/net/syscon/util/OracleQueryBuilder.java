@@ -21,7 +21,9 @@ public class OracleQueryBuilder extends AbstractQueryBuilder {
 
 		if (Optional.of(SQLKeyword.SELECT).equals(statementType)) {
 			// Wrap the initial Query ...
-			if (includeRowCount || extraWhere.length() > 0 || extraOrderBy.length() > 0) {
+			if (includeDirectRowCount) {
+				buildDirectRowCountSql(result);
+			} else if (includeRowCount || extraWhere.length() > 0 || extraOrderBy.length() > 0) {
 				buildDataCountSql(result);
 			} else {
 				result.append(initialSQL);
@@ -29,7 +31,7 @@ public class OracleQueryBuilder extends AbstractQueryBuilder {
 
 			// Apply the additional conditions defined by the "addQuery" method ...
 			if (extraWhere.length() > 0) {
-				result.append("WHERE ").append(extraWhere);
+				result.append(" WHERE ").append(extraWhere);
 			}
 
 			String strOrderBy = (StringUtils.isBlank(extraOrderBy)) ? " " : " " + (SQLKeyword.ORDER_BY + " " + extraOrderBy);
@@ -70,5 +72,15 @@ public class OracleQueryBuilder extends AbstractQueryBuilder {
 		if (includeRowCount) {
             result.insert(7, "COUNT(*) OVER() RECORD_COUNT, ");
         }
+	}
+
+	private void buildDirectRowCountSql(StringBuilder result) {
+		if (includeDirectRowCount) {
+			result.append(
+					StringUtils.replaceFirst(
+							initialSQL, "SELECT", "SELECT COUNT(*) OVER() RECORD_COUNT,"));
+		} else {
+			result.append(initialSQL);
+		}
 	}
 }
