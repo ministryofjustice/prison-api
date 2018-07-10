@@ -9,7 +9,10 @@ public interface IQueryBuilder {
     IQueryBuilder addOrderBy(PageRequest pageRequest);
     IQueryBuilder addPagination();
     IQueryBuilder addQuery(String query);
+    IQueryBuilder addWhereClause(String whereClause);
     IQueryBuilder addRowCount();
+    IQueryBuilder addDirectRowCount();
     IQueryBuilder removeSpecialChars();
+    DatabaseDialect getDialect();
     String build();
 }

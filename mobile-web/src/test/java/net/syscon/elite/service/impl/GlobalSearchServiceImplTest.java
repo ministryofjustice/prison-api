@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.PrisonerDetail;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.InmateRepository;
+import net.syscon.elite.repository.OffenderRepository;
 import net.syscon.elite.service.GlobalSearchService;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import org.junit.Before;
@@ -25,7 +26,8 @@ import static org.powermock.api.mockito.PowerMockito.when;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(InmateRepository.class)
 public class GlobalSearchServiceImplTest {
-    private InmateRepository repository;
+    private InmateRepository inmateRepository;
+    private OffenderRepository offenderRepository;
 
     private PrisonerDetailSearchCriteria criteria;
 
@@ -35,8 +37,10 @@ public class GlobalSearchServiceImplTest {
 
     @Before
     public void setUp() {
-        repository = Mockito.mock(InmateRepository.class);
-        service = new GlobalSearchServiceImpl(repository);
+        inmateRepository = Mockito.mock(InmateRepository.class);
+        offenderRepository = Mockito.mock(OffenderRepository.class);
+
+        service = new GlobalSearchServiceImpl(inmateRepository, offenderRepository);
 
         PowerMockito.mockStatic(InmateRepository.class);
     }
@@ -49,7 +53,7 @@ public class GlobalSearchServiceImplTest {
 
         service.findOffenders(criteria, pageRequest);
 
-        Mockito.verify(repository, Mockito.never()).findOffenders(anyString(), any(PageRequest.class));
+        Mockito.verify(inmateRepository, Mockito.never()).findOffenders(anyString(), any(PageRequest.class));
     }
 
     @Test
@@ -60,19 +64,18 @@ public class GlobalSearchServiceImplTest {
         criteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
 
         when(InmateRepository.generateFindOffendersQuery(criteria)).thenReturn(TEST_QUERY);
-        Mockito.when(repository.findOffenders(eq(TEST_QUERY), any(PageRequest.class))).thenReturn(pageResponse(0));
+        Mockito.when(inmateRepository.findOffenders(eq(TEST_QUERY), any(PageRequest.class))).thenReturn(pageResponse(0));
 
         service.findOffenders(criteria, pageRequest);
 
-        Mockito.verify(repository, Mockito.times(1)).findOffenders(eq(TEST_QUERY), any(PageRequest.class));
+        Mockito.verify(inmateRepository, Mockito.times(1)).findOffenders(eq(TEST_QUERY), any(PageRequest.class));
     }
 
     @Test
     public void testFindOffendersPrioritisedMatchWithOffenderNoMatch() {
         final String TEST_OFFENDER_NO = "AA1234B";
-        final String TEST_PNC_NUMBER = "PNC123456";
+        final String TEST_PNC_NUMBER = "2002/713491N";
         final String TEST_OFFENDER_NO_QUERY = "offenderNo:eq:'AA1234B'";
-        final String TEST_PNC_NUMBER_QUERY = "pncNumber:eq:'PNC123456'";
 
         criteria = PrisonerDetailSearchCriteria.builder()
                 .prioritisedMatch(true)
@@ -84,22 +87,21 @@ public class GlobalSearchServiceImplTest {
 
         when(InmateRepository.generateFindOffendersQuery(offNoCriteria)).thenReturn(TEST_OFFENDER_NO_QUERY);
 
-        Mockito.when(repository.findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class))).thenReturn(pageResponse(1));
+        Mockito.when(inmateRepository.findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class))).thenReturn(pageResponse(1));
 
         Page<PrisonerDetail> response = service.findOffenders(criteria, pageRequest);
 
         assertThat(response.getItems()).isNotEmpty();
 
-        Mockito.verify(repository, Mockito.times(1)).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
-        Mockito.verify(repository, Mockito.never()).findOffenders(eq(TEST_PNC_NUMBER_QUERY), any(PageRequest.class));
+        Mockito.verify(inmateRepository, Mockito.times(1)).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
+        Mockito.verify(offenderRepository, Mockito.never()).findOffenders(any(PrisonerDetailSearchCriteria.class), any(PageRequest.class));
     }
 
     @Test
     public void testFindOffendersPrioritisedMatchWithPncNumberMatch() {
         final String TEST_OFFENDER_NO = "AA1234B";
-        final String TEST_PNC_NUMBER = "PNC123456";
+        final String TEST_PNC_NUMBER = "2002/713491N";
         final String TEST_OFFENDER_NO_QUERY = "offenderNo:eq:'AA1234B'";
-        final String TEST_PNC_NUMBER_QUERY = "pncNumber:eq:'PNC123456'";
 
         criteria = PrisonerDetailSearchCriteria.builder()
                 .prioritisedMatch(true)
@@ -111,27 +113,24 @@ public class GlobalSearchServiceImplTest {
         PrisonerDetailSearchCriteria pncNumberCriteria = PrisonerDetailSearchCriteria.builder().pncNumber(TEST_PNC_NUMBER).build();
 
         when(InmateRepository.generateFindOffendersQuery(offNoCriteria)).thenReturn(TEST_OFFENDER_NO_QUERY);
-        when(InmateRepository.generateFindOffendersQuery(pncNumberCriteria)).thenReturn(TEST_PNC_NUMBER_QUERY);
 
-        Mockito.when(repository.findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class))).thenReturn(pageResponse(0));
-        Mockito.when(repository.findOffenders(eq(TEST_PNC_NUMBER_QUERY), any(PageRequest.class))).thenReturn(pageResponse(1));
+        Mockito.when(inmateRepository.findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class))).thenReturn(pageResponse(0));
+        Mockito.when(offenderRepository.findOffenders(eq(pncNumberCriteria), any(PageRequest.class))).thenReturn(pageResponse(1));
 
         Page<PrisonerDetail> response = service.findOffenders(criteria, pageRequest);
 
         assertThat(response.getItems()).isNotEmpty();
 
-        Mockito.verify(repository, Mockito.times(1)).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
-        Mockito.verify(repository, Mockito.times(1)).findOffenders(eq(TEST_PNC_NUMBER_QUERY), any(PageRequest.class));
+        Mockito.verify(inmateRepository, Mockito.times(1)).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
+        Mockito.verify(offenderRepository, Mockito.times(1)).findOffenders(eq(pncNumberCriteria), any(PageRequest.class));
     }
 
     @Test
     public void testFindOffendersPrioritisedMatchWithCroNumberMatch() {
         final String TEST_OFFENDER_NO = "AA1234B";
-        final String TEST_PNC_NUMBER = "PNC123456";
+        final String TEST_PNC_NUMBER = "2002/713491N";
         final String TEST_CRO_NUMBER = "CRO987654";
         final String TEST_OFFENDER_NO_QUERY = "offenderNo:eq:'AA1234B'";
-        final String TEST_PNC_NUMBER_QUERY = "pncNumber:eq:'PNC123456'";
-        final String TEST_CRO_NUMBER_QUERY = "croNumber:eq:'CRO987654'";
 
         criteria = PrisonerDetailSearchCriteria.builder()
                 .prioritisedMatch(true)
@@ -145,20 +144,18 @@ public class GlobalSearchServiceImplTest {
         PrisonerDetailSearchCriteria croNumberCriteria = PrisonerDetailSearchCriteria.builder().croNumber(TEST_CRO_NUMBER).build();
 
         when(InmateRepository.generateFindOffendersQuery(offNoCriteria)).thenReturn(TEST_OFFENDER_NO_QUERY);
-        when(InmateRepository.generateFindOffendersQuery(pncNumberCriteria)).thenReturn(TEST_PNC_NUMBER_QUERY);
-        when(InmateRepository.generateFindOffendersQuery(croNumberCriteria)).thenReturn(TEST_CRO_NUMBER_QUERY);
 
-        Mockito.when(repository.findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class))).thenReturn(pageResponse(0));
-        Mockito.when(repository.findOffenders(eq(TEST_PNC_NUMBER_QUERY), any(PageRequest.class))).thenReturn(pageResponse(0));
-        Mockito.when(repository.findOffenders(eq(TEST_CRO_NUMBER_QUERY), any(PageRequest.class))).thenReturn(pageResponse(1));
+        Mockito.when(inmateRepository.findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class))).thenReturn(pageResponse(0));
+        Mockito.when(offenderRepository.findOffenders(eq(pncNumberCriteria), any(PageRequest.class))).thenReturn(pageResponse(0));
+        Mockito.when(offenderRepository.findOffenders(eq(croNumberCriteria), any(PageRequest.class))).thenReturn(pageResponse(1));
 
         Page<PrisonerDetail> response = service.findOffenders(criteria, pageRequest);
 
         assertThat(response.getItems()).isNotEmpty();
 
-        Mockito.verify(repository, Mockito.times(1)).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
-        Mockito.verify(repository, Mockito.times(1)).findOffenders(eq(TEST_PNC_NUMBER_QUERY), any(PageRequest.class));
-        Mockito.verify(repository, Mockito.times(1)).findOffenders(eq(TEST_CRO_NUMBER_QUERY), any(PageRequest.class));
+        Mockito.verify(inmateRepository, Mockito.times(1)).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
+        Mockito.verify(offenderRepository, Mockito.times(1)).findOffenders(eq(pncNumberCriteria), any(PageRequest.class));
+        Mockito.verify(offenderRepository, Mockito.times(1)).findOffenders(eq(croNumberCriteria), any(PageRequest.class));
     }
 
     @Test
@@ -180,15 +177,15 @@ public class GlobalSearchServiceImplTest {
         when(InmateRepository.generateFindOffendersQuery(offNoCriteria)).thenReturn(TEST_OFFENDER_NO_QUERY);
         when(InmateRepository.generateFindOffendersQuery(personalAttrsCriteria)).thenReturn(TEST_PERSONAL_ATTRS_QUERY);
 
-        Mockito.when(repository.findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class))).thenReturn(pageResponse(0));
-        Mockito.when(repository.findOffenders(eq(TEST_PERSONAL_ATTRS_QUERY), any(PageRequest.class))).thenReturn(pageResponse(3));
+        Mockito.when(inmateRepository.findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class))).thenReturn(pageResponse(0));
+        Mockito.when(inmateRepository.findOffenders(eq(TEST_PERSONAL_ATTRS_QUERY), any(PageRequest.class))).thenReturn(pageResponse(3));
 
         Page<PrisonerDetail> response = service.findOffenders(criteria, pageRequest);
 
         assertThat(response.getItems()).isNotEmpty();
 
-        Mockito.verify(repository, Mockito.times(1)).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
-        Mockito.verify(repository, Mockito.times(1)).findOffenders(eq(TEST_PERSONAL_ATTRS_QUERY), any(PageRequest.class));
+        Mockito.verify(inmateRepository, Mockito.times(1)).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
+        Mockito.verify(inmateRepository, Mockito.times(1)).findOffenders(eq(TEST_PERSONAL_ATTRS_QUERY), any(PageRequest.class));
     }
 
     @Test
@@ -221,17 +218,17 @@ public class GlobalSearchServiceImplTest {
         when(InmateRepository.generateFindOffendersQuery(personalAttrsCriteria)).thenReturn(TEST_PERSONAL_ATTRS_QUERY);
         when(InmateRepository.generateFindOffendersQuery(dobRangeCriteria)).thenReturn(TEST_DOB_RANGE_QUERY);
 
-        Mockito.when(repository.findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class))).thenReturn(pageResponse(0));
-        Mockito.when(repository.findOffenders(eq(TEST_PERSONAL_ATTRS_QUERY), any(PageRequest.class))).thenReturn(pageResponse(0));
-        Mockito.when(repository.findOffenders(eq(TEST_DOB_RANGE_QUERY), any(PageRequest.class))).thenReturn(pageResponse(5));
+        Mockito.when(inmateRepository.findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class))).thenReturn(pageResponse(0));
+        Mockito.when(inmateRepository.findOffenders(eq(TEST_PERSONAL_ATTRS_QUERY), any(PageRequest.class))).thenReturn(pageResponse(0));
+        Mockito.when(inmateRepository.findOffenders(eq(TEST_DOB_RANGE_QUERY), any(PageRequest.class))).thenReturn(pageResponse(5));
 
         Page<PrisonerDetail> response = service.findOffenders(criteria, pageRequest);
 
         assertThat(response.getItems()).isNotEmpty();
 
-        Mockito.verify(repository, Mockito.times(1)).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
-        Mockito.verify(repository, Mockito.times(1)).findOffenders(eq(TEST_PERSONAL_ATTRS_QUERY), any(PageRequest.class));
-        Mockito.verify(repository, Mockito.times(1)).findOffenders(eq(TEST_DOB_RANGE_QUERY), any(PageRequest.class));
+        Mockito.verify(inmateRepository, Mockito.times(1)).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
+        Mockito.verify(inmateRepository, Mockito.times(1)).findOffenders(eq(TEST_PERSONAL_ATTRS_QUERY), any(PageRequest.class));
+        Mockito.verify(inmateRepository, Mockito.times(1)).findOffenders(eq(TEST_DOB_RANGE_QUERY), any(PageRequest.class));
     }
 
     private Page<PrisonerDetail> pageResponse(int prisonerCount) {
