@@ -56,7 +56,7 @@ public class UserCaseloadAndRoleMaintenanceIntTest {
     public void addUsersToNwebCaseload() {
 
         int numberAlloc = userService.addDefaultCaseloadForPrison("LEI");
-        assertThat(numberAlloc).isEqualTo(2);
+        assertThat(numberAlloc).isEqualTo(1);
 
         numberAlloc = userService.addDefaultCaseloadForPrison("LEI");
         assertThat(numberAlloc).isEqualTo(0);
