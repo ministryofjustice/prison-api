@@ -4,8 +4,10 @@ import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.service.UserService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.env.Environment;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
@@ -17,6 +19,7 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -30,6 +33,9 @@ public class UserDetailsServiceImpl implements UserDetailsService, Authenticatio
 	private final UserService userService;
 	private final String apiCaseloadId;
 
+	@Autowired
+	private Environment env;
+
 	public UserDetailsServiceImpl(UserService userService,
 								  @Value("${application.caseload.id:NEWB}") String apiCaseloadId) {
 		this.userService = userService;
@@ -39,10 +45,12 @@ public class UserDetailsServiceImpl implements UserDetailsService, Authenticatio
 	@Override
 	@Cacheable("loadUserByUsername")
 	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+		boolean nomisProfile = Arrays.stream(env.getActiveProfiles()).anyMatch(p -> p.contains("nomis"));
+
 		final UserDetail userDetail = userService.getUserByUsername(username);
 		List<UserRole> roles = userService.getRolesByUsername(username, false);
 
-		if (!userService.isUserAssessibleCaseloadAvailable(apiCaseloadId, username)) {
+		if (nomisProfile && !userService.isUserAssessibleCaseloadAvailable(apiCaseloadId, username)) {
 			throw new UnapprovedClientAuthenticationException(format("User does not have access to caseload %s", apiCaseloadId));
 		}
 
