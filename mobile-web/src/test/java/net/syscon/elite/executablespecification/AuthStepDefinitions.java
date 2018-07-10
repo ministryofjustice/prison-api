@@ -77,6 +77,11 @@ public class AuthStepDefinitions extends AbstractStepDefinitions {
         user.verifyNotAuthorised();
     }
 
+    @Then("^Unnaproved client exception is returned$")
+    public void UnapprovedClientReturned() throws Throwable {
+        user.verifyUnapprovedClient();
+    }
+
     private void authAndStoreToken(String username, String password) {
         user.authenticates(username, password, false, null);
         currentToken = user.getAuth().getToken();
