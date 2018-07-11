@@ -9,6 +9,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -69,12 +70,12 @@ public class BookingVisitSteps extends ScheduledEventSteps {
         verifyField(lastVisit, field, value);
     }
 
-    public void verifyStartDate(LocalDate date) {
-        assertThat(date).isEqualTo(lastVisit.getStartTime().toLocalDate());
+    public void verifyStartDateTime(LocalDateTime expectedStartDateTime) {
+        assertThat(lastVisit.getStartTime()).isEqualTo(expectedStartDateTime);
     }
 
-    public void verifyEndDate(LocalDate date) {
-        assertThat(date).isEqualTo(lastVisit.getEndTime().toLocalDate());
+    public void verifyEndDateTime(LocalDateTime expectedEndDateTime) {
+        assertThat(lastVisit.getEndTime()).isEqualTo(expectedEndDateTime);
 
     }
 }

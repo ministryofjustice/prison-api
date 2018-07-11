@@ -137,8 +137,8 @@ Feature: Booking Visits
     And the visit relationship is "<relationship>"
     And the visit relationshipDescription is "<relationshipDescription>"
     And the visit location is "<location>"
-    And the visit startTime is one day from now
-    And the visit endTime is one day from now
+    And the visit startTime is offset from the start of today by "<startOffset>"
+    And the visit endTime is offset from the start of today by "<endOffset>"
     Examples:
-    | booking id | visitType | visitTypeDescription | eventStatus  | eventStatusDescription | leadVisitor  | relationship  | relationshipDescription   | location      |
-    | -3         | SCON      | Social Contact       |  SCH         | Scheduled (Approved)   | JOHN JOHNSON | BRO           | Brother                   | Carpentry Workshop |
+    | booking id | visitType | visitTypeDescription | eventStatus  | eventStatusDescription | leadVisitor  | relationship  | relationshipDescription   | location           | startOffset | endOffset |
+    | -3         | SCON      | Social Contact       |  SCH         | Scheduled (Approved)   | JOHN JOHNSON | BRO           | Brother                   | Carpentry Workshop | P1DT10H     | P1DT11H   |
