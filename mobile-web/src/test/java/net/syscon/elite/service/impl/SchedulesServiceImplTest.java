@@ -107,6 +107,21 @@ public class SchedulesServiceImplTest {
     }
 
     @Test
+    public void testGetLocationGroupEventsOrder4() {
+        setupGroupExpectations();
+        List<PrisonerSchedule> results = schedulesService.getLocationGroupEvents("LEI", "myWing",
+                DATE, TimeSlot.ED, "cellLocation", Order.ASC);
+
+        assertThat(results).asList().extracting("cellLocation", "lastName")
+                .containsExactly(
+                        tuple("H1", "Zed"),
+                        tuple("H2", "Anderson"),
+                        tuple("M0", "Bloggs"),
+                        tuple("M0", "Bloggs"),
+                        tuple("M0", "InSameCell"));
+    }
+
+    @Test
     public void testGetLocationGroupEventsPM() {
         setupGroupExpectations();
         List<PrisonerSchedule> results = schedulesService.getLocationGroupEvents("LEI", "myWing",
@@ -129,7 +144,8 @@ public class SchedulesServiceImplTest {
                         tuple("H1", LocalDateTime.of(2018, Month.AUGUST, 31, 17, 0), "Eve-11"),
                         tuple("H2", LocalDateTime.of(2018, Month.AUGUST, 31, 18, 30), "Eve-12"),
                         tuple("M0", LocalDateTime.of(2018, Month.AUGUST, 31, 18, 0), "Eve1-10"),
-                        tuple("M0", LocalDateTime.of(2018, Month.AUGUST, 31, 18, 30), "Eve2-10"));
+                        tuple("M0", LocalDateTime.of(2018, Month.AUGUST, 31, 18, 30), "Eve2-10"),
+                        tuple("M0", LocalDateTime.of(2018, Month.AUGUST, 31, 19, 0), "Eve-13"));
     }
 
     @Test
@@ -157,7 +173,8 @@ public class SchedulesServiceImplTest {
         final List<InmateDto> inmatesOnMyWing = Arrays.asList(
                 InmateDto.builder().bookingId(-10L).offenderNo("A10").locationDescription("M0").firstName("Joe").lastName("Bloggs").build(),
                 InmateDto.builder().bookingId(-11L).locationDescription("H1").lastName("Zed").build(),
-                InmateDto.builder().bookingId(-12L).locationDescription("H2").lastName("Anderson").build()
+                InmateDto.builder().bookingId(-12L).locationDescription("H2").lastName("Anderson").build(),
+                InmateDto.builder().bookingId(-13L).offenderNo("B11").locationDescription("M0").firstName("Second").lastName("InSameCell").build()
         );
         when(inmateService.findInmatesByLocation("me",
                 "LEI", Arrays.asList(-100L, -101L))).thenReturn(inmatesOnMyWing);
@@ -192,9 +209,13 @@ public class SchedulesServiceImplTest {
                 ScheduledEvent.builder().bookingId(-12L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(18, 30))).eventSubTypeDesc("Eve-12").eventType("APP").build(),
                 ScheduledEvent.builder().bookingId(-12L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(14, 0))).eventSubTypeDesc("Afternoon-12").eventType("APP").build()
         );
+        List<ScheduledEvent> eventsFor13 = Arrays.asList(
+                ScheduledEvent.builder().bookingId(-13L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(19, 0))).eventSubTypeDesc("Eve-13").eventType("APP").build()
+        );
         when(bookingService.getEventsOnDay(-10L, SchedulesServiceImplTest.DATE)).thenReturn(eventsFor10);
         when(bookingService.getEventsOnDay(-11L, SchedulesServiceImplTest.DATE)).thenReturn(eventsFor11);
         when(bookingService.getEventsOnDay(-12L, SchedulesServiceImplTest.DATE)).thenReturn(eventsFor12);
+        when(bookingService.getEventsOnDay(-13L, SchedulesServiceImplTest.DATE)).thenReturn(eventsFor13);
     }
 
     @Test
