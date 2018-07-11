@@ -67,22 +67,22 @@ Feature: Case Note Creation and Update
   Scenario: Create a case note with invalid type
     When a case note is created for booking:
       | bookingId          | -32                                         |
-      | type               | invalid%charsandtoolong                     |
+      | type               | toolongtoolongtoolong                    |
       | subType            | OSE                                         |
       | text               | A new case note (from Serenity BDD test **) |
       | occurrenceDateTime | 2017-04-14T10:15:30                         |
     Then case note validation errors are:
-      |Value is too long: max length is 12|CaseNote (type,subtype)=(invalid%charsandtoolong,OSE) does not exist|Value contains invalid characters: must match '\\w*'|
+      |Value is too long: max length is 12|CaseNote (type,subtype)=(toolongtoolongtoolong,OSE) does not exist|
 
   Scenario: Create a case note with invalid sub-type
     When a case note is created for booking:
       | bookingId          | -32                                         |
       | type               | GEN                                         |
-      | subType            | invalid%charsandtoolong                     |
+      | subType            | toolongtoolongtoolong                     |
       | text               | A new case note (from Serenity BDD test **) |
       | occurrenceDateTime | 2017-04-14T10:15:30                         |
     Then case note validation errors are:
-      |Value is too long: max length is 12|CaseNote (type,subtype)=(GEN,invalid%charsandtoolong) does not exist|Value contains invalid characters: must match '\\w*'|
+      |Value is too long: max length is 12|CaseNote (type,subtype)=(GEN,toolongtoolongtoolong) does not exist|
 
   Scenario: Create a case note with blank type
     When a case note is created for booking:

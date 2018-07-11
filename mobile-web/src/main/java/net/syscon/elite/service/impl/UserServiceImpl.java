@@ -109,6 +109,12 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
+	public boolean isUserAssessibleCaseloadAvailable(String caseload, String username) {
+		return userRepository.isUserAssessibleCaseloadAvailable(caseload, username);
+	}
+
+	@Override
     @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
 	@Transactional
 	public void removeUsersAccessRoleForCaseload(String username, String caseload, String roleCode) {
