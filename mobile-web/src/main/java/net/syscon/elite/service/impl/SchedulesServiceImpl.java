@@ -66,7 +66,13 @@ public class SchedulesServiceImpl implements SchedulesService {
         final LocalDateTime evening = evening(day);
 
         final String orderFields = StringUtils.defaultString(sortFields, "cellLocation");
-        Comparator<PrisonerSchedule> comparator = "cellLocation".equals(orderFields) ? BY_CELL_LOCATION : BY_LAST_NAME;
+        Comparator<PrisonerSchedule> comparator;
+        if ("cellLocation".equals(orderFields)) {
+            comparator = BY_CELL_LOCATION;
+            comparator = comparator.thenComparing(PrisonerSchedule::getOffenderNo);
+        } else {
+            comparator = BY_LAST_NAME;
+        }
         if (sortOrder == Order.DESC) {
             comparator = comparator.reversed();
         }
