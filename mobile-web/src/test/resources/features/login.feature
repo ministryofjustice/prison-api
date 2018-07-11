@@ -26,6 +26,13 @@ Feature: Authentication
       | password  | wrongpass  |
     Then authentication denied is returned
 
+  @nomis
+  Scenario: Authentication fails for a user without api caseload (NWEB)
+    Given API authentication is attempted with the following credentials:
+      | username  | nonweb  |
+      | password  | password  |
+    Then Unnaproved client exception is returned
+
   @broken
   Scenario: As a user I can login and refresh the token
     Given API authentication is attempted with the following credentials:

@@ -26,6 +26,8 @@ public interface UserService {
 
     void removeUsersAccessRoleForCaseload(String username, String caseload, String roleCode);
 
+    boolean isUserAssessibleCaseloadAvailable(String caseload, String username);
+
     /**
      * Add an 'access' role - a role assigned to the special 'API Caseload'.
      * @param username The user to whom the role is being assigned

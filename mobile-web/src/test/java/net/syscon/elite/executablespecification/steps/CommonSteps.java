@@ -143,6 +143,12 @@ public abstract class CommonSteps {
         assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
     }
 
+    @Step("Verify not authorised")
+    public void verifyUnapprovedClient() {
+        verifyNotAuthorised();
+        // unfortunately not able to access the status text that is returned to the client thought the oauth2template.
+    }
+
     @Step("Verify resource conflict")
     public void verifyResourceConflict(String expectedUserMessage) {
         verifyResourceConflict(Collections.singletonList(expectedUserMessage));
