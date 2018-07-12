@@ -34,7 +34,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 		.build();
 
 	@Override
-	public Page<Alert> getInmateAlert(long bookingId, String query, String orderByField, Order order, long offset, long limit) {
+	public Page<Alert> getInmateAlerts(long bookingId, String query, String orderByField, Order order, long offset, long limit) {
 		String initialSql = getQuery("FIND_INMATE_ALERTS");
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
 
@@ -57,7 +57,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 	}
 
 	@Override
-	public Optional<Alert> getInmateAlert(long bookingId, long alertSeqId) {
+	public Optional<Alert> getInmateAlerts(long bookingId, long alertSeqId) {
 	    String initialSql = getQuery("FIND_INMATE_ALERT");
 	    IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
 	    String sql = builder.build();
