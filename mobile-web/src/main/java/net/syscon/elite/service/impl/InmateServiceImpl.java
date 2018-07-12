@@ -36,7 +36,7 @@ public class InmateServiceImpl implements InmateService {
     private final InmateRepository repository;
     private final CaseLoadService caseLoadService;
     private final BookingService bookingService;
-    private final InmateAlertRepository inmateAlertRepository;
+    private final InmateAlertService inmateAlertService;
     private final AuthenticationFacade authenticationFacade;
     private final int maxBatchSize;
     private final UserRepository userRepository;
@@ -47,7 +47,7 @@ public class InmateServiceImpl implements InmateService {
 
     public InmateServiceImpl(InmateRepository repository,
                              CaseLoadService caseLoadService,
-                             InmateAlertRepository inmateAlertRepository,
+                             InmateAlertService inmateAlertService,
                              BookingService bookingService,
                              UserRepository userRepository,
                              AuthenticationFacade authenticationFacade,
@@ -57,7 +57,7 @@ public class InmateServiceImpl implements InmateService {
                              @Value("${batch.max.size:1000}") int maxBatchSize) {
         this.repository = repository;
         this.caseLoadService = caseLoadService;
-        this.inmateAlertRepository = inmateAlertRepository;
+        this.inmateAlertService = inmateAlertService;
         this.locationTypeGranularity = locationTypeGranularity;
         this.bookingService = bookingService;
         this.userRepository = userRepository;
@@ -150,10 +150,10 @@ public class InmateServiceImpl implements InmateService {
 
     private void setAlertsFields(InmateDetail inmate) {
         final Long bookingId = inmate.getBookingId();
-        final Page<Alert> inmateAlertPage = inmateAlertRepository.getInmateAlert(bookingId, "", null, null, 0, 1000);
+        final Page<Alert> inmateAlertPage = inmateAlertService.getInmateAlerts(bookingId, "", null, null, 0, 1000);
         final List<Alert> items = inmateAlertPage.getItems();
         if (inmateAlertPage.getTotalRecords() > inmateAlertPage.getPageLimit()) {
-            items.addAll(inmateAlertRepository.getInmateAlert(bookingId, "", null, null, 1000, inmateAlertPage.getTotalRecords()).getItems());
+            items.addAll(inmateAlertService.getInmateAlerts(bookingId, "", null, null, 1000, inmateAlertPage.getTotalRecords()).getItems());
         }
         Set<String> alertTypes = new HashSet<>();
         final AtomicInteger activeAlertCount = new AtomicInteger(0);

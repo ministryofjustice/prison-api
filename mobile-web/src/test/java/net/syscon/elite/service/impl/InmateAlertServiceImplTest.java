@@ -30,7 +30,7 @@ public class InmateAlertServiceImplTest {
     public void testCorrectNumberAlertReturned() {
         Page<Alert> alerts = createAlerts();
 
-        Mockito.when(inmateAlertRepository.getInmateAlert(anyLong(), anyString(), anyString(), any(), anyLong(), anyLong())).thenReturn(alerts);
+        Mockito.when(inmateAlertRepository.getInmateAlerts(anyLong(), anyString(), anyString(), any(), anyLong(), anyLong())).thenReturn(alerts);
 
         Page<Alert> returnedAlerts = serviceToTest.getInmateAlerts(-1L, null, null, null, 0, 10);
 
@@ -41,7 +41,7 @@ public class InmateAlertServiceImplTest {
     public void testCorrectExpiredAlerts() {
         Page<Alert> alerts = createAlerts();
 
-        Mockito.when(inmateAlertRepository.getInmateAlert(anyLong(), anyString(), anyString(), any(), anyLong(), anyLong())).thenReturn(alerts);
+        Mockito.when(inmateAlertRepository.getInmateAlerts(anyLong(), anyString(), anyString(), any(), anyLong(), anyLong())).thenReturn(alerts);
 
         Page<Alert> returnedAlerts = serviceToTest.getInmateAlerts(-1L, null, null, null, 0, 10);
 
