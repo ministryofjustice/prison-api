@@ -1,5 +1,7 @@
 package net.syscon.elite.service.impl;
 
+import jersey.repackaged.com.google.common.collect.ImmutableList;
+import jersey.repackaged.com.google.common.collect.ImmutableSet;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.model.ScheduledEvent;
@@ -20,7 +22,11 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -169,7 +175,21 @@ public class SchedulesServiceImplTest {
                 );
     }
 
-    private void setupGroupExpectations() {
+    @Test
+    public void testGetLocationGroupNoInmates() {
+        setupGroupExpectationsNoInmates();
+        List<PrisonerSchedule> results = schedulesService.getLocationGroupEvents("LEI", "myWing",
+                DATE, TimeSlot.AM, null, null);
+
+        assertThat(results).asList().hasSize(0);
+    }
+
+    private void setupGroupExpectationsNoInmates() {
+        when(inmateService.findInmatesByLocation("me",
+                "LEI", Arrays.asList(-100L, -101L))).thenReturn(Collections.EMPTY_LIST);
+    }
+
+        private void setupGroupExpectations() {
         final List<InmateDto> inmatesOnMyWing = Arrays.asList(
                 InmateDto.builder().bookingId(-10L).offenderNo("A10").locationDescription("M0").firstName("Joe").lastName("Bloggs").build(),
                 InmateDto.builder().bookingId(-11L).locationDescription("H1").lastName("Zed").build(),
@@ -212,10 +232,9 @@ public class SchedulesServiceImplTest {
         List<ScheduledEvent> eventsFor13 = Arrays.asList(
                 ScheduledEvent.builder().bookingId(-13L).startTime(LocalDateTime.of(SchedulesServiceImplTest.DATE, LocalTime.of(19, 0))).eventSubTypeDesc("Eve-13").eventType("APP").build()
         );
-        when(bookingService.getEventsOnDay(-10L, SchedulesServiceImplTest.DATE)).thenReturn(eventsFor10);
-        when(bookingService.getEventsOnDay(-11L, SchedulesServiceImplTest.DATE)).thenReturn(eventsFor11);
-        when(bookingService.getEventsOnDay(-12L, SchedulesServiceImplTest.DATE)).thenReturn(eventsFor12);
-        when(bookingService.getEventsOnDay(-13L, SchedulesServiceImplTest.DATE)).thenReturn(eventsFor13);
+
+        final List<ScheduledEvent> events = Stream.of(eventsFor10, eventsFor11, eventsFor12, eventsFor13).flatMap(Collection::stream).collect(Collectors.toList());
+        when(bookingService.getEventsOnDay(ImmutableSet.copyOf(ImmutableList.of(-10L, -11L, -12L, -13L)), SchedulesServiceImplTest.DATE)).thenReturn(events);
     }
 
     @Test

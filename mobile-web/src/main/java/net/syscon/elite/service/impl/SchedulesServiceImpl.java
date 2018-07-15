@@ -20,10 +20,8 @@ import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Schedules API service implementation.
@@ -61,22 +59,28 @@ public class SchedulesServiceImpl implements SchedulesService {
                 authenticationFacade.getCurrentUsername(),
                 agencyId,
                 locationIdsForGroup(agencyId, groupName));
-        final LocalDate day = date == null ? LocalDate.now() : date;
-        final LocalDateTime midday = midday(day);
-        final LocalDateTime evening = evening(day);
+        if(!inmates.isEmpty()) {
 
-        final String orderFields = StringUtils.defaultString(sortFields, "cellLocation");
-        Comparator<PrisonerSchedule> comparator = "cellLocation".equals(orderFields) ? BY_CELL_LOCATION : BY_LAST_NAME;
-        comparator = comparator.thenComparing(PrisonerSchedule::getOffenderNo);
-        if (sortOrder == Order.DESC) {
-            comparator = comparator.reversed();
+            final LocalDate day = date == null ? LocalDate.now() : date;
+            final LocalDateTime midday = midday(day);
+            final LocalDateTime evening = evening(day);
+
+            final String orderFields = StringUtils.defaultString(sortFields, "cellLocation");
+            Comparator<PrisonerSchedule> comparator = "cellLocation".equals(orderFields) ? BY_CELL_LOCATION : BY_LAST_NAME;
+            comparator = comparator.thenComparing(PrisonerSchedule::getOffenderNo);
+            if (sortOrder == Order.DESC) {
+                comparator = comparator.reversed();
+            }
+            comparator = comparator.thenComparing(PrisonerSchedule::getStartTime);
+
+            final List<PrisonerSchedule> prisonerSchedules = prisonerScheduleForInmate(inmates, timeSlot, day, midday, evening);
+
+            return prisonerSchedules.stream()
+                    .sorted(comparator)
+                    .collect(Collectors.toList());
+        } else {
+            return Collections.emptyList();
         }
-        comparator = comparator.thenComparing(PrisonerSchedule::getStartTime);
-
-        return inmates.stream()
-                .flatMap(inmate -> prisonerScheduleForInmate(inmate, timeSlot, day, midday, evening))
-                .sorted(comparator)
-                .collect(Collectors.toList());
     }
 
     private List<Long> locationIdsForGroup(String agencyId, String groupName) {
@@ -100,11 +104,16 @@ public class SchedulesServiceImpl implements SchedulesService {
         return LocalDateTime.of(date, LocalTime.of(17, 0));
     }
 
-    private Stream<PrisonerSchedule> prisonerScheduleForInmate(InmateDto inmate, TimeSlot timeSlot, LocalDate date, LocalDateTime midday, LocalDateTime evening) {
-        final List<ScheduledEvent> eventsOnDay = bookingService.getEventsOnDay(inmate.getBookingId(), date);
+    private List<PrisonerSchedule> prisonerScheduleForInmate(Collection<InmateDto> inmates, TimeSlot timeSlot, LocalDate date, LocalDateTime midday, LocalDateTime evening) {
+
+        Map<Long, InmateDto> bookingIdMap =
+                inmates.stream().collect(Collectors.toMap(InmateDto::getBookingId, inmateDto -> inmateDto));
+
+        final List<ScheduledEvent> eventsOnDay = bookingService.getEventsOnDay(bookingIdMap.keySet(), date);
+
         return eventsOnDay.stream()
                 .filter(event -> eventStartsInTimeslot(event.getStartTime(), timeSlot, midday, evening))
-                .map(event -> prisonerSchedule(inmate, event));
+                .map(event -> prisonerSchedule(bookingIdMap.get(event.getBookingId()), event)).collect(Collectors.toList());
     }
 
     private boolean eventStartsInTimeslot(LocalDateTime start, TimeSlot timeSlot,
