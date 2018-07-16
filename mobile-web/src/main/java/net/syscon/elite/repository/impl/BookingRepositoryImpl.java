@@ -33,6 +33,14 @@ import java.util.stream.Collectors;
 @Repository
 @Slf4j
 public class BookingRepositoryImpl extends RepositoryBase implements BookingRepository {
+
+    private static final String ACTIVITIES_BOOKING_ID_CLAUSE = " AND OPP.OFFENDER_BOOK_ID = :bookingId";
+    private static final String ACTIVITIES_BOOKING_ID_IN_CLAUSE = " AND OPP.OFFENDER_BOOK_ID IN (:bookingIds)";
+    private static final String VISITS_BOOKING_ID_CLAUSE = " AND VIS.OFFENDER_BOOK_ID = :bookingId";
+    private static final String VISITS_BOOKING_ID_IN_CLAUSE = " AND VIS.OFFENDER_BOOK_ID IN (:bookingIds)";
+    private static final String APPOINTMENTS_BOOKING_ID_CLAUSE = " AND OIS.OFFENDER_BOOK_ID = :bookingId";
+    private static final String APPOINTMENTS_BOOKING_ID_IN_CLAUSE = " AND OIS.OFFENDER_BOOK_ID IN (:bookingIds)";
+
     private static final StandardBeanPropertyRowMapper<PrivilegeDetail> PRIV_DETAIL_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(PrivilegeDetail.class);
 
@@ -177,7 +185,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     public Page<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
-        String initialSql = getQuery("GET_BOOKING_ACTIVITIES");
+        String initialSql = getQuery("GET_BOOKING_ACTIVITIES") + ACTIVITIES_BOOKING_ID_CLAUSE;
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
 
         String sql = builder
@@ -204,7 +212,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     public List<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
-        String initialSql = getQuery("GET_BOOKING_ACTIVITIES");
+        String initialSql = getQuery("GET_BOOKING_ACTIVITIES") + ACTIVITIES_BOOKING_ID_CLAUSE;
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
 
         String sql = builder
@@ -220,10 +228,30 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
+    public List<ScheduledEvent> getBookingActivities(Collection<Long> bookingIds, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
+        Objects.requireNonNull(bookingIds, "bookingIds is a required parameter");
+
+        String initialSql = getQuery("GET_BOOKING_ACTIVITIES") + ACTIVITIES_BOOKING_ID_IN_CLAUSE;
+
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
+
+        String sql = builder
+                .addOrderBy(order, orderByFields)
+                .build();
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("bookingIds", bookingIds,
+                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
+                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
+                EVENT_ROW_MAPPER);
+    }
+
+    @Override
     public Page<ScheduledEvent> getBookingVisits(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
-        String initialSql = getQuery("GET_BOOKING_VISITS");
+        String initialSql = getQuery("GET_BOOKING_VISITS") + VISITS_BOOKING_ID_CLAUSE;
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
 
         String sql = builder
@@ -250,7 +278,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     public List<ScheduledEvent> getBookingVisits(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
-        String initialSql = getQuery("GET_BOOKING_VISITS");
+        String initialSql = getQuery("GET_BOOKING_VISITS") + VISITS_BOOKING_ID_CLAUSE;
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
 
         String sql = builder
@@ -261,6 +289,26 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         return jdbcTemplate.query(
                 sql,
                 createParams("bookingId", bookingId,
+                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
+                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
+                EVENT_ROW_MAPPER);
+    }
+
+    @Override
+    public List<ScheduledEvent> getBookingVisits(Collection<Long> bookingIds, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
+        Objects.requireNonNull(bookingIds, "bookingIds is a required parameter");
+
+        String initialSql = getQuery("GET_BOOKING_VISITS") + VISITS_BOOKING_ID_IN_CLAUSE;
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
+
+        String sql = builder
+                .addOrderBy(order, orderByFields)
+                .build();
+
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("bookingIds", bookingIds,
                         "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
                         "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
                 EVENT_ROW_MAPPER);
@@ -350,7 +398,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     public Page<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
-        String initialSql = getQuery("GET_BOOKING_APPOINTMENTS");
+        String initialSql = getQuery("GET_BOOKING_APPOINTMENTS") + APPOINTMENTS_BOOKING_ID_CLAUSE;
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
 
         String sql = builder
@@ -377,7 +425,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     public List<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
-        String initialSql = getQuery("GET_BOOKING_APPOINTMENTS");
+        String initialSql = getQuery("GET_BOOKING_APPOINTMENTS") + APPOINTMENTS_BOOKING_ID_CLAUSE;
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
 
         String sql = builder
@@ -388,6 +436,26 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         return jdbcTemplate.query(
                 sql,
                 createParams("bookingId", bookingId,
+                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
+                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
+                EVENT_ROW_MAPPER);
+    }
+
+    @Override
+    public List<ScheduledEvent> getBookingAppointments(Collection<Long> bookingIds, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
+        Objects.requireNonNull(bookingIds, "bookingIds is a required parameter");
+
+        String initialSql = getQuery("GET_BOOKING_APPOINTMENTS") + APPOINTMENTS_BOOKING_ID_IN_CLAUSE;
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
+
+        String sql = builder
+                .addOrderBy(order, orderByFields)
+                .build();
+
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("bookingIds", bookingIds,
                         "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
                         "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
                 EVENT_ROW_MAPPER);

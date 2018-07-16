@@ -6,6 +6,7 @@ import net.syscon.elite.api.support.Page;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +45,7 @@ public interface BookingService {
     List<OffenceDetail> getMainOffenceDetails(Long bookingId);
 
     List<ScheduledEvent> getEventsToday(Long bookingId);
-    List<ScheduledEvent> getEventsOnDay(Long bookingId, LocalDate day);
+    List<ScheduledEvent> getEventsOnDay(Collection<Long> bookingIds, LocalDate day);
     List<ScheduledEvent> getEventsThisWeek(Long bookingId);
     List<ScheduledEvent> getEventsNextWeek(Long bookingId);
 

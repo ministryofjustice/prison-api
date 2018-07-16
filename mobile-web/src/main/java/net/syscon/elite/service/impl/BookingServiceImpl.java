@@ -201,6 +201,15 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.getBookingActivities(bookingId, fromDate, toDate, offset, limit, sortFields, sortOrder);
     }
 
+    private List<ScheduledEvent> getBookingActivities(Collection<Long> bookingIds, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
+        validateScheduledEventsRequest(fromDate, toDate);
+
+        String sortFields = StringUtils.defaultString(orderByFields, "startTime");
+        Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
+
+        return bookingRepository.getBookingActivities(bookingIds, fromDate, toDate, sortFields, sortOrder);
+    }
+
     @Override
     @VerifyBookingAccess
     public List<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
@@ -232,6 +241,15 @@ public class BookingServiceImpl implements BookingService {
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
 
         return bookingRepository.getBookingVisits(bookingId, fromDate, toDate, sortFields, sortOrder);
+    }
+
+    private List<ScheduledEvent> getBookingVisits(Collection<Long> bookingIds, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
+        validateScheduledEventsRequest(fromDate, toDate);
+
+        String sortFields = StringUtils.defaultString(orderByFields, "startTime");
+        Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
+
+        return bookingRepository.getBookingVisits(bookingIds, fromDate, toDate, sortFields, sortOrder);
     }
 
     @Override
@@ -279,6 +297,15 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @VerifyBookingAccess
     public List<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
+        validateScheduledEventsRequest(fromDate, toDate);
+
+        String sortFields = StringUtils.defaultString(orderByFields, "startTime");
+        Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
+
+        return bookingRepository.getBookingAppointments(bookingId, fromDate, toDate, sortFields, sortOrder);
+    }
+
+    private List<ScheduledEvent> getBookingAppointments(Collection<Long> bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
         String sortFields = StringUtils.defaultString(orderByFields, "startTime");
@@ -497,9 +524,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @VerifyBookingAccess
-    public List<ScheduledEvent> getEventsOnDay(Long bookingId, LocalDate day) {
-        return getEvents(bookingId, day, day);
+    public List<ScheduledEvent> getEventsOnDay(Collection<Long> bookingIds, LocalDate day) {
+        return getEvents(bookingIds, day, day);
     }
 
     @Override
@@ -537,6 +563,19 @@ public class BookingServiceImpl implements BookingService {
         results.addAll(visits);
         results.addAll(appointments);
         results.sort(startTimeComparator);
+        return results;
+    }
+
+    private List<ScheduledEvent> getEvents(Collection<Long> bookingIds, LocalDate from, LocalDate to) {
+        final List<ScheduledEvent> activities = getBookingActivities(bookingIds, from, to, null, null);
+        final List<ScheduledEvent> visits = getBookingVisits(bookingIds, from, to, null, null);
+        final List<ScheduledEvent> appointments = getBookingAppointments(bookingIds, from, to, null, null);
+
+        List<ScheduledEvent> results = new ArrayList<>();
+        results.addAll(activities);
+        results.addAll(visits);
+        results.addAll(appointments);
+
         return results;
     }
 
