@@ -45,7 +45,7 @@ public interface BookingService {
     List<OffenceDetail> getMainOffenceDetails(Long bookingId);
 
     List<ScheduledEvent> getEventsToday(Long bookingId);
-    List<ScheduledEvent> getEventsOnDay(Collection<Long> bookingId, LocalDate day);
+    List<ScheduledEvent> getEventsOnDay(Collection<Long> bookingIds, LocalDate day);
     List<ScheduledEvent> getEventsThisWeek(Long bookingId);
     List<ScheduledEvent> getEventsNextWeek(Long bookingId);
 

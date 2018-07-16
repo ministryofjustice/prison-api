@@ -73,7 +73,7 @@ public class SchedulesServiceImpl implements SchedulesService {
             }
             comparator = comparator.thenComparing(PrisonerSchedule::getStartTime);
 
-            final List<PrisonerSchedule> prisonerSchedules = prisonerScheduleForInmate(inmates, timeSlot, day, midday, evening);
+            final List<PrisonerSchedule> prisonerSchedules = prisonerSchedules(inmates, timeSlot, day, midday, evening);
 
             return prisonerSchedules.stream()
                     .sorted(comparator)
@@ -104,7 +104,7 @@ public class SchedulesServiceImpl implements SchedulesService {
         return LocalDateTime.of(date, LocalTime.of(17, 0));
     }
 
-    private List<PrisonerSchedule> prisonerScheduleForInmate(Collection<InmateDto> inmates, TimeSlot timeSlot, LocalDate date, LocalDateTime midday, LocalDateTime evening) {
+    private List<PrisonerSchedule> prisonerSchedules(Collection<InmateDto> inmates, TimeSlot timeSlot, LocalDate date, LocalDateTime midday, LocalDateTime evening) {
 
         Map<Long, InmateDto> bookingIdMap =
                 inmates.stream().collect(Collectors.toMap(InmateDto::getBookingId, inmateDto -> inmateDto));
