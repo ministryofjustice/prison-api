@@ -23,7 +23,7 @@ CREATE TABLE OFFENDER_COURSE_ATTENDANCES
   ACTION_CODE                     VARCHAR2(12),
   SICK_NOTE_RECEIVED_DATE         DATE,
   SICK_NOTE_EXPIRY_DATE           DATE,
-  OFF_PRGREF_ID                   NUMBER(10),
+  OFF_PRGREF_ID                   NUMBER(10)                          NOT NULL,
   IN_TIME                         DATE,
   OUT_TIME                        DATE,
   PERFORMANCE_CODE                VARCHAR2(12),
@@ -52,7 +52,7 @@ CREATE TABLE OFFENDER_COURSE_ATTENDANCES
   SEAL_FLAG                       VARCHAR2(1),
   DIRECTION_CODE                  VARCHAR2(12),
   CREATE_DATETIME                 TIMESTAMP(9)   DEFAULT SYSTIMESTAMP NOT NULL,
-  CREATE_USER_ID                  VARCHAR2(32)   DEFAULT USER      NOT NULL,
+  CREATE_USER_ID                  VARCHAR2(32)   DEFAULT USER         NOT NULL,
   MODIFY_DATETIME                 TIMESTAMP(9),
   MODIFY_USER_ID                  VARCHAR2(32),
 

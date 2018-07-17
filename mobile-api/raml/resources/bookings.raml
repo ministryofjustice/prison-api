@@ -453,6 +453,48 @@
     sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
   ]
 
+/{bookingId}/activities/{activityId}/attendance:
+  uriParameters:
+    bookingId:
+      (javaType): Long
+      description: The offender booking id
+    activityId:
+      (javaType): Long
+      description: The activity id
+  put:
+    (javaOperationName): updateAttendance
+    description: Update offender attendance and pay.
+    body:
+      application/json:
+        type: UpdateAttendance
+    responses:
+      201:
+        mediaType:
+      400:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: Invalid request - e.g. validation error.
+            example: !include ../examples/ouput/400.sample.json
+      403:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: Forbidden - user not authorised to attend activity.
+            example: !include ../examples/ouput/403.sample.json
+      404:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: Resource not found - booking or event does not exist or is not accessible to user.
+            example: !include ../examples/ouput/404.sample.json
+      500:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: Internal server error.
+            example: !include ../examples/ouput/500.sample.json
+
 /{bookingId}/contacts:
   (javaOperationName): getContacts
   type: { readOnlyItem: { type: ContactDetail, description: Offender contacts (e.g. next of kin). } }

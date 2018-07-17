@@ -1,0 +1,15 @@
+#%RAML 1.0 DataType
+description: Attendance details
+properties:
+  eventOutcome:
+    type: string
+    description: Attendance outcome, possible values are the codes in the 'PS_PA_OC' reference domain.
+    maxLength: 12
+  performance?:
+    type: string
+    description: Possible values are the codes in the 'PERFORMANCE' reference domain.
+    maxLength: 12
+  outcomeComment?:
+    type: string
+    description: No-pay reason
+    maxLength: 4000
