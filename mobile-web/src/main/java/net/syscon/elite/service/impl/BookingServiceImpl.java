@@ -13,6 +13,7 @@ import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.NonDtoReleaseDate;
 import net.syscon.elite.service.support.ReferenceDomain;
+import net.syscon.elite.service.validation.AttendanceTypesValid;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -219,6 +220,13 @@ public class BookingServiceImpl implements BookingService {
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
 
         return bookingRepository.getBookingActivities(bookingId, fromDate, toDate, sortFields, sortOrder);
+    }
+
+    @Transactional
+    @Override
+    @VerifyBookingAccess
+    public void updateAttendance(Long bookingId, Long activityId, @Valid @AttendanceTypesValid UpdateAttendance updateAttendance) {
+        bookingRepository.updateAttendance( bookingId,  activityId,  updateAttendance);
     }
 
     @Override

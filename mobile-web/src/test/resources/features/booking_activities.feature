@@ -120,3 +120,24 @@ Feature: Booking Activities
   Scenario: Retrieve scheduled activities for an existing offender having one or more activities, using a fromDate later than toDate
     When scheduled activities between "2017-09-18" and "2017-09-12" are requested for an offender with booking id "-1"
     Then bad request response, with "Invalid date range: toDate is before fromDate." message, is received from booking activities API
+
+  Scenario: Pay an activity
+    When a request is made to update attendance for booking id "-3" and activity "-2" with outcome "ATT", performance "STANDARD" and comment "blah"
+    Then the booking activities request is successful
+    And the saved attendance details can be retrieved correctly
+
+  Scenario: Pay an activity with invalid outcome dropdown
+    When a request is made to update attendance for booking id "-3" and activity "-2" with outcome "invalid", performance "GOOD" and comment "blah"
+    Then bad request response, with "Event outcome value invalid does not exist" message, is received from booking activities API
+
+  Scenario: Pay an activity with invalid performance dropdown
+    When a request is made to update attendance for booking id "-3" and activity "-2" with outcome "UNBEH", performance "invalid" and comment "blah"
+    Then bad request response, with "Performance value invalid does not exist" message, is received from booking activities API
+
+  Scenario: Pay an activity with incorrect ids
+    When a request is made to update attendance for booking id "-5" and activity "-2" with outcome "ATT", performance "STANDARD" and comment "blah"
+    Then resource not found response is received from booking activities API
+
+  Scenario: Pay an activity with unauthorised booking id
+    When a request is made to update attendance for booking id "-16" and activity "-2" with outcome "ATT", performance "STANDARD" and comment "blah"
+    Then resource not found response is received from booking activities API

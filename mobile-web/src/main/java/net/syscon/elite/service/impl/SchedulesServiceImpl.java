@@ -136,6 +136,10 @@ public class SchedulesServiceImpl implements SchedulesService {
                 .eventType(event.getEventType())
                 .eventDescription(event.getEventSubTypeDesc())//
                 .startTime(event.getStartTime())//
+                .eventId(event.getEventId())
+                .eventOutcome(event.getEventOutcome())
+                .performance(event.getPerformance())
+                .outcomeComment(event.getOutcomeComment())
                 .build();
     }
 

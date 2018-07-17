@@ -10,6 +10,7 @@ import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -245,6 +246,23 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                         "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
                         "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
                 EVENT_ROW_MAPPER);
+    }
+
+    @Override
+    public void updateAttendance(Long bookingId, Long activityId, UpdateAttendance updateAttendance) {
+        final String sql = getQuery("UPDATE_ATTENDANCE");
+        final int rows = jdbcTemplate.update(
+                sql,
+                createParams(
+                        "bookingId", bookingId,
+                        "eventId", activityId,
+                        "eventOutcome", updateAttendance.getEventOutcome(),
+                        "performanceCode", updateAttendance.getPerformance(),
+                        "commentText", updateAttendance.getOutcomeComment()));
+        if (rows != 1) {
+            throw EntityNotFoundException.withMessage("Activity with booking Id %d and activityId %d not found",
+                    bookingId, activityId);
+        }
     }
 
     @Override

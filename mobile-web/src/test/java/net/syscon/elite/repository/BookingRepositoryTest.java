@@ -1,9 +1,7 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.NewAppointment;
-import net.syscon.elite.api.model.OffenderSummary;
-import net.syscon.elite.api.model.ScheduledEvent;
-import net.syscon.elite.api.model.Visit;
+import net.syscon.elite.api.model.*;
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,9 +18,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("nomis-hsqldb")
@@ -35,6 +35,8 @@ public class BookingRepositoryTest {
 
     @Autowired
     private BookingRepository repository;
+    @Autowired
+    private ScheduleRepository scheduleRepository;
 
     @Before
     public void init() {
@@ -249,5 +251,51 @@ public class BookingRepositoryTest {
         assertThat(summary.getBookingId()).isEqualTo(-23L);
         assertThat(summary.getAgencyLocationId()).isEqualTo("LEI");
         assertThat(summary.getCurrentlyInPrison()).isEqualTo("N");
+    }
+
+    @Test
+    public void testUpdateAttendance() {
+        UpdateAttendance ua = UpdateAttendance.builder()
+                .eventOutcome("Great")
+                .performance("Poor")
+                .outcomeComment("Hi there")
+                .build();
+
+        repository.updateAttendance(-3L, -1L, ua);
+
+        List<PrisonerSchedule> prisonerSchedules = scheduleRepository.getLocationActivities(-26L, null, null, null, null);
+        prisonerSchedules.stream()
+                .filter(ps -> ps.getEventId() == -1L)
+                .peek(ps -> {
+                    assertThat(ps.getEventOutcome()).isEqualTo("Great");
+                    assertThat(ps.getPerformance()).isEqualTo("Poor");
+                    assertThat(ps.getOutcomeComment()).isEqualTo("Hi there");
+                });
+    }
+
+    @Test
+    public void testUpdateAttendanceInvalidActivityId() {
+        UpdateAttendance ua = UpdateAttendance.builder()
+                .eventOutcome("Great")
+                .build();
+        try {
+            repository.updateAttendance(-3L, -111L, ua);
+            fail("No exception thrown");
+        } catch (EntityNotFoundException e) {
+            assertThat(e.getMessage()).isEqualTo("Activity with booking Id -3 and activityId -111 not found");
+        }
+    }
+
+    @Test
+    public void testUpdateAttendanceInvalidBookingId() {
+        UpdateAttendance ua = UpdateAttendance.builder()
+                .eventOutcome("Great")
+                .build();
+        try {
+            repository.updateAttendance(-333L, -1L, ua);
+            fail("No exception thrown");
+        } catch (EntityNotFoundException e) {
+            assertThat(e.getMessage()).isEqualTo("Activity with booking Id -333 and activityId -1 not found");
+        }
     }
 }

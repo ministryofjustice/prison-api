@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -63,11 +64,14 @@ public class SchedulesSteps extends CommonSteps {
         }
     }
     
-    private List<PrisonerSchedule> dispatchLocationRequest(String url, String agencyId, Long locationId, String usage1, TimeSlot timeSlot) {
+    private List<PrisonerSchedule> dispatchLocationRequest(String url, String agencyId, Long locationId, String usage1, String date, TimeSlot timeSlot) {
         init();
         String urlModifier = "";
+        if (date != null) {
+            urlModifier += "?date=" + date;
+        }
         if (timeSlot != null) {
-            urlModifier += "?timeSlot=" + timeSlot.name();
+            urlModifier += (StringUtils.isEmpty(urlModifier) ? '?' : '&') + "timeSlot=" + timeSlot.name();
         }
         HttpEntity<?> httpEntity = createEntity();
         try {
@@ -200,12 +204,17 @@ public class SchedulesSteps extends CommonSteps {
     }
 
     public void getSchedulesForLocation() {
-        results = dispatchLocationRequest(API_LOCATION_URL, agency, location, usage, null);
+        results = dispatchLocationRequest(API_LOCATION_URL, agency, location, usage, null, null);
     }
 
     public void getSchedulesForLocation(String agencyId, Long loc, String usage1, TimeSlot timeSlot) {
-        results = dispatchLocationRequest(API_LOCATION_URL, agencyId, loc, usage1, timeSlot);
+        results = dispatchLocationRequest(API_LOCATION_URL, agencyId, loc, usage1, null, timeSlot);
     }
+
+    public void getSchedulesForLocation(String agencyId, Long loc, String usage1, String date, TimeSlot timeSlot) {
+        results = dispatchLocationRequest(API_LOCATION_URL, agencyId, loc, usage1, date, timeSlot);
+    }
+
 
     public void verifySchedulesAreOrderedAlphabetically() {
         assertThat(results).isSortedAccordingTo((o1,o2) -> o1.getLastName().compareTo(o2.getLastName()));
@@ -230,5 +239,15 @@ public class SchedulesSteps extends CommonSteps {
 
     public void givenUsageInvalid() {
         usage = "INVALID";
+    }
+
+    public void verifyAttendanceDetails(long eventId) {
+        final Optional<PrisonerSchedule> prisonerSchedule = results.stream()
+                .filter(ps -> ps.getEventId() != null && ps.getEventId() == eventId)
+                .findFirst();
+        assertThat(prisonerSchedule.isPresent()).isTrue();
+        assertThat(prisonerSchedule.get())
+                .extracting("eventOutcome", "performance", "outcomeComment")
+                .contains("ATT", "STANDARD", "blah");
     }
 }
