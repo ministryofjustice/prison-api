@@ -77,6 +77,12 @@ public class AuthStepDefinitions extends AbstractStepDefinitions {
         user.verifyNotAuthorised();
     }
 
+    @Then("^a new token has been issued$")
+    public void aNewTokenHasBeenIssued() {
+        assertThat(currentToken.getValue()).isNotNull();
+        assertThat(currentToken.getValue()).isNotEqualTo(previousToken.getValue());
+    }
+
     @Then("^Unnaproved client exception is returned$")
     public void UnapprovedClientReturned() throws Throwable {
         user.verifyUnapprovedClient();
