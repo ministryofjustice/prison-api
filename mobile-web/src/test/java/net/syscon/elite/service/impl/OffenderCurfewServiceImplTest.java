@@ -241,9 +241,6 @@ public class OffenderCurfewServiceImplTest {
 
         Predicate<OffenderSentenceDetail> filter = OffenderCurfewServiceImpl.offenderIsEligibleForHomeCurfew(Collections.singleton(1L), EARLIEST_DATE);
 
-        // Rule is hdced != null && approvalStatus == null && (ard >= earliest_date || crd >= earliest date)
-        // approvalStatus == null for all tests below...
-
         // no ard or crd
         assertThat(filter.test(offenderSentenceDetail(1L, null, null, HDCED))).isFalse();
 
@@ -279,6 +276,48 @@ public class OffenderCurfewServiceImplTest {
 
     }
 
+    @Test
+    public void givenOffenderCurfewsWithoutApprovalStatusThenOverrideDatesAreFilteredCorrectly() {
+        final LocalDate HDCED = LocalDate.of(9999,1,1);
+        final LocalDate EARLIEST_DATE = LocalDate.of(2081, 1, 1);
+        final LocalDate DAY_BEFORE = EARLIEST_DATE.minusDays(1);
+
+        Predicate<OffenderSentenceDetail> filter = OffenderCurfewServiceImpl.offenderIsEligibleForHomeCurfew(Collections.singleton(1L), EARLIEST_DATE);
+
+        // no ard or crd
+        assertThat(filter.test(offenderSentenceDetail(1L, null, null, HDCED, null, null))).isFalse();
+
+        // no hdced
+        assertThat(filter.test(offenderSentenceDetail(1L, EARLIEST_DATE, EARLIEST_DATE, null, null, null))).isFalse();
+
+        // ard & ard override too early
+        assertThat(filter.test(offenderSentenceDetail(1L, DAY_BEFORE, null, HDCED, DAY_BEFORE, null))).isFalse();
+
+        // crd and crd override too early
+        assertThat(filter.test(offenderSentenceDetail(1L, null, DAY_BEFORE, HDCED, null, DAY_BEFORE))).isFalse();
+
+        // both ard and crdand overrides too early
+        assertThat(filter.test(offenderSentenceDetail(1L, DAY_BEFORE, DAY_BEFORE, HDCED, DAY_BEFORE, DAY_BEFORE))).isFalse();
+
+        // ard override on earliest date
+        assertThat(filter.test(offenderSentenceDetail(1L, DAY_BEFORE, null, HDCED, EARLIEST_DATE, null))).isTrue();
+
+        // crd override on earliest date
+        assertThat(filter.test(offenderSentenceDetail(1L, null, DAY_BEFORE, HDCED, null, EARLIEST_DATE))).isTrue();
+
+        // overrides on earliest date
+        assertThat(filter.test(offenderSentenceDetail(1L, DAY_BEFORE, DAY_BEFORE, HDCED, EARLIEST_DATE, EARLIEST_DATE))).isTrue();
+
+        // ard before, crd on earliest date
+        assertThat(filter.test(offenderSentenceDetail(1L, DAY_BEFORE, DAY_BEFORE, HDCED, DAY_BEFORE, EARLIEST_DATE))).isTrue();
+
+        //  ard on earliest date, crd before earliest date
+        assertThat(filter.test(offenderSentenceDetail(1L, DAY_BEFORE, DAY_BEFORE, HDCED, EARLIEST_DATE, DAY_BEFORE))).isTrue();
+
+        // ard and crd after earliest date
+        assertThat(filter.test(offenderSentenceDetail(1L, DAY_BEFORE, DAY_BEFORE, HDCED, EARLIEST_DATE.plusDays(1), EARLIEST_DATE.plusDays(1)))).isTrue();
+
+    }
     @Test
     public void givenNoOffendersInAgencyThenNoResults() {
         when(caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(USERNAME)).thenReturn(agencyIdsToAgencies(AGENCY_ID));
@@ -365,6 +404,31 @@ public class OffenderCurfewServiceImplTest {
                 .sentenceDetail(detail)
                 .build();
     }
+
+    private OffenderSentenceDetail offenderSentenceDetail(
+            Long bookingId,
+            LocalDate automaticReleaseDate,
+            LocalDate conditionalReleaseDate,
+            LocalDate homeDetentionCurfewEligibilityDate,
+            LocalDate automaticReleaseOverrideDate,
+            LocalDate conditionalReleaseOverrideDate) {
+
+        SentenceDetail detail = SentenceDetail
+                .builder()
+                .automaticReleaseDate(automaticReleaseDate)
+                .automaticReleaseOverrideDate(automaticReleaseOverrideDate)
+                .conditionalReleaseDate(conditionalReleaseDate)
+                .conditionalReleaseOverrideDate(conditionalReleaseOverrideDate)
+                .homeDetentionCurfewEligibilityDate(homeDetentionCurfewEligibilityDate)
+                .build();
+
+        return OffenderSentenceDetail
+                .builder()
+                .bookingId(bookingId)
+                .sentenceDetail(detail)
+                .build();
+    }
+
 
     private static OffenderCurfew offenderCurfew(long offenderCurfewId, long offenderBookId, String assessmentDate) {
 
