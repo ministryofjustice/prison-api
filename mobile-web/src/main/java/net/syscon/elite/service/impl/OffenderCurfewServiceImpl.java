@@ -131,12 +131,13 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
 
         return (OffenderSentenceDetail os) -> {
             final SentenceDetail detail = os.getSentenceDetail();
+            final LocalDate ard = detail.getAutomaticReleaseOverrideDate() == null ? detail.getAutomaticReleaseDate() : detail.getAutomaticReleaseOverrideDate();
+            final LocalDate crd = detail.getConditionalReleaseOverrideDate()  == null ? detail.getConditionalReleaseDate() : detail.getConditionalReleaseOverrideDate();
             return
                 (detail.getHomeDetentionCurfewEligibilityDate() != null) &&
                 offendersWithoutCurfewApprovalStatus.contains(os.getBookingId()) &&
                 (
-                    isBeforeOrEqual(earliestArdOrCrd, detail.getAutomaticReleaseDate()) ||
-                    isBeforeOrEqual(earliestArdOrCrd, detail.getConditionalReleaseDate())
+                    isBeforeOrEqual(earliestArdOrCrd, ard) || isBeforeOrEqual(earliestArdOrCrd, crd)
                 );
         };
     }
