@@ -453,11 +453,11 @@
     sortable: {fieldsList: "eventDate, startTime, endTime, eventLocation"}
   ]
 
-/{bookingId}/activities/{activityId}/attendance:
+/offenderNo/{offenderNo}/activities/{activityId}/attendance:
   uriParameters:
-    bookingId:
-      (javaType): Long
-      description: The offender booking id
+    offenderNo:
+      type: string
+      description: The offenderNo of the prisoner
     activityId:
       (javaType): Long
       description: The activity id

@@ -11,6 +11,7 @@ import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +48,14 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
 
     private static final StandardBeanPropertyRowMapper<ScheduledEvent> EVENT_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(ScheduledEvent.class);
+
+    private final Map<String, FieldMapper> PAYABLE_ATTENDANCE_OUTCOMES_MAPPING = new jersey.repackaged.com.google.common.collect.ImmutableMap.Builder<String, FieldMapper>()
+            .put("PAYABLE_ATTENDANCE_OUTCOMES_ID", new FieldMapper("payableAttendanceOutcomeId"))
+            .put("EVENT_TYPE",                     new FieldMapper("eventType"))
+            .put("OUTCOME_CODE",                   new FieldMapper("outcomeCode"))
+            .put("PAY_FLAG",                       new FieldMapper("paid", value -> "Y".equalsIgnoreCase(value.toString())))
+            .put("AUTHORISED_ABSENCE_FLAG",        new FieldMapper("authorisedAbsence", value -> "Y".equalsIgnoreCase(value.toString())))
+            .build();
 
     private static final StandardBeanPropertyRowMapper<Visit> VISIT_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(Visit.class);
@@ -249,7 +258,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    public void updateAttendance(Long bookingId, Long activityId, UpdateAttendance updateAttendance) {
+    public void updateAttendance(Long bookingId, Long activityId, UpdateAttendance updateAttendance, boolean paid, boolean authorisedAbsence) {
         final String sql = getQuery("UPDATE_ATTENDANCE");
         final int rows = jdbcTemplate.update(
                 sql,
@@ -258,11 +267,44 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                         "eventId", activityId,
                         "eventOutcome", updateAttendance.getEventOutcome(),
                         "performanceCode", updateAttendance.getPerformance(),
-                        "commentText", updateAttendance.getOutcomeComment()));
+                        "commentText", updateAttendance.getOutcomeComment(),
+                        "paid", paid ? "Y" : "N",
+                        "authorisedAbsence", authorisedAbsence ? "Y" : "N"
+                ));
         if (rows != 1) {
             throw EntityNotFoundException.withMessage("Activity with booking Id %d and activityId %d not found",
                     bookingId, activityId);
         }
+    }
+
+    @Override
+    public LocalDate getAttendanceEventDate(Long activityId) {
+        final Date result = jdbcTemplate.queryForObject(
+                getQuery("GET_ATTENDANCE_DATE"),
+                createParams("eventId", activityId),
+                Date.class);
+        return DateTimeConverter.toISO8601LocalDate(result);
+    }
+
+    @Override
+    @Cacheable("payableAttendanceOutcomes")
+    public PayableAttendanceOutcomeDto getPayableAttendanceOutcome(String eventType, String outcomeCode) {
+
+        Objects.requireNonNull(eventType, "eventType is a required parameter");
+        Objects.requireNonNull(outcomeCode, "outcomeCode is a required parameter");
+
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(
+                getQuery("GET_PAYABLE_ATTENDANCE_OUTCOMES"),
+                PAYABLE_ATTENDANCE_OUTCOMES_MAPPING);
+        String sql = builder.build();
+
+        RowMapper<PayableAttendanceOutcomeDto> inmateRowMapper = Row2BeanRowMapper.makeMapping(
+                sql, PayableAttendanceOutcomeDto.class, PAYABLE_ATTENDANCE_OUTCOMES_MAPPING);
+
+        return jdbcTemplate.queryForObject(
+                sql,
+                createParams("eventType", eventType, "outcomeCode", outcomeCode),
+                inmateRowMapper);
     }
 
     @Override

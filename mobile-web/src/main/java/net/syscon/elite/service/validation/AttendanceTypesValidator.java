@@ -10,6 +10,7 @@ import org.springframework.util.Assert;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -27,25 +28,32 @@ public class AttendanceTypesValidator implements ConstraintValidator<AttendanceT
 
     @Override
     public boolean isValid(UpdateAttendance value, ConstraintValidatorContext context) {
-        boolean valid = true;
-        // This should be ok as it is cached:
-        final Page<ReferenceCode> outcomes = referenceDomainService.getReferenceCodesByDomain(ReferenceDomain.EVENT_OUTCOME.getDomain(), false, null, null, 0, 1000);
-        final Optional<ReferenceCode> outcome = outcomes.getItems().stream().filter(x -> x.getCode().equals(value.getEventOutcome())).findFirst();
-        if (!outcome.isPresent()) {
-            valid = false;
-            context.disableDefaultConstraintViolation();
-            final String message = "Event outcome value " + value.getEventOutcome() + " does not exist";
-            context.buildConstraintViolationWithTemplate(message).addConstraintViolation();
-        }
-
-        final Page<ReferenceCode> performances = referenceDomainService.getReferenceCodesByDomain(ReferenceDomain.PERFORMANCE.getDomain(), false, null, null, 0, 1000);
-        final Optional<ReferenceCode> performance = performances.getItems().stream().filter(x -> x.getCode().equals(value.getPerformance())).findFirst();
-        if (!performance.isPresent()) {
-            valid = false;
-            context.disableDefaultConstraintViolation();
-            final String message = "Performance value " + value.getPerformance() + " does not exist";
-            context.buildConstraintViolationWithTemplate(message).addConstraintViolation();
+        boolean valid = checkDomain(value.getEventOutcome(), context, ReferenceDomain.EVENT_OUTCOME, "Event outcome value %s does not exist");
+        if (value.getPerformance() == null) {
+            if (value.getEventOutcome().equals("ATT")) {
+                valid = false;
+                context.buildConstraintViolationWithTemplate("Performance value must be provided when event outcome is 'ATT'").addConstraintViolation();
+            }
+        } else {
+            valid &= checkDomain(value.getPerformance(), context, ReferenceDomain.PERFORMANCE, "Performance value %s does not exist");
         }
         return valid;
+    }
+
+    private boolean checkDomain(String value, ConstraintValidatorContext context, ReferenceDomain domain, String messageTemplate) {
+        // This should be ok as it is cached:
+        final List<ReferenceCode> codes = referenceDomainService.getReferenceCodesByDomain(
+                domain.getDomain(), false, null, null, 0, 1000).getItems();
+        final Optional<ReferenceCode> code = codes.stream()
+                .filter(x -> value.equals(x.getCode()))
+                .filter(x -> "Y".equals(x.getActiveFlag()))
+                .findFirst();
+        if (code.isPresent()) {
+            return true;
+        }
+        context.disableDefaultConstraintViolation();
+        final String message = String.format(messageTemplate, value);
+        context.buildConstraintViolationWithTemplate(message).addConstraintViolation();
+        return false;
     }
 }

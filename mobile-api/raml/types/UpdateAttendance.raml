@@ -7,9 +7,10 @@ properties:
     maxLength: 12
   performance?:
     type: string
-    description: Possible values are the codes in the 'PERFORMANCE' reference domain.
+    description: Possible values are the codes in the 'PERFORMANCE' reference domain, mandatory for eventOutcome 'ATT'.
     maxLength: 12
   outcomeComment?:
     type: string
-    description: No-pay reason
-    maxLength: 4000
+    description: Free text comment, maximum length 240 characters.
+# Real limit as advised by old-nomis dev team:
+    maxLength: 240

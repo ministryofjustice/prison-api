@@ -25,7 +25,7 @@ public interface BookingService {
 
     List<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
 
-    void updateAttendance(Long bookingId, Long activityId, @Valid @AttendanceTypesValid UpdateAttendance updateAttendance);
+    void updateAttendance(String offenderNo, Long activityId, @Valid @AttendanceTypesValid UpdateAttendance updateAttendance);
 
     Page<ScheduledEvent> getBookingVisits(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);
 

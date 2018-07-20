@@ -79,6 +79,7 @@ public class CacheConfig implements CachingConfigurer {
         config.addCache(config("bookingPhysicalAttributes", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("offenderIdentifiers", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("bookingIdByOffenderNo", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("payableAttendanceOutcomes", 100, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         return net.sf.ehcache.CacheManager.newInstance(config);
     }
