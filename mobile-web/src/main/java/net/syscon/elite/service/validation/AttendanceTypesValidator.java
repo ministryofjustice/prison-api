@@ -2,7 +2,6 @@ package net.syscon.elite.service.validation;
 
 import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.model.UpdateAttendance;
-import net.syscon.elite.api.support.Page;
 import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.support.ReferenceDomain;
 import org.springframework.stereotype.Component;
