@@ -230,6 +230,10 @@ public class BookingServiceImpl implements BookingService {
     @VerifyBookingAccess
     public void updateAttendance(String offenderNo, Long activityId, @Valid @AttendanceTypesValid UpdateAttendance updateAttendance) {
         OffenderSummary offenderSummary = getLatestBookingByOffenderNo(offenderNo);
+        if (offenderSummary == null || offenderSummary.getBookingId() == null) {
+            throw EntityNotFoundException.withMessage("Offender No %s not found", offenderNo);
+        }
+
         validateActivity(activityId, offenderSummary);
 
         // Copy flags from the PAYABLE_ATTENDANCE_OUTCOME reference table

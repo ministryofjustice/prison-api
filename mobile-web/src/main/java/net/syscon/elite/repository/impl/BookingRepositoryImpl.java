@@ -17,6 +17,7 @@ import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
@@ -279,10 +280,15 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
 
     @Override
     public LocalDate getAttendanceEventDate(Long activityId) {
-        final Date result = jdbcTemplate.queryForObject(
-                getQuery("GET_ATTENDANCE_DATE"),
-                createParams("eventId", activityId),
-                Date.class);
+        final Date result;
+        try {
+            result = jdbcTemplate.queryForObject(
+                    getQuery("GET_ATTENDANCE_DATE"),
+                    createParams("eventId", activityId),
+                    Date.class);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
         return DateTimeConverter.toISO8601LocalDate(result);
     }
 
