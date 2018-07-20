@@ -66,6 +66,8 @@ public class StandardBeanPropertyRowMapper<T> extends BeanPropertyRowMapper<T> {
             colValue = DateTimeConverter.toISO8601LocalDate(rs.getObject(index));
         } else if (LocalDateTime.class == clazz) {
             colValue = DateTimeConverter.toISO8601LocalDateTime(rs.getObject(index));
+        } else if (Boolean.class == clazz) {
+            colValue = "Y".equals(rs.getObject(index));
         } else {
             colValue = super.getColumnValue(rs, index, pd);
         }

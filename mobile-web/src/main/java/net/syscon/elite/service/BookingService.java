@@ -3,6 +3,7 @@ package net.syscon.elite.service;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.service.validation.AttendanceTypesValid;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -23,6 +24,8 @@ public interface BookingService {
     Page<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);
 
     List<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
+
+    void updateAttendance(String offenderNo, Long activityId, @Valid @AttendanceTypesValid UpdateAttendance updateAttendance);
 
     Page<ScheduledEvent> getBookingVisits(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);
 
@@ -86,5 +89,4 @@ public interface BookingService {
     OffenderSummary createBooking(@Valid NewBooking newBooking);
 
     OffenderSummary recallBooking(@Valid RecallBooking recallBooking);
-
 }

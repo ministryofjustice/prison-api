@@ -3,6 +3,7 @@ package net.syscon.elite.repository;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,6 +28,12 @@ public interface BookingRepository {
     List<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
 
     List<ScheduledEvent> getBookingActivities(Collection<Long> bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
+
+    void updateAttendance(Long bookingId, Long activityId, UpdateAttendance updateAttendance, boolean paid, boolean authorisedAbsence);
+
+    LocalDate getAttendanceEventDate(Long activityId);
+
+    PayableAttendanceOutcomeDto getPayableAttendanceOutcome(String eventType, String outcomeCode);
 
     Page<ScheduledEvent> getBookingVisits(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);
 

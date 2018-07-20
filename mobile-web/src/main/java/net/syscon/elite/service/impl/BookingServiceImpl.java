@@ -6,13 +6,17 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.SentenceDetail.NonDtoReleaseDateType;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.NonDtoReleaseDate;
+import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
 import net.syscon.elite.service.support.ReferenceDomain;
+import net.syscon.elite.service.validation.AttendanceTypesValid;
+import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -219,6 +223,46 @@ public class BookingServiceImpl implements BookingService {
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
 
         return bookingRepository.getBookingActivities(bookingId, fromDate, toDate, sortFields, sortOrder);
+    }
+
+    @Transactional
+    @Override
+    @VerifyBookingAccess
+    public void updateAttendance(String offenderNo, Long activityId, @Valid @AttendanceTypesValid UpdateAttendance updateAttendance) {
+        OffenderSummary offenderSummary = getLatestBookingByOffenderNo(offenderNo);
+        validateActivity(activityId, offenderSummary);
+
+        // Copy flags from the PAYABLE_ATTENDANCE_OUTCOME reference table
+        final PayableAttendanceOutcomeDto activityOutcome = bookingRepository.getPayableAttendanceOutcome("PRISON_ACT", updateAttendance.getEventOutcome());
+        bookingRepository.updateAttendance(offenderSummary.getBookingId(), activityId, updateAttendance, activityOutcome.isPaid(), activityOutcome.isAuthorisedAbsence());
+    }
+
+    private void validateActivity(Long activityId, OffenderSummary offenderSummary) {
+        // Find details for activities for same offender and same day as this one
+        final LocalDate attendanceEventDate = bookingRepository.getAttendanceEventDate(activityId);
+        if (attendanceEventDate == null) {
+            throw EntityNotFoundException.withMessage("Activity Id %d not found", activityId);
+        }
+        final List<ScheduledEvent> bookingActivities = bookingRepository.getBookingActivities(
+                offenderSummary.getBookingId(), attendanceEventDate, attendanceEventDate, null, null);
+        final Optional<ScheduledEvent> thisEvent = bookingActivities.stream()
+                .filter(a -> a.getEventId() == activityId)
+                .findFirst();
+        if (!thisEvent.isPresent()) {
+            return;
+        }
+
+        // Narrow down to an already-paid activity in same slot
+        final TimeSlot timeSlot = CalcDateRanges.startTimeToTimeSlot(thisEvent.get().getStartTime());
+        final Optional<ScheduledEvent> paidActivity = bookingActivities.stream()
+                .filter(a -> CalcDateRanges.startTimeToTimeSlot(a.getStartTime()) == timeSlot)
+                .filter(a -> a.getPaid())
+                .findFirst();
+
+        if (paidActivity.isPresent()) {
+            throw new BadRequestException(String.format("Prisoner %s has already been paid for '%s'",
+                    offenderSummary.getOffenderNo(), paidActivity.get().getEventSourceDesc()));
+        }
     }
 
     @Override

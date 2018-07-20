@@ -11,6 +11,7 @@ import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.InmateDto;
 import net.syscon.elite.service.support.ReferenceDomain;
+import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -18,8 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -62,8 +61,6 @@ public class SchedulesServiceImpl implements SchedulesService {
         if(!inmates.isEmpty()) {
 
             final LocalDate day = date == null ? LocalDate.now() : date;
-            final LocalDateTime midday = midday(day);
-            final LocalDateTime evening = evening(day);
 
             final String orderFields = StringUtils.defaultString(sortFields, "cellLocation");
             Comparator<PrisonerSchedule> comparator = "cellLocation".equals(orderFields) ? BY_CELL_LOCATION : BY_LAST_NAME;
@@ -73,7 +70,7 @@ public class SchedulesServiceImpl implements SchedulesService {
             }
             comparator = comparator.thenComparing(PrisonerSchedule::getStartTime);
 
-            final List<PrisonerSchedule> prisonerSchedules = prisonerSchedules(inmates, timeSlot, day, midday, evening);
+            final List<PrisonerSchedule> prisonerSchedules = prisonerSchedules(inmates, timeSlot, day);
 
             return prisonerSchedules.stream()
                     .sorted(comparator)
@@ -96,15 +93,7 @@ public class SchedulesServiceImpl implements SchedulesService {
                 .collect(Collectors.toList());
     }
 
-    private LocalDateTime midday(LocalDate date) {
-        return LocalDateTime.of(date, LocalTime.of(12, 0));
-    }
-
-    private LocalDateTime evening(LocalDate date) {
-        return LocalDateTime.of(date, LocalTime.of(17, 0));
-    }
-
-    private List<PrisonerSchedule> prisonerSchedules(Collection<InmateDto> inmates, TimeSlot timeSlot, LocalDate date, LocalDateTime midday, LocalDateTime evening) {
+    private List<PrisonerSchedule> prisonerSchedules(Collection<InmateDto> inmates, TimeSlot timeSlot, LocalDate date) {
 
         Map<Long, InmateDto> bookingIdMap =
                 inmates.stream().collect(Collectors.toMap(InmateDto::getBookingId, inmateDto -> inmateDto));
@@ -112,16 +101,8 @@ public class SchedulesServiceImpl implements SchedulesService {
         final List<ScheduledEvent> eventsOnDay = bookingService.getEventsOnDay(bookingIdMap.keySet(), date);
 
         return eventsOnDay.stream()
-                .filter(event -> eventStartsInTimeslot(event.getStartTime(), timeSlot, midday, evening))
+                .filter(event -> CalcDateRanges.eventStartsInTimeslot(event.getStartTime(), timeSlot))
                 .map(event -> prisonerSchedule(bookingIdMap.get(event.getBookingId()), event)).collect(Collectors.toList());
-    }
-
-    private boolean eventStartsInTimeslot(LocalDateTime start, TimeSlot timeSlot,
-                                          LocalDateTime midday, LocalDateTime evening) {
-        return timeSlot == null
-                || (timeSlot == TimeSlot.AM && start.isBefore(midday))
-                || (timeSlot == TimeSlot.PM && !start.isBefore(midday) && start.isBefore(evening))
-                || (timeSlot == TimeSlot.ED && !start.isBefore(evening));
     }
 
     private PrisonerSchedule prisonerSchedule(InmateDto inmate, ScheduledEvent event) {
@@ -136,6 +117,10 @@ public class SchedulesServiceImpl implements SchedulesService {
                 .eventType(event.getEventType())
                 .eventDescription(event.getEventSubTypeDesc())//
                 .startTime(event.getStartTime())//
+                .eventId(event.getEventId())
+                .eventOutcome(event.getEventOutcome())
+                .performance(event.getPerformance())
+                .outcomeComment(event.getOutcomeComment())
                 .build();
     }
 
@@ -147,8 +132,6 @@ public class SchedulesServiceImpl implements SchedulesService {
         validateLocation(locationId);
         validateUsage(usage);
         final LocalDate day = date == null ? LocalDate.now() : date;
-        final LocalDateTime midday = midday(day);
-        final LocalDateTime evening = evening(day);
         final List<PrisonerSchedule> events;
         final String orderByFields = StringUtils.defaultString(sortFields, "lastName");
         final Order order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
@@ -167,7 +150,7 @@ public class SchedulesServiceImpl implements SchedulesService {
             return events;
         }
         return events.stream()
-                .filter(p -> eventStartsInTimeslot(p.getStartTime(), timeSlot, midday, evening))
+                .filter(p -> CalcDateRanges.eventStartsInTimeslot(p.getStartTime(), timeSlot))
                 .collect(Collectors.toList());
     }
 

@@ -4,6 +4,10 @@ properties:
   offenderNo:
     type: string
     description: Offender number (e.g. NOMS Number).
+  eventId?:
+    type: number
+    (javaType): Long
+    description: Activity id if any. Used to attend or pay the event.
   firstName:
     type: string
     description: Offender first name.
@@ -11,7 +15,7 @@ properties:
     type: string
     description: Offender last name.
   cellLocation:
-    type: String
+    type: string
     description: Offender cell.
   event:
     type: string
@@ -34,3 +38,15 @@ properties:
     type: datetime
     description: Date and time at which event ends
     example: 2017-09-13 11:30:00
+  eventOutcome?:
+    type: string
+    description: Attendance, possible values are the codes in the 'PS_PA_OC' reference domain.
+  performance?:
+    type: string
+    description: Possible values are the codes in the 'PERFORMANCE' reference domain.
+  outcomeComment?:
+    type: string
+    description: No-pay reason
+  paid?:
+    (javaType): Boolean
+    description: Activity paid flag.

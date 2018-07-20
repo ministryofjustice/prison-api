@@ -147,4 +147,24 @@ public class BookingActivitiesStepDefinitions extends AbstractStepDefinitions {
     public void badRequestResponseWithMessageIsReceivedFromBookingActivitiesAPI(String expectedUserMessage) throws Throwable {
         bookingActivities.verifyBadRequest(expectedUserMessage);
     }
+
+    @When("^a request is made to update attendance for offender id \"([^\"]*)\" and activity \"([^\"]*)\" with outcome \"([^\"]*)\", performance \"([^\"]*)\" and comment \"([^\"]*)\"$")
+    public void updateAttendance(String offenderNo, Long activityId, String outcome, String performance, String comment) throws Throwable {
+        bookingActivities.updateAttendance(offenderNo, activityId, outcome, performance, comment);
+    }
+
+    @Then("^the booking activities request is successful$")
+    public void success() throws Throwable {
+        bookingActivities.verifyNoError();
+    }
+
+    @And("^the saved attendance details can be retrieved correctly$")
+    public void verifySavedDetails() throws Throwable {
+        bookingActivities.verifySavedDetails();
+    }
+
+    @Then("^the booking activity is rejected as offender has already been paid for \"([^\"]*)\"$")
+    public void offenderAlreadyPaid(String paidActivity) throws Throwable {
+        bookingActivities.verifyOffenderAlreadyPaid(paidActivity);
+    }
 }

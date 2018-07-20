@@ -140,6 +140,12 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    public UpdateAttendanceResponse updateAttendance(String offenderNo, Long activityId, UpdateAttendance body) {
+        bookingService.updateAttendance(offenderNo, activityId, body);
+        return UpdateAttendanceResponse.respond201WithApplicationJson();
+    }
+
+    @Override
     public GetOffenderAlertsResponse getOffenderAlerts(Long bookingId, String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         Page<Alert> inmateAlerts = inmateAlertService.getInmateAlerts(
                 bookingId,
