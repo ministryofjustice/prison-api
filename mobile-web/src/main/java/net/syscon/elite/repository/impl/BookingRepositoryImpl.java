@@ -279,10 +279,15 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
 
     @Override
     public LocalDate getAttendanceEventDate(Long activityId) {
-        final Date result = jdbcTemplate.queryForObject(
-                getQuery("GET_ATTENDANCE_DATE"),
-                createParams("eventId", activityId),
-                Date.class);
+        final Date result;
+        try {
+            result = jdbcTemplate.queryForObject(
+                    getQuery("GET_ATTENDANCE_DATE"),
+                    createParams("eventId", activityId),
+                    Date.class);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
         return DateTimeConverter.toISO8601LocalDate(result);
     }
 

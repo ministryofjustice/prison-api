@@ -309,6 +309,7 @@ public class BookingRepositoryTest {
         assertThat(repository.getAttendanceEventDate(-3L)).isEqualTo("2017-09-13");
         assertThat(repository.getAttendanceEventDate(-4L)).isEqualTo("2017-09-14");
         assertThat(repository.getAttendanceEventDate(-5L)).isEqualTo("2017-09-15");
+        assertThat(repository.getAttendanceEventDate(-101L)).isNull();
     }
 
     @Test
