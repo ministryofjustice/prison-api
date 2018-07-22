@@ -65,8 +65,7 @@ public class AuthenticationSteps {
             assertThat(token).isNotNull();
         } catch (Exception ex) {
             token = null;
-            final ErrorResponse errorResponse = new ErrorResponse();
-            errorResponse.setStatus(401);
+            return ErrorResponse.builder().status(HttpStatus.UNAUTHORIZED.value()).build();
         }
         return ErrorResponse.builder().status(HttpStatus.CREATED.value()).build();
     }
