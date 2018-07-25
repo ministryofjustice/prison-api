@@ -138,13 +138,12 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
         config.setConfigId("net-syscon-elite2-api");
         config.setTitle("Syscon Elite2 API Documentation");
         config.setVersion("v2");
-        config.setContact("Syscon Sheffield Studio Development Team");
-        config.setSchemes(new String[] { "http", "https" });
-        config.setBasePath(this.apiPath);
+        config.setContact("HMPPS Sheffield Studio Development Team");
+        config.setSchemes(new String[] { "https" });
+        config.setBasePath(apiPath);
         config.setResourcePackage("net.syscon.elite.api");
         config.setPrettyPrint(true);
         config.setScan(true);
-        config.setBasePath("/api");
     }
 
     @Bean
