@@ -25,6 +25,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,6 +54,9 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
 
     @Value("${spring.jersey.application-path:/api}")
     private String apiPath;
+
+    @Autowired(required = false)
+    private BuildProperties buildProperties;
 
     @Value("${api.resource.packages}")
     private String[] apiResourcePackages;
@@ -136,15 +140,18 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
         BeanConfig config = new BeanConfig();
 
         config.setConfigId("net-syscon-elite2-api");
-        config.setTitle("Syscon Elite2 API Documentation");
-        config.setVersion("v2");
-        config.setContact("Syscon Sheffield Studio Development Team");
-        config.setSchemes(new String[] { "http", "https" });
-        config.setBasePath(this.apiPath);
+        config.setTitle("HMPPS Nomis API Documentation");
+        config.setVersion(getVersion());
+        config.setContact("HMPPS Sheffield Studio Development Team");
+        config.setSchemes(new String[] { "https" });
+        config.setBasePath(apiPath);
         config.setResourcePackage("net.syscon.elite.api");
         config.setPrettyPrint(true);
         config.setScan(true);
-        config.setBasePath("/api");
+    }
+
+    private String getVersion(){
+        return buildProperties == null ? "version not available" : buildProperties.getVersion();
     }
 
     @Bean
