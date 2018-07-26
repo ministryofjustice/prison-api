@@ -233,7 +233,7 @@ public class BookingServiceImpl implements BookingService {
         if (offenderSummary == null || offenderSummary.getBookingId() == null) {
             throw EntityNotFoundException.withMessage("Offender No %s not found", offenderNo);
         }
-
+        verifyBookingAccess(offenderSummary.getBookingId());
         validateActivity(activityId, offenderSummary);
 
         // Copy flags from the PAYABLE_ATTENDANCE_OUTCOME reference table

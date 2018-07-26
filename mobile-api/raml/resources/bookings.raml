@@ -158,6 +158,30 @@
     ]
 
   post:
+    (javaOperationName): createBookingCaseNote
+    description: Create case note for offender.
+    body:
+      application/json:
+        type: NewCaseNote
+    responses:
+      201:
+        body:
+          application/json:
+            type: CaseNote
+            description: The Case Note has been recorded. The updated object is returned including the status.
+      409:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: The case note has already been recorded under the booking. The current unmodified object (including status) is returned.
+
+/offenderNo/{offenderNo}/caseNotes:
+  description: Offender Case Notes by offenderNo
+  uriParameters:
+    offenderNo:
+      type: string
+      description: The offenderNo of offender
+  post:
     (javaOperationName): createOffenderCaseNote
     description: Create case note for offender.
     body:

@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -88,7 +89,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
 	@Override
 	@VerifyBookingAccess
-    public CaseNote createCaseNote(Long bookingId, @Valid @CaseNoteTypeSubTypeValid NewCaseNote caseNote, String username) {
+    public CaseNote createCaseNote(Long bookingId, @NotNull @Valid @CaseNoteTypeSubTypeValid NewCaseNote caseNote, String username) {
     	final UserDetail userDetail = userService.getUserByUsername(username);
 		// TODO: For Elite - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
 		Long caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote, caseNoteSource, userDetail.getUsername(), userDetail.getStaffId());

@@ -288,8 +288,17 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     @PreAuthorize("#oauth2.hasScope('write')")
-    public CreateOffenderCaseNoteResponse createOffenderCaseNote(Long bookingId, NewCaseNote body) {
+    public CreateBookingCaseNoteResponse createBookingCaseNote(Long bookingId, NewCaseNote body) {
         CaseNote caseNote = caseNoteService.createCaseNote(bookingId, body, authenticationFacade.getCurrentUsername());
+
+        return CreateBookingCaseNoteResponse.respond201WithApplicationJson(caseNote);
+    }
+
+    @Override
+    @PreAuthorize("#oauth2.hasScope('write')")
+    public CreateOffenderCaseNoteResponse createOffenderCaseNote(String offenderNo, NewCaseNote body) {
+        final OffenderSummary latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
+        CaseNote caseNote = caseNoteService.createCaseNote(latestBookingByOffenderNo.getBookingId(), body, authenticationFacade.getCurrentUsername());
 
         return CreateOffenderCaseNoteResponse.respond201WithApplicationJson(caseNote);
     }
