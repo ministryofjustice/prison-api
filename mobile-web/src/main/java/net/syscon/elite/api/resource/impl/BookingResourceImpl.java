@@ -359,14 +359,12 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    @PreAuthorize("#oauth2.hasScope('write')")
     public CreateRelationshipResponse createRelationship(Long bookingId, OffenderRelationship relationshipDetail) {
         final Contact relationship = contactService.createRelationship(bookingId, relationshipDetail);
         return CreateRelationshipResponse.respond201WithApplicationJson(relationship);
     }
 
     @Override
-    @PreAuthorize("#oauth2.hasScope('write')")
     public CreateRelationshipByOffenderNoResponse createRelationshipByOffenderNo(String offenderNo, OffenderRelationship relationshipDetail) {
         final Contact relationship = contactService.createRelationshipByOffenderNo(offenderNo, relationshipDetail);
         return CreateRelationshipByOffenderNoResponse.respond201WithApplicationJson(relationship);

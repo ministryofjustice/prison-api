@@ -12,6 +12,7 @@ import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.ReferenceDomainService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,13 +71,14 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
+    @PreAuthorize("hasRole('CONTACT_CREATE')")
     public Contact createRelationshipByOffenderNo(String offenderNo, OffenderRelationship relationshipDetail) {
         Long bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
         return createRelationship(bookingId, relationshipDetail);
     }
 
     @Override
-    @VerifyBookingAccess
+    @PreAuthorize("hasRole('CONTACT_CREATE')")
     public Contact createRelationship(Long bookingId, OffenderRelationship relationshipDetail) {
 
         // Check relationship type exists - TODO: Move to validator
