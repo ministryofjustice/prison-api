@@ -121,6 +121,8 @@ public class SchedulesServiceImpl implements SchedulesService {
                 .eventOutcome(event.getEventOutcome())
                 .performance(event.getPerformance())
                 .outcomeComment(event.getOutcomeComment())
+                .paid(event.getPaid())
+                .payRate(event.getPayRate())
                 .build();
     }
 

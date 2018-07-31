@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
 import net.syscon.elite.web.config.PersistenceConfigs;
+import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +19,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -143,6 +146,14 @@ public class BookingRepositoryTest {
         Visit visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2011-12-11T16:00:00"));
 
         assertThat(visit).isNull();
+    }
+
+    @Test
+    public void testGetBookingActivities() {
+        List<ScheduledEvent> results = repository.getBookingActivities(-2L, LocalDate.parse("2011-12-11"), LocalDate.now(), null, null);
+
+        assertThat(results).asList().hasSize(7);
+        assertThat(results).asList().extracting("eventId", "payRate").contains(new Tuple(-11L, new BigDecimal("1.000")));//  .valueOf(1000,3)));
     }
 
     @Test
