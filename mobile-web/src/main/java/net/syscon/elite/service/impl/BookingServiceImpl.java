@@ -325,7 +325,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Long getBookingIdByOffenderNo(String offenderNo) {
         final Long bookingId = bookingRepository.getBookingIdByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
-        if (!isOverrideRole()) {
+        if (!isOverrideRole("GLOBAL_SEARCH", "SYSTEM_USER")) {
             verifyBookingAccess(bookingId);
         }
         return bookingId;
