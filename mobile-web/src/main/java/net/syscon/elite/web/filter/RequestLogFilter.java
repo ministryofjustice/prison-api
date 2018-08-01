@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.regex.Pattern;
 
 import static net.syscon.util.MdcUtility.*;
 
@@ -28,19 +29,19 @@ public class RequestLogFilter extends OncePerRequestFilter {
 
     private final MdcUtility mdcUtility;
 
-    @Value("${logging.uris.exclude.regex}")
-    private String excludeUriRegex;
+    private final Pattern excludeUriRegex;
 
     @Autowired
-    public RequestLogFilter(MdcUtility mdcUtility) {
+    public RequestLogFilter(MdcUtility mdcUtility, @Value("${logging.uris.exclude.regex}") String excludeUris) {
         this.mdcUtility = mdcUtility;
+        excludeUriRegex = Pattern.compile(excludeUris);
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        if (request.getRequestURI().matches(excludeUriRegex)) {
+        if (excludeUriRegex.matcher(request.getRequestURI()).matches()) {
             MDC.put(SKIP_LOGGING, "true");
         }
 
