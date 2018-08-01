@@ -99,10 +99,16 @@ public class OracleConnectionAspect {
         final OracleConnection oracleConnection = (OracleConnection) pooledConnection.unwrap(Connection.class);
 
         final Properties info = new Properties();
-        info.put(OracleConnection.PROXY_USER_NAME, authenticationFacade.getCurrentUsername());
+        String currentUsername = authenticationFacade.getCurrentUsername();
+        info.put(OracleConnection.PROXY_USER_NAME, currentUsername);
 
-        oracleConnection.openProxySession(OracleConnection.PROXYTYPE_USER_NAME, info);
-
+        try {
+            oracleConnection.openProxySession(OracleConnection.PROXYTYPE_USER_NAME, info);
+        } catch (Throwable e) {
+            log.error("User {} does not support Proxy Connection", currentUsername);
+            throw e;
+        }
+        log.debug("Proxy Connection for {} Successful", currentUsername);
         return oracleConnection;
     }
 
