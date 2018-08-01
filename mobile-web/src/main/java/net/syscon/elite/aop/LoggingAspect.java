@@ -2,6 +2,7 @@ package net.syscon.elite.aop;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.core.Constants;
+import net.syscon.util.MdcUtility;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -43,7 +44,7 @@ public class LoggingAspect {
     @Around("loggingPointcut()")
     public Object logAround(final ProceedingJoinPoint joinPoint) throws Throwable {
         LocalDateTime start = LocalDateTime.now();
-        if (log.isDebugEnabled()) {
+        if (log.isDebugEnabled() && MdcUtility.isLoggingAllowed()) {
             log.debug(
                     "Enter: {}.{}()",
                     joinPoint.getSignature().getDeclaringTypeName(),
@@ -51,7 +52,7 @@ public class LoggingAspect {
         }
         try {
             final Object result = joinPoint.proceed();
-            if (log.isDebugEnabled()) {
+            if (log.isDebugEnabled() && MdcUtility.isLoggingAllowed()) {
                 log.debug(
                         "Exit: {}.{}() - Duration {} ms",
                         joinPoint.getSignature().getDeclaringTypeName(),

@@ -2,6 +2,7 @@ package net.syscon.elite.aop.connectionproxy;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.security.AuthenticationFacade;
+import net.syscon.util.MdcUtility;
 import oracle.jdbc.driver.OracleConnection;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -42,17 +43,19 @@ public class OracleConnectionAspect {
     @Around("onNewConnectionPointcut()")
     public Object connectionAround(final ProceedingJoinPoint joinPoint) throws Throwable {
 
-        log.debug("Enter: {}.{}()", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
-
+        if (log.isDebugEnabled() && MdcUtility.isLoggingAllowed()) {
+            log.debug("Enter: {}.{}()", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
+        }
         final Connection pooledConnection = (Connection) joinPoint.proceed();
         try {
             final Connection connectionToReturn = openProxySessionIfIdentifiedAuthentication(pooledConnection);
 
-            log.debug(
-                    "Exit: {}.{}()",
-                    joinPoint.getSignature().getDeclaringTypeName(),
-                    joinPoint.getSignature().getName());
-
+            if (log.isDebugEnabled() && MdcUtility.isLoggingAllowed()) {
+                log.debug(
+                        "Exit: {}.{}()",
+                        joinPoint.getSignature().getDeclaringTypeName(),
+                        joinPoint.getSignature().getName());
+            }
             return connectionToReturn;
 
         } catch (final Throwable e) {

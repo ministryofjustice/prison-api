@@ -65,7 +65,7 @@
         <appender-ref ref="consoleAppender"/>
     </logger>
 
-    <logger name="com.zaxxer.hikari" additivity="false" level="DEBUG" >
+    <logger name="com.zaxxer.hikari" additivity="false" level="WARN" >
         <appender-ref ref="consoleAppender"/>
     </logger>
 

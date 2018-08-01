@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.util.MdcUtility;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -27,6 +28,9 @@ public class RequestLogFilter extends OncePerRequestFilter {
 
     private final MdcUtility mdcUtility;
 
+    @Value("${logging.uris.exclude.regex}")
+    private String excludeUriRegex;
+
     @Autowired
     public RequestLogFilter(MdcUtility mdcUtility) {
         this.mdcUtility = mdcUtility;
@@ -36,10 +40,16 @@ public class RequestLogFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        if (request.getRequestURI().matches(excludeUriRegex)) {
+            MDC.put(SKIP_LOGGING, "true");
+        }
+
         try {
             LocalDateTime start = LocalDateTime.now();
             MDC.put(REQUEST_ID, mdcUtility.generateCorrelationId());
-            log.debug("Request: {} {}", request.getMethod(), request.getRequestURI());
+            if (log.isDebugEnabled() && MdcUtility.isLoggingAllowed()) {
+                log.debug("Request: {} {}", request.getMethod(), request.getRequestURI());
+            }
 
             filterChain.doFilter(request, response);
 
@@ -47,11 +57,14 @@ public class RequestLogFilter extends OncePerRequestFilter {
             MDC.put(REQUEST_DURATION, String.valueOf(duration));
             int status = response.getStatus();
             MDC.put(RESPONSE_STATUS, String.valueOf(status));
-            log.debug("Response: {} {} - Status {} - Start {}, Duration {} ms", request.getMethod(), request.getRequestURI(), status, start.format(formatter), duration);
+            if (log.isDebugEnabled() && MdcUtility.isLoggingAllowed()) {
+                log.debug("Response: {} {} - Status {} - Start {}, Duration {} ms", request.getMethod(), request.getRequestURI(), status, start.format(formatter), duration);
+            }
         } finally {
             MDC.remove(REQUEST_DURATION);
             MDC.remove(RESPONSE_STATUS);
             MDC.remove(REQUEST_ID);
+            MDC.remove(SKIP_LOGGING);
         }
     }
 }

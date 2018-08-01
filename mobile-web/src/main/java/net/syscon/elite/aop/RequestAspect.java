@@ -1,6 +1,7 @@
 package net.syscon.elite.aop;
 
 import lombok.extern.slf4j.Slf4j;
+import net.syscon.util.MdcUtility;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -26,15 +27,19 @@ public class RequestAspect {
     public Object controllerCall(final ProceedingJoinPoint joinPoint) throws Throwable {
 
         LocalDateTime start = LocalDateTime.now();
-        log.debug("Enter: {}.{}() with argument[s] = {}",
-                joinPoint.getSignature().getDeclaringTypeName(),
-                joinPoint.getSignature().getName(), Arrays.toString(joinPoint.getArgs()));
-
+        if (MdcUtility.isLoggingAllowed()) {
+            log.debug("Enter: {}.{}() with argument[s] = {}",
+                    joinPoint.getSignature().getDeclaringTypeName(),
+                    joinPoint.getSignature().getName(), Arrays.toString(joinPoint.getArgs()));
+        }
         final Object result = joinPoint.proceed();
-        long duration = Duration.between(start, LocalDateTime.now()).toMillis();
-        log.debug("Exit: {}.{}() - Started: {}, Duration: {} ms",
-                joinPoint.getSignature().getDeclaringTypeName(),
-                joinPoint.getSignature().getName(), start.format(formatter), duration);
+
+        if (MdcUtility.isLoggingAllowed()) {
+            long duration = Duration.between(start, LocalDateTime.now()).toMillis();
+            log.debug("Exit: {}.{}() - Started: {}, Duration: {} ms",
+                    joinPoint.getSignature().getDeclaringTypeName(),
+                    joinPoint.getSignature().getName(), start.format(formatter), duration);
+        }
         return result;
 
     }
