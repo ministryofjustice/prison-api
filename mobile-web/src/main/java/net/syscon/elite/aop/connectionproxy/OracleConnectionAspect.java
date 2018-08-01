@@ -104,7 +104,7 @@ public class OracleConnectionAspect {
 
         try {
             oracleConnection.openProxySession(OracleConnection.PROXYTYPE_USER_NAME, info);
-        } catch (Throwable e) {
+        } catch (SQLException e) {
             log.error("User {} does not support Proxy Connection", currentUsername);
             throw e;
         }
