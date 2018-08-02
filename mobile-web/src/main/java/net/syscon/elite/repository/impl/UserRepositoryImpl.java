@@ -6,6 +6,7 @@ import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -14,6 +15,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -142,7 +144,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
 		jdbcTemplate.update(
 				getQuery("USER_ACCESSIBLE_CASELOAD_INSERT"),
-				createParams("caseloadId", caseload, "username", username));
+				createParams("caseloadId", caseload, "username", username, "startDate", DateTimeConverter.toDate(LocalDate.now())));
 	}
 
 	@Override
