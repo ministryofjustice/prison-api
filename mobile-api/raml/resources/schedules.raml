@@ -47,3 +47,51 @@
   is: [
       sortable: {fieldsList : "cellLocation or lastName"},
   ]
+
+
+/{agencyId}/visits:
+  (javaOperationName): getVisits
+  uriParameters:
+    agencyId:
+      type: string
+      description: The prison.
+  get:
+    queryParameters:
+      date?:
+        type : date-only
+        description: Date of whereabouts list, default today
+      timeSlot?:
+        type : enum
+        (javaType): TimeSlot
+        description: AM, PM or ED
+      offenderNo?:
+        type: array
+        (javaType): List<String>
+        description: The required offender numbers
+        example: offenderNo=A1234AA&offenderNo=A1234AB
+  type: { readOnlyCollection: { type: PrisonerSchedule, description: Get all Prisoner events for given date at location. } }
+
+
+
+
+/{agencyId}/appointments:
+  (javaOperationName): getAppointments
+  uriParameters:
+    agencyId:
+      type: string
+      description: The prison.
+  get:
+    queryParameters:
+      date?:
+        type : date-only
+        description: Date of whereabouts list, default today
+      timeSlot?:
+        type : enum
+        (javaType): TimeSlot
+        description: AM, PM or ED
+      offenderNo:
+        type: array
+        (javaType): List<String>
+        description: The required offender numbers
+        example: offenderNo=A1234AA&offenderNo=A1234AB
+  type: { readOnlyCollection: { type: PrisonerSchedule, description: Get all Prisoner events for given date at location. } }

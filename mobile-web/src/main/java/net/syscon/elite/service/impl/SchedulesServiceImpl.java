@@ -14,12 +14,14 @@ import net.syscon.elite.service.support.ReferenceDomain;
 import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.logging.Filter;
 import java.util.stream.Collectors;
 
 /**
@@ -146,9 +148,38 @@ public class SchedulesServiceImpl implements SchedulesService {
                 events = scheduleRepository.getLocationActivities(locationId, day, day, orderByFields, order);
                 break;
         }
+
+        return FilterByTimeSlot(timeSlot, events);
+    }
+
+    @Override
+    public List<PrisonerSchedule> getVisits(String agencyId,List<String> offenderNo, LocalDate date, TimeSlot timeSlot) {
+
+        Validate.notBlank(agencyId, "An agency id is required.");
+        Validate.notEmpty(offenderNo, "Offender numbers are required.");
+
+        List<PrisonerSchedule> visits = scheduleRepository.getVisits(agencyId, offenderNo, date);
+
+        return FilterByTimeSlot(timeSlot, visits);
+    }
+
+    @Override
+    public List<PrisonerSchedule> getAppointments(String agencyId, List<String> offenderNo, LocalDate date, TimeSlot timeSlot) {
+
+        Validate.notBlank(agencyId, "An agency id is required.");
+        Validate.notEmpty(offenderNo, "Offender numbers are required.");
+
+        List<PrisonerSchedule> appointments = scheduleRepository.getAppointments(agencyId, offenderNo, date);
+
+        return FilterByTimeSlot(timeSlot, appointments);
+    }
+
+    private List<PrisonerSchedule> FilterByTimeSlot(TimeSlot timeSlot, List<PrisonerSchedule> events) {
+
         if (timeSlot == null) {
             return events;
         }
+
         return events.stream()
                 .filter(p -> CalcDateRanges.eventStartsInTimeslot(p.getStartTime(), timeSlot))
                 .collect(Collectors.toList());
