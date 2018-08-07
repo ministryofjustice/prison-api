@@ -50,12 +50,12 @@
 
 
 /{agencyId}/visits:
-  (javaOperationName): getVisits
-  uriParameters:
-    agencyId:
-      type: string
-      description: The prison.
-  get:
+  post:
+    (javaOperationName): getVisits
+    uriParameters:
+      agencyId:
+        type: string
+        description: The prison.
     queryParameters:
       date?:
         type : date-only
@@ -64,23 +64,25 @@
         type : enum
         (javaType): TimeSlot
         description: AM, PM or ED
-      offenderNo?:
-        type: array
-        (javaType): List<String>
-        description: The required offender numbers
-        example: offenderNo=A1234AA&offenderNo=A1234AB
-  type: { readOnlyCollection: { type: PrisonerSchedule, description: Get all Prisoner events for given date at location. } }
-
+    body:
+      application/json:
+           (javaType): List<String>
+           description: The required offender numbers (mandatory)
+    responses:
+          200:
+            body:
+              application/json:
+                 type: PrisonerSchedule[]
 
 
 
 /{agencyId}/appointments:
-  (javaOperationName): getAppointments
-  uriParameters:
-    agencyId:
-      type: string
-      description: The prison.
-  get:
+  post:
+    (javaOperationName): getAppointments
+    uriParameters:
+      agencyId:
+        type: string
+        description: The prison.
     queryParameters:
       date?:
         type : date-only
@@ -89,9 +91,12 @@
         type : enum
         (javaType): TimeSlot
         description: AM, PM or ED
-      offenderNo:
-        type: array
-        (javaType): List<String>
-        description: The required offender numbers
-        example: offenderNo=A1234AA&offenderNo=A1234AB
-  type: { readOnlyCollection: { type: PrisonerSchedule, description: Get all Prisoner events for given date at location. } }
+    body:
+      application/json:
+           (javaType): List<String>
+           description: The required offender numbers (mandatory)
+    responses:
+          200:
+            body:
+              application/json:
+                 type: PrisonerSchedule[]
