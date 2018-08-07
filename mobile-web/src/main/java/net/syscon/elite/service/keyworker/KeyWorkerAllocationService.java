@@ -19,7 +19,9 @@ public interface KeyWorkerAllocationService {
 
     List<KeyWorkerAllocationDetail> getAllocationsForCurrentCaseload(String username);
 
-    List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworker(Long staffId, String agencyId);
+    List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworkers(List<Long> staffIds, String agencyId);
+
+    List<KeyWorkerAllocationDetail> getAllocationDetailsForOffenders(List<String> offenderNos, String agencyId);
 
     Page<OffenderKeyWorker> getAllocationHistoryByAgency(String agencyId, PageRequest pageRequest);
 }

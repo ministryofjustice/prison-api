@@ -15,6 +15,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,11 +60,26 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
 
     @Override
     public List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworker(Long staffId, List<String> agencyIds) {
-        String sql = getQuery("GET_ALLOCATION_DETAIL_FOR_KEY_WORKER");
+        return getAllocationDetailsForKeyworkers(Collections.singletonList(staffId), agencyIds);
+    }
+
+    @Override
+    public List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworkers(List<Long> staffIds, List<String> agencyIds) {
+        String sql = getQuery("GET_ALLOCATION_DETAIL_FOR_KEY_WORKERS");
 
         return jdbcTemplate.query(
                 sql,
-                createParams("staffId", staffId, "agencyIds", agencyIds),
+                createParams("staffIds", staffIds, "agencyIds", agencyIds),
+                KEY_WORKER_ALLOCATION_DETAIL_ROW_MAPPER);
+    }
+
+    @Override
+    public List<KeyWorkerAllocationDetail> getAllocationDetailsForOffenders(List<String> offenderNos, List<String> agencyIds) {
+        String sql = getQuery("GET_ALLOCATION_DETAIL_FOR_OFFENDERS");
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("offenderNos", offenderNos, "agencyIds", agencyIds),
                 KEY_WORKER_ALLOCATION_DETAIL_ROW_MAPPER);
     }
 
