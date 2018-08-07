@@ -7,15 +7,19 @@ Feature: Booking Details
   Background:
     Given a user has authenticated with the API
 
-  Scenario Outline: Request for specific offender booking record - assigned officer
+  Scenario Outline: Request for specific offender booking record - assigned officer, CSRA and category
     When an offender booking request is made with booking id "<bookingId>"
     Then booking number of offender booking returned is "<bookingNo>"
     And assigned officer id of offender booking returned is "<assignedOfficerId>"
+    And the CSRA is "<csra>"
+    And the category is "<category>"
 
     Examples:
-      | bookingId | bookingNo | assignedOfficerId |
-      | -1        | A00111    | -1                |
-      | -8        | A00118    | -1                |
+      | bookingId | bookingNo | assignedOfficerId | csra | category |
+      | -1        | A00111    | -1                | High | Low      |
+      | -2        | A00112    | -1                |      |          |
+      | -3        | A00113    | -1                | Low  |          |
+      | -8        | A00118    | -1                |      |          |
 
   Scenario Outline: Request for specific offender booking record basic details only
     When a basic offender booking request is made with booking id "<bookingId>"
@@ -122,6 +126,10 @@ Feature: Booking Details
   Scenario: Request for assessment information with empty list of offenders (using post request which allows large sets of offenders)
     When an offender booking assessment information POST request is made with offender numbers "" and "CSR"
     Then bad request response is received from booking assessments API
+
+  Scenario: Request for CSRAs for multiple offenders (using post request which allows large sets of offenders)
+    When an offender booking CSRA information POST request is made with offender numbers "A1234AA,A1234AB,A1234AC,A1234AD,A1234AE,A1234AF,A1234AG,A1234AP,NEXIST"
+    Then correct results are returned as for single assessment
 
   @nomis
   Scenario Outline: Request for specific offender booking record returns religion

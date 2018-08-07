@@ -37,6 +37,15 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
         return PostOffenderAssessmentsAssessmentCodeResponse.respond200WithApplicationJson(results);
     }
 
+    @Override
+    public PostOffenderAssessmentsCsraListResponse postOffenderAssessmentsCsraList(List<String> offenderList) {
+
+        validateOffenderList(offenderList);
+
+        final List<Assessment> results = inmateService.getInmatesCSRAs(offenderList);
+        return PostOffenderAssessmentsCsraListResponse.respond200WithApplicationJson(results);
+    }
+
     private void validateOffenderList(List offenderList) {
         if (Collections.isEmpty(offenderList)) {
             throw new BadRequestException("List of Offender Ids must be provided.");

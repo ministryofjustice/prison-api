@@ -125,7 +125,13 @@ public class BookingAssessmentSteps extends CommonSteps {
         assessments = doMultipleResultApiCallWithPost(API_ASSESSMENTS_PREFIX + assessmentCode, offenderList);
     }
 
+    public void getCsrasUsingPost(String offenders) {
+        List<String> offenderList = StringUtils.isNotBlank(offenders) ? ImmutableList.copyOf(offenders.split(",")) : Collections.emptyList();
+        assessments = doMultipleResultApiCallWithPost(API_ASSESSMENTS_PREFIX + "csra/list", offenderList);
+    }
+
     public void verifyMultipleAssessments() {
+        verifyNoError();
         assertThat(assessments).asList()
                 .extracting("bookingId", "offenderNo", "classification", "assessmentCode", "cellSharingAlertFlag", "nextReviewDate")
                 .contains(tuple(-1L, "A1234AA", "High", "CSR", true, LocalDate.of(2018, Month.JUNE, 1)),
