@@ -121,8 +121,8 @@ public class KeyWorkerSteps extends CommonSteps{
         assertThat(allocationsList).asList()
         .extracting("bookingId", "offenderNo", "staffId", "firstName", "lastName", "internalLocationDesc", "agencyId", "assigned")
         .contains(
-            tuple(-28L, "A9876RS", -5L, "RODERICK", "STEWART", "LEI-H-1", "LEI", LocalDateTime.of(2017, Month.JANUARY, 1,11,14)),
-            tuple(-31L, "A5576RS", -5L, "HARRY", "SARLY", "LEI-H-1", "LEI", LocalDateTime.of(2017, Month.MAY, 1,11,14)),
-            tuple(-32L, "A1176RS", -5L, "FRED", "JAMES", "LEI-H-1", "LEI", LocalDateTime.of(2017, Month.JUNE, 1,12,14)));
+            tuple(-28L, "A9876RS", -5L, "RODERICK", "STEWART", "H-1", "LEI", LocalDateTime.of(2017, Month.JANUARY, 1,11,14)),
+            tuple(-31L, "A5576RS", -5L, "HARRY", "SARLY", "H-1", "LEI", LocalDateTime.of(2017, Month.MAY, 1,11,14)),
+            tuple(-32L, "A1176RS", -5L, "FRED", "JAMES", "H-1", "LEI", LocalDateTime.of(2017, Month.JUNE, 1,12,14)));
     }
 }
