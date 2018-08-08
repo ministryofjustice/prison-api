@@ -49,7 +49,7 @@ public class ContactServiceImpl implements ContactService {
         Comparator<Contact> sortCriteria = (c1, c2) -> Boolean.compare(
                 c2.getEmergencyContact(), c1.getEmergencyContact());
 
-        sortCriteria = sortCriteria.thenComparing(Comparator.comparing(Contact::getLastName));
+        sortCriteria = sortCriteria.thenComparing(Contact::getLastName);
 
         final List<Contact> list = contacts.stream()
                 .filter(Contact::getNextOfKin)

@@ -36,3 +36,13 @@ Feature: Key worker details
     When a key worker allocations request is made with nomis ids "A9876RS,A5576RS,A1176RS" and agency "LEI"
     Then the correct key worker allocations are returned
     And the key worker has 3 allocations
+
+@wip
+  Scenario: Request for key worker allocation history for multiple staff Ids
+    When a key worker allocation history request is made with staff ids "-5,-4"
+    Then the key worker has 12 allocation history entries
+
+@wip
+  Scenario: Request for key worker allocation history for multiple offender Nos
+    When a key worker allocation history request is made with nomis ids "A9876RS,A5576RS,A1176RS,A1234AP"
+    Then the key worker has 5 allocation history entries

@@ -2,6 +2,7 @@ package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.KeyWorkerAllocationDetail;
 import net.syscon.elite.api.model.Keyworker;
+import net.syscon.elite.api.model.OffenderKeyWorker;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
@@ -17,6 +18,8 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 public class KeyWorkerSteps extends CommonSteps{
+    private static final String ALLOCATION_HISTORY_URL_FOR_STAFF = API_PREFIX + "key-worker/staff/allocationHistory";
+    private static final String ALLOCATION_HISTORY_URL_FOR_OFFENDERS = API_PREFIX + "key-worker/offenders/allocationHistory";
     private static final String KEY_WORKER_API_URL_WITH_AGENCY_PARAM = API_PREFIX + "key-worker/%s/available";
     private static final String KEY_WORKER_API_DETAILS = API_PREFIX + "key-worker/{staffId}";
     private static final String KEY_WORKER_API_URL_WITH_STAFF_ID_PARAM = API_PREFIX + "key-worker/{staffId}/agency/{agencyId}/offenders";
@@ -26,6 +29,7 @@ public class KeyWorkerSteps extends CommonSteps{
     private List<Keyworker> keyworkerList;
     private Keyworker keyworker;
     private List<KeyWorkerAllocationDetail> allocationsList;
+    private List<OffenderKeyWorker> allocationHistoryList;
 
     public void getAvailableKeyworkersList(String agencyId) {
         doListApiCall(agencyId);
@@ -76,6 +80,16 @@ public class KeyWorkerSteps extends CommonSteps{
         }
     }
 
+    private void doAllocationHistoryApiCallByStaffList(List<Long> staffIds) {
+        init();
+        callPostApiForAllocationHistory(ALLOCATION_HISTORY_URL_FOR_STAFF, staffIds);
+    }
+
+    private void doAllocationHistoryApiCallByOffenderList(List<String> offenderNos) {
+        init();
+        callPostApiForAllocationHistory(ALLOCATION_HISTORY_URL_FOR_OFFENDERS, offenderNos);
+    }
+
     private void doAllocationsApiCallByStaffList(List<Long> staffIds, String agencyId) {
         init();
         callPostApiForAllocations(KEY_WORKER_CURRENT_ALLOCS_BY_STAFF, staffIds, agencyId);
@@ -98,6 +112,24 @@ public class KeyWorkerSteps extends CommonSteps{
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
             allocationsList = response.getBody();
+
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    private void callPostApiForAllocationHistory(String url, List<?> lists) {
+        try {
+            ResponseEntity<List<OffenderKeyWorker>> response =
+                    restTemplate.exchange(
+                            url,
+                            HttpMethod.POST,
+                            createEntity(lists, null),
+                            new ParameterizedTypeReference<List<OffenderKeyWorker>>() {});
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+            allocationHistoryList= response.getBody();
 
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
@@ -143,6 +175,11 @@ public class KeyWorkerSteps extends CommonSteps{
         assertThat(allocationsList).hasSize(expectedAllocationCount);
     }
 
+    @Step("Verify number of offender allocation history for Key worker")
+    public void verifyKeyWorkerAllocationHistoryCount(int expectedAllocationCount) {
+        assertThat(allocationHistoryList).hasSize(expectedAllocationCount);
+    }
+
     public void getKeyworkerAllocations(Long staffId, String agencyId) {
         doAllocationsApiCall(staffId, agencyId);
     }
@@ -153,6 +190,14 @@ public class KeyWorkerSteps extends CommonSteps{
 
     public void getKeyworkerAllocationsByOffenderNos(List<String> offenderNos, String agencyId) {
         doAllocationsApiCallByOffenderList(offenderNos, agencyId);
+    }
+
+    public void getKeyworkerAllocationHistoryByStaffIds(List<Long> staffIds) {
+        doAllocationHistoryApiCallByStaffList(staffIds);
+    }
+
+    public void getKeyworkerAllocationHistoryByOffenderNos(List<String> offenderNos) {
+        doAllocationHistoryApiCallByOffenderList(offenderNos);
     }
 
     public void verifyKeyWorkerAllocations() {

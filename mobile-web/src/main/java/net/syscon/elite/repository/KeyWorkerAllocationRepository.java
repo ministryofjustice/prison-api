@@ -27,4 +27,8 @@ public interface KeyWorkerAllocationRepository {
     boolean checkKeyworkerExists(Long staffId);
 
     Page<OffenderKeyWorker> getAllocationHistoryByAgency(String agencyId, PageRequest pageRequest);
+
+    List<OffenderKeyWorker> getAllocationHistoryByOffenderNos(List<String> offenderNos);
+
+    List<OffenderKeyWorker> getAllocationHistoryByStaffIds(List<Long> staffIds);
 }

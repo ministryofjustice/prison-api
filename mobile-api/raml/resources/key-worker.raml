@@ -83,3 +83,49 @@
             application/json:
              type: KeyWorkerAllocationDetail[]
              description: Specified key worker's currently assigned offenders.
+
+/staff/allocationHistory:
+  type: {readOnlyCollection: {type: OffenderKeyWorker, description: All allocations in specified staffIds. }}
+  get:
+    queryParameters:
+      staffId:
+        type: array
+        (javaType): List<Long>
+        description: The required staff Ids
+        example: staffId=112123&staffId=133112
+  post:
+      description: Retrieves Specified key worker's currently allocation history - POST version to allow larger staff lists.
+      body:
+        application/json:
+          (javaType): List<Long>
+          description: The required staff Ids (mandatory)
+      responses:
+        200:
+          description: The allocations history list is returned.
+          body:
+            application/json:
+             type: OffenderKeyWorker[]
+             description: Specified key worker's allocation history
+
+/offenders/allocationHistory:
+  type: {readOnlyCollection: {type: OffenderKeyWorker, description: All allocations in specified offender nos }}
+  get:
+    queryParameters:
+      offenderNo:
+        type: array
+        (javaType): List<String>
+        description: The required staff Ids
+        example: offenderNo=AB1234SS&offenderNo=AC5423BD
+  post:
+      description: Retrieves Specified prisoners allocation history - POST version to allow larger allocation lists.
+      body:
+        application/json:
+          (javaType): List<String>
+          description: The required offender nos (mandatory)
+      responses:
+        200:
+          description: The allocations history list is returned.
+          body:
+            application/json:
+             type: OffenderKeyWorker[]
+             description: Specified prisoners allocation history
