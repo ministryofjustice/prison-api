@@ -357,12 +357,12 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         }
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, ASSESSMENT_MAPPER.getFieldMap());
 
-        String sql = builder
-                .addOrderBy(Order.DESC, "cellSharingAlertFlag")
+		String sql = builder
+				.addOrderBy(Order.DESC, "cellSharingAlertFlag")
+				.addOrderBy(Order.DESC, "assessmentDate")
 				.addOrderBy(Order.ASC, "assessmentCode")
-                .addOrderBy(Order.DESC, "assessmentDate,assessmentSeq")
-                .build();
-        
+				.build();
+
         final MapSqlParameterSource params = createParams(
                 idParam, ids,
                 "assessmentCode", assessmentCode,
