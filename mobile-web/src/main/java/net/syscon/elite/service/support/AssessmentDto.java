@@ -1,13 +1,14 @@
 package net.syscon.elite.service.support;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Data
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @EqualsAndHashCode(of = { "assessmentCode", "assessmentSeq", "assessmentDate", "bookingId", "offenderNo"})
 public class AssessmentDto {
     private Long bookingId;
