@@ -20,6 +20,8 @@ public class KeyWorkerSteps extends CommonSteps{
     private static final String KEY_WORKER_API_URL_WITH_AGENCY_PARAM = API_PREFIX + "key-worker/%s/available";
     private static final String KEY_WORKER_API_DETAILS = API_PREFIX + "key-worker/{staffId}";
     private static final String KEY_WORKER_API_URL_WITH_STAFF_ID_PARAM = API_PREFIX + "key-worker/{staffId}/agency/{agencyId}/offenders";
+    private static final String KEY_WORKER_CURRENT_ALLOCS_BY_STAFF = API_PREFIX + "key-worker/{agencyId}/current-allocations";
+    private static final String KEY_WORKER_CURRENT_ALLOCS_BY_OFFENDER = API_PREFIX + "key-worker/{agencyId}/current-allocations/offenders";
 
     private List<Keyworker> keyworkerList;
     private Keyworker keyworker;
@@ -74,6 +76,34 @@ public class KeyWorkerSteps extends CommonSteps{
         }
     }
 
+    private void doAllocationsApiCallByStaffList(List<Long> staffIds, String agencyId) {
+        init();
+        callPostApiForAllocations(KEY_WORKER_CURRENT_ALLOCS_BY_STAFF, staffIds, agencyId);
+    }
+
+    private void doAllocationsApiCallByOffenderList(List<String> offenderNos, String agencyId) {
+        init();
+        callPostApiForAllocations(KEY_WORKER_CURRENT_ALLOCS_BY_OFFENDER, offenderNos, agencyId);
+    }
+
+    private void callPostApiForAllocations(String url, List<?> lists, String agencyId) {
+        try {
+            ResponseEntity<List<KeyWorkerAllocationDetail>> response =
+                    restTemplate.exchange(
+                            url,
+                            HttpMethod.POST,
+                            createEntity(lists, null),
+                            new ParameterizedTypeReference<List<KeyWorkerAllocationDetail>>() {}, agencyId);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+            allocationsList = response.getBody();
+
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
     private void doDetailsApiCall(Long staffId) {
         init();
 
@@ -117,12 +147,20 @@ public class KeyWorkerSteps extends CommonSteps{
         doAllocationsApiCall(staffId, agencyId);
     }
 
+    public void getKeyworkerAllocationsByStaffIds(List<Long> staffIds, String agencyId) {
+        doAllocationsApiCallByStaffList(staffIds, agencyId);
+    }
+
+    public void getKeyworkerAllocationsByOffenderNos(List<String> offenderNos, String agencyId) {
+        doAllocationsApiCallByOffenderList(offenderNos, agencyId);
+    }
+
     public void verifyKeyWorkerAllocations() {
         assertThat(allocationsList).asList()
         .extracting("bookingId", "offenderNo", "staffId", "firstName", "lastName", "internalLocationDesc", "agencyId", "assigned")
         .contains(
-            tuple(-28L, "A9876RS", -5L, "RODERICK", "STEWART", "LEI-H-1", "LEI", LocalDateTime.of(2017, Month.JANUARY, 1,11,14)),
-            tuple(-31L, "A5576RS", -5L, "HARRY", "SARLY", "LEI-H-1", "LEI", LocalDateTime.of(2017, Month.MAY, 1,11,14)),
-            tuple(-32L, "A1176RS", -5L, "FRED", "JAMES", "LEI-H-1", "LEI", LocalDateTime.of(2017, Month.JUNE, 1,12,14)));
+            tuple(-28L, "A9876RS", -5L, "RODERICK", "STEWART", "H-1", "LEI", LocalDateTime.of(2017, Month.JANUARY, 1,11,14)),
+            tuple(-31L, "A5576RS", -5L, "HARRY", "SARLY", "H-1", "LEI", LocalDateTime.of(2017, Month.MAY, 1,11,14)),
+            tuple(-32L, "A1176RS", -5L, "FRED", "JAMES", "H-1", "LEI", LocalDateTime.of(2017, Month.JUNE, 1,12,14)));
     }
 }

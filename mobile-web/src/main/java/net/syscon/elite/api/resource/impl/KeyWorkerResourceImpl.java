@@ -10,6 +10,7 @@ import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
 
 import javax.ws.rs.Path;
+import java.util.Collections;
 import java.util.List;
 
 @RestResource
@@ -30,9 +31,37 @@ public class KeyWorkerResourceImpl implements KeyWorkerResource {
 
     @Override
     public GetAllocationsForKeyworkerResponse getAllocationsForKeyworker(Long staffId, String agencyId) {
-        final List<KeyWorkerAllocationDetail> allocationDetails = keyWorkerService.getAllocationDetailsForKeyworker(staffId, agencyId);
+        final List<KeyWorkerAllocationDetail> allocationDetails = keyWorkerService.getAllocationDetailsForKeyworkers(Collections.singletonList(staffId), agencyId);
 
         return GetAllocationsForKeyworkerResponse.respond200WithApplicationJson(allocationDetails);
+    }
+
+    @Override
+    public GetKeyWorkerAgencyIdCurrentAllocationsResponse getKeyWorkerAgencyIdCurrentAllocations(String agencyId, List<Long> staffIds) {
+        final List<KeyWorkerAllocationDetail> allocationDetails = keyWorkerService.getAllocationDetailsForKeyworkers(staffIds, agencyId);
+
+        return GetKeyWorkerAgencyIdCurrentAllocationsResponse.respond200WithApplicationJson(allocationDetails);
+    }
+
+    @Override
+    public GetKeyWorkerAgencyIdCurrentAllocationsOffendersResponse getKeyWorkerAgencyIdCurrentAllocationsOffenders(String agencyId, List<String> offenderNos) {
+        final List<KeyWorkerAllocationDetail> allocationDetails = keyWorkerService.getAllocationDetailsForOffenders(offenderNos, agencyId);
+
+        return GetKeyWorkerAgencyIdCurrentAllocationsOffendersResponse.respond200WithApplicationJson(allocationDetails);
+    }
+
+    @Override
+    public PostKeyWorkerAgencyIdCurrentAllocationsResponse postKeyWorkerAgencyIdCurrentAllocations(String agencyId, List<Long> staffIds) {
+        final List<KeyWorkerAllocationDetail> allocationDetails = keyWorkerService.getAllocationDetailsForKeyworkers(staffIds, agencyId);
+
+        return PostKeyWorkerAgencyIdCurrentAllocationsResponse.respond200WithApplicationJson(allocationDetails);
+    }
+
+    @Override
+    public PostKeyWorkerAgencyIdCurrentAllocationsOffendersResponse postKeyWorkerAgencyIdCurrentAllocationsOffenders(String agencyId, List<String> offenderNos) {
+        final List<KeyWorkerAllocationDetail> allocationDetails = keyWorkerService.getAllocationDetailsForOffenders(offenderNos, agencyId);
+
+        return PostKeyWorkerAgencyIdCurrentAllocationsOffendersResponse.respond200WithApplicationJson(allocationDetails);
     }
 
     @Override
