@@ -13,6 +13,7 @@ import java.util.List;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * BDD step implementations for Booking alias feature.
@@ -242,5 +243,10 @@ public class BookingDetailSteps extends CommonSteps {
 
     public void verifyAlertTypes(String types) {
         assertThat(inmateDetail.getAlertsCodes()).asList().containsAll(csv2list(types));
+    }
+
+    public void verifyField(String field, String value) throws ReflectiveOperationException {
+        assertNotNull(inmateDetail);
+        super.verifyField(inmateDetail, field, value);
     }
 }

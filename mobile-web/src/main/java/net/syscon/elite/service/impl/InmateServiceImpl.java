@@ -132,7 +132,17 @@ public class InmateServiceImpl implements InmateService {
         formatLocationDescription(assignedLivingUnit);
         inmate.setAssignedLivingUnit(assignedLivingUnit);
         setAlertsFields(inmate);
-        inmate.setAssessments(getAssessments(bookingId));
+
+        final List<Assessment> assessments = getAssessments(bookingId);
+        inmate.setAssessments(assessments);
+        final Assessment csra = findCSRA(assessments);
+        if (csra != null) {
+            inmate.setCsra(csra.getClassification());
+        }
+        final Optional<Assessment> category = findCategory(assessments);
+        if (category.isPresent()) {
+            inmate.setCategory(category.get().getClassification());
+        }
 
         //TODO: Remove once KW service available - Nomis only!
         boolean nomisProfile = Arrays.stream(env.getActiveProfiles()).anyMatch(p -> p.contains("nomis"));
@@ -249,17 +259,50 @@ public class InmateServiceImpl implements InmateService {
             batch.forEach(offenderBatch -> {
                 final List<AssessmentDto> assessments = repository.findAssessmentsByOffenderNo(offenderBatch, assessmentCode, caseLoadIds);
 
+                // Note this grouping works on the assumption that the DB order of the assessments is preserved
                 final Map<Long, List<AssessmentDto>> mapOfBookings = assessments.stream()
                         .collect(Collectors.groupingBy(AssessmentDto::getBookingId));
 
                 for (List<AssessmentDto> assessmentForCodeType : mapOfBookings.values()) {
 
-                    // The 1st is the most recent date / seq for each booking
+                    // The first is the most recent date / seq for each booking where cellSharingAlertFlag = Y
                     results.add(createAssessment(assessmentForCodeType.get(0)));
                 }
             });
         }
         return results;
+    }
+
+    @Override
+    public List<Assessment> getInmatesCSRAs(List<String> offenderNos) {
+        List<Assessment> results = getInmatesAssessmentsByCode(offenderNos, null);
+        final Map<String, List<Assessment>> mapOfOffenderNos = results.stream()
+                .collect(Collectors.groupingBy(Assessment::getOffenderNo));
+
+        List<Assessment> csras = new ArrayList<>();
+        for (List<Assessment> assessmentsForOffender : mapOfOffenderNos.values()) {
+
+            // Find the most recent assessment with cell sharing = true, regardless of code for each offender
+            final Assessment csra = findCSRA(assessmentsForOffender);
+            if (csra != null) {
+                csras.add(csra);
+            }
+        }
+        return csras;
+    }
+
+    private Assessment findCSRA(List<Assessment> assessmentsForOffender) {
+        Assessment latest = null;
+        for (Assessment a : assessmentsForOffender) {
+            if (a.getCellSharingAlertFlag() && (latest == null || a.getAssessmentDate().isAfter(latest.getAssessmentDate()))) {
+                latest = a;
+            }
+        }
+        return latest;
+    }
+
+    private Optional<Assessment> findCategory(List<Assessment> assessmentsForOffender) {
+        return assessmentsForOffender.stream().filter(a -> "CATEGORY".equals(a.getAssessmentCode())).findFirst();
     }
 
     private Map<String, List<AssessmentDto>> getAssessmentsAsMap(Long bookingId) {
