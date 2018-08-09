@@ -37,32 +37,6 @@ public class KeyWorkerResourceImpl implements KeyWorkerResource {
     }
 
     @Override
-    public GetKeyWorkerAgencyIdCurrentAllocationsResponse getKeyWorkerAgencyIdCurrentAllocations(String agencyId, List<Long> staffIds) {
-        final List<KeyWorkerAllocationDetail> allocationDetails = keyWorkerService.getAllocationDetailsForKeyworkers(staffIds, agencyId);
-
-        return GetKeyWorkerAgencyIdCurrentAllocationsResponse.respond200WithApplicationJson(allocationDetails);
-    }
-
-    @Override
-    public GetKeyWorkerAgencyIdCurrentAllocationsOffendersResponse getKeyWorkerAgencyIdCurrentAllocationsOffenders(String agencyId, List<String> offenderNos) {
-        final List<KeyWorkerAllocationDetail> allocationDetails = keyWorkerService.getAllocationDetailsForOffenders(offenderNos, agencyId);
-
-        return GetKeyWorkerAgencyIdCurrentAllocationsOffendersResponse.respond200WithApplicationJson(allocationDetails);
-    }
-
-    @Override
-    public GetKeyWorkerOffendersAllocationHistoryResponse getKeyWorkerOffendersAllocationHistory(List<String> offenderNos) {
-        List<OffenderKeyWorker> allocHistory = keyWorkerService.getAllocationHistoryByOffenderNos(offenderNos);
-        return GetKeyWorkerOffendersAllocationHistoryResponse.respond200WithApplicationJson(allocHistory);
-    }
-
-    @Override
-    public GetKeyWorkerStaffAllocationHistoryResponse getKeyWorkerStaffAllocationHistory(List<Long> staffId) {
-        List<OffenderKeyWorker> allocHistory = keyWorkerService.getAllocationHistoryByStaffIds(staffId);
-        return GetKeyWorkerStaffAllocationHistoryResponse.respond200WithApplicationJson(allocHistory);
-    }
-
-    @Override
     public PostKeyWorkerAgencyIdCurrentAllocationsResponse postKeyWorkerAgencyIdCurrentAllocations(String agencyId, List<Long> staffIds) {
         final List<KeyWorkerAllocationDetail> allocationDetails = keyWorkerService.getAllocationDetailsForKeyworkers(staffIds, agencyId);
 

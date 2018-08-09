@@ -29,19 +29,11 @@
       example: BWI
 
 /{agencyId}/current-allocations:
-  type: {readOnlyCollection: {type: KeyWorkerAllocationDetail, description: Specified key worker's currently assigned offenders. }}
   uriParameters:
     agencyId:
       type: string
       description: The agency (prison) identifier.
       example: MDI
-  get:
-    queryParameters:
-      staffId:
-        type: array
-        (javaType): List<Long>
-        description: The required staff Ids
-        example: staffId=112123&staffId=133112
   post:
       description: Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.
       body:
@@ -57,19 +49,11 @@
              description: Specified key worker's currently assigned offenders.
 
 /{agencyId}/current-allocations/offenders:
-  type: {readOnlyCollection: {type: KeyWorkerAllocationDetail, description: Specified key worker's currently assigned offenders. }}
   uriParameters:
     agencyId:
       type: string
       description: The agency (prison) identifier.
       example: MDI
-  get:
-    queryParameters:
-      offenderNo:
-        type: array
-        (javaType): List<String>
-        description: The required staff Ids
-        example: offenderNo=AB1234SS&offenderNo=AC5423BD
   post:
       description: Retrieves Specified key worker's currently assigned offenders - POST version to allow larger staff lists.
       body:
@@ -85,14 +69,6 @@
              description: Specified key worker's currently assigned offenders.
 
 /staff/allocationHistory:
-  type: {readOnlyCollection: {type: OffenderKeyWorker, description: All allocations in specified staffIds. }}
-  get:
-    queryParameters:
-      staffId:
-        type: array
-        (javaType): List<Long>
-        description: The required staff Ids
-        example: staffId=112123&staffId=133112
   post:
       description: Retrieves Specified key worker's currently allocation history - POST version to allow larger staff lists.
       body:
@@ -108,14 +84,6 @@
              description: Specified key worker's allocation history
 
 /offenders/allocationHistory:
-  type: {readOnlyCollection: {type: OffenderKeyWorker, description: All allocations in specified offender nos }}
-  get:
-    queryParameters:
-      offenderNo:
-        type: array
-        (javaType): List<String>
-        description: The required staff Ids
-        example: offenderNo=AB1234SS&offenderNo=AC5423BD
   post:
       description: Retrieves Specified prisoners allocation history - POST version to allow larger allocation lists.
       body:
