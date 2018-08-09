@@ -513,6 +513,16 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAssessment.verifyNextReviewDate(nextReviewDate);
     }
 
+    @And("^the CSRA is \"([^\"]*)\"$")
+    public void theCsraIs(String csra) throws ReflectiveOperationException {
+        bookingDetail.verifyField("csra", csra);
+    }
+
+    @And("^the category is \"([^\"]*)\"$")
+    public void theCategoryIs(String category) throws ReflectiveOperationException {
+        bookingDetail.verifyField("category", category);
+    }
+
     @When("^an offender booking assessment information request is made with offender numbers \"([^\"]*)\" and \"([^\"]*)\"$")
     public void anOffenderBookingAssessmentInformationRequestIsMadeWithBookingIdAnd(String offenderNoList, String assessmentCode) {
         bookingAssessment.getAssessmentsByCode(offenderNoList, assessmentCode);
@@ -521,6 +531,11 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @When("^an offender booking assessment information POST request is made with offender numbers \"([^\"]*)\" and \"([^\"]*)\"$")
     public void anOffenderBookingAssessmentInformationRequestIsMadeUsingPost(String offenderNoList, String assessmentCode) {
         bookingAssessment.getAssessmentsByCodeUsingPost(offenderNoList, assessmentCode);
+    }
+
+    @When("^an offender booking CSRA information POST request is made with offender numbers \"([^\"]*)\"$")
+    public void anOffenderBookingCSRAInformationRequestIsMadeUsingPost(String offenderNoList) {
+        bookingAssessment.getCsrasUsingPost(offenderNoList);
     }
 
     @Then("^bad request response is received from booking assessments API$")

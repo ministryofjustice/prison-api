@@ -42,4 +42,20 @@ public class SchedulesResourceImpl implements ScheduleResource {
 
         return GetLocationEventsResponse.respond200WithApplicationJson(events);
     }
+
+
+    @Override
+    public GetAppointmentsResponse getAppointments(String agencyId, List<String> body, LocalDate date, TimeSlot timeSlot) {
+        final List<PrisonerSchedule> appointments = schedulesService.getAppointments(agencyId, body, date, timeSlot);
+
+        return GetAppointmentsResponse.respond200WithApplicationJson(appointments);
+    }
+
+    @Override
+    public GetVisitsResponse getVisits(String agencyId, List<String> body, LocalDate date, TimeSlot timeSlot) {
+        final List<PrisonerSchedule> visits = schedulesService.getVisits(agencyId, body, date, timeSlot);
+
+        return GetVisitsResponse.respond200WithApplicationJson(visits);
+    }
+
 }
