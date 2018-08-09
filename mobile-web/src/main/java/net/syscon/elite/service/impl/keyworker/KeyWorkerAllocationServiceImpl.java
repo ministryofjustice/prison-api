@@ -111,4 +111,27 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
         return repository.getAllocationHistoryByAgency(agencyId, pageRequest);
     }
 
+    @Override
+    public List<OffenderKeyWorker> getAllocationHistoryByStaffIds(List<Long> staffIds) {
+        Validate.notEmpty(staffIds, "At least 1 staff Id is required.");
+        List<OffenderKeyWorker> allocations = repository.getAllocationHistoryByStaffIds(staffIds);
+        return allocations.stream()
+                .sorted(Comparator
+                        .comparing(OffenderKeyWorker::getOffenderNo)
+                        .thenComparing(OffenderKeyWorker::getAssigned).reversed())
+                .collect(Collectors.toList());
+
+    }
+
+    @Override
+    public List<OffenderKeyWorker> getAllocationHistoryByOffenderNos(List<String> offenderNos) {
+        Validate.notEmpty(offenderNos, "At lease 1 offender no is required.");
+        List<OffenderKeyWorker> allocations = repository.getAllocationHistoryByOffenderNos(offenderNos);
+        return allocations.stream()
+                .sorted(Comparator
+                        .comparing(OffenderKeyWorker::getOffenderNo)
+                        .thenComparing(OffenderKeyWorker::getAssigned).reversed())
+                .collect(Collectors.toList());
+    }
+
 }
