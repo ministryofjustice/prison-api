@@ -1,5 +1,6 @@
 package net.syscon.elite.executablespecification;
 
+import cucumber.api.PendingException;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -199,5 +200,36 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
     @Given("^an agency which does not exists has been set")
     public void anAgencyWhichDoesNotExists() throws Throwable {
        schedulesSteps.givenNoneExistentAgency();
+    }
+
+    @Given("^an offender with scheduled visits$")
+    public void anOffenderWithScheduledVisits() throws Throwable {
+        //test data setup
+    }
+
+    @When("^visits are requested with a valid agency with a time slot \"([^\"]*)\" and offender numbers \"([^\"]*)\"$")
+    public void visitsAreRequestedWithAValidAgencyWithATimeSlotAndOffenderNumbers(String timeSlot, String offenderNo) throws Throwable {
+        schedulesSteps.getVisits(offenderNo, timeSlot);
+    }
+
+    @Then("^the following visits should be returned \"([^\"]*)\"$")
+    public void theFollowingVisitsShouldBeReturned(String visits) throws Throwable {
+       this.schedulesSteps.verifyVisits(visits);
+    }
+
+    @Given("^an offender with scheduled appointments$")
+    public void anOffenderWithScheduledAppointments() throws Throwable {
+        //test data setup
+    }
+
+    @When("^appointments are requested with a valid agency with a time slot \"([^\"]*)\" and offender numbers \"([^\"]*)\"$")
+    public void appointmentsAreRequestedWithAValidAgencyWithATimeSlotAndOffenderNumbers(String timeSlot, String offenderNo) throws Throwable {
+        schedulesSteps.getAppointments(offenderNo, timeSlot);
+    }
+
+    @Then("^the following appointments should be returned \"([^\"]*)\"$")
+    public void theFollowingAppointmentsShouldBeReturned(String appointments) throws Throwable {
+        this.schedulesSteps.verifyAppointments(appointments);
+
     }
 }
