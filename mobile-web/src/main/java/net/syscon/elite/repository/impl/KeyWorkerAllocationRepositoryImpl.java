@@ -117,4 +117,29 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
 
         return new Page<>(results, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
+
+    @Override
+    public List<OffenderKeyWorker> getAllocationHistoryByOffenderNos(List<String> offenderNos) {
+        Validate.notEmpty(offenderNos, "At least 1 offender No is required.");
+
+        String sql = getQuery("GET_ALLOCATION_HISTORY_BY_OFFENDER");
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("offenderNos", offenderNos),
+                OFFENDER_KEY_WORKER_ROW_MAPPER);
+    }
+
+    @Override
+    public List<OffenderKeyWorker> getAllocationHistoryByStaffIds(List<Long> staffIds) {
+        Validate.notEmpty(staffIds, "At least 1 staff Id is required.");
+
+        String sql = getQuery("GET_ALLOCATION_HISTORY_BY_STAFF");
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("staffIds", staffIds),
+                OFFENDER_KEY_WORKER_ROW_MAPPER);
+    }
+
 }
