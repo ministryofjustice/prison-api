@@ -58,22 +58,36 @@ public class ScheduleRepositoryTest {
         final LocalDate date = LocalDate.parse("2015-12-11");
         final LocalDate toDate = LocalDate.now();
         final List<PrisonerSchedule> results = repository.getLocationActivities(-26L, date, toDate, "lastName,startTime", Order.ASC);
-        assertThat(results).hasSize(14);
+        assertThat(results).hasSize(24);
         assertPrisonerDetails(results.get(0));
         // assert at least 1 field from all results
         assertThat(results.get(1).getStartTime().toString()).isEqualTo("2017-09-12T13:00");
         assertThat(results.get(2).getStartTime().toString()).isEqualTo("2017-09-13T13:00");
         assertThat(results.get(3).getStartTime().toString()).isEqualTo("2017-09-14T13:00");
         assertThat(results.get(4).getStartTime().toString()).isEqualTo("2017-09-15T13:00");
+
         assertThat(results.get(5).getLastName()).isEqualTo("ANDERSON"); // date today
         assertThat(results.get(6).getLastName()).isEqualTo("ANDERSON");
-        assertThat(results.get(7).getStartTime().toString()).isEqualTo("2017-09-11T13:00");
-        assertThat(results.get(8).getStartTime().toString()).isEqualTo("2017-09-12T13:00");
-        assertThat(results.get(9).getStartTime().toString()).isEqualTo("2017-09-13T13:00");
-        assertThat(results.get(10).getStartTime().toString()).isEqualTo("2017-09-14T13:00");
-        assertThat(results.get(11).getStartTime().toString()).isEqualTo("2017-09-15T13:00");
+
+        assertThat(results.get(7).getStartTime().toString()).isEqualTo("2018-08-13T13:00");
+        assertThat(results.get(8).getStartTime().toString()).isEqualTo("2017-09-11T13:00");
+        assertThat(results.get(9).getStartTime().toString()).isEqualTo("2017-09-12T13:00");
+        assertThat(results.get(10).getStartTime().toString()).isEqualTo("2017-09-13T13:00");
+        assertThat(results.get(11).getStartTime().toString()).isEqualTo("2017-09-14T13:00");
+
+
         assertThat(results.get(12).getLastName()).isEqualTo("BATES");
         assertThat(results.get(13).getLastName()).isEqualTo("BATES");
+        assertThat(results.get(14).getLastName()).isEqualTo("BATES");
+        assertThat(results.get(15).getLastName()).isEqualTo("BATES");
+        assertThat(results.get(16).getLastName()).isEqualTo("DUCK");
+        assertThat(results.get(17).getLastName()).isEqualTo("DUCK");
+        assertThat(results.get(18).getLastName()).isEqualTo("DUCK");
+        assertThat(results.get(19).getLastName()).isEqualTo("DUCK");
+        assertThat(results.get(20).getLastName()).isEqualTo("DUCK");
+        assertThat(results.get(21).getLastName()).isEqualTo("DUCK");
+        assertThat(results.get(22).getLastName()).isEqualTo("DUCK");
+        assertThat(results.get(23).getLastName()).isEqualTo("DUCK");
     }
 
     @Test
@@ -81,10 +95,11 @@ public class ScheduleRepositoryTest {
         final LocalDate date = LocalDate.parse("2015-12-11");
         final LocalDate toDate = LocalDate.now();
           final List<PrisonerSchedule> results =  repository.getLocationAppointments(-28L, date, toDate, null, null);
-          assertThat(results).hasSize(3);
+          assertThat(results).hasSize(4);
           assertThat(results.get(0).getLastName()).isEqualTo("ANDERSON");
           assertThat(results.get(1).getLastName()).isEqualTo("BATES");
           assertThat(results.get(2).getLastName()).isEqualTo("DUCK");
+          assertThat(results.get(3).getLastName()).isEqualTo("DUCK");
     }
 
     @Test
@@ -92,11 +107,12 @@ public class ScheduleRepositoryTest {
         final LocalDate date = LocalDate.parse("2015-12-11");
         final LocalDate toDate = LocalDate.now();
           final List<PrisonerSchedule> results =  repository.getLocationVisits(-25L, date, toDate, null, null);
-          assertThat(results).hasSize(5);
+          assertThat(results).hasSize(6);
           assertThat(results.get(0).getLastName()).isEqualTo("ANDERSON");
           assertThat(results.get(1).getLastName()).isEqualTo("ANDERSON");
           assertThat(results.get(2).getLastName()).isEqualTo("ANDERSON");
           assertThat(results.get(3).getLastName()).isEqualTo("ANDERSON");
           assertThat(results.get(4).getLastName()).isEqualTo("BATES");
+          assertThat(results.get(5).getLastName()).isEqualTo("DUCK");
     }
 }

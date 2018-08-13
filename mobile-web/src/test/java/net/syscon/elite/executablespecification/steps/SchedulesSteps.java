@@ -1,6 +1,7 @@
 package net.syscon.elite.executablespecification.steps;
 
 
+import net.sf.cglib.core.Local;
 import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,6 +26,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SchedulesSteps extends CommonSteps {
     private static final String API_GROUPS_URL = API_PREFIX + "schedules/{agencyId}/groups/{name}";
     private static final String API_LOCATION_URL = API_PREFIX + "schedules/{agencyId}/locations/{locationId}/usage/{usage}";
+    private static final String API_VISITS = API_PREFIX + "schedules/{agencyId}/visits";
+    private static final String API_APPOINTMENTS = API_PREFIX + "schedules/{agencyId}/appointments";
 
     private List<PrisonerSchedule> results;
     private String agency;
@@ -39,51 +43,6 @@ public class SchedulesSteps extends CommonSteps {
         groupName = null;
         location = null;
         usage = null;
-    }
-
-    private List<PrisonerSchedule> dispatchGroupRequest(String url, String agencyId, String name, String date, TimeSlot timeSlot) {
-        init();
-        Map<String,String> headers = buildSortHeaders("cellLocation", Order.ASC);
-        String urlModifier = "";
-        if (date != null) {
-            urlModifier += "?date=" + date;
-        }
-        if (timeSlot != null) {
-            urlModifier += (StringUtils.isEmpty(urlModifier) ? '?' : '&') + "timeSlot=" + timeSlot.name();
-        }
-        HttpEntity<?> httpEntity = createEntity(null, headers);
-        try {
-            ResponseEntity<List<PrisonerSchedule>> response = restTemplate.exchange(url + urlModifier, HttpMethod.GET,
-                    httpEntity, new ParameterizedTypeReference<List<PrisonerSchedule>>() {
-                    }, agencyId, name);
-            buildResourceData(response);
-            return response.getBody();
-        } catch (EliteClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-            return null;
-        }
-    }
-    
-    private List<PrisonerSchedule> dispatchLocationRequest(String url, String agencyId, Long locationId, String usage1, String date, TimeSlot timeSlot) {
-        init();
-        String urlModifier = "";
-        if (date != null) {
-            urlModifier += "?date=" + date;
-        }
-        if (timeSlot != null) {
-            urlModifier += (StringUtils.isEmpty(urlModifier) ? '?' : '&') + "timeSlot=" + timeSlot.name();
-        }
-        HttpEntity<?> httpEntity = createEntity();
-        try {
-            ResponseEntity<List<PrisonerSchedule>> response = restTemplate.exchange(url + urlModifier, HttpMethod.GET,
-                    httpEntity, new ParameterizedTypeReference<List<PrisonerSchedule>>() {
-                    }, agencyId, locationId, usage1);
-            buildResourceData(response);
-            return response.getBody();
-        } catch (EliteClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-            return null;
-        }
     }
 
     public void givenScheduledEventsForCurrentDay() {
@@ -167,10 +126,10 @@ public class SchedulesSteps extends CommonSteps {
 
     public void schedulesAreOnlyBefore12h00() {
         assertThat(results.get(0).getStartTime().getHour()).isEqualTo(0);
-        assertThat(results.get(1).getStartTime().getHour()).isEqualTo(1);
-        assertThat(results.get(2).getStartTime().getHour()).isEqualTo(3);
-        assertThat(results.get(3).getStartTime().getHour()).isEqualTo(4);
-        assertThat(results.get(4).getStartTime().getHour()).isEqualTo(1);
+        assertThat(results.get(1).getStartTime().getHour()).isEqualTo(0);
+        assertThat(results.get(2).getStartTime().getHour()).isEqualTo(1);
+        assertThat(results.get(3).getStartTime().getHour()).isEqualTo(3);
+        assertThat(results.get(4).getStartTime().getHour()).isEqualTo(4);
     }
 
     public void schedulesAreOnlyBetween12And18() {
@@ -237,6 +196,22 @@ public class SchedulesSteps extends CommonSteps {
         verifyLocalTimeValues(results, PrisonerSchedule::getStartTime, expectedList);
     }
 
+    public void verifyVisits(String visits) {
+        String actual = results.stream()
+                 .map(PrisonerSchedule::getComment)
+                .collect(Collectors.joining(","));
+
+        assertThat(actual).isEqualTo(visits);
+    }
+
+    public void verifyAppointments(String appointments) {
+        String actual = results.stream()
+                .map(PrisonerSchedule::getEventDescription)
+                .collect(Collectors.joining(","));
+
+        assertThat(actual).isEqualTo(appointments);
+    }
+
     public void givenUsageInvalid() {
         usage = "INVALID";
     }
@@ -249,5 +224,87 @@ public class SchedulesSteps extends CommonSteps {
         assertThat(prisonerSchedule.get())
                 .extracting("eventOutcome", "performance", "outcomeComment")
                 .contains("ATT", "STANDARD", "blah");
+    }
+
+    public void getVisits(String offenderNo, String timeSlot) {
+      LocalDate today = LocalDate.now();
+
+      agency = "LEI";
+
+      results = dispatchScheduleRequest(API_VISITS, agency, offenderNo, timeSlot, today);
+    }
+
+    public void getAppointments(String offenderNo, String timeSlot) {
+        LocalDate today = LocalDate.now();
+
+        agency = "LEI";
+
+        results = dispatchScheduleRequest(API_APPOINTMENTS, agency, offenderNo, timeSlot, today);
+    }
+
+    private List<PrisonerSchedule> dispatchGroupRequest(String url, String agencyId, String name, String date, TimeSlot timeSlot) {
+        init();
+        Map<String,String> headers = buildSortHeaders("cellLocation", Order.ASC);
+
+        String urlModifier = getUrlModifier(date, timeSlot);
+
+        HttpEntity<?> httpEntity = createEntity(null, headers);
+        try {
+            ResponseEntity<List<PrisonerSchedule>> response = restTemplate.exchange(url + urlModifier, HttpMethod.GET,
+                    httpEntity, new ParameterizedTypeReference<List<PrisonerSchedule>>() {
+                    }, agencyId, name);
+            buildResourceData(response);
+            return response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+            return null;
+        }
+    }
+
+    private List<PrisonerSchedule> dispatchLocationRequest(String url, String agencyId, Long locationId, String usage1, String date, TimeSlot timeSlot) {
+        init();
+        String urlModifier = getUrlModifier(date, timeSlot);
+
+        HttpEntity<?> httpEntity = createEntity();
+        try {
+            ResponseEntity<List<PrisonerSchedule>> response = restTemplate.exchange(url + urlModifier, HttpMethod.GET,
+                    httpEntity, new ParameterizedTypeReference<List<PrisonerSchedule>>() {
+                    }, agencyId, locationId, usage1);
+            buildResourceData(response);
+            return response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+            return null;
+        }
+    }
+
+    private List<PrisonerSchedule> dispatchScheduleRequest(String url, String agencyId, String offenderNo, String timeSlot, LocalDate date) {
+
+        String urlModifier = getUrlModifier(date.toString(), !timeSlot.equals("") ? TimeSlot.valueOf(timeSlot) : null);
+
+        HttpEntity<?> httpEntity = createEntity(new String[]{offenderNo});
+
+        try {
+            ResponseEntity<List<PrisonerSchedule>> response = restTemplate.exchange(url + urlModifier, HttpMethod.POST,
+                    httpEntity, new ParameterizedTypeReference<List<PrisonerSchedule>>() {
+                    }, agencyId);
+            buildResourceData(response);
+            return response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+            return null;
+        }
+    }
+
+    private String getUrlModifier(String date, TimeSlot timeSlot) {
+        String urlModifier = "";
+        if (date != null) {
+            urlModifier += "?date=" + date;
+        }
+        if (timeSlot != null) {
+            urlModifier += (StringUtils.isEmpty(urlModifier) ? '?' : '&') + "timeSlot=" + timeSlot.name();
+        }
+
+        return urlModifier;
     }
 }

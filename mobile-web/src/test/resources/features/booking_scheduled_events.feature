@@ -23,6 +23,7 @@ Feature: Booking Scheduled Events
     When today's scheduled events are requested for an offender with booking id -3
     Then events are returned as follows:
       | eventType  | eventLocation      |
+      | PRISON_ACT | Carpentry Workshop |
       | VISIT      | Chapel             |
       | VISIT      | Visiting Room      |
       | APP        | Medical Centre     |
@@ -36,6 +37,7 @@ Feature: Booking Scheduled Events
     Then events are returned as follows:
 # First group is same as today
       | eventType  | eventLocation      |
+      | PRISON_ACT | Carpentry Workshop |
       | VISIT      | Chapel             |
       | VISIT      | Visiting Room      |
       | APP        | Medical Centre     |
