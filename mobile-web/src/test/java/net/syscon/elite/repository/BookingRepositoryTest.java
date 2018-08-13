@@ -152,7 +152,7 @@ public class BookingRepositoryTest {
     public void testGetBookingActivities() {
         List<ScheduledEvent> results = repository.getBookingActivities(-2L, LocalDate.parse("2011-12-11"), LocalDate.now(), null, null);
 
-        assertThat(results).asList().hasSize(7);
+        assertThat(results).asList().hasSize(8);
         assertThat(results).asList().extracting("eventId", "payRate").contains(new Tuple(-11L, new BigDecimal("1.000")));//  .valueOf(1000,3)));
     }
 
