@@ -67,7 +67,7 @@ Feature: Agencies
       | -27        | CRM1        | Classroom 1        | LEI-CRM1       | APP           |
       | -29        | MED         | Medical Centre     | LEI-MED        | APP           |
 
-  Scenario: Retrieve locations, for an agency, that can be used for appointments, in descending order of description
+  Scenario: Retrieve locations, for an agency, that can be used for 'APP' events, in descending order of description
     When a request is submitted to retrieve location codes for agency "LEI" and event type "APP" sorted by "userDescription" in "descending" order
     Then the returned agency locations are as follows:
       | locationId | description | userDescription    | locationPrefix | locationUsage |
@@ -78,6 +78,15 @@ Feature: Agencies
       
   Scenario: Retrieve locations, for an agency, that can be used for any events
     When a request is submitted to retrieve location codes for agency "LEI" for any events
+    Then the returned agency locations are as follows:
+      | locationId | description | userDescription    | locationPrefix | locationUsage |
+      | -26        | CARP        | Carpentry Workshop | LEI-CARP       | APP           |
+      | -25        | CHAP        | Chapel             | LEI-CHAP       | APP           |
+      | -27        | CRM1        | Classroom 1        | LEI-CRM1       | APP           |
+      | -29        | MED         | Medical Centre     | LEI-MED        | APP           |
+
+  Scenario: Retrieve locations, for an agency, that are booked for offenders on the given date
+    When a request is submitted to retrieve locations for agency "LEI" for booked events on "2017-09-15"
     Then the returned agency locations are as follows:
       | locationId | description | userDescription    | locationPrefix | locationUsage |
       | -26        | CARP        | Carpentry Workshop | LEI-CARP       | APP           |

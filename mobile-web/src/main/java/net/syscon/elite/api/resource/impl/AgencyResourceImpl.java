@@ -6,11 +6,13 @@ import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.resource.AgencyResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.LocationService;
 
 import javax.ws.rs.Path;
+import java.time.LocalDate;
 import java.util.List;
 
 import static net.syscon.util.ResourceUtils.nvl;
@@ -52,6 +54,13 @@ public class AgencyResourceImpl implements AgencyResource {
         List<Location> locations = agencyService.getAgencyEventLocations(agencyId, sortFields, sortOrder);
 
         return GetAgencyEventLocationsResponse.respond200WithApplicationJson(locations);
+    }
+
+    @Override
+    public GetAgencyEventLocationsBookedResponse getAgencyEventLocationsBooked(String agencyId, LocalDate date, TimeSlot timeSlot) {
+        List<Location> locations = agencyService.getAgencyEventLocationsBooked(agencyId, date, timeSlot);
+
+        return GetAgencyEventLocationsBookedResponse.respond200WithApplicationJson(locations);
     }
 
     @Override

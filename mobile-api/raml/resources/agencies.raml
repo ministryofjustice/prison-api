@@ -27,6 +27,19 @@
     sortable: {fieldsList : "description, userDescription"}
   ]
 
+/{agencyId}/eventLocationsBooked:
+  (javaOperationName): getAgencyEventLocationsBooked
+  get:
+    queryParameters:
+      bookedOnDay?:
+        type: date-only
+        description: Filter list to only return locations which prisoners will be attending on this day
+      bookedOnPeriod?:
+        type : enum
+        (javaType): TimeSlot
+        description: Only return locations which prisoners will be attending in this time slot (AM, PM or ED, and bookedOnDay must be specified)
+  type: { readOnlyCollection: { type: Location, description: "List of locations for agency where events (appointments, visits, activities) are being held." } }
+
 /{agencyId}/locations/groups:
   (javaOperationName): getAvailableGroups
   uriParameters:
