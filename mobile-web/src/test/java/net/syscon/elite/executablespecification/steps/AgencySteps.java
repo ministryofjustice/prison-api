@@ -3,6 +3,7 @@ package net.syscon.elite.executablespecification.steps;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
@@ -27,6 +28,7 @@ public class AgencySteps extends CommonSteps {
     public static final String API_AGENCY_URL = API_REF_PREFIX + "{agencyId}";
     private static final String API_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/locations";
     private static final String API_EVENT_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/eventLocations";
+    private static final String API_BOOKED_EVENT_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/eventLocationsBooked";
     private static final String API_CASELOAD_URL = API_REF_PREFIX + "caseload/{caseload}";
     private List<Agency> agencies;
     private Agency agency;
@@ -73,6 +75,31 @@ public class AgencySteps extends CommonSteps {
                     url,
                     HttpMethod.GET,
                     createEntity(null, headers),
+                    new ParameterizedTypeReference<List<Location>>() {},
+                    agencyId);
+
+            locations = response.getBody();
+
+            buildResourceData(response);
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    private void dispatchBookedLocationsRequest(String resourcePath, String agencyId, String bookedOnDay, TimeSlot timeSlot) {
+        init();
+
+        String urlModifier = "?bookedOnDay=" + bookedOnDay;
+        if (timeSlot != null) {
+            urlModifier += "&timeSlot=" + timeSlot.name();
+        }
+        String url = resourcePath + urlModifier;
+
+        try {
+            ResponseEntity<List<Location>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    createEntity(),
                     new ParameterizedTypeReference<List<Location>>() {},
                     agencyId);
 
@@ -135,8 +162,14 @@ public class AgencySteps extends CommonSteps {
         dispatchListRequest(API_LOCATIONS_URL, agencyId, eventType, headers);
     }
 
+    @Step("Submit request for any event locations")
     public void getLocationsForAnyEvents(String agencyId) {
         dispatchListRequest(API_EVENT_LOCATIONS_URL, agencyId, null, null);
+    }
+
+    @Step("Submit request for booked agency locations")
+    public void getBookedLocations(String agencyId, String bookedOnDay, TimeSlot timeSlot) {
+        dispatchBookedLocationsRequest(API_BOOKED_EVENT_LOCATIONS_URL, agencyId, bookedOnDay, timeSlot);
     }
 
     public void verifyAgencyList(List<Agency> expected) {

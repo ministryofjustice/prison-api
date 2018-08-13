@@ -31,10 +31,10 @@
   (javaOperationName): getAgencyEventLocationsBooked
   get:
     queryParameters:
-      bookedOnDay?:
+      bookedOnDay:
         type: date-only
         description: Filter list to only return locations which prisoners will be attending on this day
-      bookedOnPeriod?:
+      timeSlot?:
         type : enum
         (javaType): TimeSlot
         description: Only return locations which prisoners will be attending in this time slot (AM, PM or ED, and bookedOnDay must be specified)

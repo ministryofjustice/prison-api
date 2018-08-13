@@ -6,6 +6,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.executablespecification.steps.AgencySteps;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -78,6 +79,16 @@ public class AgencyStepDefinitions extends AbstractStepDefinitions {
     @When("^a request is submitted to retrieve location codes for agency \"([^\"]*)\" and event type \"([^\"]*)\" sorted by \"([^\"]*)\" in \"([^\"]*)\" order$")
     public void aRequestIsSubmittedToRetrieveLocationCodesForAgencyAndEventTypeSortedByInOrder(String agencyId, String eventType, String sortFields, String sortOrder) throws Throwable {
         agencySteps.getLocations(agencyId, eventType, sortFields, parseSortOrder(sortOrder));
+    }
+
+    @When("^a request is submitted to retrieve locations for agency \"([^\"]*)\" for booked events on date \"([^\"]*)\"$")
+    public void aRequestIsSubmittedToRetrieveLocationCodesForAgencyBooked(String agencyId, String bookedOnDay) throws Throwable {
+        agencySteps.getBookedLocations(agencyId, bookedOnDay, null);
+    }
+
+    @When("^a request is submitted to retrieve locations for agency \"([^\"]*)\" for booked events on \"([^\"]*)\" and timeslot \"([^\"]*)\"$")
+    public void aRequestIsSubmittedToRetrieveLocationCodesForAgencyBooked(String agencyId, String bookedOnDay, TimeSlot timeSlot) throws Throwable {
+        agencySteps.getBookedLocations(agencyId, bookedOnDay, timeSlot);
     }
 
     @Then("^the returned agency locations are as follows:$")
