@@ -123,7 +123,7 @@ Feature: Location and Location Group Events
       | -29        | APP      |          | BATES                         | MEDE                | 03:00                   |
       | -26        | PROG     | AM       | ANDERSON,BATES, DUCK          | EDUC,EDUC, EDUC     | 00:00,00:00, 00:00      |
       | -26        | PROG     | PM       | ANDERSON,ANDERSON,BATES,BATES,DUCK,DUCK| EDUC,EDUC,EDUC,EDUC,EDUC,EDUC | 12:00,12:00,12:00,13:00,13:00,13:00 |
-      | -26        | PROG     |          | ANDERSON,ANDERSON,ANDERSON,BATES,BATES,BATES,DUCK,DUCK,DUCK" | EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC  | 00:00,00:00,12:00,12:00,13:00,13:00 |
+      | -26        | PROG     |          | ANDERSON,ANDERSON,ANDERSON,BATES,BATES,BATES,DUCK,DUCK,DUCK | EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC  | 00:00,00:00,00:00,12:00,12:00,12:00,13:00,13:00,13:00 |
 
 
     Scenario Outline: Request an offenders scheduled visits for today
