@@ -1,4 +1,5 @@
 @global
+  @wip
 Feature: Location and Location Group Events
 
   Acceptance Criteria
@@ -37,7 +38,7 @@ Feature: Location and Location Group Events
     Given one or more offenders have scheduled events for current day
     And offenders are located in a location that belongs to requested agency and location group
     When schedules are requested for a valid agency and location group
-    Then response is a list of offender's schedules with size 8
+    Then response is a list of offender's schedules with size 14
     And returned schedules are ordered as defined by requested location group
     And returned schedules are only for offenders located in locations that belong to requested agency and location group
 
@@ -45,7 +46,7 @@ Feature: Location and Location Group Events
     Given one or more offenders have scheduled events for current day
     And offenders are located in a location that belongs to requested agency and location group
     When schedules are requested for a valid agency and location group with 'timeSlot' = 'AM'
-    Then response is a list of offender's schedules with size 5
+    Then response is a list of offender's schedules with size 9
     And start time of all returned schedules is before 12h00
     And returned schedules are ordered as defined by requested location group
     And returned schedules are only for offenders located in locations that belong to requested agency and location group
@@ -117,9 +118,35 @@ Feature: Location and Location Group Events
     Examples:
       | locationId | usage    | timeSlot | last name list                | event type list     | start time list         |
       | -28        | VISIT    |          | BATES                         | VISIT               | 01:00                   |
-      | -25        | VISIT    |          | BATES                         | VISIT               | 00:00                   |
-      | -28        | APP      |          | BATES,DUCK                    | EDUC,EDUC           | 04:00, 01:00            |
+      | -25        | VISIT    |          | BATES, DUCK                   | VISIT,VISIT         | 00:00, 00:00            |
+      | -28        | APP      |          | BATES,DUCK,DUCK               | EDUC,EDUC,EDUC      | 04:00, 01:00, 00:00     |
       | -29        | APP      |          | BATES                         | MEDE                | 03:00                   |
-      | -26        | PROG     |          | ANDERSON,ANDERSON,BATES,BATES | EDUC,EDUC,EDUC,EDUC | 12:00,13:00,12:00,13:00 |
-      | -26        | PROG     | AM       |                               |                     |                         |
-      | -26        | PROG     | PM       | ANDERSON,ANDERSON,BATES,BATES | EDUC,EDUC,EDUC,EDUC | 12:00,13:00,12:00,13:00 |
+      | -26        | PROG     | AM       | ANDERSON,BATES, DUCK          | EDUC,EDUC, EDUC     | 00:00,00:00, 00:00      |
+      | -26        | PROG     | PM       | ANDERSON,ANDERSON,BATES,BATES,DUCK,DUCK| EDUC,EDUC,EDUC,EDUC,EDUC,EDUC | 12:00,12:00,12:00,13:00,13:00,13:00 |
+      | -26        | PROG     |          | ANDERSON,ANDERSON,ANDERSON,BATES,BATES,BATES,DUCK,DUCK,DUCK | EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC  | 00:00,00:00,00:00,12:00,12:00,12:00,13:00,13:00,13:00 |
+
+
+    Scenario Outline: Request an offenders scheduled visits for today
+      Given an offender with scheduled visits
+      When visits are requested with a valid agency with a time slot "<timeSlot>" and offender numbers "<offenderNo>"
+      Then the following visits should be returned "<visits>"
+      Examples:
+        | offenderNo   | timeSlot | visits |
+        | A1234AC      | AM       | Social Contact,Official Visit                |
+        | A1234AC      | PM       | Social Contact                               |
+        | A1234AC      |          | Social Contact,Social Contact,Official Visit |
+        | A1234AE      | AM       | Official Visit                               |
+        | A1234AE      | PM       |                                              |
+
+
+  Scenario Outline: Request an offenders scheduled appointments for today
+    Given an offender with scheduled appointments
+    When appointments are requested with a valid agency with a time slot "<timeSlot>" and offender numbers "<offenderNo>"
+    Then the following appointments should be returned "<appointments>"
+    Examples:
+      | offenderNo   | timeSlot | appointments |
+      | A1234AC      | AM       | Education,Medical - Dentist                  |
+      | A1234AC      | PM       |                                              |
+      | A1234AC      |          | Education,Medical - Dentist                  |
+      | A1234AE      | AM       | Education,Education                          |
+      | A1234AE      | PM       |                                              |
