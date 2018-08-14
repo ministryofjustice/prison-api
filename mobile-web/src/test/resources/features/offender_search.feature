@@ -38,7 +38,7 @@ Feature: Offender Search V2
 
     Examples:
       | location  | number |
-      | LEI-A     | 11     |
+      | LEI-A     | 10     |
       | LEI-H     | 13     |
       | BXI       | 0      |
       | LEI       | 24     |
