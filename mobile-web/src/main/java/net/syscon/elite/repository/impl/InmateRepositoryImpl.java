@@ -216,7 +216,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 createParams("offenderNo", offenderNo,
                         "searchTerm1", StringUtils.trimToEmpty(searchTerm1) + "%",
                         "searchTerm2", StringUtils.trimToEmpty(searchTerm2) + "%",
-                        "locationPrefix", StringUtils.trimToEmpty(locationPrefix) + "%",
+                        "locationPrefix", StringUtils.trimToEmpty(locationPrefix) + "-%",
                         "caseLoadId", caseloads,
                         "locationTypeRoot", locationTypeRoot,
                         "offset", pageRequest.getOffset(), "limit", pageRequest.getLimit()),
