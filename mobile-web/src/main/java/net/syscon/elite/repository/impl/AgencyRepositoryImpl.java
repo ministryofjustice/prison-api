@@ -18,6 +18,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 
+import javax.ws.rs.BadRequestException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -167,6 +168,8 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
                 case ED:
                     start = bookedOnDay.atTime(17, 0);
                     break;
+                default:
+                    throw new BadRequestException("Unrecognised timeslot: " + bookedOnPeriod);
             }
         }
         end = end.minus(1, ChronoUnit.SECONDS);
