@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,7 +70,7 @@ public class ScheduleRepositoryTest {
         assertThat(results.get(5).getLastName()).isEqualTo("ANDERSON"); // date today
         assertThat(results.get(6).getLastName()).isEqualTo("ANDERSON");
 
-        assertThat(results.get(7).getStartTime().toString()).isEqualTo("2018-08-13T13:00");
+        assertThat(results.get(7).getStartTime().toString()).isEqualTo(LocalDate.now().format(DateTimeFormatter.ISO_DATE) + "T13:00");
         assertThat(results.get(8).getStartTime().toString()).isEqualTo("2017-09-11T13:00");
         assertThat(results.get(9).getStartTime().toString()).isEqualTo("2017-09-12T13:00");
         assertThat(results.get(10).getStartTime().toString()).isEqualTo("2017-09-13T13:00");

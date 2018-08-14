@@ -1,6 +1,7 @@
 package net.syscon.elite.executablespecification;
 
 
+import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -66,4 +67,13 @@ public class OffenderSearchStepDefinitions extends AbstractStepDefinitions {
         offenderSearch.verifyLivingUnits(livingUnits);
     }
 
+    @When("^a booking search is made in \"([^\"]*)\"$")
+    public void aBookingSearchIsMadeIn(String subLocation) throws Throwable {
+        offenderSearch.search(subLocation, null);
+    }
+
+    @Then("^only offenders situated in \"([^\"]*)\" be present in the results$")
+    public void onlyOffendersSituatedInBePresentInTheResults(String subLocationPrefix) throws Throwable {
+       offenderSearch.verifySubLocationPrefixInResults(subLocationPrefix);
+    }
 }

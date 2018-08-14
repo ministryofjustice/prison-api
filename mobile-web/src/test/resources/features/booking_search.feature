@@ -109,3 +109,7 @@ Feature: Booking Search
       | DA%        | SMITH     | 5      | DANIEL,DANIEL,DARIUS,GILES,MATTHEW | SMITH,SMITH,SMITH,SMITH,SMELLEY  |
       | DANIEL     | SM%       | 5      | DANIEL,DANIEL,DARIUS,GILES,MATTHEW | SMITH,SMITH,SMITH,SMITH,SMELLEY  |
       | DA%        | SM%       | 5      | DANIEL,DANIEL,DARIUS,GILES,MATTHEW | SMITH,SMITH,SMITH,SMITH,SMELLEY  |
+
+    Scenario: Search for all offenders in Leeds
+      When a booking search is made in "LEI-A"
+      Then only offenders situated in "A-" be present in the results

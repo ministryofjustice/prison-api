@@ -3,6 +3,7 @@ package net.syscon.elite.executablespecification.steps;
 import net.syscon.elite.api.model.OffenderBooking;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Assert;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -43,6 +44,14 @@ public class OffenderSearchSteps extends CommonSteps {
     @Step("Verify living unit of offender returned by search")
     public void verifyLivingUnits(String livingUnitList) {
         verifyPropertyValues(offenderBookings, OffenderBooking::getAssignedLivingUnitDesc, livingUnitList);
+    }
+
+    public void verifySubLocationPrefixInResults(String subLocationPrefix) {
+        Boolean actual = offenderBookings
+                .stream()
+                .allMatch(offender -> offender.getAssignedLivingUnitDesc().startsWith(subLocationPrefix));
+
+        assertThat(actual).isEqualTo(true);
     }
 
 

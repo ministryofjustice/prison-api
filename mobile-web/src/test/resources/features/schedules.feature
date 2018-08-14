@@ -1,5 +1,4 @@
 @global
-  @wip
 Feature: Location and Location Group Events
 
   Acceptance Criteria
