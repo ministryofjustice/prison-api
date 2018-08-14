@@ -1,4 +1,4 @@
-@global @sdar
+@global
 Feature: Agencies
 
   Acceptance Criteria
