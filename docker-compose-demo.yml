@@ -22,7 +22,6 @@ services:
     environment:
       - PORT=3000
       - API_ENDPOINT_URL=http://elite2-api:8080/api/
-      - USE_API_GATEWAY_AUTH=no
       - GOOGLE_ANALYTICS_ID=UA-106741063-3
       - WEB_SESSION_TIMEOUT_IN_MINUTES=120
       - NOMS_TOKEN=secret_token
