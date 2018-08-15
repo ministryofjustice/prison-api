@@ -44,7 +44,7 @@ public class ScheduleRepositoryTest {
     private static void assertPrisonerDetails(final PrisonerSchedule details) {
         assertEquals("2017-09-11T13:00", details.getStartTime().toString());
         assertEquals("2017-09-11T15:00", details.getEndTime().toString());
-       
+
         assertEquals("Woodwork", details.getComment());
         assertEquals("EDUC", details.getEvent());
         assertEquals("Education", details.getEventDescription());
@@ -75,7 +75,6 @@ public class ScheduleRepositoryTest {
         assertThat(results.get(9).getStartTime().toString()).isEqualTo("2017-09-12T13:00");
         assertThat(results.get(10).getStartTime().toString()).isEqualTo("2017-09-13T13:00");
         assertThat(results.get(11).getStartTime().toString()).isEqualTo("2017-09-14T13:00");
-
 
         assertThat(results.get(12).getLastName()).isEqualTo("BATES");
         assertThat(results.get(13).getLastName()).isEqualTo("BATES");

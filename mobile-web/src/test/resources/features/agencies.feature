@@ -67,7 +67,7 @@ Feature: Agencies
       | -27        | CRM1        | Classroom 1        | LEI-CRM1       | APP           |
       | -29        | MED         | Medical Centre     | LEI-MED        | APP           |
 
-  Scenario: Retrieve locations, for an agency, that can be used for appointments, in descending order of description
+  Scenario: Retrieve locations, for an agency, that can be used for 'APP' events, in descending order of description
     When a request is submitted to retrieve location codes for agency "LEI" and event type "APP" sorted by "userDescription" in "descending" order
     Then the returned agency locations are as follows:
       | locationId | description | userDescription    | locationPrefix | locationUsage |
@@ -84,3 +84,30 @@ Feature: Agencies
       | -25        | CHAP        | Chapel             | LEI-CHAP       | APP           |
       | -27        | CRM1        | Classroom 1        | LEI-CRM1       | APP           |
       | -29        | MED         | Medical Centre     | LEI-MED        | APP           |
+
+  Scenario: Retrieve locations, for an agency, that are booked for offenders on the given date
+    When a request is submitted to retrieve locations for agency "LEI" for booked events on date "2017-09-15"
+    Then the returned agency locations are as follows:
+      | locationId | userDescription    |
+      | -26        | Carpentry Workshop |
+      | -25        | Chapel             |
+      | -27        | Classroom 1        |
+      | -29        | Medical Centre     |
+
+  Scenario: Retrieve locations, for an agency, that are booked for offenders on the given date with timeslot
+    When a request is submitted to retrieve locations for agency "LEI" for booked events on "2017-09-15" and timeslot "AM"
+    Then the returned agency locations are as follows:
+      | locationId | userDescription    |
+      | -25        | Chapel             |
+
+  Scenario: Retrieve locations, for an agency, that are booked for offenders on the given date (appointment event_id=-15)
+    When a request is submitted to retrieve locations for agency "LEI" for booked events on date "2017-12-25"
+    Then the returned agency locations are as follows:
+      | locationId | userDescription    |
+      | -25        | Chapel             |
+
+  Scenario: Retrieve locations, for an agency, that are booked for offenders on the given date (offender_visit_id=-14)
+    When a request is submitted to retrieve locations for agency "LEI" for booked events on date "2017-03-10"
+    Then the returned agency locations are as follows:
+      | locationId | userDescription    |
+      | -25        | Chapel             |

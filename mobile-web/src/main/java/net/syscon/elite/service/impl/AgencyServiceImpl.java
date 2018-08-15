@@ -7,6 +7,7 @@ import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.AgencyService;
@@ -19,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -128,6 +130,15 @@ public class AgencyServiceImpl implements AgencyService {
         List<Location> rawLocations = agencyRepository.getAgencyLocations(agencyId, allEventLocationUsages, orderBy, order);
 
         return LocationProcessor.processLocations(rawLocations);
+    }
+
+    @Override
+    public List<Location> getAgencyEventLocationsBooked(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod) {
+        Objects.requireNonNull(bookedOnDay, "bookedOnDay must be specified.");
+
+        List<Location> locations = agencyRepository.getAgencyLocationsBooked(agencyId, bookedOnDay, bookedOnPeriod);
+
+        return locations;
     }
 
     @Override

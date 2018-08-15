@@ -7,14 +7,22 @@ import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 
+import javax.ws.rs.BadRequestException;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -130,6 +138,45 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
                 sql,
                 createParams("agencyId", agencyId, "eventTypes", eventTypes),
                 LOCATION_ROW_MAPPER);
+    }
+
+    @Override
+    public List<Location> getAgencyLocationsBooked(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod) {
+        final MapSqlParameterSource params = createParams("agencyId", agencyId);
+
+        String initialSql = getQuery("GET_AGENCY_LOCATIONS_FOR_EVENTS_BOOKED");
+        setupDates(params, bookedOnDay, bookedOnPeriod);
+
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, LOCATION_ROW_MAPPER);
+        String sql = builder.build();
+
+        return jdbcTemplate.query(sql, params, LOCATION_ROW_MAPPER);
+    }
+
+    private void setupDates(MapSqlParameterSource params, LocalDate bookedOnDay, TimeSlot bookedOnPeriod) {
+        LocalDateTime start = bookedOnDay.atStartOfDay();
+        LocalDateTime end = bookedOnDay.plusDays(1).atStartOfDay();
+        if (bookedOnPeriod != null) {
+            switch (bookedOnPeriod) {
+                case AM:
+                    end = bookedOnDay.atTime(12, 0);
+                    break;
+                case PM:
+                    start = bookedOnDay.atTime(12, 0);
+                    end = bookedOnDay.atTime(17, 0);
+                    break;
+                case ED:
+                    start = bookedOnDay.atTime(17, 0);
+                    break;
+                default:
+                    throw new BadRequestException("Unrecognised timeslot: " + bookedOnPeriod);
+            }
+        }
+        end = end.minus(1, ChronoUnit.SECONDS);
+        Timestamp periodStart =  DateTimeConverter.fromLocalDateTime(start);
+        Timestamp periodEnd =  DateTimeConverter.fromLocalDateTime(end);
+        params.addValue("periodStart", periodStart);
+        params.addValue("periodEnd", periodEnd);
     }
 
     @Override
