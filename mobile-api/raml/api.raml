@@ -92,6 +92,7 @@ types:
   CaseNoteUsageRequest:       !include types/CaseNoteUsageRequest.raml
   CaseNoteStaffUsageRequest:  !include types/CaseNoteStaffUsageRequest.raml
   CaseNoteStaffUsage:         !include types/CaseNoteStaffUsage.raml
+  AccessRole:                 !include types/AccessRole.raml
 
 securitySchemes:
   jwt:
@@ -138,3 +139,4 @@ resourceTypes: !include resourceTypes/generic-resource-types.raml
 /key-worker:              !include resources/key-worker.raml
 /staff:                   !include resources/staff.raml
 /case-notes:              !include resources/case-notes.raml
+/access-roles:            !include resources/access-roles.raml

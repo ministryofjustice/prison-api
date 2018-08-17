@@ -28,6 +28,12 @@ abstract class AbstractStepDefinitions {
     @TestConfiguration
     static class Config {
 
+
+        @Bean
+        public AccessRoleSteps accessRoleSteps() {
+            return new AccessRoleSteps();
+        }
+
         @Bean
         public AuthenticationSteps auth(@Value("${oauth.client.data}") String clientConfig) {
             return new AuthenticationSteps(clientConfig, new ClientConfigExtractor(new ObjectMapper()));
