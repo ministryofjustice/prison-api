@@ -5,7 +5,6 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
-import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.UserRepository;
@@ -132,17 +131,7 @@ public class InmateServiceImpl implements InmateService {
         formatLocationDescription(assignedLivingUnit);
         inmate.setAssignedLivingUnit(assignedLivingUnit);
         setAlertsFields(inmate);
-
-        final List<Assessment> assessments = getAssessments(bookingId);
-        inmate.setAssessments(assessments);
-        final Assessment csra = findCSRA(assessments);
-        if (csra != null) {
-            inmate.setCsra(csra.getClassification());
-        }
-        final Optional<Assessment> category = findCategory(assessments);
-        if (category.isPresent()) {
-            inmate.setCategory(category.get().getClassification());
-        }
+        setAssessmentsFields(bookingId, inmate);
 
         //TODO: Remove once KW service available - Nomis only!
         boolean nomisProfile = Arrays.stream(env.getActiveProfiles()).anyMatch(p -> p.contains("nomis"));
@@ -150,6 +139,41 @@ public class InmateServiceImpl implements InmateService {
             keyWorkerAllocationRepository.getKeyworkerDetailsByBooking(inmate.getBookingId()).ifPresent(kw -> inmate.setAssignedOfficerId(kw.getStaffId()));
         }
         return inmate;
+    }
+
+    private void setAssessmentsFields(Long bookingId, InmateDetail inmate) {
+        final List<Assessment> assessments = getAllAssessmentsOrdered(bookingId);
+        if (!CollectionUtils.isEmpty(assessments)) {
+            inmate.setAssessments(filterAssessmentsByCode(assessments));
+            final Assessment csra = assessments.get(0);
+            if (csra != null) {
+                inmate.setCsra(csra.getClassification());
+            }
+            final Optional<Assessment> category = findCategory(assessments);
+            if (category.isPresent()) {
+                inmate.setCategory(category.get().getClassification());
+            }
+        }
+    }
+
+    private List<Assessment> getAllAssessmentsOrdered(Long bookingId) {
+        final List<AssessmentDto> assessmentsDto = repository.findAssessments(Collections.singletonList(bookingId), null, Collections.emptySet());
+
+        return assessmentsDto.stream().map(a -> createAssessment(a)).collect(Collectors.toList());
+    }
+
+    /**
+     * @param assessments input list, ordered by date,seq desc
+     * @return The latest assessment for each code.
+     */
+    private List<Assessment> filterAssessmentsByCode(List<Assessment> assessments) {
+
+        // this map preserves date order within code
+        final Map<String, List<Assessment>> mapOfAssessments = assessments.stream().collect(Collectors.groupingBy(Assessment::getAssessmentCode));
+        final List<Assessment> assessmentsFiltered = new ArrayList<>();
+        // get latest assessment for each code
+        mapOfAssessments.forEach((assessmentCode, assessment) -> assessmentsFiltered.add(assessment.get(0)));
+        return assessmentsFiltered;
     }
 
     private void formatLocationDescription(AssignedLivingUnit assignedLivingUnit) {
@@ -177,11 +201,20 @@ public class InmateServiceImpl implements InmateService {
         inmate.setInactiveAlertCount(items.size() - activeAlertCount.longValue());
     }
 
+    /**
+     * Get assessments, latest per code, order not important.
+     * @param bookingId
+     * @return latest assessment of each code for the offender
+     */
     @Override
     @VerifyBookingAccess
     public List<Assessment> getAssessments(Long bookingId) {
-        final Map<String, List<AssessmentDto>> mapOfAssessments = getAssessmentsAsMap(bookingId);
+        final List<AssessmentDto> assessmentsDto = repository.findAssessments(Collections.singletonList(bookingId), null, Collections.emptySet());
+
+        // this map preserves date order within code
+        final Map<String, List<AssessmentDto>> mapOfAssessments = assessmentsDto.stream().collect(Collectors.groupingBy(AssessmentDto::getAssessmentCode));
         final List<Assessment> assessments = new ArrayList<>();
+        // get latest assessment for each code
         mapOfAssessments.forEach((assessmentCode, assessment) -> assessments.add(createAssessment(assessment.get(0))));
         return assessments;
     }
@@ -233,11 +266,15 @@ public class InmateServiceImpl implements InmateService {
     }
 
 
+    /**
+     * @param bookingId
+     * @param assessmentCode
+     * @return Latest assessment of given code if any
+     */
     @Override
     @VerifyBookingAccess
     public Optional<Assessment> getInmateAssessmentByCode(Long bookingId, String assessmentCode) {
-        final Map<String, List<AssessmentDto>> mapOfAssessments = getAssessmentsAsMap(bookingId);
-        final List<AssessmentDto> assessmentForCodeType = mapOfAssessments.get(assessmentCode);
+        final List<AssessmentDto> assessmentForCodeType = repository.findAssessments(Collections.singletonList(bookingId), assessmentCode, Collections.emptySet());
 
         Assessment assessment = null;
 
@@ -263,10 +300,10 @@ public class InmateServiceImpl implements InmateService {
                 final Map<Long, List<AssessmentDto>> mapOfBookings = assessments.stream()
                         .collect(Collectors.groupingBy(AssessmentDto::getBookingId));
 
-                for (List<AssessmentDto> assessmentForCodeType : mapOfBookings.values()) {
+                for (List<AssessmentDto> assessmentForBooking : mapOfBookings.values()) {
 
                     // The first is the most recent date / seq for each booking where cellSharingAlertFlag = Y
-                    results.add(createAssessment(assessmentForCodeType.get(0)));
+                    results.add(createAssessment(assessmentForBooking.get(0)));
                 }
             });
         }
@@ -303,12 +340,6 @@ public class InmateServiceImpl implements InmateService {
 
     private Optional<Assessment> findCategory(List<Assessment> assessmentsForOffender) {
         return assessmentsForOffender.stream().filter(a -> "CATEGORY".equals(a.getAssessmentCode())).findFirst();
-    }
-
-    private Map<String, List<AssessmentDto>> getAssessmentsAsMap(Long bookingId) {
-        final List<AssessmentDto> assessmentsDto = repository.findAssessments(Collections.singletonList(bookingId), null, Collections.emptySet());
-
-        return assessmentsDto.stream().collect(Collectors.groupingBy(AssessmentDto::getAssessmentCode));
     }
 
     private Assessment createAssessment(AssessmentDto assessmentDto) {
