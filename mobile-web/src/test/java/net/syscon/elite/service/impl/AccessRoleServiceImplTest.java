@@ -40,7 +40,7 @@ public class AccessRoleServiceImplTest {
     }
 
     @Test(expected = EntityAlreadyExistsException.class)
-    public void testCreateAccessRole_alreadyExists() {
+    public void testCreateAccessRoleAlreadyExists() {
         final AccessRole accessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").build();
 
         Mockito.when(accessRoleRepository.getAccessRole("ROLE_CODE")).thenReturn(Optional.of(accessRole));
@@ -49,7 +49,7 @@ public class AccessRoleServiceImplTest {
     }
 
     @Test(expected = EntityNotFoundException.class)
-    public void testUpdateAccessRole_notFound() {
+    public void testUpdateAccessRoleNotFound() {
         Mockito.when(accessRoleRepository.getAccessRole("ROLE_CODE")).thenReturn(Optional.empty());
 
         final AccessRole newAccessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").build();
