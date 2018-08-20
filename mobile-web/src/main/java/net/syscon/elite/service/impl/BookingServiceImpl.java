@@ -630,9 +630,18 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<OffenderSentenceDetail> getOffenderSentencesSummary(String agencyId, String username, List<String> offenderNos) {
 
-
         final List<OffenderSentenceDetailDto> offenderSentenceSummary = offenderSentenceSummaries(agencyId, username, offenderNos);
+        return getOffenderSentenceDetails(offenderSentenceSummary);
+    }
 
+    @Override
+    public List<OffenderSentenceDetail> getBookingSentencesSummary(String username, List<Long> bookingIds) {
+
+        final List<OffenderSentenceDetailDto> offenderSentenceSummary = bookingSentenceSummaries(username, bookingIds);
+        return getOffenderSentenceDetails(offenderSentenceSummary);
+    }
+
+    private List<OffenderSentenceDetail> getOffenderSentenceDetails(List<OffenderSentenceDetailDto> offenderSentenceSummary) {
         final List<OffenderSentenceDetail> offenderSentenceDetails = offenderSentenceSummary.stream()
                 .map(os -> OffenderSentenceDetail.builder()
                         .bookingId(os.getBookingId())
@@ -698,6 +707,12 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
+    private List<OffenderSentenceDetailDto> bookingSentenceSummaries(String username, List<Long> bookingIds) {
+
+        final Set<String> caseloads = caseLoadIdsForUser(username);
+        return bookingSentenceSummaries(bookingIds, caseloads);
+    }
+
     private Set<String> caseLoadIdsForUser(String username) {
         return isOverrideRole() ? Collections.emptySet() : caseLoadService.getCaseLoadIdsForUser(username, true);
     }
@@ -715,8 +730,20 @@ public class BookingServiceImpl implements BookingService {
         return Lists
                 .partition(offenderNos, maxBatchSize)
                 .stream()
-                .flatMap( numbers -> {
+                .flatMap(numbers -> {
                     String query = "offenderNo:in:" + quotedAndPipeDelimited(numbers.stream());
+                    return bookingRepository.getOffenderSentenceSummary(query, caseloads).stream();
+                })
+                .collect(Collectors.toList());
+    }
+
+    private List<OffenderSentenceDetailDto> bookingSentenceSummaries(List<Long> bookingIds, Set<String> caseloads) {
+
+        return Lists
+                .partition(bookingIds, maxBatchSize)
+                .stream()
+                .flatMap(numbers -> {
+                    String query = "bookingId:in:" + numbers.stream().map(n -> String.valueOf(n)).collect(Collectors.joining("|"));
                     return bookingRepository.getOffenderSentenceSummary(query, caseloads).stream();
                 })
                 .collect(Collectors.toList());

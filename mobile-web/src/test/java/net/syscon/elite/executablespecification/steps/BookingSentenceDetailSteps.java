@@ -21,6 +21,7 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     private static final String BOOKING_SENTENCE_DETAIL_API_URL = API_PREFIX + "bookings/{bookingId}/sentenceDetail";
 
     private static final String OFFENDER_SENTENCE_DETAIL_API_URL = API_PREFIX + "offender-sentences";
+    private static final String OFFENDER_BOOKING_SENTENCE_DETAIL_API_URL = OFFENDER_SENTENCE_DETAIL_API_URL + "/bookings";
 
     private static final String HOME_DETENTION_CURFEW_CANDIDATES = OFFENDER_SENTENCE_DETAIL_API_URL + "/home-detention-curfew-candidates";
 
@@ -41,7 +42,13 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     @Step("Get offender sentence details by offender nos (using post request)")
     public void getOffenderSentenceDetailsUsingPostRequest(String offenderNos) {
         List<String> offenderList = StringUtils.isNotBlank(offenderNos) ? ImmutableList.copyOf(offenderNos.split(",")) : Collections.emptyList();
-        dispatchOffenderSentencesForPostRequest(offenderList);
+        dispatchOffenderSentencesForPostRequest(OFFENDER_SENTENCE_DETAIL_API_URL, offenderList);
+    }
+
+    @Step("Get offender sentence details by booking ids (using post request)")
+    public void getBookingSentenceDetailsUsingPostRequest(String bookingIds) {
+        List<String> list = StringUtils.isNotBlank(bookingIds) ? ImmutableList.copyOf(bookingIds.split(",")) : Collections.emptyList();
+        dispatchOffenderSentencesForPostRequest(OFFENDER_BOOKING_SENTENCE_DETAIL_API_URL, list);
     }
 
     @Step("Get offender sentence details")
@@ -273,13 +280,14 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         }
     }
 
-    private void dispatchOffenderSentencesForPostRequest(List<String> OffenderList) {
+    private void dispatchOffenderSentencesForPostRequest(String url, List<String> idList) {
         init();
 
         try {
-            ResponseEntity<List<OffenderSentenceDetail>> response = restTemplate.exchange(OFFENDER_SENTENCE_DETAIL_API_URL ,
+            ResponseEntity<List<OffenderSentenceDetail>> response = restTemplate.exchange(
+                    url,
                     HttpMethod.POST,
-                    createEntity(OffenderList),
+                    createEntity(idList),
                     new ParameterizedTypeReference<List<OffenderSentenceDetail>>() {
                     });
             buildResourceData(response);
@@ -293,5 +301,4 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     private String initialiseUrlModifier(StringBuilder urlModifier) {
         return urlModifier.length() > 0 ? "&" : "?";
     }
-
 }

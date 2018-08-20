@@ -35,5 +35,20 @@ post:
            type: OffenderSentenceDetail[]
            description: Sentence details for offenders who are candidates for Home Detention Curfew.
 
+/bookings:
+  post:
+    description: Retrieves list of offenders (with associated sentence detail) - POST version using booking id lists.
+    type: { readOnlyCollection: { type: OffenderSentenceDetail, description: List of offenders (with associated sentence detail). } }
+    body:
+      application/json:
+        (javaType): List<Long>
+        description: The required booking ids (mandatory)
+    responses:
+      200:
+        description: The list of offenders is returned.
+        body:
+          application/json:
+           type: OffenderSentenceDetail[]
+           description: List of offenders (with associated sentence detail).
 
 
