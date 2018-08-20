@@ -154,7 +154,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, CASE_NOTE_MAPPING);
 		String sql = builder.build();
 
-		LocalDateTime now = Instant.now().atOffset(ZoneOffset.UTC).toLocalDateTime();
+		final LocalDateTime now = LocalDateTime.now();
 
 		Timestamp createdDateTime = DateTimeConverter.fromLocalDateTime(now);
 		java.sql.Date createdDate = DateTimeConverter.fromTimestamp(createdDateTime);
