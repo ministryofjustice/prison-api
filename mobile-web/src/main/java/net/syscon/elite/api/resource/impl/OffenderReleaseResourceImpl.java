@@ -57,6 +57,16 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
         return PostOffenderSentencesResponse.respond200WithApplicationJson(sentences);
     }
 
+    @Override
+    public PostOffenderSentencesBookingsResponse postOffenderSentencesBookings(List<Long> bookingIds) {
+        validateOffenderList(bookingIds);
+
+        List<OffenderSentenceDetail> sentences = bookingService.getBookingSentencesSummary(
+                authenticationFacade.getCurrentUsername(), bookingIds);
+
+        return PostOffenderSentencesBookingsResponse.respond200WithApplicationJson(sentences);
+    }
+
     private void validateOffenderList(List offenderList) {
         if (Collections.isEmpty(offenderList)) {
             throw new BadRequestException("List of Offender Ids must be provided");

@@ -583,6 +583,11 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingSentenceDetail.getOffenderSentenceDetailsUsingPostRequest(offenderNos);
     }
 
+    @When("^sentence details are requested by a POST request for booking ids \"([^\"]*)\"$")
+    public void sentenceDetailsAreRequestedByPostForBookingIds(String bookingIds) {
+        bookingSentenceDetail.getBookingSentenceDetailsUsingPostRequest(bookingIds);
+    }
+
     @Then("^bad request response is received from booking sentence API$")
     public void badRequestResponseIsReceivedFromBookingSentenceAPI() {
         bookingSentenceDetail.verifyBadRequest("List of Offender Ids must be provided");
@@ -595,6 +600,7 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^\"([0-9-]+)\" offenders are returned$")
     public void offendersAreReturned(long total) {
+        bookingSentenceDetail.verifyNoError();
         bookingSentenceDetail.verifyResourceRecordsReturned(total);
     }
 

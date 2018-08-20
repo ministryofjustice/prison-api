@@ -53,6 +53,7 @@ public interface BookingService {
     List<ScheduledEvent> getEventsNextWeek(Long bookingId);
 
     List<OffenderSentenceDetail> getOffenderSentencesSummary(String agencyId, String username, List<String> offenderNos);
+    List<OffenderSentenceDetail> getBookingSentencesSummary(String username, List<Long> bookingIds);
 
     Visit getBookingVisitLast(Long bookingId);
     Visit getBookingVisitNext(Long bookingId);
