@@ -31,29 +31,6 @@ public class DateFormatProvider {
     }
 
     /**
-     * Formats date and time represented by provided dateTime object to an ISO-8601 datetime representation.
-     *
-     * @param dateTime an instance of {@code java.sql.Timestamp} or {@code java.util.Date}.
-     * @return a {@link LocalDateTime} or {@code null} if provided dateTime object is {@code null}.
-     * @throws IllegalArgumentException if provided dateTime object is not of a supported type.
-     * @deprecated Use {@link DateTimeConverter#toISO8601LocalDateTime(Object)} instead.
-     */
-    @Deprecated
-    public static LocalDateTime toISO8601LocalDateTime(Object dateTime) {
-        LocalDateTime localDateTime = null;
-        if (dateTime != null) {
-            if (dateTime instanceof java.sql.Timestamp) {
-                localDateTime = ((java.sql.Timestamp) dateTime).toLocalDateTime();
-            } else if (dateTime instanceof java.util.Date) {
-                localDateTime = ((java.util.Date) dateTime).toInstant().atOffset(ZoneOffset.UTC).toLocalDateTime();
-            } else {
-                throw new IllegalArgumentException("Cannot convert [" + dateTime.getClass().getName() + "] to a LocalDateTime.");
-            }
-        }
-        return localDateTime;
-    }
-
-    /**
      * Formats date represented by provided date object to an ISO-8601 date representation (i.e. yyyy-MM-dd).
      * By definition, this method ignores timezone information, if any, that might exist in provided date object.
      *
