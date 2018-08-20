@@ -1,5 +1,6 @@
 package net.syscon.elite.repository;
 
+import net.syscon.elite.api.model.CaseNote;
 import net.syscon.elite.api.model.NewCaseNote;
 import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.web.config.CacheConfig;
@@ -93,6 +94,30 @@ public class CaseNoteRepositoryTest {
 
         jdbcTemplate.update("delete from offender_case_notes where case_note_id = ?", caseNoteId);
     }
+
+    @Test
+    public void testCaseNoteTimes() {
+
+        LocalDateTime startTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+
+        long bookingId = -4;
+        NewCaseNote newCaseNote = newCaseNote();
+        String sourceCode = "source code";
+        String username = "username";
+        long staffId = -2;
+        long caseNoteId = repository.createCaseNote(bookingId, newCaseNote, sourceCode, username, staffId);
+
+        CaseNote caseNote = repository.getCaseNote(-4, caseNoteId).get();
+
+        LocalDateTime contactDateTime = caseNote.getOccurrenceDateTime();
+        LocalDateTime createDateTime = caseNote.getCreationDateTime();
+
+        assertThat(contactDateTime).isBetween(createDateTime.minusSeconds(1), createDateTime.plusSeconds(1));
+
+        jdbcTemplate.update("delete from offender_case_notes where case_note_id = ?", caseNoteId);
+    }
+
+
 
     private NewCaseNote newCaseNote() {
         NewCaseNote newCaseNote = new NewCaseNote();
