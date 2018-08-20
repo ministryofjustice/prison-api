@@ -145,7 +145,7 @@ public class DateTimeConverter {
 			if (dateTime instanceof Timestamp) {
 				localDateTime = ((Timestamp) dateTime).toLocalDateTime();
 			} else if (dateTime instanceof Date) {
-				localDateTime = ((Date) dateTime).toInstant().atZone(ZoneOffset.UTC).toLocalDateTime();
+				localDateTime = ((Date) dateTime).toInstant().atOffset(ZoneOffset.UTC).toLocalDateTime();
 			} else {
 				throw new IllegalArgumentException("Cannot convert [" + dateTime.getClass().getName() + "] to a LocalDateTime.");
 			}
