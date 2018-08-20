@@ -33,6 +33,9 @@ public class CacheConfig implements CachingConfigurer {
     @Value("${cache.timeout.seconds.booking:3600}")
     private int bookingTimeoutSeconds;
 
+    @Value("${cache.timeout.seconds.assessment:5}")
+    private int assessmentTimeoutSeconds;
+
     @Value("${cache.timeout.seconds.location:3600}")
     private int locationTimeoutSeconds;
 
@@ -71,8 +74,8 @@ public class CacheConfig implements CachingConfigurer {
         config.addCache(config("findInmate", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("basicInmateDetail", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
-        config.addCache(config("bookingAssessments", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("offenderAssessments", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("bookingAssessments", 10000, assessmentTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("offenderAssessments", 10000, assessmentTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("bookingPhysicalMarks", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("bookingProfileInformation", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("bookingPhysicalCharacteristics", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
