@@ -138,7 +138,7 @@ public class AgencyServiceImpl implements AgencyService {
 
         List<Location> locations = agencyRepository.getAgencyLocationsBooked(agencyId, bookedOnDay, bookedOnPeriod);
 
-        return locations;
+        return LocationProcessor.processLocations(locations, true);
     }
 
     @Override

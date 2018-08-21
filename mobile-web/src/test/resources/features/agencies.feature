@@ -88,26 +88,26 @@ Feature: Agencies
   Scenario: Retrieve locations, for an agency, that are booked for offenders on the given date
     When a request is submitted to retrieve locations for agency "LEI" for booked events on date "2017-09-15"
     Then the returned agency locations are as follows:
-      | locationId | userDescription    |
-      | -26        | Carpentry Workshop |
-      | -25        | Chapel             |
-      | -27        | Classroom 1        |
-      | -29        | Medical Centre     |
+      | locationId | description        | userDescription    |
+      | -26        | Carpentry Workshop | Carpentry Workshop |
+      | -25        | Chapel             | Chapel             |
+      | -27        | Classroom 1        | Classroom 1        |
+      | -29        | Medical Centre     | Medical Centre     |
 
   Scenario: Retrieve locations, for an agency, that are booked for offenders on the given date with timeslot
     When a request is submitted to retrieve locations for agency "LEI" for booked events on "2017-09-15" and timeslot "AM"
     Then the returned agency locations are as follows:
-      | locationId | userDescription    |
-      | -25        | Chapel             |
+      | locationId | description    | userDescription    |
+      | -25        | Chapel         | Chapel             |
 
   Scenario: Retrieve locations, for an agency, that are booked for offenders on the given date (appointment event_id=-15)
     When a request is submitted to retrieve locations for agency "LEI" for booked events on date "2017-12-25"
     Then the returned agency locations are as follows:
-      | locationId | userDescription    |
-      | -25        | Chapel             |
+      | locationId | description    | userDescription    |
+      | -25        | Chapel         | Chapel             |
 
   Scenario: Retrieve locations, for an agency, that are booked for offenders on the given date (offender_visit_id=-14)
     When a request is submitted to retrieve locations for agency "LEI" for booked events on date "2017-03-10"
     Then the returned agency locations are as follows:
-      | locationId | userDescription    |
-      | -25        | Chapel             |
+      | locationId | description    | userDescription    |
+      | -25        | Chapel         | Chapel             |
