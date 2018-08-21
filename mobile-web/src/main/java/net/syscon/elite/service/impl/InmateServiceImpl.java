@@ -313,19 +313,7 @@ public class InmateServiceImpl implements InmateService {
     @Override
     public List<Assessment> getInmatesCSRAs(List<String> offenderNos) {
         List<Assessment> results = getInmatesAssessmentsByCode(offenderNos, null);
-        final Map<String, List<Assessment>> mapOfOffenderNos = results.stream()
-                .collect(Collectors.groupingBy(Assessment::getOffenderNo));
-
-        List<Assessment> csras = new ArrayList<>();
-        for (List<Assessment> assessmentsForOffender : mapOfOffenderNos.values()) {
-
-            // Find the most recent assessment with cell sharing = true, regardless of code for each offender
-            final Assessment csra = findCSRA(assessmentsForOffender);
-            if (csra != null) {
-                csras.add(csra);
-            }
-        }
-        return csras;
+        return results;
     }
 
     private Assessment findCSRA(List<Assessment> assessmentsForOffender) {
