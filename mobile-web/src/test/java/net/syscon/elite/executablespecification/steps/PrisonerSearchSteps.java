@@ -27,6 +27,11 @@ public class PrisonerSearchSteps extends CommonSteps {
         verifyPropertyValues(prisonerDetails, PrisonerDetail::getOffenderNo, offenderNoList);
     }
 
+    @Step("Verify offender internal location returned by search")
+    public void verifyInternalLocation(String internalLocation) {
+        verifyPropertyValues(prisonerDetails, PrisonerDetail::getInternalLocation, internalLocation);
+    }
+
     @Step("Verify first names of prisoner returned by search")
     public void verifyFirstNames(String nameList) {
         verifyPropertyValues(prisonerDetails, PrisonerDetail::getFirstName, nameList);
