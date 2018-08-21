@@ -58,21 +58,22 @@ Feature: Prisoner Search
     When a search is made for prisoners with first name "<firstName>", middle names "<middleNames>" and last name "<lastName>"
     Then "<numberResults>" prisoner records are returned
     And prisoner offender numbers match "<offenderNos>"
+    And prisoner internal location match "<internalLocation>"
 
     Examples:
-      | firstName | middleNames    | lastName  | numberResults | offenderNos     |
-      |           |                | ANDERSON  | 2             | A1234AA,A1234AB |
-      |           | EVE            | ANDERSON  | 1             | A1234AB         |
-      |           | JAMES          |           | 2             | A1234AD,A1234AI |
-      | CHESTER   | JAMES          |           | 1             | A1234AI         |
-      |           | JEFFREY ROBERT |           | 1             | A1234AE         |
-      | DANIEL    |                |           | 2             | A1234AJ,A1234AL |
-      | DANIEL    | JOSEPH         |           | 1             | A1234AJ         |
-      |           |                | WILLIS    | 0             |                 |
-      |           |                | AND       | 0             |                 |
-      | CHES      |                |           | 0             |                 |
-      |           | JEFF           |           | 0             |                 |
-      |           |                | O'VAUGHAN | 1             | A1181MV         |
+      | firstName | middleNames    | lastName  | numberResults | offenderNos     | internalLocation      |
+      |           |                | ANDERSON  | 2             | A1234AA,A1234AB | LEI-A-1-1,LEI-H-1-5   |
+      |           | EVE            | ANDERSON  | 1             | A1234AB         | LEI-H-1-5             |
+      |           | JAMES          |           | 2             | A1234AD,A1234AI | LEI-A-1,LEI-A-1-5     |
+      | CHESTER   | JAMES          |           | 1             | A1234AI         | LEI-A-1-5             |
+      |           | JEFFREY ROBERT |           | 1             | A1234AE         | LEI-A-1-10            |
+      | DANIEL    |                |           | 2             | A1234AJ,A1234AL | LEI-A-1-6,LEI-AABCW-1 |
+      | DANIEL    | JOSEPH         |           | 1             | A1234AJ         | LEI-A-1-6             |
+      |           |                | WILLIS    | 0             |                 |                       |
+      |           |                | AND       | 0             |                 |                       |
+      | CHES      |                |           | 0             |                 |                       |
+      |           | JEFF           |           | 0             |                 |                       |
+      |           |                | O'VAUGHAN | 1             | A1181MV         |                       |
 
   @nomis
   Scenario Outline: Search for prisoners by names, with partial name matching

@@ -42,6 +42,12 @@ public class PrisonerSearchStepDefinitions extends AbstractStepDefinitions {
         prisonerSearch.verifyOffenderNumbers(offenderNoList);
     }
 
+    @And("^prisoner internal location match \"([^\"]*)\"$")
+    public void offenderInternalLocationMatch(String internalLocation) {
+        prisonerSearch.verifyInternalLocation(internalLocation);
+    }
+
+
     @And("^the prisoners first names match \"([^\"]*)\"$")
     public void offenderFirstNamesMatch(String firstNames) throws Throwable {
         prisonerSearch.verifyFirstNames(firstNames);
