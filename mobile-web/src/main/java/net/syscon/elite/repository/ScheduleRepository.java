@@ -20,4 +20,6 @@ public interface ScheduleRepository {
     List<PrisonerSchedule> getVisits(String agencyId, List<String> offenderNo, LocalDate date);
 
     List<PrisonerSchedule> getAppointments(String agencyId, List<String> offenderNo, LocalDate date);
+
+    List<PrisonerSchedule> getActivities(String agencyId, List<String> offenderNumbers, LocalDate date);
 }

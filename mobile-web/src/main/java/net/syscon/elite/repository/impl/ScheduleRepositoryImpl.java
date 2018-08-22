@@ -106,4 +106,18 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
                         "date", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(date))),
                 EVENT_ROW_MAPPER);
     }
+
+    @Override
+    public List<PrisonerSchedule> getActivities(String agencyId, List<String> offenderNumbers, LocalDate date) {
+        String initialSql = getQuery("GET_ACTIVITIES");
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
+        String sql = builder.build() +  AND_OFFENDER_NUMBERS;
+
+        return jdbcTemplate.query(
+                sql,
+                createParams(
+                        "offenderNos", offenderNumbers,
+                        "date", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(date))),
+                EVENT_ROW_MAPPER);
+    }
 }

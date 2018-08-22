@@ -145,4 +145,15 @@ public class ScheduleRepositoryTest {
         assertThat(results.get(0).getStartTime()).isEqualTo(LocalDateTime.parse("2017-09-15T14:00"));
         assertThat(results.get(0).getLocationId()).isEqualTo(-25L);
     }
+
+    @Test
+    public void testGetActivities() {
+        final LocalDate date = LocalDate.parse("2017-09-15");
+        final List<PrisonerSchedule> results =  repository.getActivities("LEI", Collections.singletonList("A1234AB"), date);
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0).getOffenderNo()).isEqualTo("A1234AB");
+        assertThat(results.get(0).getStartTime()).isEqualTo(LocalDateTime.parse("2017-09-15T13:00"));
+        assertThat(results.get(0).getLocationId()).isEqualTo(-26L);
+    }
+
 }
