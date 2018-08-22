@@ -42,12 +42,12 @@ Feature: Authentication
     Then a new token is generated successfully
     And token timeout is valid
 
-  @nomis
+  @nomis @wip
   Scenario: JWT expires after configured period of time
     Given API authentication is attempted with the following credentials:
       | username  | itag_user  |
       | password  | password   |
-    And I wait until the token as expired
+#    And I wait until the token as expired
     When token refresh is attempted
     Then a new token has been issued
 
@@ -56,8 +56,8 @@ Feature: Authentication
     Given API authentication is attempted with the following credentials:
       | username  | itag_user  |
       | password  | password   |
-    When I wait until the token as expired
-    And token refresh is attempted
+#    When I wait until the token as expired
+    When token refresh is attempted
     Then a new token is generated successfully
     And token timeout is valid
 
