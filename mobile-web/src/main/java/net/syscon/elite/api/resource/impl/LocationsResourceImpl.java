@@ -13,6 +13,8 @@ import net.syscon.elite.service.support.SearchOffenderRequest;
 
 import javax.ws.rs.Path;
 
+import java.util.List;
+
 import static net.syscon.util.ResourceUtils.nvl;
 
 @RestResource
@@ -42,11 +44,13 @@ public class LocationsResourceImpl implements LocationResource {
 	}
 
 	@Override
-	public GetOffendersAtLocationDescriptionResponse getOffendersAtLocationDescription(String locationPrefix, String keywords, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+	public GetOffendersAtLocationDescriptionResponse getOffendersAtLocationDescription(String locationPrefix,
+			String keywords, List<String> alerts, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
 		SearchOffenderRequest request = SearchOffenderRequest.builder()
 				.username(authenticationFacade.getCurrentUsername())
 				.keywords(keywords)
 				.locationPrefix(locationPrefix)
+                .alerts(alerts)
 				.orderBy(sortFields)
 				.order(sortOrder)
 				.offset(nvl(pageOffset, 0L))

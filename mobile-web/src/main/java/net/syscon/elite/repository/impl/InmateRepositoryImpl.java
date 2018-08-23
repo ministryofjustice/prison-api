@@ -1,6 +1,9 @@
 package net.syscon.elite.repository.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
@@ -20,10 +23,21 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static net.syscon.elite.repository.ImageRepository.IMAGE_DETAIL_MAPPER;
 
 @Repository
@@ -177,7 +191,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 	@Override
 	@Cacheable("searchForOffenderBookings")
-	public Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String searchTerm1, String searchTerm2, String locationPrefix, String locationTypeRoot, PageRequest pageRequest) {
+	public Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String searchTerm1, String searchTerm2,
+														   String locationPrefix, List<String> alerts, String locationTypeRoot, PageRequest pageRequest) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
 		initialSql += " AND " + getQuery("LOCATION_FILTER_SQL");
 
@@ -196,6 +211,10 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			initialSql += " AND (O.FIRST_NAME like :searchTerm1 OR O.LAST_NAME like :searchTerm1) ";
 		} else if (StringUtils.isNotBlank(searchTerm2)) {
 			initialSql += " AND (O.FIRST_NAME like :searchTerm2 OR O.LAST_NAME like :searchTerm2) ";
+		}
+
+		if (!alerts.isEmpty()) {
+			initialSql += " AND " + getQuery("ALERT_FILTER");
 		}
 
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_BOOKING_MAPPING);
@@ -219,10 +238,39 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "locationPrefix", StringUtils.trimToEmpty(locationPrefix) + "-%",
                         "caseLoadId", caseloads,
                         "locationTypeRoot", locationTypeRoot,
+                        "alerts", alerts,
                         "offset", pageRequest.getOffset(), "limit", pageRequest.getLimit()),
                 paRowMapper);
 		offenderBookings.forEach(b -> b.setAge(DateTimeConverter.getAge(b.getDateOfBirth())));
 		return new Page<>(offenderBookings, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
+	}
+
+	@Data
+	@NoArgsConstructor
+	@AllArgsConstructor
+	static class AlertResult {
+		Long bookingId;
+		String alertCode;
+	}
+	final StandardBeanPropertyRowMapper<AlertResult> ALERTS_MAPPER = new StandardBeanPropertyRowMapper<>(AlertResult.class);
+
+	/**
+	 * @param bookingIds
+	 * @param cutoffDate Omit alerts which have expired before this date-time
+	 * @return a list of active alert codes for each booking id
+	 */
+	@Override
+	public Map<Long, List<String>> getAlertCodesForBookings(List<Long> bookingIds, LocalDateTime cutoffDate) {
+		if (CollectionUtils.isEmpty(bookingIds)) {
+			return Collections.emptyMap();
+		}
+		final List<AlertResult> results = jdbcTemplate.query(
+				getQuery("GET_ALERT_CODES_FOR_BOOKINGS"),
+				createParams("bookingIds", bookingIds, "cutoffDate", DateTimeConverter.fromLocalDateTime(cutoffDate)),
+				ALERTS_MAPPER);
+
+		return results.stream().collect(Collectors.groupingBy(AlertResult::getBookingId,
+				Collectors.mapping(AlertResult::getAlertCode, Collectors.toList())));
 	}
 
 	@Override
