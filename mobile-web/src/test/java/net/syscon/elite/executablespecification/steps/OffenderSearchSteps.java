@@ -84,7 +84,9 @@ public class OffenderSearchSteps extends CommonSteps {
             queryUrl += "alerts=" + a + "&";
         }
         ResponseEntity<List<OffenderBooking>> responseEntity = restTemplate.exchange(queryUrl,
-                HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<OffenderBooking>>() {
+                HttpMethod.GET,
+                createEntity(null, addPaginationHeaders()),
+                new ParameterizedTypeReference<List<OffenderBooking>>() {
                 });
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);

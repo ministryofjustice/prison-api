@@ -44,7 +44,15 @@ import static net.syscon.elite.repository.ImageRepository.IMAGE_DETAIL_MAPPER;
 @Slf4j
 public class InmateRepositoryImpl extends RepositoryBase implements InmateRepository {
 
-    private static final Map<String, FieldMapper> OFFENDER_BOOKING_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
+	@Data
+	@NoArgsConstructor
+	@AllArgsConstructor
+	private static class AlertResult {
+		Long bookingId;
+		String alertCode;
+	}
+
+	private static final Map<String, FieldMapper> OFFENDER_BOOKING_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
             .put("OFFENDER_BOOK_ID", 	new FieldMapper("bookingId"))
             .put("BOOKING_NO", 			new FieldMapper("bookingNo"))
             .put("OFFENDER_ID_DISPLAY", new FieldMapper("offenderNo"))
@@ -104,7 +112,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     private final StandardBeanPropertyRowMapper<InmateDto> INMATE_MAPPER = new StandardBeanPropertyRowMapper<>(InmateDto.class);
 	private final StandardBeanPropertyRowMapper<ProfileInformation> PROFILE_INFORMATION_MAPPER = new StandardBeanPropertyRowMapper<>(ProfileInformation.class);
 	private final StandardBeanPropertyRowMapper<OffenderIdentifier> OFFENDER_IDENTIFIER_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderIdentifier.class);
-
+	final StandardBeanPropertyRowMapper<AlertResult> ALERTS_MAPPER = new StandardBeanPropertyRowMapper<>(AlertResult.class);
 
     private final StandardBeanPropertyRowMapper<PrisonerDetail> PRISONER_DETAIL_MAPPER =
             new StandardBeanPropertyRowMapper<>(PrisonerDetail.class);
@@ -244,15 +252,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		offenderBookings.forEach(b -> b.setAge(DateTimeConverter.getAge(b.getDateOfBirth())));
 		return new Page<>(offenderBookings, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
 	}
-
-	@Data
-	@NoArgsConstructor
-	@AllArgsConstructor
-	static class AlertResult {
-		Long bookingId;
-		String alertCode;
-	}
-	final StandardBeanPropertyRowMapper<AlertResult> ALERTS_MAPPER = new StandardBeanPropertyRowMapper<>(AlertResult.class);
 
 	/**
 	 * @param bookingIds

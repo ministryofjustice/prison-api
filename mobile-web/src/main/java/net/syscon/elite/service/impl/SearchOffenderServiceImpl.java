@@ -70,22 +70,18 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
 
         final Set<String> caseloads = bookingService.isOverrideRole() ? Collections.emptySet() : userService.getCaseLoadIds(request.getUsername());
 
-        Page<OffenderBooking> bookings = repository.searchForOffenderBookings(
+        final Page<OffenderBooking> bookings = repository.searchForOffenderBookings(
                 caseloads, offenderNo, searchTerm1, searchTerm2,
                 request.getLocationPrefix(),
                 request.getAlerts(),
                 locationTypeGranularity, pageRequest);
 
-        List<Long> bookingIds = bookings.getItems().stream().map(OffenderBooking::getBookingId).collect(Collectors.toList());
-        Map<Long, PrivilegeSummary> bookingIEPSummary = bookingService.getBookingIEPSummary(bookingIds, false);
+        final List<Long> bookingIds = bookings.getItems().stream().map(OffenderBooking::getBookingId).collect(Collectors.toList());
+        final Map<Long, PrivilegeSummary> bookingIEPSummary = bookingService.getBookingIEPSummary(bookingIds, false);
         final Map<Long, List<String>> alertCodesForBookings = repository.getAlertCodesForBookings(bookingIds, LocalDateTime.now());
         bookings.getItems().forEach(booking -> {
             booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel());
             booking.setAlertsDetails(alertCodesForBookings.get(booking.getBookingId()));
-//            booking.setAlertsDetails(alertCodesForBookings.get(booking.getBookingId())
-//                    .stream()
-//                    .map(b -> b.getAlertCode())
-//                    .collect(Collectors.toList()));
         });
         return bookings;
     }
