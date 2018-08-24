@@ -12,8 +12,10 @@ import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -35,7 +37,8 @@ public interface InmateRepository {
 
 	Page<OffenderBooking> findAllInmates(Set<String> caseloads, String locationTypeRoot, String query, PageRequest pageRequest);
 
-	Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String searchTerm1, String searchTerm2, String locationPrefix, String locationTypeRoot, PageRequest pageRequest);
+	Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String searchTerm1, String searchTerm2,
+													String locationPrefix, List<String> alerts, String locationTypeRoot, PageRequest pageRequest);
 
 	Page<OffenderBooking> findInmatesByLocation(Long locationId, String locationTypeRoot, String caseLoadId, String query, String orderByField, Order order, long offset, long limit);
 
@@ -46,6 +49,8 @@ public interface InmateRepository {
 	Optional<InmateDetail> getBasicInmateDetail(Long bookingId);
 
 	Page<Alias> findInmateAliases(Long bookingId, String orderByFields, Order order, long offset, long limit);
+
+	Map<Long, List<String>> getAlertCodesForBookings(List<Long> bookingIds, LocalDateTime cutoffDate);
 
 	List<Long> getPersonalOfficerBookings(long staffId);
 

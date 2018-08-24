@@ -37,6 +37,11 @@ public class OffenderSearchStepDefinitions extends AbstractStepDefinitions {
         offenderSearch.search(locationPrefix, keywords);
     }
 
+    @When("^an offender search is made filtering by alerts \"([^\"]*)\" in location \"([^\"]*)\"$")
+    public void aBookingSearchIsMadeWithAlerts(String alerts, String locationPrefix) {
+        offenderSearch.alertSearch(alerts, locationPrefix);
+    }
+
     @Then("^\"([^\"]*)\" offender records are returned$")
     public void bookingRecordsAreReturned(String expectedCount) throws Throwable {
         offenderSearch.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
@@ -65,6 +70,11 @@ public class OffenderSearchStepDefinitions extends AbstractStepDefinitions {
     @And("^location name match \"([^\"]*)\"$")
     public void livingUnitDescriptionsMatch(String livingUnits) throws Throwable {
         offenderSearch.verifyLivingUnits(livingUnits);
+    }
+
+    @And("^the offender alerts match \"([^\"]*)\"$")
+    public void offenderAlertsMatch(String alerts) throws Throwable {
+        offenderSearch.verifyAlerts(alerts);
     }
 
     @When("^a booking search is made in \"([^\"]*)\"$")

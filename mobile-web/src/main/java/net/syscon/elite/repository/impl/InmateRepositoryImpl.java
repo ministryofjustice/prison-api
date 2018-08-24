@@ -1,6 +1,9 @@
 package net.syscon.elite.repository.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
@@ -21,8 +24,11 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static net.syscon.elite.repository.ImageRepository.IMAGE_DETAIL_MAPPER;
 
@@ -30,7 +36,7 @@ import static net.syscon.elite.repository.ImageRepository.IMAGE_DETAIL_MAPPER;
 @Slf4j
 public class InmateRepositoryImpl extends RepositoryBase implements InmateRepository {
 
-    private static final Map<String, FieldMapper> OFFENDER_BOOKING_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
+	private static final Map<String, FieldMapper> OFFENDER_BOOKING_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
             .put("OFFENDER_BOOK_ID", 	new FieldMapper("bookingId"))
             .put("BOOKING_NO", 			new FieldMapper("bookingNo"))
             .put("OFFENDER_ID_DISPLAY", new FieldMapper("offenderNo"))
@@ -90,7 +96,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     private final StandardBeanPropertyRowMapper<InmateDto> INMATE_MAPPER = new StandardBeanPropertyRowMapper<>(InmateDto.class);
 	private final StandardBeanPropertyRowMapper<ProfileInformation> PROFILE_INFORMATION_MAPPER = new StandardBeanPropertyRowMapper<>(ProfileInformation.class);
 	private final StandardBeanPropertyRowMapper<OffenderIdentifier> OFFENDER_IDENTIFIER_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderIdentifier.class);
-
+	private final StandardBeanPropertyRowMapper<AlertResult> ALERTS_MAPPER = new StandardBeanPropertyRowMapper<>(AlertResult.class);
 
     private final StandardBeanPropertyRowMapper<PrisonerDetail> PRISONER_DETAIL_MAPPER =
             new StandardBeanPropertyRowMapper<>(PrisonerDetail.class);
@@ -105,6 +111,14 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("ALIAS_TYPE",		new FieldMapper("nameType"))
 			.put("CREATE_DATE",     new FieldMapper("createDate", DateTimeConverter::toISO8601LocalDate))
 			.build();
+
+	@Data
+	@NoArgsConstructor
+	@AllArgsConstructor
+	private static class AlertResult {
+		private Long bookingId;
+		private String alertCode;
+	}
 
 	@Override
 	public Page<OffenderBooking> findInmatesByLocation(Long locationId, String locationTypeRoot, String caseLoadId, String query, String orderByField, Order order, long offset, long limit) {
@@ -177,7 +191,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 	@Override
 	@Cacheable("searchForOffenderBookings")
-	public Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String searchTerm1, String searchTerm2, String locationPrefix, String locationTypeRoot, PageRequest pageRequest) {
+	public Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String searchTerm1, String searchTerm2,
+														   String locationPrefix, List<String> alerts, String locationTypeRoot, PageRequest pageRequest) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
 		initialSql += " AND " + getQuery("LOCATION_FILTER_SQL");
 
@@ -196,6 +211,10 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			initialSql += " AND (O.FIRST_NAME like :searchTerm1 OR O.LAST_NAME like :searchTerm1) ";
 		} else if (StringUtils.isNotBlank(searchTerm2)) {
 			initialSql += " AND (O.FIRST_NAME like :searchTerm2 OR O.LAST_NAME like :searchTerm2) ";
+		}
+
+		if (!alerts.isEmpty()) {
+			initialSql += " AND " + getQuery("ALERT_FILTER");
 		}
 
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_BOOKING_MAPPING);
@@ -219,10 +238,30 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "locationPrefix", StringUtils.trimToEmpty(locationPrefix) + "-%",
                         "caseLoadId", caseloads,
                         "locationTypeRoot", locationTypeRoot,
+                        "alerts", alerts,
                         "offset", pageRequest.getOffset(), "limit", pageRequest.getLimit()),
                 paRowMapper);
 		offenderBookings.forEach(b -> b.setAge(DateTimeConverter.getAge(b.getDateOfBirth())));
 		return new Page<>(offenderBookings, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
+	}
+
+	/**
+	 * @param bookingIds
+	 * @param cutoffDate Omit alerts which have expired before this date-time
+	 * @return a list of active alert codes for each booking id
+	 */
+	@Override
+	public Map<Long, List<String>> getAlertCodesForBookings(List<Long> bookingIds, LocalDateTime cutoffDate) {
+		if (CollectionUtils.isEmpty(bookingIds)) {
+			return Collections.emptyMap();
+		}
+		final List<AlertResult> results = jdbcTemplate.query(
+				getQuery("GET_ALERT_CODES_FOR_BOOKINGS"),
+				createParams("bookingIds", bookingIds, "cutoffDate", DateTimeConverter.fromLocalDateTime(cutoffDate)),
+				ALERTS_MAPPER);
+
+		return results.stream().collect(Collectors.groupingBy(AlertResult::getBookingId,
+				Collectors.mapping(AlertResult::getAlertCode, Collectors.toList())));
 	}
 
 	@Override

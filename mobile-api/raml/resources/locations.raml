@@ -38,6 +38,11 @@
       keywords?:
         type : string
         description: offender name or id to match
+      alerts?:
+        type: array
+        (javaType): List<String>
+        description: alert flags to filter by
+        example: ?alerts=XA&alerts=RVR
   type: { readOnlyCollectionPaged: { type: OffenderBooking, description: List of offenders at location. } }
   is: [
     sortable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId"},

@@ -7,6 +7,7 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import net.syscon.elite.web.config.PersistenceConfigs;
+import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,10 +23,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Month;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -53,6 +54,50 @@ public class InmateRepositoryTest {
         Page<OffenderBooking> foundInmates = repository.findAllInmates(caseloads, "WING", "", pageRequest);
 
         assertThat(foundInmates.getItems()).isNotEmpty();
+    }
+
+    @Test
+    public void testSearchForOffenderBookings() {
+        final PageRequest pageRequest = new PageRequest("lastName, firstName");
+        final HashSet<String> caseloads = new HashSet<>(Arrays.asList("LEI", "BXI"));
+        List<String> alertFilter = Arrays.asList("XA", "HC");
+
+        Page<OffenderBooking> foundInmates = repository.searchForOffenderBookings(caseloads, "A1234AA", "A", "A", "LEI",
+                alertFilter, "WING", pageRequest);
+
+        final List<OffenderBooking> results = foundInmates.getItems();
+        assertThat(results).asList().hasSize(1);
+        assertThat(results).asList().extracting("bookingId", "offenderNo", "dateOfBirth", "assignedLivingUnitDesc").contains(
+                Tuple.tuple(-1L, "A1234AA", LocalDate.of(1969, Month.DECEMBER, 30), "A-1-1"));
+    }
+
+    @Test
+    public void testGetAlertCodesForBookingsFuture() {
+
+        final Map<Long, List<String>> resultsFuture = repository.getAlertCodesForBookings(Arrays.asList(-1L, -2L, -16L),
+                LocalDateTime.of (LocalDate.now().plusDays(1), LocalTime.of(12,0)));
+
+        assertThat(resultsFuture.get(-1L)).asList().containsExactly("XA", "HC");
+        assertThat(resultsFuture.get(-2L)).asList().containsExactly("HA");
+        assertThat(resultsFuture.get(-16L)).isNull();
+    }
+
+    @Test
+    public void testGetAlertCodesForBookingsPast() {
+
+        final Map<Long, List<String>> resultsPast = repository.getAlertCodesForBookings(Arrays.asList(-1L, -2L, -16L),
+                LocalDateTime.of (LocalDate.now().plusDays(-1), LocalTime.of(12,0)));
+
+        assertThat(resultsPast.get(-16L)).asList().containsExactly("OIOM");
+    }
+
+    @Test
+    public void testGetAlertCodesForBookingsEmpty() {
+
+        final Map<Long, List<String>> resultsPast = repository.getAlertCodesForBookings(Collections.emptyList(),
+                LocalDateTime.now());
+
+        assertThat(resultsPast).isEmpty();
     }
 
     @Test
