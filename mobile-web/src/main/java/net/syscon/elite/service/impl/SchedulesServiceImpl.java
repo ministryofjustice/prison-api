@@ -158,7 +158,9 @@ public class SchedulesServiceImpl implements SchedulesService {
     public List<PrisonerSchedule> getVisits(String agencyId,List<String> offenderNo, LocalDate date, TimeSlot timeSlot) {
 
         Validate.notBlank(agencyId, "An agency id is required.");
-        Validate.notEmpty(offenderNo, "Offender numbers are required.");
+        if (offenderNo.isEmpty()) {
+            return Collections.emptyList();
+        }
 
         List<PrisonerSchedule> visits = scheduleRepository.getVisits(agencyId, offenderNo, date);
 
@@ -169,9 +171,23 @@ public class SchedulesServiceImpl implements SchedulesService {
     public List<PrisonerSchedule> getAppointments(String agencyId, List<String> offenderNo, LocalDate date, TimeSlot timeSlot) {
 
         Validate.notBlank(agencyId, "An agency id is required.");
-        Validate.notEmpty(offenderNo, "Offender numbers are required.");
+        if (offenderNo.isEmpty()) {
+            return Collections.emptyList();
+        }
 
         List<PrisonerSchedule> appointments = scheduleRepository.getAppointments(agencyId, offenderNo, date);
+
+        return FilterByTimeSlot(timeSlot, appointments);
+    }
+
+    @Override
+    public List<PrisonerSchedule> getActivities(String agencyId, List<String> offenderNumbers, LocalDate date, TimeSlot timeSlot) {
+        Validate.notBlank(agencyId, "An agency id is required.");
+        if (offenderNumbers.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<PrisonerSchedule> appointments = scheduleRepository.getActivities(agencyId, offenderNumbers, date);
 
         return FilterByTimeSlot(timeSlot, appointments);
     }

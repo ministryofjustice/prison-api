@@ -18,7 +18,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -88,6 +90,9 @@ public class ScheduleRepositoryTest {
         assertThat(results.get(21).getLastName()).isEqualTo("DUCK");
         assertThat(results.get(22).getLastName()).isEqualTo("DUCK");
         assertThat(results.get(23).getLastName()).isEqualTo("DUCK");
+
+        results.forEach(result -> assertThat(result.getLocationId()).isEqualTo(-26L));
+
     }
 
     @Test
@@ -100,6 +105,8 @@ public class ScheduleRepositoryTest {
           assertThat(results.get(1).getLastName()).isEqualTo("BATES");
           assertThat(results.get(2).getLastName()).isEqualTo("DUCK");
           assertThat(results.get(3).getLastName()).isEqualTo("DUCK");
+
+          results.forEach(result -> assertThat(result.getLocationId()).isEqualTo(-28L));
     }
 
     @Test
@@ -114,5 +121,39 @@ public class ScheduleRepositoryTest {
           assertThat(results.get(3).getLastName()).isEqualTo("ANDERSON");
           assertThat(results.get(4).getLastName()).isEqualTo("BATES");
           assertThat(results.get(5).getLastName()).isEqualTo("DUCK");
+
+        results.forEach(result -> assertThat(result.getLocationId()).isEqualTo(-25L));
     }
+
+    @Test
+    public void testGetAppointments() {
+        final LocalDate date = LocalDate.parse("2017-05-12");
+        final List<PrisonerSchedule> results =  repository.getAppointments("LEI", Collections.singletonList("A1234AB"), date);
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0).getOffenderNo()).isEqualTo("A1234AB");
+        assertThat(results.get(0).getStartTime()).isEqualTo(LocalDateTime.parse("2017-05-12T09:30"));
+        assertThat(results.get(0).getEvent()).isEqualTo("IMM");
+        assertThat(results.get(0).getLocationId()).isEqualTo(-28L);
+    }
+
+    @Test
+    public void testGetVisits() {
+        final LocalDate date = LocalDate.parse("2017-09-15");
+        final List<PrisonerSchedule> results =  repository.getVisits("LEI", Collections.singletonList("A1234AA"), date);
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0).getOffenderNo()).isEqualTo("A1234AA");
+        assertThat(results.get(0).getStartTime()).isEqualTo(LocalDateTime.parse("2017-09-15T14:00"));
+        assertThat(results.get(0).getLocationId()).isEqualTo(-25L);
+    }
+
+    @Test
+    public void testGetActivities() {
+        final LocalDate date = LocalDate.parse("2017-09-15");
+        final List<PrisonerSchedule> results =  repository.getActivities("LEI", Collections.singletonList("A1234AB"), date);
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0).getOffenderNo()).isEqualTo("A1234AB");
+        assertThat(results.get(0).getStartTime()).isEqualTo(LocalDateTime.parse("2017-09-15T13:00"));
+        assertThat(results.get(0).getLocationId()).isEqualTo(-26L);
+    }
+
 }

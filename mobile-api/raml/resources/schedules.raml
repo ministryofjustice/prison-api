@@ -100,3 +100,28 @@
             body:
               application/json:
                  type: PrisonerSchedule[]
+
+/{agencyId}/activities:
+  post:
+    (javaOperationName): getActivities
+    uriParameters:
+      agencyId:
+        type: string
+        description: The prison.
+    queryParameters:
+      date?:
+        type : date-only
+        description: Date of whereabouts list, default today
+      timeSlot?:
+        type : enum
+        (javaType): TimeSlot
+        description: AM, PM or ED
+    body:
+      application/json:
+           (javaType): List<String>
+           description: The required offender numbers (mandatory)
+    responses:
+          200:
+            body:
+              application/json:
+                 type: PrisonerSchedule[]
