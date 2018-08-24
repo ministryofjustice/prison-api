@@ -112,7 +112,7 @@ public class CaseNoteRepositoryTest {
         LocalDateTime contactDateTime = caseNote.getOccurrenceDateTime();
         LocalDateTime createDateTime = caseNote.getCreationDateTime();
 
-        assertThat(contactDateTime).isBetween(createDateTime.minusSeconds(1), createDateTime.plusSeconds(1));
+        assertThat(contactDateTime).isBetween(createDateTime.minusSeconds(2), createDateTime.plusSeconds(1));
 
         jdbcTemplate.update("delete from offender_case_notes where case_note_id = ?", caseNoteId);
     }
