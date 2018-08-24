@@ -1,6 +1,5 @@
 package net.syscon.elite.repository;
 
-import lombok.Data;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;

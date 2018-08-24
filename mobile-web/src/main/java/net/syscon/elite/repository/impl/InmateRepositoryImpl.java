@@ -23,34 +23,18 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.BinaryOperator;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
 import static net.syscon.elite.repository.ImageRepository.IMAGE_DETAIL_MAPPER;
 
 @Repository
 @Slf4j
 public class InmateRepositoryImpl extends RepositoryBase implements InmateRepository {
-
-	@Data
-	@NoArgsConstructor
-	@AllArgsConstructor
-	private static class AlertResult {
-		Long bookingId;
-		String alertCode;
-	}
 
 	private static final Map<String, FieldMapper> OFFENDER_BOOKING_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
             .put("OFFENDER_BOOK_ID", 	new FieldMapper("bookingId"))
@@ -112,7 +96,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     private final StandardBeanPropertyRowMapper<InmateDto> INMATE_MAPPER = new StandardBeanPropertyRowMapper<>(InmateDto.class);
 	private final StandardBeanPropertyRowMapper<ProfileInformation> PROFILE_INFORMATION_MAPPER = new StandardBeanPropertyRowMapper<>(ProfileInformation.class);
 	private final StandardBeanPropertyRowMapper<OffenderIdentifier> OFFENDER_IDENTIFIER_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderIdentifier.class);
-	final StandardBeanPropertyRowMapper<AlertResult> ALERTS_MAPPER = new StandardBeanPropertyRowMapper<>(AlertResult.class);
+	private final StandardBeanPropertyRowMapper<AlertResult> ALERTS_MAPPER = new StandardBeanPropertyRowMapper<>(AlertResult.class);
 
     private final StandardBeanPropertyRowMapper<PrisonerDetail> PRISONER_DETAIL_MAPPER =
             new StandardBeanPropertyRowMapper<>(PrisonerDetail.class);
@@ -127,6 +111,14 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("ALIAS_TYPE",		new FieldMapper("nameType"))
 			.put("CREATE_DATE",     new FieldMapper("createDate", DateTimeConverter::toISO8601LocalDate))
 			.build();
+
+	@Data
+	@NoArgsConstructor
+	@AllArgsConstructor
+	private static class AlertResult {
+		private Long bookingId;
+		private String alertCode;
+	}
 
 	@Override
 	public Page<OffenderBooking> findInmatesByLocation(Long locationId, String locationTypeRoot, String caseLoadId, String query, String orderByField, Order order, long offset, long limit) {
