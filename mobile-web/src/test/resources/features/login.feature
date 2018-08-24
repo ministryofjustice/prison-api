@@ -42,7 +42,7 @@ Feature: Authentication
     Then a new token is generated successfully
     And token timeout is valid
 
-  @nomis @wip
+  @nomis
   Scenario: JWT expires after configured period of time
     Given API authentication is attempted with the following credentials:
       | username  | itag_user  |
