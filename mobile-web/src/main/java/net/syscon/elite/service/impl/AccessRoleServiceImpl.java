@@ -27,11 +27,17 @@ public class AccessRoleServiceImpl implements AccessRoleService {
     @Transactional
     @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
     public void createAccessRole(@Valid AccessRole accessRole) {
+        if(accessRole.getParentRoleCode() != null) {
+            final Optional<AccessRole> roleOptional = accessRoleRepository.getAccessRole(accessRole.getParentRoleCode());
+            if(!roleOptional.isPresent()) {
+                throw  EntityNotFoundException.withMessage("Parent Access role with code [%s] not found", accessRole.getParentRoleCode());
+            }
+        }
 
         final Optional<AccessRole> roleOptional = accessRoleRepository.getAccessRole(accessRole.getRoleCode());
 
         if(roleOptional.isPresent()) {
-            throw  EntityAlreadyExistsException.withMessage("Access role with code [%s] already exists: [%s]", accessRole.getRoleCode(), roleOptional.get());
+            throw  EntityAlreadyExistsException.withMessage("Access role with code [%s] already exists: [%s]", accessRole.getRoleCode(), roleOptional.get().getRoleName());
         }
 
         accessRoleRepository.createAccessRole(accessRole);
@@ -45,7 +51,7 @@ public class AccessRoleServiceImpl implements AccessRoleService {
         final Optional<AccessRole> roleOptional = accessRoleRepository.getAccessRole(accessRole.getRoleCode());
 
         if(!roleOptional.isPresent()) {
-            throw  EntityNotFoundException.withMessage("Access role with code [%s] no found", accessRole.getRoleCode());
+            throw  EntityNotFoundException.withMessage("Access role with code [%s] not found", accessRole.getRoleCode());
         }
         accessRoleRepository.updateAccessRole(accessRole);
     }

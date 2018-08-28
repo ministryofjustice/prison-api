@@ -49,6 +49,14 @@ public class AccessRoleServiceImplTest {
     }
 
     @Test(expected = EntityNotFoundException.class)
+    public void testCreateAccessRoleParentNotFound() {
+        Mockito.when(accessRoleRepository.getAccessRole("PARENT_NOT_FOUND")).thenReturn(Optional.empty());
+
+        final AccessRole newAccessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").parentRoleCode("PARENT_NOT_FOUND").build();
+        accessRoleService.createAccessRole(newAccessRole);
+    }
+
+    @Test(expected = EntityNotFoundException.class)
     public void testUpdateAccessRoleNotFound() {
         Mockito.when(accessRoleRepository.getAccessRole("ROLE_CODE")).thenReturn(Optional.empty());
 

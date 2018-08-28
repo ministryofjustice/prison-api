@@ -5,6 +5,7 @@ import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.support.OperationResponse;
 import net.syscon.elite.service.AllocationException;
 import net.syscon.elite.service.ConfigException;
+import net.syscon.elite.service.EntityAlreadyExistsException;
 import net.syscon.elite.service.EntityNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -45,6 +46,10 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
             log.warn("Resource Not Found - an incorrect resource path/uri is being used.", ex);
         } else if (ex instanceof EntityNotFoundException) {
             status = Response.Status.NOT_FOUND.getStatusCode();
+            userMessage = ex.getMessage();
+            log.info(userMessage);
+        } else if (ex instanceof EntityAlreadyExistsException) {
+            status = Response.Status.CONFLICT.getStatusCode();
             userMessage = ex.getMessage();
             log.info(userMessage);
         } else if (ex instanceof AccessDeniedException) {
