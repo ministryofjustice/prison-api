@@ -25,6 +25,12 @@
           application/json:
             type: ErrorResponse
             description: A role already exists with the provided role code.
+      404:
+        body:
+          application/json:
+            type: ErrorResponse
+            description: Parent access role not found.
+            example: !include ../examples/ouput/404.sample.json
   put:
     (javaOperationName): updateAccessRole
     description: Update the access role.
