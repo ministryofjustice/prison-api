@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.logging.Filter;
 import java.util.stream.Collectors;
 
 /**
@@ -60,38 +59,40 @@ public class SchedulesServiceImpl implements SchedulesService {
                 authenticationFacade.getCurrentUsername(),
                 agencyId,
                 locationIdsForGroup(agencyId, groupName));
-        if(!inmates.isEmpty()) {
 
-            final LocalDate day = date == null ? LocalDate.now() : date;
-
-            final String orderFields = StringUtils.defaultString(sortFields, "cellLocation");
-            Comparator<PrisonerSchedule> comparator = "cellLocation".equals(orderFields) ? BY_CELL_LOCATION : BY_LAST_NAME;
-            comparator = comparator.thenComparing(PrisonerSchedule::getOffenderNo);
-            if (sortOrder == Order.DESC) {
-                comparator = comparator.reversed();
-            }
-            comparator = comparator.thenComparing(PrisonerSchedule::getStartTime);
-
-            final List<PrisonerSchedule> prisonerSchedules = prisonerSchedules(inmates, timeSlot, day);
-
-            return prisonerSchedules.stream()
-                    .sorted(comparator)
-                    .collect(Collectors.toList());
-        } else {
+        if (inmates.isEmpty()) {
             return Collections.emptyList();
         }
+
+        final LocalDate day = date == null ? LocalDate.now() : date;
+
+        final List<PrisonerSchedule> prisonerSchedules = prisonerSchedules(inmates, timeSlot, day);
+
+        return prisonerSchedules.stream()
+                .sorted(getPrisonerScheduleComparator(sortFields, sortOrder))
+                .collect(Collectors.toList());
+    }
+
+    private Comparator<PrisonerSchedule> getPrisonerScheduleComparator(String sortFields, Order sortOrder) {
+        final String orderFields = StringUtils.defaultString(sortFields, "cellLocation");
+        Comparator<PrisonerSchedule> comparator = "cellLocation".equals(orderFields) ? BY_CELL_LOCATION : BY_LAST_NAME;
+        comparator = comparator.thenComparing(PrisonerSchedule::getOffenderNo);
+        if (sortOrder == Order.DESC) {
+            comparator = comparator.reversed();
+        }
+        comparator = comparator.thenComparing(PrisonerSchedule::getStartTime);
+        return comparator;
     }
 
     private List<Long> locationIdsForGroup(String agencyId, String groupName) {
-        final List<Location> locations = locationService.getGroup(agencyId, groupName);
+        final List<Location> locations = locationService.getCellLocationsForGroup(agencyId, groupName);
         return idsOfLocations(locations);
     }
 
     private List<Long> idsOfLocations(List<Location> locations) {
         return locations
                 .stream()
-                .mapToLong(Location::getLocationId)
-                .boxed()
+                .map(Location::getLocationId)
                 .collect(Collectors.toList());
     }
 
@@ -108,17 +109,17 @@ public class SchedulesServiceImpl implements SchedulesService {
     }
 
     private PrisonerSchedule prisonerSchedule(InmateDto inmate, ScheduledEvent event) {
-        return PrisonerSchedule.builder()//
-                .cellLocation(inmate.getLocationDescription())//
-                .lastName(inmate.getLastName())//
-                .firstName(inmate.getFirstName())//
-                .offenderNo(inmate.getOffenderNo())//
-                .comment(event.getEventSourceDesc())//
-                .endTime(event.getEndTime())//
-                .event(event.getEventSubType())//
+        return PrisonerSchedule.builder()
+                .cellLocation(inmate.getLocationDescription())
+                .lastName(inmate.getLastName())
+                .firstName(inmate.getFirstName())
+                .offenderNo(inmate.getOffenderNo())
+                .comment(event.getEventSourceDesc())
+                .endTime(event.getEndTime())
+                .event(event.getEventSubType())
                 .eventType(event.getEventType())
-                .eventDescription(event.getEventSubTypeDesc())//
-                .startTime(event.getStartTime())//
+                .eventDescription(event.getEventSubTypeDesc())
+                .startTime(event.getStartTime())
                 .eventId(event.getEventId())
                 .eventOutcome(event.getEventOutcome())
                 .performance(event.getPerformance())
@@ -137,22 +138,21 @@ public class SchedulesServiceImpl implements SchedulesService {
         validateLocation(locationId);
         validateUsage(usage);
         final LocalDate day = date == null ? LocalDate.now() : date;
-        final List<PrisonerSchedule> events;
+        final List<PrisonerSchedule> events = getPrisonerSchedules(locationId, usage, sortFields, sortOrder, day);
+        return filterByTimeSlot(timeSlot, events);
+    }
+
+    private List<PrisonerSchedule> getPrisonerSchedules(Long locationId, String usage, String sortFields, Order sortOrder, LocalDate day) {
         final String orderByFields = StringUtils.defaultString(sortFields, "lastName");
         final Order order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
         switch (usage) {
             case "APP":
-                events = scheduleRepository.getLocationAppointments(locationId, day, day, orderByFields, order);
-                break;
+                return scheduleRepository.getLocationAppointments(locationId, day, day, orderByFields, order);
             case "VISIT":
-                events = scheduleRepository.getLocationVisits(locationId, day, day, orderByFields, order);
-                break;
+                return scheduleRepository.getLocationVisits(locationId, day, day, orderByFields, order);
             default:
-                events = scheduleRepository.getLocationActivities(locationId, day, day, orderByFields, order);
-                break;
+                return scheduleRepository.getLocationActivities(locationId, day, day, orderByFields, order);
         }
-
-        return FilterByTimeSlot(timeSlot, events);
     }
 
     @Override
@@ -165,7 +165,7 @@ public class SchedulesServiceImpl implements SchedulesService {
 
         List<PrisonerSchedule> visits = scheduleRepository.getVisits(agencyId, offenderNo, date);
 
-        return FilterByTimeSlot(timeSlot, visits);
+        return filterByTimeSlot(timeSlot, visits);
     }
 
     @Override
@@ -178,7 +178,7 @@ public class SchedulesServiceImpl implements SchedulesService {
 
         List<PrisonerSchedule> appointments = scheduleRepository.getAppointments(agencyId, offenderNo, date);
 
-        return FilterByTimeSlot(timeSlot, appointments);
+        return filterByTimeSlot(timeSlot, appointments);
     }
 
     @Override
@@ -190,10 +190,10 @@ public class SchedulesServiceImpl implements SchedulesService {
 
         List<PrisonerSchedule> appointments = scheduleRepository.getActivities(agencyId, offenderNumbers, date);
 
-        return FilterByTimeSlot(timeSlot, appointments);
+        return filterByTimeSlot(timeSlot, appointments);
     }
 
-    private List<PrisonerSchedule> FilterByTimeSlot(TimeSlot timeSlot, List<PrisonerSchedule> events) {
+    private List<PrisonerSchedule> filterByTimeSlot(TimeSlot timeSlot, List<PrisonerSchedule> events) {
 
         if (timeSlot == null) {
             return events;

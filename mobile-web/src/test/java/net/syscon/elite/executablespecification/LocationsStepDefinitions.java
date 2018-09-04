@@ -20,11 +20,6 @@ public class LocationsStepDefinitions extends AbstractStepDefinitions {
     @Autowired
     private LocationsSteps location;
 
-    @When("^a request is made to retrieve all locations available to the user$")
-    public void aRequestIsMadeToRetrieveAllLocationsAvailableToTheUser() throws Throwable {
-        location.findAll();
-    }
-
     @Then("^\"([^\"]*)\" location records are returned$")
     public void locationRecordsAreReturned(String expectedCount) throws Throwable {
         location.verifyResourceRecordsReturned(Long.valueOf(expectedCount));

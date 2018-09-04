@@ -31,19 +31,6 @@ public class LocationsResourceImpl implements LocationResource {
 	}
 
 	@Override
-	public GetLocationsResponse getLocations(String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-		Page<Location> locationsResult = locationService.getLocations(
-				authenticationFacade.getCurrentUsername(),
-				query,
-				sortFields,
-				sortOrder,
-				nvl(pageOffset, 0L),
-				nvl(pageLimit, 10L));
-
-		return GetLocationsResponse.respond200WithApplicationJson(locationsResult);
-	}
-
-	@Override
 	public GetOffendersAtLocationDescriptionResponse getOffendersAtLocationDescription(String locationPrefix,
 			String keywords, List<String> alerts, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
 		SearchOffenderRequest request = SearchOffenderRequest.builder()
@@ -84,7 +71,7 @@ public class LocationsResourceImpl implements LocationResource {
 	}
 
     @Override
-    public GetGroupResponse getGroup(String agencyId, String name) {
-        return GetGroupResponse.respond200WithApplicationJson(locationService.getGroup(agencyId, name));
+    public GetLocationGroupResponse getLocationGroup(String agencyId, String name) {
+        return GetLocationGroupResponse.respond200WithApplicationJson(locationService.getCellLocationsForGroup(agencyId, name));
     }
 }
