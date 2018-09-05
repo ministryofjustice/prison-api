@@ -1,8 +1,12 @@
 package net.syscon.elite.service.support;
 
 import java.util.Comparator;
+import java.util.regex.Pattern;
 
 public class AlphaNumericComparator implements Comparator<String> {
+
+    private static final Pattern JUST_LETTERS = Pattern.compile("[^a-zA-Z]");
+    private static final Pattern JUST_NUMBERS = Pattern.compile("[^\\d]");
 
     @Override
     public int compare(String leftValue, String rightValue) {
@@ -48,14 +52,10 @@ public class AlphaNumericComparator implements Comparator<String> {
     }
 
     private String stripNumbers(String value) {
-        String justLetters = "[^a-zA-Z]";
-
-        return value.replaceAll(justLetters, "").trim();
+        return JUST_LETTERS.matcher(value).replaceAll("").trim();
     }
 
     private String stripLetters(String value){
-        String justNumbers = "[^\\d]";
-
-        return value.replaceAll(justNumbers, "").trim();
+        return JUST_NUMBERS.matcher(value).replaceAll("").trim();
     }
 }
