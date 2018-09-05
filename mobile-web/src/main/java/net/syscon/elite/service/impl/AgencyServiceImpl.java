@@ -139,8 +139,8 @@ public class AgencyServiceImpl implements AgencyService {
 
         List<Location> processedLocations =  LocationProcessor.processLocations(locations, true);
 
-        Collections.sort(processedLocations, (left, right) ->
-                comparator.compare(left.getDescription(),right.getDescription()));
+        processedLocations.sort((left, right) ->
+                comparator.compare(left.getDescription(), right.getDescription()));
 
         return processedLocations;
     }

@@ -3,7 +3,6 @@ package net.syscon.elite.service.support;
 import java.util.Comparator;
 
 public class AlphaNumericComparator implements Comparator<String> {
-    private final int MATCH = 0;
 
     @Override
     public int compare(String leftValue, String rightValue) {
@@ -11,10 +10,10 @@ public class AlphaNumericComparator implements Comparator<String> {
         String left = (leftValue != null) ? leftValue : "";
         String right = (rightValue != null) ? rightValue : "";
 
-        if (shouldApplyNaturalSorting(left, right)) {
+        if (shouldApplyAlphaNumericSorting(left, right)) {
 
             int sortIndex = compareAlpha(left, right);
-            if(sortIndex != MATCH)
+            if(sortIndex != 0)
                 return sortIndex;
 
             return compareAlphaNumbers(left, right);
@@ -23,7 +22,7 @@ public class AlphaNumericComparator implements Comparator<String> {
         return left.compareToIgnoreCase(right);
     }
 
-    private Boolean shouldApplyNaturalSorting(String left, String right) {
+    private Boolean shouldApplyAlphaNumericSorting(String left, String right) {
         return lastValueIsANumber(left) && lastValueIsANumber(right);
     }
 
