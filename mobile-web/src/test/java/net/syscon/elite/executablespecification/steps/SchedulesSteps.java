@@ -6,6 +6,7 @@ import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.test.EliteClientException;
+import net.syscon.util.DateTimeConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,6 +30,7 @@ public class SchedulesSteps extends CommonSteps {
     private static final String API_LOCATION_URL = API_PREFIX + "schedules/{agencyId}/locations/{locationId}/usage/{usage}";
     private static final String API_VISITS = API_PREFIX + "schedules/{agencyId}/visits";
     private static final String API_APPOINTMENTS = API_PREFIX + "schedules/{agencyId}/appointments";
+    private static final String API_COURT_EVENTS = API_PREFIX + "schedules/{agencyId}/courtEvents";
 
     private List<PrisonerSchedule> results;
     private String agency;
@@ -120,8 +123,16 @@ public class SchedulesSteps extends CommonSteps {
         assertThat(results).isSortedAccordingTo((o1,o2) -> o1.getCellLocation().compareTo(o2.getCellLocation()));
     }
 
-    public void verifyOffendersAreLocatedInALocationThatBelongsToRequestedAgencyAndLocationGroup() {
-        assertThat(results).allMatch(p -> p.getCellLocation().equals("LEI-A-1-1") || p.getCellLocation().equals("LEI-A-1-10"));
+    public void verifyOffendersAreLocatedInALocationThatBelongsToRequestedAgencyAndLocationGroup(String locations) {
+        final String[] cells = StringUtils.split(locations, ",");
+        assertThat(results).allMatch(p -> {
+            for (String cell : cells) {
+                if (p.getCellLocation().equals(cell)) {
+                    return true;
+                }
+            }
+            return false;
+        });
     }
 
     public void schedulesAreOnlyBefore12h00() {
@@ -132,12 +143,12 @@ public class SchedulesSteps extends CommonSteps {
         assertThat(results.get(4).getStartTime().getHour()).isEqualTo(4);
     }
 
-    public void schedulesAreOnlyBetween12And18() {
+    public void schedulesAreOnlyBetween12And17() {
         assertThat(results.get(0).getStartTime().getHour()).isEqualTo(12);
         assertThat(results.get(1).getStartTime().getHour()).isEqualTo(13);
     }
 
-    public void schedulesAreOnlyOnOrAfter18h00() {
+    public void schedulesAreOnlyOnOrAfter17h00() {
         assertThat(results.get(0).getStartTime().getHour()).isEqualTo(18);
     }
 
@@ -212,6 +223,14 @@ public class SchedulesSteps extends CommonSteps {
         assertThat(actual).isEqualTo(appointments);
     }
 
+    public void verifyCourtEvents(String events) {
+        String actual = results.stream()
+                .map(ps -> String.valueOf(ps.getEventId()))
+                .collect(Collectors.joining(","));
+
+        assertThat(actual).isEqualTo(events);
+    }
+
     public void givenUsageInvalid() {
         usage = "INVALID";
     }
@@ -240,6 +259,11 @@ public class SchedulesSteps extends CommonSteps {
         agency = "LEI";
 
         results = dispatchScheduleRequest(API_APPOINTMENTS, agency, offenderNo, timeSlot, today);
+    }
+
+    public void getCourtEvents(String offenderNos, String date, String timeSlot) {
+        agency = "LEI";
+        results = dispatchScheduleRequest(API_COURT_EVENTS, agency, offenderNos, timeSlot, DateTimeConverter.fromISO8601DateString(date));
     }
 
     private List<PrisonerSchedule> dispatchGroupRequest(String url, String agencyId, String name, String date, TimeSlot timeSlot) {
@@ -282,7 +306,9 @@ public class SchedulesSteps extends CommonSteps {
 
         String urlModifier = getUrlModifier(date.toString(), !timeSlot.equals("") ? TimeSlot.valueOf(timeSlot) : null);
 
-        HttpEntity<?> httpEntity = createEntity(new String[]{offenderNo});
+        final String[] entity = offenderNo.contains(",") ? StringUtils.split(offenderNo, ",")
+                : new String[]{offenderNo};
+        HttpEntity<?> httpEntity = createEntity(entity);
 
         try {
             ResponseEntity<List<PrisonerSchedule>> response = restTemplate.exchange(url + urlModifier, HttpMethod.POST,

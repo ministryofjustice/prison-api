@@ -188,9 +188,21 @@ public class SchedulesServiceImpl implements SchedulesService {
             return Collections.emptyList();
         }
 
-        List<PrisonerSchedule> appointments = scheduleRepository.getActivities(agencyId, offenderNumbers, date);
+        List<PrisonerSchedule> activities = scheduleRepository.getActivities(agencyId, offenderNumbers, date);
 
-        return FilterByTimeSlot(timeSlot, appointments);
+        return FilterByTimeSlot(timeSlot, activities);
+    }
+
+    @Override
+    public List<PrisonerSchedule> getCourtEvents(String agencyId, List<String> offenderNumbers, LocalDate date, TimeSlot timeSlot) {
+        Validate.notBlank(agencyId, "An agency id is required.");
+        if (offenderNumbers.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<PrisonerSchedule> events = scheduleRepository.getCourtEvents(agencyId, offenderNumbers, date);
+
+        return FilterByTimeSlot(timeSlot, events);
     }
 
     private List<PrisonerSchedule> FilterByTimeSlot(TimeSlot timeSlot, List<PrisonerSchedule> events) {

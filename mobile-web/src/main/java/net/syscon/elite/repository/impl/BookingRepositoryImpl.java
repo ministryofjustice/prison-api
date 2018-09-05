@@ -554,6 +554,18 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
+    public List<ScheduledEvent> getBookingCourtEvents(Collection<Long> bookingIds, LocalDate date) {
+        Objects.requireNonNull(bookingIds, "bookingIds is a required parameter");
+
+        return jdbcTemplate.query(
+                getQuery("GET_BOOKING_COURT_EVENTS"),
+                createParams(
+                        "bookingIds", bookingIds,
+                        "date", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date))),
+                EVENT_ROW_MAPPER);
+    }
+
+    @Override
     public List<OffenderSentenceDetailDto> getOffenderSentenceSummary(String query, Set<String> allowedCaseloadsOnly) {
         String initialSql = getQuery("GET_OFFENDER_SENTENCE_DETAIL");
         if (!allowedCaseloadsOnly.isEmpty()) {

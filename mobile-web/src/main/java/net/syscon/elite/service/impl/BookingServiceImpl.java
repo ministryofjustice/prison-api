@@ -20,6 +20,7 @@ import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -62,6 +63,7 @@ public class BookingServiceImpl implements BookingService {
     private final TelemetryClient telemetryClient;
     private final String defaultIepLevel;
     private final int maxBatchSize;
+    private final Environment env;
 
     /**
      * Order ScheduledEvents by startTime with null coming last
@@ -89,7 +91,8 @@ public class BookingServiceImpl implements BookingService {
                               CaseloadToAgencyMappingService caseloadToAgencyMappingService,
                               TelemetryClient telemetryClient,
                               @Value("${api.bookings.iepLevel.default:Unknown}") String defaultIepLevel,
-                              @Value("${batch.max.size:1000}") int maxBatchSize) {
+                              @Value("${batch.max.size:1000}") int maxBatchSize,
+                              Environment env) {
         this.bookingRepository = bookingRepository;
         this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
@@ -100,6 +103,7 @@ public class BookingServiceImpl implements BookingService {
         this.telemetryClient = telemetryClient;
         this.defaultIepLevel = defaultIepLevel;
         this.maxBatchSize = maxBatchSize;
+        this.env = env;
     }
 
     @Override
@@ -353,13 +357,17 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.getBookingAppointments(bookingId, fromDate, toDate, sortFields, sortOrder);
     }
 
-    private List<ScheduledEvent> getBookingAppointments(Collection<Long> bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
+    private List<ScheduledEvent> getBookingAppointments(Collection<Long> bookingIds, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
         String sortFields = StringUtils.defaultString(orderByFields, "startTime");
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
 
-        return bookingRepository.getBookingAppointments(bookingId, fromDate, toDate, sortFields, sortOrder);
+        return bookingRepository.getBookingAppointments(bookingIds, fromDate, toDate, sortFields, sortOrder);
+    }
+
+    private List<ScheduledEvent> getBookingCourtEvents(Collection<Long> bookingIds, LocalDate date) {
+        return bookingRepository.getBookingCourtEvents(bookingIds, date);
     }
 
     @Transactional
@@ -619,11 +627,15 @@ public class BookingServiceImpl implements BookingService {
         final List<ScheduledEvent> visits = getBookingVisits(bookingIds, from, to, null, null);
         final List<ScheduledEvent> appointments = getBookingAppointments(bookingIds, from, to, null, null);
 
-        List<ScheduledEvent> results = new ArrayList<>();
-        results.addAll(activities);
+        final List<ScheduledEvent> results = new ArrayList<>(activities);
         results.addAll(visits);
         results.addAll(appointments);
 
+        final boolean nomisProfile = Arrays.stream(env.getActiveProfiles()).anyMatch(p -> p.contains("nomis"));
+        if (nomisProfile) {
+            final List<ScheduledEvent> courtEvents = getBookingCourtEvents(bookingIds, from);
+            results.addAll(courtEvents);
+        }
         return results;
     }
 
