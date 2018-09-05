@@ -1,7 +1,5 @@
 package net.syscon.elite.executablespecification.steps;
 
-
-import net.sf.cglib.core.Local;
 import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
@@ -14,7 +12,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
