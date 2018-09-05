@@ -14,6 +14,7 @@ import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.support.LocationProcessor;
+import net.syscon.elite.service.support.NaturalComparator;
 import net.syscon.elite.service.support.ReferenceDomain;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,10 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -137,8 +135,14 @@ public class AgencyServiceImpl implements AgencyService {
         Objects.requireNonNull(bookedOnDay, "bookedOnDay must be specified.");
 
         List<Location> locations = agencyRepository.getAgencyLocationsBooked(agencyId, bookedOnDay, bookedOnPeriod);
+        NaturalComparator comparator = new NaturalComparator();
 
-        return LocationProcessor.processLocations(locations, true);
+        List<Location> processedLocations =  LocationProcessor.processLocations(locations, true);
+
+        Collections.sort(processedLocations, (left, right) ->
+                comparator.compare(left.getDescription(),right.getDescription()));
+
+        return processedLocations;
     }
 
     @Override
