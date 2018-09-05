@@ -66,14 +66,6 @@ Feature: Location and Location Group Events
     And start time of all returned schedules is on or after 17h00
     And returned schedules are only for offenders located in locations "LEI-A-1-1"
 
-  @nomis
-  Scenario: location group ED timeslot finding a court event
-    Given offenders are located in a location that belongs to requested agency and location group
-    When schedules are requested for a valid agency and location group with date = '2017-10-16' and 'timeSlot' = 'ED'
-    Then response is a list of offender's schedules with size 1
-    And start time of all returned schedules is on or after 17h00
-    And returned schedules are only for offenders located in locations "LEI-A-1-3"
-
 ###############################################################
 
   Scenario: location caseload not accessible
@@ -163,7 +155,8 @@ Feature: Location and Location Group Events
     Then the following events should be returned: "<events>"
     Examples:
       | offenderNos             | date       | timeSlot | events         |
-      | A1234AD,A1234AE,A1234AF | 2017-02-13 | ED       | -106,-105,-104 |
+      | A1234AD,A1234AE,A1234AF | 2017-02-13 | ED       | -104,-105,-106 |
       | A1234AD,A1234AE,A1234AF | 2017-02-13 | PM       |                |
+      | A1234AD,A1234AE,A1234AF | 2017-02-13 |          | -104,-105,-106 |
       | A1234AD,A1234AE,A1234AF | 2017-02-14 | ED       |                |
       | A1234AC                 | 2017-10-15 | AM       | -103           |

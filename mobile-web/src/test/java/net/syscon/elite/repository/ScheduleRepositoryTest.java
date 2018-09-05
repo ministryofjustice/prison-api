@@ -3,6 +3,7 @@ package net.syscon.elite.repository;
 import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.web.config.PersistenceConfigs;
+import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -156,4 +158,13 @@ public class ScheduleRepositoryTest {
         assertThat(results.get(0).getLocationId()).isEqualTo(-26L);
     }
 
+    @Test
+    public void testGetCourtEvents() {
+        List<PrisonerSchedule> results = repository.getCourtEvents(Arrays.asList("A1234AA", "A1234AB"), LocalDate.parse("2017-02-17"));
+
+        assertThat(results).asList().hasSize(2);
+        assertThat(results).asList().extracting("offenderNo", "eventType", "event", "eventDescription", "eventStatus", "startTime").contains(
+                new Tuple("A1234AA", "COURT", "PR", "Production of Unsentenced Inmate at Cour", "EXP", LocalDateTime.parse("2017-02-17T17:00:00")),
+                new Tuple("A1234AB", "COURT", "PR", "Production of Unsentenced Inmate at Cour", "COMP", LocalDateTime.parse("2017-02-17T18:00:00")));
+    }
 }

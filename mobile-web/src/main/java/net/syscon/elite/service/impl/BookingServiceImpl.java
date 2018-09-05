@@ -366,10 +366,6 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.getBookingAppointments(bookingIds, fromDate, toDate, sortFields, sortOrder);
     }
 
-    private List<ScheduledEvent> getBookingCourtEvents(Collection<Long> bookingIds, LocalDate date) {
-        return bookingRepository.getBookingCourtEvents(bookingIds, date);
-    }
-
     @Transactional
     @Override
     @VerifyBookingAccess
@@ -630,12 +626,6 @@ public class BookingServiceImpl implements BookingService {
         final List<ScheduledEvent> results = new ArrayList<>(activities);
         results.addAll(visits);
         results.addAll(appointments);
-
-        final boolean nomisProfile = Arrays.stream(env.getActiveProfiles()).anyMatch(p -> p.contains("nomis"));
-        if (nomisProfile) {
-            final List<ScheduledEvent> courtEvents = getBookingCourtEvents(bookingIds, from);
-            results.addAll(courtEvents);
-        }
         return results;
     }
 

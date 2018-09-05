@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.logging.Filter;
 import java.util.stream.Collectors;
 
 /**
@@ -152,11 +151,11 @@ public class SchedulesServiceImpl implements SchedulesService {
                 break;
         }
 
-        return FilterByTimeSlot(timeSlot, events);
+        return filterByTimeSlot(timeSlot, events);
     }
 
     @Override
-    public List<PrisonerSchedule> getVisits(String agencyId,List<String> offenderNo, LocalDate date, TimeSlot timeSlot) {
+    public List<PrisonerSchedule> getVisits(String agencyId, List<String> offenderNo, LocalDate date, TimeSlot timeSlot) {
 
         Validate.notBlank(agencyId, "An agency id is required.");
         if (offenderNo.isEmpty()) {
@@ -165,7 +164,7 @@ public class SchedulesServiceImpl implements SchedulesService {
 
         List<PrisonerSchedule> visits = scheduleRepository.getVisits(agencyId, offenderNo, date);
 
-        return FilterByTimeSlot(timeSlot, visits);
+        return filterByTimeSlot(timeSlot, visits);
     }
 
     @Override
@@ -178,7 +177,7 @@ public class SchedulesServiceImpl implements SchedulesService {
 
         List<PrisonerSchedule> appointments = scheduleRepository.getAppointments(agencyId, offenderNo, date);
 
-        return FilterByTimeSlot(timeSlot, appointments);
+        return filterByTimeSlot(timeSlot, appointments);
     }
 
     @Override
@@ -190,7 +189,7 @@ public class SchedulesServiceImpl implements SchedulesService {
 
         List<PrisonerSchedule> activities = scheduleRepository.getActivities(agencyId, offenderNumbers, date);
 
-        return FilterByTimeSlot(timeSlot, activities);
+        return filterByTimeSlot(timeSlot, activities);
     }
 
     @Override
@@ -200,12 +199,12 @@ public class SchedulesServiceImpl implements SchedulesService {
             return Collections.emptyList();
         }
 
-        List<PrisonerSchedule> events = scheduleRepository.getCourtEvents(agencyId, offenderNumbers, date);
+        List<PrisonerSchedule> events = scheduleRepository.getCourtEvents(offenderNumbers, date);
 
-        return FilterByTimeSlot(timeSlot, events);
+        return filterByTimeSlot(timeSlot, events);
     }
 
-    private List<PrisonerSchedule> FilterByTimeSlot(TimeSlot timeSlot, List<PrisonerSchedule> events) {
+    private List<PrisonerSchedule> filterByTimeSlot(TimeSlot timeSlot, List<PrisonerSchedule> events) {
 
         if (timeSlot == null) {
             return events;

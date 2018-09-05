@@ -158,16 +158,6 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    public void testGetBookingCourtEvents() {
-        List<ScheduledEvent> results = repository.getBookingCourtEvents(Arrays.asList(-1L, -2L), LocalDate.parse("2017-02-17"));
-
-        assertThat(results).asList().hasSize(2);
-        assertThat(results).asList().extracting("bookingId", "eventClass", "eventType", "eventTypeDesc", "eventStatus", "eventDate", "startTime").contains(
-                new Tuple(-1L, "COURT", "PR", "Production of Unsentenced Inmate at Cour", "EXP", LocalDate.parse("2017-02-17"), LocalDateTime.parse("2017-02-17T17:00:00")),
-                new Tuple(-2L, "COURT", "PR", "Production of Unsentenced Inmate at Cour", "COMP", LocalDate.parse("2017-02-17"), LocalDateTime.parse("2017-02-17T18:00:00")));
-    }
-
-    @Test
     public void testGetLatestBookingByBookingIdInvalidBookingId() {
         Optional<OffenderSummary> response = repository.getLatestBookingByBookingId(99999L);
 
