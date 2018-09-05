@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -153,7 +154,17 @@ public class BookingRepositoryTest {
         List<ScheduledEvent> results = repository.getBookingActivities(-2L, LocalDate.parse("2011-12-11"), LocalDate.now(), null, null);
 
         assertThat(results).asList().hasSize(8);
-        assertThat(results).asList().extracting("eventId", "payRate").contains(new Tuple(-11L, new BigDecimal("1.000")));//  .valueOf(1000,3)));
+        assertThat(results).asList().extracting("eventId", "payRate").contains(new Tuple(-11L, new BigDecimal("1.000")));
+    }
+
+    @Test
+    public void testGetBookingCourtEvents() {
+        List<ScheduledEvent> results = repository.getBookingCourtEvents(Arrays.asList(-1L, -2L), LocalDate.parse("2017-02-17"));
+
+        assertThat(results).asList().hasSize(2);
+        assertThat(results).asList().extracting("bookingId", "eventClass", "eventType", "eventTypeDesc", "eventStatus", "eventDate", "startTime").contains(
+                new Tuple(-1L, "COURT", "PR", "Production of Unsentenced Inmate at Cour", "EXP", LocalDate.parse("2017-02-17"), LocalDateTime.parse("2017-02-17T17:00:00")),
+                new Tuple(-2L, "COURT", "PR", "Production of Unsentenced Inmate at Cour", "COMP", LocalDate.parse("2017-02-17"), LocalDateTime.parse("2017-02-17T18:00:00")));
     }
 
     @Test

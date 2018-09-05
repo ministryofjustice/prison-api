@@ -39,7 +39,7 @@ Feature: Location and Location Group Events
     When schedules are requested for a valid agency and location group
     Then response is a list of offender's schedules with size 14
     And returned schedules are ordered as defined by requested location group
-    And returned schedules are only for offenders located in locations that belong to requested agency and location group
+    And returned schedules are only for offenders located in locations "LEI-A-1-1,LEI-A-1-10"
 
   Scenario: location group AM timeslot
     Given one or more offenders have scheduled events for current day
@@ -48,24 +48,31 @@ Feature: Location and Location Group Events
     Then response is a list of offender's schedules with size 9
     And start time of all returned schedules is before 12h00
     And returned schedules are ordered as defined by requested location group
-    And returned schedules are only for offenders located in locations that belong to requested agency and location group
+    And returned schedules are only for offenders located in locations "LEI-A-1-1,LEI-A-1-10"
 
-  @broken
   Scenario: location group PM timeslot
     Given one or more offenders have scheduled events for current day
     And offenders are located in a location that belongs to requested agency and location group
     When schedules are requested for a valid agency and location group with 'timeSlot' = 'PM'
-    Then response is a list of offender's schedules with size 3
-    And start time of all returned schedules is between 12h00 and 18h00
+    Then response is a list of offender's schedules with size 5
+    And start time of all returned schedules is between 12h00 and 17h00
     And returned schedules are ordered as defined by requested location group
-    And returned schedules are only for offenders located in locations that belong to requested agency and location group
+    And returned schedules are only for offenders located in locations "LEI-A-1-1,LEI-A-1-10"
 
   Scenario: location group ED timeslot
     Given offenders are located in a location that belongs to requested agency and location group
     When schedules are requested for a valid agency and location group with date = '2017-10-15' and 'timeSlot' = 'ED'
     Then response is a list of offender's schedules with size 1
-    And start time of all returned schedules is on or after 18h00
-    And returned schedules are only for offenders located in locations that belong to requested agency and location group
+    And start time of all returned schedules is on or after 17h00
+    And returned schedules are only for offenders located in locations "LEI-A-1-1"
+
+  @nomis
+  Scenario: location group ED timeslot finding a court event
+    Given offenders are located in a location that belongs to requested agency and location group
+    When schedules are requested for a valid agency and location group with date = '2017-10-16' and 'timeSlot' = 'ED'
+    Then response is a list of offender's schedules with size 1
+    And start time of all returned schedules is on or after 17h00
+    And returned schedules are only for offenders located in locations "LEI-A-1-3"
 
 ###############################################################
 
@@ -149,3 +156,14 @@ Feature: Location and Location Group Events
       | A1234AC      |          | Education,Medical - Dentist                  |
       | A1234AE      | AM       | Education,Education                          |
       | A1234AE      | PM       |                                              |
+
+  @nomis
+  Scenario Outline: Request scheduled court events for offender list
+    When Court events are requested with a valid agency with a time slot "<timeSlot>", date "<date>" and offender number list "<offenderNos>"
+    Then the following events should be returned: "<events>"
+    Examples:
+      | offenderNos             | date       | timeSlot | events         |
+      | A1234AD,A1234AE,A1234AF | 2017-02-13 | ED       | -106,-105,-104 |
+      | A1234AD,A1234AE,A1234AF | 2017-02-13 | PM       |                |
+      | A1234AD,A1234AE,A1234AF | 2017-02-14 | ED       |                |
+      | A1234AC                 | 2017-10-15 | AM       | -103           |
