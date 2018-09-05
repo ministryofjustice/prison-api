@@ -14,7 +14,7 @@ import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.support.LocationProcessor;
-import net.syscon.elite.service.support.NaturalComparator;
+import net.syscon.elite.service.support.AlphaNumericComparator;
 import net.syscon.elite.service.support.ReferenceDomain;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -135,7 +135,7 @@ public class AgencyServiceImpl implements AgencyService {
         Objects.requireNonNull(bookedOnDay, "bookedOnDay must be specified.");
 
         List<Location> locations = agencyRepository.getAgencyLocationsBooked(agencyId, bookedOnDay, bookedOnPeriod);
-        NaturalComparator comparator = new NaturalComparator();
+        AlphaNumericComparator comparator = new AlphaNumericComparator();
 
         List<Location> processedLocations =  LocationProcessor.processLocations(locations, true);
 

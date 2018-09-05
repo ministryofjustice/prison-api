@@ -2,7 +2,8 @@ package net.syscon.elite.service.support;
 
 import java.util.Comparator;
 
-public class NaturalComparator implements Comparator<String> {
+public class AlphaNumericComparator implements Comparator<String> {
+    private final int MATCH = 0;
 
     @Override
     public int compare(String leftValue, String rightValue) {
@@ -10,19 +11,20 @@ public class NaturalComparator implements Comparator<String> {
         String left = (leftValue != null) ? leftValue : "";
         String right = (rightValue != null) ? rightValue : "";
 
-        if(lastValueIsANumber(left) && lastValueIsANumber(right)) {
-            int position = stripNumbers(left).compareToIgnoreCase(stripNumbers(right));
+        if (shouldApplyNaturalSorting(left, right)) {
 
-            if(position != 0)
-                return position;
+            int sortIndex = compareAlpha(left, right);
+            if(sortIndex != MATCH)
+                return sortIndex;
 
-            int leftNumber = Integer.parseInt(stripLetters(left));
-            int rightNumber = Integer.parseInt(stripLetters(right));
-
-            return leftNumber - rightNumber;
+            return compareAlphaNumbers(left, right);
         }
 
         return left.compareToIgnoreCase(right);
+    }
+
+    private Boolean shouldApplyNaturalSorting(String left, String right) {
+        return lastValueIsANumber(left) && lastValueIsANumber(right);
     }
 
     private Boolean lastValueIsANumber(String value) {
@@ -33,6 +35,17 @@ public class NaturalComparator implements Comparator<String> {
         char[] data = value.toCharArray();
 
         return !Character.isAlphabetic(data[data.length-1]);
+    }
+
+    private int compareAlpha(String left, String right) {
+        return stripNumbers(left).compareToIgnoreCase(stripNumbers(right));
+    }
+
+    private int compareAlphaNumbers(String left, String right) {
+        int leftNumber = Integer.parseInt(stripLetters(left));
+        int rightNumber = Integer.parseInt(stripLetters(right));
+
+        return leftNumber - rightNumber;
     }
 
     private String stripNumbers(String value) {
