@@ -79,7 +79,7 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
     }
 
     @Override
-    public List<PrisonerSchedule> getVisits(String agencyId,List<String> offenderNo, LocalDate date) {
+    public List<PrisonerSchedule> getVisits(String agencyId, List<String> offenderNo, LocalDate date) {
         return jdbcTemplate.query(
                 getQuery("GET_VISITS") + AND_OFFENDER_NUMBERS,
                 createParams(
@@ -109,7 +109,7 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
     }
 
     @Override
-    public List<PrisonerSchedule> getCourtEvents(String agencyId, List<String> offenderNumbers, LocalDate date) {
+    public List<PrisonerSchedule> getCourtEvents(List<String> offenderNumbers, LocalDate date) {
         return jdbcTemplate.query(
                 getQuery("GET_COURT_EVENTS"),
                 createParams(
