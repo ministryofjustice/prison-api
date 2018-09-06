@@ -32,8 +32,6 @@ INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME
 INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME, END_TIME, SCHEDULE_STATUS) VALUES (-32, -3, TO_DATE('2017-09-12', 'YYYY-MM-DD'), TO_DATE('2017-09-12 13:10:00', 'YYYY-MM-DD HH24:MI:SS'), TO_DATE('2017-09-12 15:00:00', 'YYYY-MM-DD HH24:MI:SS'), 'SCH');
 
 -- These course schedules defined for current day, this week and next week (to test 'today', 'thisWeek' and 'nextWeek' endpoint actions).
--- These intervals in SECONDS need to be short enough that they are unlikely to span midnight, but also not so short that they end up
--- in the wrong order due to a delay between the execution of one insert and another.
 INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME, END_TIME, SCHEDULE_STATUS) VALUES (-26, -2, trunc(sysdate), trunc(sysdate) + INTERVAL '12' HOUR, trunc(sysdate) + INTERVAL '12' HOUR, 'SCH');
 INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME, END_TIME, SCHEDULE_STATUS) VALUES (-27, -2, trunc(sysdate), trunc(sysdate) + INTERVAL '13' HOUR, trunc(sysdate) + INTERVAL '13' HOUR, 'SCH');
 INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME, END_TIME, SCHEDULE_STATUS) VALUES (-28, -5, trunc(sysdate) + INTERVAL  '6' DAY, trunc(sysdate) + INTERVAL  '6' DAY, trunc(sysdate) + INTERVAL  '6' DAY, 'SCH');

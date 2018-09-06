@@ -62,4 +62,10 @@ public class SchedulesResourceImpl implements ScheduleResource {
         final List<PrisonerSchedule> activities = schedulesService.getActivities(agencyId, body, date, timeSlot);
         return GetActivitiesResponse.respond200WithApplicationJson(activities);
     }
+
+    @Override
+    public GetCourtEventsResponse getCourtEvents(String agencyId, List<String> body, LocalDate date, TimeSlot timeSlot) {
+        final List<PrisonerSchedule> activities = schedulesService.getCourtEvents(agencyId, body, date, timeSlot);
+        return GetCourtEventsResponse.respond200WithApplicationJson(activities);
+    }
 }

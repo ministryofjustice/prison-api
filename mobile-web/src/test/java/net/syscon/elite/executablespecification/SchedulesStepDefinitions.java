@@ -1,6 +1,5 @@
 package net.syscon.elite.executablespecification;
 
-import cucumber.api.PendingException;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -90,9 +89,9 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
         schedulesSteps.verifySchedulesAreOrdered();
     }
 
-    @Then("^returned schedules are only for offenders located in locations that belong to requested agency and location group$")
-    public void schedulesAreOnlyForOffendersLocated() throws Throwable {
-        schedulesSteps.verifyOffendersAreLocatedInALocationThatBelongsToRequestedAgencyAndLocationGroup();
+    @Then("^returned schedules are only for offenders located in locations \"([^\"]*)\"$")
+    public void schedulesAreOnlyForOffendersLocated(String locations) throws Throwable {
+        schedulesSteps.verifyOffendersAreLocatedInALocationThatBelongsToRequestedAgencyAndLocationGroup(locations);
     }
 
     @Then("^start time of all returned schedules is before 12h00$")
@@ -100,14 +99,14 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
         schedulesSteps.schedulesAreOnlyBefore12h00();
     }
 
-    @Then("^start time of all returned schedules is between 12h00 and 18h00$")
-    public void schedulesAreOnlyBetween1And18() throws Throwable {
-        schedulesSteps.schedulesAreOnlyBetween12And18();
+    @Then("^start time of all returned schedules is between 12h00 and 17h00$")
+    public void schedulesAreOnlyBetween12And17() throws Throwable {
+        schedulesSteps.schedulesAreOnlyBetween12And17();
     }
 
-    @Then("^start time of all returned schedules is on or after 18h00$")
-    public void schedulesAreOnlyOnOrAfter18h00() throws Throwable {
-        schedulesSteps.schedulesAreOnlyOnOrAfter18h00();
+    @Then("^start time of all returned schedules is on or after 17h00$")
+    public void schedulesAreOnlyOnOrAfter17h00() throws Throwable {
+        schedulesSteps.schedulesAreOnlyOnOrAfter17h00();
     }
 
     @Then("^schedules response is HTTP 404 resource not found$")
@@ -230,6 +229,16 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
     @Then("^the following appointments should be returned \"([^\"]*)\"$")
     public void theFollowingAppointmentsShouldBeReturned(String appointments) throws Throwable {
         this.schedulesSteps.verifyAppointments(appointments);
+    }
+
+    @When("^Court events are requested with a valid agency with a time slot \"([^\"]*)\", date \"([^\"]*)\" and offender number list \"([^\"]*)\"$")
+    public void courtEventsAreRequestedWithAValidAgencyWithATimeSlotAndOffenderNumbers(String timeSlot, String date, String offenderNos) throws Throwable {
+        schedulesSteps.getCourtEvents(offenderNos, date, timeSlot);
+    }
+
+    @Then("^the following events should be returned: \"([^\"]*)\"$")
+    public void theFollowingCourtEventsShouldBeReturned(String events) throws Throwable {
+        this.schedulesSteps.verifyCourtEvents(events);
 
     }
 }

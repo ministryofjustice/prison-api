@@ -70,23 +70,18 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
                 .addOrderBy(order, orderByFields)
                 .build();
 
-
         return jdbcTemplate.query(
                 sql,
                 createParams("locationId", locationId,
-                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
-                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
+                        "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
+                        "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
                 EVENT_ROW_MAPPER);
     }
 
     @Override
-    public List<PrisonerSchedule> getVisits(String agencyId,List<String> offenderNo, LocalDate date) {
-        String initialSql = getQuery("GET_VISITS");
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
-        String sql = builder.build() + AND_OFFENDER_NUMBERS;
-
+    public List<PrisonerSchedule> getVisits(String agencyId, List<String> offenderNo, LocalDate date) {
         return jdbcTemplate.query(
-                sql,
+                getQuery("GET_VISITS") + AND_OFFENDER_NUMBERS,
                 createParams(
                         "offenderNos", offenderNo,
                         "date", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(date))),
@@ -95,12 +90,8 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
 
     @Override
     public List<PrisonerSchedule> getAppointments(String agencyId, List<String> offenderNo, LocalDate date) {
-        String initialSql = getQuery("GET_APPOINTMENTS");
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
-        String sql = builder.build() +  AND_OFFENDER_NUMBERS;
-
         return jdbcTemplate.query(
-                sql,
+                getQuery("GET_APPOINTMENTS") + AND_OFFENDER_NUMBERS,
                 createParams(
                         "offenderNos", offenderNo,
                         "date", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(date))),
@@ -109,12 +100,18 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
 
     @Override
     public List<PrisonerSchedule> getActivities(String agencyId, List<String> offenderNumbers, LocalDate date) {
-        String initialSql = getQuery("GET_ACTIVITIES");
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
-        String sql = builder.build() +  AND_OFFENDER_NUMBERS;
-
         return jdbcTemplate.query(
-                sql,
+                getQuery("GET_ACTIVITIES") + AND_OFFENDER_NUMBERS,
+                createParams(
+                        "offenderNos", offenderNumbers,
+                        "date", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(date))),
+                EVENT_ROW_MAPPER);
+    }
+
+    @Override
+    public List<PrisonerSchedule> getCourtEvents(List<String> offenderNumbers, LocalDate date) {
+        return jdbcTemplate.query(
+                getQuery("GET_COURT_EVENTS"),
                 createParams(
                         "offenderNos", offenderNumbers,
                         "date", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(date))),
