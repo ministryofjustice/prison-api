@@ -41,12 +41,12 @@
   type: { readOnlyCollection: { type: Location, description: "List of locations for agency where events (appointments, visits, activities) are being held." } }
 
 /{agencyId}/locations/groups:
-  (javaOperationName): getAvailableGroups
+  (javaOperationName): getAvailableLocationGroups
   uriParameters:
     agencyId:
       type: string
       description: The prison
-  type: { readOnlyCollection: { type: String, description: List of all available groups at agency. } }
+  type: { readOnlyCollection: { type: LocationGroup[], description: List of all available Location Groups at agency. } }
 
 /prison:
   (javaOperationName): getPrisonContactDetailList

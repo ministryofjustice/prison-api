@@ -9,8 +9,12 @@ import org.springframework.boot.actuate.endpoint.mvc.HealthMvcEndpoint;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.AbstractEnvironment;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
 
 @SpringBootApplication
 public class MobileApiServer {
@@ -37,6 +41,11 @@ public class MobileApiServer {
             return null;
         }
         return new HealthMvcEndpoint(delegate, false, null);
+    }
+
+    @Bean(name="groupsProperties")
+    public Properties groupsProperties() throws IOException {
+        return PropertiesLoaderUtils.loadProperties(new ClassPathResource("groups.properties"));
     }
 
     public static void main(final String[] args) throws Exception {

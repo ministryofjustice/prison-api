@@ -200,7 +200,7 @@ public class SchedulesServiceImplTest {
                 "LEI", Arrays.asList(-100L, -101L))).thenReturn(inmatesOnMyWing);
 
         // group 'myWing' consists of 2 locations:
-        when(locationService.getGroup("LEI", "myWing")).thenReturn(
+        when(locationService.getCellLocationsForGroup("LEI", "myWing")).thenReturn(
                 Arrays.asList(
                         Location.builder().locationId(-100L).build(),
                         Location.builder().locationId(-101L).build()
