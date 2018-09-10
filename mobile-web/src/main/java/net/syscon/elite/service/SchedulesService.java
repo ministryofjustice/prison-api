@@ -25,4 +25,6 @@ public interface SchedulesService {
     List<PrisonerSchedule> getActivities(String agencyId, List<String> offenderNumbers, LocalDate date, TimeSlot timeSlot);
 
     List<PrisonerSchedule> getCourtEvents(String agencyId, List<String> offenderNumbers, LocalDate date, TimeSlot timeSlot);
+
+    List<PrisonerSchedule> getExternalTransfers(String agencyId, List<String> offenderNumbers, LocalDate date);
 }

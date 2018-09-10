@@ -136,7 +136,6 @@ Feature: Location and Location Group Events
         | A1234AE      | AM       | Official Visit                               |
         | A1234AE      | PM       |                                              |
 
-
   Scenario Outline: Request an offenders scheduled appointments for today
     Given an offender with scheduled appointments
     When appointments are requested with a valid agency with a time slot "<timeSlot>" and offender numbers "<offenderNo>"
@@ -148,6 +147,15 @@ Feature: Location and Location Group Events
       | A1234AC      |          | Education,Medical - Dentist                  |
       | A1234AE      | AM       | Education,Education                          |
       | A1234AE      | PM       |                                              |
+@wip
+  Scenario Outline: Request an offenders external transfers for a given date
+    Given an offender that is scheduled to be transferred outside of the prison
+    When a request is made for transfers with the following parameters "<offenderNumber>" and "<date>"
+    Then the following offender should be returned "<firstName>", "<lastName>" along with the "<externalTransfers>"
+    Examples:
+    | offenderNumber | date | firstName |lastName  |externalTransfers |
+    | A1234AC    | today| NORMAN    |BATES     | Compassionate Transfer |
+
 
   @nomis
   Scenario Outline: Request scheduled court events for offender list
