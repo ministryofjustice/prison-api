@@ -147,7 +147,7 @@ Feature: Location and Location Group Events
       | A1234AC      |          | Education,Medical - Dentist                  |
       | A1234AE      | AM       | Education,Education                          |
       | A1234AE      | PM       |                                              |
-@wip
+
   Scenario Outline: Request an offenders external transfers for a given date
     Given an offender that is scheduled to be transferred outside of the prison
     When a request is made for transfers with the following parameters "<offenderNumber>" and "<date>"
