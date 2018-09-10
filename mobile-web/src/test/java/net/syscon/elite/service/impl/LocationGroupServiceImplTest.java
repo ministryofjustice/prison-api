@@ -89,7 +89,7 @@ public class LocationGroupServiceImplTest {
     }
 
     @Test
-    public void whenTherAreManyGroupsAndManySubGroupsTenTheLookupReturnsTheCorrectRepresentation() {
+    public void whenThereAreManyGroupsAndManySubGroupsTenTheLookupReturnsTheCorrectRepresentation() {
         groupsProperties.setProperty("MDI_1", "");
         groupsProperties.setProperty("MDI_1_A", "");
         groupsProperties.setProperty("MDI_1_B", "");
@@ -124,6 +124,23 @@ public class LocationGroupServiceImplTest {
         assertThat(service.getLocationGroupsForAgency("")).isEmpty();
         assertThat(service.getLocationGroupsForAgency("XXX")).isEmpty();
     }
+
+    @Test
+    public void whenTherAreSpacesInLocationAndSubLoationNamesThenLookupReturnsTheCorrectRepresentation() {
+        groupsProperties.setProperty("HLI_A Wing", "HLI-A-.+");
+        groupsProperties.setProperty("HLI_A Wing_Landing 1", "HLI-A-1-.+");
+        groupsProperties.setProperty("HLI_A Wing_Landing 2", "HLI-A-2-.+");
+
+        groupsProperties.setProperty("HLI_B Wing", "HLI-B-.+");
+        groupsProperties.setProperty("MDI_5", "MDI-5-.-A-.+,MDI-5-.-B-.+");
+
+        assertThat(service.getLocationGroupsForAgency("HLI"))
+                .containsExactly(
+                        group("A Wing", "Landing 1", "Landing 2"),
+                        group("B Wing")
+                );
+    }
+
 
     @Test
     public void givenFixedPatternThenPredicateMatchesThatPattern() {
@@ -353,6 +370,35 @@ public class LocationGroupServiceImplTest {
         assertThat(applyPredicatesToLocations(service.locationGroupFilters("MDI", "1_C"), locationPrefixes)).containsExactly(ONE_C_PREFIXES);
     }
 
+    @Test
+    public void givenLocationNameWithSpaces() {
+
+        groupsProperties.setProperty("HLI_A Wing", "HLI-A-.+");
+        groupsProperties.setProperty("HLI_A Wing_Landing 1", "HLI-A-1-.+");
+        groupsProperties.setProperty("HLI_A Wing_Landing 2", "HLI-A-2-.+");
+
+        groupsProperties.setProperty("HLI_B Wing", "HLI-B-.+");
+        groupsProperties.setProperty("MDI_5", "MDI-5-.-A-.+,MDI-5-.-B-.+");
+
+        List<Predicate<Location>> predicates = service.locationGroupFilters("HLI", "A Wing");
+
+        assertThat(applyPredicatesToLocations(predicates,  "HLI-A-1-001", "HLI-A-2-001", "HLI-B-1-001")).containsExactly("HLI-A-1-001", "HLI-A-2-001");
+    }
+
+    @Test
+    public void givenLocationAndSubLocationNameWithSpaces() {
+
+        groupsProperties.setProperty("HLI_A Wing", "HLI-A-.+");
+        groupsProperties.setProperty("HLI_A Wing_Landing 1", "HLI-A-1-.+");
+        groupsProperties.setProperty("HLI_A Wing_Landing 2", "HLI-A-2-.+");
+
+        groupsProperties.setProperty("HLI_B Wing", "HLI-B-.+");
+        groupsProperties.setProperty("MDI_5", "MDI-5-.-A-.+,MDI-5-.-B-.+");
+
+        List<Predicate<Location>> predicates = service.locationGroupFilters("HLI", "A Wing_Landing 2");
+
+        assertThat(applyPredicatesToLocations(predicates,  "HLI-A-1-001", "HLI-A-2-001", "HLI-B-1-001")).containsExactly( "HLI-A-2-001");
+    }
 
     private static LocationGroup group(String name) {
         return new LocationGroup(emptyMap(), name, emptyList());
