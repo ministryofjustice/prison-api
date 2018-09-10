@@ -245,9 +245,9 @@ public class SchedulesSteps extends CommonSteps {
 
     public void verifyTransfer(String firstName, String lastName, String transferDescription) {
         final boolean match = results.stream().anyMatch(result ->
-                result.getFirstName().compareToIgnoreCase(firstName) == 0 &&
-                result.getLastName().compareToIgnoreCase(lastName) == 0 &&
-                result.getEventDescription().compareToIgnoreCase(transferDescription) == 0);
+                result.getFirstName().equalsIgnoreCase(firstName) &&
+                result.getLastName().equalsIgnoreCase(lastName)  &&
+                result.getEventDescription().equalsIgnoreCase(transferDescription));
 
         assertThat(match).isTrue();
     }
