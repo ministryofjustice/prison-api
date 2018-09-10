@@ -1,5 +1,6 @@
 package net.syscon.elite.executablespecification.steps;
 
+import com.google.common.collect.ImmutableList;
 import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
@@ -12,9 +13,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,6 +28,7 @@ public class SchedulesSteps extends CommonSteps {
     private static final String API_VISITS = API_PREFIX + "schedules/{agencyId}/visits";
     private static final String API_APPOINTMENTS = API_PREFIX + "schedules/{agencyId}/appointments";
     private static final String API_COURT_EVENTS = API_PREFIX + "schedules/{agencyId}/courtEvents";
+    private static final String API_EXTERNAL_TRANSFERS = API_PREFIX + "schedules/{agencyId}/externalTransfers";
 
     private List<PrisonerSchedule> results;
     private String agency;
@@ -242,6 +243,15 @@ public class SchedulesSteps extends CommonSteps {
                 .contains("ATT", "STANDARD", "blah");
     }
 
+    public void verifyTransfer(String firstName, String lastName, String transferDescription) {
+        final boolean match = results.stream().anyMatch(result ->
+                result.getFirstName().equalsIgnoreCase(firstName) &&
+                result.getLastName().equalsIgnoreCase(lastName)  &&
+                result.getEventDescription().equalsIgnoreCase(transferDescription));
+
+        assertThat(match).isTrue();
+    }
+
     public void getVisits(String offenderNo, String timeSlot) {
       LocalDate today = LocalDate.now();
 
@@ -261,6 +271,40 @@ public class SchedulesSteps extends CommonSteps {
     public void getCourtEvents(String offenderNos, String date, String timeSlot) {
         agency = "LEI";
         results = dispatchScheduleRequest(API_COURT_EVENTS, agency, offenderNos, timeSlot, DateTimeConverter.fromISO8601DateString(date));
+    }
+
+    public void getExternalTransfers(String offenderNumber, String dateInput) {
+        agency = "LEI";
+
+        String date = dateInput.toLowerCase().equals("today") ? LocalDate.now().format(DateTimeFormatter.ISO_DATE) : dateInput;
+
+        results = dispatchTransfersRequest(offenderNumber, agency, date);
+    }
+
+    private List<PrisonerSchedule> dispatchTransfersRequest(String offenderNumber, String agencyId, String date) {
+        init();
+
+        String urlModifier = getUrlModifier(date, null);
+
+        HttpEntity<?> httpEntity = createEntity(ImmutableList.of(offenderNumber));
+
+        try {
+
+            ResponseEntity<List<PrisonerSchedule>> response =
+                    restTemplate.exchange(
+                            SchedulesSteps.API_EXTERNAL_TRANSFERS + urlModifier,
+                            HttpMethod.POST,
+                            httpEntity,
+                            new ParameterizedTypeReference<List<PrisonerSchedule>>() {},
+                            agencyId);
+
+            buildResourceData(response);
+
+            return response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+            return null;
+        }
     }
 
     private List<PrisonerSchedule> dispatchGroupRequest(String url, String agencyId, String name, String date, TimeSlot timeSlot) {

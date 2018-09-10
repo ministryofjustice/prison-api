@@ -117,4 +117,15 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
                         "date", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(date))),
                 EVENT_ROW_MAPPER);
     }
+
+    @Override
+    public List<PrisonerSchedule> getExternalTransfers(String agencyId, List<String> offenderNumbers, LocalDate date) {
+        return jdbcTemplate.query(
+                getQuery("GET_EXTERNAL_TRANSFERS") + AND_OFFENDER_NUMBERS,
+                createParams(
+                        "offenderNos", offenderNumbers,
+                        "agencyId", agencyId,
+                        "date", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(date))),
+                EVENT_ROW_MAPPER);
+    }
 }

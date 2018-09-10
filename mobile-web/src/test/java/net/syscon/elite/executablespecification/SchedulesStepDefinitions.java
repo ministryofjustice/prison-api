@@ -239,6 +239,23 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
     @Then("^the following events should be returned: \"([^\"]*)\"$")
     public void theFollowingCourtEventsShouldBeReturned(String events) throws Throwable {
         this.schedulesSteps.verifyCourtEvents(events);
+    }
 
+    @Given("^an offender that is scheduled to be transferred outside of the prison$")
+    public void anOffenderThatIsScheduledToBeTransferredOutsideOfThePrison() throws Throwable {
+    }
+
+    @When("^Request an offenders external transfers for a given date$")
+    public void transfersAreRequestedWithAValidAgencyAndDate() throws Throwable {
+    }
+
+    @When("^a request is made for transfers with the following parameters \"([^\"]*)\" and \"([^\"]*)\"$")
+    public void aRequestIsMadeForTransfersWithTheFollowingParametersAnd(String offenderNumber, String date) throws Throwable {
+        this.schedulesSteps.getExternalTransfers(offenderNumber, date);
+    }
+
+    @Then("^the following offender should be returned \"([^\"]*)\", \"([^\"]*)\" along with the \"([^\"]*)\"$")
+    public void theFollowingOffenderShouldBeReturnedAlongWithThe(String firstName, String lastName, String transferDescription) throws Throwable {
+        this.schedulesSteps.verifyTransfer(firstName, lastName, transferDescription);
     }
 }

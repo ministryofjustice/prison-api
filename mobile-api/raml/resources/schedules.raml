@@ -146,3 +146,24 @@
             body:
               application/json:
                  type: PrisonerSchedule[]
+
+/{agencyId}/externalTransfers:
+  post:
+    (javaOperationName): getExternalTransfers
+    uriParameters:
+      agencyId:
+        type: string
+        description: The prison.
+    queryParameters:
+      date?:
+        type : date-only
+        description: Date of scheduled transfer
+    body:
+      application/json:
+           (javaType): List<String>
+           description: The required offender numbers (mandatory)
+    responses:
+          200:
+            body:
+              application/json:
+                 type: PrisonerSchedule[]

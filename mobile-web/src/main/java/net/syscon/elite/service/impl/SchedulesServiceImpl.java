@@ -205,6 +205,16 @@ public class SchedulesServiceImpl implements SchedulesService {
         return filterByTimeSlot(timeSlot, events);
     }
 
+    @Override
+    public List<PrisonerSchedule> getExternalTransfers(String agencyId, List<String> offenderNumbers, LocalDate date) {
+        Validate.notBlank(agencyId, "An agency id is required.");
+        if (offenderNumbers.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return scheduleRepository.getExternalTransfers(agencyId, offenderNumbers, date);
+    }
+
     private List<PrisonerSchedule> filterByTimeSlot(TimeSlot timeSlot, List<PrisonerSchedule> events) {
 
         if (timeSlot == null) {
