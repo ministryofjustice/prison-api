@@ -48,6 +48,15 @@
       description: The prison
   type: { readOnlyCollection: { type: LocationGroup[], description: List of all available Location Groups at agency. } }
 
+# Note this should be moved to the whereabouts API once that is available
+/{agencyId}/locations/whereabouts:
+  (javaOperationName): getWhereabouts
+  uriParameters:
+    agencyId:
+      type: string
+      description: The prison
+  type: { readOnlyItem: { type: WhereaboutsConfig, description: Whereabouts details (e.g. whether enabled) for prison. } }
+
 /prison:
   (javaOperationName): getPrisonContactDetailList
   type: { readOnlyCollection: { type: PrisonContactDetail, description: List of prison contact details. } }
