@@ -127,6 +127,6 @@ public class LocationsSteps extends CommonSteps {
                         Stream.of(group.getName()),
                         group.getChildren().stream().map(subGroup -> group.getName() + '_' + subGroup.getName())))
                 .collect(Collectors.toList());
-        assertThat(actual).asList().containsExactly(commaDelimitedListToStringArray(expectedList));
+        assertThat(actual).asList().containsExactly((Object[])commaDelimitedListToStringArray(expectedList));
     }
 }

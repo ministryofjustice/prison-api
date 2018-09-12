@@ -1,9 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.Agency;
-import net.syscon.elite.api.model.Location;
-import net.syscon.elite.api.model.LocationGroup;
-import net.syscon.elite.api.model.PrisonContactDetail;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.resource.AgencyResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
@@ -54,6 +51,13 @@ public class AgencyResourceImpl implements AgencyResource {
     public GetAvailableLocationGroupsResponse getAvailableLocationGroups(String agencyId) {
         List<LocationGroup> locationGroups = locationGroupService.getLocationGroupsForAgency(agencyId);
         return GetAvailableLocationGroupsResponse.respond200WithApplicationJson(locationGroups);
+    }
+
+    @Override
+    public GetWhereaboutsResponse getWhereabouts(String agencyId) {
+        List<LocationGroup> locationGroups = locationGroupService.getLocationGroupsForAgency(agencyId);
+        WhereaboutsConfig whereaboutsConfig = WhereaboutsConfig.builder().enabled(!locationGroups.isEmpty()).build();
+        return GetWhereaboutsResponse.respond200WithApplicationJson(whereaboutsConfig);
     }
 
     @Override
