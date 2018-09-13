@@ -6,6 +6,7 @@ import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.AccessRoleService;
 
 import javax.ws.rs.Path;
+import java.util.List;
 
 @RestResource
 @Path("/access-roles")
@@ -16,6 +17,13 @@ public class AccessRoleResourceImpl implements AccessRoleResource{
         this.accessRoleService = accessRoleService;
     }
 
+
+    @Override
+    public GetAccessRolesResponse getAccessRoles() {
+
+        final List<AccessRole> accessRoles = accessRoleService.getAccessRoles();
+        return GetAccessRolesResponse.respond200WithApplicationJson(accessRoles);
+    }
 
     @Override
     public CreateAccessRoleResponse createAccessRole(AccessRole newAccessRole) {
@@ -30,4 +38,5 @@ public class AccessRoleResourceImpl implements AccessRoleResource{
 
         return UpdateAccessRoleResponse.respond200WithApplicationJson();
     }
+
 }

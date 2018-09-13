@@ -23,3 +23,8 @@ Feature: Access role maintenance
     Given user "ro_user" with password "password" has authenticated with the API
     When an update access role request is made with role code "WING_OFF" and role name "new name"
     Then the update access role request is rejected
+
+  Scenario: All access roles can be retrieved
+    Given a user has authenticated with the API
+    When a request to get access roles is made
+    Then the access role list is returned

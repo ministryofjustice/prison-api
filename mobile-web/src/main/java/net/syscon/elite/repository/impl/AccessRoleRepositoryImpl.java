@@ -3,9 +3,11 @@ package net.syscon.elite.repository.impl;
 import net.syscon.elite.api.model.AccessRole;
 import net.syscon.elite.repository.AccessRoleRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.util.IQueryBuilder;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -46,4 +48,13 @@ public class AccessRoleRepositoryImpl extends RepositoryBase implements AccessRo
 		}
 		return Optional.ofNullable(accessRole);
 	}
+
+    @Override
+    public List<AccessRole> getAccessRoles(){
+
+		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(getQuery("GET_ACCESS_ROLES"), ACCESS_ROLE_ROW_MAPPER);
+		String sql = builder.build();
+
+		return jdbcTemplate.query(sql, ACCESS_ROLE_ROW_MAPPER);
+    }
 }

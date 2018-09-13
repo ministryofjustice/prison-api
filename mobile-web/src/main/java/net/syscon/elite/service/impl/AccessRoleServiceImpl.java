@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -54,5 +55,10 @@ public class AccessRoleServiceImpl implements AccessRoleService {
             throw  EntityNotFoundException.withMessage("Access role with code [%s] not found", accessRole.getRoleCode());
         }
         accessRoleRepository.updateAccessRole(accessRole);
+    }
+
+    @Override
+    public List<AccessRole> getAccessRoles() {
+        return accessRoleRepository.getAccessRoles();
     }
 }

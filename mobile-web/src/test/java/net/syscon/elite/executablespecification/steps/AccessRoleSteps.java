@@ -3,9 +3,12 @@ package net.syscon.elite.executablespecification.steps;
 import net.syscon.elite.api.model.AccessRole;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.POST;
@@ -17,6 +20,7 @@ import static org.springframework.http.HttpMethod.PUT;
 public class AccessRoleSteps extends CommonSteps {
     private static final String API_ACCESS_ROLE_REQUEST_URL = API_PREFIX + "/access-roles";
     private ResponseEntity createUpdateResponse;
+    private List<AccessRole> accessRoles;
 
     @Step("create access role")
     public void createAccessRole(String roleCode, String roleName, String parentRoleCode) {
@@ -35,6 +39,12 @@ public class AccessRoleSteps extends CommonSteps {
         assertThat(createUpdateResponse.getStatusCode().value()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
+    @Step("Verify access roles returned")
+    public void verifyAccessRoles() {
+        assertThat(accessRoles).isNotNull();
+        assertThat(accessRoles).extracting("roleCode").contains("ACCESS_ROLE_1");
+    }
+
     private void dispatchCreateOrUpdateAccessRoleRequest(String roleCode, String roleName, String parentRoleCode, boolean create) {
         init();
 
@@ -51,7 +61,22 @@ public class AccessRoleSteps extends CommonSteps {
         }
     }
 
+    private void dispatchAccessRolesGet() {
+        init();
+        try {
+            ResponseEntity<List<AccessRole>> response = restTemplate.exchange(API_ACCESS_ROLE_REQUEST_URL, HttpMethod.GET, createEntity(null, null),
+                    new ParameterizedTypeReference<List<AccessRole>>() {});
+            accessRoles = response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
     public void updateAccessRole(String roleCode, String roleName) {
         dispatchCreateOrUpdateAccessRoleRequest(roleCode, roleName, null, false);
+    }
+
+    public void getAccessRoles() {
+        dispatchAccessRolesGet();
     }
 }
