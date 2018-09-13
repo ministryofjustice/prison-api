@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.util.MdcUtility;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
@@ -15,6 +16,7 @@ import static net.syscon.util.MdcUtility.CORRELATION_ID_HEADER;
 
 @Slf4j
 @Component
+@Order(2)
 public class CorrelationHeaderFilter implements Filter {
 
     private final MdcUtility mdcUtility;

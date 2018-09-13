@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.security.UserSecurityUtils;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
@@ -13,6 +14,7 @@ import static net.syscon.util.MdcUtility.USER_ID_HEADER;
 
 @Slf4j
 @Component
+@Order(1)
 public class UserMdcFilter implements Filter {
 
     private final UserSecurityUtils userSecurityUtils;
