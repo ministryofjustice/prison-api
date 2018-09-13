@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -88,6 +89,14 @@ public class AccessRoleRepositoryTest {
         AccessRole accessRole = optionalRole.get();
 
         assertThat(accessRole.getRoleName()).isEqualTo(NEW_ROLE_NAME);
+    }
+
+    @Test
+    public void testGetAccessRoles() {
+
+        final List<AccessRole> accessRoles = repository.getAccessRoles();
+
+        assertThat(accessRoles).extracting("roleCode").contains("ACCESS_ROLE_1", "ACCESS_ROLE_2");
     }
 
 }

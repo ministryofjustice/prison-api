@@ -45,4 +45,13 @@ public class AccessRoleStepDefinitions extends AbstractStepDefinitions {
         steps.verifyUpdated();
     }
 
+    @When("^a request to get access roles is made$")
+    public void aRequestToGetAccessRolesIsMade() throws Throwable {
+        steps.getAccessRoles();
+    }
+
+    @Then("^the access role list is returned$")
+    public void theAccessRoleListIsReturned() throws Throwable {
+        steps.verifyAccessRoles();
+    }
 }

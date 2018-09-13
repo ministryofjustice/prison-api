@@ -1,4 +1,8 @@
 /:
+  type: { readOnlyCollection: { type: AccessRole, description: List of access roles } }
+  get:
+    (javaOperationName): getAccessRoles
+    description: List of access roles
   post:
     (javaOperationName): createAccessRole
     description: Create new access role.

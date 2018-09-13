@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import com.google.common.collect.ImmutableList;
 import net.syscon.elite.api.model.AccessRole;
 import net.syscon.elite.repository.AccessRoleRepository;
 import net.syscon.elite.service.AccessRoleService;
@@ -73,6 +74,16 @@ public class AccessRoleServiceImplTest {
         accessRoleService.updateAccessRole(accessRole);
 
         Mockito.verify(accessRoleRepository, Mockito.times(1)).updateAccessRole(accessRole);
+    }
+
+    @Test
+    public void testGetAccessRoles() {
+        final AccessRole accessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").build();
+        Mockito.when(accessRoleRepository.getAccessRoles()).thenReturn(ImmutableList.of(accessRole));
+
+        accessRoleService.getAccessRoles();
+
+        Mockito.verify(accessRoleRepository, Mockito.times(1)).getAccessRoles();
     }
 
 }
