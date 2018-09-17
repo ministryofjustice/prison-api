@@ -25,11 +25,13 @@ public class SearchResourceImpl implements SearchOffenderResource {
     }
 
     @Override
-    public SearchForOffendersLocationAndKeywordResponse searchForOffendersLocationAndKeyword(String locationPrefix, String keywords, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+    public SearchForOffendersLocationAndKeywordResponse searchForOffendersLocationAndKeyword(String locationPrefix, String keywords, boolean returnIep, boolean returnAlerts, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         SearchOffenderRequest request = SearchOffenderRequest.builder()
                 .username(authenticationFacade.getCurrentUsername())
                 .keywords(keywords)
                 .locationPrefix(locationPrefix)
+                .returnAlerts(returnAlerts)
+                .returnIep(returnIep)
                 .orderBy(sortFields)
                 .order(sortOrder)
                 .offset(nvl(pageOffset, 0L))

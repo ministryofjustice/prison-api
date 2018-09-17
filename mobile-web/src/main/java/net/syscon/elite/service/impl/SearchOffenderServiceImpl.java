@@ -78,7 +78,7 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
 
         final List<Long> bookingIds = bookings.getItems().stream().map(OffenderBooking::getBookingId).collect(Collectors.toList());
         final Map<Long, PrivilegeSummary> bookingIEPSummary = bookingService.getBookingIEPSummary(bookingIds, false);
-        final Map<Long, List<String>> alertCodesForBookings = repository.getAlertCodesForBookings(bookingIds, LocalDateTime.now());
+        final Map<Long, List<String>> alertCodesForBookings = bookingService.getBookingAlertSummary(bookingIds, LocalDateTime.now());
         bookings.getItems().forEach(booking -> {
             booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel());
             booking.setAlertsDetails(alertCodesForBookings.get(booking.getBookingId()));

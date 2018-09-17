@@ -12,10 +12,8 @@ import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -49,8 +47,6 @@ public interface InmateRepository {
 	Optional<InmateDetail> getBasicInmateDetail(Long bookingId);
 
 	Page<Alias> findInmateAliases(Long bookingId, String orderByFields, Order order, long offset, long limit);
-
-	Map<Long, List<String>> getAlertCodesForBookings(List<Long> bookingIds, LocalDateTime cutoffDate);
 
 	List<Long> getPersonalOfficerBookings(long staffId);
 

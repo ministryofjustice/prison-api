@@ -17,6 +17,8 @@ public interface BookingRepository {
 
     Map<Long, List<PrivilegeDetail>> getBookingIEPDetailsByBookingIds(List<Long> bookingIds);
 
+    Map<Long, List<String>> getAlertCodesForBookings(List<Long> bookingIds, LocalDateTime cutoffDate);
+
     boolean verifyBookingAccess(Long bookingId, Set<String> agencyIds);
 
     Optional<String> getBookingAgency(Long bookingId);
