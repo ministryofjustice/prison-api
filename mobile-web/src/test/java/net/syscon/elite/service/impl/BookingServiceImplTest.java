@@ -80,8 +80,7 @@ public class  BookingServiceImplTest {
                 null,
                 telemetryClient,
                 "1",
-                10,
-                null);
+                10);
     }
 
     @Test

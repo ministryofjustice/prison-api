@@ -1,7 +1,6 @@
 package net.syscon.elite.executablespecification;
 
 
-import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -29,17 +28,17 @@ public class OffenderSearchStepDefinitions extends AbstractStepDefinitions {
 
     @When("^an offender search is made for location \"([^\"]*)\"$")
     public void aOffenderSearchIsMadeForLocation(String locationPrefix) throws Throwable {
-        offenderSearch.search(locationPrefix, null);
+        offenderSearch.search(locationPrefix, null, false, false, null);
     }
 
     @When("^an offender search is made with keywords \"([^\"]*)\" in location \"([^\"]*)\"$")
     public void anOffenderSearchIsMadeWithKeywordsInLocation(String keywords, String locationPrefix) throws Throwable {
-        offenderSearch.search(locationPrefix, keywords);
+        offenderSearch.search(locationPrefix, keywords, true, false, null);
     }
 
     @When("^an offender search is made filtering by alerts \"([^\"]*)\" in location \"([^\"]*)\"$")
     public void aBookingSearchIsMadeWithAlerts(String alerts, String locationPrefix) {
-        offenderSearch.alertSearch(alerts, locationPrefix);
+        offenderSearch.search(locationPrefix,  null, false, true, alerts);
     }
 
     @Then("^\"([^\"]*)\" offender records are returned$")
@@ -79,7 +78,7 @@ public class OffenderSearchStepDefinitions extends AbstractStepDefinitions {
 
     @When("^a booking search is made in \"([^\"]*)\"$")
     public void aBookingSearchIsMadeIn(String subLocation) throws Throwable {
-        offenderSearch.search(subLocation, null);
+        offenderSearch.search(subLocation, null, true, true, null);
     }
 
     @Then("^only offenders situated in \"([^\"]*)\" be present in the results$")

@@ -20,7 +20,6 @@ import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -63,7 +62,6 @@ public class BookingServiceImpl implements BookingService {
     private final TelemetryClient telemetryClient;
     private final String defaultIepLevel;
     private final int maxBatchSize;
-    private final Environment env;
 
     /**
      * Order ScheduledEvents by startTime with null coming last
@@ -91,8 +89,7 @@ public class BookingServiceImpl implements BookingService {
                               CaseloadToAgencyMappingService caseloadToAgencyMappingService,
                               TelemetryClient telemetryClient,
                               @Value("${api.bookings.iepLevel.default:Unknown}") String defaultIepLevel,
-                              @Value("${batch.max.size:1000}") int maxBatchSize,
-                              Environment env) {
+                              @Value("${batch.max.size:1000}") int maxBatchSize) {
         this.bookingRepository = bookingRepository;
         this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
@@ -103,7 +100,6 @@ public class BookingServiceImpl implements BookingService {
         this.telemetryClient = telemetryClient;
         this.defaultIepLevel = defaultIepLevel;
         this.maxBatchSize = maxBatchSize;
-        this.env = env;
     }
 
     @Override
@@ -266,7 +262,7 @@ public class BookingServiceImpl implements BookingService {
         final List<ScheduledEvent> bookingActivities = bookingRepository.getBookingActivities(
                 offenderSummary.getBookingId(), attendanceEventDate, attendanceEventDate, null, null);
         final Optional<ScheduledEvent> thisEvent = bookingActivities.stream()
-                .filter(a -> a.getEventId() == activityId)
+                .filter(a -> a.getEventId().equals(activityId))
                 .findFirst();
         if (!thisEvent.isPresent()) {
             return;
@@ -276,7 +272,7 @@ public class BookingServiceImpl implements BookingService {
         final TimeSlot timeSlot = CalcDateRanges.startTimeToTimeSlot(thisEvent.get().getStartTime());
         final Optional<ScheduledEvent> paidActivity = bookingActivities.stream()
                 .filter(a -> CalcDateRanges.startTimeToTimeSlot(a.getStartTime()) == timeSlot)
-                .filter(a -> a.getPaid())
+                .filter(ScheduledEvent::getPaid)
                 .findFirst();
 
         if (paidActivity.isPresent()) {
@@ -758,7 +754,7 @@ public class BookingServiceImpl implements BookingService {
                 .partition(bookingIds, maxBatchSize)
                 .stream()
                 .flatMap(numbers -> {
-                    String query = "bookingId:in:" + numbers.stream().map(n -> String.valueOf(n)).collect(Collectors.joining("|"));
+                    String query = "bookingId:in:" + numbers.stream().map(String::valueOf).collect(Collectors.joining("|"));
                     return bookingRepository.getOffenderSentenceSummary(query, caseloads).stream();
                 })
                 .collect(Collectors.toList());
