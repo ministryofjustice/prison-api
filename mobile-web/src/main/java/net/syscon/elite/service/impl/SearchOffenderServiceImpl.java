@@ -83,8 +83,12 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
             final Map<Long, List<String>> alertCodesForBookings = request.isReturnAlerts() ? bookingService.getBookingAlertSummary(bookingIds, LocalDateTime.now()) : new HashMap<>();
 
             bookings.getItems().forEach(booking -> {
-                booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel());
-                booking.setAlertsDetails(alertCodesForBookings.get(booking.getBookingId()));
+                if (request.isReturnIep()) {
+                    booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel());
+                }
+                if (request.isReturnAlerts()) {
+                    booking.setAlertsDetails(alertCodesForBookings.get(booking.getBookingId()));
+                }
             });
         }
         return bookings;
