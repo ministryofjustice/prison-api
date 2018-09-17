@@ -1,9 +1,6 @@
 package net.syscon.elite.repository.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
@@ -24,11 +21,8 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.CollectionUtils;
 
-import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static net.syscon.elite.repository.ImageRepository.IMAGE_DETAIL_MAPPER;
 
@@ -96,7 +90,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     private final StandardBeanPropertyRowMapper<InmateDto> INMATE_MAPPER = new StandardBeanPropertyRowMapper<>(InmateDto.class);
 	private final StandardBeanPropertyRowMapper<ProfileInformation> PROFILE_INFORMATION_MAPPER = new StandardBeanPropertyRowMapper<>(ProfileInformation.class);
 	private final StandardBeanPropertyRowMapper<OffenderIdentifier> OFFENDER_IDENTIFIER_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderIdentifier.class);
-	private final StandardBeanPropertyRowMapper<AlertResult> ALERTS_MAPPER = new StandardBeanPropertyRowMapper<>(AlertResult.class);
 
     private final StandardBeanPropertyRowMapper<PrisonerDetail> PRISONER_DETAIL_MAPPER =
             new StandardBeanPropertyRowMapper<>(PrisonerDetail.class);
@@ -111,14 +104,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("ALIAS_TYPE",		new FieldMapper("nameType"))
 			.put("CREATE_DATE",     new FieldMapper("createDate", DateTimeConverter::toISO8601LocalDate))
 			.build();
-
-	@Data
-	@NoArgsConstructor
-	@AllArgsConstructor
-	private static class AlertResult {
-		private Long bookingId;
-		private String alertCode;
-	}
 
 	@Override
 	public Page<OffenderBooking> findInmatesByLocation(Long locationId, String locationTypeRoot, String caseLoadId, String query, String orderByField, Order order, long offset, long limit) {
@@ -245,24 +230,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		return new Page<>(offenderBookings, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
 	}
 
-	/**
-	 * @param bookingIds
-	 * @param cutoffDate Omit alerts which have expired before this date-time
-	 * @return a list of active alert codes for each booking id
-	 */
-	@Override
-	public Map<Long, List<String>> getAlertCodesForBookings(List<Long> bookingIds, LocalDateTime cutoffDate) {
-		if (CollectionUtils.isEmpty(bookingIds)) {
-			return Collections.emptyMap();
-		}
-		final List<AlertResult> results = jdbcTemplate.query(
-				getQuery("GET_ALERT_CODES_FOR_BOOKINGS"),
-				createParams("bookingIds", bookingIds, "cutoffDate", DateTimeConverter.fromLocalDateTime(cutoffDate)),
-				ALERTS_MAPPER);
-
-		return results.stream().collect(Collectors.groupingBy(AlertResult::getBookingId,
-				Collectors.mapping(AlertResult::getAlertCode, Collectors.toList())));
-	}
 
 	@Override
 	public List<Long> getPersonalOfficerBookings(long staffId) {

@@ -7,6 +7,7 @@ import net.syscon.elite.service.validation.AttendanceTypesValid;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -90,4 +91,6 @@ public interface BookingService {
     OffenderSummary createBooking(@Valid NewBooking newBooking);
 
     OffenderSummary recallBooking(@Valid RecallBooking recallBooking);
+
+    Map<Long, List<String>> getBookingAlertSummary(List<Long> bookingIds, LocalDateTime now);
 }

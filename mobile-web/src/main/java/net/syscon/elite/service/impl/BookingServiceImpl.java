@@ -199,6 +199,18 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public Map<Long, List<String>> getBookingAlertSummary(List<Long> bookingIds, LocalDateTime now) {
+        final Map<Long, List<String>> alerts = new HashMap<>();
+
+        if (!bookingIds.isEmpty()) {
+            List<List<Long>> batch = Lists.partition(bookingIds, maxBatchSize);
+            batch.forEach(bookingIdList -> alerts.putAll(bookingRepository.getAlertCodesForBookings(bookingIdList, now)));
+        }
+
+        return alerts;
+    }
+
+    @Override
     @VerifyBookingAccess
     public Page<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order) {
         validateScheduledEventsRequest(fromDate, toDate);

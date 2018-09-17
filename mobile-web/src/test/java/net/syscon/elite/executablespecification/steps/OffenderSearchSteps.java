@@ -66,7 +66,7 @@ public class OffenderSearchSteps extends CommonSteps {
 
     public void search(String locationPrefix, String keywords) {
         init();
-        String queryUrl = String.format(LOCATION_SEARCH + (StringUtils.isNotBlank(keywords) ? "?keywords="+keywords : ""), locationPrefix.trim());
+        String queryUrl = String.format(LOCATION_SEARCH + (StringUtils.isNotBlank(keywords) ? "?keywords="+keywords+"&" : "?") + "returnIep=true&returnAlerts=true", locationPrefix.trim());
 
         ResponseEntity<List<OffenderBooking>> responseEntity = restTemplate.exchange(queryUrl,
                 HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<OffenderBooking>>() {});

@@ -34,6 +34,16 @@
         (javaType): List<String>
         description: alert flags to filter by
         example: ?alerts=XA&alerts=RVR
+      returnIep?:
+        type: boolean
+        description: return IEP data
+        default: false
+        example: false
+      returnAlerts?:
+        type: boolean
+        description: return Alert data
+        default: false
+        example: false
   type: { readOnlyCollectionPaged: { type: OffenderBooking, description: List of offenders at location. } }
   is: [
     sortable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId"},

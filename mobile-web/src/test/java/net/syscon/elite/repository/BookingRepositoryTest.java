@@ -22,9 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalTime;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -344,5 +343,34 @@ public class BookingRepositoryTest {
                         .authorisedAbsence(true)
                         .build()
                 );
+    }
+
+    @Test
+    public void testGetAlertCodesForBookingsFuture() {
+
+        final Map<Long, List<String>> resultsFuture = repository.getAlertCodesForBookings(Arrays.asList(-1L, -2L, -16L),
+                LocalDateTime.of (LocalDate.now().plusDays(1), LocalTime.of(12,0)));
+
+        assertThat(resultsFuture.get(-1L)).asList().containsExactly("XA", "HC");
+        assertThat(resultsFuture.get(-2L)).asList().containsExactly("HA");
+        assertThat(resultsFuture.get(-16L)).isNull();
+    }
+
+    @Test
+    public void testGetAlertCodesForBookingsPast() {
+
+        final Map<Long, List<String>> resultsPast = repository.getAlertCodesForBookings(Arrays.asList(-1L, -2L, -16L),
+                LocalDateTime.of (LocalDate.now().plusDays(-1), LocalTime.of(12,0)));
+
+        assertThat(resultsPast.get(-16L)).asList().containsExactly("OIOM");
+    }
+
+    @Test
+    public void testGetAlertCodesForBookingsEmpty() {
+
+        final Map<Long, List<String>> resultsPast = repository.getAlertCodesForBookings(Collections.emptyList(),
+                LocalDateTime.now());
+
+        assertThat(resultsPast).isEmpty();
     }
 }

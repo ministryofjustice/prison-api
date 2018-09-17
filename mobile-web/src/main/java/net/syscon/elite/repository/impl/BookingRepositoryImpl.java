@@ -1,6 +1,9 @@
 package net.syscon.elite.repository.impl;
 
 import com.google.common.collect.ImmutableMap;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
@@ -22,6 +25,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import java.sql.Types;
 import java.time.LocalDate;
@@ -48,6 +52,17 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
 
     private static final StandardBeanPropertyRowMapper<ScheduledEvent> EVENT_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(ScheduledEvent.class);
+
+    private final StandardBeanPropertyRowMapper<AlertResult> ALERTS_MAPPER = new StandardBeanPropertyRowMapper<>(AlertResult.class);
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    private static class AlertResult {
+        private Long bookingId;
+        private String alertCode;
+    }
+
 
     private final Map<String, FieldMapper> PAYABLE_ATTENDANCE_OUTCOMES_MAPPING = new jersey.repackaged.com.google.common.collect.ImmutableMap.Builder<String, FieldMapper>()
             .put("PAYABLE_ATTENDANCE_OUTCOMES_ID", new FieldMapper("payableAttendanceOutcomeId"))
@@ -189,6 +204,25 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                 PRIV_DETAIL_ROW_MAPPER);
 
         return privs.stream().collect(Collectors.groupingBy(PrivilegeDetail::getBookingId));
+    }
+
+    /**
+     * @param bookingIds
+     * @param cutoffDate Omit alerts which have expired before this date-time
+     * @return a list of active alert codes for each booking id
+     */
+    @Override
+    public Map<Long, List<String>> getAlertCodesForBookings(List<Long> bookingIds, LocalDateTime cutoffDate) {
+        if (CollectionUtils.isEmpty(bookingIds)) {
+            return Collections.emptyMap();
+        }
+        final List<AlertResult> results = jdbcTemplate.query(
+                getQuery("GET_ALERT_CODES_FOR_BOOKINGS"),
+                createParams("bookingIds", bookingIds, "cutoffDate", DateTimeConverter.fromLocalDateTime(cutoffDate)),
+                ALERTS_MAPPER);
+
+        return results.stream().collect(Collectors.groupingBy(AlertResult::getBookingId,
+                Collectors.mapping(AlertResult::getAlertCode, Collectors.toList())));
     }
 
     @Override
