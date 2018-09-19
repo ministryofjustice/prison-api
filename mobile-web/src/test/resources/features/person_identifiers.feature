@@ -1,4 +1,4 @@
-@global @wip
+@nomis
 Feature: Person Identifiers
 
   Background:
