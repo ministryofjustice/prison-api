@@ -8,9 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/**
- * Boiler-plate that follows the pattern. Doesn't add anything yet.
- */
 @Service
 @Transactional(readOnly = true)
 public class PersonServiceImpl implements PersonService {
