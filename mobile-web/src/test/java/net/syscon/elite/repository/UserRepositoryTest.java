@@ -2,6 +2,9 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
+import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Test;
@@ -76,6 +79,66 @@ public class UserRepositoryTest {
 
         assertThat(user.getUsername()).isEqualTo("ELITE2_API_USER");
     }
+
+    @Test
+    public void testFindUsersByCaseload() {
+
+        final Page<UserDetail> page = repository.findUsersByCaseload("LEI", null, null, new PageRequest("last_name", Order.ASC, 0L, 5L));
+        final List<UserDetail> items = page.getItems();
+
+        assertThat(items).hasSize(5);
+        assertThat(items).extracting("username").first().isEqualTo("CA_USER");
+
+    }
+
+    @Test
+    public void testFindUsersByCaseloadAndNameFilter() {
+
+        final Page<UserDetail> usersByCaseload = repository.findUsersByCaseload("LEI", null, "User", new PageRequest());
+
+        assertThat(usersByCaseload.getItems()).extracting("username").contains("ITAG_USER");
+    }
+
+    @Test
+    public void testFindUsersByCaseloadAndNameFilterAndAccessRoleFilter() {
+
+        final Page<UserDetail> usersByCaseload = repository.findUsersByCaseload("LEI", "OMIC_ADMIN", "User", new PageRequest());
+
+        assertThat(usersByCaseload.getItems()).extracting("username").contains("ITAG_USER");
+    }
+
+    @Test
+    public void testFindUsersByCaseloadAndAccessRoleFilter() {
+
+        Page<UserDetail> usersByCaseload = repository.findUsersByCaseload("LEI", "OMIC_ADMIN", "User", new PageRequest());
+
+        assertThat(usersByCaseload.getItems()).extracting("username").contains("ITAG_USER");
+    }
+
+    @Test
+    public void testFindUsersByCaseloadAndAccessRoleFilterRoleNotAssigned() {
+
+        Page<UserDetail> usersByCaseload = repository.findUsersByCaseload("LEI", "ACCESS_ROLE_1", "User", new PageRequest());
+
+        assertThat(usersByCaseload.getItems()).isEmpty();
+    }
+
+    @Test
+    public void testFindUsersByCaseloadAndAccessRoleFilterRoleNotAnAccessRole() {
+
+        Page<UserDetail> usersByCaseload = repository.findUsersByCaseload("LEI", "WING_OFF", "User", new PageRequest());
+
+        assertThat(usersByCaseload.getItems()).isEmpty();
+    }
+
+    @Test
+    public void testFindUsersByCaseloadAndAccessRoleFilterNonExistantRole() {
+
+        Page<UserDetail> usersByCaseload = repository.findUsersByCaseload("LEI", "OMIC_ADMIN_DOESNT_EXIST", "User", new PageRequest());
+
+        assertThat(usersByCaseload.getItems()).isEmpty();
+    }
+
 
     @Test
     public void testIsRoleAssigned() {

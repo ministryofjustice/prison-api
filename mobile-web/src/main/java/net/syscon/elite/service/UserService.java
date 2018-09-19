@@ -3,6 +3,8 @@ package net.syscon.elite.service;
 import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
+import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 
 import java.util.List;
 import java.util.Set;
@@ -43,4 +45,6 @@ public interface UserService {
      * @return number of users added to the api caseload
      */
     int addDefaultCaseloadForPrison(String caseloadId);
+
+    Page<UserDetail> getUsersByCaseload(String caseload, String nameFilter, String accessRole, PageRequest pageRequest);
 }

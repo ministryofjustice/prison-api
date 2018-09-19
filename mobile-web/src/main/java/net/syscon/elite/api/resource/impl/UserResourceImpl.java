@@ -58,6 +58,16 @@ public class UserResourceImpl implements UserResource {
     }
 
     @Override
+    public GetUsersByCaseLoadResponse getUsersByCaseLoad(String caseload, String nameFilter, String accessRole, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+
+        PageRequest pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
+
+        Page<UserDetail> userDetails = userService.getUsersByCaseload(caseload, nameFilter, accessRole, pageRequest);
+
+        return GetUsersByCaseLoadResponse.respond200WithApplicationJson(userDetails);
+    }
+
+    @Override
     public RemoveUsersAccessRoleForCaseloadResponse removeUsersAccessRoleForCaseload(String username, String caseload, String roleCode) {
         userService.removeUsersAccessRoleForCaseload( username,  caseload,  roleCode);
         return RemoveUsersAccessRoleForCaseloadResponse.respond200WithApplicationJson();
@@ -172,4 +182,5 @@ public class UserResourceImpl implements UserResource {
         }
         return GetMyAssignmentsResponse.respond200WithApplicationJson(assignments);
     }
+
 }
