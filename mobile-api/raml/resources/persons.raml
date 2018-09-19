@@ -1,0 +1,10 @@
+/{personId}/identifiers:
+  (javaOperationName): getPersonIdentifiers
+  uriParameters:
+    personId:
+      (javaType): Long
+      type: number
+      description: The persons NOMIS identifier (personId).
+  type: { readOnlyCollection: { type: PersonIdentifier, description: The most recent value of each type of person identifier  } }
+
+

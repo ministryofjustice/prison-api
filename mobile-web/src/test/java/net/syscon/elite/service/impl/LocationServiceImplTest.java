@@ -92,8 +92,6 @@ public class LocationServiceImplTest {
         when(locationGroupService.locationGroupFilters("LEI", "mylist"))
                 .thenReturn(Stream.of("cell4", "cell1", "cell3").map(filterFactory).collect(Collectors.toList()));
 
-//                .thenReturn(Arrays.asList(l -> setOf("cell4", "cell1", "cell3").contains(l.getLocationPrefix())));
-
         final List<Location> group = locationService.getCellLocationsForGroup("LEI", "mylist");
 
         // Note that the locationGroupFilter ordering imposes an ordering on the results
@@ -111,8 +109,6 @@ public class LocationServiceImplTest {
 
     @Test(expected = PatternSyntaxException.class)
     public void testLocationGroupFilterThrowsPatternSyntaxException() throws Exception {
-//        when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", false))
-//                .thenReturn(Arrays.asList(cell1, cell2, cell3, cell4));
 
         when(locationGroupService.locationGroupFilters("LEI", "mylist")).thenThrow(PatternSyntaxException.class);
 
@@ -125,7 +121,6 @@ public class LocationServiceImplTest {
             .thenReturn(Arrays.asList( cell1, cell2, cell3, cell4));
 
         when(locationGroupService.locationGroupFilters("LEI", "mylist")).thenReturn(Collections.singletonList(l -> false));
-//        groupsProperties.setProperty("LEI_mylist", "");
 
         locationService.getCellLocationsForGroup("LEI", "mylist");
     }
