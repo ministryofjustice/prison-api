@@ -188,6 +188,11 @@ abstract class AbstractStepDefinitions {
         public StaffSteps staff() {
             return new StaffSteps();
         }
+
+        @Bean
+        public PersonIdentifierSteps personIdentifierSteps() {
+            return new PersonIdentifierSteps();
+        }
     }
 
     protected int ord2idx(String ordinal) {
