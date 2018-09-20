@@ -2,6 +2,8 @@ package net.syscon.elite.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -33,7 +35,7 @@ public class UserServiceImpl implements UserService {
 	private final String apiCaseloadId;
 
 	public UserServiceImpl(CaseLoadService caseLoadService, StaffService staffService,
-                           UserRepository userRepository, @Value("${application.caseload.id:NEWB}") String apiCaseloadId) {
+                           UserRepository userRepository, @Value("${application.caseload.id:NWEB}") String apiCaseloadId) {
 		this.caseLoadService = caseLoadService;
 		this.staffService = staffService;
 		this.userRepository = userRepository;
@@ -170,4 +172,22 @@ public class UserServiceImpl implements UserService {
         log.debug("{} Users added to caseload {}", caseloadsAdded.size(), apiCaseloadId);
         return caseloadsAdded.size();
 	}
+
+	@Override
+	public Page<UserDetail> getUsersByCaseload(String caseload, String nameFilter, String accessRole, PageRequest pageRequest) {
+
+	    PageRequest pageWithDefaults = pageRequest;
+	    if(pageWithDefaults == null){
+	        pageWithDefaults = new PageRequest("lastName");
+        }else {
+	        if(pageWithDefaults.getOrderBy()==null){
+	            pageWithDefaults = new PageRequest("lastName", pageWithDefaults.getOrder(), pageWithDefaults.getOffset(), pageWithDefaults.getLimit());
+            }
+        }
+
+		return userRepository
+				.findUsersByCaseload(caseload, accessRole, nameFilter, pageWithDefaults);
+	}
+
+
 }

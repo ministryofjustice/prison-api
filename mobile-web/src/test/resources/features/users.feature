@@ -76,3 +76,21 @@ Feature: User Details and Roles
     And the client assigns api-role "KW_ADMIN" to user "API_TEST_USER"
     When the client removes role "KW_ADMIN" from user "API_TEST_USER" at caseload "NWEB"
     Then user "API_TEST_USER" does not have role "KW_ADMIN" at caseload "NWEB"
+
+  @lucy
+  Scenario: A list of staff users by caseload can be retrieved
+    Given a user has authenticated with the API
+    When a request for users with caseload "LEI" is made
+    Then a list of users is returned with usernames "ELITE2_API_USER,ITAG_USER,JBRIEN,NONWEB,RENEGADE,CA_USER,DM_USER"
+
+  @lucy
+  Scenario: A list of staff users by caseload and namefilter can be retrieved
+    Given a user has authenticated with the API
+    When a request for users with caseload "LEI" and namefilter "User" and role "" is made
+    Then a list of users is returned with usernames "ELITE2_API_USER,ITAG_USER,CA_USER,DM_USER"
+
+  @lucy
+  Scenario: A list of staff users by caseload and namefilter and access role can be retrieved
+    Given a user has authenticated with the API
+    When a request for users with caseload "LEI" and namefilter "User" and role "OMIC_ADMIN" is made
+    Then a list of users is returned with usernames "ITAG_USER"

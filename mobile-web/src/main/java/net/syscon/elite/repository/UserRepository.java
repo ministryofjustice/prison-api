@@ -3,6 +3,8 @@ package net.syscon.elite.repository;
 import net.syscon.elite.api.model.StaffUserRole;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
+import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.PageRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,4 +33,6 @@ public interface UserRepository {
 	void removeRole(String username, String caseload, Long roleId);
 
 	List<UserDetail> findAllUsersWithCaseload(String caseloadId);
+
+    Page<UserDetail> findUsersByCaseload(String agencyId, String accessRole, String nameFilter, PageRequest pageRequest);
 }

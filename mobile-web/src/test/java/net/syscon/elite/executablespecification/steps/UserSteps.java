@@ -6,6 +6,7 @@ import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -25,11 +26,13 @@ public class UserSteps extends CommonSteps {
     private static final String API_USERS_USERNAMES_HAVING_ROLE_AT_CASELOAD = API_PREFIX + "/users/access-roles/caseload/{caseload}/access-role/{roleCode}";
     private static final String API_ASSIGN_API_ROLE_TO_USER = API_PREFIX + "/users/{username}/access-role/{roleCode}";
     private static final String API_REMOVE_ROLE_FROM_USER_AT_CASELOAD = API_PREFIX + "/users/{username}/caseload/{caseload}/access-role/{roleCode}";
+    private static final String API_USERS_AT_CASELOAD = API_PREFIX + "/users/caseload/{caseload}";
 
     private List<Location> userLocations;
     private List<UserRole> userRoles;
     private List<ReferenceCode> caseNoteTypes;
     private List<String> usernames;
+    private List<UserDetail> userDetails;
 
     @Override
     protected void init() {
@@ -101,6 +104,10 @@ public class UserSteps extends CommonSteps {
         assertThat(caseNoteTypes.stream().filter(type -> type.getSubCodes().isEmpty()).count()).isEqualTo(0);
     }
 
+    public void getUsersByCaseload(String caseloadId, String roleCode, String nameFilter) {
+        dispatchUsersByCaseloadRequest(caseloadId, roleCode, nameFilter);
+    }
+
     //    @Step("Find usernames having role at caseload")
     public void findUsernamesHavingRoleAtCaseload(String role, String caseload) {
         dispatchUsernamesHavingRoleAtCaseloadRequest(role, caseload);
@@ -128,6 +135,10 @@ public class UserSteps extends CommonSteps {
         dispatchUsernamesHavingRoleAtCaseloadRequest(role, caseload);
         assertThat(username).isNotIn(usernames);
 
+    }
+
+    public void verifyUserList(String expectedUsernames) {
+        assertThat(userDetails).extracting("username").containsOnlyElementsOf(csv2list(expectedUsernames));
     }
 
     private void dispatchRemoveRoleFromUserAtCaseload(String role, String username, String caseload) {
@@ -170,6 +181,32 @@ public class UserSteps extends CommonSteps {
                 role);
 
         usernames = response.getBody();
+    }
+
+    private void dispatchUsersByCaseloadRequest(String caseload, String role, String nameFilter) {
+        init();
+        String url = API_USERS_AT_CASELOAD;
+
+        if(StringUtils.isNotBlank(role) || StringUtils.isNotBlank(nameFilter)) {
+            StringBuilder queryUrl = new StringBuilder("?");
+            if (StringUtils.isNotBlank(role)) {
+                queryUrl.append("accessRole=").append(role).append("&");
+            }
+            if (StringUtils.isNotBlank(nameFilter)) {
+                queryUrl.append("nameFilter=").append(nameFilter).append("&");
+            }
+            url += queryUrl.toString();
+        }
+
+        ResponseEntity<List<UserDetail>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                createEntity(),
+                new ParameterizedTypeReference<List<UserDetail>>() {
+                },
+                caseload);
+
+        userDetails = response.getBody();
     }
 
     private void dispatchUserRolesRequest(boolean allRoles) {
