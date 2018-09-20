@@ -1,6 +1,5 @@
 package net.syscon.elite.repository.impl;
 
-import net.logstash.logback.encoder.org.apache.commons.lang.StringEscapeUtils;
 import net.syscon.elite.api.model.StaffUserRole;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
@@ -33,15 +32,15 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	@Value("${application.type:APP}")
 	private String applicationType;
 
-	private static final String NAME_FILTER_QUERY_TEMPLATE = " AND (UPPER(FIRST_NAME) LIKE '%s%%' OR UPPER(LAST_NAME) LIKE '%s%%')";
+	private static final String NAME_FILTER_QUERY_TEMPLATE = " AND (UPPER(FIRST_NAME) LIKE :nameFilter OR UPPER(LAST_NAME) LIKE :nameFilter)";
 
 	private static final String APPLICATION_ROLE_CODE_FILTER_QUERY_TEMPLATE = " AND SUA.username in  (select SUA_INNER.USERNAME FROM STAFF_USER_ACCOUNTS SUA_INNER\n" +
             "                INNER JOIN USER_ACCESSIBLE_CASELOADS UAC ON SUA_INNER.USERNAME = UAC.USERNAME\n" +
             "                INNER JOIN User_caseload_roles UCR ON UCR.USERNAME = SUA_INNER.username\n" +
             "                INNER JOIN OMS_ROLES RL ON RL.ROLE_ID = UCR.ROLE_ID\n" +
-            "  WHERE UAC.CASELOAD_ID = '%s'\n" +
-            "  AND RL.ROLE_TYPE =  '%s'\n" +
-            "  AND RL.ROLE_CODE = '%s' )";
+            "  WHERE UAC.CASELOAD_ID = :apiCaseloadId\n" +
+            "  AND RL.ROLE_TYPE =  :applicationType\n" +
+            "  AND RL.ROLE_CODE = :roleCode )";
 
 	private final StandardBeanPropertyRowMapper<UserRole> USER_ROLE_MAPPER =
 			new StandardBeanPropertyRowMapper<>(UserRole.class);
@@ -223,6 +222,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
         String baseSql = applyAccessRoleQuery(applyNameFilterQuery(getQuery("FIND_USERS_BY_CASELOAD"), nameFilter), accessRole);
 
+
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(baseSql, USER_DETAIL_ROW_MAPPER.getFieldMap());
         String sql = builder
                 .addRowCount()
@@ -234,7 +234,11 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
         List<UserDetail> users = jdbcTemplate.query(
                 sql,
-                createParamSource(pageRequest, "caseloadId", agencyId),
+                createParamSource(pageRequest, "caseloadId", agencyId,
+                "nameFilter", nameFilter !=null ? StringUtils.trimToEmpty(nameFilter.toUpperCase())+ "%" : null,
+                "apiCaseloadId", apiCaseloadId,
+                "applicationType", applicationType,
+                "roleCode", accessRole),
                 paRowMapper);
 
         return new Page<>(users, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
@@ -244,9 +248,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
         String nameFilterQuery = baseSql;
 
         if (StringUtils.isNotBlank(nameFilter)) {
-            String upperNameFilter = StringEscapeUtils.escapeSql(nameFilter.toUpperCase());
-
-            nameFilterQuery += String.format(NAME_FILTER_QUERY_TEMPLATE, upperNameFilter, upperNameFilter);
+            nameFilterQuery += NAME_FILTER_QUERY_TEMPLATE;
         }
         return nameFilterQuery;
     }
@@ -256,7 +258,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
         if (StringUtils.isNotBlank(accessRole)) {
 
-        	resultSql += String.format(APPLICATION_ROLE_CODE_FILTER_QUERY_TEMPLATE, apiCaseloadId, applicationType, accessRole);
+        	resultSql += APPLICATION_ROLE_CODE_FILTER_QUERY_TEMPLATE;
         }
 
         return resultSql;
