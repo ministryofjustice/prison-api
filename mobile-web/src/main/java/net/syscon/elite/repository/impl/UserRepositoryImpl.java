@@ -14,6 +14,7 @@ import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -26,14 +27,20 @@ import java.util.Optional;
 @Repository
 public class UserRepositoryImpl extends RepositoryBase implements UserRepository {
 
+	@Value("${application.caseload.id:NWEB}")
+	private String apiCaseloadId;
+
+	@Value("${application.type:APP}")
+	private String applicationType;
+
 	private static final String NAME_FILTER_QUERY_TEMPLATE = " AND (UPPER(FIRST_NAME) LIKE '%s%%' OR UPPER(LAST_NAME) LIKE '%s%%')";
 
-	private static final String ACCESS_ROLE_CODE_FILTER_QUERY_TEMPLATE = " AND SUA.username in  (select SUA_INNER.USERNAME FROM STAFF_USER_ACCOUNTS SUA_INNER\n" +
+	private static final String APPLICATION_ROLE_CODE_FILTER_QUERY_TEMPLATE = " AND SUA.username in  (select SUA_INNER.USERNAME FROM STAFF_USER_ACCOUNTS SUA_INNER\n" +
             "                INNER JOIN USER_ACCESSIBLE_CASELOADS UAC ON SUA_INNER.USERNAME = UAC.USERNAME\n" +
             "                INNER JOIN User_caseload_roles UCR ON UCR.USERNAME = SUA_INNER.username\n" +
             "                INNER JOIN OMS_ROLES RL ON RL.ROLE_ID = UCR.ROLE_ID\n" +
-            "  WHERE UAC.CASELOAD_ID = 'NWEB'\n" +
-            "  AND RL.ROLE_TYPE =  'APP'\n" +
+            "  WHERE UAC.CASELOAD_ID = '%s'\n" +
+            "  AND RL.ROLE_TYPE =  '%s'\n" +
             "  AND RL.ROLE_CODE = '%s' )";
 
 	private final StandardBeanPropertyRowMapper<UserRole> USER_ROLE_MAPPER =
@@ -214,7 +221,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
         Validate.notBlank(agencyId, "An agency id is required.");
         Validate.notNull(pageRequest, "Page request details are required.");
 
-        String baseSql = applyAccessRoleQuery(applyNameFilterQuery(getQuery("FIND_USERS_BY_CASELOAD"), nameFilter), accessRole, nameFilter);
+        String baseSql = applyAccessRoleQuery(applyNameFilterQuery(getQuery("FIND_USERS_BY_CASELOAD"), nameFilter), accessRole);
 
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(baseSql, USER_DETAIL_ROW_MAPPER.getFieldMap());
         String sql = builder
@@ -244,22 +251,12 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
         return nameFilterQuery;
     }
 
-    private String applyAccessRoleQuery(String baseSql, String accessRole, String nameFilter) {
+    private String applyAccessRoleQuery(String baseSql, String accessRole) {
         String resultSql = baseSql;
 
         if (StringUtils.isNotBlank(accessRole)) {
 
-            String nameFilterClause = null;
-            /*if (StringUtils.isNotBlank(nameFilter)) {
-                String upperNameFilter = StringEscapeUtils.escapeSql(nameFilter.toUpperCase());
-
-                resultSql += String.format(ACCESS_ROLE_CODE_AND_NAME_FILTER_QUERY_TEMPLATE, upperNameFilter, upperNameFilter, accessRole);
-
-                /*nameFilterClause = getQuery("CLAUSE_FIND_USERS_BY_CASELOAD_ACCESS_ROLE_FILTER_AND_NAME_FILTER");
-                resultSql += String.format(nameFilterClause, nameFilter, accessRole);*/
-           // } else {*/
-                resultSql += String.format(ACCESS_ROLE_CODE_FILTER_QUERY_TEMPLATE, accessRole);
-            //}
+        	resultSql += String.format(APPLICATION_ROLE_CODE_FILTER_QUERY_TEMPLATE, apiCaseloadId, applicationType, accessRole);
         }
 
         return resultSql;
