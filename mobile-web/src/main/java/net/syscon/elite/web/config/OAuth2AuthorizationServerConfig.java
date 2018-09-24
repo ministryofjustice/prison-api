@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -37,6 +38,7 @@ import java.util.List;
 @EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
 @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
 @Slf4j
+@Profile("oauth")
 public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
 
     private final Resource privateKeyPair;
