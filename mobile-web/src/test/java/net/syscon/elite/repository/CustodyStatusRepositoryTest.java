@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 import net.syscon.elite.api.model.PrisonerCustodyStatus;
+import net.syscon.elite.api.model.RollCount;
 import net.syscon.elite.web.config.PersistenceConfigs;
 
 import org.junit.Before;
@@ -62,5 +63,16 @@ public class CustodyStatusRepositoryTest {
                 .contains(
                         tuple("Z0021ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 21, 0, 0), "LEI", "OUT", "REL", "OUT"),
                         tuple("Z0019ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 19, 0, 0), "LEI", "BMI", "TRN", "OUT"));
+    }
+
+    @Test
+    public final void canRetrieveRollcount() {
+        final List<RollCount> rollCountList = repository.getRollCount("LEI");
+        assertThat(rollCountList.size()).isEqualTo(2);
+        assertThat(rollCountList).asList()
+                .extracting("livingUnitDesc", "bedsInUse", "currentlyInCell", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
+                .contains(
+                        tuple("LEI-A", 12, 11, 1, 13, 1, 14, 2, 1),
+                        tuple("LEI-H", 20, 14, 6, 20, 0, 20, 0, 0));
     }
 }
