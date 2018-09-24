@@ -1,4 +1,4 @@
-@global @sdar
+@global
 Feature: Custody Status
 
   @nomis

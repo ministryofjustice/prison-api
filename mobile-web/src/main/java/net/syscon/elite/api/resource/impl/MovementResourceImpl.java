@@ -1,6 +1,5 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.resource.CustodyStatusResource;
 import net.syscon.elite.api.resource.MovementResource;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.CustodyStatusService;
