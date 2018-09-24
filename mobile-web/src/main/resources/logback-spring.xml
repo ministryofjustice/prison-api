@@ -13,6 +13,7 @@
                 <Pattern>${LOG_PATTERN}</Pattern>
             </layout>
         </appender>
+        <appender name="aiAppender" class="ch.qos.logback.core.helpers.NOPAppender"/>
     </springProfile>
 
     <springProfile name="logstash">
@@ -21,64 +22,58 @@
                 <includeCallerInfo>true</includeCallerInfo>
             </encoder>
         </appender>
-    </springProfile>
 
-    <springProfile name="ai">
-        <appender name="aiAppender"
-                  class="com.microsoft.applicationinsights.logback.ApplicationInsightsAppender">
-        </appender>
+        <appender name="aiAppender" class="com.microsoft.applicationinsights.logback.ApplicationInsightsAppender"/>
     </springProfile>
 
     <logger name="net.syscon" additivity="false" level="DEBUG">
         <appender-ref ref="consoleAppender"/>
+        <appender-ref ref="aiAppender"/>
     </logger>
-
-    <springProfile name="ai">
-        <logger name="net.syscon" additivity="false" level="DEBUG">
-            <appender-ref ref="aiAppender"/>
-        </logger>
-        <logger name="org.springframework" additivity="false" level="INFO" >
-            <appender-ref ref="aiAppender"/>
-        </logger>
-        <logger name="org.glassfish.jersey" additivity="false" level="INFO" >
-            <appender-ref ref="aiAppender"/>
-        </logger>
-    </springProfile>
 
     <logger name="net.syscon.elite.repository.mapping" additivity="false" level="INFO">
         <appender-ref ref="consoleAppender"/>
+        <appender-ref ref="aiAppender"/>
     </logger>
 
     <logger name="org.springframework" additivity="false" level="INFO" >
         <appender-ref ref="consoleAppender"/>
+        <appender-ref ref="aiAppender"/>
     </logger>
 
     <logger name="springfox.documentation.spring" additivity="false" level="INFO" >
         <appender-ref ref="consoleAppender"/>
+        <appender-ref ref="aiAppender"/>
     </logger>
 
     <logger name="org.glassfish.jersey" additivity="false" level="INFO" >
         <appender-ref ref="consoleAppender"/>
+        <appender-ref ref="aiAppender"/>
     </logger>
 
     <logger name="com.microsoft.applicationinsights" additivity="false" level="INFO" >
         <appender-ref ref="consoleAppender"/>
+        <appender-ref ref="aiAppender"/>
     </logger>
 
     <logger name="com.zaxxer.hikari" additivity="false" level="WARN" >
         <appender-ref ref="consoleAppender"/>
+        <appender-ref ref="aiAppender"/>
     </logger>
 
     <logger name="org.flywaydb" additivity="false" level="INFO" >
         <appender-ref ref="consoleAppender"/>
+        <appender-ref ref="aiAppender"/>
     </logger>
 
     <root level="INFO">
         <appender-ref ref="consoleAppender"/>
+        <appender-ref ref="aiAppender"/>
     </root>
 
     <springProfile name="ai">
         <root level="INFO">
+            <appender-ref ref="aiAppender"/>
             <appender-ref ref="aiAppender"/>
         </root>
     </springProfile>
