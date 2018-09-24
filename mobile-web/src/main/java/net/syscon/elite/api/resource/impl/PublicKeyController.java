@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiResponses;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
@@ -19,6 +20,7 @@ import java.util.Map;
 
 @Api(tags = {"jwt-public-key"})
 @RestController
+@Profile("oauth")
 public class PublicKeyController {
     private final PublicKey publicKey;
 
