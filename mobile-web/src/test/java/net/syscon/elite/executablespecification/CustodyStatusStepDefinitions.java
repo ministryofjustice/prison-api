@@ -16,7 +16,7 @@ public class CustodyStatusStepDefinitions extends AbstractStepDefinitions {
     @Autowired
     private CustodyStatusSteps custodyStatus;
 
-    @When("^a request is made to retrieve recent movements")
+    @When("^a request is made to retrieve recent movements$")
     public void aRequestIsMadeToRetrieveAllRecords() {
         final String fromDateTime = "2017-02-20T13:56:00";
         final String movementDate = "2017-08-16";
@@ -26,5 +26,15 @@ public class CustodyStatusStepDefinitions extends AbstractStepDefinitions {
     @Then("^a correct list of records are returned$")
     public void aListOfRecordsAreReturned() {
         custodyStatus.verifyListOfRecords();
+    }
+
+    @When("^a request is made to retrieve the establishment roll count for an agency$")
+    public void aRequestIsMadeToRetrieveRollCount() {
+        custodyStatus.retrieveRollCounts("LEI");
+    }
+
+    @Then("^a valid list of roll count records are returned$")
+    public void aListOfRollCountRecordsAreReturned() {
+        custodyStatus.verifyListOfRollCounts();
     }
 }

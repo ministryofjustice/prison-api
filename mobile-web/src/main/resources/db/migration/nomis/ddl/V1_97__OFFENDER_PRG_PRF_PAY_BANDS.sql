@@ -1,9 +1,9 @@
 CREATE TABLE OFFENDER_PRG_PRF_PAY_BANDS
 (
-    OFF_PRGREF_ID                  NUMBER(10) NOT NULL,
-    START_DATE                     DATE NOT NULL,
+    OFF_PRGREF_ID                  NUMBER(10)                        NOT NULL,
+    START_DATE                     DATE                              NOT NULL,
     END_DATE                       DATE,
-    PAY_BAND_CODE                  VARCHAR2(12 CHAR) NOT NULL,
+    PAY_BAND_CODE                  VARCHAR2(12)                      NOT NULL,
     CREATE_DATETIME                TIMESTAMP(9) DEFAULT SYSTIMESTAMP NOT NULL,
     CREATE_USER_ID                 VARCHAR2(32) DEFAULT USER         NOT NULL,
     MODIFY_DATETIME                TIMESTAMP(9),
