@@ -49,11 +49,13 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
                     @Override
                     public void processRow(ResultSet rs) throws SQLException {
                         switch (rs.getString("DIRECTION_CODE")) {
-                            case "IN" :
+                            case "IN":
                                 result.setIn(rs.getInt("COUNT"));
                                 break;
-                            case "OUT" :
+                            case "OUT":
                                 result.setOut(rs.getInt("COUNT"));
+                                break;
+                            default:
                                 break;
                         }
                     }
@@ -62,4 +64,3 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
         return result;
     }
 }
-
