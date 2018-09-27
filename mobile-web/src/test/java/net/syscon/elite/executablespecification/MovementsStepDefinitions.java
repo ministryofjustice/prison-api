@@ -1,0 +1,60 @@
+package net.syscon.elite.executablespecification;
+
+import cucumber.api.java.en.Then;
+import cucumber.api.java.en.When;
+import net.syscon.elite.executablespecification.steps.MovementsSteps;
+import org.springframework.beans.factory.annotation.Autowired;
+
+/**
+ * BDD step definitions for custody status endpoints:
+ * <ul>
+ * <li>/custody-statuses/{offenderNo}</li>
+ * </ul>
+ */
+public class MovementsStepDefinitions extends AbstractStepDefinitions {
+
+    @Autowired
+    private MovementsSteps movementsSteps;
+
+    @When("^a request is made to retrieve recent movements$")
+    public void aRequestIsMadeToRetrieveAllRecords() {
+        final String fromDateTime = "2017-02-20T13:56:00";
+        final String movementDate = "2017-08-16";
+        movementsSteps.retrieveAllCustodyStatusRecords(fromDateTime, movementDate);
+    }
+
+    @Then("^a correct list of records are returned$")
+    public void aListOfRecordsAreReturned() {
+        movementsSteps.verifyListOfRecords();
+    }
+
+    @When("^a request is made to retrieve the establishment roll count for an agency$")
+    public void aRequestIsMadeToRetrieveRollCount() {
+        movementsSteps.retrieveRollCounts("LEI");
+    }
+
+    @When("^a request is made to retrieve the establishment unassigned roll count for an agency$")
+    public void aRequestIsMadeToRetrieveUnassignedRollCount() {
+        movementsSteps.retrieveUnassignedRollCounts("LEI");
+    }
+
+    @Then("^a valid list of roll count records are returned$")
+    public void aListOfRollCountRecordsAreReturned() {
+        movementsSteps.verifyListOfRollCounts();
+    }
+
+    @Then("^a valid list of unassigned roll count records are returned$")
+    public void aListOfUnassignedRollCountRecordsAreReturned() {
+        movementsSteps.verifyListOfUnassignedRollCounts();
+    }
+
+    @When("^a request is made to retrieve the movement counts for an agency on \"([^\"]*)\"$")
+    public void aRequestIsMadeToRetrieveMovementCounts(String date) {
+        movementsSteps.retrieveMovementCounts("LEI", date);
+    }
+
+    @Then("^valid movement counts are returned$")
+    public void validMovementCountsAreReturned() {
+        movementsSteps.verifyMovementCounts();
+    }
+}

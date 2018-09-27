@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
+import net.syscon.elite.api.model.MovementCount;
 import net.syscon.elite.api.model.PrisonerCustodyStatus;
 import net.syscon.elite.api.model.RollCount;
 import net.syscon.elite.web.config.PersistenceConfigs;
@@ -33,10 +34,10 @@ import java.util.List;
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = PersistenceConfigs.class)
-public class CustodyStatusRepositoryTest {
+public class MovementsRepositoryTest {
 
     @Autowired
-    private CustodyStatusRepository repository;
+    private MovementsRepository repository;
 
     @Before
     public final void init() {
@@ -66,13 +67,44 @@ public class CustodyStatusRepositoryTest {
     }
 
     @Test
-    public final void canRetrieveRollcount() {
-        final List<RollCount> rollCountList = repository.getRollCount("LEI");
+    public final void canRetrieveRollcountCells() {
+        final List<RollCount> rollCountList = repository.getRollCount("LEI", "Y");
         assertThat(rollCountList.size()).isEqualTo(2);
         assertThat(rollCountList).asList()
                 .extracting("livingUnitDesc", "bedsInUse", "currentlyInCell", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
                 .contains(
                         tuple("LEI-A", 12, 11, 1, 13, 1, 14, 2, 1),
                         tuple("LEI-H", 20, 14, 6, 20, 0, 20, 0, 0));
+    }
+
+    @Test
+    public final void canRetrieveRollcountUnassigned() {
+        final List<RollCount> rollCountList = repository.getRollCount("LEI", "N");
+        assertThat(rollCountList.size()).isEqualTo(1);
+        assertThat(rollCountList).asList()
+                .extracting("livingUnitDesc", "bedsInUse", "currentlyInCell", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
+                .contains(
+                        tuple("LEI-CHAP", 0, 0, 0, 1, 1, 1, 1, 0));
+    }
+
+    @Test
+    public final void canRetrieveRollcountMovements1() {
+        final MovementCount movementCount = repository.getMovementCount("LEI",  LocalDate.of(2017, Month.JULY, 16));
+        assertThat(movementCount.getIn()).isEqualTo(1);
+        assertThat(movementCount.getOut()).isEqualTo(1);
+    }
+
+    @Test
+    public final void canRetrieveRollcountMovements2() {
+        final MovementCount movementCount = repository.getMovementCount("LEI",  LocalDate.of(2012, Month.JULY, 5));
+        assertThat(movementCount.getIn()).isEqualTo(5);
+        assertThat(movementCount.getOut()).isEqualTo(0);
+    }
+
+    @Test
+    public final void canRetrieveRollcountMovements3() {
+        final MovementCount movementCount = repository.getMovementCount("LEI",  LocalDate.of(2018, Month.FEBRUARY, 2));
+        assertThat(movementCount.getIn()).isEqualTo(0);
+        assertThat(movementCount.getOut()).isEqualTo(0);
     }
 }

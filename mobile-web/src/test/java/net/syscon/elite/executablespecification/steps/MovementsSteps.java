@@ -1,5 +1,6 @@
 package net.syscon.elite.executablespecification.steps;
 
+import net.syscon.elite.api.model.MovementCount;
 import net.syscon.elite.api.model.PrisonerCustodyStatus;
 import net.syscon.elite.api.model.RollCount;
 import net.syscon.elite.test.EliteClientException;
@@ -19,18 +20,22 @@ import static org.assertj.core.api.Assertions.tuple;
 /**
  * BDD step implementations for Custody Status Records feature.
  */
-public class CustodyStatusSteps extends CommonSteps {
+public class MovementsSteps extends CommonSteps {
     private static final String API_REQUEST_BASE_URL = API_PREFIX + "custody-statuses?fromDateTime=%s&movementDate=%s";
-    private static final String API_REQUEST_ROLLCOUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}";
+    private static final String API_REQUEST_ROLLCOUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}?unassigned={unassigned}";
+    private static final String API_REQUEST_MOVEMENT_COUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}/movements?movementDate={date}";
 
     private List<PrisonerCustodyStatus> movements;
     private List<RollCount> rollCounts;
+    private MovementCount movementCount;
 
     @Override
     protected void init() {
         super.init();
 
         movements = null;
+        rollCounts = null;
+        movementCount = null;
     }
 
     @Step("Retrieve all custody status records")
@@ -51,7 +56,12 @@ public class CustodyStatusSteps extends CommonSteps {
 
     @Step("Retrieve all rollcount records")
     public void retrieveRollCounts(String agencyId) {
-        doRollCountListApiCall(agencyId);
+        doRollCountListApiCall(agencyId, false);
+    }
+
+    @Step("Retrieve all unassigned rollcount records")
+    public void retrieveUnassignedRollCounts(String agencyId) {
+        doRollCountListApiCall(agencyId, true);
     }
 
     @Step("Verify a list of rollcounts are returned")
@@ -61,6 +71,24 @@ public class CustodyStatusSteps extends CommonSteps {
         assertThat(rollCounts).asList()
                 .extracting("livingUnitDesc")
                 .contains("LEI-A", "LEI-H");
+    }
+
+    @Step("Verify a list of unassigned rollcounts are returned")
+    public void verifyListOfUnassignedRollCounts() {
+        verifyNoError();
+        assertThat(rollCounts).hasOnlyElementsOfType(RollCount.class).size().isEqualTo(1);
+        assertThat(rollCounts).asList()
+                .extracting("livingUnitDesc")
+                .contains("LEI-CHAP");
+    }
+
+    public void retrieveMovementCounts(String agencyId, String date) {
+        doMovementCountApiCall(agencyId, date);
+    }
+
+    public void verifyMovementCounts() {
+        assertThat(movementCount.getIn()).isEqualTo(0);
+        assertThat(movementCount.getOut()).isEqualTo(2);
     }
 
     private void doPrisonerCustodyStatusListApiCall(String fromDateTime, String movementDate) {
@@ -83,7 +111,7 @@ public class CustodyStatusSteps extends CommonSteps {
         }
     }
 
-    private void doRollCountListApiCall(String agencyId) {
+    private void doRollCountListApiCall(String agencyId, boolean unassigned) {
         init();
 
         try {
@@ -91,13 +119,32 @@ public class CustodyStatusSteps extends CommonSteps {
                     API_REQUEST_ROLLCOUNT_URL,
                     HttpMethod.GET, createEntity(),
                     new ParameterizedTypeReference<List<RollCount>>() {
-                    }, agencyId);
+                    }, agencyId, unassigned);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
             rollCounts = response.getBody();
 
             buildResourceData(response);
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    private void doMovementCountApiCall(String agencyId, String date) {
+        init();
+
+        try {
+            ResponseEntity<MovementCount> response = restTemplate.exchange(
+                    API_REQUEST_MOVEMENT_COUNT_URL,
+                    HttpMethod.GET, createEntity(),
+                    new ParameterizedTypeReference<MovementCount>() {
+                    }, agencyId, date);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+            movementCount = response.getBody();
+
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
