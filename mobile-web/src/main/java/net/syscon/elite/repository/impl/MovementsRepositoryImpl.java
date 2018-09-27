@@ -3,7 +3,7 @@ package net.syscon.elite.repository.impl;
 import net.syscon.elite.api.model.MovementCount;
 import net.syscon.elite.api.model.PrisonerCustodyStatus;
 import net.syscon.elite.api.model.RollCount;
-import net.syscon.elite.repository.CustodyStatusRepository;
+import net.syscon.elite.repository.MovementsRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.DateTimeConverter;
 
@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public class CustodyStatusRepositoryImpl extends RepositoryBase implements CustodyStatusRepository {
+public class MovementsRepositoryImpl extends RepositoryBase implements MovementsRepository {
 
     private final StandardBeanPropertyRowMapper<PrisonerCustodyStatus> CUSTODY_STATUS_MAPPER = new StandardBeanPropertyRowMapper<>(PrisonerCustodyStatus.class);
     private final StandardBeanPropertyRowMapper<RollCount> ROLLCOUNT_MAPPER = new StandardBeanPropertyRowMapper<>(RollCount.class);

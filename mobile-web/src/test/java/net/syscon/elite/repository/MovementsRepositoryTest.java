@@ -34,10 +34,10 @@ import java.util.List;
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = PersistenceConfigs.class)
-public class CustodyStatusRepositoryTest {
+public class MovementsRepositoryTest {
 
     @Autowired
-    private CustodyStatusRepository repository;
+    private MovementsRepository repository;
 
     @Before
     public final void init() {

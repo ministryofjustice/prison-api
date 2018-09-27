@@ -1,4 +1,4 @@
-package net.syscon.elite.service;
+package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.MovementCount;
 import net.syscon.elite.api.model.PrisonerCustodyStatus;
@@ -8,11 +8,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface CustodyStatusService {
+public interface MovementsRepository {
 
     List<PrisonerCustodyStatus> getRecentMovements(LocalDateTime fromDateTime, LocalDate movementDate);
 
-    List<RollCount> getRollCount(String agencyId, boolean unassigned);
+    List<RollCount> getRollCount(String agencyId, String certifiedFlag);
 
     MovementCount getMovementCount(String agencyId, LocalDate date);
 }

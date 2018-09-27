@@ -2,7 +2,7 @@ package net.syscon.elite.executablespecification;
 
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import net.syscon.elite.executablespecification.steps.CustodyStatusSteps;
+import net.syscon.elite.executablespecification.steps.MovementsSteps;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -11,50 +11,50 @@ import org.springframework.beans.factory.annotation.Autowired;
  * <li>/custody-statuses/{offenderNo}</li>
  * </ul>
  */
-public class CustodyStatusStepDefinitions extends AbstractStepDefinitions {
+public class MovementsStepDefinitions extends AbstractStepDefinitions {
 
     @Autowired
-    private CustodyStatusSteps custodyStatus;
+    private MovementsSteps movementsSteps;
 
     @When("^a request is made to retrieve recent movements$")
     public void aRequestIsMadeToRetrieveAllRecords() {
         final String fromDateTime = "2017-02-20T13:56:00";
         final String movementDate = "2017-08-16";
-        custodyStatus.retrieveAllCustodyStatusRecords(fromDateTime, movementDate);
+        movementsSteps.retrieveAllCustodyStatusRecords(fromDateTime, movementDate);
     }
 
     @Then("^a correct list of records are returned$")
     public void aListOfRecordsAreReturned() {
-        custodyStatus.verifyListOfRecords();
+        movementsSteps.verifyListOfRecords();
     }
 
     @When("^a request is made to retrieve the establishment roll count for an agency$")
     public void aRequestIsMadeToRetrieveRollCount() {
-        custodyStatus.retrieveRollCounts("LEI");
+        movementsSteps.retrieveRollCounts("LEI");
     }
 
     @When("^a request is made to retrieve the establishment unassigned roll count for an agency$")
     public void aRequestIsMadeToRetrieveUnassignedRollCount() {
-        custodyStatus.retrieveUnassignedRollCounts("LEI");
+        movementsSteps.retrieveUnassignedRollCounts("LEI");
     }
 
     @Then("^a valid list of roll count records are returned$")
     public void aListOfRollCountRecordsAreReturned() {
-        custodyStatus.verifyListOfRollCounts();
+        movementsSteps.verifyListOfRollCounts();
     }
 
     @Then("^a valid list of unassigned roll count records are returned$")
     public void aListOfUnassignedRollCountRecordsAreReturned() {
-        custodyStatus.verifyListOfUnassignedRollCounts();
+        movementsSteps.verifyListOfUnassignedRollCounts();
     }
 
     @When("^a request is made to retrieve the movement counts for an agency on \"([^\"]*)\"$")
     public void aRequestIsMadeToRetrieveMovementCounts(String date) {
-        custodyStatus.retrieveMovementCounts("LEI", date);
+        movementsSteps.retrieveMovementCounts("LEI", date);
     }
 
     @Then("^valid movement counts are returned$")
     public void validMovementCountsAreReturned() {
-        custodyStatus.verifyMovementCounts();
+        movementsSteps.verifyMovementCounts();
     }
 }

@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.tuple;
 /**
  * BDD step implementations for Custody Status Records feature.
  */
-public class CustodyStatusSteps extends CommonSteps {
+public class MovementsSteps extends CommonSteps {
     private static final String API_REQUEST_BASE_URL = API_PREFIX + "custody-statuses?fromDateTime=%s&movementDate=%s";
     private static final String API_REQUEST_ROLLCOUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}?unassigned={unassigned}";
     private static final String API_REQUEST_MOVEMENT_COUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}/movements?movementDate={date}";
