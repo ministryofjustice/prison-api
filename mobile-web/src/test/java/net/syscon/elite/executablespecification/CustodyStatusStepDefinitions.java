@@ -33,8 +33,28 @@ public class CustodyStatusStepDefinitions extends AbstractStepDefinitions {
         custodyStatus.retrieveRollCounts("LEI");
     }
 
+    @When("^a request is made to retrieve the establishment unassigned roll count for an agency$")
+    public void aRequestIsMadeToRetrieveUnassignedRollCount() {
+        custodyStatus.retrieveUnassignedRollCounts("LEI");
+    }
+
     @Then("^a valid list of roll count records are returned$")
     public void aListOfRollCountRecordsAreReturned() {
         custodyStatus.verifyListOfRollCounts();
+    }
+
+    @Then("^a valid list of unassigned roll count records are returned$")
+    public void aListOfUnassignedRollCountRecordsAreReturned() {
+        custodyStatus.verifyListOfUnassignedRollCounts();
+    }
+
+    @When("^a request is made to retrieve the movement counts for an agency on \"([^\"]*)\"$")
+    public void aRequestIsMadeToRetrieveMovementCounts(String date) {
+        custodyStatus.retrieveMovementCounts("LEI", date);
+    }
+
+    @Then("^valid movement counts are returned$")
+    public void validMovementCountsAreReturned() {
+        custodyStatus.verifyMovementCounts();
     }
 }

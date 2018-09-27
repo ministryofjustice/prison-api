@@ -25,7 +25,12 @@ public class MovementResourceImpl implements MovementResource {
     }
 
     @Override
-    public GetRollcountResponse getRollcount(String agencyId) {
-        return GetRollcountResponse.respond200WithApplicationJson(custodyStatusService.getRollCount(agencyId));
+    public GetRollcountResponse getRollcount(String agencyId, boolean unassigned) {
+        return GetRollcountResponse.respond200WithApplicationJson(custodyStatusService.getRollCount(agencyId, unassigned));
+    }
+
+    @Override
+    public GetRollcountMovementsResponse getRollcountMovements(String agencyId, LocalDate movementDate) {
+        return GetRollcountMovementsResponse.respond200WithApplicationJson(custodyStatusService.getMovementCount(agencyId, movementDate));
     }
 }

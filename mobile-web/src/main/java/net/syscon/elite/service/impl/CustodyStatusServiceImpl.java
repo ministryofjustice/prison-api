@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import net.syscon.elite.api.model.MovementCount;
 import net.syscon.elite.api.model.PrisonerCustodyStatus;
 import net.syscon.elite.api.model.RollCount;
 import net.syscon.elite.repository.CustodyStatusRepository;
@@ -32,7 +33,13 @@ public class CustodyStatusServiceImpl implements CustodyStatusService {
 
     @Override
     @VerifyAgencyAccess
-    public List<RollCount> getRollCount(String agencyId) {
-        return custodyStatusRepository.getRollCount(agencyId);
+    public List<RollCount> getRollCount(String agencyId, boolean unassigned) {
+        return custodyStatusRepository.getRollCount(agencyId, unassigned ? "N" : "Y");
+    }
+
+    @Override
+    @VerifyAgencyAccess
+    public MovementCount getMovementCount(String agencyId, LocalDate date) {
+        return custodyStatusRepository.getMovementCount(agencyId, date == null ? LocalDate.now() : date);
     }
 }

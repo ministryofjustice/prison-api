@@ -17,6 +17,7 @@
       agencyId?:
         type: string
         description: Filter to just movements to or from this agency.
+
 /rollcount/{agencyId}:
   (javaOperationName): getRollcount
   uriParameters:
@@ -26,4 +27,28 @@
   type:
     readOnlyCollection:
       type: RollCount
-      description: Rollcount numbers.
+      description: Current establishment rollcount numbers.
+  get:
+    queryParameters:
+      unassigned?:
+        type: boolean
+        description: If false return data for prisoners in cell locations, if true return unassigned prisoners, i.e. those in non-cell locations.
+        example: unassigned=true
+        default: false
+
+/rollcount/{agencyId}/movements:
+  (javaOperationName): getRollcountMovements
+  uriParameters:
+    agencyId:
+      type: string
+      description: The prison id
+  type:
+    readOnlyItem:
+      type: MovementCount
+      description: Rollcount movement numbers.
+  get:
+    queryParameters:
+      movementDate:
+        type: date-only
+        description: The date for which movements are counted, default today.
+        example: 2018-09-19
