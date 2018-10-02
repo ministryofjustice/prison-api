@@ -94,3 +94,9 @@ Feature: User Details and Roles
     Given a user has authenticated with the API
     When a request for users with caseload "LEI" and namefilter "User" and role "OMIC_ADMIN" is made
     Then a list of users is returned with usernames "ITAG_USER"
+
+  @nomis
+  Scenario: A list of staff roles for a user and caseload can be retrieved
+    Given a user has authenticated with the API
+    When a request for roles for user "ITAG_USER" with caseload "NWEB" is made
+    Then a list of roles is returned with role codes "KW_ADMIN,OMIC_ADMIN"

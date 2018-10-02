@@ -147,6 +147,13 @@ public class UserResourceImpl implements UserResource {
     }
 
     @Override
+    public GetRolesForUserAndCaseloadResponse getRolesForUserAndCaseload(String username, String caseload) {
+        final List<UserRole> roles = userService.getAccessRolesByUserAndCaseload(username, caseload);
+
+        return GetRolesForUserAndCaseloadResponse.respond200WithApplicationJson(roles);
+    }
+
+    @Override
     public AddApiAccessForCaseloadResponse addApiAccessForCaseload(String caseload) {
         userService.addDefaultCaseloadForPrison(caseload);
         return AddApiAccessForCaseloadResponse.respond200WithApplicationJson();

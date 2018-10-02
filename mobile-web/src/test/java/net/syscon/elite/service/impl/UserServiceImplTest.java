@@ -1,11 +1,14 @@
 package net.syscon.elite.service.impl;
 
+import com.google.common.collect.ImmutableList;
 import net.syscon.elite.api.model.UserDetail;
+import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.service.CaseLoadService;
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.StaffService;
 import net.syscon.elite.service.UserService;
 import org.junit.Before;
@@ -16,6 +19,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 
@@ -58,6 +62,27 @@ public class UserServiceImplTest {
         userService.getUsersByCaseload("LEI", "A", "A_ROLE", pr);
 
         verify(userRepository, times(1)).findUsersByCaseload(eq("LEI"), eq("A_ROLE"), eq("A"), eq(pr));
+    }
+
+    @Test
+    public void testGetRolesByUserAndCaseload() {
+        List<UserRole> list = ImmutableList.of(UserRole.builder().roleCode("TEST_CODE").roleName("Test Role").caseloadId("LEI").roleId(123L).build());  //the default if non provided
+        when(userRepository.findAccessRolesByUsernameAndCaseload("HH_GEN", "LEI")).thenReturn(list);
+
+        userService.getAccessRolesByUserAndCaseload("HH_GEN", "LEI");
+
+        verify(userRepository, times(1)).findAccessRolesByUsernameAndCaseload(eq("HH_GEN"), eq("LEI"));
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void testGetRolesByUserAndCaseloadCaseloadDoesNotExist() {
+        when(caseLoadService.getCaseLoad("LEI")).thenReturn(Optional.empty());
+        userService.getAccessRolesByUserAndCaseload("HH_GEN", "LEI");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetRolesByUserAndCaseloadUsernameNotProvided() {
+        userService.getAccessRolesByUserAndCaseload("", "LEI");
     }
 
     private Page<UserDetail> pageResponse(int userCount) {

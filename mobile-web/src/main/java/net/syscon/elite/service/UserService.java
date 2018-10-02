@@ -47,4 +47,6 @@ public interface UserService {
     int addDefaultCaseloadForPrison(String caseloadId);
 
     Page<UserDetail> getUsersByCaseload(String caseload, String nameFilter, String accessRole, PageRequest pageRequest);
+
+    List<UserRole> getAccessRolesByUserAndCaseload(String username, String caseload);
 }
