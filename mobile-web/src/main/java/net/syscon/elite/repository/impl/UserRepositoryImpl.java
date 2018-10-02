@@ -75,10 +75,21 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 			builder = builder.addQuery(query);
 		}
 		String sql = builder
-			.addOrderBy(Order.ASC, "roleCode")
-			.build();
+				.addOrderBy(Order.ASC, "roleCode")
+				.build();
 
 		return jdbcTemplate.query(sql, createParams("username", username), USER_ROLE_MAPPER);
+	}
+
+	@Override
+	public List<UserRole> findAccessRolesByUsernameAndCaseload(final String username, String caseload) {
+		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(getQuery("FIND_ACCESS_ROLES_BY_USERNAME_AND_CASELOAD"), USER_ROLE_MAPPER);
+
+		String sql = builder
+				.addOrderBy(Order.ASC, "roleName")
+				.build();
+
+		return jdbcTemplate.query(sql, createParams("username", username, "caseloadId", caseload), USER_ROLE_MAPPER);
 	}
 
 	@Override

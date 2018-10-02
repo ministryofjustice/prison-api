@@ -56,6 +56,13 @@ public class UserRepositoryTest {
         assertThat(roles).extracting("roleCode").contains("LEI_WING_OFF");
     }
 
+    @Test
+    public void testFindRolesByUsernameAndCaseload() {
+        List<UserRole> roles = repository.findAccessRolesByUsernameAndCaseload("ITAG_USER", "LEI");
+        assertThat(roles).isNotEmpty();
+        assertThat(roles).extracting("roleCode").contains("WING_OFF");
+    }
+
     @Test(expected = EntityNotFoundException.class)
     public void testFindUserByStaffIdAndStaffUserTypeUnknownStaffId() {
         final Long staffId = -99L;

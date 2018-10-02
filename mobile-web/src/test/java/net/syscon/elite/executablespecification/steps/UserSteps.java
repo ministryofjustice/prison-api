@@ -27,6 +27,7 @@ public class UserSteps extends CommonSteps {
     private static final String API_ASSIGN_API_ROLE_TO_USER = API_PREFIX + "/users/{username}/access-role/{roleCode}";
     private static final String API_REMOVE_ROLE_FROM_USER_AT_CASELOAD = API_PREFIX + "/users/{username}/caseload/{caseload}/access-role/{roleCode}";
     private static final String API_USERS_AT_CASELOAD = API_PREFIX + "/users/caseload/{caseload}";
+    private static final String API_ROLES_BY_USERS_AT_CASELOAD = API_PREFIX + "/users/{username}/access-roles/caseload/{caseload}";
 
     private List<Location> userLocations;
     private List<UserRole> userRoles;
@@ -108,6 +109,11 @@ public class UserSteps extends CommonSteps {
         dispatchUsersByCaseloadRequest(caseloadId, roleCode, nameFilter);
     }
 
+
+    public void getRolesByUserAndCaseload(String username, String caseload) {
+        dispatchRolesByUserAndCaseloadRequest(username, caseload);
+    }
+
     //    @Step("Find usernames having role at caseload")
     public void findUsernamesHavingRoleAtCaseload(String role, String caseload) {
         dispatchUsernamesHavingRoleAtCaseloadRequest(role, caseload);
@@ -139,6 +145,10 @@ public class UserSteps extends CommonSteps {
 
     public void verifyUserList(String expectedUsernames) {
         assertThat(userDetails).extracting("username").containsOnlyElementsOf(csv2list(expectedUsernames));
+    }
+
+    public void verifyRoleList(String expectedRoleCodes) {
+        assertThat(userRoles).extracting("roleCode").containsOnlyElementsOf(csv2list(expectedRoleCodes));
     }
 
     private void dispatchRemoveRoleFromUserAtCaseload(String role, String username, String caseload) {
@@ -207,6 +217,22 @@ public class UserSteps extends CommonSteps {
                 caseload);
 
         userDetails = response.getBody();
+    }
+
+    private void dispatchRolesByUserAndCaseloadRequest(String username, String caseload) {
+        init();
+        String url = API_ROLES_BY_USERS_AT_CASELOAD;
+
+        ResponseEntity<List<UserRole>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                createEntity(),
+                new ParameterizedTypeReference<List<UserRole>>() {
+                },
+                username,
+                caseload);
+
+        userRoles = response.getBody();
     }
 
     private void dispatchUserRolesRequest(boolean allRoles) {

@@ -158,8 +158,18 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.verifyUserList(usernameList);
     }
 
+    @Then("^a list of roles is returned with role codes \"([^\"]*)\"$")
+    public void aListOfRolesIsReturnedWithRoleCodes(String roleCodeList) {
+        user.verifyRoleList(roleCodeList);
+    }
+
     @When("^a request for users with caseload \"([^\"]*)\" and namefilter \"([^\"]*)\" and role \"([^\"]*)\" is made$")
     public void aRequestForUsersWithCaseloadAndNamefilterAndRoleIsMade(String caseloadId, String nameFilter, String roleCode) throws Throwable {
         user.getUsersByCaseload(caseloadId, roleCode, nameFilter);
+    }
+
+    @When("^a request for roles for user \"([^\"]*)\" with caseload \"([^\"]*)\" is made$")
+    public void aRequestForRolesForUserWithCaseloadIsMade(String username, String caseload) throws Throwable {
+        user.getRolesByUserAndCaseload(username, caseload);
     }
 }

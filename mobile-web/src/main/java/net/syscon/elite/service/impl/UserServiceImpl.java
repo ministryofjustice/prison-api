@@ -10,6 +10,7 @@ import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.StaffService;
 import net.syscon.elite.service.UserService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -187,6 +188,19 @@ public class UserServiceImpl implements UserService {
 
 		return userRepository
 				.findUsersByCaseload(caseload, accessRole, nameFilter, pageWithDefaults);
+	}
+
+	@Override
+	public List<UserRole> getAccessRolesByUserAndCaseload(String username, String caseload) {
+		Validate.notBlank(caseload, "A caseload id is required.");
+		Validate.notBlank(username, "A username is required.");
+
+		if(!caseLoadService.getCaseLoad(caseload).isPresent()) {
+			throw  EntityNotFoundException.withMessage("Caseload with id [%s] not found", caseload);
+		}
+
+		return userRepository
+				.findAccessRolesByUsernameAndCaseload(username, caseload);
 	}
 
 
