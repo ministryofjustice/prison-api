@@ -31,7 +31,7 @@ public interface UserService {
     boolean isUserAssessibleCaseloadAvailable(String caseload, String username);
 
     /**
-     * Add an 'access' role - a role assigned to the special 'API Caseload'.
+     * Add an 'access' role - using the 'API Caseload'.
      * @param username The user to whom the role is being assigned
      * @param roleCode The role to assign
      * @return true if the role was added, false if the role assignment already exists (no change).
@@ -39,9 +39,11 @@ public interface UserService {
 
     boolean addAccessRole(String username, String roleCode);
 
+    boolean addAccessRole(String username, String roleCode, String caseloadId);
+
     /**
      * add all active users with a specified caseload to the default API caseload
-     * @param caseloadId
+     * @param caseloadId the id for the caseload
      * @return number of users added to the api caseload
      */
     int addDefaultCaseloadForPrison(String caseloadId);
