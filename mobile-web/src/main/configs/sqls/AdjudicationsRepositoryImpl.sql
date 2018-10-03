@@ -13,6 +13,6 @@ FIND_AWARDS {
     LEFT JOIN reference_codes rc ON s.oic_sanction_code = rc.code AND rc.domain = 'OIC_SANCT'
   WHERE s.offender_book_id = :bookingId
     AND h.finding_code = 'PROVED'
-    AND s.status = 'IMMEDIATE'
+    AND s.status in ('IMMEDIATE', 'SUSPENDED')
   ORDER BY s.oic_hearing_id, s.result_seq
 }
