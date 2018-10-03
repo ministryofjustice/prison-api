@@ -1,5 +1,4 @@
 @global
-@wip
 Feature: Booking Adjudications
 
   Acceptance Criteria:
