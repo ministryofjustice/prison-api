@@ -25,6 +25,7 @@ public class UserSteps extends CommonSteps {
     private static final String API_USERS_ME_CASE_NOTE_TYPES_REQUEST_URL = API_USERS_ME_REQUEST_URL + "/caseNoteTypes";
     private static final String API_USERS_USERNAMES_HAVING_ROLE_AT_CASELOAD = API_PREFIX + "/users/access-roles/caseload/{caseload}/access-role/{roleCode}";
     private static final String API_ASSIGN_API_ROLE_TO_USER = API_PREFIX + "/users/{username}/access-role/{roleCode}";
+    private static final String API_ASSIGN_ACCESS_ROLE_TO_USER_FOR_CASELOAD = API_PREFIX + "/users/{username}/caseload/{caseload}/access-role/{roleCode}";
     private static final String API_REMOVE_ROLE_FROM_USER_AT_CASELOAD = API_PREFIX + "/users/{username}/caseload/{caseload}/access-role/{roleCode}";
     private static final String API_USERS_AT_CASELOAD = API_PREFIX + "/users/caseload/{caseload}";
     private static final String API_ROLES_BY_USERS_AT_CASELOAD = API_PREFIX + "/users/{username}/access-roles/caseload/{caseload}";
@@ -128,12 +129,21 @@ public class UserSteps extends CommonSteps {
         dispatchAssignApiRoleToUser(role, username);
     }
 
+    public void assignAccessRoleToUser(String role, String username, String caseloadId) {
+        dispatchAssignAccessRoleToUserForCaseload(role, username, caseloadId);
+    }
+
     public void removeRole(String role, String username, String caseload) {
         dispatchRemoveRoleFromUserAtCaseload(role, username, caseload);
     }
 
     public void verifyApiRoleAssignment(String username, String role) {
         dispatchUsernamesHavingRoleAtCaseloadRequest(role, "NWEB");
+        assertThat(username).isIn(usernames);
+    }
+
+    public void verifyAccessRoleAssignment(String username, String role, String caseload) {
+        dispatchUsernamesHavingRoleAtCaseloadRequest(role,caseload);
         assertThat(username).isIn(usernames);
     }
 
@@ -175,6 +185,23 @@ public class UserSteps extends CommonSteps {
                 Object.class,
                 username,
                 role);
+    }
+
+    private void dispatchAssignAccessRoleToUserForCaseload(String role, String username, String caseloadId) {
+        init();
+        try{
+
+            restTemplate.exchange(
+                    API_ASSIGN_ACCESS_ROLE_TO_USER_FOR_CASELOAD,
+                    HttpMethod.PUT,
+                    createEntity(),
+                    Object.class,
+                    username,
+                    caseloadId,
+                    role);
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
     }
 
 
@@ -221,10 +248,9 @@ public class UserSteps extends CommonSteps {
 
     private void dispatchRolesByUserAndCaseloadRequest(String username, String caseload) {
         init();
-        String url = API_ROLES_BY_USERS_AT_CASELOAD;
 
         ResponseEntity<List<UserRole>> response = restTemplate.exchange(
-                url,
+                API_ROLES_BY_USERS_AT_CASELOAD,
                 HttpMethod.GET,
                 createEntity(),
                 new ParameterizedTypeReference<List<UserRole>>() {

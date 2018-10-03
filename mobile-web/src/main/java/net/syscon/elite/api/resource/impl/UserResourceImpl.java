@@ -80,6 +80,12 @@ public class UserResourceImpl implements UserResource {
     }
 
     @Override
+    public AddAccessRoleByCaseloadResponse addAccessRoleByCaseload(String username, String caseload, String roleCode) {
+        boolean added = userService.addAccessRole(username, roleCode, caseload);
+        return added? AddAccessRoleByCaseloadResponse.respond201WithApplicationJson() : AddAccessRoleByCaseloadResponse.respond200WithApplicationJson();
+    }
+
+    @Override
     public GetMyUserInformationResponse getMyUserInformation() {
         UserDetail user = userService.getUserByUsername(authenticationFacade.getCurrentUsername());
 
