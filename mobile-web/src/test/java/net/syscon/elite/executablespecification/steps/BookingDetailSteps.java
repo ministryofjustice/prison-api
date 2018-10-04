@@ -25,12 +25,17 @@ public class BookingDetailSteps extends CommonSteps {
     private PhysicalAttributes physicalAttributes;
     private List<PhysicalCharacteristic> physicalCharacteristics;
     private ImageDetail imageDetail;
+    private List<ProfileInformation> profileInformation;
 
     @Override
     protected void init() {
         super.init();
 
         inmateDetail = null;
+        physicalAttributes = null;
+        physicalCharacteristics = null;
+        imageDetail = null;
+        profileInformation = null;
     }
 
     @Step("Retrieve offender booking details record")
@@ -99,6 +104,7 @@ public class BookingDetailSteps extends CommonSteps {
                     createEntity(null, null),
                     new ParameterizedTypeReference<List<ProfileInformation>>() {}, bookingId);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            profileInformation = response.getBody();
             buildResourceData(response);
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
@@ -171,9 +177,9 @@ public class BookingDetailSteps extends CommonSteps {
                 .isEqualTo(assignedOfficerId);
     }
 
-    @Step("Verify religion")
-    public void verifyReligion(String religion) {
-        assertThat(inmateDetail.getReligion()).isEqualTo(religion);
+    @Step("Verify language")
+    public void verifyLanguage(String language) throws ReflectiveOperationException {
+        verifyField(inmateDetail, "language", language);
     }
 
     @Step("Verify offender gender")
@@ -248,5 +254,12 @@ public class BookingDetailSteps extends CommonSteps {
     public void verifyField(String field, String value) throws ReflectiveOperationException {
         assertNotNull(inmateDetail);
         super.verifyField(inmateDetail, field, value);
+    }
+
+    public void verifyProfileInformation() {
+        assertThat(profileInformation).asList().contains(
+                ProfileInformation.builder().type("RELF").question("Religion").resultValue("Church of England").build(),
+                ProfileInformation.builder().type("NAT").question("Nationality?").resultValue("Spaniard").build(),
+                ProfileInformation.builder().type("SMOKE").question("Is the Offender a smoker?").resultValue("No").build());
     }
 }

@@ -56,7 +56,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("LAST_NAME", 			new FieldMapper("lastName"))
 			.put("AGY_LOC_ID", 			new FieldMapper("agencyId"))
 			.put("LIVING_UNIT_ID",      new FieldMapper("assignedLivingUnitId"))
-            .put("RELIGION", 			new FieldMapper("religion"))
+            .put("RELIGION", 			new FieldMapper("religion")) // deprecated, please remove
 			.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
 			.put("BIRTH_DATE", 			new FieldMapper("dateOfBirth", DateTimeConverter::toISO8601LocalDate))
 			.put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerId"))
@@ -66,6 +66,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	private final Map<String, FieldMapper> physicalAttributesMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("GENDER",   new FieldMapper("gender"))
 			.put("ETHNICITY",  new FieldMapper("ethnicity"))
+			.put("RACE_CODE",  new FieldMapper("raceCode"))
 			.put("HEIGHT_FT",  new FieldMapper("heightFeet"))
 			.put("HEIGHT_IN",  new FieldMapper("heightInches"))
 			.put("HEIGHT_CM",  new FieldMapper("heightCentimetres"))

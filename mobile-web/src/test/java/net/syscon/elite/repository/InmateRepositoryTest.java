@@ -72,23 +72,27 @@ public class InmateRepositoryTest {
                 Tuple.tuple(-1L, "A1234AA", LocalDate.of(1969, Month.DECEMBER, 30), "A-1-1"));
     }
 
-
-
     @Test
     public void testGetOffender() {
-        Optional<InmateDetail> inmate = repository.findInmate(
-                -1L
-        );
-
+        Optional<InmateDetail> inmate = repository.findInmate(-1L);
         assertThat(inmate).isPresent();
+        final InmateDetail result = inmate.get();
+        assertThat(result.getBookingNo()).isEqualTo("A00111");
+        assertThat(result.getBookingId()).isEqualTo(-1L);
+        assertThat(result.getOffenderNo()).isEqualTo("A1234AA");
+        assertThat(result.getFirstName()).isEqualTo("ARTHUR");
+        assertThat(result.getMiddleName()).isEqualTo("BORIS");
+        assertThat(result.getLastName()).isEqualTo("ANDERSON");
+        assertThat(result.getAgencyId()).isEqualTo("LEI");
+        assertThat(result.getAssignedLivingUnitId()).isEqualTo(-3L);
+        assertThat(result.getDateOfBirth()).isEqualTo(LocalDate.of(1969, 12, 30));
+        assertThat(result.getFacialImageId()).isEqualTo(-1L);
+        assertThat(result.getLanguage()).isEqualTo("Polish");
     }
 
     @Test
     public void testGetBasicOffenderDetails() {
-        Optional<InmateDetail> inmate = repository.getBasicInmateDetail(
-                -1L
-        );
-
+        Optional<InmateDetail> inmate = repository.getBasicInmateDetail(-1L);
         assertThat(inmate).isPresent();
     }
 
