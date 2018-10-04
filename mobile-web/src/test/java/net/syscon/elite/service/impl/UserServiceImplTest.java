@@ -32,6 +32,9 @@ import static org.mockito.Mockito.*;
 public class UserServiceImplTest {
     private static final String USERNAME_GEN = "HH_GEN";
     private static final String LEEDS_CASELOAD_ID = "LEI";
+    private static final String API_CASELOAD_ID = "NWEB";
+    private static final String ROLE_CODE = "A_ROLE";
+    private static final long ROLE_ID = 1L;
     @Mock
     private UserRepository userRepository;
 
@@ -45,27 +48,27 @@ public class UserServiceImplTest {
 
     @Before
     public void init() {
-        userService = new UserServiceImpl(caseLoadService, staffService, userRepository, null);
+        userService = new UserServiceImpl(caseLoadService, staffService, userRepository, API_CASELOAD_ID);
     }
 
     @Test
     public void testGetUsersByCaseload() {
         PageRequest pr = new PageRequest("lastName", Order.ASC, 0L, 10L);  //the default if non provided
-        when(userRepository.findUsersByCaseload(LEEDS_CASELOAD_ID, "A_ROLE", "A", null)).thenReturn(pageResponse(2));
+        when(userRepository.findUsersByCaseload(LEEDS_CASELOAD_ID, ROLE_CODE, "A", null)).thenReturn(pageResponse(2));
 
-        userService.getUsersByCaseload(LEEDS_CASELOAD_ID, "A", "A_ROLE", null);
+        userService.getUsersByCaseload(LEEDS_CASELOAD_ID, "A", ROLE_CODE, null);
 
-        verify(userRepository, times(1)).findUsersByCaseload(eq(LEEDS_CASELOAD_ID), eq("A_ROLE"), eq("A"), refEq(pr));
+        verify(userRepository, times(1)).findUsersByCaseload(eq(LEEDS_CASELOAD_ID), eq(ROLE_CODE), eq("A"), refEq(pr));
     }
 
     @Test
     public void testGetUsersByCaseloadWithSortFieldDifferentToDefault() {
         PageRequest pr = new PageRequest("firstName", Order.ASC, 10L, 20L);
-        when(userRepository.findUsersByCaseload(LEEDS_CASELOAD_ID, "A_ROLE", "A", pr)).thenReturn(pageResponse(2));
+        when(userRepository.findUsersByCaseload(LEEDS_CASELOAD_ID, ROLE_CODE, "A", pr)).thenReturn(pageResponse(2));
 
-        userService.getUsersByCaseload(LEEDS_CASELOAD_ID, "A", "A_ROLE", pr);
+        userService.getUsersByCaseload(LEEDS_CASELOAD_ID, "A", ROLE_CODE, pr);
 
-        verify(userRepository, times(1)).findUsersByCaseload(eq(LEEDS_CASELOAD_ID), eq("A_ROLE"), eq("A"), eq(pr));
+        verify(userRepository, times(1)).findUsersByCaseload(eq(LEEDS_CASELOAD_ID), eq(ROLE_CODE), eq("A"), eq(pr));
     }
 
     @Test
@@ -88,6 +91,57 @@ public class UserServiceImplTest {
     @Test(expected = IllegalArgumentException.class)
     public void testGetRolesByUserAndCaseloadUsernameNotProvided() {
         userService.getAccessRolesByUserAndCaseload("", LEEDS_CASELOAD_ID);
+    }
+
+    @Test
+    public void testaddAccessRoleForApiCaseloadWithUserAccessibleCaseloadEntry() {
+        when(userRepository.getRoleIdForCode(ROLE_CODE)).thenReturn(Optional.of(ROLE_ID));
+        when(userRepository.isRoleAssigned(USERNAME_GEN, API_CASELOAD_ID, ROLE_ID)) .thenReturn(false);
+
+        when(userRepository.isUserAssessibleCaseloadAvailable(API_CASELOAD_ID, USERNAME_GEN)).thenReturn(false);
+
+
+        userService.addAccessRole(USERNAME_GEN, ROLE_CODE);
+
+        verify(userRepository, times(1)).addUserAssessibleCaseload(API_CASELOAD_ID, USERNAME_GEN);
+        verify(userRepository, times(1)).addRole(USERNAME_GEN, API_CASELOAD_ID, ROLE_ID);
+    }
+
+    @Test
+    public void testaddAccessRoleForApiCaseloadWithoutUserAccessibleCaseloadEntry() {
+        when(userRepository.getRoleIdForCode(ROLE_CODE)).thenReturn(Optional.of(ROLE_ID));
+        when(userRepository.isRoleAssigned(USERNAME_GEN, API_CASELOAD_ID, ROLE_ID)) .thenReturn(false);
+
+        when(userRepository.isUserAssessibleCaseloadAvailable(API_CASELOAD_ID, USERNAME_GEN)).thenReturn(true);
+
+        userService.addAccessRole(USERNAME_GEN, ROLE_CODE);
+
+        verify(userRepository, times(1)).addRole(USERNAME_GEN, API_CASELOAD_ID, ROLE_ID);
+        verify(userRepository, times(0)).addUserAssessibleCaseload(API_CASELOAD_ID, USERNAME_GEN);
+    }
+
+    @Test
+    public void testaddAccessRoleForCaseloadWithUserAccessibleCaseloadEntry() {
+        when(userRepository.getRoleIdForCode(ROLE_CODE)).thenReturn(Optional.of(ROLE_ID));
+        when(userRepository.isRoleAssigned(USERNAME_GEN, LEEDS_CASELOAD_ID, ROLE_ID)) .thenReturn(false);
+
+        when(userRepository.isUserAssessibleCaseloadAvailable(LEEDS_CASELOAD_ID, USERNAME_GEN)).thenReturn(true);
+
+        userService.addAccessRole(USERNAME_GEN, ROLE_CODE, LEEDS_CASELOAD_ID);
+
+        verify(userRepository, times(0)).addUserAssessibleCaseload(API_CASELOAD_ID, USERNAME_GEN);
+        verify(userRepository, times(1)).addRole(USERNAME_GEN, LEEDS_CASELOAD_ID, ROLE_ID);
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void testaddAccessRoleForCaseloadWithoutUserAccessibleCaseloadEntry() {
+        when(userRepository.getRoleIdForCode(ROLE_CODE)).thenReturn(Optional.of(ROLE_ID));
+        when(userRepository.isRoleAssigned(USERNAME_GEN, LEEDS_CASELOAD_ID, ROLE_ID)) .thenReturn(false);
+
+        when(userRepository.isUserAssessibleCaseloadAvailable(LEEDS_CASELOAD_ID, USERNAME_GEN)).thenReturn(false);
+
+
+        userService.addAccessRole(USERNAME_GEN, ROLE_CODE, LEEDS_CASELOAD_ID);
     }
 
     private Page<UserDetail> pageResponse(int userCount) {

@@ -130,7 +130,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	/**
-	 * Add an 'access' role - a role assigned to the special 'API Caseload'.
+	 * Add an 'access' role - using the API caseload
 	 * @param username The user to whom the role is being assigned
 	 * @param roleCode The role to assign
 	 * @return true if the role was added, false if the role assignment already exists (no change).
@@ -140,19 +140,41 @@ public class UserServiceImpl implements UserService {
 	@Transactional
     public boolean addAccessRole(String username, String roleCode) {
 
+		return addAccessRole(username, roleCode, apiCaseloadId);
+	}
+
+	/**
+	 * Add an 'access' role
+	 * @param username The user to whom the role is being assigned
+	 * @param roleCode The role to assign
+     * @param caseloadId The caseload to assign the role to
+	 * @return true if the role was added, false if the role assignment already exists (no change).
+	 */
+	@Override
+	@PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
+	@Transactional
+	public boolean addAccessRole(String username, String roleCode, String caseloadId) {
+
 		final Long roleId = userRepository.getRoleIdForCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
 
-		if (userRepository.isRoleAssigned(username, apiCaseloadId, roleId)) {
+		if (userRepository.isRoleAssigned(username, caseloadId, roleId)) {
 			return false;
 		}
-		// ensure that user accessible caseload exists...
-		if (!userRepository.isUserAssessibleCaseloadAvailable(apiCaseloadId, username)) {
-			userRepository.addUserAssessibleCaseload(apiCaseloadId, username);
+
+		if (!userRepository.isUserAssessibleCaseloadAvailable(caseloadId, username)) {
+			if(caseloadId.equals(apiCaseloadId)) {
+				// only for NWEB - ensure that user accessible caseload exists...
+				userRepository.addUserAssessibleCaseload(apiCaseloadId, username);
+			}else{
+				throw EntityNotFoundException.withMessage("Caseload %s is not accessible for user %s", caseloadId, username);
+			}
 		}
 
-		userRepository.addRole(username, apiCaseloadId, roleId);
+		userRepository.addRole(username, caseloadId, roleId);
 		return true;
 	}
+
+
 
 	@Override
 	@PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")

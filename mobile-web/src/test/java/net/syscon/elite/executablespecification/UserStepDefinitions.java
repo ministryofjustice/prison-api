@@ -133,9 +133,19 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.assignApiRoleToUser(role, username);
     }
 
-    @Then("^user \"([^\"]*)\" has been assgined api-role \"([^\"]*)\"$")
-    public void userHasBeenAssginedApiRole(String username, String role) {
+    @When("^the client assigns access role \"([^\"]*)\" to user \"([^\"]*)\" for caseload \"([^\"]*)\"$")
+    public void theClientAssignsApiRoleToUserForCaseload(String role, String username, String caseload) {
+        user.assignAccessRoleToUser(role, username, caseload);
+    }
+
+    @Then("^user \"([^\"]*)\" has been assigned api-role \"([^\"]*)\"$")
+    public void userHasBeenAssignedApiRole(String username, String role) {
         user.verifyApiRoleAssignment(username, role);
+    }
+
+    @Then("^user \"([^\"]*)\" has been assigned access role \"([^\"]*)\" for caseload \"([^\"]*)\"$")
+    public void userHasBeenAssignedAccessRole(String username, String role, String caseload){
+        user.verifyAccessRoleAssignment(username, role, caseload);
     }
 
     @When("^the client removes role \"([^\"]*)\" from user \"([^\"]*)\" at caseload \"([^\"]*)\"$")
@@ -164,12 +174,13 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     }
 
     @When("^a request for users with caseload \"([^\"]*)\" and namefilter \"([^\"]*)\" and role \"([^\"]*)\" is made$")
-    public void aRequestForUsersWithCaseloadAndNamefilterAndRoleIsMade(String caseloadId, String nameFilter, String roleCode) throws Throwable {
+    public void aRequestForUsersWithCaseloadAndNamefilterAndRoleIsMade(String caseloadId, String nameFilter, String roleCode) {
         user.getUsersByCaseload(caseloadId, roleCode, nameFilter);
     }
 
     @When("^a request for roles for user \"([^\"]*)\" with caseload \"([^\"]*)\" is made$")
-    public void aRequestForRolesForUserWithCaseloadIsMade(String username, String caseload) throws Throwable {
+    public void aRequestForRolesForUserWithCaseloadIsMade(String username, String caseload) {
         user.getRolesByUserAndCaseload(username, caseload);
     }
+
 }
