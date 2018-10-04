@@ -31,8 +31,12 @@ properties:
     type: boolean
     description: Indicates that the offender is currently in prison
   religion?:
+    (deprecated): This field is also available in the profileInformation list. It will be removed in a future release.
     type: string
     description: Religion of the prisoner
+  language?:
+    type: string
+    description: The prisoner's preferred spoken language.
   alertsCodes?:
     type: string[]
     description: List of Alerts

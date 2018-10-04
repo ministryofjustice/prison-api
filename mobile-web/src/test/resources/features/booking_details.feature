@@ -132,24 +132,17 @@ Feature: Booking Details
     Then correct results are returned as for single assessment
 
   @nomis
-  Scenario Outline: Request for specific offender booking record returns religion
+  Scenario Outline: Request for specific offender booking record returns language
     When an offender booking request is made with booking id "<bookingId>"
-    Then religion of offender booking returned is "<religion>"
+    Then language of offender booking returned is "<language>"
 
     Examples:
-      | bookingId | religion                  |
-      | -1        | Church of England         |
-      | -2        | Baptist                   |
-      | -3        | Anglican                  |
-      | -4        | Christian Scientist       |
-      | -5        | Church of Norway          |
-      | -6        | Ethiopian Orthodox        |
-      | -7        | Episcopalian              |
-      | -8        | Jehovahs Witness          |
-      | -9        | Lutheran                  |
-      | -10       | Metodist                  |
-      | -11       | Other Christian Religion  |
-      | -12       | Orthodox (Greek/Russian)  |
+      | bookingId | language |
+      | -1        | Polish   |
+      | -2        | Polish   |
+      | -3        | Turkish  |
+      | -4        |          |
+      | -7        |          |
 
   Scenario Outline: When requesting offender details a count of active and inactive alerts are returned
     When an offender booking request is made with booking id "<bookingId>"
@@ -197,7 +190,7 @@ Feature: Booking Details
 
   Scenario: Request for profile information
     When profile information is requested for Booking Id "-1"
-    Then "2" row of profile information is returned
+    Then correct profile information is returned
 
   Scenario: Request for physical characteristics
     When physical characteristic information is requested for Booking Id "-1"

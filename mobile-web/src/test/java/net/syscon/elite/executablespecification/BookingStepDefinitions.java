@@ -182,9 +182,9 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.verifyOffenderAssignedOfficerId(assignedOfficerId);
     }
 
-    @And("^religion of offender booking returned is \"([^\"]*)\"$")
-    public void religionOfOffenderBookingReturnedIs(String religion) {
-        bookingDetail.verifyReligion(religion);
+    @And("^language of offender booking returned is \"([^\"]*)\"$")
+    public void languageOfOffenderBookingReturnedIs(String language) throws ReflectiveOperationException {
+        bookingDetail.verifyLanguage(language);
     }
 
     @And("^firstname of offender booking returned is \"([^\"]*)\"$")
@@ -659,9 +659,9 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.verifyResourceRecordsReturned(expectedCount);
     }
 
-    @Then("^\"(\\d+)\" row of profile information is returned$")
-    public void rowOfProfileInformationIsReturned(long expectedCount) {
-        bookingDetail.verifyResourceRecordsReturned(expectedCount);
+    @Then("^correct profile information is returned$")
+    public void correctProfileInformationIsReturned() {
+        bookingDetail.verifyProfileInformation();
     }
 
     @Then("^\"(\\d+)\" row of physical characteristics is returned$")
