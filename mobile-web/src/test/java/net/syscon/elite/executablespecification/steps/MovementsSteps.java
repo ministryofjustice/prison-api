@@ -70,7 +70,7 @@ public class MovementsSteps extends CommonSteps {
         assertThat(rollCounts).hasOnlyElementsOfType(RollCount.class).size().isEqualTo(2);
         assertThat(rollCounts).asList()
                 .extracting("livingUnitDesc")
-                .contains("LEI-A", "LEI-H");
+                .contains("Block A", "Block H");
     }
 
     @Step("Verify a list of unassigned rollcounts are returned")
@@ -79,7 +79,7 @@ public class MovementsSteps extends CommonSteps {
         assertThat(rollCounts).hasOnlyElementsOfType(RollCount.class).size().isEqualTo(1);
         assertThat(rollCounts).asList()
                 .extracting("livingUnitDesc")
-                .contains("LEI-CHAP");
+                .contains("Chapel");
     }
 
     public void retrieveMovementCounts(String agencyId, String date) {

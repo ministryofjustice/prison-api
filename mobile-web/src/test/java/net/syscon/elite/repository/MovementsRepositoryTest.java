@@ -73,8 +73,8 @@ public class MovementsRepositoryTest {
         assertThat(rollCountList).asList()
                 .extracting("livingUnitDesc", "bedsInUse", "currentlyInCell", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
                 .contains(
-                        tuple("LEI-A", 12, 11, 1, 13, 1, 14, 2, 1),
-                        tuple("LEI-H", 20, 14, 6, 20, 0, 20, 0, 0));
+                        tuple("Block A", 12, 11, 1, 13, 1, 14, 2, 1),
+                        tuple("Block H", 20, 14, 6, 20, 0, 20, 0, 0));
     }
 
     @Test
@@ -84,7 +84,7 @@ public class MovementsRepositoryTest {
         assertThat(rollCountList).asList()
                 .extracting("livingUnitDesc", "bedsInUse", "currentlyInCell", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
                 .contains(
-                        tuple("LEI-CHAP", 0, 0, 0, 1, 1, 1, 1, 0));
+                        tuple("Chapel", 0, 0, 0, 1, 1, 1, 1, 0));
     }
 
     @Test
