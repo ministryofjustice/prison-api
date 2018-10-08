@@ -31,6 +31,10 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 		.put("ALERT_STATUS", 		new FieldMapper("active", "ACTIVE"::equals))
 		.put("ALERT_DATE", 			new FieldMapper("dateCreated", DateTimeConverter::toISO8601LocalDate))
 		.put("EXPIRY_DATE", 		new FieldMapper("dateExpires", DateTimeConverter::toISO8601LocalDate))
+		.put("ADD_FIRST_NAME",      new FieldMapper("addedByFirstName"))
+        .put("ADD_LAST_NAME",       new FieldMapper("addedByLastName"))
+        .put("UPDATE_FIRST_NAME",   new FieldMapper("expiredByFirstName"))
+        .put("UPDATE_LAST_NAME",    new FieldMapper("expiredByLastName"))
 		.build();
 
 	@Override
