@@ -38,7 +38,7 @@ public class AdjudicationsRepositoryTest {
     }
 
     @Test
-    public final void testGetDetailsMultiple() {
+    public void testGetDetailsMultiple() {
         List<Award> awards = repository.findAwards(-3L);
         assertNotNull(awards);
         assertEquals(2, awards.size());
@@ -61,9 +61,40 @@ public class AdjudicationsRepositoryTest {
     }
 
     @Test
-    public final void testGetDetailsInvalidBookingId() {
+    public void testGetDetailsInvalidBookingId() {
         List<Award> awards = repository.findAwards(1001L);
         assertNotNull(awards);
         assertTrue(awards.isEmpty());
     }
+
+    @Test
+    public void testGetDetailsMultiple2() {
+        List<Award> awards = repository.findAwards(-1L);
+        assertNotNull(awards);
+        assertEquals(2, awards.size());
+
+        assertEquals("ADA", awards.get(0).getSanctionCode());
+        assertEquals("Additional Days Added", awards.get(0).getSanctionCodeDescription());
+        assertNull(awards.get(0).getLimit());
+        assertNull(awards.get(0).getMonths());
+        assertNull(awards.get(0).getDays());
+        assertNull(awards.get(0).getComment());
+        assertEquals("SUSPENDED", awards.get(0).getStatus());
+        assertEquals("Suspended", awards.get(0).getStatusDescription());
+        assertEquals("2016-10-17", awards.get(0).getEffectiveDate().toString());
+
+        assertEquals("CC", awards.get(1).getSanctionCode());
+        assertEquals("Cellular Confinement", awards.get(1).getSanctionCodeDescription());
+        assertNull(awards.get(1).getLimit());
+        assertEquals(15, awards.get(1).getDays().intValue());
+        assertNull(awards.get(1).getMonths());
+        assertNull(awards.get(1).getComment());
+        assertEquals("IMMEDIATE", awards.get(1).getStatus());
+        assertEquals("Immediate", awards.get(1).getStatusDescription());
+        assertEquals("2016-11-09", awards.get(1).getEffectiveDate().toString());
+    }
 }
+/*
+ (-1, 1,'ADA',    null,null,null,null,TO_DATE('2016-10-17', 'YYYY-MM-DD'),-10,'SUSPENDED',1);
+I(-1, 2,'CC',     null,null,15,  null,TO_DATE('2016-11-09', 'YYYY-MM-DD'),-10,'IMMEDIATE',1);
+ */
