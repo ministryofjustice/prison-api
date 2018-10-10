@@ -11,5 +11,5 @@ public interface AccessRoleRepository {
 	void updateAccessRole(AccessRole accessRole);
 	Optional<AccessRole> getAccessRole(String accessRoleCode);
 
-    List<AccessRole> getAccessRoles();
+    List<AccessRole> getAccessRoles(boolean includeAdmin);
 }

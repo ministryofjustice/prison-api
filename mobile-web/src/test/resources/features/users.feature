@@ -73,13 +73,13 @@ Feature: User Details and Roles
   @nomis
   Scenario: A trusted client can make access role assignments to users.
     Given a trusted client that can maintain access roles has authenticated with the API
-    When the client assigns access role "ACCESS_ROLE_1" to user "JBRIEN" for caseload "LEI"
-    Then user "JBRIEN" has been assigned access role "ACCESS_ROLE_1" for caseload "LEI"
+    When the client assigns access role "ACCESS_ROLE_GENERAL" to user "JBRIEN" for caseload "LEI"
+    Then user "JBRIEN" has been assigned access role "ACCESS_ROLE_GENERAL" for caseload "LEI"
 
   @nomis
   Scenario: A trusted client is prevented from assigning an access role for a user without caseload access.
     Given a trusted client that can maintain access roles has authenticated with the API
-    When the client assigns access role "ACCESS_ROLE_1" to user "JBRIEN" for caseload "MDI"
+    When the client assigns access role "ACCESS_ROLE_GENERAL" to user "JBRIEN" for caseload "MDI"
     Then resource not found response is received from users API
 
   @nomis

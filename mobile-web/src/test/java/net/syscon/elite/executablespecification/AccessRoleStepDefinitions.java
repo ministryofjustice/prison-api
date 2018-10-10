@@ -46,12 +46,23 @@ public class AccessRoleStepDefinitions extends AbstractStepDefinitions {
     }
 
     @When("^a request to get access roles is made$")
-    public void aRequestToGetAccessRolesIsMade() throws Throwable {
-        steps.getAccessRoles();
+    public void aRequestToGetAccessRolesIsMade() {
+        steps.getAccessRoles(false);
+    }
+
+    @When("^a request to get access roles, including admin roles is made$")
+    public void aRequestToGetAccessRolesIncludingAdminIsMade() {
+        steps.getAccessRoles(true);
     }
 
     @Then("^the access role list is returned$")
-    public void theAccessRoleListIsReturned() throws Throwable {
+    public void theAccessRoleListIsReturned() {
         steps.verifyAccessRoles();
+    }
+
+    @Then("^the access role list is returned without admin roles$")
+    public void theAccessRoleListIsReturnedWithoutAdmin() {
+        steps.verifyAccessRoles();
+        steps.verifyAccessRolesDoNotIncludeAdminRoles();
     }
 }

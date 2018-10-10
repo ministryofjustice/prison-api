@@ -3,6 +3,11 @@
   get:
     (javaOperationName): getAccessRoles
     description: List of access roles
+    queryParameters:
+      includeAdmin:
+        type: boolean
+        default: false
+        description: Include admin roles
   post:
     (javaOperationName): createAccessRole
     description: Create new access role.

@@ -92,11 +92,19 @@ public class AccessRoleRepositoryTest {
     }
 
     @Test
-    public void testGetAccessRoles() {
+    public void testGetAccessRolesForAdmin() {
 
-        final List<AccessRole> accessRoles = repository.getAccessRoles();
+        final List<AccessRole> accessRoles = repository.getAccessRoles(true);
 
-        assertThat(accessRoles).extracting("roleCode").contains("ACCESS_ROLE_1", "ACCESS_ROLE_2");
+        assertThat(accessRoles).extracting("roleCode").contains("ACCESS_ROLE_GENERAL", "ACCESS_ROLE_ADMIN");
+    }
+
+    @Test
+    public void testGetAccessRolesForGeneral() {
+
+        final List<AccessRole> accessRoles = repository.getAccessRoles(false);
+
+        assertThat(accessRoles).extracting("roleCode").contains("ACCESS_ROLE_GENERAL");
     }
 
 }

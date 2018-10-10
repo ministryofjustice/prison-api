@@ -26,5 +26,10 @@ Feature: Access role maintenance
 
   Scenario: All access roles can be retrieved
     Given a user has authenticated with the API
-    When a request to get access roles is made
+    When a request to get access roles, including admin roles is made
     Then the access role list is returned
+
+  Scenario: Non-admin access roles can be retrieved
+    Given a user has authenticated with the API
+    When a request to get access roles is made
+    Then the access role list is returned without admin roles

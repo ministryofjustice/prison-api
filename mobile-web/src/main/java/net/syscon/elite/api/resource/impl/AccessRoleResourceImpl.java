@@ -19,9 +19,9 @@ public class AccessRoleResourceImpl implements AccessRoleResource{
 
 
     @Override
-    public GetAccessRolesResponse getAccessRoles() {
+    public GetAccessRolesResponse getAccessRoles(boolean includeAdmin) {
 
-        final List<AccessRole> accessRoles = accessRoleService.getAccessRoles();
+        final List<AccessRole> accessRoles = accessRoleService.getAccessRoles(includeAdmin);
         return GetAccessRolesResponse.respond200WithApplicationJson(accessRoles);
     }
 
