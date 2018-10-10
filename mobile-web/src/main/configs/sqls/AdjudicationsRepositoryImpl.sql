@@ -1,17 +1,20 @@
 FIND_AWARDS {
-  SELECT s.oic_sanction_code as sanction_code,
-         rc.description as sanction_code_description,
-         s.sanction_months as months,
-         s.sanction_days as days,
-         s.compensation_amount as limit,
-         s.comment_text as "comment",
-         s.effective_date as effective_date,
-         s.oic_hearing_id as hearing_id,
-         s.result_seq as hearing_sequence
-  FROM offender_oic_sanctions s
-    INNER JOIN oic_hearing_results h ON s.oic_hearing_id = h.oic_hearing_id AND s.result_seq = h.result_seq
-    LEFT JOIN reference_codes rc ON s.oic_sanction_code = rc.code AND rc.domain = 'OIC_SANCT'
-  WHERE s.offender_book_id = :bookingId
-    AND h.finding_code = 'PROVED'
-  ORDER BY s.oic_hearing_id, s.result_seq
+  SELECT S.OIC_SANCTION_CODE   AS SANCTION_CODE,
+         RC1.DESCRIPTION       AS SANCTION_CODE_DESCRIPTION,
+         S.SANCTION_MONTHS     AS MONTHS,
+         S.SANCTION_DAYS       AS DAYS,
+         S.COMPENSATION_AMOUNT AS LIMIT,
+         S.COMMENT_TEXT        AS "COMMENT",
+         S.EFFECTIVE_DATE      AS EFFECTIVE_DATE,
+         S.STATUS,
+         RC2.DESCRIPTION       AS STATUS_DESCRIPTION,
+         S.OIC_HEARING_ID      AS HEARING_ID,
+         S.RESULT_SEQ          AS HEARING_SEQUENCE
+  FROM OFFENDER_OIC_SANCTIONS S
+    INNER JOIN OIC_HEARING_RESULTS H ON S.OIC_HEARING_ID = H.OIC_HEARING_ID AND S.RESULT_SEQ = H.RESULT_SEQ
+    LEFT JOIN REFERENCE_CODES RC1 ON S.OIC_SANCTION_CODE = RC1.CODE AND RC1.DOMAIN = 'OIC_SANCT'
+    LEFT JOIN REFERENCE_CODES RC2 ON S.STATUS = RC2.CODE AND RC2.DOMAIN = 'OIC_SANCT_ST'
+  WHERE S.OFFENDER_BOOK_ID = :bookingId
+    AND H.FINDING_CODE = 'PROVED'
+  ORDER BY S.OIC_HEARING_ID, S.RESULT_SEQ
 }

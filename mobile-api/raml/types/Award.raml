@@ -22,6 +22,12 @@ properties:
   effectiveDate:
     type: date-only
     description: Start of sanction
+  status?:
+    type: string
+    description: Award status (ref domain OIC_SANCT_ST)
+  statusDescription?:
+    type: string
+    description: Award status description
   hearingId:
     type: number
     (javaType): Long
