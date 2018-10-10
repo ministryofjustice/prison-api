@@ -42,7 +42,13 @@ public class AccessRoleSteps extends CommonSteps {
     @Step("Verify access roles returned")
     public void verifyAccessRoles() {
         assertThat(accessRoles).isNotNull();
-        assertThat(accessRoles).extracting("roleCode").contains("ACCESS_ROLE_1");
+        assertThat(accessRoles).extracting("roleCode").contains("ACCESS_ROLE_GENERAL");
+    }
+
+    @Step("Verify Admin access roles are not returned")
+    public void verifyAccessRolesDoNotIncludeAdminRoles() {
+        assertThat(accessRoles).isNotNull();
+        assertThat(accessRoles).extracting("roleCode").doesNotContain("ACCESS_ROLE_ADMIN");
     }
 
     private void dispatchCreateOrUpdateAccessRoleRequest(String roleCode, String roleName, String parentRoleCode, boolean create) {
@@ -61,10 +67,14 @@ public class AccessRoleSteps extends CommonSteps {
         }
     }
 
-    private void dispatchAccessRolesGet() {
+    private void dispatchAccessRolesGet(boolean includeAdmin) {
         init();
+        String url = API_ACCESS_ROLE_REQUEST_URL;
+        if (includeAdmin) {
+            url = API_ACCESS_ROLE_REQUEST_URL + "?includeAdmin=true";
+        }
         try {
-            ResponseEntity<List<AccessRole>> response = restTemplate.exchange(API_ACCESS_ROLE_REQUEST_URL, HttpMethod.GET, createEntity(null, null),
+            ResponseEntity<List<AccessRole>> response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
                     new ParameterizedTypeReference<List<AccessRole>>() {});
             accessRoles = response.getBody();
         } catch (EliteClientException ex) {
@@ -76,7 +86,7 @@ public class AccessRoleSteps extends CommonSteps {
         dispatchCreateOrUpdateAccessRoleRequest(roleCode, roleName, null, false);
     }
 
-    public void getAccessRoles() {
-        dispatchAccessRolesGet();
+    public void getAccessRoles(boolean includeAdmin) {
+        dispatchAccessRolesGet(includeAdmin);
     }
 }

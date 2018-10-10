@@ -13,5 +13,5 @@ public interface AccessRoleService {
     void createAccessRole(@Valid AccessRole accessRole);
     void updateAccessRole(@Valid AccessRole accessRole);
 
-    List<AccessRole> getAccessRoles();
+    List<AccessRole> getAccessRoles(boolean includeAdmin);
 }

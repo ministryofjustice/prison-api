@@ -125,7 +125,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindUsersByCaseloadAndAccessRoleFilterRoleNotAssigned() {
 
-        Page<UserDetail> usersByCaseload = repository.findUsersByCaseload("LEI", "ACCESS_ROLE_1", "User", new PageRequest());
+        Page<UserDetail> usersByCaseload = repository.findUsersByCaseload("LEI", "ACCESS_ROLE_GENERAL", "User", new PageRequest());
 
         assertThat(usersByCaseload.getItems()).isEmpty();
     }

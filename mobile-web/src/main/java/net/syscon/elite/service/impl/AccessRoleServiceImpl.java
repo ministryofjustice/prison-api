@@ -58,7 +58,7 @@ public class AccessRoleServiceImpl implements AccessRoleService {
     }
 
     @Override
-    public List<AccessRole> getAccessRoles() {
-        return accessRoleRepository.getAccessRoles();
+    public List<AccessRole> getAccessRoles(boolean includeAdmin) {
+        return accessRoleRepository.getAccessRoles(includeAdmin);
     }
 }

@@ -14,6 +14,8 @@ import java.util.Optional;
 @Repository
 public class AccessRoleRepositoryImpl extends RepositoryBase implements AccessRoleRepository {
 
+	private static final String EXCLUDE_ADMIN_ROLES_QUERY_TEMPLATE = " AND OMS_ROLES.ROLE_FUNCTION != 'ADMIN'";
+
 	private static final StandardBeanPropertyRowMapper<AccessRole> ACCESS_ROLE_ROW_MAPPER =
 			new StandardBeanPropertyRowMapper<>(AccessRole.class);
 
@@ -50,9 +52,13 @@ public class AccessRoleRepositoryImpl extends RepositoryBase implements AccessRo
 	}
 
     @Override
-    public List<AccessRole> getAccessRoles(){
+    public List<AccessRole> getAccessRoles(boolean includeAdmin){
 
-		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(getQuery("GET_ACCESS_ROLES"), ACCESS_ROLE_ROW_MAPPER);
+        String query = getQuery("GET_ACCESS_ROLES");
+        if (!includeAdmin) {
+            query += EXCLUDE_ADMIN_ROLES_QUERY_TEMPLATE;
+        }
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(query, ACCESS_ROLE_ROW_MAPPER);
 		String sql = builder.build();
 
 		return jdbcTemplate.query(sql, ACCESS_ROLE_ROW_MAPPER);

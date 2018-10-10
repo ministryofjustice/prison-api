@@ -24,7 +24,13 @@ Feature: Access role maintenance
     When an update access role request is made with role code "WING_OFF" and role name "new name"
     Then the update access role request is rejected
 
+  @lucy
   Scenario: All access roles can be retrieved
     Given a user has authenticated with the API
-    When a request to get access roles is made
+    When a request to get access roles, including admin roles is made
     Then the access role list is returned
+
+  Scenario: Non-admin access roles can be retrieved
+    Given a user has authenticated with the API
+    When a request to get access roles is made
+    Then the access role list is returned without admin roles
