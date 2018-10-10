@@ -49,7 +49,7 @@ Feature: Booking Scheduled Events
       | VISIT      | Carpentry Workshop |
       | VISIT      | Medical Centre     |
       | PRISON_ACT | Medical Centre     |
-      | VISIT      | Block H            |
+      | VISIT      | LEI-H              |
       | PRISON_ACT | Visiting Room      |
 
   @elite
