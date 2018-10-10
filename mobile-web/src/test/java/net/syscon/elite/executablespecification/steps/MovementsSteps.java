@@ -70,7 +70,7 @@ public class MovementsSteps extends CommonSteps {
         assertThat(rollCounts).hasOnlyElementsOfType(RollCount.class).size().isEqualTo(2);
         assertThat(rollCounts).asList()
                 .extracting("livingUnitDesc")
-                .contains("Block A", "Block H");
+                .contains("Block A", "H");
     }
 
     @Step("Verify a list of unassigned rollcounts are returned")
