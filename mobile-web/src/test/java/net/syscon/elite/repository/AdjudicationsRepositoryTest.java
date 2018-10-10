@@ -2,6 +2,7 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.Award;
 import net.syscon.elite.web.config.PersistenceConfigs;
+import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,10 +17,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("nomis-hsqldb")
 @RunWith(SpringRunner.class)
@@ -43,21 +47,10 @@ public class AdjudicationsRepositoryTest {
         assertNotNull(awards);
         assertEquals(2, awards.size());
 
-        assertEquals("FORFEIT", awards.get(0).getSanctionCode());
-        assertEquals("Forfeiture of Privileges", awards.get(0).getSanctionCodeDescription());
-        assertNull(awards.get(0).getLimit());
-        assertNull(awards.get(0).getMonths());
-        assertEquals(30, awards.get(0).getDays().intValue());
-        assertNull(awards.get(0).getComment());
-        assertEquals("2016-11-08", awards.get(0).getEffectiveDate().toString());
-
-        assertEquals("STOP_PCT", awards.get(1).getSanctionCode());
-        assertEquals("Stoppage of Earnings (%)", awards.get(1).getSanctionCodeDescription());
-        assertEquals(20.2, awards.get(1).getLimit().doubleValue(), 0.00001);
-        assertEquals(4, awards.get(1).getMonths().intValue());
-        assertEquals(5, awards.get(1).getDays().intValue());
-        assertEquals("test comment", awards.get(1).getComment());
-        assertEquals("2016-11-09", awards.get(1).getEffectiveDate().toString());
+        assertThat(awards).asList()
+                .extracting("sanctionCode", "sanctionCodeDescription", "limit", "months", "days", "comment", "status", "statusDescription", "effectiveDate")
+                .contains(Tuple.tuple("FORFEIT", "Forfeiture of Privileges", null, null, 30, null, "IMMEDIATE", "Immediate", LocalDate.of(2016, 11, 8)),
+                        Tuple.tuple("STOP_PCT", "Stoppage of Earnings (%)", BigDecimal.valueOf(2020L, 2), 4, 5, "test comment", "IMMEDIATE", "Immediate", LocalDate.of(2016, 11, 9)));
     }
 
     @Test
@@ -73,28 +66,9 @@ public class AdjudicationsRepositoryTest {
         assertNotNull(awards);
         assertEquals(2, awards.size());
 
-        assertEquals("ADA", awards.get(0).getSanctionCode());
-        assertEquals("Additional Days Added", awards.get(0).getSanctionCodeDescription());
-        assertNull(awards.get(0).getLimit());
-        assertNull(awards.get(0).getMonths());
-        assertNull(awards.get(0).getDays());
-        assertNull(awards.get(0).getComment());
-        assertEquals("SUSPENDED", awards.get(0).getStatus());
-        assertEquals("Suspended", awards.get(0).getStatusDescription());
-        assertEquals("2016-10-17", awards.get(0).getEffectiveDate().toString());
-
-        assertEquals("CC", awards.get(1).getSanctionCode());
-        assertEquals("Cellular Confinement", awards.get(1).getSanctionCodeDescription());
-        assertNull(awards.get(1).getLimit());
-        assertEquals(15, awards.get(1).getDays().intValue());
-        assertNull(awards.get(1).getMonths());
-        assertNull(awards.get(1).getComment());
-        assertEquals("IMMEDIATE", awards.get(1).getStatus());
-        assertEquals("Immediate", awards.get(1).getStatusDescription());
-        assertEquals("2016-11-09", awards.get(1).getEffectiveDate().toString());
+        assertThat(awards).asList()
+                .extracting("sanctionCode", "sanctionCodeDescription", "limit", "months", "days", "comment", "status", "statusDescription", "effectiveDate")
+                .contains(Tuple.tuple("ADA", "Additional Days Added", null, null, null, null, "SUSPENDED", "Suspended", LocalDate.of(2016, 10, 17)),
+                        Tuple.tuple("CC", "Cellular Confinement", null, null, 15, null, "IMMEDIATE", "Immediate", LocalDate.of(2016, 11, 9)));
     }
 }
-/*
- (-1, 1,'ADA',    null,null,null,null,TO_DATE('2016-10-17', 'YYYY-MM-DD'),-10,'SUSPENDED',1);
-I(-1, 2,'CC',     null,null,15,  null,TO_DATE('2016-11-09', 'YYYY-MM-DD'),-10,'IMMEDIATE',1);
- */
