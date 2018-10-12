@@ -152,7 +152,7 @@ public class UserRepositoryTest {
         final Page<UserDetail> page = repository.findLocalAdministratorUsersByCaseload("LEI", null, null, new PageRequest("last_name", Order.ASC, 0L, 5L));
         final List<UserDetail> items = page.getItems();
 
-        assertThat(items).hasSize(1);
+        assertThat(items).hasSize(2);
         assertThat(items).extracting("username").first().isEqualTo("CA_USER");
     }
 
