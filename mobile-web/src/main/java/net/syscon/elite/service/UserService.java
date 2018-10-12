@@ -50,5 +50,7 @@ public interface UserService {
 
     Page<UserDetail> getUsersByCaseload(String caseload, String nameFilter, String accessRole, PageRequest pageRequest);
 
+    Page<UserDetail> getLocalAdministratorUsersByCaseload(String caseload, String nameFilter, String accessRole, PageRequest pageRequest);
+
     List<UserRole> getAccessRolesByUserAndCaseload(String username, String caseload);
 }

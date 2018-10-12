@@ -108,6 +108,18 @@ Feature: User Details and Roles
     Then a list of users is returned with usernames "ITAG_USER"
 
   @nomis
+  Scenario: A list of local administrator staff users by caseload and namefilter can be retrieved
+    Given a user has authenticated with the API
+    When a request for local administrator users with caseload "LEI" and namefilter "User" and role "" is made
+    Then a list of users is returned with usernames "ITAG_USER,CA_USER"
+
+  @nomis
+  Scenario: A list of local administrator staff users by caseload and namefilter and access role can be retrieved
+    Given a user has authenticated with the API
+    When a request for local administrator users with caseload "LEI" and namefilter "User" and role "OMIC_ADMIN" is made
+    Then a list of users is returned with usernames "ITAG_USER"
+
+  @nomis
   Scenario: A list of staff roles for a user and caseload can be retrieved
     Given a user has authenticated with the API
     When a request for roles for user "ITAG_USER" with caseload "NWEB" is made

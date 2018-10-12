@@ -37,4 +37,6 @@ public interface UserRepository {
 	List<UserDetail> findAllUsersWithCaseload(String caseloadId);
 
     Page<UserDetail> findUsersByCaseload(String agencyId, String accessRole, String nameFilter, PageRequest pageRequest);
+
+    Page<UserDetail> findLocalAdministratorUsersByCaseload(String agencyId, String accessRole, String nameFilter, PageRequest pageRequest);
 }
