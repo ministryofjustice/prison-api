@@ -171,7 +171,27 @@
     queryParameters:
       nameFilter?:
         type: string
-        description: Filter results by first name and/or last name of staff member.
+        description: Filter results by first name and/or username and/or last name of staff member.
+        example: Kirsty
+      accessRole?:
+        type: string
+        description: Filter results by access role
+        example: MAINTAIN_ACCESS_ROLES
+
+/local-administrator/caseload/{caseload}:
+  (javaOperationName): getLocalAdministratorUsersByCaseLoad
+  type: { readOnlyCollectionPaged: { type: UserDetail, description: Get user details for local administrators by prison. } }
+  is: [ sortable: { fieldsList: "firstName, lastName" } ]
+  uriParameters:
+    caseload:
+      type: string
+      description: The agency (prison) id.
+      example: MDI
+  get:
+    queryParameters:
+      nameFilter?:
+        type: string
+        description: Filter results by first name and/or username and/or last name of staff member.
         example: Kirsty
       accessRole?:
         type: string

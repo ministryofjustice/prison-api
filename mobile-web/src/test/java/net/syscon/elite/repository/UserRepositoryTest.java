@@ -107,6 +107,14 @@ public class UserRepositoryTest {
     }
 
     @Test
+    public void testFindUsersByCaseloadAndNameFilterUsername() {
+
+        final Page<UserDetail> usersByCaseload = repository.findUsersByCaseload("LEI", null, "ITAG_USER", new PageRequest());
+
+        assertThat(usersByCaseload.getItems()).extracting("username").contains("ITAG_USER");
+    }
+
+    @Test
     public void testFindUsersByCaseloadAndNameFilterAndAccessRoleFilter() {
 
         final Page<UserDetail> usersByCaseload = repository.findUsersByCaseload("LEI", "OMIC_ADMIN", "User", new PageRequest());
@@ -144,6 +152,32 @@ public class UserRepositoryTest {
         Page<UserDetail> usersByCaseload = repository.findUsersByCaseload("LEI", "OMIC_ADMIN_DOESNT_EXIST", "User", new PageRequest());
 
         assertThat(usersByCaseload.getItems()).isEmpty();
+    }
+
+    @Test
+    public void testFindLocalAdministratorUsersByCaseload() {
+
+        final Page<UserDetail> page = repository.findLocalAdministratorUsersByCaseload("LEI", null, null, new PageRequest("last_name", Order.ASC, 0L, 5L));
+        final List<UserDetail> items = page.getItems();
+
+        assertThat(items).hasSize(2);
+        assertThat(items).extracting("username").first().isEqualTo("CA_USER");
+    }
+
+    @Test
+    public void testFindLocalAdministratorUsersByCaseloadAndNameFilter() {
+
+        final Page<UserDetail> usersByCaseload = repository.findLocalAdministratorUsersByCaseload("LEI", null, "ITAG_USER", new PageRequest());
+
+        assertThat(usersByCaseload.getItems()).extracting("username").containsOnly("ITAG_USER");
+    }
+
+    @Test
+    public void testFindLocalAdministratorUsersByCaseloadAndAccessRoleFilter() {
+
+        Page<UserDetail> usersByCaseload = repository.findLocalAdministratorUsersByCaseload("LEI", "OMIC_ADMIN", "User", new PageRequest());
+
+        assertThat(usersByCaseload.getItems()).extracting("username").contains("ITAG_USER");
     }
 
 

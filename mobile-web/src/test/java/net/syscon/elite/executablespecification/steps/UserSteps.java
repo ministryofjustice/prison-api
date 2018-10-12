@@ -28,6 +28,7 @@ public class UserSteps extends CommonSteps {
     private static final String API_ASSIGN_ACCESS_ROLE_TO_USER_FOR_CASELOAD = API_PREFIX + "/users/{username}/caseload/{caseload}/access-role/{roleCode}";
     private static final String API_REMOVE_ROLE_FROM_USER_AT_CASELOAD = API_PREFIX + "/users/{username}/caseload/{caseload}/access-role/{roleCode}";
     private static final String API_USERS_AT_CASELOAD = API_PREFIX + "/users/caseload/{caseload}";
+    private static final String API_LOCAL_ADMINISTRATOR_USERS_AT_CASELOAD = API_PREFIX + "/users/local-administrator/caseload/{caseload}";
     private static final String API_ROLES_BY_USERS_AT_CASELOAD = API_PREFIX + "/users/{username}/access-roles/caseload/{caseload}";
 
     private List<Location> userLocations;
@@ -106,10 +107,9 @@ public class UserSteps extends CommonSteps {
         assertThat(caseNoteTypes.stream().filter(type -> type.getSubCodes().isEmpty()).count()).isEqualTo(0);
     }
 
-    public void getUsersByCaseload(String caseloadId, String roleCode, String nameFilter) {
-        dispatchUsersByCaseloadRequest(caseloadId, roleCode, nameFilter);
+    public void getUsersByCaseload(String caseloadId, String roleCode, String nameFilter, boolean localAdministratorUsersOnly) {
+        dispatchUsersByCaseloadRequest(caseloadId, roleCode, nameFilter, localAdministratorUsersOnly);
     }
-
 
     public void getRolesByUserAndCaseload(String username, String caseload) {
         dispatchRolesByUserAndCaseloadRequest(username, caseload);
@@ -220,9 +220,9 @@ public class UserSteps extends CommonSteps {
         usernames = response.getBody();
     }
 
-    private void dispatchUsersByCaseloadRequest(String caseload, String role, String nameFilter) {
+    private void dispatchUsersByCaseloadRequest(String caseload, String role, String nameFilter, boolean localAdministratorUsers) {
         init();
-        String url = API_USERS_AT_CASELOAD;
+        String url = localAdministratorUsers ? API_LOCAL_ADMINISTRATOR_USERS_AT_CASELOAD : API_USERS_AT_CASELOAD;
 
         if(StringUtils.isNotBlank(role) || StringUtils.isNotBlank(nameFilter)) {
             StringBuilder queryUrl = new StringBuilder("?");

@@ -199,17 +199,31 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public Page<UserDetail> getUsersByCaseload(String caseload, String nameFilter, String accessRole, PageRequest pageRequest) {
 
-	    PageRequest pageWithDefaults = pageRequest;
-	    if(pageWithDefaults == null){
-	        pageWithDefaults = new PageRequest("lastName");
-        }else {
-	        if(pageWithDefaults.getOrderBy()==null){
-	            pageWithDefaults = new PageRequest("lastName", pageWithDefaults.getOrder(), pageWithDefaults.getOffset(), pageWithDefaults.getLimit());
-            }
-        }
+		PageRequest pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
 
 		return userRepository
 				.findUsersByCaseload(caseload, accessRole, nameFilter, pageWithDefaults);
+	}
+
+	@Override
+	public Page<UserDetail> getLocalAdministratorUsersByCaseload(String caseload, String nameFilter, String accessRole, PageRequest pageRequest) {
+
+		PageRequest pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
+
+		return userRepository
+				.findLocalAdministratorUsersByCaseload(caseload, accessRole, nameFilter, pageWithDefaults);
+	}
+
+	private PageRequest getPageRequestDefaultLastNameOrder(PageRequest pageRequest) {
+		PageRequest pageWithDefaults = pageRequest;
+		if (pageWithDefaults == null) {
+			pageWithDefaults = new PageRequest("lastName");
+		} else {
+			if (pageWithDefaults.getOrderBy() == null) {
+				pageWithDefaults = new PageRequest("lastName", pageWithDefaults.getOrder(), pageWithDefaults.getOffset(), pageWithDefaults.getLimit());
+			}
+		}
+		return pageWithDefaults;
 	}
 
 	@Override

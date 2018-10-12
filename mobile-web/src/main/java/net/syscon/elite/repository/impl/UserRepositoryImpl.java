@@ -32,7 +32,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	@Value("${application.type:APP}")
 	private String applicationType;
 
-	private static final String NAME_FILTER_QUERY_TEMPLATE = " AND (UPPER(FIRST_NAME) LIKE :nameFilter OR UPPER(LAST_NAME) LIKE :nameFilter)";
+	private static final String NAME_FILTER_QUERY_TEMPLATE = " AND (UPPER(FIRST_NAME) LIKE :nameFilter OR UPPER(LAST_NAME) LIKE :nameFilter OR UPPER(SUA.USERNAME) LIKE :nameFilter)";
 
 	private static final String APPLICATION_ROLE_CODE_FILTER_QUERY_TEMPLATE = " AND SUA.username in  (select SUA_INNER.USERNAME FROM STAFF_USER_ACCOUNTS SUA_INNER\n" +
             "                INNER JOIN USER_ACCESSIBLE_CASELOADS UAC ON SUA_INNER.USERNAME = UAC.USERNAME\n" +
@@ -228,10 +228,19 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
     @Override
     public Page<UserDetail> findUsersByCaseload(String agencyId, String accessRole, String nameFilter, PageRequest pageRequest) {
+        return getUsersByCaseload(agencyId, accessRole, nameFilter, pageRequest, "FIND_USERS_BY_CASELOAD");
+    }
+
+	@Override
+	public Page<UserDetail> findLocalAdministratorUsersByCaseload(String agencyId, String accessRole, String nameFilter, PageRequest pageRequest) {
+        return getUsersByCaseload(agencyId, accessRole, nameFilter, pageRequest, "FIND_LOCAL_ADMINISTRATOR_USERS_BY_CASELOAD");
+    }
+
+    private Page<UserDetail> getUsersByCaseload(String agencyId, String accessRole, String nameFilter, PageRequest pageRequest, String find_local_administrator_users_by_caseload) {
         Validate.notBlank(agencyId, "An agency id is required.");
         Validate.notNull(pageRequest, "Page request details are required.");
 
-        String baseSql = applyAccessRoleQuery(applyNameFilterQuery(getQuery("FIND_USERS_BY_CASELOAD"), nameFilter), accessRole);
+        String baseSql = applyAccessRoleQuery(applyNameFilterQuery(getQuery(find_local_administrator_users_by_caseload), nameFilter), accessRole);
 
 
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(baseSql, USER_DETAIL_ROW_MAPPER.getFieldMap());
@@ -246,10 +255,10 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
         List<UserDetail> users = jdbcTemplate.query(
                 sql,
                 createParamSource(pageRequest, "caseloadId", agencyId,
-                "nameFilter", nameFilter !=null ? StringUtils.trimToEmpty(nameFilter.toUpperCase())+ "%" : null,
-                "apiCaseloadId", apiCaseloadId,
-                "applicationType", applicationType,
-                "roleCode", accessRole),
+                        "nameFilter", nameFilter != null ? StringUtils.trimToEmpty(nameFilter.toUpperCase()) + "%" : null,
+                        "apiCaseloadId", apiCaseloadId,
+                        "applicationType", applicationType,
+                        "roleCode", accessRole),
                 paRowMapper);
 
         return new Page<>(users, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
