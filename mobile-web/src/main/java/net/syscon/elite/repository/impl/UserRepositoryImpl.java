@@ -32,7 +32,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	@Value("${application.type:APP}")
 	private String applicationType;
 
-	private static final String NAME_FILTER_QUERY_TEMPLATE = " AND (UPPER(FIRST_NAME) LIKE :nameFilter OR UPPER(LAST_NAME) LIKE :nameFilter OR UPPER(USERNAME) LIKE :nameFilter)";
+	private static final String NAME_FILTER_QUERY_TEMPLATE = " AND (UPPER(FIRST_NAME) LIKE :nameFilter OR UPPER(LAST_NAME) LIKE :nameFilter OR UPPER(SUA.USERNAME) LIKE :nameFilter)";
 
 	private static final String APPLICATION_ROLE_CODE_FILTER_QUERY_TEMPLATE = " AND SUA.username in  (select SUA_INNER.USERNAME FROM STAFF_USER_ACCOUNTS SUA_INNER\n" +
             "                INNER JOIN USER_ACCESSIBLE_CASELOADS UAC ON SUA_INNER.USERNAME = UAC.USERNAME\n" +

@@ -107,6 +107,14 @@ public class UserRepositoryTest {
     }
 
     @Test
+    public void testFindUsersByCaseloadAndNameFilterUsername() {
+
+        final Page<UserDetail> usersByCaseload = repository.findUsersByCaseload("LEI", null, "ITAG_USER", new PageRequest());
+
+        assertThat(usersByCaseload.getItems()).extracting("username").contains("ITAG_USER");
+    }
+
+    @Test
     public void testFindUsersByCaseloadAndNameFilterAndAccessRoleFilter() {
 
         final Page<UserDetail> usersByCaseload = repository.findUsersByCaseload("LEI", "OMIC_ADMIN", "User", new PageRequest());
