@@ -67,9 +67,9 @@ project(":mobile-api") {
 
             oas20File.createNewFile()
             standardOutput = new FileOutputStream(oas20File)
-            /*if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+            if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
                 environment 'PATH', '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
-            }*/
+            }
             workingDir ramlDir.absolutePath
             commandLine raml2oasCommand
             args raml2oasArgs
