@@ -34,7 +34,7 @@ public class AccessRoleRepositoryImpl extends RepositoryBase implements AccessRo
 	@Override
 	public void updateAccessRole(AccessRole accessRole) {
 
-	    String query = accessRole.getRoleFunction() != null ? "UPDATE_ACCESS_ROLE_WITH_FUNCTION" : "UPDATE_ACCESS_ROLE";
+	    String query = "UPDATE_ACCESS_ROLE";
 
 	    jdbcTemplate.update(
 				getQuery(query),
