@@ -22,18 +22,23 @@ public class AccessRoleRepositoryImpl extends RepositoryBase implements AccessRo
 
 	@Override
 	public void createAccessRole(AccessRole accessRole) {
+        Objects.requireNonNull(accessRole.getRoleName(), "Access role name is a required parameter");
+        Objects.requireNonNull(accessRole.getRoleCode(), "Access role code is a required parameter");
+        Objects.requireNonNull(accessRole.getRoleFunction(), "Access role function is a required parameter");
 
 		jdbcTemplate.update(
 				getQuery("INSERT_ACCESS_ROLE"),
-				createParams("roleCode", accessRole.getRoleCode(), "roleName", accessRole.getRoleName(), "parentRoleCode", accessRole.getParentRoleCode()));
+				createParams("roleCode", accessRole.getRoleCode(), "roleName", accessRole.getRoleName(), "parentRoleCode", accessRole.getParentRoleCode(), "roleFunction", accessRole.getRoleFunction()));
 	}
 
 	@Override
 	public void updateAccessRole(AccessRole accessRole) {
 
-		jdbcTemplate.update(
-				getQuery("UPDATE_ACCESS_ROLE"),
-				createParams("roleCode", accessRole.getRoleCode(), "roleName", accessRole.getRoleName()));
+	    String query = "UPDATE_ACCESS_ROLE";
+
+	    jdbcTemplate.update(
+				getQuery(query),
+				createParams("roleCode", accessRole.getRoleCode(), "roleName", accessRole.getRoleName(), "roleFunction", accessRole.getRoleFunction()));
 	}
 
 	@Override

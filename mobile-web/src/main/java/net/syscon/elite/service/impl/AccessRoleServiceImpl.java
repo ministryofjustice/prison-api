@@ -41,6 +41,8 @@ public class AccessRoleServiceImpl implements AccessRoleService {
             throw  EntityAlreadyExistsException.withMessage("Access role with code [%s] already exists: [%s]", accessRole.getRoleCode(), roleOptional.get().getRoleName());
         }
 
+        if(accessRole.getRoleFunction()==null) accessRole.setRoleFunction("GENERAL");
+
         accessRoleRepository.createAccessRole(accessRole);
     }
 
@@ -54,6 +56,11 @@ public class AccessRoleServiceImpl implements AccessRoleService {
         if(!roleOptional.isPresent()) {
             throw  EntityNotFoundException.withMessage("Access role with code [%s] not found", accessRole.getRoleCode());
         }
+
+        /* fill in optional parameters for mandatory fields */
+        if (accessRole.getRoleName() == null ) accessRole.setRoleName(roleOptional.get().getRoleName());
+        if (accessRole.getRoleFunction() == null ) accessRole.setRoleFunction(roleOptional.get().getRoleFunction());
+
         accessRoleRepository.updateAccessRole(accessRole);
     }
 
