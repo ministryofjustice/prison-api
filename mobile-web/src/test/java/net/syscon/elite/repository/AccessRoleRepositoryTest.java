@@ -29,7 +29,10 @@ public class AccessRoleRepositoryTest {
 
     public static final String NEW_ROLE_CODE = "NEW_ROLE_CODE";
     public static final String NEW_ROLE_CODE_2 = "NEW_ROLE_CODE2";
+    public static final String NEW_ROLE_CODE_3 = "NEW_ROLE_CODE3";
     public static final String NEW_ROLE_NAME = "NEW_ROLE_NAME";
+    public static final String ROLE_FUNCTION_ADMIN = "ADMIN";
+    public static final String ROLE_FUNCTION_GENERAL = "GENERAL";
     public static final String EXISTING_ROLE_CODE = "WING_OFF";
     @Autowired
     private AccessRoleRepository repository;
@@ -39,6 +42,7 @@ public class AccessRoleRepositoryTest {
         AccessRole role = AccessRole.builder()
                 .roleCode(NEW_ROLE_CODE)
                 .roleName(NEW_ROLE_NAME)
+                .roleFunction(ROLE_FUNCTION_GENERAL)
                 .parentRoleCode(EXISTING_ROLE_CODE)
                 .build();
 
@@ -52,6 +56,29 @@ public class AccessRoleRepositoryTest {
 
         assertThat(accessRole.getRoleName()).isEqualTo(NEW_ROLE_NAME);
         assertThat(accessRole.getParentRoleCode()).isEqualTo(EXISTING_ROLE_CODE);
+        assertThat(accessRole.getRoleFunction()).isEqualTo(ROLE_FUNCTION_GENERAL);
+    }
+
+    @Test
+    public void testCreateAdminAccessRole() {
+        AccessRole role = AccessRole.builder()
+                .roleCode(NEW_ROLE_CODE_3)
+                .roleName(NEW_ROLE_NAME)
+                .parentRoleCode(EXISTING_ROLE_CODE)
+                .roleFunction(ROLE_FUNCTION_ADMIN)
+                .build();
+
+        repository.createAccessRole(role);
+
+        Optional<AccessRole> optionalRole = repository.getAccessRole(NEW_ROLE_CODE_3);
+
+        assertThat(optionalRole.isPresent()).isTrue();
+
+        AccessRole accessRole = optionalRole.get();
+
+        assertThat(accessRole.getRoleName()).isEqualTo(NEW_ROLE_NAME);
+        assertThat(accessRole.getParentRoleCode()).isEqualTo(EXISTING_ROLE_CODE);
+        assertThat(accessRole.getRoleFunction()).isEqualTo(ROLE_FUNCTION_ADMIN);
     }
 
     @Test
@@ -59,6 +86,7 @@ public class AccessRoleRepositoryTest {
         AccessRole role = AccessRole.builder()
                 .roleCode(NEW_ROLE_CODE_2)
                 .roleName(NEW_ROLE_NAME)
+                .roleFunction(ROLE_FUNCTION_ADMIN)
                 .build();
 
         repository.createAccessRole(role);
@@ -78,6 +106,7 @@ public class AccessRoleRepositoryTest {
         AccessRole role = AccessRole.builder()
                 .roleCode(EXISTING_ROLE_CODE)
                 .roleName(NEW_ROLE_NAME)
+                .roleFunction("ADMIN")
                 .build();
 
         repository.updateAccessRole(role);

@@ -35,6 +35,17 @@ public class AccessRoleServiceImplTest {
         Mockito.when(accessRoleRepository.getAccessRole("ROLE_CODE")).thenReturn(Optional.empty());
 
         final AccessRole newAccessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").build();
+        final AccessRole defaultedAccessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").roleFunction("GENERAL").build();
+        accessRoleService.createAccessRole(newAccessRole);
+
+        Mockito.verify(accessRoleRepository, Mockito.times(1)).createAccessRole(defaultedAccessRole);
+    }
+
+    @Test
+    public void testCreateAccessRoleWithAdminRoleFunction() {
+        Mockito.when(accessRoleRepository.getAccessRole("ROLE_CODE")).thenReturn(Optional.empty());
+
+        final AccessRole newAccessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").roleFunction("ADMIN").build();
         accessRoleService.createAccessRole(newAccessRole);
 
         Mockito.verify(accessRoleRepository, Mockito.times(1)).createAccessRole(newAccessRole);
@@ -74,6 +85,32 @@ public class AccessRoleServiceImplTest {
         accessRoleService.updateAccessRole(accessRole);
 
         Mockito.verify(accessRoleRepository, Mockito.times(1)).updateAccessRole(accessRole);
+    }
+
+    @Test()
+    public void testUpdateAccessRoleNameOnly() {
+        final AccessRole accessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").roleFunction("ROLE_FUNCTION").build();
+        final AccessRole accessRoleIn = AccessRole.builder().roleCode("ROLE_CODE").roleName("NEW_ROLE_NAME").build();
+        final AccessRole populatedAccessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("NEW_ROLE_NAME").roleFunction("ROLE_FUNCTION").build();
+
+        Mockito.when(accessRoleRepository.getAccessRole("ROLE_CODE")).thenReturn(Optional.of(accessRole));
+
+        accessRoleService.updateAccessRole(accessRoleIn);
+
+        Mockito.verify(accessRoleRepository, Mockito.times(1)).updateAccessRole(populatedAccessRole);
+    }
+
+    @Test()
+    public void testUpdateAccessRoleFunctionOnly() {
+        final AccessRole accessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").roleFunction("ROLE_FUNCTION").build();
+        final AccessRole accessRoleIn = AccessRole.builder().roleCode("ROLE_CODE").roleFunction("NEW_ROLE_FUNCTION").build();
+        final AccessRole populatedAccessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").roleFunction("NEW_ROLE_FUNCTION").build();
+
+        Mockito.when(accessRoleRepository.getAccessRole("ROLE_CODE")).thenReturn(Optional.of(accessRole));
+
+        accessRoleService.updateAccessRole(accessRoleIn);
+
+        Mockito.verify(accessRoleRepository, Mockito.times(1)).updateAccessRole(populatedAccessRole);
     }
 
     @Test

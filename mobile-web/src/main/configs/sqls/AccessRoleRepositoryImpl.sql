@@ -15,13 +15,20 @@ INSERT_ACCESS_ROLE {
 	      1,
 	      :parentRoleCode,
 	      'APP',
-	      'GENERAL',
+	      :roleFunction,
 	      'Y')
 }
 
 UPDATE_ACCESS_ROLE {
   UPDATE OMS_ROLES SET
     ROLE_NAME = :roleName
+  WHERE ROLE_CODE = :roleCode
+}
+
+UPDATE_ACCESS_ROLE_WITH_FUNCTION {
+  UPDATE OMS_ROLES SET
+	  ROLE_NAME = :roleName,
+	  ROLE_FUNCTION = :roleFunction
   WHERE ROLE_CODE = :roleCode
 }
 
