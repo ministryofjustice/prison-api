@@ -15,20 +15,31 @@ import java.util.Map;
 public class CacheInfoContributor implements InfoContributor {
 
     @Autowired
-    private CacheManager cacheManager;
+    public CacheInfoContributor(CacheManager cacheManager) {
+        this.cacheManager = cacheManager;
+    }
+
+    private final CacheManager cacheManager;
 
     @Override
     public void contribute(Info.Builder builder) {
         Map<String, String> results = new HashMap<>();
+        long memory = 0;
+
         for (String name : cacheManager.getCacheNames()) {
             final Cache cache = cacheManager.getCache(name);
-            final int size = cache.getKeysNoDuplicateCheck().size();
-            final long maxSize = cache.getCacheConfiguration().getMaxEntriesLocalHeap();
             final StatisticsGateway statistics = cache.getStatistics();
-            final long hitCount = statistics.cacheHitCount();
-            final long missCount = statistics.cacheMissCount();
-            results.put(name, String.format("%d / %d hits:%d misses:%d", size, maxSize, hitCount, missCount));
+            results.put(name, String.format("%d / %d hits:%d misses:%d bytes:%d",
+                    cache.getKeysNoDuplicateCheck().size(),
+                    cache.getCacheConfiguration().getMaxEntriesLocalHeap(),
+                    statistics.cacheHitCount(),
+                    statistics.cacheMissCount(),
+                    statistics.getLocalHeapSizeInBytes()
+            ));
+            memory += statistics.getLocalHeapSizeInBytes();
+
         }
         builder.withDetail("caches", results);
+        builder.withDetail("cacheTotalMemoryMB", String.format("%.2f", memory / 1048576.0));
     }
 }
