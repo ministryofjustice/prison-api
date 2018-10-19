@@ -1,5 +1,6 @@
 package net.syscon.elite.service;
 
+import net.syscon.elite.api.model.AccessRole;
 import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
@@ -52,5 +53,5 @@ public interface UserService {
 
     Page<UserDetail> getLocalAdministratorUsersByCaseload(String caseload, String nameFilter, String accessRole, PageRequest pageRequest);
 
-    List<UserRole> getAccessRolesByUserAndCaseload(String username, String caseload);
+    List<AccessRole> getAccessRolesByUserAndCaseload(String username, String caseload, boolean includeAdmin);
 }

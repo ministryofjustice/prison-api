@@ -1,5 +1,6 @@
 package net.syscon.elite.repository;
 
+import net.syscon.elite.api.model.AccessRole;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.api.support.Order;
@@ -58,9 +59,23 @@ public class UserRepositoryTest {
 
     @Test
     public void testFindRolesByUsernameAndCaseload() {
-        List<UserRole> roles = repository.findAccessRolesByUsernameAndCaseload("ITAG_USER", "LEI");
+        List<AccessRole> roles = repository.findAccessRolesByUsernameAndCaseload("ITAG_USER", "LEI", false);
         assertThat(roles).isNotEmpty();
         assertThat(roles).extracting("roleCode").contains("WING_OFF");
+    }
+
+    @Test
+    public void testFindRolesByUsernameAndCaseloadAdmin() {
+        List<AccessRole> roles = repository.findAccessRolesByUsernameAndCaseload("ITAG_USER", "NWEB", true);
+        assertThat(roles).isNotEmpty();
+        assertThat(roles).extracting("roleCode").contains("ACCESS_ROLE_ADMIN");
+    }
+
+    @Test
+    public void testFindRolesByUsernameAndCaseloadGeneral() {
+        List<AccessRole> roles = repository.findAccessRolesByUsernameAndCaseload("ITAG_USER", "NWEB", false);
+        assertThat(roles).isNotEmpty();
+        assertThat(roles).extracting("roleCode").doesNotContain("ACCESS_ROLE_ADMIN");
     }
 
     @Test(expected = EntityNotFoundException.class)
