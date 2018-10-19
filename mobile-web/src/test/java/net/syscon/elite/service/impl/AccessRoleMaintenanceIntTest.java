@@ -52,6 +52,14 @@ public class AccessRoleMaintenanceIntTest {
         List<StaffUserRole> roles = staffService.getRolesByCaseload(-2L, "NWEB");
         assertThat(roles).containsExactly(
                 StaffUserRole.builder()
+                        .roleId(-301L)
+                        .roleCode("ACCESS_ROLE_ADMIN")
+                        .roleName("Access Role Admin")
+                        .caseloadId("NWEB")
+                        .username("ITAG_USER")
+                        .staffId(-2L)
+                        .build(),
+                StaffUserRole.builder()
                         .roleId(-201L)
                         .roleCode("KW_ADMIN")
                         .roleName("Keyworker Admin")
