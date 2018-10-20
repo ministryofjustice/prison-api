@@ -14,12 +14,12 @@ import java.util.Map;
 @Component
 public class CacheInfoContributor implements InfoContributor {
 
+    private final CacheManager cacheManager;
+
     @Autowired
     public CacheInfoContributor(CacheManager cacheManager) {
         this.cacheManager = cacheManager;
     }
-
-    private final CacheManager cacheManager;
 
     @Override
     public void contribute(Info.Builder builder) {
