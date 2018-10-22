@@ -57,12 +57,6 @@ public class UserRepositoryTest {
         assertThat(roles).extracting("roleCode").contains("LEI_WING_OFF");
     }
 
-    @Test
-    public void testFindRolesByUsernameAndCaseload() {
-        List<AccessRole> roles = repository.findAccessRolesByUsernameAndCaseload("ITAG_USER", "LEI", false);
-        assertThat(roles).isNotEmpty();
-        assertThat(roles).extracting("roleCode").contains("WING_OFF");
-    }
 
     @Test
     public void testFindRolesByUsernameAndCaseloadAdmin() {
