@@ -15,7 +15,7 @@ Feature: User Details and Roles
 
   Examples:
   | username            | roles                                                                          |
-  | itag_user           | BXI_WING_OFF,LEI_WING_OFF,MDI_WING_OFF,NWEB_KW_ADMIN,NWEB_OMIC_ADMIN,SYI_WING_OFF,WAI_WING_OFF |
+  | itag_user           | BXI_WING_OFF,LEI_WING_OFF,MDI_WING_OFF,NWEB_ACCESS_ROLE_ADMIN,NWEB_KW_ADMIN,NWEB_OMIC_ADMIN,SYI_WING_OFF,WAI_WING_OFF |
   | api_test_user       | MUL_WING_OFF,NWEB_KW_ADMIN,NWEB_OMIC_ADMIN                                                     |
 
   @nomis
@@ -26,7 +26,7 @@ Feature: User Details and Roles
 
     Examples:
       | username            | roles                |
-      | itag_user           | KW_ADMIN,OMIC_ADMIN  |
+      | itag_user           | KW_ADMIN,OMIC_ADMIN,ACCESS_ROLE_ADMIN  |
       | api_test_user       | KW_ADMIN,OMIC_ADMIN  |
       | ca_user             | LICENCE_CA           |
       | ro_user             | LICENCE_RO           |

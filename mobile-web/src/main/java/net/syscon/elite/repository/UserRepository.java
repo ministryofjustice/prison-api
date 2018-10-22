@@ -1,5 +1,6 @@
 package net.syscon.elite.repository;
 
+import net.syscon.elite.api.model.AccessRole;
 import net.syscon.elite.api.model.StaffUserRole;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
@@ -14,7 +15,7 @@ public interface UserRepository {
 
 	List<UserRole> findRolesByUsername(String username, String query);
 
-	List<UserRole> findAccessRolesByUsernameAndCaseload(String username, String caseload);
+	List<AccessRole> findAccessRolesByUsernameAndCaseload(String username, String caseload, boolean includeAdmin);
 
 	void updateWorkingCaseLoad(Long staffId, String caseLoadId);
 
