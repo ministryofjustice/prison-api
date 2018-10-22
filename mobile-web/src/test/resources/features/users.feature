@@ -40,7 +40,7 @@ Feature: User Details and Roles
 
     Examples:
       | username            | roles                        |
-      | itag_user           | WING_OFF,KW_ADMIN,OMIC_ADMIN,MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN |
+      | itag_user           | WING_OFF,KW_ADMIN,OMIC_ADMIN |
       | api_test_user       | WING_OFF                     |
 
   @nomis
