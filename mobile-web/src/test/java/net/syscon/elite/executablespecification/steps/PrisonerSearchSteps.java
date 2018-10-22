@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class PrisonerSearchSteps extends CommonSteps {
     private static final String PRISONER_SEARCH = API_PREFIX + "prisoners?%s";
+    private static final String PRISONER_SIMPLE_SEARCH = API_PREFIX + "prisoners/%s";
 
     private List<PrisonerDetail> prisonerDetails;
 
@@ -62,6 +63,17 @@ public class PrisonerSearchSteps extends CommonSteps {
         String queryUrl = String.format(PRISONER_SEARCH, StringUtils.substring(query, 0, query.length() - 1));
         boolean isErrorExpected = expectedStatus.is4xxClientError() || expectedStatus.is5xxServerError();
 
+        doSearch(expectedStatus, queryUrl, isErrorExpected);
+    }
+
+    public void simpleSearch(String offenderNo, HttpStatus expectedStatus) {
+        init();
+        doSearch(expectedStatus,
+                String.format(PRISONER_SIMPLE_SEARCH, offenderNo),
+                expectedStatus.is4xxClientError() || expectedStatus.is5xxServerError());
+    }
+
+    private void doSearch(HttpStatus expectedStatus, String queryUrl, boolean isErrorExpected) {
         try {
             ResponseEntity<List<PrisonerDetail>> responseEntity = restTemplate.exchange(queryUrl,
                     HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<PrisonerDetail>>() {
@@ -77,6 +89,4 @@ public class PrisonerSearchSteps extends CommonSteps {
             assertThat(isErrorExpected).isTrue();
         }
     }
-
-
 }
