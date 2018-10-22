@@ -33,9 +33,11 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	@Value("${application.type:APP}")
 	private String applicationType;
 
+	private static final String ADMIN_ROLE_FUNCTION = "ADMIN";
+
 	private static final String NAME_FILTER_QUERY_TEMPLATE = " AND (UPPER(FIRST_NAME) LIKE :nameFilter OR UPPER(LAST_NAME) LIKE :nameFilter OR UPPER(SUA.USERNAME) LIKE :nameFilter)";
 
-	private static final String EXCLUDE_ADMIN_ROLES_FILTER = " AND RL.ROLE_FUNCTION <> 'ADMIN' ";
+	private static final String EXCLUDE_BY_ROLE_FUNCTION_CLAUSE = " AND RL.ROLE_FUNCTION <> :roleFunction ";
 
 	private static final String APPLICATION_ROLE_CODE_FILTER_QUERY_TEMPLATE = " AND SUA.username in  (select SUA_INNER.USERNAME FROM STAFF_USER_ACCOUNTS SUA_INNER\n" +
             "                INNER JOIN USER_ACCESSIBLE_CASELOADS UAC ON SUA_INNER.USERNAME = UAC.USERNAME\n" +
@@ -91,7 +93,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	public List<AccessRole> findAccessRolesByUsernameAndCaseload(final String username, String caseload, boolean includeAdmin) {
 		String query = getQuery("FIND_ACCESS_ROLES_BY_USERNAME_AND_CASELOAD");
 
-		if(!includeAdmin) query += EXCLUDE_ADMIN_ROLES_FILTER;
+		if(!includeAdmin) query += EXCLUDE_BY_ROLE_FUNCTION_CLAUSE;
 
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(query, ACCESS_ROLE_MAPPER);
 
@@ -99,7 +101,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 				.addOrderBy(Order.ASC, "roleName")
 				.build();
 
-		return jdbcTemplate.query(sql, createParams("username", username, "caseloadId", caseload), ACCESS_ROLE_MAPPER);
+		return jdbcTemplate.query(sql, createParams("username", username, "caseloadId", caseload, "roleFunction", ADMIN_ROLE_FUNCTION), ACCESS_ROLE_MAPPER);
 	}
 
 	@Override
