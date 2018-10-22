@@ -68,6 +68,22 @@ public class AccessRoleMaintenanceIntTest {
                         .staffId(-2L)
                         .build(),
                 StaffUserRole.builder()
+                        .roleId(-303L)
+                        .roleCode("MAINTAIN_ACCESS_ROLES")
+                        .roleName("Maintain access roles")
+                        .caseloadId("NWEB")
+                        .username("ITAG_USER")
+                        .staffId(-2L)
+                        .build(),
+                StaffUserRole.builder()
+                        .roleId(-302L)
+                        .roleCode("MAINTAIN_ACCESS_ROLES_ADMIN")
+                        .roleName("Maintain access roles admin")
+                        .caseloadId("NWEB")
+                        .username("ITAG_USER")
+                        .staffId(-2L)
+                        .build(),
+                StaffUserRole.builder()
                         .roleId(-203L)
                         .roleCode("OMIC_ADMIN")
                         .roleName("Omic Admin")

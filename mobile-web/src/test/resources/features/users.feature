@@ -15,7 +15,7 @@ Feature: User Details and Roles
 
   Examples:
   | username            | roles                                                                          |
-  | itag_user           | BXI_WING_OFF,LEI_WING_OFF,MDI_WING_OFF,NWEB_ACCESS_ROLE_ADMIN,NWEB_KW_ADMIN,NWEB_OMIC_ADMIN,SYI_WING_OFF,WAI_WING_OFF |
+  | itag_user           | BXI_WING_OFF,LEI_WING_OFF,MDI_WING_OFF,NWEB_ACCESS_ROLE_ADMIN,NWEB_KW_ADMIN,NWEB_OMIC_ADMIN,SYI_WING_OFF,WAI_WING_OFF,NWEB_MAINTAIN_ACCESS_ROLES,NWEB_MAINTAIN_ACCESS_ROLES_ADMIN |
   | api_test_user       | MUL_WING_OFF,NWEB_KW_ADMIN,NWEB_OMIC_ADMIN                                                     |
 
   @nomis
@@ -26,7 +26,7 @@ Feature: User Details and Roles
 
     Examples:
       | username            | roles                |
-      | itag_user           | KW_ADMIN,OMIC_ADMIN,ACCESS_ROLE_ADMIN  |
+      | itag_user           | KW_ADMIN,OMIC_ADMIN,ACCESS_ROLE_ADMIN,MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN  |
       | api_test_user       | KW_ADMIN,OMIC_ADMIN  |
       | ca_user             | LICENCE_CA           |
       | ro_user             | LICENCE_RO           |
@@ -96,6 +96,12 @@ Feature: User Details and Roles
     Then a list of users is returned with usernames "ELITE2_API_USER,ITAG_USER,JBRIEN,NONWEB,RENEGADE,CA_USER,DM_USER"
 
   @nomis
+  Scenario: A list of staff users can be retrieved
+    Given a user has authenticated with the API
+    When a request for users is made
+    Then a list of users is returned with usernames "ELITE2_API_USER,ITAG_USER,JBRIEN,NONWEB,RENEGADE,CA_USER,DM_USER,EXOFF5,API_TEST_USER,RO_USER"
+
+  @nomis
   Scenario: A list of staff users by caseload and namefilter can be retrieved
     Given a user has authenticated with the API
     When a request for users with caseload "LEI" and namefilter "User" and role "" is made
@@ -123,4 +129,4 @@ Feature: User Details and Roles
   Scenario: A list of staff roles for a user and caseload can be retrieved
     Given a user has authenticated with the API
     When a request for roles for user "ITAG_USER" with caseload "NWEB" is made
-    Then a list of roles is returned with role codes "KW_ADMIN,OMIC_ADMIN"
+    Then a list of roles is returned with role codes "KW_ADMIN,OMIC_ADMIN,MAINTAIN_ACCESS_ROLES_ADMIN,MAINTAIN_ACCESS_ROLES"

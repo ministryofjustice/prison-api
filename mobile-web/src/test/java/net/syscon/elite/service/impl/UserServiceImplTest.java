@@ -62,6 +62,16 @@ public class UserServiceImplTest {
     }
 
     @Test
+    public void testGetUsers() {
+        PageRequest pr = new PageRequest("lastName", Order.ASC, 0L, 10L);  //the default if non provided
+        when(userRepository.findUsersByCaseload(LEEDS_CASELOAD_ID, ROLE_CODE, "A", null)).thenReturn(pageResponse(2));
+
+        userService.getUsers("A", ROLE_CODE, null);
+
+        verify(userRepository, times(1)).findUsers(eq(ROLE_CODE), eq("A"), refEq(pr));
+    }
+
+    @Test
     public void testGetUsersByCaseloadWithSortFieldDifferentToDefault() {
         PageRequest pr = new PageRequest("firstName", Order.ASC, 10L, 20L);
         when(userRepository.findUsersByCaseload(LEEDS_CASELOAD_ID, ROLE_CODE, "A", pr)).thenReturn(pageResponse(2));

@@ -84,6 +84,15 @@ public class UserResourceImpl implements UserResource {
     }
 
     @Override
+    public GetUsersResponse getUsers(String nameFilter, String accessRole, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+        PageRequest pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
+
+        Page<UserDetail> userDetails = userService.getUsers(nameFilter, accessRole, pageRequest);
+
+        return GetUsersResponse.respond200WithApplicationJson(userDetails);
+    }
+
+    @Override
     public AddAccessRoleResponse addAccessRole(String username, String roleCode) {
         boolean added = userService.addAccessRole(username, roleCode);
         return added? AddAccessRoleResponse.respond201WithApplicationJson() : AddAccessRoleResponse.respond200WithApplicationJson();

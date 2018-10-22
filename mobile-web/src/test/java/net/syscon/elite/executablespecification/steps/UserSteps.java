@@ -28,6 +28,7 @@ public class UserSteps extends CommonSteps {
     private static final String API_ASSIGN_ACCESS_ROLE_TO_USER_FOR_CASELOAD = API_PREFIX + "/users/{username}/caseload/{caseload}/access-role/{roleCode}";
     private static final String API_REMOVE_ROLE_FROM_USER_AT_CASELOAD = API_PREFIX + "/users/{username}/caseload/{caseload}/access-role/{roleCode}";
     private static final String API_USERS_AT_CASELOAD = API_PREFIX + "/users/caseload/{caseload}";
+    private static final String API_USERS = API_PREFIX + "/users";
     private static final String API_LOCAL_ADMINISTRATOR_USERS_AT_CASELOAD = API_PREFIX + "/users/local-administrator/caseload/{caseload}";
     private static final String API_ROLES_BY_USERS_AT_CASELOAD = API_PREFIX + "/users/{username}/access-roles/caseload/{caseload}";
 
@@ -109,6 +110,10 @@ public class UserSteps extends CommonSteps {
 
     public void getUsersByCaseload(String caseloadId, String roleCode, String nameFilter, boolean localAdministratorUsersOnly) {
         dispatchUsersByCaseloadRequest(caseloadId, roleCode, nameFilter, localAdministratorUsersOnly);
+    }
+
+    public void getUsers(String roleCode, String nameFilter, boolean localAdministratorUsersOnly) {
+        dispatchUsersRequest(roleCode, nameFilter);
     }
 
     public void getRolesByUserAndCaseload(String username, String caseload) {
@@ -246,6 +251,31 @@ public class UserSteps extends CommonSteps {
         userDetails = response.getBody();
     }
 
+    private void dispatchUsersRequest(String role, String nameFilter) {
+        init();
+        String url = API_USERS;
+
+        if(StringUtils.isNotBlank(role) || StringUtils.isNotBlank(nameFilter)) {
+            StringBuilder queryUrl = new StringBuilder("?");
+            if (StringUtils.isNotBlank(role)) {
+                queryUrl.append("accessRole=").append(role).append("&");
+            }
+            if (StringUtils.isNotBlank(nameFilter)) {
+                queryUrl.append("nameFilter=").append(nameFilter).append("&");
+            }
+            url += queryUrl.toString();
+        }
+
+        ResponseEntity<List<UserDetail>> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                createEntity(),
+                new ParameterizedTypeReference<List<UserDetail>>() {
+                });
+
+        userDetails = response.getBody();
+    }
+
     private void dispatchRolesByUserAndCaseloadRequest(String username, String caseload) {
         init();
 
@@ -319,4 +349,5 @@ public class UserSteps extends CommonSteps {
             setErrorResponse(ex.getErrorResponse());
         }
     }
+
 }
