@@ -1,65 +1,77 @@
-(beta): true
-description: Find Offenders
-type: { readOnlyCollectionPaged: { type: PrisonerDetail, description: List of offenders matching specified criteria. } }
-get:
-  queryParameters:
-    offenderNo?:
+/:
+  (beta): true
+  description: Find Offenders
+  type: { readOnlyCollectionPaged: { type: PrisonerDetail, description: List of offenders matching specified criteria. } }
+  get:
+    queryParameters:
+      offenderNo?:
+        type: string
+        description: The offender's NOMS number. NOMS numbers have the format:<b> ANNNNAA</b>
+        example: A1476AE
+      pncNumber?:
+        type: string
+        description: The offender's PNC (Police National Computer) number.
+      croNumber?:
+        type: string
+        description: The offender's CRO (Criminal Records Office) number.
+      firstName?:
+        type: string
+        description: The first name of the offender.
+      middleNames?:
+        type: string
+        description: The middle name(s) of the offender.
+      lastName?:
+        type: string
+        description: The last name of the offender.
+      dob?:
+        type: string
+        description: The offender's date of birth. Cannot be used in conjunction with <i>dobFrom</i> or <i>dobTo</i>.
+                     Must be specified using YYYY-MM-DD format.
+        example: 1972-04-23
+      dobFrom?:
+        type: string
+        description: Start date for offender date of birth search. If <i>dobTo</i> is not specified, an implicit <i>dobTo</i>
+                     value of <i>dobFrom</i> + 10 years will be applied. If <i>dobTo</i> is specified, it will be adjusted,
+                     if necessary, to ensure it is not more than 10 years after <i>dobFrom</i>. Cannot be used in
+                     conjunction with <i>dob</i>. Must be specified using YYYY-MM-DD format.
+      dobTo?:
+        type: string
+        description: End date for offender date of birth search. If <i>dobFrom</i> is not specified, an implicit <i>dobFrom</i>
+                     value of <i>dobTo</i> - 10 years will be applied. Cannot be used in conjunction with <i>dob</i>.
+                     Must be specified using YYYY-MM-DD format.
+      partialNameMatch?:
+        type: boolean
+        description: If <i>true</i>, the search will use partial, start-of-name matching of offender names (where provided). For
+                     example, if <i>lastName</i> criteria of 'AD' is specified, this will match an offender whose last name is
+                     'ADAMS' but not an offender whose last name is 'HADAD'. This will typically increase the number of
+                     matching offenders found. This parameter can be used with any other search processing parameter
+                     (e.g. <i>prioritisedMatch</i> or <i>anyMatch</i>).
+      prioritisedMatch?:
+        type: boolean
+        description: If <i>true</i>, search criteria prioritisation is used and searching/matching will stop as soon as one or
+                     more matching offenders are found. The criteria priority is:<br/><br/>1. <i>offenderNo</i><br/>
+                     2. <i>pncNumber</i><br/>3. <i>croNumber</i><br/>4. <i>firstName</i>, <i>lastName</i>, <i>dob</i>
+                     <br/>5. <i>dobFrom</i>, <i>dobTo</i><br/><br/>As an example of how this works, if this parameter is set
+                     <i>true</i> and an <i>offenderNo</i> is specified and an offender having this offender number is found,
+                     searching will stop and that offender will be returned immediately. If no offender matching the specified
+                     <i>offenderNo</i> is found, the search will be repeated using the next priority criteria (<i>pncNumber</i>)
+                     and so on. Note that offender name and date of birth criteria have the same priority and will be used
+                     together to search for matching offenders.
+      anyMatch?:
+        type: boolean
+        description: If <i>true</i>, offenders that match any of the specified criteria will be returned. The default search
+                     behaviour is to only return offenders that match <i>all</i> of the specified criteria. If the
+                     <i>prioritisedMatch</i> parameter is also set <i>true</i>, this parameter will only impact the behaviour
+                     of searching using offender name and date of birth criteria.
+    is: [ sortable: {fieldsList: "offenderNo, pncNumber, croNumber, firstName, lastName, dob"} ]
+
+/{offenderNo}:
+  description: Get offender regardless of caseload. Simplified version of the above without needing GLOBAL_SEARCH role.
+  uriParameters:
+    offenderNo:
       type: string
-      description: The offender's NOMS number. NOMS numbers have the format:<b> ANNNNAA</b>
-      example: A1476AE
-    pncNumber?:
-      type: string
-      description: The offender's PNC (Police National Computer) number.
-    croNumber?:
-      type: string
-      description: The offender's CRO (Criminal Records Office) number.
-    firstName?:
-      type: string
-      description: The first name of the offender.
-    middleNames?:
-      type: string
-      description: The middle name(s) of the offender.
-    lastName?:
-      type: string
-      description: The last name of the offender.
-    dob?:
-      type: string
-      description: The offender's date of birth. Cannot be used in conjunction with <i>dobFrom</i> or <i>dobTo</i>.
-                   Must be specified using YYYY-MM-DD format.
-      example: 1972-04-23
-    dobFrom?:
-      type: string
-      description: Start date for offender date of birth search. If <i>dobTo</i> is not specified, an implicit <i>dobTo</i>
-                   value of <i>dobFrom</i> + 10 years will be applied. If <i>dobTo</i> is specified, it will be adjusted,
-                   if necessary, to ensure it is not more than 10 years after <i>dobFrom</i>. Cannot be used in
-                   conjunction with <i>dob</i>. Must be specified using YYYY-MM-DD format.
-    dobTo?:
-      type: string
-      description: End date for offender date of birth search. If <i>dobFrom</i> is not specified, an implicit <i>dobFrom</i>
-                   value of <i>dobTo</i> - 10 years will be applied. Cannot be used in conjunction with <i>dob</i>.
-                   Must be specified using YYYY-MM-DD format.
-    partialNameMatch?:
-      type: boolean
-      description: If <i>true</i>, the search will use partial, start-of-name matching of offender names (where provided). For
-                   example, if <i>lastName</i> criteria of 'AD' is specified, this will match an offender whose last name is
-                   'ADAMS' but not an offender whose last name is 'HADAD'. This will typically increase the number of
-                   matching offenders found. This parameter can be used with any other search processing parameter
-                   (e.g. <i>prioritisedMatch</i> or <i>anyMatch</i>).
-    prioritisedMatch?:
-      type: boolean
-      description: If <i>true</i>, search criteria prioritisation is used and searching/matching will stop as soon as one or
-                   more matching offenders are found. The criteria priority is:<br/><br/>1. <i>offenderNo</i><br/>
-                   2. <i>pncNumber</i><br/>3. <i>croNumber</i><br/>4. <i>firstName</i>, <i>lastName</i>, <i>dob</i>
-                   <br/>5. <i>dobFrom</i>, <i>dobTo</i><br/><br/>As an example of how this works, if this parameter is set
-                   <i>true</i> and an <i>offenderNo</i> is specified and an offender having this offender number is found,
-                   searching will stop and that offender will be returned immediately. If no offender matching the specified
-                   <i>offenderNo</i> is found, the search will be repeated using the next priority criteria (<i>pncNumber</i>)
-                   and so on. Note that offender name and date of birth criteria have the same priority and will be used
-                   together to search for matching offenders.
-    anyMatch?:
-      type: boolean
-      description: If <i>true</i>, offenders that match any of the specified criteria will be returned. The default search
-                   behaviour is to only return offenders that match <i>all</i> of the specified criteria. If the
-                   <i>prioritisedMatch</i> parameter is also set <i>true</i>, this parameter will only impact the behaviour
-                   of searching using offender name and date of birth criteria.
-  is: [ sortable: {fieldsList: "offenderNo, pncNumber, croNumber, firstName, lastName, dob"} ]
+      description: The offenderNo to search for
+  type:
+    readOnlyCollection:
+      type: PrisonerDetail
+      description: List of offenders globally matching the offenderNo.

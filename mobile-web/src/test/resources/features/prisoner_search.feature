@@ -1,4 +1,4 @@
-@global
+@global @sdar
 Feature: Prisoner Search
 
   Acceptance Criteria:
@@ -107,6 +107,18 @@ Feature: Prisoner Search
   Scenario Outline: Search for prisoners with specified offender number
     Given a user has logged in with username "renegade" and password "password"
     When a search is made for prisoners with an offender number of "<offenderNo>"
+    Then "<numberResults>" prisoner records are returned
+    And the prisoners last names match "<lastNames>"
+
+    Examples:
+      | offenderNo | numberResults | lastNames |
+      | A1234AC    | 1             | BATES     |
+      | A1476AE    | 0             |           |
+      | A1181MV    | 1             | O'VAUGHAN |
+
+  Scenario Outline: Search for prisoners with specified offender number using simple unprotected endpoint
+    Given a user has authenticated with the API
+    When a search is made for prisoners with an offender number of "<offenderNo>" using simple endpoint
     Then "<numberResults>" prisoner records are returned
     And the prisoners last names match "<lastNames>"
 

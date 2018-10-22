@@ -23,6 +23,7 @@ public class PrisonerResourceImpl implements PrisonerResource {
     }
 
     @Override
+    // @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
     public GetPrisonersResponse getPrisoners(String offenderNo, String pncNumber, String croNumber, String firstName,
                                              String middleNames, String lastName, String dob, String dobFrom,
                                              String dobTo, boolean partialNameMatch, boolean prioritisedMatch,
@@ -48,5 +49,18 @@ public class PrisonerResourceImpl implements PrisonerResource {
                 new PageRequest(sortFields, sortOrder, pageOffset, pageLimit));
 
         return GetPrisonersResponse.respond200WithApplicationJson(offenders);
+    }
+
+    @Override
+    public GetPrisonersOffenderNoResponse getPrisonersOffenderNo(String offenderNo) {
+
+        PrisonerDetailSearchCriteria criteria = PrisonerDetailSearchCriteria.builder()
+                .offenderNo(offenderNo)
+                .build();
+
+        Page<PrisonerDetail> offenders = globalSearchService.findOffenders(
+                criteria,
+                new PageRequest(null, null, 0L, 1000L));
+        return GetPrisonersOffenderNoResponse.respond200WithApplicationJson(offenders.getItems());
     }
 }
