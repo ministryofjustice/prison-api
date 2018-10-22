@@ -200,7 +200,7 @@
 
 /{username}/access-roles/caseload/{caseload}:
   (javaOperationName): getRolesForUserAndCaseload
-  type: { readOnlyCollection: { type: UserRole, description: List of roles for the given user and caseload   } }
+  type: { readOnlyCollection: { type: AccessRole, description: List of roles for the given user and caseload   } }
   uriParameters:
     caseload:
       type: string
@@ -210,3 +210,9 @@
       type: string
       description: user account to filter by
       example: JSMITH_GEN
+  get:
+    queryParameters:
+      includeAdmin:
+        type: boolean
+        default: false
+        description: Include admin roles

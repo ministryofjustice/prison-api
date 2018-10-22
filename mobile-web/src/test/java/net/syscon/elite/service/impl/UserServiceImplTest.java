@@ -1,9 +1,9 @@
 package net.syscon.elite.service.impl;
 
 import com.google.common.collect.ImmutableList;
+import net.syscon.elite.api.model.AccessRole;
 import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.api.model.UserDetail;
-import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
@@ -73,24 +73,24 @@ public class UserServiceImplTest {
 
     @Test
     public void testGetRolesByUserAndCaseload() {
-        List<UserRole> list = ImmutableList.of(UserRole.builder().roleCode("TEST_CODE").roleName("Test Role").caseloadId(LEEDS_CASELOAD_ID).roleId(123L).build());  //the default if non provided
+        List<AccessRole> list = ImmutableList.of(AccessRole.builder().roleCode("TEST_CODE").roleName("Test Role").roleFunction("GENERAL").build());  //the default if non provided
         when(caseLoadService.getCaseLoad(Mockito.eq(LEEDS_CASELOAD_ID))).thenReturn(Optional.of(CaseLoad.builder().build()));
-        when(userRepository.findAccessRolesByUsernameAndCaseload(USERNAME_GEN, LEEDS_CASELOAD_ID)).thenReturn(list);
+        when(userRepository.findAccessRolesByUsernameAndCaseload(USERNAME_GEN, LEEDS_CASELOAD_ID, true)).thenReturn(list);
 
-        userService.getAccessRolesByUserAndCaseload(USERNAME_GEN, LEEDS_CASELOAD_ID);
+        userService.getAccessRolesByUserAndCaseload(USERNAME_GEN, LEEDS_CASELOAD_ID, true);
 
-        verify(userRepository, times(1)).findAccessRolesByUsernameAndCaseload(USERNAME_GEN, LEEDS_CASELOAD_ID);
+        verify(userRepository, times(1)).findAccessRolesByUsernameAndCaseload(USERNAME_GEN, LEEDS_CASELOAD_ID, true);
     }
 
     @Test(expected = EntityNotFoundException.class)
     public void testGetRolesByUserAndCaseloadCaseloadDoesNotExist() {
         when(caseLoadService.getCaseLoad(Mockito.eq(LEEDS_CASELOAD_ID))).thenReturn(Optional.empty());
-        userService.getAccessRolesByUserAndCaseload(USERNAME_GEN, LEEDS_CASELOAD_ID);
+        userService.getAccessRolesByUserAndCaseload(USERNAME_GEN, LEEDS_CASELOAD_ID, true);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetRolesByUserAndCaseloadUsernameNotProvided() {
-        userService.getAccessRolesByUserAndCaseload("", LEEDS_CASELOAD_ID);
+        userService.getAccessRolesByUserAndCaseload("", LEEDS_CASELOAD_ID, false);
     }
 
     @Test

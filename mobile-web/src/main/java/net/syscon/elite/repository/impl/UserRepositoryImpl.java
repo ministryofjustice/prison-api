@@ -1,5 +1,6 @@
 package net.syscon.elite.repository.impl;
 
+import net.syscon.elite.api.model.AccessRole;
 import net.syscon.elite.api.model.StaffUserRole;
 import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
@@ -32,7 +33,11 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	@Value("${application.type:APP}")
 	private String applicationType;
 
+	private static final String ADMIN_ROLE_FUNCTION = "ADMIN";
+
 	private static final String NAME_FILTER_QUERY_TEMPLATE = " AND (UPPER(FIRST_NAME) LIKE :nameFilter OR UPPER(LAST_NAME) LIKE :nameFilter OR UPPER(SUA.USERNAME) LIKE :nameFilter)";
+
+	private static final String EXCLUDE_BY_ROLE_FUNCTION_CLAUSE = " AND RL.ROLE_FUNCTION <> :roleFunction ";
 
 	private static final String APPLICATION_ROLE_CODE_FILTER_QUERY_TEMPLATE = " AND SUA.username in  (select SUA_INNER.USERNAME FROM STAFF_USER_ACCOUNTS SUA_INNER\n" +
             "                INNER JOIN USER_ACCESSIBLE_CASELOADS UAC ON SUA_INNER.USERNAME = UAC.USERNAME\n" +
@@ -44,6 +49,9 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
 	private final StandardBeanPropertyRowMapper<UserRole> USER_ROLE_MAPPER =
 			new StandardBeanPropertyRowMapper<>(UserRole.class);
+
+    private final StandardBeanPropertyRowMapper<AccessRole> ACCESS_ROLE_MAPPER =
+            new StandardBeanPropertyRowMapper<>(AccessRole.class);
 
     private final StandardBeanPropertyRowMapper<StaffUserRole> STAFF_USER_ROLE_MAPPER =
             new StandardBeanPropertyRowMapper<>(StaffUserRole.class);
@@ -82,14 +90,18 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	}
 
 	@Override
-	public List<UserRole> findAccessRolesByUsernameAndCaseload(final String username, String caseload) {
-		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(getQuery("FIND_ACCESS_ROLES_BY_USERNAME_AND_CASELOAD"), USER_ROLE_MAPPER);
+	public List<AccessRole> findAccessRolesByUsernameAndCaseload(final String username, String caseload, boolean includeAdmin) {
+		String query = getQuery("FIND_ACCESS_ROLES_BY_USERNAME_AND_CASELOAD");
+
+		if(!includeAdmin) query += EXCLUDE_BY_ROLE_FUNCTION_CLAUSE;
+
+		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(query, ACCESS_ROLE_MAPPER);
 
 		String sql = builder
 				.addOrderBy(Order.ASC, "roleName")
 				.build();
 
-		return jdbcTemplate.query(sql, createParams("username", username, "caseloadId", caseload), USER_ROLE_MAPPER);
+		return jdbcTemplate.query(sql, createParams("username", username, "caseloadId", caseload, "roleFunction", ADMIN_ROLE_FUNCTION), ACCESS_ROLE_MAPPER);
 	}
 
 	@Override

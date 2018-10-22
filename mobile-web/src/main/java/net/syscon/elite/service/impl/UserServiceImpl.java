@@ -227,7 +227,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<UserRole> getAccessRolesByUserAndCaseload(String username, String caseload) {
+	public List<AccessRole> getAccessRolesByUserAndCaseload(String username, String caseload, boolean includeAdmin) {
 		Validate.notBlank(caseload, "A caseload id is required.");
 		Validate.notBlank(username, "A username is required.");
 
@@ -236,7 +236,7 @@ public class UserServiceImpl implements UserService {
 		}
 
 		return userRepository
-				.findAccessRolesByUsernameAndCaseload(username, caseload);
+				.findAccessRolesByUsernameAndCaseload(username, caseload, includeAdmin);
 	}
 
 

@@ -163,8 +163,8 @@ public class UserResourceImpl implements UserResource {
     }
 
     @Override
-    public GetRolesForUserAndCaseloadResponse getRolesForUserAndCaseload(String username, String caseload) {
-        final List<UserRole> roles = userService.getAccessRolesByUserAndCaseload(username, caseload);
+    public GetRolesForUserAndCaseloadResponse getRolesForUserAndCaseload(String username, String caseload, boolean includeAdmin) {
+        final List<AccessRole> roles = userService.getAccessRolesByUserAndCaseload(username, caseload, includeAdmin);
 
         return GetRolesForUserAndCaseloadResponse.respond200WithApplicationJson(roles);
     }
