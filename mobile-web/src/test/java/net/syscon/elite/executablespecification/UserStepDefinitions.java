@@ -163,6 +163,11 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.getUsersByCaseload(caseloadId, null, null, false);
     }
 
+    @When("^a request for users is made$")
+    public void aRequestForUsersIsMade() {
+        user.getUsers(null, null, false);
+    }
+
     @When("^a request for local administrator users with caseload \"([^\"]*)\" is made$")
     public void aRequestForLocalAdministratorUsersWithCaseloadIsMade(String caseloadId) {
         user.getUsersByCaseload(caseloadId, null, null, true);

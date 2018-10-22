@@ -197,6 +197,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES_ADMIN')")
 	public Page<UserDetail> getUsersByCaseload(String caseload, String nameFilter, String accessRole, PageRequest pageRequest) {
 
 		PageRequest pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
@@ -206,6 +207,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	@PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
 	public Page<UserDetail> getLocalAdministratorUsersByCaseload(String caseload, String nameFilter, String accessRole, PageRequest pageRequest) {
 
 		PageRequest pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
@@ -239,5 +241,13 @@ public class UserServiceImpl implements UserService {
 				.findAccessRolesByUsernameAndCaseload(username, caseload, includeAdmin);
 	}
 
+	@Override
+	@PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES_ADMIN')")
+	public Page<UserDetail> getUsers(String nameFilter, String accessRole, PageRequest pageRequest) {
 
+		PageRequest pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
+
+		return userRepository
+				.findUsers(accessRole, nameFilter, pageWithDefaults);
+	}
 }

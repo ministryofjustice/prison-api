@@ -1,3 +1,18 @@
+/:
+  (javaOperationName): getUsers
+  type: { readOnlyCollectionPaged: { type: UserDetail, description: Get user details. } }
+  is: [ sortable: { fieldsList: "firstName, lastName" } ]
+  get:
+    queryParameters:
+      nameFilter?:
+        type: string
+        description: Filter results by first name and/or username and/or last name of staff member.
+        example: Kirsty
+      accessRole?:
+        type: string
+        description: Filter results by access role
+        example: OMIC_ADMIN
+
 /me/locations:
   (javaOperationName): getMyLocations
   description: Returns list of locations associated with current user.

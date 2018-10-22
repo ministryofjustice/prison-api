@@ -40,4 +40,6 @@ public interface UserRepository {
     Page<UserDetail> findUsersByCaseload(String agencyId, String accessRole, String nameFilter, PageRequest pageRequest);
 
     Page<UserDetail> findLocalAdministratorUsersByCaseload(String agencyId, String accessRole, String nameFilter, PageRequest pageRequest);
+
+    Page<UserDetail> findUsers(String accessRole, String nameFilter, PageRequest pageWithDefaults);
 }
