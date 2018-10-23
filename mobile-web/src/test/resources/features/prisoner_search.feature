@@ -1,23 +1,23 @@
-@global @sdar
+@global
 Feature: Prisoner Search
 
   Acceptance Criteria:
   A logged in staff user can search for prisoners across the entire prison system
 
-  Scenario: Can perform global search with ADMIN role
+  Scenario: Can perform global search with GLOBAL_SEARCH role
     Given a system client "yjaftrustedclient" has authenticated with the API
     When a search is made for prisoners with DOB on or after 1970-01-01 for range 0 -> 15
     Then "11" prisoner records are returned
 
-  Scenario: Search prisoners within a date of birth range
-    Given a user has logged in with username "renegade" and password "password"
+  Scenario: Search prisoners within a date of birth range with SYSTEM role
+    Given a system client "delius" has authenticated with the API
     When a search is made for prisoners with DOB on or after 1970-01-01 for range 0 -> 2
     Then "2" prisoner records are returned
     And  "11" total prisoner records are available
 
   @nomis
   Scenario Outline: Search prisoners within a dates of birth range not allowing more than 10 years
-    Given a user has logged in with username "renegade" and password "password"
+    Given a system client "licencesadmin" has authenticated with the API
     When a search is made for prisoners with DOB between "<dobFrom>" and "<dobTo>" for range 0 -> 100
     Then "<numberResults>" prisoner records are returned
     And the prisoners dob matches "<DOB>"
@@ -36,7 +36,7 @@ Feature: Prisoner Search
 
   @elite
   Scenario Outline: Search prisoners within a dates of birth range not allowing more than 10 years
-    Given a user has logged in with username "renegade" and password "password"
+    Given a system client "licencesadmin" has authenticated with the API
     When a search is made for prisoners with DOB between "<dobFrom>" and "<dobTo>" for range 0 -> 100
     Then "<numberResults>" prisoner records are returned
     And the prisoners dob matches "<DOB>"
@@ -54,7 +54,7 @@ Feature: Prisoner Search
     |            | 2000-01-01 | 6             | 1990-12-30,1991-06-04,1995-08-21,1998-08-28,1998-11-01,1999-10-27                                                        |
 
   Scenario Outline: Search for prisoners by names, without partial name matching
-    Given a user has logged in with username "renegade" and password "password"
+    Given a system client "licencesadmin" has authenticated with the API
     When a search is made for prisoners with first name "<firstName>", middle names "<middleNames>" and last name "<lastName>"
     Then "<numberResults>" prisoner records are returned
     And prisoner offender numbers match "<offenderNos>"
@@ -77,7 +77,7 @@ Feature: Prisoner Search
 
   @nomis
   Scenario Outline: Search for prisoners by names, with partial name matching
-    Given a user has logged in with username "renegade" and password "password"
+    Given a system client "licencesadmin" has authenticated with the API
     When a partial name search is made for prisoners with first name "<firstName>", middle names "<middleNames>" and last name "<lastName>"
     Then "<numberResults>" prisoner records are returned
     And prisoner offender numbers match "<offenderNos>"
@@ -92,7 +92,7 @@ Feature: Prisoner Search
       |           | JEFF           |          | 1             | A1234AE                 | DONALD                 | JEFFREY ROBERT   | DUCK                      |
 
   Scenario Outline: Search prisoners for a specified Date of Birth
-    Given a user has logged in with username "renegade" and password "password"
+    Given a system client "licencesadmin" has authenticated with the API
     When a search is made for prisoners with date of birth of "<dob>"
     Then "<numberResults>" prisoner records are returned
     And the prisoners last names match "<lastNames>"
@@ -105,7 +105,7 @@ Feature: Prisoner Search
       | 1959-10-28 | 0             |                |
 
   Scenario Outline: Search for prisoners with specified offender number
-    Given a user has logged in with username "renegade" and password "password"
+    Given a system client "licencesadmin" has authenticated with the API
     When a search is made for prisoners with an offender number of "<offenderNo>"
     Then "<numberResults>" prisoner records are returned
     And the prisoners last names match "<lastNames>"
@@ -128,9 +128,14 @@ Feature: Prisoner Search
       | A1476AE    | 0             |           |
       | A1181MV    | 1             | O'VAUGHAN |
 
+  Scenario: Search for prisoners without GLOBAL_SEARCH role
+    Given a user has authenticated with the API
+    When a search is made for prisoners with an offender number of "<offenderNo>" expecting failure
+    Then access is denied
+
   @nomis
   Scenario Outline: Search prisoners with a CRO number
-    Given a user has logged in with username "renegade" and password "password"
+    Given a system client "licencesadmin" has authenticated with the API
     When a search is made for prisoners with CRO number of "<cro>"
     Then "<numberResults>" prisoner records are returned
     And the prisoners last names match "<lastNames>"
@@ -142,7 +147,7 @@ Feature: Prisoner Search
 
   @nomis
   Scenario Outline: Search prisoners with a valid PNC number
-    Given a user has logged in with username "renegade" and password "password"
+    Given a system client "licencesadmin" has authenticated with the API
     When a search is made for prisoners with PNC number of "<pnc>"
     Then "<numberResults>" prisoner records are returned
     And the prisoners last names match "<lastNames>"
@@ -159,6 +164,6 @@ Feature: Prisoner Search
 
   @nomis
   Scenario: Search prisoners with an invalid PNC number
-    Given a user has logged in with username "renegade" and password "password"
+    Given a system client "licencesadmin" has authenticated with the API
     When an invalid search is made for prisoners with PNC number of "234/EE45FX"
     Then bad request response is received from prisoner search API
