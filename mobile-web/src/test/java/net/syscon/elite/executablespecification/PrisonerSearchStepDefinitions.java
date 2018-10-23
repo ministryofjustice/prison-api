@@ -127,6 +127,11 @@ public class PrisonerSearchStepDefinitions extends AbstractStepDefinitions {
         prisonerSearch.search(ImmutableMap.of("offenderNo", offenderNo), 0, 100, HttpStatus.OK);
     }
 
+    @When("^a search is made for prisoners with an offender number of \"([^\"]*)\" expecting failure$")
+    public void aSearchIsMadeForPrisonersWithFailure(String offenderNo) throws Throwable {
+        prisonerSearch.search(ImmutableMap.of("offenderNo", offenderNo), 0, 100, HttpStatus.FORBIDDEN);
+    }
+
     @When("^a search is made for prisoners with an offender number of \"([^\"]*)\" using simple endpoint$")
     public void aSimpleSearchIsMadeForPrisonersWithAnOffenderNumberOf(String offenderNo) throws Throwable {
         prisonerSearch.simpleSearch(offenderNo, HttpStatus.OK);
