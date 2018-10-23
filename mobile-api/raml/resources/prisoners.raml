@@ -4,6 +4,13 @@
   type: { readOnlyCollectionPaged: { type: PrisonerDetail, description: List of offenders matching specified criteria. } }
   get:
     queryParameters:
+      includeAliases?:
+        type: boolean
+        description: If true the result set should include a row for every matched alias.  If the request includes some
+                     combination of firstName, lastName and dateOfBirth then this will be a subset of the OFFENDERS records for one or
+                     more offenders. Otherwise it will be every OFFENDERS record for each match on the other search criteria.
+                     Default is false.
+        example: false
       offenderNo?:
         type: string
         description: The offender's NOMS number. NOMS numbers have the format:<b> ANNNNAA</b>

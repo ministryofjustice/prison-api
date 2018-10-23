@@ -243,7 +243,16 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     @Override
     public Page<PrisonerDetail> findOffenders(String query, PageRequest pageRequest) {
         String initialSql = getQuery("FIND_OFFENDERS");
+        return getPrisonerDetailPage(query, pageRequest, initialSql);
+    }
 
+    @Override
+    public Page<PrisonerDetail> findOffendersWithAliases(String query, PageRequest pageRequest){
+        String initialSql = getQuery("FIND_OFFENDERS_WITH_ALIASES");
+        return getPrisonerDetailPage(query, pageRequest, initialSql);
+    }
+
+    private Page<PrisonerDetail> getPrisonerDetailPage(String query, PageRequest pageRequest, String initialSql) {
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, PRISONER_DETAIL_MAPPER.getFieldMap());
 
         String sql = builder
@@ -253,17 +262,17 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 .addOrderBy(pageRequest.getOrder(), pageRequest.getOrderBy())
                 .build();
 
-		PageAwareRowMapper<PrisonerDetail> paRowMapper = new PageAwareRowMapper<>(PRISONER_DETAIL_MAPPER);
+        PageAwareRowMapper<PrisonerDetail> paRowMapper = new PageAwareRowMapper<>(PRISONER_DETAIL_MAPPER);
 
-		MapSqlParameterSource params =
-				createParams( "offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
+        MapSqlParameterSource params =
+                createParams( "offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
 
         List<PrisonerDetail> prisonerDetails = jdbcTemplate.query( sql, params, paRowMapper);
 
         return new Page<>(prisonerDetails, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
 
-	@Override
+    @Override
     @Cacheable("bookingPhysicalMarks")
     public List<PhysicalMark> findPhysicalMarks(long bookingId) {
 		String sql = getQuery("FIND_PHYSICAL_MARKS_BY_BOOKING");
