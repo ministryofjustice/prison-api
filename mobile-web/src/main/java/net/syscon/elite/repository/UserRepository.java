@@ -23,6 +23,8 @@ public interface UserRepository {
 
 	Optional<Long> getRoleIdForCode(String roleCode);
 
+	Optional<AccessRole> getRoleByCode(String roleCode);
+
 	boolean isUserAssessibleCaseloadAvailable(String caseload, String username);
 
 	void addUserAssessibleCaseload(String caseload, String username);

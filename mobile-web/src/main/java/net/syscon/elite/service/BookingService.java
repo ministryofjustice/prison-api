@@ -44,8 +44,6 @@ public interface BookingService {
 
     void checkBookingExists(Long bookingId);
 
-    boolean isOverrideRole(String... overrideRoles);
-
     List<OffenceDetail> getMainOffenceDetails(Long bookingId);
 
     List<ScheduledEvent> getEventsToday(Long bookingId);

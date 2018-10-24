@@ -1,11 +1,14 @@
 package net.syscon.elite.security;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -42,6 +45,11 @@ public class UserSecurityUtils implements AuthenticationFacade {
 		return auth != null && (
 				(auth instanceof OAuth2Authentication && auth.isAuthenticated() && !((OAuth2Authentication) auth).isClientOnly())
 		);
+	}
+
+	public boolean isOverrideRole(String... overrideRoles) {
+		final List<String> roles = Arrays.asList(overrideRoles.length > 0 ? overrideRoles : new String[] {"SYSTEM_USER"});
+		return getAuthentication() != null && getAuthentication().getAuthorities().stream().anyMatch(a -> roles.contains(StringUtils.replaceFirst(a.getAuthority(), "ROLE_", "")));
 	}
 
 	private Object getUserPrincipal() {

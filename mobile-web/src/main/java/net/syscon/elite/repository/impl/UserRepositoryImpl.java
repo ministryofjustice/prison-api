@@ -178,6 +178,23 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 		return Optional.ofNullable(roleId);
     }
 
+	@Override
+	public Optional<AccessRole> getRoleByCode(String roleCode) {
+		Validate.notBlank(roleCode, "roleCode is required.");
+
+		AccessRole role;
+		try {
+			role = jdbcTemplate.queryForObject(
+					getQuery("GET_ROLE_BY_ROLE_CODE"),
+					createParams("roleCode", roleCode),
+					ACCESS_ROLE_MAPPER);
+
+		} catch (final EmptyResultDataAccessException ex) {
+			role = null;
+		}
+		return Optional.ofNullable(role);
+	}
+
 
 
 	@Override

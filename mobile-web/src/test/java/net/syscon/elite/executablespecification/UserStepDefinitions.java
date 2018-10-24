@@ -198,4 +198,9 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.getRolesByUserAndCaseload(username, caseload);
     }
 
+    @Then("^the request requiring admin privileges is rejected$")
+    public void theCreateAccessRoleRequestIsRejected() {
+        user.verifyAccessDenied("Maintain roles Admin access required to perform this action");
+    }
+
 }

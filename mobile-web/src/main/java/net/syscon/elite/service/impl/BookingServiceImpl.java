@@ -9,6 +9,7 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
+import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.LocationProcessor;
@@ -20,8 +21,6 @@ import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -60,6 +59,7 @@ public class BookingServiceImpl implements BookingService {
     private final ReferenceDomainService referenceDomainService;
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
     private final TelemetryClient telemetryClient;
+    private final UserSecurityUtils securityUtils;
     private final String defaultIepLevel;
     private final int maxBatchSize;
 
@@ -88,6 +88,7 @@ public class BookingServiceImpl implements BookingService {
                               ReferenceDomainService referenceDomainService,
                               CaseloadToAgencyMappingService caseloadToAgencyMappingService,
                               TelemetryClient telemetryClient,
+                              UserSecurityUtils securityUtils,
                               @Value("${api.bookings.iepLevel.default:Unknown}") String defaultIepLevel,
                               @Value("${batch.max.size:1000}") int maxBatchSize) {
         this.bookingRepository = bookingRepository;
@@ -98,6 +99,7 @@ public class BookingServiceImpl implements BookingService {
         this.referenceDomainService = referenceDomainService;
         this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
         this.telemetryClient = telemetryClient;
+        this.securityUtils = securityUtils;
         this.defaultIepLevel = defaultIepLevel;
         this.maxBatchSize = maxBatchSize;
     }
@@ -337,7 +339,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Long getBookingIdByOffenderNo(String offenderNo) {
         final Long bookingId = bookingRepository.getBookingIdByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
-        if (!isOverrideRole("GLOBAL_SEARCH", "SYSTEM_USER")) {
+        if (!securityUtils.isOverrideRole("GLOBAL_SEARCH", "SYSTEM_USER")) {
             verifyBookingAccess(bookingId);
         }
         return bookingId;
@@ -564,13 +566,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public boolean isOverrideRole(String... overrideRoles) {
-        final List<String> roles = Arrays.asList(overrideRoles.length > 0 ? overrideRoles : new String[] {"SYSTEM_USER"});
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication != null && authentication.getAuthorities().stream().anyMatch(a -> roles.contains(StringUtils.replaceFirst(a.getAuthority(), "ROLE_", "")));
-    }
-
-    @Override
     @VerifyBookingAccess
     public List<OffenceDetail> getMainOffenceDetails(Long bookingId) {
         return sentenceRepository.getMainOffenceDetails(bookingId);
@@ -724,7 +719,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private Set<String> caseLoadIdsForUser(String username) {
-        return isOverrideRole("GLOBAL_SEARCH", "SYSTEM_USER")
+        return securityUtils.isOverrideRole("GLOBAL_SEARCH", "SYSTEM_USER")
                 ? Collections.emptySet() : caseLoadService.getCaseLoadIdsForUser(username, true);
     }
 

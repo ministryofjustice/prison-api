@@ -3,6 +3,7 @@ package net.syscon.elite.service.impl;
 import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.BookingRepository;
+import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.ReferenceDomain;
 import org.junit.Before;
@@ -42,6 +43,9 @@ public class  BookingServiceImplTest {
     @Mock
     private TelemetryClient telemetryClient;
 
+    @Mock
+    private UserSecurityUtils securityUtils;
+
     private BookingService bookingService;
 
     private void programMocks(final String appointmentType, final long bookingId, final String agencyId,
@@ -79,7 +83,7 @@ public class  BookingServiceImplTest {
                 referenceDomainService,
                 null,
                 telemetryClient,
-                "1",
+                securityUtils,"1",
                 10);
     }
 
