@@ -8,6 +8,7 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.UserRepository;
+import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.StaffService;
@@ -18,6 +19,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,11 +46,14 @@ public class UserServiceImplTest {
     @Mock
     private CaseLoadService caseLoadService;
 
+    @Mock
+    private UserSecurityUtils securityUtils;
+
     private UserService userService;
 
     @Before
     public void init() {
-        userService = new UserServiceImpl(caseLoadService, staffService, userRepository, API_CASELOAD_ID);
+        userService = new UserServiceImpl(caseLoadService, staffService, userRepository, securityUtils, API_CASELOAD_ID);
     }
 
     @Test
@@ -105,7 +110,8 @@ public class UserServiceImplTest {
 
     @Test
     public void testaddAccessRoleForApiCaseloadWithUserAccessibleCaseloadEntry() {
-        when(userRepository.getRoleIdForCode(ROLE_CODE)).thenReturn(Optional.of(ROLE_ID));
+        AccessRole role = AccessRole.builder().roleId(ROLE_ID).roleFunction("GENERAL").build();
+        when(userRepository.getRoleByCode(ROLE_CODE)).thenReturn(Optional.of(role));
         when(userRepository.isRoleAssigned(USERNAME_GEN, API_CASELOAD_ID, ROLE_ID)) .thenReturn(false);
 
         when(userRepository.isUserAssessibleCaseloadAvailable(API_CASELOAD_ID, USERNAME_GEN)).thenReturn(false);
@@ -119,7 +125,8 @@ public class UserServiceImplTest {
 
     @Test
     public void testaddAccessRoleForApiCaseloadWithoutUserAccessibleCaseloadEntry() {
-        when(userRepository.getRoleIdForCode(ROLE_CODE)).thenReturn(Optional.of(ROLE_ID));
+        AccessRole role = AccessRole.builder().roleId(ROLE_ID).roleFunction("GENERAL").build();
+        when(userRepository.getRoleByCode(ROLE_CODE)).thenReturn(Optional.of(role));
         when(userRepository.isRoleAssigned(USERNAME_GEN, API_CASELOAD_ID, ROLE_ID)) .thenReturn(false);
 
         when(userRepository.isUserAssessibleCaseloadAvailable(API_CASELOAD_ID, USERNAME_GEN)).thenReturn(true);
@@ -132,7 +139,8 @@ public class UserServiceImplTest {
 
     @Test
     public void testaddAccessRoleForCaseloadWithUserAccessibleCaseloadEntry() {
-        when(userRepository.getRoleIdForCode(ROLE_CODE)).thenReturn(Optional.of(ROLE_ID));
+        AccessRole role = AccessRole.builder().roleId(ROLE_ID).roleFunction("GENERAL").build();
+        when(userRepository.getRoleByCode(ROLE_CODE)).thenReturn(Optional.of(role));
         when(userRepository.isRoleAssigned(USERNAME_GEN, LEEDS_CASELOAD_ID, ROLE_ID)) .thenReturn(false);
 
         when(userRepository.isUserAssessibleCaseloadAvailable(LEEDS_CASELOAD_ID, USERNAME_GEN)).thenReturn(true);
@@ -145,13 +153,23 @@ public class UserServiceImplTest {
 
     @Test(expected = EntityNotFoundException.class)
     public void testaddAccessRoleForCaseloadWithoutUserAccessibleCaseloadEntry() {
-        when(userRepository.getRoleIdForCode(ROLE_CODE)).thenReturn(Optional.of(ROLE_ID));
+        AccessRole role = AccessRole.builder().roleId(ROLE_ID).roleFunction("GENERAL").build();
+        when(userRepository.getRoleByCode(ROLE_CODE)).thenReturn(Optional.of(role));
         when(userRepository.isRoleAssigned(USERNAME_GEN, LEEDS_CASELOAD_ID, ROLE_ID)) .thenReturn(false);
 
         when(userRepository.isUserAssessibleCaseloadAvailable(LEEDS_CASELOAD_ID, USERNAME_GEN)).thenReturn(false);
 
 
         userService.addAccessRole(USERNAME_GEN, ROLE_CODE, LEEDS_CASELOAD_ID);
+    }
+
+    @Test(expected = AccessDeniedException.class)
+    public void testaddAdminAccessRoleWithoutCorrectPriviledges() {
+        AccessRole role = AccessRole.builder().roleId(ROLE_ID).roleFunction("ADMIN").build();
+        when(userRepository.getRoleByCode(ROLE_CODE)).thenReturn(Optional.of(role));
+
+        userService.addAccessRole(USERNAME_GEN, ROLE_CODE, LEEDS_CASELOAD_ID);
+        verify(securityUtils.isOverrideRole("MAINTAIN_ACCESS_ROLES_ADMIN"),times(1));
     }
 
     private Page<UserDetail> pageResponse(int userCount) {

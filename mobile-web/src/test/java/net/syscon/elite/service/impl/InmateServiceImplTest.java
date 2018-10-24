@@ -5,6 +5,7 @@ import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.security.AuthenticationFacade;
+import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.InmateAlertService;
@@ -45,6 +46,8 @@ public class InmateServiceImplTest {
     private KeyWorkerAllocationRepository keyWorkerAllocationRepository;
     @Mock
     private Environment env;
+    @Mock
+    private UserSecurityUtils securityUtils;
 
     private InmateService serviceToTest;
 
@@ -52,7 +55,7 @@ public class InmateServiceImplTest {
     public void init() {
         serviceToTest = new InmateServiceImpl(repository, caseLoadService, inmateAlertService,
                 bookingService, userRepository, authenticationFacade,
-                keyWorkerAllocationRepository, env, "WING", 100);
+                keyWorkerAllocationRepository, env, securityUtils,"WING", 100);
     }
 
     @Test

@@ -77,6 +77,12 @@ Feature: User Details and Roles
     Then user "JBRIEN" has been assigned access role "ACCESS_ROLE_GENERAL" for caseload "LEI"
 
   @nomis
+  Scenario: A client without Admin priviledges cannot make ADMIN access role assignments to users.
+    Given a trusted client that can maintain access roles has authenticated with the API
+    When the client assigns access role "ACCESS_ROLE_ADMIN" to user "JBRIEN" for caseload "LEI"
+    Then the request requiring admin privileges is rejected
+
+  @nomis
   Scenario: A trusted client is prevented from assigning an access role for a user without caseload access.
     Given a trusted client that can maintain access roles has authenticated with the API
     When the client assigns access role "ACCESS_ROLE_GENERAL" to user "JBRIEN" for caseload "MDI"

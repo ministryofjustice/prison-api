@@ -198,4 +198,13 @@ public class UserRepositoryTest {
         assertThat(repository.isRoleAssigned("ITAG_USER", "XXX", -2)).isFalse();
         assertThat(repository.isRoleAssigned("ITAG_USER", "LEI", -3)).isFalse();
     }
+
+    @Test
+    public void testGetRoleByCode() {
+        Optional<AccessRole> roleOptional = repository.getRoleByCode("MAINTAIN_ACCESS_ROLES");
+        assertThat(roleOptional).isPresent();
+        assertThat(roleOptional.get().getRoleName()).isEqualTo("Maintain access roles");
+    }
+
+
 }
