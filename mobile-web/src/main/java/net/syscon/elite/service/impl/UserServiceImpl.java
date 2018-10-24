@@ -118,7 +118,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-    @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
+    @PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
 	@Transactional
 	public void removeUsersAccessRoleForCaseload(String username, String caseload, String roleCode) {
 		final Long roleId = userRepository.getRoleIdForCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
@@ -136,7 +136,7 @@ public class UserServiceImpl implements UserService {
 	 * @return true if the role was added, false if the role assignment already exists (no change).
 	 */
 	@Override
-    @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
+    @PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
 	@Transactional
     public boolean addAccessRole(String username, String roleCode) {
 
@@ -151,7 +151,7 @@ public class UserServiceImpl implements UserService {
 	 * @return true if the role was added, false if the role assignment already exists (no change).
 	 */
 	@Override
-	@PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
+	@PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
 	@Transactional
 	public boolean addAccessRole(String username, String roleCode, String caseloadId) {
 
@@ -207,7 +207,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
+	@PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
 	public Page<UserDetail> getLocalAdministratorUsersByCaseload(String caseload, String nameFilter, String accessRole, PageRequest pageRequest) {
 
 		PageRequest pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
