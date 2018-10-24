@@ -53,7 +53,7 @@ public class UserServiceImplTest {
 
     @Test
     public void testGetUsersByCaseload() {
-        PageRequest pr = new PageRequest("lastName", Order.ASC, 0L, 10L);  //the default if non provided
+        PageRequest pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
         when(userRepository.findUsersByCaseload(LEEDS_CASELOAD_ID, ROLE_CODE, "A", null)).thenReturn(pageResponse(2));
 
         userService.getUsersByCaseload(LEEDS_CASELOAD_ID, "A", ROLE_CODE, null);
@@ -63,7 +63,7 @@ public class UserServiceImplTest {
 
     @Test
     public void testGetUsers() {
-        PageRequest pr = new PageRequest("lastName", Order.ASC, 0L, 10L);  //the default if non provided
+        PageRequest pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
         when(userRepository.findUsersByCaseload(LEEDS_CASELOAD_ID, ROLE_CODE, "A", null)).thenReturn(pageResponse(2));
 
         userService.getUsers("A", ROLE_CODE, null);

@@ -118,7 +118,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-    @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
+    @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
 	@Transactional
 	public void removeUsersAccessRoleForCaseload(String username, String caseload, String roleCode) {
 		final Long roleId = userRepository.getRoleIdForCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
@@ -136,7 +136,7 @@ public class UserServiceImpl implements UserService {
 	 * @return true if the role was added, false if the role assignment already exists (no change).
 	 */
 	@Override
-    @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
+    @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
 	@Transactional
     public boolean addAccessRole(String username, String roleCode) {
 
@@ -151,7 +151,7 @@ public class UserServiceImpl implements UserService {
 	 * @return true if the role was added, false if the role assignment already exists (no change).
 	 */
 	@Override
-	@PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
+	@PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
 	@Transactional
 	public boolean addAccessRole(String username, String roleCode, String caseloadId) {
 
@@ -177,7 +177,7 @@ public class UserServiceImpl implements UserService {
 
 
 	@Override
-	@PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
+	@PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
 	@Transactional
 	public int addDefaultCaseloadForPrison(String caseloadId) {
 		List<UserDetail> users = userRepository.findAllUsersWithCaseload(caseloadId);
@@ -207,7 +207,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
+	@PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
 	public Page<UserDetail> getLocalAdministratorUsersByCaseload(String caseload, String nameFilter, String accessRole, PageRequest pageRequest) {
 
 		PageRequest pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
@@ -219,10 +219,10 @@ public class UserServiceImpl implements UserService {
 	private PageRequest getPageRequestDefaultLastNameOrder(PageRequest pageRequest) {
 		PageRequest pageWithDefaults = pageRequest;
 		if (pageWithDefaults == null) {
-			pageWithDefaults = new PageRequest("lastName");
+			pageWithDefaults = new PageRequest("lastName,firstName");
 		} else {
 			if (pageWithDefaults.getOrderBy() == null) {
-				pageWithDefaults = new PageRequest("lastName", pageWithDefaults.getOrder(), pageWithDefaults.getOffset(), pageWithDefaults.getLimit());
+				pageWithDefaults = new PageRequest("lastName,firstName", pageWithDefaults.getOrder(), pageWithDefaults.getOffset(), pageWithDefaults.getLimit());
 			}
 		}
 		return pageWithDefaults;
