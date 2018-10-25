@@ -5,6 +5,7 @@ import net.syscon.elite.api.model.PrivilegeSummary;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.InmateRepository;
+import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.SearchOffenderService;
 import net.syscon.elite.service.UserService;
@@ -26,15 +27,17 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
     private final BookingService bookingService;
     private final UserService userService;
     private final InmateRepository repository;
+    private final UserSecurityUtils securityUtils;
     private final String locationTypeGranularity;
     private final Pattern offenderNoRegex;
 
-    public SearchOffenderServiceImpl(BookingService bookingService, UserService userService, InmateRepository repository,
+    public SearchOffenderServiceImpl(BookingService bookingService, UserService userService, InmateRepository repository, UserSecurityUtils securityUtils,
                                      @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity,
                                      @Value("${api.offender.no.regex.pattern:^[A-Za-z]\\d{4}[A-Za-z]{2}$}") String offenderNoRegex) {
         this.bookingService = bookingService;
         this.userService = userService;
         this.repository = repository;
+        this.securityUtils = securityUtils;
         this.locationTypeGranularity = locationTypeGranularity;
         this.offenderNoRegex = Pattern.compile(offenderNoRegex);
     }
@@ -68,7 +71,7 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
             pageRequest = request;
         }
 
-        final Set<String> caseloads = bookingService.isOverrideRole() ? Collections.emptySet() : userService.getCaseLoadIds(request.getUsername());
+        final Set<String> caseloads = securityUtils.isOverrideRole() ? Collections.emptySet() : userService.getCaseLoadIds(request.getUsername());
 
         final Page<OffenderBooking> bookings = repository.searchForOffenderBookings(
                 caseloads, offenderNo, searchTerm1, searchTerm2,

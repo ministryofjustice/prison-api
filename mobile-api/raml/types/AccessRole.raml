@@ -1,6 +1,11 @@
 #%RAML 1.0 DataType
 description: Access Role
 properties:
+  roleId?:
+    type: number
+    (javaType): Long
+    description: internal role id
+    example: 123
   roleCode:
     type: string
     description: unique code for the access role

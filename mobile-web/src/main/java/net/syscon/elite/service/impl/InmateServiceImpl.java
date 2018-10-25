@@ -9,6 +9,7 @@ import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.security.AuthenticationFacade;
+import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.AssessmentDto;
@@ -42,6 +43,7 @@ public class InmateServiceImpl implements InmateService {
     private final KeyWorkerAllocationRepository keyWorkerAllocationRepository;
     private final Environment env;
 
+    private final UserSecurityUtils securityUtils;
     private final String locationTypeGranularity;
 
     public InmateServiceImpl(InmateRepository repository,
@@ -52,11 +54,13 @@ public class InmateServiceImpl implements InmateService {
                              AuthenticationFacade authenticationFacade,
                              KeyWorkerAllocationRepository keyWorkerAllocationRepository,
                              Environment env,
+                             UserSecurityUtils securityUtils,
                              @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity,
                              @Value("${batch.max.size:1000}") int maxBatchSize) {
         this.repository = repository;
         this.caseLoadService = caseLoadService;
         this.inmateAlertService = inmateAlertService;
+        this.securityUtils = securityUtils;
         this.locationTypeGranularity = locationTypeGranularity;
         this.bookingService = bookingService;
         this.userRepository = userRepository;
@@ -81,7 +85,7 @@ public class InmateServiceImpl implements InmateService {
         query.append((query.length() == 0) ? inOffenderNos : StringUtils.isNotEmpty(inOffenderNos) ? ",and:" + inOffenderNos : "");
 
         Page<OffenderBooking> bookings = repository.findAllInmates(
-                bookingService.isOverrideRole() ? Collections.emptySet() : getUserCaseloadIds(criteria.getUsername()),
+                securityUtils.isOverrideRole() ? Collections.emptySet() : getUserCaseloadIds(criteria.getUsername()),
                 locationTypeGranularity,
                 query.toString(),
                 pageRequest);
@@ -289,7 +293,7 @@ public class InmateServiceImpl implements InmateService {
     public List<Assessment> getInmatesAssessmentsByCode(List<String> offenderNos, String assessmentCode) {
         List<Assessment> results = new ArrayList<>();
         if (!offenderNos.isEmpty()) {
-            final Set<String> caseLoadIds = bookingService.isOverrideRole() ? Collections.emptySet()
+            final Set<String> caseLoadIds = securityUtils.isOverrideRole() ? Collections.emptySet()
                     : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), true);
 
             List<List<String>> batch = Lists.partition(offenderNos, maxBatchSize);

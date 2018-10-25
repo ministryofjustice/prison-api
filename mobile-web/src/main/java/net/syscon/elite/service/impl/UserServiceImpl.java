@@ -5,6 +5,7 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.UserRepository;
+import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.StaffService;
@@ -30,16 +31,19 @@ import static java.lang.String.format;
 @Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
-	private final CaseLoadService caseLoadService;
+    private static final String ROLE_FUNCTION_ADMIN = "ADMIN";
+    private final CaseLoadService caseLoadService;
 	private final StaffService staffService;
 	private final UserRepository userRepository;
+	private final UserSecurityUtils securityUtils;
 	private final String apiCaseloadId;
 
 	public UserServiceImpl(CaseLoadService caseLoadService, StaffService staffService,
-                           UserRepository userRepository, @Value("${application.caseload.id:NWEB}") String apiCaseloadId) {
+						   UserRepository userRepository, UserSecurityUtils securityUtils, @Value("${application.caseload.id:NWEB}") String apiCaseloadId) {
 		this.caseLoadService = caseLoadService;
 		this.staffService = staffService;
 		this.userRepository = userRepository;
+		this.securityUtils = securityUtils;
 		this.apiCaseloadId = apiCaseloadId;
 	}
 
@@ -118,25 +122,35 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-    @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
+    @PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
 	@Transactional
 	public void removeUsersAccessRoleForCaseload(String username, String caseload, String roleCode) {
-		final Long roleId = userRepository.getRoleIdForCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
+		final AccessRole role = userRepository.getRoleByCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
 
-		if(! userRepository.isRoleAssigned(username, caseload, roleId)) {
+        verifyMaintainRolesAdminAccess(role);
+
+        if(! userRepository.isRoleAssigned(username, caseload, role.getRoleId())) {
 			throw  EntityNotFoundException.withMessage("Role [%s] not assigned to user [%s] at caseload [%s]", roleCode, username, caseload);
 		}
-		userRepository.removeRole(username, caseload, roleId); // Don't care if it doesn't exist...
+		userRepository.removeRole(username, caseload, role.getRoleId()); // Don't care if it doesn't exist...
 	}
 
-	/**
+    private void verifyMaintainRolesAdminAccess(AccessRole role) {
+        if(role.getRoleFunction().equals(ROLE_FUNCTION_ADMIN)){
+            if (!securityUtils.isOverrideRole("MAINTAIN_ACCESS_ROLES_ADMIN")){
+                throw new AccessDeniedException("Maintain roles Admin access required to perform this action");
+            }
+        }
+    }
+
+    /**
 	 * Add an 'access' role - using the API caseload
 	 * @param username The user to whom the role is being assigned
 	 * @param roleCode The role to assign
 	 * @return true if the role was added, false if the role assignment already exists (no change).
 	 */
 	@Override
-    @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
+    @PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
 	@Transactional
     public boolean addAccessRole(String username, String roleCode) {
 
@@ -151,13 +165,15 @@ public class UserServiceImpl implements UserService {
 	 * @return true if the role was added, false if the role assignment already exists (no change).
 	 */
 	@Override
-	@PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
+	@PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
 	@Transactional
 	public boolean addAccessRole(String username, String roleCode, String caseloadId) {
 
-		final Long roleId = userRepository.getRoleIdForCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
+		final AccessRole role = userRepository.getRoleByCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
 
-		if (userRepository.isRoleAssigned(username, caseloadId, roleId)) {
+		verifyMaintainRolesAdminAccess(role);
+
+		if (userRepository.isRoleAssigned(username, caseloadId, role.getRoleId())) {
 			return false;
 		}
 
@@ -170,14 +186,14 @@ public class UserServiceImpl implements UserService {
 			}
 		}
 
-		userRepository.addRole(username, caseloadId, roleId);
+		userRepository.addRole(username, caseloadId, role.getRoleId());
 		return true;
 	}
 
 
 
 	@Override
-	@PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
+	@PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
 	@Transactional
 	public int addDefaultCaseloadForPrison(String caseloadId) {
 		List<UserDetail> users = userRepository.findAllUsersWithCaseload(caseloadId);
@@ -207,7 +223,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
+	@PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
 	public Page<UserDetail> getLocalAdministratorUsersByCaseload(String caseload, String nameFilter, String accessRole, PageRequest pageRequest) {
 
 		PageRequest pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
@@ -219,10 +235,10 @@ public class UserServiceImpl implements UserService {
 	private PageRequest getPageRequestDefaultLastNameOrder(PageRequest pageRequest) {
 		PageRequest pageWithDefaults = pageRequest;
 		if (pageWithDefaults == null) {
-			pageWithDefaults = new PageRequest("lastName");
+			pageWithDefaults = new PageRequest("lastName,firstName");
 		} else {
 			if (pageWithDefaults.getOrderBy() == null) {
-				pageWithDefaults = new PageRequest("lastName", pageWithDefaults.getOrder(), pageWithDefaults.getOffset(), pageWithDefaults.getLimit());
+				pageWithDefaults = new PageRequest("lastName,firstName", pageWithDefaults.getOrder(), pageWithDefaults.getOffset(), pageWithDefaults.getLimit());
 			}
 		}
 		return pageWithDefaults;
