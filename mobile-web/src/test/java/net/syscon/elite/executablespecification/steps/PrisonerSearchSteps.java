@@ -20,8 +20,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class PrisonerSearchSteps extends CommonSteps {
     private static final String PRISONER_SEARCH = API_PREFIX + "prisoners?%s";
     private static final String PRISONER_SIMPLE_SEARCH = API_PREFIX + "prisoners/%s";
+    private static final ParameterizedTypeReference<List<PrisonerDetail>> PRISONER_DETAIL_PARAMETERIZED_TYPE_REFERENCE = new ParameterizedTypeReference<List<PrisonerDetail>>() {
+    };
 
     private List<PrisonerDetail> prisonerDetails;
+    private boolean includeAliases;
 
     @Step("Verify offender numbers of prisoners returned by search")
     public void verifyOffenderNumbers(String offenderNoList) {
@@ -53,6 +56,10 @@ public class PrisonerSearchSteps extends CommonSteps {
         verifyLocalDateValues(prisonerDetails, PrisonerDetail::getDateOfBirth, dobs);
     }
 
+    public void includeAliases() {
+        includeAliases = true;
+    }
+
     public void search(Map<String, String> queryParams, long offset, long limit, HttpStatus expectedStatus) {
         init();
         applyPagination(offset, limit);
@@ -73,11 +80,24 @@ public class PrisonerSearchSteps extends CommonSteps {
                 expectedStatus.is4xxClientError() || expectedStatus.is5xxServerError());
     }
 
+    private String adjustQueryUrl(String queryUrl) {
+        if (!includeAliases) {
+            return queryUrl;
+        }
+        if (queryUrl.contains("?")) {
+            return queryUrl + "&includeAliases=true" ;
+        } else {
+            return queryUrl + "?includeAliases=true";
+        }
+    }
+
     private void doSearch(HttpStatus expectedStatus, String queryUrl, boolean isErrorExpected) {
         try {
-            ResponseEntity<List<PrisonerDetail>> responseEntity = restTemplate.exchange(queryUrl,
-                    HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<PrisonerDetail>>() {
-                    });
+            ResponseEntity<List<PrisonerDetail>> responseEntity = restTemplate.exchange(
+                    adjustQueryUrl(queryUrl),
+                    HttpMethod.GET,
+                    createEntity(null, addPaginationHeaders()),
+                    PRISONER_DETAIL_PARAMETERIZED_TYPE_REFERENCE);
 
             assertThat(responseEntity.getStatusCode()).isEqualTo(expectedStatus);
             assertThat(isErrorExpected).isFalse();

@@ -254,6 +254,7 @@ FIND_OFFENDERS {
 
 FIND_OFFENDERS_WITH_ALIASES {
 SELECT
+       O.OFFENDER_ID                     OFFENDER_ID,
        O.OFFENDER_ID_DISPLAY             OFFENDER_NO,
        O.TITLE                           TITLE,
        O.SUFFIX                          SUFFIX,
