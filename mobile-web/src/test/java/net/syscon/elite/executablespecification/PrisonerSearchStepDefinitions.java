@@ -65,9 +65,24 @@ public class PrisonerSearchStepDefinitions extends AbstractStepDefinitions {
         prisonerSearch.verifyLastNames(lastNames);
     }
 
+    @And("^the prisoners working last names match \"([^\"]*)\"$")
+    public void offenderWorkingLastNamesMatch(String workingLastNames) throws Throwable {
+        prisonerSearch.verifyWorkingLastNames(workingLastNames);
+    }
+
+    @And("^the prisoners working first names match \"([^\"]*)\"$")
+    public void offenderWorkingFirstNamesMatch(String workingFirstNames) throws Throwable {
+        prisonerSearch.verifyWorkingFirstNames(workingFirstNames);
+    }
+
     @And("^the prisoners dob matches \"([^\"]*)\"$")
     public void dateOfBirthMatch(String dobs) throws Throwable {
         prisonerSearch.verifyDobs(dobs);
+    }
+
+    @And( "^the prisoners working dob matches \"([^\"]*)\"$")
+    public void workingDateOfBirthMatch(String dobs) throws Throwable {
+        prisonerSearch.verifyWorkingBirthDate(dobs);
     }
 
     @When("^a search is made for prisoners with DOB on or after (\\d+-\\d+-\\d+) for range ([0-9]*) -> ([0-9]*)$")

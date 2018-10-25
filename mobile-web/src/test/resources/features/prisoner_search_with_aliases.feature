@@ -21,9 +21,9 @@ Feature: Prisoner Search results contain aliases.
     | 1969-12-30 |            | 11            | 1969-12-30,1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07 |
     | 1965-01-01 | 1970-01-02 | 7             | 1966-01-01,1968-01-01,1968-01-01,1968-03-23,1969-12-30,1970-01-01,1970-01-01                                             |
     | 1970-01-01 |            | 11            | 1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07,1979-12-31 |
-    | 1990-01-01 | 2000-01-01 | 6             | 1990-12-30,1991-06-04,1995-08-21,1998-08-28,1998-11-01,1999-10-27                                                       |
+    | 1990-01-01 | 2000-01-01 | 6             | 1990-12-30,1991-06-04,1995-08-21,1998-08-28,1998-11-01,1999-10-27                                                        |
     | 1995-12-31 | 2000-01-01 | 3             | 1998-08-28,1998-11-01,1999-10-27                                                                                         |
-    |            | 2000-01-01 | 6             | 1990-12-30,1991-06-04,1995-08-21,1998-08-28,1998-11-01,1999-10-27                                                       |
+    |            | 2000-01-01 | 6             | 1990-12-30,1991-06-04,1995-08-21,1998-08-28,1998-11-01,1999-10-27                                                        |
 
   Scenario Outline: Search for prisoners by names, without partial name matching
     Given a system client "licencesadmin" has authenticated with the API
@@ -55,12 +55,15 @@ Feature: Prisoner Search results contain aliases.
     And the prisoners first names match "<foundFirstNames>"
     And the prisoners middle names match "<foundMiddleNames>"
     And the prisoners last names match "<foundLastNames>"
+    And the prisoners working last names match "<foundWorkingLastName>"
+    And the prisoners working first names match "<foundWorkingFirstName>"
+    And the prisoners working dob matches "<foundWorkingDob>"
 
     Examples:
-      | firstName | middleNames    | lastName | numberResults | offenderNos             | foundFirstNames        | foundMiddleNames | foundLastNames            |
-      |           |                | AND      | 3             | A1234AA,A1234AB,A1234AF | ARTHUR,GILLIAN,ANTHONY | BORIS,EVE        | ANDERSON,ANDERSON,ANDREWS |
-      | CHES      |                |          | 3             | A1234AI,A1234AI,A1234AI | CHESNEY,CHESNEY,CHESTER| JAMES            | THOMPSON,THOMSON,THOMSON  |
-      |           | JEFF           |          | 1             | A1234AE                 | DONALD                 | JEFFREY ROBERT   | DUCK                      |
+      | firstName | middleNames    | lastName | numberResults | offenderNos             | foundFirstNames        | foundMiddleNames | foundLastNames            | foundWorkingLastName     | foundWorkingFirstName  | foundWorkingDob                  |
+      |           |                | AND      | 3             | A1234AA,A1234AB,A1234AF | ARTHUR,GILLIAN,ANTHONY | BORIS,EVE        | ANDERSON,ANDERSON,ANDREWS |ANDERSON,ANDERSON,ANDREWS | ANTHONY,ARTHUR,GILLIAN | 1964-12-01,1969-12-30,1998-08-28 |
+      | CHES      |                |          | 3             | A1183CW,A1234AI,A1234AI | CHESNEY,CHESNEY,CHESTER| JAMES            | THOMPSON,THOMSON,THOMSON  |THOMPSON,THOMPSON,WOAKES  | CHESTER,CHESTER,CHRIS  | 1970-03-01,1970-03-01,1989-03-02 |
+      |           | JEFF           |          | 1             | A1234AE                 | DONALD                 | JEFFREY ROBERT   | DUCK                      | DUCK                     | DONALD                 | 1956-02-28                       |
 
   Scenario Outline: Search prisoners for a specified Date of Birth
     Given a system client "licencesadmin" has authenticated with the API

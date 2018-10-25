@@ -9,6 +9,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +50,21 @@ public class PrisonerSearchSteps extends CommonSteps {
     @Step("Verify last names of prisoner returned by search")
     public void verifyLastNames(String nameList) {
         verifyPropertyValues(prisonerDetails, PrisonerDetail::getLastName, nameList);
+    }
+
+    @Step("Verify working last names of prisoner returned by search")
+    public void verifyWorkingLastNames(String nameList) {
+        verifyPropertyValues(prisonerDetails, PrisonerDetail::getCurrentWorkingLastName, nameList);
+    }
+
+    @Step("Verify working first names of prisoner returned by search")
+    public void verifyWorkingFirstNames(String nameList) {
+        verifyPropertyValues(prisonerDetails, PrisonerDetail::getCurrentWorkingFirstName, nameList);
+    }
+
+    @Step("Verify working date of birth of prisoner returned by search")
+    public void verifyWorkingBirthDate(String dobs) {
+        verifyLocalDateValues(prisonerDetails, PrisonerDetail::getCurrentWorkingBirthDate, dobs);
     }
 
     @Step("Verify dobs of prisoner returned by search")
