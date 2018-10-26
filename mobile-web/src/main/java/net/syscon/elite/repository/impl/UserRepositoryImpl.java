@@ -10,6 +10,7 @@ import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.elite.service.impl.NameFilter;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +36,9 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
 	private static final String ADMIN_ROLE_FUNCTION = "ADMIN";
 
-	private static final String NAME_FILTER_QUERY_TEMPLATE = " AND (UPPER(FIRST_NAME) LIKE :nameFilter OR UPPER(LAST_NAME) LIKE :nameFilter OR UPPER(SUA.USERNAME) LIKE :nameFilter)";
+	private static final String NAME_FILTER_QUERY_TEMPLATE = " AND (UPPER(FIRST_NAME) LIKE :searchTerm OR UPPER(LAST_NAME) LIKE :searchTerm OR UPPER(SUA.USERNAME) LIKE :searchTerm)";
+
+	private static final String FULL_NAME_FILTER_QUERY_TEMPLATE = " AND (UPPER(FIRST_NAME) LIKE :firstName AND UPPER(LAST_NAME) LIKE :surname)";
 
 	private static final String EXCLUDE_BY_ROLE_FUNCTION_CLAUSE = " AND RL.ROLE_FUNCTION <> :roleFunction ";
 
@@ -256,7 +259,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
 
     @Override
-    public Page<UserDetail> findUsersByCaseload(String agencyId, String accessRole, String nameFilter, PageRequest pageRequest) {
+    public Page<UserDetail> findUsersByCaseload(String agencyId, String accessRole, NameFilter nameFilter, PageRequest pageRequest) {
 		Validate.notBlank(agencyId, "An agency id is required.");
 		Validate.notNull(pageRequest, "Page request details are required.");
 
@@ -264,21 +267,21 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
     }
 
 	@Override
-	public Page<UserDetail> findUsers(String accessRole, String nameFilter, PageRequest pageRequest) {
+	public Page<UserDetail> findUsers(String accessRole, NameFilter nameFilter, PageRequest pageRequest) {
 		Validate.notNull(pageRequest, "Page request details are required.");
 
 		return getUsersByCaseload(null, accessRole, nameFilter, pageRequest, "FIND_USERS");
 	}
 
 	@Override
-	public Page<UserDetail> findLocalAdministratorUsersByCaseload(String agencyId, String accessRole, String nameFilter, PageRequest pageRequest) {
+	public Page<UserDetail> findLocalAdministratorUsersByCaseload(String agencyId, String accessRole, NameFilter nameFilter, PageRequest pageRequest) {
 		Validate.notBlank(agencyId, "An agency id is required.");
 		Validate.notNull(pageRequest, "Page request details are required.");
 
 		return getUsersByCaseload(agencyId, accessRole, nameFilter, pageRequest, "FIND_LOCAL_ADMINISTRATOR_USERS_BY_CASELOAD");
     }
 
-    private Page<UserDetail> getUsersByCaseload(String agencyId, String accessRole, String nameFilter, PageRequest pageRequest, String find_local_administrator_users_by_caseload) {
+    private Page<UserDetail> getUsersByCaseload(String agencyId, String accessRole, NameFilter nameFilter, PageRequest pageRequest, String find_local_administrator_users_by_caseload) {
         String baseSql = applyAccessRoleQuery(applyNameFilterQuery(getQuery(find_local_administrator_users_by_caseload), nameFilter), accessRole);
 
 
@@ -294,7 +297,9 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
         List<UserDetail> users = jdbcTemplate.query(
                 sql,
                 createParamSource(pageRequest, "caseloadId", agencyId,
-                        "nameFilter", nameFilter != null ? StringUtils.trimToEmpty(nameFilter.toUpperCase()) + "%" : null,
+                        "searchTerm", StringUtils.isNotBlank(nameFilter.getSearchTerm()) ? StringUtils.trimToEmpty(nameFilter.getSearchTerm()).toUpperCase() + "%" : null,
+                        "surname", StringUtils.isNotBlank(nameFilter.getSurname()) ? StringUtils.trimToEmpty(nameFilter.getSurname()).toUpperCase() + "%" : null,
+                        "firstName", StringUtils.isNotBlank(nameFilter.getFirstName()) ? StringUtils.trimToEmpty(nameFilter.getFirstName()).toUpperCase() + "%" : null,
                         "apiCaseloadId", apiCaseloadId,
                         "applicationType", applicationType,
                         "roleCode", accessRole),
@@ -303,11 +308,15 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
         return new Page<>(users, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
 
-    private String applyNameFilterQuery(String baseSql, String nameFilter) {
+    private String applyNameFilterQuery(String baseSql, NameFilter nameFilter) {
         String nameFilterQuery = baseSql;
 
-        if (StringUtils.isNotBlank(nameFilter)) {
-            nameFilterQuery += NAME_FILTER_QUERY_TEMPLATE;
+        if (nameFilter.isProvided()) {
+            if(nameFilter.isFullNameSearch()) {
+                nameFilterQuery += FULL_NAME_FILTER_QUERY_TEMPLATE;
+            }else{
+                nameFilterQuery += NAME_FILTER_QUERY_TEMPLATE;
+            }
         }
         return nameFilterQuery;
     }

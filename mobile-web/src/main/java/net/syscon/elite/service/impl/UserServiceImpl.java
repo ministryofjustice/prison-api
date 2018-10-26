@@ -219,7 +219,7 @@ public class UserServiceImpl implements UserService {
 		PageRequest pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
 
 		return userRepository
-				.findUsersByCaseload(caseload, accessRole, nameFilter, pageWithDefaults);
+				.findUsersByCaseload(caseload, accessRole, new NameFilter(nameFilter), pageWithDefaults);
 	}
 
 	@Override
@@ -229,7 +229,7 @@ public class UserServiceImpl implements UserService {
 		PageRequest pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
 
 		return userRepository
-				.findLocalAdministratorUsersByCaseload(caseload, accessRole, nameFilter, pageWithDefaults);
+				.findLocalAdministratorUsersByCaseload(caseload, accessRole, new NameFilter(nameFilter), pageWithDefaults);
 	}
 
 	private PageRequest getPageRequestDefaultLastNameOrder(PageRequest pageRequest) {
@@ -264,6 +264,6 @@ public class UserServiceImpl implements UserService {
 		PageRequest pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
 
 		return userRepository
-				.findUsers(accessRole, nameFilter, pageWithDefaults);
+				.findUsers(accessRole, new NameFilter(nameFilter), pageWithDefaults);
 	}
 }
