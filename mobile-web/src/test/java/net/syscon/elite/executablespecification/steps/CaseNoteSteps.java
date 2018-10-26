@@ -31,6 +31,7 @@ public class CaseNoteSteps extends CommonSteps {
     private static final String STAFF_IDS_QUERY_PARAM_PREFIX = "&staffId=";
     private static final String CASENOTE_TYPE_QUERY_PARAM_PREFIX = "&type=";
     private static final String CASENOTE_SUBTYPE_QUERY_PARAM_PREFIX = "&subType=";
+    private static final String CASENOTE_STAFF_ID_QUERY_PARAM_PREFIX = "&staffId=";
 
     private CaseNote caseNote;
     private NewCaseNote pendingCaseNote;
@@ -120,8 +121,8 @@ public class CaseNoteSteps extends CommonSteps {
     }
 
     @Step("Get case note usage")
-    public void getCaseNoteUsage(String offenderNos, String type, String subType, String fromDate, String toDate) {
-        dispatchGetCaseNoteUsageRequest(offenderNos, type, subType, fromDate, toDate);
+    public void getCaseNoteUsage(String offenderNos, String staffId, String type, String subType, String fromDate, String toDate) {
+        dispatchGetCaseNoteUsageRequest(offenderNos, staffId, type, subType, fromDate, toDate);
     }
 
     @Step("Get case note staff usage")
@@ -304,7 +305,7 @@ public class CaseNoteSteps extends CommonSteps {
         }
     }
 
-    private void dispatchGetCaseNoteUsageRequest(String offenderNos, String type, String subType, String fromDate, String toDate) {
+    private void dispatchGetCaseNoteUsageRequest(String offenderNos, String staffId, String type, String subType, String fromDate, String toDate) {
         init();
 
         final StringBuilder queryBuilder = new StringBuilder();
@@ -312,6 +313,10 @@ public class CaseNoteSteps extends CommonSteps {
         if (StringUtils.isNotBlank(offenderNos)) {
             List<String> nos = Arrays.asList(offenderNos.split(","));
             nos.forEach(offenderNo -> queryBuilder.append(OFFENDER_NOS_QUERY_PARAM_PREFIX).append(offenderNo));
+        }
+
+        if (StringUtils.isNotBlank(staffId)) {
+            queryBuilder.append(CASENOTE_STAFF_ID_QUERY_PARAM_PREFIX).append(staffId);
         }
 
         setQueryParams(type, subType, fromDate, toDate, queryBuilder);

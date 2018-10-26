@@ -8,6 +8,10 @@
         type: array
         description: a list of offender numbers to search.
         example: offenderNo=A1234AA&offenderNo=A1234AB
+     staffId?:
+        type: integer
+        description: Staff Id to filter by
+        example: staffId=131231
      numMonths?:
         type: integer
         description: Number of month to look forward (if fromDate only defined), or back (if toDate only defined). Default is 1 month
@@ -24,7 +28,7 @@
         type: string
         description: Case note type.
      subType?:
-        type: string
+        type: stringCaseNoteUsageRequest
         description: Case note sub-type.
   post:
     description: Retrieves list of case notes grouped by type and offender

@@ -287,9 +287,13 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
 
     @When("^case note usage between \"([^\"]*)\" and \"([^\"]*)\" is requested of offender No \"([^\"]*)\" for case note type \"([^\"]*)\"  and sub-type \"([^\"]*)\"$")
     public void caseNoteUsageBetweenAndIsRequestedOfOffenderNoForCaseNoteTypeAndSubType(String fromDate, String toDate, String offenderNos, String type, String subType) throws Throwable {
-        caseNote.getCaseNoteUsage(offenderNos, type, subType, fromDate, toDate);
+        caseNote.getCaseNoteUsage(offenderNos, null, type, subType, fromDate, toDate);
     }
 
+    @When("^case note usage between \"([^\"]*)\" and \"([^\"]*)\" is requested of offender No \"([^\"]*)\" with staff Id \"([^\"]*)\" for case note type \"([^\"]*)\"  and sub-type \"([^\"]*)\"$")
+    public void caseNoteUsageBetweenAndIsRequestedOfOffenderNoForCaseNoteTypeAndSubType(String fromDate, String toDate, String offenderNos, String staffId, String type, String subType) throws Throwable {
+        caseNote.getCaseNoteUsage(offenderNos, staffId, type, subType, fromDate, toDate);
+    }
 
     @When("^case note usage between \"([^\"]*)\" and \"([^\"]*)\" is requested of staff ID \"([^\"]*)\" for case note type \"([^\"]*)\"  and sub-type \"([^\"]*)\"$")
     public void caseNoteUsageBetweenAndIsRequestedOfStaffIDForCaseNoteTypeAndSubType(String fromDate, String toDate, String staffIds, String type, String subType) throws Throwable {
