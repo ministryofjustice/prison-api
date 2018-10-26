@@ -20,10 +20,12 @@ public class NameFilter {
     }
 
     private void extractNames(String searchTerm) {
-        String[] nameSplit = StringUtils.split(searchTerm, " ");
-        if (nameSplit.length > 1) {
-            surname = nameSplit[0];
-            firstName = nameSplit[1];
+        if(searchTerm!=null){
+            String[] nameSplit = StringUtils.split(searchTerm, " ");
+            if (nameSplit.length > 1) {
+                surname = nameSplit[0];
+                firstName = nameSplit[1];
+            }
         }
     }
 
