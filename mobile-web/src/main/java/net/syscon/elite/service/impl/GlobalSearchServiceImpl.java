@@ -56,7 +56,7 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
         String query = InmateRepository.generateFindOffendersQuery(criteria);
 
         if (StringUtils.isNotBlank(query)) {
-            return inmateRepository.findOffenders(query, pageRequest);
+            return criteria.isIncludeAliases() ? inmateRepository.findOffendersWithAliases(query, pageRequest) : inmateRepository.findOffenders(query, pageRequest);
         }
 
         return new Page<>(Collections.emptyList(), 0, pageRequest.getOffset(), pageRequest.getLimit());

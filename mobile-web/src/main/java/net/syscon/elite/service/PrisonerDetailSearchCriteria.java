@@ -12,6 +12,7 @@ import java.time.LocalDate;
 @Wither
 @EqualsAndHashCode
 public class PrisonerDetailSearchCriteria {
+    private boolean includeAliases;
     private String offenderNo;
     private String firstName;
     private String middleNames;

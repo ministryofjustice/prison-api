@@ -59,6 +59,7 @@ public interface InmateRepository {
 	 * @return list of prisoner details matching specified query criteria.
 	 */
 	Page<PrisonerDetail> findOffenders(String query, PageRequest pageRequest);
+    Page<PrisonerDetail> findOffendersWithAliases(String query, PageRequest pageRequest);
 
 	Optional<PhysicalAttributes> findPhysicalAttributes(long bookingId);
 
