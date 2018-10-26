@@ -59,31 +59,45 @@ public class UserServiceImplTest {
     @Test
     public void testGetUsersByCaseload() {
         PageRequest pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
-        when(userRepository.findUsersByCaseload(LEEDS_CASELOAD_ID, ROLE_CODE, "A", null)).thenReturn(pageResponse(2));
+        final NameFilter nameFilterDto = new NameFilter("A");
+        when(userRepository.findUsersByCaseload(LEEDS_CASELOAD_ID, ROLE_CODE, nameFilterDto, null)).thenReturn(pageResponse(2));
 
         userService.getUsersByCaseload(LEEDS_CASELOAD_ID, "A", ROLE_CODE, null);
 
-        verify(userRepository, times(1)).findUsersByCaseload(eq(LEEDS_CASELOAD_ID), eq(ROLE_CODE), eq("A"), refEq(pr));
+        verify(userRepository, times(1)).findUsersByCaseload(eq(LEEDS_CASELOAD_ID), eq(ROLE_CODE), refEq(nameFilterDto), refEq(pr));
     }
 
     @Test
     public void testGetUsers() {
         PageRequest pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
-        when(userRepository.findUsersByCaseload(LEEDS_CASELOAD_ID, ROLE_CODE, "A", null)).thenReturn(pageResponse(2));
+        final NameFilter nameFilterDto = new NameFilter("A");
+        when(userRepository.findUsersByCaseload(LEEDS_CASELOAD_ID, ROLE_CODE, nameFilterDto, null)).thenReturn(pageResponse(2));
 
         userService.getUsers("A", ROLE_CODE, null);
 
-        verify(userRepository, times(1)).findUsers(eq(ROLE_CODE), eq("A"), refEq(pr));
+        verify(userRepository, times(1)).findUsers(eq(ROLE_CODE), refEq(nameFilterDto), refEq(pr));
+    }
+
+    @Test
+    public void testGetUsersWithFullNameSearch() {
+        PageRequest pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
+        final NameFilter nameFilterDto = new NameFilter("Brown James");
+        when(userRepository.findUsersByCaseload(LEEDS_CASELOAD_ID, ROLE_CODE, nameFilterDto, null)).thenReturn(pageResponse(2));
+
+        userService.getUsers("Brown James", ROLE_CODE, null);
+
+        verify(userRepository, times(1)).findUsers(eq(ROLE_CODE), refEq(nameFilterDto), refEq(pr));
     }
 
     @Test
     public void testGetUsersByCaseloadWithSortFieldDifferentToDefault() {
         PageRequest pr = new PageRequest("firstName", Order.ASC, 10L, 20L);
-        when(userRepository.findUsersByCaseload(LEEDS_CASELOAD_ID, ROLE_CODE, "A", pr)).thenReturn(pageResponse(2));
+        final NameFilter nameFilterDto = new NameFilter("A");
+        when(userRepository.findUsersByCaseload(LEEDS_CASELOAD_ID, ROLE_CODE, nameFilterDto, pr)).thenReturn(pageResponse(2));
 
         userService.getUsersByCaseload(LEEDS_CASELOAD_ID, "A", ROLE_CODE, pr);
 
-        verify(userRepository, times(1)).findUsersByCaseload(eq(LEEDS_CASELOAD_ID), eq(ROLE_CODE), eq("A"), eq(pr));
+        verify(userRepository, times(1)).findUsersByCaseload(eq(LEEDS_CASELOAD_ID), eq(ROLE_CODE), refEq(nameFilterDto), refEq(pr));
     }
 
     @Test

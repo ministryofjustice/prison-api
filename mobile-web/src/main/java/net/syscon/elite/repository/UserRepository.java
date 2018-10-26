@@ -6,6 +6,7 @@ import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
+import net.syscon.elite.service.impl.NameFilter;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,9 +40,9 @@ public interface UserRepository {
 
 	List<UserDetail> findAllUsersWithCaseload(String caseloadId);
 
-    Page<UserDetail> findUsersByCaseload(String agencyId, String accessRole, String nameFilter, PageRequest pageRequest);
+    Page<UserDetail> findUsersByCaseload(String agencyId, String accessRole, NameFilter nameFilter, PageRequest pageRequest);
 
-    Page<UserDetail> findLocalAdministratorUsersByCaseload(String agencyId, String accessRole, String nameFilter, PageRequest pageRequest);
+    Page<UserDetail> findLocalAdministratorUsersByCaseload(String agencyId, String accessRole, NameFilter nameFilter, PageRequest pageRequest);
 
-    Page<UserDetail> findUsers(String accessRole, String nameFilter, PageRequest pageWithDefaults);
+    Page<UserDetail> findUsers(String accessRole, NameFilter nameFilter, PageRequest pageWithDefaults);
 }
