@@ -71,7 +71,6 @@ Feature: Case Note Count
       | A1234AC    | OBSERVE | OBS_GEN | 2016-01-01 | 2017-07-31 | 6     | 2017-07-31T12:00 |
       | A1234AC    | OBSERVE | OBS_GEN | 2017-08-01 | 2017-08-31 | 2     | 2017-08-13T12:00 |
 
-  @wip
   Scenario Outline: Get case note usage for a list of offenders, different staff number and date ranges
     When case note usage between "<fromDate>" and "<toDate>" is requested of offender No "<offenderNo>" with staff Id "-2" for case note type "<type>"  and sub-type "<subType>"
     Then case note usage response "numCaseNotes" is "<count>"
