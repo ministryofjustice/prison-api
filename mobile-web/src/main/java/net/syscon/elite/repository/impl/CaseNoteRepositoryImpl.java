@@ -24,10 +24,8 @@ import org.springframework.validation.annotation.Validated;
 
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -111,10 +109,11 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
-	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, List<String> offenderNos, LocalDate fromDate, LocalDate toDate) {
+	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, List<String> offenderNos, Integer staffId, LocalDate fromDate, LocalDate toDate) {
 
 		return jdbcTemplate.query(getQuery("GROUP_BY_TYPES_AND_OFFENDERS"),
 				createParams("offenderNos", offenderNos,
+						"staffId", staffId,
 						"type", type,
 						"subType", subType,
 						"fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),

@@ -33,8 +33,8 @@ public class CaseNoteResourceImpl implements CaseNoteResource {
     }
 
     @Override
-    public GetCaseNoteUsageSummaryResponse getCaseNoteUsageSummary(List<String> offenderNo, Integer numMonths, LocalDate fromDate, LocalDate toDate, String type, String subType) {
-        List<CaseNoteUsage> caseNoteUsage = caseNoteService.getCaseNoteUsage(type, subType, offenderNo, fromDate, toDate, ObjectUtils.defaultIfNull(numMonths, ObjectUtils.defaultIfNull(numMonths, 1)));
+    public GetCaseNoteUsageSummaryResponse getCaseNoteUsageSummary(List<String> offenderNo, Integer staffId, Integer numMonths, LocalDate fromDate, LocalDate toDate, String type, String subType) {
+        List<CaseNoteUsage> caseNoteUsage = caseNoteService.getCaseNoteUsage(type, subType, offenderNo, staffId, fromDate, toDate, ObjectUtils.defaultIfNull(numMonths, ObjectUtils.defaultIfNull(numMonths, 1)));
 
         return GetCaseNoteUsageSummaryResponse.respond200WithApplicationJson(caseNoteUsage);
     }
@@ -48,7 +48,7 @@ public class CaseNoteResourceImpl implements CaseNoteResource {
 
     @Override
     public GetCaseNoteUsageSummaryByPostResponse getCaseNoteUsageSummaryByPost(CaseNoteUsageRequest request) {
-        List<CaseNoteUsage> caseNoteUsage = caseNoteService.getCaseNoteUsage(request.getType(), request.getSubType(), request.getOffenderNos(), request.getFromDate(), request.getToDate(), ObjectUtils.defaultIfNull(request.getNumMonths(), 1));
+        List<CaseNoteUsage> caseNoteUsage = caseNoteService.getCaseNoteUsage(request.getType(), request.getSubType(), request.getOffenderNos(), request.getStaffId(), request.getFromDate(), request.getToDate(), ObjectUtils.defaultIfNull(request.getNumMonths(), 1));
 
         return GetCaseNoteUsageSummaryByPostResponse.respond200WithApplicationJson(caseNoteUsage);
     }

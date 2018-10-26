@@ -4,6 +4,9 @@ properties:
   offenderNos:
     type: string[]
     description: a list of offender numbers to search.
+  staffId?:
+    type: integer
+    description: staff Id to use in search (optional).
   numMonths?:
     type: integer
     description: Number of month to look forward (if fromDate only defined), or back (if toDate only defined). Default is 1 month

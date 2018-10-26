@@ -177,9 +177,9 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	}
 
 	@Override
-	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, @NotEmpty List<String> offenderNo, LocalDate fromDate, LocalDate toDate, int numMonths) {
+	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, @NotEmpty List<String> offenderNo, Integer staffId, LocalDate fromDate, LocalDate toDate, int numMonths) {
 		DeriveDates deriveDates = new DeriveDates(fromDate, toDate, numMonths);
-		return caseNoteRepository.getCaseNoteUsage(type, subType, offenderNo, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse());
+		return caseNoteRepository.getCaseNoteUsage(type, subType, offenderNo, staffId, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse());
 	}
 
 	@Override

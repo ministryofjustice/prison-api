@@ -1,10 +1,22 @@
 version: '3.1'
 services:
-  elite2-web:
-    image: sysconjusticesystems/elite2-web:latest
+  nomis-oauth2-server:
+    image: mojdigitalstudio/nomis-oauth2-server:latest
+    networks:
+    - azure
+    container_name: nomis-oauth2-server
+    ports:
+    - "9090:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+    environment:
+    - SERVER_PORT=8080
+
+  new-nomis-ui:
+    image: mojdigitalstudio/new-nomis-ui:latest
     networks:
       - azure
-    container_name: elite2-web
+    container_name: new-nomis-ui
     depends_on:
       - elite2-api
     ports:
@@ -19,7 +31,7 @@ services:
       - NOMS_TOKEN=secret_token
 
   elite2-api:
-    image: sysconjusticesystems/elite2-api:latest
+    image: mojdigitalstudio/elite2-api:latest
     networks:
       - azure
     container_name: elite2-api
