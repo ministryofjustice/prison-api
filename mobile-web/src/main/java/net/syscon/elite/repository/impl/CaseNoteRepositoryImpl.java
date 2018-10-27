@@ -113,7 +113,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 
 		return jdbcTemplate.query(getQuery("GROUP_BY_TYPES_AND_OFFENDERS"),
 				createParams("offenderNos", offenderNos,
-						"staffId", staffId,
+						"staffId", new SqlParameterValue(Types.INTEGER, staffId),
 						"type", type,
 						"subType", subType,
 						"fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
