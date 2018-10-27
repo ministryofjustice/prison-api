@@ -111,9 +111,9 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	@Override
 	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, List<String> offenderNos, Integer staffId, LocalDate fromDate, LocalDate toDate) {
 
-		return jdbcTemplate.query(getQuery(staffId != null ? "GROUP_BY_TYPES_AND_OFFENDERS_WITH_STAFF_ID" : "GROUP_BY_TYPES_AND_OFFENDERS"),
+		return jdbcTemplate.query(getQuery("GROUP_BY_TYPES_AND_OFFENDERS"),
 				createParams("offenderNos", offenderNos,
-						"staffId", staffId,
+						"staffId", new SqlParameterValue(Types.INTEGER, staffId),
 						"type", type,
 						"subType", subType,
 						"fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
