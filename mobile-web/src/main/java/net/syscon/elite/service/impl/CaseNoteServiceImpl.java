@@ -1,6 +1,7 @@
 package net.syscon.elite.service.impl;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
@@ -26,6 +27,7 @@ import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -46,13 +48,16 @@ public class CaseNoteServiceImpl implements CaseNoteService {
     private final CaseNoteTransformer transformer;
     private final UserService userService;
 	private final TelemetryClient telemetryClient;
+    private final int maxBatchSize;
 
     public CaseNoteServiceImpl(CaseNoteRepository caseNoteRepository, CaseNoteTransformer transformer,
-							   UserService userService, TelemetryClient telemetryClient) {
+							   UserService userService, TelemetryClient telemetryClient,
+                               @Value("${batch.max.size:1000}") int maxBatchSize) {
         this.caseNoteRepository = caseNoteRepository;
         this.transformer = transformer;
         this.userService = userService;
         this.telemetryClient = telemetryClient;
+        this.maxBatchSize = maxBatchSize;
     }
 
 	@Override
@@ -177,15 +182,29 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	}
 
 	@Override
-	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, @NotEmpty List<String> offenderNo, Integer staffId, LocalDate fromDate, LocalDate toDate, int numMonths) {
+	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, @NotEmpty List<String> offenderNos, Integer staffId, LocalDate fromDate, LocalDate toDate, int numMonths) {
 		DeriveDates deriveDates = new DeriveDates(fromDate, toDate, numMonths);
-		return caseNoteRepository.getCaseNoteUsage(type, subType, offenderNo, staffId, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse());
+		final List<CaseNoteUsage> caseNoteUsage = new ArrayList<>();
+
+		Lists.partition(offenderNos, maxBatchSize).forEach(offenderNosList ->
+				caseNoteUsage.addAll(
+						caseNoteRepository.getCaseNoteUsage(type, subType, offenderNosList, staffId, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse())
+				)
+		);
+		return caseNoteUsage;
 	}
 
 	@Override
 	public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(String type, String subType, @NotEmpty List<Integer> staffIds, LocalDate fromDate, LocalDate toDate, int numMonths) {
 		DeriveDates deriveDates = new DeriveDates(fromDate, toDate, numMonths);
-		return caseNoteRepository.getCaseNoteStaffUsage(type, subType, staffIds, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse());
+
+        final List<CaseNoteStaffUsage> caseNoteStaffUsage = new ArrayList<>();
+        Lists.partition(staffIds, maxBatchSize).forEach(staffIdList ->
+                caseNoteStaffUsage.addAll(
+                        caseNoteRepository.getCaseNoteStaffUsage(type, subType, staffIdList, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse())
+                )
+        );
+        return caseNoteStaffUsage;
 	}
 
 	private static class DeriveDates {
