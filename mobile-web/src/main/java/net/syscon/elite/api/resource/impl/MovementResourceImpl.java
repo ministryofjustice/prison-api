@@ -7,6 +7,7 @@ import net.syscon.elite.service.MovementsService;
 import javax.ws.rs.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestResource
 @Path("/movements")
@@ -19,9 +20,8 @@ public class MovementResourceImpl implements MovementResource {
     }
 
     @Override
-    public GetRecentMovementsResponse getRecentMovements(LocalDateTime fromDateTime, LocalDate movementDate, String agencyId) {
-        return GetRecentMovementsResponse
-                .respond200WithApplicationJson(movementsService.getRecentMovements(fromDateTime, movementDate));
+    public GetRecentMovementsByDateResponse getRecentMovementsByDate(LocalDateTime fromDateTime, LocalDate movementDate, String agencyId) {
+        return GetRecentMovementsByDateResponse.respond200WithApplicationJson(movementsService.getRecentMovementsByDate(fromDateTime, movementDate));
     }
 
     @Override
@@ -33,4 +33,11 @@ public class MovementResourceImpl implements MovementResource {
     public GetRollcountMovementsResponse getRollcountMovements(String agencyId, LocalDate movementDate) {
         return GetRollcountMovementsResponse.respond200WithApplicationJson(movementsService.getMovementCount(agencyId, movementDate));
     }
+
+    @Override
+    public GetRecentMovementsByOffendersResponse getRecentMovementsByOffenders(List<String> offenderNumbers, List<String> movementTypes) {
+        return GetRecentMovementsByOffendersResponse.respond200WithApplicationJson(movementsService.getRecentMovementsByOffenders(offenderNumbers, movementTypes));
+
+    }
+
 }

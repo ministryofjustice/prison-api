@@ -21,6 +21,6 @@ public class CustodyStatusResourceImpl implements CustodyStatusResource {
     @Override
     public GetRecentMovementsResponse getRecentMovements(LocalDateTime fromDateTime, LocalDate movementDate) {
         return GetRecentMovementsResponse
-                .respond200WithApplicationJson(movementsService.getRecentMovements(fromDateTime, movementDate));
+                .respond200WithApplicationJson(movementsService.getRecentMovementsByDate(fromDateTime, movementDate));
     }
 }

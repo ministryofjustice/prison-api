@@ -1,7 +1,7 @@
 package net.syscon.elite.repository.impl;
 
 import net.syscon.elite.api.model.MovementCount;
-import net.syscon.elite.api.model.PrisonerCustodyStatus;
+import net.syscon.elite.api.model.Movement;
 import net.syscon.elite.api.model.RollCount;
 import net.syscon.elite.repository.MovementsRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
@@ -19,14 +19,28 @@ import java.util.List;
 @Repository
 public class MovementsRepositoryImpl extends RepositoryBase implements MovementsRepository {
 
-    private final StandardBeanPropertyRowMapper<PrisonerCustodyStatus> CUSTODY_STATUS_MAPPER = new StandardBeanPropertyRowMapper<>(PrisonerCustodyStatus.class);
+    private final StandardBeanPropertyRowMapper<Movement> CUSTODY_STATUS_MAPPER = new StandardBeanPropertyRowMapper<>(Movement.class);
     private final StandardBeanPropertyRowMapper<RollCount> ROLLCOUNT_MAPPER = new StandardBeanPropertyRowMapper<>(RollCount.class);
 
     @Override
-    public List<PrisonerCustodyStatus> getRecentMovements(LocalDateTime fromDateTime, LocalDate movementDate) {
+    public List<Movement> getRecentMovementsByDate(LocalDateTime fromDateTime, LocalDate movementDate) {
         String sql = getQuery("GET_RECENT_MOVEMENTS");
         return jdbcTemplate.query(sql, createParams("fromDateTime", DateTimeConverter.fromLocalDateTime(fromDateTime),
                 "movementDate", DateTimeConverter.toDate(movementDate)), CUSTODY_STATUS_MAPPER);
+    }
+
+    @Override
+    public List<Movement> getRecentMovementsByOffenders(List<String> offenderNumbers, List<String> movementTypes) {
+        if (movementTypes.size() != 0) {
+            return jdbcTemplate.query(getQuery("GET_RECENT_MOVEMENTS_BY_OFFENDERS_AND_MOVEMENT_TYPES"), createParams(
+                    "offenderNumbers", offenderNumbers,
+                    "movementTypes", movementTypes),
+                    CUSTODY_STATUS_MAPPER);
+        }
+
+        return jdbcTemplate.query(getQuery("GET_RECENT_MOVEMENTS_BY_OFFENDERS"), createParams(
+                "offenderNumbers", offenderNumbers),
+                CUSTODY_STATUS_MAPPER);
     }
 
     @Override

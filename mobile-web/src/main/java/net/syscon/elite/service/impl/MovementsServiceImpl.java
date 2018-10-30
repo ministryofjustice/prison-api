@@ -1,7 +1,7 @@
 package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.MovementCount;
-import net.syscon.elite.api.model.PrisonerCustodyStatus;
+import net.syscon.elite.api.model.Movement;
 import net.syscon.elite.api.model.RollCount;
 import net.syscon.elite.repository.MovementsRepository;
 import net.syscon.elite.security.VerifyAgencyAccess;
@@ -27,8 +27,14 @@ public class MovementsServiceImpl implements MovementsService {
 
     @Override
     @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
-    public List<PrisonerCustodyStatus> getRecentMovements(LocalDateTime fromDateTime, LocalDate movementDate) {
-        return movementsRepository.getRecentMovements(fromDateTime, movementDate);
+    public List<Movement> getRecentMovementsByDate(LocalDateTime fromDateTime, LocalDate movementDate) {
+        return movementsRepository.getRecentMovementsByDate(fromDateTime, movementDate);
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
+    public List<Movement> getRecentMovementsByOffenders(List<String> offenderNumbers, List<String> movementTypes) {
+       return movementsRepository.getRecentMovementsByOffenders(offenderNumbers, movementTypes);
     }
 
     @Override

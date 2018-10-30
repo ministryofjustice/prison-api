@@ -5,12 +5,9 @@ import cucumber.api.java.en.When;
 import net.syscon.elite.executablespecification.steps.MovementsSteps;
 import org.springframework.beans.factory.annotation.Autowired;
 
-/**
- * BDD step definitions for custody status endpoints:
- * <ul>
- * <li>/custody-statuses/{offenderNo}</li>
- * </ul>
- */
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class MovementsStepDefinitions extends AbstractStepDefinitions {
 
     @Autowired
@@ -56,5 +53,15 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
     @Then("^valid movement counts are returned$")
     public void validMovementCountsAreReturned() {
         movementsSteps.verifyMovementCounts();
+    }
+
+    @When("^a make a request for recent movements for \"([^\"]*)\" and \"([^\"]*)\"$")
+    public void aMakeARequestForRecentMovementsForAnd(String offenderNo1, String offenderNo2) throws Throwable {
+        movementsSteps.retrieveMovementsByOffenders(Arrays.asList(offenderNo1, offenderNo2));
+    }
+
+    @Then("^the records should contain a entry for \"([^\"]*)\" and \"([^\"]*)\"$")
+    public void theRecordsShouldContainAEntryForAnd(String movementType, String destination) throws Throwable {
+        movementsSteps.verifyMovements(movementType, destination);
     }
 }

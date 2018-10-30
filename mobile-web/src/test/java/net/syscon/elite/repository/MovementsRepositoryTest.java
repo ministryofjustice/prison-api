@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 import net.syscon.elite.api.model.MovementCount;
-import net.syscon.elite.api.model.PrisonerCustodyStatus;
+import net.syscon.elite.api.model.Movement;
 import net.syscon.elite.api.model.RollCount;
 import net.syscon.elite.web.config.PersistenceConfigs;
 
@@ -26,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @ActiveProfiles("nomis-hsqldb")
@@ -47,7 +49,7 @@ public class MovementsRepositoryTest {
     @Test
     public final void canRetrieveAListOfCustodyStatusDetails1() {
         final LocalDateTime threshold = LocalDateTime.of(2017, Month.JANUARY, 1, 0, 0, 0);
-        final List<PrisonerCustodyStatus> recentMovements = repository.getRecentMovements(threshold, LocalDate.of(2017, Month.JULY, 16));
+        final List<Movement> recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.JULY, 16));
         assertThat(recentMovements.size()).isEqualTo(1);
         assertThat(recentMovements).asList()
                 .extracting("offenderNo", "createDateTime", "fromAgency", "toAgency", "movementType", "directionCode")
@@ -57,7 +59,7 @@ public class MovementsRepositoryTest {
     @Test
     public final void canRetrieveAListOfCustodyStatusDetails2() {
         final LocalDateTime threshold = LocalDateTime.of(2017, Month.JANUARY, 1, 0, 0, 0);
-        final List<PrisonerCustodyStatus> recentMovements = repository.getRecentMovements(threshold, LocalDate.of(2017, Month.AUGUST, 16));
+        final List<Movement> recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.AUGUST, 16));
         assertThat(recentMovements.size()).isEqualTo(2);
         assertThat(recentMovements).asList()
                 .extracting("offenderNo", "createDateTime", "fromAgency", "toAgency", "movementType", "directionCode")
@@ -106,5 +108,21 @@ public class MovementsRepositoryTest {
         final MovementCount movementCount = repository.getMovementCount("LEI",  LocalDate.of(2018, Month.FEBRUARY, 2));
         assertThat(movementCount.getIn()).isEqualTo(0);
         assertThat(movementCount.getOut()).isEqualTo(0);
+    }
+
+    @Test
+    public final void canRetrieveRecentMovementsByOffendersAndMovementTypes() {
+        List<Movement> movements = repository.getRecentMovementsByOffenders(Arrays.asList("A6676RS"), Arrays.asList("TRN"));
+
+        assertThat(movements.size()).isEqualTo(1);
+        assertThat(movements.get(0).getToAgency()).isEqualTo("MDI");
+    }
+
+    @Test
+    public final void canRetrieveRecentMovementsByOffenders() {
+        List<Movement> movements = repository.getRecentMovementsByOffenders(Arrays.asList("A6676RS"), new ArrayList<>());
+
+        assertThat(movements.size()).isEqualTo(1);
+        assertThat(movements.get(0).getToAgency()).isEqualTo("LEI");
     }
 }
