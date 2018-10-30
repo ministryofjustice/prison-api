@@ -377,7 +377,7 @@ FIND_OFFENDERS {
     O.SUFFIX                          SUFFIX,
     O.FIRST_NAME                      FIRST_NAME,
     CONCAT(O.MIDDLE_NAME,
-      CASE WHEN MIDDLE_NAME_2 IS NOT NULL
+      CASE WHEN O.MIDDLE_NAME_2 IS NOT NULL
         THEN CONCAT(' ', O.MIDDLE_NAME_2)
       ELSE '' END)                    MIDDLE_NAMES,
     O.LAST_NAME                       LAST_NAME,
@@ -414,7 +414,7 @@ FIND_OFFENDERS_WITH_ALIASES {
          O.SUFFIX                          SUFFIX,
          O.FIRST_NAME                      FIRST_NAME,
          CONCAT(O.MIDDLE_NAME,
-                CASE WHEN MIDDLE_NAME_2 IS NOT NULL
+                CASE WHEN O.MIDDLE_NAME_2 IS NOT NULL
                           THEN CONCAT(' ', O.MIDDLE_NAME_2)
                      ELSE '' END)                    MIDDLE_NAMES,
          O.LAST_NAME                       LAST_NAME,
