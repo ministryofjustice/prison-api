@@ -1,5 +1,7 @@
 package {{supportPackage}};
 
+import java.util.Objects;
+
 public class PageRequest {
     protected final String orderBy;
     protected final Order order;
@@ -97,5 +99,21 @@ public class PageRequest {
         }
 
         return response;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PageRequest)) return false;
+        PageRequest that = (PageRequest) o;
+        return Objects.equals(getOrderBy(), that.getOrderBy()) &&
+            getOrder() == that.getOrder() &&
+            Objects.equals(getOffset(), that.getOffset()) &&
+            Objects.equals(getLimit(), that.getLimit());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getOrderBy(), getOrder(), getOffset(), getLimit());
     }
 }
