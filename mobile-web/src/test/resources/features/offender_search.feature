@@ -79,15 +79,16 @@ Feature: Offender Search V2
       | ANDERSON, GILLIAN  | LEI-H     | 1      |
       | ANDERSON GILLIAN   | LEI-H     | 1      |
 
-  Scenario Outline: Search based on alerts
+  Scenario Outline: Search based on alerts with category
     When an offender search is made filtering by alerts "<alerts>" in location "<location>"
     Then "<number>" total offender records are available
     And the offender last names match "<last name list>"
     And the offender alerts match "<alert lists>"
+    And the offender categories match "<categories>"
 
     Examples:
-      | alerts | location | number | last name list | alert lists |
-      | SR     | LEI      | 1      | BATES          | SR          |
-      | V46,P1 | LEI      | 2      | ANDREWS,DUCK   | V46,P1      |
-      | XA     | LEI      | 1      | ANDERSON       | XA,HC       |
-      | RSS    | LEI      | 0      |                |             |
+      | alerts | location | number | last name list | alert lists | categories |
+      | SR     | LEI      | 1      | BATES          | SR          |            |
+      | V46,P1 | LEI      | 2      | ANDREWS,DUCK   | V46,P1      | C          |
+      | XA     | LEI      | 1      | ANDERSON       | XA,HC       | LOW        |
+      | RSS    | LEI      | 0      |                |             |            |

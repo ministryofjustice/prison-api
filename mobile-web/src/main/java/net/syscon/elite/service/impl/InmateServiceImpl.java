@@ -14,6 +14,7 @@ import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
+import net.syscon.elite.service.support.InmatesHelper;
 import net.syscon.elite.service.support.LocationProcessor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +30,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static net.syscon.elite.service.SearchOffenderService.DEFAULT_OFFENDER_SORT;
+import static net.syscon.elite.service.support.InmatesHelper.deriveClassification;
+import static net.syscon.elite.service.support.InmatesHelper.deriveClassificationCode;
 
 @Service
 @Transactional(readOnly = true)
@@ -156,6 +159,7 @@ public class InmateServiceImpl implements InmateService {
             final Optional<Assessment> category = findCategory(assessments);
             if (category.isPresent()) {
                 inmate.setCategory(category.get().getClassification());
+                inmate.setCategoryCode(category.get().getClassificationCode());
             }
         }
     }
@@ -300,11 +304,7 @@ public class InmateServiceImpl implements InmateService {
             batch.forEach(offenderBatch -> {
                 final List<AssessmentDto> assessments = repository.findAssessmentsByOffenderNo(offenderBatch, assessmentCode, caseLoadIds);
 
-                // Note this grouping works on the assumption that the DB order of the assessments is preserved
-                final Map<Long, List<AssessmentDto>> mapOfBookings = assessments.stream()
-                        .collect(Collectors.groupingBy(AssessmentDto::getBookingId));
-
-                for (List<AssessmentDto> assessmentForBooking : mapOfBookings.values()) {
+                for (List<AssessmentDto> assessmentForBooking : InmatesHelper.createMapOfBookings(assessments).values()) {
 
                     // The first is the most recent date / seq for each booking where cellSharingAlertFlag = Y
                     results.add(createAssessment(assessmentForBooking.get(0)));
@@ -320,16 +320,6 @@ public class InmateServiceImpl implements InmateService {
         return results;
     }
 
-    private Assessment findCSRA(List<Assessment> assessmentsForOffender) {
-        Assessment latest = null;
-        for (Assessment a : assessmentsForOffender) {
-            if (a.getCellSharingAlertFlag() && (latest == null || a.getAssessmentDate().isAfter(latest.getAssessmentDate()))) {
-                latest = a;
-            }
-        }
-        return latest;
-    }
-
     private Optional<Assessment> findCategory(List<Assessment> assessmentsForOffender) {
         return assessmentsForOffender.stream().filter(a -> "CATEGORY".equals(a.getAssessmentCode())).findFirst();
     }
@@ -341,18 +331,11 @@ public class InmateServiceImpl implements InmateService {
                 .assessmentCode(assessmentDto.getAssessmentCode())
                 .assessmentDescription(assessmentDto.getAssessmentDescription())
                 .classification(deriveClassification(assessmentDto))
+                .classificationCode(deriveClassificationCode(assessmentDto))
                 .assessmentDate(assessmentDto.getAssessmentDate())
                 .cellSharingAlertFlag(assessmentDto.isCellSharingAlertFlag())
                 .nextReviewDate(assessmentDto.getNextReviewDate())
                 .build();
-    }
-
-    private String deriveClassification(AssessmentDto assessmentDto) {
-        final String classCode = StringUtils.defaultIfBlank(assessmentDto.getReviewSupLevelType(), StringUtils.defaultIfBlank(assessmentDto.getOverridedSupLevelType(), assessmentDto.getCalcSupLevelType()));
-        if (!"PEND".equalsIgnoreCase(classCode)) {
-            return StringUtils.defaultIfBlank(assessmentDto.getReviewSupLevelTypeDesc(), StringUtils.defaultIfBlank(assessmentDto.getOverridedSupLevelTypeDesc(), assessmentDto.getCalcSupLevelTypeDesc()));
-        }
-        return null;
     }
 
     @Override
