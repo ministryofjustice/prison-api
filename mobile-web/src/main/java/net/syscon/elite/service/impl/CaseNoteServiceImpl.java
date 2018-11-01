@@ -227,7 +227,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 				toDateToUse = toDate;
 			}
 
-			toDateToUse = toDateToUse.plusDays(numMonths);
+			toDateToUse = toDateToUse.plusDays(1);
 		}
 
 		public LocalDate getFromDateToUse() {
