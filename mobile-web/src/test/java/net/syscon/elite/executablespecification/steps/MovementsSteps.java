@@ -112,15 +112,17 @@ public class MovementsSteps extends CommonSteps {
         assertThat(movementCount.getOut()).isEqualTo(2);
     }
 
-    public void verifyMovements(String movementType, String destination) {
-      int matchedCount = movements
+    public void verifyMovements(String movementType,String fromDescription, String toDescription) {
+      boolean matched = movements
               .stream()
-              .filter(m -> m.getMovementType().equals(movementType) && m.getToAgency().equals(destination))
+              .filter(m -> m.getMovementType().equals(movementType) &&
+                      m.getFromAgencyDescription().equals(fromDescription) &&
+                      m.getToAgencyDescription().equals(toDescription))
               .toArray()
-              .length;
+              .length != 0;
 
-      assertThat(matchedCount).isEqualTo(1);
 
+      assertThat(matched).isTrue();
     }
 
     private void doPrisonerCustodyStatusListApiCall(String fromDateTime, String movementDate) {

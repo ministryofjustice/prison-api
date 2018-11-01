@@ -1,5 +1,5 @@
 @global @nomis
-Feature: Custody Status
+Feature: Movement
 
   Scenario: Retrieve a list of recent movements
 
@@ -13,11 +13,11 @@ Feature: Custody Status
   Scenario Outline: Retrieve a list of recent movements for offenders
     Given a user has authenticated with the API with "GLOBAL_SEARCH_USER" and "password"
     When a make a request for recent movements for "A6676RS" and "Z0021ZZ"
-    Then the records should contain a entry for "<movementType>" and "<destination>"
+    Then the records should contain a entry for "<movementType>" "<fromDescription>" "<toDescription>"
     Examples:
-      | movementType| destination|
-      | TRN         | MDI        |
-      | REL         | OUT        |
+      | movementType| fromDescription    | toDescription |
+      | TRN         |  BIRMINGHAM        |  MOORLAND     |
+      | REL         |  LEEDS             |  OUTSIDE      |
 
   Scenario: Get the establishment roll count for a prison
 
