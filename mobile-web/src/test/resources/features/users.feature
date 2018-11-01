@@ -105,7 +105,7 @@ Feature: User Details and Roles
   Scenario: A list of staff users can be retrieved
     Given a user has authenticated with the API
     When a request for users is made
-    Then a list of users is returned with usernames "ELITE2_API_USER,ITAG_USER,JBRIEN,NONWEB,RENEGADE,CA_USER,DM_USER,EXOFF5,API_TEST_USER,RO_USER"
+    Then a list of users is returned with usernames "ELITE2_API_USER,ITAG_USER,JBRIEN,NONWEB,RENEGADE,CA_USER,DM_USER,EXOFF5,API_TEST_USER,RO_USER,GLOBAL_SEARCH_USER"
 
   @nomis
   Scenario: A list of staff users by caseload and namefilter can be retrieved

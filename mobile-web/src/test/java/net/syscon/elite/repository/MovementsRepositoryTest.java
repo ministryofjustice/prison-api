@@ -1,22 +1,14 @@
 package net.syscon.elite.repository;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
-import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
-
-import net.syscon.elite.api.model.MovementCount;
 import net.syscon.elite.api.model.Movement;
+import net.syscon.elite.api.model.MovementCount;
 import net.syscon.elite.api.model.RollCount;
 import net.syscon.elite.web.config.PersistenceConfigs;
-
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -30,6 +22,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
+
 @ActiveProfiles("nomis-hsqldb")
 @RunWith(SpringRunner.class)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -40,11 +36,6 @@ public class MovementsRepositoryTest {
 
     @Autowired
     private MovementsRepository repository;
-
-    @Before
-    public final void init() {
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
-    }
 
     @Test
     public final void canRetrieveAListOfCustodyStatusDetails1() {
