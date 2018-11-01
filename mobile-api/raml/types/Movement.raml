@@ -1,31 +1,21 @@
 #%RAML 1.0 DataType
-description: Movement
+description: Prisoner Custody Status
 properties:
-  bookingId:
-    type: number
-    (javaType): Long
-    description: Booking Id
-  moveCategory:
-    enum: [ "external", "internal" ]
-    description: Movement Category
-  moveDateTime:
-    type: datetime
-    description: Time of movement
-  fromAgencyId:
+  offenderNo:
     type: string
-    description: Agency Location Id
-  moveType:
+    description: Display Prisoner Number (UK is NOMS ID)
+  createDateTime:
     type: datetime
-    description: Type of movement
-  moveReason?:
+    description: Timestamp when the external movement record was created
+  fromAgency:
     type: string
-    description: Reason for moving
-  fromLocationId?:
-    type: number
-    (javaType): Long
-    description: Move From location
-  toLocationId?:
-    type: number
-    (javaType): Long
-    description: Move to Location
-
+    description: Agency travelling from
+  toAgency:
+    type: string
+    description: Agency travelling to
+  movementType:
+    type: string
+    description: ADM(ission), REL(ease) or TRN(sfer)
+  directionCode:
+    type: string
+    description: IN or OUT

@@ -1,7 +1,7 @@
 package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.MovementCount;
-import net.syscon.elite.api.model.PrisonerCustodyStatus;
+import net.syscon.elite.api.model.Movement;
 import net.syscon.elite.api.model.RollCount;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
@@ -24,8 +24,9 @@ public class MovementsSteps extends CommonSteps {
     private static final String API_REQUEST_BASE_URL = API_PREFIX + "custody-statuses?fromDateTime=%s&movementDate=%s";
     private static final String API_REQUEST_ROLLCOUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}?unassigned={unassigned}";
     private static final String API_REQUEST_MOVEMENT_COUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}/movements?movementDate={date}";
+        private static final String API_REQUEST_RECENT_MOVEMENTS = API_PREFIX + "movements/offenders";
 
-    private List<PrisonerCustodyStatus> movements;
+    private List<Movement> movements;
     private List<RollCount> rollCounts;
     private MovementCount movementCount;
 
@@ -46,7 +47,7 @@ public class MovementsSteps extends CommonSteps {
     @Step("Verify a list of records are returned")
     public void verifyListOfRecords() {
         verifyNoError();
-        assertThat(movements).hasOnlyElementsOfType(PrisonerCustodyStatus.class).size().isEqualTo(1);
+        assertThat(movements).hasOnlyElementsOfType(Movement.class).size().isEqualTo(1);
         assertThat(movements).asList()
                 .extracting("offenderNo", "createDateTime", "fromAgency", "toAgency", "movementType", "directionCode")
                 .contains(
@@ -82,6 +83,26 @@ public class MovementsSteps extends CommonSteps {
                 .contains("Chapel");
     }
 
+
+    public void retrieveMovementsByOffenders(List<String> offenderNumbers) {
+        init();
+        try {
+            ResponseEntity<List<Movement>> response = restTemplate.exchange(
+                    API_REQUEST_RECENT_MOVEMENTS + "?movementTypes=TRN&movementTypes=REL",
+                    HttpMethod.POST, createEntity(offenderNumbers),
+                    new ParameterizedTypeReference<List<Movement>>() {});
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+            movements = response.getBody();
+
+            buildResourceData(response);
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+
     public void retrieveMovementCounts(String agencyId, String date) {
         doMovementCountApiCall(agencyId, date);
     }
@@ -91,14 +112,25 @@ public class MovementsSteps extends CommonSteps {
         assertThat(movementCount.getOut()).isEqualTo(2);
     }
 
+    public void verifyMovements(String movementType, String destination) {
+      int matchedCount = movements
+              .stream()
+              .filter(m -> m.getMovementType().equals(movementType) && m.getToAgency().equals(destination))
+              .toArray()
+              .length;
+
+      assertThat(matchedCount).isEqualTo(1);
+
+    }
+
     private void doPrisonerCustodyStatusListApiCall(String fromDateTime, String movementDate) {
         init();
 
         try {
-            ResponseEntity<List<PrisonerCustodyStatus>> response = restTemplate.exchange(
+            ResponseEntity<List<Movement>> response = restTemplate.exchange(
                     String.format(API_REQUEST_BASE_URL, fromDateTime, movementDate),
                     HttpMethod.GET, createEntity(),
-                    new ParameterizedTypeReference<List<PrisonerCustodyStatus>>() {
+                    new ParameterizedTypeReference<List<Movement>>() {
                     });
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

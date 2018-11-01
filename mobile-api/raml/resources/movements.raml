@@ -1,8 +1,8 @@
 /:
-  (javaOperationName): getRecentMovements
+  (javaOperationName): getRecentMovementsByDate
   type:
     readOnlyCollection:
-      type: PrisonerCustodyStatus
+      type: Movement
       description: Returns a list of recently released or moved offender nos and the associated timestamp.
   get:
     queryParameters:
@@ -17,6 +17,30 @@
       agencyId?:
         type: string
         description: Filter to just movements to or from this agency.
+
+
+/offenders:
+  post:
+    (javaOperationName): getRecentMovementsByOffenders
+    type:
+        readOnlyCollection:
+          type: Movement
+          description: Returns a list of the most recent movements.
+    queryParameters:
+      movementTypes?:
+           type: array
+           (javaType): List<String>
+           description: movement type codes to filter by
+           example: ?movementTypes=TRN&movementTypes=REL
+    body:
+      application/json:
+           (javaType): List<String>
+           description: The required offender numbers (mandatory)
+    responses:
+          200:
+            body:
+              application/json:
+                 type: Movement[]
 
 /rollcount/{agencyId}:
   (javaOperationName): getRollcount
@@ -52,3 +76,4 @@
         type: date-only
         description: The date for which movements are counted, default today.
         example: 2018-09-19
+

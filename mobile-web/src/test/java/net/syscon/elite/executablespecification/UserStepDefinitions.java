@@ -1,5 +1,6 @@
 package net.syscon.elite.executablespecification;
 
+import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -203,4 +204,9 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.verifyAccessDenied("Maintain roles Admin access required to perform this action");
     }
 
+    @Given("^a user has authenticated with the API with \"([^\"]*)\" and \"([^\"]*)\"$")
+    public void aUserHasAuthenticatedWithTheAPIWithAnd(String username, String password) throws Throwable {
+        authenticate(username, password, false, null);
+
+    }
 }
