@@ -5,7 +5,6 @@ import cucumber.api.java.en.When;
 import net.syscon.elite.executablespecification.steps.MovementsSteps;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MovementsStepDefinitions extends AbstractStepDefinitions {
@@ -60,8 +59,8 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
         movementsSteps.retrieveMovementsByOffenders(Arrays.asList(offenderNo1, offenderNo2));
     }
 
-    @Then("^the records should contain a entry for \"([^\"]*)\" and \"([^\"]*)\"$")
-    public void theRecordsShouldContainAEntryForAnd(String movementType, String destination) throws Throwable {
-        movementsSteps.verifyMovements(movementType, destination);
+    @Then("^the records should contain a entry for \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
+    public void theRecordsShouldContainAEntryFor(String movementType, String fromDescription, String toDescription) throws Throwable {
+        movementsSteps.verifyMovements(movementType, fromDescription, toDescription);
     }
 }
