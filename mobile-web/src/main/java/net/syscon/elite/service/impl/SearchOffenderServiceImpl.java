@@ -9,11 +9,14 @@ import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.SearchOffenderService;
 import net.syscon.elite.service.UserService;
+import net.syscon.elite.service.support.AssessmentDto;
+import net.syscon.elite.service.support.InmatesHelper;
 import net.syscon.elite.service.support.SearchOffenderRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -73,28 +76,33 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
 
         final Set<String> caseloads = securityUtils.isOverrideRole() ? Collections.emptySet() : userService.getCaseLoadIds(request.getUsername());
 
-        final Page<OffenderBooking> bookings = repository.searchForOffenderBookings(
+        final Page<OffenderBooking> bookingsPage = repository.searchForOffenderBookings(
                 caseloads, offenderNo, searchTerm1, searchTerm2,
                 request.getLocationPrefix(),
                 request.getAlerts(),
                 locationTypeGranularity, pageRequest);
 
-
-        if (request.isReturnIep() || request.isReturnAlerts()) {
-            final List<Long> bookingIds = bookings.getItems().stream().map(OffenderBooking::getBookingId).collect(Collectors.toList());
-            final Map<Long, PrivilegeSummary> bookingIEPSummary = request.isReturnIep() ? bookingService.getBookingIEPSummary(bookingIds, false) : new HashMap<>();
-            final Map<Long, List<String>> alertCodesForBookings = request.isReturnAlerts() ? bookingService.getBookingAlertSummary(bookingIds, LocalDateTime.now()) : new HashMap<>();
-
-            bookings.getItems().forEach(booking -> {
-                if (request.isReturnIep()) {
+        final List<OffenderBooking> bookings = bookingsPage.getItems();
+        final List<Long> bookingIds = bookings.stream().map(OffenderBooking::getBookingId).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(bookingIds)) {
+            if (request.isReturnIep()) {
+                final Map<Long, PrivilegeSummary> bookingIEPSummary = bookingService.getBookingIEPSummary(bookingIds, false);
+                bookings.forEach(booking -> {
                     booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel());
-                }
-                if (request.isReturnAlerts()) {
+                });
+            }
+            if (request.isReturnAlerts()) {
+                final Map<Long, List<String>> alertCodesForBookings = bookingService.getBookingAlertSummary(bookingIds, LocalDateTime.now());
+                bookings.forEach(booking -> {
                     booking.setAlertsDetails(alertCodesForBookings.get(booking.getBookingId()));
-                }
-            });
+                });
+            }
+            if (request.isReturnCategory()) {
+                final List<AssessmentDto> assessmentsForBookings = repository.findAssessments(bookingIds, "CATEGORY", caseloads);
+                InmatesHelper.setCategory(bookings, assessmentsForBookings);
+            }
         }
-        return bookings;
+        return bookingsPage;
     }
 
     private boolean isOffenderNo(String potentialOffenderNumber) {

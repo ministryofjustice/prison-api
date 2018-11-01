@@ -30,13 +30,17 @@ public class LocationsResourceImpl implements LocationResource {
 	}
 
 	@Override
-	public GetOffendersAtLocationDescriptionResponse getOffendersAtLocationDescription(String locationPrefix, String keywords, List<String> alerts, boolean returnIep, boolean returnAlerts, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+	public GetOffendersAtLocationDescriptionResponse getOffendersAtLocationDescription(
+			String locationPrefix, String keywords, List<String> alerts,
+			boolean returnIep, boolean returnAlerts, boolean returnCategory,
+			Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
 		SearchOffenderRequest request = SearchOffenderRequest.builder()
 				.username(authenticationFacade.getCurrentUsername())
 				.keywords(keywords)
 				.locationPrefix(locationPrefix)
 				.returnAlerts(returnAlerts)
 				.returnIep(returnIep)
+				.returnCategory(returnCategory)
 				.alerts(alerts)
 				.orderBy(sortFields)
 				.order(sortOrder)

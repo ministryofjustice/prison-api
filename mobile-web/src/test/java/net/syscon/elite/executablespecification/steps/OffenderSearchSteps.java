@@ -24,7 +24,7 @@ public class OffenderSearchSteps extends CommonSteps {
 
     @Step("Perform offender search without any criteria")
     public void findAll(String locationPrefix) {
-        search(locationPrefix, null, true, true, null);
+        search(locationPrefix, null, true, false, false,null);
     }
 
     @Step("Verify first names of offender returned by search")
@@ -56,6 +56,11 @@ public class OffenderSearchSteps extends CommonSteps {
         verifyIdentical(extractedVals, csv2list(alerts));
     }
 
+    @Step("Verify categories of offender returned by search")
+    public void verifyCategories(String categories) {
+        verifyPropertyValues(offenderBookings, OffenderBooking::getCategoryCode, categories);
+    }
+
     public void verifySubLocationPrefixInResults(String subLocationPrefix) {
         Boolean actual = offenderBookings
                 .stream()
@@ -64,7 +69,7 @@ public class OffenderSearchSteps extends CommonSteps {
         assertThat(actual).isEqualTo(true);
     }
 
-    public void search(String locationPrefix, String keywords, boolean returnIep, boolean returnAlerts, String alerts) {
+    public void search(String locationPrefix, String keywords, boolean returnIep, boolean returnAlerts, boolean returnCategory, String alerts) {
         init();
         StringBuilder queryUrl = new StringBuilder(format(LOCATION_SEARCH, locationPrefix.trim()) + "?");
 
@@ -73,6 +78,9 @@ public class OffenderSearchSteps extends CommonSteps {
         }
         if (returnAlerts) {
             queryUrl.append("returnAlerts=").append("true").append("&");
+        }
+        if (returnCategory) {
+            queryUrl.append("returnCategory=").append("true").append("&");
         }
         if (StringUtils.isNotBlank(keywords)) {
             queryUrl.append("keywords=").append(keywords).append("&");
@@ -92,5 +100,4 @@ public class OffenderSearchSteps extends CommonSteps {
         offenderBookings = responseEntity.getBody();
         buildResourceData(responseEntity);
     }
-
 }
