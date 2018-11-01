@@ -510,6 +510,13 @@ public abstract class CommonSteps {
         return "?query=" + StringUtils.trimToEmpty(queryParam);
     }
 
+    protected String buildQueryStringParameters(Map<String,String> parameters) {
+        return parameters.keySet()
+                .stream()
+                .map(key -> String.format("%s=%s", key, parameters.get(key)))
+                .collect(Collectors.joining("&"));
+    }
+
     protected Map<String,String> addPaginationHeaders() {
         return ImmutableMap.of("Page-Offset", String.valueOf(paginationOffset), "Page-Limit", String.valueOf(paginationLimit));
     }

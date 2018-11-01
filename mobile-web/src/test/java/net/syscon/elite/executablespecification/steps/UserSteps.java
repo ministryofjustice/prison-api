@@ -1,5 +1,6 @@
 package net.syscon.elite.executablespecification.steps;
 
+import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.model.UserDetail;
@@ -8,6 +9,7 @@ import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
@@ -230,14 +232,9 @@ public class UserSteps extends CommonSteps {
         String url = localAdministratorUsers ? API_LOCAL_ADMINISTRATOR_USERS_AT_CASELOAD : API_USERS_AT_CASELOAD;
 
         if(StringUtils.isNotBlank(role) || StringUtils.isNotBlank(nameFilter)) {
-            StringBuilder queryUrl = new StringBuilder("?");
-            if (StringUtils.isNotBlank(role)) {
-                queryUrl.append("accessRole=").append(role).append("&");
-            }
-            if (StringUtils.isNotBlank(nameFilter)) {
-                queryUrl.append("nameFilter=").append(nameFilter).append("&");
-            }
-            url += queryUrl.toString();
+            String queryParameters = buildQueryStringParameters(ImmutableMap.of("accessRole", role,"nameFilter", nameFilter));
+            if(StringUtils.isNotBlank(queryParameters))
+                url += String.format("?=%s", queryParameters);
         }
 
         ResponseEntity<List<UserDetail>> response = restTemplate.exchange(
@@ -256,22 +253,19 @@ public class UserSteps extends CommonSteps {
         String url = API_USERS;
 
         if(StringUtils.isNotBlank(role) || StringUtils.isNotBlank(nameFilter)) {
-            StringBuilder queryUrl = new StringBuilder("?");
-            if (StringUtils.isNotBlank(role)) {
-                queryUrl.append("accessRole=").append(role).append("&");
-            }
-            if (StringUtils.isNotBlank(nameFilter)) {
-                queryUrl.append("nameFilter=").append(nameFilter).append("&");
-            }
-            url += queryUrl.toString();
+            String queryParameters = buildQueryStringParameters(ImmutableMap.of("accessRole", role,"nameFilter", nameFilter));
+            if(StringUtils.isNotBlank(queryParameters))
+                url += String.format("?=%", queryParameters);
         }
+
+        applyPagination(0L, 100L);
+        HttpEntity<?> httpEntity = createEntity(null, addPaginationHeaders());
 
         ResponseEntity<List<UserDetail>> response = restTemplate.exchange(
                 url,
                 HttpMethod.GET,
-                createEntity(),
-                new ParameterizedTypeReference<List<UserDetail>>() {
-                });
+                httpEntity,
+                new ParameterizedTypeReference<List<UserDetail>>() { });
 
         userDetails = response.getBody();
     }
