@@ -16,8 +16,8 @@ Feature: Movement
     Then the records should contain a entry for "<movementType>" "<fromDescription>" "<toDescription>"
     Examples:
       | movementType| fromDescription    | toDescription |
-      | TRN         |  BIRMINGHAM        |  MOORLAND     |
-      | REL         |  LEEDS             |  OUTSIDE      |
+      | TRN         |  Birmingham        |  Moorland     |
+      | REL         |  Leeds             |  Outside      |
 
   Scenario: Get the establishment roll count for a prison
 
