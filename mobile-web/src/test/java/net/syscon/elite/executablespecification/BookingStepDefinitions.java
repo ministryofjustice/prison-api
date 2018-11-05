@@ -1,9 +1,12 @@
 package net.syscon.elite.executablespecification;
 
+import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.executablespecification.steps.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
@@ -464,6 +467,17 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @Then("^alert (\\w+) is \"([^\"]*)\"$")
     public void alertValueIs(String field, String value) throws Throwable {
         bookingAlerts.verifyAlertField(field, value);
+    }
+
+    @When("^alerts are requested for offender nos \"([^\"]*)\"$")
+    public void alertIsRequestedForOffenderBooking(String offenderNos) {
+        bookingAlerts.getAlerts("LEI", Arrays.asList(StringUtils.split(offenderNos, ",")));
+    }
+
+    @Then("^alert details are returned as follows:$")
+    public void alertsAreReturnedAsFollows(DataTable table) throws Throwable {
+        final List<Alert> expected = table.asList(Alert.class);
+        bookingAlerts.verifyAlerts(expected);
     }
 
     @Then("^resource not found response is received from alert API$")

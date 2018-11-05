@@ -3,8 +3,8 @@ package net.syscon.elite.executablespecification;
 import cucumber.api.Format;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import net.syscon.elite.api.model.Award;
 import net.syscon.elite.executablespecification.steps.AdjudicationSteps;
-import net.syscon.elite.executablespecification.steps.AdjudicationSteps.AwardOldDate;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -55,7 +55,7 @@ public class AdjudicationStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^the award result list is as follows:$")
-    public void awardResultListIsAsFollows(@Format("yyyy-MM-dd") List<AwardOldDate> list) throws Throwable {
+    public void awardResultListIsAsFollows(@Format("yyyy-MM-dd") List<Award> list) throws Throwable {
         adjudicationSteps.verifyAwards(list);
     }
 
