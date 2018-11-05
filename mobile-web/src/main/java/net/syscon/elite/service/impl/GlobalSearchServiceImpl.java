@@ -7,6 +7,7 @@ import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.OffenderRepository;
 import net.syscon.elite.service.GlobalSearchService;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
+import net.syscon.elite.service.support.LocationProcessor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -37,19 +38,20 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
         PrisonerDetailSearchCriteria decoratedCriteria = criteria.withMaxYearsRange(maxYears);
         PageRequest adjustedPageRequest = pageRequest.withDefaultOrderBy(DEFAULT_GLOBAL_SEARCH_OFFENDER_SORT);
 
-        Page<PrisonerDetail> response;
+        Page<PrisonerDetail> prisonersPage;
 
         try {
             if (decoratedCriteria.isPrioritisedMatch()) {
-                response = executePrioritisedQuery(decoratedCriteria, adjustedPageRequest);
+                prisonersPage = executePrioritisedQuery(decoratedCriteria, adjustedPageRequest);
             } else {
-                response = executeQuery(decoratedCriteria, adjustedPageRequest);
+                prisonersPage = executeQuery(decoratedCriteria, adjustedPageRequest);
             }
+            prisonersPage.getItems().forEach(p -> p.setLatestLocation(LocationProcessor.formatLocation(p.getLatestLocation())));
         } catch (IllegalArgumentException iaex) {
             throw new BadRequestException("Invalid search criteria.", iaex);
         }
 
-        return response;
+        return prisonersPage;
     }
 
     private Page<PrisonerDetail> executeQuery(PrisonerDetailSearchCriteria criteria, PageRequest pageRequest) {

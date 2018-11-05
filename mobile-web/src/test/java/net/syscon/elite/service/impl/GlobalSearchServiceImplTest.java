@@ -34,6 +34,8 @@ public class GlobalSearchServiceImplTest {
     private GlobalSearchService service;
 
     private PageRequest pageRequest = new PageRequest();
+    private static final String TEST_OFFENDER_NO = "AA1234B";
+    private static final String TEST_PNC_NUMBER = "2002/713491N";
 
     @Before
     public void setUp() {
@@ -58,7 +60,6 @@ public class GlobalSearchServiceImplTest {
 
     @Test
     public void testFindOffendersByOffenderNo() {
-        final String TEST_OFFENDER_NO = "AA1234B";
         final String TEST_QUERY = "offenderNo:eq:'AA1234B'";
 
         criteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
@@ -73,8 +74,6 @@ public class GlobalSearchServiceImplTest {
 
     @Test
     public void testFindOffendersPrioritisedMatchWithOffenderNoMatch() {
-        final String TEST_OFFENDER_NO = "AA1234B";
-        final String TEST_PNC_NUMBER = "2002/713491N";
         final String TEST_OFFENDER_NO_QUERY = "offenderNo:eq:'AA1234B'";
 
         criteria = PrisonerDetailSearchCriteria.builder()
@@ -99,8 +98,6 @@ public class GlobalSearchServiceImplTest {
 
     @Test
     public void testFindOffendersPrioritisedMatchWithPncNumberMatch() {
-        final String TEST_OFFENDER_NO = "AA1234B";
-        final String TEST_PNC_NUMBER = "2002/713491N";
         final String TEST_OFFENDER_NO_QUERY = "offenderNo:eq:'AA1234B'";
 
         criteria = PrisonerDetailSearchCriteria.builder()
@@ -127,8 +124,6 @@ public class GlobalSearchServiceImplTest {
 
     @Test
     public void testFindOffendersPrioritisedMatchWithCroNumberMatch() {
-        final String TEST_OFFENDER_NO = "AA1234B";
-        final String TEST_PNC_NUMBER = "2002/713491N";
         final String TEST_CRO_NUMBER = "CRO987654";
         final String TEST_OFFENDER_NO_QUERY = "offenderNo:eq:'AA1234B'";
 
@@ -160,7 +155,6 @@ public class GlobalSearchServiceImplTest {
 
     @Test
     public void testFindOffendersPrioritisedMatchWithPersonalAttrsMatch() {
-        final String TEST_OFFENDER_NO = "AA1234B";
         final String TEST_LAST_NAME = "STEPHENS";
         final String TEST_OFFENDER_NO_QUERY = "offenderNo:eq:'AA1234B'";
         final String TEST_PERSONAL_ATTRS_QUERY = "lastName:eq:'STEPHENS'";
@@ -190,7 +184,6 @@ public class GlobalSearchServiceImplTest {
 
     @Test
     public void testFindOffendersPrioritisedMatchWithDobRangeMatch() {
-        final String TEST_OFFENDER_NO = "AA1234B";
         final String TEST_LAST_NAME = "STEPHENS";
         final LocalDate TEST_DOB_FROM = LocalDate.of(1960, 1, 1);
         final LocalDate TEST_DOB_TO = LocalDate.of(1964, 12, 31);
@@ -231,11 +224,33 @@ public class GlobalSearchServiceImplTest {
         Mockito.verify(inmateRepository, Mockito.times(1)).findOffenders(eq(TEST_DOB_RANGE_QUERY), any(PageRequest.class));
     }
 
+    @Test
+    public void testFindOffendersLocationFormatting() {
+        final String TEST_OFFENDER_NO_QUERY = "offenderNo:eq:'AA1234B'";
+
+        criteria = PrisonerDetailSearchCriteria.builder()
+                .prioritisedMatch(true)
+                .offenderNo(TEST_OFFENDER_NO)
+                .build();
+
+        PrisonerDetailSearchCriteria offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
+
+        when(InmateRepository.generateFindOffendersQuery(offNoCriteria)).thenReturn(TEST_OFFENDER_NO_QUERY);
+
+        Mockito.when(inmateRepository.findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class))).thenReturn(pageResponse(1));
+
+        Page<PrisonerDetail> response = service.findOffenders(criteria, pageRequest);
+
+        assertThat(response.getItems()).isNotEmpty();
+
+        assertThat(response.getItems().get(0).getLatestLocation()).isEqualTo("Wakefield (HMP)");
+    }
+
     private Page<PrisonerDetail> pageResponse(int prisonerCount) {
         List<PrisonerDetail> prisoners = new ArrayList<>();
 
         for (int i = 1; i <= prisonerCount; i++) {
-            prisoners.add(PrisonerDetail.builder().offenderNo(String.format("A%4dAA", i)).build());
+            prisoners.add(PrisonerDetail.builder().offenderNo(String.format("A%4dAA", i)).latestLocation("WAKEFIELD (HMP)").build());
         }
 
         return new Page<>(prisoners, prisonerCount, 0, 10);
