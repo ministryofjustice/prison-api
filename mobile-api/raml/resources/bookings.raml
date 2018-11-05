@@ -275,6 +275,24 @@
       (javaType): Long
       description: The Alert Id
 
+# TODO: should move this to the prisonstaffhub api when it becomes available
+/offenderNo/{agencyId}/alerts:
+  post:
+    (javaOperationName): getAlertsByOffenderNos
+    uriParameters:
+      agencyId:
+        type: string
+        description: The prison.
+    body:
+      application/json:
+        (javaType): List<String>
+        description: The required offender numbers (mandatory)
+    responses:
+      200:
+        body:
+          application/json:
+            type: Alert[]
+
 /{bookingId}/assessment/{assessmentCode}:
   (javaOperationName): getAssessmentByCode
   type: { readOnlyItem: { type: Assessment, description: Offender assessment detail. } }

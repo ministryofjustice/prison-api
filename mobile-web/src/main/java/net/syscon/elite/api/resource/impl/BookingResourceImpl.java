@@ -166,6 +166,13 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    public GetAlertsByOffenderNosResponse getAlertsByOffenderNos(String agencyId, List<String>offenderNos) {
+        List<Alert> inmateAlerts = inmateAlertService.getInmateAlertsByOffenderNos(agencyId, offenderNos);
+
+        return GetAlertsByOffenderNosResponse.respond200WithApplicationJson(inmateAlerts);
+    }
+
+    @Override
     public GetOffenderAliasesResponse getOffenderAliases(Long bookingId, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         Page<Alias> aliases = inmateService.findInmateAliases(
                 bookingId,

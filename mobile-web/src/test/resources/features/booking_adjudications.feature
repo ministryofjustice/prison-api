@@ -34,7 +34,7 @@ Feature: Booking Adjudications
   Scenario: Offender has more than 1 award
     When adjudication details with booking id -8, award cutoff date "2017-08-20" and adjudication cutoff date "2017-08-20" is requested
     Then the award result list is as follows:
-      | sanctionCode | sanctionCodeDescription  | months | days | limit | comment | effectiveOldDate |
+      | sanctionCode | sanctionCodeDescription  | months | days | limit | comment | effectiveDate |
       | FORFEIT      | Forfeiture of Privileges |        | 17   |       | loc     | 2017-11-13    |
       | CC           | Cellular Confinement     |        | 7    |       |         | 2017-11-13    |
       | STOP_PCT     | Stoppage of Earnings (%) |        | 21   | 50.00 |         | 2017-11-13    |

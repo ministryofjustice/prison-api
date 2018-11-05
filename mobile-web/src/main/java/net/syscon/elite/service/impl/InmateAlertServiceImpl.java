@@ -4,7 +4,10 @@ import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.InmateAlertRepository;
+import net.syscon.elite.security.AuthenticationFacade;
+import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.security.VerifyBookingAccess;
+import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.InmateAlertService;
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -60,5 +64,13 @@ public class InmateAlertServiceImpl implements InmateAlertService {
         alert.setExpired(isExpiredAlert(alert));
 
         return alert;
+    }
+
+    @Override
+    @VerifyAgencyAccess
+    public List<Alert> getInmateAlertsByOffenderNos(String agencyId, List<String>offenderNos) {
+        final List<Alert> alerts = inmateAlertRepository.getInmateAlertsByOffenderNos(agencyId, offenderNos);
+        alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
+        return alerts;
     }
 }
