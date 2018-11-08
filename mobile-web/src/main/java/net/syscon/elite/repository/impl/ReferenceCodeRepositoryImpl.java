@@ -9,6 +9,7 @@ import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.WordUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
@@ -230,6 +231,13 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
     @Override
     public List<ReferenceCode> getScheduleReasons(String eventType) {
         final String sql = getQuery("GET_AVAILABLE_EVENT_SUBTYPES");
-        return jdbcTemplate.query(sql, createParams("eventType", eventType), SCHEDULE_REASON_ROW_MAPPER);
+		List<ReferenceCode> scheduledReasons = jdbcTemplate.query(sql, createParams("eventType", eventType), SCHEDULE_REASON_ROW_MAPPER);
+		return scheduledReasons.stream()
+				.map(p -> ReferenceCode.builder()
+						.code(p.getCode())
+						.description(WordUtils.capitalizeFully(p.getDescription()))
+						.build())
+				.sorted(Comparator.comparing(ReferenceCode::getDescription))
+				.collect(Collectors.toList());
     }
 }
