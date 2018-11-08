@@ -26,7 +26,7 @@
         <appender name="aiAppender" class="com.microsoft.applicationinsights.logback.ApplicationInsightsAppender"/>
     </springProfile>
 
-    <logger name="net.syscon" additivity="false" level="INFO">
+    <logger name="net.syscon" additivity="false" level="DEBUG">
         <appender-ref ref="consoleAppender"/>
         <appender-ref ref="aiAppender"/>
     </logger>
