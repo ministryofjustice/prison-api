@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.api.model.PrivilegeSummary;
 import net.syscon.elite.api.support.Page;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
+@Slf4j
 public class SearchOffenderServiceImpl implements SearchOffenderService {
     private final BookingService bookingService;
     private final UserService userService;
@@ -53,6 +55,7 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
         String searchTerm1 = null;
         String searchTerm2 = null;
 
+        log.info("Searching for offenders, criteria: {}", request);
         if (StringUtils.isNotBlank(keywordSearch)) {
             if (isOffenderNo(keywordSearch)) {
                 offenderNo = keywordSearch;
@@ -102,6 +105,8 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
                 InmatesHelper.setCategory(bookings, assessmentsForBookings);
             }
         }
+        log.info("Found {} offenders, page size {}", bookingsPage.getTotalRecords(), bookingsPage.getItems().size());
+
         return bookingsPage;
     }
 
