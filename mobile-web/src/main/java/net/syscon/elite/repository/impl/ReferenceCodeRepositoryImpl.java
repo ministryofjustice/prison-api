@@ -232,12 +232,16 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
     public List<ReferenceCode> getScheduleReasons(String eventType) {
         final String sql = getQuery("GET_AVAILABLE_EVENT_SUBTYPES");
 		List<ReferenceCode> scheduledReasons = jdbcTemplate.query(sql, createParams("eventType", eventType), SCHEDULE_REASON_ROW_MAPPER);
-		return scheduledReasons.stream()
-				.map(p -> ReferenceCode.builder()
-						.code(p.getCode())
-						.description(WordUtils.capitalizeFully(p.getDescription()))
-						.build())
-				.sorted(Comparator.comparing(ReferenceCode::getDescription))
-				.collect(Collectors.toList());
+		return tidyDescriptionAndSort(scheduledReasons);
+    }
+
+    private List<ReferenceCode> tidyDescriptionAndSort(List<ReferenceCode> refCodes) {
+        return refCodes.stream()
+                .map(p -> ReferenceCode.builder()
+                        .code(p.getCode())
+                        .description(WordUtils.capitalizeFully(p.getDescription()))
+                        .build())
+                .sorted(Comparator.comparing(ReferenceCode::getDescription))
+                .collect(Collectors.toList());
     }
 }

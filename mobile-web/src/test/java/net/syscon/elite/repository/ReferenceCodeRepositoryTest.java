@@ -354,6 +354,16 @@ public class ReferenceCodeRepositoryTest {
         verifySubCodeParentCodeRelationship(refCodes.getItems());
     }
 
+    @Test
+    public void testScheduleReasons() {
+        List<ReferenceCode> scheduleReasons = repository.getScheduleReasons("APP");
+
+        assertThat(scheduleReasons.size()).isEqualTo(6);
+        ReferenceCode referenceCode = scheduleReasons.get(2);
+        assertThat(referenceCode.getCode()).isEqualTo("EDUC");
+        assertThat(referenceCode.getDescription()).isEqualTo("Computers");
+    }
+
     // Tests (with retrieval of sub-codes) ordering by description (descending) and 15-30 pagination.
     @Test
     public void testGetReferenceCodesByDomainWithSubCodes6() {
