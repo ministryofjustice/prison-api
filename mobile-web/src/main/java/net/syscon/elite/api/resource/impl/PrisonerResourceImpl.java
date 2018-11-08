@@ -1,5 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.PrisonerDetail;
 import net.syscon.elite.api.resource.PrisonerResource;
 import net.syscon.elite.api.support.Order;
@@ -16,6 +17,7 @@ import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
 
 @RestResource
 @Path("prisoners")
+@Slf4j
 public class PrisonerResourceImpl implements PrisonerResource {
     private final GlobalSearchService globalSearchService;
 
@@ -59,10 +61,11 @@ public class PrisonerResourceImpl implements PrisonerResource {
                 .prioritisedMatch(prioritisedMatch)
                 .build();
 
+        log.info("Global Search with search criteria: {}", criteria);
         Page<PrisonerDetail> offenders = globalSearchService.findOffenders(
                 criteria,
                 new PageRequest(sortFields, sortOrder, pageOffset, pageLimit));
-
+        log.debug("Global Search returned {} records", offenders.getTotalRecords());
         return GetPrisonersResponse.respond200WithApplicationJson(offenders);
     }
 
@@ -73,9 +76,11 @@ public class PrisonerResourceImpl implements PrisonerResource {
                 .offenderNo(offenderNo)
                 .build();
 
+        log.info("Global Search with search criteria: {}", criteria);
         Page<PrisonerDetail> offenders = globalSearchService.findOffenders(
                 criteria,
                 new PageRequest(null, null, 0L, 1000L));
+        log.debug("Global Search returned {} records", offenders.getTotalRecords());
         return GetPrisonersOffenderNoResponse.respond200WithApplicationJson(offenders.getItems());
     }
 }
