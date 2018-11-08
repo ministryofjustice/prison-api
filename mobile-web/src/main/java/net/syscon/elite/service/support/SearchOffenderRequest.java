@@ -1,15 +1,13 @@
 package net.syscon.elite.service.support;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.PageRequest;
 
 import java.util.List;
 
 @Getter
+@ToString
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 public class SearchOffenderRequest extends PageRequest {

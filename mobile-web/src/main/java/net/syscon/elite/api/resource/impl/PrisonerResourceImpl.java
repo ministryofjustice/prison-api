@@ -65,7 +65,7 @@ public class PrisonerResourceImpl implements PrisonerResource {
         Page<PrisonerDetail> offenders = globalSearchService.findOffenders(
                 criteria,
                 new PageRequest(sortFields, sortOrder, pageOffset, pageLimit));
-        log.debug("Global Search returned {} records", offenders.getTotalRecords());
+        log.info("Global Search returned {} records", offenders.getTotalRecords());
         return GetPrisonersResponse.respond200WithApplicationJson(offenders);
     }
 

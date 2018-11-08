@@ -57,7 +57,7 @@ public class RequestLogFilter implements Filter {
             LocalDateTime start = LocalDateTime.now();
             MDC.put(REQUEST_ID, mdcUtility.generateCorrelationId());
             if (isLoggingAllowed()) {
-                log.debug("Request: {} {}", req.getMethod(), req.getRequestURI());
+                log.info("Request: {} {}", req.getMethod(), req.getRequestURI());
             }
 
             chain.doFilter(request, response);
@@ -67,7 +67,7 @@ public class RequestLogFilter implements Filter {
             int status = res.getStatus();
             MDC.put(RESPONSE_STATUS, String.valueOf(status));
             if (isLoggingAllowed()) {
-                log.debug("Response: {} {} - Status {} - Start {}, Duration {} ms", req.getMethod(), req.getRequestURI(), status, start.format(formatter), duration);
+                log.info("Response: {} {} - Status {} - Start {}, Duration {} ms", req.getMethod(), req.getRequestURI(), status, start.format(formatter), duration);
             }
         } finally {
             MDC.remove(REQUEST_DURATION);
