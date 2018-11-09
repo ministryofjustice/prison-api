@@ -133,6 +133,7 @@ public class UserServiceImpl implements UserService {
 			throw  EntityNotFoundException.withMessage("Role [%s] not assigned to user [%s] at caseload [%s]", roleCode, username, caseload);
 		}
 		userRepository.removeRole(username, caseload, role.getRoleId()); // Don't care if it doesn't exist...
+        log.info("Removed role '{}' from username '{}' at caseload '{}'", roleCode,  username, caseload);
 	}
 
     private void verifyMaintainRolesAdminAccess(AccessRole role) {
@@ -187,6 +188,7 @@ public class UserServiceImpl implements UserService {
 		}
 
 		userRepository.addRole(username, caseloadId, role.getRoleId());
+        log.info("Assigned role '{}' to username '{}' at caseload '{}'", roleCode,  username, caseloadId);
 		return true;
 	}
 

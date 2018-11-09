@@ -577,4 +577,10 @@ public abstract class CommonSteps {
     public   void authenticateAsClient(String clientId){
         auth.authenticateAsClient(clientId);
     }
+
+    protected void assertErrorResponse(Response.StatusType expectedStatusCode) {
+        assertThat(errorResponse).isNotNull();
+        assertThat(errorResponse.getStatus().intValue()).isEqualTo(expectedStatusCode.getStatusCode());
+
+    }
 }
