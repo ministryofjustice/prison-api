@@ -8,12 +8,15 @@ import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.support.ReferenceDomain;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.WordUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -86,6 +89,17 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
     public List<ReferenceCode> getScheduleReasons(String eventType) {
         verifyReferenceCode(ReferenceDomain.INTERNAL_SCHEDULE_TYPE.getDomain(), eventType);
 
-        return referenceCodeRepository.getScheduleReasons(eventType);
+		List<ReferenceCode> scheduleReasons = referenceCodeRepository.getScheduleReasons(eventType);
+		return tidyDescriptionAndSort(scheduleReasons);
     }
+
+	private List<ReferenceCode> tidyDescriptionAndSort(List<ReferenceCode> refCodes) {
+		return refCodes.stream()
+				.map(p -> ReferenceCode.builder()
+						.code(p.getCode())
+						.description(WordUtils.capitalizeFully(p.getDescription()))
+						.build())
+				.sorted(Comparator.comparing(ReferenceCode::getDescription))
+				.collect(Collectors.toList());
+	}
 }
