@@ -28,7 +28,7 @@ public class ReferenceDomainServiceImplTest {
     private ReferenceDomainService service;
 
     @Before
-    public void setup() {
+    public void setUp() {
         initMocks(repository);
         service = new ReferenceDomainServiceImpl(repository);
     }
