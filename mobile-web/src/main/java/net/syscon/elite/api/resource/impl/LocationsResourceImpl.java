@@ -12,6 +12,7 @@ import net.syscon.elite.service.SearchOffenderService;
 import net.syscon.elite.service.support.SearchOffenderRequest;
 
 import javax.ws.rs.Path;
+import java.util.List;
 
 import static net.syscon.util.ResourceUtils.nvl;
 
@@ -29,24 +30,18 @@ public class LocationsResourceImpl implements LocationResource {
 	}
 
 	@Override
-	public GetLocationsResponse getLocations(String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-		Page<Location> locationsResult = locationService.getLocations(
-				authenticationFacade.getCurrentUsername(),
-				query,
-				sortFields,
-				sortOrder,
-				nvl(pageOffset, 0L),
-				nvl(pageLimit, 10L));
-
-		return GetLocationsResponse.respond200WithApplicationJson(locationsResult);
-	}
-
-	@Override
-	public GetOffendersAtLocationDescriptionResponse getOffendersAtLocationDescription(String locationPrefix, String keywords, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+	public GetOffendersAtLocationDescriptionResponse getOffendersAtLocationDescription(
+			String locationPrefix, String keywords, List<String> alerts,
+			boolean returnIep, boolean returnAlerts, boolean returnCategory,
+			Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
 		SearchOffenderRequest request = SearchOffenderRequest.builder()
 				.username(authenticationFacade.getCurrentUsername())
 				.keywords(keywords)
 				.locationPrefix(locationPrefix)
+				.returnAlerts(returnAlerts)
+				.returnIep(returnIep)
+				.returnCategory(returnCategory)
+				.alerts(alerts)
 				.orderBy(sortFields)
 				.order(sortOrder)
 				.offset(nvl(pageOffset, 0L))
@@ -80,7 +75,7 @@ public class LocationsResourceImpl implements LocationResource {
 	}
 
     @Override
-    public GetGroupResponse getGroup(String agencyId, String name) {
-        return GetGroupResponse.respond200WithApplicationJson(locationService.getGroup(agencyId, name));
+    public GetLocationGroupResponse getLocationGroup(String agencyId, String name) {
+        return GetLocationGroupResponse.respond200WithApplicationJson(locationService.getCellLocationsForGroup(agencyId, name));
     }
 }

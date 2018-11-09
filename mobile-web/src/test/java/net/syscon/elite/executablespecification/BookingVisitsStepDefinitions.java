@@ -6,6 +6,10 @@ import cucumber.api.java.en.When;
 import net.syscon.elite.executablespecification.steps.BookingVisitSteps;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 /**
  * BDD step definitions for the Booking Visits API endpoints:
  * <ul>
@@ -151,5 +155,24 @@ public class BookingVisitsStepDefinitions extends AbstractStepDefinitions {
     @Then("the visit ([^\\\"]*) is \"([^\"]*)\"$")
     public void theVisitFieldIs(String field, String value) throws Throwable {
         bookingVisits.verifyVisitField(field, value);
+    }
+
+    @When("^the next visit is requested for an offender with booking id \"([^\"]*)\"$")
+    public void theNextVisitIsRequestedForAnOffenderWithBookingId(Long bookingId) throws Throwable {
+        bookingVisits.getBookingVisitNext(bookingId);
+    }
+
+    @And("^the visit startTime is offset from the start of today by \"([^\"]*)\"$")
+    public void theVisitStartTimeIsOffsetFromTheStartOfTodayBy(String durationString) throws Throwable {
+        Duration offset = Duration.parse(durationString);
+        LocalDateTime expectedDateTime = LocalDate.now().atStartOfDay().plus(offset);
+        bookingVisits.verifyStartDateTime(expectedDateTime);
+    }
+
+    @And("^the visit endTime is offset from the start of today by \"([^\"]*)\"$")
+    public void theVisitEndTimeIsIsOffsetFromTheStartOfTodayBy(String durationString) throws Throwable {
+        Duration offset = Duration.parse(durationString);
+        LocalDateTime expectedDateTime = LocalDate.now().atStartOfDay().plus(offset);
+        bookingVisits.verifyEndDateTime(expectedDateTime);
     }
 }

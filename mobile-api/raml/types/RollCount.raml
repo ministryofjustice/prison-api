@@ -1,0 +1,34 @@
+#%RAML 1.0 DataType
+description: Establishment roll count numbers for a housing block, wing, or reception etc.
+properties:
+  livingUnitId:
+    type: number
+    (javaType): Long
+    description: Id of location
+  livingUnitDesc:
+    type: string
+    description: Wing, houseblock etc. name
+  bedsInUse:
+    type: integer
+    description: No of residential prisoners
+  currentlyInCell:
+    type: integer
+    description: No of residential prisoners actually in
+  currentlyOut:
+    type: integer
+    description: No of residential prisoners out
+  operationalCapacity:
+    type: integer
+    description: Total capacity not including unavailable cells
+  netVacancies:
+    type: integer
+    description: Available empty beds
+  maximumCapacity:
+    type: integer
+    description: Total capacity including unavailable cells
+  availablePhysical:
+    type: integer
+    description: All empty beds
+  outOfOrder:
+    type: integer
+    description: No of unavailable cells

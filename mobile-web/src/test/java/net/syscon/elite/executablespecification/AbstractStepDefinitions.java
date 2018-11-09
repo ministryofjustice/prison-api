@@ -28,6 +28,12 @@ abstract class AbstractStepDefinitions {
     @TestConfiguration
     static class Config {
 
+
+        @Bean
+        public AccessRoleSteps accessRoleSteps() {
+            return new AccessRoleSteps();
+        }
+
         @Bean
         public AuthenticationSteps auth(@Value("${oauth.client.data}") String clientConfig) {
             return new AuthenticationSteps(clientConfig, new ClientConfigExtractor(new ObjectMapper()));
@@ -49,7 +55,9 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public CustodyStatusSteps custodyStatus() { return new CustodyStatusSteps(); }
+        public MovementsSteps custodyStatus() {
+            return new MovementsSteps();
+        }
 
         @Bean
         public BookingSearchSteps bookingSearch() {
@@ -179,6 +187,11 @@ abstract class AbstractStepDefinitions {
         @Bean
         public StaffSteps staff() {
             return new StaffSteps();
+        }
+
+        @Bean
+        public PersonIdentifierSteps personIdentifierSteps() {
+            return new PersonIdentifierSteps();
         }
     }
 

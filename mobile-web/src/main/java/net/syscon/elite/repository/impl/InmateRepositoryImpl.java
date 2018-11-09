@@ -30,7 +30,7 @@ import static net.syscon.elite.repository.ImageRepository.IMAGE_DETAIL_MAPPER;
 @Slf4j
 public class InmateRepositoryImpl extends RepositoryBase implements InmateRepository {
 
-    private static final Map<String, FieldMapper> OFFENDER_BOOKING_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
+	private static final Map<String, FieldMapper> OFFENDER_BOOKING_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
             .put("OFFENDER_BOOK_ID", 	new FieldMapper("bookingId"))
             .put("BOOKING_NO", 			new FieldMapper("bookingNo"))
             .put("OFFENDER_ID_DISPLAY", new FieldMapper("offenderNo"))
@@ -56,7 +56,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("LAST_NAME", 			new FieldMapper("lastName"))
 			.put("AGY_LOC_ID", 			new FieldMapper("agencyId"))
 			.put("LIVING_UNIT_ID",      new FieldMapper("assignedLivingUnitId"))
-            .put("RELIGION", 			new FieldMapper("religion"))
+            .put("RELIGION", 			new FieldMapper("religion")) // deprecated, please remove
 			.put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
 			.put("BIRTH_DATE", 			new FieldMapper("dateOfBirth", DateTimeConverter::toISO8601LocalDate))
 			.put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerId"))
@@ -66,6 +66,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	private final Map<String, FieldMapper> physicalAttributesMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("GENDER",   new FieldMapper("gender"))
 			.put("ETHNICITY",  new FieldMapper("ethnicity"))
+			.put("RACE_CODE",  new FieldMapper("raceCode"))
 			.put("HEIGHT_FT",  new FieldMapper("heightFeet"))
 			.put("HEIGHT_IN",  new FieldMapper("heightInches"))
 			.put("HEIGHT_CM",  new FieldMapper("heightCentimetres"))
@@ -91,11 +92,12 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	private final StandardBeanPropertyRowMapper<ProfileInformation> PROFILE_INFORMATION_MAPPER = new StandardBeanPropertyRowMapper<>(ProfileInformation.class);
 	private final StandardBeanPropertyRowMapper<OffenderIdentifier> OFFENDER_IDENTIFIER_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderIdentifier.class);
 
-
     private final StandardBeanPropertyRowMapper<PrisonerDetail> PRISONER_DETAIL_MAPPER =
             new StandardBeanPropertyRowMapper<>(PrisonerDetail.class);
 
-	private final Map<String, FieldMapper> aliasMapping = new ImmutableMap.Builder<String, FieldMapper>()
+    private final Map<String, FieldMapper> PRISONER_DETAIL_WITH_OFFENDER_ID_FIELD_MAP;
+
+    private final Map<String, FieldMapper> aliasMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("LAST_NAME",		new FieldMapper("lastName"))
 			.put("FIRST_NAME",		new FieldMapper("firstName"))
 			.put("MIDDLE_NAME",		new FieldMapper("middleName"))
@@ -105,6 +107,12 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			.put("ALIAS_TYPE",		new FieldMapper("nameType"))
 			.put("CREATE_DATE",     new FieldMapper("createDate", DateTimeConverter::toISO8601LocalDate))
 			.build();
+
+    InmateRepositoryImpl() {
+        Map<String, FieldMapper> map = new HashMap<>(PRISONER_DETAIL_MAPPER.getFieldMap());
+        map.put("OFFENDER_ID", new FieldMapper("OFFENDER_ID"));
+        PRISONER_DETAIL_WITH_OFFENDER_ID_FIELD_MAP = map;
+    }
 
 	@Override
 	public Page<OffenderBooking> findInmatesByLocation(Long locationId, String locationTypeRoot, String caseLoadId, String query, String orderByField, Order order, long offset, long limit) {
@@ -177,7 +185,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 	@Override
 	@Cacheable("searchForOffenderBookings")
-	public Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String searchTerm1, String searchTerm2, String locationPrefix, String locationTypeRoot, PageRequest pageRequest) {
+	public Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String searchTerm1, String searchTerm2,
+														   String locationPrefix, List<String> alerts, String locationTypeRoot, PageRequest pageRequest) {
 		String initialSql = getQuery("FIND_ALL_INMATES");
 		initialSql += " AND " + getQuery("LOCATION_FILTER_SQL");
 
@@ -198,6 +207,10 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			initialSql += " AND (O.FIRST_NAME like :searchTerm2 OR O.LAST_NAME like :searchTerm2) ";
 		}
 
+		if (!alerts.isEmpty()) {
+			initialSql += " AND " + getQuery("ALERT_FILTER");
+		}
+
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_BOOKING_MAPPING);
 
 		String sql = builder
@@ -216,14 +229,16 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 createParams("offenderNo", offenderNo,
                         "searchTerm1", StringUtils.trimToEmpty(searchTerm1) + "%",
                         "searchTerm2", StringUtils.trimToEmpty(searchTerm2) + "%",
-                        "locationPrefix", StringUtils.trimToEmpty(locationPrefix) + "%",
+                        "locationPrefix", StringUtils.trimToEmpty(locationPrefix) + "-%",
                         "caseLoadId", caseloads,
                         "locationTypeRoot", locationTypeRoot,
+                        "alerts", alerts,
                         "offset", pageRequest.getOffset(), "limit", pageRequest.getLimit()),
                 paRowMapper);
 		offenderBookings.forEach(b -> b.setAge(DateTimeConverter.getAge(b.getDateOfBirth())));
 		return new Page<>(offenderBookings, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
 	}
+
 
 	@Override
 	public List<Long> getPersonalOfficerBookings(long staffId) {
@@ -236,9 +251,27 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     @Override
     public Page<PrisonerDetail> findOffenders(String query, PageRequest pageRequest) {
         String initialSql = getQuery("FIND_OFFENDERS");
-
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, PRISONER_DETAIL_MAPPER.getFieldMap());
+        return getPrisonerDetailPage(query, pageRequest, builder);
+    }
 
+    @Override
+    public Page<PrisonerDetail> findOffendersWithAliases(String query, PageRequest pageRequest){
+        String initialSql = getQuery("FIND_OFFENDERS_WITH_ALIASES");
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, PRISONER_DETAIL_WITH_OFFENDER_ID_FIELD_MAP);
+
+        return getPrisonerDetailPage(
+                query,
+                new PageRequest(
+                        pageRequest.getOrderBy() + ",OFFENDER_ID",
+                        pageRequest.getOrder(),
+                        pageRequest.getOffset(),
+                        pageRequest.getLimit()
+                ),
+                builder);
+    }
+
+    private Page<PrisonerDetail> getPrisonerDetailPage(String query, PageRequest pageRequest, IQueryBuilder builder) {
         String sql = builder
                 .addQuery(query)
                 .addRowCount()
@@ -246,17 +279,16 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 .addOrderBy(pageRequest.getOrder(), pageRequest.getOrderBy())
                 .build();
 
-		PageAwareRowMapper<PrisonerDetail> paRowMapper = new PageAwareRowMapper<>(PRISONER_DETAIL_MAPPER);
+        PageAwareRowMapper<PrisonerDetail> paRowMapper = new PageAwareRowMapper<>(PRISONER_DETAIL_MAPPER);
 
-		MapSqlParameterSource params =
-				createParams( "offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
+        MapSqlParameterSource params = createParams("offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
 
-        List<PrisonerDetail> prisonerDetails = jdbcTemplate.query( sql, params, paRowMapper);
+        List<PrisonerDetail> prisonerDetails = jdbcTemplate.query(sql, params, paRowMapper);
 
         return new Page<>(prisonerDetails, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
 
-	@Override
+    @Override
     @Cacheable("bookingPhysicalMarks")
     public List<PhysicalMark> findPhysicalMarks(long bookingId) {
 		String sql = getQuery("FIND_PHYSICAL_MARKS_BY_BOOKING");
@@ -293,7 +325,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
     @Override
-    @Cacheable("bookingImage")
     public Optional<ImageDetail> getMainBookingImage(long bookingId) {
         final String sql = getQuery("GET_IMAGE_DATA_FOR_BOOKING");
         ImageDetail imageDetail;
@@ -358,11 +389,12 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         }
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, ASSESSMENT_MAPPER.getFieldMap());
 
-        String sql = builder
-                .addOrderBy(Order.ASC, "assessmentCode")
-                .addOrderBy(Order.DESC, "assessmentDate,assessmentSeq")
-                .build();
-        
+		String sql = builder
+				.addOrderBy(Order.ASC, "bookingId")
+				// ensure CSRA is the first:
+				.addOrderBy(Order.DESC, "cellSharingAlertFlag,assessmentDate,assessmentSeq")
+				.build();
+
         final MapSqlParameterSource params = createParams(
                 idParam, ids,
                 "assessmentCode", assessmentCode,
@@ -430,16 +462,6 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		}
 
 		return Optional.ofNullable(inmate);
-	}
-
-	@Override
-    public List<String> findActiveAlertCodes(long bookingId) {
-		String sql = getQuery("FIND_ALERT_TYPES_FOR_OFFENDER");
-
-		return jdbcTemplate.query(
-				sql,
-				createParams("bookingId", bookingId),
-				(rs, rowNum) -> rs.getString("ALERT_TYPE"));
 	}
 
 	@Override

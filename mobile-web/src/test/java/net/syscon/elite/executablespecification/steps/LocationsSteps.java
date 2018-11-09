@@ -1,6 +1,7 @@
 package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.LocationGroup;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
@@ -11,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.util.StringUtils.commaDelimitedListToStringArray;
@@ -27,12 +30,7 @@ public class LocationsSteps extends CommonSteps {
     private Location location;
     private List<Location> locationList;
 
-    private List<String> groupList;
-
-    @Step("Perform locations search without any criteria")
-    public void findAll() {
-        dispatchQuery(null);
-    }
+    private List<LocationGroup> groupList;
 
     @Step("Perform location search by location id")
     public void findByLocationId(Long locationId) {
@@ -51,19 +49,6 @@ public class LocationsSteps extends CommonSteps {
         String locationDesc = (location == null) ? StringUtils.EMPTY : location.getDescription();
 
         assertThat(locationDesc).isEqualTo(description);
-    }
-
-    private void dispatchQuery(String query) {
-        init();
-
-        String queryUrl = API_LOCATIONS + StringUtils.trimToEmpty(query);
-
-        ResponseEntity<List<Location>> response = restTemplate.exchange(queryUrl,
-                HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<Location>>() {});
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-        buildResourceData(response);
     }
 
     private void dispatchQueryForObject(String query) {
@@ -100,8 +85,8 @@ public class LocationsSteps extends CommonSteps {
     private void dispatchGroupsCall(String url, String agencyId) {
         init();
         try {
-            ResponseEntity<List<String>> response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
-                    new ParameterizedTypeReference<List<String>>() {}, agencyId);
+            ResponseEntity<List<LocationGroup>> response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
+                    new ParameterizedTypeReference<List<LocationGroup>>() {}, agencyId);
             groupList = response.getBody();
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
@@ -136,6 +121,12 @@ public class LocationsSteps extends CommonSteps {
     }
 
     public void groupsAre(String expectedList) {
-        assertThat(groupList).asList().containsExactly((Object[]) commaDelimitedListToStringArray(expectedList));
+        List<String> actual = groupList
+                .stream()
+                .flatMap(group -> Stream.concat(
+                        Stream.of(group.getName()),
+                        group.getChildren().stream().map(subGroup -> group.getName() + '_' + subGroup.getName())))
+                .collect(Collectors.toList());
+        assertThat(actual).asList().containsExactly((Object[])commaDelimitedListToStringArray(expectedList));
     }
 }

@@ -27,14 +27,23 @@ public class AccessRoleMaintenanceIntTest {
     @WithUserDetails("ITAG_USER")
     public void testGetAllRolesInCaseload() {
         List<StaffUserRole> allRolesInCaseload = staffService.getAllStaffRolesForCaseload("NWEB", "KW_ADMIN");
-        assertThat(allRolesInCaseload).containsExactly(StaffUserRole.builder()
-                .roleId(-201L)
-                .roleCode("KW_ADMIN")
-                .roleName("Keyworker Admin")
-                .caseloadId("NWEB")
-                .username("ITAG_USER")
-                .staffId(-2L)
-                .build());
+        assertThat(allRolesInCaseload).containsExactly(
+                StaffUserRole.builder()
+                    .roleId(-201L)
+                    .roleCode("KW_ADMIN")
+                    .roleName("Keyworker Admin")
+                    .caseloadId("NWEB")
+                    .username("API_TEST_USER")
+                    .staffId(-4L)
+                    .build(),
+                StaffUserRole.builder()
+                        .roleId(-201L)
+                        .roleCode("KW_ADMIN")
+                        .roleName("Keyworker Admin")
+                        .caseloadId("NWEB")
+                        .username("ITAG_USER")
+                        .staffId(-2L)
+                        .build());
     }
 
     @Test
@@ -42,6 +51,14 @@ public class AccessRoleMaintenanceIntTest {
     public void testGetSpecificRoles() {
         List<StaffUserRole> roles = staffService.getRolesByCaseload(-2L, "NWEB");
         assertThat(roles).containsExactly(
+                StaffUserRole.builder()
+                        .roleId(-301L)
+                        .roleCode("ACCESS_ROLE_ADMIN")
+                        .roleName("Access Role Admin")
+                        .caseloadId("NWEB")
+                        .username("ITAG_USER")
+                        .staffId(-2L)
+                        .build(),
                 StaffUserRole.builder()
                         .roleId(-201L)
                         .roleCode("KW_ADMIN")
@@ -51,9 +68,25 @@ public class AccessRoleMaintenanceIntTest {
                         .staffId(-2L)
                         .build(),
                 StaffUserRole.builder()
-                        .roleId(-100L)
-                        .roleCode("LICENCE_CA")
-                        .roleName("Case Admin")
+                        .roleId(-303L)
+                        .roleCode("MAINTAIN_ACCESS_ROLES")
+                        .roleName("Maintain access roles")
+                        .caseloadId("NWEB")
+                        .username("ITAG_USER")
+                        .staffId(-2L)
+                        .build(),
+                StaffUserRole.builder()
+                        .roleId(-302L)
+                        .roleCode("MAINTAIN_ACCESS_ROLES_ADMIN")
+                        .roleName("Maintain access roles admin")
+                        .caseloadId("NWEB")
+                        .username("ITAG_USER")
+                        .staffId(-2L)
+                        .build(),
+                StaffUserRole.builder()
+                        .roleId(-203L)
+                        .roleCode("OMIC_ADMIN")
+                        .roleName("Omic Admin")
                         .caseloadId("NWEB")
                         .username("ITAG_USER")
                         .staffId(-2L)
@@ -63,23 +96,15 @@ public class AccessRoleMaintenanceIntTest {
     @Test
     @WithUserDetails("API_TEST_USER")
     public void testGetAllRolesForStaffMember() {
-        List<StaffUserRole> roles = staffService.getStaffRoles(-4L);
+        List<StaffUserRole> roles = staffService.getStaffRoles(-5L);
         assertThat(roles).containsExactly(
-                StaffUserRole.builder()
-                        .roleId(-2L)
-                        .roleCode("WING_OFF")
-                        .roleName("Wing Officer")
-                        .caseloadId("MUL")
-                        .username("API_TEST_USER")
-                        .staffId(-4L)
-                        .build(),
                 StaffUserRole.builder()
                         .roleId(-101L)
                         .roleCode("LICENCE_RO")
                         .roleName("Responsible Officer")
                         .caseloadId("NWEB")
-                        .username("API_TEST_USER")
-                        .staffId(-4L)
+                        .username("RO_USER")
+                        .staffId(-5L)
                         .build());
     }
 
@@ -87,11 +112,11 @@ public class AccessRoleMaintenanceIntTest {
     @WithMockUser(username="ITAG_USER",roles={"MAINTAIN_ACCESS_ROLES"})
     public void addAndRemoveRoleFromStaffMember() {
         List<StaffUserRole> roles = staffService.getStaffRoles(-4L);
-        assertThat(roles).hasSize(2);
+        assertThat(roles).hasSize(3);
 
         StaffUserRole addedRole = staffService.addStaffRole(-4L, "NWEB", "LICENCE_CA");
         roles = staffService.getStaffRoles(-4L);
-        assertThat(roles).hasSize(3);
+        assertThat(roles).hasSize(4);
 
         staffService.removeStaffRole(-4L, "NWEB", "LICENCE_CA");
         assertThat(addedRole).isEqualToComparingFieldByField(
@@ -105,7 +130,7 @@ public class AccessRoleMaintenanceIntTest {
                         .build());
 
         roles = staffService.getStaffRoles(-4L);
-        assertThat(roles).hasSize(2);
+        assertThat(roles).hasSize(3);
     }
 
 }

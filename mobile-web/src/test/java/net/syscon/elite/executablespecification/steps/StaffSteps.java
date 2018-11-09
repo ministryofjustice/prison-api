@@ -1,6 +1,7 @@
 package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.StaffDetail;
+import net.syscon.elite.api.model.StaffRole;
 import net.syscon.elite.api.model.StaffLocationRole;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
@@ -22,12 +23,14 @@ public class StaffSteps extends CommonSteps {
     private static final String API_STAFF_DETAIL_REQUEST_URL = API_PREFIX + "staff/{staffId}";
     private static final String API_STAFF_BY_AGENCY_POSITION_ROLE_REQUEST_URL = API_PREFIX + "staff/roles/{agencyId}/position/{position}/role/{role}";
     private static final String API_STAFF_BY_AGENCY_ROLE_REQUEST_URL = API_PREFIX + "staff/roles/{agencyId}/role/{role}";
+    private static final String API_STAFF_ROLES = API_PREFIX + "staff/{staffId}/{agencyId}/roles";
     private static final String QUERY_PARAM_NAME_FILTER = "nameFilter";
     private static final String QUERY_PARAM_STAFF_ID_FILTER = "staffId";
     private static final String QUERY_PARAM_ACTIVE_ONLY_FILTER = "activeOnly";
 
     private StaffDetail staffDetail;
     private List<StaffLocationRole> staffDetails;
+    private List<StaffRole> roles;
 
     @Override
     protected void init() {
@@ -35,6 +38,7 @@ public class StaffSteps extends CommonSteps {
 
         staffDetail = null;
         staffDetails = null;
+        roles = null;
     }
 
     @Step("Find staff details")
@@ -99,6 +103,42 @@ public class StaffSteps extends CommonSteps {
     @Step("Verify staff ids returned")
     public void verifyStaffIds(String staffIds) {
         verifyLongValues(staffDetails, StaffLocationRole::getStaffId, staffIds);
+    }
+
+    public void verifyStaffRoleWithNoDuplicates(String role, String roleDescription) {
+        long roleCount  = roles.stream()
+                .filter(r -> r.getRole().equals(role) && r.getRoleDescription().equals(roleDescription))
+                .count();
+
+        assertThat(roleCount == 1).isTrue();
+    }
+
+    public void getRoles(Long staffId, String agencyId) {
+        URI getJobRolesUri =
+                UriComponentsBuilder.fromUriString(API_STAFF_ROLES)
+                        .buildAndExpand(staffId, agencyId)
+                        .toUri();
+
+        dispatchGetStaffRoles(getJobRolesUri);
+    }
+
+    private void dispatchGetStaffRoles(URI uri) {
+        init();
+
+        try {
+
+            ResponseEntity<List<StaffRole>> response =
+                    restTemplate.exchange(
+                            uri,
+                            HttpMethod.GET,
+                            createEntity(),
+                            new ParameterizedTypeReference<List<StaffRole>>() {});
+
+            roles = response.getBody();
+
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
     }
 
     private void dispatchStaffByAgencyPositionRoleRequest(URI uri) {

@@ -35,6 +35,10 @@ public class CaseNoteTypeSubTypeValidator implements ConstraintValidator<CaseNot
 
     @Override
     public boolean isValid(NewCaseNote value, ConstraintValidatorContext context) {
+        if (value == null) {
+            // skip
+            return true;
+        }
         boolean valid = true;
 
         // This should be ok as it is cached:

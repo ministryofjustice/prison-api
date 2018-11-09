@@ -72,8 +72,8 @@ public abstract class CommonSteps {
     }
 
     @Step("User {0} authenticates with password {1}")
-    public void authenticates(String username, String password, boolean clientCredentials) {
-        errorResponse = auth.authenticate(StringUtils.upperCase(username), password, clientCredentials);
+    public void authenticates(String username, String password, boolean clientCredentials, String clientId) {
+        errorResponse = auth.authenticate(StringUtils.upperCase(username), password, clientCredentials, clientId);
     }
 
     @Step("Refreshes with token")
@@ -141,6 +141,12 @@ public abstract class CommonSteps {
     public void verifyNotAuthorised() {
         assertThat(errorResponse).isNotNull();
         assertThat(errorResponse.getStatus().intValue()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
+    }
+
+    @Step("Verify not authorised")
+    public void verifyUnapprovedClient() {
+        verifyNotAuthorised();
+        // unfortunately not able to access the status text that is returned to the client thought the oauth2template.
     }
 
     @Step("Verify resource conflict")
@@ -504,6 +510,13 @@ public abstract class CommonSteps {
         return "?query=" + StringUtils.trimToEmpty(queryParam);
     }
 
+    protected String buildQueryStringParameters(Map<String,String> parameters) {
+        return parameters.keySet()
+                .stream()
+                .map(key -> String.format("%s=%s", key, parameters.get(key)))
+                .collect(Collectors.joining("&"));
+    }
+
     protected Map<String,String> addPaginationHeaders() {
         return ImmutableMap.of("Page-Offset", String.valueOf(paginationOffset), "Page-Limit", String.valueOf(paginationLimit));
     }
@@ -559,5 +572,9 @@ public abstract class CommonSteps {
 
     public AuthenticationSteps getAuth() {
         return auth;
+    }
+
+    public   void authenticateAsClient(String clientId){
+        auth.authenticateAsClient(clientId);
     }
 }

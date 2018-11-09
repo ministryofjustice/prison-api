@@ -35,7 +35,7 @@ public class HSQLDBQueryBuilder extends AbstractQueryBuilder {
 			}
 
             // Apply record count based on full criteria defined in prepared SQL...
-			if (includeRowCount) {
+			if (includeRowCount || includeDirectRowCount) {
 				buildAnsiDataCountSql(result, preparedSql);
 			}
 

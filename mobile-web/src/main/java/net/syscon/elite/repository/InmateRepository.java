@@ -35,7 +35,8 @@ public interface InmateRepository {
 
 	Page<OffenderBooking> findAllInmates(Set<String> caseloads, String locationTypeRoot, String query, PageRequest pageRequest);
 
-	Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String searchTerm1, String searchTerm2, String locationPrefix, String locationTypeRoot, PageRequest pageRequest);
+	Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String searchTerm1, String searchTerm2,
+													String locationPrefix, List<String> alerts, String locationTypeRoot, PageRequest pageRequest);
 
 	Page<OffenderBooking> findInmatesByLocation(Long locationId, String locationTypeRoot, String caseLoadId, String query, String orderByField, Order order, long offset, long limit);
 
@@ -58,6 +59,7 @@ public interface InmateRepository {
 	 * @return list of prisoner details matching specified query criteria.
 	 */
 	Page<PrisonerDetail> findOffenders(String query, PageRequest pageRequest);
+    Page<PrisonerDetail> findOffendersWithAliases(String query, PageRequest pageRequest);
 
 	Optional<PhysicalAttributes> findPhysicalAttributes(long bookingId);
 
@@ -74,8 +76,6 @@ public interface InmateRepository {
 
 	Optional<AssignedLivingUnit> findAssignedLivingUnit(long bookingId, String locationTypeGranularity);
 
-	List<String> findActiveAlertCodes(long bookingId);
-
 	List<OffenderIdentifier> getOffenderIdentifiers(long bookingId);
 
 	static String generateFindOffendersQuery(PrisonerDetailSearchCriteria criteria) {
@@ -89,15 +89,30 @@ public interface InmateRepository {
 		final StringBuilder query = new StringBuilder();
 
 		appendNonBlankCriteria(query, "offenderNo", criteria.getOffenderNo(), eqTemplate, logicOperator);
-		appendNonBlankCriteria(query, "firstName", criteria.getFirstName(), nameMatchingTemplate, logicOperator);
-		appendNonBlankCriteria(query, "middleNames", criteria.getMiddleNames(), nameMatchingTemplate, logicOperator);
-		appendNonBlankCriteria(query, "lastName", criteria.getLastName(), nameMatchingTemplate, logicOperator);
-		appendNonBlankCriteria(query, "pncNumber", criteria.getPncNumber(), eqTemplate, logicOperator);
+		appendNonBlankNameCriteria(query, "firstName", criteria.getFirstName(), nameMatchingTemplate, logicOperator);
+		appendNonBlankNameCriteria(query, "middleNames", criteria.getMiddleNames(), nameMatchingTemplate, logicOperator);
+		appendNonBlankNameCriteria(query, "lastName", criteria.getLastName(), nameMatchingTemplate, logicOperator);
+		appendPNCNumberCriteria(query, criteria.getPncNumber(), logicOperator);
 		appendNonBlankCriteria(query, "croNumber", criteria.getCroNumber(), eqTemplate, logicOperator);
 
         appendDateRangeCriteria(query, "dateOfBirth", criteria, dateRangeTemplate, logicOperator);
 
 		return StringUtils.trimToNull(query.toString());
+	}
+
+	static void appendNonBlankNameCriteria(StringBuilder query, String criteriaName, String criteriaValue,
+									       String operatorTemplate, String logicOperator) {
+		if (StringUtils.isNotBlank(criteriaValue)) {
+			String escapedCriteriaValue;
+
+			if (StringUtils.contains(criteriaValue, "''")) {
+				escapedCriteriaValue = criteriaValue;
+			} else {
+				escapedCriteriaValue = StringUtils.replaceAll(criteriaValue, "'", "''");
+			}
+
+			appendNonBlankCriteria(query, criteriaName, escapedCriteriaValue, operatorTemplate, logicOperator);
+		}
 	}
 
 	static void appendNonBlankCriteria(StringBuilder query, String criteriaName, String criteriaValue,
@@ -122,6 +137,30 @@ public interface InmateRepository {
             query.append(format(operatorTemplate, logicOperator, criteriaName,
                     DateTimeFormatter.ISO_LOCAL_DATE.format(dateRange.getMinimum()), criteriaName,
                     DateTimeFormatter.ISO_LOCAL_DATE.format(dateRange.getMaximum())));
+        }
+    }
+
+    static void appendPNCNumberCriteria(StringBuilder query, String criteriaValue, String logicOperator) {
+        if (StringUtils.isNotBlank(criteriaValue)) {
+            int slashIdx = criteriaValue.indexOf('/');
+
+            if ((slashIdx != 2) && (slashIdx != 4)) {
+                throw new IllegalArgumentException("Incorrectly formatted PNC number.");
+            }
+
+            if (query.length() > 0) {
+                query.append(",").append(logicOperator);
+            }
+
+            String criteriaName = "pncNumber";
+
+            if (slashIdx == 2) {
+                query.append(format("%s:like:'%%%s'", criteriaName, criteriaValue.toUpperCase()));
+            } else {
+                String altValue = StringUtils.substring(criteriaValue, 2);
+
+                query.append(format("(%s:eq:'%s',or:%s:eq:'%s')", criteriaName, criteriaValue.toUpperCase(), criteriaName, altValue.toUpperCase()));
+            }
         }
     }
 }

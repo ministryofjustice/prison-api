@@ -1,22 +1,26 @@
 package net.syscon.elite.service.impl;
 
+import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.model.SentenceDetail.NonDtoReleaseDateType;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
+import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.NonDtoReleaseDate;
+import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
 import net.syscon.elite.service.support.ReferenceDomain;
+import net.syscon.elite.service.validation.AttendanceTypesValid;
+import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -28,10 +32,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static net.syscon.elite.service.ContactService.EXTERNAL_REF;
+import static java.util.stream.Collectors.toList;
+import static net.syscon.elite.service.ContactService.EXTERNAL_REL;
 
 /**
  * Bookings API service implementation.
@@ -41,6 +47,8 @@ import static net.syscon.elite.service.ContactService.EXTERNAL_REF;
 @Validated
 public class BookingServiceImpl implements BookingService {
 
+    private static final String AGENCY_LOCATION_ID_KEY = "agencyLocationId";
+
     private final StartTimeComparator startTimeComparator = new StartTimeComparator();
 
     private final BookingRepository bookingRepository;
@@ -49,8 +57,11 @@ public class BookingServiceImpl implements BookingService {
     private final CaseLoadService caseLoadService;
     private final LocationService locationService;
     private final ReferenceDomainService referenceDomainService;
+    private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
     private final TelemetryClient telemetryClient;
+    private final UserSecurityUtils securityUtils;
     private final String defaultIepLevel;
+    private final int maxBatchSize;
 
     /**
      * Order ScheduledEvents by startTime with null coming last
@@ -75,32 +86,44 @@ public class BookingServiceImpl implements BookingService {
                               SentenceRepository sentenceRepository, AgencyService agencyService,
                               CaseLoadService caseLoadService, LocationService locationService,
                               ReferenceDomainService referenceDomainService,
+                              CaseloadToAgencyMappingService caseloadToAgencyMappingService,
                               TelemetryClient telemetryClient,
-                              @Value("${api.bookings.iepLevel.default:Unknown}") String defaultIepLevel) {
+                              UserSecurityUtils securityUtils,
+                              @Value("${api.bookings.iepLevel.default:Unknown}") String defaultIepLevel,
+                              @Value("${batch.max.size:1000}") int maxBatchSize) {
         this.bookingRepository = bookingRepository;
         this.sentenceRepository = sentenceRepository;
         this.agencyService = agencyService;
         this.caseLoadService = caseLoadService;
         this.locationService = locationService;
         this.referenceDomainService = referenceDomainService;
+        this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
         this.telemetryClient = telemetryClient;
+        this.securityUtils = securityUtils;
         this.defaultIepLevel = defaultIepLevel;
+        this.maxBatchSize = maxBatchSize;
     }
 
     @Override
     @VerifyBookingAccess
     public SentenceDetail getBookingSentenceDetail(Long bookingId) {
-        // Get sentence detail and confirmed release date.
-        Optional<SentenceDetail> optSentenceDetail = bookingRepository.getBookingSentenceDetail(bookingId);
+
+        final SentenceDetail sentenceDetail = getSentenceDetail(bookingId);
+
         Optional<LocalDate> confirmedReleaseDate = sentenceRepository.getConfirmedReleaseDate(bookingId);
-
-        final SentenceDetail sentenceDetail = optSentenceDetail.orElse(
-                SentenceDetail.builder().bookingId(bookingId).build());
-
-        // Apply confirmed release date
         sentenceDetail.setConfirmedReleaseDate(confirmedReleaseDate.orElse(null));
 
         return deriveSentenceDetail(sentenceDetail);
+    }
+
+    private SentenceDetail getSentenceDetail(Long bookingId) {
+        Optional<SentenceDetail> optSentenceDetail = bookingRepository.getBookingSentenceDetail(bookingId);
+
+        return optSentenceDetail.orElse(emptySentenceDetail(bookingId));
+    }
+
+    private SentenceDetail emptySentenceDetail(Long bookingId) {
+        return SentenceDetail.builder().bookingId(bookingId).build();
     }
 
     private SentenceDetail deriveSentenceDetail(SentenceDetail sentenceDetail) {
@@ -137,31 +160,33 @@ public class BookingServiceImpl implements BookingService {
         final Map<Long, PrivilegeSummary> mapOfEip = new HashMap<>();
 
         if (!bookingIds.isEmpty()) {
-            Map<Long, List<PrivilegeDetail>> mapOfIEPResults = bookingRepository.getBookingIEPDetailsByBookingIds(bookingIds);
-            mapOfIEPResults.forEach((key, iepDetails) -> {
+            List<List<Long>> batch = Lists.partition(bookingIds, maxBatchSize);
+            batch.forEach(bookingIdList ->  {
+                Map<Long, List<PrivilegeDetail>> mapOfIEPResults = bookingRepository.getBookingIEPDetailsByBookingIds(bookingIdList);
+                mapOfIEPResults.forEach((key, iepDetails) -> {
 
-                // Extract most recent detail from list
-                PrivilegeDetail currentDetail = iepDetails.get(0);
+                    // Extract most recent detail from list
+                    PrivilegeDetail currentDetail = iepDetails.get(0);
 
-                // Determine number of days since current detail became effective
-                long daysSinceReview = DAYS.between(currentDetail.getIepDate(), now());
+                    // Determine number of days since current detail became effective
+                    long daysSinceReview = DAYS.between(currentDetail.getIepDate(), now());
 
-                mapOfEip.put(key, PrivilegeSummary.builder()
-                        .bookingId(currentDetail.getBookingId())
-                        .iepDate(currentDetail.getIepDate())
-                        .iepTime(currentDetail.getIepTime())
-                        .iepLevel(currentDetail.getIepLevel())
-                        .daysSinceReview(Long.valueOf(daysSinceReview).intValue())
-                        .iepDetails(withDetails ? iepDetails : Collections.emptyList())
-                        .build());
+                    mapOfEip.put(key, PrivilegeSummary.builder()
+                            .bookingId(currentDetail.getBookingId())
+                            .iepDate(currentDetail.getIepDate())
+                            .iepTime(currentDetail.getIepTime())
+                            .iepLevel(currentDetail.getIepLevel())
+                            .daysSinceReview(Long.valueOf(daysSinceReview).intValue())
+                            .iepDetails(withDetails ? iepDetails : Collections.emptyList())
+                            .build());
+                });
             });
-
         }
 
         // If no IEP details exist for offender, cannot derive an IEP summary.
         bookingIds.stream()
                 .filter(bookingId -> !mapOfEip.containsKey(bookingId))
-                .collect(Collectors.toList())
+                .collect(toList())
                 .forEach( bookingId -> mapOfEip.put(bookingId, PrivilegeSummary.builder()
                                         .bookingId(bookingId)
                                         .iepLevel(defaultIepLevel)
@@ -169,6 +194,18 @@ public class BookingServiceImpl implements BookingService {
                                         .build()));
 
         return mapOfEip;
+    }
+
+    @Override
+    public Map<Long, List<String>> getBookingAlertSummary(List<Long> bookingIds, LocalDateTime now) {
+        final Map<Long, List<String>> alerts = new HashMap<>();
+
+        if (!bookingIds.isEmpty()) {
+            List<List<Long>> batch = Lists.partition(bookingIds, maxBatchSize);
+            batch.forEach(bookingIdList -> alerts.putAll(bookingRepository.getAlertCodesForBookings(bookingIdList, now)));
+        }
+
+        return alerts;
     }
 
     @Override
@@ -182,6 +219,15 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.getBookingActivities(bookingId, fromDate, toDate, offset, limit, sortFields, sortOrder);
     }
 
+    private List<ScheduledEvent> getBookingActivities(Collection<Long> bookingIds, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
+        validateScheduledEventsRequest(fromDate, toDate);
+
+        String sortFields = StringUtils.defaultString(orderByFields, "startTime");
+        Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
+
+        return bookingRepository.getBookingActivities(bookingIds, fromDate, toDate, sortFields, sortOrder);
+    }
+
     @Override
     @VerifyBookingAccess
     public List<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
@@ -191,6 +237,50 @@ public class BookingServiceImpl implements BookingService {
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
 
         return bookingRepository.getBookingActivities(bookingId, fromDate, toDate, sortFields, sortOrder);
+    }
+
+    @Transactional
+    @Override
+    @VerifyBookingAccess
+    public void updateAttendance(String offenderNo, Long activityId, @Valid @AttendanceTypesValid UpdateAttendance updateAttendance) {
+        OffenderSummary offenderSummary = getLatestBookingByOffenderNo(offenderNo);
+        if (offenderSummary == null || offenderSummary.getBookingId() == null) {
+            throw EntityNotFoundException.withMessage("Offender No %s not found", offenderNo);
+        }
+        verifyBookingAccess(offenderSummary.getBookingId());
+        validateActivity(activityId, offenderSummary);
+
+        // Copy flags from the PAYABLE_ATTENDANCE_OUTCOME reference table
+        final PayableAttendanceOutcomeDto activityOutcome = bookingRepository.getPayableAttendanceOutcome("PRISON_ACT", updateAttendance.getEventOutcome());
+        bookingRepository.updateAttendance(offenderSummary.getBookingId(), activityId, updateAttendance, activityOutcome.isPaid(), activityOutcome.isAuthorisedAbsence());
+    }
+
+    private void validateActivity(Long activityId, OffenderSummary offenderSummary) {
+        // Find details for activities for same offender and same day as this one
+        final LocalDate attendanceEventDate = bookingRepository.getAttendanceEventDate(activityId);
+        if (attendanceEventDate == null) {
+            throw EntityNotFoundException.withMessage("Activity Id %d not found", activityId);
+        }
+        final List<ScheduledEvent> bookingActivities = bookingRepository.getBookingActivities(
+                offenderSummary.getBookingId(), attendanceEventDate, attendanceEventDate, null, null);
+        final Optional<ScheduledEvent> thisEvent = bookingActivities.stream()
+                .filter(a -> a.getEventId().equals(activityId))
+                .findFirst();
+        if (!thisEvent.isPresent()) {
+            return;
+        }
+
+        // Narrow down to an already-paid activity in same slot
+        final TimeSlot timeSlot = CalcDateRanges.startTimeToTimeSlot(thisEvent.get().getStartTime());
+        final Optional<ScheduledEvent> paidActivity = bookingActivities.stream()
+                .filter(a -> CalcDateRanges.startTimeToTimeSlot(a.getStartTime()) == timeSlot)
+                .filter(ScheduledEvent::getPaid)
+                .findFirst();
+
+        if (paidActivity.isPresent()) {
+            throw new BadRequestException(String.format("Prisoner %s has already been paid for '%s'",
+                    offenderSummary.getOffenderNo(), paidActivity.get().getEventSourceDesc()));
+        }
     }
 
     @Override
@@ -215,6 +305,15 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.getBookingVisits(bookingId, fromDate, toDate, sortFields, sortOrder);
     }
 
+    private List<ScheduledEvent> getBookingVisits(Collection<Long> bookingIds, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
+        validateScheduledEventsRequest(fromDate, toDate);
+
+        String sortFields = StringUtils.defaultString(orderByFields, "startTime");
+        Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
+
+        return bookingRepository.getBookingVisits(bookingIds, fromDate, toDate, sortFields, sortOrder);
+    }
+
     @Override
     @VerifyBookingAccess
     public Visit getBookingVisitLast(Long bookingId) {
@@ -222,8 +321,14 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @VerifyBookingAccess
+    public Visit getBookingVisitNext(Long bookingId) {
+        return bookingRepository.getBookingVisitNext(bookingId, LocalDateTime.now());
+    }
+
+    @Override
     public List<OffenderSummary> getBookingsByExternalRefAndType(String externalRef, String relationshipType) {
-        return bookingRepository.getBookingsByRelationship(externalRef, relationshipType, EXTERNAL_REF);
+        return bookingRepository.getBookingsByRelationship(externalRef, relationshipType, EXTERNAL_REL);
     }
 
     @Override
@@ -234,7 +339,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Long getBookingIdByOffenderNo(String offenderNo) {
         final Long bookingId = bookingRepository.getBookingIdByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
-        if (!isSystemUser()) {
+        if (!securityUtils.isOverrideRole("GLOBAL_SEARCH", "SYSTEM_USER")) {
             verifyBookingAccess(bookingId);
         }
         return bookingId;
@@ -260,6 +365,15 @@ public class BookingServiceImpl implements BookingService {
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
 
         return bookingRepository.getBookingAppointments(bookingId, fromDate, toDate, sortFields, sortOrder);
+    }
+
+    private List<ScheduledEvent> getBookingAppointments(Collection<Long> bookingIds, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
+        validateScheduledEventsRequest(fromDate, toDate);
+
+        String sortFields = StringUtils.defaultString(orderByFields, "startTime");
+        Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
+
+        return bookingRepository.getBookingAppointments(bookingIds, fromDate, toDate, sortFields, sortOrder);
     }
 
     @Transactional
@@ -452,12 +566,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public boolean isSystemUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication != null && authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().contains("SYSTEM_USER"));
-    }
-
-    @Override
     @VerifyBookingAccess
     public List<OffenceDetail> getMainOffenceDetails(Long bookingId) {
         return sentenceRepository.getMainOffenceDetails(bookingId);
@@ -468,6 +576,11 @@ public class BookingServiceImpl implements BookingService {
     public List<ScheduledEvent> getEventsToday(Long bookingId) {
         final LocalDate today = now();
         return getEvents(bookingId, today, today);
+    }
+
+    @Override
+    public List<ScheduledEvent> getEventsOnDay(Collection<Long> bookingIds, LocalDate day) {
+        return getEvents(bookingIds, day, day);
     }
 
     @Override
@@ -485,20 +598,20 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private List<ScheduledEvent> getEvents(Long bookingId, LocalDate from, LocalDate to) {
-        final Page<ScheduledEvent> activitiesPaged = getBookingActivities(bookingId, from, to, 0, 1000, null, null);
+        final Page<ScheduledEvent> activitiesPaged = getBookingActivities(bookingId, from, to, 0, maxBatchSize, null, null);
         final List<ScheduledEvent> activities = activitiesPaged.getItems();
         if (activitiesPaged.getTotalRecords() > activitiesPaged.getPageLimit()) {
-            activities.addAll(getBookingActivities(bookingId, from, to, 1000, activitiesPaged.getTotalRecords(), null, null).getItems());
+            activities.addAll(getBookingActivities(bookingId, from, to, maxBatchSize, activitiesPaged.getTotalRecords(), null, null).getItems());
         }
-        final Page<ScheduledEvent> visitsPaged = getBookingVisits(bookingId, from, to, 0, 1000, null, null);
+        final Page<ScheduledEvent> visitsPaged = getBookingVisits(bookingId, from, to, 0, maxBatchSize, null, null);
         final List<ScheduledEvent> visits = visitsPaged.getItems();
         if (visitsPaged.getTotalRecords() > visitsPaged.getPageLimit()) {
-            visits.addAll(getBookingVisits(bookingId, from, to, 1000, visitsPaged.getTotalRecords(), null, null).getItems());
+            visits.addAll(getBookingVisits(bookingId, from, to, maxBatchSize, visitsPaged.getTotalRecords(), null, null).getItems());
         }
-        final Page<ScheduledEvent> appointmentsPaged = getBookingAppointments(bookingId, from, to, 0, 1000, null, null);
+        final Page<ScheduledEvent> appointmentsPaged = getBookingAppointments(bookingId, from, to, 0, maxBatchSize, null, null);
         final List<ScheduledEvent> appointments = appointmentsPaged.getItems();
         if (appointmentsPaged.getTotalRecords() > appointmentsPaged.getPageLimit()) {
-            appointments.addAll(getBookingAppointments(bookingId, from, to, 1000, appointmentsPaged.getTotalRecords(), null, null).getItems());
+            appointments.addAll(getBookingAppointments(bookingId, from, to, maxBatchSize, appointmentsPaged.getTotalRecords(), null, null).getItems());
         }
         List<ScheduledEvent> results = new ArrayList<>();
         results.addAll(activities);
@@ -508,11 +621,33 @@ public class BookingServiceImpl implements BookingService {
         return results;
     }
 
-    @Override
-    public Page<OffenderSentenceDetail> getOffenderSentencesSummary(String username, String query, long offset, long limit, String orderByFields, Order order) {
-        final Page<OffenderSentenceDetailDto> offenderSentenceSummary = bookingRepository.getOffenderSentenceSummary(query, offset, limit, orderByFields, order, isSystemUser() ? Collections.emptySet() : getUserCaseloadIds(username));
+    private List<ScheduledEvent> getEvents(Collection<Long> bookingIds, LocalDate from, LocalDate to) {
+        final List<ScheduledEvent> activities = getBookingActivities(bookingIds, from, to, null, null);
+        final List<ScheduledEvent> visits = getBookingVisits(bookingIds, from, to, null, null);
+        final List<ScheduledEvent> appointments = getBookingAppointments(bookingIds, from, to, null, null);
 
-        final List<OffenderSentenceDetail> offenderSentenceDetails = offenderSentenceSummary.getItems().stream()
+        final List<ScheduledEvent> results = new ArrayList<>(activities);
+        results.addAll(visits);
+        results.addAll(appointments);
+        return results;
+    }
+
+    @Override
+    public List<OffenderSentenceDetail> getOffenderSentencesSummary(String agencyId, String username, List<String> offenderNos) {
+
+        final List<OffenderSentenceDetailDto> offenderSentenceSummary = offenderSentenceSummaries(agencyId, username, offenderNos);
+        return getOffenderSentenceDetails(offenderSentenceSummary);
+    }
+
+    @Override
+    public List<OffenderSentenceDetail> getBookingSentencesSummary(String username, List<Long> bookingIds) {
+
+        final List<OffenderSentenceDetailDto> offenderSentenceSummary = bookingSentenceSummaries(username, bookingIds);
+        return getOffenderSentenceDetails(offenderSentenceSummary);
+    }
+
+    private List<OffenderSentenceDetail> getOffenderSentenceDetails(List<OffenderSentenceDetailDto> offenderSentenceSummary) {
+        final List<OffenderSentenceDetail> offenderSentenceDetails = offenderSentenceSummary.stream()
                 .map(os -> OffenderSentenceDetail.builder()
                         .bookingId(os.getBookingId())
                         .offenderNo(os.getOffenderNo())
@@ -553,10 +688,96 @@ public class BookingServiceImpl implements BookingService {
                         .facialImageId(os.getFacialImageId())
                         .internalLocationDesc(LocationProcessor.stripAgencyId(os.getInternalLocationDesc(), os.getAgencyLocationId()))
                         .build())
-                .collect(Collectors.toList());
+                .collect(toList());
 
         offenderSentenceDetails.forEach(s -> deriveSentenceDetail(s.getSentenceDetail()));
-        return new Page<>(offenderSentenceDetails, offenderSentenceSummary.getTotalRecords(), offenderSentenceSummary.getPageOffset(), offenderSentenceSummary.getPageLimit());
+
+        final Comparator<OffenderSentenceDetail> compareDate = Comparator.comparing(
+                s -> s.getSentenceDetail().getReleaseDate(),
+                Comparator.nullsLast(Comparator.naturalOrder())
+        );
+
+        return offenderSentenceDetails.stream().sorted(compareDate).collect(toList());
+    }
+
+
+    private List<OffenderSentenceDetailDto> offenderSentenceSummaries(String agencyId, String username, List<String> offenderNos) {
+
+        final Set<String> caseloads = caseLoadIdsForUser(username);
+
+        if (offenderNos.isEmpty()) {
+            return offenderSentenceSummaries(agencyId, username, caseloads);
+        } else {
+            return offenderSentenceSummaries(offenderNos, caseloads);
+        }
+    }
+
+    private List<OffenderSentenceDetailDto> bookingSentenceSummaries(String username, List<Long> bookingIds) {
+
+        final Set<String> caseloads = caseLoadIdsForUser(username);
+        return bookingSentenceSummaries(bookingIds, caseloads);
+    }
+
+    private Set<String> caseLoadIdsForUser(String username) {
+        return securityUtils.isOverrideRole("GLOBAL_SEARCH", "SYSTEM_USER")
+                ? Collections.emptySet() : caseLoadService.getCaseLoadIdsForUser(username, true);
+    }
+
+    private List<OffenderSentenceDetailDto> offenderSentenceSummaries(String agencyId, String username, Set<String> caseloads) {
+        String query = buildAgencyQuery(agencyId, username);
+        if (StringUtils.isEmpty(query) && caseloads.isEmpty()) {
+            throw new BadRequestException("Request must be restricted to either a caseload, agency or list of offenders");
+        }
+        return bookingRepository.getOffenderSentenceSummary(query, caseloads);
+    }
+
+    private List<OffenderSentenceDetailDto> offenderSentenceSummaries(List<String> offenderNos, Set<String> caseloads) {
+
+        return Lists
+                .partition(offenderNos, maxBatchSize)
+                .stream()
+                .flatMap(numbers -> {
+                    String query = "offenderNo:in:" + quotedAndPipeDelimited(numbers.stream());
+                    return bookingRepository.getOffenderSentenceSummary(query, caseloads).stream();
+                })
+                .collect(Collectors.toList());
+    }
+
+    private List<OffenderSentenceDetailDto> bookingSentenceSummaries(List<Long> bookingIds, Set<String> caseloads) {
+
+        return Lists
+                .partition(bookingIds, maxBatchSize)
+                .stream()
+                .flatMap(numbers -> {
+                    String query = "bookingId:in:" + numbers.stream().map(String::valueOf).collect(Collectors.joining("|"));
+                    return bookingRepository.getOffenderSentenceSummary(query, caseloads).stream();
+                })
+                .collect(Collectors.toList());
+    }
+
+    private static String quotedAndPipeDelimited(Stream<String> values) {
+        return values.collect(Collectors.joining("'|'","'", "'"));
+    }
+
+    private String buildAgencyQuery(String agencyId, String username) {
+        return StringUtils.isBlank(agencyId) ?
+                forAgenciesInWorkingCaseload(username) :
+                forAgency(agencyId);
+    }
+
+    private String forAgenciesInWorkingCaseload(String username) {
+
+        final List<Agency> agencies = caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(username);
+
+        return agencies.isEmpty() ? "" : AGENCY_LOCATION_ID_KEY + ":in:" +
+                quotedAndPipeDelimited(
+                        agencies
+                        .stream()
+                        .map(Agency::getAgencyId));
+    }
+
+    private static String forAgency(String agencyId) {
+        return AGENCY_LOCATION_ID_KEY + ":eq:" + agencyId;
     }
 
     @Override
@@ -569,7 +790,4 @@ public class BookingServiceImpl implements BookingService {
         throw new NotSupportedException("Service not implemented here.");
     }
 
-    private Set<String> getUserCaseloadIds(String username) {
-        return caseLoadService.getCaseLoadIdsForUser(username, true);
-    }
 }

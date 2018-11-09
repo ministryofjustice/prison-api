@@ -17,6 +17,7 @@ import java.util.Objects;
 @Repository
 public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRepository {
 
+    private static final String AND_OFFENDER_NUMBERS = " AND O.OFFENDER_ID_DISPLAY in (:offenderNos)";
     private static final StandardBeanPropertyRowMapper<PrisonerSchedule> EVENT_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(PrisonerSchedule.class);
 
     
@@ -38,7 +39,7 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
                         "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
                 EVENT_ROW_MAPPER);
     }
-    
+
     @Override
     public List<PrisonerSchedule> getLocationAppointments(Long locationId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
         Objects.requireNonNull(locationId, "locationId is a required parameter");
@@ -69,12 +70,62 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
                 .addOrderBy(order, orderByFields)
                 .build();
 
-
         return jdbcTemplate.query(
                 sql,
                 createParams("locationId", locationId,
-                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
-                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
+                        "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
+                        "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
+                EVENT_ROW_MAPPER);
+    }
+
+    @Override
+    public List<PrisonerSchedule> getVisits(String agencyId, List<String> offenderNo, LocalDate date) {
+        return jdbcTemplate.query(
+                getQuery("GET_VISITS") + AND_OFFENDER_NUMBERS,
+                createParams(
+                        "offenderNos", offenderNo,
+                        "date", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(date))),
+                EVENT_ROW_MAPPER);
+    }
+
+    @Override
+    public List<PrisonerSchedule> getAppointments(String agencyId, List<String> offenderNo, LocalDate date) {
+        return jdbcTemplate.query(
+                getQuery("GET_APPOINTMENTS") + AND_OFFENDER_NUMBERS,
+                createParams(
+                        "offenderNos", offenderNo,
+                        "date", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(date))),
+                EVENT_ROW_MAPPER);
+    }
+
+    @Override
+    public List<PrisonerSchedule> getActivities(String agencyId, List<String> offenderNumbers, LocalDate date) {
+        return jdbcTemplate.query(
+                getQuery("GET_ACTIVITIES") + AND_OFFENDER_NUMBERS,
+                createParams(
+                        "offenderNos", offenderNumbers,
+                        "date", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(date))),
+                EVENT_ROW_MAPPER);
+    }
+
+    @Override
+    public List<PrisonerSchedule> getCourtEvents(List<String> offenderNumbers, LocalDate date) {
+        return jdbcTemplate.query(
+                getQuery("GET_COURT_EVENTS"),
+                createParams(
+                        "offenderNos", offenderNumbers,
+                        "date", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(date))),
+                EVENT_ROW_MAPPER);
+    }
+
+    @Override
+    public List<PrisonerSchedule> getExternalTransfers(String agencyId, List<String> offenderNumbers, LocalDate date) {
+        return jdbcTemplate.query(
+                getQuery("GET_EXTERNAL_TRANSFERS") + AND_OFFENDER_NUMBERS,
+                createParams(
+                        "offenderNos", offenderNumbers,
+                        "agencyId", agencyId,
+                        "date", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(date))),
                 EVENT_ROW_MAPPER);
     }
 }

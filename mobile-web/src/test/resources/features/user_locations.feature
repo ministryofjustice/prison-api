@@ -17,5 +17,5 @@ Feature: User Locations
 
     Examples:
       | username        | password | number | agency id           | description                   | prefix              |
-      | itag_user       | password | 3      | LEI,LEI,LEI         | LEEDS,Block A,Block H         | LEI,LEI-A,LEI-H     |
-      | api_test_user   | password | 4      | BXI,LEI,LEI,LEI     | BRIXTON,LEEDS,Block A,Block H | BXI,LEI,LEI-A,LEI-H |
+      | itag_user       | password | 3      | LEI,LEI,LEI         | Leeds,Block A,H         | LEI,LEI-A,LEI-H     |
+      | api_test_user   | password | 4      | BXI,LEI,LEI,LEI     | Brixton,Leeds,Block A,H | BXI,LEI,LEI-A,LEI-H |

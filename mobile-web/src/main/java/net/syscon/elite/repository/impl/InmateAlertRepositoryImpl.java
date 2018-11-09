@@ -21,19 +21,26 @@ import java.util.Optional;
 @Repository
 public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateAlertRepository {
 
-	private final Map<String, FieldMapper> alertMapping = new ImmutableMap.Builder<String, FieldMapper>()
-		.put("ALERT_SEQ", 			new FieldMapper("alertId"))
-		.put("ALERT_TYPE", 			new FieldMapper("alertType"))
-		.put("ALERT_TYPE_DESC", 	new FieldMapper("alertTypeDescription"))
-		.put("ALERT_CODE", 			new FieldMapper("alertCode"))
-		.put("ALERT_CODE_DESC", 	new FieldMapper("alertCodeDescription"))
-		.put("COMMENT_TEXT", 		new FieldMapper("comment", value -> value == null ? "" : value))
-		.put("ALERT_DATE", 			new FieldMapper("dateCreated", DateTimeConverter::toISO8601LocalDate))
-		.put("EXPIRY_DATE", 		new FieldMapper("dateExpires", DateTimeConverter::toISO8601LocalDate))
-		.build();
+    private final Map<String, FieldMapper> alertMapping = new ImmutableMap.Builder<String, FieldMapper>()
+        .put("ALERT_SEQ", new FieldMapper("alertId"))
+        .put("OFFENDER_BOOK_ID", new FieldMapper("bookingId"))
+        .put("OFFENDER_ID_DISPLAY", new FieldMapper("offenderNo"))
+        .put("ALERT_TYPE", new FieldMapper("alertType"))
+        .put("ALERT_TYPE_DESC", new FieldMapper("alertTypeDescription"))
+        .put("ALERT_CODE", new FieldMapper("alertCode"))
+        .put("ALERT_CODE_DESC", new FieldMapper("alertCodeDescription"))
+        .put("COMMENT_TEXT", new FieldMapper("comment", value -> value == null ? "" : value))
+        .put("ALERT_STATUS", new FieldMapper("active", "ACTIVE"::equals))
+        .put("ALERT_DATE", new FieldMapper("dateCreated", DateTimeConverter::toISO8601LocalDate))
+        .put("EXPIRY_DATE", new FieldMapper("dateExpires", DateTimeConverter::toISO8601LocalDate))
+        .put("ADD_FIRST_NAME", new FieldMapper("addedByFirstName"))
+        .put("ADD_LAST_NAME", new FieldMapper("addedByLastName"))
+        .put("UPDATE_FIRST_NAME", new FieldMapper("expiredByFirstName"))
+        .put("UPDATE_LAST_NAME", new FieldMapper("expiredByLastName"))
+        .build();
 
 	@Override
-	public Page<Alert> getInmateAlert(long bookingId, String query, String orderByField, Order order, long offset, long limit) {
+	public Page<Alert> getInmateAlerts(long bookingId, String query, String orderByField, Order order, long offset, long limit) {
 		String initialSql = getQuery("FIND_INMATE_ALERTS");
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
 
@@ -56,7 +63,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 	}
 
 	@Override
-	public Optional<Alert> getInmateAlert(long bookingId, long alertSeqId) {
+	public Optional<Alert> getInmateAlerts(long bookingId, long alertSeqId) {
 	    String initialSql = getQuery("FIND_INMATE_ALERT");
 	    IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
 	    String sql = builder.build();
@@ -76,9 +83,15 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 		return Optional.ofNullable(alert);
 	}
 
-	public long getAlertCounts(long bookingId, String status) {
-        return jdbcTemplate.queryForObject(getQuery("ALERT_COUNTS"),
-                createParams("bookingId", bookingId, "status", status),
-                Long.class);
-	}
+    @Override
+    public List<Alert> getInmateAlertsByOffenderNos(String agencyId, List<String> offenderNos) {
+        final String sql = getQuery("FIND_INMATE_OFFENDERS_ALERTS");
+        RowMapper<Alert> alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);
+        return jdbcTemplate.query(
+                sql,
+                createParams(
+                        "offenderNos", offenderNos,
+                        "agencyId", agencyId),
+                alertMapper);
+    }
 }

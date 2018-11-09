@@ -5,6 +5,13 @@ properties:
     type: number
     (javaType): Long
     description: Alert Id
+  bookingId:
+    type: number
+    (javaType): Long
+    description: Offender booking id.
+  offenderNo:
+    type: string
+    description: Offender Unique Reference
   alertType:
     type: string
     description: Alert Type
@@ -29,3 +36,18 @@ properties:
   expired:
     type: boolean
     description: True / False indicated expired
+  active:
+    type: boolean
+    description: Status is active
+  addedByFirstName?:
+    type: string
+    description: First name of the user who added the alert
+  addedByLastName?:
+    type: string
+    description: Last name of the user who added the alert
+  expiredByFirstName?:
+    type: string
+    description: First name of the user who expired the alert
+  expiredByLastName?:
+    type: string
+    description: Last name of the user who expired the alert

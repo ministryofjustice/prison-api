@@ -3,6 +3,7 @@ package net.syscon.elite.service.impl;
 import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.BookingRepository;
+import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.ReferenceDomain;
 import org.junit.Before;
@@ -26,7 +27,7 @@ import static org.junit.Assert.fail;
  * Test cases for {@link BookingServiceImpl}.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class BookingServiceImplTest {
+public class  BookingServiceImplTest {
     @Mock
     private BookingRepository bookingRepository;
 
@@ -41,6 +42,9 @@ public class BookingServiceImplTest {
 
     @Mock
     private TelemetryClient telemetryClient;
+
+    @Mock
+    private UserSecurityUtils securityUtils;
 
     private BookingService bookingService;
 
@@ -70,8 +74,17 @@ public class BookingServiceImplTest {
 
     @Before
     public void init() {
-        bookingService = new BookingServiceImpl(bookingRepository, null, agencyService, null,
-                locationService, referenceDomainService, telemetryClient, "1");
+        bookingService = new BookingServiceImpl(
+                bookingRepository,
+                null,
+                agencyService,
+                null,
+                locationService,
+                referenceDomainService,
+                null,
+                telemetryClient,
+                securityUtils,"1",
+                10);
     }
 
     @Test

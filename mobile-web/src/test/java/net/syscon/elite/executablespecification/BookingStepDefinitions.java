@@ -1,12 +1,17 @@
 package net.syscon.elite.executablespecification;
 
+import cucumber.api.DataTable;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.executablespecification.steps.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -180,28 +185,28 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.verifyOffenderAssignedOfficerId(assignedOfficerId);
     }
 
-    @And("^religion of offender booking returned is \"([^\"]*)\"$")
-    public void religionOfOffenderBookingReturnedIs(String religion) {
-        bookingDetail.verifyReligion(religion);
+    @And("^language of offender booking returned is \"([^\"]*)\"$")
+    public void languageOfOffenderBookingReturnedIs(String language) throws ReflectiveOperationException {
+        bookingDetail.verifyLanguage(language);
     }
 
     @And("^firstname of offender booking returned is \"([^\"]*)\"$")
-    public void firstnameOfOffenderBookingReturnedIs(String firstname) throws Throwable {
+    public void firstnameOfOffenderBookingReturnedIs(String firstname) {
         bookingDetail.verifyOffenderFirstName(firstname);
     }
 
     @And("^lastName of offender booking returned is \"([^\"]*)\"$")
-    public void lastnameOfOffenderBookingReturnedIs(String lastName) throws Throwable {
+    public void lastnameOfOffenderBookingReturnedIs(String lastName) {
         bookingDetail.verifyOffenderLastName(lastName);
     }
 
     @And("^offenderNo of offender booking returned is \"([^\"]*)\"$")
-    public void offendernoOfOffenderBookingReturnedIs(String offenderNo) throws Throwable {
+    public void offendernoOfOffenderBookingReturnedIs(String offenderNo) {
         bookingDetail.verifyOffenderNo(offenderNo);
     }
 
     @And("^activeFlag of offender booking returned is \"(true|false)\"$")
-    public void activeflagOfOffenderBookingReturnedIs(boolean activeFlag) throws Throwable {
+    public void activeflagOfOffenderBookingReturnedIs(boolean activeFlag) {
         bookingDetail.verifyOffenderActiveFlag(activeFlag);
     }
 
@@ -464,6 +469,17 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAlerts.verifyAlertField(field, value);
     }
 
+    @When("^alerts are requested for offender nos \"([^\"]*)\"$")
+    public void alertIsRequestedForOffenderBooking(String offenderNos) {
+        bookingAlerts.getAlerts("LEI", Arrays.asList(StringUtils.split(offenderNos, ",")));
+    }
+
+    @Then("^alert details are returned as follows:$")
+    public void alertsAreReturnedAsFollows(DataTable table) throws Throwable {
+        final List<Alert> expected = table.asList(Alert.class);
+        bookingAlerts.verifyAlerts(expected);
+    }
+
     @Then("^resource not found response is received from alert API$")
     public void resourceNotFoundResponseIsReceivedFromAlertAPI() {
         bookingAlerts.verifyResourceNotFound();
@@ -511,13 +527,38 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAssessment.verifyNextReviewDate(nextReviewDate);
     }
 
+    @And("^the CSRA is \"([^\"]*)\"$")
+    public void theCsraIs(String csra) throws ReflectiveOperationException {
+        bookingDetail.verifyField("csra", csra);
+    }
+
+    @And("^the category is \"([^\"]*)\"$")
+    public void theCategoryIs(String category) throws ReflectiveOperationException {
+        bookingDetail.verifyField("category", category);
+    }
+
     @When("^an offender booking assessment information request is made with offender numbers \"([^\"]*)\" and \"([^\"]*)\"$")
     public void anOffenderBookingAssessmentInformationRequestIsMadeWithBookingIdAnd(String offenderNoList, String assessmentCode) {
         bookingAssessment.getAssessmentsByCode(offenderNoList, assessmentCode);
     }
 
+    @When("^an offender booking assessment information POST request is made with offender numbers \"([^\"]*)\" and \"([^\"]*)\"$")
+    public void anOffenderBookingAssessmentInformationRequestIsMadeUsingPost(String offenderNoList, String assessmentCode) {
+        bookingAssessment.getAssessmentsByCodeUsingPost(offenderNoList, assessmentCode);
+    }
+
+    @When("^an offender booking CSRA information POST request is made with offender numbers \"([^\"]*)\"$")
+    public void anOffenderBookingCSRAInformationRequestIsMadeUsingPost(String offenderNoList) {
+        bookingAssessment.getCsrasUsingPost(offenderNoList);
+    }
+
+    @Then("^bad request response is received from booking assessments API$")
+    public void badRequestResponseIsReceivedFromBookingAssessmentsAPI() {
+        bookingAssessment.verifyBadRequest("List of Offender Ids must be provided");
+    }
+
     @Then("^correct results are returned as for single assessment$")
-    public void multipleIsCorrect() throws Throwable {
+    public void multipleIsCorrect() {
         bookingAssessment.verifyMultipleAssessments();
     }
 
@@ -541,9 +582,29 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.verifyInactiveCount(count);
     }
 
-    @When("^sentence details are requested for an offenders in logged in users caseloads with booking id \"([0-9-]+)\"$")
-    public void sentenceDetailsAreRequestedForAnOffendersInLoggedInUsersCaseloadsWithBookingId(String bookingId) {
-        bookingSentenceDetail.getOffenderSentenceDetails(Long.valueOf(bookingId));
+    @And("^the list of active alert types is \"([^\"]*)\"$")
+    public void theListOfActiveAlertTypesIs(String types) {
+        bookingDetail.verifyAlertTypes(types);
+    }
+
+    @When("^sentence details are requested for an offenders in logged in users caseloads with offender No \"([^\"]*)\"$")
+    public void sentenceDetailsAreRequestedForAnOffendersInLoggedInUsersCaseloadsWithBookingId(String offenderNos) {
+        bookingSentenceDetail.getOffenderSentenceDetails(offenderNos, null);
+    }
+
+    @When("^sentence details are requested by a POST request for offender Nos \"([^\"]*)\"$")
+    public void sentenceDetailsAreRequestedByPostForOffenderNos(String offenderNos) {
+        bookingSentenceDetail.getOffenderSentenceDetailsUsingPostRequest(offenderNos);
+    }
+
+    @When("^sentence details are requested by a POST request for booking ids \"([^\"]*)\"$")
+    public void sentenceDetailsAreRequestedByPostForBookingIds(String bookingIds) {
+        bookingSentenceDetail.getBookingSentenceDetailsUsingPostRequest(bookingIds);
+    }
+
+    @Then("^bad request response is received from booking sentence API$")
+    public void badRequestResponseIsReceivedFromBookingSentenceAPI() {
+        bookingSentenceDetail.verifyBadRequest("List of Offender Ids must be provided");
     }
 
     @When("^sentence details are requested of offenders for the logged in users caseloads$")
@@ -553,6 +614,7 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^\"([0-9-]+)\" offenders are returned$")
     public void offendersAreReturned(long total) {
+        bookingSentenceDetail.verifyNoError();
         bookingSentenceDetail.verifyResourceRecordsReturned(total);
     }
 
@@ -561,18 +623,18 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingSentenceDetail.verifyTotalResourceRecordsAvailable(total);
     }
 
-    @When("^sentence details are requested of offenders for the logged in users caseloads sorted by \"([^\"]*)\" and filtered by \"([^\"]*)\"$")
-    public void sentenceDetailsAreRequestedOfOffendersForTheLoggedInUsersCaseloadsSortedByAndFilteredBy(String sortFields, String filterQuery) throws Throwable {
-        bookingSentenceDetail.getOffenderSentenceDetails(sortFields, filterQuery, 10L);
+    @Then("some offender sentence details are returned")
+    public void someOffenderSentenceDetailsAreReturned() {
+        bookingSentenceDetail.verifySomeResourceRecordsReturned();
     }
 
-    @When("^sentence details are requested of offenders for the logged in users caseloads sorted by \"([^\"]*)\", filtered by \"([^\"]*)\" with page size of \"([0-9-]+)\"$")
-    public void sentenceDetailsAreRequestedOfOffendersForTheLoggedInUsersCaseloadsSortedByAndFilteredBy(String sortFields, String filterQuery, Long pageSize) throws Throwable {
-        bookingSentenceDetail.getOffenderSentenceDetails(sortFields, filterQuery, pageSize);
+    @When("^sentence details are requested for offender Nos of \"([^\"]*)\"$")
+    public void sentenceDetailsAreRequestedForOffenderNosOf(String offenderNos) {
+        bookingSentenceDetail.getOffenderSentenceDetails(offenderNos, null);
     }
 
     @When("^assessment information is requested for Booking Id \"([^\"]*)\"$")
-    public void assessmentInformationIsRequestedForBookingId(String bookingId) throws Throwable {
+    public void assessmentInformationIsRequestedForBookingId(String bookingId) {
         bookingAssessment.getAssessments(Long.valueOf(bookingId));
     }
 
@@ -582,38 +644,38 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     }
 
     @When("^offender identifiers are requested for Booking Id \"([^\"]*)\"$")
-    public void offenderIdentifiersAreRequestedForBookingId(String bookingId) throws Throwable {
+    public void offenderIdentifiersAreRequestedForBookingId(String bookingId) {
         bookingDetail.getOffenderIdentifiers(Long.valueOf(bookingId));
     }
 
     @When("^profile information is requested for Booking Id \"([^\"]*)\"$")
-    public void profileInformationIsRequestedForBookingId(String bookingId) throws Throwable {
+    public void profileInformationIsRequestedForBookingId(String bookingId) {
         bookingDetail.getProfileInformation(Long.valueOf(bookingId));
     }
 
     @When("^physical characteristic information is requested for Booking Id \"([^\"]*)\"$")
-    public void physicalCharacteristicInformationIsRequestedForBookingId(String bookingId) throws Throwable {
+    public void physicalCharacteristicInformationIsRequestedForBookingId(String bookingId) {
         bookingDetail.getPhysicalCharacteristics(Long.valueOf(bookingId));
     }
 
     @When("^image metadata is requested for Booking Id \"([^\"]*)\"$")
-    public void imageMetadataIsRequestedForBookingId(String bookingId) throws Throwable {
+    public void imageMetadataIsRequestedForBookingId(String bookingId) {
         bookingDetail.getImageMetadata(Long.valueOf(bookingId));
     }
 
     @When("^an physical attributes request is made with booking id \"([^\"]*)\"$")
-    public void anPhysicalAttributesRequestIsMadeWithBookingId(String bookingId) throws Throwable {
+    public void anPhysicalAttributesRequestIsMadeWithBookingId(String bookingId) {
         bookingDetail.getPhysicalAttributes(Long.valueOf(bookingId));
     }
 
     @Then("^\"(\\d+)\" row of offender identifiers is returned$")
-    public void rowOfOffenderIdentifiersIsReturned(long expectedCount) throws Throwable {
+    public void rowOfOffenderIdentifiersIsReturned(long expectedCount) {
         bookingDetail.verifyResourceRecordsReturned(expectedCount);
     }
 
-    @Then("^\"(\\d+)\" row of profile information is returned$")
-    public void rowOfProfileInformationIsReturned(long expectedCount) throws Throwable {
-        bookingDetail.verifyResourceRecordsReturned(expectedCount);
+    @Then("^correct profile information is returned$")
+    public void correctProfileInformationIsReturned() {
+        bookingDetail.verifyProfileInformation();
     }
 
     @Then("^\"(\\d+)\" row of physical characteristics is returned$")
@@ -622,7 +684,12 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^image data is returned$")
-    public void imageDataIsReturned() throws Throwable {
+    public void imageDataIsReturned() {
         bookingDetail.verifyImageMetadataExists();
+    }
+
+    @When("^sentence details are requested for offenders who are candidates for Home Detention Curfew$")
+    public void sentenceDetailsAreRequestedForHomeDetentionCurfewCandidates() {
+        bookingSentenceDetail.requestSentenceDetailsForHomeDetentionCurfewCandidates();
     }
 }

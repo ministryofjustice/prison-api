@@ -28,12 +28,17 @@ public class OffenderSearchStepDefinitions extends AbstractStepDefinitions {
 
     @When("^an offender search is made for location \"([^\"]*)\"$")
     public void aOffenderSearchIsMadeForLocation(String locationPrefix) throws Throwable {
-        offenderSearch.search(locationPrefix, null);
+        offenderSearch.search(locationPrefix, null, false, false, false, null);
     }
 
     @When("^an offender search is made with keywords \"([^\"]*)\" in location \"([^\"]*)\"$")
     public void anOffenderSearchIsMadeWithKeywordsInLocation(String keywords, String locationPrefix) throws Throwable {
-        offenderSearch.search(locationPrefix, keywords);
+        offenderSearch.search(locationPrefix, keywords, true, false, false, null);
+    }
+
+    @When("^an offender search is made filtering by alerts \"([^\"]*)\" in location \"([^\"]*)\"$")
+    public void aBookingSearchIsMadeWithAlerts(String alerts, String locationPrefix) {
+        offenderSearch.search(locationPrefix,  null, false, true, true, alerts);
     }
 
     @Then("^\"([^\"]*)\" offender records are returned$")
@@ -66,4 +71,23 @@ public class OffenderSearchStepDefinitions extends AbstractStepDefinitions {
         offenderSearch.verifyLivingUnits(livingUnits);
     }
 
+    @And("^the offender alerts match \"([^\"]*)\"$")
+    public void offenderAlertsMatch(String alerts) throws Throwable {
+        offenderSearch.verifyAlerts(alerts);
+    }
+
+    @And("^the offender categories match \"([^\"]*)\"$")
+    public void offenderCategoriesMatch(String categories) throws Throwable {
+        offenderSearch.verifyCategories(categories);
+    }
+
+    @When("^a booking search is made in \"([^\"]*)\"$")
+    public void aBookingSearchIsMadeIn(String subLocation) throws Throwable {
+        offenderSearch.search(subLocation, null, true, true, false,null);
+    }
+
+    @Then("^only offenders situated in \"([^\"]*)\" be present in the results$")
+    public void onlyOffendersSituatedInBePresentInTheResults(String subLocationPrefix) throws Throwable {
+       offenderSearch.verifySubLocationPrefixInResults(subLocationPrefix);
+    }
 }

@@ -60,7 +60,7 @@ jobs:
                TAG=ELITE2_API_${API_VERSION}
              fi
              docker build --rm=false . \
-                --tag "sysconjusticesystems/elite2-api:$TAG" \
+                --tag "mojdigitalstudio/elite2-api:$TAG" \
                 --label "maintainer=michael.willis@digital.justice.gov.uk" \
                 --label "app.version=$TAG" \
                 --label "build.version=$TAG" \
@@ -68,11 +68,13 @@ jobs:
                 --label "build.url=$CIRCLE_BUILD_URL" \
                 --label "build.gitref=$CIRCLE_SHA1"
              docker login -u $DOCKER_USER -p $DOCKER_PASS
-             docker push sysconjusticesystems/elite2-api:$TAG
+             docker push mojdigitalstudio/elite2-api:$TAG
 
              if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
-               docker tag sysconjusticesystems/elite2-api:$TAG sysconjusticesystems/elite2-api:latest
-               docker push sysconjusticesystems/elite2-api:latest
+              docker tag mojdigitalstudio/elite2-api:$TAG mojdigitalstudio/elite2-api:latest
+              docker tag mojdigitalstudio/elite2-api:$TAG sysconjusticesystems/elite2-api:latest
+              docker push mojdigitalstudio/elite2-api:latest
+              docker push sysconjusticesystems/elite2-api:latest
              fi
 
 workflows:

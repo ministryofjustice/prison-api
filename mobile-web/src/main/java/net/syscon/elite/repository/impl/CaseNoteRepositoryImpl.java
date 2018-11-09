@@ -1,9 +1,7 @@
 package net.syscon.elite.repository.impl;
 
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
-import net.syscon.elite.api.model.CaseNote;
-import net.syscon.elite.api.model.NewCaseNote;
-import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.CaseNoteRepository;
@@ -26,10 +24,8 @@ import org.springframework.validation.annotation.Validated;
 
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -57,6 +53,12 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 			.put("STAFF_NAME", 				    new FieldMapper("authorName"))
 			.build();
 
+	private static final RowMapper<CaseNoteUsage> CASE_NOTE_USAGE_MAPPER =
+			new StandardBeanPropertyRowMapper<>(CaseNoteUsage.class);
+
+    private static final RowMapper<CaseNoteStaffUsage> CASE_NOTE_STAFF_USAGE_MAPPER =
+            new StandardBeanPropertyRowMapper<>(CaseNoteStaffUsage.class);
+
     @Override
     public Page<CaseNote> getCaseNotes(long bookingId, String query, LocalDate from, LocalDate to, String orderByField,
             Order order, long offset, long limit) {
@@ -64,21 +66,21 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
         String initialSql = getQuery("FIND_CASENOTES");
         final MapSqlParameterSource params = createParams("bookingId", bookingId, "offset", offset, "limit", limit);
         if (from != null) {
-            initialSql += " AND CN.CREATE_DATETIME >= :fromDate";
+            initialSql += " AND CN.CONTACT_DATE >= :fromDate";
             params.addValue("fromDate", DateTimeConverter.toDate(from));
         }
         if (to != null) {
-            initialSql += " AND CN.CREATE_DATETIME < :toDate";
+            initialSql += " AND CN.CONTACT_DATE < :toDate";
 
             // Adjust to be strictly less than start of *next day.
 
             // This handles a query which includes an inclusive 'date to' element of a date range filter being used to retrieve
-            // case notes based on the OFFENDER_CASE_NOTES.CREATE_DATETIME falling on or between two dates
+            // case notes based on the OFFENDER_CASE_NOTES.CONTACT_DATE falling on or between two dates
             // (inclusive date from and date to elements included) or being on or before a specified date (inclusive date to
             // element only).
             //
-            // As the CREATE_DATETIME field is a TIMESTAMP (i.e. includes a time component), a clause which performs a '<='
-            // comparison between CREATE_DATETIME and the provided 'date to' value will not evaluate to 'true' for CREATE_DATETIME
+            // As the CONTACT_DATE field is a DATE, a clause which performs a '<='
+            // comparison between CONTACT_DATE and the provided 'date to' value will not evaluate to 'true' for CONTACT_DATE
             // values on the same day as the 'date to' value.
             //
             // This processing step has been introduced to ADD ONE DAY to a provided 'date to' value and replace 
@@ -106,6 +108,31 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 		return new Page<>(caseNotes, paRowMapper.getTotalRecords(), offset, limit);
 	}
 
+	@Override
+	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, List<String> offenderNos, Integer staffId, LocalDate fromDate, LocalDate toDate) {
+
+		return jdbcTemplate.query(getQuery("GROUP_BY_TYPES_AND_OFFENDERS"),
+				createParams("offenderNos", offenderNos,
+						"staffId", new SqlParameterValue(Types.INTEGER, staffId),
+						"type", type,
+						"subType", subType,
+						"fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
+						"toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
+				CASE_NOTE_USAGE_MAPPER);
+	}
+
+    @Override
+    public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(String type, String subType, List<Integer> staffIds, LocalDate fromDate, LocalDate toDate) {
+
+        return jdbcTemplate.query(getQuery("GROUP_BY_TYPES_AND_STAFF"),
+                createParams("staffIds", staffIds,
+                        "type", type,
+                        "subType", subType,
+                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
+                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
+                CASE_NOTE_STAFF_USAGE_MAPPER);
+    }
+
     @Override
 	public Optional<CaseNote> getCaseNote(long bookingId, long caseNoteId) {
 		final String sql = getQuery("FIND_CASENOTE");
@@ -121,12 +148,12 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
-	public Long createCaseNote(long bookingId, NewCaseNote newCaseNote, String sourceCode, String username) {
+	public Long createCaseNote(long bookingId, NewCaseNote newCaseNote, String sourceCode, String username, Long staffId) {
 		String initialSql = getQuery("INSERT_CASE_NOTE");
 		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, CASE_NOTE_MAPPING);
 		String sql = builder.build();
 
-		LocalDateTime now = Instant.now().atOffset(ZoneOffset.UTC).toLocalDateTime();
+		final LocalDateTime now = LocalDateTime.now();
 
 		Timestamp createdDateTime = DateTimeConverter.fromLocalDateTime(now);
 		java.sql.Date createdDate = DateTimeConverter.fromTimestamp(createdDateTime);
@@ -155,7 +182,8 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 										"contactDate", occurrenceDate,
 										"contactTime", occurrenceTime,
 										"createdBy", username,
-										"userId", username),
+										"userId", username,
+										"staffId", staffId),
 				generatedKeyHolder,
 				new String[] {"CASE_NOTE_ID"});
 

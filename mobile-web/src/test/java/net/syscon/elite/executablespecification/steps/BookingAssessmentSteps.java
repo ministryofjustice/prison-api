@@ -1,7 +1,9 @@
 package net.syscon.elite.executablespecification.steps;
 
+import com.google.common.collect.ImmutableList;
 import net.syscon.elite.api.model.Assessment;
 import net.syscon.elite.test.EliteClientException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -9,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,6 +64,25 @@ public class BookingAssessmentSteps extends CommonSteps {
         }
     }
 
+    private List<Assessment> doMultipleResultApiCallWithPost(String url, List<String> offenderNoBody) {
+        init();
+        try {
+            ResponseEntity<List<Assessment>> response =
+                    restTemplate.exchange(
+                            url,
+                            HttpMethod.POST,
+                            createEntity(offenderNoBody),
+                            new ParameterizedTypeReference<List<Assessment>>() {});
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            buildResourceData(response);
+            return response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+            return null;
+        }
+    }
+
     private void doListResultApiCall(String url) {
         init();
         try {
@@ -98,7 +120,18 @@ public class BookingAssessmentSteps extends CommonSteps {
         assessments = doMultipleResultApiCall(API_ASSESSMENTS_PREFIX + assessmentCode + query);
     }
 
+    public void getAssessmentsByCodeUsingPost(String offenders, String assessmentCode) {
+        List<String> offenderList = StringUtils.isNotBlank(offenders) ? ImmutableList.copyOf(offenders.split(",")) : Collections.emptyList();
+        assessments = doMultipleResultApiCallWithPost(API_ASSESSMENTS_PREFIX + assessmentCode, offenderList);
+    }
+
+    public void getCsrasUsingPost(String offenders) {
+        List<String> offenderList = StringUtils.isNotBlank(offenders) ? ImmutableList.copyOf(offenders.split(",")) : Collections.emptyList();
+        assessments = doMultipleResultApiCallWithPost(API_ASSESSMENTS_PREFIX + "csra/list", offenderList);
+    }
+
     public void verifyMultipleAssessments() {
+        verifyNoError();
         assertThat(assessments).asList()
                 .extracting("bookingId", "offenderNo", "classification", "assessmentCode", "cellSharingAlertFlag", "nextReviewDate")
                 .contains(tuple(-1L, "A1234AA", "High", "CSR", true, LocalDate.of(2018, Month.JUNE, 1)),

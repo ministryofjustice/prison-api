@@ -1,8 +1,11 @@
 package net.syscon.util;
 
+import net.syscon.elite.api.support.TimeSlot;
 import org.apache.commons.lang3.Range;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Comparator;
 
 import static java.time.temporal.ChronoUnit.YEARS;
@@ -62,5 +65,32 @@ public class CalcDateRanges {
 
     public Range<LocalDate> getDateRange() {
         return hasDateRange() ? Range.between(dateFrom, dateTo, LOCAL_DATE_COMPARATOR) : null;
+    }
+
+    public static boolean eventStartsInTimeslot(LocalDateTime start, TimeSlot timeSlot) {
+        final LocalDateTime midday = midday(start.toLocalDate());
+        final LocalDateTime evening = evening(start.toLocalDate());
+        return timeSlot == null
+                || (timeSlot == TimeSlot.AM && start.isBefore(midday))
+                || (timeSlot == TimeSlot.PM && !start.isBefore(midday) && start.isBefore(evening))
+                || (timeSlot == TimeSlot.ED && !start.isBefore(evening));
+    }
+
+    private static LocalDateTime midday(LocalDate date) {
+        return LocalDateTime.of(date, LocalTime.of(12, 0));
+    }
+
+    private static LocalDateTime evening(LocalDate date) {
+        return LocalDateTime.of(date, LocalTime.of(17, 0));
+    }
+
+    public static TimeSlot startTimeToTimeSlot(LocalDateTime time) {
+        if (time.isBefore(midday(time.toLocalDate()))) {
+            return TimeSlot.AM;
+        } else if (time.isBefore(evening(time.toLocalDate()))) {
+            return TimeSlot.PM;
+        } else {
+            return TimeSlot.ED;
+        }
     }
 }

@@ -7,7 +7,6 @@ public interface ImageService {
 
 	ImageDetail findImageDetail(Long imageId);
 	byte[] getImageContent(Long imageId);
-
-
+	byte[] getImageContent(String offenderNo);
 }
 

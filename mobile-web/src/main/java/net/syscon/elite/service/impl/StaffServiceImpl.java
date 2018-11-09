@@ -111,7 +111,7 @@ public class StaffServiceImpl implements StaffService {
             throw new EntityAlreadyExistsException(roleCode);
         }
 
-        // check if user caseload exists
+        // ensure that user accessible caseload exists...
         if (!userRepository.isUserAssessibleCaseloadAvailable(caseload, userDetail.getUsername())) {
             userRepository.addUserAssessibleCaseload(caseload, userDetail.getUsername());
         }
@@ -131,6 +131,14 @@ public class StaffServiceImpl implements StaffService {
 
         Long roleId = userRepository.getRoleIdForCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
         userRepository.removeRole(userDetail.getUsername(), caseload, roleId);
+    }
+
+    @Override
+    public List<StaffRole> getAllRolesForAgency(Long staffId, String agencyId) {
+        Validate.notNull(staffId, "A staff id is required.");
+        Validate.notBlank(agencyId, "An agency id is required.");
+
+        return staffRepository.getAllRolesForAgency(staffId, agencyId);
     }
 
     private Optional<StaffUserRole> getRoleByCaseload(Long staffId, String username, String caseload, String roleCode) {

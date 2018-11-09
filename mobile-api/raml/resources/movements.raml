@@ -1,0 +1,79 @@
+/:
+  (javaOperationName): getRecentMovementsByDate
+  type:
+    readOnlyCollection:
+      type: Movement
+      description: Returns a list of recently released or moved offender nos and the associated timestamp.
+  get:
+    queryParameters:
+      fromDateTime:
+        type: datetime
+        description: A timestamp that indicates the earliest record required
+        example: 2018-04-19T12:31:59
+      movementDate:
+        type: date-only
+        description: The date for which movements are searched
+        example: 2018-04-19
+      agencyId?:
+        type: string
+        description: Filter to just movements to or from this agency.
+
+
+/offenders:
+  post:
+    (javaOperationName): getRecentMovementsByOffenders
+    type:
+        readOnlyCollection:
+          type: Movement
+          description: Returns a list of the most recent movements.
+    queryParameters:
+      movementTypes?:
+           type: array
+           (javaType): List<String>
+           description: movement type codes to filter by
+           example: ?movementTypes=TRN&movementTypes=REL
+    body:
+      application/json:
+           (javaType): List<String>
+           description: The required offender numbers (mandatory)
+    responses:
+          200:
+            body:
+              application/json:
+                 type: Movement[]
+
+/rollcount/{agencyId}:
+  (javaOperationName): getRollcount
+  uriParameters:
+    agencyId:
+      type: string
+      description: The prison id
+  type:
+    readOnlyCollection:
+      type: RollCount
+      description: Current establishment rollcount numbers.
+  get:
+    queryParameters:
+      unassigned?:
+        type: boolean
+        description: If false return data for prisoners in cell locations, if true return unassigned prisoners, i.e. those in non-cell locations.
+        example: unassigned=true
+        default: false
+
+/rollcount/{agencyId}/movements:
+  (javaOperationName): getRollcountMovements
+  uriParameters:
+    agencyId:
+      type: string
+      description: The prison id
+  type:
+    readOnlyItem:
+      type: MovementCount
+      description: Rollcount movement numbers.
+  get:
+    queryParameters:
+      movementDate:
+        type: date-only
+        description: The date for which movements are counted, default today.
+        example: 2018-09-19
+

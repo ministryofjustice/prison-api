@@ -1,4 +1,5 @@
 @global
+
 Feature: Booking Visits
 
   Acceptance Criteria
@@ -64,7 +65,7 @@ Feature: Booking Visits
 
   Scenario: Retrieve current day's scheduled visits for an existing offender having one or more visits on current day
     When scheduled visits for current day are requested for an offender with booking id "-3"
-    Then "2" visits are returned
+    Then "3" visits are returned
 
   Scenario: Retrieve scheduled visits for an existing offender having one or more visits, from a specified date
     When scheduled visits from "2017-05-01" are requested for an offender with booking id "-1"
@@ -125,3 +126,19 @@ Feature: Booking Visits
   Scenario: Retrieve last visit for an offender that does not exist
     When the last visit is requested for an offender with booking id "-99"
     Then resource not found response is received from booking visits API
+
+  Scenario Outline: Retrieve the next visit for an offender
+    When the next visit is requested for an offender with booking id "<booking id>"
+    Then the visit visitType is "<visitType>"
+    And the visit visitTypeDescription is "<visitTypeDescription>"
+    And the visit eventStatus is "<eventStatus>"
+    And the visit eventStatusDescription is "<eventStatusDescription>"
+    And the visit leadVisitor is "<leadVisitor>"
+    And the visit relationship is "<relationship>"
+    And the visit relationshipDescription is "<relationshipDescription>"
+    And the visit location is "<location>"
+    And the visit startTime is offset from the start of today by "<startOffset>"
+    And the visit endTime is offset from the start of today by "<endOffset>"
+    Examples:
+    | booking id | visitType | visitTypeDescription | eventStatus  | eventStatusDescription | leadVisitor  | relationship  | relationshipDescription   | location           | startOffset | endOffset |
+    | -3         | SCON      | Social Contact       |  SCH         | Scheduled (Approved)   | JOHN JOHNSON | BRO           | Brother                   | Carpentry Workshop | P1DT10H     | P1DT11H   |

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * BDD step definitions for the following API endpoints:
  * <ul>
  * <li>/schedules/{agencyId}/groups/{name}</li>
+ * <li>/schedules/{agencyId}/locations/{locationId}/usage/{usage}</li>
  * </ul>
  */
 public class SchedulesStepDefinitions extends AbstractStepDefinitions {
@@ -68,14 +69,19 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
         schedulesSteps.getSchedulesForLocationGroup("LEI", "BlockA");
     }
 
-    @When("^schedules are requested for a valid agency and location group with 'timeSlot' = '([APM]+)'$")
+    @When("^schedules are requested for a valid agency and location group with 'timeSlot' = '([APMED]+)'$")
     public void schedulesAreRequestedForValidAgencyAndLocationGroupwithTimeSlot(TimeSlot timeSlot) {
-        schedulesSteps.getSchedulesForLocationGroup("LEI", "BlockA", timeSlot);
+        schedulesSteps.getSchedulesForLocationGroup("LEI", "BlockA", null, timeSlot);
     }
 
-    @Then("^response is a list of offender's schedules for the current day with size ([0-9]+)$")
+    @When("^schedules are requested for a valid agency and location group with date = '([0-9-]+)' and 'timeSlot' = '([APMED]+)'$")
+    public void schedulesAreRequestedForValidAgencyAndLocationGroupwithTimeSlot(String date, TimeSlot timeSlot) {
+        schedulesSteps.getSchedulesForLocationGroup("LEI", "BlockA", date, timeSlot);
+    }
+
+    @Then("^response is a list of offender's schedules with size ([0-9]+)$")
     public void listOfOffendersSchedulesForCurrentDay(int size) throws Throwable {
-        schedulesSteps.verifyListOfOffendersSchedulesForCurrentDay(size);
+        schedulesSteps.verifyListOfOffendersSchedules(size);
     }
 
     @Then("^returned schedules are ordered as defined by requested location group$")
@@ -83,9 +89,9 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
         schedulesSteps.verifySchedulesAreOrdered();
     }
 
-    @Then("^returned schedules are only for offenders located in locations that belong to requested agency and location group$")
-    public void schedulesAreOnlyForOffendersLocated() throws Throwable {
-        schedulesSteps.verifyOffendersAreLocatedInALocationThatBelongsToRequestedAgencyAndLocationGroup();
+    @Then("^returned schedules are only for offenders located in locations \"([^\"]*)\"$")
+    public void schedulesAreOnlyForOffendersLocated(String locations) throws Throwable {
+        schedulesSteps.verifyOffendersAreLocatedInALocationThatBelongsToRequestedAgencyAndLocationGroup(locations);
     }
 
     @Then("^start time of all returned schedules is before 12h00$")
@@ -93,9 +99,14 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
         schedulesSteps.schedulesAreOnlyBefore12h00();
     }
 
-    @Then("^start time of all returned schedules is on or after 12h00$")
-    public void schedulesAreOnlyOnOrAfter12h00() throws Throwable {
-        schedulesSteps.schedulesAreOnlyOnOrAfter12h00();
+    @Then("^start time of all returned schedules is between 12h00 and 17h00$")
+    public void schedulesAreOnlyBetween12And17() throws Throwable {
+        schedulesSteps.schedulesAreOnlyBetween12And17();
+    }
+
+    @Then("^start time of all returned schedules is on or after 17h00$")
+    public void schedulesAreOnlyOnOrAfter17h00() throws Throwable {
+        schedulesSteps.schedulesAreOnlyOnOrAfter17h00();
     }
 
     @Then("^schedules response is HTTP 404 resource not found$")
@@ -188,5 +199,63 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
     @Given("^an agency which does not exists has been set")
     public void anAgencyWhichDoesNotExists() throws Throwable {
        schedulesSteps.givenNoneExistentAgency();
+    }
+
+    @Given("^an offender with scheduled visits$")
+    public void anOffenderWithScheduledVisits() throws Throwable {
+        //test data setup
+    }
+
+    @When("^visits are requested with a valid agency with a time slot \"([^\"]*)\" and offender numbers \"([^\"]*)\"$")
+    public void visitsAreRequestedWithAValidAgencyWithATimeSlotAndOffenderNumbers(String timeSlot, String offenderNo) throws Throwable {
+        schedulesSteps.getVisits(offenderNo, timeSlot);
+    }
+
+    @Then("^the following visits should be returned \"([^\"]*)\"$")
+    public void theFollowingVisitsShouldBeReturned(String visits) throws Throwable {
+       this.schedulesSteps.verifyVisits(visits);
+    }
+
+    @Given("^an offender with scheduled appointments$")
+    public void anOffenderWithScheduledAppointments() throws Throwable {
+        //test data setup
+    }
+
+    @When("^appointments are requested with a valid agency with a time slot \"([^\"]*)\" and offender numbers \"([^\"]*)\"$")
+    public void appointmentsAreRequestedWithAValidAgencyWithATimeSlotAndOffenderNumbers(String timeSlot, String offenderNo) throws Throwable {
+        schedulesSteps.getAppointments(offenderNo, timeSlot);
+    }
+
+    @Then("^the following appointments should be returned \"([^\"]*)\"$")
+    public void theFollowingAppointmentsShouldBeReturned(String appointments) throws Throwable {
+        this.schedulesSteps.verifyAppointments(appointments);
+    }
+
+    @When("^Court events are requested with a valid agency with a time slot \"([^\"]*)\", date \"([^\"]*)\" and offender number list \"([^\"]*)\"$")
+    public void courtEventsAreRequestedWithAValidAgencyWithATimeSlotAndOffenderNumbers(String timeSlot, String date, String offenderNos) throws Throwable {
+        schedulesSteps.getCourtEvents(offenderNos, date, timeSlot);
+    }
+
+    @Then("^the following events should be returned: \"([^\"]*)\"$")
+    public void theFollowingCourtEventsShouldBeReturned(String events) throws Throwable {
+        this.schedulesSteps.verifyCourtEvents(events);
+    }
+
+    @Given("^an offender that is scheduled to be transferred outside of the prison$")
+    public void anOffenderThatIsScheduledToBeTransferredOutsideOfThePrison() throws Throwable {
+    }
+
+    @When("^Request an offenders external transfers for a given date$")
+    public void transfersAreRequestedWithAValidAgencyAndDate() throws Throwable {
+    }
+
+    @When("^a request is made for transfers with the following parameters \"([^\"]*)\" and \"([^\"]*)\"$")
+    public void aRequestIsMadeForTransfersWithTheFollowingParametersAnd(String offenderNumber, String date) throws Throwable {
+        this.schedulesSteps.getExternalTransfers(offenderNumber, date);
+    }
+
+    @Then("^the following offender should be returned \"([^\"]*)\", \"([^\"]*)\" along with the \"([^\"]*)\"$")
+    public void theFollowingOffenderShouldBeReturnedAlongWithThe(String firstName, String lastName, String transferDescription) throws Throwable {
+        this.schedulesSteps.verifyTransfer(firstName, lastName, transferDescription);
     }
 }

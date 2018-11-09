@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -32,7 +32,7 @@ public class ContactRelationshipIntTest {
     private BookingService bookingService;
 
     @Test
-    @WithUserDetails("ITAG_USER")
+    @WithMockUser(username= "ITAG_USER", roles = { "CONTACT_CREATE" })
     public void testCreateRelationshipWithMultipleOffendersAndLinkedRelationships() {
         List<Contact> contactList = contactService.getRelationships(BOOKING1_ID, "COM");
         assertThat(contactList).isEmpty();

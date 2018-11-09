@@ -15,10 +15,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 
 import javax.ws.rs.Path;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestResource
@@ -52,6 +49,59 @@ public class UserResourceImpl implements UserResource {
         this.inmateService = inmateService;
         this.keyWorkerAllocationService = keyWorkerAllocationService;
         this.env = env;
+    }
+
+    @Override
+    public GetAllUsersHavingRoleAtCaseloadResponse getAllUsersHavingRoleAtCaseload(String caseload, String roleCode) {
+        Set<String> users = userService.getAllUsernamesForCaseloadAndRole(caseload, roleCode);
+        return GetAllUsersHavingRoleAtCaseloadResponse.respond200WithApplicationJson(new ArrayList<>(users));
+    }
+
+    @Override
+    public GetUsersByCaseLoadResponse getUsersByCaseLoad(String caseload, String nameFilter, String accessRole, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+
+        PageRequest pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
+
+        Page<UserDetail> userDetails = userService.getUsersByCaseload(caseload, nameFilter, accessRole, pageRequest);
+
+        return GetUsersByCaseLoadResponse.respond200WithApplicationJson(userDetails);
+    }
+
+    @Override
+    public GetLocalAdministratorUsersByCaseLoadResponse getLocalAdministratorUsersByCaseLoad(String caseload, String nameFilter, String accessRole, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+
+        PageRequest pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
+
+        Page<UserDetail> userDetails = userService.getLocalAdministratorUsersByCaseload(caseload, nameFilter, accessRole, pageRequest);
+
+        return GetLocalAdministratorUsersByCaseLoadResponse.respond200WithApplicationJson(userDetails);
+    }
+
+    @Override
+    public RemoveUsersAccessRoleForCaseloadResponse removeUsersAccessRoleForCaseload(String username, String caseload, String roleCode) {
+        userService.removeUsersAccessRoleForCaseload( username,  caseload,  roleCode);
+        return RemoveUsersAccessRoleForCaseloadResponse.respond200WithApplicationJson();
+    }
+
+    @Override
+    public GetUsersResponse getUsers(String nameFilter, String accessRole, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+        PageRequest pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
+
+        Page<UserDetail> userDetails = userService.getUsers(nameFilter, accessRole, pageRequest);
+
+        return GetUsersResponse.respond200WithApplicationJson(userDetails);
+    }
+
+    @Override
+    public AddAccessRoleResponse addAccessRole(String username, String roleCode) {
+        boolean added = userService.addAccessRole(username, roleCode);
+        return added? AddAccessRoleResponse.respond201WithApplicationJson() : AddAccessRoleResponse.respond200WithApplicationJson();
+    }
+
+    @Override
+    public AddAccessRoleByCaseloadResponse addAccessRoleByCaseload(String username, String caseload, String roleCode) {
+        boolean added = userService.addAccessRole(username, roleCode, caseload);
+        return added? AddAccessRoleByCaseloadResponse.respond201WithApplicationJson() : AddAccessRoleByCaseloadResponse.respond200WithApplicationJson();
     }
 
     @Override
@@ -122,6 +172,19 @@ public class UserResourceImpl implements UserResource {
     }
 
     @Override
+    public GetRolesForUserAndCaseloadResponse getRolesForUserAndCaseload(String username, String caseload, boolean includeAdmin) {
+        final List<AccessRole> roles = userService.getAccessRolesByUserAndCaseload(username, caseload, includeAdmin);
+
+        return GetRolesForUserAndCaseloadResponse.respond200WithApplicationJson(roles);
+    }
+
+    @Override
+    public AddApiAccessForCaseloadResponse addApiAccessForCaseload(String caseload) {
+        userService.addDefaultCaseloadForPrison(caseload);
+        return AddApiAccessForCaseloadResponse.respond200WithApplicationJson();
+    }
+
+    @Override
     public GetMyAssignmentsResponse getMyAssignments(Long pageOffset, Long pageLimit) {
         boolean nomisProfile = Arrays.stream(env.getActiveProfiles()).anyMatch(p -> p.contains("nomis"));
         boolean iepLevel = false;
@@ -151,4 +214,5 @@ public class UserResourceImpl implements UserResource {
         }
         return GetMyAssignmentsResponse.respond200WithApplicationJson(assignments);
     }
+
 }

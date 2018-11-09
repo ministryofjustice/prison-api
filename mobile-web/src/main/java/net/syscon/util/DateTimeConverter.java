@@ -59,16 +59,6 @@ public class DateTimeConverter {
 		return java.sql.Date.valueOf(localDateTime.toLocalDate());
 	}
 
-	public static Timestamp fromISO8601DateTime(String iso8601DateTime, ZoneOffset zoneOffset) {
-        if (StringUtils.isBlank(iso8601DateTime)) {
-            return null;
-        }
-	    LocalDateTime ldt;
-
-		ldt = fromISO8601DateTimeToLocalDateTime(iso8601DateTime, zoneOffset);
-		return Timestamp.valueOf(ldt);
-	}
-
 	public static LocalDateTime fromISO8601DateTimeToLocalDateTime(String iso8601DateTime, ZoneOffset zoneOffset) {
         if (StringUtils.isBlank(iso8601DateTime)) {
             return null;
@@ -162,23 +152,6 @@ public class DateTimeConverter {
 		}
 
 		return localDateTime;
-	}
-
-	/**
-	 * Converts date and time represented by provided dateTime object to an {@link OffsetDateTime}. Treats
-	 * provided dateTime as a local UTC dateTime.
-	 *
-	 * @param dateTime an instance of {@code java.sql.Timestamp} or {@code java.util.Date}.
-	 * @return an {@link OffsetDateTime} or {@code null} if provided dateTime object is {@code null}.
-	 * @throws IllegalArgumentException if provided dateTime object is not of a supported type.
-	 */
-	public static OffsetDateTime toISO8601OffsetDateTime(Object dateTime) {
-        if (dateTime == null) {
-            return null;
-        }
-		LocalDateTime ldt = toISO8601LocalDateTime(dateTime);
-
-		return OffsetDateTime.of(ldt, ZoneOffset.UTC);
 	}
 
 	/**

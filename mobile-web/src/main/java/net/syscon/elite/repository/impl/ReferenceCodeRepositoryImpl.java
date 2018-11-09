@@ -95,10 +95,10 @@ public class ReferenceCodeRepositoryImpl extends RepositoryBase implements Refer
 
 	@Override
 	@Cacheable("referenceCodesByDomain")
-	public Page<ReferenceCode> getReferenceCodesByDomain(String domain, boolean witSubCodes, String orderBy, Order order, long offset, long limit) {
+	public Page<ReferenceCode> getReferenceCodesByDomain(String domain, boolean withSubCodes, String orderBy, Order order, long offset, long limit) {
 		Page<ReferenceCode> page;
 
-        if (witSubCodes) {
+        if (withSubCodes) {
             page = getReferenceCodesWithSubCodes(domain, orderBy, order, offset, limit);
         } else {
             page = getReferenceCodes(domain, false, orderBy, order, offset, limit);

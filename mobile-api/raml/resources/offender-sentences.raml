@@ -1,12 +1,54 @@
 description:  Find sentence details for offenders
-type: { readOnlyCollectionPaged: { type: OffenderSentenceDetail, description: List of offenders (with associated sentence detail). } }
+type: { readOnlyCollection: { type: OffenderSentenceDetail, description: List of offenders (with associated sentence detail). } }
 get:
   queryParameters:
+    agencyId?:
+      type: string
+      description: agency/prison to restrict results, if none provided current active caseload will be used, unless offenderNo list is specified
+      example: LEI
     offenderNo?:
       type: array
       description: a list of offender numbers to search.
       example: offenderNo=A1234AA&offenderNo=A1234AB
-is: [
-    searchable: {fieldsList : "bookingId, offenderNo, lastName, firstName, agencyLocationId, internalLocationDesc, sentenceStartDate, homeDetentionCurfewEligibilityDate, homeDetentionCurfewActualDate, conditionalReleaseDate, conditionalReleaseOverrideDate"},
-    sortable: {fieldsList : "bookingId, offenderNo, lastName, firstName, agencyLocationId, internalLocationDesc, sentenceStartDate, homeDetentionCurfewEligibilityDate, homeDetentionCurfewActualDate, conditionalReleaseDate, conditionalReleaseOverrideDate"},
-  ]
+post:
+  description: Retrieves list of offenders (with associated sentence detail) - POST version to allow large offender lists.
+  body:
+    application/json:
+      (javaType): List<String>
+      description: The required offender numbers (mandatory)
+  responses:
+    200:
+      description: The list of offenders is returned.
+      body:
+        application/json:
+         type: OffenderSentenceDetail[]
+         description: List of offenders (with associated sentence detail).
+/home-detention-curfew-candidates:
+  description:  Find sentence details for offenders who are candidates for Home Detention Curfew. Results are restricted to the invoking user's 'Working Caseload'.
+  type: { readOnlyCollection: { type: OffenderSentenceDetail, description: List of offenders with associated sentence detail. } }
+  get:
+    responses:
+      200:
+        description: Sentence details for offenders who are candidates for Home Detention Curfew.
+        body:
+          application/json:
+           type: OffenderSentenceDetail[]
+           description: Sentence details for offenders who are candidates for Home Detention Curfew.
+
+/bookings:
+  post:
+    description: Retrieves list of offenders (with associated sentence detail) - POST version using booking id lists.
+    type: { readOnlyCollection: { type: OffenderSentenceDetail, description: List of offenders (with associated sentence detail). } }
+    body:
+      application/json:
+        (javaType): List<Long>
+        description: The required booking ids (mandatory)
+    responses:
+      200:
+        description: The list of offenders is returned.
+        body:
+          application/json:
+           type: OffenderSentenceDetail[]
+           description: List of offenders (with associated sentence detail).
+
+

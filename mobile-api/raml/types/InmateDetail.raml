@@ -31,8 +31,12 @@ properties:
     type: boolean
     description: Indicates that the offender is currently in prison
   religion?:
+    (deprecated): This field is also available in the profileInformation list. It will be removed in a future release.
     type: string
     description: Religion of the prisoner
+  language?:
+    type: string
+    description: The prisoner's preferred spoken language.
   alertsCodes?:
     type: string[]
     description: List of Alerts
@@ -44,6 +48,9 @@ properties:
     type: number
     (javaType): Long
     description: number of inactive alerts - Full Details Only
+  alerts?:
+    type: Alert[]
+    description: List of alert details
   assignedLivingUnit?:
     type: AssignedLivingUnit
     description: Where the offender is staying
@@ -72,6 +79,15 @@ properties:
   assessments?:
     type: Assessment[]
     description: List of assessments
+  csra?:
+    type: string
+    description: CSRA (Latest assessment with cellSharing=true from list of assessments)
+  category?:
+    type: string
+    description: Category description (from list of assessments)
+  categoryCode?:
+    type: string
+    description: Category code (from list of assessments)
   assignedOfficerId?:
     type: number
     (javaType): Long

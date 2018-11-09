@@ -3,9 +3,12 @@ package net.syscon.elite.service;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.service.validation.AttendanceTypesValid;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +16,7 @@ import java.util.Map;
  * Bookings API service interface.
  */
 public interface BookingService {
+
     SentenceDetail getBookingSentenceDetail(Long bookingId);
 
     PrivilegeSummary getBookingIEPSummary(Long bookingId, boolean withDetails);
@@ -21,6 +25,8 @@ public interface BookingService {
     Page<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);
 
     List<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
+
+    void updateAttendance(String offenderNo, Long activityId, @Valid @AttendanceTypesValid UpdateAttendance updateAttendance);
 
     Page<ScheduledEvent> getBookingVisits(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);
 
@@ -38,19 +44,18 @@ public interface BookingService {
 
     void checkBookingExists(Long bookingId);
 
-    boolean isSystemUser();
-
     List<OffenceDetail> getMainOffenceDetails(Long bookingId);
 
     List<ScheduledEvent> getEventsToday(Long bookingId);
-
+    List<ScheduledEvent> getEventsOnDay(Collection<Long> bookingIds, LocalDate day);
     List<ScheduledEvent> getEventsThisWeek(Long bookingId);
-
     List<ScheduledEvent> getEventsNextWeek(Long bookingId);
 
-    Page<OffenderSentenceDetail> getOffenderSentencesSummary(String username, String query, long offset, long limit, String orderByFields, Order order);
+    List<OffenderSentenceDetail> getOffenderSentencesSummary(String agencyId, String username, List<String> offenderNos);
+    List<OffenderSentenceDetail> getBookingSentencesSummary(String username, List<Long> bookingIds);
 
     Visit getBookingVisitLast(Long bookingId);
+    Visit getBookingVisitNext(Long bookingId);
 
     List<OffenderSummary> getBookingsByExternalRefAndType(String externalRef, String relationshipType);
 
@@ -84,4 +89,6 @@ public interface BookingService {
     OffenderSummary createBooking(@Valid NewBooking newBooking);
 
     OffenderSummary recallBooking(@Valid RecallBooking recallBooking);
+
+    Map<Long, List<String>> getBookingAlertSummary(List<Long> bookingIds, LocalDateTime now);
 }

@@ -6,22 +6,26 @@ import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.LocationRepository;
 import net.syscon.elite.service.ConfigException;
 import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.LocationGroupService;
 import net.syscon.elite.service.LocationService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.when;
 
 /**
  * Test cases for {@link LocationServiceImpl}.
@@ -29,9 +33,11 @@ import static org.junit.Assert.assertFalse;
 @RunWith(MockitoJUnitRunner.class)
 public class LocationServiceImplTest {
 
+    private static Function<String, Predicate<Location>> filterFactory = (String s) -> (Location l) -> s.equals(l.getLocationPrefix());
+
     @Mock private LocationRepository locationRepository;
     @Mock private AgencyRepository agencyRepository;
-    private Properties groupsProperties;
+    @Mock private LocationGroupService locationGroupService;
 
     private LocationService locationService;
     private Location cell1 = Location.builder().locationPrefix("cell1").build();
@@ -41,22 +47,20 @@ public class LocationServiceImplTest {
 
     @Before
     public void init() throws IOException {
-        locationService = new LocationServiceImpl(agencyRepository, locationRepository, null, null, "WING", null);
-        groupsProperties = new Properties();
-        ReflectionTestUtils.setField(locationService, "groupsProperties", groupsProperties);
+        locationService = new LocationServiceImpl(agencyRepository, locationRepository, null, null, locationGroupService, "WING");
     }
 
     @Test
-    public void getUserLocations() throws Exception {
+    public void getUserLocations() {
         
         List<Agency> agencies =  Collections.singletonList(Agency.builder().agencyId("LEI").build());
  
-        Mockito.when(agencyRepository.findAgenciesForCurrentCaseloadByUsername("me")).thenReturn(agencies);
+        when(agencyRepository.findAgenciesForCurrentCaseloadByUsername("me")).thenReturn(agencies);
         
         List<Location> locations = new ArrayList<>();
         Location location = createTestLocation();
         locations.add(location);
-        Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI","WING", true)).thenReturn(locations);
+        when(locationRepository.findLocationsByAgencyAndType("LEI","WING", true)).thenReturn(locations);
 
         List<Location> returnedLocations = locationService.getUserLocations("me");
 
@@ -80,80 +84,48 @@ public class LocationServiceImplTest {
     }
 
     @Test
-    public void testGetGroupSinglePattern() {
+    public void testGetCellLocationsForGroup() {
 
-        Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", false)).thenReturn(Arrays.asList(//
-                cell1, cell2, cell3, cell4));
-        groupsProperties.setProperty("LEI_mylist", "cell[13]||cell4");
+        when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", false))
+            .thenReturn(Arrays.asList(cell1, cell2, cell3, cell4));
 
-        final List<Location> group = locationService.getGroup("LEI", "mylist");
+        when(locationGroupService.locationGroupFilters("LEI", "mylist"))
+                .thenReturn(Stream.of("cell4", "cell1", "cell3").map(filterFactory).collect(Collectors.toList()));
 
-        assertThat(group).asList().containsExactly(cell1, cell3, cell4);
-    }
+        final List<Location> group = locationService.getCellLocationsForGroup("LEI", "mylist");
 
-    @Test
-    public void testGetGroupMultipleMatches() {
-
-        Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", false)).thenReturn(Arrays.asList(//
-                cell1, cell2, cell3, cell4));
-        groupsProperties.setProperty("LEI_mylist", "cell3,cell[13]");
-
-        final List<Location> group = locationService.getGroup("LEI", "mylist");
-
-        assertThat(group).asList().containsExactly(cell3, cell1);
+        // Note that the locationGroupFilter ordering imposes an ordering on the results
+        assertThat(group).asList().containsExactly(cell4, cell1, cell3);
     }
 
     @Test(expected = EntityNotFoundException.class)
-    public void testGetGroupNoName() throws Exception {
+    public void testLocationGroupFilterThrowsEntityNotFoundException() {
 
-        locationService.getGroup("LEI", "does-not-exist");
+        when(locationGroupService.locationGroupFilters("LEI", "does-not-exist")).thenThrow(EntityNotFoundException.class);
+
+        locationService.getCellLocationsForGroup("LEI", "does-not-exist");
     }
 
-    @Test(expected = EntityNotFoundException.class)
-    public void testGetGroupNoAgency() throws Exception {
-
-        locationService.getGroup("does-not-exist", "mylist");
-    }
 
     @Test(expected = PatternSyntaxException.class)
-    public void testGetGroupInvalidPattern() throws Exception {
-        Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", false)).thenReturn(Arrays.asList(//
-                cell1, cell2, cell3, cell4));
-        groupsProperties.setProperty("LEI_mylist", "cell[13]||[");
+    public void testLocationGroupFilterThrowsPatternSyntaxException() throws Exception {
 
-        locationService.getGroup("LEI", "mylist");
+        when(locationGroupService.locationGroupFilters("LEI", "mylist")).thenThrow(PatternSyntaxException.class);
+
+        locationService.getCellLocationsForGroup("LEI", "mylist");
     }
 
     @Test(expected=ConfigException.class)
-    public void testGetGroupNoCells() throws Exception {
-        Mockito.when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", false)).thenReturn(Arrays.asList(//
-                cell1, cell2, cell3, cell4));
-        groupsProperties.setProperty("LEI_mylist", "");
+    public void testGetGroupNoCells() {
+        when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", false))
+            .thenReturn(Arrays.asList( cell1, cell2, cell3, cell4));
 
-        locationService.getGroup("LEI", "mylist");
+        when(locationGroupService.locationGroupFilters("LEI", "mylist")).thenReturn(Collections.singletonList(l -> false));
+
+        locationService.getCellLocationsForGroup("LEI", "mylist");
     }
 
-    @Test
-    public void testGetAvailableGroups() {
-
-        groupsProperties.setProperty("LEI_mylist1", "cell1,cell2");
-        groupsProperties.setProperty("LEI_mylist2", "cell3,cell4");
-        groupsProperties.setProperty("BXI_mylist1", "cell5,cell6");
-
-        final List<String> groups = locationService.getAvailableGroups("LEI");
-
-        assertThat(groups).asList().contains("mylist1", "mylist2");
-    }
-
-    @Test
-    public void testGetAvailableGroupsNone() {
-
-        groupsProperties.setProperty("LEI_mylist1", "cell1,cell2");
-        groupsProperties.setProperty("LEI_mylist2", "cell3,cell4");
-        groupsProperties.setProperty("BXI_mylist1", "cell5,cell6");
-
-        final List<String> groups = locationService.getAvailableGroups("OTHER");
-
-        assertThat(groups).asList().isEmpty();
+    private Set<String> setOf(String... values) {
+        return new HashSet<>(Arrays.asList(values));
     }
 }

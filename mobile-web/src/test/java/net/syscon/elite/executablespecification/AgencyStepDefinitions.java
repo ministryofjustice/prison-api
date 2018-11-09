@@ -1,11 +1,13 @@
 package net.syscon.elite.executablespecification;
 
 import cucumber.api.DataTable;
+import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.executablespecification.steps.AgencySteps;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -80,6 +82,16 @@ public class AgencyStepDefinitions extends AbstractStepDefinitions {
         agencySteps.getLocations(agencyId, eventType, sortFields, parseSortOrder(sortOrder));
     }
 
+    @When("^a request is submitted to retrieve locations for agency \"([^\"]*)\" for booked events on date \"([^\"]*)\"$")
+    public void aRequestIsSubmittedToRetrieveLocationCodesForAgencyBooked(String agencyId, String bookedOnDay) throws Throwable {
+        agencySteps.getBookedLocations(agencyId, bookedOnDay, null);
+    }
+
+    @When("^a request is submitted to retrieve locations for agency \"([^\"]*)\" for booked events on \"([^\"]*)\" and timeslot \"([^\"]*)\"$")
+    public void aRequestIsSubmittedToRetrieveLocationCodesForAgencyBooked(String agencyId, String bookedOnDay, TimeSlot timeSlot) throws Throwable {
+        agencySteps.getBookedLocations(agencyId, bookedOnDay, timeSlot);
+    }
+
     @Then("^the returned agency locations are as follows:$")
     public void locationCodesAreReturnedAsFollows(DataTable table) throws Throwable {
         final List<Location> expected = table.asList(Location.class);
@@ -89,5 +101,15 @@ public class AgencyStepDefinitions extends AbstractStepDefinitions {
     @Then("^\"([^\"]*)\" location records are returned for agency$")
     public void locationRecordsAreReturnedForAgency(String expectedCount) throws Throwable {
         agencySteps.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
+    }
+
+    @When("^a request is submitted to retrieve whereabouts config for agency \"([^\"]*)\"$")
+    public void aRequestIsMadeToRetrieveAllGroups(String agencyId) throws Throwable {
+        agencySteps.aRequestIsMadeToGetWhereabouts(agencyId);
+    }
+
+    @Then("^the returned enabled flag is \"([^\"]*)\"$")
+    public void theEnabledFlagIs(String value) throws ReflectiveOperationException {
+        agencySteps.verifyWhereaboutsField("enabled", value);
     }
 }

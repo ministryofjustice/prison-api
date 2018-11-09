@@ -15,6 +15,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +38,7 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
 
         return jdbcTemplate.query(
                 sql,
-                createParams("agencyId", agencyId),
+                createParams("agencyId", agencyId, "role", "KW"),
                 KEY_WORKER_ROW_MAPPER);
     }
 
@@ -59,11 +60,26 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
 
     @Override
     public List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworker(Long staffId, List<String> agencyIds) {
-        String sql = getQuery("GET_ALLOCATION_DETAIL_FOR_KEY_WORKER");
+        return getAllocationDetailsForKeyworkers(Collections.singletonList(staffId), agencyIds);
+    }
+
+    @Override
+    public List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworkers(List<Long> staffIds, List<String> agencyIds) {
+        String sql = getQuery("GET_ALLOCATION_DETAIL_FOR_KEY_WORKERS");
 
         return jdbcTemplate.query(
                 sql,
-                createParams("staffId", staffId, "agencyIds", agencyIds),
+                createParams("staffIds", staffIds, "agencyIds", agencyIds),
+                KEY_WORKER_ALLOCATION_DETAIL_ROW_MAPPER);
+    }
+
+    @Override
+    public List<KeyWorkerAllocationDetail> getAllocationDetailsForOffenders(List<String> offenderNos, List<String> agencyIds) {
+        String sql = getQuery("GET_ALLOCATION_DETAIL_FOR_OFFENDERS");
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("offenderNos", offenderNos, "agencyIds", agencyIds),
                 KEY_WORKER_ALLOCATION_DETAIL_ROW_MAPPER);
     }
 
@@ -101,4 +117,29 @@ public class KeyWorkerAllocationRepositoryImpl extends RepositoryBase implements
 
         return new Page<>(results, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
+
+    @Override
+    public List<OffenderKeyWorker> getAllocationHistoryByOffenderNos(List<String> offenderNos) {
+        Validate.notEmpty(offenderNos, "At least 1 offender No is required.");
+
+        String sql = getQuery("GET_ALLOCATION_HISTORY_BY_OFFENDER");
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("offenderNos", offenderNos),
+                OFFENDER_KEY_WORKER_ROW_MAPPER);
+    }
+
+    @Override
+    public List<OffenderKeyWorker> getAllocationHistoryByStaffIds(List<Long> staffIds) {
+        Validate.notEmpty(staffIds, "At least 1 staff Id is required.");
+
+        String sql = getQuery("GET_ALLOCATION_HISTORY_BY_STAFF");
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("staffIds", staffIds),
+                OFFENDER_KEY_WORKER_ROW_MAPPER);
+    }
+
 }

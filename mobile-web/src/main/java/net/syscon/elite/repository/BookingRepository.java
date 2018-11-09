@@ -3,13 +3,11 @@ package net.syscon.elite.repository;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Bookings API repository interface.
@@ -18,6 +16,8 @@ public interface BookingRepository {
     Optional<SentenceDetail> getBookingSentenceDetail(Long bookingId);
 
     Map<Long, List<PrivilegeDetail>> getBookingIEPDetailsByBookingIds(List<Long> bookingIds);
+
+    Map<Long, List<String>> getAlertCodesForBookings(List<Long> bookingIds, LocalDateTime cutoffDate);
 
     boolean verifyBookingAccess(Long bookingId, Set<String> agencyIds);
 
@@ -29,21 +29,34 @@ public interface BookingRepository {
 
     List<ScheduledEvent> getBookingActivities(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
 
+    List<ScheduledEvent> getBookingActivities(Collection<Long> bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
+
+    void updateAttendance(Long bookingId, Long activityId, UpdateAttendance updateAttendance, boolean paid, boolean authorisedAbsence);
+
+    LocalDate getAttendanceEventDate(Long activityId);
+
+    PayableAttendanceOutcomeDto getPayableAttendanceOutcome(String eventType, String outcomeCode);
+
     Page<ScheduledEvent> getBookingVisits(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);
 
     List<ScheduledEvent> getBookingVisits(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
+
+    List<ScheduledEvent> getBookingVisits(Collection<Long> bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
 
     Page<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit, String orderByFields, Order order);
 
     List<ScheduledEvent> getBookingAppointments(Long bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
 
+    List<ScheduledEvent> getBookingAppointments(Collection<Long> bookingId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order);
+
     ScheduledEvent getBookingAppointment(Long bookingId, Long eventId);
 
     Long createBookingAppointment(Long bookingId, NewAppointment newAppointment, String agencyId);
 
-    Page<OffenderSentenceDetailDto> getOffenderSentenceSummary(String query, long offset, long limit, String orderByFields, Order order, Set<String> allowedCaseloadsOnly);
+    List<OffenderSentenceDetailDto> getOffenderSentenceSummary(String query, Set<String> allowedCaseloadsOnly);
 
     Visit getBookingVisitLast(Long bookingId, LocalDateTime cutoffDate);
+    Visit getBookingVisitNext(Long bookingId, LocalDateTime from);
 
     Optional<Long> getBookingIdByOffenderNo(String offenderNo);
 

@@ -26,7 +26,14 @@ Feature: Authentication
       | password  | wrongpass  |
     Then authentication denied is returned
 
-  @broken
+  @nomis
+  Scenario: Authentication fails for a user without api caseload (NWEB)
+    Given API authentication is attempted with the following credentials:
+      | username  | nonweb  |
+      | password  | password  |
+    Then Unnaproved client exception is returned
+
+  @nomis
   Scenario: As a user I can login and refresh the token
     Given API authentication is attempted with the following credentials:
       | username  | itag_user  |
@@ -35,26 +42,26 @@ Feature: Authentication
     Then a new token is generated successfully
     And token timeout is valid
 
-  @broken
+  @nomis
   Scenario: JWT expires after configured period of time
     Given API authentication is attempted with the following credentials:
       | username  | itag_user  |
       | password  | password   |
-    When I wait until the token as expired
-    And a user role request is made after token has expired
-    Then authentication denied is returned
+#    And I wait until the token as expired
+    When token refresh is attempted
+    Then a new token has been issued
 
-  @broken
+  @nomis
   Scenario: JWT expires after configured period of time but I can refresh
     Given API authentication is attempted with the following credentials:
       | username  | itag_user  |
       | password  | password   |
-    When I wait until the token as expired
-    And token refresh is attempted
+#    When I wait until the token as expired
+    When token refresh is attempted
     Then a new token is generated successfully
     And token timeout is valid
 
-  @broken
+  @nomis
   Scenario: JWT refresh expires after configured period of time and I can no longer refresh
     Given API authentication is attempted with the following credentials:
       | username  | itag_user  |

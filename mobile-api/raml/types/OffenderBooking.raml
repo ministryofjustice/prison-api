@@ -28,6 +28,9 @@ properties:
     description: Offender's current age.
   alertsCodes:
     type: string[]
+    description: List of offender's current alert types.
+  alertsDetails:
+    type: string[]
     description: List of offender's current alert codes.
   agencyId:
     type: string
@@ -52,3 +55,6 @@ properties:
   iepLevel?:
     type: string
     description: The IEP Level of the offender (UK Only)
+  categoryCode?:
+    type: string
+    description: The Cat A/B/C/D of the offender

@@ -40,7 +40,7 @@ public class LocationRepositoryTest {
     @Test
     public void testFindLocationsByAgencyAndType() {
         final List<Location> result = repository.findLocationsByAgencyAndType("LEI", "CELL", false);
-        assertEquals(20, result.size());
+        assertEquals(23, result.size());
         assertEquals("LEI-A-1-1", result.get(0).getLocationPrefix());
     }
 }

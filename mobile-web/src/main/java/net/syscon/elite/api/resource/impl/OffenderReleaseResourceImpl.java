@@ -1,54 +1,75 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.logstash.logback.encoder.org.apache.commons.lang.StringUtils;
+import io.jsonwebtoken.lang.Collections;
 import net.syscon.elite.api.model.OffenderSentenceDetail;
 import net.syscon.elite.api.resource.OffenderSentenceResource;
-import net.syscon.elite.api.support.Order;
-import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.BookingService;
+import net.syscon.elite.service.OffenderCurfewService;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Path;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static net.syscon.util.ResourceUtils.nvl;
 
 @RestResource
 @Path("/offender-sentences")
 public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     private final AuthenticationFacade authenticationFacade;
     private final BookingService bookingService;
+    private final OffenderCurfewService offenderCurfewService;
 
-    public OffenderReleaseResourceImpl(AuthenticationFacade authenticationFacade, BookingService bookingService) {
+    public OffenderReleaseResourceImpl(
+            AuthenticationFacade authenticationFacade,
+            BookingService bookingService,
+            OffenderCurfewService offenderCurfewService) {
         this.authenticationFacade = authenticationFacade;
         this.bookingService = bookingService;
+        this.offenderCurfewService = offenderCurfewService;
     }
 
     @Override
-    public GetOffenderSentencesResponse getOffenderSentences(String query, List<String> offenderNos, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-        Page<OffenderSentenceDetail> sentences = bookingService.getOffenderSentencesSummary(
+    public GetOffenderSentencesResponse getOffenderSentences(String agencyId, List<String> offenderNos) {
+        List<OffenderSentenceDetail> sentences = bookingService.getOffenderSentencesSummary(
+                agencyId,
                 authenticationFacade.getCurrentUsername(),
-                buildOffenderInQuery(query,offenderNos),
-                nvl(pageOffset, 0L),
-                nvl(pageLimit, 10L),
-                StringUtils.defaultIfBlank(sortFields, "offenderNo"),
-                sortOrder != null ? sortOrder : Order.ASC);
+                offenderNos);
 
         return GetOffenderSentencesResponse.respond200WithApplicationJson(sentences);
     }
 
-    private String buildOffenderInQuery(final String query, List<String> offenderNos) {
-        StringBuilder newQuery = new StringBuilder(StringUtils.trimToEmpty(query));
+    @Override
+    public GetOffenderSentencesHomeDetentionCurfewCandidatesResponse getOffenderSentencesHomeDetentionCurfewCandidates() {
+        List<OffenderSentenceDetail> sentences =
+                offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentUsername());
 
-        if (!offenderNos.isEmpty()) {
-            if (newQuery.length() > 0) {
-                newQuery.append(",and:");
-            }
-            final String ids = offenderNos.stream().map(offenderNo -> "'"+offenderNo+"'").collect(Collectors.joining("|"));
-            newQuery.append("offenderNo:in:").append(ids);
+        return GetOffenderSentencesHomeDetentionCurfewCandidatesResponse.respond200WithApplicationJson(sentences);
+    }
+
+    @Override
+    public PostOffenderSentencesResponse postOffenderSentences(List<String> offenderNos) {
+        validateOffenderList(offenderNos);
+
+        //no agency id filter required here as offenderNos will always be provided
+        List<OffenderSentenceDetail> sentences = bookingService.getOffenderSentencesSummary(
+                null, authenticationFacade.getCurrentUsername(), offenderNos);
+
+        return PostOffenderSentencesResponse.respond200WithApplicationJson(sentences);
+    }
+
+    @Override
+    public PostOffenderSentencesBookingsResponse postOffenderSentencesBookings(List<Long> bookingIds) {
+        validateOffenderList(bookingIds);
+
+        List<OffenderSentenceDetail> sentences = bookingService.getBookingSentencesSummary(
+                authenticationFacade.getCurrentUsername(), bookingIds);
+
+        return PostOffenderSentencesBookingsResponse.respond200WithApplicationJson(sentences);
+    }
+
+    private void validateOffenderList(List offenderList) {
+        if (Collections.isEmpty(offenderList)) {
+            throw new BadRequestException("List of Offender Ids must be provided");
         }
-        return newQuery.toString();
     }
 }

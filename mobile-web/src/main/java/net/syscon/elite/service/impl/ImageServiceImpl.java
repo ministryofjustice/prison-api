@@ -23,4 +23,9 @@ public class ImageServiceImpl implements ImageService {
     public byte[] getImageContent(final Long imageId) {
         return repository.getImageContent(imageId);
     }
+
+    @Override
+    public byte[] getImageContent(final String offenderNo) {
+        return repository.getImageContent(offenderNo);
+    }
 }

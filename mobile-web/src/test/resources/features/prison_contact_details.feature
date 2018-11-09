@@ -6,7 +6,7 @@ Feature: Prison Contact Details
   A logged in user can retrieve contact details for a given Prison
 
   Background:
-    Given a trusted client has authenticated with the API
+    Given a user has authenticated with the API
 
   @nomis
   Scenario: Retrieve a list of all Prison contact details

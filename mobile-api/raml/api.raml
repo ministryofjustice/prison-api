@@ -20,69 +20,83 @@ annotationTypes:
   headersWithType:
     type: string
     description: Override the type used in a reponse headers (e.g. headersWithType_Long: Page-Offset,Page-Limit will apply a Long to the listed headers).
+  mediaType:
+    type: string
+    description: Override operation media type for specific response
 
 securedBy: [jwt]
 
 types:
-  Agency:                     !include types/Agency.raml
-  ErrorResponse:              !include types/ErrorResponse.raml
-  Location:                   !include types/Location.raml
-  OffenderBooking:            !include types/OffenderBooking.raml
-  PrisonerDetail:             !include types/PrisonerDetail.raml
-  OffenceDetail:              !include types/OffenceDetail.raml
-  SentenceDetail:             !include types/SentenceDetail.raml
-  ImageDetail:                !include types/ImageDetail.raml
-  PrivilegeDetail:            !include types/PrivilegeDetail.raml
-  PrivilegeSummary:           !include types/PrivilegeSummary.raml
-  ReferenceDomain:            !include types/ReferenceDomain.raml
-  ReferenceCode:              !include types/ReferenceCode.raml
-  UserDetail:                 !include types/UserDetail.raml
-  StaffDetail:                !include types/StaffDetail.raml
-  StaffLocationRole:          !include types/StaffLocationRole.raml
-  CaseLoad:                   !include types/CaseLoad.raml
   Account:                    !include types/Account.raml
+  AdjudicationDetail:         !include types/AdjudicationDetail.raml
+  Agency:                     !include types/Agency.raml
+  Alert:                      !include types/Alert.raml
+  Alias:                      !include types/Alias.raml
+  Assessment:                 !include types/Assessment.raml
+  AssignedLivingUnit:         !include types/AssignedLivingUnit.raml
+  Award:                      !include types/Award.raml
+  CaseLoad:                   !include types/CaseLoad.raml
   CaseNote:                   !include types/CaseNote.raml
   CaseNoteAmendment:          !include types/CaseNoteAmendment.raml
   CaseNoteCount:              !include types/CaseNoteCount.raml
-  NewCaseNote:                !include types/NewCaseNote.raml
-  UpdateCaseNote:             !include types/UpdateCaseNote.raml
-  Alert:                      !include types/Alert.raml
-  Alias:                      !include types/Alias.raml
-  Movement:                   !include types/Movement.raml
-  LocationCountDetail:        !include types/LocationCountDetail.raml
-  LocationCount:              !include types/LocationCount.raml
-  Assessment:                 !include types/Assessment.raml
-  AssignedLivingUnit:         !include types/AssignedLivingUnit.raml
-  PhysicalAttributes:         !include types/PhysicalAttributes.raml
-  PhysicalCharacteristic:     !include types/PhysicalCharacteristic.raml
-  ProfileInformation:         !include types/ProfileInformation.raml
-  OffenderIdentifier:         !include types/OffenderIdentifier.raml
-  PhysicalMark:               !include types/PhysicalMark.raml
-  InmateDetail:               !include types/InmateDetail.raml
+  CaseNoteStaffUsage:         !include types/CaseNoteStaffUsage.raml
+  CaseNoteStaffUsageRequest:  !include types/CaseNoteStaffUsageRequest.raml
+  CaseNoteUsage:              !include types/CaseNoteUsage.raml
+  CaseNoteUsageRequest:       !include types/CaseNoteUsageRequest.raml
+  AccessRole:                 !include types/AccessRole.raml
   Contact:                    !include types/Contact.raml
-  Person:                     !include types/Person.raml
   ContactDetail:              !include types/ContactDetail.raml
-  Award:                      !include types/Award.raml
-  AdjudicationDetail:         !include types/AdjudicationDetail.raml
-  ScheduledEvent:             !include types/ScheduledEvent.raml
-  PrisonerSchedule:           !include types/PrisonerSchedule.raml
-  Visit:                      !include types/Visit.raml
-  NewAppointment:             !include types/NewAppointment.raml
-  OffenderSummary:            !include types/OffenderSummary.raml
-  OffenderSentenceDetail:     !include types/OffenderSentenceDetail.raml
-  PrisonerCustodyStatus:      !include types/PrisonerCustodyStatus.raml
-  UserRole:                   !include types/UserRole.raml
-  StaffUserRole:              !include types/StaffUserRole.raml
-  PrisonContactDetail:        !include types/PrisonContactDetail.raml
-  Telephone:                  !include types/Telephone.raml
-  OffenderRelationship:       !include types/OffenderRelationship.raml
-  NewAllocation:              !include types/NewAllocation.raml
+  ErrorResponse:              !include types/ErrorResponse.raml
+  ImageDetail:                !include types/ImageDetail.raml
+  InmateDetail:               !include types/InmateDetail.raml
   Keyworker:                  !include types/Keyworker.raml
   KeyWorkerAllocationDetail:  !include types/KeyWorkerAllocationDetail.raml
-  OffenderSentenceDetailDto:  !include internalTypes/OffenderSentenceDetailDto.raml
+  Location:                   !include types/Location.raml
+  LocationCount:              !include types/LocationCount.raml
+  LocationCountDetail:        !include types/LocationCountDetail.raml
+  LocationGroup:              !include types/LocationGroup.raml
+  Movement:                   !include types/Movement.raml
+  MovementCount:              !include types/MovementCount.raml
+  NewAppointment:             !include types/NewAppointment.raml
+  NewAllocation:              !include types/NewAllocation.raml
   NewBooking:                 !include types/NewBooking.raml
-  RecallBooking:              !include types/RecallBooking.raml
+  NewCaseNote:                !include types/NewCaseNote.raml
+  OffenderBooking:            !include types/OffenderBooking.raml
+  OffenceDetail:              !include types/OffenceDetail.raml
+  OffenderIdentifier:         !include types/OffenderIdentifier.raml
   OffenderKeyWorker:          !include types/OffenderKeyWorker.raml
+  OffenderRelationship:       !include types/OffenderRelationship.raml
+  OffenderSentenceDetail:     !include types/OffenderSentenceDetail.raml
+  OffenderSentenceDetailDto:  !include internalTypes/OffenderSentenceDetailDto.raml
+  OffenderSummary:            !include types/OffenderSummary.raml
+  Person:                     !include types/Person.raml
+  PersonIdentifier:           !include types/PersonIdentifier.raml
+  PhysicalAttributes:         !include types/PhysicalAttributes.raml
+  PhysicalCharacteristic:     !include types/PhysicalCharacteristic.raml
+  PhysicalMark:               !include types/PhysicalMark.raml
+  ProfileInformation:         !include types/ProfileInformation.raml
+  PrisonContactDetail:        !include types/PrisonContactDetail.raml
+  PrisonerDetail:             !include types/PrisonerDetail.raml
+  PrisonerSchedule:           !include types/PrisonerSchedule.raml
+  PrivilegeDetail:            !include types/PrivilegeDetail.raml
+  PrivilegeSummary:           !include types/PrivilegeSummary.raml
+  RecallBooking:              !include types/RecallBooking.raml
+  ReferenceCode:              !include types/ReferenceCode.raml
+  RollCount:                  !include types/RollCount.raml
+  ScheduledEvent:             !include types/ScheduledEvent.raml
+  SentenceDetail:             !include types/SentenceDetail.raml
+  StaffDetail:                !include types/StaffDetail.raml
+  StaffLocationRole:          !include types/StaffLocationRole.raml
+  StaffUserRole:              !include types/StaffUserRole.raml
+  StaffRole:                  !include types/StaffRole.raml
+  ReferenceDomain:            !include types/ReferenceDomain.raml
+  Telephone:                  !include types/Telephone.raml
+  UpdateCaseNote:             !include types/UpdateCaseNote.raml
+  UpdateAttendance:           !include types/UpdateAttendance.raml
+  UserDetail:                 !include types/UserDetail.raml
+  UserRole:                   !include types/UserRole.raml
+  Visit:                      !include types/Visit.raml
+  WhereaboutsConfig:          !include types/WhereaboutsConfig.raml
 
 securitySchemes:
   jwt:
@@ -113,18 +127,22 @@ traits:        !include traits/traits.raml
 
 resourceTypes: !include resourceTypes/generic-resource-types.raml
 
+/access-roles:            !include resources/access-roles.raml
 /agencies:                !include resources/agencies.raml
-/images:                  !include resources/images.raml
 /bookings:                !include resources/bookings.raml
-/prisoners:               !include resources/prisoners.raml
-/search-offenders:        !include resources/search-offenders.raml
-/offender-sentences:      !include resources/offender-sentences.raml
-/users:                   !include resources/users.raml
-/reference-domains:       !include resources/reference-domains.raml
-/locations:               !include resources/locations.raml
-/schedules:               !include resources/schedules.raml
+/case-notes:              !include resources/case-notes.raml
 /custody-statuses:        !include resources/custody-statuses.raml
-/offender-relationships:  !include resources/offender-relationships.raml
-/offender-assessments:    !include resources/offender-assessments.raml
+/images:                  !include resources/images.raml
 /key-worker:              !include resources/key-worker.raml
+/locations:               !include resources/locations.raml
+/movements:               !include resources/movements.raml
+/offender-assessments:    !include resources/offender-assessments.raml
+/offender-relationships:  !include resources/offender-relationships.raml
+/offender-sentences:      !include resources/offender-sentences.raml
+/persons:                 !include resources/persons.raml
+/prisoners:               !include resources/prisoners.raml
+/reference-domains:       !include resources/reference-domains.raml
+/schedules:               !include resources/schedules.raml
+/search-offenders:        !include resources/search-offenders.raml
 /staff:                   !include resources/staff.raml
+/users:                   !include resources/users.raml

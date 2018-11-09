@@ -1,28 +1,23 @@
-@global @wip
+@global
 Feature: Prisoner Search
 
   Acceptance Criteria:
   A logged in staff user can search for prisoners across the entire prison system
 
-  Scenario: Cannot perform global search without correct role
-    Given a user has logged in with username "API_TEST_USER" and password "password"
-    When a search is made for prisoners
-    Then access is denied
-
-  Scenario: Can perform global search with ADMIN role
-    Given a trusted client has authenticated with the API
+  Scenario: Can perform global search with GLOBAL_SEARCH role
+    Given a system client "yjaftrustedclient" has authenticated with the API
     When a search is made for prisoners with DOB on or after 1970-01-01 for range 0 -> 15
     Then "11" prisoner records are returned
 
-  Scenario: Search prisoners within a date of birth range
-    Given a trusted client has authenticated with the API
+  Scenario: Search prisoners within a date of birth range with SYSTEM role
+    Given a system client "delius" has authenticated with the API
     When a search is made for prisoners with DOB on or after 1970-01-01 for range 0 -> 2
     Then "2" prisoner records are returned
     And  "11" total prisoner records are available
 
   @nomis
   Scenario Outline: Search prisoners within a dates of birth range not allowing more than 10 years
-    Given a trusted client has authenticated with the API
+    Given a system client "licencesadmin" has authenticated with the API
     When a search is made for prisoners with DOB between "<dobFrom>" and "<dobTo>" for range 0 -> 100
     Then "<numberResults>" prisoner records are returned
     And the prisoners dob matches "<DOB>"
@@ -41,7 +36,7 @@ Feature: Prisoner Search
 
   @elite
   Scenario Outline: Search prisoners within a dates of birth range not allowing more than 10 years
-    Given a trusted client has authenticated with the API
+    Given a system client "licencesadmin" has authenticated with the API
     When a search is made for prisoners with DOB between "<dobFrom>" and "<dobTo>" for range 0 -> 100
     Then "<numberResults>" prisoner records are returned
     And the prisoners dob matches "<DOB>"
@@ -59,28 +54,30 @@ Feature: Prisoner Search
     |            | 2000-01-01 | 6             | 1990-12-30,1991-06-04,1995-08-21,1998-08-28,1998-11-01,1999-10-27                                                        |
 
   Scenario Outline: Search for prisoners by names, without partial name matching
-    Given a trusted client has authenticated with the API
+    Given a system client "licencesadmin" has authenticated with the API
     When a search is made for prisoners with first name "<firstName>", middle names "<middleNames>" and last name "<lastName>"
     Then "<numberResults>" prisoner records are returned
     And prisoner offender numbers match "<offenderNos>"
+    And prisoner internal location match "<internalLocation>"
 
     Examples:
-      | firstName | middleNames    | lastName | numberResults | offenderNos     |
-      |           |                | ANDERSON | 2             | A1234AA,A1234AB |
-      |           | EVE            | ANDERSON | 1             | A1234AB         |
-      |           | JAMES          |          | 2             | A1234AD,A1234AI |
-      | CHESTER   | JAMES          |          | 1             | A1234AI         |
-      |           | JEFFREY ROBERT |          | 1             | A1234AE         |
-      | DANIEL    |                |          | 2             | A1234AJ,A1234AL |
-      | DANIEL    | JOSEPH         |          | 1             | A1234AJ         |
-      |           |                | WILLIS   | 0             |                 |
-      |           |                | AND      | 0             |                 |
-      | CHES      |                |          | 0             |                 |
-      |           | JEFF           |          | 0             |                 |
+      | firstName | middleNames    | lastName  | numberResults | offenderNos     | internalLocation      |
+      |           |                | ANDERSON  | 2             | A1234AA,A1234AB | LEI-A-1-1,LEI-H-1-5   |
+      |           | EVE            | ANDERSON  | 1             | A1234AB         | LEI-H-1-5             |
+      |           | JAMES          |           | 2             | A1234AD,A1234AI | LEI-A-1,LEI-A-1-5     |
+      | CHESTER   | JAMES          |           | 1             | A1234AI         | LEI-A-1-5             |
+      |           | JEFFREY ROBERT |           | 1             | A1234AE         | LEI-A-1-10            |
+      | DANIEL    |                |           | 2             | A1234AJ,A1234AL | LEI-A-1-6,LEI-AABCW-1 |
+      | DANIEL    | JOSEPH         |           | 1             | A1234AJ         | LEI-A-1-6             |
+      |           |                | WILLIS    | 0             |                 |                       |
+      |           |                | AND       | 0             |                 |                       |
+      | CHES      |                |           | 0             |                 |                       |
+      |           | JEFF           |           | 0             |                 |                       |
+      |           |                | O'VAUGHAN | 1             | A1181MV         |                       |
 
-  @broken
+  @nomis
   Scenario Outline: Search for prisoners by names, with partial name matching
-    Given a trusted client has authenticated with the API
+    Given a system client "licencesadmin" has authenticated with the API
     When a partial name search is made for prisoners with first name "<firstName>", middle names "<middleNames>" and last name "<lastName>"
     Then "<numberResults>" prisoner records are returned
     And prisoner offender numbers match "<offenderNos>"
@@ -91,11 +88,11 @@ Feature: Prisoner Search
     Examples:
       | firstName | middleNames    | lastName | numberResults | offenderNos             | foundFirstNames        | foundMiddleNames | foundLastNames            |
       |           |                | AND      | 3             | A1234AA,A1234AB,A1234AF | ARTHUR,GILLIAN,ANTHONY | BORIS,EVE        | ANDERSON,ANDERSON,ANDREWS |
-      | CHES      |                |          | 2             | A1234AI                 | CHESTER                | JAMES            | THOMPSON                  |
+      | CHES      |                |          | 1             | A1234AI                 | CHESTER                | JAMES            | THOMPSON                  |
       |           | JEFF           |          | 1             | A1234AE                 | DONALD                 | JEFFREY ROBERT   | DUCK                      |
 
   Scenario Outline: Search prisoners for a specified Date of Birth
-    Given a trusted client has authenticated with the API
+    Given a system client "licencesadmin" has authenticated with the API
     When a search is made for prisoners with date of birth of "<dob>"
     Then "<numberResults>" prisoner records are returned
     And the prisoners last names match "<lastNames>"
@@ -108,7 +105,7 @@ Feature: Prisoner Search
       | 1959-10-28 | 0             |                |
 
   Scenario Outline: Search for prisoners with specified offender number
-    Given a trusted client has authenticated with the API
+    Given a system client "licencesadmin" has authenticated with the API
     When a search is made for prisoners with an offender number of "<offenderNo>"
     Then "<numberResults>" prisoner records are returned
     And the prisoners last names match "<lastNames>"
@@ -117,18 +114,56 @@ Feature: Prisoner Search
       | offenderNo | numberResults | lastNames |
       | A1234AC    | 1             | BATES     |
       | A1476AE    | 0             |           |
-      | A1181MV    | 1             | VAUGHAN   |
+      | A1181MV    | 1             | O'VAUGHAN |
 
-  @nomis
-  Scenario Outline: Search prisoners for a CRO or PNC number
-    Given a trusted client has authenticated with the API
-    When a search is made for prisoners with PNC number of "<pnc>" and/or CRO number of "<cro>"
+  Scenario Outline: Search for prisoners with specified offender number using simple unprotected endpoint
+    Given a user has authenticated with the API
+    When a search is made for prisoners with an offender number of "<offenderNo>" using simple endpoint
     Then "<numberResults>" prisoner records are returned
     And the prisoners last names match "<lastNames>"
 
     Examples:
-      | pnc        | cro        | numberResults | lastNames |
-      | PNC112233  |            | 1             | CHAPLIN   |
-      | PNC112234  |            | 0             |           |
-      |            | CRO112233  | 1             | BATES     |
-      |            | CRO112234  | 0             |           |
+      | offenderNo | numberResults | lastNames |
+      | A1234AC    | 1             | BATES     |
+      | A1476AE    | 0             |           |
+      | A1181MV    | 1             | O'VAUGHAN |
+
+  Scenario: Search for prisoners without GLOBAL_SEARCH role
+    Given a user has authenticated with the API
+    When a search is made for prisoners with an offender number of "<offenderNo>" expecting failure
+    Then access is denied
+
+  @nomis
+  Scenario Outline: Search prisoners with a CRO number
+    Given a system client "licencesadmin" has authenticated with the API
+    When a search is made for prisoners with CRO number of "<cro>"
+    Then "<numberResults>" prisoner records are returned
+    And the prisoners last names match "<lastNames>"
+
+    Examples:
+      | cro        | numberResults | lastNames |
+      | CRO112233  | 1             | BATES     |
+      | CRO112234  | 0             |           |
+
+  @nomis
+  Scenario Outline: Search prisoners with a valid PNC number
+    Given a system client "licencesadmin" has authenticated with the API
+    When a search is made for prisoners with PNC number of "<pnc>"
+    Then "<numberResults>" prisoner records are returned
+    And the prisoners last names match "<lastNames>"
+
+    Examples:
+      | pnc           | numberResults | lastNames |
+      | 1998/1234567L | 1             | CHAPLIN   |
+      | 1998/1234567D | 0             |           |
+      | 98/1234567L   | 1             | CHAPLIN   |
+      | 1898/1234567L | 0             |           |
+      | 14/12345F     | 1             | ANDREWS   |
+      | 2014/12345F   | 1             | ANDREWS   |
+      | 1914/12345F   | 1             | ANDREWS   |
+
+  @nomis
+  Scenario: Search prisoners with an invalid PNC number
+    Given a system client "licencesadmin" has authenticated with the API
+    When an invalid search is made for prisoners with PNC number of "234/EE45FX"
+    Then bad request response is received from prisoner search API

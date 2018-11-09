@@ -2,6 +2,7 @@ package net.syscon.elite.web.config;
 
 import net.syscon.elite.security.ExternalIdAuthenticationHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
@@ -16,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Profile("oauth")
 public class JWTTokenEnhancer implements TokenEnhancer {
     public static final String ADD_INFO_INTERNAL_USER = "internalUser";
     public static final String ADD_INFO_USER_NAME = "user_name";

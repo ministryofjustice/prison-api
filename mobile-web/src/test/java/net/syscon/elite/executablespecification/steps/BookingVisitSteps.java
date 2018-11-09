@@ -8,12 +8,19 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * BDD step implementations for Booking Visits feature.
  */
 public class BookingVisitSteps extends ScheduledEventSteps {
     private static final String BOOKING_VISITS_API_URL = API_PREFIX + "bookings/{bookingId}/visits";
     private static final String BOOKING_VISIT_LAST_API_URL = API_PREFIX + "bookings/{bookingId}/visits/last";
+    private static final String BOOKING_VISIT_NEXT_API_URL = API_PREFIX + "bookings/{bookingId}/visits/next";
+
 
     private Visit lastVisit;
 
@@ -37,6 +44,11 @@ public class BookingVisitSteps extends ScheduledEventSteps {
         dispatchRequest(BOOKING_VISIT_LAST_API_URL, bookingId);
     }
 
+    @Step("Get next visit for booking")
+    public void getBookingVisitNext(Long bookingId) {
+        dispatchRequest(BOOKING_VISIT_NEXT_API_URL, bookingId);
+    }
+
     private void dispatchRequest(String url, Long bookingId) {
         init();
         ResponseEntity<Visit> response;
@@ -56,5 +68,14 @@ public class BookingVisitSteps extends ScheduledEventSteps {
 
     public void verifyVisitField(String field, String value) throws ReflectiveOperationException {
         verifyField(lastVisit, field, value);
+    }
+
+    public void verifyStartDateTime(LocalDateTime expectedStartDateTime) {
+        assertThat(lastVisit.getStartTime()).isEqualTo(expectedStartDateTime);
+    }
+
+    public void verifyEndDateTime(LocalDateTime expectedEndDateTime) {
+        assertThat(lastVisit.getEndTime()).isEqualTo(expectedEndDateTime);
+
     }
 }

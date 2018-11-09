@@ -23,18 +23,21 @@ Feature: Booking Scheduled Events
     When today's scheduled events are requested for an offender with booking id -3
     Then events are returned as follows:
       | eventType  | eventLocation      |
+      | PRISON_ACT | Carpentry Workshop |
       | VISIT      | Chapel             |
       | VISIT      | Visiting Room      |
       | APP        | Medical Centre     |
       | APP        | Visiting Room      |
       | PRISON_ACT | Carpentry Workshop |
       | PRISON_ACT | Carpentry Workshop |
+      | VISIT      |Carpentry Workshop  |
 
   Scenario: Retrieve this week's scheduled events for an offender in correct time order
     When this week's scheduled events are requested for an offender with booking id -3
     Then events are returned as follows:
 # First group is same as today
       | eventType  | eventLocation      |
+      | PRISON_ACT | Carpentry Workshop |
       | VISIT      | Chapel             |
       | VISIT      | Visiting Room      |
       | APP        | Medical Centre     |
@@ -43,9 +46,10 @@ Feature: Booking Scheduled Events
       | PRISON_ACT | Carpentry Workshop |
       | VISIT      | Carpentry Workshop |
       | APP        | Visiting Room      |
+      | VISIT      | Carpentry Workshop |
       | VISIT      | Medical Centre     |
       | PRISON_ACT | Medical Centre     |
-      | VISIT      | Block H            |
+      | VISIT      | LEI-H              |
       | PRISON_ACT | Visiting Room      |
 
   @elite

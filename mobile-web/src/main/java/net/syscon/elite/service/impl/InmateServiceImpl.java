@@ -1,18 +1,21 @@
 package net.syscon.elite.service.impl;
 
+import com.google.common.collect.Lists;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
-import net.syscon.elite.repository.InmateAlertRepository;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.security.AuthenticationFacade;
+import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
+import net.syscon.elite.service.support.InmatesHelper;
+import net.syscon.elite.service.support.LocationProcessor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,9 +26,12 @@ import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static net.syscon.elite.service.SearchOffenderService.DEFAULT_OFFENDER_SORT;
+import static net.syscon.elite.service.support.InmatesHelper.deriveClassification;
+import static net.syscon.elite.service.support.InmatesHelper.deriveClassificationCode;
 
 @Service
 @Transactional(readOnly = true)
@@ -33,32 +39,38 @@ public class InmateServiceImpl implements InmateService {
     private final InmateRepository repository;
     private final CaseLoadService caseLoadService;
     private final BookingService bookingService;
-    private final InmateAlertRepository inmateAlertRepository;
+    private final InmateAlertService inmateAlertService;
     private final AuthenticationFacade authenticationFacade;
+    private final int maxBatchSize;
     private final UserRepository userRepository;
     private final KeyWorkerAllocationRepository keyWorkerAllocationRepository;
     private final Environment env;
 
+    private final UserSecurityUtils securityUtils;
     private final String locationTypeGranularity;
 
     public InmateServiceImpl(InmateRepository repository,
                              CaseLoadService caseLoadService,
-                             InmateAlertRepository inmateAlertRepository,
+                             InmateAlertService inmateAlertService,
                              BookingService bookingService,
                              UserRepository userRepository,
                              AuthenticationFacade authenticationFacade,
                              KeyWorkerAllocationRepository keyWorkerAllocationRepository,
                              Environment env,
-                             @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity) {
+                             UserSecurityUtils securityUtils,
+                             @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity,
+                             @Value("${batch.max.size:1000}") int maxBatchSize) {
         this.repository = repository;
         this.caseLoadService = caseLoadService;
-        this.inmateAlertRepository = inmateAlertRepository;
+        this.inmateAlertService = inmateAlertService;
+        this.securityUtils = securityUtils;
         this.locationTypeGranularity = locationTypeGranularity;
         this.bookingService = bookingService;
         this.userRepository = userRepository;
         this.keyWorkerAllocationRepository = keyWorkerAllocationRepository;
         this.env = env;
         this.authenticationFacade = authenticationFacade;
+        this.maxBatchSize = maxBatchSize;
     }
 
     @Override
@@ -76,7 +88,7 @@ public class InmateServiceImpl implements InmateService {
         query.append((query.length() == 0) ? inOffenderNos : StringUtils.isNotEmpty(inOffenderNos) ? ",and:" + inOffenderNos : "");
 
         Page<OffenderBooking> bookings = repository.findAllInmates(
-                bookingService.isSystemUser() ? Collections.emptySet() : getUserCaseloadIds(criteria.getUsername()),
+                securityUtils.isOverrideRole() ? Collections.emptySet() : getUserCaseloadIds(criteria.getUsername()),
                 locationTypeGranularity,
                 query.toString(),
                 pageRequest);
@@ -84,7 +96,9 @@ public class InmateServiceImpl implements InmateService {
         if (criteria.isIepLevel()) {
             List<Long> bookingIds = bookings.getItems().stream().map(OffenderBooking::getBookingId).collect(Collectors.toList());
             Map<Long, PrivilegeSummary> bookingIEPSummary = bookingService.getBookingIEPSummary(bookingIds, false);
-            bookings.getItems().forEach(booking -> booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel()));
+            bookings.getItems().forEach(booking -> {
+                booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel());
+            });
         }
         return bookings;
     }
@@ -110,7 +124,7 @@ public class InmateServiceImpl implements InmateService {
 
         return repository.findInmatesByLocation(agencyId, locations, caseLoadIds);
     }
-    
+
     @Override
     @VerifyBookingAccess
     public InmateDetail findInmate(Long bookingId, String username) {
@@ -120,11 +134,11 @@ public class InmateServiceImpl implements InmateService {
         inmate.setPhysicalCharacteristics(getPhysicalCharacteristics(bookingId));
         inmate.setProfileInformation(getProfileInformation(bookingId));
         inmate.setPhysicalMarks(getPhysicalMarks(bookingId));
-        inmate.setAssignedLivingUnit(repository.findAssignedLivingUnit(bookingId, locationTypeGranularity).orElse(null));
-        inmate.setAlertsCodes(repository.findActiveAlertCodes(bookingId));
-        inmate.setActiveAlertCount(inmateAlertRepository.getAlertCounts(bookingId, "ACTIVE"));
-        inmate.setInactiveAlertCount(inmateAlertRepository.getAlertCounts(bookingId, "INACTIVE"));
-        inmate.setAssessments(getAssessments(bookingId));
+        AssignedLivingUnit assignedLivingUnit = repository.findAssignedLivingUnit(bookingId, locationTypeGranularity).orElse(null);
+        formatLocationDescription(assignedLivingUnit);
+        inmate.setAssignedLivingUnit(assignedLivingUnit);
+        setAlertsFields(inmate);
+        setAssessmentsFields(bookingId, inmate);
 
         //TODO: Remove once KW service available - Nomis only!
         boolean nomisProfile = Arrays.stream(env.getActiveProfiles()).anyMatch(p -> p.contains("nomis"));
@@ -134,11 +148,81 @@ public class InmateServiceImpl implements InmateService {
         return inmate;
     }
 
+    private void setAssessmentsFields(Long bookingId, InmateDetail inmate) {
+        final List<Assessment> assessments = getAllAssessmentsOrdered(bookingId);
+        if (!CollectionUtils.isEmpty(assessments)) {
+            inmate.setAssessments(filterAssessmentsByCode(assessments));
+            final Assessment csra = assessments.get(0);
+            if (csra != null) {
+                inmate.setCsra(csra.getClassification());
+            }
+            final Optional<Assessment> category = findCategory(assessments);
+            if (category.isPresent()) {
+                inmate.setCategory(category.get().getClassification());
+                inmate.setCategoryCode(category.get().getClassificationCode());
+            }
+        }
+    }
+
+    private List<Assessment> getAllAssessmentsOrdered(Long bookingId) {
+        final List<AssessmentDto> assessmentsDto = repository.findAssessments(Collections.singletonList(bookingId), null, Collections.emptySet());
+
+        return assessmentsDto.stream().map(a -> createAssessment(a)).collect(Collectors.toList());
+    }
+
+    /**
+     * @param assessments input list, ordered by date,seq desc
+     * @return The latest assessment for each code.
+     */
+    private List<Assessment> filterAssessmentsByCode(List<Assessment> assessments) {
+
+        // this map preserves date order within code
+        final Map<String, List<Assessment>> mapOfAssessments = assessments.stream().collect(Collectors.groupingBy(Assessment::getAssessmentCode));
+        final List<Assessment> assessmentsFiltered = new ArrayList<>();
+        // get latest assessment for each code
+        mapOfAssessments.forEach((assessmentCode, assessment) -> assessmentsFiltered.add(assessment.get(0)));
+        return assessmentsFiltered;
+    }
+
+    private void formatLocationDescription(AssignedLivingUnit assignedLivingUnit) {
+        if (assignedLivingUnit != null) {
+            assignedLivingUnit.setAgencyName(LocationProcessor.formatLocation(assignedLivingUnit.getAgencyName()));
+        }
+    }
+
+    private void setAlertsFields(InmateDetail inmate) {
+        final Long bookingId = inmate.getBookingId();
+        final Page<Alert> inmateAlertPage = inmateAlertService.getInmateAlerts(bookingId, "", null, null, 0, 1000);
+        final List<Alert> items = inmateAlertPage.getItems();
+        if (inmateAlertPage.getTotalRecords() > inmateAlertPage.getPageLimit()) {
+            items.addAll(inmateAlertService.getInmateAlerts(bookingId, "", null, null, 1000, inmateAlertPage.getTotalRecords()).getItems());
+        }
+        Set<String> alertTypes = new HashSet<>();
+        final AtomicInteger activeAlertCount = new AtomicInteger(0);
+        items.stream().filter(a -> a.getActive()).forEach(a -> {
+            activeAlertCount.incrementAndGet();
+            alertTypes.add(a.getAlertType());
+        });
+        inmate.setAlerts(items);
+        inmate.setAlertsCodes(new ArrayList<>(alertTypes));
+        inmate.setActiveAlertCount(activeAlertCount.longValue());
+        inmate.setInactiveAlertCount(items.size() - activeAlertCount.longValue());
+    }
+
+    /**
+     * Get assessments, latest per code, order not important.
+     * @param bookingId
+     * @return latest assessment of each code for the offender
+     */
     @Override
     @VerifyBookingAccess
     public List<Assessment> getAssessments(Long bookingId) {
-        final Map<String, List<AssessmentDto>> mapOfAssessments = getAssessmentsAsMap(bookingId);
+        final List<AssessmentDto> assessmentsDto = repository.findAssessments(Collections.singletonList(bookingId), null, Collections.emptySet());
+
+        // this map preserves date order within code
+        final Map<String, List<AssessmentDto>> mapOfAssessments = assessmentsDto.stream().collect(Collectors.groupingBy(AssessmentDto::getAssessmentCode));
         final List<Assessment> assessments = new ArrayList<>();
+        // get latest assessment for each code
         mapOfAssessments.forEach((assessmentCode, assessment) -> assessments.add(createAssessment(assessment.get(0))));
         return assessments;
     }
@@ -156,7 +240,7 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public ImageDetail getMainBookingImage(Long bookingId) {
         return repository.getMainBookingImage(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
     }
@@ -190,11 +274,15 @@ public class InmateServiceImpl implements InmateService {
     }
 
 
+    /**
+     * @param bookingId
+     * @param assessmentCode
+     * @return Latest assessment of given code if any
+     */
     @Override
     @VerifyBookingAccess
     public Optional<Assessment> getInmateAssessmentByCode(Long bookingId, String assessmentCode) {
-        final Map<String, List<AssessmentDto>> mapOfAssessments = getAssessmentsAsMap(bookingId);
-        final List<AssessmentDto> assessmentForCodeType = mapOfAssessments.get(assessmentCode);
+        final List<AssessmentDto> assessmentForCodeType = repository.findAssessments(Collections.singletonList(bookingId), assessmentCode, Collections.emptySet());
 
         Assessment assessment = null;
 
@@ -207,30 +295,33 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     public List<Assessment> getInmatesAssessmentsByCode(List<String> offenderNos, String assessmentCode) {
-
         List<Assessment> results = new ArrayList<>();
         if (!offenderNos.isEmpty()) {
-            final Set<String> caseLoadIds = bookingService.isSystemUser() ? Collections.emptySet()
+            final Set<String> caseLoadIds = securityUtils.isOverrideRole() ? Collections.emptySet()
                     : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), true);
 
-            final List<AssessmentDto> assessments = repository.findAssessmentsByOffenderNo(offenderNos, assessmentCode, caseLoadIds);
+            List<List<String>> batch = Lists.partition(offenderNos, maxBatchSize);
+            batch.forEach(offenderBatch -> {
+                final List<AssessmentDto> assessments = repository.findAssessmentsByOffenderNo(offenderBatch, assessmentCode, caseLoadIds);
 
-            final Map<Long, List<AssessmentDto>> mapOfBookings = assessments.stream()
-                    .collect(Collectors.groupingBy(AssessmentDto::getBookingId));
+                for (List<AssessmentDto> assessmentForBooking : InmatesHelper.createMapOfBookings(assessments).values()) {
 
-            for (List<AssessmentDto> assessmentForCodeType : mapOfBookings.values()) {
-
-                // The 1st is the most recent date / seq for each booking
-                results.add(createAssessment(assessmentForCodeType.get(0)));
-            }
+                    // The first is the most recent date / seq for each booking where cellSharingAlertFlag = Y
+                    results.add(createAssessment(assessmentForBooking.get(0)));
+                }
+            });
         }
         return results;
     }
 
-    private Map<String, List<AssessmentDto>> getAssessmentsAsMap(Long bookingId) {
-        final List<AssessmentDto> assessmentsDto = repository.findAssessments(Collections.singletonList(bookingId), null, Collections.emptySet());
+    @Override
+    public List<Assessment> getInmatesCSRAs(List<String> offenderNos) {
+        List<Assessment> results = getInmatesAssessmentsByCode(offenderNos, null);
+        return results;
+    }
 
-        return assessmentsDto.stream().collect(Collectors.groupingBy(AssessmentDto::getAssessmentCode));
+    private Optional<Assessment> findCategory(List<Assessment> assessmentsForOffender) {
+        return assessmentsForOffender.stream().filter(a -> "CATEGORY".equals(a.getAssessmentCode())).findFirst();
     }
 
     private Assessment createAssessment(AssessmentDto assessmentDto) {
@@ -240,22 +331,15 @@ public class InmateServiceImpl implements InmateService {
                 .assessmentCode(assessmentDto.getAssessmentCode())
                 .assessmentDescription(assessmentDto.getAssessmentDescription())
                 .classification(deriveClassification(assessmentDto))
+                .classificationCode(deriveClassificationCode(assessmentDto))
                 .assessmentDate(assessmentDto.getAssessmentDate())
                 .cellSharingAlertFlag(assessmentDto.isCellSharingAlertFlag())
                 .nextReviewDate(assessmentDto.getNextReviewDate())
                 .build();
     }
 
-    private String deriveClassification(AssessmentDto assessmentDto) {
-        final String classCode = StringUtils.defaultIfBlank(assessmentDto.getReviewSupLevelType(), StringUtils.defaultIfBlank(assessmentDto.getOverridedSupLevelType(), assessmentDto.getCalcSupLevelType()));
-        if (!"PEND".equalsIgnoreCase(classCode)) {
-            return StringUtils.defaultIfBlank(assessmentDto.getReviewSupLevelTypeDesc(), StringUtils.defaultIfBlank(assessmentDto.getOverridedSupLevelTypeDesc(), assessmentDto.getCalcSupLevelTypeDesc()));
-        }
-        return null;
-    }
-
     @Override
-    @VerifyBookingAccess
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public Page<Alias> findInmateAliases(Long bookingId, String orderBy, Order order, long offset, long limit) {
         String defaultOrderBy = StringUtils.defaultString(StringUtils.trimToNull(orderBy), "createDate");
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.DESC);
@@ -266,9 +350,7 @@ public class InmateServiceImpl implements InmateService {
     @Override
     public List<Long> getPersonalOfficerBookings(String username) {
         UserDetail loggedInUser = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
-
         return repository.getPersonalOfficerBookings(loggedInUser.getStaffId());
-
     }
 
     private Set<String> getUserCaseloadIds(String username) {

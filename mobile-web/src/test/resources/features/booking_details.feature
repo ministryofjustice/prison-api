@@ -7,15 +7,19 @@ Feature: Booking Details
   Background:
     Given a user has authenticated with the API
 
-  Scenario Outline: Request for specific offender booking record - assigned officer
+  Scenario Outline: Request for specific offender booking record - assigned officer, CSRA and category
     When an offender booking request is made with booking id "<bookingId>"
     Then booking number of offender booking returned is "<bookingNo>"
     And assigned officer id of offender booking returned is "<assignedOfficerId>"
+    And the CSRA is "<csra>"
+    And the category is "<category>"
 
     Examples:
-      | bookingId | bookingNo | assignedOfficerId |
-      | -1        | A00111    | -2                |
-      | -8        | A00118    | -2                |
+      | bookingId | bookingNo | assignedOfficerId | csra | category |
+      | -1        | A00111    | -1                | High | Low      |
+      | -2        | A00112    | -1                |      |          |
+      | -3        | A00113    | -1                | Low  |          |
+      | -8        | A00118    | -1                |      |          |
 
   Scenario Outline: Request for specific offender booking record basic details only
     When a basic offender booking request is made with booking id "<bookingId>"
@@ -115,34 +119,42 @@ Feature: Booking Details
     When an offender booking assessment information request is made with offender numbers "A1234AA,A1234AB,A1234AC,A1234AD,A1234AE,A1234AF,A1234AG,A1234AP,NEXIST" and "CSR"
     Then correct results are returned as for single assessment
 
+  Scenario: Request for assessment information for multiple offenders (using post request which allows large sets of offenders)
+    When an offender booking assessment information POST request is made with offender numbers "A1234AA,A1234AB,A1234AC,A1234AD,A1234AE,A1234AF,A1234AG,A1234AP,NEXIST" and "CSR"
+    Then correct results are returned as for single assessment
+
+  Scenario: Request for assessment information with empty list of offenders (using post request which allows large sets of offenders)
+    When an offender booking assessment information POST request is made with offender numbers "" and "CSR"
+    Then bad request response is received from booking assessments API
+
+  Scenario: Request for CSRAs for multiple offenders (using post request which allows large sets of offenders)
+    When an offender booking CSRA information POST request is made with offender numbers "A1234AA,A1234AB,A1234AC,A1234AD,A1234AE,A1234AF,A1234AG,A1234AP,NEXIST"
+    Then correct results are returned as for single assessment
+
   @nomis
-  Scenario Outline: Request for specific offender booking record returns religion
+  Scenario Outline: Request for specific offender booking record returns language
     When an offender booking request is made with booking id "<bookingId>"
-    Then religion of offender booking returned is "<religion>"
+    Then language of offender booking returned is "<language>"
 
     Examples:
-      | bookingId | religion                  |
-      | -1        | Church of England         |
-      | -2        | Baptist                   |
-      | -3        | Anglican                  |
-      | -4        | Christian Scientist       |
-      | -5        | Church of Norway          |
-      | -6        | Ethiopian Orthodox        |
-      | -7        | Episcopalian              |
-      | -8        | Jehovahs Witness          |
-      | -9        | Lutheran                  |
-      | -10       | Metodist                  |
-      | -11       | Other Christian Religion  |
-      | -12       | Orthodox (Greek/Russian)  |
+      | bookingId | language |
+      | -1        | Polish   |
+      | -2        | Polish   |
+      | -3        | Turkish  |
+      | -4        |          |
+      | -7        |          |
 
   Scenario Outline: When requesting offender details a count of active and inactive alerts are returned
     When an offender booking request is made with booking id "<bookingId>"
     Then the number of active alerts is <activeAlerts>
     And the number of inactive alerts is <inactiveAlerts>
+    And the list of active alert types is "<alertTypes>"
 
     Examples:
-      | bookingId | activeAlerts | inactiveAlerts |
-      | -1        | 2            | 1              |
+      | bookingId | activeAlerts | inactiveAlerts | alertTypes |
+      | -1        | 2            | 1              | H,X        |
+      | -2        | 1            | 0              | H          |
+      | -11       | 0            | 0              |            |
 
   Scenario: Request for assessment data
     When assessment information is requested for Booking Id "-6"
@@ -178,7 +190,7 @@ Feature: Booking Details
 
   Scenario: Request for profile information
     When profile information is requested for Booking Id "-1"
-    Then "2" row of profile information is returned
+    Then correct profile information is returned
 
   Scenario: Request for physical characteristics
     When physical characteristic information is requested for Booking Id "-1"

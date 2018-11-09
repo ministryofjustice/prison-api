@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BookingAlertSteps extends CommonSteps {
     private static final String API_REQUEST_BASE_URL = API_PREFIX + "bookings/{bookingId}/alerts";
     private static final String API_REQUEST_ALERT_URL = API_PREFIX + "bookings/{bookingId}/alerts/{alertId}";
+    private static final String API_REQUEST_ALERT_POST_URL = API_PREFIX + "bookings/offenderNo/{agencyId}/alerts";
 
     private List<Alert> alerts;
     private Alert alert;
@@ -25,6 +26,11 @@ public class BookingAlertSteps extends CommonSteps {
     @Step("Retrieve alerts for offender booking")
     public void getAlerts(Long bookingId) {
         doListApiCall(bookingId);
+    }
+
+    @Step("Retrieve alerts for offender nos")
+    public void getAlerts(String agencyId, List<String> offenderNos) {
+        doPostApiCall(agencyId, offenderNos);
     }
 
     @Step("Verify returned offender alias first names")
@@ -75,6 +81,25 @@ public class BookingAlertSteps extends CommonSteps {
         }
     }
 
+    private void doPostApiCall(String agencyId, List<String> offenderNoBody) {
+        init();
+        try {
+            ResponseEntity<List<Alert>> response =
+                    restTemplate.exchange(
+                            API_REQUEST_ALERT_POST_URL,
+                            HttpMethod.POST,
+                            createEntity(offenderNoBody),
+                            new ParameterizedTypeReference<List<Alert>>() {
+                            },
+                            agencyId);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            alerts = response.getBody();
+            buildResourceData(response);
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
     protected void init() {
         super.init();
 
@@ -90,5 +115,10 @@ public class BookingAlertSteps extends CommonSteps {
     @Step("Verify value of specific field in alert detail")
     public void verifyAlertField(String field, String value) throws ReflectiveOperationException {
         verifyField(alert, field, value);
+    }
+
+    @Step("Verify alert list")
+    public void verifyAlerts(List<Alert> expected) {
+        assertThat(alerts).asList().containsAll(expected);
     }
 }

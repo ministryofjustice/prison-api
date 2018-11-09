@@ -1,17 +1,16 @@
 package net.syscon.elite.executablespecification.steps;
 
+import com.google.common.collect.ImmutableList;
 import net.syscon.elite.api.model.OffenderSentenceDetail;
 import net.syscon.elite.api.model.SentenceDetail;
-import net.syscon.elite.api.support.Order;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,6 +21,9 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     private static final String BOOKING_SENTENCE_DETAIL_API_URL = API_PREFIX + "bookings/{bookingId}/sentenceDetail";
 
     private static final String OFFENDER_SENTENCE_DETAIL_API_URL = API_PREFIX + "offender-sentences";
+    private static final String OFFENDER_BOOKING_SENTENCE_DETAIL_API_URL = OFFENDER_SENTENCE_DETAIL_API_URL + "/bookings";
+
+    private static final String HOME_DETENTION_CURFEW_CANDIDATES = OFFENDER_SENTENCE_DETAIL_API_URL + "/home-detention-curfew-candidates";
 
     private SentenceDetail sentenceDetail;
 
@@ -32,19 +34,26 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         dispatchRequest(bookingId);
     }
 
-    @Step("Get offender sentence details by booking id")
-    public void getOffenderSentenceDetails(Long bookingId) {
-        dispatchOffenderSentences(String.format("bookingId:eq:%d", bookingId), null, null, 10L);
+    @Step("Get offender sentence details by offender nos and agency id")
+    public void getOffenderSentenceDetails(String offenderNos, String agencyId) {
+        dispatchOffenderSentences(offenderNos, agencyId);
+    }
+
+    @Step("Get offender sentence details by offender nos (using post request)")
+    public void getOffenderSentenceDetailsUsingPostRequest(String offenderNos) {
+        List<String> offenderList = StringUtils.isNotBlank(offenderNos) ? ImmutableList.copyOf(offenderNos.split(",")) : Collections.emptyList();
+        dispatchOffenderSentencesForPostRequest(OFFENDER_SENTENCE_DETAIL_API_URL, offenderList);
+    }
+
+    @Step("Get offender sentence details by booking ids (using post request)")
+    public void getBookingSentenceDetailsUsingPostRequest(String bookingIds) {
+        List<String> list = StringUtils.isNotBlank(bookingIds) ? ImmutableList.copyOf(bookingIds.split(",")) : Collections.emptyList();
+        dispatchOffenderSentencesForPostRequest(OFFENDER_BOOKING_SENTENCE_DETAIL_API_URL, list);
     }
 
     @Step("Get offender sentence details")
     public void getOffenderSentenceDetails() {
-        dispatchOffenderSentences(null, null, Order.ASC, 10L);
-    }
-
-    @Step("Get offender sentence details with sort and filter")
-    public void getOffenderSentenceDetails(String sortFields, String query, Long pageSize) {
-        dispatchOffenderSentences(query, sortFields, Order.ASC, pageSize);
+        dispatchOffenderSentences(null, null);
     }
 
     @Step("Set row from list in context")
@@ -187,6 +196,23 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         verifyLocalDate(sentenceDetail.getTopupSupervisionExpiryDate(), topupSupervisionExpiryDate);
     }
 
+    @Step("Request sentence details fro Home Detention Curfew Candidates")
+    public void requestSentenceDetailsForHomeDetentionCurfewCandidates() {
+        dispatchOffenderSentencesForHomeDetentionCurfewCandidates();
+    }
+
+    @Step("Request sentence details fro Home Detention Curfew Candidates")
+    public void requestSentenceDetailsForHomeDetentionCurfewCandidatesWithinAnAgency() {
+        dispatchOffenderSentencesForHomeDetentionCurfewCandidates();
+    }
+
+    @Step("Verify some resource records returned")
+    public void verifySomeResourceRecordsReturned() {
+        assertThat(offenderSentenceDetails).isNotEmpty();
+    }
+
+
+
     protected void init() {
         super.init();
 
@@ -208,21 +234,19 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         }
     }
 
-    private void dispatchOffenderSentences(String query, String sortFields, Order sortOrder, long limit) {
+    private void dispatchOffenderSentences(String offenderNos, String agencyId) {
         init();
-        String urlModifier = "";
+
+        StringBuilder urlModifier = new StringBuilder();
+        if (StringUtils.isNotBlank(offenderNos)) {
+            Arrays.asList(offenderNos.split(",")).forEach(offenderNo -> urlModifier.append(initialiseUrlModifier(urlModifier)).append("offenderNo=").append(offenderNo));
+        }
+
+        if (StringUtils.isNotBlank(agencyId)) {
+            urlModifier.append(initialiseUrlModifier(urlModifier)).append("agencyId=").append(agencyId);
+        }
 
         Map<String, String> headers = new HashMap<>();
-        final Map<String, String> sortHeaders = buildSortHeaders(sortFields, sortOrder);
-        if (sortHeaders != null) {
-            headers.putAll(sortHeaders);
-        }
-        applyPagination(0L, limit);
-        headers.putAll(addPaginationHeaders());
-
-        if (query != null) {
-            urlModifier += "?query=" + query;
-        }
         try {
             ResponseEntity<List<OffenderSentenceDetail>> response = restTemplate.exchange(OFFENDER_SENTENCE_DETAIL_API_URL + urlModifier,
                     HttpMethod.GET,
@@ -240,4 +264,41 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         }
     }
 
+    private void dispatchOffenderSentencesForHomeDetentionCurfewCandidates() {
+        init();
+
+        try {
+            ResponseEntity<List<OffenderSentenceDetail>> response = restTemplate.exchange(HOME_DETENTION_CURFEW_CANDIDATES,
+                    HttpMethod.GET,
+                    createEntity(null, Collections.emptyMap()),
+                    new ParameterizedTypeReference<List<OffenderSentenceDetail>>() {});
+            buildResourceData(response);
+
+            offenderSentenceDetails = response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    private void dispatchOffenderSentencesForPostRequest(String url, List<String> idList) {
+        init();
+
+        try {
+            ResponseEntity<List<OffenderSentenceDetail>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    createEntity(idList),
+                    new ParameterizedTypeReference<List<OffenderSentenceDetail>>() {
+                    });
+            buildResourceData(response);
+
+            offenderSentenceDetails = response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    private String initialiseUrlModifier(StringBuilder urlModifier) {
+        return urlModifier.length() > 0 ? "&" : "?";
+    }
 }

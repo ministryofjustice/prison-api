@@ -7,22 +7,22 @@ import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.support.LocationProcessor;
+import net.syscon.elite.service.support.AlphaNumericComparator;
 import net.syscon.elite.service.support.ReferenceDomain;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -45,7 +45,9 @@ public class AgencyServiceImpl implements AgencyService {
 
     @Override
     public Agency getAgency(String agencyId) {
-        return agencyRepository.getAgency(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
+        Agency agency = agencyRepository.getAgency(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
+        agency.setDescription(LocationProcessor.formatLocation(agency.getDescription()));
+        return agency;
     }
 
     @Override
@@ -64,7 +66,9 @@ public class AgencyServiceImpl implements AgencyService {
 
     @Override
     public List<Agency> findAgenciesByUsername(String username) {
-        return agencyRepository.findAgenciesByUsername(username);
+        List<Agency> agenciesByUsername = agencyRepository.findAgenciesByUsername(username);
+        agenciesByUsername.forEach(a -> a.setDescription(LocationProcessor.formatLocation(a.getDescription())));
+        return agenciesByUsername;
     }
 
     /**
@@ -127,6 +131,21 @@ public class AgencyServiceImpl implements AgencyService {
     }
 
     @Override
+    public List<Location> getAgencyEventLocationsBooked(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod) {
+        Objects.requireNonNull(bookedOnDay, "bookedOnDay must be specified.");
+
+        List<Location> locations = agencyRepository.getAgencyLocationsBooked(agencyId, bookedOnDay, bookedOnPeriod);
+        AlphaNumericComparator comparator = new AlphaNumericComparator();
+
+        List<Location> processedLocations =  LocationProcessor.processLocations(locations, true);
+
+        processedLocations.sort((left, right) ->
+                comparator.compare(left.getDescription(), right.getDescription()));
+
+        return processedLocations;
+    }
+
+    @Override
     public List<PrisonContactDetail> getPrisonContactDetail() {
         return removeBlankAddresses(agencyRepository.getPrisonContactDetails(null));
     }
@@ -143,7 +162,9 @@ public class AgencyServiceImpl implements AgencyService {
 
     @Override
     public List<Agency> getAgenciesByCaseload(String caseload) {
-        return agencyRepository.findAgenciesByCaseload(caseload);
+        List<Agency> agenciesByCaseload = agencyRepository.findAgenciesByCaseload(caseload);
+        agenciesByCaseload.forEach(a -> a.setDescription(LocationProcessor.formatLocation(a.getDescription())));
+        return agenciesByCaseload;
     }
 
     //It is possible for invalid/empty address records to be persisted

@@ -51,6 +51,10 @@ properties:
     type: string
     description: Name of the prison where the prisoner resides (if in prison).
     example: LEEDS (HMP)
+  internalLocation?:
+    type: string
+    description: Name of the location where the prisoner resides (if in prison)
+    example: LEI-A-1-003
   pncNumber?:
     type: string
     description: The prisoner's PNC (Police National Computer) number.
@@ -80,3 +84,13 @@ properties:
   maritalStatus?:
     type: string
     description: The prisoner's marital status.
+  currentWorkingFirstName:
+    type: string
+    description: The prisoner's current working first name.
+  currentWorkingLastName:
+    type: string
+    description: The prisoner's current working last name.
+  currentWorkingBirthDate:
+    type: date-only
+    description: The prisoner's current working date of birth (in YYYY-MM-DD format).
+    example: 1970-11-02

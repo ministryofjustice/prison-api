@@ -1,12 +1,3 @@
-/:
-  (deprecated): Use <b>/users/me/locations</b> instead. This API will be removed or re-purposed in a future release.
-  (javaOperationName): getLocations
-  type: { readOnlyCollectionPaged: { type: Location, description: List of locations accessible to current user. } }
-  is: [
-    searchable: {fieldsList : "locationId, agencyId, locationType, and parentLocationId"},
-    sortable: {fieldsList : "locationId, agencyId, locationType, and parentLocationId"},
-  ]
-
 /{locationId}:
   (javaOperationName): getLocation
   uriParameters:
@@ -38,13 +29,32 @@
       keywords?:
         type : string
         description: offender name or id to match
+      alerts?:
+        type: array
+        (javaType): List<String>
+        description: alert flags to filter by
+        example: ?alerts=XA&alerts=RVR
+      returnIep?:
+        type: boolean
+        description: return IEP data
+        default: false
+        example: false
+      returnAlerts?:
+        type: boolean
+        description: return Alert data
+        default: false
+        example: false
+      returnCategory?:
+        type: boolean
+        description: retrieve category classification from assessments
+        default: false
   type: { readOnlyCollectionPaged: { type: OffenderBooking, description: List of offenders at location. } }
   is: [
     sortable: {fieldsList : "bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId"},
   ]
 
 /groups/{agencyId}/{name}:
-  (javaOperationName): getGroup
+  (javaOperationName): getLocationGroup
   uriParameters:
     name:
       type: string

@@ -33,15 +33,15 @@ Feature: Agencies
     Then "1" agency records are returned
     Then the returned agencies are as follows:
       | agencyId | agencyType | description  |
-      | LEI      | INST       | LEEDS        |
+      | LEI      | INST       | Leeds        |
 
   Scenario: Retrieve agency by caseload for multi agency
     When a request is submitted to retrieve all agencies by caseload "MUL"
     Then "2" agency records are returned
     Then the returned agencies are as follows:
       | agencyId | agencyType | description  |
-      | BXI      | INST       | BRIXTON      |
-      | LEI      | INST       | LEEDS        |
+      | BXI      | INST       | Brixton      |
+      | LEI      | INST       | Leeds        |
 
   Scenario Outline: Retrieve agency details
     When a request is submitted to retrieve agency "<agencyId>"
@@ -50,13 +50,13 @@ Feature: Agencies
     And the returned agency description is "<description>"
     Examples:
       | agencyId | agencyType | description |
-      | LEI      | INST       | LEEDS       |
-      | WAI      | INST       | THE WEARE   |
+      | LEI      | INST       | Leeds       |
+      | WAI      | INST       | The Weare   |
 
 
   Scenario: Retrieve all locations for an agency
     When a request is submitted to retrieve location codes for agency "LEI"
-    Then "29" location records are returned for agency
+    Then "32" location records are returned for agency
 
   Scenario: Retrieve locations, for an agency, that can be used for appointments
     When a request is submitted to retrieve location codes for agency "LEI" and event type "APP"
@@ -67,7 +67,7 @@ Feature: Agencies
       | -27        | CRM1        | Classroom 1        | LEI-CRM1       | APP           |
       | -29        | MED         | Medical Centre     | LEI-MED        | APP           |
 
-  Scenario: Retrieve locations, for an agency, that can be used for appointments, in descending order of description
+  Scenario: Retrieve locations, for an agency, that can be used for 'APP' events, in descending order of description
     When a request is submitted to retrieve location codes for agency "LEI" and event type "APP" sorted by "userDescription" in "descending" order
     Then the returned agency locations are as follows:
       | locationId | description | userDescription    | locationPrefix | locationUsage |
@@ -84,3 +84,24 @@ Feature: Agencies
       | -25        | CHAP        | Chapel             | LEI-CHAP       | APP           |
       | -27        | CRM1        | Classroom 1        | LEI-CRM1       | APP           |
       | -29        | MED         | Medical Centre     | LEI-MED        | APP           |
+
+  Scenario: Retrieve locations, for an agency, that are booked for offenders on the given date
+    When a request is submitted to retrieve locations for agency "LEI" for booked events on date "2017-09-15"
+    Then the returned agency locations are as follows:
+      | locationId | description        | userDescription    |
+      | -26        | Carpentry Workshop | Carpentry Workshop |
+      | -25        | Chapel             | Chapel             |
+      | -27        | Classroom 1        | Classroom 1        |
+      | -29        | Medical Centre     | Medical Centre     |
+      | -28        | Visiting Room      | Visiting Room      |
+
+
+  Scenario Outline: Retrieve whereabouts config for an agency
+    When a request is submitted to retrieve whereabouts config for agency "<agencyId>"
+    Then the returned enabled flag is "<enabled>"
+    Examples:
+      | agencyId | enabled |
+      | LEI      | true    |
+      | HLI      | true    |
+      | WAI      | false   |
+      | SYI      | false   |

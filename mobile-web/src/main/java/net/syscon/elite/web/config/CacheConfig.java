@@ -33,6 +33,10 @@ public class CacheConfig implements CachingConfigurer {
     @Value("${cache.timeout.seconds.booking:3600}")
     private int bookingTimeoutSeconds;
 
+    @Value("${cache.timeout.seconds.assessment:5}")
+    // essentially disabled due to importance of up-to-date csra info
+    private int assessmentTimeoutSeconds;
+
     @Value("${cache.timeout.seconds.location:3600}")
     private int locationTimeoutSeconds;
 
@@ -66,19 +70,20 @@ public class CacheConfig implements CachingConfigurer {
         config.addCache(config("getBookingAgency", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config("findLocationsByAgencyAndType", 1000, locationTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("getGroup", 200, locationTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("getCellLocationsForGroup", 200, locationTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("searchForOffenderBookings", 1000, offenderSearchTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("findInmate", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("findInmate", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("basicInmateDetail", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
-        config.addCache(config("bookingAssessments", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("offenderAssessments", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("bookingPhysicalMarks", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("bookingProfileInformation", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("bookingPhysicalCharacteristics", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("bookingPhysicalAttributes", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("bookingAssessments", 200, assessmentTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("offenderAssessments", 200, assessmentTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("bookingPhysicalMarks", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("bookingProfileInformation", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("bookingPhysicalCharacteristics", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("bookingPhysicalAttributes", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("offenderIdentifiers", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("bookingImage", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("bookingIdByOffenderNo", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("payableAttendanceOutcomes", 100, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         return net.sf.ehcache.CacheManager.newInstance(config);
     }

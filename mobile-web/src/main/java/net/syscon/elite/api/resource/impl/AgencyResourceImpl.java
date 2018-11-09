@@ -1,16 +1,16 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.Agency;
-import net.syscon.elite.api.model.Location;
-import net.syscon.elite.api.model.PrisonContactDetail;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.resource.AgencyResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
+import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.AgencyService;
-import net.syscon.elite.service.LocationService;
+import net.syscon.elite.service.LocationGroupService;
 
 import javax.ws.rs.Path;
+import java.time.LocalDate;
 import java.util.List;
 
 import static net.syscon.util.ResourceUtils.nvl;
@@ -19,11 +19,11 @@ import static net.syscon.util.ResourceUtils.nvl;
 @Path("/agencies")
 public class AgencyResourceImpl implements AgencyResource {
     private final AgencyService agencyService;
-    private final LocationService locationService;
+    private final LocationGroupService locationGroupService;
 
-    public AgencyResourceImpl(AgencyService agencyService, LocationService locationService) {
+    public AgencyResourceImpl(AgencyService agencyService, LocationGroupService locationGroupService) {
         this.agencyService = agencyService;
-        this.locationService = locationService;
+        this.locationGroupService = locationGroupService;
     }
 
     @Override
@@ -48,6 +48,19 @@ public class AgencyResourceImpl implements AgencyResource {
     }
 
     @Override
+    public GetAvailableLocationGroupsResponse getAvailableLocationGroups(String agencyId) {
+        List<LocationGroup> locationGroups = locationGroupService.getLocationGroupsForAgency(agencyId);
+        return GetAvailableLocationGroupsResponse.respond200WithApplicationJson(locationGroups);
+    }
+
+    @Override
+    public GetWhereaboutsResponse getWhereabouts(String agencyId) {
+        List<LocationGroup> locationGroups = locationGroupService.getLocationGroupsForAgency(agencyId);
+        WhereaboutsConfig whereaboutsConfig = WhereaboutsConfig.builder().enabled(!locationGroups.isEmpty()).build();
+        return GetWhereaboutsResponse.respond200WithApplicationJson(whereaboutsConfig);
+    }
+
+    @Override
     public GetAgencyEventLocationsResponse getAgencyEventLocations(String agencyId, String sortFields, Order sortOrder) {
         List<Location> locations = agencyService.getAgencyEventLocations(agencyId, sortFields, sortOrder);
 
@@ -55,8 +68,10 @@ public class AgencyResourceImpl implements AgencyResource {
     }
 
     @Override
-    public GetAvailableGroupsResponse getAvailableGroups(String agencyId) {
-        return GetAvailableGroupsResponse.respond200WithApplicationJson(locationService.getAvailableGroups(agencyId));
+    public GetAgencyEventLocationsBookedResponse getAgencyEventLocationsBooked(String agencyId, LocalDate date, TimeSlot timeSlot) {
+        List<Location> locations = agencyService.getAgencyEventLocationsBooked(agencyId, date, timeSlot);
+
+        return GetAgencyEventLocationsBookedResponse.respond200WithApplicationJson(locations);
     }
 
     @Override

@@ -9,4 +9,4 @@ Feature: Available Key workers
 
   Scenario: Request for available key workers for specified agency
     When an available key worker request is made with agency id "LEI"
-    Then a list of "1" key workers are returned
+    Then a list of "4" key workers are returned

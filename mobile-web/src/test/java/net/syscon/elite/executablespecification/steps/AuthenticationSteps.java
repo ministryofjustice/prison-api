@@ -8,7 +8,7 @@ import net.syscon.elite.web.config.OauthClientConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.client.DefaultOAuth2ClientContext;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
@@ -19,7 +19,6 @@ import org.springframework.security.oauth2.client.token.grant.password.ResourceO
 import org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,48 +28,54 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class AuthenticationSteps {
 
+    private static final String CLIENT_ID = "elite2apiclient";
+
+    private final List<OauthClientConfig> clientConfigurations;
+
     @Value("${security.authentication.header:Authorization}")
     private String authenticationHeader;
     private OAuth2AccessToken token;
 
-    private final List<OauthClientConfig> clientConfigurations;
-
     @Autowired
-    private ConfigurableApplicationContext context;
+    private ApplicationContext context;
 
     public AuthenticationSteps(String clientConfig, ClientConfigExtractor clientConfigExtractor) {
         clientConfigurations = clientConfigExtractor.getClientConfigurations(clientConfig);
     }
 
-    protected BaseOAuth2ProtectedResourceDetails resource(String username, String password, boolean clientCredentials) {
-
-        BaseOAuth2ProtectedResourceDetails resource;
-        int port = (((AnnotationConfigEmbeddedWebApplicationContext)context).getEmbeddedServletContainer()).getPort();
+    public ErrorResponse authenticate(String username, String password, boolean clientCredentials, String clientId) {
         if (clientCredentials) {
-            resource = new ClientCredentialsResourceDetails();
-            OauthClientConfig client = clientConfigurations.stream().filter(config -> config.getClientId().equals("elite2apitrustedclient")).findFirst().orElseThrow(new EntityNotFoundException("client"));
-            resource.setClientId(client.getClientId());
-            resource.setClientSecret(client.getClientSecret());
-            resource.setScope(Arrays.asList("read", "admin"));
-
+            return authenticate(clientCredentialsResource(clientId));
         } else {
-            OauthClientConfig client = clientConfigurations.stream().filter(config -> config.getClientId().equals("elite2apiclient")).findFirst().orElseThrow(new EntityNotFoundException("client"));
-            resource = new ResourceOwnerPasswordResourceDetails();
-            resource.setClientId(client.getClientId());
-            resource.setClientSecret(client.getClientSecret());
-            ((ResourceOwnerPasswordResourceDetails)resource).setUsername(username);
-            ((ResourceOwnerPasswordResourceDetails)resource).setPassword(password);
+            return authenticate(ownerPasswordResource(username, password, CLIENT_ID));
         }
-        resource.setAccessTokenUri("http://localhost:"+ port + "/oauth/token");
-
-        return resource;
     }
 
-    public ErrorResponse authenticate(String username, String password, boolean clientCredentials) {
+    public ErrorResponse authenticateAsClient(String clientId) {
+        return authenticate(clientCredentialsResource(clientId));
+    }
 
-        DefaultAccessTokenRequest atr = new DefaultAccessTokenRequest();
-        final OAuth2RestTemplate oAuth2RestTemplate = new OAuth2RestTemplate(resource(username, password, clientCredentials), new DefaultOAuth2ClientContext(atr));
+    public ErrorResponse refresh(OAuth2AccessToken currentToken) {
+        try {
+            BaseOAuth2ProtectedResourceDetails resource = ownerPasswordResource(null, null, CLIENT_ID);
+            resource.setAccessTokenUri(accessTokenUri());
 
+            ResourceOwnerPasswordAccessTokenProvider refresh = new ResourceOwnerPasswordAccessTokenProvider();
+            token = refresh.refreshAccessToken(resource, currentToken.getRefreshToken(), new DefaultAccessTokenRequest());
+            assertThat(token).isNotNull();
+        } catch (Exception ex) {
+            token = null;
+            return ErrorResponse.builder().status(HttpStatus.UNAUTHORIZED.value()).build();
+        }
+        return ErrorResponse.builder().status(HttpStatus.CREATED.value()).build();
+    }
+
+    private ErrorResponse authenticate(BaseOAuth2ProtectedResourceDetails resource) {
+        resource.setAccessTokenUri(accessTokenUri());
+        return authenticate(new OAuth2RestTemplate(resource, new DefaultOAuth2ClientContext(new DefaultAccessTokenRequest())));
+    }
+
+    private ErrorResponse authenticate(OAuth2RestTemplate oAuth2RestTemplate) {
         try {
             token = oAuth2RestTemplate.getAccessToken();
 
@@ -85,21 +90,44 @@ public class AuthenticationSteps {
             return errorResponse;
         }
         return ErrorResponse.builder().status(HttpStatus.CREATED.value()).build();
-
     }
 
-    public ErrorResponse refresh(OAuth2AccessToken currentToken) {
-        ResourceOwnerPasswordAccessTokenProvider refresh = new ResourceOwnerPasswordAccessTokenProvider();
-        DefaultAccessTokenRequest atr = new DefaultAccessTokenRequest();
-        try {
-            token = refresh.refreshAccessToken(resource(null, null,false), currentToken.getRefreshToken(), atr);
-            assertThat(token).isNotNull();
-        } catch (Exception ex) {
-            token = null;
-            final ErrorResponse errorResponse = new ErrorResponse();
-            errorResponse.setStatus(401);
-        }
-        return ErrorResponse.builder().status(HttpStatus.CREATED.value()).build();
+    private String accessTokenUri() {
+        return "http://localhost:" + getAccessTokenUriPort() + "/oauth/token";
+    }
+
+    private BaseOAuth2ProtectedResourceDetails ownerPasswordResource(String username, String password, String clientId) {
+        ResourceOwnerPasswordResourceDetails resource = new ResourceOwnerPasswordResourceDetails();
+        addClientConfiguration(resource, clientId);
+        resource.setUsername(username);
+        resource.setPassword(password);
+        return resource;
+    }
+
+    private BaseOAuth2ProtectedResourceDetails clientCredentialsResource(String clientId) {
+        ClientCredentialsResourceDetails resource = new ClientCredentialsResourceDetails();
+        addClientConfiguration(resource, clientId);
+//        resource.setScope(Arrays.asList("read", "admin"));
+        return resource;
+    }
+
+    private void addClientConfiguration(BaseOAuth2ProtectedResourceDetails resource, String clientId) {
+        OauthClientConfig client = findOauthClientConfig(clientId);
+        resource.setClientId(client.getClientId());
+        resource.setClientSecret(client.getClientSecret());
+        resource.setScope(client.getScope());
+    }
+
+    private OauthClientConfig findOauthClientConfig(String clientId) {
+        return clientConfigurations
+                .stream()
+                .filter(config -> config.getClientId().equals(clientId))
+                .findFirst()
+                .orElseThrow(new EntityNotFoundException("client"));
+    }
+
+    private int getAccessTokenUriPort() {
+        return (((AnnotationConfigEmbeddedWebApplicationContext) context).getEmbeddedServletContainer()).getPort();
     }
 
     public OAuth2AccessToken getToken() {

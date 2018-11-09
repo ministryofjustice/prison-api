@@ -2,6 +2,7 @@ package net.syscon.elite.aop;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.core.Constants;
+import net.syscon.util.MdcUtility;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -11,6 +12,8 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 
 @Aspect
@@ -20,7 +23,7 @@ public class LoggingAspect {
     @Autowired
     private Environment env;
 
-    @Pointcut("within(net.syscon.elite.repository..*) || within(net.syscon.elite.service..*) || within(net.syscon.elite.web.api..*) || within(net.syscon.elite.aop..*)")
+    @Pointcut("within(net.syscon.elite.repository..*) || within(net.syscon.elite.service..*) || within(net.syscon.elite.aop..*)")
     public void loggingPointcut() {
         // No code needed
     }
@@ -40,7 +43,8 @@ public class LoggingAspect {
 
     @Around("loggingPointcut()")
     public Object logAround(final ProceedingJoinPoint joinPoint) throws Throwable {
-        if (log.isDebugEnabled()) {
+        LocalDateTime start = LocalDateTime.now();
+        if (log.isDebugEnabled() && MdcUtility.isLoggingAllowed()) {
             log.debug(
                     "Enter: {}.{}()",
                     joinPoint.getSignature().getDeclaringTypeName(),
@@ -48,11 +52,12 @@ public class LoggingAspect {
         }
         try {
             final Object result = joinPoint.proceed();
-            if (log.isDebugEnabled()) {
+            if (log.isDebugEnabled() && MdcUtility.isLoggingAllowed()) {
                 log.debug(
-                        "Exit: {}.{}()",
+                        "Exit: {}.{}() - Duration {} ms",
                         joinPoint.getSignature().getDeclaringTypeName(),
-                        joinPoint.getSignature().getName());
+                        joinPoint.getSignature().getName(),
+                        Duration.between(start, LocalDateTime.now()).toMillis());
             }
             return result;
         } catch (final IllegalArgumentException e) {

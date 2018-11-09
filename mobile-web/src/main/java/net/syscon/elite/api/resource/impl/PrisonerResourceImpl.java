@@ -24,13 +24,27 @@ public class PrisonerResourceImpl implements PrisonerResource {
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH', 'KW_ADMIN')")
-    public GetPrisonersResponse getPrisoners(String offenderNo, String pncNumber, String croNumber, String firstName,
-                                             String middleNames, String lastName, String dob, String dobFrom,
-                                             String dobTo, boolean partialNameMatch, boolean prioritisedMatch,
-                                             boolean anyMatch, Long pageOffset, Long pageLimit, String sortFields,
-                                             Order sortOrder) {
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
+    public GetPrisonersResponse getPrisoners(
+            boolean includeAliases,
+            String offenderNo,
+            String pncNumber,
+            String croNumber,
+            String firstName,
+            String middleNames,
+            String lastName,
+            String dob,
+            String dobFrom,
+            String dobTo,
+            boolean partialNameMatch,
+            boolean prioritisedMatch,
+            boolean anyMatch,
+            Long pageOffset,
+            Long pageLimit,
+            String sortFields,
+            Order sortOrder) {
         PrisonerDetailSearchCriteria criteria = PrisonerDetailSearchCriteria.builder()
+                .includeAliases(includeAliases)
                 .offenderNo(offenderNo)
                 .firstName(firstName)
                 .middleNames(middleNames)
@@ -50,5 +64,18 @@ public class PrisonerResourceImpl implements PrisonerResource {
                 new PageRequest(sortFields, sortOrder, pageOffset, pageLimit));
 
         return GetPrisonersResponse.respond200WithApplicationJson(offenders);
+    }
+
+    @Override
+    public GetPrisonersOffenderNoResponse getPrisonersOffenderNo(String offenderNo) {
+
+        PrisonerDetailSearchCriteria criteria = PrisonerDetailSearchCriteria.builder()
+                .offenderNo(offenderNo)
+                .build();
+
+        Page<PrisonerDetail> offenders = globalSearchService.findOffenders(
+                criteria,
+                new PageRequest(null, null, 0L, 1000L));
+        return GetPrisonersOffenderNoResponse.respond200WithApplicationJson(offenders.getItems());
     }
 }

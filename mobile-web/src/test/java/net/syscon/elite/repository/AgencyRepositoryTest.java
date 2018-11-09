@@ -4,6 +4,7 @@ import jersey.repackaged.com.google.common.collect.ImmutableList;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.model.Telephone;
+import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +20,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -63,7 +66,25 @@ public class AgencyRepositoryTest {
     @Test
     public void testGetAgencyLocationsAll() {
         final List<Location> locations = repository.getAgencyLocations("LEI", Collections.emptyList(), null, null);
-        assertThat(locations).hasSize(29);
+        assertThat(locations).hasSize(32);
+    }
+
+    @Test
+    public void testGetAgencyLocationsWithDates() {
+        final List<Location> locations = repository.getAgencyLocationsBooked("LEI", LocalDate.of(2017, Month.SEPTEMBER, 11), null);
+        assertThat(locations).hasSize(5);
+    }
+
+    @Test
+    public void testGetAgencyLocationsWithDatesAM() {
+        final List<Location> locations = repository.getAgencyLocationsBooked("LEI", LocalDate.of(2017, Month.SEPTEMBER, 11), TimeSlot.AM);
+        assertThat(locations).hasSize(5);
+    }
+
+    @Test
+    public void testGetAgencyLocationsWithDatesPM() {
+        final List<Location> locations = repository.getAgencyLocationsBooked("LEI", LocalDate.of(2017, Month.SEPTEMBER, 11), TimeSlot.PM);
+        assertThat(locations).hasSize(5);
     }
 
     @Test

@@ -20,7 +20,15 @@ public interface KeyWorkerAllocationRepository {
 
     List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworker(Long staffId, List<String> agencyIds);
 
+    List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworkers(List<Long> staffIds, List<String> agencyIds);
+
+    List<KeyWorkerAllocationDetail> getAllocationDetailsForOffenders(List<String> offenderNos, List<String> agencyIds);
+
     boolean checkKeyworkerExists(Long staffId);
 
     Page<OffenderKeyWorker> getAllocationHistoryByAgency(String agencyId, PageRequest pageRequest);
+
+    List<OffenderKeyWorker> getAllocationHistoryByOffenderNos(List<String> offenderNos);
+
+    List<OffenderKeyWorker> getAllocationHistoryByStaffIds(List<Long> staffIds);
 }

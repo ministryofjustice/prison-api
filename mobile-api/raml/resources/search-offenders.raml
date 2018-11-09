@@ -9,5 +9,17 @@
       keywords?:
         type: string
         description: offender name or id to match
+  get:
+    queryParameters:
+      returnIep?:
+        type: boolean
+        description: return IEP data
+        default: false
+        example: false
+      returnAlerts?:
+        type: boolean
+        description: return Alert data
+        default: false
+        example: false
   type: { readOnlyCollectionPaged: { type: OffenderBooking, description: List offenders by location (matching keywords). } }
   is: [ sortable ]

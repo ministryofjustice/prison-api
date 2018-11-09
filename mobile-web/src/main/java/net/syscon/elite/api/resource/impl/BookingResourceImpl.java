@@ -140,6 +140,12 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    public UpdateAttendanceResponse updateAttendance(String offenderNo, Long activityId, UpdateAttendance body) {
+        bookingService.updateAttendance(offenderNo, activityId, body);
+        return UpdateAttendanceResponse.respond201WithApplicationJson();
+    }
+
+    @Override
     public GetOffenderAlertsResponse getOffenderAlerts(Long bookingId, String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         Page<Alert> inmateAlerts = inmateAlertService.getInmateAlerts(
                 bookingId,
@@ -157,6 +163,13 @@ public class BookingResourceImpl implements BookingResource {
         Alert inmateAlert = inmateAlertService.getInmateAlert(bookingId, alertId);
 
         return GetOffenderAlertResponse.respond200WithApplicationJson(inmateAlert);
+    }
+
+    @Override
+    public GetAlertsByOffenderNosResponse getAlertsByOffenderNos(String agencyId, List<String>offenderNos) {
+        List<Alert> inmateAlerts = inmateAlertService.getInmateAlertsByOffenderNos(agencyId, offenderNos);
+
+        return GetAlertsByOffenderNosResponse.respond200WithApplicationJson(inmateAlerts);
     }
 
     @Override
@@ -222,6 +235,31 @@ public class BookingResourceImpl implements BookingResource {
         return GetMainImageForBookingsResponse.respond200WithApplicationJson(inmateService.getMainBookingImage(bookingId));
     }
 
+
+    @Override
+    public GetMainBookingImageDataByNoResponse getMainBookingImageDataByNo(String offenderNo) {
+        final byte[] data = imageService.getImageContent(offenderNo);
+        if (data != null) {
+            try {
+                File temp = File.createTempFile("userimage", ".tmp");
+                FileUtils.copyInputStreamToFile(new ByteArrayInputStream(data), temp);
+                return GetMainBookingImageDataByNoResponse.respond200WithApplicationJson(temp);
+            } catch (IOException e) {
+                final ErrorResponse errorResponse = ErrorResponse.builder()
+                        .errorCode(500)
+                        .userMessage("An error occurred loading the image for offender No "+ offenderNo)
+                        .build();
+                return GetMainBookingImageDataByNoResponse.respond500WithApplicationJson(errorResponse);
+            }
+        } else {
+            final ErrorResponse errorResponse = ErrorResponse.builder()
+                    .errorCode(404)
+                    .userMessage("No image was found for offender No "+ offenderNo)
+                    .build();
+            return GetMainBookingImageDataByNoResponse.respond404WithApplicationJson(errorResponse);
+        }
+    }
+
     @Override
     public GetMainBookingImageDataResponse getMainBookingImageData(Long bookingId) {
         final ImageDetail mainBookingImage = inmateService.getMainBookingImage(bookingId);
@@ -257,8 +295,17 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     @PreAuthorize("#oauth2.hasScope('write')")
-    public CreateOffenderCaseNoteResponse createOffenderCaseNote(Long bookingId, NewCaseNote body) {
+    public CreateBookingCaseNoteResponse createBookingCaseNote(Long bookingId, NewCaseNote body) {
         CaseNote caseNote = caseNoteService.createCaseNote(bookingId, body, authenticationFacade.getCurrentUsername());
+
+        return CreateBookingCaseNoteResponse.respond201WithApplicationJson(caseNote);
+    }
+
+    @Override
+    @PreAuthorize("#oauth2.hasScope('write')")
+    public CreateOffenderCaseNoteResponse createOffenderCaseNote(String offenderNo, NewCaseNote body) {
+        final OffenderSummary latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
+        CaseNote caseNote = caseNoteService.createCaseNote(latestBookingByOffenderNo.getBookingId(), body, authenticationFacade.getCurrentUsername());
 
         return CreateOffenderCaseNoteResponse.respond201WithApplicationJson(caseNote);
     }
@@ -319,14 +366,12 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    @PreAuthorize("#oauth2.hasScope('write')")
     public CreateRelationshipResponse createRelationship(Long bookingId, OffenderRelationship relationshipDetail) {
         final Contact relationship = contactService.createRelationship(bookingId, relationshipDetail);
         return CreateRelationshipResponse.respond201WithApplicationJson(relationship);
     }
 
     @Override
-    @PreAuthorize("#oauth2.hasScope('write')")
     public CreateRelationshipByOffenderNoResponse createRelationshipByOffenderNo(String offenderNo, OffenderRelationship relationshipDetail) {
         final Contact relationship = contactService.createRelationshipByOffenderNo(offenderNo, relationshipDetail);
         return CreateRelationshipByOffenderNoResponse.respond201WithApplicationJson(relationship);
@@ -427,6 +472,13 @@ public class BookingResourceImpl implements BookingResource {
         Visit visit = bookingService.getBookingVisitLast(bookingId);
 
         return GetBookingVisitsLastResponse.respond200WithApplicationJson(visit);
+    }
+
+    @Override
+    public GetBookingVisitsNextResponse getBookingVisitsNext(Long bookingId) {
+        Visit visit = bookingService.getBookingVisitNext(bookingId);
+
+        return GetBookingVisitsNextResponse.respond200WithApplicationJson(visit);
     }
 
     @Override

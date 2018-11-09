@@ -10,6 +10,10 @@ properties:
     type: string
     description: Class of event
     example: INT_MOV (meaning Internal Movement)
+  eventId?:
+    type: number
+    (javaType): Long
+    description: Activity id if any. Used to attend or pay an activity.
   eventStatus:
     type: string
     description: Status of event
@@ -58,3 +62,18 @@ properties:
     type: string
     description: Source-specific description for type or nature of the event
     example: Woodwork
+  eventOutcome?:
+    type: string
+    description: Activity attendance, possible values are the codes in the 'PS_PA_OC' reference domain.
+  performance?:
+    type: string
+    description: Activity performance, possible values are the codes in the 'PERFORMANCE' reference domain.
+  outcomeComment?:
+    type: string
+    description: Activity no-pay reason.
+  paid?:
+    (javaType): Boolean
+    description: Activity paid flag.
+  payRate?:
+    type: number
+    description: Amount paid per activity session in pounds

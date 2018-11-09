@@ -16,4 +16,14 @@ public interface ScheduleRepository {
 
     List<PrisonerSchedule> getLocationActivities(Long locationId, LocalDate fromDate, LocalDate toDate,
             String orderByFields, Order order);
+
+    List<PrisonerSchedule> getVisits(String agencyId, List<String> offenderNo, LocalDate date);
+
+    List<PrisonerSchedule> getAppointments(String agencyId, List<String> offenderNo, LocalDate date);
+
+    List<PrisonerSchedule> getActivities(String agencyId, List<String> offenderNumbers, LocalDate date);
+
+    List<PrisonerSchedule> getCourtEvents(List<String> offenderNumbers, LocalDate date);
+
+    List<PrisonerSchedule> getExternalTransfers(String agencyId, List<String> offenderNumbers, LocalDate date);
 }
