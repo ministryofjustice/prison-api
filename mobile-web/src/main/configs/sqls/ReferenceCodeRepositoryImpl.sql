@@ -80,5 +80,4 @@ GET_AVAILABLE_EVENT_SUBTYPES {
   SELECT internal_schedule_rsn_code AS code,
        description AS description
   FROM internal_schedule_reasons WHERE internal_schedule_type = :eventType AND active_flag = 'Y'
-  ORDER BY description
 }
