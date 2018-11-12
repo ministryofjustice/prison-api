@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.AccessRole;
 import net.syscon.elite.repository.AccessRoleRepository;
 import net.syscon.elite.service.AccessRoleService;
@@ -17,6 +18,7 @@ import java.util.Optional;
 @Service
 @Transactional(readOnly = true)
 @Validated
+@Slf4j
 public class AccessRoleServiceImpl implements AccessRoleService {
     private final AccessRoleRepository accessRoleRepository;
 
@@ -44,6 +46,7 @@ public class AccessRoleServiceImpl implements AccessRoleService {
         if(accessRole.getRoleFunction()==null) accessRole.setRoleFunction("GENERAL");
 
         accessRoleRepository.createAccessRole(accessRole);
+        log.info("Created Access Role: {}", accessRole.toString());
     }
 
     @Override
@@ -53,15 +56,14 @@ public class AccessRoleServiceImpl implements AccessRoleService {
 
         final Optional<AccessRole> roleOptional = accessRoleRepository.getAccessRole(accessRole.getRoleCode());
 
-        if(!roleOptional.isPresent()) {
-            throw  EntityNotFoundException.withMessage("Access role with code [%s] not found", accessRole.getRoleCode());
-        }
+        final AccessRole roleBeforeUpdate = roleOptional.orElseThrow(EntityNotFoundException.withMessage("Access role with code [%s] not found", accessRole.getRoleCode()));
 
         /* fill in optional parameters for mandatory fields */
-        if (accessRole.getRoleName() == null ) accessRole.setRoleName(roleOptional.get().getRoleName());
-        if (accessRole.getRoleFunction() == null ) accessRole.setRoleFunction(roleOptional.get().getRoleFunction());
+        if (accessRole.getRoleName() == null ) accessRole.setRoleName(roleBeforeUpdate.getRoleName());
+        if (accessRole.getRoleFunction() == null ) accessRole.setRoleFunction(roleBeforeUpdate.getRoleFunction());
 
         accessRoleRepository.updateAccessRole(accessRole);
+        log.info("Updated Access Role from {} to {}", roleBeforeUpdate.toString(), accessRole.toString());
     }
 
     @Override

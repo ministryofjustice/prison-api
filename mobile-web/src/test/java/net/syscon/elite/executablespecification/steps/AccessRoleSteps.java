@@ -51,9 +51,14 @@ public class AccessRoleSteps extends CommonSteps {
         assertThat(accessRoles).extracting("roleCode").doesNotContain("ACCESS_ROLE_ADMIN");
     }
 
+    @Step("Verify access role not found")
+    public void verifyAccessRoleNotFound() {
+        assertThat(createUpdateResponse).isNull();
+        assertErrorResponse(Response.Status.NOT_FOUND);
+    }
+
     private void dispatchCreateOrUpdateAccessRoleRequest(String roleCode, String roleName, String parentRoleCode, boolean create) {
         init();
-
         try {
             createUpdateResponse =
                     restTemplate.exchange(
@@ -63,6 +68,7 @@ public class AccessRoleSteps extends CommonSteps {
 
 
         } catch (EliteClientException ex) {
+            createUpdateResponse = null;
             setErrorResponse(ex.getErrorResponse());
         }
     }

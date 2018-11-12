@@ -14,6 +14,11 @@ Feature: Access role maintenance
     When an update access role request is made with role code "WING_OFF" and role name "new name"
     Then access role is successfully updated
 
+  Scenario: A trusted client can not update a non-existant role
+    Given a trusted client that can maintain access roles has authenticated with the API
+    When an update access role request is made with role code "WING_ORFF" and role name "new name"
+    Then role to update is not found
+
   Scenario: A client without MAINTAIN_ACCESS_ROLES role is unable to create an access role
     Given user "ro_user" with password "password" has authenticated with the API
     When an access role creation request is made with role code "R2"

@@ -65,4 +65,9 @@ public class AccessRoleStepDefinitions extends AbstractStepDefinitions {
         steps.verifyAccessRoles();
         steps.verifyAccessRolesDoNotIncludeAdminRoles();
     }
+
+    @Then("^role to update is not found$")
+    public void roleToUpdateIsNotFound() throws Throwable {
+        steps.verifyAccessRoleNotFound();
+    }
 }
