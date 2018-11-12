@@ -46,7 +46,7 @@ public class AccessRoleServiceImpl implements AccessRoleService {
         if(accessRole.getRoleFunction()==null) accessRole.setRoleFunction("GENERAL");
 
         accessRoleRepository.createAccessRole(accessRole);
-        log.info("Created Access Role: {}", accessRoleAsText(accessRole));
+        log.info("Created Access Role: {}", accessRole.toString());
     }
 
     @Override
@@ -56,27 +56,18 @@ public class AccessRoleServiceImpl implements AccessRoleService {
 
         final Optional<AccessRole> roleOptional = accessRoleRepository.getAccessRole(accessRole.getRoleCode());
 
-        final AccessRole roleBeforeUpdate = roleOptional.orElseThrow(() -> EntityNotFoundException.withMessage("Access role with code [%s] not found", accessRole.getRoleCode()));
+        final AccessRole roleBeforeUpdate = roleOptional.orElseThrow(EntityNotFoundException.withMessage("Access role with code [%s] not found", accessRole.getRoleCode()));
 
         /* fill in optional parameters for mandatory fields */
         if (accessRole.getRoleName() == null ) accessRole.setRoleName(roleBeforeUpdate.getRoleName());
         if (accessRole.getRoleFunction() == null ) accessRole.setRoleFunction(roleBeforeUpdate.getRoleFunction());
 
         accessRoleRepository.updateAccessRole(accessRole);
-        log.info("Updated Access Role from {} to {}", accessRoleAsText(roleBeforeUpdate), accessRoleAsText(accessRole));
+        log.info("Updated Access Role from {} to {}", roleBeforeUpdate.toString(), accessRole.toString());
     }
 
     @Override
     public List<AccessRole> getAccessRoles(boolean includeAdmin) {
         return accessRoleRepository.getAccessRoles(includeAdmin);
-    }
-
-    private static String accessRoleAsText(AccessRole role) {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("(code: ").append(role.getRoleCode());
-        sb.append(", name: ").append(role.getRoleName());
-        sb.append(", function: ").append(role.getRoleFunction()).append(")");
-        return sb.toString();
     }
 }
