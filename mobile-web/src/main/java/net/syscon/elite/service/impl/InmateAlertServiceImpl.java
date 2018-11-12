@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
@@ -20,6 +21,7 @@ import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
+@Slf4j
 public class InmateAlertServiceImpl implements InmateAlertService {
 
     private final InmateAlertRepository inmateAlertRepository;
@@ -42,6 +44,8 @@ public class InmateAlertServiceImpl implements InmateAlertService {
 
         alerts.getItems().forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
 
+        log.info("Returning {} of {} matching Alerts starting at {} for bookingId {}", alerts.getItems().size(), alerts.getTotalRecords(), alerts.getPageOffset(), bookingId);
+
         return alerts;
     }
 
@@ -63,6 +67,8 @@ public class InmateAlertServiceImpl implements InmateAlertService {
 
         alert.setExpired(isExpiredAlert(alert));
 
+        log.info("Returning Alert having alertSeqId {}, for bookingId {}", alertSeqId, bookingId);
+
         return alert;
     }
 
@@ -71,6 +77,8 @@ public class InmateAlertServiceImpl implements InmateAlertService {
     public List<Alert> getInmateAlertsByOffenderNos(String agencyId, List<String>offenderNos) {
         final List<Alert> alerts = inmateAlertRepository.getInmateAlertsByOffenderNos(agencyId, offenderNos);
         alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
+
+        log.info("Returning {} matching Alerts for Offender Numbers {} in Agency '{}'", alerts.size(), offenderNos, agencyId);
         return alerts;
     }
 }
