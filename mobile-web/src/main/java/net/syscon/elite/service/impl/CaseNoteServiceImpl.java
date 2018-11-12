@@ -3,6 +3,7 @@ package net.syscon.elite.service.impl;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
+import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
@@ -37,6 +38,7 @@ import static java.lang.String.format;
 @Service
 @Validated
 @Transactional
+@Slf4j
 public class CaseNoteServiceImpl implements CaseNoteService {
 	private static final String AMEND_CASE_NOTE_FORMAT = "%s ...[%s updated the case notes on %s] %s";
 	private static final int MAXIMUM_CHARACTER_LIMIT = 4000;
@@ -79,6 +81,8 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 		List<CaseNote> transformedCaseNotes =
 				caseNotePage.getItems().stream().map(transformer::transform).collect(Collectors.toList());
 
+		log.info("Returning {} out of {} matching Case Notes, starting at {} for booking id {}", transformedCaseNotes.size(), caseNotePage.getTotalRecords(), caseNotePage.getPageOffset(), bookingId);
+
 		return new Page<>(transformedCaseNotes, caseNotePage.getTotalRecords(), caseNotePage.getPageOffset(), caseNotePage.getPageLimit());
 	}
 
@@ -88,6 +92,8 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	public CaseNote getCaseNote(Long bookingId, Long caseNoteId) {
 		CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId)
 				.orElseThrow(EntityNotFoundException.withId(caseNoteId));
+
+		log.info("Returning casenote {} for bookingId {}", caseNoteId, bookingId);
 
 		return transformer.transform(caseNote);
 	}
