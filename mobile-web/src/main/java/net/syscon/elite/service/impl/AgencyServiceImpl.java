@@ -32,6 +32,11 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class AgencyServiceImpl implements AgencyService {
 
+    private static final Comparator<Location> LOCATION_DESCRIPTION_COMPARATOR = Comparator.comparing(
+            Location::getDescription,
+            new AlphaNumericComparator());
+
+
     private final AuthenticationFacade authenticationFacade;
     private final AgencyRepository agencyRepository;
     private final ReferenceDomainService referenceDomainService;
@@ -135,12 +140,10 @@ public class AgencyServiceImpl implements AgencyService {
         Objects.requireNonNull(bookedOnDay, "bookedOnDay must be specified.");
 
         List<Location> locations = agencyRepository.getAgencyLocationsBooked(agencyId, bookedOnDay, bookedOnPeriod);
-        AlphaNumericComparator comparator = new AlphaNumericComparator();
 
         List<Location> processedLocations =  LocationProcessor.processLocations(locations, true);
 
-        processedLocations.sort((left, right) ->
-                comparator.compare(left.getDescription(), right.getDescription()));
+        processedLocations.sort(LOCATION_DESCRIPTION_COMPARATOR);
 
         return processedLocations;
     }
