@@ -106,10 +106,17 @@ SELECT DISTINCT AIL.INTERNAL_LOCATION_ID LOCATION_ID,
         FROM OFFENDER_PROGRAM_PROFILES OPP
            INNER JOIN OFFENDER_BOOKINGS OB ON OB.OFFENDER_BOOK_ID = OPP.OFFENDER_BOOK_ID AND OB.ACTIVE_FLAG = 'Y'
            INNER JOIN COURSE_ACTIVITIES CA ON CA.CRS_ACTY_ID = OPP.CRS_ACTY_ID
+           INNER JOIN COURSE_SCHEDULES CS ON CA.CRS_ACTY_ID = CS.CRS_ACTY_ID
+                                                 AND CS.SCHEDULE_DATE >= TRUNC(OPP.OFFENDER_START_DATE)
+                                                 AND TRUNC(CS.SCHEDULE_DATE) <=
+                                                     COALESCE(OPP.OFFENDER_END_DATE, CA.SCHEDULE_END_DATE, CS.SCHEDULE_DATE)
+                                                 AND CS.START_TIME BETWEEN :periodStart AND :periodEnd
+                                                 AND CS.SCHEDULE_DATE = TRUNC(:periodStart)
         WHERE OPP.OFFENDER_PROGRAM_STATUS = 'ALLOC'
           AND COALESCE(OPP.SUSPENDED_FLAG, 'N') = 'N'
           AND CA.ACTIVE_FLAG = 'Y'
           AND CA.COURSE_ACTIVITY_TYPE IS NOT NULL
+          AND CS.CATCH_UP_CRS_SCH_ID IS NULL
           AND CA.AGY_LOC_ID = :agencyId
     ) UNION (
         SELECT distinct OIS.TO_INTERNAL_LOCATION_ID
