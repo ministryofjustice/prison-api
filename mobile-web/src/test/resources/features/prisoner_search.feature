@@ -143,7 +143,7 @@ Feature: Prisoner Search
     Examples:
       | cro        | numberResults | lastNames |
       | CRO112233  | 1             | BATES     |
-      | CRO112234  | 0             |           |
+      | CRO112234  | 1             | BATES     |
 
   @nomis
   Scenario Outline: Search prisoners with a valid PNC number

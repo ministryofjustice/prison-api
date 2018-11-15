@@ -1,5 +1,5 @@
 @nomis
-Feature: Prisoner Search results contain aliases.
+Feature: Prisoner Search results contain aliases
 
   Acceptance Criteria:
   A logged in staff user can search for prisoners across the entire prison system
@@ -78,7 +78,6 @@ Feature: Prisoner Search results contain aliases.
       | 1999-10-27 | 1             | BATES          |
       | 1959-10-28 | 0             |                |
 
-
   Scenario Outline: Search for prisoners with specified offender number
     Given a system client "licencesadmin" has authenticated with the API
     When a search is made for prisoners with an offender number of "<offenderNo>"
@@ -117,7 +116,7 @@ Feature: Prisoner Search results contain aliases.
     Examples:
       | cro        | numberResults | lastNames |
       | CRO112233  | 1             | BATES     |
-      | CRO112234  | 0             |           |
+      | CRO112234  | 1             | BATES     |
 
   Scenario Outline: Search prisoners with a valid PNC number
     Given a system client "licencesadmin" has authenticated with the API

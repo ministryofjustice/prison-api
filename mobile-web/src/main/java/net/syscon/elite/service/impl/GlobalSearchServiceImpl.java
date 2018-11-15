@@ -41,7 +41,8 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
         Page<PrisonerDetail> prisonersPage;
 
         try {
-            if (decoratedCriteria.isPrioritisedMatch()) {
+            // Always force the use of streamlined SQL when searching by PNC or CRO for performance reasons
+            if (decoratedCriteria.isPrioritisedMatch() || StringUtils.isNotBlank(criteria.getPncNumber()) || StringUtils.isNotBlank(criteria.getCroNumber())) {
                 prisonersPage = executePrioritisedQuery(decoratedCriteria, adjustedPageRequest);
             } else {
                 prisonersPage = executeQuery(decoratedCriteria, adjustedPageRequest);
