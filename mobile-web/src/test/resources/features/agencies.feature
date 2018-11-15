@@ -1,4 +1,4 @@
-@global @wip
+@global
 Feature: Agencies
 
   Acceptance Criteria
