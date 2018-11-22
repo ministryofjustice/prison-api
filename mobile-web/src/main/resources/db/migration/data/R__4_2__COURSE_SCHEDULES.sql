@@ -2,7 +2,7 @@
 -- Seed data for Prison Activities (PRISON_ACT) Scheduled Events --
 -------------------------------------------------------------------
 
--- COURSE_SCHEDULES (Course activity classes/occurrences/sessions)
+-- COURSE_SCHEDULES (Course activity classes/occurrences/sessions; what dates and times the courses run on)
 -- NB: Dates deliberately out of sequence for first 5 records (to allow default sorting to be verified)
 INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME, END_TIME, SCHEDULE_STATUS) VALUES (-1, -1, TO_DATE('2017-09-12', 'YYYY-MM-DD'), TO_DATE('2017-09-12 09:30:00', 'YYYY-MM-DD HH24:MI:SS'), TO_DATE('2017-09-12 11:30:00', 'YYYY-MM-DD HH24:MI:SS'), 'SCH');
 INSERT INTO COURSE_SCHEDULES (CRS_SCH_ID, CRS_ACTY_ID, SCHEDULE_DATE, START_TIME, END_TIME, SCHEDULE_STATUS) VALUES (-2, -1, TO_DATE('2017-09-15', 'YYYY-MM-DD'), TO_DATE('2017-09-15 09:30:00', 'YYYY-MM-DD HH24:MI:SS'), TO_DATE('2017-09-15 11:30:00', 'YYYY-MM-DD HH24:MI:SS'), 'SCH');

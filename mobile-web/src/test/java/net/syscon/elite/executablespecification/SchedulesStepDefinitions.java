@@ -198,7 +198,17 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
 
     @Given("^an agency which does not exists has been set")
     public void anAgencyWhichDoesNotExists() throws Throwable {
-       schedulesSteps.givenNoneExistentAgency();
+       schedulesSteps.givenNonExistentAgency();
+    }
+
+    @When("^activities are requested with a valid agency for date \"([^\"]*)\" with a time slot \"([^\"]*)\" and offender numbers \"([^\"]*)\"$")
+    public void activitiesAreRequestedWithAValidAgencyWithATimeSlotAndOffenderNumbers(String date, String timeSlot, String offenderNo) throws Throwable {
+        schedulesSteps.getActivities(offenderNo, date, timeSlot);
+    }
+
+    @Then("^the following events should be returned \"([^\"]*)\"$")
+    public void theFollowingEventsShouldBeReturned(String visits) throws Throwable {
+        this.schedulesSteps.verifyEventComments(visits);
     }
 
     @Given("^an offender with scheduled visits$")
@@ -213,7 +223,7 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^the following visits should be returned \"([^\"]*)\"$")
     public void theFollowingVisitsShouldBeReturned(String visits) throws Throwable {
-       this.schedulesSteps.verifyVisits(visits);
+       this.schedulesSteps.verifyEventComments(visits);
     }
 
     @Given("^an offender with scheduled appointments$")
@@ -228,7 +238,7 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^the following appointments should be returned \"([^\"]*)\"$")
     public void theFollowingAppointmentsShouldBeReturned(String appointments) throws Throwable {
-        this.schedulesSteps.verifyAppointments(appointments);
+        this.schedulesSteps.verifyEventDescriptions(appointments);
     }
 
     @When("^Court events are requested with a valid agency with a time slot \"([^\"]*)\", date \"([^\"]*)\" and offender number list \"([^\"]*)\"$")

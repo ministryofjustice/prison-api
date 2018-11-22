@@ -23,9 +23,11 @@ public class LocalDateConverter implements Converter {
     private static final DateTimeFormatter DEFAULT_DATE_FORMATTER = DateTimeFormatter.ofPattern(DEFAULT_DATE_PATTERN);
 
     public void marshal(Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
-        LocalDate date = (LocalDate) value;
-        String result = date.format(DEFAULT_DATE_FORMATTER);
-        writer.setValue(result);
+        if (value != null) {
+            LocalDate date = (LocalDate) value;
+            String result = date.format(DEFAULT_DATE_FORMATTER);
+            writer.setValue(result);
+        }
     }
 
     public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
