@@ -352,7 +352,7 @@ public class SchedulesSteps extends CommonSteps {
 
     private List<PrisonerSchedule> dispatchScheduleRequest(String url, String agencyId, String offenderNo, String timeSlot, String date) {
 
-        String urlModifier = getUrlModifier(date, !timeSlot.equals("") ? TimeSlot.valueOf(timeSlot) : null);
+        String urlModifier = getUrlModifier(date, StringUtils.isNotEmpty(timeSlot) ? TimeSlot.valueOf(timeSlot) : null);
 
         final String[] entity = offenderNo.contains(",") ? StringUtils.split(offenderNo, ",")
                 : new String[]{offenderNo};

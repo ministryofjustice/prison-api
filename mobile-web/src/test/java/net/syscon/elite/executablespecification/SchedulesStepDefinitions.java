@@ -207,8 +207,8 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^the following events should be returned \"([^\"]*)\"$")
-    public void theFollowingEventsShouldBeReturned(String visits) throws Throwable {
-        this.schedulesSteps.verifyEventComments(visits);
+    public void theFollowingEventsShouldBeReturned(String expected) throws Throwable {
+        this.schedulesSteps.verifyEventComments(expected);
     }
 
     @Given("^an offender with scheduled visits$")
@@ -222,8 +222,8 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^the following visits should be returned \"([^\"]*)\"$")
-    public void theFollowingVisitsShouldBeReturned(String visits) throws Throwable {
-       this.schedulesSteps.verifyEventComments(visits);
+    public void theFollowingVisitsShouldBeReturned(String expected) throws Throwable {
+       this.schedulesSteps.verifyEventComments(expected);
     }
 
     @Given("^an offender with scheduled appointments$")
