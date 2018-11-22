@@ -25,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SchedulesSteps extends CommonSteps {
     private static final String API_GROUPS_URL = API_PREFIX + "schedules/{agencyId}/groups/{name}";
     private static final String API_LOCATION_URL = API_PREFIX + "schedules/{agencyId}/locations/{locationId}/usage/{usage}";
+    private static final String API_ACTIVITIES = API_PREFIX + "schedules/{agencyId}/activities";
     private static final String API_VISITS = API_PREFIX + "schedules/{agencyId}/visits";
     private static final String API_APPOINTMENTS = API_PREFIX + "schedules/{agencyId}/appointments";
     private static final String API_COURT_EVENTS = API_PREFIX + "schedules/{agencyId}/courtEvents";
@@ -80,7 +81,7 @@ public class SchedulesSteps extends CommonSteps {
         usage = "APP";
     }
 
-    public void givenNoneExistentAgency() {
+    public void givenNonExistentAgency() {
         agency = "TEST_AGENCY";
         location = -4L;
         usage = "APP";
@@ -205,20 +206,20 @@ public class SchedulesSteps extends CommonSteps {
         verifyLocalTimeValues(results, PrisonerSchedule::getStartTime, expectedList);
     }
 
-    public void verifyVisits(String visits) {
+    public void verifyEventComments(String expectedList) {
         String actual = results.stream()
                  .map(PrisonerSchedule::getComment)
                 .collect(Collectors.joining(","));
 
-        assertThat(actual).isEqualTo(visits);
+        assertThat(actual).isEqualTo(expectedList);
     }
 
-    public void verifyAppointments(String appointments) {
+    public void verifyEventDescriptions(String expectedList) {
         String actual = results.stream()
                 .map(PrisonerSchedule::getEventDescription)
                 .collect(Collectors.joining(","));
 
-        assertThat(actual).isEqualTo(appointments);
+        assertThat(actual).isEqualTo(expectedList);
     }
 
     public void verifyCourtEvents(String events) {
@@ -252,12 +253,18 @@ public class SchedulesSteps extends CommonSteps {
         assertThat(match).isTrue();
     }
 
-    public void getVisits(String offenderNo, String timeSlot) {
-      LocalDate today = LocalDate.now();
-
+    public void getActivities(String offenderNo, String date, String timeSlot) {
       agency = "LEI";
 
-      results = dispatchScheduleRequest(API_VISITS, agency, offenderNo, timeSlot, today);
+      results = dispatchScheduleRequest(API_ACTIVITIES, agency, offenderNo, timeSlot, date);
+    }
+
+    public void getVisits(String offenderNo, String timeSlot) {
+        LocalDate today = LocalDate.now();
+
+        agency = "LEI";
+
+        results = dispatchScheduleRequest(API_VISITS, agency, offenderNo, timeSlot, today.toString());
     }
 
     public void getAppointments(String offenderNo, String timeSlot) {
@@ -265,12 +272,12 @@ public class SchedulesSteps extends CommonSteps {
 
         agency = "LEI";
 
-        results = dispatchScheduleRequest(API_APPOINTMENTS, agency, offenderNo, timeSlot, today);
+        results = dispatchScheduleRequest(API_APPOINTMENTS, agency, offenderNo, timeSlot, today.toString());
     }
 
     public void getCourtEvents(String offenderNos, String date, String timeSlot) {
         agency = "LEI";
-        results = dispatchScheduleRequest(API_COURT_EVENTS, agency, offenderNos, timeSlot, DateTimeConverter.fromISO8601DateString(date));
+        results = dispatchScheduleRequest(API_COURT_EVENTS, agency, offenderNos, timeSlot, date);
     }
 
     public void getExternalTransfers(String offenderNumber, String dateInput) {
@@ -343,9 +350,9 @@ public class SchedulesSteps extends CommonSteps {
         }
     }
 
-    private List<PrisonerSchedule> dispatchScheduleRequest(String url, String agencyId, String offenderNo, String timeSlot, LocalDate date) {
+    private List<PrisonerSchedule> dispatchScheduleRequest(String url, String agencyId, String offenderNo, String timeSlot, String date) {
 
-        String urlModifier = getUrlModifier(date.toString(), !timeSlot.equals("") ? TimeSlot.valueOf(timeSlot) : null);
+        String urlModifier = getUrlModifier(date, StringUtils.isNotEmpty(timeSlot) ? TimeSlot.valueOf(timeSlot) : null);
 
         final String[] entity = offenderNo.contains(",") ? StringUtils.split(offenderNo, ",")
                 : new String[]{offenderNo};

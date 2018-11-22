@@ -123,18 +123,38 @@ Feature: Location and Location Group Events
       | -26        | PROG     | PM       | ANDERSON,ANDERSON,BATES,BATES,DUCK,DUCK| EDUC,EDUC,EDUC,EDUC,EDUC,EDUC | 12:00,12:00,12:00,13:00,13:00,13:00 |
       | -26        | PROG     |          | ANDERSON,ANDERSON,ANDERSON,BATES,BATES,BATES,DUCK,DUCK,DUCK | EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC  | 00:00,00:00,00:00,12:00,12:00,12:00,13:00,13:00,13:00 |
 
+  @nomis
+  Scenario Outline: Request an offenders scheduled activities for a specific date
+  Note 'Chapel Cleaner' activity on Mon AM for A1234AE is excluded in Nomis only
+    When activities are requested with a valid agency for date "<date>" with a time slot "<timeSlot>" and offender numbers "<offenderNo>"
+    Then the following events should be returned "<events>"
+    Examples:
+      | date       | offenderNo | timeSlot | events         |
+      | 2017-09-18 | A1234AA    | AM       | Chapel Cleaner |
+      | 2017-09-11 | A1234AE    | AM       |                |
+      | 2017-09-12 | A1234AE    | PM       | Woodwork       |
 
-    Scenario Outline: Request an offenders scheduled visits for today
-      Given an offender with scheduled visits
-      When visits are requested with a valid agency with a time slot "<timeSlot>" and offender numbers "<offenderNo>"
-      Then the following visits should be returned "<visits>"
-      Examples:
-        | offenderNo   | timeSlot | visits |
-        | A1234AC      | AM       | Social Contact,Official Visit                |
-        | A1234AC      | PM       | Social Contact                               |
-        | A1234AC      |          | Social Contact,Social Contact,Official Visit |
-        | A1234AE      | AM       | Official Visit                               |
-        | A1234AE      | PM       |                                              |
+  @elite
+  Scenario Outline: Request an offenders scheduled activities for a specific date
+    As above but activities not excluded
+    When activities are requested with a valid agency for date "<date>" with a time slot "<timeSlot>" and offender numbers "<offenderNo>"
+    Then the following events should be returned "<events>"
+    Examples:
+      | date       | offenderNo | timeSlot | events                  |
+      | 2017-09-11 | A1234AE    | AM       | Chapel Cleaner          |
+      | 2017-09-12 | A1234AE    |          | Woodwork,Chapel Cleaner |
+
+  Scenario Outline: Request an offenders scheduled visits for today
+    Given an offender with scheduled visits
+    When visits are requested with a valid agency with a time slot "<timeSlot>" and offender numbers "<offenderNo>"
+    Then the following visits should be returned "<visits>"
+    Examples:
+      | offenderNo | timeSlot | visits                                       |
+      | A1234AC    | AM       | Social Contact,Official Visit                |
+      | A1234AC    | PM       | Social Contact                               |
+      | A1234AC    |          | Social Contact,Social Contact,Official Visit |
+      | A1234AE    | AM       | Official Visit                               |
+      | A1234AE    | PM       |                                              |
 
   Scenario Outline: Request an offenders scheduled appointments for today
     Given an offender with scheduled appointments

@@ -36,6 +36,8 @@ public class GlobalSearchServiceImplTest {
     private PageRequest pageRequest = new PageRequest();
     private static final String TEST_OFFENDER_NO = "AA1234B";
     private static final String TEST_PNC_NUMBER = "2002/713491N";
+    private static final String TEST_CRO_NUMBER = "CRO987654";
+    private static final String TEST_OFFENDER_NO_QUERY = "offenderNo:eq:'AA1234B'";
 
     @Before
     public void setUp() {
@@ -60,22 +62,18 @@ public class GlobalSearchServiceImplTest {
 
     @Test
     public void testFindOffendersByOffenderNo() {
-        final String TEST_QUERY = "offenderNo:eq:'AA1234B'";
-
         criteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
 
-        when(InmateRepository.generateFindOffendersQuery(criteria)).thenReturn(TEST_QUERY);
-        Mockito.when(inmateRepository.findOffenders(eq(TEST_QUERY), any(PageRequest.class))).thenReturn(pageResponse(0));
+        when(InmateRepository.generateFindOffendersQuery(criteria)).thenReturn(TEST_OFFENDER_NO_QUERY);
+        Mockito.when(inmateRepository.findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class))).thenReturn(pageResponse(0));
 
         service.findOffenders(criteria, pageRequest);
 
-        Mockito.verify(inmateRepository, Mockito.times(1)).findOffenders(eq(TEST_QUERY), any(PageRequest.class));
+        Mockito.verify(inmateRepository, Mockito.times(1)).findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class));
     }
 
     @Test
     public void testFindOffendersPrioritisedMatchWithOffenderNoMatch() {
-        final String TEST_OFFENDER_NO_QUERY = "offenderNo:eq:'AA1234B'";
-
         criteria = PrisonerDetailSearchCriteria.builder()
                 .prioritisedMatch(true)
                 .offenderNo(TEST_OFFENDER_NO)
@@ -98,8 +96,6 @@ public class GlobalSearchServiceImplTest {
 
     @Test
     public void testFindOffendersPrioritisedMatchWithPncNumberMatch() {
-        final String TEST_OFFENDER_NO_QUERY = "offenderNo:eq:'AA1234B'";
-
         criteria = PrisonerDetailSearchCriteria.builder()
                 .prioritisedMatch(true)
                 .offenderNo(TEST_OFFENDER_NO)
@@ -123,10 +119,26 @@ public class GlobalSearchServiceImplTest {
     }
 
     @Test
-    public void testFindOffendersPrioritisedMatchWithCroNumberMatch() {
-        final String TEST_CRO_NUMBER = "CRO987654";
-        final String TEST_OFFENDER_NO_QUERY = "offenderNo:eq:'AA1234B'";
+    public void testFindOffendersWithPncNumberMatch() {
+        criteria = PrisonerDetailSearchCriteria.builder()
+                .prioritisedMatch(false)
+                .pncNumber(TEST_PNC_NUMBER)
+                .build();
 
+        PrisonerDetailSearchCriteria pncNumberCriteria = PrisonerDetailSearchCriteria.builder().pncNumber(TEST_PNC_NUMBER).build();
+
+        Mockito.when(offenderRepository.findOffenders(eq(pncNumberCriteria), any(PageRequest.class))).thenReturn(pageResponse(1));
+
+        Page<PrisonerDetail> response = service.findOffenders(criteria, pageRequest);
+
+        assertThat(response.getItems()).isNotEmpty();
+
+        Mockito.verifyZeroInteractions(inmateRepository);
+        Mockito.verify(offenderRepository, Mockito.times(1)).findOffenders(eq(pncNumberCriteria), any(PageRequest.class));
+    }
+
+    @Test
+    public void testFindOffendersPrioritisedMatchWithCroNumberMatch() {
         criteria = PrisonerDetailSearchCriteria.builder()
                 .prioritisedMatch(true)
                 .offenderNo(TEST_OFFENDER_NO)
@@ -154,9 +166,28 @@ public class GlobalSearchServiceImplTest {
     }
 
     @Test
+    public void testFindOffendersWithCroNumberMatch() {
+
+        criteria = PrisonerDetailSearchCriteria.builder()
+                .prioritisedMatch(false)
+                .croNumber(TEST_CRO_NUMBER)
+                .build();
+
+        PrisonerDetailSearchCriteria croNumberCriteria = PrisonerDetailSearchCriteria.builder().croNumber(TEST_CRO_NUMBER).build();
+
+        Mockito.when(offenderRepository.findOffenders(eq(croNumberCriteria), any(PageRequest.class))).thenReturn(pageResponse(1));
+
+        Page<PrisonerDetail> response = service.findOffenders(criteria, pageRequest);
+
+        assertThat(response.getItems()).isNotEmpty();
+
+        Mockito.verifyZeroInteractions(inmateRepository);
+        Mockito.verify(offenderRepository, Mockito.times(1)).findOffenders(eq(croNumberCriteria), any(PageRequest.class));
+    }
+
+    @Test
     public void testFindOffendersPrioritisedMatchWithPersonalAttrsMatch() {
         final String TEST_LAST_NAME = "STEPHENS";
-        final String TEST_OFFENDER_NO_QUERY = "offenderNo:eq:'AA1234B'";
         final String TEST_PERSONAL_ATTRS_QUERY = "lastName:eq:'STEPHENS'";
 
         criteria = PrisonerDetailSearchCriteria.builder()
@@ -187,7 +218,6 @@ public class GlobalSearchServiceImplTest {
         final String TEST_LAST_NAME = "STEPHENS";
         final LocalDate TEST_DOB_FROM = LocalDate.of(1960, 1, 1);
         final LocalDate TEST_DOB_TO = LocalDate.of(1964, 12, 31);
-        final String TEST_OFFENDER_NO_QUERY = "offenderNo:eq:'AA1234B'";
         final String TEST_PERSONAL_ATTRS_QUERY = "lastName:eq:'STEPHENS'";
         final String TEST_DOB_RANGE_QUERY = "(and:dateOfBirth:gteq:'1960-01-01':'YYYY-MM-DD',and:dateOfBirth:lteq:'1964-12-31':'YYYY-MM-DD')";
 
@@ -226,8 +256,6 @@ public class GlobalSearchServiceImplTest {
 
     @Test
     public void testFindOffendersLocationFormatting() {
-        final String TEST_OFFENDER_NO_QUERY = "offenderNo:eq:'AA1234B'";
-
         criteria = PrisonerDetailSearchCriteria.builder()
                 .prioritisedMatch(true)
                 .offenderNo(TEST_OFFENDER_NO)

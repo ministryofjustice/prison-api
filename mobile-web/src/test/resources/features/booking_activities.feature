@@ -77,6 +77,7 @@ Feature: Booking Activities
 
   @nomis
   Scenario: Retrieve scheduled activities for an existing offender having one or more activities, some of which they are excluded from - by day
+      CRS_SCH_ID=-25 on Friday 2017-09-29 is omitted
     When scheduled activities are requested for an offender with booking id "-4"
     Then "4" activities are returned
 
