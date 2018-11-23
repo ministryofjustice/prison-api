@@ -15,7 +15,7 @@ This README is going to show how to run mobile API server.
 * The mobile API Server uses the configuration file in YAML format. There is at least one initial configuration
   packaged in the jar on
 
-    `elite2-api-impl/src/main/resources/mobile.yaml`
+    `elite2-api-impl/src/main/resources/application.yaml`
 
     Let's say you want to create a specific configuration to the DEV profile: just copy a file to your configurations.
 
@@ -34,7 +34,7 @@ This README is going to show how to run mobile API server.
 
 ### How to run the Application? ###
 
-1) Running the main method of the class `net.syscon.elite.MobileApiServer` in your IDE
+1) Running the main method of the class `net.syscon.elite.Elite2ApiServer` in your IDE
 Note that this does not yet work in Eclipse due to a gradle bug (see [here](https://github.com/gradle/gradle/pull/3016))
 
 2) Using Gradle directly via command-line (optionally setting the spring profile variable to select the in-memory database)

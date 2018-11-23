@@ -199,7 +199,7 @@ project(":elite2-api-impl") {
         configFile.write(configContent, 'UTF-8')
     }
 
-    def applicationMainClass = 'net.syscon.elite.MobileApiServer'
+    def applicationMainClass = 'net.syscon.elite.Elite2ApiServer'
     def dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
     def dateOnlyFormat = new java.text.SimpleDateFormat("yyyy-MM-dd")
     def today = dateOnlyFormat.format(new Date());
