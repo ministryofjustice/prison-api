@@ -1,7 +1,7 @@
 ---
 exclude_paths:
-  - 'mobile-web/src/main/configs/**'
+  - 'elite2-api-impl/src/main/configs/**'
   - '**.sql'
-  - '/mobile-web/src/main/java/net/syscon/elite/api/resource/impl/PrisonerResourceImpl.java'
+  - '/elite2-api-impl/src/main/java/net/syscon/elite/api/resource/impl/PrisonerResourceImpl.java'
   
   # see https://support.codacy.com/hc/en-us/articles/115002130625-Codacy-Configuration-File

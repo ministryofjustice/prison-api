@@ -9,7 +9,7 @@ RUN apk update \
 
 WORKDIR /app
 
-COPY mobile-web/build/libs/mobile-web*.jar /app/app.jar
+COPY elite2-api-impl/build/libs/elite2-api-impl*.jar /app/app.jar
 COPY run.sh /app
 
 ENV TZ=Europe/London

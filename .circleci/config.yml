@@ -19,23 +19,23 @@ jobs:
             - ~/.gradle
           key: gradle-{{ checksum "build.gradle" }}
       - store_test_results:
-          path: mobile-web/build/test-results
+          path: elite2-api-impl/build/test-results
       - store_test_results:
-          path: mobile-web/target/site
+          path: elite2-api-impl/target/site
       - store_artifacts:
-          path: mobile-web/build/libs
+          path: elite2-api-impl/build/libs
       - store_artifacts:
-          path: mobile-web/build/reports/tests
+          path: elite2-api-impl/build/reports/tests
       - store_artifacts:
-          path: mobile-web/build/reports/jacoco
+          path: elite2-api-impl/build/reports/jacoco
       - store_artifacts:
-          path: mobile-web/target/site
+          path: elite2-api-impl/target/site
       - store_artifacts:
-          path: mobile-api/raml/api.html
+          path: elite2-api/raml/api.html
       - persist_to_workspace:
           root: .
           paths:
-            - mobile-web/build/libs
+            - elite2-api-impl/build/libs
             - build.gradle
             - Dockerfile
             - run.sh
@@ -52,7 +52,7 @@ jobs:
       - run:
           name: Build container and publish to docker hub
           command: |
-             jar xvf mobile-web/build/libs/mobile-web-*.jar META-INF/build-info.properties
+             jar xvf elite2-api-impl/build/libs/elite2-api-impl-*.jar META-INF/build-info.properties
              API_VERSION=$(grep 'build.version=' META-INF/build-info.properties | awk -F= '{print $2}')
              rm META-INF/build-info.properties
              TAG=${API_VERSION}.${CIRCLE_BRANCH}
