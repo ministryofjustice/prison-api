@@ -1,0 +1,218 @@
+import org.apache.commons.io.FileUtils
+import org.apache.tools.ant.taskdefs.condition.Os
+
+project(":elite2-api-spec") {
+    // Project-specific properties
+
+    def ramlDir = new File("${rootDir}/mobile-api/raml")
+    def ramlFile = new File(ramlDir, "api.raml")
+
+    def htmlFile = new File("${resourceGenDir}/docs")
+    def oas20File = new File("${resourceGenDir}/api.json")
+
+    def npmCommand = 'npm'
+    def npmArgs = ['i', 'oas-raml-converter@1.0.13', 'spectacle-docs']
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        npmCommand = "${rootDir}/mobile-api/raml/npmrunner.bat"
+        npmArgs = ['oas-raml-converter@1.0.13', 'spectacle-docs']
+    }
+
+    task npmInstall(type: Exec) {
+        doFirst {
+            println "Install OAS RAML Converter and RAML2HTML Dependencies ..."
+        }
+        workingDir ramlDir.absolutePath
+        commandLine npmCommand
+        args npmArgs
+    }
+
+    // RAML 1.0 documentation task
+    //
+    // The following task requires node-js installed in order to generate the API HTML version
+    // Also install raml2html after install the node-js with the following command
+    // npm i -g raml2html
+    def htmlGenCommand = "./node_modules/.bin/spectacle"
+    def htmlGenArgs = ['-t', htmlFile.absolutePath, ramlFile.absolutePath]
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        htmlGenCommand = "${rootDir}/mobile-api/raml/htmlgen.bat"
+        htmlGenArgs = [ramlFile.absolutePath, htmlFile.absolutePath]
+    }
+
+    // not currently required as we use swagger
+    task htmlGen(type: Exec) {
+        workingDir ramlDir.absolutePath
+        commandLine htmlGenCommand
+        args htmlGenArgs
+    }
+
+    // RAML 1.0 to OAS 2.0 Conversion Task
+    //
+    // The following task requires node-js installed in order to use oas-raml-converter to convert the RAML 1.0 API
+    // specification to OAS 2.0 (Swagger 2). After installing node-js, use the following command to install
+    // oas-raml-coverter:
+    //   npm i -g oas-raml-converter
+    def raml2oasCommand = "${rootDir}/mobile-api/raml/raml2oas.sh"
+    def raml2oasArgs = ['-f', 'RAML', '-t', 'OAS20', ramlFile.absolutePath]
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        raml2oasCommand = "${rootDir}/mobile-api/raml/raml2oas.bat"
+        raml2oasArgs = [ramlFile.absolutePath]
+    }
+
+    task raml2oas(type: Exec) {
+        doFirst {
+            println "Generating OAS 2.0 API specification from RAML 1.0 ..."
+
+            oas20File.createNewFile()
+            standardOutput = new FileOutputStream(oas20File)
+            if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
+                environment 'PATH', '/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin'
+            }
+            workingDir ramlDir.absolutePath
+            commandLine raml2oasCommand
+            args raml2oasArgs
+        }
+    }
+
+    // Configurations
+    configurations {
+        generatedCompile.extendsFrom compile
+        generatedCompileOnly.extendsFrom compileOnly
+
+        // Used to expose/share output (compiled classes) of 'generated' source set
+        generatedOutput
+
+        codeGenerator
+    }
+
+    // Additional source set: 'generated'
+    sourceSets {
+        generated {
+            java {
+                srcDir 'src/generated/java'
+                outputDir = file('build/classes/generated')
+            }
+        }
+    }
+
+    // Main compilation dependencies
+    dependencies {
+        compile "org.springframework.boot:spring-boot-starter-jersey:${version_spring_boot}"
+        compile "io.swagger:swagger-jersey2-jaxrs:1.5.16"
+
+        compileOnly 'org.projectlombok:lombok:1.16.18'
+
+        generatedOutput sourceSets.generated.output
+
+        codeGenerator project(":mobile-api-codegen")
+        codeGenerator "io.swagger:swagger-codegen-cli:2.2.3"
+    }
+
+    // Ensure assembled JAR includes generated classes
+    jar {
+        from sourceSets.generated.output
+    }
+
+    // Custom Task Definitions
+
+    // Task to clean and prepare generated source location
+    task cleanGenerated {
+        doFirst {
+            println "Cleaning generated sources ..."
+
+            FileUtils.forceMkdir resourceGenDir
+            FileUtils.forceMkdir sourceGenDir
+            FileUtils.cleanDirectory resourceGenDir
+            FileUtils.cleanDirectory sourceGenDir
+        }
+    }
+
+
+    // Task to generate Java code from RAML 1.0 resources
+    task generateRamlResources {
+        doFirst {
+            println "Generating JAXRS API model and interfaces from RAML 0.8 ..."
+
+            def config = new org.raml.jaxrs.generator.Configuration()
+
+            config.setModelPackage("net.syscon.elite2.api.model")
+            config.setResourcePackage("net.syscon.elite2.api.resource")
+            config.setSupportPackage("net.syscon.elite2.api.support")
+            config.setOutputDirectory(sourceGenDir)
+            config.setTypeConfiguration((String[]) ["jackson"])
+            config.setJsonMapper(org.jsonschema2pojo.AnnotationStyle.JACKSON2)
+
+            def mapperConfiguration = new HashMap<>()
+
+            mapperConfiguration["useLongIntegers"] = "true"
+            mapperConfiguration["includeToString"] = "true"
+            mapperConfiguration["includeHashcodeAndEquals"] = "true"
+            mapperConfiguration["includeConstructors"] = "true"
+            mapperConfiguration["useCommonsLang3"] = "true"
+            mapperConfiguration["includeJsr303Annotations"] = "true"
+
+            config.jsonMapperConfiguration = mapperConfiguration
+
+            def scanner = new org.raml.jaxrs.generator.RamlScanner(config)
+
+            try {
+                scanner.handle(ramlFile)
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    def codegenConfig = "${rootDir}/mobile-api/raml/api-gen-cfg.json"
+
+    def jaxrsCodegenArgs = ['generate', '-c', codegenConfig, '-i', oas20File.absolutePath, '-l', 'jaxrsinterfaces',
+                            '-o', sourceGenDir, '--type-mappings', 'Boolean=boolean']
+
+    def jaxrsCodegenSystemProps = ['modelDocs':'false',
+                                   'apiDocs':'false',
+                                   'apiDocs':'false',
+                                   'modelTests':'false',
+                                   'apiTests':'false']
+
+    // Task to generate JAXRS code from OAS 2.0 specification (converted from RAML 1.0 using raml2oas task).
+    task generateOas20Resources(type:JavaExec) {
+        doFirst {
+            println "Generating JAXRS API model and interfaces from OAS 2.0 specification ..."
+
+            main = 'io.swagger.codegen.SwaggerCodegen'
+            classpath = configurations.codeGenerator
+            systemProperties jaxrsCodegenSystemProps
+            args jaxrsCodegenArgs
+        }
+    }
+
+    // TODO: Enable checkstyle once rules reviewed and agreed (but don't enable for tests).
+    checkstyleMain.enabled = false
+    checkstyleGenerated.enabled = false
+    checkstyleTest.enabled = false
+
+    // Task Dependencies
+
+    // Ensure generated sources are removed and re-generated before they are compiled
+    compileGeneratedJava.dependsOn generateOas20Resources
+
+    raml2oas.dependsOn npmInstall
+    htmlGen.dependsOn npmInstall
+
+    generateOas20Resources.dependsOn cleanGenerated, raml2oas, ':mobile-api-codegen:jar'
+    generateOas20Resources.mustRunAfter cleanGenerated
+
+    // Ensure project JAR only created after generated classes are processed
+    jar.dependsOn generatedClasses
+
+    // Main Task Definition for project
+    task run {
+        doLast {
+            println ">>> Source Code Generated on \"${sourceGenDir.absolutePath}\"!"
+        }
+    }
+
+    run.dependsOn clean, jar
+}
