@@ -17,7 +17,7 @@ import org.springframework.core.io.ClassPathResource;
 @Configuration
 @SuppressWarnings("squid:S1118")
 @PropertySources({
-        @PropertySource(value = "classpath:mobile.yml"),
+        @PropertySource(value = "classpath:application.yml"),
         @PropertySource(value = "classpath:groups.properties") })
 public class ApplicationContextConfigs {
 
@@ -29,7 +29,7 @@ public class ApplicationContextConfigs {
 	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer(final ConfigurableEnvironment env) {
 		final PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
 		final MutablePropertySources sources = env.getPropertySources();
-		String filename = "mobile.yml";
+		String filename = "application.yml";
 		final YamlPropertiesFactoryBean yamlFactory = new YamlPropertiesFactoryBean();
 		yamlFactory.setResources(new ClassPathResource(filename));
 		sources.addFirst(new PropertiesPropertySource("classpath:" + filename, yamlFactory.getObject()));

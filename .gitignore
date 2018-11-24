@@ -1,17 +1,4 @@
 
-### Angular, Node, and TS working files
-UI/.idea
-UI/node_modules
-UI/jspm_packages
-UI/npm-debug.*
-UI/link-checker-results.txt
-UI/app/**/*.js
-**/*.js.map
-UI/e2e/**/*.js
-UI/e2e/**/*.js.map
-UI/_test-output
-UI/_temp
-
 ### JetBrains template
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio
 
@@ -129,19 +116,6 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 
-# Angular UI temporary files
-UI/.idea
-UI/node_modules
-UI/jspm_packages
-UI/npm-debug.*
-UI/link-checker-results.txt
-UI/app/**/*.js
-UI/**/*.js.map
-UI/e2e/**/*.js
-UI/e2e/**/*.js.map
-UI/_test-output
-UI/_temp
-
 # Created by .ignore support plugin (hsz.mobi)
 
 /elite2-web/src/main/configs/elite2-dev.yml
@@ -155,12 +129,11 @@ UI/_temp
 
 .DS_Store
 
-mobile-api/raml/package*.json
-mobile-api/raml/api.html
-mobile-api/raml/node_modules/
-mobile-api/src/
-mobile-web/src/main/resources/static/
+elite2-api-spec/raml/package*.json
+elite2-api-spec/raml/api.html
+elite2-api-spec/raml/node_modules/
+elite2-api-spec/src/
+elite2-api/src/main/resources/static/
 
 .gitignore
-terraform.tfstate
-terraform.tfstate.backup
+

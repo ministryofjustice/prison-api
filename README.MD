@@ -15,11 +15,11 @@ This README is going to show how to run mobile API server.
 * The mobile API Server uses the configuration file in YAML format. There is at least one initial configuration
   packaged in the jar on
 
-    `mobile-web/src/main/resources/mobile.yaml`
+    `elite2-api/src/main/resources/mobile.yaml`
 
     Let's say you want to create a specific configuration to the DEV profile: just copy a file to your configurations.
 
-    `mobile-web/src/main/configs/mobile-dev.yml`
+    `elite2-api/src/main/configs/mobile-dev.yml`
 
 * Dependencies
   To minimise dependency management we use Spring Boot because it gives us a broad set of
@@ -48,9 +48,9 @@ gradlew bootRun
 ```bash
 gradle assemble
 
-nohup java -cp mobile-web-<VERSION>.jar:/etc/elite-mobile -Dloader.main=net.syscon.elite.MobileApiServer org.springframework.boot.loader.PropertiesLauncher &
+nohup java -cp elite2-api-<VERSION>.jar:/etc/elite-mobile -Dloader.main=net.syscon.elite.MobileApiServer org.springframework.boot.loader.PropertiesLauncher &
 ```
-Where `/etc/elite-mobile` is the external configuration directory. In the project this directory is `mobile-web/src/main/configs`
+Where `/etc/elite-mobile` is the external configuration directory. In the project this directory is `elite2-api/src/main/configs`
 
 If you need to build against Oracle 11 use:-
 ```bash

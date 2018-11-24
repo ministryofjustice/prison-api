@@ -4,7 +4,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 project(":elite2-api-spec") {
     // Project-specific properties
 
-    def ramlDir = new File("${rootDir}/mobile-api/raml")
+    def ramlDir = new File("${rootDir}/elite2-api-spec/raml")
     def ramlFile = new File(ramlDir, "api.raml")
 
     def htmlFile = new File("${resourceGenDir}/docs")
@@ -14,7 +14,7 @@ project(":elite2-api-spec") {
     def npmArgs = ['i', 'oas-raml-converter@1.0.13', 'spectacle-docs']
 
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        npmCommand = "${rootDir}/mobile-api/raml/npmrunner.bat"
+        npmCommand = "${rootDir}/elite2-api-spec/raml/npmrunner.bat"
         npmArgs = ['oas-raml-converter@1.0.13', 'spectacle-docs']
     }
 
@@ -36,7 +36,7 @@ project(":elite2-api-spec") {
     def htmlGenArgs = ['-t', htmlFile.absolutePath, ramlFile.absolutePath]
 
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        htmlGenCommand = "${rootDir}/mobile-api/raml/htmlgen.bat"
+        htmlGenCommand = "${rootDir}/elite2-api-spec/raml/htmlgen.bat"
         htmlGenArgs = [ramlFile.absolutePath, htmlFile.absolutePath]
     }
 
@@ -53,11 +53,11 @@ project(":elite2-api-spec") {
     // specification to OAS 2.0 (Swagger 2). After installing node-js, use the following command to install
     // oas-raml-coverter:
     //   npm i -g oas-raml-converter
-    def raml2oasCommand = "${rootDir}/mobile-api/raml/raml2oas.sh"
+    def raml2oasCommand = "${rootDir}/elite2-api-spec/raml/raml2oas.sh"
     def raml2oasArgs = ['-f', 'RAML', '-t', 'OAS20', ramlFile.absolutePath]
 
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        raml2oasCommand = "${rootDir}/mobile-api/raml/raml2oas.bat"
+        raml2oasCommand = "${rootDir}/elite2-api-spec/raml/raml2oas.bat"
         raml2oasArgs = [ramlFile.absolutePath]
     }
 
@@ -106,7 +106,7 @@ project(":elite2-api-spec") {
 
         generatedOutput sourceSets.generated.output
 
-        codeGenerator project(":mobile-api-codegen")
+        codeGenerator project(":elite2-api-codegen")
         codeGenerator "io.swagger:swagger-codegen-cli:2.2.3"
     }
 
@@ -165,7 +165,7 @@ project(":elite2-api-spec") {
         }
     }
 
-    def codegenConfig = "${rootDir}/mobile-api/raml/api-gen-cfg.json"
+    def codegenConfig = "${rootDir}/elite2-api-spec/raml/api-gen-cfg.json"
 
     def jaxrsCodegenArgs = ['generate', '-c', codegenConfig, '-i', oas20File.absolutePath, '-l', 'jaxrsinterfaces',
                             '-o', sourceGenDir, '--type-mappings', 'Boolean=boolean']
@@ -201,7 +201,7 @@ project(":elite2-api-spec") {
     raml2oas.dependsOn npmInstall
     htmlGen.dependsOn npmInstall
 
-    generateOas20Resources.dependsOn cleanGenerated, raml2oas, ':mobile-api-codegen:jar'
+    generateOas20Resources.dependsOn cleanGenerated, raml2oas, ':elite2-api-codegen:jar'
     generateOas20Resources.mustRunAfter cleanGenerated
 
     // Ensure project JAR only created after generated classes are processed

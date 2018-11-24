@@ -5,11 +5,11 @@ project(":elite2-api") {
     apply plugin: "jacoco"
 
     dependencies {
-        compile project(":mobile-api")
-        compile project(path: ":mobile-api", configuration: "generatedOutput")
+        compile project(":elite2-api-spec")
+        compile project(path: ":elite2-api-spec", configuration: "generatedOutput")
 
-        compile files("${rootDir}/mobile-web/src/main/configs")
-        compile files("${rootDir}/mobile-web/src/main/resources")
+        compile files("${rootDir}/elite2-api/src/main/configs")
+        compile files("${rootDir}/elite2-api/src/main/resources")
         compile files("${rootDir}/lib/ojdbc7-12.1.0.2.jar")
 
         compile("org.springframework.boot:spring-boot-starter-web")
@@ -47,8 +47,8 @@ project(":elite2-api") {
         runtime('org.hsqldb:hsqldb:2.4.0')
         runtime("org.flywaydb:flyway-core:5.0.2")
 
-        testCompile project(":mobile-api")
-        testCompile project(path: ":mobile-api", configuration: "generatedOutput")
+        testCompile project(":elite2-api-spec")
+        testCompile project(path: ":elite2-api-spec", configuration: "generatedOutput")
 
         testCompile("org.springframework.boot:spring-boot-starter-test")
         testCompile("org.springframework.boot:spring-boot-test-autoconfigure")
@@ -84,8 +84,8 @@ project(":elite2-api") {
 
         testCompileOnly 'org.projectlombok:lombok:1.16.18'
 
-        testRuntime files("${rootDir}/mobile-web/src/main/configs")
-        testRuntime files("${rootDir}/mobile-web/src/main/resources")
+        testRuntime files("${rootDir}/elite2-api/src/main/configs")
+        testRuntime files("${rootDir}/elite2-api/src/main/resources")
     }
 
     gradle.startParameter.continueOnFailure = true
@@ -156,10 +156,10 @@ project(":elite2-api") {
     test.dependsOn testIntegration, testWithSchemaElite, testWithSchemaNomis
 
     jacocoTestReport.executionData ([
-      file("${rootDir}/mobile-web/build/jacoco/test.exec"),
-      file("${rootDir}/mobile-web/build/jacoco/testIntegration.exec"),
-      file("${rootDir}/mobile-web/build/jacoco/testWithSchemaElite.exec"),
-      file("${rootDir}/mobile-web/build/jacoco/testWithSchemaNomis.exec")
+      file("${rootDir}/elite2-api/build/jacoco/test.exec"),
+      file("${rootDir}/elite2-api/build/jacoco/testIntegration.exec"),
+      file("${rootDir}/elite2-api/build/jacoco/testWithSchemaElite.exec"),
+      file("${rootDir}/elite2-api/build/jacoco/testWithSchemaNomis.exec")
     ])
 
     jacocoTestReport {
@@ -189,26 +189,9 @@ project(":elite2-api") {
     aggregate.dependsOn codacyCoverageUploader
     compileJava.dependsOn processResources
 
-    def configsDir = file("${rootDir}/mobile-web/src/main/configs").absolutePath
+    def configsDir = file("${rootDir}/elite2-api/src/main/configs").absolutePath
 
-    processResources {
-        def devConfigsFile = file("${configsDir}/mobile-dev.yml")
-
-        if (!devConfigsFile.exists()) {
-            copy {
-                from(configsDir) { include "mobile-dev-SAMPLE.yml" }
-                into configsDir
-                rename { String fileName -> fileName.replace("mobile-dev-SAMPLE.yml", "mobile-dev.yml") }
-            }
-        }
-
-        def configFile = file("${rootDir}/mobile-web/src/main/resources/application.properties").absoluteFile
-
-        String configContent = configFile.getText('UTF-8')
-        configFile.write(configContent, 'UTF-8')
-    }
-
-    def applicationMainClass = 'net.syscon.elite.MobileApiServer'
+    def applicationMainClass = 'net.syscon.elite.Elite2ApiServer'
     def dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
     def dateOnlyFormat = new java.text.SimpleDateFormat("yyyy-MM-dd")
     def today = dateOnlyFormat.format(new Date());
