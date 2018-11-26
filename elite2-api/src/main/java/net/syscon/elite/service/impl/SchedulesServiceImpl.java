@@ -15,6 +15,7 @@ import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.text.WordUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -127,6 +128,7 @@ public class SchedulesServiceImpl implements SchedulesService {
                 .paid(event.getPaid())
                 .payRate(event.getPayRate())
                 .eventStatus(event.getEventStatus())
+                .eventLocation(WordUtils.capitalizeFully(event.getEventLocation()))
                 .build();
     }
 

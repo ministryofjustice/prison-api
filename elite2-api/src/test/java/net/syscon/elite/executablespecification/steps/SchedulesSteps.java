@@ -5,7 +5,6 @@ import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.test.EliteClientException;
-import net.syscon.util.DateTimeConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -14,7 +13,9 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -220,6 +221,13 @@ public class SchedulesSteps extends CommonSteps {
                 .collect(Collectors.joining(","));
 
         assertThat(actual).isEqualTo(expectedList);
+    }
+
+    public void verifyEventDescriptionAndLocation(String eventDescription, String eventLocation) {
+        boolean match = results.stream()
+                .anyMatch(event -> event.getEventDescription().equals(eventDescription) && event.getEventLocation().equals(eventLocation));
+
+        assertThat(match).isEqualTo(true);
     }
 
     public void verifyCourtEvents(String events) {

@@ -268,4 +268,9 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
     public void theFollowingOffenderShouldBeReturnedAlongWithThe(String firstName, String lastName, String transferDescription) throws Throwable {
         this.schedulesSteps.verifyTransfer(firstName, lastName, transferDescription);
     }
+
+    @Then("^an event is returned with \"([^\"]*)\" and \"([^\"]*)\"$")
+    public void anEventIsReturnedWithAnd(String eventDescription, String eventLocation) throws Throwable {
+        this.schedulesSteps.verifyEventDescriptionAndLocation(eventDescription, eventLocation);
+    }
 }
