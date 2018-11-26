@@ -33,7 +33,7 @@ def applicationMainClass = 'net.syscon.elite.Elite2ApiServer'
 def dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 def dateOnlyFormat = new SimpleDateFormat("yyyy-MM-dd")
 def today = dateOnlyFormat.format(new Date())
-def applicationName = 'keyworker-api'
+def applicationName = 'elite2-api'
 version today
 
 jar {

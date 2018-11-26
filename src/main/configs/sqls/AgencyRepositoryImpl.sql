@@ -9,31 +9,55 @@ GET_AGENCIES {
 
 FIND_AGENCIES_BY_USERNAME {
   SELECT DISTINCT A.AGY_LOC_ID AGENCY_ID,
-         A.DESCRIPTION,
-         A.AGENCY_LOCATION_TYPE AGENCY_TYPE
+                  A.DESCRIPTION,
+                  A.AGENCY_LOCATION_TYPE AGENCY_TYPE
   FROM AGENCY_LOCATIONS A
-    INNER JOIN CASELOAD_AGENCY_LOCATIONS C ON A.AGY_LOC_ID = C.AGY_LOC_ID
+         INNER JOIN CASELOAD_AGENCY_LOCATIONS C ON A.AGY_LOC_ID = C.AGY_LOC_ID
   WHERE A.ACTIVE_FLAG = 'Y'
-    AND A.AGY_LOC_ID NOT IN ('OUT','TRN')
-    AND C.CASELOAD_ID IN
-      (SELECT SAC.CASELOAD_ID
-       FROM STAFF_ACCESSIBLE_CASELOADS SAC
-         INNER JOIN STAFF_MEMBERS SM ON SM.STAFF_ID = SAC.STAFF_ID
-           AND SM.PERSONNEL_TYPE = 'STAFF' AND SM.USER_ID = :username)
+    AND A.AGY_LOC_ID NOT IN ('OUT', 'TRN')
+    AND C.CASELOAD_ID IN (
+    SELECT UCR.CASELOAD_ID
+    FROM USER_ACCESSIBLE_CASELOADS UCR
+    WHERE UCR.USERNAME = :username)
 }
 
 FIND_AGENCIES_BY_CURRENT_CASELOAD {
   SELECT DISTINCT A.AGY_LOC_ID AGENCY_ID,
-    A.DESCRIPTION,
+                  A.DESCRIPTION,
                   A.AGENCY_LOCATION_TYPE AGENCY_TYPE
   FROM AGENCY_LOCATIONS A
-    INNER JOIN CASELOAD_AGENCY_LOCATIONS C ON A.AGY_LOC_ID = C.AGY_LOC_ID
+         INNER JOIN CASELOAD_AGENCY_LOCATIONS C ON A.AGY_LOC_ID = C.AGY_LOC_ID
   WHERE A.ACTIVE_FLAG = 'Y'
-        AND A.AGY_LOC_ID NOT IN ('OUT','TRN')
-        AND C.CASELOAD_ID IN
-            (SELECT SM.ASSIGNED_CASELOAD_ID
-             FROM STAFF_MEMBERS SM
-             WHERE SM.PERSONNEL_TYPE = 'STAFF' AND SM.USER_ID = :username)
+    AND A.AGY_LOC_ID NOT IN ('OUT', 'TRN')
+    AND C.CASELOAD_ID IN (
+    SELECT SUA.WORKING_CASELOAD_ID
+    FROM STAFF_USER_ACCOUNTS SUA
+    WHERE SUA.USERNAME = :username)
+}
+
+FIND_PRISON_ADDRESSES_PHONE_NUMBERS {
+  SELECT
+    al.AGY_LOC_ID agency_id,
+    ad.address_type,
+    ad.PREMISE,
+    ad.STREET,
+    ad.LOCALITY,
+    city.DESCRIPTION CITY,
+    country.DESCRIPTION COUNTRY,
+    ad.POSTAL_CODE,
+    p.PHONE_TYPE,
+    p.PHONE_NO,
+    p.EXT_NO
+  FROM AGENCY_LOCATIONS al LEFT JOIN ADDRESSES ad ON ad.owner_class = 'AGY' AND ad.PRIMARY_FLAG = 'Y'
+    AND ad.owner_code = al.agy_loc_id
+                           LEFT JOIN PHONES p ON p.owner_class = 'ADDR'
+      AND p.owner_id = ad.address_id
+                           LEFT JOIN REFERENCE_CODES city ON city.CODE = ad.CITY_CODE and city.DOMAIN = 'CITY'
+                           LEFT JOIN REFERENCE_CODES country ON country.CODE = ad.COUNTRY_CODE and country.DOMAIN = 'COUNTRY'
+  WHERE al.ACTIVE_FLAG = 'Y'
+    AND al.AGY_LOC_ID NOT IN ('OUT', 'TRN')
+    AND al.AGENCY_LOCATION_TYPE = 'INST'
+    AND (:agencyId is NULL OR al.AGY_LOC_ID = :agencyId)
 }
 
 FIND_AGENCIES_BY_CASELOAD {
@@ -137,18 +161,3 @@ SELECT DISTINCT AIL.INTERNAL_LOCATION_ID LOCATION_ID,
   ORDER BY USER_DESCRIPTION
 }
 
-FIND_PRISON_ADDRESSES_PHONE_NUMBERS {
-  SELECT
-  '123' agency_id,
-  'placeholder type' address_type,
-  'placeholder premise' premise,
-  'placeholder street' STREET,
-  'placeholder locality' LOCALITY,
-  'placeholder city' CITY,
-  'placeholder country' COUNTRY,
-  'placeholder postcode' POSTAL_CODE,
-  'placeholder phone type' PHONE_TYPE,
-  'placeholder phone number' PHONE_NO,
-  'placeholder ext number' EXT_NO
-FROM DUAL
-}
