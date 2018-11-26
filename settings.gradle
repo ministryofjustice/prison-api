@@ -1,4 +1,4 @@
-rootProject.name = 'mobile'
+rootProject.name = 'elite2-api-parent'
 
-include 'database', 'mobile-api-codegen', 'mobile-api', 'mobile-web'
+include 'elite2-api-codegen', 'elite2-api-spec', 'elite2-api'
 

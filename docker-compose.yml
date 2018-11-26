@@ -1,49 +1,41 @@
 version: '3.1'
 services:
-  nomis-oauth2-server:
+  oauth-server:
     image: mojdigitalstudio/nomis-oauth2-server:latest
-    networks:
-    - azure
-    container_name: nomis-oauth2-server
+    container_name: oauth-server
     ports:
-    - "9090:8080"
+      - "9090:8080"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/auth/health"]
     environment:
-    - SERVER_PORT=8080
-
-  new-nomis-ui:
-    image: mojdigitalstudio/new-nomis-ui:latest
-    networks:
-      - azure
-    container_name: new-nomis-ui
-    depends_on:
-      - elite2-api
-    ports:
-      - "3000:3000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-    environment:
-      - PORT=3000
-      - API_ENDPOINT_URL=http://elite2-api:8080/api/
-      - GOOGLE_ANALYTICS_ID=UA-106741063-1
-      - WEB_SESSION_TIMEOUT_IN_MINUTES=20
-      - NOMS_TOKEN=secret_token
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=dev
 
   elite2-api:
     image: mojdigitalstudio/elite2-api:latest
-    networks:
-      - azure
     container_name: elite2-api
+    depends_on:
+      - oauth-server
     ports:
-      - "7080:8080"
+      - "8080:8080"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/info/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
     environment:
-      - JAVA_OPTS=-Xms256m -Xmx256m
       - SERVER_PORT=8080
       - SPRING_PROFILES_ACTIVE=nomis-hsqldb
-      - JWT_EXPIRATION_MINS=5
-      - JWT_REFRESH_EXPIRATION_MINS=25
-networks:
-  azure:
+
+  keyworker-api:
+    image: mojdigitalstudio/keyworker-api:latest
+    depends_on:
+      - elite2-api
+      - oauth-server
+    container_name: keyworker-api
+    ports:
+      - "8081:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+    environment:
+      - SERVER_PORT=8080
+      - ELITE2_URI_ROOT=http://elite2-api:8080
+      - AUTH_URI_ROOT=http://oauth-server:8080/auth
+      - security.require-ssl=false

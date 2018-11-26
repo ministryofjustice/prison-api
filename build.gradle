@@ -17,9 +17,9 @@ buildscript {
 subprojects {
 
     ext {
-        resourceGenDir = file("${rootDir}/mobile-api/src/generated/resources")
-        sourceGenDir = file("${rootDir}/mobile-api/src/generated/java")
-        elite2ApiDir = file("${rootDir}/mobile-api/src/main/java")
+        resourceGenDir = file("${rootDir}/elite2-api-spec/src/generated/resources")
+        sourceGenDir = file("${rootDir}/elite2-api-spec/src/generated/java")
+        elite2ApiDir = file("${rootDir}/elite2-api-spec/src/main/java")
     }
 
     repositories {
@@ -111,17 +111,17 @@ subprojects {
     }
 
     task assembleSandbox {
-        dependsOn([":mobile-api:htmlGen", "assemble"])
+        dependsOn([":elite2-api-spec:htmlGen", "assemble"])
 
         doLast {
-            def staticDir = file("${rootDir}/mobile-web/src/main/resources/static")
+            def staticDir = file("${rootDir}/elite2-api/src/main/resources/static")
 
             if (!staticDir.exists()) {
                 staticDir.mkdirs()
             }
 
             copy {
-                from ("${rootDir}/mobile-api/raml") { include "api.html" }
+                from ("${rootDir}/elite2-api-spec/raml") { include "api.html" }
                 into (staticDir.absolutePath)
                 rename { String fileName -> "index.html" }
             }
