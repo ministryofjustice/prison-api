@@ -1,6 +1,5 @@
 package net.syscon.elite.service.impl;
 
-import net.logstash.logback.encoder.org.apache.commons.lang.WordUtils;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.model.ScheduledEvent;
@@ -16,6 +15,7 @@ import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.apache.commons.text.WordUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
