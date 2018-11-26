@@ -53,16 +53,16 @@ jobs:
              fi
              docker build --rm=false . \
                 --tag "mojdigitalstudio/elite2-api:$TAG" \
-                --label "maintainer=michael.willis@digital.justice.gov.uk" \
+                --label "maintainer=hmpps-studio@digital.justice.gov.uk" \
                 --label "app.version=$TAG" \
                 --label "build.version=$TAG" \
                 --label "build.number=$CIRCLE_BUILD_NUM" \
                 --label "build.url=$CIRCLE_BUILD_URL" \
                 --label "build.gitref=$CIRCLE_SHA1"
-             docker login -u $DOCKER_USER -p $DOCKER_PASS
-             docker push mojdigitalstudio/elite2-api:$TAG
 
              if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
+              docker login -u $DOCKER_USER -p $DOCKER_PASS
+              docker push mojdigitalstudio/elite2-api:$TAG
               docker tag mojdigitalstudio/elite2-api:$TAG mojdigitalstudio/elite2-api:latest
               docker tag mojdigitalstudio/elite2-api:$TAG sysconjusticesystems/elite2-api:latest
               docker push mojdigitalstudio/elite2-api:latest
@@ -80,6 +80,3 @@ workflows:
       - build_docker:
           requires:
             - build
-          filters:
-            branches:
-              only: nomis-api
