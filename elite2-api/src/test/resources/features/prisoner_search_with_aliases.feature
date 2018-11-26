@@ -1,4 +1,3 @@
-@nomis
 Feature: Prisoner Search results contain aliases
 
   Acceptance Criteria:

@@ -141,7 +141,6 @@ Feature: Booking Sentence Details
       | -30       | 2007-10-16 | 2020-12-30 |            | 2021-09-24 |            | 2021-01-02 |             | 2021-01-02  |            |
       | -32       |            |            |            |            |            |            |             |             |            |
 
-  @nomis
   Scenario Outline: Retrieve sentence details for an offender, check other dates - NOMIS only - for ROTL, ERSED and TUSED
     When sentence details are requested for an offender with booking id "<bookingId>"
     Then sentence start date matches "<ssd>"

@@ -94,7 +94,7 @@ Feature: Location and Location Group Events
     And schedules response error message is "Resource with id [TEST_AGENCY] not found."
 
   Scenario: agency does not exist for system users
-    Given a admin user has authenticated with the API
+    Given a user has authenticated with the API
     And an agency which does not exists has been set
     And schedules are requested for agency and location
     And schedules response error message is "Resource with id [TEST_AGENCY] not found."
@@ -123,7 +123,6 @@ Feature: Location and Location Group Events
       | -26        | PROG     | PM       | ANDERSON,ANDERSON,BATES,BATES,DUCK,DUCK| EDUC,EDUC,EDUC,EDUC,EDUC,EDUC | 12:00,12:00,12:00,13:00,13:00,13:00 |
       | -26        | PROG     |          | ANDERSON,ANDERSON,ANDERSON,BATES,BATES,BATES,DUCK,DUCK,DUCK | EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC  | 00:00,00:00,00:00,12:00,12:00,12:00,13:00,13:00,13:00 |
 
-  @nomis
   Scenario Outline: Request an offenders scheduled activities for a specific date
   Note 'Chapel Cleaner' activity on Mon AM for A1234AE is excluded in Nomis only
     When activities are requested with a valid agency for date "<date>" with a time slot "<timeSlot>" and offender numbers "<offenderNo>"
@@ -133,16 +132,6 @@ Feature: Location and Location Group Events
       | 2017-09-18 | A1234AA    | AM       | Chapel Cleaner |
       | 2017-09-11 | A1234AE    | AM       |                |
       | 2017-09-12 | A1234AE    | PM       | Woodwork       |
-
-  @elite
-  Scenario Outline: Request an offenders scheduled activities for a specific date
-    As above but activities not excluded
-    When activities are requested with a valid agency for date "<date>" with a time slot "<timeSlot>" and offender numbers "<offenderNo>"
-    Then the following events should be returned "<events>"
-    Examples:
-      | date       | offenderNo | timeSlot | events                  |
-      | 2017-09-11 | A1234AE    | AM       | Chapel Cleaner          |
-      | 2017-09-12 | A1234AE    |          | Woodwork,Chapel Cleaner |
 
   Scenario Outline: Request an offenders scheduled visits for today
     Given an offender with scheduled visits
@@ -177,7 +166,6 @@ Feature: Location and Location Group Events
     | A1234AC    | today| NORMAN    |BATES     | Compassionate Transfer |
 
 
-  @nomis
   Scenario Outline: Request scheduled court events for offender list
     When Court events are requested with a valid agency with a time slot "<timeSlot>", date "<date>" and offender number list "<offenderNos>"
     Then the following events should be returned: "<events>"

@@ -1,140 +1,28 @@
 package net.syscon.elite.executablespecification.steps;
 
-import net.syscon.elite.api.model.ErrorResponse;
-import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.test.EliteClientException;
-import net.syscon.elite.web.config.ClientConfigExtractor;
-import net.syscon.elite.web.config.OauthClientConfig;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext;
-import org.springframework.context.ApplicationContext;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.oauth2.client.DefaultOAuth2ClientContext;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
-import org.springframework.security.oauth2.client.resource.BaseOAuth2ProtectedResourceDetails;
-import org.springframework.security.oauth2.client.token.DefaultAccessTokenRequest;
-import org.springframework.security.oauth2.client.token.grant.client.ClientCredentialsResourceDetails;
-import org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordAccessTokenProvider;
-import org.springframework.security.oauth2.client.token.grant.password.ResourceOwnerPasswordResourceDetails;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-/**
- * BDD step implementations for API authentication.
- */
 public class AuthenticationSteps {
 
-    private static final String CLIENT_ID = "elite2apiclient";
+    public enum AuthToken {
+        NO_CASELOAD_USER("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnRlcm5hbFVzZXIiOnRydWUsInVzZXJfbmFtZSI6IlJPX1VTRVIiLCJzY29wZSI6WyJyZWFkIiwid3JpdGUiXSwiZXhwIjoxODU4NjAwNDcwLCJhdXRob3JpdGllcyI6WyJST0xFX0xJQ0VOQ0VfUk8iXSwianRpIjoiYzVlOTA1MDMtMzgxNi00ZjkyLWJlNGUtMWM5YWVhOTE5MzI5IiwiY2xpZW50X2lkIjoiZWxpdGUyYXBpY2xpZW50In0.IElEqZ9Osn0aOHNQrgPxGXT2fWl1E7kHLzl7h06L8ZiBRIZUjt_HWK-AGFMUFFbqFv9MJDxXCeecISNAd0hbfX1vzDd4fwoJIudFIgVxh7Mm308yKfF4P2fFqk0G_p65vSAHxt90tX2WL1x22QVZUQ6Zcvvc1B3BsUvH2s3UwzyxBXQlPZjnOsZlmbAiCyjoUTLoorx5KtL35r0NiRDf1Tq2Ok9UwCw_eMsVzEA7rAivxUs9Mm3PE4ElXnkTYhRbw2ScFNSOh4apP9SxN4a3d3BzQAQq4-ps1gqfoQEmI9CCb_5_Q5Mlo9kQEsNSXL6ciM4IFLdGO9k2v_k4Dv15Ow"),
+        NORMAL_USER("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnRlcm5hbFVzZXIiOnRydWUsInVzZXJfbmFtZSI6IkNBX1VTRVIiLCJzY29wZSI6WyJyZWFkIiwid3JpdGUiXSwiZXhwIjoxODU4NjAwNTIzLCJhdXRob3JpdGllcyI6WyJST0xFX0xJQ0VOQ0VfQ0EiXSwianRpIjoiZWJhNjIyYzktZmZkZS00OWMwLThmNmUtMzY2OTZlZTBiN2RiIiwiY2xpZW50X2lkIjoiZWxpdGUyYXBpY2xpZW50In0.d_TGPFjx_P3mVEnanW3WXe0n-Uo3m-fVamomls1440frOSVdeE2hdI9LpJPiazfuXfAoe5ohADAxKMFJiVmHTbD2Bg3Avsbp9hWQKl5EPLp_dEBkV0XWRBkALId3cgs-Ipjxqfnaum-wZ8Kg2UnnYJRuSFTpeVTyq1BiQ8iC9ult-W2Ze7fwhPzViOeXSiGUVYbUUcm43Jpgy1_dJOGFwL-5nF43VZGnDz4TJ0n_q3vQAjfwle1ko_sZqFoSuW5nzuvPxYm-C54AIaf2Cg1m-W1o-b4jdcCzX5-FkZehAvRrowkY5MNVi0Da074sCqLfhtxdrNePxJWZY1lNYR04qw"),
+        ADMIN_TOKEN("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnRlcm5hbFVzZXIiOnRydWUsInVzZXJfbmFtZSI6IklUQUdfVVNFUiIsInNjb3BlIjpbInJlYWQiXSwiZXhwIjoxODU4NTk2MzYzLCJhdXRob3JpdGllcyI6WyJST0xFX01BSU5UQUlOX0FDQ0VTU19ST0xFU19BRE1JTiIsIlJPTEVfR0xPQkFMX1NFQVJDSCIsIlJPTEVfT01JQ19BRE1JTiJdLCJqdGkiOiIwMzliZDE1Ni05ZDJiLTRmZWYtYWJjZS0yODJmYjg2Yjk3MjQiLCJjbGllbnRfaWQiOiJlbGl0ZTJhcGljbGllbnQifQ.gRoLSSUC9smIu3b33aB1drHDslZ7kylVi94fKpFsw_iPL37P9_5cQUeX_r1EjDYBkdUeOh-LNDO3BZwreyNEjTykytyxQoPevPGLibs6WRCQ-LA61TPd1X6S6EyGD9mhFvjbXGluz467mun4UPB0za4qerVR5u2uFgOlyqa-tVYXw5b4R56QnPR0c8wtNIv5ocFnD6f4Cxt3a7WhLQ2mGdQEv3oFszWMdMQOhxsWdf67r6s688bdk4h0Il6LFc0LNMetYRJjoV8hDM4GLsUR0a2_zHDKV8p5rJ-tpuJOjxg_DZzJeVy0E1ofg6L6_Wbj0PkUCyoJPoFrScfMu84osw"),
+        SUPER_ADMIN_TOKEN("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnRlcm5hbFVzZXIiOnRydWUsInVzZXJfbmFtZSI6IklUQUdfVVNFUl9BRE0iLCJzY29wZSI6WyJyZWFkIiwid3JpdGUiXSwiZXhwIjoxNTQzMjcxNzUzLCJhdXRob3JpdGllcyI6WyJST0xFX01BSU5UQUlOX0FDQ0VTU19ST0xFUyIsIlJPTEVfS1dfTUlHUkFUSU9OIiwiUk9MRV9PQVVUSF9BRE1JTiJdLCJqdGkiOiJiZDBjN2ZjMC1jMjM2LTQwOWItYjQzOS1kYThhNGViYjQ2NjUiLCJjbGllbnRfaWQiOiJlbGl0ZTJhcGljbGllbnQifQ.YL0VGXWH81uIZAP6r-naZxML7KCWDPVg7rpdkRf5RxFVq33njtXxHZ2ilV5As_RjNnejR-sN8dLx-eo2S7sOGcPvOAf9A5Y3f4Mnp03COn_5dUkZX22ZCXqemgw7RW3T8CHjaNYVQ7cF4cozx09CvOVMdHEU419ulK2mMf9f2wRzmLFM9D3ZwFwKIZaeT8aq4h-h_puxjZxnMlONRNy68mzz2PzZzkdZBo7evNC2R-Y48kQ2pxjDXhADb-ZbgNGRYrqz0WZPaXraH9F8Ry9tursbNHMM-L1j8xC7QAwRoJsnP_xbEoEa_6gt9xtgvwP2oBEo65OIe9QI9v71B2x22Q");
 
-    private final List<OauthClientConfig> clientConfigurations;
+        private final String token;
 
-    @Value("${security.authentication.header:Authorization}")
-    private String authenticationHeader;
-    private OAuth2AccessToken token;
-
-    @Autowired
-    private ApplicationContext context;
-
-    public AuthenticationSteps(String clientConfig, ClientConfigExtractor clientConfigExtractor) {
-        clientConfigurations = clientConfigExtractor.getClientConfigurations(clientConfig);
-    }
-
-    public ErrorResponse authenticate(String username, String password, boolean clientCredentials, String clientId) {
-        if (clientCredentials) {
-            return authenticate(clientCredentialsResource(clientId));
-        } else {
-            return authenticate(ownerPasswordResource(username, password, CLIENT_ID));
+        AuthToken(String token) {
+            this.token = token;
         }
     }
 
-    public ErrorResponse authenticateAsClient(String clientId) {
-        return authenticate(clientCredentialsResource(clientId));
+    private String currentToken;
+
+    String getToken() {
+        return currentToken;
     }
 
-    public ErrorResponse refresh(OAuth2AccessToken currentToken) {
-        try {
-            BaseOAuth2ProtectedResourceDetails resource = ownerPasswordResource(null, null, CLIENT_ID);
-            resource.setAccessTokenUri(accessTokenUri());
+    void setToken(AuthToken clientId) {
+        this.currentToken = clientId.token;
 
-            ResourceOwnerPasswordAccessTokenProvider refresh = new ResourceOwnerPasswordAccessTokenProvider();
-            token = refresh.refreshAccessToken(resource, currentToken.getRefreshToken(), new DefaultAccessTokenRequest());
-            assertThat(token).isNotNull();
-        } catch (Exception ex) {
-            token = null;
-            return ErrorResponse.builder().status(HttpStatus.UNAUTHORIZED.value()).build();
-        }
-        return ErrorResponse.builder().status(HttpStatus.CREATED.value()).build();
-    }
-
-    private ErrorResponse authenticate(BaseOAuth2ProtectedResourceDetails resource) {
-        resource.setAccessTokenUri(accessTokenUri());
-        return authenticate(new OAuth2RestTemplate(resource, new DefaultOAuth2ClientContext(new DefaultAccessTokenRequest())));
-    }
-
-    private ErrorResponse authenticate(OAuth2RestTemplate oAuth2RestTemplate) {
-        try {
-            token = oAuth2RestTemplate.getAccessToken();
-
-            assertThat(token).isNotNull();
-        } catch (EliteClientException ex) {
-            token = null;
-            return ex.getErrorResponse();
-        } catch (Exception ex) {
-            token = null;
-            final ErrorResponse errorResponse = new ErrorResponse();
-            errorResponse.setStatus(401);
-            return errorResponse;
-        }
-        return ErrorResponse.builder().status(HttpStatus.CREATED.value()).build();
-    }
-
-    private String accessTokenUri() {
-        return "http://localhost:" + getAccessTokenUriPort() + "/oauth/token";
-    }
-
-    private BaseOAuth2ProtectedResourceDetails ownerPasswordResource(String username, String password, String clientId) {
-        ResourceOwnerPasswordResourceDetails resource = new ResourceOwnerPasswordResourceDetails();
-        addClientConfiguration(resource, clientId);
-        resource.setUsername(username);
-        resource.setPassword(password);
-        return resource;
-    }
-
-    private BaseOAuth2ProtectedResourceDetails clientCredentialsResource(String clientId) {
-        ClientCredentialsResourceDetails resource = new ClientCredentialsResourceDetails();
-        addClientConfiguration(resource, clientId);
-//        resource.setScope(Arrays.asList("read", "admin"));
-        return resource;
-    }
-
-    private void addClientConfiguration(BaseOAuth2ProtectedResourceDetails resource, String clientId) {
-        OauthClientConfig client = findOauthClientConfig(clientId);
-        resource.setClientId(client.getClientId());
-        resource.setClientSecret(client.getClientSecret());
-        resource.setScope(client.getScope());
-    }
-
-    private OauthClientConfig findOauthClientConfig(String clientId) {
-        return clientConfigurations
-                .stream()
-                .filter(config -> config.getClientId().equals(clientId))
-                .findFirst()
-                .orElseThrow(new EntityNotFoundException("client"));
-    }
-
-    private int getAccessTokenUriPort() {
-        return (((AnnotationConfigEmbeddedWebApplicationContext) context).getEmbeddedServletContainer()).getPort();
-    }
-
-    public OAuth2AccessToken getToken() {
-        return token;
-    }
-
-    public String getAuthenticationHeader() {
-        return authenticationHeader;
     }
 }

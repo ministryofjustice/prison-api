@@ -1,4 +1,3 @@
-@nomis
 Feature: Access role maintenance
 
   Acceptance Criteria:

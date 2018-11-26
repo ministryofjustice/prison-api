@@ -39,7 +39,7 @@ FIND_PRISON_ADDRESSES_PHONE_NUMBERS {
   p.PHONE_TYPE,
   p.PHONE_NO,
   p.EXT_NO
-FROM AGENCY_LOCATIONS al LEFT JOIN ADDRESSES ad ON ad.owner_class = 'AGY'
+FROM AGENCY_LOCATIONS al LEFT JOIN ADDRESSES ad ON ad.owner_class = 'AGY' AND ad.PRIMARY_FLAG = 'Y'
                                                    AND ad.owner_code = al.agy_loc_id
   LEFT JOIN PHONES p ON p.owner_class = 'ADDR'
                         AND p.owner_id = ad.address_id
@@ -48,6 +48,5 @@ FROM AGENCY_LOCATIONS al LEFT JOIN ADDRESSES ad ON ad.owner_class = 'AGY'
 WHERE al.ACTIVE_FLAG = 'Y'
       AND al.AGY_LOC_ID NOT IN ('OUT', 'TRN')
       AND al.AGENCY_LOCATION_TYPE = 'INST'
-      AND ad.PRIMARY_FLAG = 'Y'
       AND (:agencyId is NULL OR al.AGY_LOC_ID = :agencyId)
 }

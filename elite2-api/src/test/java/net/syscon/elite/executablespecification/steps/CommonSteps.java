@@ -15,7 +15,6 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
 
 import javax.annotation.PostConstruct;
 import javax.ws.rs.core.Response;
@@ -71,24 +70,8 @@ public abstract class CommonSteps {
         assertThat(resources.isEmpty()).isTrue();
     }
 
-    @Step("User {0} authenticates with password {1}")
-    public void authenticates(String username, String password, boolean clientCredentials, String clientId) {
-        errorResponse = auth.authenticate(StringUtils.upperCase(username), password, clientCredentials, clientId);
-    }
-
-    @Step("Refreshes with token")
-    public void refresh(OAuth2AccessToken token) {
-        errorResponse = auth.refresh(token);
-    }
-
-    @Step("Verify authentication token")
-    public void verifyToken() {
-        assertThat(auth.getToken().getValue()).isNotEmpty();
-    }
-
-    @Step("Verify authentication refresh token")
-    public void verifyRefreshToken() {
-        assertThat(auth.getToken().getRefreshToken().getValue()).isNotEmpty();
+    public void authenticateAsClient(AuthenticationSteps.AuthToken clientId){
+        auth.setToken(clientId);
     }
 
     @Step("Verify resource not found")
@@ -214,7 +197,7 @@ public abstract class CommonSteps {
         HttpHeaders headers = new HttpHeaders();
 
         if (auth.getToken() != null) {
-            headers.add(auth.getAuthenticationHeader(), "bearer "+auth.getToken().getValue());
+            headers.add("Authorization", "bearer "+auth.getToken());
         }
 
         if (extraHeaders != null) {
@@ -568,14 +551,6 @@ public abstract class CommonSteps {
             return;
         }
         assertEquals(expected, actual);
-    }
-
-    public AuthenticationSteps getAuth() {
-        return auth;
-    }
-
-    public   void authenticateAsClient(String clientId){
-        auth.authenticateAsClient(clientId);
     }
 
     protected void assertErrorResponse(Response.StatusType expectedStatusCode) {

@@ -118,21 +118,11 @@ buildNumber.properties
 
 # Created by .ignore support plugin (hsz.mobi)
 
-/elite2-web/src/main/configs/elite2-dev.yml
-/elite2-web/gradle
-/elite2-web/output.txt
-/elite2-web/src/main/generated/net/syscon/elite/web/api/resource
-/elite2-web/src/main/generated/net/syscon/elite/web/api/model
-
 # Log file
 *.log
 
 .DS_Store
 
-elite2-api-spec/raml/package*.json
-elite2-api-spec/raml/api.html
-elite2-api-spec/raml/node_modules/
-elite2-api-spec/src/
 elite2-api/src/main/resources/static/
 
 .gitignore

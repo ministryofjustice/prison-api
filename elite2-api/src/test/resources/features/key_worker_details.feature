@@ -1,4 +1,3 @@
-@nomis
 Feature: Key worker details
 
   Acceptance Criteria:

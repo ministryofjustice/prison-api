@@ -1,12 +1,9 @@
 package net.syscon.elite.executablespecification;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.executablespecification.steps.*;
 import net.syscon.elite.test.DatasourceActiveProfilesResolver;
-import net.syscon.elite.web.config.ClientConfigExtractor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -35,8 +32,8 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public AuthenticationSteps auth(@Value("${oauth.client.data}") String clientConfig) {
-            return new AuthenticationSteps(clientConfig, new ClientConfigExtractor(new ObjectMapper()));
+        public AuthenticationSteps auth() {
+            return new AuthenticationSteps();
         }
 
         @Bean
