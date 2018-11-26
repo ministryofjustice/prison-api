@@ -15,7 +15,6 @@ Feature: Prisoner Search
     Then "2" prisoner records are returned
     And  "11" total prisoner records are available
 
-  @nomis
   Scenario Outline: Search prisoners within a dates of birth range not allowing more than 10 years
     Given a system client "licencesadmin" has authenticated with the API
     When a search is made for prisoners with DOB between "<dobFrom>" and "<dobTo>" for range 0 -> 100
@@ -34,24 +33,6 @@ Feature: Prisoner Search
     | 1995-12-31 | 2000-01-01 | 2             | 1998-08-28,1999-10-27                                                                                         |
     |            | 2000-01-01 | 4             | 1990-12-30,1991-06-04,1998-08-28,1999-10-27                                                        |
 
-  @elite
-  Scenario Outline: Search prisoners within a dates of birth range not allowing more than 10 years
-    Given a system client "licencesadmin" has authenticated with the API
-    When a search is made for prisoners with DOB between "<dobFrom>" and "<dobTo>" for range 0 -> 100
-    Then "<numberResults>" prisoner records are returned
-    And the prisoners dob matches "<DOB>"
-
-    Examples:
-    | dobFrom    | dobTo      | numberResults | DOB                                                                                                                      |
-    | 1970-01-01 | 1971-01-01 | 3             | 1970-01-01,1970-01-01,1970-03-01                                                                                         |
-    | 1970-01-01 | 1980-01-01 | 11            | 1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07,1979-12-31 |
-    | 1970-01-01 | 1980-01-02 | 11            | 1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07,1979-12-31 |
-    | 1969-12-30 |            | 11            | 1969-12-30,1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07 |
-    | 1965-01-01 | 1970-01-02 | 7             | 1966-01-01,1968-01-01,1968-01-01,1968-03-23,1969-12-30,1970-01-01,1970-01-01                                             |
-    | 1970-01-01 |            | 11            | 1970-01-01,1970-01-01,1970-03-01,1972-01-01,1972-01-01,1974-01-01,1974-10-29,1975-12-25,1977-01-02,1977-07-07,1979-12-31 |
-    | 1990-01-01 | 2000-01-01 | 6             | 1990-12-30,1991-06-04,1995-08-21,1998-08-28,1998-11-01,1999-10-27                                                        |
-    | 1995-12-31 | 2000-01-01 | 3             | 1998-08-28,1998-11-01,1999-10-27                                                                                         |
-    |            | 2000-01-01 | 6             | 1990-12-30,1991-06-04,1995-08-21,1998-08-28,1998-11-01,1999-10-27                                                        |
 
   Scenario Outline: Search for prisoners by names, without partial name matching
     Given a system client "licencesadmin" has authenticated with the API
@@ -75,7 +56,6 @@ Feature: Prisoner Search
       |           | JEFF           |           | 0             |                 |                       |
       |           |                | O'VAUGHAN | 1             | A1181MV         |                       |
 
-  @nomis
   Scenario Outline: Search for prisoners by names, with partial name matching
     Given a system client "licencesadmin" has authenticated with the API
     When a partial name search is made for prisoners with first name "<firstName>", middle names "<middleNames>" and last name "<lastName>"
@@ -133,7 +113,6 @@ Feature: Prisoner Search
     When a search is made for prisoners with an offender number of "<offenderNo>" expecting failure
     Then access is denied
 
-  @nomis
   Scenario Outline: Search prisoners with a CRO number
     Given a system client "licencesadmin" has authenticated with the API
     When a search is made for prisoners with CRO number of "<cro>"
@@ -145,7 +124,6 @@ Feature: Prisoner Search
       | CRO112233  | 1             | BATES     |
       | CRO112234  | 1             | BATES     |
 
-  @nomis
   Scenario Outline: Search prisoners with a valid PNC number
     Given a system client "licencesadmin" has authenticated with the API
     When a search is made for prisoners with PNC number of "<pnc>"
@@ -162,7 +140,6 @@ Feature: Prisoner Search
       | 2014/12345F   | 1             | ANDREWS   |
       | 1914/12345F   | 1             | ANDREWS   |
 
-  @nomis
   Scenario: Search prisoners with an invalid PNC number
     Given a system client "licencesadmin" has authenticated with the API
     When an invalid search is made for prisoners with PNC number of "234/EE45FX"

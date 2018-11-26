@@ -5,12 +5,10 @@ project(":elite2-api") {
     apply plugin: "jacoco"
 
     dependencies {
-        compile project(":elite2-api-spec")
-        compile project(path: ":elite2-api-spec", configuration: "generatedOutput")
 
         compile files("${rootDir}/elite2-api/src/main/configs")
         compile files("${rootDir}/elite2-api/src/main/resources")
-        compile files("${rootDir}/lib/ojdbc7-12.1.0.2.jar")
+        compile files("${rootDir}/lib/ojdbc8-12.2.0.1.jar")
 
         compile("org.springframework.boot:spring-boot-starter-web")
         compile("org.springframework.boot:spring-boot-starter-aop")
@@ -46,9 +44,6 @@ project(":elite2-api") {
         runtime("org.postgresql:postgresql:42.1.4")
         runtime('org.hsqldb:hsqldb:2.4.0')
         runtime("org.flywaydb:flyway-core:5.0.2")
-
-        testCompile project(":elite2-api-spec")
-        testCompile project(path: ":elite2-api-spec", configuration: "generatedOutput")
 
         testCompile("org.springframework.boot:spring-boot-starter-test")
         testCompile("org.springframework.boot:spring-boot-test-autoconfigure")
@@ -113,7 +108,7 @@ project(":elite2-api") {
         minHeapSize = "2G"
         maxHeapSize = "2G"
         def nomisEnvVars = ['api.db.target':'nomis',
-                            'cucumber.options':"--tags '(@global or @nomis) and not (@elite or @wip or @broken)'"]
+                            'cucumber.options':"--tags '(@global) and not (@wip or @broken)'"]
 
         exclude "**/persistence/*"
         exclude "**/*IntTest*"
@@ -124,22 +119,11 @@ project(":elite2-api") {
         minHeapSize = "2G"
         maxHeapSize = "2G"
         def nomisEnvVars = ['api.db.target':'nomis', 'api.db.dialect':'oracle',
-                            'cucumber.options':"--tags '(@global or @nomis or @oracle) and not (@elite or @wip or @broken)'"]
+                            'cucumber.options':"--tags '(@global) and not (@wip or @broken)'"]
 
         exclude "**/persistence/*"
         exclude "**/*IntTest*"
         environment nomisEnvVars
-    }
-
-    task testWithSchemaElite(type:Test) {
-        minHeapSize = "2G"
-        maxHeapSize = "2G"
-        def eliteEnvVars = ['api.db.target':'elite',
-                            'cucumber.options':"--tags '(@global or @elite) and not (@nomis or @wip or @broken)'"]
-
-        exclude "**/persistence/*"
-        exclude "**/*IntTest*"
-        environment eliteEnvVars
     }
 
     jacocoTestReport.dependsOn test
@@ -153,12 +137,11 @@ project(":elite2-api") {
         exclude "**/executablespecification/*", "**/*IntTest*"
     }
 
-    test.dependsOn testIntegration, testWithSchemaElite, testWithSchemaNomis
+    test.dependsOn testIntegration, testWithSchemaNomis
 
     jacocoTestReport.executionData ([
       file("${rootDir}/elite2-api/build/jacoco/test.exec"),
       file("${rootDir}/elite2-api/build/jacoco/testIntegration.exec"),
-      file("${rootDir}/elite2-api/build/jacoco/testWithSchemaElite.exec"),
       file("${rootDir}/elite2-api/build/jacoco/testWithSchemaNomis.exec")
     ])
 
@@ -188,8 +171,6 @@ project(":elite2-api") {
     codacyCoverageUploader.dependsOn jacocoTestReport
     aggregate.dependsOn codacyCoverageUploader
     compileJava.dependsOn processResources
-
-    def configsDir = file("${rootDir}/elite2-api/src/main/configs").absolutePath
 
     def applicationMainClass = 'net.syscon.elite.Elite2ApiServer'
     def dateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss")

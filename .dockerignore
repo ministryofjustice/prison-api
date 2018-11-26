@@ -4,8 +4,6 @@
 gradle*
 history
 lib
-elite2-api-spec
-elite2-api-codegen
 node_modules
 Restlet Tests
 scripts

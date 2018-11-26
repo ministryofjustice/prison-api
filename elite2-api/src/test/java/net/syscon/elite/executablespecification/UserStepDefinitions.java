@@ -1,12 +1,13 @@
 package net.syscon.elite.executablespecification;
 
-import cucumber.api.PendingException;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.executablespecification.steps.UserSteps;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import static net.syscon.elite.executablespecification.steps.AuthenticationSteps.AuthToken.*;
 
 /**
  * BDD step definitions for User API endpoints:
@@ -26,34 +27,27 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
 
     @Given("^a user has logged in with username \"([^\"]*)\" and password \"([^\"]*)\"$")
     public void aUserHasLoggedInWithUsernameAndPassword(String username, String password) {
-        authenticate(username, password, false, null);
+        user.authenticateAsClient(NORMAL_USER);
+    }
+    @Given("^user \"([^\"]*)\" with password \"([^\"]*)\" has authenticated with the API$")
+    public void userWithPasswordHasAuthenticatedWithTheAPI(String username, String password) {
+        user.authenticateAsClient(NORMAL_USER);
     }
 
     @Given("^a user has authenticated with the API$")
     public void aUserHasAuthenticatedWithTheAPI() {
-        authenticate("itag_user", "password", false, null);
-    }
-
-    @Given("^a admin user has authenticated with the API$")
-    public void aNonAdminUserHasAuthenticatedWithTheAPI() {
-        authenticate("ELITE2_API_USER", "password", false, null);
-    }
-
-    @Given("^user \"([^\"]*)\" with password \"([^\"]*)\" has authenticated with the API$")
-    public void userWithPasswordHasAuthenticatedWithTheAPI(String username, String password) {
-        authenticate(username, password, false, null);
+        user.authenticateAsClient(NORMAL_USER);
     }
 
     @Given("^a system client \"([^\"]*)\" has authenticated with the API$")
     public void trustedClientWithPasswordHasAuthenticatedWithTheAPI(String clientId) {
-        user.authenticateAsClient(clientId);
+        user.authenticateAsClient(ADMIN_TOKEN);
     }
 
     @Given("^a trusted client that can maintain access roles has authenticated with the API$")
     public void aTrustedClientThatCanMaintainAccessRolesHasAuthenticatedWithTheAPI() {
-        user.authenticateAsClient("omicadmin");
+        user.authenticateAsClient(SUPER_ADMIN_TOKEN);
     }
-
 
     @When("^a request is made to retrieve user locations$")
     public void aRequestIsMadeToRetrieveUserLocations() {
@@ -113,10 +107,6 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     @And("^each case note type is returned with one or more sub-types$")
     public void eachCaseNoteTypeIsReturnedWithOneOrMoreSubTypes() {
         user.verifyCaseNoteTypesHaveSubTypes();
-    }
-
-    private void authenticate(String username, String password, boolean clientCredentials, String clientId) {
-        user.authenticates(username, password, clientCredentials, clientId);
     }
 
     @When("^a request for users having role \"([^\"]*)\" at caseload \"([^\"]*)\" is made$")
@@ -204,9 +194,4 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.verifyAccessDenied("Maintain roles Admin access required to perform this action");
     }
 
-    @Given("^a user has authenticated with the API with \"([^\"]*)\" and \"([^\"]*)\"$")
-    public void aUserHasAuthenticatedWithTheAPIWithAnd(String username, String password) throws Throwable {
-        authenticate(username, password, false, null);
-
-    }
 }

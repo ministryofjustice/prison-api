@@ -51,14 +51,3 @@ Feature: Booking Scheduled Events
       | PRISON_ACT | Medical Centre     |
       | VISIT      | LEI-H              |
       | PRISON_ACT | Visiting Room      |
-
-  @elite
-  Scenario: Retrieve next week's scheduled events for an offender in correct time order
-    When next week's scheduled events are requested for an offender with booking id -3
-   Then events are returned as follows:
-      | eventType  | eventLocation      |
-      | APP        | Visiting Room      |
-      | VISIT      | Carpentry Workshop |
-      | PRISON_ACT | Medical Centre     |
-      | VISIT      | Classroom 1        |
-      | APP        | Visiting Room      |

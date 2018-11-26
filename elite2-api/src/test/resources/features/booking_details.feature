@@ -131,7 +131,6 @@ Feature: Booking Details
     When an offender booking CSRA information POST request is made with offender numbers "A1234AA,A1234AB,A1234AC,A1234AD,A1234AE,A1234AF,A1234AG,A1234AP,NEXIST"
     Then correct results are returned as for single assessment
 
-  @nomis
   Scenario Outline: Request for specific offender booking record returns language
     When an offender booking request is made with booking id "<bookingId>"
     Then language of offender booking returned is "<language>"

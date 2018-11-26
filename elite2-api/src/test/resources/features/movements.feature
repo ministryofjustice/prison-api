@@ -1,4 +1,4 @@
-@global @nomis
+@global
 Feature: Movement
 
   Scenario: Retrieve a list of recent movements
@@ -10,8 +10,9 @@ Feature: Movement
     When a request is made to retrieve recent movements
     Then a correct list of records are returned
 
+  @broken
   Scenario Outline: Retrieve a list of recent movements for offenders
-    Given a user has authenticated with the API with "GLOBAL_SEARCH_USER" and "password"
+    Given a user has logged in with username "GLOBAL_SEARCH_USER" and password "password"
     When a make a request for recent movements for "A6676RS" and "Z0021ZZ"
     Then the records should contain a entry for "<movementType>" "<fromDescription>" "<toDescription>"
     Examples:

@@ -15,13 +15,7 @@ buildscript {
 }
 
 subprojects {
-
-    ext {
-        resourceGenDir = file("${rootDir}/elite2-api-spec/src/generated/resources")
-        sourceGenDir = file("${rootDir}/elite2-api-spec/src/generated/java")
-        elite2ApiDir = file("${rootDir}/elite2-api-spec/src/main/java")
-    }
-
+    
     repositories {
         mavenCentral()
         maven { url "${artifactory_url}/libs-release" }
@@ -110,21 +104,4 @@ subprojects {
         }
     }
 
-    task assembleSandbox {
-        dependsOn([":elite2-api-spec:htmlGen", "assemble"])
-
-        doLast {
-            def staticDir = file("${rootDir}/elite2-api/src/main/resources/static")
-
-            if (!staticDir.exists()) {
-                staticDir.mkdirs()
-            }
-
-            copy {
-                from ("${rootDir}/elite2-api-spec/raml") { include "api.html" }
-                into (staticDir.absolutePath)
-                rename { String fileName -> "index.html" }
-            }
-        }
-    }
 }

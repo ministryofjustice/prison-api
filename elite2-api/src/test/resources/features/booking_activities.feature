@@ -75,13 +75,11 @@ Feature: Booking Activities
     And event status for "8th" returned activity is "SCH"
     And event status for "9th" returned activity is "SCH"
 
-  @nomis
   Scenario: Retrieve scheduled activities for an existing offender having one or more activities, some of which they are excluded from - by day
       CRS_SCH_ID=-25 on Friday 2017-09-29 is omitted
     When scheduled activities are requested for an offender with booking id "-4"
     Then "4" activities are returned
 
-  @nomis
   Scenario: Retrieve scheduled activities for an existing offender having one or more activities, some of which they are excluded from - by day and slot
     When scheduled activities are requested for an offender with booking id "-5"
     Then "10" activities are returned
@@ -125,7 +123,6 @@ Feature: Booking Activities
     Then bad request response, with "Invalid date range: toDate is before fromDate." message, is received from booking activities API
 
 # Pay is Nomis-only for now due to the "offender id to booking id mapping sql" using nomis-specific booking_seq column
-  @nomis
   Scenario: Pay an activity and reject double payment
         Offender id A1234AC has 2 activities scheduled on 2017-09-12 PM with eventId -6 and -7
     When a request is made to update attendance for offender id "A1234AC" and activity "-6" with outcome "ATT", performance "STANDARD" and comment "blah"
@@ -134,22 +131,18 @@ Feature: Booking Activities
     When a request is made to update attendance for offender id "A1234AC" and activity "-7" with outcome "ATT", performance "STANDARD" and comment "blah"
     Then the booking activity is rejected as offender has already been paid for "Substance misuse course"
 
-  @nomis
   Scenario: Pay an activity with invalid outcome dropdown
     When a request is made to update attendance for offender id "A1234AC" and activity "-2" with outcome "invalid", performance "GOOD" and comment "blah"
     Then bad request response, with "Event outcome value invalid does not exist" message, is received from booking activities API
 
-  @nomis
   Scenario: Pay an activity with invalid performance dropdown
     When a request is made to update attendance for offender id "A1234AC" and activity "-2" with outcome "UNBEH", performance "invalid" and comment "blah"
     Then bad request response, with "Performance value invalid does not exist" message, is received from booking activities API
 
-  @nomis
   Scenario: Pay an activity with incorrect ids
     When a request is made to update attendance for offender id "A1234AB" and activity "-2" with outcome "ATT", performance "STANDARD" and comment "blah"
     Then resource not found response is received from booking activities API
 
-  @nomis
   Scenario: Pay an activity with unauthorised booking id
     When a request is made to update attendance for offender id "A1234AP" and activity "-2" with outcome "ATT", performance "STANDARD" and comment "blah"
     Then resource not found response is received from booking activities API
