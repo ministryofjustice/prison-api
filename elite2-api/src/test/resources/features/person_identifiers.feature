@@ -1,8 +1,7 @@
-@nomis
 Feature: Person Identifiers
 
   Background:
-    Given a admin user has authenticated with the API
+    Given a user has authenticated with the API
 
   Scenario: Retrieve identifiers for a personId that does not exist
     When the identifiers for a person represented by "1000" are requested

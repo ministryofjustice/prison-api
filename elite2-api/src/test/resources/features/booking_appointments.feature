@@ -74,7 +74,6 @@ Feature: Booking Appointments
     When scheduled appointments for next week are requested for an offender with booking id "-3"
     Then "2" appointments are returned
 
-  @nomis
   Scenario: Retrieve scheduled appointments for an existing offender having one or more appointments, from a specified date
     When scheduled appointments from "2017-05-01" are requested for an offender with booking id "-1"
     Then "10" appointments are returned
@@ -84,18 +83,6 @@ Feature: Booking Appointments
     And event sub type for "1st" returned appointment is "MEDE"
     And event sub type for "7th" returned appointment is "IMM"
     And event location for "7th" returned appointment is "Birmingham Youth Court"
-    And end time for "10th" returned appointment is "2017-12-15 15:00:00"
-
-  @elite
-  Scenario: Retrieve scheduled appointments for an existing offender having one or more appointments, from a specified date
-    When scheduled appointments from "2017-05-01" are requested for an offender with booking id "-1"
-    Then "10" appointments are returned
-    And "11" appointments in total are available
-    And start time for "1st" returned appointment is "2017-05-15 14:30:00"
-    And start time for "7th" returned appointment is "2017-09-18 13:30:00"
-    And event sub type for "1st" returned appointment is "MEDE"
-    And event sub type for "7th" returned appointment is "IMM"
-    And event location for "7th" returned appointment is "Justice Avenue"
     And end time for "10th" returned appointment is "2017-12-15 15:00:00"
 
   Scenario: Retrieve scheduled appointments for an existing offender having one or more appointments, to a specified date

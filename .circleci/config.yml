@@ -24,14 +24,6 @@ jobs:
           path: elite2-api/target/site
       - store_artifacts:
           path: elite2-api/build/libs
-      - store_artifacts:
-          path: elite2-api/build/reports/tests
-      - store_artifacts:
-          path: elite2-api/build/reports/jacoco
-      - store_artifacts:
-          path: elite2-api/target/site
-      - store_artifacts:
-          path: elite2-api-spec/raml/api.html
       - persist_to_workspace:
           root: .
           paths:

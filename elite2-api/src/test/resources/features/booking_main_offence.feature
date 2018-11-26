@@ -1,4 +1,3 @@
-@nomis
 Feature: Booking Main Offence Detail
 
   Acceptence Criteria

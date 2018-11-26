@@ -92,9 +92,7 @@ public class AgencyRepositoryTest {
         final List<PrisonContactDetail> prisonContactDetailList = repository.getPrisonContactDetails(null);
         assertThat(prisonContactDetailList).extracting("agencyId")
                 .containsExactly(
-                        "BMI",
-                        "BXI",
-                        "TRO"
+                        "BMI", "BXI", "LEI", "MDI", "MUL", "SYI", "TRO", "WAI"
                 );
         assertThat(prisonContactDetailList).contains(buildBmiPrisonContactDetails());
     }

@@ -1,4 +1,4 @@
 rootProject.name = 'elite2-api-parent'
 
-include 'elite2-api-codegen', 'elite2-api-spec', 'elite2-api'
+include 'elite2-api'
 
