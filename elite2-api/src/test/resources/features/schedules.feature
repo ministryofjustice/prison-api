@@ -66,6 +66,17 @@ Feature: Location and Location Group Events
     And start time of all returned schedules is on or after 17h00
     And returned schedules are only for offenders located in locations "LEI-A-1-1"
 
+
+  Scenario Outline: event locations
+    Given offenders are located in a location that belongs to requested agency and location group
+    When schedules are requested for a valid agency and location group with date = '2017-10-15' and 'timeSlot' = 'ED'
+    Then an event is returned with "<eventDescription>" and "<eventLocation>"
+
+    Examples:
+    | eventDescription   | eventLocation  |
+    | Medical - Dentist  | Medical Centre |
+
+
 ###############################################################
 
   Scenario: location caseload not accessible

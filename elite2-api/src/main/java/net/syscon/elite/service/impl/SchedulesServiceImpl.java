@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import net.logstash.logback.encoder.org.apache.commons.lang.WordUtils;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.model.ScheduledEvent;
@@ -127,6 +128,7 @@ public class SchedulesServiceImpl implements SchedulesService {
                 .paid(event.getPaid())
                 .payRate(event.getPayRate())
                 .eventStatus(event.getEventStatus())
+                .eventLocation(WordUtils.capitalizeFully(event.getEventLocation()))
                 .build();
     }
 
