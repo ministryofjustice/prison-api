@@ -1,4 +1,3 @@
-@global
 Feature: Staff Details and Roles
 
   Acceptance Criteria:

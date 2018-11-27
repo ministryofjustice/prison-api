@@ -1,4 +1,4 @@
-@global @broken
+@broken
 Feature: User Details and Roles
 
   Acceptance Criteria:

@@ -1,4 +1,3 @@
-@global
 Feature: Booking Incentives & Earned Privileges
 
   Acceptance Criteria

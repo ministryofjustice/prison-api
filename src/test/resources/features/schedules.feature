@@ -1,4 +1,3 @@
-@global
 Feature: Location and Location Group Events
 
   Acceptance Criteria

@@ -1,5 +1,3 @@
-@global
-
 Feature: Booking Visits
 
   Acceptance Criteria

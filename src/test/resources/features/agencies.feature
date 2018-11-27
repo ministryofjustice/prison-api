@@ -1,4 +1,3 @@
-@global
 Feature: Agencies
 
   Acceptance Criteria

@@ -1,4 +1,3 @@
-@global
 Feature: Booking Scheduled Events
 
   Acceptance Criteria

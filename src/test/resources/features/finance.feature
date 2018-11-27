@@ -1,4 +1,3 @@
-@global
 Feature: Finances
 
   Acceptance Criteria

@@ -1,4 +1,3 @@
-@global
 Feature: Booking Aliases
 
   Acceptance Criteria:

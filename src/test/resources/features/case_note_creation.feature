@@ -1,4 +1,3 @@
-@global
 Feature: Case Note Creation and Update
 
   Acceptance Criteria:

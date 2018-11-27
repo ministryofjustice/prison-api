@@ -1,4 +1,3 @@
-@global
 Feature: Case Note Count
 
   Acceptance Criteria:

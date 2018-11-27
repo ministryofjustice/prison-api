@@ -1,4 +1,3 @@
-@global
 Feature: User Case Note Types
 
   Acceptance Criteria:

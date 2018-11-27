@@ -1,4 +1,3 @@
-@global
 Feature: Reference Domains
 
   Acceptance Criteria

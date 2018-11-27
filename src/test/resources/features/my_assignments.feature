@@ -1,4 +1,4 @@
-@global @broken
+@broken
 Feature: Keyworker assignments
 
   Acceptance Criteria:

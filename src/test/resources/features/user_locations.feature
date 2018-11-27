@@ -1,4 +1,3 @@
-@global
 Feature: User Locations
 
   Acceptance Criteria:

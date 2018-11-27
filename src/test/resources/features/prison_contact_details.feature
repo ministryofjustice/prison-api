@@ -1,4 +1,3 @@
-@global
 Feature: Prison Contact Details
 
   Acceptance Criteria:

@@ -1,4 +1,3 @@
-@global
 Feature: Locations
 
   Acceptance Criteria:
@@ -10,7 +9,6 @@ Feature: Locations
   Background:
     Given a user has authenticated with the API
 
-  @global
   Scenario Outline: Retrieve a specific location record
     When a request is made to retrieve location with locationId of "<locationId>"
     Then "<number>" location records are returned

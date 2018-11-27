@@ -190,7 +190,7 @@ task testWithSchemaNomis(type: Test) {
     minHeapSize = "2G"
     maxHeapSize = "2G"
     def nomisEnvVars = ['api.db.target'   : 'nomis',
-                        'cucumber.options': "--tags '(@global) and not (@wip or @broken)'"]
+                        'cucumber.options': "--tags 'not (@wip or @broken)'"]
 
     exclude "**/persistence/*"
     exclude "**/*IntTest*"
@@ -201,7 +201,7 @@ task testWithSchemaNomisOracle(type: Test) {
     minHeapSize = "2G"
     maxHeapSize = "2G"
     def nomisEnvVars = ['api.db.target'   : 'nomis', 'api.db.dialect': 'oracle',
-                        'cucumber.options': "--tags '(@global) and not (@wip or @broken)'"]
+                        'cucumber.options': "--tags 'not (@wip or @broken)'"]
 
     exclude "**/persistence/*"
     exclude "**/*IntTest*"

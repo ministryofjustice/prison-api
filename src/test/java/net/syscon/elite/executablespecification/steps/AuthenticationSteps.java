@@ -17,12 +17,11 @@ public class AuthenticationSteps {
 
     private String currentToken;
 
-    String getToken() {
+    public String getToken() {
         return currentToken;
     }
 
-    void setToken(AuthToken clientId) {
+    public void setToken(AuthToken clientId) {
         this.currentToken = clientId.token;
-
     }
 }

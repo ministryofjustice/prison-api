@@ -1,4 +1,3 @@
-@global
 Feature: Case Note Amendment
 
   Acceptance Criteria:

@@ -1,4 +1,3 @@
-@global
 Feature: Case Note Retrieval and Filtering
 
   Acceptance Criteria:

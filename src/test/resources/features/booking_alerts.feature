@@ -1,4 +1,3 @@
-@global
 Feature: Booking Alerts
 
   Acceptance Criteria:

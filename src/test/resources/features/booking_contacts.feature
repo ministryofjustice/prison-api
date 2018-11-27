@@ -1,4 +1,3 @@
-@global
 Feature: Booking Contacts
 
   Acceptance Criteria:

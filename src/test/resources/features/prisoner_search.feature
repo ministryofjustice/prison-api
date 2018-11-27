@@ -1,4 +1,3 @@
-@global
 Feature: Prisoner Search
 
   Acceptance Criteria:

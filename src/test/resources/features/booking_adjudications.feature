@@ -1,4 +1,3 @@
-@global
 Feature: Booking Adjudications
 
   Acceptance Criteria:
