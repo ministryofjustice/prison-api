@@ -1,4 +1,2 @@
-rootProject.name = 'elite2-api-parent'
-
-include 'elite2-api'
+rootProject.name = 'elite2-api'
 
