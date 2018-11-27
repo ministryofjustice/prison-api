@@ -17,6 +17,7 @@ public class PrisonerDetailSearchCriteria {
     private String firstName;
     private String middleNames;
     private String lastName;
+    private String latestLocationId;
     private String pncNumber;
     private String croNumber;
     private LocalDate dob;

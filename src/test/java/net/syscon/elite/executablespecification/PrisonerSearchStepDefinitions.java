@@ -194,5 +194,16 @@ public class PrisonerSearchStepDefinitions extends AbstractStepDefinitions {
     public void thatEachSearchBelowReturnsAllMatchingAliases() throws Throwable {
         // Write code here that turns the phrase above into concrete actions
         prisonerSearch.includeAliases();
+
+    }
+
+    @When("^a search is made for prisoners with location of \"([^\"]*)\" and lastname of \"([^\"]*)\"$")
+    public void aSearchIsMadeForPrisonersWithLocationOfAndLastnameOf(String arg0, String arg1) throws Throwable {
+        Map<String, String> params = new HashMap<>();
+
+        params.put("location", arg0);
+        params.put("lastName", arg1);
+
+        prisonerSearch.search(params, 0, 100, HttpStatus.OK);
     }
 }
