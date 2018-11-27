@@ -1,11 +1,7 @@
-FROM openjdk:8-jdk-alpine
+FROM openjdk:8-slim
 MAINTAINER HMPPS Digital Studio <info@digital.justice.gov.uk>
 
-RUN apk update \
-  && apk upgrade \
-  && apk add netcat-openbsd \
-  && apk add --update curl \
-  && rm -rf /var/cache/apk/*
+RUN apt-get update && apt-get install -y curl
 
 WORKDIR /app
 
