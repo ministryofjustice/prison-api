@@ -109,6 +109,36 @@ public class InmateRepositoryTest {
     }
 
     @Test
+    public void testfindOffendersWithLocationFilterIN() {
+
+        String query = buildQuery(criteriaForLocationFilter("IN"));
+
+        final List<PrisonerDetail> offenders = findOffendersWithAliasesFullResults(query);
+
+        assertThat(offenders.size()).isEqualTo(42);
+    }
+
+    @Test
+    public void testfindOffendersWithLocationFilterOut() {
+
+        String query = buildQuery(criteriaForLocationFilter("OUT"));
+
+        final List<PrisonerDetail> offenders = findOffendersWithAliasesFullResults(query);
+
+        assertThat(offenders.size()).isEqualTo(1);
+    }
+
+    @Test
+    public void testfindOffendersWithLocationFilterALL() {
+
+        String query = buildQuery(criteriaForLocationFilter("ALL"));
+
+        final List<PrisonerDetail> offenders = findOffendersWithAliasesFullResults(query);
+
+        assertThat(offenders.size()).isEqualTo(43);
+    }
+
+    @Test
     public void testfindOffendersWithInvalidOffenderNoOnly() {
         final String TEST_OFFENDER_NO = "X9999XX";
 
@@ -554,6 +584,12 @@ public class InmateRepositoryTest {
                 .build();
     }
 
+    private PrisonerDetailSearchCriteria criteriaForLocationFilter(String location) {
+        return PrisonerDetailSearchCriteria.builder()
+                .latestLocationId(location)
+                .build();
+    }
+
     private PrisonerDetailSearchCriteria addDOBRangeCriteria(PrisonerDetailSearchCriteria criteria,
                                                              LocalDate dob, LocalDate dobFrom, LocalDate dobTo) {
         return criteria.withDob(dob).withDobFrom(dobFrom).withDobTo(dobTo).withMaxYearsRange(10);
@@ -587,6 +623,12 @@ public class InmateRepositoryTest {
 
     private List<PrisonerDetail> findOffendersWithAliases(String query) {
         Page<PrisonerDetail> page = repository.findOffendersWithAliases(query, new PageRequest());
+
+        return page.getItems();
+    }
+
+    private List<PrisonerDetail> findOffendersWithAliasesFullResults(String query) {
+        Page<PrisonerDetail> page = repository.findOffendersWithAliases(query, new PageRequest(0L,1000L));
 
         return page.getItems();
     }
