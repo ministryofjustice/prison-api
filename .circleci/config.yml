@@ -6,36 +6,28 @@ jobs:
   build:
     <<: *defaults
     docker:
-      - image: sysconjusticesystems/ci-java-node:latest
+      - image: circleci/openjdk:8-jdk-browsers
     steps:
       - checkout
       - restore_cache:
           keys:
             - gradle-{{ checksum "build.gradle" }}
             - gradle-
-      - run: ./gradlew build aggregate --stacktrace
+      - run: ./gradlew build
       - save_cache:
           paths:
             - ~/.gradle
           key: gradle-{{ checksum "build.gradle" }}
       - store_test_results:
-          path: mobile-web/build/test-results
+          path: build/test-results
       - store_test_results:
-          path: mobile-web/target/site
+          path: target/site
       - store_artifacts:
-          path: mobile-web/build/libs
-      - store_artifacts:
-          path: mobile-web/build/reports/tests
-      - store_artifacts:
-          path: mobile-web/build/reports/jacoco
-      - store_artifacts:
-          path: mobile-web/target/site
-      - store_artifacts:
-          path: mobile-api/raml/api.html
+          path: build/libs
       - persist_to_workspace:
           root: .
           paths:
-            - mobile-web/build/libs
+            - build/libs
             - build.gradle
             - Dockerfile
             - run.sh
@@ -52,7 +44,7 @@ jobs:
       - run:
           name: Build container and publish to docker hub
           command: |
-             jar xvf mobile-web/build/libs/mobile-web-*.jar META-INF/build-info.properties
+             jar xvf build/libs/elite2-api-*.jar META-INF/build-info.properties
              API_VERSION=$(grep 'build.version=' META-INF/build-info.properties | awk -F= '{print $2}')
              rm META-INF/build-info.properties
              TAG=${API_VERSION}.${CIRCLE_BRANCH}
@@ -61,16 +53,16 @@ jobs:
              fi
              docker build --rm=false . \
                 --tag "mojdigitalstudio/elite2-api:$TAG" \
-                --label "maintainer=michael.willis@digital.justice.gov.uk" \
+                --label "maintainer=hmpps-studio@digital.justice.gov.uk" \
                 --label "app.version=$TAG" \
                 --label "build.version=$TAG" \
                 --label "build.number=$CIRCLE_BUILD_NUM" \
                 --label "build.url=$CIRCLE_BUILD_URL" \
                 --label "build.gitref=$CIRCLE_SHA1"
-             docker login -u $DOCKER_USER -p $DOCKER_PASS
-             docker push mojdigitalstudio/elite2-api:$TAG
 
              if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
+              docker login -u $DOCKER_USER -p $DOCKER_PASS
+              docker push mojdigitalstudio/elite2-api:$TAG
               docker tag mojdigitalstudio/elite2-api:$TAG mojdigitalstudio/elite2-api:latest
               docker tag mojdigitalstudio/elite2-api:$TAG sysconjusticesystems/elite2-api:latest
               docker push mojdigitalstudio/elite2-api:latest
@@ -88,6 +80,3 @@ workflows:
       - build_docker:
           requires:
             - build
-          filters:
-            branches:
-              only: nomis-api

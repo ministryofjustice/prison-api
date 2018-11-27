@@ -1,4 +1,2 @@
-rootProject.name = 'mobile'
-
-include 'database', 'mobile-api-codegen', 'mobile-api', 'mobile-web'
+rootProject.name = 'elite2-api'
 

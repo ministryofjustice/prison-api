@@ -1,15 +1,14 @@
 version: '3.1'
 services:
-  db:
-    image: postgres
-    hostname: "db"
-    volumes:
-      - dbdata:/dbdata
-    environment:
-      - POSTGRES_USER=oms_owner
-      - POSTGRES_PASSWORD=oms_owner
-      - PGDATA=/dbdata
+  elite2-api:
+    image: mojdigitalstudio/elite2-api:latest
+    container_name: elite2-api
     ports:
-      - "5432:5432"
-volumes:
-  dbdata: {}
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=nomis
+      - SPRING_DATASOURCE_URL=jdbc:oracle:thin:@docker.for.mac.localhost:1521/CNOMT3
+      - SPRING_DATASOURCE_PASSWORD=*********
