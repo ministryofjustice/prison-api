@@ -1,4 +1,6 @@
 .gradle
-.idea
+.idea/*
 build
 out
+target
+.idea/workspace.iml

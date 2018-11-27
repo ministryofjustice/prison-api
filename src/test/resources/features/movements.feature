@@ -5,13 +5,12 @@ Feature: Movement
     Acceptance Criteria:
     A batch system user can retrieve a list of offenders with recent movements
 
-    Given a system client "batchadmin" has authenticated with the API
+    Given a user has a token name of "GLOBAL_SEARCH"
     When a request is made to retrieve recent movements
     Then a correct list of records are returned
 
-  @broken
   Scenario Outline: Retrieve a list of recent movements for offenders
-    Given a user has logged in with username "GLOBAL_SEARCH_USER" and password "password"
+    Given a user has a token name of "GLOBAL_SEARCH"
     When a make a request for recent movements for "A6676RS" and "Z0021ZZ"
     Then the records should contain a entry for "<movementType>" "<fromDescription>" "<toDescription>"
     Examples:

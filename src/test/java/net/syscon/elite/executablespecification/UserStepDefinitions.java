@@ -4,6 +4,7 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import net.syscon.elite.executablespecification.steps.AuthenticationSteps;
 import net.syscon.elite.executablespecification.steps.UserSteps;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -25,6 +26,11 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     @Autowired
     private UserSteps user;
 
+    @Given("^a user has a token name of \"([^\"]*)\"$")
+    public void aUserHasAToken(String tokenName) {
+        user.authenticateAsClient(AuthenticationSteps.AuthToken.valueOf(tokenName));
+    }
+
     @Given("^a user has logged in with username \"([^\"]*)\" and password \"([^\"]*)\"$")
     public void aUserHasLoggedInWithUsernameAndPassword(String username, String password) {
         user.authenticateAsClient(NORMAL_USER);
@@ -41,12 +47,12 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
 
     @Given("^a system client \"([^\"]*)\" has authenticated with the API$")
     public void trustedClientWithPasswordHasAuthenticatedWithTheAPI(String clientId) {
-        user.authenticateAsClient(ADMIN_TOKEN);
+        user.authenticateAsClient(LOCAL_ADMIN);
     }
 
     @Given("^a trusted client that can maintain access roles has authenticated with the API$")
     public void aTrustedClientThatCanMaintainAccessRolesHasAuthenticatedWithTheAPI() {
-        user.authenticateAsClient(SUPER_ADMIN_TOKEN);
+        user.authenticateAsClient(ADMIN_TOKEN);
     }
 
     @When("^a request is made to retrieve user locations$")

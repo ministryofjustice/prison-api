@@ -25,7 +25,6 @@ Feature: Locations
     When a request is made to retrieve location with locationId of "-9999"
     Then resource not found response is received from locations API
 
-@broken
   Scenario Outline: Retrieve a list/group of locations
     When a request is made at agency "<agency>" to retrieve the list named "<name>"
     Then location ids are "<locationIds>"
@@ -43,7 +42,6 @@ Feature: Locations
     When a request is made at agency "LEI" to retrieve the list named "nonexistant"
     Then resource not found response is received from locations API
 
-@broken
   Scenario: Retrieve all groups for agency
     When a request is made at agency "MDI" to retrieve all the groups
     Then location groups are "1,1_A,1_B,1_C,2,2_A,2_B,2_C,3,3_A,3_B,3_C,4,4_A,4_B,4_C,5,5_A,5_B,6,6_A,6_B,7,Casu"
