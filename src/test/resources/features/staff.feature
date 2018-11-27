@@ -7,7 +7,7 @@ Feature: Staff Details and Roles
      by staff member name.
 
   Background:
-    Given a system client "ITAG" has authenticated with the API
+    Given a user has authenticated with the API
 
   Scenario Outline: Find staff member using staff id
     When a staff member search is made using staff id "<staffId>"

@@ -7,7 +7,7 @@ Feature: Prisoner Search results contain aliases
     Given That each search below returns all matching aliases
 
   Scenario Outline: Search prisoners within a dates of birth range not allowing more than 10 years
-    Given a system client "licencesadmin" has authenticated with the API
+    Given a user has a token name of "GLOBAL_SEARCH"
     When a search is made for prisoners with DOB between "<dobFrom>" and "<dobTo>" for range 0 -> 100
     Then "<numberResults>" prisoner records are returned
     And the prisoners dob matches "<DOB>"
@@ -25,7 +25,7 @@ Feature: Prisoner Search results contain aliases
     |            | 2000-01-01 | 6             | 1990-12-30,1991-06-04,1995-08-21,1998-08-28,1998-11-01,1999-10-27                                                        |
 
   Scenario Outline: Search for prisoners by names, without partial name matching
-    Given a system client "licencesadmin" has authenticated with the API
+    Given a user has a token name of "GLOBAL_SEARCH"
     When a search is made for prisoners with first name "<firstName>", middle names "<middleNames>" and last name "<lastName>"
     Then "<numberResults>" prisoner records are returned
     And prisoner offender numbers match "<offenderNos>"
@@ -47,7 +47,7 @@ Feature: Prisoner Search results contain aliases
       |           |                | O'VAUGHAN | 1             | A1181MV         |                       |
 
   Scenario Outline: Search for prisoners by names, with partial name matching
-    Given a system client "licencesadmin" has authenticated with the API
+    Given a user has a token name of "GLOBAL_SEARCH"
     When a partial name search is made for prisoners with first name "<firstName>", middle names "<middleNames>" and last name "<lastName>"
     Then "<numberResults>" prisoner records are returned
     And prisoner offender numbers match "<offenderNos>"
@@ -65,7 +65,7 @@ Feature: Prisoner Search results contain aliases
       |           | JEFF           |          | 1             | A1234AE                 | DONALD                 | JEFFREY ROBERT   | DUCK                      | DUCK                     | DONALD                 | 1956-02-28                       |
 
   Scenario Outline: Search prisoners for a specified Date of Birth
-    Given a system client "licencesadmin" has authenticated with the API
+    Given a user has a token name of "GLOBAL_SEARCH"
     When a search is made for prisoners with date of birth of "<dob>"
     Then "<numberResults>" prisoner records are returned
     And the prisoners last names match "<lastNames>"
@@ -78,7 +78,7 @@ Feature: Prisoner Search results contain aliases
       | 1959-10-28 | 0             |                |
 
   Scenario Outline: Search for prisoners with specified offender number
-    Given a system client "licencesadmin" has authenticated with the API
+    Given a user has a token name of "GLOBAL_SEARCH"
     When a search is made for prisoners with an offender number of "<offenderNo>"
     Then "<numberResults>" prisoner records are returned
     And the prisoners last names match "<lastNames>"
@@ -90,7 +90,7 @@ Feature: Prisoner Search results contain aliases
       | A1181MV    | 1             | O'VAUGHAN |
 
   Scenario Outline: Search for prisoners with specified offender number using simple unprotected endpoint
-    Given a user has authenticated with the API
+    Given a user has a token name of "GLOBAL_SEARCH"
     When a search is made for prisoners with an offender number of "<offenderNo>" using simple endpoint
     Then "<numberResults>" prisoner records are returned
     And the prisoners last names match "<lastNames>"
@@ -107,7 +107,7 @@ Feature: Prisoner Search results contain aliases
     Then access is denied
 
   Scenario Outline: Search prisoners with a CRO number
-    Given a system client "licencesadmin" has authenticated with the API
+    Given a user has a token name of "GLOBAL_SEARCH"
     When a search is made for prisoners with CRO number of "<cro>"
     Then "<numberResults>" prisoner records are returned
     And the prisoners last names match "<lastNames>"
@@ -118,7 +118,7 @@ Feature: Prisoner Search results contain aliases
       | CRO112234  | 1             | BATES     |
 
   Scenario Outline: Search prisoners with a valid PNC number
-    Given a system client "licencesadmin" has authenticated with the API
+    Given a user has a token name of "GLOBAL_SEARCH"
     When a search is made for prisoners with PNC number of "<pnc>"
     Then "<numberResults>" prisoner records are returned
     And the prisoners last names match "<lastNames>"
@@ -134,6 +134,6 @@ Feature: Prisoner Search results contain aliases
       | 1914/12345F   | 1             | ANDREWS   |
 
   Scenario: Search prisoners with an invalid PNC number
-    Given a system client "licencesadmin" has authenticated with the API
+    Given a user has a token name of "GLOBAL_SEARCH"
     When an invalid search is made for prisoners with PNC number of "234/EE45FX"
     Then bad request response is received from prisoner search API

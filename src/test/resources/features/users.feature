@@ -1,4 +1,3 @@
-@broken
 Feature: User Details and Roles
 
   Acceptance Criteria:
@@ -8,27 +7,25 @@ Feature: User Details and Roles
     Given a user has authenticated with the API
 
   Scenario Outline: As a logged in user I can find out all my roles
-    Given user "<username>" with password "password" has authenticated with the API
+    Given a user has a token name of "<token>"
     When a user role request is made for all roles
     Then the roles returned are "<roles>"
 
   Examples:
-  | username            | roles                                                                          |
-  | itag_user           | BXI_WING_OFF,LEI_WING_OFF,MDI_WING_OFF,NWEB_ACCESS_ROLE_ADMIN,NWEB_KW_ADMIN,NWEB_OMIC_ADMIN,SYI_WING_OFF,WAI_WING_OFF,NWEB_MAINTAIN_ACCESS_ROLES,NWEB_MAINTAIN_ACCESS_ROLES_ADMIN |
-  | api_test_user       | MUL_WING_OFF,NWEB_KW_ADMIN,NWEB_OMIC_ADMIN                                                     |
+  | token            | roles                                                                          |
+  | NORMAL_USER      | BXI_WING_OFF,LEI_WING_OFF,MDI_WING_OFF,NWEB_ACCESS_ROLE_ADMIN,NWEB_KW_ADMIN,NWEB_OMIC_ADMIN,SYI_WING_OFF,WAI_WING_OFF,NWEB_MAINTAIN_ACCESS_ROLES,NWEB_MAINTAIN_ACCESS_ROLES_ADMIN |
+  | API_TEST_USER    | MUL_WING_OFF,NWEB_KW_ADMIN,NWEB_OMIC_ADMIN                                                     |
 
   Scenario Outline: As a logged in user I can find out just my api roles
-    Given user "<username>" with password "password" has authenticated with the API
+    Given a user has a token name of "<token>"
     When a user role request is made
     Then the roles returned are "<roles>"
 
     Examples:
-      | username            | roles                |
-      | itag_user           | KW_ADMIN,OMIC_ADMIN,ACCESS_ROLE_ADMIN,MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN  |
-      | api_test_user       | KW_ADMIN,OMIC_ADMIN  |
-      | ca_user             | LICENCE_CA           |
-      | ro_user             | LICENCE_RO           |
-      | dm_user             | LICENCE_DM           |
+      | token               | roles                |
+      | NORMAL_USER         | KW_ADMIN,OMIC_ADMIN,ACCESS_ROLE_ADMIN,MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN  |
+      | API_TEST_USER       | KW_ADMIN,OMIC_ADMIN  |
+      | NO_CASELOAD_USER    | LICENCE_RO           |
 
   Scenario Outline: As a logged in user I can find out which users have a given role at a particular caseload
     Given a user has authenticated with the API
@@ -60,48 +57,48 @@ Feature: User Details and Roles
     Then user "JBRIEN" has been assigned access role "ACCESS_ROLE_GENERAL" for caseload "LEI"
 
   Scenario: A client without Admin priviledges cannot make ADMIN access role assignments to users.
-    Given a trusted client that can maintain access roles has authenticated with the API
+    Given a user has a token name of "LOCAL_ADMIN"
     When the client assigns access role "ACCESS_ROLE_ADMIN" to user "JBRIEN" for caseload "LEI"
     Then the request requiring admin privileges is rejected
 
   Scenario: A trusted client is prevented from assigning an access role for a user without caseload access.
-    Given a trusted client that can maintain access roles has authenticated with the API
+    Given a user has a token name of "ADMIN_TOKEN"
     When the client assigns access role "ACCESS_ROLE_GENERAL" to user "JBRIEN" for caseload "MDI"
     Then resource not found response is received from users API
 
   Scenario: A trusted client can remove a role assginment
-    Given a trusted client that can maintain access roles has authenticated with the API
+    Given a user has a token name of "ADMIN_TOKEN"
     And the client assigns api-role "KW_ADMIN" to user "API_TEST_USER"
     When the client removes role "KW_ADMIN" from user "API_TEST_USER" at caseload "NWEB"
     Then user "API_TEST_USER" does not have role "KW_ADMIN" at caseload "NWEB"
 
   Scenario: A list of staff users by caseload can be retrieved
-    Given a user has authenticated with the API
+    Given a user has a token name of "ADMIN_TOKEN"
     When a request for users with caseload "LEI" is made
     Then a list of users is returned with usernames "ELITE2_API_USER,ITAG_USER,JBRIEN,NONWEB,RENEGADE,CA_USER,DM_USER"
 
   Scenario: A list of staff users can be retrieved
-    Given a user has authenticated with the API
+    Given a user has a token name of "ADMIN_TOKEN"
     When a request for users is made
     Then a list of users is returned with usernames "ELITE2_API_USER,ITAG_USER,JBRIEN,NONWEB,RENEGADE,CA_USER,DM_USER,EXOFF5,API_TEST_USER,RO_USER,GLOBAL_SEARCH_USER"
 
   Scenario: A list of staff users by caseload and namefilter can be retrieved
-    Given a user has authenticated with the API
+    Given a user has a token name of "ADMIN_TOKEN"
     When a request for users with caseload "LEI" and namefilter "User" and role "" is made
     Then a list of users is returned with usernames "ELITE2_API_USER,ITAG_USER,CA_USER,DM_USER"
 
   Scenario: A list of staff users by caseload and namefilter and access role can be retrieved
-    Given a user has authenticated with the API
+    Given a user has a token name of "ADMIN_TOKEN"
     When a request for users with caseload "LEI" and namefilter "User" and role "OMIC_ADMIN" is made
     Then a list of users is returned with usernames "ITAG_USER"
 
   Scenario: A list of local administrator staff users by caseload and namefilter can be retrieved
-    Given a user has authenticated with the API
+    Given a user has a token name of "ADMIN_TOKEN"
     When a request for local administrator users with caseload "LEI" and namefilter "User" and role "" is made
     Then a list of users is returned with usernames "ITAG_USER,CA_USER"
 
   Scenario: A list of local administrator staff users by caseload and namefilter and access role can be retrieved
-    Given a user has authenticated with the API
+    Given a user has a token name of "ADMIN_TOKEN"
     When a request for local administrator users with caseload "LEI" and namefilter "User" and role "OMIC_ADMIN" is made
     Then a list of users is returned with usernames "ITAG_USER"
 

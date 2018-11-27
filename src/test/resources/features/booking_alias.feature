@@ -21,11 +21,11 @@ Feature: Booking Aliases
     Then resource not found response is received from offender aliases API
 
   Scenario: Aliases are requested for booking that is not part of any of logged on staff user's caseloads
-    Given a user has logged in with username "renegade" and password "password"
+    Given a user has a token name of "RENEGADE_USER"
     When aliases are requested for an offender booking "-39"
     Then resource not found response is received from offender aliases API
 
   Scenario: Aliases are requested for booking that is not part of any of logged on staff user's caseloads but has global search
-    Given a system client "yjaftrustedclient" has authenticated with the API
+    Given a user has a token name of "GLOBAL_SEARCH"
     When aliases are requested for an offender booking "-39"
     Then alias first names match "CHESNEY"
