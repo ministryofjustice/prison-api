@@ -63,7 +63,10 @@ springBoot {
 }
 
 configurations {
-    compile.exclude  module: "tomcat-jdbc"
+    compile.exclude module: "commons-logging"
+    compile.exclude module: "log4j"
+    compile.exclude module: "c3p0"
+    compile.exclude module: "tomcat-jdbc"
 }
 
 checkstyle {
@@ -98,11 +101,12 @@ jacocoTestReport {
 
 dependencies {
 
-    compile files("${rootDir}/src/main/configs")
-    compile files("${rootDir}/src/main/resources")
     compile files("${rootDir}/lib/ojdbc8-12.2.0.1.jar")
 
-    compile("org.springframework.boot:spring-boot-starter-web")
+    compile("org.springframework.boot:spring-boot-starter-web") {
+        exclude module: "spring-boot-starter-tomcat"
+    }
+    compile("org.springframework.boot:spring-boot-starter-jetty")
     compile("org.springframework.boot:spring-boot-starter-aop")
     compile('org.springframework.boot:spring-boot-starter-actuator')
     compile("org.springframework.boot:spring-boot-starter-jersey")
@@ -135,7 +139,7 @@ dependencies {
     compile("org.apache.commons:commons-text:1.1")
     compile("com.google.code.findbugs:jsr305:3.0.2")
 
-    compileOnly 'org.projectlombok:lombok:1.16.18'
+    compileOnly 'org.projectlombok:lombok:1.18.4'
 
     runtime('org.hsqldb:hsqldb:2.4.0')
     runtime("org.flywaydb:flyway-core:5.0.2")
@@ -172,7 +176,7 @@ dependencies {
     testCompile 'net.serenity-bdd:serenity-spring:1.8.21'
     testCompile 'net.serenity-bdd:serenity-cucumber:1.6.10'
 
-    testCompileOnly 'org.projectlombok:lombok:1.16.18'
+    testCompileOnly 'org.projectlombok:lombok:1.18.4'
 
     testRuntime files("${rootDir}/src/main/configs")
     testRuntime files("${rootDir}/src/main/resources")
