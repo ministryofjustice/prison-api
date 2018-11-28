@@ -18,7 +18,7 @@ public interface UserRepository {
 
 	List<AccessRole> findAccessRolesByUsernameAndCaseload(String username, String caseload, boolean includeAdmin);
 
-	void updateWorkingCaseLoad(Long staffId, String caseLoadId);
+	void updateWorkingCaseLoad(String username, String caseLoadId);
 
 	Optional<UserDetail> findByStaffIdAndStaffUserType(Long staffId, String userType);
 
