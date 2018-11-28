@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import com.google.common.collect.ImmutableList;
 import net.syscon.elite.api.model.PrisonerDetail;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
@@ -22,6 +23,8 @@ import java.util.Collections;
 @Service
 @Transactional(readOnly = true)
 public class GlobalSearchServiceImpl implements GlobalSearchService {
+    private static final ImmutableList<String> VALID_LOCATION_FILTER_VALUES = ImmutableList.of("ALL", "IN", "OUT");
+    private static final ImmutableList<String> VALID_GENDER_FILTER_VALUES = ImmutableList.of("M", "F", "NK", "NS", "ALL");
     private final InmateRepository inmateRepository;
     private final OffenderRepository offenderRepository;
 
@@ -35,6 +38,9 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
 
     @Override
     public Page<PrisonerDetail> findOffenders(PrisonerDetailSearchCriteria criteria, PageRequest pageRequest) {
+        validateGenderFilter(criteria.getSexCode());
+        validateLocationFilter(criteria.getLatestLocationId());
+
         PrisonerDetailSearchCriteria decoratedCriteria = criteria.withMaxYearsRange(maxYears);
         PageRequest adjustedPageRequest = pageRequest.withDefaultOrderBy(DEFAULT_GLOBAL_SEARCH_OFFENDER_SORT);
 
@@ -158,5 +164,18 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
                 .build();
 
         return executeQuery(criteria, pageRequest);
+    }
+
+
+    private void validateLocationFilter(String location) {
+        if (StringUtils.isNotBlank(location) && !VALID_LOCATION_FILTER_VALUES.contains(location)){
+            throw new BadRequestException(String.format("Location filter value %s not recognised.", location));
+        }
+    }
+
+    private void validateGenderFilter(String gender) {
+        if (StringUtils.isNotBlank(gender) && !VALID_GENDER_FILTER_VALUES.contains(gender)){
+            throw new BadRequestException(String.format("Gender filter value %s not recognised.", gender));
+        }
     }
 }
