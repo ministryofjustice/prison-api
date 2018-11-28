@@ -133,6 +133,7 @@ Feature: Location and Location Group Events
       | -26        | PROG     | PM       | ANDERSON,ANDERSON,BATES,BATES,DUCK,DUCK| EDUC,EDUC,EDUC,EDUC,EDUC,EDUC | 12:00,12:00,12:00,13:00,13:00,13:00 |
       | -26        | PROG     |          | ANDERSON,ANDERSON,ANDERSON,BATES,BATES,BATES,DUCK,DUCK,DUCK | EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC,EDUC  | 00:00,00:00,00:00,12:00,12:00,12:00,13:00,13:00,13:00 |
 
+
   Scenario Outline: Request an offenders scheduled activities for a specific date
   Note 'Chapel Cleaner' activity on Mon AM for A1234AE is excluded in Nomis only
     When activities are requested with a valid agency for date "<date>" with a time slot "<timeSlot>" and offender numbers "<offenderNo>"
@@ -142,6 +143,7 @@ Feature: Location and Location Group Events
       | 2017-09-18 | A1234AA    | AM       | Chapel Cleaner |
       | 2017-09-11 | A1234AE    | AM       |                |
       | 2017-09-12 | A1234AE    | PM       | Woodwork       |
+
 
   Scenario Outline: Request an offenders scheduled visits for today
     Given an offender with scheduled visits
@@ -161,11 +163,9 @@ Feature: Location and Location Group Events
     Then the following appointments should be returned "<appointments>"
     Examples:
       | offenderNo   | timeSlot | appointments |
-      | A1234AC      | AM       | Education,Medical - Dentist                  |
-      | A1234AC      | PM       |                                              |
-      | A1234AC      |          | Education,Medical - Dentist                  |
-      | A1234AE      | AM       | Education,Education                          |
-      | A1234AE      | PM       |                                              |
+      | A1234AC      | AM       | Education (Visiting Room),Medical - Dentist (Medical Centre)       |
+      | A1234AC      |          | Education (Visiting Room),Medical - Dentist (Medical Centre)       |
+      | A1234AE      | AM       | Education (Visiting Room),Education (Visiting Room)                |
 
   Scenario Outline: Request an offenders external transfers for a given date
     Given an offender that is scheduled to be transferred outside of the prison

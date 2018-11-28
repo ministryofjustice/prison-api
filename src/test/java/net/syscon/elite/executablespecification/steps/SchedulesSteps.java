@@ -215,12 +215,17 @@ public class SchedulesSteps extends CommonSteps {
         assertThat(actual).isEqualTo(expectedList);
     }
 
-    public void verifyEventDescriptions(String expectedList) {
+    public void verifyEventDescriptionsWithLocation(String expectedList) {
         String actual = results.stream()
-                .map(PrisonerSchedule::getEventDescription)
-                .collect(Collectors.joining(","));
+                .map(event -> event.getEventDescription() + parseLocation(event))
+                .collect(Collectors.joining(","))
+                .trim();
 
         assertThat(actual).isEqualTo(expectedList);
+    }
+
+    private String parseLocation(PrisonerSchedule event) {
+        return  event.getEventLocation() == null ? "" : " (" + event.getEventLocation() + ")";
     }
 
     public void verifyEventDescriptionAndLocation(String eventDescription, String eventLocation) {
