@@ -114,6 +114,7 @@ public interface InmateRepository {
                 case "IN":
                     appendNonBlankNameCriteria(query, "latestLocationId", "OUT", neqTemplate, logicOperator);
                     break;
+                default:
             }
         }
 	}

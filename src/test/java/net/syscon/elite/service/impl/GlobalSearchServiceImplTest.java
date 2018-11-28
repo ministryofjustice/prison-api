@@ -240,7 +240,7 @@ public class GlobalSearchServiceImplTest {
                 .includeAliases(true)
                 .build();
 
-        Page<PrisonerDetail> response = service.findOffenders(criteria, pageRequest);
+        service.findOffenders(criteria, pageRequest);
     }
 
     @Test
