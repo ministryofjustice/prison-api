@@ -238,7 +238,7 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^the following appointments should be returned \"([^\"]*)\"$")
     public void theFollowingAppointmentsShouldBeReturned(String appointments) throws Throwable {
-        this.schedulesSteps.verifyEventDescriptions(appointments);
+        this.schedulesSteps.verifyEventDescriptionsWithLocation(appointments);
     }
 
     @When("^Court events are requested with a valid agency with a time slot \"([^\"]*)\", date \"([^\"]*)\" and offender number list \"([^\"]*)\"$")
