@@ -141,11 +141,21 @@ public class InmateRepositoryTest {
     @Test
     public void testfindOffendersWithGenderFilterMale() {
 
-        String query = buildQuery(criteriaForMaleFilter("M"));
+        String query = buildQuery(criteriaForGenderFilter("M"));
 
         final List<PrisonerDetail> offenders = findOffendersWithAliasesFullResults(query);
 
         assertThat(offenders.size()).isEqualTo(41);
+    }
+
+    @Test
+    public void testfindOffendersWithGenderFilterALL() {
+
+        String query = buildQuery(criteriaForGenderFilter("ALL"));
+
+        final List<PrisonerDetail> offenders = findOffendersWithAliasesFullResults(query);
+
+        assertThat(offenders.size()).isEqualTo(43);
     }
 
     @Test
@@ -600,7 +610,7 @@ public class InmateRepositoryTest {
                 .build();
     }
 
-    private PrisonerDetailSearchCriteria criteriaForMaleFilter(String gender) {
+    private PrisonerDetailSearchCriteria criteriaForGenderFilter(String gender) {
         return PrisonerDetailSearchCriteria.builder()
                 .sexCode(gender)
                 .build();
