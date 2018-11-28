@@ -143,3 +143,18 @@ Feature: Prisoner Search
     Given a user has a token name of "GLOBAL_SEARCH"
     When an invalid search is made for prisoners with PNC number of "234/EE45FX"
     Then bad request response is received from prisoner search API
+
+  Scenario: Search for OUT location prisoners
+    Given a user has a token name of "GLOBAL_SEARCH"
+    When a search is made for prisoners with location of "OUT" and lastname of "ELBOW"
+    Then "1" prisoner records are returned
+
+  Scenario: Search for IN location prisoners
+    Given a user has a token name of "GLOBAL_SEARCH"
+    When a search is made for prisoners with location of "IN" and lastname of "ELBOW"
+    Then "0" prisoner records are returned
+
+  Scenario: Search for ALL location prisoners
+    Given a user has a token name of "GLOBAL_SEARCH"
+    When a search is made for prisoners with location of "ALL" and lastname of "ELBOW"
+    Then "1" prisoner records are returned
