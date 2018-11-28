@@ -49,6 +49,9 @@ public class PrisonerDetail {
     @NotBlank
     private String gender;
 
+    @NotBlank
+    private String sexCode;
+
     private String nationalities;
 
     @NotBlank
@@ -192,8 +195,21 @@ public class PrisonerDetail {
     }
 
     /**
-      * The prisoner's gender.
+      * The prisoner's sex code.
       */
+    @ApiModelProperty(required = true, value = "The prisoner's gender.")
+    @JsonProperty("sexCode")
+    public String getSexCode() {
+        return sexCode;
+    }
+
+    public void setSexCode(String sexCode) {
+        this.sexCode = sexCode;
+    }
+
+    /**
+     * The prisoner's gender.
+     */
     @ApiModelProperty(required = true, value = "The prisoner's gender.")
     @JsonProperty("gender")
     public String getGender() {

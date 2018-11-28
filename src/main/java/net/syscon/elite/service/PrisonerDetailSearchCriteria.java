@@ -15,6 +15,7 @@ public class PrisonerDetailSearchCriteria {
     private boolean includeAliases;
     private String offenderNo;
     private String firstName;
+    private String sexCode;
     private String middleNames;
     private String lastName;
     private String latestLocationId;

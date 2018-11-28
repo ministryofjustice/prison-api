@@ -39,6 +39,7 @@ public class PrisonerResourceImpl implements PrisonerResource {
             String dobFrom,
             String dobTo,
             String location,
+            String genderCode,
             boolean partialNameMatch,
             boolean prioritisedMatch,
             boolean anyMatch,
@@ -56,6 +57,7 @@ public class PrisonerResourceImpl implements PrisonerResource {
                 .pncNumber(pncNumber)
                 .croNumber(croNumber)
                 .latestLocationId(location)
+                .sexCode(genderCode)
                 .dob(fromISO8601DateString(dob))
                 .dobFrom(fromISO8601DateString(dobFrom))
                 .dobTo(fromISO8601DateString(dobTo))

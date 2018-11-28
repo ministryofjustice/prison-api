@@ -137,3 +137,13 @@ Feature: Prisoner Search results contain aliases
     Given a user has a token name of "GLOBAL_SEARCH"
     When an invalid search is made for prisoners with PNC number of "234/EE45FX"
     Then bad request response is received from prisoner search API
+
+  Scenario: Search for Female prisoners
+    Given a user has a token name of "GLOBAL_SEARCH"
+    When a search is made for prisoners with gender code of "F" and lastname of "ELBOW"
+    Then "1" prisoner records are returned
+
+  Scenario: Search for Male prisoners
+    Given a user has a token name of "GLOBAL_SEARCH"
+    When a search is made for prisoners with gender code of "M" and lastname of "SARLY"
+    Then "2" prisoner records are returned

@@ -92,6 +92,7 @@ public interface InmateRepository {
 		appendNonBlankNameCriteria(query, "firstName", criteria.getFirstName(), nameMatchingTemplate, logicOperator);
 		appendNonBlankNameCriteria(query, "middleNames", criteria.getMiddleNames(), nameMatchingTemplate, logicOperator);
 		appendNonBlankNameCriteria(query, "lastName", criteria.getLastName(), nameMatchingTemplate, logicOperator);
+		appendNonBlankNameCriteria(query, "sexCode", criteria.getSexCode(), nameMatchingTemplate, logicOperator);
 		appendLocationCriteria(query, criteria.getLatestLocationId(), nameMatchingTemplate, logicOperator);
 		appendPNCNumberCriteria(query, criteria.getPncNumber(), logicOperator);
 		appendNonBlankCriteria(query, "croNumber", criteria.getCroNumber(), eqTemplate, logicOperator);
@@ -105,14 +106,16 @@ public interface InmateRepository {
 									       String operatorTemplate, String logicOperator) {
 		final String neqTemplate = "%s:neq:'%s'";
 
-		if("OUT".equals(criteriaValue)) {
-			appendNonBlankNameCriteria(query, "latestLocationId", criteriaValue, operatorTemplate, logicOperator);
-		}
-		else {
-			if("IN".equals(criteriaValue)) {
-				appendNonBlankNameCriteria(query, "latestLocationId", "OUT", neqTemplate, logicOperator);
-			}
-		}
+        if (StringUtils.isNotBlank(criteriaValue)) {
+            switch (criteriaValue) {
+                case "OUT":
+                    appendNonBlankNameCriteria(query, "latestLocationId", criteriaValue, operatorTemplate, logicOperator);
+                    break;
+                case "IN":
+                    appendNonBlankNameCriteria(query, "latestLocationId", "OUT", neqTemplate, logicOperator);
+                    break;
+            }
+        }
 	}
 
 	static void appendNonBlankNameCriteria(StringBuilder query, String criteriaName, String criteriaValue,
