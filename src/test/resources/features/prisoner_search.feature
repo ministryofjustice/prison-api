@@ -158,7 +158,7 @@ Feature: Prisoner Search
     Given a user has a token name of "GLOBAL_SEARCH"
     When a search is made for prisoners with location of "ALL" and lastname of "ELBOW"
     Then "1" prisoner records are returned
-@lucy
+
   Scenario: Search for prisoners with invalid gender code
     Given a user has a token name of "GLOBAL_SEARCH"
     When a search is made for prisoners with invalid gender code of "ABC" and lastname of "SARLY"
