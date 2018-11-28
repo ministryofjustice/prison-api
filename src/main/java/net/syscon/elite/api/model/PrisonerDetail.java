@@ -197,7 +197,7 @@ public class PrisonerDetail {
     /**
       * The prisoner's sex code.
       */
-    @ApiModelProperty(required = true, value = "The prisoner's gender.")
+    @ApiModelProperty(required = true, value = "The prisoner's gender code.")
     @JsonProperty("sexCode")
     public String getSexCode() {
         return sexCode;
