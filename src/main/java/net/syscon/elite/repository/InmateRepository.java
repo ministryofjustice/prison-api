@@ -88,11 +88,13 @@ public interface InmateRepository {
 
 		final StringBuilder query = new StringBuilder();
 
+		String sexCode = "ALL".equals(criteria.getSexCode()) ? null : criteria.getSexCode();
+
 		appendNonBlankCriteria(query, "offenderNo", criteria.getOffenderNo(), eqTemplate, logicOperator);
 		appendNonBlankNameCriteria(query, "firstName", criteria.getFirstName(), nameMatchingTemplate, logicOperator);
 		appendNonBlankNameCriteria(query, "middleNames", criteria.getMiddleNames(), nameMatchingTemplate, logicOperator);
 		appendNonBlankNameCriteria(query, "lastName", criteria.getLastName(), nameMatchingTemplate, logicOperator);
-		appendNonBlankNameCriteria(query, "sexCode", criteria.getSexCode(), nameMatchingTemplate, logicOperator);
+		appendNonBlankNameCriteria(query, "sexCode", sexCode, nameMatchingTemplate, logicOperator);
 		appendLocationCriteria(query, criteria.getLatestLocationId(), nameMatchingTemplate, logicOperator);
 		appendPNCNumberCriteria(query, criteria.getPncNumber(), logicOperator);
 		appendNonBlankCriteria(query, "croNumber", criteria.getCroNumber(), eqTemplate, logicOperator);
