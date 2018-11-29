@@ -97,11 +97,8 @@ public class PrisonerSchedule {
     @ApiModelProperty(value = "Amount paid per activity session in pounds")
     private BigDecimal payRate;
 
-    /**
-     * Note that primitive boolean maps from a boolean expression in SQL, and Boolean maps from Y/N
-     */
     @ApiModelProperty(value = "Activity excluded flag.")
-    private boolean excluded;
+    private Boolean excluded;
 
     @ApiModelProperty(value = "Activity time slot")
     private TimeSlot timeSlot;

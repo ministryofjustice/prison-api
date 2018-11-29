@@ -196,7 +196,7 @@ public class SchedulesServiceImpl implements SchedulesService {
         if (includeExcluded) {
             return filtered;
         }
-        return filtered.stream().filter(ps -> !ps.isExcluded()).collect(Collectors.toList());
+        return filtered.stream().filter(ps -> !ps.getExcluded()).collect(Collectors.toList());
     }
 
     @Override
