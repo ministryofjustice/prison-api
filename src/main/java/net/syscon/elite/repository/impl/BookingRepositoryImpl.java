@@ -122,6 +122,14 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         SENTENCE_DETAIL_ROW_MAPPER = Collections.unmodifiableMap(builderMap);
     }
 
+    private final CreateBookingImpl createBookingRepository;
+    private final RecallBookingImpl recallBookingRepository;
+
+    public BookingRepositoryImpl(CreateBookingImpl createBookingRepository, RecallBookingImpl recallBookingRepository) {
+        this.createBookingRepository = createBookingRepository;
+        this.recallBookingRepository = recallBookingRepository;
+    }
+
     @Override
     @Cacheable("verifyBookingAccess")
     public boolean verifyBookingAccess(Long bookingId, Set<String> agencyIds) {
@@ -647,5 +655,19 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         }
 
         return Optional.ofNullable(summary);
+    }
+
+    @Override
+    public Long createBooking(String agencyId, NewBooking newBooking) {
+        Validate.notNull(newBooking);
+
+        return createBookingRepository.createBooking(agencyId, newBooking);
+    }
+
+    @Override
+    public Long recallBooking(String agencyId, RecallBooking recallBooking) {
+        Validate.notNull(recallBooking);
+
+        return recallBookingRepository.recallBooking(agencyId, recallBooking);
     }
 }

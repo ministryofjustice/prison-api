@@ -81,4 +81,8 @@ public interface BookingRepository {
      * @return summary details of latest offender booking for offender.
      */
     Optional<OffenderSummary> getLatestBookingByOffenderNo(String offenderNo);
+
+    Long createBooking(String agencyId, NewBooking newBooking);
+
+    Long recallBooking(String agencyId, RecallBooking recallBooking);
 }

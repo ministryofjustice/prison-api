@@ -6,10 +6,14 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.core.RestResource;
+import net.syscon.elite.repository.support.IdempotentRequestControl;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
+import net.syscon.elite.service.support.WrappedErrorResponseException;
+import net.syscon.elite.web.handler.ResourceExceptionHandler;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import javax.ws.rs.Path;
@@ -20,6 +24,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import static javax.ws.rs.core.Response.Status.CREATED;
 import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
 import static net.syscon.util.ResourceUtils.nvl;
 
@@ -39,12 +44,16 @@ public class BookingResourceImpl implements BookingResource {
     private final AdjudicationService adjudicationService;
     private final ImageService imageService;
     private final KeyWorkerAllocationService keyworkerService;
+    private final BookingMaintenanceService bookingMaintenanceService;
+    private final IdempotentRequestService idempotentRequestService;
 
     public BookingResourceImpl(AuthenticationFacade authenticationFacade, BookingService bookingService,
                                InmateService inmateService, CaseNoteService caseNoteService,
                                InmateAlertService inmateAlertService, FinanceService financeService,
                                ContactService contactService, AdjudicationService adjudicationService,
-                               ImageService imageService, KeyWorkerAllocationService keyworkerService) {
+                               ImageService imageService, KeyWorkerAllocationService keyworkerService,
+                               BookingMaintenanceService bookingMaintenanceService,
+                               IdempotentRequestService idempotentRequestService) {
         this.authenticationFacade = authenticationFacade;
         this.bookingService = bookingService;
         this.inmateService = inmateService;
@@ -55,6 +64,8 @@ public class BookingResourceImpl implements BookingResource {
         this.adjudicationService = adjudicationService;
         this.imageService = imageService;
         this.keyworkerService = keyworkerService;
+        this.bookingMaintenanceService = bookingMaintenanceService;
+        this.idempotentRequestService = idempotentRequestService;
     }
 
     @Override
@@ -73,17 +84,64 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    @PreAuthorize("#oauth2.hasScope('write')")
+    @PreAuthorize("#oauth2.hasScope('write') && hasRole('BOOKING_CREATE')")
     public CreateOffenderBookingResponse createOffenderBooking(NewBooking newBooking) {
-        OffenderSummary offenderSummary = bookingService.createBooking(newBooking);
+        // Step 1.
+        // This service supports idempotent request control. First step is to check for existence of a response for
+        // a previous request that used the same correlationId. If no correlationId is provided, this step can be skipped.
+        final String correlationId = newBooking.getCorrelationId();
+        final boolean isIdempotentRequest = StringUtils.isNotBlank(correlationId);
+
+        if (isIdempotentRequest) {
+            IdempotentRequestControl irc = idempotentRequestService.getAndSet(correlationId);
+
+            if (irc.isComplete()) {
+                // Immediately process and return response.
+                if (CREATED.getStatusCode() == irc.getResponseStatus()) {
+                    OffenderSummary offenderSummary = idempotentRequestService.extractJsonResponse(irc, OffenderSummary.class);
+
+                    return CreateOffenderBookingResponse.respond201WithApplicationJson(offenderSummary);
+                } else {
+                    ErrorResponse errorResponse = idempotentRequestService.extractJsonResponse(irc, ErrorResponse.class);
+
+                    throw new WrappedErrorResponseException(errorResponse);
+                }
+            } else if (irc.isPending()) {
+                return CreateOffenderBookingResponse.respond204WithApplicationJson();
+            }
+        }
+
+        // Step 2.
+        // Delegate to service to create booking
+        OffenderSummary offenderSummary;
+
+        try {
+            offenderSummary =
+                    bookingMaintenanceService.createBooking(authenticationFacade.getCurrentUsername(), newBooking);
+        } catch (Exception ex) {
+            if (isIdempotentRequest) {
+                ErrorResponse errorResponse = ResourceExceptionHandler.processResponse(ex);
+
+                idempotentRequestService.convertAndStoreResponse(correlationId, errorResponse, errorResponse.getStatus());
+
+                throw new WrappedErrorResponseException(errorResponse);
+            }
+
+            throw ex;
+        }
+
+        if (isIdempotentRequest) {
+            idempotentRequestService.convertAndStoreResponse(correlationId, offenderSummary, 201);
+        }
 
         return CreateOffenderBookingResponse.respond201WithApplicationJson(offenderSummary);
     }
 
     @Override
-    @PreAuthorize("#oauth2.hasScope('write')")
+    @PreAuthorize("#oauth2.hasScope('write') && hasRole('BOOKING_RECALL')")
     public RecallOffenderBookingResponse recallOffenderBooking(RecallBooking recallBooking) {
-        OffenderSummary offenderSummary = bookingService.recallBooking(recallBooking);
+        OffenderSummary offenderSummary =
+                bookingMaintenanceService.recallBooking(authenticationFacade.getCurrentUsername(), recallBooking);
 
         return RecallOffenderBookingResponse.respond200WithApplicationJson(offenderSummary);
     }
@@ -547,4 +605,6 @@ public class BookingResourceImpl implements BookingResource {
 
         return PostBookingsBookingIdAppointmentsResponse.respond201WithApplicationJson(createdEvent);
     }
+
+
 }

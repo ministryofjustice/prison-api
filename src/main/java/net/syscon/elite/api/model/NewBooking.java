@@ -27,7 +27,7 @@ import java.util.Map;
 public class NewBooking {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @Length(max=35) @NotBlank
     private String lastName;
 
@@ -65,6 +65,8 @@ public class NewBooking {
 
     @Length(max=12) private String externalIdentifierType;
 
+    @Length(max=36) private String correlationId;
+
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
@@ -77,8 +79,8 @@ public class NewBooking {
     }
 
     /**
-      * The offender's first name.
-      */
+     * The offender's first name.
+     */
     @ApiModelProperty(required = true, value = "The offender's first name.")
     @JsonProperty("lastName")
     public String getLastName() {
@@ -90,8 +92,8 @@ public class NewBooking {
     }
 
     /**
-      * The offender's last name.
-      */
+     * The offender's last name.
+     */
     @ApiModelProperty(required = true, value = "The offender's last name.")
     @JsonProperty("firstName")
     public String getFirstName() {
@@ -103,8 +105,8 @@ public class NewBooking {
     }
 
     /**
-      * The offender's middle name.
-      */
+     * The offender's middle name.
+     */
     @ApiModelProperty(value = "The offender's middle name.")
     @JsonProperty("middleName1")
     public String getMiddleName1() {
@@ -116,8 +118,8 @@ public class NewBooking {
     }
 
     /**
-      * An additional middle name for the offender.
-      */
+     * An additional middle name for the offender.
+     */
     @ApiModelProperty(value = "An additional middle name for the offender.")
     @JsonProperty("middleName2")
     public String getMiddleName2() {
@@ -129,8 +131,8 @@ public class NewBooking {
     }
 
     /**
-      * A code representing the offender's title (from TITLE reference domain).
-      */
+     * A code representing the offender's title (from TITLE reference domain).
+     */
     @ApiModelProperty(value = "A code representing the offender's title (from TITLE reference domain).")
     @JsonProperty("title")
     public String getTitle() {
@@ -142,8 +144,8 @@ public class NewBooking {
     }
 
     /**
-      * A code representing a suffix to apply to offender's name (from SUFFIX reference domain).
-      */
+     * A code representing a suffix to apply to offender's name (from SUFFIX reference domain).
+     */
     @ApiModelProperty(value = "A code representing a suffix to apply to offender's name (from SUFFIX reference domain).")
     @JsonProperty("suffix")
     public String getSuffix() {
@@ -155,8 +157,8 @@ public class NewBooking {
     }
 
     /**
-      * The offender's date of birth. Must be specified in YYYY-MM-DD format.
-      */
+     * The offender's date of birth. Must be specified in YYYY-MM-DD format.
+     */
     @ApiModelProperty(required = true, value = "The offender's date of birth. Must be specified in YYYY-MM-DD format.")
     @JsonProperty("dateOfBirth")
     public String getDateOfBirth() {
@@ -168,8 +170,8 @@ public class NewBooking {
     }
 
     /**
-      * A code representing the offender's gender (from the SEX reference domain).
-      */
+     * A code representing the offender's gender (from the SEX reference domain).
+     */
     @ApiModelProperty(required = true, value = "A code representing the offender's gender (from the SEX reference domain).")
     @JsonProperty("gender")
     public String getGender() {
@@ -181,8 +183,8 @@ public class NewBooking {
     }
 
     /**
-      * A code representing the reason for the offender's admission.
-      */
+     * A code representing the reason for the offender's admission.
+     */
     @ApiModelProperty(required = true, value = "A code representing the reason for the offender's admission.")
     @JsonProperty("reason")
     public String getReason() {
@@ -194,8 +196,8 @@ public class NewBooking {
     }
 
     /**
-      * A flag to indicate that the offender is a youth/young offender (or not). Defaults to false if not specified.
-      */
+     * A flag to indicate that the offender is a youth/young offender (or not). Defaults to false if not specified.
+     */
     @ApiModelProperty(value = "A flag to indicate that the offender is a youth/young offender (or not). Defaults to false if not specified.")
     @JsonProperty("youthOffender")
     public boolean getYouthOffender() {
@@ -207,8 +209,8 @@ public class NewBooking {
     }
 
     /**
-      * A code representing the offender's ethnicity (from the ETHNICITY reference domain).
-      */
+     * A code representing the offender's ethnicity (from the ETHNICITY reference domain).
+     */
     @ApiModelProperty(value = "A code representing the offender's ethnicity (from the ETHNICITY reference domain).")
     @JsonProperty("ethnicity")
     public String getEthnicity() {
@@ -220,8 +222,8 @@ public class NewBooking {
     }
 
     /**
-      * A unique offender number. If set, a new booking will be created for an existing offender. If not set, a new offender and new offender booking will be created (subject to de-duplication checks).
-      */
+     * A unique offender number. If set, a new booking will be created for an existing offender. If not set, a new offender and new offender booking will be created (subject to de-duplication checks).
+     */
     @ApiModelProperty(value = "A unique offender number. If set, a new booking will be created for an existing offender. If not set, a new offender and new offender booking will be created (subject to de-duplication checks).")
     @JsonProperty("offenderNo")
     public String getOffenderNo() {
@@ -233,8 +235,8 @@ public class NewBooking {
     }
 
     /**
-      * The offender's PNC (Police National Computer) number.
-      */
+     * The offender's PNC (Police National Computer) number.
+     */
     @ApiModelProperty(value = "The offender's PNC (Police National Computer) number.")
     @JsonProperty("pncNumber")
     public String getPncNumber() {
@@ -246,8 +248,8 @@ public class NewBooking {
     }
 
     /**
-      * The offender's CRO (Criminal Records Office) number.
-      */
+     * The offender's CRO (Criminal Records Office) number.
+     */
     @ApiModelProperty(value = "The offender's CRO (Criminal Records Office) number.")
     @JsonProperty("croNumber")
     public String getCroNumber() {
@@ -259,8 +261,8 @@ public class NewBooking {
     }
 
     /**
-      * An external system identifier for the offender or offender booking. This may be useful if the booking is being created by an external system.
-      */
+     * An external system identifier for the offender or offender booking. This may be useful if the booking is being created by an external system.
+     */
     @ApiModelProperty(value = "An external system identifier for the offender or offender booking. This may be useful if the booking is being created by an external system.")
     @JsonProperty("externalIdentifier")
     public String getExternalIdentifier() {
@@ -272,8 +274,8 @@ public class NewBooking {
     }
 
     /**
-      * A code representing the type of external identifier specified in <i>externalIdentifier</> property (from ID_TYPE reference domain).
-      */
+     * A code representing the type of external identifier specified in <i>externalIdentifier</> property (from ID_TYPE reference domain).
+     */
     @ApiModelProperty(value = "A code representing the type of external identifier specified in <i>externalIdentifier</> property (from ID_TYPE reference domain).")
     @JsonProperty("externalIdentifierType")
     public String getExternalIdentifierType() {
@@ -284,12 +286,25 @@ public class NewBooking {
         this.externalIdentifierType = externalIdentifierType;
     }
 
+    /**
+     * A unique correlation id for idempotent request control.
+     */
+    @ApiModelProperty(value = "A unique correlation id for idempotent request control.")
+    @JsonProperty("correlationId")
+    public String getCorrelationId() {
+        return correlationId;
+    }
+
+    public void setCorrelationId(String correlationId) {
+        this.correlationId = correlationId;
+    }
+
     @Override
     public String toString()  {
         StringBuilder sb = new StringBuilder();
 
         sb.append("class NewBooking {\n");
-        
+
         sb.append("  lastName: ").append(lastName).append("\n");
         sb.append("  firstName: ").append(firstName).append("\n");
         sb.append("  middleName1: ").append(middleName1).append("\n");
@@ -306,6 +321,7 @@ public class NewBooking {
         sb.append("  croNumber: ").append(croNumber).append("\n");
         sb.append("  externalIdentifier: ").append(externalIdentifier).append("\n");
         sb.append("  externalIdentifierType: ").append(externalIdentifierType).append("\n");
+        sb.append("  correlationId: ").append(correlationId).append("\n");
         sb.append("}\n");
 
         return sb.toString();

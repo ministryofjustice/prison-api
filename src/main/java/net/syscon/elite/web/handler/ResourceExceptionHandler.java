@@ -30,6 +30,10 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
     @Override
     @Produces(MediaType.APPLICATION_JSON)
     public Response toResponse(Exception ex) {
+        return OperationResponse.respondErrorWithApplicationJson(processResponse(ex));
+    }
+
+    public static ErrorResponse processResponse(Exception ex) {
         int status;
         String userMessage;
         String developerMessage = "";
@@ -82,13 +86,11 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
             log.error("Internal Server Error", ex);
         }
 
-        ErrorResponse errorResponse = ErrorResponse.builder()
+        return ErrorResponse.builder()
                 .status(status)
                 .userMessage(userMessage)
                 .developerMessage(developerMessage)
                 .build();
-
-        return OperationResponse.respondErrorWithApplicationJson(errorResponse);
     }
 
     private static String formatConstraintErrors(Exception ex) {

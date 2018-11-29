@@ -569,9 +569,12 @@ public interface BookingResource {
     @Produces({ "application/json" })
     @ApiOperation(value = "Create booking for offender (additionally creating offender record if one does not already exist).", notes = "<b>(BETA)</b> Create booking for offender (additionally creating offender record if one does not already exist).", nickname="createOffenderBooking")
     @ApiResponses(value = {
-        @ApiResponse(code = 201, message = "Offender booking created.", response = OffenderSummary.class),
-        @ApiResponse(code = 400, message = "Request to create offender booking failed. Consult response for reason.", response = ErrorResponse.class) })
-    CreateOffenderBookingResponse createOffenderBooking(@ApiParam(value = "Details required to enable creation of new offender booking (and offender, if necessary).", required = true) NewBooking body);
+            @ApiResponse(code = 201, message = "Offender booking created.", response = OffenderSummary.class),
+            @ApiResponse(code = 204, message = "Request in progress."),
+            @ApiResponse(code = 400, message = "Request to create offender booking failed. Consult response for reason.", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "User not authorised to create offender booking.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
+    CreateOffenderBookingResponse createOffenderBooking(@ApiParam(value = "Details required to enable creation of new offender booking (and offender, if necessary)." , required=true ) NewBooking body);
 
     @POST
     @Path("/{bookingId}/appointments")
@@ -641,9 +644,9 @@ public interface BookingResource {
     @Produces({ "application/json" })
     @ApiOperation(value = "Process recall for offender.", notes = "<b>(BETA)</b> Process recall for offender.", nickname="recallOffenderBooking")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Offender successfully recalled.", response = OffenderSummary.class),
-        @ApiResponse(code = 400, message = "Request to recall offender failed. Consult response for reason.", response = ErrorResponse.class) })
-    RecallOffenderBookingResponse recallOffenderBooking(@ApiParam(value = "Details required to enable recall of offender.", required = true) RecallBooking body);
+            @ApiResponse(code = 200, message = "Offender successfully recalled.", response = OffenderSummary.class),
+            @ApiResponse(code = 400, message = "Request to recall offender failed. Consult response for reason.", response = ErrorResponse.class) })
+    RecallOffenderBookingResponse recallOffenderBooking(@ApiParam(value = "Details required to enable recall of offender." , required=true ) RecallBooking body);
 
     @PUT
     @Path("/{bookingId}/caseNotes/{caseNoteId}")
@@ -2019,19 +2022,40 @@ public interface BookingResource {
         private CreateOffenderBookingResponse(Response response, Object entity) { super(response, entity); }
 
         public static CreateOffenderBookingResponse respond201WithApplicationJson(OffenderSummary entity) {
-            ResponseBuilder responseBuilder = Response.status(201)
+            Response.ResponseBuilder responseBuilder = Response.status(201)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new CreateOffenderBookingResponse(responseBuilder.build(), entity);
         }
 
+        public static CreateOffenderBookingResponse respond204WithApplicationJson() {
+            Response.ResponseBuilder responseBuilder = Response.status(204)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            return new CreateOffenderBookingResponse(responseBuilder.build());
+        }
+
         public static CreateOffenderBookingResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+            Response.ResponseBuilder responseBuilder = Response.status(400)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new CreateOffenderBookingResponse(responseBuilder.build(), entity);
+        }
+
+        public static CreateOffenderBookingResponse respond403WithApplicationJson(ErrorResponse entity) {
+            Response.ResponseBuilder responseBuilder = Response.status(403)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new CreateOffenderBookingResponse(responseBuilder.build(), entity);
+        }
+
+        public static CreateOffenderBookingResponse respond500WithApplicationJson(ErrorResponse entity) {
+            Response.ResponseBuilder responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new CreateOffenderBookingResponse(responseBuilder.build(), entity);
         }
     }
+
 
     class PostBookingsBookingIdAppointmentsResponse extends ResponseDelegate {
 
@@ -2131,14 +2155,14 @@ public interface BookingResource {
         private RecallOffenderBookingResponse(Response response, Object entity) { super(response, entity); }
 
         public static RecallOffenderBookingResponse respond200WithApplicationJson(OffenderSummary entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+            Response.ResponseBuilder responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new RecallOffenderBookingResponse(responseBuilder.build(), entity);
         }
 
         public static RecallOffenderBookingResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+            Response.ResponseBuilder responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new RecallOffenderBookingResponse(responseBuilder.build(), entity);
