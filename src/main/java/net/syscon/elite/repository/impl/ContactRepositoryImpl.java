@@ -73,17 +73,11 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
     @Override
     public Optional<Person> getPersonByRef(String externalRef, String identifierType) {
         final String sql = getQuery("GET_PERSON_BY_REF");
-        Optional<Person> person;
-        try {
-            List<Person> persons = jdbcTemplate.query(sql,
-                    createParams("identifierType", identifierType,
-                            "identifier", externalRef),  PERSON_ROW_MAPPER);
+        List<Person> persons = jdbcTemplate.query(sql,
+                createParams("identifierType", identifierType,
+                        "identifier", externalRef),  PERSON_ROW_MAPPER);
 
-            person = persons.stream().min(Comparator.comparing(Person::getPersonId));
-        } catch (EmptyResultDataAccessException e) {
-            person = Optional.empty();
-        }
-        return person;
+        return persons.stream().min(Comparator.comparing(Person::getPersonId));
     }
 
     @Override
