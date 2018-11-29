@@ -155,7 +155,7 @@ public class ScheduleRepositoryTest {
         final List<PrisonerSchedule> results =  repository.getActivities("LEI", Collections.singletonList("A1234AB"), date);
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getOffenderNo()).isEqualTo("A1234AB");
-        assertThat(results.get(0).isExcluded()).isFalse();
+        assertThat(results.get(0).getExcluded()).isFalse();
         assertThat(results.get(0).getStartTime()).isEqualTo(LocalDateTime.parse("2017-09-15T13:00"));
         assertThat(results.get(0).getLocationId()).isEqualTo(-26L);
         assertThat(results.get(0).getTimeSlot()).isEqualTo(TimeSlot.PM);
