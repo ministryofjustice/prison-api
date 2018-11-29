@@ -12,6 +12,15 @@ public class RestServiceException extends RuntimeException {
     private final Response.Status responseStatus;
     private final String detailedMessage;
 
+    // Reverse lookup
+    private static final Map<String, Exception2Status> lookup = new HashMap<>();
+
+    static {
+        for (Exception2Status mapping : Exception2Status.values()) {
+            lookup.put(mapping.exceptionName, mapping);
+        }
+    }
+
     public static RestServiceException forDataAccessException(DataAccessException ex) {
         String rootCauseMessage = (ex.getRootCause() != null) ? ex.getRootCause().getMessage() : ex.getMessage();
 
@@ -58,15 +67,6 @@ public class RestServiceException extends RuntimeException {
 
         public Response.Status getResponseStatus() {
             return responseStatus;
-        }
-
-        // Reverse lookup
-        private static final Map<String, Exception2Status> lookup = new HashMap<>();
-
-        static {
-            for (Exception2Status mapping : Exception2Status.values()) {
-                lookup.put(mapping.exceptionName, mapping);
-            }
         }
 
         public static Exception2Status get(Exception ex) {

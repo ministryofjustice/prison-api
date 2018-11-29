@@ -23,6 +23,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
@@ -55,6 +56,9 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
 
     private final StandardBeanPropertyRowMapper<AlertResult> ALERTS_MAPPER = new StandardBeanPropertyRowMapper<>(AlertResult.class);
 
+    private final CreateBookingImpl createBookingRepository;
+    private final RecallBookingImpl recallBookingRepository;
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -62,7 +66,6 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         private Long bookingId;
         private String alertCode;
     }
-
 
     private final Map<String, FieldMapper> PAYABLE_ATTENDANCE_OUTCOMES_MAPPING = new jersey.repackaged.com.google.common.collect.ImmutableMap.Builder<String, FieldMapper>()
             .put("PAYABLE_ATTENDANCE_OUTCOMES_ID", new FieldMapper("payableAttendanceOutcomeId"))
@@ -121,9 +124,6 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         SENTENCE_DETAIL_MAPPING.forEach(builderMap::putIfAbsent);
         SENTENCE_DETAIL_ROW_MAPPER = Collections.unmodifiableMap(builderMap);
     }
-
-    private final CreateBookingImpl createBookingRepository;
-    private final RecallBookingImpl recallBookingRepository;
 
     public BookingRepositoryImpl(CreateBookingImpl createBookingRepository, RecallBookingImpl recallBookingRepository) {
         this.createBookingRepository = createBookingRepository;
@@ -240,21 +240,13 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         String initialSql = getQuery("GET_BOOKING_ACTIVITIES") + ACTIVITIES_BOOKING_ID_CLAUSE;
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
 
-        String sql = builder
-                .addRowCount()
-                .addOrderBy(order, orderByFields)
-                .addPagination()
-                .build();
+        String sql = buildOrderAndPagination(orderByFields, order, builder);
 
         PageAwareRowMapper<ScheduledEvent> paRowMapper = new PageAwareRowMapper<>(EVENT_ROW_MAPPER);
 
         List<ScheduledEvent> activities = jdbcTemplate.query(
                 sql,
-                createParams("bookingId", bookingId,
-                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
-                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate)),
-                        "offset", offset,
-                        "limit", limit),
+                buildParams(bookingId, fromDate, toDate, offset, limit),
                 paRowMapper);
 
         return new Page<>(activities, paRowMapper.getTotalRecords(), offset, limit);
@@ -361,24 +353,24 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         String initialSql = getQuery("GET_BOOKING_VISITS") + VISITS_BOOKING_ID_CLAUSE;
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
 
-        String sql = builder
-                .addRowCount()
-                .addOrderBy(order, orderByFields)
-                .addPagination()
-                .build();
+        String sql = buildOrderAndPagination(orderByFields, order, builder);
 
         PageAwareRowMapper<ScheduledEvent> paRowMapper = new PageAwareRowMapper<>(EVENT_ROW_MAPPER);
 
         List<ScheduledEvent> visits = jdbcTemplate.query(
                 sql,
-                createParams("bookingId", bookingId,
-                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
-                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate)),
-                        "offset", offset,
-                        "limit", limit),
+                buildParams(bookingId, fromDate, toDate, offset, limit),
                 paRowMapper);
 
         return new Page<>(visits, paRowMapper.getTotalRecords(), offset, limit);
+    }
+
+    private String buildOrderAndPagination(String orderByFields, Order order, IQueryBuilder builder) {
+        return builder
+                .addRowCount()
+                .addOrderBy(order, orderByFields)
+                .addPagination()
+                .build();
     }
 
     @Override
@@ -391,7 +383,6 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         String sql = builder
                 .addOrderBy(order, orderByFields)
                 .build();
-
 
         return jdbcTemplate.query(
                 sql,
@@ -411,7 +402,6 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         String sql = builder
                 .addOrderBy(order, orderByFields)
                 .build();
-
 
         return jdbcTemplate.query(
                 sql,
@@ -508,24 +498,24 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         String initialSql = getQuery("GET_BOOKING_APPOINTMENTS") + APPOINTMENTS_BOOKING_ID_CLAUSE;
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
 
-        String sql = builder
-                .addRowCount()
-                .addOrderBy(order, orderByFields)
-                .addPagination()
-                .build();
+        String sql = buildOrderAndPagination(orderByFields, order, builder);
 
         PageAwareRowMapper<ScheduledEvent> paRowMapper = new PageAwareRowMapper<>(EVENT_ROW_MAPPER);
 
         List<ScheduledEvent> visits = jdbcTemplate.query(
                 sql,
-                createParams("bookingId", bookingId,
-                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
-                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate)),
-                        "offset", offset,
-                        "limit", limit),
+                buildParams(bookingId, fromDate, toDate, offset, limit),
                 paRowMapper);
 
         return new Page<>(visits, paRowMapper.getTotalRecords(), offset, limit);
+    }
+
+    private MapSqlParameterSource buildParams(Long bookingId, LocalDate fromDate, LocalDate toDate, long offset, long limit) {
+        return createParams("bookingId", bookingId,
+                "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
+                "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate)),
+                "offset", offset,
+                "limit", limit);
     }
 
     @Override
@@ -538,7 +528,6 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         String sql = builder
                 .addOrderBy(order, orderByFields)
                 .build();
-
 
         return jdbcTemplate.query(
                 sql,
@@ -558,7 +547,6 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         String sql = builder
                 .addOrderBy(order, orderByFields)
                 .build();
-
 
         return jdbcTemplate.query(
                 sql,

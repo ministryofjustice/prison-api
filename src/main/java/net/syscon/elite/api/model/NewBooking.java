@@ -42,7 +42,7 @@ public class NewBooking {
 
     @Length(max=12) private String suffix;
 
-    @Pattern(regexp="^([12]\\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01]))$") @NotBlank
+    @Pattern(regexp="^([12]\\d{3}-(0[BookingRepositoryImpl1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01]))$") @NotBlank
     private String dateOfBirth;
 
     @Length(max=12) @NotBlank
