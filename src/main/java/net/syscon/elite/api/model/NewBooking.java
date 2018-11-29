@@ -27,7 +27,7 @@ import java.util.Map;
 public class NewBooking {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @Length(max=35) @NotBlank
     private String lastName;
 
@@ -64,6 +64,8 @@ public class NewBooking {
     @Length(max=20) private String externalIdentifier;
 
     @Length(max=12) private String externalIdentifierType;
+
+    @Length(max=36) private String correlationId;
 
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
@@ -272,8 +274,8 @@ public class NewBooking {
     }
 
     /**
-      * A code representing the type of external identifier specified in <i>externalIdentifier</> property (from ID_TYPE reference domain).
-      */
+     * A code representing the type of external identifier specified in <i>externalIdentifier</> property (from ID_TYPE reference domain).
+     */
     @ApiModelProperty(value = "A code representing the type of external identifier specified in <i>externalIdentifier</> property (from ID_TYPE reference domain).")
     @JsonProperty("externalIdentifierType")
     public String getExternalIdentifierType() {
@@ -284,12 +286,25 @@ public class NewBooking {
         this.externalIdentifierType = externalIdentifierType;
     }
 
+    /**
+     * A unique correlation id for idempotent request control.
+     */
+    @ApiModelProperty(value = "A unique correlation id for idempotent request control.")
+    @JsonProperty("correlationId")
+    public String getCorrelationId() {
+        return correlationId;
+    }
+
+    public void setCorrelationId(String correlationId) {
+        this.correlationId = correlationId;
+    }
+
     @Override
     public String toString()  {
         StringBuilder sb = new StringBuilder();
 
         sb.append("class NewBooking {\n");
-        
+
         sb.append("  lastName: ").append(lastName).append("\n");
         sb.append("  firstName: ").append(firstName).append("\n");
         sb.append("  middleName1: ").append(middleName1).append("\n");
@@ -306,6 +321,7 @@ public class NewBooking {
         sb.append("  croNumber: ").append(croNumber).append("\n");
         sb.append("  externalIdentifier: ").append(externalIdentifier).append("\n");
         sb.append("  externalIdentifierType: ").append(externalIdentifierType).append("\n");
+        sb.append("  correlationId: ").append(correlationId).append("\n");
         sb.append("}\n");
 
         return sb.toString();
