@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -70,25 +70,23 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
                 movementsGroupedByDirection
                 .get("OUT")
                 .stream()
-                .map(movement -> movement.getOffenderNo())
+                .map(Movement::getOffenderNo)
                 .collect(Collectors.toList())
                 :
-                new ArrayList<>();
+                Collections.emptyList();
 
         List<String> inOffenders = movementsGroupedByDirection.containsKey("IN") ?
                 movementsGroupedByDirection
                 .get("IN")
                 .stream()
-                .map(movement -> movement.getOffenderNo())
+                .map(Movement::getOffenderNo)
                 .collect(Collectors.toList())
                 :
-                new ArrayList<>();
+                Collections.emptyList();
 
         return MovementCount.builder()
                 .offendersOut(outOffenders)
                 .offendersIn(inOffenders)
-                .in(inOffenders.size())
-                .out(outOffenders.size())
                 .build();
     }
 }

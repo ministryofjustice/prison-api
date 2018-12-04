@@ -1,6 +1,5 @@
 package net.syscon.elite.api.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
@@ -9,7 +8,6 @@ import lombok.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Establishment roll count in and out numbers
@@ -20,28 +18,26 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
 @Data
 public class MovementCount {
-    @JsonIgnore
-    private Map<String, Object> additionalProperties;
-    
+
+    @ApiModelProperty(required = true, value = "List of offender numbers that are out")
+    private List<String> offendersOut;
+
+    @ApiModelProperty(required = true, value = "List of offender numbers that are in")
+    private List<String> offendersIn;
+
     @NotNull
     @ApiModelProperty(required = true, value = "Number of prisoners arrived so far on given date")
     @JsonProperty("in")
-    private Integer in;
+    public Integer getIn() {
+        return offendersIn != null ? offendersIn.size() : 0;
+    }
 
     @NotNull
     @ApiModelProperty(required = true, value = "Number of prisoners that have left so far on given date")
     @JsonProperty("out")
-    private Integer out;
-
-    @ApiModelProperty(required = true, value = "List of offender numbers that are out")
-    @JsonProperty("offendersOut")
-    private List<String> offendersOut;
-
-    @ApiModelProperty(required = true, value = "List of offender numbers that are in")
-    @JsonProperty("offendersIn")
-    private List<String> offendersIn;
-
+    public Integer getOut() {
+        return offendersOut != null ? offendersOut.size() : 0;
+    }
 }
