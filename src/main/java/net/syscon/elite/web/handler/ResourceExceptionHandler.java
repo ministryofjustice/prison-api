@@ -3,10 +3,7 @@ package net.syscon.elite.web.handler;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.support.OperationResponse;
-import net.syscon.elite.service.AllocationException;
-import net.syscon.elite.service.ConfigException;
-import net.syscon.elite.service.EntityAlreadyExistsException;
-import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.util.CollectionUtils;
@@ -77,12 +74,17 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
             userMessage = ex.getMessage();
             log.error("Resource Conflict Error", ex);
         } else if (ex instanceof NotSupportedException) {
+            userMessage = "Not Implemented Operation";
             status = Response.Status.NOT_IMPLEMENTED.getStatusCode();
+        } else if (ex instanceof RestServiceException) {
+            status = ((RestServiceException) ex).getResponseStatus().getStatusCode();
             userMessage = ex.getMessage();
-            log.error("Service Not Implemented", ex);
+            developerMessage = ((RestServiceException) ex).getDetailedMessage();
+            log.error("Rest service error", ex);
         } else {
             status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
             userMessage = "An internal error has occurred - please try again later.";
+            developerMessage = ex.getMessage();
             log.error("Internal Server Error", ex);
         }
 
