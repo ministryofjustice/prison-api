@@ -10,8 +10,10 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -64,12 +66,29 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
                 (movement.getDirectionCode().equals("OUT") && movement.getFromAgency().equals(agencyId)))
                 .collect(groupingBy(Movement::getDirectionCode));
 
-        int outMovements = movementsGroupedByDirection.containsKey("OUT") ? movementsGroupedByDirection.get("OUT").size() : 0;
-        int inMovements = movementsGroupedByDirection.containsKey("IN") ? movementsGroupedByDirection.get("IN").size() : 0;
+        List<String> outOffenders =  movementsGroupedByDirection.containsKey("OUT") ?
+                movementsGroupedByDirection
+                .get("OUT")
+                .stream()
+                .map(movement -> movement.getOffenderNo())
+                .collect(Collectors.toList())
+                :
+                new ArrayList<>();
+
+        List<String> inOffenders = movementsGroupedByDirection.containsKey("IN") ?
+                movementsGroupedByDirection
+                .get("IN")
+                .stream()
+                .map(movement -> movement.getOffenderNo())
+                .collect(Collectors.toList())
+                :
+                new ArrayList<>();
 
         return MovementCount.builder()
-                .in(inMovements)
-                .out(outMovements)
+                .offendersOut(outOffenders)
+                .offendersIn(inOffenders)
+                .in(inOffenders.size())
+                .out(outOffenders.size())
                 .build();
     }
 }

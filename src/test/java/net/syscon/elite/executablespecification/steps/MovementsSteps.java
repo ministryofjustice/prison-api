@@ -110,6 +110,9 @@ public class MovementsSteps extends CommonSteps {
     public void verifyMovementCounts() {
         assertThat(movementCount.getIn()).isEqualTo(0);
         assertThat(movementCount.getOut()).isEqualTo(2);
+
+        assertThat(movementCount.getOffendersIn().size()).isEqualTo(0);
+        assertThat(movementCount.getOffendersOut().size()).isEqualTo(2);
     }
 
     public void verifyMovements(String movementType,String fromDescription, String toDescription) {
