@@ -66,16 +66,7 @@ public class BookingMaintenanceServiceImpl implements BookingMaintenanceService 
 
         OffenderSummary offenderSummary =
                 bookingRepository.getLatestBookingByBookingId(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
-
-        // Log creation of offender booking
-        final Map<String, String> eventLog = new HashMap<>();
-
-        eventLog.put("agency", agencyId);
-        eventLog.put("offenderNo", offenderSummary.getOffenderNo());
-        eventLog.put("bookingId", offenderSummary.getBookingId().toString());
-        eventLog.put("user", username);
-
-        createTelemetryLog("BookingCreated", eventLog);
+        createLog(username, agencyId, offenderSummary, "BookingCreated");
 
         return offenderSummary;
     }
@@ -101,6 +92,13 @@ public class BookingMaintenanceServiceImpl implements BookingMaintenanceService 
                 bookingRepository.getLatestBookingByBookingId(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
 
         // Log recall of offender booking
+        createLog(username, agencyId, offenderSummary, "BookingRecalled");
+
+        return offenderSummary;
+    }
+
+    private void createLog(String username, String agencyId, OffenderSummary offenderSummary, String message) {
+        // Log creation of offender booking
         final Map<String, String> eventLog = new HashMap<>();
 
         eventLog.put("agency", agencyId);
@@ -108,9 +106,7 @@ public class BookingMaintenanceServiceImpl implements BookingMaintenanceService 
         eventLog.put("bookingId", offenderSummary.getBookingId().toString());
         eventLog.put("user", username);
 
-        createTelemetryLog("BookingRecalled", eventLog);
-
-        return offenderSummary;
+        createTelemetryLog(message, eventLog);
     }
 
     private String getCurrentUserAgency() {
