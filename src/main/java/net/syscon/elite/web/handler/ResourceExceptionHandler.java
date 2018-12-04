@@ -3,10 +3,7 @@ package net.syscon.elite.web.handler;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.support.OperationResponse;
-import net.syscon.elite.service.ConfigException;
-import net.syscon.elite.service.EntityAlreadyExistsException;
-import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.service.RestServiceException;
+import net.syscon.elite.service.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.util.CollectionUtils;
@@ -15,6 +12,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.NotSupportedException;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -71,6 +69,13 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
             status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
             userMessage = ex.getMessage();
             log.error("Internal Server Error", ex);
+        } else if (ex instanceof AllocationException) {
+            status = Response.Status.CONFLICT.getStatusCode();
+            userMessage = ex.getMessage();
+            log.error("Resource Conflict Error", ex);
+        } else if (ex instanceof NotSupportedException) {
+            userMessage = "Not Implemented Operation";
+            status = Response.Status.NOT_IMPLEMENTED.getStatusCode();
         } else if (ex instanceof RestServiceException) {
             status = ((RestServiceException) ex).getResponseStatus().getStatusCode();
             userMessage = ex.getMessage();
