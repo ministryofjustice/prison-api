@@ -88,10 +88,14 @@ public interface InmateRepository {
 
 		final StringBuilder query = new StringBuilder();
 
+		String sexCode = "ALL".equals(criteria.getSexCode()) ? null : criteria.getSexCode();
+
 		appendNonBlankCriteria(query, "offenderNo", criteria.getOffenderNo(), eqTemplate, logicOperator);
 		appendNonBlankNameCriteria(query, "firstName", criteria.getFirstName(), nameMatchingTemplate, logicOperator);
 		appendNonBlankNameCriteria(query, "middleNames", criteria.getMiddleNames(), nameMatchingTemplate, logicOperator);
 		appendNonBlankNameCriteria(query, "lastName", criteria.getLastName(), nameMatchingTemplate, logicOperator);
+		appendNonBlankNameCriteria(query, "sexCode", sexCode, nameMatchingTemplate, logicOperator);
+		appendLocationCriteria(query, criteria.getLatestLocationId(), nameMatchingTemplate, logicOperator);
 		appendPNCNumberCriteria(query, criteria.getPncNumber(), logicOperator);
 		appendNonBlankCriteria(query, "croNumber", criteria.getCroNumber(), eqTemplate, logicOperator);
 
@@ -100,8 +104,25 @@ public interface InmateRepository {
 		return StringUtils.trimToNull(query.toString());
 	}
 
-	static void appendNonBlankNameCriteria(StringBuilder query, String criteriaName, String criteriaValue,
+	static void appendLocationCriteria(StringBuilder query, String criteriaValue,
 									       String operatorTemplate, String logicOperator) {
+		final String neqTemplate = "%s:neq:'%s'";
+
+        if (StringUtils.isNotBlank(criteriaValue)) {
+            switch (criteriaValue) {
+                case "OUT":
+                    appendNonBlankNameCriteria(query, "latestLocationId", criteriaValue, operatorTemplate, logicOperator);
+                    break;
+                case "IN":
+                    appendNonBlankNameCriteria(query, "latestLocationId", "OUT", neqTemplate, logicOperator);
+                    break;
+                default:
+            }
+        }
+	}
+
+	static void appendNonBlankNameCriteria(StringBuilder query, String criteriaName, String criteriaValue,
+										   String operatorTemplate, String logicOperator) {
 		if (StringUtils.isNotBlank(criteriaValue)) {
 			String escapedCriteriaValue;
 

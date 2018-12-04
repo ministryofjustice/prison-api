@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
+import net.syscon.elite.api.support.TimeSlot;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -96,4 +97,9 @@ public class PrisonerSchedule {
     @ApiModelProperty(value = "Amount paid per activity session in pounds")
     private BigDecimal payRate;
 
+    @ApiModelProperty(value = "Activity excluded flag.")
+    private Boolean excluded;
+
+    @ApiModelProperty(value = "Activity time slot")
+    private TimeSlot timeSlot;
 }

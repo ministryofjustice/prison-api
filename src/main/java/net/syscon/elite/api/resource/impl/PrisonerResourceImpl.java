@@ -38,6 +38,8 @@ public class PrisonerResourceImpl implements PrisonerResource {
             String dob,
             String dobFrom,
             String dobTo,
+            String location,
+            String genderCode,
             boolean partialNameMatch,
             boolean prioritisedMatch,
             boolean anyMatch,
@@ -45,6 +47,7 @@ public class PrisonerResourceImpl implements PrisonerResource {
             Long pageLimit,
             String sortFields,
             Order sortOrder) {
+
         PrisonerDetailSearchCriteria criteria = PrisonerDetailSearchCriteria.builder()
                 .includeAliases(includeAliases)
                 .offenderNo(offenderNo)
@@ -53,6 +56,8 @@ public class PrisonerResourceImpl implements PrisonerResource {
                 .lastName(lastName)
                 .pncNumber(pncNumber)
                 .croNumber(croNumber)
+                .latestLocationId(location)
+                .sexCode(genderCode)
                 .dob(fromISO8601DateString(dob))
                 .dobFrom(fromISO8601DateString(dobFrom))
                 .dobTo(fromISO8601DateString(dobTo))

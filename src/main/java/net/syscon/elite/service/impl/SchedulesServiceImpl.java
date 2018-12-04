@@ -184,7 +184,7 @@ public class SchedulesServiceImpl implements SchedulesService {
     }
 
     @Override
-    public List<PrisonerSchedule> getActivities(String agencyId, List<String> offenderNumbers, LocalDate date, TimeSlot timeSlot) {
+    public List<PrisonerSchedule> getActivities(String agencyId, List<String> offenderNumbers, LocalDate date, TimeSlot timeSlot, boolean includeExcluded) {
         Validate.notBlank(agencyId, "An agency id is required.");
         if (offenderNumbers.isEmpty()) {
             return Collections.emptyList();
@@ -192,7 +192,11 @@ public class SchedulesServiceImpl implements SchedulesService {
 
         List<PrisonerSchedule> activities = scheduleRepository.getActivities(agencyId, offenderNumbers, date);
 
-        return filterByTimeSlot(timeSlot, activities);
+        final List<PrisonerSchedule> filtered = filterByTimeSlot(timeSlot, activities);
+        if (includeExcluded) {
+            return filtered;
+        }
+        return filtered.stream().filter(ps -> !ps.getExcluded()).collect(Collectors.toList());
     }
 
     @Override

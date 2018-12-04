@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,16 +73,11 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
     @Override
     public Optional<Person> getPersonByRef(String externalRef, String identifierType) {
         final String sql = getQuery("GET_PERSON_BY_REF");
-        Person person;
-        try {
-            person = jdbcTemplate.queryForObject(sql,
-                    createParams("identifierType", identifierType,
-                            "identifier", externalRef),
-                    PERSON_ROW_MAPPER);
-        } catch (EmptyResultDataAccessException e) {
-            person = null;
-        }
-        return Optional.ofNullable(person);
+        List<Person> persons = jdbcTemplate.query(sql,
+                createParams("identifierType", identifierType,
+                        "identifier", externalRef),  PERSON_ROW_MAPPER);
+
+        return persons.stream().min(Comparator.comparing(Person::getPersonId));
     }
 
     @Override

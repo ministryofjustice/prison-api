@@ -68,9 +68,7 @@ public class UserServiceImpl implements UserService {
 		List<CaseLoad> userCaseLoads = caseLoadService.getCaseLoadsForUser(username, true);
 
 		if (userCaseLoads.stream().anyMatch(cl -> cl.getCaseLoadId().equalsIgnoreCase(caseLoadId))) {
-			UserDetail userDetails = getUserByUsername(username);
-
-			userRepository.updateWorkingCaseLoad(userDetails.getStaffId(), caseLoadId);
+			userRepository.updateWorkingCaseLoad(username, caseLoadId);
 		} else {
 			throw new AccessDeniedException(format("The user does not have access to the caseLoadId = %s", caseLoadId));
 		}

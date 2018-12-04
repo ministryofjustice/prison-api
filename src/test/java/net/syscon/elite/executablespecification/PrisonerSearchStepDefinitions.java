@@ -79,7 +79,7 @@ public class PrisonerSearchStepDefinitions extends AbstractStepDefinitions {
         prisonerSearch.verifyDobs(dobs);
     }
 
-    @And( "^the prisoners working dob matches \"([^\"]*)\"$")
+    @And("^the prisoners working dob matches \"([^\"]*)\"$")
     public void workingDateOfBirthMatch(String dobs) throws Throwable {
         prisonerSearch.verifyWorkingBirthDate(dobs);
     }
@@ -88,6 +88,7 @@ public class PrisonerSearchStepDefinitions extends AbstractStepDefinitions {
     public void aSearchIsMadeForPrisonersWithDOBOnOrAfterForRange(String dobFrom, long offset, long limit) throws Throwable {
         prisonerSearch.search(ImmutableMap.of("dobFrom", dobFrom), offset, limit, HttpStatus.OK);
     }
+
     @When("^a search is made for prisoners with DOB between \"([^\"]*)\" and \"([^\"]*)\" for range ([0-9]*) -> ([0-9]*)$")
     public void aSearchIsMadeForPrisonersBetweenTwoDates(String dobFrom, String dobTo, int offset, int limit) throws Throwable {
         Map<String, String> params = new HashMap<>();
@@ -107,19 +108,19 @@ public class PrisonerSearchStepDefinitions extends AbstractStepDefinitions {
 
     @When("^a search is made for prisoners with first name \"([^\"]*)\", middle names \"([^\"]*)\" and last name \"([^\"]*)\"$")
     public void aSearchIsMadeForPrisonersWithFirstNameMiddleNamesAndLastName(String firstName, String middleNames, String lastName) throws Throwable {
-        Map<String,String> params = buildNameSearch(firstName, middleNames, lastName, false);
+        Map<String, String> params = buildNameSearch(firstName, middleNames, lastName, false);
 
         prisonerSearch.search(params, 0, 100, HttpStatus.OK);
     }
 
     @When("^a partial name search is made for prisoners with first name \"([^\"]*)\", middle names \"([^\"]*)\" and last name \"([^\"]*)\"$")
     public void aPartialNameSearchIsMadeForPrisonersWithFirstNameMiddleNamesAndLastName(String firstName, String middleNames, String lastName) throws Throwable {
-        Map<String,String> params = buildNameSearch(firstName, middleNames, lastName, true);
+        Map<String, String> params = buildNameSearch(firstName, middleNames, lastName, true);
 
         prisonerSearch.search(params, 0, 100, HttpStatus.OK);
     }
 
-    private Map<String,String> buildNameSearch(String firstName, String middleNames, String lastName, boolean partialNameMatch) {
+    private Map<String, String> buildNameSearch(String firstName, String middleNames, String lastName, boolean partialNameMatch) {
         Map<String, String> params = new HashMap<>();
 
         Optional.ofNullable(StringUtils.trimToNull(firstName)).ifPresent(name -> params.put("firstName", name));
@@ -194,5 +195,41 @@ public class PrisonerSearchStepDefinitions extends AbstractStepDefinitions {
     public void thatEachSearchBelowReturnsAllMatchingAliases() throws Throwable {
         // Write code here that turns the phrase above into concrete actions
         prisonerSearch.includeAliases();
+
+    }
+
+    @When("^a search is made for prisoners with location of \"([^\"]*)\" and lastname of \"([^\"]*)\"$")
+    public void aSearchIsMadeForPrisonersWithLocationOfAndLastnameOf(String arg0, String arg1) throws Throwable {
+        Map<String, String> params = new HashMap<>();
+
+        params.put("location", arg0);
+        params.put("lastName", arg1);
+
+        prisonerSearch.search(params, 0, 100, HttpStatus.OK);
+    }
+
+    @When("^a search is made for prisoners with gender code of \"([^\"]*)\" and lastname of \"([^\"]*)\"$")
+    public void aSearchIsMadeForPrisonersWithGenderCodeOfAndLastnameOf(String gender, String lastName) throws Throwable {
+        Map<String, String> params = new HashMap<>();
+
+        params.put("gender", gender);
+        params.put("lastName", lastName);
+
+        prisonerSearch.search(params, 0, 100, HttpStatus.OK);
+    }
+
+    @When("^a search is made for prisoners with invalid gender code of \"([^\"]*)\" and lastname of \"([^\"]*)\"$")
+    public void aSearchIsMadeForPrisonersWithInvalidGenderCodeOfAndLastnameOf(String gender, String lastName) throws Throwable {
+        Map<String, String> params = new HashMap<>();
+
+        params.put("gender", gender);
+        params.put("lastName", lastName);
+
+        prisonerSearch.search(params, 0, 100, HttpStatus.BAD_REQUEST);
+    }
+
+    @Then("^a bad request response is received from the prisoner search api with message \"([^\"]*)\"$")
+    public void aBadRequestResponseIsReceivedFromThePrisonerSearchApiWithMessage(String message) throws Throwable {
+        prisonerSearch.verifyBadRequest(message);
     }
 }

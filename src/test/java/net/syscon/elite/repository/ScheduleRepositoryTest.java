@@ -2,6 +2,7 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.PrisonerSchedule;
 import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.assertj.core.groups.Tuple;
 import org.junit.Before;
@@ -154,8 +155,20 @@ public class ScheduleRepositoryTest {
         final List<PrisonerSchedule> results =  repository.getActivities("LEI", Collections.singletonList("A1234AB"), date);
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getOffenderNo()).isEqualTo("A1234AB");
+        assertThat(results.get(0).getExcluded()).isFalse();
         assertThat(results.get(0).getStartTime()).isEqualTo(LocalDateTime.parse("2017-09-15T13:00"));
         assertThat(results.get(0).getLocationId()).isEqualTo(-26L);
+        assertThat(results.get(0).getTimeSlot()).isEqualTo(TimeSlot.PM);
+    }
+
+    @Test
+    public void testGetActivitiesExcluded() {
+        final LocalDate date = LocalDate.parse("2017-09-11");
+        final List<PrisonerSchedule> results =  repository.getActivities("LEI", Collections.singletonList("A1234AE"), date);
+        assertThat(results).asList().extracting("offenderNo", "excluded", "locationId", "timeSlot", "startTime")
+                .contains(
+                        new Tuple("A1234AE", true,  -25L, TimeSlot.AM, LocalDateTime.parse("2017-09-11T09:30:00")),
+                        new Tuple("A1234AE", false, -26L, TimeSlot.PM, LocalDateTime.parse("2017-09-11T13:00:00")));
     }
 
     @Test

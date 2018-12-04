@@ -62,7 +62,8 @@ public interface ScheduleResource {
     GetActivitiesResponse getActivities(@ApiParam(value = "", required = true) @PathParam("agencyId") String agencyId,
                                         @ApiParam(value = "The required offender numbers (mandatory)", required = true) List<String> body,
                                         @ApiParam(value = "Date of whereabouts list, default today") @QueryParam("date") LocalDate date,
-                                        @ApiParam(value = "AM, PM or ED") @QueryParam("timeSlot") TimeSlot timeSlot);
+                                        @ApiParam(value = "AM, PM or ED") @QueryParam("timeSlot") TimeSlot timeSlot,
+                                        @ApiParam(value = "Whether to include 'excluded' activities in the results", defaultValue = "false") @QueryParam("includeExcluded") boolean includeExcluded);
 
     @POST
     @Path("/{agencyId}/appointments")
