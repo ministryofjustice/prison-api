@@ -108,12 +108,13 @@ public class MovementsSteps extends CommonSteps {
         doMovementCountApiCall(agencyId, date);
     }
 
-    public void verifyMovementCounts() {
-        assertThat(movementCount.getIn()).isEqualTo(0);
-        assertThat(movementCount.getOut()).isEqualTo(2);
+    public void verifyMovementCounts(Integer outToday, List<String> offenderNumbers, Integer inToday) {
+        assertThat(movementCount.getOut()).isEqualTo(outToday);
+        assertThat(movementCount.getIn()).isEqualTo(inToday);
 
         assertThat(movementCount.getOffendersIn()).hasSize(0);
-        assertThat(movementCount.getOffendersOut()).hasSize(2);
+        assertThat(movementCount.getOffendersOut()).hasSize(outToday);
+        assertThat(movementCount.getOffendersOut().containsAll(offenderNumbers));
     }
 
     public void verifyMovements(String movementType,String fromDescription, String toDescription, String movementReason, String movementTime) {

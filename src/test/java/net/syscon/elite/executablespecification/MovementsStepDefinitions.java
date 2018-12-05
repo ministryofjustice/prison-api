@@ -49,11 +49,6 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
         movementsSteps.retrieveMovementCounts("LEI", date);
     }
 
-    @Then("^valid movement counts are returned$")
-    public void validMovementCountsAreReturned() {
-        movementsSteps.verifyMovementCounts();
-    }
-
     @When("^a make a request for recent movements for \"([^\"]*)\" and \"([^\"]*)\"$")
     public void aMakeARequestForRecentMovementsForAnd(String offenderNo1, String offenderNo2) throws Throwable {
         movementsSteps.retrieveMovementsByOffenders(Arrays.asList(offenderNo1, offenderNo2));
@@ -62,5 +57,10 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
     @Then("^the records should contain a entry for \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
     public void theRecordsShouldContainAEntryFor(String movementType, String fromDescription, String toDescription, String movementReason, String movementTime) throws Throwable {
         movementsSteps.verifyMovements(movementType, fromDescription, toDescription, movementReason, movementTime);
+    }
+
+    @Then("^a total count of out today as \"([^\"]*)\" offender numbers that are out today matching \"([^\"]*)\" and a count of in today as \"([^\"]*)\"\"$")
+    public void aTotalCountOfOutTodayAsOffenderNumbersThatAreOutTodayMatchingAndACountOfInTodayAs(Integer outToday, String offenderNumbers, Integer inToday) throws Throwable {
+        movementsSteps.verifyMovementCounts(outToday, Arrays.asList(offenderNumbers.split(",")), inToday);
     }
 }
