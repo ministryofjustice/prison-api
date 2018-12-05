@@ -43,4 +43,5 @@ Feature: Movement
 
     Given a user has authenticated with the API
     When a request is made to retrieve the movement counts for an agency on "2017-08-16"
-    Then valid movement counts are returned
+    Then a total count of out today as "2" offender numbers that are out today matching "Z0021ZZ,Z0019ZZ" and a count of in today as "0""
+
