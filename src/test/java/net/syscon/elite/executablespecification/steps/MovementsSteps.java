@@ -114,7 +114,7 @@ public class MovementsSteps extends CommonSteps {
 
         assertThat(movementCount.getOffendersIn()).hasSize(0);
         assertThat(movementCount.getOffendersOut()).hasSize(outToday);
-        assertThat(movementCount.getOffendersOut().containsAll(offenderNumbers));
+        assertThat(movementCount.getOffendersOut()).containsExactlyElementsOf(offenderNumbers);
     }
 
     public void verifyMovements(String movementType,String fromDescription, String toDescription, String movementReason, String movementTime) {
