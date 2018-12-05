@@ -59,8 +59,8 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
         movementsSteps.retrieveMovementsByOffenders(Arrays.asList(offenderNo1, offenderNo2));
     }
 
-    @Then("^the records should contain a entry for \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
-    public void theRecordsShouldContainAEntryFor(String movementType, String fromDescription, String toDescription) throws Throwable {
-        movementsSteps.verifyMovements(movementType, fromDescription, toDescription);
+    @Then("^the records should contain a entry for \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
+    public void theRecordsShouldContainAEntryFor(String movementType, String fromDescription, String toDescription, String movementReason, String movementTime) throws Throwable {
+        movementsSteps.verifyMovements(movementType, fromDescription, toDescription, movementReason, movementTime);
     }
 }
