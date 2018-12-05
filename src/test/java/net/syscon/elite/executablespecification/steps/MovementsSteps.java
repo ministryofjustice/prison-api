@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Month;
 import java.util.List;
 
@@ -115,12 +116,14 @@ public class MovementsSteps extends CommonSteps {
         assertThat(movementCount.getOffendersOut()).hasSize(2);
     }
 
-    public void verifyMovements(String movementType,String fromDescription, String toDescription) {
+    public void verifyMovements(String movementType,String fromDescription, String toDescription, String movementReason, String movementTime) {
       boolean matched = movements
               .stream()
               .filter(m -> m.getMovementType().equals(movementType) &&
                       m.getFromAgencyDescription().equals(fromDescription) &&
-                      m.getToAgencyDescription().equals(toDescription))
+                      m.getToAgencyDescription().equals(toDescription) &&
+                      m.getMovementReason().equals(movementReason) &&
+                      m.getMovementTime().equals(LocalTime.parse(movementTime)))
               .toArray()
               .length != 0;
 
