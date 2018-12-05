@@ -14,7 +14,7 @@ spring:
       validationTimeout:  500
 
   jersey:
-    type: filter
+    type: servlet
 
 
 logging:
