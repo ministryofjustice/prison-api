@@ -2,6 +2,7 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.Movement;
 import net.syscon.elite.api.model.MovementCount;
+import net.syscon.elite.api.model.OffenderMovement;
 import net.syscon.elite.api.model.RollCount;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Test;
@@ -115,5 +116,20 @@ public class MovementsRepositoryTest {
 
         assertThat(movements.size()).isEqualTo(1);
         assertThat(movements.get(0).getToAgency()).isEqualTo("LEI");
+    }
+
+    @Test
+    public final void canRetrieveEnrouteOffenderMovements() {
+        List<OffenderMovement> movements = repository.getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2017,10, 12));
+
+        assertThat(movements.size()).isEqualTo(1);
+        assertThat(movements.get(0).getOffenderNo()).isEqualTo("A1183SH");
+    }
+
+    @Test
+    public final void canRetrieveEnrouteOffenderCount() {
+        final int count = repository.getEnrouteMovementsOffenderCount("LEI", LocalDate.of(2017, 10, 12));
+
+        assertThat(count).isEqualTo(1);
     }
 }

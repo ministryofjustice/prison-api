@@ -37,7 +37,17 @@ public class MovementResourceImpl implements MovementResource {
     @Override
     public GetRecentMovementsByOffendersResponse getRecentMovementsByOffenders(List<String> offenderNumbers, List<String> movementTypes) {
         return GetRecentMovementsByOffendersResponse.respond200WithApplicationJson(movementsService.getRecentMovementsByOffenders(offenderNumbers, movementTypes));
+    }
 
+    @Override
+    public GetEnrouteOffenderMovementsResponse getEnrouteOffenderMovements(String agencyId, LocalDate movementDate) {
+        return GetEnrouteOffenderMovementsResponse.respond200WithApplicationJson(movementsService.getEnrouteOffenderMovements(agencyId, movementDate));
+
+    }
+
+    @Override
+    public GetEnrouteOffenderMovementCountResponse getEnrouteOffenderMovementCount(String agencyId, LocalDate movementDate) {
+        return GetEnrouteOffenderMovementCountResponse.respond200WithApplicationJson(movementsService.getEnrouteOffenderCount(agencyId, movementDate));
     }
 
 }

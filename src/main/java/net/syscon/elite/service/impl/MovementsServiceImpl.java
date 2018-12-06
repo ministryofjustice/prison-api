@@ -2,6 +2,7 @@ package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.Movement;
 import net.syscon.elite.api.model.MovementCount;
+import net.syscon.elite.api.model.OffenderMovement;
 import net.syscon.elite.api.model.RollCount;
 import net.syscon.elite.repository.MovementsRepository;
 import net.syscon.elite.security.VerifyAgencyAccess;
@@ -52,5 +53,24 @@ public class MovementsServiceImpl implements MovementsService {
     @VerifyAgencyAccess
     public MovementCount getMovementCount(String agencyId, LocalDate date) {
         return movementsRepository.getMovementCount(agencyId, date == null ? LocalDate.now() : date);
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
+    public List<OffenderMovement> getEnrouteOffenderMovements(String agencyId, LocalDate date) {
+        final LocalDate defaultedDate = date == null ? LocalDate.now() : date;
+        final List<OffenderMovement> movements = movementsRepository.getEnrouteMovementsOffenderMovementList(agencyId, defaultedDate);
+        movements.forEach(m -> {
+            m.setFromAgencyDescription(LocationProcessor.formatLocation(m.getFromAgencyDescription()));
+            m.setToAgencyDescription(LocationProcessor.formatLocation(m.getToAgencyDescription()));
+        });
+        return movements;
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
+    public int getEnrouteOffenderCount(String agencyId, LocalDate date) {
+        final LocalDate defaultedDate = date == null ? LocalDate.now() : date;
+        return movementsRepository.getEnrouteMovementsOffenderCount(agencyId, defaultedDate);
     }
 }

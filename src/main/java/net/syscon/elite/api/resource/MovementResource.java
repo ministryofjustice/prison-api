@@ -1,10 +1,7 @@
 package net.syscon.elite.api.resource;
 
 import io.swagger.annotations.*;
-import net.syscon.elite.api.model.ErrorResponse;
-import net.syscon.elite.api.model.Movement;
-import net.syscon.elite.api.model.MovementCount;
-import net.syscon.elite.api.model.RollCount;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.ResponseDelegate;
 
 import javax.ws.rs.*;
@@ -67,6 +64,27 @@ public interface MovementResource {
         @ApiResponse(code = 200, message = "", response = Movement.class, responseContainer = "List") })
     GetRecentMovementsByOffendersResponse getRecentMovementsByOffenders(@ApiParam(value = "The required offender numbers (mandatory)", required = true) List<String> body,
                                                                         @ApiParam(value = "movement type codes to filter by") @QueryParam("movementTypes") List<String> movementTypes);
+    @GET
+    @Path("/{agencyId}/enroute")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Enroute prisoner movement details.", notes = "Enroute to reception", nickname="getEnrouteOffenderMovements")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = MovementCount.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
+    GetEnrouteOffenderMovementsResponse getEnrouteOffenderMovements(@ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId, @ApiParam(value = "The date for which enroute movements are counted, default today.", required = true) @QueryParam("movementDate") LocalDate movementDate);
+
+    @GET
+    @Path("/rollcount/{agencyId}/enroute")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Enroute prisoner movement count.", notes = "Enroute to reception count", nickname="getEnrouteOffenderMovementCount")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = MovementCount.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
+    GetEnrouteOffenderMovementCountResponse getEnrouteOffenderMovementCount(@ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId, @ApiParam(value = "The date for which enroute movements are counted, default today.", required = true) @QueryParam("movementDate") LocalDate movementDate);
 
     class GetRecentMovementsByDateResponse extends ResponseDelegate {
 
@@ -180,6 +198,32 @@ public interface MovementResource {
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetRecentMovementsByOffendersResponse(responseBuilder.build(), entity);
+        }
+    }
+
+    class GetEnrouteOffenderMovementsResponse extends ResponseDelegate {
+
+        private GetEnrouteOffenderMovementsResponse(Response response) { super(response); }
+        private GetEnrouteOffenderMovementsResponse(Response response, Object entity) { super(response, entity); }
+
+        public static GetEnrouteOffenderMovementsResponse respond200WithApplicationJson(List<OffenderMovement> entity) {
+            ResponseBuilder responseBuilder = Response.status(200)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetEnrouteOffenderMovementsResponse(responseBuilder.build(), entity);
+        }
+    }
+
+    class GetEnrouteOffenderMovementCountResponse extends ResponseDelegate {
+
+        private GetEnrouteOffenderMovementCountResponse(Response response) { super(response); }
+        private GetEnrouteOffenderMovementCountResponse(Response response, Object entity) { super(response, entity); }
+
+        public static GetEnrouteOffenderMovementCountResponse respond200WithApplicationJson(int entity) {
+            ResponseBuilder responseBuilder = Response.status(200)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetEnrouteOffenderMovementCountResponse(responseBuilder.build(), entity);
         }
     }
 }
