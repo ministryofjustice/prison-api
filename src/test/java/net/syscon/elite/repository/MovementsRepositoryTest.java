@@ -39,7 +39,7 @@ public class MovementsRepositoryTest {
     private MovementsRepository repository;
 
     @Test
-    public final void canRetrieveAListOfCustodyStatusDetails1() {
+    public final void canRetrieveAListOfMovementDetails1() {
         final LocalDateTime threshold = LocalDateTime.of(2017, Month.JANUARY, 1, 0, 0, 0);
         final List<Movement> recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.JULY, 16));
         assertThat(recentMovements.size()).isEqualTo(1);
@@ -49,7 +49,7 @@ public class MovementsRepositoryTest {
     }
 
     @Test
-    public final void canRetrieveAListOfCustodyStatusDetails2() {
+    public final void canRetrieveAListOfMovementDetails2() {
         final LocalDateTime threshold = LocalDateTime.of(2017, Month.JANUARY, 1, 0, 0, 0);
         final List<Movement> recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.AUGUST, 16));
         assertThat(recentMovements.size()).isEqualTo(2);

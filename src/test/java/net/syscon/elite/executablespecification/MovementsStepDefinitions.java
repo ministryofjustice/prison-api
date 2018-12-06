@@ -16,7 +16,7 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
     public void aRequestIsMadeToRetrieveAllRecords() {
         final String fromDateTime = "2017-02-20T13:56:00";
         final String movementDate = "2017-08-16";
-        movementsSteps.retrieveAllCustodyStatusRecords(fromDateTime, movementDate);
+        movementsSteps.retrieveAllMovementRecords(fromDateTime, movementDate);
     }
 
     @Then("^a correct list of records are returned$")
