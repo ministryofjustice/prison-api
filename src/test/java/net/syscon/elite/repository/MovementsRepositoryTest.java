@@ -1,9 +1,7 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.Movement;
-import net.syscon.elite.api.model.MovementCount;
-import net.syscon.elite.api.model.OffenderMovement;
-import net.syscon.elite.api.model.RollCount;
+import lombok.val;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Test;
@@ -19,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -140,5 +139,22 @@ public class MovementsRepositoryTest {
 
         assertThat(movements.size()).isEqualTo(2);
         assertThat(movements.get(0).getOffenderNo()).isEqualTo("A1183SH");
+    }
+
+    @Test
+    public final void canRetrieveOffendersIn() {
+        val offendersIn = repository.getOffendersIn("LEI", LocalDate.of(2017, 10, 12));
+
+        assertThat(offendersIn).containsExactlyInAnyOrder(
+                OffenderIn.builder()
+                        .offenderNo("A6676RS")
+                        .dateOfBirth(LocalDate.of(1945, 1, 10))
+                        .firstName("NEIL")
+                        .lastName("BRADLEY")
+                .fromAgencyDescription("BIRMINGHAM")
+                .movementTime(LocalTime.of(10,45,0))
+                .location("Landing H/1")
+                .build()
+        );
     }
 }

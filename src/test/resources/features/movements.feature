@@ -53,3 +53,12 @@ Feature: Movement
       | offenderNo  | fromAgencyDescription | toAgencyDescription  | movementTime   | reasonDescription    | lastName  |
       | A1183AD     |  Birmingham           | Leeds                |  15:00:00      | Normal Transfer      | DENTON    |
       | A1183SH     |  Birmingham           | Leeds                |  13:00:00      | Normal Transfer      | HEMP      |
+
+  Scenario: Get brief information for offenders 'in today'.
+
+    Given a user has authenticated with the API
+    When a request is made to retrieve the 'offenders in' for agency "LEI" on date "2017-10-12"
+    Then information about 'offenders in' is returned as follows:
+    | offenderNo | dateOfBirth | firstName | middleName | lastName | fromAgencyDescription | movementTime | location    |
+    | A6676RS    | 1945-01-10  | NEIL      |            | BRADLEY  | Birmingham            | 10:45:00     | Landing H/1 |
+

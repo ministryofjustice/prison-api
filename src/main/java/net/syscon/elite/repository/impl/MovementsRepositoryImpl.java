@@ -1,9 +1,6 @@
 package net.syscon.elite.repository.impl;
 
-import net.syscon.elite.api.model.Movement;
-import net.syscon.elite.api.model.MovementCount;
-import net.syscon.elite.api.model.OffenderMovement;
-import net.syscon.elite.api.model.RollCount;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.MovementsRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
@@ -26,6 +23,7 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     private final StandardBeanPropertyRowMapper<Movement> MOVEMENT_MAPPER = new StandardBeanPropertyRowMapper<>(Movement.class);
     private final StandardBeanPropertyRowMapper<OffenderMovement> OFFENDER_MOVEMENT_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderMovement.class);
     private final StandardBeanPropertyRowMapper<RollCount> ROLLCOUNT_MAPPER = new StandardBeanPropertyRowMapper<>(RollCount.class);
+    private final StandardBeanPropertyRowMapper<OffenderIn> OFFENDER_IN_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderIn.class);
 
     @Override
     public List<Movement> getRecentMovementsByDate(LocalDateTime fromDateTime, LocalDate movementDate) {
@@ -114,5 +112,14 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
 
         return jdbcTemplate.queryForObject(getQuery("GET_ENROUTE_OFFENDER_COUNT"), createParams(
                 "agencyId", agencyId, "movementDate", DateTimeConverter.toDate(date)), Integer.class);
+    }
+
+    @Override
+    public List<OffenderIn> getOffendersIn(String agencyId, LocalDate movementDate) {
+        return jdbcTemplate.query(getQuery("GET_OFFENDER_MOVEMENTS_IN"),
+                createParams(
+                    "agencyId", agencyId,
+                    "movementDate", DateTimeConverter.toDate(movementDate)),
+                OFFENDER_IN_MAPPER);
     }
 }

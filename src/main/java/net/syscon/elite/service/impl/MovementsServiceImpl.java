@@ -1,9 +1,7 @@
 package net.syscon.elite.service.impl;
 
-import net.syscon.elite.api.model.Movement;
-import net.syscon.elite.api.model.MovementCount;
-import net.syscon.elite.api.model.OffenderMovement;
-import net.syscon.elite.api.model.RollCount;
+import lombok.val;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.MovementsRepository;
 import net.syscon.elite.security.VerifyAgencyAccess;
@@ -76,5 +74,13 @@ public class MovementsServiceImpl implements MovementsService {
     public int getEnrouteOffenderCount(String agencyId, LocalDate date) {
         final LocalDate defaultedDate = date == null ? LocalDate.now() : date;
         return movementsRepository.getEnrouteMovementsOffenderCount(agencyId, defaultedDate);
+    }
+
+    @Override
+    @VerifyAgencyAccess
+    public List<OffenderIn> getOffendersIn(String agencyId, LocalDate date) {
+        val offendersIn = movementsRepository.getOffendersIn(agencyId, date);
+        offendersIn.forEach(oi -> oi.setFromAgencyDescription(LocationProcessor.formatLocation(oi.getFromAgencyDescription())));  // meh
+        return offendersIn;
     }
 }

@@ -1,8 +1,10 @@
 package net.syscon.elite.executablespecification.steps;
 
+import lombok.val;
 import net.syscon.elite.api.model.Movement;
 import net.syscon.elite.api.model.MovementCount;
 import net.syscon.elite.api.model.OffenderMovement;
+import net.syscon.elite.api.model.OffenderIn;
 import net.syscon.elite.api.model.RollCount;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
@@ -11,6 +13,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
@@ -28,11 +31,13 @@ public class MovementsSteps extends CommonSteps {
     private static final String API_REQUEST_MOVEMENT_COUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}/movements?movementDate={date}";
     private static final String API_REQUEST_MOVEMENT_ENROUTE_URL = API_PREFIX + "movements/{agencyId}/enroute?movementDate={date}";
     private static final String API_REQUEST_RECENT_MOVEMENTS = API_PREFIX + "movements/offenders";
+    private static final String API_REQUEST_OFFENDERS_IN =  API_PREFIX + "movements/{agencyId}/in/{isoDate}";
 
     private List<Movement> movements;
     private List<RollCount> rollCounts;
     private List<OffenderMovement> offenderMovements;
     private MovementCount movementCount;
+    private List<OffenderIn> offendersIn;
 
     @Override
     protected void init() {
@@ -41,6 +46,7 @@ public class MovementsSteps extends CommonSteps {
         movements = null;
         rollCounts = null;
         movementCount = null;
+        offendersIn = null;
     }
 
     @Step("Retrieve all movement records")
@@ -229,4 +235,24 @@ public class MovementsSteps extends CommonSteps {
         }
     }
 
+    public void getOffendersIn(String agencyId, LocalDate movementsDate) {
+        init();
+        try {
+            val response = restTemplate.exchange(
+                    API_REQUEST_OFFENDERS_IN,
+                    HttpMethod.GET,
+                    createEntity(),
+                    new ParameterizedTypeReference<List<OffenderIn>>() {},
+                    agencyId,
+                    movementsDate
+            );
+            offendersIn = response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    public void verifyOffendersIn(List<OffenderIn> expectedOffendersIn) {
+        assertThat(offendersIn).containsOnlyElementsOf(expectedOffendersIn);
+    }
 }
