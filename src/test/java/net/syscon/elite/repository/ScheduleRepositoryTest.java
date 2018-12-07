@@ -137,6 +137,7 @@ public class ScheduleRepositoryTest {
         assertThat(results.get(0).getStartTime()).isEqualTo(LocalDateTime.parse("2017-05-12T09:30"));
         assertThat(results.get(0).getEvent()).isEqualTo("IMM");
         assertThat(results.get(0).getLocationId()).isEqualTo(-28L);
+        assertThat(results.get(0).getEventLocation()).isEqualTo("Visiting Room");
     }
 
     @Test
@@ -147,6 +148,7 @@ public class ScheduleRepositoryTest {
         assertThat(results.get(0).getOffenderNo()).isEqualTo("A1234AA");
         assertThat(results.get(0).getStartTime()).isEqualTo(LocalDateTime.parse("2017-09-15T14:00"));
         assertThat(results.get(0).getLocationId()).isEqualTo(-25L);
+        assertThat(results.get(0).getEventLocation()).isEqualTo("Chapel");
     }
 
     @Test
@@ -159,6 +161,7 @@ public class ScheduleRepositoryTest {
         assertThat(results.get(0).getStartTime()).isEqualTo(LocalDateTime.parse("2017-09-15T13:00"));
         assertThat(results.get(0).getLocationId()).isEqualTo(-26L);
         assertThat(results.get(0).getTimeSlot()).isEqualTo(TimeSlot.PM);
+        assertThat(results.get(0).getEventLocation()).isEqualTo("Carpentry Workshop");
     }
 
     @Test

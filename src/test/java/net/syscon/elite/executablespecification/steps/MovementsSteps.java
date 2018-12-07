@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.tuple;
  * BDD step implementations for Custody Status Records feature.
  */
 public class MovementsSteps extends CommonSteps {
-    private static final String API_REQUEST_BASE_URL = API_PREFIX + "custody-statuses?fromDateTime=%s&movementDate=%s";
+    private static final String API_REQUEST_BASE_URL = API_PREFIX + "movements?fromDateTime=%s&movementDate=%s";
     private static final String API_REQUEST_ROLLCOUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}?unassigned={unassigned}";
     private static final String API_REQUEST_MOVEMENT_COUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}/movements?movementDate={date}";
     private static final String API_REQUEST_RECENT_MOVEMENTS = API_PREFIX + "movements/offenders";
@@ -45,9 +45,9 @@ public class MovementsSteps extends CommonSteps {
         offendersOutToday = null;
     }
 
-    @Step("Retrieve all custody status records")
-    public void retrieveAllCustodyStatusRecords(String fromDateTime, String movementDate) {
-        doPrisonerCustodyStatusListApiCall(fromDateTime, movementDate);
+    @Step("Retrieve all movement records")
+    public void retrieveAllMovementRecords(String fromDateTime, String movementDate) {
+        doPrisonerMovementListApiCall(fromDateTime, movementDate);
     }
 
     @Step("Verify a list of records are returned")
@@ -152,7 +152,7 @@ public class MovementsSteps extends CommonSteps {
         assertThat(matched).isTrue();
     }
 
-    private void doPrisonerCustodyStatusListApiCall(String fromDateTime, String movementDate) {
+    private void doPrisonerMovementListApiCall(String fromDateTime, String movementDate) {
         init();
 
         try {

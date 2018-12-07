@@ -52,7 +52,7 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public MovementsSteps custodyStatus() {
+        public MovementsSteps movement() {
             return new MovementsSteps();
         }
 
