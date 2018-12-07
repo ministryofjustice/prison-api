@@ -63,4 +63,14 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
     public void aTotalCountOfOutTodayAsOffenderNumbersThatAreOutTodayMatchingAndACountOfInTodayAs(Integer outToday, String offenderNumbers, Integer inToday) throws Throwable {
         movementsSteps.verifyMovementCounts(outToday, Arrays.asList(offenderNumbers.split(",")), inToday);
     }
+
+    @When("^a request is made for en-route offenders for agency \"([^\"]*)\" on movement date \"([^\"]*)\"$")
+    public void aMakeARequestForEnRouteOffendersForAgencyOnMovementDate(String agencyId, String date) throws Throwable {
+        movementsSteps.retrieveEnrouteOffenders(agencyId, date);
+    }
+
+    @Then("^the records should contain a entry for \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
+    public void theRecordsShouldContainAEntryFor(String offenderNo, String lastName, String fromAgency, String toAgency, String reason, String time) throws Throwable {
+       movementsSteps.verifyOffenderMovements(offenderNo, lastName, fromAgency, toAgency, reason, time);
+    }
 }

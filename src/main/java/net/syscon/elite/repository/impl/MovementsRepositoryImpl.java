@@ -4,9 +4,11 @@ import net.syscon.elite.api.model.Movement;
 import net.syscon.elite.api.model.MovementCount;
 import net.syscon.elite.api.model.OffenderMovement;
 import net.syscon.elite.api.model.RollCount;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.MovementsRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.DateTimeConverter;
+import net.syscon.util.IQueryBuilder;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -93,9 +95,17 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     }
 
     @Override
-    public List<OffenderMovement> getEnrouteMovementsOffenderMovementList(String agencyId, LocalDate date) {
+    public List<OffenderMovement> getEnrouteMovementsOffenderMovementList(String agencyId, LocalDate date, String orderByFields, Order order) {
 
-        return jdbcTemplate.query(getQuery("GET_ENROUTE_OFFENDER_MOVEMENTS"), createParams(
+        String initialSql = getQuery("GET_ENROUTE_OFFENDER_MOVEMENTS");
+
+        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_MOVEMENT_MAPPER.getFieldMap());
+
+        String sql = builder
+                .addOrderBy(order, orderByFields)
+                .build();
+
+        return jdbcTemplate.query(sql, createParams(
                 "agencyId", agencyId, "movementDate", DateTimeConverter.toDate(date)), OFFENDER_MOVEMENT_MAPPER);
     }
 

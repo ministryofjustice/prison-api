@@ -2,6 +2,7 @@ package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.Movement;
 import net.syscon.elite.api.model.MovementCount;
+import net.syscon.elite.api.model.OffenderMovement;
 import net.syscon.elite.api.model.RollCount;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
@@ -25,10 +26,12 @@ public class MovementsSteps extends CommonSteps {
     private static final String API_REQUEST_BASE_URL = API_PREFIX + "movements?fromDateTime=%s&movementDate=%s";
     private static final String API_REQUEST_ROLLCOUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}?unassigned={unassigned}";
     private static final String API_REQUEST_MOVEMENT_COUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}/movements?movementDate={date}";
-        private static final String API_REQUEST_RECENT_MOVEMENTS = API_PREFIX + "movements/offenders";
+    private static final String API_REQUEST_MOVEMENT_ENROUTE_URL = API_PREFIX + "movements/{agencyId}/enroute?movementDate={date}";
+    private static final String API_REQUEST_RECENT_MOVEMENTS = API_PREFIX + "movements/offenders";
 
     private List<Movement> movements;
     private List<RollCount> rollCounts;
+    private List<OffenderMovement> offenderMovements;
     private MovementCount movementCount;
 
     @Override
@@ -132,6 +135,22 @@ public class MovementsSteps extends CommonSteps {
       assertThat(matched).isTrue();
     }
 
+    public void verifyOffenderMovements(String offenderNo, String lastName, String fromDescription, String toDescription, String movementReason, String movementTime) {
+        boolean matched = offenderMovements
+                .stream()
+                .filter(m -> m.getOffenderNo().equals(offenderNo) &&
+                        m.getLastName().equals(lastName) &&
+                        m.getFromAgencyDescription().equals(fromDescription) &&
+                        m.getToAgencyDescription().equals(toDescription) &&
+                        m.getMovementReasonDescription().equals(movementReason) &&
+                        m.getMovementTime().equals(LocalTime.parse(movementTime)))
+                .toArray()
+                .length != 0;
+
+
+        assertThat(matched).isTrue();
+    }
+
     private void doPrisonerMovementListApiCall(String fromDateTime, String movementDate) {
         init();
 
@@ -190,4 +209,24 @@ public class MovementsSteps extends CommonSteps {
             setErrorResponse(ex.getErrorResponse());
         }
     }
+
+    public void retrieveEnrouteOffenders(String agencyId, String date) {
+        init();
+
+        try {
+            ResponseEntity<List<OffenderMovement>> response = restTemplate.exchange(
+                    API_REQUEST_MOVEMENT_ENROUTE_URL,
+                    HttpMethod.GET, createEntity(),
+                    new ParameterizedTypeReference<List<OffenderMovement>>() {
+                    }, agencyId, date);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+            offenderMovements = response.getBody();
+
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
 }
