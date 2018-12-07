@@ -1,9 +1,10 @@
 package net.syscon.elite.service.impl;
 
 import com.google.common.collect.ImmutableList;
-import net.syscon.elite.api.model.Movement;
-import net.syscon.elite.api.model.OffenderMovement;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.MovementsRepository;
+import net.syscon.elite.repository.UserRepository;
+import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.MovementsService;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
@@ -14,7 +15,9 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Test cases for {@link BookingServiceImpl}.
@@ -25,11 +28,17 @@ public class MovementsServiceImplTest {
     @Mock
     private MovementsRepository movementsRepository;
 
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private UserSecurityUtils securityUtils;
+
     private MovementsService movementsService;
 
     @Before
     public void init() {
-        movementsService = new MovementsServiceImpl(movementsRepository);
+        movementsService = new MovementsServiceImpl(movementsRepository, securityUtils, userRepository);
     }
 
     @Test
@@ -85,5 +94,65 @@ public class MovementsServiceImplTest {
 
         Mockito.verify(movementsRepository, Mockito.times(1)).getEnrouteMovementsOffenderCount("LEI", LocalDate.of(2015, 9, 12));
     }
+
+    @Test
+    public void testGetOffendersOutToday() {
+        final LocalTime timeOut = LocalTime.now();
+        List<OffenderOutToday> offenders = ImmutableList.of(
+                OffenderOutToday.builder()
+                        .offenderNo("1234")
+                        .directionCode("OUT")
+                        .birthDate(LocalDate.now())
+                        .movementDate(LocalDate.now())
+                        .fromAgency("LEI")
+                        .facialImageId(-1)
+                        .firstName("JOHN")
+                        .lastName("DOE")
+                        .reasonDescription("NORMAL TRANSFER")
+                        .timeOut(timeOut)
+                        .build(),
+                OffenderOutToday.builder()
+                        .offenderNo("89876")
+                        .directionCode("IN")
+                        .birthDate(LocalDate.now())
+                        .movementDate(LocalDate.now())
+                        .fromAgency("LEI")
+                        .facialImageId(-1)
+                        .firstName("JOHN1")
+                        .lastName("DOE1")
+                        .reasonDescription("NORMAL TRANSFER")
+                        .timeOut(timeOut)
+                        .build(),
+                OffenderOutToday.builder()
+                        .offenderNo("4567")
+                        .directionCode("OUT")
+                        .birthDate(LocalDate.now())
+                        .movementDate(LocalDate.now())
+                        .fromAgency("BMI")
+                        .facialImageId(-1)
+                        .firstName("JOHN2")
+                        .lastName("DOE2")
+                        .reasonDescription("NORMAL TRANSFER")
+                        .timeOut(timeOut)
+                        .build());
+
+
+        Mockito.when(userRepository.findByUsername("ITAG_USER")).thenReturn(Optional.of(UserDetail.builder().activeCaseLoadId("LEI").build()));
+        Mockito.when(securityUtils.getCurrentUsername()).thenReturn("ITAG_USER");
+        Mockito.when(movementsRepository.getOffendersOutOnDate(LocalDate.now())).thenReturn(offenders);
+
+        final List<OffenderOutTodayDto> offendersOutToday = movementsService.getOffendersOutToday();
+
+        Assertions.assertThat(offendersOutToday).hasSize(1);
+
+        Assertions.assertThat(offendersOutToday).extracting("offenderNo").contains("1234");
+        Assertions.assertThat(offendersOutToday).extracting("firstName").contains("John");
+        Assertions.assertThat(offendersOutToday).extracting("lastName").contains("Doe");
+        Assertions.assertThat(offendersOutToday).extracting("facialImageId").contains(-1);
+        Assertions.assertThat(offendersOutToday).extracting("birthDate").contains(LocalDate.now());
+        Assertions.assertThat(offendersOutToday).extracting("timeOut").contains(timeOut);
+        Assertions.assertThat(offendersOutToday).extracting("reasonDescription").contains("Normal transfer");
+    }
+
 
 }

@@ -59,8 +59,19 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
         movementsSteps.verifyMovements(movementType, fromDescription, toDescription, movementReason, movementTime);
     }
 
-    @Then("^a total count of out today as \"([^\"]*)\" offender numbers that are out today matching \"([^\"]*)\" and a count of in today as \"([^\"]*)\"\"$")
-    public void aTotalCountOfOutTodayAsOffenderNumbersThatAreOutTodayMatchingAndACountOfInTodayAs(Integer outToday, String offenderNumbers, Integer inToday) throws Throwable {
-        movementsSteps.verifyMovementCounts(outToday, Arrays.asList(offenderNumbers.split(",")), inToday);
+    @When("^a request has been made for out today results$")
+    public void aRequestHasBeenMadeForOutTodayResults() {
+        movementsSteps.retrieveOutToday();
+    }
+
+    @Then("^the following fields should be returned: \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
+    public void theFollowingFieldsShouldBeReturned(Integer facialImageId, String firstName, String lastName, String offenderNo, String dateofBirth, String timeOut, String reasonDescription) throws Throwable {
+        movementsSteps.verifyOutToday(facialImageId, firstName, lastName, offenderNo, dateofBirth, timeOut, reasonDescription);
+    }
+
+    @Then("^a total count of out today as \"([^\"]*)\" and a count of in today as \"([^\"]*)\"\"$")
+    public void aTotalCountOfOutTodayAsAndACountOfInTodayAs(Integer outToday, Integer inToday) throws Throwable {
+        movementsSteps.verifyMovementCounts(outToday, inToday);
+
     }
 }

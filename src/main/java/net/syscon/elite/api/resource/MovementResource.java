@@ -86,6 +86,16 @@ public interface MovementResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
     GetEnrouteOffenderMovementCountResponse getEnrouteOffenderMovementCount(@ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId, @ApiParam(value = "The date for which enroute movements are counted, default today.", required = true) @QueryParam("movementDate") LocalDate movementDate);
 
+    @GET
+    @Path("/offenders-out-today")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "", nickname="getOffendersOutToday")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "", response = Movement.class, responseContainer = "List") })
+    GetOffendersOutTodayResponse getOffendersOutToday();
+
+
     class GetRecentMovementsByDateResponse extends ResponseDelegate {
 
         private GetRecentMovementsByDateResponse(Response response) { super(response); }
@@ -225,5 +235,24 @@ public interface MovementResource {
             responseBuilder.entity(entity);
             return new GetEnrouteOffenderMovementCountResponse(responseBuilder.build(), entity);
         }
+    }
+
+    class GetOffendersOutTodayResponse extends ResponseDelegate {
+        private GetOffendersOutTodayResponse(Response response) { super(response); }
+        private GetOffendersOutTodayResponse(Response response, Object entity) {  super(response, entity); }
+
+        public static GetOffendersOutTodayResponse respond200WithApplicationJson(List<OffenderOutTodayDto> entity) {
+            return new GetOffendersOutTodayResponse(ResponseUtil.applicationJson(entity, 200), entity);
+        }
+    }
+
+    class ResponseUtil {
+       static Response  applicationJson(Object entity, Integer code) {
+           Response.ResponseBuilder responseBuilder = Response.status(code)
+                   .header("Content-Type", MediaType.APPLICATION_JSON);
+           responseBuilder.entity(entity);
+
+           return responseBuilder.build();
+       }
     }
 }

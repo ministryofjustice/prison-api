@@ -1,13 +1,14 @@
 package net.syscon.elite.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 /**
  * Establishment roll count in and out numbers
@@ -21,23 +22,11 @@ import java.util.List;
 @Data
 public class MovementCount {
 
-    @ApiModelProperty(required = true, value = "List of offender numbers that are out")
-    private List<String> offendersOut;
-
-    @ApiModelProperty(required = true, value = "List of offender numbers that are in")
-    private List<String> offendersIn;
-
     @NotNull
     @ApiModelProperty(required = true, value = "Number of prisoners arrived so far on given date")
-    @JsonProperty("in")
-    public Integer getIn() {
-        return offendersIn != null ? offendersIn.size() : 0;
-    }
+    private Integer in;
 
     @NotNull
     @ApiModelProperty(required = true, value = "Number of prisoners that have left so far on given date")
-    @JsonProperty("out")
-    public Integer getOut() {
-        return offendersOut != null ? offendersOut.size() : 0;
-    }
+    public Integer out;
 }

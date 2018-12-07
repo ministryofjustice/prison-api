@@ -2,8 +2,10 @@ package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.Movement;
 import net.syscon.elite.api.model.MovementCount;
-import net.syscon.elite.api.model.OffenderMovement;
 import net.syscon.elite.api.model.RollCount;
+import net.syscon.elite.api.model.OffenderMovement;
+import net.syscon.elite.api.model.OffenderOutTodayDto;
+
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,4 +24,6 @@ public interface MovementsService {
     List<OffenderMovement> getEnrouteOffenderMovements(String agencyId, LocalDate date);
 
     int getEnrouteOffenderCount(String agencyId, LocalDate date);
+
+    List<OffenderOutTodayDto> getOffendersOutToday();
 }

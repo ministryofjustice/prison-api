@@ -50,4 +50,9 @@ public class MovementResourceImpl implements MovementResource {
         return GetEnrouteOffenderMovementCountResponse.respond200WithApplicationJson(movementsService.getEnrouteOffenderCount(agencyId, movementDate));
     }
 
+    @Override
+    public GetOffendersOutTodayResponse getOffendersOutToday() {
+        return GetOffendersOutTodayResponse.respond200WithApplicationJson(movementsService.getOffendersOutToday());
+    }
+
 }

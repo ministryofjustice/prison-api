@@ -1,13 +1,14 @@
 package net.syscon.elite.service.impl;
 
-import net.syscon.elite.api.model.Movement;
-import net.syscon.elite.api.model.MovementCount;
-import net.syscon.elite.api.model.OffenderMovement;
-import net.syscon.elite.api.model.RollCount;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.MovementsRepository;
+import net.syscon.elite.repository.UserRepository;
+import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.security.VerifyAgencyAccess;
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.MovementsService;
 import net.syscon.elite.service.support.LocationProcessor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,15 +16,21 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 public class MovementsServiceImpl implements MovementsService {
 
     private final MovementsRepository movementsRepository;
+    private final UserSecurityUtils securityUtils;
+    private final UserRepository userRepository;
 
-    public MovementsServiceImpl(MovementsRepository movementsRepository) {
+
+    public MovementsServiceImpl(MovementsRepository movementsRepository, UserSecurityUtils securityUtils, UserRepository userRepository) {
         this.movementsRepository = movementsRepository;
+        this.securityUtils = securityUtils;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -53,6 +60,34 @@ public class MovementsServiceImpl implements MovementsService {
     @VerifyAgencyAccess
     public MovementCount getMovementCount(String agencyId, LocalDate date) {
         return movementsRepository.getMovementCount(agencyId, date == null ? LocalDate.now() : date);
+    }
+
+    @Override
+    public List<OffenderOutTodayDto> getOffendersOutToday() {
+        String username = securityUtils.getCurrentUsername();
+        UserDetail currentUser = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
+
+        List<OffenderOutToday> offenders = movementsRepository.getOffendersOutOnDate(LocalDate.now());
+
+        return offenders
+                .stream()
+                .filter(offender -> offender.getDirectionCode().equals("OUT") &&
+                        offender.getFromAgency().equals(currentUser.getActiveCaseLoadId()))
+                .map(this::toOffenderOutTodayDto)
+                .collect(Collectors.toList());
+    }
+
+    private OffenderOutTodayDto toOffenderOutTodayDto(OffenderOutToday offenderOutToday) {
+        return OffenderOutTodayDto
+                .builder()
+                .birthDate(offenderOutToday.getBirthDate())
+                .facialImageId(offenderOutToday.getFacialImageId())
+                .firstName(StringUtils.capitalize(offenderOutToday.getFirstName().toLowerCase()))
+                .lastName(StringUtils.capitalize(offenderOutToday.getLastName().toLowerCase()))
+                .reasonDescription(StringUtils.capitalize(offenderOutToday.getReasonDescription().toLowerCase()))
+                .offenderNo(offenderOutToday.getOffenderNo())
+                .timeOut(offenderOutToday.getTimeOut())
+                .build();
     }
 
     @Override

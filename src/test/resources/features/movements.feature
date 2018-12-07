@@ -1,3 +1,4 @@
+@wip
 Feature: Movement
 
   Scenario: Retrieve a list of recent movements
@@ -43,5 +44,17 @@ Feature: Movement
 
     Given a user has authenticated with the API
     When a request is made to retrieve the movement counts for an agency on "2017-08-16"
-    Then a total count of out today as "2" offender numbers that are out today matching "Z0021ZZ,Z0019ZZ" and a count of in today as "0""
+    Then a total count of out today as "2" and a count of in today as "0""
+
+
+   Scenario Outline: Get offenders for out today
+
+     Given a user has authenticated with the API
+     When a request has been made for out today results
+     Then the following fields should be returned: "<facialImageId>" "<firstName>" "<lastName>" "<offenderNo>" "<dateOfBirth>" "<timeOut>" "<reasonDescription>"
+
+     Examples:
+     | facialImageId | firstName | lastName  | offenderNo | dateOfBirth | timeOut   | reasonDescription |
+     |     -26       | Neil      | Bradley   | A6676RS    | 1945-01-10  | 12:00:00  | Normal transfer   |
+
 

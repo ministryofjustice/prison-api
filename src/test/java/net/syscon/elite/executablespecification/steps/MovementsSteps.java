@@ -2,6 +2,7 @@ package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.Movement;
 import net.syscon.elite.api.model.MovementCount;
+import net.syscon.elite.api.model.OffenderOutTodayDto;
 import net.syscon.elite.api.model.RollCount;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
@@ -25,9 +27,11 @@ public class MovementsSteps extends CommonSteps {
     private static final String API_REQUEST_BASE_URL = API_PREFIX + "custody-statuses?fromDateTime=%s&movementDate=%s";
     private static final String API_REQUEST_ROLLCOUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}?unassigned={unassigned}";
     private static final String API_REQUEST_MOVEMENT_COUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}/movements?movementDate={date}";
-        private static final String API_REQUEST_RECENT_MOVEMENTS = API_PREFIX + "movements/offenders";
+    private static final String API_REQUEST_RECENT_MOVEMENTS = API_PREFIX + "movements/offenders";
+    private static final String API_REQUEST_OUT_TODAY = API_PREFIX + "movements/offenders-out-today";
 
     private List<Movement> movements;
+    private List<OffenderOutTodayDto> offendersOutToday;
     private List<RollCount> rollCounts;
     private MovementCount movementCount;
 
@@ -38,6 +42,7 @@ public class MovementsSteps extends CommonSteps {
         movements = null;
         rollCounts = null;
         movementCount = null;
+        offendersOutToday = null;
     }
 
     @Step("Retrieve all custody status records")
@@ -108,13 +113,13 @@ public class MovementsSteps extends CommonSteps {
         doMovementCountApiCall(agencyId, date);
     }
 
-    public void verifyMovementCounts(Integer outToday, List<String> offenderNumbers, Integer inToday) {
+    public void retrieveOutToday() {
+        doOutTodayApiCall();
+    }
+
+    public void verifyMovementCounts(Integer outToday, Integer inToday) {
         assertThat(movementCount.getOut()).isEqualTo(outToday);
         assertThat(movementCount.getIn()).isEqualTo(inToday);
-
-        assertThat(movementCount.getOffendersIn()).hasSize(0);
-        assertThat(movementCount.getOffendersOut()).hasSize(outToday);
-        assertThat(movementCount.getOffendersOut()).containsExactlyElementsOf(offenderNumbers);
     }
 
     public void verifyMovements(String movementType,String fromDescription, String toDescription, String movementReason, String movementTime) {
@@ -130,6 +135,21 @@ public class MovementsSteps extends CommonSteps {
 
 
       assertThat(matched).isTrue();
+    }
+
+    public void verifyOutToday(Integer facialImageId, String firstName, String lastName, String offenderNo, String dateofBirth, String timeOut, String reasonDescription) {
+        boolean matched = offendersOutToday
+                .stream()
+                .anyMatch(out -> out.getBirthDate().equals(LocalDate.parse(dateofBirth)) &&
+                          out.getFacialImageId().equals(facialImageId) &&
+                          out.getFirstName().equals(firstName) &&
+                          out.getLastName().equals(lastName) &&
+                          out.getOffenderNo().equals(offenderNo) &&
+                          out.getReasonDescription().equals(reasonDescription) &&
+                          out.getTimeOut().equals(LocalTime.parse(timeOut)));
+
+        assertThat(offendersOutToday).hasSize(1);
+        assertThat(matched).isTrue();
     }
 
     private void doPrisonerCustodyStatusListApiCall(String fromDateTime, String movementDate) {
@@ -185,6 +205,25 @@ public class MovementsSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
             movementCount = response.getBody();
+
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    private void doOutTodayApiCall() {
+        init();
+
+        try {
+            ResponseEntity<List<OffenderOutTodayDto>> response = restTemplate.exchange(
+                    API_REQUEST_OUT_TODAY,
+                    HttpMethod.GET, createEntity(),
+                    new ParameterizedTypeReference<List<OffenderOutTodayDto>>() {
+                    });
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+            offendersOutToday = response.getBody();
 
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
