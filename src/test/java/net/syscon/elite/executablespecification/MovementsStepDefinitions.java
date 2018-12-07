@@ -1,7 +1,9 @@
 package net.syscon.elite.executablespecification;
 
+import cucumber.api.DataTable;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import net.syscon.elite.api.model.OffenderOutTodayDto;
 import net.syscon.elite.executablespecification.steps.MovementsSteps;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -65,13 +67,12 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^the following fields should be returned: \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
-    public void theFollowingFieldsShouldBeReturned(Integer facialImageId, String firstName, String lastName, String offenderNo, String dateofBirth, String timeOut, String reasonDescription) throws Throwable {
-        movementsSteps.verifyOutToday(facialImageId, firstName, lastName, offenderNo, dateofBirth, timeOut, reasonDescription);
+    public void theFollowingFieldsShouldBeReturned(DataTable table) throws Throwable {
+        movementsSteps.verifyOutToday(table.asList(OffenderOutTodayDto.class));
     }
 
-    @Then("^a total count of out today as \"([^\"]*)\" and a count of in today as \"([^\"]*)\"\"$")
-    public void aTotalCountOfOutTodayAsAndACountOfInTodayAs(Integer outToday, Integer inToday) throws Throwable {
+    @Then("^\"([^\"]*)\" offenders are out today and \"([^\"]*)\" are in$")
+    public void offendersOutTodayAndAreIn(Integer outToday, Integer inToday) throws Throwable {
         movementsSteps.verifyMovementCounts(outToday, inToday);
-
     }
 }

@@ -3,7 +3,7 @@ package net.syscon.elite.service.impl;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.MovementsRepository;
 import net.syscon.elite.repository.UserRepository;
-import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.MovementsService;
@@ -23,13 +23,13 @@ import java.util.stream.Collectors;
 public class MovementsServiceImpl implements MovementsService {
 
     private final MovementsRepository movementsRepository;
-    private final UserSecurityUtils securityUtils;
+    private final AuthenticationFacade authenticationFacade;
     private final UserRepository userRepository;
 
 
-    public MovementsServiceImpl(MovementsRepository movementsRepository, UserSecurityUtils securityUtils, UserRepository userRepository) {
+    public MovementsServiceImpl(MovementsRepository movementsRepository, AuthenticationFacade authenticationFacade, UserRepository userRepository) {
         this.movementsRepository = movementsRepository;
-        this.securityUtils = securityUtils;
+        this.authenticationFacade = authenticationFacade;
         this.userRepository = userRepository;
     }
 
@@ -64,7 +64,7 @@ public class MovementsServiceImpl implements MovementsService {
 
     @Override
     public List<OffenderOutTodayDto> getOffendersOutToday() {
-        String username = securityUtils.getCurrentUsername();
+        String username = authenticationFacade.getCurrentUsername();
         UserDetail currentUser = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
 
         List<OffenderOutToday> offenders = movementsRepository.getOffendersOutOnDate(LocalDate.now());
@@ -81,7 +81,6 @@ public class MovementsServiceImpl implements MovementsService {
         return OffenderOutTodayDto
                 .builder()
                 .birthDate(offenderOutToday.getBirthDate())
-                .facialImageId(offenderOutToday.getFacialImageId())
                 .firstName(StringUtils.capitalize(offenderOutToday.getFirstName().toLowerCase()))
                 .lastName(StringUtils.capitalize(offenderOutToday.getLastName().toLowerCase()))
                 .reasonDescription(StringUtils.capitalize(offenderOutToday.getReasonDescription().toLowerCase()))

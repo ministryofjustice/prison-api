@@ -44,17 +44,17 @@ Feature: Movement
 
     Given a user has authenticated with the API
     When a request is made to retrieve the movement counts for an agency on "2017-08-16"
-    Then a total count of out today as "2" and a count of in today as "0""
+    Then "2" offenders are out today and "0" are in
 
 
    Scenario Outline: Get offenders for out today
 
      Given a user has authenticated with the API
      When a request has been made for out today results
-     Then the following fields should be returned: "<facialImageId>" "<firstName>" "<lastName>" "<offenderNo>" "<dateOfBirth>" "<timeOut>" "<reasonDescription>"
+     Then the following fields should be returned: "<firstName>" "<lastName>" "<offenderNo>" "<dateOfBirth>" "<timeOut>" "<reasonDescription>"
 
      Examples:
-     | facialImageId | firstName | lastName  | offenderNo | dateOfBirth | timeOut   | reasonDescription |
-     |     -26       | Neil      | Bradley   | A6676RS    | 1945-01-10  | 12:00:00  | Normal transfer   |
+     | firstName | lastName  | offenderNo | dateOfBirth | timeOut   | reasonDescription |
+     | Neil      | Bradley   | A6676RS    | 1945-01-10  | 12:00:00  | Normal transfer   |
 
 

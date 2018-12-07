@@ -11,7 +11,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
@@ -137,19 +136,8 @@ public class MovementsSteps extends CommonSteps {
       assertThat(matched).isTrue();
     }
 
-    public void verifyOutToday(Integer facialImageId, String firstName, String lastName, String offenderNo, String dateofBirth, String timeOut, String reasonDescription) {
-        boolean matched = offendersOutToday
-                .stream()
-                .anyMatch(out -> out.getBirthDate().equals(LocalDate.parse(dateofBirth)) &&
-                          out.getFacialImageId().equals(facialImageId) &&
-                          out.getFirstName().equals(firstName) &&
-                          out.getLastName().equals(lastName) &&
-                          out.getOffenderNo().equals(offenderNo) &&
-                          out.getReasonDescription().equals(reasonDescription) &&
-                          out.getTimeOut().equals(LocalTime.parse(timeOut)));
-
-        assertThat(offendersOutToday).hasSize(1);
-        assertThat(matched).isTrue();
+    public void verifyOutToday(List<OffenderOutTodayDto> offenders) {
+        assertThat(offendersOutToday).containsSequence(offenders);
     }
 
     private void doPrisonerMovementListApiCall(String fromDateTime, String movementDate) {

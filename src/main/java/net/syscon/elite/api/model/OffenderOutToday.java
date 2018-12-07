@@ -41,7 +41,5 @@ public class OffenderOutToday {
     @NotBlank
     private LocalTime timeOut;
 
-    private Integer facialImageId;
-
     private String reasonDescription;
 }

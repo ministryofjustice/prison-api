@@ -35,9 +35,6 @@ public class OffenderOutTodayDto {
     @ApiModelProperty(required = true)
     private LocalTime timeOut;
 
-    @ApiModelProperty(value = "Offender picture id")
-    private Integer facialImageId;
-
     @NotBlank
     @ApiModelProperty(required = true)
     private String firstName;
