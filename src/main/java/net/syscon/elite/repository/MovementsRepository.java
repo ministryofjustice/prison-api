@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.Movement;
 import net.syscon.elite.api.model.MovementCount;
 import net.syscon.elite.api.model.OffenderMovement;
 import net.syscon.elite.api.model.RollCount;
+import net.syscon.elite.api.support.Order;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,7 +20,7 @@ public interface MovementsRepository {
 
     List<Movement> getRecentMovementsByOffenders(List<String> offenderNumbers, List<String> movementTypes);
 
-    List<OffenderMovement> getEnrouteMovementsOffenderMovementList(String agencyId, LocalDate date);
+    List<OffenderMovement> getEnrouteMovementsOffenderMovementList(String agencyId, LocalDate date, String orderByFields, Order order);
 
     int getEnrouteMovementsOffenderCount(String agencyId, LocalDate date);
 }

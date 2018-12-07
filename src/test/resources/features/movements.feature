@@ -45,3 +45,11 @@ Feature: Movement
     When a request is made to retrieve the movement counts for an agency on "2017-08-16"
     Then a total count of out today as "2" offender numbers that are out today matching "Z0021ZZ,Z0019ZZ" and a count of in today as "0""
 
+  Scenario Outline: Retrieve a list of en-route offenders
+    Given a user has authenticated with the API
+    When a request is made for en-route offenders for agency "LEI" on movement date "2017-10-12"
+    Then the records should contain a entry for "<offenderNo>" "<lastName>" "<fromAgencyDescription>" "<toAgencyDescription>" "<reasonDescription>" "<movementTime>"
+    Examples:
+      | offenderNo  | fromAgencyDescription | toAgencyDescription  | movementTime   | reasonDescription    | lastName  |
+      | A1183AD     |  Birmingham           | Leeds                |  15:00:00      | Normal Transfer      | DENTON    |
+      | A1183SH     |  Birmingham           | Leeds                |  13:00:00      | Normal Transfer      | HEMP      |

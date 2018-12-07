@@ -1,6 +1,7 @@
 package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.resource.MovementResource;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.MovementsService;
 
@@ -40,8 +41,8 @@ public class MovementResourceImpl implements MovementResource {
     }
 
     @Override
-    public GetEnrouteOffenderMovementsResponse getEnrouteOffenderMovements(String agencyId, LocalDate movementDate) {
-        return GetEnrouteOffenderMovementsResponse.respond200WithApplicationJson(movementsService.getEnrouteOffenderMovements(agencyId, movementDate));
+    public GetEnrouteOffenderMovementsResponse getEnrouteOffenderMovements(String agencyId, LocalDate movementDate, String sortFields, Order sortOrder) {
+        return GetEnrouteOffenderMovementsResponse.respond200WithApplicationJson(movementsService.getEnrouteOffenderMovements(agencyId, movementDate, sortFields, sortOrder));
 
     }
 
