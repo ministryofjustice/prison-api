@@ -1,5 +1,8 @@
 package net.syscon.elite.service.impl;
 
+import lombok.val;
+import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.MovementsRepository;
 import net.syscon.elite.repository.UserRepository;
@@ -8,6 +11,8 @@ import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.MovementsService;
 import net.syscon.elite.service.support.LocationProcessor;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -90,10 +95,12 @@ public class MovementsServiceImpl implements MovementsService {
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
-    public List<OffenderMovement> getEnrouteOffenderMovements(String agencyId, LocalDate date) {
+    @VerifyAgencyAccess
+    public List<OffenderMovement> getEnrouteOffenderMovements(String agencyId, LocalDate date, String orderByFields, Order order) {
+        String sortFields = StringUtils.defaultString(orderByFields, "lastName,firstName");
+        Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
         final LocalDate defaultedDate = date == null ? LocalDate.now() : date;
-        final List<OffenderMovement> movements = movementsRepository.getEnrouteMovementsOffenderMovementList(agencyId, defaultedDate);
+        final List<OffenderMovement> movements = movementsRepository.getEnrouteMovementsOffenderMovementList(agencyId, defaultedDate, sortFields, sortOrder);
         movements.forEach(m -> {
             m.setFromAgencyDescription(LocationProcessor.formatLocation(m.getFromAgencyDescription()));
             m.setToAgencyDescription(LocationProcessor.formatLocation(m.getToAgencyDescription()));
@@ -102,9 +109,16 @@ public class MovementsServiceImpl implements MovementsService {
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
     public int getEnrouteOffenderCount(String agencyId, LocalDate date) {
         final LocalDate defaultedDate = date == null ? LocalDate.now() : date;
         return movementsRepository.getEnrouteMovementsOffenderCount(agencyId, defaultedDate);
+    }
+
+    @Override
+    @VerifyAgencyAccess
+    public List<OffenderIn> getOffendersIn(String agencyId, LocalDate date) {
+        val offendersIn = movementsRepository.getOffendersIn(agencyId, date);
+        offendersIn.forEach(oi -> oi.setFromAgencyDescription(LocationProcessor.formatLocation(oi.getFromAgencyDescription())));  // meh
+        return offendersIn;
     }
 }

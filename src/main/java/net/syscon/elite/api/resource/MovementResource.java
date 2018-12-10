@@ -2,6 +2,7 @@ package net.syscon.elite.api.resource;
 
 import io.swagger.annotations.*;
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.ResponseDelegate;
 
 import javax.ws.rs.*;
@@ -55,6 +56,19 @@ public interface MovementResource {
     GetRollcountMovementsResponse getRollcountMovements(@ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId,
                                                         @ApiParam(value = "The date for which movements are counted, default today.", required = true) @QueryParam("movementDate") LocalDate movementDate);
 
+    @GET
+    @Path("/{agencyId}/in/{isoDate}")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Information on offenders in today.", notes = "Information on offenders in on given date.", nickname="getMovementsIn")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = MovementCount.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
+    GetMovementsInTodayResponse getMovementsIn(@ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId,
+                                               @ApiParam(value = "date", required = true) @PathParam("isoDate") LocalDate movementsDate);
+
     @POST
     @Path("/offenders")
     @Consumes({ "application/json" })
@@ -73,7 +87,10 @@ public interface MovementResource {
             @ApiResponse(code = 200, message = "OK", response = MovementCount.class),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
-    GetEnrouteOffenderMovementsResponse getEnrouteOffenderMovements(@ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId, @ApiParam(value = "The date for which enroute movements are counted, default today.", required = true) @QueryParam("movementDate") LocalDate movementDate);
+    GetEnrouteOffenderMovementsResponse getEnrouteOffenderMovements(@ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId,
+                                                                    @ApiParam(value = "The date for which enroute movements are counted, default is today.", required = true) @QueryParam("movementDate") LocalDate movementDate,
+                                                                    @ApiParam(value = "Comma separated list of one or more of the following fields - <b>bookingId, offenderNo, firstName, lastName - defaults to lastName, firstName</b>") @HeaderParam("Sort-Fields") String sortFields,
+                                                                    @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);
 
     @GET
     @Path("/rollcount/{agencyId}/enroute")
@@ -197,6 +214,41 @@ public interface MovementResource {
             return new GetRollcountMovementsResponse(responseBuilder.build(), entity);
         }
     }
+
+    class GetMovementsInTodayResponse extends ResponseDelegate {
+
+        private GetMovementsInTodayResponse(Response response) { super(response); }
+        private GetMovementsInTodayResponse(Response response, Object entity) { super(response, entity); }
+
+        public static GetMovementsInTodayResponse respond200WithApplicationJson(List<OffenderIn> entity) {
+            ResponseBuilder responseBuilder = Response.status(200)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetMovementsInTodayResponse(responseBuilder.build(), entity);
+        }
+
+        public static GetMovementsInTodayResponse respond400WithApplicationJson(ErrorResponse entity) {
+            ResponseBuilder responseBuilder = Response.status(400)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetMovementsInTodayResponse(responseBuilder.build(), entity);
+        }
+
+        public static GetMovementsInTodayResponse respond404WithApplicationJson(ErrorResponse entity) {
+            ResponseBuilder responseBuilder = Response.status(404)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetMovementsInTodayResponse(responseBuilder.build(), entity);
+        }
+
+        public static GetMovementsInTodayResponse respond500WithApplicationJson(ErrorResponse entity) {
+            ResponseBuilder responseBuilder = Response.status(500)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetMovementsInTodayResponse(responseBuilder.build(), entity);
+        }
+    }
+
 
     class GetRecentMovementsByOffendersResponse extends ResponseDelegate {
 

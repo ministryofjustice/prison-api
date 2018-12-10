@@ -10,20 +10,13 @@ FIND_INMATE_DETAIL {
          B.ACTIVE_FLAG,
          pc3.description                RELIGION, -- Deprecated: remove!
          RC1.DESCRIPTION             AS LANGUAGE,
-         (SELECT OI.OFFENDER_IMAGE_ID
+         (SELECT MAX(OI.OFFENDER_IMAGE_ID)
           FROM OFFENDER_IMAGES OI
           WHERE OI.ACTIVE_FLAG = 'Y'
             AND IMAGE_OBJECT_TYPE = 'OFF_BKG'
             AND OI.OFFENDER_BOOK_ID = B.OFFENDER_BOOK_ID
             AND OI.IMAGE_VIEW_TYPE = 'FACE'
-            AND OI.ORIENTATION_TYPE = 'FRONT'
-            AND CREATE_DATETIME = (SELECT MAX(CREATE_DATETIME)
-                                   FROM OFFENDER_IMAGES
-                                   WHERE ACTIVE_FLAG = 'Y'
-                                     AND IMAGE_OBJECT_TYPE = 'OFF_BKG'
-                                     AND OFFENDER_BOOK_ID = OI.OFFENDER_BOOK_ID
-                                     AND IMAGE_VIEW_TYPE = 'FACE'
-                                     AND ORIENTATION_TYPE = 'FRONT')) AS FACE_IMAGE_ID,
+            AND OI.ORIENTATION_TYPE = 'FRONT') AS FACE_IMAGE_ID,
          O.BIRTH_DATE,
          B.ASSIGNED_STAFF_ID AS ASSIGNED_OFFICER_ID
   FROM OFFENDER_BOOKINGS B
@@ -61,20 +54,13 @@ GET_IMAGE_DATA_FOR_BOOKING {
     I.IMAGE_OBJECT_ID
   FROM OFFENDER_IMAGES I
   WHERE I.OFFENDER_IMAGE_ID =
-        (SELECT OI.OFFENDER_IMAGE_ID
+        (SELECT MAX(OI.OFFENDER_IMAGE_ID)
          FROM OFFENDER_IMAGES OI
          WHERE OI.ACTIVE_FLAG = 'Y'
            AND IMAGE_OBJECT_TYPE = 'OFF_BKG'
            AND OI.OFFENDER_BOOK_ID = :bookingId
            AND OI.IMAGE_VIEW_TYPE = 'FACE'
-           AND OI.ORIENTATION_TYPE = 'FRONT'
-           AND CREATE_DATETIME = (SELECT MAX(CREATE_DATETIME)
-                                  FROM OFFENDER_IMAGES
-                                  WHERE ACTIVE_FLAG = 'Y'
-                                    AND IMAGE_OBJECT_TYPE = 'OFF_BKG'
-                                    AND OFFENDER_BOOK_ID = :bookingId
-                                    AND IMAGE_VIEW_TYPE = 'FACE'
-                                    AND ORIENTATION_TYPE = 'FRONT'))
+           AND OI.ORIENTATION_TYPE = 'FRONT')
 }
 
 FIND_ASSIGNED_LIVING_UNIT {
@@ -103,20 +89,13 @@ FIND_ALL_INMATES {
     OB.LIVING_UNIT_ID,
     AIL.DESCRIPTION as LIVING_UNIT_DESC,
     (
-      SELECT OI.OFFENDER_IMAGE_ID
+      SELECT MAX(OI.OFFENDER_IMAGE_ID)
       FROM OFFENDER_IMAGES OI
       WHERE OI.ACTIVE_FLAG = 'Y'
         AND IMAGE_OBJECT_TYPE = 'OFF_BKG'
         AND OI.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
         AND OI.IMAGE_VIEW_TYPE = 'FACE'
         AND OI.ORIENTATION_TYPE = 'FRONT'
-        AND CREATE_DATETIME = (SELECT MAX(CREATE_DATETIME)
-                               FROM OFFENDER_IMAGES
-                               WHERE ACTIVE_FLAG = 'Y'
-                                 AND IMAGE_OBJECT_TYPE = 'OFF_BKG'
-                                 AND OFFENDER_BOOK_ID = OI.OFFENDER_BOOK_ID
-                                 AND IMAGE_VIEW_TYPE = 'FACE'
-                                 AND ORIENTATION_TYPE = 'FRONT')
     ) AS FACE_IMAGE_ID,
     NULL AS ASSIGNED_OFFICER_ID
   FROM OFFENDER_BOOKINGS OB
@@ -164,20 +143,13 @@ FIND_INMATES_BY_LOCATION {
          NULL AS ALIASES,
          B.LIVING_UNIT_ID,
          (
-           SELECT OI.OFFENDER_IMAGE_ID
+           SELECT MAX(OI.OFFENDER_IMAGE_ID)
            FROM OFFENDER_IMAGES OI
            WHERE OI.ACTIVE_FLAG = 'Y'
              AND IMAGE_OBJECT_TYPE = 'OFF_BKG'
              AND OI.OFFENDER_BOOK_ID = B.OFFENDER_BOOK_ID
              AND OI.IMAGE_VIEW_TYPE = 'FACE'
              AND OI.ORIENTATION_TYPE = 'FRONT'
-             AND CREATE_DATETIME = (SELECT MAX(CREATE_DATETIME)
-                                    FROM OFFENDER_IMAGES
-                                    WHERE ACTIVE_FLAG = 'Y'
-                                      AND IMAGE_OBJECT_TYPE = 'OFF_BKG'
-                                      AND OFFENDER_BOOK_ID = OI.OFFENDER_BOOK_ID
-                                      AND IMAGE_VIEW_TYPE = 'FACE'
-                                      AND ORIENTATION_TYPE = 'FRONT')
          ) AS FACE_IMAGE_ID
   FROM OFFENDER_BOOKINGS B
          INNER JOIN CASELOAD_AGENCY_LOCATIONS C ON C.CASELOAD_ID = :caseLoadId AND B.AGY_LOC_ID = C.AGY_LOC_ID

@@ -76,20 +76,13 @@ GET_OFFENDER_SENTENCE_DETAIL {
          AL.description                                 agency_location_desc,
          AIL.DESCRIPTION                                internal_location_desc,
          (
-           SELECT OI.OFFENDER_IMAGE_ID
+           SELECT MAX(OI.OFFENDER_IMAGE_ID)
            FROM OFFENDER_IMAGES OI
            WHERE OI.ACTIVE_FLAG = 'Y'
              AND IMAGE_OBJECT_TYPE = 'OFF_BKG'
              AND OI.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
              AND OI.IMAGE_VIEW_TYPE = 'FACE'
              AND OI.ORIENTATION_TYPE = 'FRONT'
-             AND CREATE_DATETIME = (SELECT MAX(CREATE_DATETIME)
-                                    FROM OFFENDER_IMAGES
-                                    WHERE ACTIVE_FLAG = 'Y'
-                                      AND IMAGE_OBJECT_TYPE = 'OFF_BKG'
-                                      AND OFFENDER_BOOK_ID = OI.OFFENDER_BOOK_ID
-                                      AND IMAGE_VIEW_TYPE = 'FACE'
-                                      AND ORIENTATION_TYPE = 'FRONT')
          ) AS FACIAL_IMAGE_ID,
          COALESCE(ord.release_date, ord.auto_release_date) CONFIRMED_RELEASE_DATE,
          (  SELECT MIN(OST.START_DATE)

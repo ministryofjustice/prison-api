@@ -1,11 +1,7 @@
 package net.syscon.elite.service;
 
-import net.syscon.elite.api.model.Movement;
-import net.syscon.elite.api.model.MovementCount;
-import net.syscon.elite.api.model.RollCount;
-import net.syscon.elite.api.model.OffenderMovement;
-import net.syscon.elite.api.model.OffenderOutTodayDto;
-
+import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.support.Order;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,9 +17,11 @@ public interface MovementsService {
 
     MovementCount getMovementCount(String agencyId, LocalDate date);
 
-    List<OffenderMovement> getEnrouteOffenderMovements(String agencyId, LocalDate date);
+    List<OffenderMovement> getEnrouteOffenderMovements(String agencyId, LocalDate date, String orderByFields, Order order);
 
     int getEnrouteOffenderCount(String agencyId, LocalDate date);
 
     List<OffenderOutTodayDto> getOffendersOutToday();
+
+    List<OffenderIn> getOffendersIn(String agencyId, LocalDate date);
 }
