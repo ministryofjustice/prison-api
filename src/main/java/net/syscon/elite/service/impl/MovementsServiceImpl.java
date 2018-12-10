@@ -3,16 +3,11 @@ package net.syscon.elite.service.impl;
 import lombok.val;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
-import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.MovementsRepository;
-import net.syscon.elite.repository.UserRepository;
-import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyAgencyAccess;
-import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.MovementsService;
 import net.syscon.elite.service.support.LocationProcessor;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -28,14 +23,10 @@ import java.util.stream.Collectors;
 public class MovementsServiceImpl implements MovementsService {
 
     private final MovementsRepository movementsRepository;
-    private final AuthenticationFacade authenticationFacade;
-    private final UserRepository userRepository;
 
 
-    public MovementsServiceImpl(MovementsRepository movementsRepository, AuthenticationFacade authenticationFacade, UserRepository userRepository) {
+    public MovementsServiceImpl(MovementsRepository movementsRepository) {
         this.movementsRepository = movementsRepository;
-        this.authenticationFacade = authenticationFacade;
-        this.userRepository = userRepository;
     }
 
     @Override
@@ -68,29 +59,26 @@ public class MovementsServiceImpl implements MovementsService {
     }
 
     @Override
-    public List<OffenderOutTodayDto> getOffendersOutToday() {
-        String username = authenticationFacade.getCurrentUsername();
-        UserDetail currentUser = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
+    @VerifyAgencyAccess
+    public List<OffenderOutTodayDto> getOffendersOut(String agencyId, LocalDate movementDate) {
 
-        List<OffenderOutToday> offenders = movementsRepository.getOffendersOutOnDate(LocalDate.now());
+       List<OffenderMovement> offenders = movementsRepository.getOffendersOut(agencyId, movementDate);
 
         return offenders
                 .stream()
-                .filter(offender -> offender.getDirectionCode().equals("OUT") &&
-                        offender.getFromAgency().equals(currentUser.getActiveCaseLoadId()))
                 .map(this::toOffenderOutTodayDto)
                 .collect(Collectors.toList());
     }
 
-    private OffenderOutTodayDto toOffenderOutTodayDto(OffenderOutToday offenderOutToday) {
+    private OffenderOutTodayDto toOffenderOutTodayDto(OffenderMovement offenderMovement) {
         return OffenderOutTodayDto
                 .builder()
-                .birthDate(offenderOutToday.getBirthDate())
-                .firstName(StringUtils.capitalize(offenderOutToday.getFirstName().toLowerCase()))
-                .lastName(StringUtils.capitalize(offenderOutToday.getLastName().toLowerCase()))
-                .reasonDescription(StringUtils.capitalize(offenderOutToday.getReasonDescription().toLowerCase()))
-                .offenderNo(offenderOutToday.getOffenderNo())
-                .timeOut(offenderOutToday.getTimeOut())
+                .dateOfBirth(offenderMovement.getDateOfBirth())
+                .firstName(StringUtils.capitalize(offenderMovement.getFirstName().toLowerCase()))
+                .lastName(StringUtils.capitalize(offenderMovement.getLastName().toLowerCase()))
+                .reasonDescription(StringUtils.capitalize(offenderMovement.getMovementReasonDescription().toLowerCase()))
+                .offenderNo(offenderMovement.getOffenderNo())
+                .timeOut(offenderMovement.getMovementTime())
                 .build();
     }
 
@@ -118,7 +106,13 @@ public class MovementsServiceImpl implements MovementsService {
     @VerifyAgencyAccess
     public List<OffenderIn> getOffendersIn(String agencyId, LocalDate date) {
         val offendersIn = movementsRepository.getOffendersIn(agencyId, date);
-        offendersIn.forEach(oi -> oi.setFromAgencyDescription(LocationProcessor.formatLocation(oi.getFromAgencyDescription())));  // meh
+        offendersIn.forEach(oi -> {
+            oi.setFromAgencyDescription(LocationProcessor.formatLocation(oi.getFromAgencyDescription()));
+            oi.setLastName(StringUtils.capitalize(oi.getLastName().toLowerCase()));
+            oi.setFirstName(StringUtils.capitalize(oi.getFirstName().toLowerCase()));
+            oi.setMiddleName(StringUtils.isEmpty(oi.getMiddleName()) ? "" : StringUtils.capitalize(oi.getMiddleName().toLowerCase()));
+
+        });
         return offendersIn;
     }
 }

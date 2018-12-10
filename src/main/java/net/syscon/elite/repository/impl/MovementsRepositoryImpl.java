@@ -1,6 +1,7 @@
 package net.syscon.elite.repository.impl;
 
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.MovementsRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.DateTimeConverter;
@@ -20,7 +21,6 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     private final StandardBeanPropertyRowMapper<Movement> MOVEMENT_MAPPER = new StandardBeanPropertyRowMapper<>(Movement.class);
     private final StandardBeanPropertyRowMapper<OffenderMovement> OFFENDER_MOVEMENT_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderMovement.class);
     private final StandardBeanPropertyRowMapper<RollCount> ROLLCOUNT_MAPPER = new StandardBeanPropertyRowMapper<>(RollCount.class);
-    private final StandardBeanPropertyRowMapper<OffenderOutToday> OFFENDER_OUT_TODAY_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderOutToday.class);
     private final StandardBeanPropertyRowMapper<OffenderIn> OFFENDER_IN_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderIn.class);
 
     @Override
@@ -45,11 +45,12 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     }
 
     @Override
-    public List<OffenderOutToday> getOffendersOutOnDate(LocalDate movementDate) {
+    public List<OffenderMovement> getOffendersOut(String agencyId, LocalDate movementDate) {
         String sql = getQuery("GET_OFFENDERS_OUT_TODAY");
         return jdbcTemplate.query(sql, createParams(
+                "agency_id", agencyId,
                 "movement_date", DateTimeConverter.toDate(movementDate)),
-                OFFENDER_OUT_TODAY_MAPPER);
+                OFFENDER_MOVEMENT_MAPPER);
     }
 
     @Override

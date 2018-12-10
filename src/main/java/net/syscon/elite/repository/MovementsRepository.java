@@ -19,9 +19,7 @@ public interface MovementsRepository {
 
     List<OffenderMovement> getEnrouteMovementsOffenderMovementList(String agencyId, LocalDate date, String orderByFields, Order order);
 
-    List<OffenderOutToday> getOffendersOutOnDate(LocalDate movementDate);
-
-    List<OffenderMovement> getEnrouteMovementsOffenderMovementList(String agencyId, LocalDate date);
+    List<OffenderMovement> getOffendersOut(String agencyId, LocalDate movementDate);
 
     int getEnrouteMovementsOffenderCount(String agencyId, LocalDate date);
 

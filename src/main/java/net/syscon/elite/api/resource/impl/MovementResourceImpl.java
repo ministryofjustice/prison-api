@@ -57,8 +57,7 @@ public class MovementResourceImpl implements MovementResource {
     }
 
     @Override
-    public GetOffendersOutTodayResponse getOffendersOutToday() {
-        return GetOffendersOutTodayResponse.respond200WithApplicationJson(movementsService.getOffendersOutToday());
+    public GetOffendersOutTodayResponse getOffendersOutToday(String agencyId, LocalDate movementsDate) {
+        return GetOffendersOutTodayResponse.respond200WithApplicationJson(movementsService.getOffendersOut(agencyId, movementsDate));
     }
-
 }

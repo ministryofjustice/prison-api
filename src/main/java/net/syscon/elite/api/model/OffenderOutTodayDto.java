@@ -26,7 +26,7 @@ public class OffenderOutTodayDto {
 
     @NotBlank
     @ApiModelProperty(required = true)
-    private LocalDate birthDate;
+    private LocalDate dateOfBirth;
 
     @ApiModelProperty(value = "Reason for out movement")
     private String reasonDescription;

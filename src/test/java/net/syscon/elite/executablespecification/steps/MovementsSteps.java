@@ -1,12 +1,7 @@
 package net.syscon.elite.executablespecification.steps;
 
 import lombok.val;
-import net.syscon.elite.api.model.Movement;
-import net.syscon.elite.api.model.MovementCount;
-import net.syscon.elite.api.model.OffenderOutTodayDto;
-import net.syscon.elite.api.model.OffenderMovement;
-import net.syscon.elite.api.model.OffenderIn;
-import net.syscon.elite.api.model.RollCount;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
@@ -31,9 +26,8 @@ public class MovementsSteps extends CommonSteps {
     private static final String API_REQUEST_ROLLCOUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}?unassigned={unassigned}";
     private static final String API_REQUEST_MOVEMENT_COUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}/movements?movementDate={date}";
     private static final String API_REQUEST_RECENT_MOVEMENTS = API_PREFIX + "movements/offenders";
-    private static final String API_REQUEST_OUT_TODAY = API_PREFIX + "movements/offenders-out-today";
+    private static final String API_REQUEST_OUT_TODAY = API_PREFIX + "movements/{agencyId}/out/{isoDate}";
     private static final String API_REQUEST_MOVEMENT_ENROUTE_URL = API_PREFIX + "movements/{agencyId}/enroute?movementDate={date}";
-    private static final String API_REQUEST_RECENT_MOVEMENTS = API_PREFIX + "movements/offenders";
     private static final String API_REQUEST_OFFENDERS_IN =  API_PREFIX + "movements/{agencyId}/in/{isoDate}";
 
     private List<Movement> movements;
@@ -122,9 +116,6 @@ public class MovementsSteps extends CommonSteps {
         doMovementCountApiCall(agencyId, date);
     }
 
-    public void retrieveOutToday() {
-        doOutTodayApiCall();
-    }
 
     public void verifyMovementCounts(Integer outToday, Integer inToday) {
         assertThat(movementCount.getOut()).isEqualTo(outToday);
@@ -225,15 +216,16 @@ public class MovementsSteps extends CommonSteps {
         }
     }
 
-    private void doOutTodayApiCall() {
+    public void getOffendersOut(String agencyId, LocalDate movementDate) {
         init();
 
         try {
-            ResponseEntity<List<OffenderOutTodayDto>> response = restTemplate.exchange(
+            val response = restTemplate.exchange(
                     API_REQUEST_OUT_TODAY,
                     HttpMethod.GET, createEntity(),
-                    new ParameterizedTypeReference<List<OffenderOutTodayDto>>() {
-                    });
+                    new ParameterizedTypeReference<List<OffenderOutTodayDto>>() {},
+                    agencyId,
+                    movementDate);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 

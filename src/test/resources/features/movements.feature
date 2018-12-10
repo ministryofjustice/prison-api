@@ -1,4 +1,3 @@
-@wip
 Feature: Movement
 
   Scenario: Retrieve a list of recent movements
@@ -46,16 +45,13 @@ Feature: Movement
     When a request is made to retrieve the movement counts for an agency on "2017-08-16"
     Then "2" offenders are out today and "0" are in
 
-
-   Scenario Outline: Get offenders for out today
+   Scenario:  Get brief information for offenders 'out today'.
 
      Given a user has authenticated with the API
-     When a request has been made for out today results
-     Then the following fields should be returned: "<firstName>" "<lastName>" "<offenderNo>" "<dateOfBirth>" "<timeOut>" "<reasonDescription>"
-
-     Examples:
+     When a request is made to retrieve the 'offenders out' for agency "LEI" for "2000-02-12"
+     Then the following rows should be returned:
      | firstName | lastName  | offenderNo | dateOfBirth | timeOut   | reasonDescription |
-     | Neil      | Bradley   | A6676RS    | 1945-01-10  | 12:00:00  | Normal transfer   |
+     | Nick      | Talbot    | Z0018ZZ    | 1970-01-01  | 12:00     | Normal transfer   |
 
 
   Scenario Outline: Retrieve a list of en-route offenders
@@ -73,5 +69,5 @@ Feature: Movement
     When a request is made to retrieve the 'offenders in' for agency "LEI" on date "2017-10-12"
     Then information about 'offenders in' is returned as follows:
     | offenderNo | dateOfBirth | firstName | middleName | lastName | fromAgencyDescription | movementTime | location    |
-    | A6676RS    | 1945-01-10  | NEIL      |            | BRADLEY  | Birmingham            | 10:45:00     | Landing H/1 |
+    | A6676RS    | 1945-01-10  | Neil      |            | Bradley  | Birmingham            | 10:45        | Landing H/1 |
 

@@ -104,13 +104,18 @@ public interface MovementResource {
     GetEnrouteOffenderMovementCountResponse getEnrouteOffenderMovementCount(@ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId, @ApiParam(value = "The date for which enroute movements are counted, default today.", required = true) @QueryParam("movementDate") LocalDate movementDate);
 
     @GET
-    @Path("/offenders-out-today")
+    @Path("/{agencyId}/out/{isoDate}")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
-    @ApiOperation(value = "", nickname="getOffendersOutToday")
+    @ApiOperation(value = "", nickname="getOffendersOut")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "", response = Movement.class, responseContainer = "List") })
-    GetOffendersOutTodayResponse getOffendersOutToday();
+            @ApiResponse(code = 200, message = "OK", response = OffenderOutTodayDto.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
+
+    GetOffendersOutTodayResponse getOffendersOutToday(@ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId,
+                                                      @ApiParam(value = "date", required = true) @PathParam("isoDate") LocalDate movementsDate);
 
 
     class GetRecentMovementsByDateResponse extends ResponseDelegate {
