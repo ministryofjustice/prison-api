@@ -42,7 +42,7 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
 
         validateOffenderList(offenderList);
 
-        final List<Assessment> results = inmateService.getInmatesCSRAs(offenderList);
+        final List<Assessment> results = inmateService.getInmatesAssessmentsByCode(offenderList, null);
         return PostOffenderAssessmentsCsraListResponse.respond200WithApplicationJson(results);
     }
 

@@ -611,11 +611,20 @@ public interface BookingResource {
     @Path("/offenderNo/{agencyId}/alerts")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
-    @ApiOperation(value = "", nickname="getAlertsByOffenderNos")
+    @ApiOperation(value = "Get alerts for a list of offenders at a prison")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "", response = Alert.class, responseContainer = "List") })
-    GetAlertsByOffenderNosResponse getAlertsByOffenderNos(@ApiParam(value = "", required = true) @PathParam("agencyId") String agencyId,
+    GetAlertsByOffenderNosResponse getAlertsByOffenderNosAtAgency(@ApiParam(value = "The prison where the offenders are booked", required = true) @PathParam("agencyId") String agencyId,
                                                           @ApiParam(value = "The required offender numbers (mandatory)", required = true) List<String> body);
+
+    @POST
+    @Path("/offenderNo/alerts")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Get alerts for a list of offenders. Requires SYSTEM_READ_ONLY role")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "", response = Alert.class, responseContainer = "List") })
+    GetAlertsByOffenderNosResponse getAlertsByOffenderNos(@ApiParam(value = "The required offender numbers (mandatory)", required = true) List<String> body);
 
     @POST
     @Path("/offenderNo/{offenderNo}/caseNotes")
