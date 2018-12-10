@@ -25,6 +25,8 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     private final StandardBeanPropertyRowMapper<RollCount> ROLLCOUNT_MAPPER = new StandardBeanPropertyRowMapper<>(RollCount.class);
     private final StandardBeanPropertyRowMapper<OffenderIn> OFFENDER_IN_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderIn.class);
 
+    private static final String MOVEMENT_DATE_CLAUSE = " AND OEM.MOVEMENT_DATE = :movementDate";
+
     @Override
     public List<Movement> getRecentMovementsByDate(LocalDateTime fromDateTime, LocalDate movementDate) {
         String sql = getQuery("GET_RECENT_MOVEMENTS");
@@ -96,6 +98,8 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     public List<OffenderMovement> getEnrouteMovementsOffenderMovementList(String agencyId, LocalDate date, String orderByFields, Order order) {
 
         String initialSql = getQuery("GET_ENROUTE_OFFENDER_MOVEMENTS");
+
+        initialSql = date == null ? initialSql : initialSql + MOVEMENT_DATE_CLAUSE;
 
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_MOVEMENT_MAPPER.getFieldMap());
 

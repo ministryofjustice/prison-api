@@ -61,8 +61,7 @@ public class MovementsServiceImpl implements MovementsService {
     public List<OffenderMovement> getEnrouteOffenderMovements(String agencyId, LocalDate date, String orderByFields, Order order) {
         String sortFields = StringUtils.defaultString(orderByFields, "lastName,firstName");
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
-        final LocalDate defaultedDate = date == null ? LocalDate.now() : date;
-        final List<OffenderMovement> movements = movementsRepository.getEnrouteMovementsOffenderMovementList(agencyId, defaultedDate, sortFields, sortOrder);
+        final List<OffenderMovement> movements = movementsRepository.getEnrouteMovementsOffenderMovementList(agencyId, date, sortFields, sortOrder);
         movements.forEach(m -> {
             m.setFromAgencyDescription(LocationProcessor.formatLocation(m.getFromAgencyDescription()));
             m.setToAgencyDescription(LocationProcessor.formatLocation(m.getToAgencyDescription()));

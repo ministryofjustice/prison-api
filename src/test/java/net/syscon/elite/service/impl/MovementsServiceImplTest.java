@@ -85,9 +85,20 @@ public class MovementsServiceImplTest {
         Mockito.when(movementsRepository.getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2015, 9, 12), "lastName,firstName", Order.ASC)).thenReturn(Lists.emptyList());
 
         /* call service with no specified sorting */
-        final List<OffenderMovement> enrouteOffenderMovements = movementsService.getEnrouteOffenderMovements("LEI", LocalDate.of(2015, 9, 12), null, null);
+        movementsService.getEnrouteOffenderMovements("LEI", LocalDate.of(2015, 9, 12), null, null);
 
         Mockito.verify(movementsRepository, Mockito.times(1)).getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2015, 9, 12), "lastName,firstName", Order.ASC);
+    }
+
+    @Test
+    public void testGetEnrouteOffenderNoDateFilter() {
+
+        Mockito.when(movementsRepository.getEnrouteMovementsOffenderMovementList("LEI", null, "lastName,firstName", Order.ASC)).thenReturn(Lists.emptyList());
+
+        /* call service with no specified sorting */
+        movementsService.getEnrouteOffenderMovements("LEI", null, null, null);
+
+        Mockito.verify(movementsRepository, Mockito.times(1)).getEnrouteMovementsOffenderMovementList("LEI", null, "lastName,firstName", Order.ASC);
     }
 
     @Test
