@@ -21,5 +21,7 @@ public interface MovementsService {
 
     int getEnrouteOffenderCount(String agencyId, LocalDate date);
 
+    List<OffenderOutTodayDto> getOffendersOut(String agencyId, LocalDate movementDate);
+
     List<OffenderIn> getOffendersIn(String agencyId, LocalDate date);
 }

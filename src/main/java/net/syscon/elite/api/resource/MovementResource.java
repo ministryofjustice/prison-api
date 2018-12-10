@@ -103,6 +103,21 @@ public interface MovementResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
     GetEnrouteOffenderMovementCountResponse getEnrouteOffenderMovementCount(@ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId, @ApiParam(value = "Optional filter on date of movement.", required = true) @QueryParam("movementDate") LocalDate movementDate);
 
+    @GET
+    @Path("/{agencyId}/out/{isoDate}")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "", nickname="getOffendersOut")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = OffenderOutTodayDto.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
+
+    GetOffendersOutTodayResponse getOffendersOutToday(@ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId,
+                                                      @ApiParam(value = "date", required = true) @PathParam("isoDate") LocalDate movementsDate);
+
+
     class GetRecentMovementsByDateResponse extends ResponseDelegate {
 
         private GetRecentMovementsByDateResponse(Response response) { super(response); }
@@ -277,5 +292,24 @@ public interface MovementResource {
             responseBuilder.entity(entity);
             return new GetEnrouteOffenderMovementCountResponse(responseBuilder.build(), entity);
         }
+    }
+
+    class GetOffendersOutTodayResponse extends ResponseDelegate {
+        private GetOffendersOutTodayResponse(Response response) { super(response); }
+        private GetOffendersOutTodayResponse(Response response, Object entity) {  super(response, entity); }
+
+        public static GetOffendersOutTodayResponse respond200WithApplicationJson(List<OffenderOutTodayDto> entity) {
+            return new GetOffendersOutTodayResponse(ResponseUtil.applicationJson(entity, 200), entity);
+        }
+    }
+
+    class ResponseUtil {
+       static Response  applicationJson(Object entity, Integer code) {
+           Response.ResponseBuilder responseBuilder = Response.status(code)
+                   .header("Content-Type", MediaType.APPLICATION_JSON);
+           responseBuilder.entity(entity);
+
+           return responseBuilder.build();
+       }
     }
 }

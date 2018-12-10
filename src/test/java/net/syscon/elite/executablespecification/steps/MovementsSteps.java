@@ -1,11 +1,7 @@
 package net.syscon.elite.executablespecification.steps;
 
 import lombok.val;
-import net.syscon.elite.api.model.Movement;
-import net.syscon.elite.api.model.MovementCount;
-import net.syscon.elite.api.model.OffenderMovement;
-import net.syscon.elite.api.model.OffenderIn;
-import net.syscon.elite.api.model.RollCount;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
@@ -29,11 +25,13 @@ public class MovementsSteps extends CommonSteps {
     private static final String API_REQUEST_BASE_URL = API_PREFIX + "movements?fromDateTime=%s&movementDate=%s";
     private static final String API_REQUEST_ROLLCOUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}?unassigned={unassigned}";
     private static final String API_REQUEST_MOVEMENT_COUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}/movements?movementDate={date}";
-    private static final String API_REQUEST_MOVEMENT_ENROUTE_URL = API_PREFIX + "movements/{agencyId}/enroute?movementDate={date}";
     private static final String API_REQUEST_RECENT_MOVEMENTS = API_PREFIX + "movements/offenders";
+    private static final String API_REQUEST_OUT_TODAY = API_PREFIX + "movements/{agencyId}/out/{isoDate}";
+    private static final String API_REQUEST_MOVEMENT_ENROUTE_URL = API_PREFIX + "movements/{agencyId}/enroute?movementDate={date}";
     private static final String API_REQUEST_OFFENDERS_IN =  API_PREFIX + "movements/{agencyId}/in/{isoDate}";
 
     private List<Movement> movements;
+    private List<OffenderOutTodayDto> offendersOutToday;
     private List<RollCount> rollCounts;
     private List<OffenderMovement> offenderMovements;
     private MovementCount movementCount;
@@ -47,6 +45,7 @@ public class MovementsSteps extends CommonSteps {
         rollCounts = null;
         movementCount = null;
         offendersIn = null;
+        offendersOutToday = null;
     }
 
     @Step("Retrieve all movement records")
@@ -117,13 +116,10 @@ public class MovementsSteps extends CommonSteps {
         doMovementCountApiCall(agencyId, date);
     }
 
-    public void verifyMovementCounts(Integer outToday, List<String> offenderNumbers, Integer inToday) {
+
+    public void verifyMovementCounts(Integer outToday, Integer inToday) {
         assertThat(movementCount.getOut()).isEqualTo(outToday);
         assertThat(movementCount.getIn()).isEqualTo(inToday);
-
-        assertThat(movementCount.getOffendersIn()).hasSize(0);
-        assertThat(movementCount.getOffendersOut()).hasSize(outToday);
-        assertThat(movementCount.getOffendersOut()).containsExactlyElementsOf(offenderNumbers);
     }
 
     public void verifyMovements(String movementType,String fromDescription, String toDescription, String movementReason, String movementTime) {
@@ -139,6 +135,10 @@ public class MovementsSteps extends CommonSteps {
 
 
       assertThat(matched).isTrue();
+    }
+
+    public void verifyOutToday(List<OffenderOutTodayDto> offenders) {
+        assertThat(offendersOutToday).containsSequence(offenders);
     }
 
     public void verifyOffenderMovements(String offenderNo, String lastName, String fromDescription, String toDescription, String movementReason, String movementTime) {
@@ -210,6 +210,26 @@ public class MovementsSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
             movementCount = response.getBody();
+
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    public void getOffendersOut(String agencyId, LocalDate movementDate) {
+        init();
+
+        try {
+            val response = restTemplate.exchange(
+                    API_REQUEST_OUT_TODAY,
+                    HttpMethod.GET, createEntity(),
+                    new ParameterizedTypeReference<List<OffenderOutTodayDto>>() {},
+                    agencyId,
+                    movementDate);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+            offendersOutToday = response.getBody();
 
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());

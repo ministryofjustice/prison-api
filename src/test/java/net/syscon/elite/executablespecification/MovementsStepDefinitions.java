@@ -4,14 +4,13 @@ import cucumber.api.DataTable;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.api.model.OffenderIn;
+import net.syscon.elite.api.model.OffenderOutTodayDto;
 import net.syscon.elite.executablespecification.steps.MovementsSteps;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MovementsStepDefinitions extends AbstractStepDefinitions {
 
@@ -67,7 +66,17 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^a total count of out today as \"([^\"]*)\" offender numbers that are out today matching \"([^\"]*)\" and a count of in today as \"([^\"]*)\"\"$")
     public void aTotalCountOfOutTodayAsOffenderNumbersThatAreOutTodayMatchingAndACountOfInTodayAs(Integer outToday, String offenderNumbers, Integer inToday) {
-        movementsSteps.verifyMovementCounts(outToday, Arrays.asList(offenderNumbers.split(",")), inToday);
+        movementsSteps.verifyMovementCounts(outToday, inToday);
+    }
+
+    @Then("^the following rows should be returned:$")
+    public void theFollowingFieldsShouldBeReturned(DataTable table) throws Throwable {
+        movementsSteps.verifyOutToday(table.asList(OffenderOutTodayDto.class));
+    }
+
+    @Then("^\"([^\"]*)\" offenders are out today and \"([^\"]*)\" are in$")
+    public void offendersOutTodayAndAreIn(Integer outToday, Integer inToday) throws Throwable {
+        movementsSteps.verifyMovementCounts(outToday, inToday);
     }
 
     @When("^a request is made for en-route offenders for agency \"([^\"]*)\" on movement date \"([^\"]*)\"$")
@@ -84,29 +93,15 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
         movementsSteps.getOffendersIn(agencyId, LocalDate.parse(isoDateString));
     }
 
-    private static String nullIfEmpty(String s) {
-        return s.length() == 0 ?  null : s;
-    }
-
-
     @Then("^information about 'offenders in' is returned as follows:$")
     public void informationAboutOffendersInIsReturnedAsFollows(DataTable table) {
-        List<OffenderIn> offendersIn = table
-                .cells(1)
-                .stream()
-                .map(List::iterator)
-                .map(i -> OffenderIn
-                        .builder()
-                        .offenderNo(i.next())
-                        .dateOfBirth(LocalDate.parse(i.next()))
-                        .firstName(i.next())
-                        .middleName(nullIfEmpty(i.next()))
-                        .lastName(i.next())
-                        .fromAgencyDescription(i.next())
-                        .movementTime(LocalTime.parse(i.next()))
-                        .location(i.next())
-                        .build()
-                ).collect(Collectors.toList());
+        List<OffenderIn> offendersIn = table.asList(OffenderIn.class);
+
         movementsSteps.verifyOffendersIn(offendersIn);
+    }
+
+    @When("^a request is made to retrieve the 'offenders out' for agency \"([^\"]*)\" for \"([^\"]*)\"$")
+    public void aRequestIsMadeToRetrieveTheOffendersOutForAgencyFor(String agencyId, String isoDateString) throws Throwable {
+        movementsSteps.getOffendersOut(agencyId, LocalDate.parse(isoDateString));
     }
 }

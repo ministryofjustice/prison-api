@@ -16,12 +16,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 public class MovementsServiceImpl implements MovementsService {
 
     private final MovementsRepository movementsRepository;
+
 
     public MovementsServiceImpl(MovementsRepository movementsRepository) {
         this.movementsRepository = movementsRepository;
@@ -58,6 +60,30 @@ public class MovementsServiceImpl implements MovementsService {
 
     @Override
     @VerifyAgencyAccess
+    public List<OffenderOutTodayDto> getOffendersOut(String agencyId, LocalDate movementDate) {
+
+       List<OffenderMovement> offenders = movementsRepository.getOffendersOut(agencyId, movementDate);
+
+        return offenders
+                .stream()
+                .map(this::toOffenderOutTodayDto)
+                .collect(Collectors.toList());
+    }
+
+    private OffenderOutTodayDto toOffenderOutTodayDto(OffenderMovement offenderMovement) {
+        return OffenderOutTodayDto
+                .builder()
+                .dateOfBirth(offenderMovement.getDateOfBirth())
+                .firstName(StringUtils.capitalize(offenderMovement.getFirstName().toLowerCase()))
+                .lastName(StringUtils.capitalize(offenderMovement.getLastName().toLowerCase()))
+                .reasonDescription(StringUtils.capitalize(offenderMovement.getMovementReasonDescription().toLowerCase()))
+                .offenderNo(offenderMovement.getOffenderNo())
+                .timeOut(offenderMovement.getMovementTime())
+                .build();
+    }
+
+    @Override
+    @VerifyAgencyAccess
     public List<OffenderMovement> getEnrouteOffenderMovements(String agencyId, LocalDate date, String orderByFields, Order order) {
         String sortFields = StringUtils.defaultString(orderByFields, "lastName,firstName");
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
@@ -79,7 +105,13 @@ public class MovementsServiceImpl implements MovementsService {
     @VerifyAgencyAccess
     public List<OffenderIn> getOffendersIn(String agencyId, LocalDate date) {
         val offendersIn = movementsRepository.getOffendersIn(agencyId, date);
-        offendersIn.forEach(oi -> oi.setFromAgencyDescription(LocationProcessor.formatLocation(oi.getFromAgencyDescription())));  // meh
+        offendersIn.forEach(oi -> {
+            oi.setFromAgencyDescription(LocationProcessor.formatLocation(oi.getFromAgencyDescription()));
+            oi.setLastName(StringUtils.capitalize(oi.getLastName().toLowerCase()));
+            oi.setFirstName(StringUtils.capitalize(oi.getFirstName().toLowerCase()));
+            oi.setMiddleName(StringUtils.isEmpty(oi.getMiddleName()) ? "" : StringUtils.capitalize(oi.getMiddleName().toLowerCase()));
+
+        });
         return offendersIn;
     }
 }
