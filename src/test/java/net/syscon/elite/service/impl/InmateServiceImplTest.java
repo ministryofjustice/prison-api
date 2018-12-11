@@ -110,7 +110,7 @@ public class InmateServiceImplTest {
     }
 
     @Test
-    public void testGetInmatesCSRAs() {
+    public void testAllCodes() {
         // Ensure Ordering is same as from repository
         List<AssessmentDto> data = Arrays.asList(
                 AssessmentDto.builder().bookingId(11L).offenderNo("OFFENDER11").assessmentCode("CODE1").assessmentDate(LocalDate.of(2018, Month.MAY, 7)).cellSharingAlertFlag(true).reviewSupLevelType("STANDARD").reviewSupLevelTypeDesc("Standard").build(),
@@ -122,7 +122,7 @@ public class InmateServiceImplTest {
         );
         Mockito.when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10", "OFFENDER11"), null, Collections.emptySet())).thenReturn(data);
 
-        final List<Assessment> assessments = serviceToTest.getInmatesCSRAs(Arrays.asList("OFFENDER10", "OFFENDER11"));
+        final List<Assessment> assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), null);
 
         assertThat(assessments).hasSize(2); // 1 per offender
         assertThat(assessments).extracting("bookingId", "assessmentCode", "assessmentDate", "classification").contains(

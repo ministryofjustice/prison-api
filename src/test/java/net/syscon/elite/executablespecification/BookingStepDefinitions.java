@@ -469,9 +469,14 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAlerts.verifyAlertField(field, value);
     }
 
-    @When("^alerts are requested for offender nos \"([^\"]*)\"$")
-    public void alertIsRequestedForOffenderBooking(String offenderNos) {
-        bookingAlerts.getAlerts("LEI", Arrays.asList(StringUtils.split(offenderNos, ",")));
+    @When("^alerts are requested for offender nos \"([^\"]*)\" and agency \"([^\"]*)\"$")
+    public void alertsRequestedForOffenderBooking(String offenderNos, String agencyId) {
+        bookingAlerts.getAlerts(agencyId, Arrays.asList(StringUtils.split(offenderNos, ",")));
+    }
+
+    @When("^alerts are requested for offender nos \"([^\"]*)\" and no agency$")
+    public void alertsRequestedForOffenderBookingNoAgency(String offenderNos) {
+        bookingAlerts.getAlerts(null, Arrays.asList(StringUtils.split(offenderNos, ",")));
     }
 
     @Then("^alert details are returned as follows:$")
@@ -483,6 +488,11 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @Then("^resource not found response is received from alert API$")
     public void resourceNotFoundResponseIsReceivedFromAlertAPI() {
         bookingAlerts.verifyResourceNotFound();
+    }
+
+    @Then("^access denied response is received from alert API$")
+    public void accessDeniedResponseIsReceivedFromAlertAPI() {
+        bookingAlerts.verifyAccessDenied();
     }
 
     // ----------------------------- Main Sentence --------------------------

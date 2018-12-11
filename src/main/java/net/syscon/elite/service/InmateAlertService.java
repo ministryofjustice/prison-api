@@ -11,5 +11,6 @@ public interface InmateAlertService {
 
 	Alert getInmateAlert(Long bookingId, Long alertSeqId);
 
-	List<Alert> getInmateAlertsByOffenderNos(String agencyId, List<String>offenderNos);
+	List<Alert> getInmateAlertsByOffenderNosAtAgency(String agencyId, List<String>offenderNos);
+	List<Alert> getInmateAlertsByOffenderNos(List<String>offenderNos);
 }

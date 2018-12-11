@@ -297,7 +297,8 @@ public class InmateServiceImpl implements InmateService {
     public List<Assessment> getInmatesAssessmentsByCode(List<String> offenderNos, String assessmentCode) {
         List<Assessment> results = new ArrayList<>();
         if (!offenderNos.isEmpty()) {
-            final Set<String> caseLoadIds = securityUtils.isOverrideRole() ? Collections.emptySet()
+                      final Set<String> caseLoadIds = securityUtils.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")
+                    ? Collections.emptySet()
                     : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), true);
 
             List<List<String>> batch = Lists.partition(offenderNos, maxBatchSize);
@@ -311,12 +312,6 @@ public class InmateServiceImpl implements InmateService {
                 }
             });
         }
-        return results;
-    }
-
-    @Override
-    public List<Assessment> getInmatesCSRAs(List<String> offenderNos) {
-        List<Assessment> results = getInmatesAssessmentsByCode(offenderNos, null);
         return results;
     }
 
