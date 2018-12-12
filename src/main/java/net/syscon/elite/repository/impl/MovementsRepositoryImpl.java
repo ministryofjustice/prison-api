@@ -50,8 +50,8 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     public List<OffenderMovement> getOffendersOut(String agencyId, LocalDate movementDate) {
         String sql = getQuery("GET_OFFENDERS_OUT_TODAY");
         return jdbcTemplate.query(sql, createParams(
-                "agency_id", agencyId,
-                "movement_date", DateTimeConverter.toDate(movementDate)),
+                "agencyId", agencyId,
+                "movementDate", DateTimeConverter.toDate(movementDate)),
                 OFFENDER_MOVEMENT_MAPPER);
     }
 

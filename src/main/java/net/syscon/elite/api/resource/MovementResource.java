@@ -55,21 +55,7 @@ public interface MovementResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
     GetRollcountMovementsResponse getRollcountMovements(@ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId,
                                                         @ApiParam(value = "The date for which movements are counted, default today.", required = true) @QueryParam("movementDate") LocalDate movementDate);
-
-    @GET
-    @Path("/{agencyId}/in/{isoDate}")
-    @Consumes({ "application/json" })
-    @Produces({ "application/json" })
-    @ApiOperation(value = "Information on offenders in today.", notes = "Information on offenders in on given date.", nickname="getMovementsIn")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = MovementCount.class),
-            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
-            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
-            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
-    GetMovementsInTodayResponse getMovementsIn(@ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId,
-                                               @ApiParam(value = "date", required = true) @PathParam("isoDate") LocalDate movementsDate);
-
-    @POST
+   @POST
     @Path("/offenders")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
@@ -102,6 +88,20 @@ public interface MovementResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
     GetEnrouteOffenderMovementCountResponse getEnrouteOffenderMovementCount(@ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId, @ApiParam(value = "Optional filter on date of movement.", required = true) @QueryParam("movementDate") LocalDate movementDate);
+
+
+    @GET
+    @Path("/{agencyId}/in/{isoDate}")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Information on offenders in today.", notes = "Information on offenders in on given date.", nickname="getMovementsIn")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = MovementCount.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
+    GetMovementsInTodayResponse getMovementsIn(@ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId,
+                                               @ApiParam(value = "date", required = true) @PathParam("isoDate") LocalDate movementsDate);
 
     @GET
     @Path("/{agencyId}/out/{isoDate}")
