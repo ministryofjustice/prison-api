@@ -188,13 +188,13 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	}
 
 	@Override
-	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, @NotEmpty List<String> offenderNos, Integer staffId, LocalDate fromDate, LocalDate toDate, int numMonths) {
+	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, @NotEmpty List<String> offenderNos, Integer staffId, String agencyId, LocalDate fromDate, LocalDate toDate, int numMonths) {
 		DeriveDates deriveDates = new DeriveDates(fromDate, toDate, numMonths);
 		final List<CaseNoteUsage> caseNoteUsage = new ArrayList<>();
 
 		Lists.partition(offenderNos, maxBatchSize).forEach(offenderNosList ->
 				caseNoteUsage.addAll(
-						caseNoteRepository.getCaseNoteUsage(type, subType, offenderNosList, staffId, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse())
+						caseNoteRepository.getCaseNoteUsage(type, subType, offenderNosList, staffId, agencyId, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse())
 				)
 		);
 		return caseNoteUsage;

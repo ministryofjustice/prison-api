@@ -1,5 +1,7 @@
 package net.syscon.elite.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -9,34 +11,45 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Map;
 
-/**
- * Prisoner Custody Status
- **/
-@SuppressWarnings("unused")
-@ApiModel(description = "Prisoner Custody Status")
+
+@ApiModel(description = "Prisoner Movement")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class Movement {
-
+public class OffenderMovement {
+    @JsonIgnore
+    private Map<String, Object> additionalProperties;
+    
     @NotBlank
     @ApiModelProperty(required = true, value = "Display Prisoner Number (UK is NOMS ID)")
     private String offenderNo;
 
     @NotNull
-    @ApiModelProperty(required = true, value = "Timestamp when the external movement record was created")
-    private LocalDateTime createDateTime;
+    private Long bookingId;
+
+    @NotNull
+    private LocalDate dateOfBirth;
+
+    @NotBlank
+    private String firstName;
+
+    private String middleName;
+
+    @NotBlank
+    private String lastName;
 
     @NotBlank
     @ApiModelProperty(required = true, value = "Agency travelling from")
     private String fromAgency;
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Description of the agency travelling from")
+    @ApiModelProperty(required = true, value = "Description for Agency travelling from")
     private String fromAgencyDescription;
 
     @NotBlank
@@ -44,7 +57,7 @@ public class Movement {
     private String toAgency;
 
     @NotBlank
-    @ApiModelProperty(required = true, value = "Description of the agency travelling to")
+    @ApiModelProperty(required = true, value = "Description for Agency travelling to")
     private String toAgencyDescription;
 
     @NotBlank
@@ -55,14 +68,24 @@ public class Movement {
     @ApiModelProperty(required = true, value = "Description of the movement type")
     private String movementTypeDescription;
 
-    @ApiModelProperty(required = true, value = "IN or OUT")
     @NotBlank
+    @ApiModelProperty(required = true, value = "Reason code for the movement")
+    private String movementReason;
+
+    @NotBlank
+    @ApiModelProperty(required = true, value = "Description of the movement reason")
+    private String movementReasonDescription;
+
+    @NotBlank
+    @ApiModelProperty(required = true, value = "IN or OUT")
     private String directionCode;
 
+    @NotNull
     @ApiModelProperty(required = true, value = "Movement time")
     private LocalTime movementTime;
 
-    @ApiModelProperty(required = true, value = "Description of movement reason")
-    private String movementReason;
+    @NotNull
+    @ApiModelProperty(required = true, value = "Movement date")
+    private LocalDate movementDate;
 
 }

@@ -26,34 +26,42 @@ Feature: Case Note Retrieval and Filtering
     And case note sub type "<case note sub type>" filter applied
     And date from "<date from>" filter applied
     And date to "<date to>" filter applied
+    And case note agency "<agencyId>" filter applied
     And pagination with limit "<limit>" and offset "<offset>" applied
     And filtered case notes are requested for offender booking "<bookingId>"
     Then "<number>" case notes are returned
     And "<total>" case notes are available
 
     Examples:
-      | bookingId | case note type | case note sub type | date from  | date to    | limit | offset | number | total |
-      | -1        | CHAP           |                    |            |            |       |        | 1      | 1     |
-      | -2        | COMMS          |                    |            |            |       |        | 2      | 2     |
-      | -1        |                | FAMMAR             |            |            |       |        | 1      | 1     |
-      | -2        |                | OUTCOME            |            |            |       |        | 1      | 1     |
-      | -2        | ETE            | ETERTO             |            |            |       |        | 1      | 1     |
-      | -2        | ETE            | OUTCOME            |            |            |       |        | 0      | 0     |
-      | -2        |                |                    |            |            |       |        | 4      | 4     |
-      | -2        |                |                    | 2017-04-06 |            |       |        | 3      | 3     |
-      | -2        |                |                    | 2017-04-05 |            |       |        | 4      | 4     |
-      | -2        |                |                    |            | 2017-04-10 |       |        | 1      | 1     |
-      | -2        |                |                    |            | 2017-04-11 |       |        | 2      | 2     |
-      | -2        |                |                    | 2017-04-06 | 2017-05-05 |       |        | 2      | 2     |
-      | -2        |                |                    | 2017-04-05 | 2017-05-06 |       |        | 4      | 4     |
-      | -2        | COMMS          |                    | 2017-04-05 | 2017-05-06 |       |        | 2      | 2     |
-      | -2        | COMMS          | COM_IN             | 2017-04-05 | 2017-05-06 |       |        | 1      | 1     |
-      | -3        |                |                    |            |            | 2     | 0      | 2      | 8     |
-      | -3        |                |                    |            |            | 4     | 2      | 4      | 8     |
-      | -3        |                |                    |            |            | 10    | 5      | 3      | 8     |
-      | -3        |                |                    | 2017-07-01 |            | 10    | 0      | 4      | 4     |
-      | -3        |                |                    |            | 2017-06-30 | 2     | 0      | 2      | 4     |
-      | -3        |                |                    | 2017-06-01 | 2017-08-31 | 3     | 3      | 3      | 6     |
+      | bookingId | case note type | case note sub type | date from  | date to    | agencyId | limit | offset | number | total |
+      | -1        | CHAP           |                    |            |            |          |       |        | 1      | 1     |
+      | -2        | COMMS          |                    |            |            |          |       |        | 2      | 2     |
+      | -1        |                | FAMMAR             |            |            |          |       |        | 1      | 1     |
+      | -2        |                | OUTCOME            |            |            |          |       |        | 1      | 1     |
+      | -2        | ETE            | ETERTO             |            |            |          |       |        | 1      | 1     |
+      | -2        | ETE            | OUTCOME            |            |            |          |       |        | 0      | 0     |
+      | -2        |                |                    |            |            |          |       |        | 4      | 4     |
+      | -2        |                |                    | 2017-04-06 |            |          |       |        | 3      | 3     |
+      | -2        |                |                    | 2017-04-05 |            |          |       |        | 4      | 4     |
+      | -2        |                |                    |            | 2017-04-10 |          |       |        | 1      | 1     |
+      | -2        |                |                    |            | 2017-04-11 |          |       |        | 2      | 2     |
+      | -2        |                |                    | 2017-04-06 | 2017-05-05 |          |       |        | 2      | 2     |
+      | -2        |                |                    | 2017-04-05 | 2017-05-06 |          |       |        | 4      | 4     |
+      | -2        | COMMS          |                    | 2017-04-05 | 2017-05-06 |          |       |        | 2      | 2     |
+      | -2        | COMMS          | COM_IN             | 2017-04-05 | 2017-05-06 |          |       |        | 1      | 1     |
+      | -3        |                |                    |            |            |          | 2     | 0      | 2      | 8     |
+      | -3        |                |                    |            |            |          | 4     | 2      | 4      | 8     |
+      | -3        |                |                    |            |            |          | 10    | 5      | 3      | 8     |
+      | -3        |                |                    | 2017-07-01 |            |          | 10    | 0      | 4      | 4     |
+      | -3        |                |                    |            | 2017-06-30 |          | 2     | 0      | 2      | 4     |
+      | -3        |                |                    | 2017-06-01 | 2017-08-31 |          | 3     | 3      | 3      | 6     |
+      | -3        |                |                    |            |            | LEI      | 2     | 0      | 2      | 6     |
+      | -3        |                |                    |            |            | LEI      | 4     | 2      | 4      | 6     |
+      | -3        |                |                    |            |            | LEI      | 10    | 5      | 1      | 6     |
+      | -3        |                |                    | 2017-07-01 |            | LEI      | 10    | 0      | 3      | 3     |
+      | -3        |                |                    |            | 2017-06-30 | LEI      | 2     | 0      | 2      | 3     |
+      | -3        |                |                    | 2017-06-01 | 2017-08-31 | LEI      | 3     | 3      | 1      | 4     |
+      | -3        |                |                    |            |            | BXI      | 10    | 0      | 1      | 1     |
 
   Scenario: A specific case note is requested for booking that is not part of any of logged on staff user's caseloads
     When a case note is requested for offender booking "-16"

@@ -48,7 +48,7 @@ Feature: Booking Alerts
     Then resource not found response is received from alert API
 
   Scenario: Alerts are requested for multiple offender numbers
-    When alerts are requested for offender nos "A1234AA,A1234AF"
+    When alerts are requested for offender nos "A1234AA,A1234AF" and agency "LEI"
     Then "4" alerts are returned
     And alert details are returned as follows:
       | offenderNo | bookingId | alertId | alertType | alertTypeDescription | alertCode | alertCodeDescription    | comment        | dateCreated | dateExpires | expired | active |
@@ -56,3 +56,12 @@ Feature: Booking Alerts
       | A1234AA    | -1        | 1       | X         | Security             | XA        | Arsonist                | Alert Text 1-1 | today       |             | false   | true   |
       | A1234AA    | -1        | 2       | H         | Self Harm            | HC        | Self Harm - Custody     | Alert Text 1-2 | today       |             | false   | true   |
       | A1234AA    | -1        | 3       | R         | Risk                 | RSS       | Risk to Staff - Custody | Inactive Alert | today       | today       | true    | false  |
+
+  Scenario: Alerts are requested for multiple offender numbers without agency nor authorisation
+    When alerts are requested for offender nos "A1234AA,A1234AF" and no agency
+    Then access denied response is received from alert API
+
+  Scenario: Alerts are requested for multiple offender numbers without agency but with system access
+    When a user has a token name of "SYSTEM_READ_ONLY"
+    And alerts are requested for offender nos "A1234AA,A1234AF" and no agency
+    Then "4" alerts are returned

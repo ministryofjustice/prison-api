@@ -1,8 +1,8 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.Movement;
-import net.syscon.elite.api.model.MovementCount;
-import net.syscon.elite.api.model.RollCount;
+import lombok.val;
+import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +39,7 @@ public class MovementsRepositoryTest {
     private MovementsRepository repository;
 
     @Test
-    public final void canRetrieveAListOfCustodyStatusDetails1() {
+    public final void canRetrieveAListOfMovementDetails1() {
         final LocalDateTime threshold = LocalDateTime.of(2017, Month.JANUARY, 1, 0, 0, 0);
         final List<Movement> recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.JULY, 16));
         assertThat(recentMovements.size()).isEqualTo(1);
@@ -48,7 +49,7 @@ public class MovementsRepositoryTest {
     }
 
     @Test
-    public final void canRetrieveAListOfCustodyStatusDetails2() {
+    public final void canRetrieveAListOfMovementDetails2() {
         final LocalDateTime threshold = LocalDateTime.of(2017, Month.JANUARY, 1, 0, 0, 0);
         final List<Movement> recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.AUGUST, 16));
         assertThat(recentMovements.size()).isEqualTo(2);
@@ -115,5 +116,45 @@ public class MovementsRepositoryTest {
 
         assertThat(movements.size()).isEqualTo(1);
         assertThat(movements.get(0).getToAgency()).isEqualTo("LEI");
+    }
+
+    @Test
+    public final void canRetrieveEnrouteOffenderMovements() {
+        List<OffenderMovement> movements = repository.getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2017,10, 12), "lastName,firstName", Order.ASC);
+
+        assertThat(movements.size()).isEqualTo(2);
+        assertThat(movements.get(0).getOffenderNo()).isEqualTo("A1183AD");
+    }
+
+    @Test
+    public final void canRetrieveEnrouteOffenderCount() {
+        final int count = repository.getEnrouteMovementsOffenderCount("LEI", LocalDate.of(2017, 10, 12));
+
+        assertThat(count).isEqualTo(2);
+    }
+
+    @Test
+    public final void canSortEnrouteOffenderMovements() {
+        List<OffenderMovement> movements = repository.getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2017,10, 12), "offenderNo", Order.DESC);
+
+        assertThat(movements.size()).isEqualTo(2);
+        assertThat(movements.get(0).getOffenderNo()).isEqualTo("A1183SH");
+    }
+
+    @Test
+    public final void canRetrieveOffendersIn() {
+        val offendersIn = repository.getOffendersIn("LEI", LocalDate.of(2017, 10, 12));
+
+        assertThat(offendersIn).containsExactlyInAnyOrder(
+                OffenderIn.builder()
+                        .offenderNo("A6676RS")
+                        .dateOfBirth(LocalDate.of(1945, 1, 10))
+                        .firstName("NEIL")
+                        .lastName("BRADLEY")
+                .fromAgencyDescription("BIRMINGHAM")
+                .movementTime(LocalTime.of(10,45,0))
+                .location("Landing H/1")
+                .build()
+        );
     }
 }

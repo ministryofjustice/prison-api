@@ -1,6 +1,7 @@
 package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.resource.MovementResource;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.MovementsService;
 
@@ -35,9 +36,28 @@ public class MovementResourceImpl implements MovementResource {
     }
 
     @Override
+    public GetMovementsInTodayResponse getMovementsIn(String agencyId, LocalDate date) {
+        return GetMovementsInTodayResponse.respond200WithApplicationJson(movementsService.getOffendersIn(agencyId, date));
+    }
+
+    @Override
     public GetRecentMovementsByOffendersResponse getRecentMovementsByOffenders(List<String> offenderNumbers, List<String> movementTypes) {
         return GetRecentMovementsByOffendersResponse.respond200WithApplicationJson(movementsService.getRecentMovementsByOffenders(offenderNumbers, movementTypes));
+    }
+
+    @Override
+    public GetEnrouteOffenderMovementsResponse getEnrouteOffenderMovements(String agencyId, LocalDate movementDate, String sortFields, Order sortOrder) {
+        return GetEnrouteOffenderMovementsResponse.respond200WithApplicationJson(movementsService.getEnrouteOffenderMovements(agencyId, movementDate, sortFields, sortOrder));
 
     }
 
+    @Override
+    public GetEnrouteOffenderMovementCountResponse getEnrouteOffenderMovementCount(String agencyId, LocalDate movementDate) {
+        return GetEnrouteOffenderMovementCountResponse.respond200WithApplicationJson(movementsService.getEnrouteOffenderCount(agencyId, movementDate));
+    }
+
+    @Override
+    public GetOffendersOutTodayResponse getOffendersOutToday(String agencyId, LocalDate movementsDate) {
+        return GetOffendersOutTodayResponse.respond200WithApplicationJson(movementsService.getOffendersOut(agencyId, movementsDate));
+    }
 }

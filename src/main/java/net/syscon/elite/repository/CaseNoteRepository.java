@@ -27,7 +27,7 @@ public interface CaseNoteRepository {
 
     List<ReferenceCode> getUsedCaseNoteTypesWithSubTypes();
 
-    List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, List<String> offenderNos, Integer staffId, LocalDate fromDate, LocalDate toDate);
+    List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, List<String> offenderNos, Integer staffId, String agencyId, LocalDate fromDate, LocalDate toDate);
 
     List<CaseNoteStaffUsage> getCaseNoteStaffUsage(String type, String subType, List<Integer> staffIds, LocalDate fromDate, LocalDate toDate);
 }

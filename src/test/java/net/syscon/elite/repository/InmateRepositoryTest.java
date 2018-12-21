@@ -115,7 +115,7 @@ public class InmateRepositoryTest {
 
         final List<PrisonerDetail> offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders.size()).isEqualTo(42);
+        assertThat(offenders.size()).isEqualTo(44);
     }
 
     @Test
@@ -135,7 +135,7 @@ public class InmateRepositoryTest {
 
         final List<PrisonerDetail> offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders.size()).isEqualTo(43);
+        assertThat(offenders.size()).isEqualTo(45);
     }
 
     @Test
@@ -145,7 +145,7 @@ public class InmateRepositoryTest {
 
         final List<PrisonerDetail> offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders.size()).isEqualTo(41);
+        assertThat(offenders.size()).isEqualTo(43);
     }
 
     @Test
@@ -155,7 +155,7 @@ public class InmateRepositoryTest {
 
         final List<PrisonerDetail> offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders.size()).isEqualTo(43);
+        assertThat(offenders.size()).isEqualTo(45);
     }
 
     @Test
