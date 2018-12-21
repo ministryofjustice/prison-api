@@ -24,4 +24,6 @@ public interface MovementsService {
     List<OffenderOutTodayDto> getOffendersOut(String agencyId, LocalDate movementDate);
 
     List<OffenderIn> getOffendersIn(String agencyId, LocalDate date);
+
+    List<OffenderInReception> getOffendersInReception(String agencyId);
 }

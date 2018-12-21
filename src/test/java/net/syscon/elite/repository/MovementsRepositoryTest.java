@@ -157,4 +157,18 @@ public class MovementsRepositoryTest {
                 .build()
         );
     }
+
+    @Test
+    public final void canRetrieveOffendersInReception() {
+        val offenders = repository.getOffendersInReception("MDI");
+
+        assertThat(offenders).containsExactly(
+                OffenderInReception.builder()
+                    .firstName("AMY")
+                .lastName("DUDE")
+                .offenderNo("A118DDD")
+                .dateOfBirth(LocalDate.of(1980,01,02))
+                .build()
+        );
+    }
 }

@@ -114,4 +114,18 @@ public class MovementsServiceImpl implements MovementsService {
         });
         return offendersIn;
     }
+
+    @Override
+    @VerifyAgencyAccess
+    public List<OffenderInReception> getOffendersInReception(String agencyId) {
+        return movementsRepository.getOffendersInReception(agencyId)
+                .stream()
+                .map(offender -> OffenderInReception.builder()
+                        .firstName(StringUtils.capitalize(offender.getFirstName().toLowerCase()))
+                        .lastName(StringUtils.capitalize(offender.getLastName().toLowerCase()))
+                        .offenderNo(offender.getOffenderNo())
+                        .dateOfBirth(offender.getDateOfBirth())
+                        .build())
+                .collect(Collectors.toList());
+    }
 }

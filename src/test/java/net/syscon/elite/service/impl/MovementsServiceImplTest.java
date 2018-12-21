@@ -1,7 +1,9 @@
 package net.syscon.elite.service.impl;
 
 import com.google.common.collect.ImmutableList;
+import lombok.val;
 import net.syscon.elite.api.model.Movement;
+import net.syscon.elite.api.model.OffenderInReception;
 import net.syscon.elite.api.model.OffenderMovement;
 import net.syscon.elite.api.model.OffenderOutTodayDto;
 import net.syscon.elite.api.support.Order;
@@ -18,6 +20,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -142,6 +145,32 @@ public class MovementsServiceImplTest {
         Assertions.assertThat(offendersOutToday).extracting("dateOfBirth").contains(LocalDate.now());
         Assertions.assertThat(offendersOutToday).extracting("timeOut").contains(timeOut);
         Assertions.assertThat(offendersOutToday).extracting("reasonDescription").contains("Normal transfer");
+    }
+
+    @Test
+    public void testMappingToProperCase() {
+      String agency = "LEI";
+
+      Mockito.when(movementsRepository.getOffendersInReception(agency))
+              .thenReturn(
+                      Arrays.asList(OffenderInReception.builder()
+                              .firstName("FIRST")
+                              .lastName("LASTNAME")
+                              .dateOfBirth(LocalDate.of(1950,10,10))
+                              .offenderNo("1234A")
+                              .build()
+                      )
+              );
+
+        final val offenders = movementsService.getOffendersInReception(agency);
+
+        Assertions.assertThat(offenders)
+                .containsExactly(OffenderInReception.builder()
+                .firstName("First")
+                .lastName("Lastname")
+                .dateOfBirth(LocalDate.of(1950,10,10))
+                .offenderNo("1234A")
+                .build());
     }
 
 

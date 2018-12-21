@@ -24,4 +24,6 @@ public interface MovementsRepository {
     int getEnrouteMovementsOffenderCount(String agencyId, LocalDate date);
 
     List<OffenderIn> getOffendersIn(String agencyId, LocalDate movementDate);
+
+    List<OffenderInReception> getOffendersInReception(String agencyId);
 }
