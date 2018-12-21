@@ -32,6 +32,7 @@ public class CaseNoteSteps extends CommonSteps {
     private static final String CASENOTE_TYPE_QUERY_PARAM_PREFIX = "&type=";
     private static final String CASENOTE_SUBTYPE_QUERY_PARAM_PREFIX = "&subType=";
     private static final String CASENOTE_STAFF_ID_QUERY_PARAM_PREFIX = "&staffId=";
+    private static final String CASENOTE_AGENCY_ID_QUERY_PARAM_PREFIX = "&agencyId=";
 
     private CaseNote caseNote;
     private NewCaseNote pendingCaseNote;
@@ -121,8 +122,8 @@ public class CaseNoteSteps extends CommonSteps {
     }
 
     @Step("Get case note usage")
-    public void getCaseNoteUsage(String offenderNos, String staffId, String type, String subType, String fromDate, String toDate) {
-        dispatchGetCaseNoteUsageRequest(offenderNos, staffId, type, subType, fromDate, toDate);
+    public void getCaseNoteUsage(String offenderNos, String staffId, String agencyId, String type, String subType, String fromDate, String toDate) {
+        dispatchGetCaseNoteUsageRequest(offenderNos, staffId, agencyId, type, subType, fromDate, toDate);
     }
 
     @Step("Get case note staff usage")
@@ -187,6 +188,18 @@ public class CaseNoteSteps extends CommonSteps {
             caseNoteFilter += String.format("subType:in:'%s'", caseNoteSubType);
         }
     }
+
+    @Step("Apply case note agency filter")
+    public void applyAgencyFilter(String agencyId) {
+        if (StringUtils.isNotBlank(agencyId)) {
+            if (StringUtils.isNotBlank(caseNoteFilter)) {
+                caseNoteFilter += ",and:";
+            }
+
+            caseNoteFilter += String.format("agencyId:eq:'%s'", agencyId);
+        }
+    }
+
 
     @Step("Apply date from filter")
     public void applyDateFromFilter(String dateFrom) {
@@ -305,7 +318,7 @@ public class CaseNoteSteps extends CommonSteps {
         }
     }
 
-    private void dispatchGetCaseNoteUsageRequest(String offenderNos, String staffId, String type, String subType, String fromDate, String toDate) {
+    private void dispatchGetCaseNoteUsageRequest(String offenderNos, String staffId, String agencyId, String type, String subType, String fromDate, String toDate) {
         init();
 
         final StringBuilder queryBuilder = new StringBuilder();
@@ -317,6 +330,10 @@ public class CaseNoteSteps extends CommonSteps {
 
         if (StringUtils.isNotBlank(staffId)) {
             queryBuilder.append(CASENOTE_STAFF_ID_QUERY_PARAM_PREFIX).append(staffId);
+        }
+
+        if (StringUtils.isNotBlank(agencyId)) {
+            queryBuilder.append(CASENOTE_AGENCY_ID_QUERY_PARAM_PREFIX).append(agencyId);
         }
 
         setQueryParams(type, subType, fromDate, toDate, queryBuilder);

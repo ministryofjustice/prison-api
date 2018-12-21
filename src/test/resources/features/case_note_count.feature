@@ -57,18 +57,20 @@ Feature: Case Note Count
       | A1234AC    | OBSERVE | OBS_GEN | 2017-08-01 | 2017-08-31 | 2     | 2017-08-13T12:00 |
 
   Scenario Outline: Get case note usage for a list of offenders, specific staff number and date ranges
-    When case note usage between "<fromDate>" and "<toDate>" is requested of offender No "<offenderNo>" with staff Id "-1" for case note type "<type>"  and sub-type "<subType>"
+    When case note usage between "<fromDate>" and "<toDate>" is requested of offender No "<offenderNo>" with staff Id "-1" for case note type "<type>"  and sub-type "<subType>" and agencyId "<agencyId>"
     Then case note usage response "numCaseNotes" is "<count>"
     And case note usage response "latestCaseNote" is "<latestNote>"
 
     Examples:
-      | offenderNo | type    | subType | fromDate   | toDate     | count | latestNote       |
-      | A1234AA    | CHAP    | FAMMAR  |            | 2017-03-25 | 1     | 2017-03-25T14:35 |
-      | A1234AB    | APP     | OUTCOME | 2017-04-11 |            | 1     | 2017-04-11T18:42 |
-      | A1234AC    | OBSERVE | OBS_GEN | 2016-01-01 | 2017-08-13 | 8     | 2017-08-13T12:00 |
-      | A1234AC    | OBSERVE | OBS_GEN | 2017-07-01 | 2019-01-01 | 4     | 2017-08-13T12:00 |
-      | A1234AC    | OBSERVE | OBS_GEN | 2016-01-01 | 2017-07-31 | 6     | 2017-07-31T12:00 |
-      | A1234AC    | OBSERVE | OBS_GEN | 2017-08-01 | 2017-08-31 | 2     | 2017-08-13T12:00 |
+      | offenderNo | type    | subType | fromDate   | toDate     | agencyId | count | latestNote       |
+      | A1234AA    | CHAP    | FAMMAR  |            | 2017-03-25 | LEI      | 1     | 2017-03-25T14:35 |
+      | A1234AB    | APP     | OUTCOME | 2017-04-11 |            | LEI      | 1     | 2017-04-11T18:42 |
+      | A1234AC    | OBSERVE | OBS_GEN | 2016-01-01 | 2017-08-13 | LEI      | 6     | 2017-08-13T12:00 |
+      | A1234AC    | OBSERVE | OBS_GEN | 2016-01-01 | 2017-08-13 | BXI      | 1     | 2017-07-10T12:00 |
+      | A1234AC    | OBSERVE | OBS_GEN | 2017-07-01 | 2019-01-01 | LEI      | 3     | 2017-08-13T12:00 |
+      | A1234AC    | OBSERVE | OBS_GEN | 2016-01-01 | 2017-07-31 | LEI      | 4     | 2017-07-31T12:00 |
+      | A1234AC    | OBSERVE | OBS_GEN | 2017-08-01 | 2017-08-31 |          | 2     | 2017-08-13T12:00 |
+      | A1234AC    |         |         | 2016-01-01 | 2019-01-01 | LEI      | 6     | 2017-08-13T12:00 |
 
   Scenario Outline: Get case note usage for a list of offenders, different staff number and date ranges
     When case note usage between "<fromDate>" and "<toDate>" is requested of offender No "<offenderNo>" with staff Id "-2" for case note type "<type>"  and sub-type "<subType>"
