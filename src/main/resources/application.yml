@@ -32,3 +32,10 @@ server:
   tomcat:
     remote-ip-header: x-forwarded-for
     protocol_header: x-forwarded-proto
+
+management:
+  endpoints:
+    web:
+      base-path: /
+    health:
+      show-details: "ALWAYS"

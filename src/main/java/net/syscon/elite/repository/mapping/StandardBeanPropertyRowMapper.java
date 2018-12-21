@@ -1,6 +1,6 @@
 package net.syscon.elite.repository.mapping;
 
-import jersey.repackaged.com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap;
 import net.syscon.util.DateTimeConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;

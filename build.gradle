@@ -2,9 +2,10 @@ import java.text.SimpleDateFormat
 
 buildscript {
     ext {
-        springBootVersion = '1.5.9.RELEASE'
+        springBootVersion = '2.1.0.RELEASE'
     }
     repositories {
+        jcenter()
         mavenCentral()
     }
     dependencies {
@@ -15,12 +16,9 @@ buildscript {
 group 'net.syscon.elite'
 
 apply plugin: 'java'
-apply plugin: 'groovy'
-apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
-apply plugin: "jacoco"
-apply plugin: "checkstyle"
-apply plugin: "eclipse"
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'groovy'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -29,12 +27,15 @@ repositories {
     mavenCentral()
 }
 
-def applicationMainClass = 'net.syscon.elite.Elite2ApiServer'
-def dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-def dateOnlyFormat = new SimpleDateFormat("yyyy-MM-dd")
-def today = dateOnlyFormat.format(new Date())
 def applicationName = 'elite2-api'
-version today
+def today = java.time.Instant.now()
+group = 'net.syscon'
+project.sourceCompatibility = 1.8
+project.targetCompatibility = 1.8
+
+def todayDate = java.time.LocalDate.now()
+def formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")
+version todayDate.format(formatter)
 
 jar {
     baseName = applicationName
@@ -45,21 +46,21 @@ jar {
 }
 
 springBoot {
-    mainClass = applicationMainClass
-
     buildInfo {
-        // Generate extra build info.
-        additionalProperties = [
-                by                   : System.properties['user.name'],
-                operatingSystem      : "${System.properties['os.name']} (${System.properties['os.version']})",
-                continuousIntegration: System.getenv('CI') ? true : false,
-                machine              : InetAddress.localHost.hostName,
-                time                 : dateFormat.format(new Date()),
-                name                 : applicationName,
-                version              : System.getenv('CI') ? "${version}.${System.getenv('CIRCLE_BUILD_NUM')}" : version
-        ]
+        properties {
+            artifact = rootProject.name
+            version = System.getenv('CI') ? "${version}.${System.getenv('CIRCLE_BUILD_NUM')}" : version
+            group = 'net.syscon'
+            name = rootProject.name
+            time = today
+            additional = [
+                    by                   : System.properties['user.name'],
+                    operatingSystem      : "${System.properties['os.name']} (${System.properties['os.version']})",
+                    continuousIntegration: System.getenv('CI') ? true : false,
+                    machine              : InetAddress.localHost.hostName
+            ]
+        }
     }
-    executable = true
 }
 
 configurations {
@@ -69,37 +70,15 @@ configurations {
     compile.exclude module: "tomcat-jdbc"
 }
 
-checkstyle {
-    configFile = new File(rootDir, "syscon-checkstyle.xml")
-}
-
-
-jacocoTestReport.dependsOn test
-
-// TODO: Enable checkstyle once rules reviewed and agreed (but don't enable for tests).
-checkstyleMain.enabled = false
-checkstyleTest.enabled = false
-
 // Exclude Serenity BDD integration and IntTest tests from 'test' task so they can be controlled independently
 test {
     exclude "**/executablespecification/*", "**/*IntTest*"
 }
 
-
-jacocoTestReport.executionData([
-        file("${rootDir}/build/jacoco/test.exec"),
-        file("${rootDir}/build/jacoco/testIntegration.exec"),
-        file("${rootDir}/build/jacoco/testWithSchemaNomis.exec")
-])
-
-jacocoTestReport {
-    reports {
-        xml.enabled true
-        csv.enabled false
-    }
-}
-
 dependencies {
+
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+    annotationProcessor('org.projectlombok:lombok:1.18.4')
 
     compile files("${rootDir}/lib/ojdbc8-12.2.0.1.jar")
 
@@ -131,7 +110,7 @@ dependencies {
     compile("io.swagger:swagger-jersey2-jaxrs:1.5.18")
     compile("io.springfox:springfox-swagger-ui:2.9.2")
     compile("io.springfox:springfox-swagger2:2.9.2")
-    compile("net.logstash.logback:logstash-logback-encoder:4.11")
+    compile("net.logstash.logback:logstash-logback-encoder:5.2")
     compile("com.microsoft.azure:applicationinsights-core:${version_applicationinsights}")
     compile("com.microsoft.azure:applicationinsights-web:${version_applicationinsights}")
     compile("com.microsoft.azure:applicationinsights-logging-logback:${version_applicationinsights}")
@@ -144,7 +123,7 @@ dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.4'
 
     runtime('org.hsqldb:hsqldb:2.4.0')
-    runtime("org.flywaydb:flyway-core:5.0.2")
+    runtime("org.flywaydb:flyway-core:5.2.0")
 
     testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile("org.springframework.boot:spring-boot-test-autoconfigure")
@@ -215,22 +194,3 @@ task testWithSchemaNomisOracle(type: Test) {
 }
 
 test.dependsOn testIntegration, testWithSchemaNomis
-
-def codacyArgs = ['--language', 'Java',
-                  '--coverageReport', 'build/reports/jacoco/test/jacocoTestReport.xml',
-                  // Token is available from the Codacy website when logged in (see Settings -> Integrations -> Project API)
-                  '--projectToken', 'f5dec866390441da991b64ab941c2061']
-
-task codacyCoverageUploader(type: JavaExec) {
-    doFirst {
-        println "Sending coverage data to Codacy ..."
-
-        main = 'com.codacy.CodacyCoverageReporter'
-        // This jar was downloaded from the Codacy website:
-        classpath = files('codacy-coverage-reporter-2.0.1-assembly.jar')
-        args codacyArgs
-    }
-}
-
-codacyCoverageUploader.dependsOn jacocoTestReport
-compileJava.dependsOn processResources

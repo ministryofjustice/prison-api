@@ -1,6 +1,6 @@
 package net.syscon.elite.repository.impl;
 
-import jersey.repackaged.com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.Account;
 import net.syscon.elite.repository.FinanceRepository;
 import net.syscon.elite.repository.mapping.FieldMapper;

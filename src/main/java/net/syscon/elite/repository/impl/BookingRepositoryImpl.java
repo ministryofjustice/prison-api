@@ -67,7 +67,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         private String alertCode;
     }
 
-    private final Map<String, FieldMapper> PAYABLE_ATTENDANCE_OUTCOMES_MAPPING = new jersey.repackaged.com.google.common.collect.ImmutableMap.Builder<String, FieldMapper>()
+    private final Map<String, FieldMapper> PAYABLE_ATTENDANCE_OUTCOMES_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
             .put("PAYABLE_ATTENDANCE_OUTCOMES_ID", new FieldMapper("payableAttendanceOutcomeId"))
             .put("EVENT_TYPE",                     new FieldMapper("eventType"))
             .put("OUTCOME_CODE",                   new FieldMapper("outcomeCode"))

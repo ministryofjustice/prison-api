@@ -1,6 +1,6 @@
 package net.syscon.elite.repository.impl;
 
-import jersey.repackaged.com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap;
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
