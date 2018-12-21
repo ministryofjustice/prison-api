@@ -29,7 +29,7 @@ public interface CaseNoteService {
 
     List<ReferenceCode> getUsedCaseNoteTypesWithSubTypes();
 
-    List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, @NotEmpty List<String> offenderNo, Integer staffId, LocalDate fromDate, LocalDate toDate, int numMonths);
+    List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, @NotEmpty List<String> offenderNo, Integer staffId, String agencyId, LocalDate fromDate, LocalDate toDate, int numMonths);
 
     List<CaseNoteStaffUsage> getCaseNoteStaffUsage(String type, String subType, @NotEmpty List<Integer> staffIds, LocalDate fromDate, LocalDate toDate, int numMonths);
 }

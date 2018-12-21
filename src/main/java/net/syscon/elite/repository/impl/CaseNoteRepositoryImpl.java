@@ -47,6 +47,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 			.put("CASE_NOTE_SUB_TYPE", 			new FieldMapper("subType"))
 			.put("CASE_NOTE_SUB_TYPE_DESC", 	new FieldMapper("subTypeDescription"))
 			.put("NOTE_SOURCE_CODE", 			new FieldMapper("source"))
+			.put("AGY_LOC_ID",   				new FieldMapper("agencyId"))
 			.put("CONTACT_TIME", 				new FieldMapper("occurrenceDateTime", DateTimeConverter::toISO8601LocalDateTime))
 			.put("CREATE_DATETIME", 			new FieldMapper("creationDateTime", DateTimeConverter::toISO8601LocalDateTime))
 			.put("CASE_NOTE_TEXT", 				new FieldMapper("text"))
@@ -109,13 +110,17 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
-	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, List<String> offenderNos, Integer staffId, LocalDate fromDate, LocalDate toDate) {
+	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, List<String> offenderNos, Integer staffId, String agencyId, LocalDate fromDate, LocalDate toDate) {
 
-		return jdbcTemplate.query(getQuery("GROUP_BY_TYPES_AND_OFFENDERS"),
+		String sql = String.format(getQuery("GROUP_BY_TYPES_AND_OFFENDERS"),
+				StringUtils.isNotBlank(agencyId) ? " AND OCS.AGY_LOC_ID = :agencyId " : "");
+
+		return jdbcTemplate.query(sql,
 				createParams("offenderNos", offenderNos,
 						"staffId", new SqlParameterValue(Types.INTEGER, staffId),
-						"type", type,
-						"subType", subType,
+						"agencyId", new SqlParameterValue(Types.VARCHAR, agencyId),
+						"type", new SqlParameterValue(Types.VARCHAR, type),
+						"subType", new SqlParameterValue(Types.VARCHAR, subType),
 						"fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
 						"toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
 				CASE_NOTE_USAGE_MAPPER);
