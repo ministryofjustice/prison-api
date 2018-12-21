@@ -29,6 +29,7 @@ public class MovementsSteps extends CommonSteps {
     private static final String API_REQUEST_OUT_TODAY = API_PREFIX + "movements/{agencyId}/out/{isoDate}";
     private static final String API_REQUEST_MOVEMENT_ENROUTE_URL = API_PREFIX + "movements/{agencyId}/enroute?movementDate={date}";
     private static final String API_REQUEST_OFFENDERS_IN =  API_PREFIX + "movements/{agencyId}/in/{isoDate}";
+    private static final String API_REQUEST_OFFENDERS_IN_RECEPTION = API_PREFIX + "movements/rollcount/{agencyId}/in-reception";
 
     private List<Movement> movements;
     private List<OffenderOutTodayDto> offendersOutToday;
@@ -36,6 +37,7 @@ public class MovementsSteps extends CommonSteps {
     private List<OffenderMovement> offenderMovements;
     private MovementCount movementCount;
     private List<OffenderIn> offendersIn;
+    private List<OffenderInReception> offendersInReception;
 
     @Override
     protected void init() {
@@ -46,6 +48,7 @@ public class MovementsSteps extends CommonSteps {
         movementCount = null;
         offendersIn = null;
         offendersOutToday = null;
+        offendersInReception = null;
     }
 
     @Step("Retrieve all movement records")
@@ -274,5 +277,25 @@ public class MovementsSteps extends CommonSteps {
 
     public void verifyOffendersIn(List<OffenderIn> expectedOffendersIn) {
         assertThat(offendersIn).containsOnlyElementsOf(expectedOffendersIn);
+    }
+
+    public void getOffendersInReception(String agencyId) {
+        init();
+        try {
+            val response = restTemplate.exchange(
+                    API_REQUEST_OFFENDERS_IN_RECEPTION,
+                    HttpMethod.GET,
+                    createEntity(),
+                    new ParameterizedTypeReference<List<OffenderInReception>>() {},
+                    agencyId
+            );
+            offendersInReception = response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    public void verifyOffendersInReception(List<OffenderInReception> offenders) {
+        assertThat(offendersInReception).containsSubsequence(offenders);
     }
 }

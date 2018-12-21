@@ -11,15 +11,15 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.time.LocalTime;
-@ApiModel(description = "Summary of an offender counted as Establishment Roll - In")
+
+@ApiModel(description = "Summary of an offender counted as Establishment Roll - Reception")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+public class OffenderInReception {
 
-public class OffenderIn {
     @NotBlank
     @ApiModelProperty(required = true, value = "Display Prisoner Number")
     private String offenderNo;
@@ -30,20 +30,6 @@ public class OffenderIn {
     @NotBlank
     private String firstName;
 
-    private String middleName;
-
     @NotBlank
     private String lastName;
-
-    @NotBlank
-    @ApiModelProperty(required = true, value = "Description for Agency travelling from")
-    private String fromAgencyDescription;
-
-    @NotNull
-    @ApiModelProperty(required = true, value = "Movement time")
-    private LocalTime movementTime;
-
-    @NotNull
-    @ApiModelProperty(required = true, value = "Description of the offender's (internal) location")
-    private String location;
 }
