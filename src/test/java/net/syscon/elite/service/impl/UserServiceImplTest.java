@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.util.ArrayList;
@@ -60,8 +60,6 @@ public class UserServiceImplTest {
     public void testGetUsersByCaseload() {
         PageRequest pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
         final NameFilter nameFilterDto = new NameFilter("A");
-        when(userRepository.findUsersByCaseload(LEEDS_CASELOAD_ID, ROLE_CODE, nameFilterDto, null)).thenReturn(pageResponse(2));
-
         userService.getUsersByCaseload(LEEDS_CASELOAD_ID, "A", ROLE_CODE, null);
 
         verify(userRepository, times(1)).findUsersByCaseload(eq(LEEDS_CASELOAD_ID), eq(ROLE_CODE), refEq(nameFilterDto), refEq(pr));
@@ -71,8 +69,6 @@ public class UserServiceImplTest {
     public void testGetUsers() {
         PageRequest pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
         final NameFilter nameFilterDto = new NameFilter("A");
-        when(userRepository.findUsersByCaseload(LEEDS_CASELOAD_ID, ROLE_CODE, nameFilterDto, null)).thenReturn(pageResponse(2));
-
         userService.getUsers("A", ROLE_CODE, null);
 
         verify(userRepository, times(1)).findUsers(eq(ROLE_CODE), refEq(nameFilterDto), refEq(pr));
@@ -82,8 +78,6 @@ public class UserServiceImplTest {
     public void testGetUsersWithFullNameSearch() {
         PageRequest pr = new PageRequest("lastName,firstName", Order.ASC, 0L, 10L);  //the default if non provided
         final NameFilter nameFilterDto = new NameFilter("Brown James");
-        when(userRepository.findUsersByCaseload(LEEDS_CASELOAD_ID, ROLE_CODE, nameFilterDto, null)).thenReturn(pageResponse(2));
-
         userService.getUsers("Brown James", ROLE_CODE, null);
 
         verify(userRepository, times(1)).findUsers(eq(ROLE_CODE), refEq(nameFilterDto), refEq(pr));
@@ -93,8 +87,6 @@ public class UserServiceImplTest {
     public void testGetUsersByCaseloadWithSortFieldDifferentToDefault() {
         PageRequest pr = new PageRequest("firstName", Order.ASC, 10L, 20L);
         final NameFilter nameFilterDto = new NameFilter("A");
-        when(userRepository.findUsersByCaseload(LEEDS_CASELOAD_ID, ROLE_CODE, nameFilterDto, pr)).thenReturn(pageResponse(2));
-
         userService.getUsersByCaseload(LEEDS_CASELOAD_ID, "A", ROLE_CODE, pr);
 
         verify(userRepository, times(1)).findUsersByCaseload(eq(LEEDS_CASELOAD_ID), eq(ROLE_CODE), refEq(nameFilterDto), refEq(pr));

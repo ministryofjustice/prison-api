@@ -1,6 +1,5 @@
 package net.syscon.elite.executablespecification.steps;
 
-import lombok.val;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
@@ -223,7 +222,7 @@ public class MovementsSteps extends CommonSteps {
         init();
 
         try {
-            val response = restTemplate.exchange(
+            var response = restTemplate.exchange(
                     API_REQUEST_OUT_TODAY,
                     HttpMethod.GET, createEntity(),
                     new ParameterizedTypeReference<List<OffenderOutTodayDto>>() {},
@@ -261,7 +260,7 @@ public class MovementsSteps extends CommonSteps {
     public void getOffendersIn(String agencyId, LocalDate movementsDate) {
         init();
         try {
-            val response = restTemplate.exchange(
+            var response = restTemplate.exchange(
                     API_REQUEST_OFFENDERS_IN,
                     HttpMethod.GET,
                     createEntity(),
@@ -282,7 +281,7 @@ public class MovementsSteps extends CommonSteps {
     public void getOffendersInReception(String agencyId) {
         init();
         try {
-            val response = restTemplate.exchange(
+            var response = restTemplate.exchange(
                     API_REQUEST_OFFENDERS_IN_RECEPTION,
                     HttpMethod.GET,
                     createEntity(),

@@ -15,7 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,7 +23,6 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -177,19 +176,13 @@ public class SchedulesServiceImplTest {
 
     @Test
     public void testGetLocationGroupNoInmates() {
-        setupGroupExpectationsNoInmates();
         List<PrisonerSchedule> results = schedulesService.getLocationGroupEvents("LEI", "myWing",
                 DATE, TimeSlot.AM, null, null);
 
         assertThat(results).asList().hasSize(0);
     }
 
-    private void setupGroupExpectationsNoInmates() {
-        when(inmateService.findInmatesByLocation("me",
-                "LEI", Arrays.asList(-100L, -101L))).thenReturn(Collections.EMPTY_LIST);
-    }
-
-        private void setupGroupExpectations() {
+    private void setupGroupExpectations() {
         final List<InmateDto> inmatesOnMyWing = Arrays.asList(
                 InmateDto.builder().bookingId(-10L).offenderNo("A10").locationDescription("M0").firstName("Joe").lastName("Bloggs").build(),
                 InmateDto.builder().bookingId(-11L).locationDescription("H1").lastName("Zed").build(),

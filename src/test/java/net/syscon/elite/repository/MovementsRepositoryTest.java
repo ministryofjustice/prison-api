@@ -1,6 +1,5 @@
 package net.syscon.elite.repository;
 
-import lombok.val;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.web.config.PersistenceConfigs;
@@ -143,7 +142,7 @@ public class MovementsRepositoryTest {
 
     @Test
     public final void canRetrieveOffendersIn() {
-        val offendersIn = repository.getOffendersIn("LEI", LocalDate.of(2017, 10, 12));
+        var offendersIn = repository.getOffendersIn("LEI", LocalDate.of(2017, 10, 12));
 
         assertThat(offendersIn).containsExactlyInAnyOrder(
                 OffenderIn.builder()
@@ -160,7 +159,7 @@ public class MovementsRepositoryTest {
 
     @Test
     public final void canRetrieveOffendersInReception() {
-        val offenders = repository.getOffendersInReception("MDI");
+        var offenders = repository.getOffendersInReception("MDI");
 
         assertThat(offenders).containsExactly(
                 OffenderInReception.builder()
