@@ -1,14 +1,15 @@
 defaults: &defaults
   working_directory: ~/app
   environment:
-    JAVA_TOOL_OPTIONS: -Xmx1024m -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2 -XX:ParallelGCThreads=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2
+    JAVA_TOOL_OPTIONS: -Xmx1024m -XX:ConcGCThreads=2 -XX:ParallelGCThreads=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2
 
 version: 2
 jobs:
   build:
     <<: *defaults
     docker:
-      - image: circleci/openjdk:11-jdk-browsers
+
+- image: circleci/openjdk:11-jdk-browsers
     steps:
       - checkout
       - restore_cache:
