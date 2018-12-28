@@ -71,3 +71,10 @@ Feature: Movement
     | offenderNo | dateOfBirth | firstName | middleName | lastName | fromAgencyDescription | movementTime | location    |
     | A6676RS    | 1945-01-10  | Neil      |            | Bradley  | Birmingham            | 10:45        | Landing H/1 |
 
+
+  Scenario: Get offender in reception
+      Given a user has authenticated with the API
+      When a request is made to retrieve 'offenders in reception' for agency "MDI"
+      Then information about 'offenders in reception' is returned as follows:
+      | offenderNo | dateOfBirth   | firstName | lastName|
+      | A118DDD    | 1980-01-02    |  Amy      | Dude    |

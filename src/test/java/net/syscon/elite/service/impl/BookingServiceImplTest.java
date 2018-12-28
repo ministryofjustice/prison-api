@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -49,15 +49,9 @@ public class  BookingServiceImplTest {
     private BookingService bookingService;
 
     private void programMocks(final String appointmentType, final long bookingId, final String agencyId,
-            final long eventId, final String principal, final ScheduledEvent expectedEvent, final Location location,
-            final Agency agency, final NewAppointment newAppointment) {
+                              final long eventId, final String principal, final ScheduledEvent expectedEvent, final Location location,
+                              final NewAppointment newAppointment) {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(principal, "credentials"));
-
-        Mockito.when(agencyService.findAgenciesByUsername(principal)).thenReturn(Collections.singletonList(agency));
-
-        Mockito.when(
-                bookingRepository.verifyBookingAccess(Mockito.eq(bookingId), Mockito.eq(Collections.singleton("LEI"))))
-                .thenReturn(true);
 
         Mockito.when(locationService.getLocation(newAppointment.getLocationId())).thenReturn(location);
         Mockito.when(locationService.getUserLocations(principal)).thenReturn(Collections.singletonList(location));
@@ -107,7 +101,7 @@ public class  BookingServiceImplTest {
                 .comment("comment")
                 .locationId(locationId).build();
 
-        programMocks(appointmentType, bookingId, agencyId, eventId, principal, expectedEvent, location, agency,
+        programMocks(appointmentType, bookingId, agencyId, eventId, principal, expectedEvent, location,
                 newAppointment);
 
         final ScheduledEvent actualEvent = bookingService.createBookingAppointment(bookingId, principal, newAppointment);
@@ -169,7 +163,7 @@ public class  BookingServiceImplTest {
                 .comment("comment")
                 .locationId(locationId).build();
 
-        programMocks(appointmentType, bookingId, agencyId, eventId, principal, expectedEvent, location, agency,
+        programMocks(appointmentType, bookingId, agencyId, eventId, principal, expectedEvent, location,
                 newAppointment);
 
         Mockito.when(locationService.getLocation(newAppointment.getLocationId()))
@@ -200,7 +194,7 @@ public class  BookingServiceImplTest {
                 .startTime(LocalDateTime.now().plusDays(1)).endTime(LocalDateTime.now().plusDays(2)).comment("comment")
                 .locationId(locationId).build();
 
-        programMocks(appointmentType, bookingId, agencyId, eventId, principal, expectedEvent, location, agency,
+        programMocks(appointmentType, bookingId, agencyId, eventId, principal, expectedEvent, location,
                 newAppointment);
 
         Mockito.when(referenceDomainService.getReferenceCodeByDomainAndCode(

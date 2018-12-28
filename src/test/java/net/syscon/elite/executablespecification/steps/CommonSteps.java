@@ -1,7 +1,6 @@
 package net.syscon.elite.executablespecification.steps;
 
 import com.google.common.collect.ImmutableMap;
-import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
@@ -34,7 +33,6 @@ import static org.junit.Assert.*;
 /**
  * Common BDD step implementations
  */
-@Slf4j
 public abstract class CommonSteps {
     public static final String API_PREFIX = "/api/";
 
@@ -181,7 +179,6 @@ public abstract class CommonSteps {
     }
 
     protected void setErrorResponse(ErrorResponse errorResponse) {
-        log.error("API error: {}", errorResponse.toString());
         this.errorResponse = errorResponse;
     }
 

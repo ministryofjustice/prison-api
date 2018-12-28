@@ -1,3 +1,11 @@
+server:
+  servlet:
+    context-path: /elite2api
+  use-forward-headers: true
+  tomcat:
+    remote-ip-header: x-forwarded-for
+    protocol_header: x-forwarded-proto
+
 # ===================================================================
 # Standard Spring Boot configuration
 # ===================================================================
@@ -6,7 +14,6 @@ spring:
 
   datasource:
     continueOnError: true
-    initialize: false
 
     hikari:
       pool-name: Elite2-CP
@@ -15,20 +22,9 @@ spring:
 
   jersey:
     type: servlet
+    application-path: /api
 
 
 logging:
   level:
     org.springframework.security: INFO
-
-    
-  messages:
-    cache-seconds: 1
-
-server:
-  servlet:
-    context-path: /
-  use-forward-headers: true
-  tomcat:
-    remote-ip-header: x-forwarded-for
-    protocol_header: x-forwarded-proto

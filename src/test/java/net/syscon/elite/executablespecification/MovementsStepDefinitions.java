@@ -4,13 +4,13 @@ import cucumber.api.DataTable;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.api.model.OffenderIn;
+import net.syscon.elite.api.model.OffenderInReception;
 import net.syscon.elite.api.model.OffenderOutTodayDto;
 import net.syscon.elite.executablespecification.steps.MovementsSteps;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.List;
 
 public class MovementsStepDefinitions extends AbstractStepDefinitions {
 
@@ -95,7 +95,7 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^information about 'offenders in' is returned as follows:$")
     public void informationAboutOffendersInIsReturnedAsFollows(DataTable table) {
-        List<OffenderIn> offendersIn = table.asList(OffenderIn.class);
+        var offendersIn = table.asList(OffenderIn.class);
 
         movementsSteps.verifyOffendersIn(offendersIn);
     }
@@ -103,5 +103,16 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
     @When("^a request is made to retrieve the 'offenders out' for agency \"([^\"]*)\" for \"([^\"]*)\"$")
     public void aRequestIsMadeToRetrieveTheOffendersOutForAgencyFor(String agencyId, String isoDateString) throws Throwable {
         movementsSteps.getOffendersOut(agencyId, LocalDate.parse(isoDateString));
+    }
+
+    @When("^a request is made to retrieve 'offenders in reception' for agency \"([^\"]*)\"$")
+    public void aRequestIsMadeToRetrieveOffendersInReceptionForAgency(String agencyId) throws Throwable {
+        movementsSteps.getOffendersInReception(agencyId);
+    }
+
+    @Then("^information about 'offenders in reception' is returned as follows:$")
+    public void informationAboutOffendersInReceptionIsReturnedAsFollows(DataTable table) {
+        var offendersInReception = table.asList(OffenderInReception.class);
+        movementsSteps.verifyOffendersInReception(offendersInReception);
     }
 }

@@ -22,6 +22,7 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     private final StandardBeanPropertyRowMapper<OffenderMovement> OFFENDER_MOVEMENT_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderMovement.class);
     private final StandardBeanPropertyRowMapper<RollCount> ROLLCOUNT_MAPPER = new StandardBeanPropertyRowMapper<>(RollCount.class);
     private final StandardBeanPropertyRowMapper<OffenderIn> OFFENDER_IN_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderIn.class);
+    private final StandardBeanPropertyRowMapper<OffenderInReception> OFFENDER_IN_RECEPTION_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderInReception.class);
 
     private static final String MOVEMENT_DATE_CLAUSE = " AND OEM.MOVEMENT_DATE = :movementDate";
 
@@ -117,5 +118,13 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
                     "agencyId", agencyId,
                     "movementDate", DateTimeConverter.toDate(movementDate)),
                 OFFENDER_IN_MAPPER);
+    }
+
+    @Override
+    public List<OffenderInReception> getOffendersInReception(String agencyId) {
+        return jdbcTemplate.query(getQuery("GET_OFFENDERS_IN_RECEPTION"),
+                createParams(
+                        "agencyId", agencyId),
+                OFFENDER_IN_RECEPTION_MAPPER);
     }
 }

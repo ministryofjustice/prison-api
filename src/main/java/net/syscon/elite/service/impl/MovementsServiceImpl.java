@@ -1,6 +1,5 @@
 package net.syscon.elite.service.impl;
 
-import lombok.val;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.MovementsRepository;
@@ -104,7 +103,7 @@ public class MovementsServiceImpl implements MovementsService {
     @Override
     @VerifyAgencyAccess
     public List<OffenderIn> getOffendersIn(String agencyId, LocalDate date) {
-        val offendersIn = movementsRepository.getOffendersIn(agencyId, date);
+        var offendersIn = movementsRepository.getOffendersIn(agencyId, date);
         offendersIn.forEach(oi -> {
             oi.setFromAgencyDescription(LocationProcessor.formatLocation(oi.getFromAgencyDescription()));
             oi.setLastName(StringUtils.capitalize(oi.getLastName().toLowerCase()));
@@ -113,5 +112,19 @@ public class MovementsServiceImpl implements MovementsService {
 
         });
         return offendersIn;
+    }
+
+    @Override
+    @VerifyAgencyAccess
+    public List<OffenderInReception> getOffendersInReception(String agencyId) {
+        return movementsRepository.getOffendersInReception(agencyId)
+                .stream()
+                .map(offender -> OffenderInReception.builder()
+                        .firstName(StringUtils.capitalize(offender.getFirstName().toLowerCase()))
+                        .lastName(StringUtils.capitalize(offender.getLastName().toLowerCase()))
+                        .offenderNo(offender.getOffenderNo())
+                        .dateOfBirth(offender.getDateOfBirth())
+                        .build())
+                .collect(Collectors.toList());
     }
 }

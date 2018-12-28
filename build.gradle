@@ -2,9 +2,10 @@ import java.text.SimpleDateFormat
 
 buildscript {
     ext {
-        springBootVersion = '1.5.9.RELEASE'
+        springBootVersion = '2.1.1.RELEASE'
     }
     repositories {
+        jcenter()
         mavenCentral()
     }
     dependencies {
@@ -15,26 +16,23 @@ buildscript {
 group 'net.syscon.elite'
 
 apply plugin: 'java'
-apply plugin: 'groovy'
-apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
-apply plugin: "jacoco"
-apply plugin: "checkstyle"
-apply plugin: "eclipse"
+apply plugin: 'io.spring.dependency-management'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+project.sourceCompatibility = 11
+project.targetCompatibility = 11
 
 repositories {
     mavenCentral()
 }
 
-def applicationMainClass = 'net.syscon.elite.Elite2ApiServer'
-def dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-def dateOnlyFormat = new SimpleDateFormat("yyyy-MM-dd")
-def today = dateOnlyFormat.format(new Date())
 def applicationName = 'elite2-api'
-version today
+def today = java.time.Instant.now()
+
+
+def todayDate = java.time.LocalDate.now()
+def formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")
+version todayDate.format(formatter)
 
 jar {
     baseName = applicationName
@@ -45,21 +43,21 @@ jar {
 }
 
 springBoot {
-    mainClass = applicationMainClass
-
     buildInfo {
-        // Generate extra build info.
-        additionalProperties = [
-                by                   : System.properties['user.name'],
-                operatingSystem      : "${System.properties['os.name']} (${System.properties['os.version']})",
-                continuousIntegration: System.getenv('CI') ? true : false,
-                machine              : InetAddress.localHost.hostName,
-                time                 : dateFormat.format(new Date()),
-                name                 : applicationName,
-                version              : System.getenv('CI') ? "${version}.${System.getenv('CIRCLE_BUILD_NUM')}" : version
-        ]
+        properties {
+            artifact = rootProject.name
+            version = System.getenv('CI') ? "${version}.${System.getenv('CIRCLE_BUILD_NUM')}" : version
+            group = 'net.syscon.elite'
+            name = rootProject.name
+            time = today
+            additional = [
+                    by                   : System.properties['user.name'],
+                    operatingSystem      : "${System.properties['os.name']} (${System.properties['os.version']})",
+                    continuousIntegration: System.getenv('CI') ? true : false,
+                    machine              : InetAddress.localHost.hostName
+            ]
+        }
     }
-    executable = true
 }
 
 configurations {
@@ -69,37 +67,15 @@ configurations {
     compile.exclude module: "tomcat-jdbc"
 }
 
-checkstyle {
-    configFile = new File(rootDir, "syscon-checkstyle.xml")
-}
-
-
-jacocoTestReport.dependsOn test
-
-// TODO: Enable checkstyle once rules reviewed and agreed (but don't enable for tests).
-checkstyleMain.enabled = false
-checkstyleTest.enabled = false
-
 // Exclude Serenity BDD integration and IntTest tests from 'test' task so they can be controlled independently
 test {
     exclude "**/executablespecification/*", "**/*IntTest*"
 }
 
-
-jacocoTestReport.executionData([
-        file("${rootDir}/build/jacoco/test.exec"),
-        file("${rootDir}/build/jacoco/testIntegration.exec"),
-        file("${rootDir}/build/jacoco/testWithSchemaNomis.exec")
-])
-
-jacocoTestReport {
-    reports {
-        xml.enabled true
-        csv.enabled false
-    }
-}
-
 dependencies {
+
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+    annotationProcessor('org.projectlombok:lombok:1.18.4')
 
     compile files("${rootDir}/lib/ojdbc8-12.2.0.1.jar")
 
@@ -117,84 +93,66 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter-cache")
     compile("org.springframework.boot:spring-boot-devtools")
 
-    compile("org.springframework.security.oauth:spring-security-oauth2:2.2.1.RELEASE")
+    compile("org.springframework.security.oauth:spring-security-oauth2:2.3.4.RELEASE")
     compile("org.springframework.security:spring-security-jwt:1.0.9.RELEASE")
 
+    compile 'javax.annotation:javax.annotation-api:1.3.2'
+    compile 'javax.xml.bind:jaxb-api:2.3.0'
+    compile 'com.sun.xml.bind:jaxb-impl:2.3.0'
+    compile 'com.sun.xml.bind:jaxb-core:2.3.0'
+    compile 'javax.activation:activation:1.1.1'
+
     compile group: 'commons-codec', name: 'commons-codec', version: '1.11'
-    compile("org.apache.commons:commons-text:1.4")
-    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.2")
-    compile("com.github.jsqlparser:jsqlparser:1.1")
+    compile("org.apache.commons:commons-text:1.6")
+    compile("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.8")
+    compile("com.github.jsqlparser:jsqlparser:1.3")
     compile("net.sf.ehcache:ehcache:2.10.4")
     compile("io.jsonwebtoken:jjwt:${version_jjwt}")
     compile("com.zaxxer:HikariCP:${version_hikaricp}")
 
-    compile("io.swagger:swagger-jersey2-jaxrs:1.5.18")
+    compile("io.swagger:swagger-jersey2-jaxrs:1.5.21")
     compile("io.springfox:springfox-swagger-ui:2.9.2")
     compile("io.springfox:springfox-swagger2:2.9.2")
-    compile("net.logstash.logback:logstash-logback-encoder:4.11")
+    compile("net.logstash.logback:logstash-logback-encoder:5.2")
     compile("com.microsoft.azure:applicationinsights-core:${version_applicationinsights}")
     compile("com.microsoft.azure:applicationinsights-web:${version_applicationinsights}")
     compile("com.microsoft.azure:applicationinsights-logging-logback:${version_applicationinsights}")
 
-    compile("org.apache.commons:commons-lang3:3.7")
+    compile("org.apache.commons:commons-lang3:3.8.1")
     compile("commons-io:commons-io:2.6")
-    compile("org.apache.commons:commons-text:1.1")
-    compile("com.google.code.findbugs:jsr305:3.0.2")
+    compile("org.apache.commons:commons-text:1.6")
 
     compileOnly 'org.projectlombok:lombok:1.18.4'
 
-    runtime('org.hsqldb:hsqldb:2.4.0')
-    runtime("org.flywaydb:flyway-core:5.0.2")
+    runtime('org.hsqldb:hsqldb:2.4.1')
+    runtime("org.flywaydb:flyway-core:5.2.4")
 
     testCompile("org.springframework.boot:spring-boot-starter-test")
     testCompile("org.springframework.boot:spring-boot-test-autoconfigure")
-    testCompile("io.rest-assured:rest-assured:3.0.6")
-    testCompile("io.rest-assured:json-schema-validator:3.0.6")
-    testCompile("io.rest-assured:spring-mock-mvc:3.0.6")
-    testCompile("org.springframework.security:spring-security-test:4.2.3.RELEASE")
-    testCompile("com.google.code.gson:gson:2.8.2")
-    testCompile("org.assertj:assertj-core:3.8.0")
-    testCompile("org.powermock:powermock-module-junit4:1.7.3")
-    testCompile("org.powermock:powermock-api-mockito:1.7.3")
+    testCompile("io.rest-assured:rest-assured:3.2.0")
+    testCompile("io.rest-assured:json-schema-validator:3.2.0")
+    testCompile("io.rest-assured:spring-mock-mvc:3.2.0")
+    testCompile("org.springframework.security:spring-security-test:5.1.2.RELEASE")
+    testCompile("com.google.code.gson:gson:2.8.5")
+    testCompile("org.assertj:assertj-core:3.11.1")
+    testCompile group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.0-RC.4'
+    testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '2.0.0-RC.4'
 
     testCompile 'com.tngtech.java:junit-dataprovider:1.13.1'
-    testCompile "org.seleniumhq.selenium:htmlunit-driver:2.28.2"
-    // Annoyingly the version of selenium needs to be specified, otherwise an
-    // old one which doesnt work (2.53.1) is pulled in
-    testCompile 'org.seleniumhq.selenium:selenium-server:3.7.1'
-    testCompile 'org.seleniumhq.selenium:selenium-java:3.7.1'
-    testCompile 'org.seleniumhq.selenium:selenium-api:3.7.1'
-    testCompile "org.seleniumhq.selenium:selenium-edge-driver:3.7.1"
-    testCompile "org.seleniumhq.selenium:selenium-chrome-driver:3.7.1"
-    testCompile "org.seleniumhq.selenium:selenium-firefox-driver:3.7.1"
-    testCompile "org.seleniumhq.selenium:selenium-ie-driver:3.7.1"
-    testCompile "org.seleniumhq.selenium:selenium-opera-driver:3.7.1"
-    testCompile "org.seleniumhq.selenium:selenium-safari-driver:3.7.1"
-    testCompile "org.seleniumhq.selenium:selenium-support:3.7.1"
-    testCompile "org.seleniumhq.selenium:selenium-remote-driver:3.7.1"
 
-    testCompile 'net.serenity-bdd:serenity-core:1.8.21'
-    testCompile 'net.serenity-bdd:serenity-junit:1.8.21'
-    testCompile 'net.serenity-bdd:serenity-spring:1.8.21'
-    testCompile 'net.serenity-bdd:serenity-cucumber:1.6.10'
-
+    testCompile 'net.serenity-bdd:serenity-core:2.0.29'
+    testCompile 'net.serenity-bdd:serenity-junit:2.0.29'
+    testCompile 'net.serenity-bdd:serenity-spring:2.0.29'
+    testCompile 'net.serenity-bdd:serenity-cucumber:1.9.21'
     testCompileOnly 'org.projectlombok:lombok:1.18.4'
-
-    testRuntime files("${rootDir}/src/main/configs")
-    testRuntime files("${rootDir}/src/main/resources")
+    testCompile 'org.slf4j:slf4j-api:1.7.25'
 }
 
 task testIntegration(type: Test) {
-    minHeapSize = "2G"
-    maxHeapSize = "2G"
     include "**/*IntTest*"
 }
 
 task testWithSchemaNomis(type: Test) {
-    // Limit the JVM, otherwise on CircleCi if the memory used gets too close to the 4G container
-    // maximum the test process is somewhat viciously killed and exits with code 137
-    minHeapSize = "2G"
-    maxHeapSize = "2G"
     def nomisEnvVars = ['api.db.target'   : 'nomis',
                         'cucumber.options': "--tags 'not (@wip or @broken)'"]
 
@@ -204,8 +162,6 @@ task testWithSchemaNomis(type: Test) {
 }
 
 task testWithSchemaNomisOracle(type: Test) {
-    minHeapSize = "2G"
-    maxHeapSize = "2G"
     def nomisEnvVars = ['api.db.target'   : 'nomis', 'api.db.dialect': 'oracle',
                         'cucumber.options': "--tags 'not (@wip or @broken)'"]
 
@@ -215,22 +171,3 @@ task testWithSchemaNomisOracle(type: Test) {
 }
 
 test.dependsOn testIntegration, testWithSchemaNomis
-
-def codacyArgs = ['--language', 'Java',
-                  '--coverageReport', 'build/reports/jacoco/test/jacocoTestReport.xml',
-                  // Token is available from the Codacy website when logged in (see Settings -> Integrations -> Project API)
-                  '--projectToken', 'f5dec866390441da991b64ab941c2061']
-
-task codacyCoverageUploader(type: JavaExec) {
-    doFirst {
-        println "Sending coverage data to Codacy ..."
-
-        main = 'com.codacy.CodacyCoverageReporter'
-        // This jar was downloaded from the Codacy website:
-        classpath = files('codacy-coverage-reporter-2.0.1-assembly.jar')
-        args codacyArgs
-    }
-}
-
-codacyCoverageUploader.dependsOn jacocoTestReport
-compileJava.dependsOn processResources
