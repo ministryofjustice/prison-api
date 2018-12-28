@@ -1,6 +1,6 @@
 package net.syscon.elite.repository;
 
-import jersey.repackaged.com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.model.Telephone;

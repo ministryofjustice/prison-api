@@ -1,7 +1,6 @@
 package net.syscon.elite.service.impl;
 
 import com.google.common.collect.ImmutableList;
-import lombok.val;
 import net.syscon.elite.api.model.Movement;
 import net.syscon.elite.api.model.OffenderInReception;
 import net.syscon.elite.api.model.OffenderMovement;
@@ -16,7 +15,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -162,7 +161,7 @@ public class MovementsServiceImplTest {
                       )
               );
 
-        final val offenders = movementsService.getOffendersInReception(agency);
+        final var offenders = movementsService.getOffendersInReception(agency);
 
         Assertions.assertThat(offenders)
                 .containsExactly(OffenderInReception.builder()

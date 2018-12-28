@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -30,7 +30,7 @@ public class InmateAlertServiceImplTest {
     public void testCorrectNumberAlertReturned() {
         Page<Alert> alerts = createAlerts();
 
-        Mockito.when(inmateAlertRepository.getInmateAlerts(anyLong(), anyString(), anyString(), any(), anyLong(), anyLong())).thenReturn(alerts);
+        Mockito.when(inmateAlertRepository.getInmateAlerts(eq(-1L), any(), any(), any(), eq(0L), eq(10L))).thenReturn(alerts);
 
         Page<Alert> returnedAlerts = serviceToTest.getInmateAlerts(-1L, null, null, null, 0, 10);
 
@@ -41,7 +41,7 @@ public class InmateAlertServiceImplTest {
     public void testCorrectExpiredAlerts() {
         Page<Alert> alerts = createAlerts();
 
-        Mockito.when(inmateAlertRepository.getInmateAlerts(anyLong(), anyString(), anyString(), any(), anyLong(), anyLong())).thenReturn(alerts);
+        Mockito.when(inmateAlertRepository.getInmateAlerts(eq(-1L), isNull(), any(), any(), eq(0L), eq(10L))).thenReturn(alerts);
 
         Page<Alert> returnedAlerts = serviceToTest.getInmateAlerts(-1L, null, null, null, 0, 10);
 

@@ -1,6 +1,6 @@
 package net.syscon.elite.web.config;
 
-import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
@@ -17,7 +17,7 @@ import java.util.Objects;
  * @author andrewk
  * @since 1.0.15
  */
-@Log4j
+@Slf4j
 public class AnnotationScanner {
 
     public static Class[] findAnnotatedClasses(Class annotationClass, String[] scanPackages) {
@@ -34,7 +34,7 @@ public class AnnotationScanner {
             annotatedClasses.addAll(locateAnnotatedClasses(annotationClass, pkg));
         });
 
-        return annotatedClasses.toArray(new Class[annotatedClasses.size()]);
+        return annotatedClasses.toArray(new Class[0]);
     }
 
     public static Class[] findAnnotatedClasses(Class annotationClass, String scanPackage) {
@@ -42,7 +42,7 @@ public class AnnotationScanner {
 
         List<Class> annotatedClasses = locateAnnotatedClasses(annotationClass, scanPackage);
 
-        return annotatedClasses.toArray(new Class[annotatedClasses.size()]);
+        return annotatedClasses.toArray(new Class[0]);
     }
 
     private static List<Class> locateAnnotatedClasses(Class annotationClass, String scanPackage) {
