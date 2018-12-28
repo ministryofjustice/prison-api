@@ -1,5 +1,7 @@
 defaults: &defaults
   working_directory: ~/app
+  environment:
+    JAVA_TOOL_OPTIONS: -Xmx1024m -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2 -XX:ParallelGCThreads=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2
 
 version: 2
 jobs:
@@ -10,14 +12,18 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys:
-            - gradle-{{ checksum "build.gradle" }}
-            - gradle-
+          key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
+      - restore_cache:
+          key: gradle-cache-{{ checksum "build.gradle" }}
       - run: ./gradlew build
       - save_cache:
+          key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
           paths:
-            - ~/.gradle
-          key: gradle-{{ checksum "build.gradle" }}
+            - /home/circleci/.gradle/wrapper
+      - save_cache:
+          key: gradle-cache-{{ checksum "build.gradle" }}
+          paths:
+            - /home/circleci/.gradle/caches
       - store_test_results:
           path: build/test-results
       - store_test_results:
@@ -44,31 +50,32 @@ jobs:
       - run:
           name: Build container and publish to docker hub
           command: |
-             jar xvf build/libs/elite2-api-*.jar META-INF/build-info.properties
-             API_VERSION=$(grep 'build.version=' META-INF/build-info.properties | awk -F= '{print $2}')
-             rm META-INF/build-info.properties
-             TAG=${API_VERSION}.${CIRCLE_BRANCH}
-             if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
-               TAG=ELITE2_API_${API_VERSION}
-             fi
-             docker build --rm=false . \
-                --tag "mojdigitalstudio/elite2-api:$TAG" \
-                --label "maintainer=hmpps-studio@digital.justice.gov.uk" \
-                --label "app.version=$TAG" \
-                --label "build.version=$TAG" \
-                --label "build.number=$CIRCLE_BUILD_NUM" \
-                --label "build.url=$CIRCLE_BUILD_URL" \
-                --label "build.gitref=$CIRCLE_SHA1"
+            jar xvf build/libs/elite2-api-*.jar BOOT-INF/classes/META-INF/build-info.properties
+            API_VERSION=$(grep 'build.version=' BOOT-INF/classes/META-INF/build-info.properties | awk -F= '{print $2}')
+            rm BOOT-INF/classes/META-INF/build-info.properties
 
-             if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
+            # make up a good version name
+            TAG=${API_VERSION}.${CIRCLE_BRANCH}
+            if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
+              TAG=ELITE2_API_${API_VERSION}
+            fi
+
+            # build the container
+            docker build --rm=false . \
+               --tag "mojdigitalstudio/elite2-api:$TAG" \
+               --label "maintainer=feedback@digital.justice.gov.uk" \
+               --label "app.version=$TAG" \
+               --label "build.version=$TAG" \
+               --label "build.number=$CIRCLE_BUILD_NUM" \
+               --label "build.url=$CIRCLE_BUILD_URL" \
+               --label "build.gitref=$CIRCLE_SHA1"
+
+            if [[ "${CIRCLE_BRANCH}" == "nomis-api" ]]; then
               docker login -u $DOCKER_USER -p $DOCKER_PASS
               docker push mojdigitalstudio/elite2-api:$TAG
               docker tag mojdigitalstudio/elite2-api:$TAG mojdigitalstudio/elite2-api:latest
-              docker tag mojdigitalstudio/elite2-api:$TAG sysconjusticesystems/elite2-api:latest
               docker push mojdigitalstudio/elite2-api:latest
-              docker push sysconjusticesystems/elite2-api:latest
-             fi
-
+            fi
 workflows:
   version: 2
   build-test-and-deploy:

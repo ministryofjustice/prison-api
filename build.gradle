@@ -164,16 +164,10 @@ dependencies {
 }
 
 task testIntegration(type: Test) {
-    minHeapSize = "2G"
-    maxHeapSize = "2G"
     include "**/*IntTest*"
 }
 
 task testWithSchemaNomis(type: Test) {
-    // Limit the JVM, otherwise on CircleCi if the memory used gets too close to the 4G container
-    // maximum the test process is somewhat viciously killed and exits with code 137
-    minHeapSize = "2G"
-    maxHeapSize = "2G"
     def nomisEnvVars = ['api.db.target'   : 'nomis',
                         'cucumber.options': "--tags 'not (@wip or @broken)'"]
 
@@ -183,8 +177,6 @@ task testWithSchemaNomis(type: Test) {
 }
 
 task testWithSchemaNomisOracle(type: Test) {
-    minHeapSize = "2G"
-    maxHeapSize = "2G"
     def nomisEnvVars = ['api.db.target'   : 'nomis', 'api.db.dialect': 'oracle',
                         'cucumber.options': "--tags 'not (@wip or @broken)'"]
 
