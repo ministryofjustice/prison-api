@@ -83,7 +83,3 @@ workflows:
       - build_docker:
           requires:
             - build
-          filters:
-            branches:
-              - master
-              - nomis-api
