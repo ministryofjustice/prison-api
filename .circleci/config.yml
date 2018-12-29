@@ -55,10 +55,7 @@ jobs:
             rm BOOT-INF/classes/META-INF/build-info.properties
 
             # make up a good version name
-            TAG=${API_VERSION}.${CIRCLE_BRANCH}
-            if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
-              TAG=ELITE2_API_${API_VERSION}
-            fi
+            TAG=ELITE2_API_${API_VERSION}
 
             # build the container
             docker build --rm=false . \
@@ -70,12 +67,11 @@ jobs:
                --label "build.url=$CIRCLE_BUILD_URL" \
                --label "build.gitref=$CIRCLE_SHA1"
 
-            if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
-              docker login -u $DOCKER_USER -p $DOCKER_PASS
-              docker push mojdigitalstudio/elite2-api:$TAG
-              docker tag mojdigitalstudio/elite2-api:$TAG mojdigitalstudio/elite2-api:latest
-              docker push mojdigitalstudio/elite2-api:latest
-            fi
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker push mojdigitalstudio/elite2-api:$TAG
+            docker tag mojdigitalstudio/elite2-api:$TAG mojdigitalstudio/elite2-api:latest
+            docker push mojdigitalstudio/elite2-api:latest
+
 workflows:
   version: 2
   build-test-and-deploy:
@@ -87,3 +83,7 @@ workflows:
       - build_docker:
           requires:
             - build
+          filters:
+            branches:
+              - master
+              - nomis-api
