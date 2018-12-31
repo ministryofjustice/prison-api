@@ -1,17 +1,7 @@
 server:
-  servlet:
-    context-path: /elite2api
-  use-forward-headers: true
-  tomcat:
-    remote-ip-header: x-forwarded-for
-    protocol_header: x-forwarded-proto
-
-# ===================================================================
-# Standard Spring Boot configuration
-# ===================================================================
+  port: 8080
 
 spring:
-
   datasource:
     continueOnError: true
 
@@ -23,7 +13,6 @@ spring:
   jersey:
     type: servlet
     application-path: /api
-
 
 logging:
   level:

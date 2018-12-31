@@ -54,22 +54,19 @@ jobs:
             API_VERSION=$(grep 'build.version=' BOOT-INF/classes/META-INF/build-info.properties | awk -F= '{print $2}')
             rm BOOT-INF/classes/META-INF/build-info.properties
 
-            # make up a good version name
-            TAG=ELITE2_API_${API_VERSION}
-
             # build the container
             docker build --rm=false . \
-               --tag "mojdigitalstudio/elite2-api:$TAG" \
+               --tag "mojdigitalstudio/elite2-api:$API_VERSION" \
                --label "maintainer=feedback@digital.justice.gov.uk" \
-               --label "app.version=$TAG" \
-               --label "build.version=$TAG" \
+               --label "app.version=$API_VERSION" \
+               --label "build.version=$API_VERSION" \
                --label "build.number=$CIRCLE_BUILD_NUM" \
                --label "build.url=$CIRCLE_BUILD_URL" \
                --label "build.gitref=$CIRCLE_SHA1"
 
             docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker push mojdigitalstudio/elite2-api:$TAG
-            docker tag mojdigitalstudio/elite2-api:$TAG mojdigitalstudio/elite2-api:latest
+            docker push mojdigitalstudio/elite2-api:$API_VERSION
+            docker tag mojdigitalstudio/elite2-api:$API_VERSION mojdigitalstudio/elite2-api:latest
             docker push mojdigitalstudio/elite2-api:latest
 
 workflows:
@@ -83,3 +80,8 @@ workflows:
       - build_docker:
           requires:
             - build
+          filters:
+            branches:
+              only:
+                - master
+                - nomis-api
