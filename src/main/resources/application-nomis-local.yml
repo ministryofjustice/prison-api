@@ -1,0 +1,12 @@
+spring:
+  profiles:
+    include: connection-proxy
+
+  flyway:
+    enabled: false
+    locations:
+
+  datasource:
+    url: jdbc:oracle:thin:@localhost:1521:CNOMT3
+    username: api_proxy_user
+    password:

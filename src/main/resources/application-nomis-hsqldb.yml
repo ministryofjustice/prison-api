@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    continueOnError: true
+    url: jdbc:hsqldb:mem:elite2-db;sql.syntax_ora=true;get_column_name=false;shutdown=false;sql.nulls_first=false;sql.nulls_order=false
+    username: sa
+    password:
+
+  flyway:
+    enabled: true
+    locations: classpath:/db/migration/nomis/ddl,classpath:/db/migration/nomis/ddl-hsqldb,classpath:/db/migration/data,classpath:/db/migration/nomis/data,classpath:/db/migration/nomis/data-hsqldb
+
+  profiles:
+    include: dev
