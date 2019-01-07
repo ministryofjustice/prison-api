@@ -24,6 +24,10 @@ public class OffenderInReception {
     @ApiModelProperty(required = true, value = "Display Prisoner Number")
     private String offenderNo;
 
+    @NotBlank
+    @ApiModelProperty(required = true, value = "Booking Id")
+    private Long bookingId;
+
     @NotNull
     private LocalDate dateOfBirth;
 

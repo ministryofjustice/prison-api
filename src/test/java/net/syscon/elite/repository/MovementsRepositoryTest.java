@@ -163,9 +163,10 @@ public class MovementsRepositoryTest {
 
         assertThat(offenders).containsExactly(
                 OffenderInReception.builder()
-                    .firstName("AMY")
+                 .firstName("AMY")
                 .lastName("DUDE")
                 .offenderNo("A118DDD")
+                .bookingId(-46l)
                 .dateOfBirth(LocalDate.of(1980,01,02))
                 .build()
         );
