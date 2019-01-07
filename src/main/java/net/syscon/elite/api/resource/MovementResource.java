@@ -125,7 +125,7 @@ public interface MovementResource {
     @Produces({ "application/json" })
     @ApiOperation(value = "", nickname="getOffendersInReception")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = OffenderInReception.class),
+            @ApiResponse(code = 200, message = "OK", response = OffenderInReception.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
