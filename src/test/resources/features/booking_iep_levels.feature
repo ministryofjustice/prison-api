@@ -35,6 +35,28 @@ Feature: Booking Incentives & Earned Privileges
       | -2        | Basic    | 2              | 2017-09-06 |
       | -3        | Enhanced | 4              | 2017-10-12 |
 
+
+  Scenario Outline: Retrieve IEP summary for a list of offenders - without IEP details
+    When a request for IEP summaries are made for the following booking ids "-1,-2,-3"
+    Then the response should contain an entry with "<bookingId>" "<iepLevel>" "<iepDetailCount>" "<iepDate>"
+
+    Examples:
+     | bookingId | iepLevel |  iepDetailCount | iepDate    |
+     |-1         | Standard | 0              | 2017-08-15 |
+     |-2         | Basic    | 0              | 2017-09-06 |
+     |-3         | Enhanced | 0              | 2017-10-12 |
+
+  Scenario Outline: Retrieve IEP summary for a list of offenders - with IEP details
+    When a request for IEP summaries are made for the following booking ids "-1,-2,-3" including extra details
+    Then the response should contain an entry with "<bookingId>" "<iepLevel>" "<iepDetailCount>" "<iepDate>"
+
+    Examples:
+      | bookingId | iepLevel |  iepDetailCount | iepDate    |
+      |-1         | Standard | 1              | 2017-08-15 |
+      |-2         | Basic    | 2              | 2017-09-06 |
+      |-3         | Enhanced | 4              | 2017-10-12 |
+
+
   Scenario: Request IEP summary for an existing offender that does not have any IEP detail records
     When an IEP summary, with details, is requested for an offender with booking id "-9"
     Then IEP summary is returned with IEP level of "Entry"
