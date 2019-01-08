@@ -190,9 +190,12 @@ abstract class AbstractStepDefinitions {
         public PersonIdentifierSteps personIdentifierSteps() {
             return new PersonIdentifierSteps();
         }
+
+        @Bean
+        public CurfewSteps curfewSteps() { return new CurfewSteps(); }
     }
 
-    protected int ord2idx(String ordinal) {
+    int ord2idx(String ordinal) {
         String numberOnly = StringUtils.trimToEmpty(ordinal).replaceAll("[^0-9]", "");
         int index;
 
@@ -205,7 +208,7 @@ abstract class AbstractStepDefinitions {
         return index;
     }
 
-    protected Order parseSortOrder(String sortOrder) {
+    Order parseSortOrder(String sortOrder) {
         Order order;
 
         if (StringUtils.startsWithIgnoreCase(sortOrder, "DESC")) {

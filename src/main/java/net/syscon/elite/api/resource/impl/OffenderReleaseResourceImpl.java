@@ -1,6 +1,9 @@
 package net.syscon.elite.api.resource.impl;
 
 import io.jsonwebtoken.lang.Collections;
+import lombok.extern.slf4j.Slf4j;
+import net.syscon.elite.api.model.ApprovalStatus;
+import net.syscon.elite.api.model.HdcChecks;
 import net.syscon.elite.api.model.OffenderSentenceDetail;
 import net.syscon.elite.api.resource.OffenderSentenceResource;
 import net.syscon.elite.core.RestResource;
@@ -10,8 +13,10 @@ import net.syscon.elite.service.OffenderCurfewService;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
+@Slf4j
 @RestResource
 @Path("/offender-sentences")
 public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
@@ -44,6 +49,23 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
                 offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentUsername());
 
         return GetOffenderSentencesHomeDetentionCurfewCandidatesResponse.respond200WithApplicationJson(sentences);
+    }
+
+    @Override
+    public Response setCurfewChecks(Long bookingId, HdcChecks hdcChecks) {
+        try {
+            offenderCurfewService.setHdcChecks(bookingId, hdcChecks);
+            return Response.ok().build();
+        } catch (Throwable t) {
+            log.debug("PUT HDC check status failed");
+            throw t;
+        }
+    }
+
+    @Override
+    public Response setApprovalStatus(Long bookingId, ApprovalStatus approvalStatus) {
+        offenderCurfewService.setApprovalStatus(bookingId, approvalStatus);
+        return Response.ok().build();
     }
 
     @Override

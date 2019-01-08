@@ -24,6 +24,8 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     private static final String OFFENDER_BOOKING_SENTENCE_DETAIL_API_URL = OFFENDER_SENTENCE_DETAIL_API_URL + "/bookings";
 
     private static final String HOME_DETENTION_CURFEW_CANDIDATES = OFFENDER_SENTENCE_DETAIL_API_URL + "/home-detention-curfew-candidates";
+    private static final ParameterizedTypeReference<List<OffenderSentenceDetail>> LIST_OF_OFFENDER_SENTENCE_DETAIL_TYPE = new ParameterizedTypeReference<>() {
+    };
 
     private SentenceDetail sentenceDetail;
 
@@ -145,7 +147,7 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     public void verifyActualParoleDate(String actualParoleDate) {
         verifyLocalDate(sentenceDetail.getActualParoleDate(), actualParoleDate);
     }
-    
+
     @Step("Verify release on temporary licence date")
     public void verifyReleaseOnTemporaryLicenceDate(String releaseOnTemporaryLicenceDate) {
         verifyLocalDate(sentenceDetail.getReleaseOnTemporaryLicenceDate(), releaseOnTemporaryLicenceDate);
@@ -196,13 +198,8 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         verifyLocalDate(sentenceDetail.getTopupSupervisionExpiryDate(), topupSupervisionExpiryDate);
     }
 
-    @Step("Request sentence details fro Home Detention Curfew Candidates")
+    @Step("Request sentence details for Home Detention Curfew Candidates")
     public void requestSentenceDetailsForHomeDetentionCurfewCandidates() {
-        dispatchOffenderSentencesForHomeDetentionCurfewCandidates();
-    }
-
-    @Step("Request sentence details fro Home Detention Curfew Candidates")
-    public void requestSentenceDetailsForHomeDetentionCurfewCandidatesWithinAnAgency() {
         dispatchOffenderSentencesForHomeDetentionCurfewCandidates();
     }
 
@@ -211,11 +208,9 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         assertThat(offenderSentenceDetails).isNotEmpty();
     }
 
-
-
     protected void init() {
         super.init();
-
+        offenderSentenceDetails = null;
         sentenceDetail = null;
     }
 
@@ -251,12 +246,13 @@ public class BookingSentenceDetailSteps extends CommonSteps {
             ResponseEntity<List<OffenderSentenceDetail>> response = restTemplate.exchange(OFFENDER_SENTENCE_DETAIL_API_URL + urlModifier,
                     HttpMethod.GET,
                     createEntity(null, headers),
-                    new ParameterizedTypeReference<List<OffenderSentenceDetail>>() {
-                    });
+                    LIST_OF_OFFENDER_SENTENCE_DETAIL_TYPE);
             buildResourceData(response);
 
             offenderSentenceDetails = response.getBody();
-            if (!offenderSentenceDetails.isEmpty() && offenderSentenceDetails.size() == 1) {
+            if (offenderSentenceDetails != null &&
+                    !offenderSentenceDetails.isEmpty() &&
+                    offenderSentenceDetails.size() == 1) {
                 sentenceDetail = offenderSentenceDetails.get(0).getSentenceDetail();
             }
         } catch (EliteClientException ex) {
@@ -271,7 +267,7 @@ public class BookingSentenceDetailSteps extends CommonSteps {
             ResponseEntity<List<OffenderSentenceDetail>> response = restTemplate.exchange(HOME_DETENTION_CURFEW_CANDIDATES,
                     HttpMethod.GET,
                     createEntity(null, Collections.emptyMap()),
-                    new ParameterizedTypeReference<List<OffenderSentenceDetail>>() {});
+                    LIST_OF_OFFENDER_SENTENCE_DETAIL_TYPE);
             buildResourceData(response);
 
             offenderSentenceDetails = response.getBody();
@@ -288,8 +284,7 @@ public class BookingSentenceDetailSteps extends CommonSteps {
                     url,
                     HttpMethod.POST,
                     createEntity(idList),
-                    new ParameterizedTypeReference<List<OffenderSentenceDetail>>() {
-                    });
+                    LIST_OF_OFFENDER_SENTENCE_DETAIL_TYPE);
             buildResourceData(response);
 
             offenderSentenceDetails = response.getBody();

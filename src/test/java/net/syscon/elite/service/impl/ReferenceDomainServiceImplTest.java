@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -65,4 +65,26 @@ public class ReferenceDomainServiceImplTest {
         assertThat(scheduleReasons.get(4).getDescription()).isEqualTo("Trevor");
         assertThat(scheduleReasons.get(5).getDescription()).isEqualTo("Zebra");
     }
+
+    @Test
+    public void testReferenceCodeIsActive() {
+        when(repository.getReferenceCodeByDomainAndCode("HDC_APPROVE", "APPROVED", false))
+                .thenReturn(Optional.of(ReferenceCode.builder().activeFlag("Y").build()));
+        assertThat(service.isReferenceCodeActive("HDC_APPROVE", "APPROVED")).isTrue();
+    }
+
+    @Test
+    public void testReferenceCodeIsNotActive() {
+        when(repository.getReferenceCodeByDomainAndCode("HDC_APPROVE", "DISABLED", false))
+                .thenReturn(Optional.of(ReferenceCode.builder().activeFlag("N").build()));
+        assertThat(service.isReferenceCodeActive("HDC_APPROVE", "DISABLED")).isFalse();
+    }
+
+    @Test
+    public void testReferenceCodeIsNotPresent() {
+        when(repository.getReferenceCodeByDomainAndCode("HDC_APPROVE", "APPROVED", false))
+                .thenReturn(Optional.empty());
+        assertThat(service.isReferenceCodeActive("HDC_APPROVE", "APPROVED")).isFalse();
+    }
+
 }

@@ -1,6 +1,9 @@
 package net.syscon.elite.repository;
 
 
+import net.syscon.elite.api.model.ApprovalStatus;
+import net.syscon.elite.api.model.HdcChecks;
+import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.support.OffenderCurfew;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
@@ -9,26 +12,23 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("nomis-hsqldb")
 @RunWith(SpringRunner.class)
-@Transactional(propagation = Propagation.NOT_SUPPORTED)
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = PersistenceConfigs.class)
@@ -63,6 +63,9 @@ public class OffenderCurfewRepositoryTest {
     @Autowired
     private OffenderCurfewRepository repository;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     @Before
     public void init() {
         SecurityContextHolder.getContext()
@@ -82,6 +85,56 @@ public class OffenderCurfewRepositoryTest {
     @Test
     public void shouldReturnAllOffenderCurfewForAgencyBXIandLEI() {
         assertThat(repository.offenderCurfews(agencyIds("LEI", "BXI"))).containsAll(union(CURFEWS_LEI, CURFEWS_BXI));
+    }
+
+    @Test
+    public void shouldSetHDCChecksPassed() {
+        assertCurfewHDCEqualTo(23, null, null);
+
+        repository.setHDCChecksPassed(
+                -35,
+                HdcChecks.builder()
+                        .passed(true)
+                        .date(LocalDate.of(2018, 1, 31))
+                        .build()
+        );
+
+        assertCurfewHDCEqualTo(23, "Y", LocalDateTime.of(2018, 1, 31, 0, 0));
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void shouldRejectUnknownBookingIdForSetHDCChecksPassed() {
+        repository.setHDCChecksPassed(
+                99999,
+                HdcChecks.builder()
+                        .passed(true)
+                        .date(LocalDate.of(2018, 1, 31))
+                        .build()
+        );
+    }
+
+    @Test
+    public void shouldSetApprovalStatus() {
+        assertCurfewApprovalStatusEqualTo(23, null, null);
+        repository.setApprovalStatusForLatestCurfew(
+                -35,
+                ApprovalStatus.builder()
+                        .approvalStatus("APPROVED")
+                        .date(LocalDate.of(2018, 1, 2))
+                        .build()
+        );
+        assertCurfewApprovalStatusEqualTo(23, "APPROVED", LocalDateTime.of(2018, 1, 2, 0, 0));
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void shouldRejectUnknownBookingIdForSetApprovalStatus() {
+        repository.setApprovalStatusForLatestCurfew(
+                99999,
+                ApprovalStatus.builder()
+                        .approvalStatus("APPROVED")
+                        .date(LocalDate.of(2018, 1, 2))
+                        .build()
+        );
     }
 
     private static OffenderCurfew offenderCurfew(long offenderCurfewId, long offenderBookId, String assessmentDate, String approvalStatus, String ardCrdDate) {
@@ -112,5 +165,21 @@ public class OffenderCurfewRepositoryTest {
             result.addAll(set);
         }
         return result;
+    }
+
+    private void assertCurfewHDCEqualTo(long curfewId, String passedFlag, LocalDateTime assessmentDate) {
+        assertCurfewEqualTo(curfewId, passedFlag, assessmentDate, null, null);
+    }
+
+    private void assertCurfewApprovalStatusEqualTo(long curfewId, String approvalStatus, LocalDateTime decisionDate) {
+        assertCurfewEqualTo(curfewId, null, null, approvalStatus, decisionDate);
+    }
+
+    private void assertCurfewEqualTo(long curfewId, String passedFlag, LocalDateTime assessmentDate, String approvalStatus, LocalDateTime decisionDate) {
+        Map<String, Object> results = jdbcTemplate.queryForMap("SELECT PASSED_FLAG, ASSESSMENT_DATE, DECISION_DATE, APPROVAL_STATUS FROM OFFENDER_CURFEWS WHERE OFFENDER_CURFEW_ID = ?", curfewId);
+        assertThat(results.get("PASSED_FLAG")).isEqualTo(passedFlag);
+        assertThat(results.get("ASSESSMENT_DATE")).isEqualTo(assessmentDate == null ? null : Timestamp.valueOf(assessmentDate));
+        assertThat(results.get("APPROVAL_STATUS")).isEqualTo(approvalStatus);
+        assertThat(results.get("DECISION_DATE")).isEqualTo(decisionDate == null ? null : Timestamp.valueOf(decisionDate));
     }
 }
