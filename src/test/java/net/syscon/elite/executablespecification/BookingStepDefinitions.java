@@ -706,7 +706,7 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @When("^a request for IEP summaries are made for the following booking ids \"([^\"]*)\"$")
     public void aRequestForIEPSummariesAreMadeForTheFollowingBookingIds(String bookings) throws Throwable {
-        List<String> bookingIds = Arrays.asList(bookings.split(","));
+        var bookingIds = Arrays.asList(bookings.split(","));
         bookingIEP.getBookingIEPSummaryForOffenders(bookingIds, false);
     }
 
@@ -717,7 +717,7 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @When("^a request for IEP summaries are made for the following booking ids \"([^\"]*)\" including extra details$")
     public void aRequestForIEPSummariesAreMadeForTheFollowingBookingIdsIncludingExtraDetails(String bookings) throws Throwable {
-        List<String> bookingIds = Arrays.asList(bookings.split(","));
+        var bookingIds = Arrays.asList(bookings.split(","));
         bookingIEP.getBookingIEPSummaryForOffenders(bookingIds, true);
     }
 }
