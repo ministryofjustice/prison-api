@@ -180,8 +180,11 @@ public class UserResourceImpl implements UserResource {
 
     @Override
     public AddApiAccessForCaseloadResponse addApiAccessForCaseload(String caseload) {
-        userService.addDefaultCaseloadForPrison(caseload);
-        return AddApiAccessForCaseloadResponse.respond200WithApplicationJson();
+        var caseloadUpdate = userService.addDefaultCaseloadForPrison(caseload);
+        if (caseloadUpdate.getNumUsersEnabled() > 0) {
+            return AddApiAccessForCaseloadResponse.respond201WithApplicationJson(caseloadUpdate);
+        }
+        return AddApiAccessForCaseloadResponse.respond200WithApplicationJson(caseloadUpdate);
     }
 
     @Override

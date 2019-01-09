@@ -55,11 +55,11 @@ public class UserCaseloadAndRoleMaintenanceIntTest {
     @WithMockUser(username="ITAG_USER",roles={"MAINTAIN_ACCESS_ROLES"})
     public void addUsersToNwebCaseload() {
 
-        int numberAlloc = userService.addDefaultCaseloadForPrison("LEI");
-        assertThat(numberAlloc).isEqualTo(1);
+        var numberAlloc = userService.addDefaultCaseloadForPrison("LEI");
+        assertThat(numberAlloc.getNumUsersEnabled()).isEqualTo(1);
 
         numberAlloc = userService.addDefaultCaseloadForPrison("LEI");
-        assertThat(numberAlloc).isEqualTo(0);
+        assertThat(numberAlloc.getNumUsersEnabled()).isEqualTo(0);
     }
 
 }

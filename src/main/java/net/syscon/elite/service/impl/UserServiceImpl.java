@@ -195,21 +195,26 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
 	@Transactional
-	public int addDefaultCaseloadForPrison(String caseloadId) {
-		List<UserDetail> users = userRepository.findAllUsersWithCaseload(caseloadId);
+	public CaseloadUpdate addDefaultCaseloadForPrison(String caseloadId) {
+		List<UserDetail> users = userRepository.findAllUsersWithCaseload(caseloadId, apiCaseloadId);
 
-		log.debug("Found {} users with caseload {}", users.size(), caseloadId);
+		log.debug("Found {} users with caseload {} that do not have {} caseload", users.size(), caseloadId);
 		final List<UserDetail> caseloadsAdded = new ArrayList<>();
 		users.forEach(user -> {
-		    final String username = user.getUsername();
-            if (!userRepository.isUserAssessibleCaseloadAvailable(apiCaseloadId, username)) {
-                userRepository.addUserAssessibleCaseload(apiCaseloadId, username);
-                caseloadsAdded.add(user);
-            }
+		    var username = user.getUsername();
+            	try {
+					userRepository.addUserAssessibleCaseload(apiCaseloadId, username);
+					caseloadsAdded.add(user);
+				} catch (Exception e) {
+            		log.error("Failed to add {} caseload to user {}", apiCaseloadId, username);
+				}
         });
 
-        log.debug("{} Users added to caseload {}", caseloadsAdded.size(), apiCaseloadId);
-        return caseloadsAdded.size();
+        log.debug("{} users API enabled for caseload {}", caseloadsAdded.size(), caseloadId);
+        return CaseloadUpdate.builder()
+				.caseload(caseloadId)
+				.numUsersEnabled(caseloadsAdded.size())
+				.build();
 	}
 
 	@Override
