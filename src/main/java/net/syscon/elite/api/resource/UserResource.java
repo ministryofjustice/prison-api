@@ -213,8 +213,9 @@ public interface UserResource {
     @Produces({ "application/json" })
     @ApiOperation(value = "Add the NWEB caseload to specified caseload.", notes = "Add the NWEB caseload to specified caseload.", nickname="addApiAccessForCaseload")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = ""),
-        @ApiResponse(code = 201, message = "") })
+            @ApiResponse(code = 200, message = "No New Users", response = CaseloadUpdate.class),
+            @ApiResponse(code = 201, message = "New Users Enabled", response = CaseloadUpdate.class),
+    })
     AddApiAccessForCaseloadResponse addApiAccessForCaseload(@ApiParam(value = "The caseload (equates to prison) id to add all active users to default API caseload (NWEB)", required = true) @PathParam("caseload") String caseload);
 
     @PUT
@@ -727,16 +728,18 @@ public interface UserResource {
         private AddApiAccessForCaseloadResponse(Response response) { super(response); }
         private AddApiAccessForCaseloadResponse(Response response, Object entity) { super(response, entity); }
 
-        public static AddApiAccessForCaseloadResponse respond200WithApplicationJson() {
+        public static AddApiAccessForCaseloadResponse respond200WithApplicationJson(CaseloadUpdate caseloadUpdate) {
             ResponseBuilder responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
-            return new AddApiAccessForCaseloadResponse(responseBuilder.build());
+            responseBuilder.entity(caseloadUpdate);
+            return new AddApiAccessForCaseloadResponse(responseBuilder.build(), caseloadUpdate);
         }
 
-        public static AddApiAccessForCaseloadResponse respond201WithApplicationJson() {
+        public static AddApiAccessForCaseloadResponse respond201WithApplicationJson(CaseloadUpdate caseloadUpdate) {
             ResponseBuilder responseBuilder = Response.status(201)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
-            return new AddApiAccessForCaseloadResponse(responseBuilder.build());
+            responseBuilder.entity(caseloadUpdate);
+            return new AddApiAccessForCaseloadResponse(responseBuilder.build(), caseloadUpdate);
         }
     }
 

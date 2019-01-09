@@ -246,14 +246,14 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	}
 
 	@Override
-	public List<UserDetail> findAllUsersWithCaseload(String caseloadId) {
+	public List<UserDetail> findAllUsersWithCaseload(String caseloadId, String missingCaseloadId) {
 		Validate.notBlank(caseloadId, "An caseload id is required.");
 
 		String sql = getQuery("FIND_ACTIVE_STAFF_USERS_WITH_ACCESSIBLE_CASELOAD");
 
         return jdbcTemplate.query(
                 sql,
-                createParams("caseloadId", caseloadId),
+                createParams("caseloadId", caseloadId, "missingCaseloadId", missingCaseloadId),
                 USER_DETAIL_ROW_MAPPER);
     }
 
