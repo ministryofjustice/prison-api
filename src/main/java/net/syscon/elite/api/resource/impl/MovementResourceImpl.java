@@ -1,5 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.resource.MovementResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.core.RestResource;
@@ -21,48 +22,47 @@ public class MovementResourceImpl implements MovementResource {
     }
 
     @Override
-    public MovementResponse getRecentMovementsByDate(LocalDateTime fromDateTime, LocalDate movementDate, String agencyId) {
-        return MovementResponse.respond200WithApplicationJson(movementsService.getRecentMovementsByDate(fromDateTime, movementDate));
+    public List<Movement> getRecentMovementsByDate(LocalDateTime fromDateTime, LocalDate movementDate, String agencyId) {
+        return movementsService.getRecentMovementsByDate(fromDateTime, movementDate);
     }
 
     @Override
-    public MovementResponse getRollcount(String agencyId, boolean unassigned) {
-        return MovementResponse.respond200WithApplicationJson(movementsService.getRollCount(agencyId, unassigned));
+    public List<RollCount> getRollcount(String agencyId, boolean unassigned) {
+        return movementsService.getRollCount(agencyId, unassigned);
     }
 
     @Override
-    public MovementResponse getRollcountMovements(String agencyId, LocalDate movementDate) {
-        return MovementResponse.respond200WithApplicationJson(movementsService.getMovementCount(agencyId, movementDate));
+    public MovementCount getRollcountMovements(String agencyId, LocalDate movementDate) {
+        return movementsService.getMovementCount(agencyId, movementDate);
     }
 
     @Override
-    public MovementResponse getMovementsIn(String agencyId, LocalDate date) {
-        return MovementResponse.respond200WithApplicationJson(movementsService.getOffendersIn(agencyId, date));
+    public List<OffenderIn> getMovementsIn(String agencyId, LocalDate date) {
+        return movementsService.getOffendersIn(agencyId, date);
     }
 
     @Override
-    public MovementResponse getRecentMovementsByOffenders(List<String> offenderNumbers, List<String> movementTypes) {
-        return MovementResponse.respond200WithApplicationJson(movementsService.getRecentMovementsByOffenders(offenderNumbers, movementTypes));
+    public List<Movement> getRecentMovementsByOffenders(List<String> offenderNumbers, List<String> movementTypes) {
+        return movementsService.getRecentMovementsByOffenders(offenderNumbers, movementTypes);
     }
 
     @Override
-    public MovementResponse getEnrouteOffenderMovements(String agencyId, LocalDate movementDate, String sortFields, Order sortOrder) {
-        return MovementResponse.respond200WithApplicationJson(movementsService.getEnrouteOffenderMovements(agencyId, movementDate, sortFields, sortOrder));
-
+    public List<OffenderMovement> getEnrouteOffenderMovements(String agencyId, LocalDate movementDate, String sortFields, Order sortOrder) {
+        return movementsService.getEnrouteOffenderMovements(agencyId, movementDate, sortFields, sortOrder);
     }
 
     @Override
-    public MovementResponse getEnrouteOffenderMovementCount(String agencyId, LocalDate movementDate) {
-        return MovementResponse.respond200WithApplicationJson(movementsService.getEnrouteOffenderCount(agencyId, movementDate));
+    public int getEnrouteOffenderMovementCount(String agencyId, LocalDate movementDate) {
+        return movementsService.getEnrouteOffenderCount(agencyId, movementDate);
     }
 
     @Override
-    public MovementResponse getOffendersOutToday(String agencyId, LocalDate movementsDate) {
-        return MovementResponse.respond200WithApplicationJson(movementsService.getOffendersOut(agencyId, movementsDate));
+    public List<OffenderOutTodayDto> getOffendersOutToday(String agencyId, LocalDate movementsDate) {
+        return movementsService.getOffendersOut(agencyId, movementsDate);
     }
 
     @Override
-    public MovementResponse getOffendersInReception(String agencyId) {
-        return MovementResponse.respond200WithApplicationJson(movementsService.getOffendersInReception(agencyId));
+    public List<OffenderInReception> getOffendersInReception(String agencyId) {
+        return movementsService.getOffendersInReception(agencyId);
     }
 }
