@@ -2,6 +2,7 @@ package net.syscon.elite.api.resource.impl;
 
 import io.jsonwebtoken.lang.Collections;
 import net.syscon.elite.api.model.Assessment;
+import net.syscon.elite.api.model.OffenderCategorise;
 import net.syscon.elite.api.resource.OffenderAssessmentResource;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.InmateService;
@@ -44,6 +45,12 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
 
         final List<Assessment> results = inmateService.getInmatesAssessmentsByCode(offenderList, null);
         return PostOffenderAssessmentsCsraListResponse.respond200WithApplicationJson(results);
+    }
+
+    @Override
+    public GetUncategorisedResponse getUncategorised(String agencyId) {
+        final List<OffenderCategorise> results = inmateService.getUncategorised(agencyId);
+        return GetUncategorisedResponse.respond200WithApplicationJson(results);
     }
 
     private void validateOffenderList(List offenderList) {

@@ -3,6 +3,7 @@ package net.syscon.elite.api.resource;
 import io.swagger.annotations.*;
 import net.syscon.elite.api.model.Assessment;
 import net.syscon.elite.api.model.ErrorResponse;
+import net.syscon.elite.api.model.OffenderCategorise;
 import net.syscon.elite.api.support.ResponseDelegate;
 
 import javax.ws.rs.*;
@@ -45,6 +46,15 @@ public interface OffenderAssessmentResource {
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "The CSRA assessment list is returned, 1 per offender.", response = Assessment.class, responseContainer = "List") })
     PostOffenderAssessmentsCsraListResponse postOffenderAssessmentsCsraList(@ApiParam(value = "The required offender numbers (mandatory)", required = true) List<String> body);
+
+    @GET
+    @Path("/category/{agencyId}/uncategorised")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Offenders who need to be categorised.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = OffenderCategorise.class, responseContainer = "List") })
+    GetUncategorisedResponse getUncategorised(@ApiParam(value = "Prison id", required = true) @PathParam("agencyId")String agencyId);
 
     class GetOffenderAssessmentsAssessmentCodeResponse extends ResponseDelegate {
 
@@ -103,6 +113,19 @@ public interface OffenderAssessmentResource {
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new PostOffenderAssessmentsCsraListResponse(responseBuilder.build(), entity);
+        }
+    }
+
+    class GetUncategorisedResponse extends ResponseDelegate {
+
+        private GetUncategorisedResponse(Response response) { super(response); }
+        private GetUncategorisedResponse(Response response, Object entity) { super(response, entity); }
+
+        public static GetUncategorisedResponse respond200WithApplicationJson(List<OffenderCategorise> entity) {
+            ResponseBuilder responseBuilder = Response.status(200)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetUncategorisedResponse(responseBuilder.build(), entity);
         }
     }
 }

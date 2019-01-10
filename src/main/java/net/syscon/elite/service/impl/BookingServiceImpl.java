@@ -777,7 +777,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private static String forAgency(String agencyId) {
-        return AGENCY_LOCATION_ID_KEY + ":eq:" + agencyId;
+        return AGENCY_LOCATION_ID_KEY + ":eq:'" + agencyId + "'";
     }
 
     @Override
@@ -789,5 +789,4 @@ public class BookingServiceImpl implements BookingService {
     public OffenderSummary recallBooking(@Valid RecallBooking recallBooking) {
         throw new NotSupportedException("Service not implemented here.");
     }
-
 }

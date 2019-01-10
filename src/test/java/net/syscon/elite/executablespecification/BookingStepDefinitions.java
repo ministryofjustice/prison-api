@@ -583,6 +583,16 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAssessment.verifyErrorUserMessage(expectedUserMessage);
     }
 
+    @When("^a request is made for uncategorised offenders at \"([^\"]*)\"$")
+    public void requestUncategorisedOffenders(String agencyId) {
+        bookingAssessment.getUncategorisedOffenders(agencyId);
+    }
+
+    @Then("^([0-9]+) uncategorised offenders are returned$")
+    public void returnedUncategorisedOffenders(int size) {
+        bookingAssessment.verifyUncategorisedOffenders(size);
+    }
+
     @Then("^the number of active alerts is ([0-9-]+)$")
     public void theNumberOfActiveAlertsIs(int count) {
         bookingDetail.verifyActiveCount(count);
@@ -621,6 +631,11 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @When("^sentence details are requested of offenders for the logged in users caseloads$")
     public void sentenceDetailsAreRequestedForAnOffendersInLoggedInUsersCaseloads() {
         bookingSentenceDetail.getOffenderSentenceDetails();
+    }
+
+    @When("^sentence details are requested of offenders for agency \"([^\"]*)\"$")
+    public void sentenceDetailsAreRequestedForAnAgency(String agencyId) {
+        bookingSentenceDetail.getOffenderSentenceDetails(agencyId);
     }
 
     @Then("^\"([0-9-]+)\" offenders are returned$")
