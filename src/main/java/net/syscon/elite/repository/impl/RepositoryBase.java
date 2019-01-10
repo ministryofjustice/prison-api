@@ -5,6 +5,8 @@ import net.syscon.util.QueryBuilderFactory;
 import net.syscon.util.SQLProvider;
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Component;
@@ -24,9 +26,13 @@ public abstract class RepositoryBase  {
 	@Autowired
 	protected QueryBuilderFactory queryBuilderFactory;
 
+    @Value("${datasource.jdbc.fetch_size:100}")
+    protected int fetchSize;
+
 	@PostConstruct
 	public void initSql() {
 		sqlProvider.loadSql(getClass().getSimpleName().replace('.', '/'));
+		((JdbcTemplate)jdbcTemplate.getJdbcOperations()).setFetchSize(fetchSize);
 	}
 
 	protected MapSqlParameterSource createParams(Object ... params) {
