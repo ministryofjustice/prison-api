@@ -623,6 +623,11 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingSentenceDetail.getOffenderSentenceDetails();
     }
 
+    @When("^sentence details are requested of offenders for agency \"([^\"]*)\"$")
+    public void sentenceDetailsAreRequestedForAnAgency(String agencyId) {
+        bookingSentenceDetail.getOffenderSentenceDetails(agencyId);
+    }
+
     @Then("^\"([0-9-]+)\" offenders are returned$")
     public void offendersAreReturned(long total) {
         bookingSentenceDetail.verifyNoError();

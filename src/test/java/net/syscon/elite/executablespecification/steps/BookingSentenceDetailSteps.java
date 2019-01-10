@@ -58,6 +58,11 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         dispatchOffenderSentences(null, null);
     }
 
+    @Step("Get offender sentence details for agency")
+    public void getOffenderSentenceDetails(String agencyId) {
+        dispatchOffenderSentences(null, agencyId);
+    }
+
     @Step("Set row from list in context")
     public void putARowFromListInContext(int index) {
         sentenceDetail = offenderSentenceDetails.get(index).getSentenceDetail();
