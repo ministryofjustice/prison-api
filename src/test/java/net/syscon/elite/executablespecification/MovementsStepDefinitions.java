@@ -7,6 +7,7 @@ import net.syscon.elite.api.model.OffenderIn;
 import net.syscon.elite.api.model.OffenderInReception;
 import net.syscon.elite.api.model.OffenderOutTodayDto;
 import net.syscon.elite.executablespecification.steps.MovementsSteps;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
@@ -49,9 +50,11 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
         movementsSteps.verifyListOfUnassignedRollCounts();
     }
 
-    @When("^a request is made to retrieve the movement counts for an agency on \"([^\"]*)\"$")
-    public void aRequestIsMadeToRetrieveMovementCounts(String date) {
-        movementsSteps.retrieveMovementCounts("LEI", date);
+
+    @When("^a request is made to retrieve the movement counts for an \"([^\"]*)\" on \"([^\"]*)\"$")
+    public void aRequestIsMadeToRetrieveTheMovementCountsForAnOn(String agency, String date) throws Throwable {
+        movementsSteps.retrieveMovementCounts(agency, date.equals("today") ? LocalDate.now().toString() : date);
+
     }
 
     @When("^a make a request for recent movements for \"([^\"]*)\" and \"([^\"]*)\"$")
@@ -96,6 +99,11 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
     @Then("^information about 'offenders in' is returned as follows:$")
     public void informationAboutOffendersInIsReturnedAsFollows(DataTable table) {
         var offendersIn = table.asList(OffenderIn.class);
+
+        offendersIn.forEach(offender -> {
+            if(StringUtils.isBlank(offender.getLocation()))
+                offender.setLocation(null);
+        });
 
         movementsSteps.verifyOffendersIn(offendersIn);
     }
