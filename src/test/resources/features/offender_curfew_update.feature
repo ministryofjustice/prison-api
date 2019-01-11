@@ -1,3 +1,4 @@
+@wip
 Feature: Updating Offender Curfew state
 
   Scenario Outline: Update the 'Checks Passed' flag for a booking's current (latest) curfew
