@@ -118,7 +118,7 @@ public class InmateRepositoryTest {
 
         final List<PrisonerDetail> offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders.size()).isEqualTo(45);
+        assertThat(offenders.size()).isEqualTo(47);
     }
 
     @Test
@@ -138,7 +138,7 @@ public class InmateRepositoryTest {
 
         final List<PrisonerDetail> offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders.size()).isEqualTo(46);
+        assertThat(offenders.size()).isEqualTo(48);
     }
 
     @Test
@@ -148,7 +148,7 @@ public class InmateRepositoryTest {
 
         final List<PrisonerDetail> offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders.size()).isEqualTo(44);
+        assertThat(offenders.size()).isEqualTo(46);
     }
 
     @Test
@@ -158,7 +158,7 @@ public class InmateRepositoryTest {
 
         final List<PrisonerDetail> offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders.size()).isEqualTo(46);
+        assertThat(offenders.size()).isEqualTo(48);
     }
 
     @Test
@@ -562,7 +562,7 @@ public class InmateRepositoryTest {
         assertThat(list).asList().extracting("offenderNo", "bookingId", "firstName", "lastName", "status").contains(
                 Tuple.tuple("A1234AB", -2L, "GILLIAN", "ANDERSON", UNCATEGORISED),
                 Tuple.tuple("A1176RS", -32L, "FRED", "JAMES", UNCATEGORISED));
-        assertThat(list).asList().hasSize(23);
+        assertThat(list).asList().hasSize(24);
         // TODO test for status pending
     }
 
