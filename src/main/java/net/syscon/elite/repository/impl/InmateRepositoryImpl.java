@@ -91,6 +91,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     private final StandardBeanPropertyRowMapper<InmateDto> INMATE_MAPPER = new StandardBeanPropertyRowMapper<>(InmateDto.class);
 	private final StandardBeanPropertyRowMapper<ProfileInformation> PROFILE_INFORMATION_MAPPER = new StandardBeanPropertyRowMapper<>(ProfileInformation.class);
 	private final StandardBeanPropertyRowMapper<OffenderIdentifier> OFFENDER_IDENTIFIER_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderIdentifier.class);
+	private final StandardBeanPropertyRowMapper<OffenderCategorise> UNCATEGORISED_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderCategorise.class);
 
     private final StandardBeanPropertyRowMapper<PrisonerDetail> PRISONER_DETAIL_MAPPER =
             new StandardBeanPropertyRowMapper<>(PrisonerDetail.class);
@@ -402,6 +403,15 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
         return jdbcTemplate.query(sql, params, ASSESSMENT_MAPPER);
     }
+
+	@Override
+	public List<OffenderCategorise> getUncategorised(String agencyId) {
+		List<OffenderCategorise> results = jdbcTemplate.query(
+				getQuery("GET_UNCATEGORISED"),
+				createParams("agencyId", agencyId),
+				UNCATEGORISED_MAPPER);
+		return results;
+	}
 
 	@Override
     public Optional<AssignedLivingUnit> findAssignedLivingUnit(long bookingId, String locationTypeRoot) {

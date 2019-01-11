@@ -2,6 +2,7 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.InmateDetail;
 import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.model.OffenderCategorise;
 import net.syscon.elite.api.model.PrisonerDetail;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
@@ -25,10 +26,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
+import static net.syscon.elite.api.support.CategorisationStatus.UNCATEGORISED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
@@ -250,7 +253,7 @@ public class InmateRepositoryTest {
     @Test
     public void testFindOffendersWithDateOfBirth() {
         PrisonerDetailSearchCriteria criteria = criteriaForDOBRange(
-                LocalDate.of(1964, 1, 1),null, null);
+                LocalDate.of(1964, 1, 1), null, null);
 
         String query = buildQuery(criteria);
 
@@ -337,7 +340,7 @@ public class InmateRepositoryTest {
     public void testFindOffendersWithLastNameOrDateOfBirth() {
         PrisonerDetailSearchCriteria criteria = criteriaForAnyPersonalAttrs(null, "WOAKES", null);
 
-        criteria = addDOBRangeCriteria(criteria, LocalDate.of(1964, 1, 1), null, null );
+        criteria = addDOBRangeCriteria(criteria, LocalDate.of(1964, 1, 1), null, null);
 
         String query = buildQuery(criteria);
 
@@ -452,7 +455,7 @@ public class InmateRepositoryTest {
     @Test
     public void testFindOffenderAliasesWithDateOfBirth() {
         PrisonerDetailSearchCriteria criteria = criteriaForDOBRange(
-                LocalDate.of(1964, 1, 1),null, null);
+                LocalDate.of(1964, 1, 1), null, null);
 
         String query = buildQuery(criteria);
 
@@ -539,7 +542,7 @@ public class InmateRepositoryTest {
     public void testFindOffenderAliasesWithLastNameOrDateOfBirth() {
         PrisonerDetailSearchCriteria criteria = criteriaForAnyPersonalAttrs(null, "WOAKES", null);
 
-        criteria = addDOBRangeCriteria(criteria, LocalDate.of(1964, 1, 1), null, null );
+        criteria = addDOBRangeCriteria(criteria, LocalDate.of(1964, 1, 1), null, null);
 
         String query = buildQuery(criteria);
 
@@ -549,7 +552,21 @@ public class InmateRepositoryTest {
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("Z0021ZZ", "A1183CW");
     }
 
-    /********************/
+    @Test
+    public void testGetUncategorisedGeneral() {
+        final List<OffenderCategorise> list = repository.getUncategorised("LEI");
+
+        //A1234AA does have a category so should not be present
+        assertThat(list.stream().filter(a -> a.getOffenderNo().equals("A1234AA")).findAny().isPresent()).isFalse();
+        list.sort(Comparator.comparing(OffenderCategorise::getOffenderNo));
+        assertThat(list).asList().extracting("offenderNo", "bookingId", "firstName", "lastName", "status").contains(
+                Tuple.tuple("A1234AB", -2L, "GILLIAN", "ANDERSON", UNCATEGORISED),
+                Tuple.tuple("A1176RS", -32L, "FRED", "JAMES", UNCATEGORISED));
+        assertThat(list).asList().hasSize(23);
+        // TODO test for status pending
+    }
+
+    /*****************************************************************************************/
 
     private PrisonerDetailSearchCriteria criteriaForOffenderNo(String offenderNo) {
         return PrisonerDetailSearchCriteria.builder()
@@ -654,7 +671,7 @@ public class InmateRepositoryTest {
     }
 
     private List<PrisonerDetail> findOffendersWithAliasesFullResults(String query) {
-        Page<PrisonerDetail> page = repository.findOffendersWithAliases(query, new PageRequest(0L,1000L));
+        Page<PrisonerDetail> page = repository.findOffendersWithAliases(query, new PageRequest(0L, 1000L));
 
         return page.getItems();
     }

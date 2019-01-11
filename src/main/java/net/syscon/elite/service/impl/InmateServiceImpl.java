@@ -10,6 +10,7 @@ import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.AssessmentDto;
@@ -331,6 +332,12 @@ public class InmateServiceImpl implements InmateService {
                 .cellSharingAlertFlag(assessmentDto.isCellSharingAlertFlag())
                 .nextReviewDate(assessmentDto.getNextReviewDate())
                 .build();
+    }
+
+    @Override
+    @VerifyAgencyAccess
+    public List<OffenderCategorise> getUncategorised(String agencyId) {
+        return repository.getUncategorised(agencyId);
     }
 
     @Override
