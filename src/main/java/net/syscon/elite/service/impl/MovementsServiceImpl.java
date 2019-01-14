@@ -104,14 +104,21 @@ public class MovementsServiceImpl implements MovementsService {
     @VerifyAgencyAccess
     public List<OffenderIn> getOffendersIn(String agencyId, LocalDate date) {
         var offendersIn = movementsRepository.getOffendersIn(agencyId, date);
-        offendersIn.forEach(oi -> {
-            oi.setFromAgencyDescription(LocationProcessor.formatLocation(oi.getFromAgencyDescription()));
-            oi.setLastName(StringUtils.capitalize(oi.getLastName().toLowerCase()));
-            oi.setFirstName(StringUtils.capitalize(oi.getFirstName().toLowerCase()));
-            oi.setMiddleName(StringUtils.isEmpty(oi.getMiddleName()) ? "" : StringUtils.capitalize(oi.getMiddleName().toLowerCase()));
 
-        });
-        return offendersIn;
+        return offendersIn
+                .stream()
+                .map(offender -> OffenderIn.builder()
+                                .offenderNo(offender.getOffenderNo())
+                                .firstName(StringUtils.capitalize(offender.getFirstName().toLowerCase()))
+                                .lastName(StringUtils.capitalize(offender.getLastName().toLowerCase()))
+                                .middleName(StringUtils.isEmpty(offender.getMiddleName()) ? "" : StringUtils.capitalize(offender.getMiddleName().toLowerCase()))
+                                .fromAgencyDescription(LocationProcessor.formatLocation(offender.getFromAgencyDescription()))
+                                .toAgencyDescription(LocationProcessor.formatLocation(offender.getToAgencyDescription()))
+                                .location(StringUtils.isEmpty(offender.getLocation()) ? "" : offender.getLocation())
+                                .movementTime(offender.getMovementTime())
+                                .dateOfBirth(offender.getDateOfBirth())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     @Override

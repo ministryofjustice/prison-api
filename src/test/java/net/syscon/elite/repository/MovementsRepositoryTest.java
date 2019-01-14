@@ -151,6 +151,7 @@ public class MovementsRepositoryTest {
                         .firstName("NEIL")
                         .lastName("BRADLEY")
                 .fromAgencyDescription("BIRMINGHAM")
+                .toAgencyDescription("LEEDS")
                 .movementTime(LocalTime.of(10,45,0))
                 .location("Landing H/1")
                 .build()

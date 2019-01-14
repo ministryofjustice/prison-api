@@ -39,6 +39,10 @@ public class OffenderIn {
     @ApiModelProperty(required = true, value = "Description for Agency travelling from")
     private String fromAgencyDescription;
 
+    @NotBlank
+    @ApiModelProperty(required = true, value = "Description for Agency travelling to")
+    private String toAgencyDescription;
+
     @NotNull
     @ApiModelProperty(required = true, value = "Movement time")
     private LocalTime movementTime;
