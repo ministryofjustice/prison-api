@@ -36,14 +36,8 @@ Feature: Movement
     When a request is made to retrieve the establishment unassigned roll count for an agency
     Then a valid list of unassigned roll count records are returned
 
-  Scenario: Get a days movement count for a prison
 
-    Acceptance Criteria:
-    A logged in user can get the count of prisoners in and out on a specific day
 
-    Given a user has authenticated with the API
-    When a request is made to retrieve the movement counts for an agency on "2017-08-16"
-    Then "2" offenders are out today and "0" are in
 
    Scenario:  Get brief information for offenders 'out today'.
 
@@ -51,7 +45,7 @@ Feature: Movement
      When a request is made to retrieve the 'offenders out' for agency "LEI" for "2000-02-12"
      Then the following rows should be returned:
      | firstName | lastName  | offenderNo | dateOfBirth | timeOut   | reasonDescription |
-     | Nick      | Talbot    | Z0018ZZ    | 1970-01-01  | 12:00     | Normal transfer   |
+     | Nick      | Talbot    | Z0018ZZ    | 1970-01-01  | 12:00     | Normal Transfer   |
 
 
   Scenario Outline: Retrieve a list of en-route offenders
@@ -68,13 +62,43 @@ Feature: Movement
     Given a user has authenticated with the API
     When a request is made to retrieve the 'offenders in' for agency "LEI" on date "2017-10-12"
     Then information about 'offenders in' is returned as follows:
-    | offenderNo | dateOfBirth | firstName | middleName | lastName | fromAgencyDescription | movementTime | location    |
-    | A6676RS    | 1945-01-10  | Neil      |            | Bradley  | Birmingham            | 10:45        | Landing H/1 |
-
+    | offenderNo | dateOfBirth | firstName | middleName | lastName | fromAgencyDescription | toAgencyDescription | fromAgencyId | toAgencyId |  movementTime   | location    |
+    | A6676RS    | 1945-01-10  | Neil      |            | Bradley  | Birmingham            | Leeds               | BMI          | LEI          | 10:45         | Landing H/1 |
 
   Scenario: Get offender in reception
-      Given a user has authenticated with the API
-      When a request is made to retrieve 'offenders in reception' for agency "MDI"
-      Then information about 'offenders in reception' is returned as follows:
+    Given a user has authenticated with the API
+    When a request is made to retrieve 'offenders in reception' for agency "MDI"
+    Then information about 'offenders in reception' is returned as follows:
       | bookingId | offenderNo | dateOfBirth   | firstName | lastName|
       | -46       | A118DDD    | 1980-01-02    |  Amy      | Dude    |
+
+
+  Scenario: Get a days movement count for a prison
+
+  Acceptance Criteria:
+  A logged in user can get the count of prisoners in and out on a specific day
+
+    Given a user has authenticated with the API
+    When a request is made to retrieve the movement counts for an "MDI" on "2000-08-16"
+    Then "2" offenders are out today and "2" are in
+
+  Scenario: Get information around an offender arriving and leaving multiple times on the same day
+
+    Given a user has authenticated with the API
+
+    When a request is made to retrieve the 'offenders in' for agency "MDI" on date "2000-08-16"
+    Then information about 'offenders in' is returned as follows:
+      | offenderNo | dateOfBirth | firstName | middleName | lastName | fromAgencyDescription | toAgencyDescription | fromAgencyId   | toAgencyId    |  movementTime | location    |
+      | A118FFF    | 1980-01-02  | Janis     |            | Drp      | Outside               | Moorland            | OUT            | MDI           | 00:00         |             |
+      | A118FFF    | 1980-01-02  | Janis     |            | Drp      | Court 1               | Moorland            | COURT1         | MDI           | 00:00         |             |
+
+    When a request is made to retrieve the 'offenders out' for agency "MDI" for "2000-08-16"
+    Then the following rows should be returned:
+        | firstName | lastName  | offenderNo | dateOfBirth   | timeOut   | reasonDescription |
+        | Janis     | Drp       | A118FFF    | 1980-01-02    | 00:00     | Normal Transfer   |
+        | Janis     | Drp       | A118FFF    | 1980-01-02    | 00:00     | Normal Transfer   |
+
+    When a request is made to retrieve the 'offenders in' for agency "LEI" on date "2000-08-16"
+    Then information about 'offenders in' is returned as follows:
+      | offenderNo | dateOfBirth | firstName | middleName | lastName | fromAgencyDescription   | toAgencyDescription | fromAgencyId   | toAgencyId   |  movementTime | location    |
+      | A118FFF    | 1980-01-02  | Janis     |            | Drp      | Moorland                | Leeds               | MDI            | LEI          | 00:00         |             |

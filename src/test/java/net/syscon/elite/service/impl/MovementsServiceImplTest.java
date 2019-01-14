@@ -143,7 +143,7 @@ public class MovementsServiceImplTest {
         Assertions.assertThat(offendersOutToday).extracting("lastName").contains("Doe");
         Assertions.assertThat(offendersOutToday).extracting("dateOfBirth").contains(LocalDate.now());
         Assertions.assertThat(offendersOutToday).extracting("timeOut").contains(timeOut);
-        Assertions.assertThat(offendersOutToday).extracting("reasonDescription").contains("Normal transfer");
+        Assertions.assertThat(offendersOutToday).extracting("reasonDescription").contains("Normal Transfer");
     }
 
     @Test

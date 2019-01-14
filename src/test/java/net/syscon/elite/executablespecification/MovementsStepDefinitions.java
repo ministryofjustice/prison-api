@@ -49,9 +49,11 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
         movementsSteps.verifyListOfUnassignedRollCounts();
     }
 
-    @When("^a request is made to retrieve the movement counts for an agency on \"([^\"]*)\"$")
-    public void aRequestIsMadeToRetrieveMovementCounts(String date) {
-        movementsSteps.retrieveMovementCounts("LEI", date);
+
+    @When("^a request is made to retrieve the movement counts for an \"([^\"]*)\" on \"([^\"]*)\"$")
+    public void aRequestIsMadeToRetrieveTheMovementCountsForAnOn(String agency, String date) throws Throwable {
+        movementsSteps.retrieveMovementCounts(agency, date.equals("today") ? LocalDate.now().toString() : date);
+
     }
 
     @When("^a make a request for recent movements for \"([^\"]*)\" and \"([^\"]*)\"$")
