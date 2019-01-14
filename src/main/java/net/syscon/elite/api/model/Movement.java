@@ -17,7 +17,7 @@ import java.time.LocalTime;
  **/
 @SuppressWarnings("unused")
 @ApiModel(description = "Prisoner Custody Status")
-@Builder
+@Builder(toBuilder = true   )
 @AllArgsConstructor
 @NoArgsConstructor
 @Data

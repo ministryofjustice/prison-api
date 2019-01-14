@@ -45,7 +45,7 @@ Feature: Movement
      When a request is made to retrieve the 'offenders out' for agency "LEI" for "2000-02-12"
      Then the following rows should be returned:
      | firstName | lastName  | offenderNo | dateOfBirth | timeOut   | reasonDescription |
-     | Nick      | Talbot    | Z0018ZZ    | 1970-01-01  | 12:00     | Normal transfer   |
+     | Nick      | Talbot    | Z0018ZZ    | 1970-01-01  | 12:00     | Normal Transfer   |
 
 
   Scenario Outline: Retrieve a list of en-route offenders
@@ -95,8 +95,8 @@ Feature: Movement
     When a request is made to retrieve the 'offenders out' for agency "MDI" for "2000-08-16"
     Then the following rows should be returned:
         | firstName | lastName  | offenderNo | dateOfBirth   | timeOut   | reasonDescription |
-        | Janis     | Drp       | A118FFF    | 1980-01-02    | 00:00     | Normal transfer   |
-        | Janis     | Drp       | A118FFF    | 1980-01-02    | 00:00     | Normal transfer   |
+        | Janis     | Drp       | A118FFF    | 1980-01-02    | 00:00     | Normal Transfer   |
+        | Janis     | Drp       | A118FFF    | 1980-01-02    | 00:00     | Normal Transfer   |
 
     When a request is made to retrieve the 'offenders in' for agency "LEI" on date "2000-08-16"
     Then information about 'offenders in' is returned as follows:

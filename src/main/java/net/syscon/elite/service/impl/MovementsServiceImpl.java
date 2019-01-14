@@ -8,6 +8,7 @@ import net.syscon.elite.service.MovementsService;
 import net.syscon.elite.service.support.LocationProcessor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.WordUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,12 +38,13 @@ public class MovementsServiceImpl implements MovementsService {
     @Override
     @PreAuthorize("hasAnyRole('SYSTEM_USER', 'SYSTEM_READ_ONLY', 'GLOBAL_SEARCH')")
     public List<Movement> getRecentMovementsByOffenders(List<String> offenderNumbers, List<String> movementTypes) {
-        final List<Movement> movements = movementsRepository.getRecentMovementsByOffenders(offenderNumbers, movementTypes);
-        movements.forEach(m -> {
-            m.setFromAgencyDescription(LocationProcessor.formatLocation(m.getFromAgencyDescription()));
-            m.setToAgencyDescription(LocationProcessor.formatLocation(m.getToAgencyDescription()));
-        });
-        return movements;
+        final var movements = movementsRepository.getRecentMovementsByOffenders(offenderNumbers, movementTypes);
+
+        return movements.stream().map(movement -> movement.toBuilder()
+                .fromAgencyDescription(LocationProcessor.formatLocation(movement.getFromAgencyDescription()))
+                .toAgencyDescription(LocationProcessor.formatLocation(movement.getToAgencyDescription()))
+                .build())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -61,7 +63,7 @@ public class MovementsServiceImpl implements MovementsService {
     @VerifyAgencyAccess
     public List<OffenderOutTodayDto> getOffendersOut(String agencyId, LocalDate movementDate) {
 
-       List<OffenderMovement> offenders = movementsRepository.getOffendersOut(agencyId, movementDate);
+       final var offenders = movementsRepository.getOffendersOut(agencyId, movementDate);
 
         return offenders
                 .stream()
@@ -73,9 +75,9 @@ public class MovementsServiceImpl implements MovementsService {
         return OffenderOutTodayDto
                 .builder()
                 .dateOfBirth(offenderMovement.getDateOfBirth())
-                .firstName(StringUtils.capitalize(offenderMovement.getFirstName().toLowerCase()))
-                .lastName(StringUtils.capitalize(offenderMovement.getLastName().toLowerCase()))
-                .reasonDescription(StringUtils.capitalize(offenderMovement.getMovementReasonDescription().toLowerCase()))
+                .firstName(WordUtils.capitalizeFully(offenderMovement.getFirstName()))
+                .lastName(WordUtils.capitalizeFully(offenderMovement.getLastName().toLowerCase()))
+                .reasonDescription(WordUtils.capitalizeFully(offenderMovement.getMovementReasonDescription()))
                 .offenderNo(offenderMovement.getOffenderNo())
                 .timeOut(offenderMovement.getMovementTime())
                 .build();
@@ -86,12 +88,14 @@ public class MovementsServiceImpl implements MovementsService {
     public List<OffenderMovement> getEnrouteOffenderMovements(String agencyId, LocalDate date, String orderByFields, Order order) {
         String sortFields = StringUtils.defaultString(orderByFields, "lastName,firstName");
         Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
-        final List<OffenderMovement> movements = movementsRepository.getEnrouteMovementsOffenderMovementList(agencyId, date, sortFields, sortOrder);
-        movements.forEach(m -> {
-            m.setFromAgencyDescription(LocationProcessor.formatLocation(m.getFromAgencyDescription()));
-            m.setToAgencyDescription(LocationProcessor.formatLocation(m.getToAgencyDescription()));
-        });
-        return movements;
+        final var movements = movementsRepository.getEnrouteMovementsOffenderMovementList(agencyId, date, sortFields, sortOrder);
+
+        return movements.stream().map(movement -> movement.toBuilder()
+            .fromAgencyDescription(LocationProcessor.formatLocation(movement.getFromAgencyDescription()))
+            .toAgencyDescription(LocationProcessor.formatLocation(movement.getToAgencyDescription()))
+            .build())
+            .collect(Collectors.toList());
+
     }
 
     @Override
@@ -103,14 +107,17 @@ public class MovementsServiceImpl implements MovementsService {
     @Override
     @VerifyAgencyAccess
     public List<OffenderIn> getOffendersIn(String agencyId, LocalDate date) {
-        var offendersIn = movementsRepository.getOffendersIn(agencyId, date);
+        final var offendersIn = movementsRepository.getOffendersIn(agencyId, date);
 
         return offendersIn
                 .stream()
                 .map(offender -> offender.toBuilder()
-                                .fromAgencyDescription(LocationProcessor.formatLocation(offender.getFromAgencyDescription()))
-                                .toAgencyDescription(LocationProcessor.formatLocation(offender.getToAgencyDescription()))
-                                .location(StringUtils.isEmpty(offender.getLocation()) ? "" : offender.getLocation())
+                            .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
+                            .lastName(WordUtils.capitalizeFully(offender.getLastName()))
+                            .middleName(WordUtils.capitalizeFully(StringUtils.trimToEmpty(offender.getMiddleName())))
+                            .fromAgencyDescription(LocationProcessor.formatLocation(offender.getFromAgencyDescription()))
+                            .toAgencyDescription(LocationProcessor.formatLocation(offender.getToAgencyDescription()))
+                            .location(StringUtils.trimToEmpty(offender.getLocation()))
                         .build())
                 .collect(Collectors.toList());
     }
@@ -120,12 +127,9 @@ public class MovementsServiceImpl implements MovementsService {
     public List<OffenderInReception> getOffendersInReception(String agencyId) {
         return movementsRepository.getOffendersInReception(agencyId)
                 .stream()
-                .map(offender -> OffenderInReception.builder()
-                        .firstName(StringUtils.capitalize(offender.getFirstName().toLowerCase()))
-                        .lastName(StringUtils.capitalize(offender.getLastName().toLowerCase()))
-                        .offenderNo(offender.getOffenderNo())
-                        .dateOfBirth(offender.getDateOfBirth())
-                        .bookingId(offender.getBookingId())
+                .map(offender -> offender.toBuilder()
+                        .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
+                        .lastName(WordUtils.capitalizeFully(offender.getLastName()))
                         .build())
                 .collect(Collectors.toList());
     }
