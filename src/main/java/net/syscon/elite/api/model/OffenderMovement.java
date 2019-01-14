@@ -18,7 +18,7 @@ import java.util.Map;
 
 @ApiModel(description = "Prisoner Movement")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Builder(toBuilder = true   )
+@Builder(toBuilder = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

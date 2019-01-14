@@ -76,7 +76,7 @@ public class MovementsServiceImpl implements MovementsService {
                 .builder()
                 .dateOfBirth(offenderMovement.getDateOfBirth())
                 .firstName(WordUtils.capitalizeFully(offenderMovement.getFirstName()))
-                .lastName(WordUtils.capitalizeFully(offenderMovement.getLastName().toLowerCase()))
+                .lastName(WordUtils.capitalizeFully(offenderMovement.getLastName()))
                 .reasonDescription(WordUtils.capitalizeFully(offenderMovement.getMovementReasonDescription()))
                 .offenderNo(offenderMovement.getOffenderNo())
                 .timeOut(offenderMovement.getMovementTime())
