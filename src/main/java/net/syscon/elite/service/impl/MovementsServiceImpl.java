@@ -107,18 +107,10 @@ public class MovementsServiceImpl implements MovementsService {
 
         return offendersIn
                 .stream()
-                .map(offender -> OffenderIn.builder()
-                                .offenderNo(offender.getOffenderNo())
-                                .firstName(StringUtils.capitalize(offender.getFirstName().toLowerCase()))
-                                .lastName(StringUtils.capitalize(offender.getLastName().toLowerCase()))
-                                .middleName(StringUtils.isEmpty(offender.getMiddleName()) ? "" : StringUtils.capitalize(offender.getMiddleName().toLowerCase()))
+                .map(offender -> offender.toBuilder()
                                 .fromAgencyDescription(LocationProcessor.formatLocation(offender.getFromAgencyDescription()))
                                 .toAgencyDescription(LocationProcessor.formatLocation(offender.getToAgencyDescription()))
-                                .toAgencyId(offender.getToAgencyId())
-                                .fromAgencyId(offender.getFromAgencyId())
                                 .location(StringUtils.isEmpty(offender.getLocation()) ? "" : offender.getLocation())
-                                .movementTime(offender.getMovementTime())
-                                .dateOfBirth(offender.getDateOfBirth())
                         .build())
                 .collect(Collectors.toList());
     }
