@@ -2,8 +2,8 @@ package net.syscon.elite.api.resource;
 
 import io.swagger.annotations.*;
 import net.syscon.elite.api.model.ApprovalStatus;
-import net.syscon.elite.api.model.HdcChecks;
 import net.syscon.elite.api.model.ErrorResponse;
+import net.syscon.elite.api.model.HdcChecks;
 import net.syscon.elite.api.model.OffenderSentenceDetail;
 import net.syscon.elite.api.support.ResponseDelegate;
 
@@ -32,13 +32,25 @@ public interface OffenderSentenceResource {
     @Path("/home-detention-curfew-candidates")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    @ApiOperation(value = "List of offenders with associated sentence detail.", notes = "List of offenders with associated sentence detail.", nickname = "getOffenderSentencesHomeDetentionCurfewCandidates")
+    @ApiOperation(value = "List of offenders Eligibile for HDC", notes = "Version 1", nickname = "getOffenderSentencesHomeDetentionCurfewCandidates")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Sentence details for offenders who are candidates for Home Detention Curfew.", response = OffenderSentenceDetail.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetOffenderSentencesHomeDetentionCurfewCandidatesResponse getOffenderSentencesHomeDetentionCurfewCandidates();
+
+    @GET
+    @Path("/home-detention-curfew-candidates/v2")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "List of offenders Eligibile for HDC", notes = "Version 2", nickname = "getEligibileHdcOffendersByUsername")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Sentence details for offenders who are candidates for Home Detention Curfew.", response = OffenderSentenceDetail.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
+    GetOffenderSentencesHomeDetentionCurfewCandidatesResponse getEligibileHdcOffendersByUsername();
 
     @PUT
     @Path("/booking/{bookingId}/home-detention-curfews/latest/checks-passed")

@@ -633,6 +633,18 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public List<OffenderSentenceCalculation> getOffenderSentenceCalculationsForAgency(Set<String> agencyIds) {
+
+        final List<OffenderSentenceCalculation> offenderSentenceSummaryRaw = bookingRepository.getOffenderSentenceCalculatons(agencyIds);
+
+        Map<Long, Optional<OffenderSentenceCalculation>> identifyLatest = offenderSentenceSummaryRaw.parallelStream()
+                .collect(Collectors.groupingBy(OffenderSentenceCalculation::getBookingId,
+                        Collectors.maxBy(Comparator.comparing(OffenderSentenceCalculation::getOffenderSentCalculationId))));
+
+       return identifyLatest.values().stream().filter(Optional::isPresent).map(Optional::get).collect(toList());
+    }
+
+    @Override
     public List<OffenderSentenceDetail> getOffenderSentencesSummary(String agencyId, String username, List<String> offenderNos) {
 
         final List<OffenderSentenceDetailDto> offenderSentenceSummary = offenderSentenceSummaries(agencyId, username, offenderNos);
