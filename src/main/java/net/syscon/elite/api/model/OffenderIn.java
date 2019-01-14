@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 @ApiModel(description = "Summary of an offender counted as Establishment Roll - In")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Builder
+@Builder(toBuilder = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -36,8 +36,20 @@ public class OffenderIn {
     private String lastName;
 
     @NotBlank
+    @ApiModelProperty(required = true, value = "Id for Agency travelling from")
+    private String fromAgencyId;
+
+    @NotBlank
     @ApiModelProperty(required = true, value = "Description for Agency travelling from")
     private String fromAgencyDescription;
+
+    @NotBlank
+    @ApiModelProperty(required = true, value = "Id for Agency travelling to")
+    private String toAgencyId;
+
+    @NotBlank
+    @ApiModelProperty(required = true, value = "Description for Agency travelling to")
+    private String toAgencyDescription;
 
     @NotNull
     @ApiModelProperty(required = true, value = "Movement time")

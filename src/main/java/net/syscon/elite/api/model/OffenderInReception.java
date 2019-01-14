@@ -14,7 +14,7 @@ import java.time.LocalDate;
 
 @ApiModel(description = "Summary of an offender counted as Establishment Roll - Reception")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Builder
+@Builder(toBuilder = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
