@@ -71,8 +71,13 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
 
     @Override
     public Response setApprovalStatus(Long bookingId, ApprovalStatus approvalStatus) {
+        try {
         offenderCurfewService.setApprovalStatus(bookingId, approvalStatus);
         return Response.ok().build();
+        } catch (Throwable t) {
+            log.debug("PUT ApprovalStatus failed");
+            throw t;
+        }
     }
 
     @Override

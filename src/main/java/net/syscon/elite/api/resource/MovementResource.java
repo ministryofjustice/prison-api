@@ -107,6 +107,19 @@ public interface MovementResource {
             @ApiParam(value = "date", required = true) @PathParam("isoDate") LocalDate movementsDate);
 
     @GET
+    @Path("/{livingUnitId}/currently-out")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Information on offenders currently out.", notes = "Information on offenders currently out.", nickname = "getOffendersCurrentlyOut")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = MovementCount.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    List<OffenderOut> getOffendersCurrentlyOut(
+            @ApiParam(value = "The identifier of a living unit, otherwise known as an internal location.", required = true) @PathParam("livingUnitId") Long livingUnitId);
+
+    @GET
     @Path("/{agencyId}/out/{isoDate}")
     @Consumes({"application/json"})
     @Produces({"application/json"})

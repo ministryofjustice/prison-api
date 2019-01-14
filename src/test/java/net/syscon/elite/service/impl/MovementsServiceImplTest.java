@@ -1,10 +1,7 @@
 package net.syscon.elite.service.impl;
 
 import com.google.common.collect.ImmutableList;
-import net.syscon.elite.api.model.Movement;
-import net.syscon.elite.api.model.OffenderInReception;
-import net.syscon.elite.api.model.OffenderMovement;
-import net.syscon.elite.api.model.OffenderOutTodayDto;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.MovementsRepository;
 import net.syscon.elite.service.MovementsService;
 import org.assertj.core.api.Assertions;
@@ -17,7 +14,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -138,7 +135,7 @@ public class MovementsServiceImplTest {
 
       Mockito.when(movementsRepository.getOffendersInReception(agency))
               .thenReturn(
-                      Arrays.asList(OffenderInReception.builder()
+                      Collections.singletonList(OffenderInReception.builder()
                               .firstName("FIRST")
                               .lastName("LASTNAME")
                               .dateOfBirth(LocalDate.of(1950,10,10))
@@ -158,5 +155,31 @@ public class MovementsServiceImplTest {
                 .build());
     }
 
+    @Test
+    public void testMappingToProperCaseCurrentlyOut() {
+
+        Mockito.when(movementsRepository.getOffendersCurrentlyOut(1L))
+                .thenReturn(
+                        Collections.singletonList(OffenderOut.builder()
+                                .firstName("FIRST")
+                                .lastName("LASTNAME")
+                                .dateOfBirth(LocalDate.of(1950, 10, 10))
+                                .offenderNo("1234A")
+                                .location("x-1-1")
+                                .build()
+                        )
+                );
+
+        final var offenders = movementsService.getOffendersCurrentlyOut(1L);
+
+        Assertions.assertThat(offenders)
+                .containsExactly(OffenderOut.builder()
+                        .firstName("First")
+                        .lastName("Lastname")
+                        .dateOfBirth(LocalDate.of(1950,10,10))
+                        .offenderNo("1234A")
+                        .location("x-1-1")
+                        .build());
+    }
 
 }

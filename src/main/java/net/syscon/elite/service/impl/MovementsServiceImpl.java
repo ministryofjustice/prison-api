@@ -130,4 +130,14 @@ public class MovementsServiceImpl implements MovementsService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<OffenderOut> getOffendersCurrentlyOut(long livingUnitId) {
+        List<OffenderOut> offendersOut = movementsRepository.getOffendersCurrentlyOut(livingUnitId);
+        offendersOut.forEach( o -> {
+            o.setLastName(StringUtils.capitalize(o.getLastName().toLowerCase()));
+            o.setFirstName(StringUtils.capitalize(o.getFirstName().toLowerCase()));
+        });
+        return offendersOut;
+    }
 }
