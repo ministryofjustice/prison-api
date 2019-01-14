@@ -36,8 +36,16 @@ public class OffenderIn {
     private String lastName;
 
     @NotBlank
+    @ApiModelProperty(required = true, value = "Id for Agency travelling from")
+    private String fromAgencyId;
+
+    @NotBlank
     @ApiModelProperty(required = true, value = "Description for Agency travelling from")
     private String fromAgencyDescription;
+
+    @NotBlank
+    @ApiModelProperty(required = true, value = "Id for Agency travelling to")
+    private String toAgencyId;
 
     @NotBlank
     @ApiModelProperty(required = true, value = "Description for Agency travelling to")

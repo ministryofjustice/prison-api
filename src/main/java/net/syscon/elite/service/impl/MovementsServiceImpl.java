@@ -114,6 +114,8 @@ public class MovementsServiceImpl implements MovementsService {
                                 .middleName(StringUtils.isEmpty(offender.getMiddleName()) ? "" : StringUtils.capitalize(offender.getMiddleName().toLowerCase()))
                                 .fromAgencyDescription(LocationProcessor.formatLocation(offender.getFromAgencyDescription()))
                                 .toAgencyDescription(LocationProcessor.formatLocation(offender.getToAgencyDescription()))
+                                .toAgencyId(offender.getToAgencyId())
+                                .fromAgencyId(offender.getFromAgencyId())
                                 .location(StringUtils.isEmpty(offender.getLocation()) ? "" : offender.getLocation())
                                 .movementTime(offender.getMovementTime())
                                 .dateOfBirth(offender.getDateOfBirth())

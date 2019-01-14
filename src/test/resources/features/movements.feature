@@ -62,8 +62,8 @@ Feature: Movement
     Given a user has authenticated with the API
     When a request is made to retrieve the 'offenders in' for agency "LEI" on date "2017-10-12"
     Then information about 'offenders in' is returned as follows:
-    | offenderNo | dateOfBirth | firstName | middleName | lastName | fromAgencyDescription | toAgencyDescription|  movementTime | location    |
-    | A6676RS    | 1945-01-10  | Neil      |            | Bradley  | Birmingham            | Leeds              | 10:45         | Landing H/1 |
+    | offenderNo | dateOfBirth | firstName | middleName | lastName | fromAgencyDescription | toAgencyDescription | fromAgencyId | toAgencyId |  movementTime   | location    |
+    | A6676RS    | 1945-01-10  | Neil      |            | Bradley  | Birmingham            | Leeds               | BMI          | LEI          | 10:45         | Landing H/1 |
 
   Scenario: Get offender in reception
     Given a user has authenticated with the API
@@ -82,16 +82,15 @@ Feature: Movement
     When a request is made to retrieve the movement counts for an "MDI" on "2000-08-16"
     Then "2" offenders are out today and "2" are in
 
-
   Scenario: Get information around an offender arriving and leaving multiple times on the same day
 
     Given a user has authenticated with the API
 
     When a request is made to retrieve the 'offenders in' for agency "MDI" on date "2000-08-16"
     Then information about 'offenders in' is returned as follows:
-      | offenderNo | dateOfBirth | firstName | middleName | lastName | fromAgencyDescription | toAgencyDescription     | movementTime  | location             |
-      | A118FFF    | 1980-01-02  | Janis     |            | Drp      | Outside               | Moorland                | 00:00         |                      |
-      | A118FFF    | 1980-01-02  | Janis     |            | Drp      | Court 1               | Moorland                | 00:00         |                      |
+      | offenderNo | dateOfBirth | firstName | middleName | lastName | fromAgencyDescription | toAgencyDescription | fromAgencyId   | toAgencyId    |  movementTime | location    |
+      | A118FFF    | 1980-01-02  | Janis     |            | Drp      | Outside               | Moorland            | OUT            | MDI           | 00:00         |             |
+      | A118FFF    | 1980-01-02  | Janis     |            | Drp      | Court 1               | Moorland            | COURT1         | MDI           | 00:00         |             |
 
     When a request is made to retrieve the 'offenders out' for agency "MDI" for "2000-08-16"
     Then the following rows should be returned:
@@ -101,5 +100,5 @@ Feature: Movement
 
     When a request is made to retrieve the 'offenders in' for agency "LEI" on date "2000-08-16"
     Then information about 'offenders in' is returned as follows:
-      | offenderNo | dateOfBirth | firstName | middleName | lastName | fromAgencyDescription   | toAgencyDescription     | movementTime  | location             |
-      | A118FFF    | 1980-01-02  | Janis     |            | Drp      | Moorland                | Leeds                   | 00:00         |                      |
+      | offenderNo | dateOfBirth | firstName | middleName | lastName | fromAgencyDescription   | toAgencyDescription | fromAgencyId   | toAgencyId   |  movementTime | location    |
+      | A118FFF    | 1980-01-02  | Janis     |            | Drp      | Moorland                | Leeds               | MDI            | LEI          | 00:00         |             |
