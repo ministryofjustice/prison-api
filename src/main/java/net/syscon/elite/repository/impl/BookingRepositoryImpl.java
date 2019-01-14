@@ -75,6 +75,9 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
             .put("AUTHORISED_ABSENCE_FLAG",        new FieldMapper("authorisedAbsence", value -> "Y".equalsIgnoreCase(value.toString())))
             .build();
 
+    private static final StandardBeanPropertyRowMapper<OffenderSentenceCalculation> SENTENCE_CALC_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(OffenderSentenceCalculation.class);
+
     private static final StandardBeanPropertyRowMapper<Visit> VISIT_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(Visit.class);
 
@@ -657,5 +660,15 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         Validate.notNull(recallBooking);
 
         return recallBookingRepository.recallBooking(agencyId, recallBooking);
+    }
+
+    @Override
+    public List<OffenderSentenceCalculation> getOffenderSentenceCalculatons(Set<String> agencyIds) {
+        var sql = getQuery("GET_OFFENDER_SENT_CALCULATIONS");
+        return jdbcTemplate
+                .query(
+                sql,
+                createParams( "agencyIds", agencyIds, "activeFlag", "Y", "bookingSeq", 1),
+                SENTENCE_CALC_ROW_MAPPER);
     }
 }
