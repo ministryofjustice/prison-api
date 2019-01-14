@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -582,6 +583,16 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAssessment.verifyErrorUserMessage(expectedUserMessage);
     }
 
+    @When("^a request is made for uncategorised offenders at \"([^\"]*)\"$")
+    public void requestUncategorisedOffenders(String agencyId) {
+        bookingAssessment.getUncategorisedOffenders(agencyId);
+    }
+
+    @Then("^([0-9]+) uncategorised offenders are returned$")
+    public void returnedUncategorisedOffenders(int size) {
+        bookingAssessment.verifyUncategorisedOffenders(size);
+    }
+
     @Then("^the number of active alerts is ([0-9-]+)$")
     public void theNumberOfActiveAlertsIs(int count) {
         bookingDetail.verifyActiveCount(count);
@@ -620,6 +631,11 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @When("^sentence details are requested of offenders for the logged in users caseloads$")
     public void sentenceDetailsAreRequestedForAnOffendersInLoggedInUsersCaseloads() {
         bookingSentenceDetail.getOffenderSentenceDetails();
+    }
+
+    @When("^sentence details are requested of offenders for agency \"([^\"]*)\"$")
+    public void sentenceDetailsAreRequestedForAnAgency(String agencyId) {
+        bookingSentenceDetail.getOffenderSentenceDetails(agencyId);
     }
 
     @Then("^\"([0-9-]+)\" offenders are returned$")
@@ -700,6 +716,28 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @When("^sentence details are requested for offenders who are candidates for Home Detention Curfew$")
     public void sentenceDetailsAreRequestedForHomeDetentionCurfewCandidates() {
-        bookingSentenceDetail.requestSentenceDetailsForHomeDetentionCurfewCandidates();
+        bookingSentenceDetail.requestSentenceDetailsForHomeDetentionCurfewCandidates(false);
+    }
+
+    @When("^sentence details are requested for offenders who are candidates for Home Detention Curfew V2$")
+    public void sentenceDetailsAreRequestedForHomeDetentionCurfewCandidatesV2() {
+        bookingSentenceDetail.requestSentenceDetailsForHomeDetentionCurfewCandidates(true);
+    }
+
+    @When("^a request for IEP summaries are made for the following booking ids \"([^\"]*)\"$")
+    public void aRequestForIEPSummariesAreMadeForTheFollowingBookingIds(String bookings) throws Throwable {
+        var bookingIds = Arrays.asList(bookings.split(","));
+        bookingIEP.getBookingIEPSummaryForOffenders(bookingIds, false);
+    }
+
+    @Then("^the response should contain an entry with \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
+    public void theResponseShouldContainAnEntryWith(String bookingId, String iepLevel, String iepDetailCount, String iepDate) throws Throwable {
+        bookingIEP.verifyIepEntry(Long.parseLong(bookingId), iepLevel, Integer.parseInt(iepDetailCount), LocalDate.parse(iepDate) );
+    }
+
+    @When("^a request for IEP summaries are made for the following booking ids \"([^\"]*)\" including extra details$")
+    public void aRequestForIEPSummariesAreMadeForTheFollowingBookingIdsIncludingExtraDetails(String bookings) throws Throwable {
+        var bookingIds = Arrays.asList(bookings.split(","));
+        bookingIEP.getBookingIEPSummaryForOffenders(bookingIds, true);
     }
 }

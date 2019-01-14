@@ -38,7 +38,7 @@ public interface UserRepository {
 
 	void removeRole(String username, String caseload, Long roleId);
 
-	List<UserDetail> findAllUsersWithCaseload(String caseloadId);
+	List<UserDetail> findAllUsersWithCaseload(String caseloadId, String missingCaseloadId);
 
     Page<UserDetail> findUsersByCaseload(String agencyId, String accessRole, NameFilter nameFilter, PageRequest pageRequest);
 

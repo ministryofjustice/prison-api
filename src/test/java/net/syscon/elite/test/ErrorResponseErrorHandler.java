@@ -21,8 +21,12 @@ public class ErrorResponseErrorHandler extends DefaultResponseErrorHandler {
         HttpMessageConverterExtractor<ErrorResponse> errorMessageExtractor =
                 new HttpMessageConverterExtractor<>(ErrorResponse.class, getMessageConverters());
 
-        ErrorResponse errorResponse = errorMessageExtractor.extractData(response);
-
+        ErrorResponse errorResponse = null;
+        try {
+            errorResponse = errorMessageExtractor.extractData(response);
+        } catch (Exception e) {
+            super.handleError(response);
+        }
         throw new EliteClientException(errorResponse);
     }
 

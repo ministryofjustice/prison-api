@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -293,6 +294,14 @@ public class BookingResourceImpl implements BookingResource {
         PrivilegeSummary privilegeSummary = bookingService.getBookingIEPSummary(bookingId, withDetails);
 
         return GetBookingIEPSummaryResponse.respond200WithApplicationJson(privilegeSummary);
+    }
+
+    @Override
+    public GetBookingIEPSummaryForOffendersResponse getBookingIEPSummaryForOffenders(List<Long> bookings, boolean withDetails) {
+        var result = bookingService.getBookingIEPSummary(bookings, withDetails);
+        var privilegeSummaries = new ArrayList<>(result.values());
+
+        return GetBookingIEPSummaryForOffendersResponse.respond200WithApplicationJson(privilegeSummaries);
     }
 
     @Override

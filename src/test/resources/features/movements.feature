@@ -76,5 +76,5 @@ Feature: Movement
       Given a user has authenticated with the API
       When a request is made to retrieve 'offenders in reception' for agency "MDI"
       Then information about 'offenders in reception' is returned as follows:
-      | offenderNo | dateOfBirth   | firstName | lastName|
-      | A118DDD    | 1980-01-02    |  Amy      | Dude    |
+      | bookingId | offenderNo | dateOfBirth   | firstName | lastName|
+      | -46       | A118DDD    | 1980-01-02    |  Amy      | Dude    |

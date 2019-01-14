@@ -124,6 +124,7 @@ public class MovementsServiceImpl implements MovementsService {
                         .lastName(StringUtils.capitalize(offender.getLastName().toLowerCase()))
                         .offenderNo(offender.getOffenderNo())
                         .dateOfBirth(offender.getDateOfBirth())
+                        .bookingId(offender.getBookingId())
                         .build())
                 .collect(Collectors.toList());
     }

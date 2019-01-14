@@ -7,6 +7,7 @@ import net.syscon.elite.repository.OffenderCurfewRepository;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.CaseloadToAgencyMappingService;
 import net.syscon.elite.service.OffenderCurfewService;
+import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.support.OffenderCurfew;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,9 +60,17 @@ public class OffenderCurfewServiceImplTest {
     @Mock
     private CaseloadToAgencyMappingService caseloadToAgencyMappingService;
 
+    @Mock
+    private ReferenceDomainService referenceDomainService;
+
     @Before
     public void configureService() {
-        offenderCurfewService = new OffenderCurfewServiceImpl(offenderCurfewRepository, caseloadToAgencyMappingService, bookingService, clock);
+        offenderCurfewService = new OffenderCurfewServiceImpl(
+                offenderCurfewRepository,
+                caseloadToAgencyMappingService,
+                bookingService,
+                referenceDomainService,
+                clock);
     }
 
     /**
@@ -172,7 +181,6 @@ public class OffenderCurfewServiceImplTest {
     }
 
 
-
     @Test
     public void givenCurfewsForSeveralOffenderBookIdsWhenFilteredForCurrentCurfewTheHighestCurfewForEachOffenderBookIdIsRetained() {
         List<OffenderCurfew> curfews = asList(
@@ -189,7 +197,7 @@ public class OffenderCurfewServiceImplTest {
                 offenderCurfew(8, 4, "2018-01-02"),
                 offenderCurfew(9, 4, "2018-01-01")
 
-                );
+        );
 
         assertThat(currentOffenderCurfews(curfews).collect(toList()))
                 .containsOnly(
@@ -204,16 +212,16 @@ public class OffenderCurfewServiceImplTest {
     public void givenOffendersWhenFilteringForThoseWithoutApprovalStatusThenCorrectSubsetOfOffenderBookIdIsReturned() {
         assertThat(OffenderCurfewServiceImpl.offendersLackingCurfewApprovalStatus(
                 Stream.of(
-                        offenderCurfew(1, 1,  null, null),
-                        offenderCurfew(2, 2,  null, "REJECTED"),
-                        offenderCurfew(3, 3,  null, "APPROVED"),
-                        offenderCurfew(4, 4,  null, null)
+                        offenderCurfew(1, 1, null, null),
+                        offenderCurfew(2, 2, null, "REJECTED"),
+                        offenderCurfew(3, 3, null, "APPROVED"),
+                        offenderCurfew(4, 4, null, null)
                 ))).containsOnly(1L, 4L);
     }
 
     @Test
     public void givenNoOffenderCurfewsWithoutApprovalStatusAndAnEarliestDateForArdOrCrdThenOffenderSentencesAreFilteredCorrectly() {
-        final LocalDate HDCED = LocalDate.of(9999,1,1);
+        final LocalDate HDCED = LocalDate.of(9999, 1, 1);
         final LocalDate EARLIEST_DATE = LocalDate.of(2081, 1, 1);
         final LocalDate DAY_BEFORE = EARLIEST_DATE.minusDays(1);
 
@@ -235,7 +243,7 @@ public class OffenderCurfewServiceImplTest {
 
     @Test
     public void givenOffenderCurfewsWithoutApprovalStatusThenOffenderSentencesAreFilteredCorrectly() {
-        final LocalDate HDCED = LocalDate.of(9999,1,1);
+        final LocalDate HDCED = LocalDate.of(9999, 1, 1);
         final LocalDate EARLIEST_DATE = LocalDate.of(2081, 1, 1);
         final LocalDate DAY_BEFORE = EARLIEST_DATE.minusDays(1);
 
@@ -278,7 +286,7 @@ public class OffenderCurfewServiceImplTest {
 
     @Test
     public void givenOffenderCurfewsWithoutApprovalStatusThenOverrideDatesAreFilteredCorrectly() {
-        final LocalDate HDCED = LocalDate.of(9999,1,1);
+        final LocalDate HDCED = LocalDate.of(9999, 1, 1);
         final LocalDate EARLIEST_DATE = LocalDate.of(2081, 1, 1);
         final LocalDate DAY_BEFORE = EARLIEST_DATE.minusDays(1);
 
@@ -318,29 +326,30 @@ public class OffenderCurfewServiceImplTest {
         assertThat(filter.test(offenderSentenceDetail(1L, DAY_BEFORE, DAY_BEFORE, HDCED, EARLIEST_DATE.plusDays(1), EARLIEST_DATE.plusDays(1)))).isTrue();
 
     }
+
     @Test
     public void givenNoOffendersInAgencyThenNoResults() {
         when(caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(USERNAME)).thenReturn(agencyIdsToAgencies(AGENCY_ID));
-        assertThat(offenderCurfewService.getHomeDetentionCurfewCandidates(USERNAME)).isEmpty();
+        assertThat(offenderCurfewService.getHomeDetentionCurfewCandidates(USERNAME, false)).isEmpty();
     }
 
     @Test
     public void givenOffendersWhenEveryOffenderHasANOMISApprovalStatusThenResultsAreFilteredByClockDate() {
 
-        when(bookingService.getOffenderSentencesSummary(null, USERNAME, Collections.emptyList() ))
+        when(bookingService.getOffenderSentencesSummary(null, USERNAME, Collections.emptyList()))
                 .thenReturn(offenderSentenceDetails());
 
         when(caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(USERNAME)).thenReturn(agencyIdsToAgencies(AGENCY_ID));
 
         when(offenderCurfewRepository.offenderCurfews(Collections.singleton(AGENCY_ID))).thenReturn(
                 Arrays.asList(
-                        offenderCurfew(1, 1,  null, "ANY"),
-                        offenderCurfew(1, 2,  null, "ANY"),
-                        offenderCurfew(1, 3,  null, "ANY"),
-                        offenderCurfew(1, 4,  null, "ANY"),
-                        offenderCurfew(1, 5,  null, "ANY")));
+                        offenderCurfew(1, 1, null, "ANY"),
+                        offenderCurfew(1, 2, null, "ANY"),
+                        offenderCurfew(1, 3, null, "ANY"),
+                        offenderCurfew(1, 4, null, "ANY"),
+                        offenderCurfew(1, 5, null, "ANY")));
 
-        final List<OffenderSentenceDetail> eligibleOffenders = offenderCurfewService.getHomeDetentionCurfewCandidates(USERNAME);
+        final List<OffenderSentenceDetail> eligibleOffenders = offenderCurfewService.getHomeDetentionCurfewCandidates(USERNAME, false);
 
         assertThat(eligibleOffenders
                 .stream()
@@ -350,29 +359,29 @@ public class OffenderCurfewServiceImplTest {
     }
 
 
-        @Test
+    @Test
     public void givenOffendersWhenNoOffenderHasANOMISApprovalStatusThenAllOffendersAreCandidates() {
 
         when(offenderCurfewRepository.offenderCurfews(Collections.singleton(AGENCY_ID))).thenReturn(
                 Arrays.asList(
-                        offenderCurfew(1, 1,  null),
-                        offenderCurfew(1, 2,  null),
-                        offenderCurfew(1, 3,  null),
-                        offenderCurfew(1, 4,  null),
-                        offenderCurfew(1, 5,  null)));
+                        offenderCurfew(1, 1, null),
+                        offenderCurfew(1, 2, null),
+                        offenderCurfew(1, 3, null),
+                        offenderCurfew(1, 4, null),
+                        offenderCurfew(1, 5, null)));
 
-            when(bookingService.getOffenderSentencesSummary(null, USERNAME, Collections.emptyList()))
-                    .thenReturn(offenderSentenceDetails());
+        when(bookingService.getOffenderSentencesSummary(null, USERNAME, Collections.emptyList()))
+                .thenReturn(offenderSentenceDetails());
 
-            when(caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(USERNAME)).thenReturn(agencyIdsToAgencies(AGENCY_ID));
+        when(caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(USERNAME)).thenReturn(agencyIdsToAgencies(AGENCY_ID));
 
-            final List<OffenderSentenceDetail> eligibleOffenders = offenderCurfewService.getHomeDetentionCurfewCandidates(USERNAME);
+        final List<OffenderSentenceDetail> eligibleOffenders = offenderCurfewService.getHomeDetentionCurfewCandidates(USERNAME, false);
 
         assertThat(eligibleOffenders
                 .stream()
                 .map(OffenderSentenceDetail::getBookingId)
                 .collect(Collectors.toList())
-        ).containsExactly(3L,  4L);
+        ).containsExactly(3L, 4L);
     }
 
     private List<OffenderSentenceDetail> offenderSentenceDetails() {
@@ -380,7 +389,7 @@ public class OffenderCurfewServiceImplTest {
         return asList(
                 offenderSentenceDetail(1L, TODAY.plusDays(CUTOFF_DAYS_OFFSET - 2), null, HDCED),
                 offenderSentenceDetail(2L, TODAY.plusDays(CUTOFF_DAYS_OFFSET - 1), null, HDCED),
-                offenderSentenceDetail(3L, TODAY.plusDays(CUTOFF_DAYS_OFFSET    ), null, HDCED),
+                offenderSentenceDetail(3L, TODAY.plusDays(CUTOFF_DAYS_OFFSET), null, HDCED),
                 offenderSentenceDetail(4L, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 1), null, HDCED),
                 offenderSentenceDetail(5L, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 2), null, null));
     }

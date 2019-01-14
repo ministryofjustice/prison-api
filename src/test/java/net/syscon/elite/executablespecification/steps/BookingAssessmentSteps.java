@@ -2,6 +2,7 @@ package net.syscon.elite.executablespecification.steps;
 
 import com.google.common.collect.ImmutableList;
 import net.syscon.elite.api.model.Assessment;
+import net.syscon.elite.api.model.OffenderCategorise;
 import net.syscon.elite.test.EliteClientException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
@@ -24,6 +25,7 @@ public class BookingAssessmentSteps extends CommonSteps {
 
     private Assessment assessment;
     private List<Assessment> assessments;
+    private List<OffenderCategorise> uncategorised;
 
     public void getAssessmentByCode(Long bookingId, String assessmentCode) {
         doSingleResultApiCall(API_BOOKING_PREFIX + bookingId + "/assessment/" + assessmentCode);
@@ -96,10 +98,25 @@ public class BookingAssessmentSteps extends CommonSteps {
         }
     }
 
+    private void doUncategorisedApiCall(String agencyId) {
+        init();
+        try {
+            ResponseEntity<List<OffenderCategorise>> response = restTemplate.exchange(API_ASSESSMENTS_PREFIX + "category/{agencyId}/uncategorised", HttpMethod.GET,
+                    createEntity(), new ParameterizedTypeReference<List<OffenderCategorise>>() {}, agencyId);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            uncategorised = response.getBody();
+            buildResourceData(response);
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
     @Override
     protected void init() {
         super.init();
         assessment = null;
+        assessments = null;
+        uncategorised = null;
     }
 
     public void verifyField(String field, String value) throws ReflectiveOperationException {
@@ -140,5 +157,14 @@ public class BookingAssessmentSteps extends CommonSteps {
                         tuple(-4L, "A1234AD", "Medium", "CSR", true, LocalDate.of(2018, Month.JUNE, 4)),
                         tuple(-5L, "A1234AE", "High", "CSR", true, LocalDate.of(2018, Month.JUNE, 5)),
                         tuple(-6L, "A1234AF", "Standard", "CSR", true, LocalDate.of(2018, Month.JUNE, 6)));
+    }
+
+    public void getUncategorisedOffenders(String agencyId) {
+        doUncategorisedApiCall(agencyId);
+    }
+
+    public void verifyUncategorisedOffenders(int size) {
+        verifyNoError();
+        assertThat(uncategorised).asList().hasSize(size);
     }
 }

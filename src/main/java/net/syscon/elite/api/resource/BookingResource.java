@@ -349,6 +349,20 @@ public interface BookingResource {
                                                       @ApiParam(value = "Toggle to return IEP detail entries in response (or not).", required = true) @QueryParam("withDetails") boolean withDetails);
 
     @GET
+    @Path("/offenders/iepSummary")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Offenders IEP (Incentives & Earned Privileges) summary.", notes = "Offenders IEP (Incentives & Earned Privileges) summary.", nickname="getBookingIEPSummaryForOffenders")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = PrivilegeSummary.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
+    GetBookingIEPSummaryForOffendersResponse getBookingIEPSummaryForOffenders(
+                                                      @ApiParam(value = "The booking ids of offender", required = true) @QueryParam("bookings") List<Long> bookings,
+                                                      @ApiParam(value = "Toggle to return IEP detail entries in response (or not).", required = true) @QueryParam("withDetails") boolean withDetails);
+
+    @GET
     @Path("/{bookingId}/image")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
@@ -1441,6 +1455,41 @@ public interface BookingResource {
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetBookingIEPSummaryResponse(responseBuilder.build(), entity);
+        }
+    }
+
+
+    class GetBookingIEPSummaryForOffendersResponse extends ResponseDelegate {
+
+        private GetBookingIEPSummaryForOffendersResponse(Response response) { super(response); }
+        private GetBookingIEPSummaryForOffendersResponse(Response response, Object entity) { super(response, entity); }
+
+        public static GetBookingIEPSummaryForOffendersResponse respond200WithApplicationJson(List<PrivilegeSummary> entity) {
+            ResponseBuilder responseBuilder = Response.status(200)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetBookingIEPSummaryForOffendersResponse(responseBuilder.build(), entity);
+        }
+
+        public static GetBookingIEPSummaryForOffendersResponse respond400WithApplicationJson(ErrorResponse entity) {
+            ResponseBuilder responseBuilder = Response.status(400)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetBookingIEPSummaryForOffendersResponse(responseBuilder.build(), entity);
+        }
+
+        public static GetBookingIEPSummaryForOffendersResponse respond404WithApplicationJson(ErrorResponse entity) {
+            ResponseBuilder responseBuilder = Response.status(404)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetBookingIEPSummaryForOffendersResponse(responseBuilder.build(), entity);
+        }
+
+        public static GetBookingIEPSummaryForOffendersResponse respond500WithApplicationJson(ErrorResponse entity) {
+            ResponseBuilder responseBuilder = Response.status(500)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetBookingIEPSummaryForOffendersResponse(responseBuilder.build(), entity);
         }
     }
 

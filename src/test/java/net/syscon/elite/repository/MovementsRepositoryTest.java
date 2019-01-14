@@ -66,7 +66,7 @@ public class MovementsRepositoryTest {
         assertThat(rollCountList).asList()
                 .extracting("livingUnitDesc", "bedsInUse", "currentlyInCell", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
                 .contains(
-                        tuple("Block A", 12, 11, 1, 13, 1, 14, 2, 1),
+                        tuple("Block A", 12, 11, 1, 13, 1, 14, 2, 4),
                         tuple("H", 20, 14, 6, 20, 0, 20, 0, 0));
     }
 
@@ -163,9 +163,10 @@ public class MovementsRepositoryTest {
 
         assertThat(offenders).containsExactly(
                 OffenderInReception.builder()
-                    .firstName("AMY")
+                 .firstName("AMY")
                 .lastName("DUDE")
                 .offenderNo("A118DDD")
+                .bookingId(-46l)
                 .dateOfBirth(LocalDate.of(1980,01,02))
                 .build()
         );

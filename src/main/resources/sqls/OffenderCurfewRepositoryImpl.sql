@@ -10,3 +10,27 @@ OFFENDER_CURFEWS {
     AND OB.booking_seq = 1
     AND OB.agy_loc_id IN (:agencyLocationIds)
 }
+
+UPDATE_CURFEW_CHECKS_PASSED {
+  UPDATE OFFENDER_CURFEWS
+     SET ASSESSMENT_DATE = :date,
+         PASSED_FLAG = :checksPassed
+   WHERE OFFENDER_BOOK_ID = :bookingId AND
+         CREATE_DATETIME = (
+           SELECT MAX(CREATE_DATETIME)
+             FROM OFFENDER_CURFEWS
+            WHERE OFFENDER_BOOK_ID = :bookingId
+         )
+}
+
+UPDATE_APPROVAL_STATUS {
+UPDATE OFFENDER_CURFEWS
+   SET DECISION_DATE = :date,
+       APPROVAL_STATUS = :approvalStatus
+ WHERE OFFENDER_BOOK_ID = :bookingId AND
+       CREATE_DATETIME = (
+         SELECT MAX(CREATE_DATETIME)
+           FROM OFFENDER_CURFEWS
+          WHERE OFFENDER_BOOK_ID = :bookingId
+       )
+}

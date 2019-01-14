@@ -52,14 +52,6 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
     }
 
     @Override
-    public Page<ReferenceCode> getCaseNoteTypes(String orderBy, Order order, long offset, long limit) {
-        return referenceCodeRepository.getReferenceCodesByDomain(
-                ReferenceDomain.CASE_NOTE_TYPE.getDomain(), true,
-                getDefaultOrderBy(orderBy), getDefaultOrder(order),
-                offset, limit);
-    }
-
-    @Override
     public Page<ReferenceCode> getReferenceCodesByDomain(String domain, boolean withSubCodes, String orderBy, Order order, long offset, long limit) {
         verifyReferenceDomain(domain);
 
@@ -91,6 +83,15 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
 
         List<ReferenceCode> scheduleReasons = referenceCodeRepository.getScheduleReasons(eventType);
         return tidyDescriptionAndSort(scheduleReasons);
+    }
+
+    @Override
+    public boolean isReferenceCodeActive(String domain, String code) {
+        // Call the advised version of the repository so that cacheing is applied.
+        return referenceCodeRepository
+                .getReferenceCodeByDomainAndCode(domain, code, false)
+                .map(rc -> "Y".equals(rc.getActiveFlag()))
+                .orElse(false);
     }
 
     private List<ReferenceCode> tidyDescriptionAndSort(List<ReferenceCode> refCodes) {

@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Bookings API service interface.
@@ -50,7 +51,7 @@ public interface BookingService {
     List<ScheduledEvent> getEventsOnDay(Collection<Long> bookingIds, LocalDate day);
     List<ScheduledEvent> getEventsThisWeek(Long bookingId);
     List<ScheduledEvent> getEventsNextWeek(Long bookingId);
-
+    List<OffenderSentenceCalculation> getOffenderSentenceCalculationsForAgency(Set<String> agencyIds);
     List<OffenderSentenceDetail> getOffenderSentencesSummary(String agencyId, String username, List<String> offenderNos);
     List<OffenderSentenceDetail> getBookingSentencesSummary(String username, List<Long> bookingIds);
 

@@ -7,10 +7,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.NotBlank;
+import net.syscon.elite.api.support.CategorisationStatus;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 
 @ApiModel(description = "Summary of an offender counted as Establishment Roll - Reception")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -18,22 +17,18 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OffenderInReception {
+public class OffenderCategorise {
 
-    @NotBlank
     @ApiModelProperty(required = true, value = "Display Prisoner Number")
     private String offenderNo;
 
-    @NotBlank
-    @ApiModelProperty(required = true, value = "Booking Id")
+    @NotNull
     private Long bookingId;
 
-    @NotNull
-    private LocalDate dateOfBirth;
-
-    @NotBlank
     private String firstName;
 
-    @NotBlank
     private String lastName;
+
+    @ApiModelProperty(required = true, value = "Where in the categorisation workflow the prisoner is")
+    private CategorisationStatus status;
 }

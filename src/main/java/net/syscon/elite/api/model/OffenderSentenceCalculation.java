@@ -1,0 +1,49 @@
+package net.syscon.elite.api.model;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModel;
+import lombok.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+
+/**
+ * Offender Sentence Calculation
+ **/
+@SuppressWarnings("unused")
+@ApiModel(description = "Offender Sentence Calculation")
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode
+@ToString
+@Data
+public class OffenderSentenceCalculation {
+    private Long bookingId;
+    private String offenderNo;
+    private String firstName;
+    private String lastName;
+    private String agencyLocationId;
+    private Long offenderSentCalculationId;
+    private LocalDateTime calculationDate;
+
+    private LocalDate sentenceExpiryDate;
+    private LocalDate licenceExpiryDate;
+    private LocalDate paroleEligibilityDate;
+    private LocalDate homeDetCurfEligibilityDate;
+    private LocalDate homeDetCurfActualDate;
+    private LocalDate ard;
+    private LocalDate crd;
+    private LocalDate npd;
+    private LocalDate prrd;
+    private LocalDate actualParolDate;
+    private LocalDate topupSupervisionExpiryDate;
+    private LocalDate earlyTermDate;
+    private LocalDate midTermDate;
+    private LocalDate lateTermDate;
+    private LocalDate tariffDate;
+    private LocalDate rotl;
+    private LocalDate ersed;
+}
