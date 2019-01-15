@@ -1,5 +1,6 @@
 package net.syscon.elite.repository.impl;
 
+import lombok.val;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.MovementsRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
@@ -86,7 +87,7 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     @Override
     public List<OffenderMovement> getEnrouteMovementsOffenderMovementList(String agencyId, LocalDate date) {
 
-        final var sql = getQuery("GET_ENROUTE_OFFENDER_MOVEMENTS");
+        val sql = getQuery("GET_ENROUTE_OFFENDER_MOVEMENTS");
 
         return jdbcTemplate.query(sql,
                 createParams(
