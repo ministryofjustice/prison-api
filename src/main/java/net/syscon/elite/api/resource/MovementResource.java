@@ -2,7 +2,6 @@ package net.syscon.elite.api.resource;
 
 import io.swagger.annotations.*;
 import net.syscon.elite.api.model.*;
-import net.syscon.elite.api.support.Order;
 
 import javax.ws.rs.*;
 import java.time.LocalDate;
@@ -78,9 +77,7 @@ public interface MovementResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     List<OffenderMovement> getEnrouteOffenderMovements(
             @ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId,
-            @ApiParam(value = "Optional filter on date of movement", required = true) @QueryParam("movementDate") LocalDate movementDate,
-            @ApiParam(value = "Comma separated list of one or more of the following fields - <b>bookingId, offenderNo, firstName, lastName - defaults to lastName, firstName</b>") @HeaderParam("Sort-Fields") String sortFields,
-            @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);
+            @ApiParam(value = "Optional filter on date of movement, defaults to today") @QueryParam("movementDate") LocalDate movementDate);
 
     @GET
     @Path("/rollcount/{agencyId}/enroute")
