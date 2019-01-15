@@ -77,7 +77,7 @@ public interface MovementResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     List<OffenderMovement> getEnrouteOffenderMovements(
             @ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId,
-            @ApiParam(value = "Optional filter on date of movement, defaults to today") @QueryParam("movementDate") LocalDate movementDate);
+            @ApiParam(value = "Optional filter on date of movement") @QueryParam("movementDate") LocalDate movementDate);
 
     @GET
     @Path("/rollcount/{agencyId}/enroute")

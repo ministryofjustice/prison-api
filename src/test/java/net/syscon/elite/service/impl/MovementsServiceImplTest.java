@@ -88,7 +88,7 @@ public class MovementsServiceImplTest {
         /* call service with no specified date */
         movementsService.getEnrouteOffenderMovements("LEI", null);
 
-        Mockito.verify(movementsRepository, Mockito.times(1)).getEnrouteMovementsOffenderMovementList("LEI", LocalDate.now());
+        Mockito.verify(movementsRepository, Mockito.times(1)).getEnrouteMovementsOffenderMovementList("LEI", null);
     }
 
     @Test

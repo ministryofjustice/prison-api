@@ -86,7 +86,7 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     @Override
     public List<OffenderMovement> getEnrouteMovementsOffenderMovementList(String agencyId, LocalDate date) {
 
-        String sql = getQuery("GET_ENROUTE_OFFENDER_MOVEMENTS");
+        final var sql = getQuery("GET_ENROUTE_OFFENDER_MOVEMENTS");
 
         return jdbcTemplate.query(sql,
                 createParams(

@@ -85,9 +85,7 @@ public class MovementsServiceImpl implements MovementsService {
     @VerifyAgencyAccess
     public List<OffenderMovement> getEnrouteOffenderMovements(String agencyId, LocalDate date) {
 
-        final LocalDate defaultedDate = date == null ? LocalDate.now() : date;
-
-        final var movements = movementsRepository.getEnrouteMovementsOffenderMovementList(agencyId, defaultedDate);
+        final var movements = movementsRepository.getEnrouteMovementsOffenderMovementList(agencyId, date);
 
         return movements.stream().map(movement -> movement.toBuilder()
             .fromAgencyDescription(LocationProcessor.formatLocation(movement.getFromAgencyDescription()))
