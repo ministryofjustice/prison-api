@@ -9,6 +9,7 @@ import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.service.EntityAlreadyExistsException;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.StaffService;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -87,7 +88,7 @@ public class StaffServiceImpl implements StaffService {
                 .roleId(role.getRoleId())
                 .caseloadId(role.getCaseloadId())
                 .parentRoleCode(role.getParentRoleCode())
-                .roleCode(StringUtils.replaceFirst(role.getRoleCode(), role.getCaseloadId() + "_", ""))
+                .roleCode(RegExUtils.replaceFirst(role.getRoleCode(), role.getCaseloadId() + "_", ""))
                 .roleName(role.getRoleName())
                 .username(username)
                 .staffId(staffId)

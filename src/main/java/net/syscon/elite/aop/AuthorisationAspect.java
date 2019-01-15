@@ -1,24 +1,19 @@
 package net.syscon.elite.aop;
 
 import lombok.extern.slf4j.Slf4j;
+import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.support.AgencyRequest;
-import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Aspect
 @Slf4j
@@ -55,7 +50,7 @@ public class AuthorisationAspect {
         VerifyBookingAccess annotation = method.getAnnotation(VerifyBookingAccess.class);
         String[] overrideRoles = annotation.overrideRoles();
 
-        if (isAccessAllowed(overrideRoles)) {
+        if (UserSecurityUtils.hasRoles(overrideRoles)) {
             bookingService.checkBookingExists(bookingId);
         } else {
             bookingService.verifyBookingAccess(bookingId);
@@ -66,7 +61,7 @@ public class AuthorisationAspect {
     public void verifyAgencyAccess(JoinPoint jp, String agencyId) {
         log.debug("Verifying agency access for agency [{}]", agencyId);
 
-        if (isAccessAllowed(getOverrideRoles(jp))) {
+        if (UserSecurityUtils.hasRoles(getOverrideRoles(jp))) {
             agencyService.checkAgencyExists(agencyId);
         } else {
             agencyService.verifyAgencyAccess(agencyId);
@@ -77,7 +72,7 @@ public class AuthorisationAspect {
     public void verifyAgencyRequestAccess(JoinPoint jp, AgencyRequest request) {
         log.debug("Verifying agency access for agency [{}]", request.getAgencyId());
 
-        if (isAccessAllowed(getOverrideRoles(jp))) {
+        if (UserSecurityUtils.hasRoles(getOverrideRoles(jp))) {
             agencyService.checkAgencyExists(request.getAgencyId());
         } else {
             agencyService.verifyAgencyAccess(request.getAgencyId());
@@ -91,11 +86,4 @@ public class AuthorisationAspect {
         return annotation.overrideRoles();
     }
 
-    private boolean isAccessAllowed(String[] overrideRoles) {
-        final List<String> roles = Arrays.stream(overrideRoles).map(r -> StringUtils.replaceFirst(r, "ROLE_", "")).collect(Collectors.toList());
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication != null &&
-                authentication.getAuthorities().stream()
-                    .anyMatch(a ->  roles.contains(StringUtils.replaceFirst(a.getAuthority(), "ROLE_", "")));
-    }
 }

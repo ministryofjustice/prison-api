@@ -10,7 +10,7 @@ import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.StaffService;
 import net.syscon.elite.service.UserService;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
 		final List<UserRole> rolesByUsername = userRepository.findRolesByUsername(username, query);
 
 		if (!allRoles) {
-			rolesByUsername.forEach(role -> role.setRoleCode(StringUtils.replaceFirst(role.getRoleCode(), apiCaseloadId + "_", "")));
+			rolesByUsername.forEach(role -> role.setRoleCode(RegExUtils.replaceFirst(role.getRoleCode(), apiCaseloadId + "_", "")));
 		}
 		return rolesByUsername;
 	}

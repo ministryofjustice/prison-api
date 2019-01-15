@@ -10,6 +10,7 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.security.AuthenticationFacade;
+import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.ReferenceDomainService;
@@ -102,7 +103,11 @@ public class AgencyServiceImpl implements AgencyService {
     public void verifyAgencyAccess(String agencyId) {
         Objects.requireNonNull(agencyId, "agencyId is a required parameter");
 
-        if (!getAgencyIds().contains(agencyId)) {
+        var agencyIds = getAgencyIds();
+        if (UserSecurityUtils.hasRoles("INACTIVE_BOOKINGS")) {
+            agencyIds.addAll(Set.of("OUT", "TRN"));
+        }
+        if (!agencyIds.contains(agencyId)) {
             throw EntityNotFoundException.withId(agencyId);
         }
     }

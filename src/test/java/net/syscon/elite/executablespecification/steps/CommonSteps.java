@@ -8,6 +8,7 @@ import net.syscon.elite.test.ErrorResponseErrorHandler;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -472,7 +473,7 @@ public abstract class CommonSteps {
 
     protected void verifyLocalDateTime(LocalDateTime actual, String expected) {
         if (Objects.nonNull(actual)) {
-            assertThat(actual).isEqualTo(StringUtils.replaceFirst(expected, "\\s{1}", "T"));
+            assertThat(actual).isEqualTo(RegExUtils.replaceFirst(expected, "\\s{1}", "T"));
         } else {
             assertThat(StringUtils.EMPTY).isEqualTo(StringUtils.trimToEmpty(expected));
         }

@@ -1,6 +1,7 @@
 package net.syscon.elite.service.support;
 
 import net.syscon.elite.api.model.Location;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 
@@ -26,7 +27,7 @@ public class LocationProcessor {
             return description;
         }
 
-        return StringUtils.replaceFirst(description,StringUtils.trimToEmpty(agencyId) + "-", "");
+        return RegExUtils.replaceFirst(description,StringUtils.trimToEmpty(agencyId) + "-", "");
     }
 
     /**
