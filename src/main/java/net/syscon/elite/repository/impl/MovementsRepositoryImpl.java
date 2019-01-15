@@ -21,6 +21,8 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     private final StandardBeanPropertyRowMapper<RollCount> ROLLCOUNT_MAPPER = new StandardBeanPropertyRowMapper<>(RollCount.class);
     private final StandardBeanPropertyRowMapper<OffenderIn> OFFENDER_IN_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderIn.class);
     private final StandardBeanPropertyRowMapper<OffenderInReception> OFFENDER_IN_RECEPTION_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderInReception.class);
+    private static final String MOVEMENT_DATE_CLAUSE = " AND OEM.MOVEMENT_DATE = :movementDate";
+
 
     @Override
     public List<Movement> getRecentMovementsByDate(LocalDateTime fromDateTime, LocalDate movementDate) {
@@ -86,7 +88,10 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     @Override
     public List<OffenderMovement> getEnrouteMovementsOffenderMovementList(String agencyId, LocalDate date) {
 
-        String sql = getQuery("GET_ENROUTE_OFFENDER_MOVEMENTS");
+        final var initialSql = getQuery("GET_ENROUTE_OFFENDER_MOVEMENTS");
+
+        // We can't use OEM.MOVEMENT_DATE = COALESCE(:movementDate, OEM.MOVEMENT_DATE) due to bad data.
+        final var sql = date == null ? initialSql : initialSql + MOVEMENT_DATE_CLAUSE;
 
         return jdbcTemplate.query(sql,
                 createParams(
