@@ -89,8 +89,6 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     public List<OffenderMovement> getEnrouteMovementsOffenderMovementList(String agencyId, LocalDate date) {
 
         final var initialSql = getQuery("GET_ENROUTE_OFFENDER_MOVEMENTS");
-
-        // We can't use OEM.MOVEMENT_DATE = COALESCE(:movementDate, OEM.MOVEMENT_DATE) due to bad data.
         final var sql = date == null ? initialSql : initialSql + MOVEMENT_DATE_CLAUSE;
 
         return jdbcTemplate.query(sql,
