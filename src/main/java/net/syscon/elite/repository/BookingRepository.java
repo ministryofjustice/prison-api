@@ -54,6 +54,7 @@ public interface BookingRepository {
     Long createBookingAppointment(Long bookingId, NewAppointment newAppointment, String agencyId);
 
     List<OffenderSentenceDetailDto> getOffenderSentenceSummary(String query, Set<String> allowedCaseloadsOnly);
+    List<OffenderSentenceCalculation> getOffenderSentenceCalculatons(Set<String> agencyIds);
 
     Visit getBookingVisitLast(Long bookingId, LocalDateTime cutoffDate);
     Visit getBookingVisitNext(Long bookingId, LocalDateTime from);

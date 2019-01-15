@@ -330,7 +330,7 @@ public class OffenderCurfewServiceImplTest {
     @Test
     public void givenNoOffendersInAgencyThenNoResults() {
         when(caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(USERNAME)).thenReturn(agencyIdsToAgencies(AGENCY_ID));
-        assertThat(offenderCurfewService.getHomeDetentionCurfewCandidates(USERNAME)).isEmpty();
+        assertThat(offenderCurfewService.getHomeDetentionCurfewCandidates(USERNAME, false)).isEmpty();
     }
 
     @Test
@@ -349,7 +349,7 @@ public class OffenderCurfewServiceImplTest {
                         offenderCurfew(1, 4, null, "ANY"),
                         offenderCurfew(1, 5, null, "ANY")));
 
-        final List<OffenderSentenceDetail> eligibleOffenders = offenderCurfewService.getHomeDetentionCurfewCandidates(USERNAME);
+        final List<OffenderSentenceDetail> eligibleOffenders = offenderCurfewService.getHomeDetentionCurfewCandidates(USERNAME, false);
 
         assertThat(eligibleOffenders
                 .stream()
@@ -375,7 +375,7 @@ public class OffenderCurfewServiceImplTest {
 
         when(caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(USERNAME)).thenReturn(agencyIdsToAgencies(AGENCY_ID));
 
-        final List<OffenderSentenceDetail> eligibleOffenders = offenderCurfewService.getHomeDetentionCurfewCandidates(USERNAME);
+        final List<OffenderSentenceDetail> eligibleOffenders = offenderCurfewService.getHomeDetentionCurfewCandidates(USERNAME, false);
 
         assertThat(eligibleOffenders
                 .stream()

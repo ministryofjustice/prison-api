@@ -46,7 +46,14 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     @Override
     public GetOffenderSentencesHomeDetentionCurfewCandidatesResponse getOffenderSentencesHomeDetentionCurfewCandidates() {
         List<OffenderSentenceDetail> sentences =
-                offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentUsername());
+                offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentUsername(), false);
+
+        return GetOffenderSentencesHomeDetentionCurfewCandidatesResponse.respond200WithApplicationJson(sentences);
+    }
+
+    public GetOffenderSentencesHomeDetentionCurfewCandidatesResponse getEligibileHdcOffendersByUsername() {
+        List<OffenderSentenceDetail> sentences =
+                offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentUsername(), true);
 
         return GetOffenderSentencesHomeDetentionCurfewCandidatesResponse.respond200WithApplicationJson(sentences);
     }

@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface OffenderCurfewService {
 
-    List<OffenderSentenceDetail> getHomeDetentionCurfewCandidates(String username);
+    List<OffenderSentenceDetail> getHomeDetentionCurfewCandidates(String username, boolean newVersion);
 
     void setHdcChecks(long bookingId, @Valid HdcChecks hdcChecks);
 
