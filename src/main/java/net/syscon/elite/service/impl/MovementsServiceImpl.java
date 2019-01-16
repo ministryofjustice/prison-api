@@ -133,10 +133,10 @@ public class MovementsServiceImpl implements MovementsService {
 
     @Override
     public List<OffenderOut> getOffendersCurrentlyOut(long livingUnitId) {
-        List<OffenderOut> offendersOut = movementsRepository.getOffendersCurrentlyOut(livingUnitId);
+        final var offendersOut = movementsRepository.getOffendersCurrentlyOut(livingUnitId);
         offendersOut.forEach( o -> {
-            o.setLastName(StringUtils.capitalize(o.getLastName().toLowerCase()));
-            o.setFirstName(StringUtils.capitalize(o.getFirstName().toLowerCase()));
+            o.setLastName(WordUtils.capitalizeFully(o.getLastName()));
+            o.setFirstName(WordUtils.capitalizeFully(o.getFirstName()));
         });
         return offendersOut;
     }
