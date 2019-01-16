@@ -332,34 +332,35 @@ SELECT
   at_offender_booking.offender_book_id AS BOOKING_ID,
   at_offender.last_name,
   at_offender.first_name,
-  CASE WHEN categories.calc_sup_level_type = 'PEND' THEN 'AWAITING_APPROVAL' ELSE 'UNCATEGORISED' END AS STATUS
+  CASE WHEN categories.assess_status = 'P' THEN 'AWAITING_APPROVAL' ELSE 'UNCATEGORISED' END AS STATUS
 FROM
   offenders at_offender
     INNER JOIN offender_bookings at_offender_booking ON at_offender.offender_id = at_offender_booking.offender_id AND at_offender_booking.active_flag = 'Y'
     LEFT JOIN (SELECT
          off_ass.offender_book_id,
-         off_ass.calc_sup_level_type
+         off_ass.assess_status
        FROM offender_assessments off_ass
-         JOIN assessments ass ON off_ass.assessment_type_id = ass.assessment_id
-       WHERE ass.caseload_type = 'INST'
-         AND ass.determine_sup_level_flag = 'Y'
-         AND off_ass.evaluation_result_code = 'APP'
-         AND off_ass.assess_status = 'A'
+       JOIN assessments ass ON off_ass.assessment_type_id = ass.assessment_id
+       WHERE ass.assessment_code = 'CATEGORY'
+         AND ass.assessment_class = 'TYPE'
+         AND off_ass.assess_status IN ('A','P')
          AND off_ass.assessment_date = (
            SELECT MAX (a.assessment_date) from offender_assessments a
+            JOIN assessments ass ON off_ass.assessment_type_id = ass.assessment_id
              WHERE off_ass.offender_book_id = a.offender_book_id
-               AND a.assessment_type_id = ass.assessment_id
-               AND a.evaluation_result_code = 'APP'
-               AND a.assess_status = 'A')
+               AND ass.assessment_code = 'CATEGORY'
+               AND ass.assessment_class = 'TYPE'
+               AND a.assess_status IN ('A','P'))
          AND off_ass.assessment_seq = (
            SELECT MAX (b.assessment_seq) from offender_assessments b
+            JOIN assessments ass ON b.assessment_type_id = ass.assessment_id
              WHERE off_ass.offender_book_id = b.offender_book_id
-               AND b.assessment_type_id = ass.assessment_id
-               AND b.evaluation_result_code = 'APP'
-               AND b.assess_status = 'A')
+               AND ass.assessment_code = 'CATEGORY'
+               AND ass.assessment_class = 'TYPE'
+               AND b.assess_status IN ('A','P'))
   ) categories ON categories.offender_book_id = at_offender_booking.offender_book_id
 WHERE at_offender_booking.in_out_status IN ('IN', 'OUT')
-  AND (categories.calc_sup_level_type = 'PEND' or categories.offender_book_id IS NULL)
+  AND (categories.assess_status = 'P' or categories.offender_book_id IS NULL)
   AND at_offender_booking.agy_loc_id = :agencyId
 }
 
