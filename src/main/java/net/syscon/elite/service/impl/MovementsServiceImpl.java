@@ -133,11 +133,13 @@ public class MovementsServiceImpl implements MovementsService {
 
     @Override
     public List<OffenderOut> getOffendersCurrentlyOut(long livingUnitId) {
-        final var offendersOut = movementsRepository.getOffendersCurrentlyOut(livingUnitId);
-        offendersOut.forEach( o -> {
-            o.setLastName(WordUtils.capitalizeFully(o.getLastName()));
-            o.setFirstName(WordUtils.capitalizeFully(o.getFirstName()));
-        });
-        return offendersOut;
+        return movementsRepository
+                .getOffendersCurrentlyOut(livingUnitId)
+                .stream()
+                .map(offender -> offender.toBuilder()
+                        .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
+                        .lastName(WordUtils.capitalizeFully(offender.getLastName()))
+                        .build())
+                .collect(Collectors.toList());
     }
 }
