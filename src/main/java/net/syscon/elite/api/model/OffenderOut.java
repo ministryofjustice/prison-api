@@ -24,6 +24,9 @@ public class OffenderOut {
     private String offenderNo;
 
     @NotNull
+    private Long bookingId;
+
+    @NotNull
     private LocalDate dateOfBirth;
 
     @NotBlank

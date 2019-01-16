@@ -171,10 +171,10 @@ public class MovementsRepositoryTest {
     public void canRetriveOffendersCurrentlyOut() {
         List<OffenderOut> offenders = repository.getOffendersCurrentlyOut(-13);
         assertThat(offenders).containsExactlyInAnyOrder(
-                        OffenderOut.builder().offenderNo("Z0023ZZ").dateOfBirth(LocalDate.of(1960, 1, 1)).firstName("RICHARD").lastName("GRAYSON").location("Landing H/1").build(),
-                        OffenderOut.builder().offenderNo("Z0022ZZ").dateOfBirth(LocalDate.of(1962, 1, 1)).firstName("HARVEY").lastName("WEINSTEIN").location("Landing H/1").build(),
-                        OffenderOut.builder().offenderNo("Z0021ZZ").dateOfBirth(LocalDate.of(1964, 1, 1)).firstName("DAVID").lastName("DICKENSON").location("Landing H/1").build(),
-                        OffenderOut.builder().offenderNo("Z0020ZZ").dateOfBirth(LocalDate.of(1966, 1, 1)).firstName("BURT").lastName("REYNOLDS").location("Landing H/1").build()
+                        OffenderOut.builder().offenderNo("Z0023ZZ").bookingId(-23L).dateOfBirth(LocalDate.of(1960, 1, 1)).firstName("RICHARD").lastName("GRAYSON").location("Landing H/1").build(),
+                        OffenderOut.builder().offenderNo("Z0022ZZ").bookingId(-22L).dateOfBirth(LocalDate.of(1962, 1, 1)).firstName("HARVEY").lastName("WEINSTEIN").location("Landing H/1").build(),
+                        OffenderOut.builder().offenderNo("Z0021ZZ").bookingId(-21L).dateOfBirth(LocalDate.of(1964, 1, 1)).firstName("DAVID").lastName("DICKENSON").location("Landing H/1").build(),
+                        OffenderOut.builder().offenderNo("Z0020ZZ").bookingId(-20L).dateOfBirth(LocalDate.of(1966, 1, 1)).firstName("BURT").lastName("REYNOLDS").location("Landing H/1").build()
                 );
     }
 }
