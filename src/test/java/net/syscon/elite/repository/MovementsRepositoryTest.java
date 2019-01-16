@@ -139,6 +139,7 @@ public class MovementsRepositoryTest {
         assertThat(offendersIn).containsExactlyInAnyOrder(
                 OffenderIn.builder()
                         .offenderNo("A6676RS")
+                        .bookingId(-29L)
                         .dateOfBirth(LocalDate.of(1945, 1, 10))
                         .firstName("NEIL")
                         .lastName("BRADLEY")
