@@ -27,6 +27,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
 
+import static net.syscon.elite.api.support.CategorisationStatus.AWAITING_APPROVAL;
 import static net.syscon.elite.api.support.CategorisationStatus.UNCATEGORISED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -552,14 +553,13 @@ public class InmateRepositoryTest {
     public void testGetUncategorisedGeneral() {
         final List<OffenderCategorise> list = repository.getUncategorised("LEI");
 
-        //A1234AA does have a category so should not be present
-        assertThat(list.stream().filter(a -> a.getOffenderNo().equals("A1234AA")).findAny().isPresent()).isFalse();
         list.sort(Comparator.comparing(OffenderCategorise::getOffenderNo));
         assertThat(list).asList().extracting("offenderNo", "bookingId", "firstName", "lastName", "status").contains(
                 Tuple.tuple("A1234AB", -2L, "GILLIAN", "ANDERSON", UNCATEGORISED),
+                Tuple.tuple("A1234AB", -2L, "GILLIAN", "ANDERSON", UNCATEGORISED),
+                Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", AWAITING_APPROVAL),
                 Tuple.tuple("A1176RS", -32L, "FRED", "JAMES", UNCATEGORISED));
-        assertThat(list).asList().hasSize(23);
-        // TODO test for status pending
+        assertThat(list).asList().hasSize(24);
     }
 
     /*****************************************************************************************/
