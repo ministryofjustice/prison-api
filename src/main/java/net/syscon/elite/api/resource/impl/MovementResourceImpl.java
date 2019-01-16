@@ -64,4 +64,9 @@ public class MovementResourceImpl implements MovementResource {
     public List<OffenderInReception> getOffendersInReception(String agencyId) {
         return movementsService.getOffendersInReception(agencyId);
     }
+
+    @Override
+    public List<OffenderOut> getOffendersCurrentlyOut(Long livingUnitId) {
+        return movementsService.getOffendersCurrentlyOut(livingUnitId);
+    }
 }

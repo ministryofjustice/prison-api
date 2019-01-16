@@ -110,7 +110,6 @@ public class LocationProcessor {
         }
 
         return Location.builder()
-                .additionalProperties(location.getAdditionalProperties())
                 .agencyId(location.getAgencyId())
                 .currentOccupancy(location.getCurrentOccupancy())
                 .description(newDescripton)
@@ -120,6 +119,7 @@ public class LocationProcessor {
                 .operationalCapacity(location.getOperationalCapacity())
                 .parentLocationId(location.getParentLocationId())
                 .userDescription(formatLocation(location.getUserDescription()))
+                .internalLocationCode(location.getInternalLocationCode())
                 .build();
     }
 
