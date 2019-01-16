@@ -1,6 +1,7 @@
 package net.syscon.util;
 
 import net.syscon.elite.repository.mapping.FieldMapper;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
@@ -77,7 +78,7 @@ public class OracleQueryBuilder extends AbstractQueryBuilder {
 	private void buildDirectRowCountSql(StringBuilder result) {
 		if (includeDirectRowCount) {
 			result.append(
-					StringUtils.replaceFirst(
+					RegExUtils.replaceFirst(
 							initialSQL, "SELECT", "SELECT COUNT(*) OVER() RECORD_COUNT,"));
 		} else {
 			result.append(initialSQL);

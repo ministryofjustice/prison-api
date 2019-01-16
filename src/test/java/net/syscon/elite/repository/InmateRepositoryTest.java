@@ -25,11 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static net.syscon.elite.api.support.CategorisationStatus.UNCATEGORISED;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -118,7 +114,7 @@ public class InmateRepositoryTest {
 
         final List<PrisonerDetail> offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders.size()).isEqualTo(46);
+        assertThat(offenders.size()).isEqualTo(42);
     }
 
     @Test
@@ -128,7 +124,7 @@ public class InmateRepositoryTest {
 
         final List<PrisonerDetail> offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders.size()).isEqualTo(1);
+        assertThat(offenders.size()).isEqualTo(5);
     }
 
     @Test

@@ -1,6 +1,6 @@
 package net.syscon.elite.security;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.RegExUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class UserSecurityUtils implements AuthenticationFacade {
@@ -47,9 +48,23 @@ public class UserSecurityUtils implements AuthenticationFacade {
 		);
 	}
 
+	public static boolean hasRoles(String... allowedRoles) {
+		var roles = Arrays.stream(allowedRoles)
+				.map(r -> RegExUtils.replaceFirst(r, "ROLE_", ""))
+				.collect(Collectors.toList());
+
+		return hasMatchingRole(roles, SecurityContextHolder.getContext().getAuthentication());
+	}
+
 	public boolean isOverrideRole(String... overrideRoles) {
-		final List<String> roles = Arrays.asList(overrideRoles.length > 0 ? overrideRoles : new String[] {"SYSTEM_USER"});
-		return getAuthentication() != null && getAuthentication().getAuthorities().stream().anyMatch(a -> roles.contains(StringUtils.replaceFirst(a.getAuthority(), "ROLE_", "")));
+		var roles = Arrays.asList(overrideRoles.length > 0 ? overrideRoles : new String[] {"SYSTEM_USER"});
+		return hasMatchingRole(roles, getAuthentication());
+	}
+
+	private static boolean hasMatchingRole(List<String> roles, Authentication authentication) {
+		return authentication != null &&
+				authentication.getAuthorities().stream()
+						.anyMatch(a -> roles.contains(RegExUtils.replaceFirst(a.getAuthority(), "ROLE_", "")));
 	}
 
 	private Object getUserPrincipal() {
