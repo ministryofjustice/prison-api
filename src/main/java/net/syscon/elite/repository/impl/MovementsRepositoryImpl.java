@@ -22,6 +22,9 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     private final StandardBeanPropertyRowMapper<OffenderIn> OFFENDER_IN_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderIn.class);
     private final StandardBeanPropertyRowMapper<OffenderInReception> OFFENDER_IN_RECEPTION_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderInReception.class);
 
+    private static final String MOVEMENT_DATE_CLAUSE = " AND OEM.MOVEMENT_DATE = :movementDate";
+
+
     @Override
     public List<Movement> getRecentMovementsByDate(LocalDateTime fromDateTime, LocalDate movementDate) {
         String sql = getQuery("GET_RECENT_MOVEMENTS");
@@ -86,7 +89,8 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     @Override
     public List<OffenderMovement> getEnrouteMovementsOffenderMovementList(String agencyId, LocalDate date) {
 
-        final var sql = getQuery("GET_ENROUTE_OFFENDER_MOVEMENTS");
+        final var initialSql = getQuery("GET_ENROUTE_OFFENDER_MOVEMENTS");
+        final var sql = date == null ? initialSql : initialSql + MOVEMENT_DATE_CLAUSE;
 
         return jdbcTemplate.query(sql,
                 createParams(
