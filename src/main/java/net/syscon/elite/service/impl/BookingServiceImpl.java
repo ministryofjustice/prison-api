@@ -549,6 +549,9 @@ public class BookingServiceImpl implements BookingService {
         if (UserSecurityUtils.hasRoles("INACTIVE_BOOKINGS")) {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
+        if (agencyIds.isEmpty()) {
+            agencyIds.add("_NO_AGY");
+        }
         if (!bookingRepository.verifyBookingAccess(bookingId, agencyIds)) {
             throw EntityNotFoundException.withId(bookingId);
         }

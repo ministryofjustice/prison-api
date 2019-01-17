@@ -84,11 +84,11 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
         if (!securityUtils.isOverrideRole()) {
             caseloads = userService.getCaseLoadIds(request.getUsername());
             if (caseloads.isEmpty()) {
-                caseloads = Set.of("_NO_CL_");
+                caseloads = Set.of("NWEB"); // TODO: Add NWEB for now to exclude and results for empty caseloads
             }
         }
 
-        final Page<OffenderBooking> bookingsPage = repository.searchForOffenderBookings(
+        var bookingsPage = repository.searchForOffenderBookings(
                 caseloads, offenderNo, searchTerm1, searchTerm2,
                 request.getLocationPrefix(),
                 request.getAlerts(),
@@ -99,15 +99,11 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
         if (!CollectionUtils.isEmpty(bookingIds)) {
             if (request.isReturnIep()) {
                 final Map<Long, PrivilegeSummary> bookingIEPSummary = bookingService.getBookingIEPSummary(bookingIds, false);
-                bookings.forEach(booking -> {
-                    booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel());
-                });
+                bookings.forEach(booking -> booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel()));
             }
             if (request.isReturnAlerts()) {
                 final Map<Long, List<String>> alertCodesForBookings = bookingService.getBookingAlertSummary(bookingIds, LocalDateTime.now());
-                bookings.forEach(booking -> {
-                    booking.setAlertsDetails(alertCodesForBookings.get(booking.getBookingId()));
-                });
+                bookings.forEach(booking -> booking.setAlertsDetails(alertCodesForBookings.get(booking.getBookingId())));
             }
             if (request.isReturnCategory()) {
                 final List<AssessmentDto> assessmentsForBookings = repository.findAssessments(bookingIds, "CATEGORY", caseloads);
