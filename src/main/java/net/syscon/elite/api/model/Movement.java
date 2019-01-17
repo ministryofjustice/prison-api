@@ -6,8 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.NotBlank;
-
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -64,5 +63,8 @@ public class Movement {
 
     @ApiModelProperty(required = true, value = "Description of movement reason")
     private String movementReason;
+
+    @ApiModelProperty(value = "Comment")
+    private String commentText;
 
 }

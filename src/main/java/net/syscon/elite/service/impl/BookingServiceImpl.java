@@ -545,15 +545,13 @@ public class BookingServiceImpl implements BookingService {
     public void verifyBookingAccess(Long bookingId) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
-        if (!bookingRepository.verifyBookingAccess(bookingId, agencyService.getAgencyIds())) {
+        var agencyIds = agencyService.getAgencyIds();
+        if (UserSecurityUtils.hasRoles("INACTIVE_BOOKINGS")) {
+            agencyIds.addAll(Set.of("OUT", "TRN"));
+        }
+        if (!bookingRepository.verifyBookingAccess(bookingId, agencyIds)) {
             throw EntityNotFoundException.withId(bookingId);
         }
-    }
-
-    @Override
-    public String getBookingAgency(Long bookingId) {
-        final Optional<String> agencyId = bookingRepository.getBookingAgency(bookingId);
-        return agencyId.orElseThrow(() -> EntityNotFoundException.withId(bookingId));
     }
 
     @Override

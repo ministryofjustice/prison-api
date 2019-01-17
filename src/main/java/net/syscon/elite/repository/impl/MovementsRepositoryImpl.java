@@ -1,11 +1,9 @@
 package net.syscon.elite.repository.impl;
 
 import net.syscon.elite.api.model.*;
-import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.MovementsRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.DateTimeConverter;
-import net.syscon.util.IQueryBuilder;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -22,9 +20,11 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     private final StandardBeanPropertyRowMapper<OffenderMovement> OFFENDER_MOVEMENT_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderMovement.class);
     private final StandardBeanPropertyRowMapper<RollCount> ROLLCOUNT_MAPPER = new StandardBeanPropertyRowMapper<>(RollCount.class);
     private final StandardBeanPropertyRowMapper<OffenderIn> OFFENDER_IN_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderIn.class);
+    private final StandardBeanPropertyRowMapper<OffenderOut> OFFENDER_OUT_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderOut.class);
     private final StandardBeanPropertyRowMapper<OffenderInReception> OFFENDER_IN_RECEPTION_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderInReception.class);
 
     private static final String MOVEMENT_DATE_CLAUSE = " AND OEM.MOVEMENT_DATE = :movementDate";
+
 
     @Override
     public List<Movement> getRecentMovementsByDate(LocalDateTime fromDateTime, LocalDate movementDate) {
@@ -88,27 +88,27 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     }
 
     @Override
-    public List<OffenderMovement> getEnrouteMovementsOffenderMovementList(String agencyId, LocalDate date, String orderByFields, Order order) {
+    public List<OffenderMovement> getEnrouteMovementsOffenderMovementList(String agencyId, LocalDate date) {
 
-        String initialSql = getQuery("GET_ENROUTE_OFFENDER_MOVEMENTS");
+        final var initialSql = getQuery("GET_ENROUTE_OFFENDER_MOVEMENTS");
+        final var sql = date == null ? initialSql : initialSql + MOVEMENT_DATE_CLAUSE;
 
-        initialSql = date == null ? initialSql : initialSql + MOVEMENT_DATE_CLAUSE;
-
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_MOVEMENT_MAPPER.getFieldMap());
-
-        String sql = builder
-                .addOrderBy(order, orderByFields)
-                .build();
-
-        return jdbcTemplate.query(sql, createParams(
-                "agencyId", agencyId, "movementDate", DateTimeConverter.toDate(date)), OFFENDER_MOVEMENT_MAPPER);
+        return jdbcTemplate.query(sql,
+                createParams(
+                        "agencyId", agencyId,
+                        "movementDate", DateTimeConverter.toDate(date)),
+                OFFENDER_MOVEMENT_MAPPER);
     }
 
     @Override
     public int getEnrouteMovementsOffenderCount(String agencyId, LocalDate date) {
 
-        return jdbcTemplate.queryForObject(getQuery("GET_ENROUTE_OFFENDER_COUNT"), createParams(
-                "agencyId", agencyId, "movementDate", DateTimeConverter.toDate(date)), Integer.class);
+        return jdbcTemplate.queryForObject(
+                getQuery("GET_ENROUTE_OFFENDER_COUNT"),
+                createParams(
+                    "agencyId", agencyId,
+                    "movementDate", DateTimeConverter.toDate(date)),
+                Integer.class);
     }
 
     @Override
@@ -126,5 +126,14 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
                 createParams(
                         "agencyId", agencyId),
                 OFFENDER_IN_RECEPTION_MAPPER);
+    }
+
+    @Override
+    public List<OffenderOut> getOffendersCurrentlyOut(long livingUnitId) {
+        return jdbcTemplate.query(
+                getQuery("GET_OFFENDERS_CURRENTLY_OUT"),
+                createParams(
+                    "livingUnitId", livingUnitId),
+                OFFENDER_OUT_MAPPER);
     }
 }

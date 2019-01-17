@@ -197,7 +197,7 @@ public class BookingRepositoryTest {
         assertThat(summary.getMiddleNames()).isNull();
         assertThat(summary.getLastName()).isEqualTo("REYNOLDS");
         assertThat(summary.getBookingId()).isEqualTo(bookingIdForInactiveBooking);
-        assertThat(summary.getAgencyLocationId()).isEqualTo("LEI");
+        assertThat(summary.getAgencyLocationId()).isEqualTo("OUT");
         assertThat(summary.getCurrentlyInPrison()).isEqualTo("N");
     }
 
@@ -261,7 +261,7 @@ public class BookingRepositoryTest {
         assertThat(summary.getMiddleNames()).isNull();
         assertThat(summary.getLastName()).isEqualTo("GRAYSON");
         assertThat(summary.getBookingId()).isEqualTo(-23L);
-        assertThat(summary.getAgencyLocationId()).isEqualTo("LEI");
+        assertThat(summary.getAgencyLocationId()).isEqualTo("OUT");
         assertThat(summary.getCurrentlyInPrison()).isEqualTo("N");
     }
 

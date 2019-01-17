@@ -1,7 +1,6 @@
 package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.*;
-import net.syscon.elite.api.support.Order;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +37,7 @@ public class MovementsRepositoryTest {
     private MovementsRepository repository;
 
     @Test
-    public final void canRetrieveAListOfMovementDetails1() {
+    public void canRetrieveAListOfMovementDetails1() {
         final LocalDateTime threshold = LocalDateTime.of(2017, Month.JANUARY, 1, 0, 0, 0);
         final List<Movement> recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.JULY, 16));
         assertThat(recentMovements.size()).isEqualTo(1);
@@ -48,7 +47,7 @@ public class MovementsRepositoryTest {
     }
 
     @Test
-    public final void canRetrieveAListOfMovementDetails2() {
+    public void canRetrieveAListOfMovementDetails2() {
         final LocalDateTime threshold = LocalDateTime.of(2017, Month.JANUARY, 1, 0, 0, 0);
         final List<Movement> recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.AUGUST, 16));
         assertThat(recentMovements.size()).isEqualTo(2);
@@ -60,18 +59,18 @@ public class MovementsRepositoryTest {
     }
 
     @Test
-    public final void canRetrieveRollcountCells() {
+    public void canRetrieveRollcountCells() {
         final List<RollCount> rollCountList = repository.getRollCount("LEI", "Y");
         assertThat(rollCountList.size()).isEqualTo(2);
         assertThat(rollCountList).asList()
                 .extracting("livingUnitDesc", "bedsInUse", "currentlyInCell", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
                 .contains(
-                        tuple("Block A", 12, 11, 1, 13, 1, 14, 2, 4),
-                        tuple("H", 20, 14, 6, 20, 0, 20, 0, 0));
+                        tuple("Block A", 11, 11, 0, 13, 2, 14, 3, 4),
+                        tuple("H",       14, 14, 0, 20, 6, 20, 6, 0));
     }
 
     @Test
-    public final void canRetrieveRollcountUnassigned() {
+    public void canRetrieveRollcountUnassigned() {
         final List<RollCount> rollCountList = repository.getRollCount("LEI", "N");
         assertThat(rollCountList.size()).isEqualTo(1);
         assertThat(rollCountList).asList()
@@ -81,28 +80,28 @@ public class MovementsRepositoryTest {
     }
 
     @Test
-    public final void canRetrieveRollcountMovements1() {
-        final MovementCount movementCount = repository.getMovementCount("LEI",  LocalDate.of(2017, Month.JULY, 16));
+    public void canRetrieveRollcountMovements1() {
+        final MovementCount movementCount = repository.getMovementCount("LEI", LocalDate.of(2017, Month.JULY, 16));
         assertThat(movementCount.getIn()).isEqualTo(1);
         assertThat(movementCount.getOut()).isEqualTo(1);
     }
 
     @Test
-    public final void canRetrieveRollcountMovements2() {
-        final MovementCount movementCount = repository.getMovementCount("LEI",  LocalDate.of(2012, Month.JULY, 5));
+    public void canRetrieveRollcountMovements2() {
+        final MovementCount movementCount = repository.getMovementCount("LEI", LocalDate.of(2012, Month.JULY, 5));
         assertThat(movementCount.getIn()).isEqualTo(5);
         assertThat(movementCount.getOut()).isEqualTo(0);
     }
 
     @Test
-    public final void canRetrieveRollcountMovements3() {
-        final MovementCount movementCount = repository.getMovementCount("LEI",  LocalDate.of(2018, Month.FEBRUARY, 2));
+    public void canRetrieveRollcountMovements3() {
+        final MovementCount movementCount = repository.getMovementCount("LEI", LocalDate.of(2018, Month.FEBRUARY, 2));
         assertThat(movementCount.getIn()).isEqualTo(0);
         assertThat(movementCount.getOut()).isEqualTo(0);
     }
 
     @Test
-    public final void canRetrieveRecentMovementsByOffendersAndMovementTypes() {
+    public void canRetrieveRecentMovementsByOffendersAndMovementTypes() {
         List<Movement> movements = repository.getRecentMovementsByOffenders(Arrays.asList("A6676RS"), Arrays.asList("TRN"));
 
         assertThat(movements.size()).isEqualTo(1);
@@ -110,7 +109,7 @@ public class MovementsRepositoryTest {
     }
 
     @Test
-    public final void canRetrieveRecentMovementsByOffenders() {
+    public void canRetrieveRecentMovementsByOffenders() {
         List<Movement> movements = repository.getRecentMovementsByOffenders(Arrays.asList("A6676RS"), new ArrayList<>());
 
         assertThat(movements.size()).isEqualTo(1);
@@ -118,60 +117,65 @@ public class MovementsRepositoryTest {
     }
 
     @Test
-    public final void canRetrieveEnrouteOffenderMovements() {
-        List<OffenderMovement> movements = repository.getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2017,10, 12), "lastName,firstName", Order.ASC);
+    public void canRetrieveEnrouteOffenderMovements() {
+        List<OffenderMovement> movements = repository.getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2017, 10, 12));
 
         assertThat(movements.size()).isEqualTo(2);
-        assertThat(movements.get(0).getOffenderNo()).isEqualTo("A1183AD");
+        assertThat(movements.get(0).getOffenderNo()).isEqualTo("A1183SH");
+        assertThat(movements.get(1).getOffenderNo()).isEqualTo("A1183AD");
     }
 
     @Test
-    public final void canRetrieveEnrouteOffenderCount() {
+    public void canRetrieveEnrouteOffenderCount() {
         final int count = repository.getEnrouteMovementsOffenderCount("LEI", LocalDate.of(2017, 10, 12));
 
         assertThat(count).isEqualTo(2);
     }
 
     @Test
-    public final void canSortEnrouteOffenderMovements() {
-        List<OffenderMovement> movements = repository.getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2017,10, 12), "offenderNo", Order.DESC);
-
-        assertThat(movements.size()).isEqualTo(2);
-        assertThat(movements.get(0).getOffenderNo()).isEqualTo("A1183SH");
-    }
-
-    @Test
-    public final void canRetrieveOffendersIn() {
+    public void canRetrieveOffendersIn() {
         var offendersIn = repository.getOffendersIn("LEI", LocalDate.of(2017, 10, 12));
 
         assertThat(offendersIn).containsExactlyInAnyOrder(
                 OffenderIn.builder()
                         .offenderNo("A6676RS")
+                        .bookingId(-29L)
                         .dateOfBirth(LocalDate.of(1945, 1, 10))
                         .firstName("NEIL")
                         .lastName("BRADLEY")
-                .fromAgencyDescription("BIRMINGHAM")
-                .toAgencyDescription("LEEDS")
-                .fromAgencyId("BMI")
-                .toAgencyId("LEI")
-                .movementTime(LocalTime.of(10,45,0))
-                .location("Landing H/1")
-                .build()
+                        .fromAgencyDescription("BIRMINGHAM")
+                        .toAgencyDescription("LEEDS")
+                        .fromAgencyId("BMI")
+                        .toAgencyId("LEI")
+                        .movementTime(LocalTime.of(10, 45, 0))
+                        .location("Landing H/1")
+                        .build()
         );
     }
 
     @Test
-    public final void canRetrieveOffendersInReception() {
+    public void canRetrieveOffendersInReception() {
         var offenders = repository.getOffendersInReception("MDI");
 
         assertThat(offenders).containsExactly(
                 OffenderInReception.builder()
-                 .firstName("AMY")
-                .lastName("DUDE")
-                .offenderNo("A118DDD")
-                .bookingId(-46l)
-                .dateOfBirth(LocalDate.of(1980,01,02))
-                .build()
+                        .firstName("AMY")
+                        .lastName("DUDE")
+                        .offenderNo("A118DDD")
+                        .bookingId(-46L)
+                        .dateOfBirth(LocalDate.of(1980, 1, 2))
+                        .build()
         );
+    }
+
+    @Test
+    public void canRetriveOffendersCurrentlyOut() {
+        List<OffenderOut> offenders = repository.getOffendersCurrentlyOut(-13);
+        assertThat(offenders).containsExactlyInAnyOrder(
+                        OffenderOut.builder().offenderNo("Z0023ZZ").bookingId(-23L).dateOfBirth(LocalDate.of(1960, 1, 1)).firstName("RICHARD").lastName("GRAYSON").location("Landing H/1").build(),
+                        OffenderOut.builder().offenderNo("Z0022ZZ").bookingId(-22L).dateOfBirth(LocalDate.of(1962, 1, 1)).firstName("HARVEY").lastName("WEINSTEIN").location("Landing H/1").build(),
+                        OffenderOut.builder().offenderNo("Z0021ZZ").bookingId(-21L).dateOfBirth(LocalDate.of(1964, 1, 1)).firstName("DAVID").lastName("DICKENSON").location("Landing H/1").build(),
+                        OffenderOut.builder().offenderNo("Z0020ZZ").bookingId(-20L).dateOfBirth(LocalDate.of(1966, 1, 1)).firstName("BURT").lastName("REYNOLDS").location("Landing H/1").build()
+                );
     }
 }

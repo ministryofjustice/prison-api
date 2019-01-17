@@ -1,7 +1,6 @@
 package net.syscon.elite.service;
 
 import net.syscon.elite.api.model.*;
-import net.syscon.elite.api.support.Order;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,7 +16,7 @@ public interface MovementsService {
 
     MovementCount getMovementCount(String agencyId, LocalDate date);
 
-    List<OffenderMovement> getEnrouteOffenderMovements(String agencyId, LocalDate date, String orderByFields, Order order);
+    List<OffenderMovement> getEnrouteOffenderMovements(String agencyId, LocalDate date);
 
     int getEnrouteOffenderCount(String agencyId, LocalDate date);
 
@@ -26,4 +25,6 @@ public interface MovementsService {
     List<OffenderIn> getOffendersIn(String agencyId, LocalDate date);
 
     List<OffenderInReception> getOffendersInReception(String agencyId);
+
+    List<OffenderOut> getOffendersCurrentlyOut(long livingUnitId);
 }

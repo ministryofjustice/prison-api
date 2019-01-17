@@ -7,8 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -23,6 +23,9 @@ public class OffenderIn {
     @NotBlank
     @ApiModelProperty(required = true, value = "Display Prisoner Number")
     private String offenderNo;
+
+    @NotNull
+    private Long bookingId;
 
     @NotNull
     private LocalDate dateOfBirth;

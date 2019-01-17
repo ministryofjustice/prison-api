@@ -15,6 +15,7 @@ import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -43,7 +44,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             .put("ALIASES", 		    new FieldMapper("aliases", value -> Arrays.asList(value.toString().split(","))))
             .put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
             .put("LIVING_UNIT_ID",      new FieldMapper("assignedLivingUnitId"))
-            .put("LIVING_UNIT_DESC",    new FieldMapper("assignedLivingUnitDesc", value -> StringUtils.replaceFirst((String)value, "^[A-Z|a-z|0-9]+\\-", "")))
+            .put("LIVING_UNIT_DESC",    new FieldMapper("assignedLivingUnitDesc", value -> RegExUtils.replaceFirst((String)value, "^[A-Z|a-z|0-9]+\\-", "")))
             .put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerId"))
             .build();
 
@@ -78,7 +79,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	private final Map<String, FieldMapper> assignedLivingUnitMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("AGY_LOC_ID", 	new FieldMapper("agencyId"))
 			.put("LIVING_UNIT_ID",          new FieldMapper("locationId"))
-			.put("LIVING_UNIT_DESCRIPTION", new FieldMapper("description", value -> StringUtils.replaceFirst((String)value, "^[A-Z|a-z|0-9]+\\-", "")))
+			.put("LIVING_UNIT_DESCRIPTION", new FieldMapper("description", value -> RegExUtils.replaceFirst((String)value, "^[A-Z|a-z|0-9]+\\-", "")))
 			.put("AGENCY_NAME", new FieldMapper("agencyName"))
 			.build();
 

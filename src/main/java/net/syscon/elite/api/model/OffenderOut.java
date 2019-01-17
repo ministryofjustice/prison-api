@@ -9,37 +9,33 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.time.LocalTime;
 
-@Data
-@ApiModel(description = "Offender out today details")
+@ApiModel(description = "Summary of an offender 'currently out' according to Establishment Roll")
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Builder(toBuilder = true)
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class OffenderOutTodayDto {
-
+public class OffenderOut {
     @NotBlank
-    @ApiModelProperty(required = true, value = "Offender Unique Reference")
+    @ApiModelProperty(required = true, value = "Display Prisoner Number")
     private String offenderNo;
 
-    @NotBlank
-    @ApiModelProperty(required = true)
+    @NotNull
+    private Long bookingId;
+
+    @NotNull
     private LocalDate dateOfBirth;
 
-    @ApiModelProperty(value = "Reason for out movement")
-    private String reasonDescription;
-
     @NotBlank
-    @ApiModelProperty(required = true)
-    private LocalTime timeOut;
-
-    @NotBlank
-    @ApiModelProperty(required = true)
     private String firstName;
 
     @NotBlank
-    @ApiModelProperty(required = true)
     private String lastName;
+
+    @NotNull
+    @ApiModelProperty(required = true, value = "The prisoner's internal location (Cell)")
+    private String location;
 }
