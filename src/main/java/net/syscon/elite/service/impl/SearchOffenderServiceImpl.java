@@ -80,13 +80,7 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
             pageRequest = request;
         }
 
-        Set<String> caseloads = Set.of();
-        if (!securityUtils.isOverrideRole()) {
-            caseloads = userService.getCaseLoadIds(request.getUsername());
-            if (caseloads.isEmpty()) {
-                caseloads = Set.of("NWEB"); // TODO: Add NWEB for now to exclude and results for empty caseloads
-            }
-        }
+        final Set<String> caseloads = securityUtils.isOverrideRole() ? Set.of() : userService.getCaseLoadIds(request.getUsername());
 
         var bookingsPage = repository.searchForOffenderBookings(
                 caseloads, offenderNo, searchTerm1, searchTerm2,
