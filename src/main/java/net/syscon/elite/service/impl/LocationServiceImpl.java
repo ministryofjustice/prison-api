@@ -60,20 +60,25 @@ public class LocationServiceImpl implements LocationService {
     public List<Location> getUserLocations(final String username) {
         final List<Location> locations = new ArrayList<>();
 
-        // Step 1 - Get all agencies associated with user
-        agencyRepository.findAgenciesForCurrentCaseloadByUsername(username).forEach(
-                agency -> {
-                    // Start with agency converted to location
-                    locations.add(convertToLocation(agency));
+        var currentCaseLoad = caseLoadService.getWorkingCaseLoadForUser(username);
 
-                    // Then retrieve all associated internal locations at configured level of granularity.
-                    final List<Location> agencyLocations = locationRepository.findLocationsByAgencyAndType(
-                            agency.getAgencyId(), locationTypeGranularity, true);
+        if (currentCaseLoad.isPresent() && !"ADMIN".equals(currentCaseLoad.get().getType())) {
 
-                    agencyLocations.forEach(a -> a.setDescription(LocationProcessor.formatLocation(a.getDescription())));
-                    locations.addAll(agencyLocations);
-                }
-        );
+            // Step 1 - Get all agencies associated with user
+            agencyRepository.findAgenciesForCurrentCaseloadByUsername(username).forEach(
+                    agency -> {
+                        // Start with agency converted to location
+                        locations.add(convertToLocation(agency));
+
+                        // Then retrieve all associated internal locations at configured level of granularity.
+                        final List<Location> agencyLocations = locationRepository.findLocationsByAgencyAndType(
+                                agency.getAgencyId(), locationTypeGranularity, true);
+
+                        agencyLocations.forEach(a -> a.setDescription(LocationProcessor.formatLocation(a.getDescription())));
+                        locations.addAll(agencyLocations);
+                    }
+            );
+        }
 
         return locations;
     }

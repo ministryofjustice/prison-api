@@ -20,7 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -77,7 +80,13 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
             pageRequest = request;
         }
 
-        final Set<String> caseloads = securityUtils.isOverrideRole() ? Collections.emptySet() : userService.getCaseLoadIds(request.getUsername());
+        Set<String> caseloads = Set.of();
+        if (!securityUtils.isOverrideRole()) {
+            caseloads = userService.getCaseLoadIds(request.getUsername());
+            if (caseloads.isEmpty()) {
+                caseloads = Set.of("_NO_CL_");
+            }
+        }
 
         final Page<OffenderBooking> bookingsPage = repository.searchForOffenderBookings(
                 caseloads, offenderNo, searchTerm1, searchTerm2,
