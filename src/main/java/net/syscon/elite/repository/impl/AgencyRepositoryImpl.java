@@ -73,7 +73,7 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
 
         return jdbcTemplate.query(
                 sql,
-                createParams("username", username),
+                createParams("username", username, "caseloadType", "INST", "caseloadFunction", "GENERAL"),
                 AGENCY_ROW_MAPPER);
     }
 
@@ -190,9 +190,10 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
 
     @VisibleForTesting
     List<PrisonContactDetail> mapResultsToPrisonContactDetailsList(Collection<List<Address>> groupedResults) {
-        final List<PrisonContactDetail> prisonContactDetails = groupedResults.stream().map(this::mapResultsToPrisonContactDetails).collect(Collectors.toList());
-        prisonContactDetails.sort(Comparator.comparing(a -> a.getAgencyId()));
-        return prisonContactDetails;
+        return groupedResults.stream().map(this::mapResultsToPrisonContactDetails)
+                .sorted(Comparator.comparing(PrisonContactDetail::getAgencyId))
+                .collect(Collectors.toList());
+
     }
 
     private PrisonContactDetail mapResultsToPrisonContactDetails(List<Address> addressList) {
