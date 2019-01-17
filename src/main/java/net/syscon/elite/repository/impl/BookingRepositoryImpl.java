@@ -460,7 +460,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         try {
             bookingId = jdbcTemplate.queryForObject(
                     sql,
-                    createParams("offenderNo", offenderNo), Long.class);
+                    createParams("offenderNo", offenderNo, "bookingSeq", 1), Long.class);
         } catch (EmptyResultDataAccessException ex) {
             bookingId = null;
         }
