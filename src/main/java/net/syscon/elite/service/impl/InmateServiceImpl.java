@@ -97,9 +97,7 @@ public class InmateServiceImpl implements InmateService {
         if (criteria.isIepLevel()) {
             List<Long> bookingIds = bookings.getItems().stream().map(OffenderBooking::getBookingId).collect(Collectors.toList());
             Map<Long, PrivilegeSummary> bookingIEPSummary = bookingService.getBookingIEPSummary(bookingIds, false);
-            bookings.getItems().forEach(booking -> {
-                booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel());
-            });
+            bookings.getItems().forEach(booking -> booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel()));
         }
         return bookings;
     }
@@ -168,7 +166,7 @@ public class InmateServiceImpl implements InmateService {
     private List<Assessment> getAllAssessmentsOrdered(Long bookingId) {
         final List<AssessmentDto> assessmentsDto = repository.findAssessments(Collections.singletonList(bookingId), null, Collections.emptySet());
 
-        return assessmentsDto.stream().map(a -> createAssessment(a)).collect(Collectors.toList());
+        return assessmentsDto.stream().map(this::createAssessment).collect(Collectors.toList());
     }
 
     /**
@@ -200,7 +198,7 @@ public class InmateServiceImpl implements InmateService {
         }
         Set<String> alertTypes = new HashSet<>();
         final AtomicInteger activeAlertCount = new AtomicInteger(0);
-        items.stream().filter(a -> a.getActive()).forEach(a -> {
+        items.stream().filter(Alert::getActive).forEach(a -> {
             activeAlertCount.incrementAndGet();
             alertTypes.add(a.getAlertType());
         });
@@ -300,7 +298,7 @@ public class InmateServiceImpl implements InmateService {
         if (!offenderNos.isEmpty()) {
                       final Set<String> caseLoadIds = securityUtils.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")
                     ? Collections.emptySet()
-                    : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), true);
+                    : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
 
             List<List<String>> batch = Lists.partition(offenderNos, maxBatchSize);
             batch.forEach(offenderBatch -> {
@@ -356,6 +354,6 @@ public class InmateServiceImpl implements InmateService {
     }
 
     private Set<String> getUserCaseloadIds(String username) {
-        return caseLoadService.getCaseLoadIdsForUser(username, true);
+        return caseLoadService.getCaseLoadIdsForUser(username, false);
     }
 }

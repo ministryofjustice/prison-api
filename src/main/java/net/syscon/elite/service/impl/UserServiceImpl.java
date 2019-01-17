@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public Set<String> getCaseLoadIds(String username) {
-		return caseLoadService.getCaseLoadIdsForUser(username, true);
+		return caseLoadService.getCaseLoadIdsForUser(username, false);
 	}
 
 	@Override

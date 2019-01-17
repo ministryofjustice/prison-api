@@ -209,7 +209,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			initialSql += " AND (O.FIRST_NAME like :searchTerm2 OR O.LAST_NAME like :searchTerm2) ";
 		}
 
-		if (!alerts.isEmpty()) {
+		if (alerts != null && !alerts.isEmpty()) {
 			initialSql += " AND " + getQuery("ALERT_FILTER");
 		}
 
