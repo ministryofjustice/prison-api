@@ -345,19 +345,15 @@ FROM
          AND ass.assessment_class = 'TYPE'
          AND off_ass.assess_status IN ('A','P')
          AND off_ass.assessment_date = (
-           SELECT MAX (a.assessment_date) from offender_assessments a
-            JOIN assessments ass ON off_ass.assessment_type_id = ass.assessment_id
-             WHERE off_ass.offender_book_id = a.offender_book_id
-               AND ass.assessment_code = 'CATEGORY'
-               AND ass.assessment_class = 'TYPE'
-               AND a.assess_status IN ('A','P'))
+          SELECT MAX (a.assessment_date) from offender_assessments a
+          WHERE off_ass.offender_book_id = a.offender_book_id
+           AND a.assessment_type_id = ass.assessment_id
+           AND a.assess_status IN ('A','P'))
          AND off_ass.assessment_seq = (
-           SELECT MAX (b.assessment_seq) from offender_assessments b
-            JOIN assessments ass ON b.assessment_type_id = ass.assessment_id
-             WHERE off_ass.offender_book_id = b.offender_book_id
-               AND ass.assessment_code = 'CATEGORY'
-               AND ass.assessment_class = 'TYPE'
-               AND b.assess_status IN ('A','P'))
+          SELECT MAX (b.assessment_seq) from offender_assessments b
+          WHERE off_ass.offender_book_id = b.offender_book_id
+            AND b.assessment_type_id = ass.assessment_id
+            AND b.assess_status IN ('A','P'))
   ) categories ON categories.offender_book_id = at_offender_booking.offender_book_id
 WHERE at_offender_booking.in_out_status IN ('IN', 'OUT')
   AND (categories.assess_status = 'P' or categories.offender_book_id IS NULL)
