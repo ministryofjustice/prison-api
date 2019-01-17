@@ -298,7 +298,7 @@ public class InmateServiceImpl implements InmateService {
         if (!offenderNos.isEmpty()) {
                       final Set<String> caseLoadIds = securityUtils.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")
                     ? Collections.emptySet()
-                    : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), true);
+                    : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
 
             List<List<String>> batch = Lists.partition(offenderNos, maxBatchSize);
             batch.forEach(offenderBatch -> {
@@ -354,6 +354,6 @@ public class InmateServiceImpl implements InmateService {
     }
 
     private Set<String> getUserCaseloadIds(String username) {
-        return caseLoadService.getCaseLoadIdsForUser(username, true);
+        return caseLoadService.getCaseLoadIdsForUser(username, false);
     }
 }

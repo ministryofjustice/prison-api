@@ -64,6 +64,8 @@ public class LocationServiceImplTest {
         List<Location> returnedLocations = locationService.getUserLocations("me");
 
         assertFalse(returnedLocations.isEmpty());
+        assertThat(returnedLocations).hasSize(2);
+
         Location returnedLocation = returnedLocations.get(1);
         assertEquals(location.getLocationId().longValue(), returnedLocation.getLocationId().longValue());
         assertEquals(location.getAgencyId(), returnedLocation.getAgencyId());

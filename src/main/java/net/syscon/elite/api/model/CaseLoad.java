@@ -87,6 +87,10 @@ public class CaseLoad {
         this.type = type;
     }
 
+    @JsonIgnore
+    public boolean isAdminType() {
+        return "ADMIN".equals(type);
+    }
     /**
       * Functional Use of the case load (nomis only)
       */

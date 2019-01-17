@@ -550,7 +550,7 @@ public class BookingServiceImpl implements BookingService {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
         if (agencyIds.isEmpty()) {
-            agencyIds.add("_NO_AGY");
+            throw EntityNotFoundException.withId(bookingId);
         }
         if (!bookingRepository.verifyBookingAccess(bookingId, agencyIds)) {
             throw EntityNotFoundException.withId(bookingId);
@@ -733,7 +733,7 @@ public class BookingServiceImpl implements BookingService {
 
     private Set<String> caseLoadIdsForUser(String username) {
         return securityUtils.isOverrideRole("GLOBAL_SEARCH", "SYSTEM_USER")
-                ? Collections.emptySet() : caseLoadService.getCaseLoadIdsForUser(username, true);
+                ? Collections.emptySet() : caseLoadService.getCaseLoadIdsForUser(username, false);
     }
 
     private List<OffenderSentenceDetailDto> offenderSentenceSummaries(String agencyId, String username, Set<String> caseloads) {
