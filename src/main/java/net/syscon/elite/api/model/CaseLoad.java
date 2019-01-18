@@ -21,7 +21,7 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(of = "caseLoadId")
 public class CaseLoad {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
