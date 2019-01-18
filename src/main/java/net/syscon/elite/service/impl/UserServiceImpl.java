@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
 	public UserDetail getUserByUsername(String username) {
 		var userDetail = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
 		var caseLoadsForUser = caseLoadService.getCaseLoadsForUser(username, false);
-		if (caseLoadsForUser.isEmpty() && userDetail.getActiveCaseLoadId() == null) {
+		if (userDetail.getActiveCaseLoadId() == null && (caseLoadsForUser.isEmpty() || caseLoadsForUser.get(0).equals(EMPTY_CASELOAD))) {
 			userDetail.setActiveCaseLoadId(EMPTY_CASELOAD.getCaseLoadId());
 		}
 		return userDetail;
