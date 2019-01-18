@@ -99,13 +99,22 @@ public class AccessRoleMaintenanceIntTest {
         List<StaffUserRole> roles = staffService.getStaffRoles(-5L);
         assertThat(roles).containsExactly(
                 StaffUserRole.builder()
+                        .roleId(-304L)
+                        .roleCode("GLOBAL_SEARCH")
+                        .roleName("Global search")
+                        .caseloadId("NWEB")
+                        .username("RO_USER")
+                        .staffId(-5L)
+                        .build(),
+                StaffUserRole.builder()
                         .roleId(-101L)
                         .roleCode("LICENCE_RO")
                         .roleName("Responsible Officer")
                         .caseloadId("NWEB")
                         .username("RO_USER")
                         .staffId(-5L)
-                        .build());
+                        .build()
+                );
     }
 
     @Test
