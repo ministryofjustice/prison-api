@@ -66,7 +66,7 @@ public class MovementsRepositoryTest {
                 .extracting("livingUnitDesc", "bedsInUse", "currentlyInCell", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
                 .contains(
                         tuple("Block A", 11, 11, 0, 13, 2, 14, 3, 4),
-                        tuple("H",       14, 14, 0, 20, 6, 20, 6, 0));
+                        tuple("H",       14, 12, 2, 20, 6, 20, 6, 0));
     }
 
     @Test
@@ -147,7 +147,7 @@ public class MovementsRepositoryTest {
                         .toAgencyDescription("LEEDS")
                         .fromAgencyId("BMI")
                         .toAgencyId("LEI")
-                        .movementTime(LocalTime.of(10, 45, 0))
+                        .movementTime(LocalTime.of(10,  45, 0))
                         .location("Landing H/1")
                         .build()
         );
@@ -172,10 +172,18 @@ public class MovementsRepositoryTest {
     public void canRetriveOffendersCurrentlyOut() {
         List<OffenderOut> offenders = repository.getOffendersCurrentlyOut(-13);
         assertThat(offenders).containsExactlyInAnyOrder(
-                        OffenderOut.builder().offenderNo("Z0023ZZ").bookingId(-23L).dateOfBirth(LocalDate.of(1960, 1, 1)).firstName("RICHARD").lastName("GRAYSON").location("Landing H/1").build(),
-                        OffenderOut.builder().offenderNo("Z0022ZZ").bookingId(-22L).dateOfBirth(LocalDate.of(1962, 1, 1)).firstName("HARVEY").lastName("WEINSTEIN").location("Landing H/1").build(),
-                        OffenderOut.builder().offenderNo("Z0021ZZ").bookingId(-21L).dateOfBirth(LocalDate.of(1964, 1, 1)).firstName("DAVID").lastName("DICKENSON").location("Landing H/1").build(),
-                        OffenderOut.builder().offenderNo("Z0020ZZ").bookingId(-20L).dateOfBirth(LocalDate.of(1966, 1, 1)).firstName("BURT").lastName("REYNOLDS").location("Landing H/1").build()
+                        OffenderOut.builder().offenderNo("Z0025ZZ").bookingId(-25L).dateOfBirth(LocalDate.of(1974, 1, 1)).firstName("MATTHEW").lastName("SMITH").location("Landing H/1").build(),
+                        OffenderOut.builder().offenderNo("Z0024ZZ").bookingId(-24L).dateOfBirth(LocalDate.of(1958, 1, 1)).firstName("LUCIUS").lastName("FOX").location("Landing H/1").build()
                 );
     }
+
+    @Test
+    public void canRetriveOffendersCurrentlyOutOfAgency() {
+        List<OffenderOut> offenders = repository.getOffendersCurrentlyOut("LEI");
+        assertThat(offenders).containsExactlyInAnyOrder(
+                OffenderOut.builder().offenderNo("Z0025ZZ").bookingId(-25L).dateOfBirth(LocalDate.of(1974, 1, 1)).firstName("MATTHEW").lastName("SMITH").location("Landing H/1").build(),
+                OffenderOut.builder().offenderNo("Z0024ZZ").bookingId(-24L).dateOfBirth(LocalDate.of(1958, 1, 1)).firstName("LUCIUS").lastName("FOX").location("Landing H/1").build()
+        );
+    }
+
 }
