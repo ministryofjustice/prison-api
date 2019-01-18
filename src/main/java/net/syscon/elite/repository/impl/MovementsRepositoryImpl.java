@@ -131,7 +131,10 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     public List<OffenderOut> getOffendersCurrentlyOut(long livingUnitId) {
         return jdbcTemplate.query(
                 getQuery("GET_OFFENDERS_CURRENTLY_OUT_OF_LIVING_UNIT"),
-                createParams("livingUnitId", livingUnitId),
+                createParams(
+                        "livingUnitId", livingUnitId,
+                        "bookingSeq", 1,
+                        "inOutStatus", "OUT"),
                 OFFENDER_OUT_MAPPER);
     }
 
@@ -139,7 +142,13 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     public List<OffenderOut> getOffendersCurrentlyOut(String agencyId) {
         return jdbcTemplate.query(
                 getQuery("GET_OFFENDERS_CURRENTLY_OUT_OF_AGENCY"),
-                createParams("agencyId", agencyId),
+                createParams(
+                        "agencyId", agencyId,
+                        "bookingSeq", 1,
+                        "inOutStatus", "OUT",
+                        "certifiedFlag", "Y",
+                        "activeFlag", "Y"
+                ),
                 OFFENDER_OUT_MAPPER);
     }
 }

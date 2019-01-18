@@ -147,7 +147,7 @@ public class MovementsRepositoryTest {
                         .toAgencyDescription("LEEDS")
                         .fromAgencyId("BMI")
                         .toAgencyId("LEI")
-                        .movementTime(LocalTime.of(10, 45, 0))
+                        .movementTime(LocalTime.of(10,  45, 0))
                         .location("Landing H/1")
                         .build()
         );
