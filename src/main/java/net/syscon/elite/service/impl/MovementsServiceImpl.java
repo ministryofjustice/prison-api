@@ -142,4 +142,16 @@ public class MovementsServiceImpl implements MovementsService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<OffenderOut> getOffendersCurrentlyOut(String agencyId) {
+        return movementsRepository
+                .getOffendersCurrentlyOut(agencyId)
+                .stream()
+                .map(offender -> offender.toBuilder()
+                        .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
+                        .lastName(WordUtils.capitalizeFully(offender.getLastName()))
+                        .build())
+                .collect(Collectors.toList());
+    }
 }

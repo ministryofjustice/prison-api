@@ -123,17 +123,23 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     @Override
     public List<OffenderInReception> getOffendersInReception(String agencyId) {
         return jdbcTemplate.query(getQuery("GET_OFFENDERS_IN_RECEPTION"),
-                createParams(
-                        "agencyId", agencyId),
+                createParams("agencyId", agencyId),
                 OFFENDER_IN_RECEPTION_MAPPER);
     }
 
     @Override
     public List<OffenderOut> getOffendersCurrentlyOut(long livingUnitId) {
         return jdbcTemplate.query(
-                getQuery("GET_OFFENDERS_CURRENTLY_OUT"),
-                createParams(
-                    "livingUnitId", livingUnitId),
+                getQuery("GET_OFFENDERS_CURRENTLY_OUT_OF_LIVING_UNIT"),
+                createParams("livingUnitId", livingUnitId),
+                OFFENDER_OUT_MAPPER);
+    }
+
+    @Override
+    public List<OffenderOut> getOffendersCurrentlyOut(String agencyId) {
+        return jdbcTemplate.query(
+                getQuery("GET_OFFENDERS_CURRENTLY_OUT_OF_AGENCY"),
+                createParams("agencyId", agencyId),
                 OFFENDER_OUT_MAPPER);
     }
 }
