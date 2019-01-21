@@ -4,6 +4,7 @@ import io.jsonwebtoken.lang.Collections;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.ApprovalStatus;
 import net.syscon.elite.api.model.HdcChecks;
+import net.syscon.elite.api.model.OffenderSentenceCalc;
 import net.syscon.elite.api.model.OffenderSentenceDetail;
 import net.syscon.elite.api.resource.OffenderSentenceResource;
 import net.syscon.elite.core.RestResource;
@@ -45,15 +46,8 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
 
     @Override
     public GetOffenderSentencesHomeDetentionCurfewCandidatesResponse getOffenderSentencesHomeDetentionCurfewCandidates() {
-        List<OffenderSentenceDetail> sentences =
-                offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentUsername(), false);
-
-        return GetOffenderSentencesHomeDetentionCurfewCandidatesResponse.respond200WithApplicationJson(sentences);
-    }
-
-    public GetOffenderSentencesHomeDetentionCurfewCandidatesResponse getEligibileHdcOffendersByUsername() {
-        List<OffenderSentenceDetail> sentences =
-                offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentUsername(), true);
+        List<OffenderSentenceCalc> sentences =
+                offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentUsername());
 
         return GetOffenderSentencesHomeDetentionCurfewCandidatesResponse.respond200WithApplicationJson(sentences);
     }
