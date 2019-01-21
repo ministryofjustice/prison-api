@@ -204,8 +204,8 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     }
 
     @Step("Request sentence details for Home Detention Curfew Candidates")
-    public void requestSentenceDetailsForHomeDetentionCurfewCandidates(boolean newVersion) {
-        dispatchOffenderSentencesForHomeDetentionCurfewCandidates(newVersion);
+    public void requestSentenceDetailsForHomeDetentionCurfewCandidates() {
+        dispatchOffenderSentencesForHomeDetentionCurfewCandidates();
     }
 
     @Step("Verify some resource records returned")
@@ -265,11 +265,11 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         }
     }
 
-    private void dispatchOffenderSentencesForHomeDetentionCurfewCandidates(boolean newVersion) {
+    private void dispatchOffenderSentencesForHomeDetentionCurfewCandidates() {
         init();
 
         try {
-            ResponseEntity<List<OffenderSentenceDetail>> response = restTemplate.exchange(HOME_DETENTION_CURFEW_CANDIDATES + (newVersion ? "/v2" : ""),
+            ResponseEntity<List<OffenderSentenceDetail>> response = restTemplate.exchange(HOME_DETENTION_CURFEW_CANDIDATES,
                     HttpMethod.GET,
                     createEntity(null, Collections.emptyMap()),
                     LIST_OF_OFFENDER_SENTENCE_DETAIL_TYPE);

@@ -14,7 +14,7 @@ import java.util.function.Function;
 
 public class FieldMapper {
 
-	public static final String ADDITIONAL_PROPERTIES = "additionalProperties";
+	static final String ADDITIONAL_PROPERTIES = "additionalProperties";
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -46,14 +46,6 @@ public class FieldMapper {
 		this.decodeFunction = decodeFunction;
 		this.setterFunction = setterFunction;
 		this.encodeFunction = encodeFunction;
-	}
-
-	public void setSetterFunction(Function<Field, Void> setterFunction) {
-		this.setterFunction = setterFunction;
-	}
-
-	public void setDecodeFunction(Function<Object, Object> decodeFunction) {
-		this.decodeFunction = decodeFunction;
 	}
 
 	private Object getCompatibleValue(Field field, Object value) throws SQLException {
@@ -117,12 +109,24 @@ public class FieldMapper {
 		return null;
 	}
 
+	private Field findField(Class clazz) {
+		if (clazz != null) {
+			try {
+				return clazz.getDeclaredField(name);
+			} catch (NoSuchFieldException e) {
+				if (clazz.getSuperclass() != null) {
+					return findField(clazz.getSuperclass());
+				}
+			}
+		}
+		return null;
+	}
 
-	public void setValue(Object target, Object value) {
+	void setValue(Object target, Object value) {
 		try {
-			Field beanField = target.getClass().getDeclaredField(name);
+			var beanField = findField(target.getClass());
 			if (beanField != null) {
-				final boolean accessible = beanField.isAccessible();
+				final boolean accessible = beanField.canAccess(target);
 				beanField.setAccessible(true);
 				if (setterFunction != null) {
 					setterFunction.apply(beanField);
@@ -132,7 +136,7 @@ public class FieldMapper {
 				}
 				beanField.setAccessible(accessible);
 			}
-		} catch (SQLException | NoSuchFieldException ex) {
+		} catch (SQLException ex) {
 			logger.warn("Failure setting the field \"" + name + "\" on " + target.getClass().getName());
 		}
 	}

@@ -27,7 +27,7 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
     private static class MappingInfo {
 		private final String sql;
 		private final Class<?> type;
-		public MappingInfo(final String sql, final Class<?> type) {
+		MappingInfo(final String sql, final Class<?> type) {
 			this.sql = sql;
 			this.type = type;
 		}
@@ -82,14 +82,14 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 
 	private String camelize(final String columnName) {
 		String result = WordUtils.capitalizeFully(columnName.toLowerCase(), '_');
-		result = (result.substring(0, 1).toLowerCase() + result.substring(1)).replaceAll("\\_", "");
+		result = (result.substring(0, 1).toLowerCase() + result.substring(1)).replaceAll("_", "");
 		return result;
 	}
 
 	@Override
 	public T mapRow(final ResultSet rs, final int rowNum) throws SQLException {
 		try {
-			final T bean = type.newInstance();
+			final T bean = type.getDeclaredConstructor().newInstance();
 			loadColumns(rs);
 
 			for (final String columnName: sqlToCollumns) {

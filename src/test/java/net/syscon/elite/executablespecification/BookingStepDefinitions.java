@@ -716,12 +716,7 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @When("^sentence details are requested for offenders who are candidates for Home Detention Curfew$")
     public void sentenceDetailsAreRequestedForHomeDetentionCurfewCandidates() {
-        bookingSentenceDetail.requestSentenceDetailsForHomeDetentionCurfewCandidates(false);
-    }
-
-    @When("^sentence details are requested for offenders who are candidates for Home Detention Curfew V2$")
-    public void sentenceDetailsAreRequestedForHomeDetentionCurfewCandidatesV2() {
-        bookingSentenceDetail.requestSentenceDetailsForHomeDetentionCurfewCandidates(true);
+        bookingSentenceDetail.requestSentenceDetailsForHomeDetentionCurfewCandidates();
     }
 
     @When("^a request for IEP summaries are made for the following booking ids \"([^\"]*)\"$")

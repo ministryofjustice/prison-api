@@ -123,7 +123,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private SentenceDetail emptySentenceDetail(Long bookingId) {
-        return SentenceDetail.builder().bookingId(bookingId).build();
+        return SentenceDetail.sentenceDetailBuilder().bookingId(bookingId).build();
     }
 
     private SentenceDetail deriveSentenceDetail(SentenceDetail sentenceDetail) {
@@ -661,10 +661,10 @@ public class BookingServiceImpl implements BookingService {
 
     private List<OffenderSentenceDetail> getOffenderSentenceDetails(List<OffenderSentenceDetailDto> offenderSentenceSummary) {
         final List<OffenderSentenceDetail> offenderSentenceDetails = offenderSentenceSummary.stream()
-                .map(os -> OffenderSentenceDetail.builder()
+                .map(os -> OffenderSentenceDetail.offenderSentenceDetailBuilder()
                         .bookingId(os.getBookingId())
                         .offenderNo(os.getOffenderNo())
-                        .sentenceDetail(SentenceDetail.builder()
+                        .sentenceDetail(SentenceDetail.sentenceDetailBuilder()
                                 .bookingId(os.getBookingId())
                                 .sentenceStartDate(os.getSentenceStartDate())
                                 .additionalDaysAwarded(os.getAdditionalDaysAwarded())
