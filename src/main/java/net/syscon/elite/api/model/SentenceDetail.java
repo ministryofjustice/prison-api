@@ -23,28 +23,28 @@ public class SentenceDetail extends BaseSentenceDetail {
         ARD,  CRD,  NPD,  PRRD,
     }
 
-    @ApiModelProperty(required = true, value = "Offender booking id.")
+    @ApiModelProperty(required = true, value = "Offender booking id.", position = 0)
     @NotNull
     private Long bookingId;
-    @ApiModelProperty(value = "Sentence start date.")
+    @ApiModelProperty(value = "Sentence start date.", position = 30)
     private LocalDate sentenceStartDate;
-    @ApiModelProperty(value = "ADA - days added to sentence term due to adjustments.")
+    @ApiModelProperty(value = "ADA - days added to sentence term due to adjustments.", position = 40)
     private Integer additionalDaysAwarded;
-    @ApiModelProperty(value = "ARD (override) - automatic (unconditional) release override date for offender.")
+    @ApiModelProperty(value = "ARD (override) - automatic (unconditional) release override date for offender.", position = 41)
     private LocalDate automaticReleaseOverrideDate;
-    @ApiModelProperty(value = "CRD (override) - conditional release override date for offender.")
+    @ApiModelProperty(value = "CRD (override) - conditional release override date for offender.", position = 42)
     private LocalDate conditionalReleaseOverrideDate;
-    @ApiModelProperty(value = "NPD (override) - non-parole override date for offender.")
+    @ApiModelProperty(value = "NPD (override) - non-parole override date for offender.", position = 43)
     private LocalDate nonParoleOverrideDate;
-    @ApiModelProperty(value = "PRRD (override) - post-recall release override date for offender.")
+    @ApiModelProperty(value = "PRRD (override) - post-recall release override date for offender.", position = 44)
     private LocalDate postRecallReleaseOverrideDate;
-    @ApiModelProperty(value = "Release date for non-DTO sentence (if applicable). This will be based on one of ARD, CRD, NPD or PRRD.")
+    @ApiModelProperty(value = "Release date for non-DTO sentence (if applicable). This will be based on one of ARD, CRD, NPD or PRRD.", position = 45)
     private LocalDate nonDtoReleaseDate;
-    @ApiModelProperty(value = "Indicates which type of non-DTO release date is the effective release date. One of 'ARD', 'CRD', 'NPD' or 'PRRD'.")
+    @ApiModelProperty(value = "Indicates which type of non-DTO release date is the effective release date. One of 'ARD', 'CRD', 'NPD' or 'PRRD'.", position = 33)
     private NonDtoReleaseDateType nonDtoReleaseDateType;
-    @ApiModelProperty(value = "Confirmed release date for offender.")
+    @ApiModelProperty(value = "Confirmed release date for offender.", position = 31)
     private LocalDate confirmedReleaseDate;
-    @ApiModelProperty(value = "Confirmed, actual, approved, provisional or calculated release date for offender, according to offender release date algorithm.")
+    @ApiModelProperty(value = "Confirmed, actual, approved, provisional or calculated release date for offender, according to offender release date algorithm.", position = 32)
     private LocalDate releaseDate;
 
     @Builder(builderMethodName = "sentenceDetailBuilder")
