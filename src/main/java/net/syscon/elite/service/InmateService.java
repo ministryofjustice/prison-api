@@ -16,7 +16,9 @@ public interface InmateService {
 
 	InmateDetail getBasicInmateDetail(Long bookingId);
 
-	Page<Alias> findInmateAliases(Long bookingId, String orderBy, Order order, long offset, long limit);
+    void createCategorisation(Long bookingId, CategorisationDetail detail);
+
+    Page<Alias> findInmateAliases(Long bookingId, String orderBy, Order order, long offset, long limit);
 
 	List<PhysicalMark> getPhysicalMarks(Long bookingId);
 	List<ProfileInformation> getProfileInformation(Long bookingId) ;

@@ -368,7 +368,6 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    @PreAuthorize("#oauth2.hasScope('write')")
     public CreateBookingCaseNoteResponse createBookingCaseNote(Long bookingId, NewCaseNote body) {
         CaseNote caseNote = caseNoteService.createCaseNote(bookingId, body, authenticationFacade.getCurrentUsername());
 

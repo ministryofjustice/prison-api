@@ -185,4 +185,6 @@ public interface InmateRepository {
             }
         }
     }
+
+	void insertCategory(CategorisationDetail detail, String agencyId, Long assessStaffId, String userId, Long score);
 }

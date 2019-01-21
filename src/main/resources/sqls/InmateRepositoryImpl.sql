@@ -360,6 +360,52 @@ WHERE at_offender_booking.in_out_status IN ('IN', 'OUT')
   AND at_offender_booking.agy_loc_id = :agencyId
 }
 
+INSERT_CATEGORY {
+Insert into OFFENDER_ASSESSMENTS
+    (OFFENDER_BOOK_ID,
+     ASSESSMENT_SEQ,
+     ASSESSMENT_DATE,  --??? today?
+     ASSESSMENT_TYPE_ID,
+     SCORE,
+     ASSESS_STATUS,
+     CALC_SUP_LEVEL_TYPE,
+     ASSESS_STAFF_ID,
+     ASSESS_COMMENT_TEXT,
+     NEXT_REVIEW_DATE,
+     MODIFY_USER_ID,  --needed??
+     ASSESS_COMMITTE_CODE,
+     CREATION_DATE,
+     CREATION_USER,
+     ASSESSMENT_CREATE_LOCATION,
+     MODIFY_DATETIME,
+     CREATE_DATETIME,
+     CREATE_USER_ID)
+VALUES
+     (:bookingId,
+     :seq,
+     :assessmentDate,
+     (select assessment_id from assessments a where a.assessment_class='TYPE' and a.assessment_code='CATEGORY'),
+     :score, --  1005,  ????
+     :assessStatus,  -- P
+     :category,
+     :assessStaffId,   --  assess_ataff_id
+     :assessComment,
+     :reviewDate, -- (+ 6 months )
+     :userId,   -- modify user needed?
+     :assessCommitteeCode,  -- assess_committe_code
+     :dateTime, -- ???? need this?  -- //createdate
+     :userId, --creation_user
+     :agencyId,
+     :dateTime,
+     :dateTime,
+     :userId
+     )
+}
+
+OFFENDER_ASSESSMENTS_SEQ_MAX {
+SELECT MAX (assessment_seq) from offender_assessments oa WHERE oa.offender_book_id = :bookingId
+}
+
 FIND_INMATE_ALIASES {
   SELECT O.LAST_NAME,
     O.FIRST_NAME,

@@ -735,4 +735,14 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         var bookingIds = Arrays.asList(bookings.split(","));
         bookingIEP.getBookingIEPSummaryForOffenders(bookingIds, true);
     }
+
+    @When("^a categorisation request is made for booking \"([^\"]*)\" with category \"([^\"]*)\" for committee \"([^\"]*)\"$")
+    public void aCategorisationRequestIsMadeForBookingWithCategoryForCommitteeAt(String bookingId, String category, String committee) throws Throwable {
+        bookingAssessment.createCategorisation(Long.parseLong(bookingId), category, committee);
+    }
+
+    @Then("^offender with booking \"([^\"]*)\" has a categorised status of AWAITING_APROVAL$")
+    public void offenderWithBookingHasACategorisedStatusOfAWAITING_APROVAL(String bookingId) throws Throwable {
+        bookingAssessment.verifyCategorisedPendingApproval(Long.parseLong(bookingId));
+    }
 }

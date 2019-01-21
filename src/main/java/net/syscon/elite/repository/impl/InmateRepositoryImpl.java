@@ -23,6 +23,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static net.syscon.elite.repository.ImageRepository.IMAGE_DETAIL_MAPPER;
@@ -149,9 +151,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
     @Override
     public List<InmateDto> findInmatesByLocation(String agencyId, List<Long> locations, Set<String> caseLoadIds) {
-        List<InmateDto> results = jdbcTemplate.query(getQuery("FIND_INMATES_OF_LOCATION_LIST"),
+        return jdbcTemplate.query(getQuery("FIND_INMATES_OF_LOCATION_LIST"),
                 createParams("agencyId", agencyId, "locations", locations, "caseLoadIds", caseLoadIds), INMATE_MAPPER);
-        return results;
     }
 
 	@Override
@@ -407,11 +408,10 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 	@Override
 	public List<OffenderCategorise> getUncategorised(String agencyId) {
-		List<OffenderCategorise> results = jdbcTemplate.query(
+		return jdbcTemplate.query(
 				getQuery("GET_UNCATEGORISED"),
 				createParams("agencyId", agencyId),
 				UNCATEGORISED_MAPPER);
-		return results;
 	}
 
 	@Override
@@ -496,4 +496,44 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		results.forEach(alias -> alias.setAge(DateTimeConverter.getAge(alias.getDob())));
 		return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
 	}
+
+	@Override
+	public void insertCategory(CategorisationDetail detail, String agencyId, Long assessStaffId, String userId, Long score) {
+
+
+		final String sql = getQuery("INSERT_CATEGORY");
+
+        jdbcTemplate.update(
+                sql,
+                createParams("bookingId", detail.getBookingId(),
+                        "seq", getOffenderAssessmentSeq(detail.getBookingId()) + 1,
+                        "assessmentDate", LocalDate.now(),
+                        "score", score,  // waiting for Paul morris response to determine how calculated
+                        "assessStatus", "P",
+                        "category", detail.getCategory(),
+                        "assessStaffId", assessStaffId,
+                        "assessComment", detail.getComment(),
+                        "reviewDate", LocalDate.now().plusMonths(6),
+                        "userId", userId,
+                        "assessCommitteeCode", detail.getCommittee(),
+                        "dateTime", LocalDateTime.now(),
+                        "agencyId", agencyId));
+
+	}
+
+    private int getOffenderAssessmentSeq(Long bookingId) {
+        final String sql = getQuery("OFFENDER_ASSESSMENTS_SEQ_MAX");
+
+        Integer maxSeq = null;
+
+        try {
+            maxSeq = jdbcTemplate.queryForObject(
+                    sql,
+                    createParams("bookingId", bookingId), Integer.class);
+        } catch (EmptyResultDataAccessException ex) {
+            // no row - null response
+        }
+
+        return maxSeq == null ? 1 : maxSeq;
+    }
 }

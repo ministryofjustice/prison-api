@@ -1,15 +1,16 @@
 package net.syscon.elite.service.impl;
 
+import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.Assessment;
+import net.syscon.elite.api.model.CategorisationDetail;
+import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.UserSecurityUtils;
-import net.syscon.elite.service.BookingService;
-import net.syscon.elite.service.CaseLoadService;
-import net.syscon.elite.service.InmateAlertService;
-import net.syscon.elite.service.InmateService;
+import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.AssessmentDto;
 import org.assertj.core.groups.Tuple;
 import org.junit.Before;
@@ -19,6 +20,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -41,6 +44,8 @@ public class InmateServiceImplTest {
     @Mock
     private UserRepository userRepository;
     @Mock
+    private UserService userService;
+    @Mock
     private AuthenticationFacade authenticationFacade;
     @Mock
     private KeyWorkerAllocationRepository keyWorkerAllocationRepository;
@@ -48,14 +53,16 @@ public class InmateServiceImplTest {
     private Environment env;
     @Mock
     private UserSecurityUtils securityUtils;
+    @Mock
+    private TelemetryClient telemetryClient;
 
     private InmateService serviceToTest;
 
     @Before
     public void init() {
         serviceToTest = new InmateServiceImpl(repository, caseLoadService, inmateAlertService,
-                bookingService, userRepository, authenticationFacade,
-                keyWorkerAllocationRepository, env, securityUtils,"WING", 100);
+                bookingService, userService, userRepository, authenticationFacade,
+                keyWorkerAllocationRepository, env, securityUtils, telemetryClient,"WING", 100);
     }
 
     @Test
@@ -129,5 +136,21 @@ public class InmateServiceImplTest {
                 Tuple.tuple(10L, "CODE3", LocalDate.of(2018, Month.APRIL, 5), "High"),
                 Tuple.tuple(11L, "CODE1", LocalDate.of(2018, Month.MAY, 7), "Standard")
         );
+    }
+
+    @Test
+    public void testCreateBookingAppointment() {
+
+        final CategorisationDetail catDetail = CategorisationDetail.builder().bookingId(-5L).category("D").committee("GOV").comment("comment").build();
+
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("ME", "credentials"));
+
+        Mockito.when(bookingService.getLatestBookingByBookingId(1234L)).thenReturn(OffenderSummary.builder().agencyLocationId("CDI").bookingId(-5L).build());
+        Mockito.when(userService.getUserByUsername("ME")).thenReturn(UserDetail.builder().staffId(444L).username("ME").build());
+        Mockito.when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
+
+        serviceToTest.createCategorisation(1234L, catDetail);
+
+        Mockito.verify(repository, Mockito.times(1)).insertCategory(catDetail, "CDI", 444L, "ME", 1004L);
     }
 }
