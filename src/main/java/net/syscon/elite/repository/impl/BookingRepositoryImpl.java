@@ -115,6 +115,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     private static final Map<String, FieldMapper> SENTENCE_DETAIL_ROW_MAPPER;
     static {
         Map<String, FieldMapper> builderMap = new HashMap<>();
+        builderMap.put("OFFENDER_BOOK_ID", new FieldMapper("bookingId"));
         builderMap.put("OFFENDER_NO", new FieldMapper("offenderNo"));
         builderMap.put("FIRST_NAME", new FieldMapper("firstName"));
         builderMap.put("LAST_NAME", new FieldMapper("lastName"));

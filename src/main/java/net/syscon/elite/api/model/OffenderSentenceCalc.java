@@ -21,27 +21,27 @@ import javax.validation.constraints.NotNull;
 @ToString
 @Data
 public class OffenderSentenceCalc<S extends BaseSentenceDetail> {
-    @ApiModelProperty(required = true, value = "Offender booking id.")
+    @ApiModelProperty(required = true, value = "Offender booking id.", position = 0)
     @NotNull
-    protected Long bookingId;
+    private Long bookingId;
 
-    @ApiModelProperty(required = true, value = "Offender Unique Reference")
+    @ApiModelProperty(required = true, value = "Offender Unique Reference", position = 1)
     @NotBlank
-    protected String offenderNo;
+    private String offenderNo;
 
-    @ApiModelProperty(required = true, value = "First Name")
+    @ApiModelProperty(required = true, value = "First Name", position = 2)
     @NotBlank
-    protected String firstName;
+    private String firstName;
 
-    @ApiModelProperty(required = true, value = "Last Name")
+    @ApiModelProperty(required = true, value = "Last Name", position = 3)
     @NotBlank
-    protected String lastName;
+    private String lastName;
 
-    @ApiModelProperty(required = true, value = "Agency Id")
+    @ApiModelProperty(required = true, value = "Agency Id", position = 4)
     @NotBlank
-    protected String agencyLocationId;
+    private String agencyLocationId;
 
-    @ApiModelProperty(value = "Offender Sentence Detail Information")
-    protected S sentenceDetail;
+    @ApiModelProperty(value = "Offender Sentence Detail Information", position = 10)
+    private S sentenceDetail;
 
 }
