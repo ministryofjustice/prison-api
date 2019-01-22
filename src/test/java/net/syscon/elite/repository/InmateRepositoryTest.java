@@ -1,9 +1,6 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.InmateDetail;
-import net.syscon.elite.api.model.OffenderBooking;
-import net.syscon.elite.api.model.OffenderCategorise;
-import net.syscon.elite.api.model.PrisonerDetail;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
@@ -560,6 +557,24 @@ public class InmateRepositoryTest {
                 Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", AWAITING_APPROVAL),
                 Tuple.tuple("A1176RS", -32L, "FRED", "JAMES", UNCATEGORISED));
         assertThat(list).asList().hasSize(24);
+    }
+
+    @Test
+    public void testInsertCategory() {
+        final List<OffenderCategorise> uncat = repository.getUncategorised("LEI");
+
+        assertThat(uncat).asList().extracting("offenderNo", "bookingId", "firstName", "lastName", "status").doesNotContain(
+                Tuple.tuple("A1234AE", -5L, "DONALD", "DUCK", AWAITING_APPROVAL));
+
+        final CategorisationDetail catDetail = CategorisationDetail.builder().bookingId(-5L).category("D").committee("GOV").build();
+
+        repository.insertCategory(catDetail, "LEI", 123L, "JDOG", 1004L);
+
+        final List<OffenderCategorise> list = repository.getUncategorised("LEI");
+
+        assertThat(list).asList().extracting("offenderNo", "bookingId", "firstName", "lastName", "status").contains(
+                Tuple.tuple("A1234AE", -5L, "DONALD", "DUCK", AWAITING_APPROVAL));
+
     }
 
     /*****************************************************************************************/

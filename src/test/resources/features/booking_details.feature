@@ -148,6 +148,13 @@ Feature: Booking Details
     When a request is made for uncategorised offenders at "XXXX"
     Then resource not found response is received from booking assessments API
 
+  Scenario: Create categorisation request
+    Given a categorisation user has authenticated with the API
+    When a categorisation request is made for booking "-35" with category "D" for committee "RECP"
+    And a request is made for uncategorised offenders at "MDI"
+    Then offender with booking "-35" has a categorised status of AWAITING_APROVAL
+
+
   Scenario Outline: Request for specific offender booking record returns language
     When an offender booking request is made with booking id "<bookingId>"
     Then language of offender booking returned is "<language>"

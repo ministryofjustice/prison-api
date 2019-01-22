@@ -2,10 +2,12 @@ package net.syscon.elite.api.resource;
 
 import io.swagger.annotations.*;
 import net.syscon.elite.api.model.Assessment;
+import net.syscon.elite.api.model.CategorisationDetail;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.OffenderCategorise;
 import net.syscon.elite.api.support.ResponseDelegate;
 
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -55,6 +57,18 @@ public interface OffenderAssessmentResource {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = OffenderCategorise.class, responseContainer = "List") })
     GetUncategorisedResponse getUncategorised(@ApiParam(value = "Prison id", required = true) @PathParam("agencyId")String agencyId);
+
+
+    @POST
+    @Path("/category/categorise")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Record new offender categorisation.", notes = "Create new categorisation record.", nickname="createCategorisation")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = ""),
+            @ApiResponse(code = 400, message = "Invalid request - e.g. category does not exist.", response = ErrorResponse.class),
+            @ApiResponse(code = 403, message = "Forbidden - user not authorised to categorise the offender.", response = ErrorResponse.class) })
+    CreateCategorisationResponse createCategorisation(@ApiParam(value = "", required = true) @Valid CategorisationDetail body);
 
     class GetOffenderAssessmentsAssessmentCodeResponse extends ResponseDelegate {
 
@@ -126,6 +140,46 @@ public interface OffenderAssessmentResource {
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetUncategorisedResponse(responseBuilder.build(), entity);
+        }
+    }
+
+    class CreateCategorisationResponse extends ResponseDelegate {
+
+        private CreateCategorisationResponse(Response response) { super(response); }
+        private CreateCategorisationResponse(Response response, Object entity) { super(response, entity); }
+
+        public static OffenderAssessmentResource.CreateCategorisationResponse respond201WithApplicationJson() {
+            ResponseBuilder responseBuilder = Response.status(201)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            return new OffenderAssessmentResource.CreateCategorisationResponse(responseBuilder.build());
+        }
+
+        public static OffenderAssessmentResource.CreateCategorisationResponse respond400WithApplicationJson(ErrorResponse entity) {
+            ResponseBuilder responseBuilder = Response.status(400)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new OffenderAssessmentResource.CreateCategorisationResponse(responseBuilder.build(), entity);
+        }
+
+        public static OffenderAssessmentResource.CreateCategorisationResponse respond403WithApplicationJson(ErrorResponse entity) {
+            ResponseBuilder responseBuilder = Response.status(403)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new OffenderAssessmentResource.CreateCategorisationResponse(responseBuilder.build(), entity);
+        }
+
+        public static OffenderAssessmentResource.CreateCategorisationResponse respond404WithApplicationJson(ErrorResponse entity) {
+            ResponseBuilder responseBuilder = Response.status(404)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new OffenderAssessmentResource.CreateCategorisationResponse(responseBuilder.build(), entity);
+        }
+
+        public static OffenderAssessmentResource.CreateCategorisationResponse respond409WithApplicationJson(ErrorResponse entity) {
+            ResponseBuilder responseBuilder = Response.status(409)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new OffenderAssessmentResource.CreateCategorisationResponse(responseBuilder.build(), entity);
         }
     }
 }

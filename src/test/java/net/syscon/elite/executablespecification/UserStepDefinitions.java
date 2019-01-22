@@ -45,6 +45,11 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.authenticateAsClient(NORMAL_USER);
     }
 
+    @Given("^a categorisation user has authenticated with the API$")
+    public void aCategorisationUserHasAuthenticatedWithTheAPI() {
+        user.authenticateAsClient(CATEGORISATION_CREATE);
+    }
+
     @Given("^a system client \"([^\"]*)\" has authenticated with the API$")
     public void trustedClientWithPasswordHasAuthenticatedWithTheAPI(String clientId) {
         user.authenticateAsClient(LOCAL_ADMIN);

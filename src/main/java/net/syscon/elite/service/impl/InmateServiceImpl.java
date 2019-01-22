@@ -1,6 +1,8 @@
 package net.syscon.elite.service.impl;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
@@ -21,6 +23,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -40,12 +43,14 @@ public class InmateServiceImpl implements InmateService {
     private final InmateRepository repository;
     private final CaseLoadService caseLoadService;
     private final BookingService bookingService;
+    private final UserService userService;
     private final InmateAlertService inmateAlertService;
     private final AuthenticationFacade authenticationFacade;
     private final int maxBatchSize;
     private final UserRepository userRepository;
     private final KeyWorkerAllocationRepository keyWorkerAllocationRepository;
     private final Environment env;
+    private final TelemetryClient telemetryClient;
 
     private final UserSecurityUtils securityUtils;
     private final String locationTypeGranularity;
@@ -54,17 +59,20 @@ public class InmateServiceImpl implements InmateService {
                              CaseLoadService caseLoadService,
                              InmateAlertService inmateAlertService,
                              BookingService bookingService,
+                             UserService userService,
                              UserRepository userRepository,
                              AuthenticationFacade authenticationFacade,
                              KeyWorkerAllocationRepository keyWorkerAllocationRepository,
                              Environment env,
                              UserSecurityUtils securityUtils,
+                             TelemetryClient telemetryClient,
                              @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity,
                              @Value("${batch.max.size:1000}") int maxBatchSize) {
         this.repository = repository;
         this.caseLoadService = caseLoadService;
         this.inmateAlertService = inmateAlertService;
         this.securityUtils = securityUtils;
+        this.telemetryClient = telemetryClient;
         this.locationTypeGranularity = locationTypeGranularity;
         this.bookingService = bookingService;
         this.userRepository = userRepository;
@@ -72,6 +80,7 @@ public class InmateServiceImpl implements InmateService {
         this.env = env;
         this.authenticationFacade = authenticationFacade;
         this.maxBatchSize = maxBatchSize;
+        this.userService = userService;
     }
 
     @Override
@@ -337,6 +346,22 @@ public class InmateServiceImpl implements InmateService {
     public List<OffenderCategorise> getUncategorised(String agencyId) {
         return repository.getUncategorised(agencyId);
     }
+
+    @Override
+    @VerifyBookingAccess
+    @PreAuthorize("hasRole('CREATE_CATEGORISATION')")
+    @Transactional
+    public void createCategorisation(Long bookingId, CategorisationDetail categorisationDetail) {
+        final UserDetail userDetail = userService.getUserByUsername(authenticationFacade.getCurrentUsername());
+        final OffenderSummary currentBooking = bookingService.getLatestBookingByBookingId(bookingId);
+        repository.insertCategory(categorisationDetail, currentBooking.getAgencyLocationId(), userDetail.getStaffId(), userDetail.getUsername(), 1004L);  // waiting for Paul Morris response
+
+        // Log event
+        telemetryClient.trackEvent("CategorisationCreated", ImmutableMap.of("bookingId", bookingId.toString(), "category", categorisationDetail.getCategory()), null);
+    }
+
+
+
 
     @Override
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
