@@ -37,6 +37,30 @@ Feature: Booking Sentence Details
     When sentence details are requested for an offender with booking id "-16"
     Then resource not found response is received from sentence details API
 
+  Scenario: Sentence details are requested for booking that is inactive
+    When sentence details are requested for an offender with booking id "-20"
+    Then resource not found response is received from sentence details API
+
+  Scenario Outline: Sentence details are requested for booking that is inactive
+    When a user has a token name of "INACTIVE_BOOKING_USER"
+    And sentence details are requested for an offender with booking id "<bookingId>"
+    Then sentence start date matches "<ssd>"
+    And automatic release date matches "<ard>"
+    And override automatic release date matches "<ardOverride>"
+    And conditional release date matches "<crd>"
+    And override conditional release date matches "<crdOverride>"
+    And non-parole date matches "<npd>"
+    And override non-parole date matches "<npdOverride>"
+    And post-recall release date matches "<prrd>"
+    And override post-recall release date matches "<prrdOverride>"
+    And non-DTO release date matches "<nonDtoReleaseDate>"
+    And non-DTO release date type matches "<nonDtoReleaseDateType>"
+
+  Examples:
+    | bookingId | ssd        | ard        | ardOverride | crd        | crdOverride | npd        | npdOverride | prrd       | prrdOverride | nonDtoReleaseDate | nonDtoReleaseDateType |
+    | -20       | 2017-03-25 |            |             | 2019-03-24 |             |            |             |            |              | 2019-03-24        | CRD                   |
+
+
   Scenario Outline: Retrieve sentence details for an offender, check non-DTO sentence details only
     When sentence details are requested for an offender with booking id "<bookingId>"
     Then sentence start date matches "<ssd>"
