@@ -339,7 +339,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Long getBookingIdByOffenderNo(String offenderNo) {
         final Long bookingId = bookingRepository.getBookingIdByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
-        if (!securityUtils.isOverrideRole("GLOBAL_SEARCH", "SYSTEM_USER")) {
+        if (!isViewAllBookings()) {
             verifyBookingAccess(bookingId);
         }
         return bookingId;
@@ -716,57 +716,68 @@ public class BookingServiceImpl implements BookingService {
 
     private List<OffenderSentenceDetailDto> offenderSentenceSummaries(String agencyId, String username, List<String> offenderNos) {
 
-        final Set<String> caseloads = caseLoadIdsForUser(username);
+        var viewAllBookings = isViewAllBookings();
+        Set<String> caseLoadIdsForUser = null;
+        if (!viewAllBookings) {
+            caseLoadIdsForUser = caseLoadService.getCaseLoadIdsForUser(username, false);
+        }
 
         if (offenderNos.isEmpty()) {
-            return offenderSentenceSummaries(agencyId, username, caseloads);
+            return offenderSentenceSummaries(agencyId, username, caseLoadIdsForUser, !viewAllBookings);
         } else {
-            return offenderSentenceSummaries(offenderNos, caseloads);
+            return offenderSentenceSummaries(offenderNos, caseLoadIdsForUser, !viewAllBookings);
         }
     }
 
     private List<OffenderSentenceDetailDto> bookingSentenceSummaries(String username, List<Long> bookingIds) {
-
-        final Set<String> caseloads = caseLoadIdsForUser(username);
-        return bookingSentenceSummaries(bookingIds, caseloads);
+        return bookingSentenceSummaries(bookingIds, caseLoadService.getCaseLoadIdsForUser(username, false), !isViewAllBookings());
     }
 
-    private Set<String> caseLoadIdsForUser(String username) {
-        return securityUtils.isOverrideRole("GLOBAL_SEARCH", "SYSTEM_USER")
-                ? Collections.emptySet() : caseLoadService.getCaseLoadIdsForUser(username, false);
-    }
 
-    private List<OffenderSentenceDetailDto> offenderSentenceSummaries(String agencyId, String username, Set<String> caseloads) {
+    private List<OffenderSentenceDetailDto> offenderSentenceSummaries(String agencyId, String username, Set<String> caseloads, boolean filterByCaseloads) {
         String query = buildAgencyQuery(agencyId, username);
         if (StringUtils.isEmpty(query) && caseloads.isEmpty()) {
             throw new BadRequestException("Request must be restricted to either a caseload, agency or list of offenders");
         }
-        return bookingRepository.getOffenderSentenceSummary(query, caseloads);
+        return bookingRepository.getOffenderSentenceSummary(query, caseloads, filterByCaseloads, isViewInactiveBookings());
     }
 
-    private List<OffenderSentenceDetailDto> offenderSentenceSummaries(List<String> offenderNos, Set<String> caseloads) {
+    private List<OffenderSentenceDetailDto> offenderSentenceSummaries(List<String> offenderNos, Set<String> caseloads, boolean filterByCaseloads) {
 
         return Lists
                 .partition(offenderNos, maxBatchSize)
                 .stream()
                 .flatMap(numbers -> {
                     String query = "offenderNo:in:" + quotedAndPipeDelimited(numbers.stream());
-                    return bookingRepository.getOffenderSentenceSummary(query, caseloads).stream();
+                    return bookingRepository.getOffenderSentenceSummary(query, caseloads, filterByCaseloads, isViewInactiveBookings()).stream();
                 })
                 .collect(Collectors.toList());
     }
 
-    private List<OffenderSentenceDetailDto> bookingSentenceSummaries(List<Long> bookingIds, Set<String> caseloads) {
+    private List<OffenderSentenceDetailDto> bookingSentenceSummaries(List<Long> bookingIds, Set<String> caseloads, boolean filterByCaseloads) {
 
         return Lists
                 .partition(bookingIds, maxBatchSize)
                 .stream()
                 .flatMap(numbers -> {
                     String query = "bookingId:in:" + numbers.stream().map(String::valueOf).collect(Collectors.joining("|"));
-                    return bookingRepository.getOffenderSentenceSummary(query, caseloads).stream();
+                    return bookingRepository.getOffenderSentenceSummary(query, caseloads, filterByCaseloads, isViewInactiveBookings()).stream();
                 })
                 .collect(Collectors.toList());
     }
+
+    private boolean isViewAllBookings() {
+        return isOverrideRole("GLOBAL_SEARCH");
+    }
+
+    private boolean isViewInactiveBookings() {
+        return isOverrideRole("INACTIVE_BOOKINGS");
+    }
+
+    private boolean isOverrideRole(final String otherRole) {
+        return securityUtils.isOverrideRole(otherRole, "SYSTEM_USER");
+    }
+
 
     private static String quotedAndPipeDelimited(Stream<String> values) {
         return values.collect(Collectors.joining("'|'","'", "'"));

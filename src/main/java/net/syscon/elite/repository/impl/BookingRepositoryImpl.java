@@ -588,25 +588,42 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    public List<OffenderSentenceDetailDto> getOffenderSentenceSummary(String query, Set<String> allowedCaseloadsOnly) {
+    public List<OffenderSentenceDetailDto> getOffenderSentenceSummary(String query, Set<String> allowedCaseloadsOnly, boolean filterByCaseload, boolean viewInactiveBookings) {
         String initialSql = getQuery("GET_OFFENDER_SENTENCE_DETAIL");
-        if (!allowedCaseloadsOnly.isEmpty()) {
-            initialSql += " AND " + getQuery("CASELOAD_FILTER");
+
+        var additionSql = new StringBuilder();
+        if (!viewInactiveBookings) {
+            appendWhereOrAnd(additionSql);
+            additionSql.append("OB.ACTIVE_FLAG = :activeFlag AND OB.BOOKING_SEQ = :bookingSeq");
+
+        }
+        if (filterByCaseload && !allowedCaseloadsOnly.isEmpty()) {
+            appendWhereOrAnd(additionSql);
+            additionSql.append(getQuery("CASELOAD_FILTER"));
+        }
+
+        if (additionSql.length() > 0) {
+            initialSql += additionSql.toString();
         }
 
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, SENTENCE_DETAIL_ROW_MAPPER);
 
-        String sql = builder
-                .addQuery(query)
-                .build();
+        String sql = builder.addQuery(query).build();
 
-        RowMapper<OffenderSentenceDetailDto> offenderSentenceDetailDtoRowMapper = Row2BeanRowMapper.makeMapping(sql, OffenderSentenceDetailDto.class, SENTENCE_DETAIL_ROW_MAPPER);
+        var offenderSentenceDetailDtoRowMapper = Row2BeanRowMapper.makeMapping(sql, OffenderSentenceDetailDto.class, SENTENCE_DETAIL_ROW_MAPPER);
 
         return jdbcTemplate.query(
                 sql,
-                createParams( "caseLoadId", allowedCaseloadsOnly),
+                createParams( "caseLoadId", allowedCaseloadsOnly, "activeFlag", "Y", "bookingSeq", 1),
                 offenderSentenceDetailDtoRowMapper);
+    }
 
+    private void appendWhereOrAnd(final StringBuilder additionSql) {
+        if (additionSql.length() == 0) {
+            additionSql.append(" WHERE ");
+        } else {
+            additionSql.append(" AND ");
+        }
     }
 
     @Override
