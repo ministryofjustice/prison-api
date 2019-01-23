@@ -47,6 +47,14 @@ public class Movement {
     private String toAgencyDescription;
 
     @NotBlank
+    @ApiModelProperty(value = "City offender was received from")
+    private String fromCity;
+
+    @NotBlank
+    @ApiModelProperty(value = "City offender was sent to")
+    private String toCity;
+
+    @NotBlank
     @ApiModelProperty(required = true, value = "ADM(ission), REL(ease) or TRN(sfer)")
     private String movementType;
 
@@ -66,5 +74,4 @@ public class Movement {
 
     @ApiModelProperty(value = "Comment")
     private String commentText;
-
 }
