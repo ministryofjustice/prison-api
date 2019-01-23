@@ -39,8 +39,10 @@ public class MovementsServiceImpl implements MovementsService {
         final var movements = movementsRepository.getRecentMovementsByOffenders(offenderNumbers, movementTypes);
 
         return movements.stream().map(movement -> movement.toBuilder()
-                .fromAgencyDescription(LocationProcessor.formatLocation(movement.getFromAgencyDescription()))
-                .toAgencyDescription(LocationProcessor.formatLocation(movement.getToAgencyDescription()))
+                .fromAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getFromAgencyDescription())))
+                .toAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getToAgencyDescription())))
+                .toCity(WordUtils.capitalizeFully(StringUtils.trimToEmpty(movement.getToCity())))
+                .fromCity(WordUtils.capitalizeFully(StringUtils.trimToEmpty(movement.getFromCity())))
                 .build())
                 .collect(Collectors.toList());
     }

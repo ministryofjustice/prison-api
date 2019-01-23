@@ -3,6 +3,7 @@ package net.syscon.elite.executablespecification;
 import cucumber.api.DataTable;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import net.syscon.elite.api.model.Movement;
 import net.syscon.elite.api.model.OffenderIn;
 import net.syscon.elite.api.model.OffenderInReception;
 import net.syscon.elite.api.model.OffenderOutTodayDto;
@@ -58,7 +59,7 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
 
     @When("^a make a request for recent movements for \"([^\"]*)\" and \"([^\"]*)\"$")
     public void aMakeARequestForRecentMovementsForAnd(String offenderNo1, String offenderNo2) {
-        movementsSteps.retrieveMovementsByOffenders(Arrays.asList(offenderNo1, offenderNo2));
+        movementsSteps.retrieveMovementsByOffenders(Arrays.asList(offenderNo1, offenderNo2), true);
     }
 
     @Then("^the records should contain a entry for \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
@@ -116,5 +117,21 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
     public void informationAboutOffendersInReceptionIsReturnedAsFollows(DataTable table) {
         var offendersInReception = table.asList(OffenderInReception.class);
         movementsSteps.verifyOffendersInReception(offendersInReception);
+    }
+
+    @Then("^information about 'recent movements' is returned as follows:$")
+    public void informationAboutRecentMovementsIsReturnedAsFollows(DataTable table) {
+        var recentMovements = table.asList(Movement.class);
+        movementsSteps.verifyMovements(recentMovements);
+    }
+
+    @Then("^the records should contain a entry for \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
+    public void theRecordsShouldContainAEntryFor(String offenderNo, String movementType, String fromDescription, String toDescription, String reasonDescription, String movementTime, String fromCity, String toCity) throws Throwable {
+        movementsSteps.verifyOffenderMovements(offenderNo, movementType, fromDescription, toDescription, reasonDescription, movementTime, fromCity, toCity);
+    }
+
+    @When("^a make a request for recent movements for \"([^\"]*)\" and \"([^\"]*)\" for all movement types$")
+    public void aMakeARequestForRecentMovementsForAndForAllMovementTypes(String offenderNo1, String offenderNo2) throws Throwable {
+        movementsSteps.retrieveMovementsByOffenders(Arrays.asList(offenderNo1, offenderNo2), false);
     }
 }

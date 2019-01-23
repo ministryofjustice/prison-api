@@ -95,11 +95,12 @@ public class MovementsSteps extends CommonSteps {
     }
 
 
-    public void retrieveMovementsByOffenders(List<String> offenderNumbers) {
+    public void retrieveMovementsByOffenders(List<String> offenderNumbers, Boolean includeMovementTypes) {
         init();
         try {
             ResponseEntity<List<Movement>> response = restTemplate.exchange(
-                    API_REQUEST_RECENT_MOVEMENTS + "?movementTypes=TRN&movementTypes=REL",
+                    includeMovementTypes ? API_REQUEST_RECENT_MOVEMENTS + "?movementTypes=TRN&movementTypes=REL" :
+                            API_REQUEST_RECENT_MOVEMENTS,
                     HttpMethod.POST, createEntity(offenderNumbers),
                     new ParameterizedTypeReference<List<Movement>>() {});
 
@@ -296,5 +297,28 @@ public class MovementsSteps extends CommonSteps {
 
     public void verifyOffendersInReception(List<OffenderInReception> offenders) {
         assertThat(offendersInReception).containsSubsequence(offenders);
+    }
+
+    public void verifyMovements(List<Movement> recentMovements) {
+        assertThat(movements).containsSubsequence(recentMovements);
+    }
+
+    public void verifyOffenderMovements(String offenderNo, String movementType, String fromDescription, String toDescription, String reasonDescription, String movementTime, String fromCity, String toCity) {
+
+
+        boolean matched = movements
+                .stream()
+                .filter(m -> m.getOffenderNo().equals(offenderNo) &&
+                        m.getMovementType().equals(movementType) &&
+                        m.getMovementReason().equals(reasonDescription) &&
+                        m.getFromAgencyDescription().equals(fromDescription) &&
+                        m.getToAgencyDescription().equals(toDescription) &&
+                        m.getFromCity().equals(fromCity) &&
+                        m.getToCity().equals(toCity) &&
+                        m.getMovementTime().equals(LocalTime.parse(movementTime)))
+                .toArray()
+                .length != 0;
+
+        assertThat(matched).isTrue();
     }
 }

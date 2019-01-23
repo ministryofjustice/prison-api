@@ -40,7 +40,7 @@ public class MovementsRepositoryTest {
     public void canRetrieveAListOfMovementDetails1() {
         final LocalDateTime threshold = LocalDateTime.of(2017, Month.JANUARY, 1, 0, 0, 0);
         final List<Movement> recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.JULY, 16));
-        assertThat(recentMovements.size()).isEqualTo(1);
+        assertThat(recentMovements.size()).isEqualTo(2);
         assertThat(recentMovements).asList()
                 .extracting("offenderNo", "createDateTime", "fromAgency", "toAgency", "movementType", "directionCode")
                 .contains(tuple("Z0024ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 24, 0, 0), "OUT", "LEI", "ADM", "IN"));
@@ -113,7 +113,7 @@ public class MovementsRepositoryTest {
         List<Movement> movements = repository.getRecentMovementsByOffenders(Arrays.asList("A6676RS"), new ArrayList<>());
 
         assertThat(movements.size()).isEqualTo(1);
-        assertThat(movements.get(0).getToAgency()).isEqualTo("LEI");
+        assertThat(movements.get(0).getToCity()).isEqualTo("Wadhurst");
     }
 
     @Test

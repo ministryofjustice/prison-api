@@ -53,10 +53,11 @@ public class MovementsServiceImplTest {
         Mockito.when(movementsRepository.getRecentMovementsByOffenders(offenderNoList,null)).thenReturn(movements);
 
         final List<Movement> processedMovements = movementsService.getRecentMovementsByOffenders(offenderNoList, null);
-        Assertions.assertThat(processedMovements).extracting("fromAgencyDescription").containsNull();
 
-        Mockito.verify(movementsRepository, Mockito.times(1)).getRecentMovementsByOffenders(offenderNoList,null);
-    }
+        Assertions.assertThat(processedMovements.size()).isEqualTo(1);
+        Assertions.assertThat(processedMovements.get(0).getFromAgencyDescription()).isEmpty();
+
+        Mockito.verify(movementsRepository, Mockito.times(1)).getRecentMovementsByOffenders(offenderNoList,null);    }
 
     @Test
     public void testGetEnrouteOffenderMovements() {
