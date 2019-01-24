@@ -25,8 +25,8 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
     }
 
     @Override
-    public GetOffenderAssessmentsAssessmentCodeResponse getOffenderAssessmentsAssessmentCode(String assessmentCode, List<String> offenderList) {
-        final List<Assessment> results = inmateService.getInmatesAssessmentsByCode(offenderList, assessmentCode);
+    public GetOffenderAssessmentsAssessmentCodeResponse getOffenderAssessmentsAssessmentCode(String assessmentCode, List<String> offenderList, Boolean latestOnly) {
+        final List<Assessment> results = inmateService.getInmatesAssessmentsByCode(offenderList, assessmentCode, !Boolean.FALSE.equals(latestOnly));
         return GetOffenderAssessmentsAssessmentCodeResponse.respond200WithApplicationJson(results);
     }
 
@@ -35,7 +35,7 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
 
         validateOffenderList(offenderList);
 
-        final List<Assessment> results = inmateService.getInmatesAssessmentsByCode(offenderList, assessmentCode);
+        final List<Assessment> results = inmateService.getInmatesAssessmentsByCode(offenderList, assessmentCode, true);
         return PostOffenderAssessmentsAssessmentCodeResponse.respond200WithApplicationJson(results);
     }
 
@@ -44,7 +44,7 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
 
         validateOffenderList(offenderList);
 
-        final List<Assessment> results = inmateService.getInmatesAssessmentsByCode(offenderList, null);
+        final List<Assessment> results = inmateService.getInmatesAssessmentsByCode(offenderList, null, true);
         return PostOffenderAssessmentsCsraListResponse.respond200WithApplicationJson(results);
     }
 

@@ -105,9 +105,9 @@ public class InmateServiceImplTest {
                 AssessmentDto.builder().bookingId(11L).offenderNo("OFFENDER11").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY,   7)).cellSharingAlertFlag(true).build(),
                 AssessmentDto.builder().bookingId(11L).offenderNo("OFFENDER11").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY,   6)).cellSharingAlertFlag(true).build()
         );
-        Mockito.when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10","OFFENDER11"), "THECODE", Collections.emptySet())).thenReturn(data);
+        Mockito.when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10","OFFENDER11"), "THECODE", Collections.emptySet(), true)).thenReturn(data);
 
-        final List<Assessment> assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10","OFFENDER11"), "THECODE");
+        final List<Assessment> assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10","OFFENDER11"), "THECODE", true);
 
         assertThat(assessments).hasSize(2); // 1 per offender
         assertThat(assessments).extracting("bookingId","assessmentCode","assessmentDate").contains(
@@ -127,9 +127,9 @@ public class InmateServiceImplTest {
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("CODE3").assessmentDate(LocalDate.of(2018, Month.APRIL, 3)).cellSharingAlertFlag(true).reviewSupLevelType("MED").reviewSupLevelTypeDesc("Medium").build(),
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("CODE2").assessmentDate(LocalDate.of(2018, Month.APRIL, 1)).cellSharingAlertFlag(false).reviewSupLevelType("HIGH").reviewSupLevelTypeDesc("High").build()
         );
-        Mockito.when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10", "OFFENDER11"), null, Collections.emptySet())).thenReturn(data);
+        Mockito.when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10", "OFFENDER11"), null, Collections.emptySet(), true)).thenReturn(data);
 
-        final List<Assessment> assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), null);
+        final List<Assessment> assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), null, true);
 
         assertThat(assessments).hasSize(2); // 1 per offender
         assertThat(assessments).extracting("bookingId", "assessmentCode", "assessmentDate", "classification").contains(

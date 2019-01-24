@@ -548,9 +548,9 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.verifyField("category", category);
     }
 
-    @When("^an offender booking assessment information request is made with offender numbers \"([^\"]*)\" and \"([^\"]*)\"$")
-    public void anOffenderBookingAssessmentInformationRequestIsMadeWithBookingIdAnd(String offenderNoList, String assessmentCode) {
-        bookingAssessment.getAssessmentsByCode(offenderNoList, assessmentCode);
+    @When("^an offender booking assessment information request is made with offender numbers \"([^\"]*)\" and \"([^\"]*)\" and latest=\"(true|false)\"$")
+    public void anOffenderBookingAssessmentInformationRequestIsMadeWithBookingIdAnd(String offenderNoList, String assessmentCode, boolean latestOnly) {
+        bookingAssessment.getAssessmentsByCode(offenderNoList, assessmentCode, latestOnly);
     }
 
     @When("^an offender booking assessment information POST request is made with offender numbers \"([^\"]*)\" and \"([^\"]*)\"$")
@@ -571,6 +571,11 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @Then("^correct results are returned as for single assessment$")
     public void multipleIsCorrect() {
         bookingAssessment.verifyMultipleAssessments();
+    }
+
+    @Then("^full category history is returned$")
+    public void multipleCategoriesCorrect() {
+        bookingAssessment.verifyMultipleCategoryAssessments();
     }
 
     @Then("^resource not found response is received from booking assessments API$")
