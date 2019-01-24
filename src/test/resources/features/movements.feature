@@ -80,7 +80,7 @@ Scenario: Get brief information about offenders 'in today' specifically dealing 
     | A6676RS   | TAP          |   Leeds            |               | Funerals And Deaths   | 00:00        |           | Wadhurst |
 
   Scenario: Get offender in reception
-    Given a user has authenticated with the APIxx
+    Given a user has authenticated with the API
     When a request is made to retrieve 'offenders in reception' for agency "MDI"
     Then information about 'offenders in reception' is returned as follows:
       | bookingId | offenderNo | dateOfBirth   | firstName | lastName|
