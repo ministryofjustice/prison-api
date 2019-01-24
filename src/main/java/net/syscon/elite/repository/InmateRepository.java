@@ -9,6 +9,7 @@ import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
 import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.Range;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
@@ -70,7 +71,7 @@ public interface InmateRepository {
 	List<PhysicalMark> findPhysicalMarks(long inmateId);
 
     List<AssessmentDto> findAssessments(List<Long> bookingIds, String assessmentCode, Set<String> caseLoadIdsForUser);
-    List<AssessmentDto> findAssessmentsByOffenderNo(List<String> offenderNos, String assessmentCode, Set<String> caseLoadId);
+    List<AssessmentDto> findAssessmentsByOffenderNo(List<String> offenderNos, String assessmentCode, Set<String> caseLoadId, boolean activeOnly);
 	List<OffenderCategorise> getUncategorised(String agencyId);
 
 	Optional<ImageDetail> getMainBookingImage(long bookingId);
@@ -130,7 +131,7 @@ public interface InmateRepository {
 			if (StringUtils.contains(criteriaValue, "''")) {
 				escapedCriteriaValue = criteriaValue;
 			} else {
-				escapedCriteriaValue = StringUtils.replaceAll(criteriaValue, "'", "''");
+				escapedCriteriaValue = RegExUtils.replaceAll(criteriaValue, "'", "''");
 			}
 
 			appendNonBlankCriteria(query, criteriaName, escapedCriteriaValue, operatorTemplate, logicOperator);

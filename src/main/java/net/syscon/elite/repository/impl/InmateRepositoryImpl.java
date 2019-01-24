@@ -375,21 +375,28 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     @Override
     @Cacheable("bookingAssessments")
     public List<AssessmentDto> findAssessments(List<Long> bookingIds, String assessmentCode, Set<String> caseLoadId) {
-        return doFindAssessments(bookingIds, assessmentCode, caseLoadId, "FIND_ACTIVE_APPROVED_ASSESSMENT", "bookingIds");
+        String initialSql = getQuery("FIND_ACTIVE_APPROVED_ASSESSMENT");
+        if (!caseLoadId.isEmpty()) {
+            initialSql += " AND " + getQuery("ASSESSMENT_CASELOAD_FILTER");
+        }
+        return doFindAssessments(bookingIds, assessmentCode, caseLoadId, initialSql, "bookingIds");
     }
 
     @Override
     @Cacheable("offenderAssessments")
-    public List<AssessmentDto> findAssessmentsByOffenderNo(List<String> offenderNos, String assessmentCode, Set<String> caseLoadId) {
-        return doFindAssessments(offenderNos, assessmentCode, caseLoadId, "FIND_ACTIVE_APPROVED_ASSESSMENT_BY_OFFENDER_NO", "offenderNos");
-    }
-
-    private List<AssessmentDto> doFindAssessments(List<?> ids, String assessmentCode,
-            Set<String> caseLoadId, final String queryName, final String idParam) {
-        String initialSql = getQuery(queryName);
+    public List<AssessmentDto> findAssessmentsByOffenderNo(List<String> offenderNos, String assessmentCode, Set<String> caseLoadId, boolean activeOnly) {
+        String initialSql = getQuery("FIND_APPROVED_ASSESSMENT_BY_OFFENDER_NO");
         if (!caseLoadId.isEmpty()) {
             initialSql += " AND " + getQuery("ASSESSMENT_CASELOAD_FILTER");
         }
+        if (activeOnly) {
+            initialSql += " AND OB.BOOKING_SEQ = 1";
+        }
+        return doFindAssessments(offenderNos, assessmentCode, caseLoadId, initialSql, "offenderNos");
+    }
+
+    private List<AssessmentDto> doFindAssessments(List<?> ids, String assessmentCode,
+                                                  Set<String> caseLoadId, final String initialSql, final String idParam) {
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, ASSESSMENT_MAPPER.getFieldMap());
 
 		String sql = builder

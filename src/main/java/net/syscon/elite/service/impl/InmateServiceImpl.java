@@ -302,7 +302,7 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<Assessment> getInmatesAssessmentsByCode(List<String> offenderNos, String assessmentCode) {
+    public List<Assessment> getInmatesAssessmentsByCode(List<String> offenderNos, String assessmentCode, boolean activeOnly) {
         List<Assessment> results = new ArrayList<>();
         if (!offenderNos.isEmpty()) {
                       final Set<String> caseLoadIds = securityUtils.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")
@@ -311,7 +311,7 @@ public class InmateServiceImpl implements InmateService {
 
             List<List<String>> batch = Lists.partition(offenderNos, maxBatchSize);
             batch.forEach(offenderBatch -> {
-                final List<AssessmentDto> assessments = repository.findAssessmentsByOffenderNo(offenderBatch, assessmentCode, caseLoadIds);
+                final List<AssessmentDto> assessments = repository.findAssessmentsByOffenderNo(offenderBatch, assessmentCode, caseLoadIds, activeOnly);
 
                 for (List<AssessmentDto> assessmentForBooking : InmatesHelper.createMapOfBookings(assessments).values()) {
 
