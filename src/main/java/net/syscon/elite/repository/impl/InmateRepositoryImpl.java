@@ -384,12 +384,12 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
     @Override
     @Cacheable("offenderAssessments")
-    public List<AssessmentDto> findAssessmentsByOffenderNo(List<String> offenderNos, String assessmentCode, Set<String> caseLoadId, boolean activeOnly) {
+    public List<AssessmentDto> findAssessmentsByOffenderNo(List<String> offenderNos, String assessmentCode, Set<String> caseLoadId, boolean latestOnly) {
         String initialSql = getQuery("FIND_APPROVED_ASSESSMENT_BY_OFFENDER_NO");
         if (!caseLoadId.isEmpty()) {
             initialSql += " AND " + getQuery("ASSESSMENT_CASELOAD_FILTER");
         }
-        if (activeOnly) {
+        if (latestOnly) {
             initialSql += " AND OB.BOOKING_SEQ = 1";
         }
         return doFindAssessments(offenderNos, assessmentCode, caseLoadId, initialSql, "offenderNos");

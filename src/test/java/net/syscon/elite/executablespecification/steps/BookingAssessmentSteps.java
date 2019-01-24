@@ -152,8 +152,8 @@ public class BookingAssessmentSteps extends CommonSteps {
         verifyLocalDate(assessment.getNextReviewDate(), nextReviewDate);
     }
 
-    public void getAssessmentsByCode(String offenderList, String assessmentCode, boolean activeOnly) {
-        final String query = "?offenderNo=" + offenderList.replace(",", "&offenderNo=") + "&activeOnly=" + activeOnly;
+    public void getAssessmentsByCode(String offenderList, String assessmentCode, boolean latestOnly) {
+        final String query = "?offenderNo=" + offenderList.replace(",", "&offenderNo=") + "&latestOnly=" + latestOnly;
         assessments = doMultipleResultApiCall(API_ASSESSMENTS_PREFIX + assessmentCode + query);
     }
 

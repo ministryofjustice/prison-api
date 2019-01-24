@@ -29,7 +29,7 @@ public interface InmateService {
 
 	List<Assessment> getAssessments(Long bookingId);
 	Optional<Assessment> getInmateAssessmentByCode(Long bookingId, String assessmentCode);
-    List<Assessment> getInmatesAssessmentsByCode(List<String> offenderNos, String assessmentCode, boolean activeOnly);
+    List<Assessment> getInmatesAssessmentsByCode(List<String> offenderNos, String assessmentCode, boolean latestOnly);
 	List<OffenderCategorise> getUncategorised(String agencyId);
 
 	List<Long> getPersonalOfficerBookings(String username);
