@@ -733,7 +733,6 @@ public class BookingServiceImpl implements BookingService {
         return bookingSentenceSummaries(bookingIds, caseLoadService.getCaseLoadIdsForUser(username, false), !isViewAllBookings());
     }
 
-
     private List<OffenderSentenceDetailDto> offenderSentenceSummaries(String agencyId, String username, Set<String> caseloads, boolean filterByCaseloads) {
         String query = buildAgencyQuery(agencyId, username);
         if (StringUtils.isEmpty(query) && caseloads.isEmpty()) {
@@ -767,7 +766,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private boolean isViewAllBookings() {
-        return isOverrideRole("GLOBAL_SEARCH");
+        return securityUtils.isOverrideRole("SYSTEM_USER", "GLOBAL_SEARCH", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION");
     }
 
     private boolean isViewInactiveBookings() {
