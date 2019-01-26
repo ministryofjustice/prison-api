@@ -28,7 +28,8 @@ public interface OffenderAssessmentResource {
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
     GetOffenderAssessmentsAssessmentCodeResponse getOffenderAssessmentsAssessmentCode(@ApiParam(value = "Assessment Type Code", required = true) @PathParam("assessmentCode") String assessmentCode,
-                                                                                      @ApiParam(value = "The required offender numbers", required = true) @QueryParam("offenderNo") List<String> offenderNo);
+                                                                                      @ApiParam(value = "The required offender numbers", required = true) @QueryParam("offenderNo") List<String> offenderNo,
+                                                                                      @ApiParam(value = "Returns only the assessments for the current sentence if true, otherwise all previous sentences are included", defaultValue = "true") @QueryParam("latestOnly") Boolean latestOnly);
 
     @POST
     @Path("/{assessmentCode}")

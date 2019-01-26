@@ -152,8 +152,8 @@ public class BookingAssessmentSteps extends CommonSteps {
         verifyLocalDate(assessment.getNextReviewDate(), nextReviewDate);
     }
 
-    public void getAssessmentsByCode(String offenderList, String assessmentCode) {
-        final String query = "?offenderNo=" + offenderList.replace(",", "&offenderNo=");
+    public void getAssessmentsByCode(String offenderList, String assessmentCode, boolean latestOnly) {
+        final String query = "?offenderNo=" + offenderList.replace(",", "&offenderNo=") + "&latestOnly=" + latestOnly;
         assessments = doMultipleResultApiCall(API_ASSESSMENTS_PREFIX + assessmentCode + query);
     }
 
@@ -177,6 +177,14 @@ public class BookingAssessmentSteps extends CommonSteps {
                         tuple(-4L, "A1234AD", "Medium", "CSR", true, LocalDate.of(2018, Month.JUNE, 4)),
                         tuple(-5L, "A1234AE", "High", "CSR", true, LocalDate.of(2018, Month.JUNE, 5)),
                         tuple(-6L, "A1234AF", "Standard", "CSR", true, LocalDate.of(2018, Month.JUNE, 6)));
+    }
+
+    public void verifyMultipleCategoryAssessments() {
+        verifyNoError();
+        assertThat(assessments).asList()
+                .extracting("bookingId", "offenderNo", "classification", "assessmentCode", "nextReviewDate")
+                .containsExactlyInAnyOrder(tuple(-6L, "A1234AF", "Cat C", "CATEGORY", LocalDate.of(2018, Month.JUNE, 7)),
+                        tuple(-48L, "A1234AF", "Cat A", "CATEGORY", LocalDate.of(2016, Month.JUNE, 8)));
     }
 
     public void getUncategorisedOffenders(String agencyId) {

@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
+import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.assertj.core.groups.Tuple;
 import org.junit.Before;
@@ -557,6 +558,23 @@ public class InmateRepositoryTest {
                 Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", AWAITING_APPROVAL),
                 Tuple.tuple("A1176RS", -32L, "FRED", "JAMES", UNCATEGORISED));
         assertThat(list).asList().hasSize(24);
+    }
+
+    @Test
+    public void testGetAllAssessments() {
+        final List<AssessmentDto> list = repository.findAssessmentsByOffenderNo(
+                Arrays.asList("A1234AF"), "CATEGORY", Collections.emptySet(),false);
+
+        list.sort(Comparator.comparing(AssessmentDto::getOffenderNo).thenComparing(AssessmentDto::getBookingId));
+        assertThat(list).asList().extracting("offenderNo", "bookingId", "assessmentCode",
+                "assessmentDescription", "assessmentDate", "assessmentSeq", "nextReviewDate",
+                "reviewSupLevelType", "reviewSupLevelTypeDesc", "overridedSupLevelType", "overridedSupLevelTypeDesc",
+                "calcSupLevelType", "calcSupLevelTypeDesc", "cellSharingAlertFlag", "assessStatus"
+
+        ).containsExactlyInAnyOrder(
+                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 4, 4), 1, LocalDate.of(2016, 6, 8), "A", "Cat A", "D", "Cat D", "B", "Cat B", false, "A"),
+                Tuple.tuple("A1234AF", -6L, "CATEGORY", "Categorisation", LocalDate.of(2017, 4, 4), 2, LocalDate.of(2018, 6, 7), "C", "Cat C", null, null, null, null, false, "A")
+        );
     }
 
     @Test
