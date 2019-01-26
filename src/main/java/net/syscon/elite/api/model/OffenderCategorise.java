@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import net.syscon.elite.api.support.CategorisationStatus;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 
 @ApiModel(description = "Summary of an offender counted as Establishment Roll - Reception")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -29,6 +30,20 @@ public class OffenderCategorise {
 
     private String lastName;
 
+    private LocalDate assessmentDate;
+
+    private Integer assessmentSeq;
+
+    private Long assessmentTypeId;
+
+    private String assessStatus;
+
     @ApiModelProperty(required = true, value = "Where in the categorisation workflow the prisoner is")
     private CategorisationStatus status;
+
+    static public OffenderCategorise deriveStatus(OffenderCategorise cat) {
+        cat.status = (cat.getAssessStatus()) != null && cat.getAssessStatus().equals("P") ?
+                CategorisationStatus.AWAITING_APPROVAL : CategorisationStatus.UNCATEGORISED;
+        return cat;
+    }
 }

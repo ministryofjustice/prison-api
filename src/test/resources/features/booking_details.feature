@@ -147,7 +147,7 @@ Feature: Booking Details
   Scenario: Request for offenders who need to be categorised with invalid agency
     When a request is made for uncategorised offenders at "XXXX"
     Then resource not found response is received from booking assessments API
-
+@lucy
   Scenario: Create categorisation request
     Given a categorisation user has authenticated with the API
     When a categorisation request is made for booking "-35" with category "D" for committee "RECP"
