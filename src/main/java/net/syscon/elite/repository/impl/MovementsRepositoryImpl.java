@@ -28,7 +28,7 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
 
     @Override
     public List<Movement> getRecentMovementsByDate(LocalDateTime fromDateTime, LocalDate movementDate) {
-        String sql = getQuery("GET_RECENT_MOVEMENTS");
+        String sql = getQuery("GET_RECENT_MOVEMENTS_BY_DATE_FOR_BATCH");
         return jdbcTemplate.query(sql, createParams("fromDateTime", DateTimeConverter.fromLocalDateTime(fromDateTime),
                 "movementDate", DateTimeConverter.toDate(movementDate)), MOVEMENT_MAPPER);
     }
