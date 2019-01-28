@@ -331,8 +331,8 @@ SELECT
   at_offender_booking.offender_book_id AS BOOKING_ID,
   at_offender.last_name,
   at_offender.first_name,
-  categories.ASSESSMENT_SEQ,
-  categories.ASSESSMENT_DATE,
+  categories.assessment_seq,
+  categories.assessment_date,
   categories.assess_status
 FROM
   offenders at_offender
@@ -340,8 +340,8 @@ FROM
     LEFT JOIN (SELECT
          off_ass.offender_book_id,
          off_ass.assess_status,
-         off_ass.ASSESSMENT_SEQ,
-         off_ass.ASSESSMENT_DATE
+         off_ass.assessment_seq,
+         off_ass.assessment_date
        FROM offender_assessments off_ass
        JOIN assessments ass ON off_ass.assessment_type_id = ass.assessment_id
        WHERE ass.assessment_code = 'CATEGORY'
