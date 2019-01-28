@@ -424,25 +424,13 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 
         final Map<@NotNull Long, List<OffenderCategorise>> bookingIdMap = rawData.stream().collect(Collectors.groupingBy(OffenderCategorise::getBookingId));
-		return applyCategorisationRestrictions(bookingIdMap);
 
+        return applyCategorisationRestrictions(bookingIdMap);
 	}
 
 	private List<OffenderCategorise> applyCategorisationRestrictions(Map<@NotNull Long, List<OffenderCategorise>> bookingIdMap) {
 		// for every group check that assessment is null OR it is the latest categorisation record
-		bookingIdMap.replaceAll((k, v) -> {
-
-				List<OffenderCategorise> bookingList = v;
-				Optional<OffenderCategorise> maxSeqOpt = bookingList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentSeq));
-				Optional<OffenderCategorise> maxDateOpt = bookingList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentDate));
-				if (maxDateOpt.isEmpty() || maxSeqOpt.isEmpty()) return bookingList;
-
-				final List<OffenderCategorise> toReplace = bookingList.stream()
-					.filter(oc -> islatestOrNullCategoryRecord(maxSeqOpt.get(), maxDateOpt.get(), oc))
-					.collect(Collectors.toList());
-			return toReplace;
-
-		});
+		bookingIdMap.replaceAll((k, v) -> removeEarlierCategorisations(v));
 
 		// remove the active assessment status offenders - we only want null assessment or pending assessments
 		return bookingIdMap.values().stream()
@@ -452,8 +440,16 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 				.collect(Collectors.toList());
 	}
 
-	private boolean islatestOrNullCategoryRecord(OffenderCategorise maxSeqOpt, OffenderCategorise maxDateOpt, OffenderCategorise oc) {
-		return oc.getAssessmentSeq() == null || (oc.getAssessmentSeq().equals(maxSeqOpt.getAssessmentSeq()) && oc.getAssessmentDate().equals(maxDateOpt.getAssessmentDate()));
+	private List<OffenderCategorise> removeEarlierCategorisations(List<OffenderCategorise> v) {
+		List<OffenderCategorise> bookingList = v;
+		Optional<OffenderCategorise> maxSeqOpt = bookingList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentSeq));
+		Optional<OffenderCategorise> maxDateOpt = bookingList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentDate));
+		if (maxDateOpt.isEmpty() || maxSeqOpt.isEmpty()) return bookingList;
+
+		final List<OffenderCategorise> toReplace = bookingList.stream()
+			.filter(oc -> oc.getAssessmentSeq() == null || (oc.getAssessmentSeq().equals(maxSeqOpt.get().getAssessmentSeq()) && oc.getAssessmentDate().equals(maxDateOpt.get().getAssessmentDate())))
+			.collect(Collectors.toList());
+		return toReplace;
 	}
 
 	@Override
