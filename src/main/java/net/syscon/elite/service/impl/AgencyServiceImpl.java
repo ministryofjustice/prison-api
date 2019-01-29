@@ -60,6 +60,11 @@ public class AgencyServiceImpl implements AgencyService {
     }
 
     @Override
+    public List<Agency> getAgenciesByType(String agencyType) {
+        return agencyRepository.getAgenciesByType(agencyType);
+    }
+
+    @Override
     public void checkAgencyExists(String agencyId) {
         Objects.requireNonNull(agencyId, "agencyId is a required parameter");
 

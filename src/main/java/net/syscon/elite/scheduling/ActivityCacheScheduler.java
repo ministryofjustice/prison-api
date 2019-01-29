@@ -25,7 +25,7 @@ public class ActivityCacheScheduler {
     public void cacheActivityLocations() {
 
         // get all prisons
-        var prisons = agencyService.getPrisonContactDetail();
+        var prisons = agencyService.getAgenciesByType("INST");
 
         prisons.forEach(prison -> {
             var locationGroups = locationGroupService.getLocationGroups(prison.getAgencyId());
@@ -42,13 +42,6 @@ public class ActivityCacheScheduler {
                 agencyService.evictAgencyEventLocationsBooked(prison.getAgencyId(), LocalDate.now(), TimeSlot.ED);
                 agencyService.getAgencyEventLocationsBooked(prison.getAgencyId(), LocalDate.now(), TimeSlot.ED);
             }
-
-            locationGroups.forEach(lg -> {
-                // load all the locations
-
-            });
-
-
         });
     }
 
