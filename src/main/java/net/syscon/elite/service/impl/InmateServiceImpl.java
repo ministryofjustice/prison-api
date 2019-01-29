@@ -157,18 +157,17 @@ public class InmateServiceImpl implements InmateService {
     }
 
     private void setAssessmentsFields(Long bookingId, InmateDetail inmate) {
-        final List<Assessment> assessments = getAllAssessmentsOrdered(bookingId);
+        var assessments = getAllAssessmentsOrdered(bookingId);
         if (!CollectionUtils.isEmpty(assessments)) {
             inmate.setAssessments(filterAssessmentsByCode(assessments));
-            final Assessment csra = assessments.get(0);
+            var csra = assessments.get(0);
             if (csra != null) {
                 inmate.setCsra(csra.getClassification());
             }
-            final Optional<Assessment> category = findCategory(assessments);
-            if (category.isPresent()) {
-                inmate.setCategory(category.get().getClassification());
-                inmate.setCategoryCode(category.get().getClassificationCode());
-            }
+            findCategory(assessments).ifPresent( category -> {
+                inmate.setCategory(category.getClassification());
+                inmate.setCategoryCode(category.getClassificationCode());
+            });
         }
     }
 
