@@ -25,7 +25,7 @@ FIND_INMATE_DETAIL {
          LEFT JOIN profile_codes pc3 ON pc3.profile_type = opd3.profile_type AND pc3.profile_code = opd3.profile_code        -- Deprecated: remove!
          LEFT JOIN OFFENDER_LANGUAGES LANG ON LANG.OFFENDER_BOOK_ID = B.OFFENDER_BOOK_ID AND LANG.LANGUAGE_TYPE = 'PREF_SPEAK'
          LEFT JOIN REFERENCE_CODES RC1 ON LANG.LANGUAGE_CODE = RC1.CODE AND RC1.DOMAIN = 'LANG'
-  WHERE B.ACTIVE_FLAG = 'Y' AND B.OFFENDER_BOOK_ID = :bookingId
+  WHERE B.OFFENDER_BOOK_ID = :bookingId
 }
 
 FIND_BASIC_INMATE_DETAIL {
@@ -41,7 +41,7 @@ FIND_BASIC_INMATE_DETAIL {
          B.ACTIVE_FLAG
   FROM OFFENDER_BOOKINGS B
          INNER JOIN OFFENDERS O ON B.OFFENDER_ID = O.OFFENDER_ID
-  WHERE B.ACTIVE_FLAG = 'Y' AND B.OFFENDER_BOOK_ID = :bookingId
+  WHERE B.OFFENDER_BOOK_ID = :bookingId
 }
 
 GET_IMAGE_DATA_FOR_BOOKING {
@@ -71,7 +71,7 @@ FIND_ASSIGNED_LIVING_UNIT {
   FROM OFFENDER_BOOKINGS B
          LEFT JOIN AGENCY_INTERNAL_LOCATIONS I ON B.LIVING_UNIT_ID = I.INTERNAL_LOCATION_ID
          LEFT JOIN AGENCY_LOCATIONS AL ON AL.AGY_LOC_ID = B.AGY_LOC_ID
-  WHERE B.ACTIVE_FLAG = 'Y' AND B.OFFENDER_BOOK_ID = :bookingId
+  WHERE B.OFFENDER_BOOK_ID = :bookingId
 }
 
 FIND_ALL_INMATES {
@@ -241,7 +241,6 @@ FIND_PHYSICAL_MARKS_BY_BOOKING {
   FROM OFFENDER_IDENTIFYING_MARKS M
          JOIN OFFENDER_BOOKINGS B ON B.OFFENDER_BOOK_ID = M.OFFENDER_BOOK_ID
   WHERE B.OFFENDER_BOOK_ID = :bookingId
-    AND B.ACTIVE_FLAG = 'Y'
     AND M.BODY_PART_CODE != 'CONV'
 }
 
@@ -261,7 +260,6 @@ FIND_PHYSICAL_ATTRIBUTES_BY_BOOKING {
            LEFT JOIN REFERENCE_CODES RCE ON O.RACE_CODE = RCE.CODE AND RCE.DOMAIN = 'ETHNICITY'
            LEFT JOIN REFERENCE_CODES RCS ON O.SEX_CODE = RCS.CODE AND RCS.DOMAIN = 'SEX'
      WHERE B.OFFENDER_BOOK_ID = :bookingId
-           AND B.ACTIVE_FLAG = 'Y'
 }
 
 FIND_ACTIVE_APPROVED_ASSESSMENT {
@@ -294,7 +292,7 @@ FIND_ACTIVE_APPROVED_ASSESSMENT {
     AND (:assessmentCode IS NULL OR ASS.ASSESSMENT_CODE = :assessmentCode)
 }
 
-FIND_ACTIVE_APPROVED_ASSESSMENT_BY_OFFENDER_NO {
+FIND_APPROVED_ASSESSMENT_BY_OFFENDER_NO {
   SELECT
     O.OFFENDER_ID_DISPLAY AS OFFENDER_NO,
     OFF_ASS.OFFENDER_BOOK_ID AS BOOKING_ID,
@@ -325,7 +323,6 @@ FIND_ACTIVE_APPROVED_ASSESSMENT_BY_OFFENDER_NO {
   WHERE OFF_ASS.ASSESS_STATUS = 'A'
     AND (:assessmentCode IS NULL OR ASS.ASSESSMENT_CODE = :assessmentCode)
     AND O.OFFENDER_ID_DISPLAY IN (:offenderNos)
-    AND OB.BOOKING_SEQ = 1
 }
 
 GET_UNCATEGORISED {
@@ -334,35 +331,73 @@ SELECT
   at_offender_booking.offender_book_id AS BOOKING_ID,
   at_offender.last_name,
   at_offender.first_name,
-  CASE WHEN categories.calc_sup_level_type = 'PEND' THEN 'AWAITING_APPROVAL' ELSE 'UNCATEGORISED' END AS STATUS
+  categories.assessment_seq,
+  categories.assessment_date,
+  categories.assess_status
 FROM
   offenders at_offender
     INNER JOIN offender_bookings at_offender_booking ON at_offender.offender_id = at_offender_booking.offender_id AND at_offender_booking.active_flag = 'Y'
     LEFT JOIN (SELECT
          off_ass.offender_book_id,
-         off_ass.calc_sup_level_type
+         off_ass.assess_status,
+         off_ass.assessment_seq,
+         off_ass.assessment_date
        FROM offender_assessments off_ass
-         JOIN assessments ass ON off_ass.assessment_type_id = ass.assessment_id
-       WHERE ass.caseload_type = 'INST'
-         AND ass.determine_sup_level_flag = 'Y'
-         AND off_ass.evaluation_result_code = 'APP'
-         AND off_ass.assess_status = 'A'
-         AND off_ass.assessment_date = (
-           SELECT MAX (a.assessment_date) from offender_assessments a
-             WHERE off_ass.offender_book_id = a.offender_book_id
-               AND a.assessment_type_id = ass.assessment_id
-               AND a.evaluation_result_code = 'APP'
-               AND a.assess_status = 'A')
-         AND off_ass.assessment_seq = (
-           SELECT MAX (b.assessment_seq) from offender_assessments b
-             WHERE off_ass.offender_book_id = b.offender_book_id
-               AND b.assessment_type_id = ass.assessment_id
-               AND b.evaluation_result_code = 'APP'
-               AND b.assess_status = 'A')
+       JOIN assessments ass ON off_ass.assessment_type_id = ass.assessment_id
+       WHERE ass.assessment_code = 'CATEGORY'
+         AND ass.assessment_class = 'TYPE'
+         AND off_ass.assess_status IN ('A','P')
   ) categories ON categories.offender_book_id = at_offender_booking.offender_book_id
 WHERE at_offender_booking.in_out_status IN ('IN', 'OUT')
-  AND (categories.calc_sup_level_type = 'PEND' or categories.offender_book_id IS NULL)
+  -- return ACTIVE and PENDING (ACTIVE is required for java tuning and will be removed later)
+  AND (categories.assess_status IN ('A','P') or categories.offender_book_id IS NULL)
   AND at_offender_booking.agy_loc_id = :agencyId
+}
+
+INSERT_CATEGORY {
+Insert into OFFENDER_ASSESSMENTS
+    (OFFENDER_BOOK_ID,
+     ASSESSMENT_SEQ,
+     ASSESSMENT_DATE,
+     ASSESSMENT_TYPE_ID,
+     SCORE,
+     ASSESS_STATUS,
+     CALC_SUP_LEVEL_TYPE,
+     ASSESS_STAFF_ID,
+     ASSESS_COMMENT_TEXT,
+     NEXT_REVIEW_DATE,
+     MODIFY_USER_ID,
+     ASSESS_COMMITTE_CODE,
+     CREATION_DATE,
+     CREATION_USER,
+     ASSESSMENT_CREATE_LOCATION,
+     MODIFY_DATETIME,
+     CREATE_DATETIME,
+     CREATE_USER_ID)
+VALUES
+     (:bookingId,
+     :seq,
+     :assessmentDate,
+     (select assessment_id from assessments a where a.assessment_class='TYPE' and a.assessment_code='CATEGORY'),
+     :score, --  how is this calculated  ????
+     :assessStatus,  -- P  (AWAITING_APPROVAL)
+     :category,
+     :assessStaffId,
+     :assessComment,
+     :reviewDate, -- (+ 6 months )
+     :userId,
+     :assessCommitteeCode,  -- record originating system ??
+     :dateTime,
+     :userId, --
+     :agencyId,
+     :dateTime,
+     :dateTime,
+     :userId
+     )
+}
+
+OFFENDER_ASSESSMENTS_SEQ_MAX {
+SELECT MAX (assessment_seq) from offender_assessments oa WHERE oa.offender_book_id = :bookingId
 }
 
 FIND_INMATE_ALIASES {

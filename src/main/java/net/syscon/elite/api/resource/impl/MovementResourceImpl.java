@@ -2,7 +2,6 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.resource.MovementResource;
-import net.syscon.elite.api.support.Order;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.MovementsService;
 
@@ -47,8 +46,8 @@ public class MovementResourceImpl implements MovementResource {
     }
 
     @Override
-    public List<OffenderMovement> getEnrouteOffenderMovements(String agencyId, LocalDate movementDate, String sortFields, Order sortOrder) {
-        return movementsService.getEnrouteOffenderMovements(agencyId, movementDate, sortFields, sortOrder);
+    public List<OffenderMovement> getEnrouteOffenderMovements(String agencyId, LocalDate movementDate) {
+        return movementsService.getEnrouteOffenderMovements(agencyId, movementDate);
     }
 
     @Override
@@ -64,5 +63,15 @@ public class MovementResourceImpl implements MovementResource {
     @Override
     public List<OffenderInReception> getOffendersInReception(String agencyId) {
         return movementsService.getOffendersInReception(agencyId);
+    }
+
+    @Override
+    public List<OffenderOut> getOffendersCurrentlyOut(Long livingUnitId) {
+        return movementsService.getOffendersCurrentlyOut(livingUnitId);
+    }
+
+    @Override
+    public List<OffenderOut> getOffendersCurrentlyOut(String agencyId) {
+        return movementsService.getOffendersCurrentlyOut(agencyId);
     }
 }

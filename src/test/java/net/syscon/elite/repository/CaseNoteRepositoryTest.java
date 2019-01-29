@@ -97,9 +97,6 @@ public class CaseNoteRepositoryTest {
 
     @Test
     public void testCaseNoteTimes() {
-
-        LocalDateTime startTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-
         long bookingId = -4;
         NewCaseNote newCaseNote = newCaseNote();
         String sourceCode = "source code";
@@ -116,8 +113,6 @@ public class CaseNoteRepositoryTest {
 
         jdbcTemplate.update("delete from offender_case_notes where case_note_id = ?", caseNoteId);
     }
-
-
 
     private NewCaseNote newCaseNote() {
         NewCaseNote newCaseNote = new NewCaseNote();

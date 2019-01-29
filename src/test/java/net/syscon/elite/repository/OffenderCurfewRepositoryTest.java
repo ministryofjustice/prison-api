@@ -87,19 +87,22 @@ public class OffenderCurfewRepositoryTest {
         assertThat(repository.offenderCurfews(agencyIds("LEI", "BXI"))).containsAll(union(CURFEWS_LEI, CURFEWS_BXI));
     }
 
+    private static final long CURFEW_ID = 43;
+    private static final long BOOKING_ID = -46;
+
     @Test
     public void shouldSetHDCChecksPassed() {
-        assertCurfewHDCEqualTo(23, null, null);
+        assertCurfewHDCEqualTo(CURFEW_ID, null, null);
 
         repository.setHDCChecksPassed(
-                -35,
+                BOOKING_ID,
                 HdcChecks.builder()
                         .passed(true)
                         .date(LocalDate.of(2018, 1, 31))
                         .build()
         );
 
-        assertCurfewHDCEqualTo(23, "Y", LocalDateTime.of(2018, 1, 31, 0, 0));
+        assertCurfewHDCEqualTo(CURFEW_ID, "Y", LocalDateTime.of(2018, 1, 31, 0, 0));
     }
 
     @Test(expected = EntityNotFoundException.class)
@@ -115,15 +118,15 @@ public class OffenderCurfewRepositoryTest {
 
     @Test
     public void shouldSetApprovalStatus() {
-        assertCurfewApprovalStatusEqualTo(23, null, null);
+        assertCurfewApprovalStatusEqualTo(CURFEW_ID, null, null);
         repository.setApprovalStatusForLatestCurfew(
-                -35,
+                BOOKING_ID,
                 ApprovalStatus.builder()
                         .approvalStatus("APPROVED")
                         .date(LocalDate.of(2018, 1, 2))
                         .build()
         );
-        assertCurfewApprovalStatusEqualTo(23, "APPROVED", LocalDateTime.of(2018, 1, 2, 0, 0));
+        assertCurfewApprovalStatusEqualTo(CURFEW_ID, "APPROVED", LocalDateTime.of(2018, 1, 2, 0, 0));
     }
 
     @Test(expected = EntityNotFoundException.class)

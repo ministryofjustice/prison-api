@@ -548,9 +548,9 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.verifyField("category", category);
     }
 
-    @When("^an offender booking assessment information request is made with offender numbers \"([^\"]*)\" and \"([^\"]*)\"$")
-    public void anOffenderBookingAssessmentInformationRequestIsMadeWithBookingIdAnd(String offenderNoList, String assessmentCode) {
-        bookingAssessment.getAssessmentsByCode(offenderNoList, assessmentCode);
+    @When("^an offender booking assessment information request is made with offender numbers \"([^\"]*)\" and \"([^\"]*)\" and latest=\"(true|false)\"$")
+    public void anOffenderBookingAssessmentInformationRequestIsMadeWithBookingIdAnd(String offenderNoList, String assessmentCode, boolean latestOnly) {
+        bookingAssessment.getAssessmentsByCode(offenderNoList, assessmentCode, latestOnly);
     }
 
     @When("^an offender booking assessment information POST request is made with offender numbers \"([^\"]*)\" and \"([^\"]*)\"$")
@@ -571,6 +571,11 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @Then("^correct results are returned as for single assessment$")
     public void multipleIsCorrect() {
         bookingAssessment.verifyMultipleAssessments();
+    }
+
+    @Then("^full category history is returned$")
+    public void multipleCategoriesCorrect() {
+        bookingAssessment.verifyMultipleCategoryAssessments();
     }
 
     @Then("^resource not found response is received from booking assessments API$")
@@ -716,12 +721,7 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @When("^sentence details are requested for offenders who are candidates for Home Detention Curfew$")
     public void sentenceDetailsAreRequestedForHomeDetentionCurfewCandidates() {
-        bookingSentenceDetail.requestSentenceDetailsForHomeDetentionCurfewCandidates(false);
-    }
-
-    @When("^sentence details are requested for offenders who are candidates for Home Detention Curfew V2$")
-    public void sentenceDetailsAreRequestedForHomeDetentionCurfewCandidatesV2() {
-        bookingSentenceDetail.requestSentenceDetailsForHomeDetentionCurfewCandidates(true);
+        bookingSentenceDetail.requestSentenceDetailsForHomeDetentionCurfewCandidates();
     }
 
     @When("^a request for IEP summaries are made for the following booking ids \"([^\"]*)\"$")
@@ -739,5 +739,15 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     public void aRequestForIEPSummariesAreMadeForTheFollowingBookingIdsIncludingExtraDetails(String bookings) throws Throwable {
         var bookingIds = Arrays.asList(bookings.split(","));
         bookingIEP.getBookingIEPSummaryForOffenders(bookingIds, true);
+    }
+
+    @When("^a categorisation request is made for booking \"([^\"]*)\" with category \"([^\"]*)\" for committee \"([^\"]*)\"$")
+    public void aCategorisationRequestIsMadeForBookingWithCategoryForCommitteeAt(String bookingId, String category, String committee) throws Throwable {
+        bookingAssessment.createCategorisation(Long.parseLong(bookingId), category, committee);
+    }
+
+    @Then("^offender with booking \"([^\"]*)\" has a categorised status of AWAITING_APROVAL$")
+    public void offenderWithBookingHasACategorisedStatusOfAWAITING_APROVAL(String bookingId) throws Throwable {
+        bookingAssessment.verifyCategorisedPendingApproval(Long.parseLong(bookingId));
     }
 }

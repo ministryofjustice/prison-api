@@ -7,8 +7,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import net.syscon.elite.api.support.TimeSlot;
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

@@ -32,7 +32,7 @@ public class CaseLoadServiceImpl implements CaseLoadService {
     public List<CaseLoad> getCaseLoadsForUser(String username, boolean allCaseloads) {
         String query = null;
         if (!allCaseloads) {
-            query = format("type:eq:'%s',and:caseloadFunction:neq:'%s'", "INST", "ADMIN");
+            query = format("type:eq:'%s'", "INST");
         }
         List<CaseLoad> caseLoadsByUsername = caseLoadRepository.getCaseLoadsByUsername(username, query);
         caseLoadsByUsername.forEach(cl -> cl.setDescription(LocationProcessor.formatLocation(cl.getDescription())));

@@ -6,8 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.NotBlank;
-
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -48,6 +47,14 @@ public class Movement {
     private String toAgencyDescription;
 
     @NotBlank
+    @ApiModelProperty(value = "City offender was received from")
+    private String fromCity;
+
+    @NotBlank
+    @ApiModelProperty(value = "City offender was sent to")
+    private String toCity;
+
+    @NotBlank
     @ApiModelProperty(required = true, value = "ADM(ission), REL(ease) or TRN(sfer)")
     private String movementType;
 
@@ -65,4 +72,6 @@ public class Movement {
     @ApiModelProperty(required = true, value = "Description of movement reason")
     private String movementReason;
 
+    @ApiModelProperty(value = "Comment")
+    private String commentText;
 }

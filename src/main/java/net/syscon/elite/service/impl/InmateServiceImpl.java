@@ -1,6 +1,8 @@
 package net.syscon.elite.service.impl;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
@@ -21,6 +23,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -40,12 +43,14 @@ public class InmateServiceImpl implements InmateService {
     private final InmateRepository repository;
     private final CaseLoadService caseLoadService;
     private final BookingService bookingService;
+    private final UserService userService;
     private final InmateAlertService inmateAlertService;
     private final AuthenticationFacade authenticationFacade;
     private final int maxBatchSize;
     private final UserRepository userRepository;
     private final KeyWorkerAllocationRepository keyWorkerAllocationRepository;
     private final Environment env;
+    private final TelemetryClient telemetryClient;
 
     private final UserSecurityUtils securityUtils;
     private final String locationTypeGranularity;
@@ -54,17 +59,20 @@ public class InmateServiceImpl implements InmateService {
                              CaseLoadService caseLoadService,
                              InmateAlertService inmateAlertService,
                              BookingService bookingService,
+                             UserService userService,
                              UserRepository userRepository,
                              AuthenticationFacade authenticationFacade,
                              KeyWorkerAllocationRepository keyWorkerAllocationRepository,
                              Environment env,
                              UserSecurityUtils securityUtils,
+                             TelemetryClient telemetryClient,
                              @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity,
                              @Value("${batch.max.size:1000}") int maxBatchSize) {
         this.repository = repository;
         this.caseLoadService = caseLoadService;
         this.inmateAlertService = inmateAlertService;
         this.securityUtils = securityUtils;
+        this.telemetryClient = telemetryClient;
         this.locationTypeGranularity = locationTypeGranularity;
         this.bookingService = bookingService;
         this.userRepository = userRepository;
@@ -72,6 +80,7 @@ public class InmateServiceImpl implements InmateService {
         this.env = env;
         this.authenticationFacade = authenticationFacade;
         this.maxBatchSize = maxBatchSize;
+        this.userService = userService;
     }
 
     @Override
@@ -97,9 +106,7 @@ public class InmateServiceImpl implements InmateService {
         if (criteria.isIepLevel()) {
             List<Long> bookingIds = bookings.getItems().stream().map(OffenderBooking::getBookingId).collect(Collectors.toList());
             Map<Long, PrivilegeSummary> bookingIEPSummary = bookingService.getBookingIEPSummary(bookingIds, false);
-            bookings.getItems().forEach(booking -> {
-                booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel());
-            });
+            bookings.getItems().forEach(booking -> booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel()));
         }
         return bookings;
     }
@@ -150,25 +157,24 @@ public class InmateServiceImpl implements InmateService {
     }
 
     private void setAssessmentsFields(Long bookingId, InmateDetail inmate) {
-        final List<Assessment> assessments = getAllAssessmentsOrdered(bookingId);
+        var assessments = getAllAssessmentsOrdered(bookingId);
         if (!CollectionUtils.isEmpty(assessments)) {
             inmate.setAssessments(filterAssessmentsByCode(assessments));
-            final Assessment csra = assessments.get(0);
+            var csra = assessments.get(0);
             if (csra != null) {
                 inmate.setCsra(csra.getClassification());
             }
-            final Optional<Assessment> category = findCategory(assessments);
-            if (category.isPresent()) {
-                inmate.setCategory(category.get().getClassification());
-                inmate.setCategoryCode(category.get().getClassificationCode());
-            }
+            findCategory(assessments).ifPresent( category -> {
+                inmate.setCategory(category.getClassification());
+                inmate.setCategoryCode(category.getClassificationCode());
+            });
         }
     }
 
     private List<Assessment> getAllAssessmentsOrdered(Long bookingId) {
         final List<AssessmentDto> assessmentsDto = repository.findAssessments(Collections.singletonList(bookingId), null, Collections.emptySet());
 
-        return assessmentsDto.stream().map(a -> createAssessment(a)).collect(Collectors.toList());
+        return assessmentsDto.stream().map(this::createAssessment).collect(Collectors.toList());
     }
 
     /**
@@ -200,7 +206,7 @@ public class InmateServiceImpl implements InmateService {
         }
         Set<String> alertTypes = new HashSet<>();
         final AtomicInteger activeAlertCount = new AtomicInteger(0);
-        items.stream().filter(a -> a.getActive()).forEach(a -> {
+        items.stream().filter(Alert::getActive).forEach(a -> {
             activeAlertCount.incrementAndGet();
             alertTypes.add(a.getAlertType());
         });
@@ -295,16 +301,16 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<Assessment> getInmatesAssessmentsByCode(List<String> offenderNos, String assessmentCode) {
+    public List<Assessment> getInmatesAssessmentsByCode(List<String> offenderNos, String assessmentCode, boolean latestOnly) {
         List<Assessment> results = new ArrayList<>();
         if (!offenderNos.isEmpty()) {
                       final Set<String> caseLoadIds = securityUtils.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")
                     ? Collections.emptySet()
-                    : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), true);
+                    : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
 
             List<List<String>> batch = Lists.partition(offenderNos, maxBatchSize);
             batch.forEach(offenderBatch -> {
-                final List<AssessmentDto> assessments = repository.findAssessmentsByOffenderNo(offenderBatch, assessmentCode, caseLoadIds);
+                final List<AssessmentDto> assessments = repository.findAssessmentsByOffenderNo(offenderBatch, assessmentCode, caseLoadIds, latestOnly);
 
                 for (List<AssessmentDto> assessmentForBooking : InmatesHelper.createMapOfBookings(assessments).values()) {
 
@@ -341,6 +347,22 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
+    @VerifyBookingAccess
+    @PreAuthorize("hasRole('CREATE_CATEGORISATION')")
+    @Transactional
+    public void createCategorisation(Long bookingId, CategorisationDetail categorisationDetail) {
+        final UserDetail userDetail = userService.getUserByUsername(authenticationFacade.getCurrentUsername());
+        final OffenderSummary currentBooking = bookingService.getLatestBookingByBookingId(bookingId);
+        repository.insertCategory(categorisationDetail, currentBooking.getAgencyLocationId(), userDetail.getStaffId(), userDetail.getUsername(), 1004L);  // waiting for Paul Morris response
+
+        // Log event
+        telemetryClient.trackEvent("CategorisationCreated", ImmutableMap.of("bookingId", bookingId.toString(), "category", categorisationDetail.getCategory()), null);
+    }
+
+
+
+
+    @Override
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})
     public Page<Alias> findInmateAliases(Long bookingId, String orderBy, Order order, long offset, long limit) {
         String defaultOrderBy = StringUtils.defaultString(StringUtils.trimToNull(orderBy), "createDate");
@@ -356,6 +378,6 @@ public class InmateServiceImpl implements InmateService {
     }
 
     private Set<String> getUserCaseloadIds(String username) {
-        return caseLoadService.getCaseLoadIdsForUser(username, true);
+        return caseLoadService.getCaseLoadIdsForUser(username, false);
     }
 }

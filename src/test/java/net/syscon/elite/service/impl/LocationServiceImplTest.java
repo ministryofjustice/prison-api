@@ -1,13 +1,11 @@
 package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.repository.AgencyRepository;
 import net.syscon.elite.repository.LocationRepository;
-import net.syscon.elite.service.ConfigException;
-import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.service.LocationGroupService;
-import net.syscon.elite.service.LocationService;
+import net.syscon.elite.service.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,6 +36,7 @@ public class LocationServiceImplTest {
     @Mock private LocationRepository locationRepository;
     @Mock private AgencyRepository agencyRepository;
     @Mock private LocationGroupService locationGroupService;
+    @Mock private CaseLoadService caseLoadService;
 
     private LocationService locationService;
     private Location cell1 = Location.builder().locationPrefix("cell1").build();
@@ -47,7 +46,7 @@ public class LocationServiceImplTest {
 
     @Before
     public void init() throws IOException {
-        locationService = new LocationServiceImpl(agencyRepository, locationRepository, null, null, locationGroupService, "WING");
+        locationService = new LocationServiceImpl(agencyRepository, locationRepository, null, caseLoadService, locationGroupService, "WING");
     }
 
     @Test
@@ -61,15 +60,35 @@ public class LocationServiceImplTest {
         Location location = createTestLocation();
         locations.add(location);
         when(locationRepository.findLocationsByAgencyAndType("LEI","WING", true)).thenReturn(locations);
-
+        when(caseLoadService.getWorkingCaseLoadForUser("me")).thenReturn(Optional.of(CaseLoad.builder().caseLoadId("LEI").type("INST").build()));
         List<Location> returnedLocations = locationService.getUserLocations("me");
 
         assertFalse(returnedLocations.isEmpty());
+        assertThat(returnedLocations).hasSize(2);
+
         Location returnedLocation = returnedLocations.get(1);
         assertEquals(location.getLocationId().longValue(), returnedLocation.getLocationId().longValue());
         assertEquals(location.getAgencyId(), returnedLocation.getAgencyId());
         assertEquals(location.getLocationType(), returnedLocation.getLocationType());
         assertEquals(location.getDescription(), returnedLocation.getDescription());
+    }
+
+    @Test
+    public void getUserLocationsWithCentralOnly() {
+
+        when(caseLoadService.getWorkingCaseLoadForUser("admin")).thenReturn(Optional.of(CaseLoad.builder().caseLoadId("CADM_I").type("ADMIN").build()));
+        List<Location> returnedLocations = locationService.getUserLocations("admin");
+
+        assertThat(returnedLocations).isEmpty();
+    }
+
+    @Test
+    public void getUserLocationsWithNoCaseload() {
+
+        when(caseLoadService.getWorkingCaseLoadForUser("noone")).thenReturn(Optional.empty());
+        List<Location> returnedLocations = locationService.getUserLocations("noone");
+
+        assertThat(returnedLocations).isEmpty();
     }
 
     private static Location createTestLocation() {

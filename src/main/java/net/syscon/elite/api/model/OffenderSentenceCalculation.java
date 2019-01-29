@@ -34,10 +34,10 @@ public class OffenderSentenceCalculation {
     private LocalDate paroleEligibilityDate;
     private LocalDate homeDetCurfEligibilityDate;
     private LocalDate homeDetCurfActualDate;
-    private LocalDate ard;
-    private LocalDate crd;
-    private LocalDate npd;
-    private LocalDate prrd;
+    private LocalDate automaticReleaseDate;
+    private LocalDate conditionalReleaseDate;
+    private LocalDate nonParoleDate;
+    private LocalDate postRecallReleaseDate;
     private LocalDate actualParolDate;
     private LocalDate topupSupervisionExpiryDate;
     private LocalDate earlyTermDate;

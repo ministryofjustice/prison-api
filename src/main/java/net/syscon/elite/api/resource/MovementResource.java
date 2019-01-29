@@ -2,7 +2,6 @@ package net.syscon.elite.api.resource;
 
 import io.swagger.annotations.*;
 import net.syscon.elite.api.model.*;
-import net.syscon.elite.api.support.Order;
 
 import javax.ws.rs.*;
 import java.time.LocalDate;
@@ -73,14 +72,12 @@ public interface MovementResource {
     @Produces({"application/json"})
     @ApiOperation(value = "Enroute prisoner movement details.", notes = "Enroute to reception", nickname = "getEnrouteOffenderMovements")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = MovementCount.class),
+            @ApiResponse(code = 200, message = "OK", response = MovementCount.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     List<OffenderMovement> getEnrouteOffenderMovements(
             @ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId,
-            @ApiParam(value = "Optional filter on date of movement", required = true) @QueryParam("movementDate") LocalDate movementDate,
-            @ApiParam(value = "Comma separated list of one or more of the following fields - <b>bookingId, offenderNo, firstName, lastName - defaults to lastName, firstName</b>") @HeaderParam("Sort-Fields") String sortFields,
-            @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);
+            @ApiParam(value = "Optional filter on date of movement") @QueryParam("movementDate") LocalDate movementDate);
 
     @GET
     @Path("/rollcount/{agencyId}/enroute")
@@ -101,7 +98,7 @@ public interface MovementResource {
     @Produces({"application/json"})
     @ApiOperation(value = "Information on offenders in today.", notes = "Information on offenders in on given date.", nickname = "getMovementsIn")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = MovementCount.class),
+            @ApiResponse(code = 200, message = "OK", response = MovementCount.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
@@ -110,12 +107,38 @@ public interface MovementResource {
             @ApiParam(value = "date", required = true) @PathParam("isoDate") LocalDate movementsDate);
 
     @GET
+    @Path("/livingUnit/{livingUnitId}/currently-out")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Information on offenders currently out.", notes = "Information on offenders currently out.", nickname = "getOffendersCurrentlyOut")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = MovementCount.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    List<OffenderOut> getOffendersCurrentlyOut(
+            @ApiParam(value = "The identifier of a living unit, otherwise known as an internal location.", required = true) @PathParam("livingUnitId") Long livingUnitId);
+
+    @GET
+    @Path("/agency/{agencyId}/currently-out")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Information on offenders currently out.", notes = "Information on offenders currently out.", nickname = "getOffendersCurrentlyOut")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = MovementCount.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    List<OffenderOut> getOffendersCurrentlyOut(
+            @ApiParam(value = "The prison id", required = true) @PathParam("agencyId") String agencyId);
+
+    @GET
     @Path("/{agencyId}/out/{isoDate}")
     @Consumes({"application/json"})
     @Produces({"application/json"})
     @ApiOperation(value = "", nickname = "getOffendersOut")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = OffenderOutTodayDto.class),
+            @ApiResponse(code = 200, message = "OK", response = OffenderOutTodayDto.class, responseContainer = "List"),
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})

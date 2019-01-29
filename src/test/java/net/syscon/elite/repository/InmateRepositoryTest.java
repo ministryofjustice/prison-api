@@ -1,12 +1,10 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.InmateDetail;
-import net.syscon.elite.api.model.OffenderBooking;
-import net.syscon.elite.api.model.OffenderCategorise;
-import net.syscon.elite.api.model.PrisonerDetail;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
+import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.assertj.core.groups.Tuple;
 import org.junit.Before;
@@ -25,12 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+import static net.syscon.elite.api.support.CategorisationStatus.AWAITING_APPROVAL;
 import static net.syscon.elite.api.support.CategorisationStatus.UNCATEGORISED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -118,7 +113,7 @@ public class InmateRepositoryTest {
 
         final List<PrisonerDetail> offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders.size()).isEqualTo(46);
+        assertThat(offenders.size()).isEqualTo(42);
     }
 
     @Test
@@ -128,7 +123,7 @@ public class InmateRepositoryTest {
 
         final List<PrisonerDetail> offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders.size()).isEqualTo(1);
+        assertThat(offenders.size()).isEqualTo(5);
     }
 
     @Test
@@ -556,14 +551,50 @@ public class InmateRepositoryTest {
     public void testGetUncategorisedGeneral() {
         final List<OffenderCategorise> list = repository.getUncategorised("LEI");
 
-        //A1234AA does have a category so should not be present
-        assertThat(list.stream().filter(a -> a.getOffenderNo().equals("A1234AA")).findAny().isPresent()).isFalse();
         list.sort(Comparator.comparing(OffenderCategorise::getOffenderNo));
         assertThat(list).asList().extracting("offenderNo", "bookingId", "firstName", "lastName", "status").contains(
                 Tuple.tuple("A1234AB", -2L, "GILLIAN", "ANDERSON", UNCATEGORISED),
+                Tuple.tuple("A1234AB", -2L, "GILLIAN", "ANDERSON", UNCATEGORISED),
+                Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", AWAITING_APPROVAL),
                 Tuple.tuple("A1176RS", -32L, "FRED", "JAMES", UNCATEGORISED));
         assertThat(list).asList().hasSize(23);
-        // TODO test for status pending
+
+        assertThat(list).asList().extracting("offenderNo").doesNotContain("-7");  // "Active" categorisation should be ignored
+    }
+
+    @Test
+    public void testGetAllAssessments() {
+        final List<AssessmentDto> list = repository.findAssessmentsByOffenderNo(
+                Arrays.asList("A1234AF"), "CATEGORY", Collections.emptySet(),false);
+
+        list.sort(Comparator.comparing(AssessmentDto::getOffenderNo).thenComparing(AssessmentDto::getBookingId));
+        assertThat(list).asList().extracting("offenderNo", "bookingId", "assessmentCode",
+                "assessmentDescription", "assessmentDate", "assessmentSeq", "nextReviewDate",
+                "reviewSupLevelType", "reviewSupLevelTypeDesc", "overridedSupLevelType", "overridedSupLevelTypeDesc",
+                "calcSupLevelType", "calcSupLevelTypeDesc", "cellSharingAlertFlag", "assessStatus"
+
+        ).containsExactlyInAnyOrder(
+                Tuple.tuple("A1234AF", -48L, "CATEGORY", "Categorisation", LocalDate.of(2016, 4, 4), 1, LocalDate.of(2016, 6, 8), "A", "Cat A", "D", "Cat D", "B", "Cat B", false, "A"),
+                Tuple.tuple("A1234AF", -6L, "CATEGORY", "Categorisation", LocalDate.of(2017, 4, 4), 2, LocalDate.of(2018, 6, 7), "C", "Cat C", null, null, null, null, false, "A")
+        );
+    }
+
+    @Test
+    public void testInsertCategory() {
+        final List<OffenderCategorise> uncat = repository.getUncategorised("LEI");
+
+        assertThat(uncat).asList().extracting("offenderNo", "bookingId", "firstName", "lastName", "status").doesNotContain(
+                Tuple.tuple("A1234AE", -5L, "DONALD", "DUCK", AWAITING_APPROVAL));
+
+        final CategorisationDetail catDetail = CategorisationDetail.builder().bookingId(-5L).category("D").committee("GOV").build();
+
+        repository.insertCategory(catDetail, "LEI", 123L, "JDOG", 1004L);
+
+        final List<OffenderCategorise> list = repository.getUncategorised("LEI");
+
+        assertThat(list).asList().extracting("offenderNo", "bookingId", "firstName", "lastName", "status").contains(
+                Tuple.tuple("A1234AE", -5L, "DONALD", "DUCK", AWAITING_APPROVAL));
+
     }
 
     /*****************************************************************************************/

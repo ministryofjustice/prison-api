@@ -10,7 +10,7 @@ import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.StaffService;
 import net.syscon.elite.service.UserService;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
@@ -31,8 +31,15 @@ import static java.lang.String.format;
 @Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
-    private static final String ROLE_FUNCTION_ADMIN = "ADMIN";
-    private final CaseLoadService caseLoadService;
+	private static final String ROLE_FUNCTION_ADMIN = "ADMIN";
+	private static final CaseLoad EMPTY_CASELOAD = CaseLoad.builder()
+			.caseLoadId("___")
+			.type("DUMMY")
+			.caseloadFunction("GENERAL")
+			.description("-------")
+			.build();
+
+	private final CaseLoadService caseLoadService;
 	private final StaffService staffService;
 	private final UserRepository userRepository;
 	private final UserSecurityUtils securityUtils;
@@ -49,17 +56,28 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDetail getUserByUsername(String username) {
-		return userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
+		var userDetail = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
+		var caseLoadsForUser = caseLoadService.getCaseLoadsForUser(username, false);
+		if (userDetail.getActiveCaseLoadId() == null && (caseLoadsForUser.isEmpty() || caseLoadsForUser.get(0).equals(EMPTY_CASELOAD))) {
+			userDetail.setActiveCaseLoadId(EMPTY_CASELOAD.getCaseLoadId());
+		}
+		return userDetail;
 	}
 
 	@Override
 	public List<CaseLoad> getCaseLoads(String username, boolean allCaseloads) {
-		return caseLoadService.getCaseLoadsForUser(username, allCaseloads);
+		var caseLoadsForUser = caseLoadService.getCaseLoadsForUser(username, allCaseloads);
+		if (caseLoadsForUser.isEmpty()) {
+			caseLoadsForUser.add(EMPTY_CASELOAD);
+		}
+		return caseLoadsForUser;
 	}
 
 	@Override
 	public Set<String> getCaseLoadIds(String username) {
-		return caseLoadService.getCaseLoadIdsForUser(username, true);
+		return getCaseLoads(username, false).stream()
+				.map(CaseLoad::getCaseLoadId)
+				.collect(Collectors.toSet()) ;
 	}
 
 	@Override
@@ -80,7 +98,7 @@ public class UserServiceImpl implements UserService {
 		final List<UserRole> rolesByUsername = userRepository.findRolesByUsername(username, query);
 
 		if (!allRoles) {
-			rolesByUsername.forEach(role -> role.setRoleCode(StringUtils.replaceFirst(role.getRoleCode(), apiCaseloadId + "_", "")));
+			rolesByUsername.forEach(role -> role.setRoleCode(RegExUtils.replaceFirst(role.getRoleCode(), apiCaseloadId + "_", "")));
 		}
 		return rolesByUsername;
 	}

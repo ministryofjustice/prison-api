@@ -15,6 +15,7 @@ import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
 import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -22,7 +23,11 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 
+import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static net.syscon.elite.repository.ImageRepository.IMAGE_DETAIL_MAPPER;
 
@@ -43,7 +48,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             .put("ALIASES", 		    new FieldMapper("aliases", value -> Arrays.asList(value.toString().split(","))))
             .put("FACE_IMAGE_ID",       new FieldMapper("facialImageId"))
             .put("LIVING_UNIT_ID",      new FieldMapper("assignedLivingUnitId"))
-            .put("LIVING_UNIT_DESC",    new FieldMapper("assignedLivingUnitDesc", value -> StringUtils.replaceFirst((String)value, "^[A-Z|a-z|0-9]+\\-", "")))
+            .put("LIVING_UNIT_DESC",    new FieldMapper("assignedLivingUnitDesc", value -> RegExUtils.replaceFirst((String)value, "^[A-Z|a-z|0-9]+\\-", "")))
             .put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerId"))
             .build();
 
@@ -78,7 +83,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	private final Map<String, FieldMapper> assignedLivingUnitMapping = new ImmutableMap.Builder<String, FieldMapper>()
 			.put("AGY_LOC_ID", 	new FieldMapper("agencyId"))
 			.put("LIVING_UNIT_ID",          new FieldMapper("locationId"))
-			.put("LIVING_UNIT_DESCRIPTION", new FieldMapper("description", value -> StringUtils.replaceFirst((String)value, "^[A-Z|a-z|0-9]+\\-", "")))
+			.put("LIVING_UNIT_DESCRIPTION", new FieldMapper("description", value -> RegExUtils.replaceFirst((String)value, "^[A-Z|a-z|0-9]+\\-", "")))
 			.put("AGENCY_NAME", new FieldMapper("agencyName"))
 			.build();
 
@@ -148,9 +153,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
     @Override
     public List<InmateDto> findInmatesByLocation(String agencyId, List<Long> locations, Set<String> caseLoadIds) {
-        List<InmateDto> results = jdbcTemplate.query(getQuery("FIND_INMATES_OF_LOCATION_LIST"),
+        return jdbcTemplate.query(getQuery("FIND_INMATES_OF_LOCATION_LIST"),
                 createParams("agencyId", agencyId, "locations", locations, "caseLoadIds", caseLoadIds), INMATE_MAPPER);
-        return results;
     }
 
 	@Override
@@ -208,7 +212,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			initialSql += " AND (O.FIRST_NAME like :searchTerm2 OR O.LAST_NAME like :searchTerm2) ";
 		}
 
-		if (!alerts.isEmpty()) {
+		if (alerts != null && !alerts.isEmpty()) {
 			initialSql += " AND " + getQuery("ALERT_FILTER");
 		}
 
@@ -373,21 +377,28 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     @Override
     @Cacheable("bookingAssessments")
     public List<AssessmentDto> findAssessments(List<Long> bookingIds, String assessmentCode, Set<String> caseLoadId) {
-        return doFindAssessments(bookingIds, assessmentCode, caseLoadId, "FIND_ACTIVE_APPROVED_ASSESSMENT", "bookingIds");
+        String initialSql = getQuery("FIND_ACTIVE_APPROVED_ASSESSMENT");
+        if (!caseLoadId.isEmpty()) {
+            initialSql += " AND " + getQuery("ASSESSMENT_CASELOAD_FILTER");
+        }
+        return doFindAssessments(bookingIds, assessmentCode, caseLoadId, initialSql, "bookingIds");
     }
 
     @Override
     @Cacheable("offenderAssessments")
-    public List<AssessmentDto> findAssessmentsByOffenderNo(List<String> offenderNos, String assessmentCode, Set<String> caseLoadId) {
-        return doFindAssessments(offenderNos, assessmentCode, caseLoadId, "FIND_ACTIVE_APPROVED_ASSESSMENT_BY_OFFENDER_NO", "offenderNos");
-    }
-
-    private List<AssessmentDto> doFindAssessments(List<?> ids, String assessmentCode,
-            Set<String> caseLoadId, final String queryName, final String idParam) {
-        String initialSql = getQuery(queryName);
+    public List<AssessmentDto> findAssessmentsByOffenderNo(List<String> offenderNos, String assessmentCode, Set<String> caseLoadId, boolean latestOnly) {
+        String initialSql = getQuery("FIND_APPROVED_ASSESSMENT_BY_OFFENDER_NO");
         if (!caseLoadId.isEmpty()) {
             initialSql += " AND " + getQuery("ASSESSMENT_CASELOAD_FILTER");
         }
+        if (latestOnly) {
+            initialSql += " AND OB.BOOKING_SEQ = 1";
+        }
+        return doFindAssessments(offenderNos, assessmentCode, caseLoadId, initialSql, "offenderNos");
+    }
+
+    private List<AssessmentDto> doFindAssessments(List<?> ids, String assessmentCode,
+                                                  Set<String> caseLoadId, final String initialSql, final String idParam) {
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, ASSESSMENT_MAPPER.getFieldMap());
 
 		String sql = builder
@@ -406,11 +417,39 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 	@Override
 	public List<OffenderCategorise> getUncategorised(String agencyId) {
-		List<OffenderCategorise> results = jdbcTemplate.query(
+		List<OffenderCategorise> rawData = jdbcTemplate.query(
 				getQuery("GET_UNCATEGORISED"),
 				createParams("agencyId", agencyId),
 				UNCATEGORISED_MAPPER);
-		return results;
+
+
+        final Map<@NotNull Long, List<OffenderCategorise>> bookingIdMap = rawData.stream().collect(Collectors.groupingBy(OffenderCategorise::getBookingId));
+
+        return applyCategorisationRestrictions(bookingIdMap);
+	}
+
+	private List<OffenderCategorise> applyCategorisationRestrictions(Map<@NotNull Long, List<OffenderCategorise>> bookingIdMap) {
+		// for every group check that assessment is null OR it is the latest categorisation record
+		bookingIdMap.replaceAll((k, v) -> removeEarlierCategorisations(v));
+
+		// remove the active assessment status offenders - we only want null assessment or pending assessments
+		return bookingIdMap.values().stream()
+				.flatMap(List::stream)
+				.filter(o -> ((o.getAssessStatus() == null || !o.getAssessStatus().equals("A"))))
+				.map(o -> OffenderCategorise.deriveStatus(o))
+				.collect(Collectors.toList());
+	}
+
+	private List<OffenderCategorise> removeEarlierCategorisations(List<OffenderCategorise> v) {
+		List<OffenderCategorise> bookingList = v;
+		Optional<OffenderCategorise> maxSeqOpt = bookingList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentSeq));
+		Optional<OffenderCategorise> maxDateOpt = bookingList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentDate));
+		if (maxDateOpt.isEmpty() || maxSeqOpt.isEmpty()) return bookingList;
+
+		final List<OffenderCategorise> toReplace = bookingList.stream()
+			.filter(oc -> oc.getAssessmentSeq() == null || (oc.getAssessmentSeq().equals(maxSeqOpt.get().getAssessmentSeq()) && oc.getAssessmentDate().equals(maxDateOpt.get().getAssessmentDate())))
+			.collect(Collectors.toList());
+		return toReplace;
 	}
 
 	@Override
@@ -495,4 +534,44 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		results.forEach(alias -> alias.setAge(DateTimeConverter.getAge(alias.getDob())));
 		return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
 	}
+
+	@Override
+	public void insertCategory(CategorisationDetail detail, String agencyId, Long assessStaffId, String userId, Long score) {
+
+
+		final String sql = getQuery("INSERT_CATEGORY");
+
+        jdbcTemplate.update(
+                sql,
+                createParams("bookingId", detail.getBookingId(),
+                        "seq", getOffenderAssessmentSeq(detail.getBookingId()) + 1,
+                        "assessmentDate", LocalDate.now(),
+                        "score", score,  // waiting for Paul morris response to determine how calculated
+                        "assessStatus", "P",
+                        "category", detail.getCategory(),
+                        "assessStaffId", assessStaffId,
+                        "assessComment", detail.getComment(),
+                        "reviewDate", LocalDate.now().plusMonths(6),
+                        "userId", userId,
+                        "assessCommitteeCode", detail.getCommittee(),
+                        "dateTime", LocalDateTime.now(),
+                        "agencyId", agencyId));
+
+	}
+
+    private int getOffenderAssessmentSeq(Long bookingId) {
+        final String sql = getQuery("OFFENDER_ASSESSMENTS_SEQ_MAX");
+
+        Integer maxSeq = null;
+
+        try {
+            maxSeq = jdbcTemplate.queryForObject(
+                    sql,
+                    createParams("bookingId", bookingId), Integer.class);
+        } catch (EmptyResultDataAccessException ex) {
+            // no row - null response
+        }
+
+        return maxSeq == null ? 1 : maxSeq;
+    }
 }

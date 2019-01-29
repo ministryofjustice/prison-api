@@ -1,15 +1,10 @@
 package net.syscon.elite.service.impl;
 
 import com.google.common.collect.ImmutableList;
-import net.syscon.elite.api.model.Movement;
-import net.syscon.elite.api.model.OffenderInReception;
-import net.syscon.elite.api.model.OffenderMovement;
-import net.syscon.elite.api.model.OffenderOutTodayDto;
-import net.syscon.elite.api.support.Order;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.MovementsRepository;
 import net.syscon.elite.service.MovementsService;
 import org.assertj.core.api.Assertions;
-import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +14,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -58,10 +53,11 @@ public class MovementsServiceImplTest {
         Mockito.when(movementsRepository.getRecentMovementsByOffenders(offenderNoList,null)).thenReturn(movements);
 
         final List<Movement> processedMovements = movementsService.getRecentMovementsByOffenders(offenderNoList, null);
-        Assertions.assertThat(processedMovements).extracting("fromAgencyDescription").containsNull();
 
-        Mockito.verify(movementsRepository, Mockito.times(1)).getRecentMovementsByOffenders(offenderNoList,null);
-    }
+        Assertions.assertThat(processedMovements.size()).isEqualTo(1);
+        Assertions.assertThat(processedMovements.get(0).getFromAgencyDescription()).isEmpty();
+
+        Mockito.verify(movementsRepository, Mockito.times(1)).getRecentMovementsByOffenders(offenderNoList,null);    }
 
     @Test
     public void testGetEnrouteOffenderMovements() {
@@ -72,37 +68,25 @@ public class MovementsServiceImplTest {
                 .fromAgencyDescription("LEEDS")
                 .toAgencyDescription("MOORLANDS")
                 .build());
-        Mockito.when(movementsRepository.getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2015, 9, 12), "lastName", Order.DESC)).thenReturn(oms);
+        Mockito.when(movementsRepository.getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2015, 9, 12))).thenReturn(oms);
 
-        final List<OffenderMovement> enrouteOffenderMovements = movementsService.getEnrouteOffenderMovements("LEI", LocalDate.of(2015, 9, 12), "lastName", Order.DESC);
+        final List<OffenderMovement> enrouteOffenderMovements = movementsService.getEnrouteOffenderMovements("LEI", LocalDate.of(2015, 9, 12));
         Assertions.assertThat(enrouteOffenderMovements).extracting("fromAgencyDescription").contains("Leeds");
         Assertions.assertThat(enrouteOffenderMovements).extracting("toAgencyDescription").contains("Moorlands");
         Assertions.assertThat(enrouteOffenderMovements).extracting("lastName").contains("SMITH");
         Assertions.assertThat(enrouteOffenderMovements).extracting("bookingId").contains(123L);
 
-        Mockito.verify(movementsRepository, Mockito.times(1)).getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2015, 9, 12), "lastName", Order.DESC);
+        Mockito.verify(movementsRepository, Mockito.times(1)).getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2015, 9, 12));
     }
 
-    @Test
-    public void testGetEnrouteOffenderMovementsDefaultSorting() {
 
-        Mockito.when(movementsRepository.getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2015, 9, 12), "lastName,firstName", Order.ASC)).thenReturn(Lists.emptyList());
-
-        /* call service with no specified sorting */
-        movementsService.getEnrouteOffenderMovements("LEI", LocalDate.of(2015, 9, 12), null, null);
-
-        Mockito.verify(movementsRepository, Mockito.times(1)).getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2015, 9, 12), "lastName,firstName", Order.ASC);
-    }
 
     @Test
     public void testGetEnrouteOffenderNoDateFilter() {
+        /* call service with no specified date */
+        movementsService.getEnrouteOffenderMovements("LEI", null);
 
-        Mockito.when(movementsRepository.getEnrouteMovementsOffenderMovementList("LEI", null, "lastName,firstName", Order.ASC)).thenReturn(Lists.emptyList());
-
-        /* call service with no specified sorting */
-        movementsService.getEnrouteOffenderMovements("LEI", null, null, null);
-
-        Mockito.verify(movementsRepository, Mockito.times(1)).getEnrouteMovementsOffenderMovementList("LEI", null, "lastName,firstName", Order.ASC);
+        Mockito.verify(movementsRepository, Mockito.times(1)).getEnrouteMovementsOffenderMovementList("LEI", null);
     }
 
     @Test
@@ -152,7 +136,7 @@ public class MovementsServiceImplTest {
 
       Mockito.when(movementsRepository.getOffendersInReception(agency))
               .thenReturn(
-                      Arrays.asList(OffenderInReception.builder()
+                      Collections.singletonList(OffenderInReception.builder()
                               .firstName("FIRST")
                               .lastName("LASTNAME")
                               .dateOfBirth(LocalDate.of(1950,10,10))
@@ -172,5 +156,31 @@ public class MovementsServiceImplTest {
                 .build());
     }
 
+    @Test
+    public void testMappingToProperCaseCurrentlyOut() {
+
+        Mockito.when(movementsRepository.getOffendersCurrentlyOut(1L))
+                .thenReturn(
+                        Collections.singletonList(OffenderOut.builder()
+                                .firstName("FIRST")
+                                .lastName("LASTNAME")
+                                .dateOfBirth(LocalDate.of(1950, 10, 10))
+                                .offenderNo("1234A")
+                                .location("x-1-1")
+                                .build()
+                        )
+                );
+
+        final var offenders = movementsService.getOffendersCurrentlyOut(1L);
+
+        Assertions.assertThat(offenders)
+                .containsExactly(OffenderOut.builder()
+                        .firstName("First")
+                        .lastName("Lastname")
+                        .dateOfBirth(LocalDate.of(1950,10,10))
+                        .offenderNo("1234A")
+                        .location("x-1-1")
+                        .build());
+    }
 
 }

@@ -20,7 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -77,9 +80,9 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
             pageRequest = request;
         }
 
-        final Set<String> caseloads = securityUtils.isOverrideRole() ? Collections.emptySet() : userService.getCaseLoadIds(request.getUsername());
+        final Set<String> caseloads = securityUtils.isOverrideRole() ? Set.of() : userService.getCaseLoadIds(request.getUsername());
 
-        final Page<OffenderBooking> bookingsPage = repository.searchForOffenderBookings(
+        var bookingsPage = repository.searchForOffenderBookings(
                 caseloads, offenderNo, searchTerm1, searchTerm2,
                 request.getLocationPrefix(),
                 request.getAlerts(),
@@ -90,15 +93,11 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
         if (!CollectionUtils.isEmpty(bookingIds)) {
             if (request.isReturnIep()) {
                 final Map<Long, PrivilegeSummary> bookingIEPSummary = bookingService.getBookingIEPSummary(bookingIds, false);
-                bookings.forEach(booking -> {
-                    booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel());
-                });
+                bookings.forEach(booking -> booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel()));
             }
             if (request.isReturnAlerts()) {
                 final Map<Long, List<String>> alertCodesForBookings = bookingService.getBookingAlertSummary(bookingIds, LocalDateTime.now());
-                bookings.forEach(booking -> {
-                    booking.setAlertsDetails(alertCodesForBookings.get(booking.getBookingId()));
-                });
+                bookings.forEach(booking -> booking.setAlertsDetails(alertCodesForBookings.get(booking.getBookingId())));
             }
             if (request.isReturnCategory()) {
                 final List<AssessmentDto> assessmentsForBookings = repository.findAssessments(bookingIds, "CATEGORY", caseloads);

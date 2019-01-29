@@ -2,7 +2,9 @@ package net.syscon.elite.executablespecification.steps;
 
 import com.google.common.collect.ImmutableList;
 import net.syscon.elite.api.model.Assessment;
+import net.syscon.elite.api.model.CategorisationDetail;
 import net.syscon.elite.api.model.OffenderCategorise;
+import net.syscon.elite.api.support.CategorisationStatus;
 import net.syscon.elite.test.EliteClientException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
@@ -18,6 +20,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.Assert.assertNotNull;
+import static org.springframework.http.HttpMethod.POST;
 
 public class BookingAssessmentSteps extends CommonSteps {
     private static final String API_BOOKING_PREFIX = API_PREFIX + "bookings/";
@@ -26,6 +29,7 @@ public class BookingAssessmentSteps extends CommonSteps {
     private Assessment assessment;
     private List<Assessment> assessments;
     private List<OffenderCategorise> uncategorised;
+    private ResponseEntity createUpdateResponse;
 
     public void getAssessmentByCode(Long bookingId, String assessmentCode) {
         doSingleResultApiCall(API_BOOKING_PREFIX + bookingId + "/assessment/" + assessmentCode);
@@ -72,7 +76,7 @@ public class BookingAssessmentSteps extends CommonSteps {
             ResponseEntity<List<Assessment>> response =
                     restTemplate.exchange(
                             url,
-                            HttpMethod.POST,
+                            POST,
                             createEntity(offenderNoBody),
                             new ParameterizedTypeReference<List<Assessment>>() {});
 
@@ -111,6 +115,22 @@ public class BookingAssessmentSteps extends CommonSteps {
         }
     }
 
+    private void doCreateCategorisationApiCall(Long bookingId, String category, String committee) {
+        init();
+        try {
+            createUpdateResponse =
+                    restTemplate.exchange(
+                            API_ASSESSMENTS_PREFIX  + "category/categorise",
+                            POST,
+                            createEntity(CategorisationDetail.builder().bookingId(bookingId).category(category).committee(committee).build()), ResponseEntity.class);
+
+
+        } catch (EliteClientException ex) {
+            createUpdateResponse = null;
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -132,8 +152,8 @@ public class BookingAssessmentSteps extends CommonSteps {
         verifyLocalDate(assessment.getNextReviewDate(), nextReviewDate);
     }
 
-    public void getAssessmentsByCode(String offenderList, String assessmentCode) {
-        final String query = "?offenderNo=" + offenderList.replace(",", "&offenderNo=");
+    public void getAssessmentsByCode(String offenderList, String assessmentCode, boolean latestOnly) {
+        final String query = "?offenderNo=" + offenderList.replace(",", "&offenderNo=") + "&latestOnly=" + latestOnly;
         assessments = doMultipleResultApiCall(API_ASSESSMENTS_PREFIX + assessmentCode + query);
     }
 
@@ -159,6 +179,14 @@ public class BookingAssessmentSteps extends CommonSteps {
                         tuple(-6L, "A1234AF", "Standard", "CSR", true, LocalDate.of(2018, Month.JUNE, 6)));
     }
 
+    public void verifyMultipleCategoryAssessments() {
+        verifyNoError();
+        assertThat(assessments).asList()
+                .extracting("bookingId", "offenderNo", "classification", "assessmentCode", "nextReviewDate")
+                .containsExactlyInAnyOrder(tuple(-6L, "A1234AF", "Cat C", "CATEGORY", LocalDate.of(2018, Month.JUNE, 7)),
+                        tuple(-48L, "A1234AF", "Cat A", "CATEGORY", LocalDate.of(2016, Month.JUNE, 8)));
+    }
+
     public void getUncategorisedOffenders(String agencyId) {
         doUncategorisedApiCall(agencyId);
     }
@@ -166,5 +194,14 @@ public class BookingAssessmentSteps extends CommonSteps {
     public void verifyUncategorisedOffenders(int size) {
         verifyNoError();
         assertThat(uncategorised).asList().hasSize(size);
+    }
+
+    public void verifyCategorisedPendingApproval(long bookingId) {
+        verifyNoError();
+        assertThat(uncategorised).extracting("bookingId", "status").contains(tuple(Long.valueOf(bookingId), CategorisationStatus.AWAITING_APPROVAL));
+    }
+
+    public void createCategorisation(long bookingId, String category, String committee) {
+        doCreateCategorisationApiCall(bookingId, category, committee);
     }
 }

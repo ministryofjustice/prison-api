@@ -29,9 +29,9 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
     /**
      * Comparator for sorting OffenderCurfew instances by HDCED (HomeDetentionCurfewEligibilityDate). Nulls sort high.
      */
-    private static final Comparator<OffenderSentenceDetail> HDCED_COMPARATOR =
+    private static final Comparator<OffenderSentenceCalculation> HDCED_COMPARATOR =
             comparing(
-                    osd -> osd.getSentenceDetail().getHomeDetentionCurfewEligibilityDate(),
+                    OffenderSentenceCalculation::getHomeDetCurfEligibilityDate,
                     nullsLast(naturalOrder())
             );
 
@@ -64,50 +64,44 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
     }
 
     @Override
-    public List<OffenderSentenceDetail> getHomeDetentionCurfewCandidates(String username, boolean newVersion) {
+    public List<OffenderSentenceCalc> getHomeDetentionCurfewCandidates(String username) {
 
         var earliestArdOrCrd = LocalDate.now(clock).plusDays(DAYS_TO_ADD);
         Set<String> agencyIds = agencyIdsFor(username);
-        var curfews = offenderCurfewRepository.offenderCurfews(agencyIds);
-        List<OffenderSentenceDetail> offenderSentences;
-        if (newVersion) {
-            var offenderSentenceCalculationsForAgency = bookingService.getOffenderSentenceCalculationsForAgency(agencyIds);
 
-            offenderSentences = offenderSentenceCalculationsForAgency.stream()
-                    .map(os -> OffenderSentenceDetail.builder()
-                            .bookingId(os.getBookingId())
-                            .offenderNo(os.getOffenderNo())
-                            .sentenceDetail(SentenceDetail.builder()
-                                    .bookingId(os.getBookingId())
-                                    .sentenceExpiryDate(os.getSentenceExpiryDate())
-                                    .homeDetentionCurfewEligibilityDate(os.getHomeDetCurfEligibilityDate())
-                                    .homeDetentionCurfewActualDate(os.getHomeDetCurfActualDate())
-                                    .automaticReleaseDate(os.getArd())
-                                    .conditionalReleaseDate(os.getCrd())
-                                    .nonParoleDate(os.getNpd())
-                                    .postRecallReleaseDate(os.getPrrd())
-                                    .licenceExpiryDate(os.getLicenceExpiryDate())
-                                    .paroleEligibilityDate(os.getParoleEligibilityDate())
-                                    .actualParoleDate(os.getActualParolDate())
-                                    .releaseOnTemporaryLicenceDate(os.getRotl())
-                                    .earlyRemovalSchemeEligibilityDate(os.getErsed())
-                                    .earlyTermDate(os.getEarlyTermDate())
-                                    .midTermDate(os.getMidTermDate())
-                                    .lateTermDate(os.getLateTermDate())
-                                    .topupSupervisionExpiryDate(os.getTopupSupervisionExpiryDate())
-                                    .tariffDate(os.getTariffDate())
-                                    .build())
-                            .firstName(os.getFirstName())
-                            .lastName(os.getLastName())
-                            .agencyLocationId(os.getAgencyLocationId())
-                            .build())
-            .collect(Collectors.toList());
+        var homeDetentionCurfewCandidates = getHomeDetentionCurfewCandidates(
+                        offenderCurfewRepository.offenderCurfews(agencyIds),
+                        earliestArdOrCrd,
+                        bookingService.getOffenderSentenceCalculationsForAgency(agencyIds));
 
-        } else {
-            offenderSentences = bookingService.getOffenderSentencesSummary(null, username, Collections.emptyList());
-        }
-
-        return getHomeDetentionCurfewCandidates(curfews, earliestArdOrCrd, offenderSentences);
+        return homeDetentionCurfewCandidates.stream()
+                .map(os -> OffenderSentenceCalc.builder()
+                        .bookingId(os.getBookingId())
+                        .offenderNo(os.getOffenderNo())
+                        .firstName(os.getFirstName())
+                        .lastName(os.getLastName())
+                        .agencyLocationId(os.getAgencyLocationId())
+                        .sentenceDetail(BaseSentenceDetail.builder()
+                                .sentenceExpiryDate(os.getSentenceExpiryDate())
+                                .homeDetentionCurfewEligibilityDate(os.getHomeDetCurfEligibilityDate())
+                                .homeDetentionCurfewActualDate(os.getHomeDetCurfActualDate())
+                                .automaticReleaseDate(os.getAutomaticReleaseDate())
+                                .conditionalReleaseDate(os.getConditionalReleaseDate())
+                                .nonParoleDate(os.getNonParoleDate())
+                                .postRecallReleaseDate(os.getPostRecallReleaseDate())
+                                .licenceExpiryDate(os.getLicenceExpiryDate())
+                                .paroleEligibilityDate(os.getParoleEligibilityDate())
+                                .actualParoleDate(os.getActualParolDate())
+                                .releaseOnTemporaryLicenceDate(os.getRotl())
+                                .earlyRemovalSchemeEligibilityDate(os.getErsed())
+                                .earlyTermDate(os.getEarlyTermDate())
+                                .midTermDate(os.getMidTermDate())
+                                .lateTermDate(os.getLateTermDate())
+                                .topupSupervisionExpiryDate(os.getTopupSupervisionExpiryDate())
+                                .tariffDate(os.getTariffDate())
+                                .build())
+                        .build())
+        .collect(Collectors.toList());
     }
 
     @Override
@@ -132,10 +126,10 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
                 .collect(toSet());
     }
 
-    static List<OffenderSentenceDetail> getHomeDetentionCurfewCandidates(
+    static List<OffenderSentenceCalculation> getHomeDetentionCurfewCandidates(
             Collection<OffenderCurfew> curfews,
             LocalDate earliestArdOrCrd,
-            List<OffenderSentenceDetail> offenderSentences) {
+            List<OffenderSentenceCalculation> offenderSentences) {
 
         final Set<Long> offendersLackingCurfewApprovalStatus = offendersLackingCurfewApprovalStatus(currentOffenderCurfews(curfews));
 
@@ -177,21 +171,15 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
                 .collect(toSet());
     }
 
-    static Predicate<OffenderSentenceDetail> offenderIsEligibleForHomeCurfew(
+    static Predicate<OffenderSentenceCalculation> offenderIsEligibleForHomeCurfew(
             Set<Long> offendersWithoutCurfewApprovalStatus,
             LocalDate earliestArdOrCrd) {
 
-        return (OffenderSentenceDetail os) -> {
-            final SentenceDetail detail = os.getSentenceDetail();
-            final LocalDate ard = detail.getAutomaticReleaseOverrideDate() == null ? detail.getAutomaticReleaseDate() : detail.getAutomaticReleaseOverrideDate();
-            final LocalDate crd = detail.getConditionalReleaseOverrideDate()  == null ? detail.getConditionalReleaseDate() : detail.getConditionalReleaseOverrideDate();
-            return
-                (detail.getHomeDetentionCurfewEligibilityDate() != null) &&
-                offendersWithoutCurfewApprovalStatus.contains(os.getBookingId()) &&
-                (
-                    isBeforeOrEqual(earliestArdOrCrd, ard) || isBeforeOrEqual(earliestArdOrCrd, crd)
-                );
-        };
+        return (OffenderSentenceCalculation os) -> (os.getHomeDetCurfEligibilityDate() != null) &&
+        offendersWithoutCurfewApprovalStatus.contains(os.getBookingId()) &&
+        (
+            isBeforeOrEqual(earliestArdOrCrd, os.getAutomaticReleaseDate()) || isBeforeOrEqual(earliestArdOrCrd, os.getConditionalReleaseDate())
+        );
     }
 
     private static boolean isBeforeOrEqual(LocalDate d1, LocalDate d2) {

@@ -84,6 +84,16 @@ Feature: Booking Details
     When a basic offender booking request is made with booking id "-13"
     Then resource not found response is received from bookings API
 
+  Scenario: Request for specific offender as system user can return data even though booking is inactive
+    When a user has a token name of "SYSTEM_USER_READ_WRITE"
+    When an offender booking request is made with booking id "-13"
+    Then booking number of offender booking returned is "A00123"
+
+  Scenario: Request for specific offender as user with Inactive Booking Role can return data even though booking is inactive
+    When a user has a token name of "INACTIVE_BOOKING_USER"
+    When an offender booking request is made with booking id "-13"
+    Then booking number of offender booking returned is "A00123"
+
   Scenario Outline: Request for assessment information about an offender
     When an offender booking assessment information request is made with booking id <bookingId> and "<assessmentCode>"
     Then the classification is "<classification>"
@@ -114,11 +124,15 @@ Feature: Booking Details
     When an offender booking assessment information request is made with booking id -16 and "CSR"
     Then resource not found response is received from booking assessments API
 
-  Scenario: Request for assessment information for multiple offenders
-    When an offender booking assessment information request is made with offender numbers "A1234AA,A1234AB,A1234AC,A1234AD,A1234AE,A1234AF,A1234AG,A1234AP,NEXIST" and "CSR"
+  Scenario: Request for CSR assessment information for multiple offenders
+    When an offender booking assessment information request is made with offender numbers "A1234AA,A1234AB,A1234AC,A1234AD,A1234AE,A1234AF,A1234AG,A1234AP,NEXIST" and "CSR" and latest="false"
     Then correct results are returned as for single assessment
 
-  Scenario: Request for assessment information for multiple offenders (using post request which allows large sets of offenders)
+  Scenario: Request for category assessment information for multiple offenders
+    When an offender booking assessment information request is made with offender numbers "A1234AE,A1234AF" and "CATEGORY" and latest="false"
+    Then full category history is returned
+
+  Scenario: Request for CSR assessment information for multiple offenders (using post request which allows large sets of offenders)
     When an offender booking assessment information POST request is made with offender numbers "A1234AA,A1234AB,A1234AC,A1234AD,A1234AE,A1234AF,A1234AG,A1234AP,NEXIST" and "CSR"
     Then correct results are returned as for single assessment
 
@@ -137,6 +151,13 @@ Feature: Booking Details
   Scenario: Request for offenders who need to be categorised with invalid agency
     When a request is made for uncategorised offenders at "XXXX"
     Then resource not found response is received from booking assessments API
+
+  Scenario: Create categorisation request
+    Given a categorisation user has authenticated with the API
+    When a categorisation request is made for booking "-35" with category "D" for committee "RECP"
+    And a request is made for uncategorised offenders at "MDI"
+    Then offender with booking "-35" has a categorised status of AWAITING_APROVAL
+
 
   Scenario Outline: Request for specific offender booking record returns language
     When an offender booking request is made with booking id "<bookingId>"

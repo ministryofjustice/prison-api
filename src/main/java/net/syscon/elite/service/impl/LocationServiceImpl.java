@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -58,24 +59,28 @@ public class LocationServiceImpl implements LocationService {
 
     @Override
     public List<Location> getUserLocations(final String username) {
-        final List<Location> locations = new ArrayList<>();
+        final var caseLoad = caseLoadService.getWorkingCaseLoadForUser(username);
+        if (caseLoad.isEmpty() || caseLoad.get().isAdminType()) {
+            return Collections.emptyList();
+        }
+        return findLocationsFromAgencies(username);
+    }
 
-        // Step 1 - Get all agencies associated with user
-        agencyRepository.findAgenciesForCurrentCaseloadByUsername(username).forEach(
-                agency -> {
-                    // Start with agency converted to location
-                    locations.add(convertToLocation(agency));
+    private List<Location> findLocationsFromAgencies(final String username) {
+        return agencyRepository.findAgenciesForCurrentCaseloadByUsername(username).stream().flatMap(agency -> {
 
-                    // Then retrieve all associated internal locations at configured level of granularity.
-                    final List<Location> agencyLocations = locationRepository.findLocationsByAgencyAndType(
-                            agency.getAgencyId(), locationTypeGranularity, true);
+            final var locations = new ArrayList<Location>();
+            locations.add(convertToLocation(agency));
 
-                    agencyLocations.forEach(a -> a.setDescription(LocationProcessor.formatLocation(a.getDescription())));
-                    locations.addAll(agencyLocations);
-                }
-        );
+            // Then retrieve all associated internal locations at configured level of granularity.
+            final var agencyLocations = locationRepository.findLocationsByAgencyAndType(
+                    agency.getAgencyId(), locationTypeGranularity, true);
 
-        return locations;
+            agencyLocations.forEach(a -> a.setDescription(LocationProcessor.formatLocation(a.getDescription())));
+            locations.addAll(agencyLocations);
+            return locations.stream();
+
+        }).collect(Collectors.toList());
     }
 
     @Override

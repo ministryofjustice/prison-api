@@ -16,7 +16,9 @@ public interface InmateService {
 
 	InmateDetail getBasicInmateDetail(Long bookingId);
 
-	Page<Alias> findInmateAliases(Long bookingId, String orderBy, Order order, long offset, long limit);
+    void createCategorisation(Long bookingId, CategorisationDetail detail);
+
+    Page<Alias> findInmateAliases(Long bookingId, String orderBy, Order order, long offset, long limit);
 
 	List<PhysicalMark> getPhysicalMarks(Long bookingId);
 	List<ProfileInformation> getProfileInformation(Long bookingId) ;
@@ -27,7 +29,7 @@ public interface InmateService {
 
 	List<Assessment> getAssessments(Long bookingId);
 	Optional<Assessment> getInmateAssessmentByCode(Long bookingId, String assessmentCode);
-    List<Assessment> getInmatesAssessmentsByCode(List<String> offenderNos, String assessmentCode);
+    List<Assessment> getInmatesAssessmentsByCode(List<String> offenderNos, String assessmentCode, boolean latestOnly);
 	List<OffenderCategorise> getUncategorised(String agencyId);
 
 	List<Long> getPersonalOfficerBookings(String username);

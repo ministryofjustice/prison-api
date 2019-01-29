@@ -7,8 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.constraints.NotBlank;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,7 +21,7 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(of = "caseLoadId")
 public class CaseLoad {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
@@ -87,6 +87,10 @@ public class CaseLoad {
         this.type = type;
     }
 
+    @JsonIgnore
+    public boolean isAdminType() {
+        return "ADMIN".equals(caseloadFunction);
+    }
     /**
       * Functional Use of the case load (nomis only)
       */

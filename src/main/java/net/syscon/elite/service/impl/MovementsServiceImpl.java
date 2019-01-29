@@ -1,12 +1,10 @@
 package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.*;
-import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.MovementsRepository;
 import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.service.MovementsService;
 import net.syscon.elite.service.support.LocationProcessor;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,8 +39,10 @@ public class MovementsServiceImpl implements MovementsService {
         final var movements = movementsRepository.getRecentMovementsByOffenders(offenderNumbers, movementTypes);
 
         return movements.stream().map(movement -> movement.toBuilder()
-                .fromAgencyDescription(LocationProcessor.formatLocation(movement.getFromAgencyDescription()))
-                .toAgencyDescription(LocationProcessor.formatLocation(movement.getToAgencyDescription()))
+                .fromAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getFromAgencyDescription())))
+                .toAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getToAgencyDescription())))
+                .toCity(WordUtils.capitalizeFully(StringUtils.trimToEmpty(movement.getToCity())))
+                .fromCity(WordUtils.capitalizeFully(StringUtils.trimToEmpty(movement.getFromCity())))
                 .build())
                 .collect(Collectors.toList());
     }
@@ -85,10 +85,9 @@ public class MovementsServiceImpl implements MovementsService {
 
     @Override
     @VerifyAgencyAccess
-    public List<OffenderMovement> getEnrouteOffenderMovements(String agencyId, LocalDate date, String orderByFields, Order order) {
-        String sortFields = StringUtils.defaultString(orderByFields, "lastName,firstName");
-        Order sortOrder = ObjectUtils.defaultIfNull(order, Order.ASC);
-        final var movements = movementsRepository.getEnrouteMovementsOffenderMovementList(agencyId, date, sortFields, sortOrder);
+    public List<OffenderMovement> getEnrouteOffenderMovements(String agencyId, LocalDate date) {
+
+        final var movements = movementsRepository.getEnrouteMovementsOffenderMovementList(agencyId, date);
 
         return movements.stream().map(movement -> movement.toBuilder()
             .fromAgencyDescription(LocationProcessor.formatLocation(movement.getFromAgencyDescription()))
@@ -126,6 +125,30 @@ public class MovementsServiceImpl implements MovementsService {
     @VerifyAgencyAccess
     public List<OffenderInReception> getOffendersInReception(String agencyId) {
         return movementsRepository.getOffendersInReception(agencyId)
+                .stream()
+                .map(offender -> offender.toBuilder()
+                        .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
+                        .lastName(WordUtils.capitalizeFully(offender.getLastName()))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<OffenderOut> getOffendersCurrentlyOut(long livingUnitId) {
+        return movementsRepository
+                .getOffendersCurrentlyOut(livingUnitId)
+                .stream()
+                .map(offender -> offender.toBuilder()
+                        .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
+                        .lastName(WordUtils.capitalizeFully(offender.getLastName()))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<OffenderOut> getOffendersCurrentlyOut(String agencyId) {
+        return movementsRepository
+                .getOffendersCurrentlyOut(agencyId)
                 .stream()
                 .map(offender -> offender.toBuilder()
                         .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
