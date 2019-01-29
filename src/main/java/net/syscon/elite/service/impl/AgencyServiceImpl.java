@@ -1,6 +1,7 @@
 package net.syscon.elite.service.impl;
 
 import com.google.common.annotations.VisibleForTesting;
+import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.PrisonContactDetail;
@@ -19,6 +20,7 @@ import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.ReferenceDomain;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +33,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Transactional(readOnly = true)
+@Slf4j
 public class AgencyServiceImpl implements AgencyService {
 
     private static final Comparator<Location> LOCATION_DESCRIPTION_COMPARATOR = Comparator.comparing(
@@ -57,10 +60,15 @@ public class AgencyServiceImpl implements AgencyService {
     }
 
     @Override
+    public List<Agency> getAgenciesByType(String agencyType) {
+        return agencyRepository.getAgenciesByType(agencyType);
+    }
+
+    @Override
     public void checkAgencyExists(String agencyId) {
         Objects.requireNonNull(agencyId, "agencyId is a required parameter");
 
-        if(! agencyRepository.getAgency(agencyId).isPresent()) {
+        if(agencyRepository.getAgency(agencyId).isEmpty()) {
             throw EntityNotFoundException.withId(agencyId);
         }
     }
@@ -138,6 +146,13 @@ public class AgencyServiceImpl implements AgencyService {
         List<Location> rawLocations = agencyRepository.getAgencyLocations(agencyId, allEventLocationUsages, orderBy, order);
 
         return LocationProcessor.processLocations(rawLocations);
+    }
+
+    @Override
+    @CacheEvict(value = "getAgencyLocationsBooked", key = "#agencyId + '-' + #bookedOnDay + '-' + #bookedOnPeriod")
+    public void evictAgencyEventLocationsBooked(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod) {
+        // evict
+        log.info("Evicting Locations {}, {}, {}", agencyId, bookedOnDay, bookedOnPeriod);
     }
 
     @Override

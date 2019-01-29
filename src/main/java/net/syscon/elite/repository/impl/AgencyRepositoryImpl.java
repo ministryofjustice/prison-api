@@ -64,6 +64,14 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
     }
 
     @Override
+    public List<Agency> getAgenciesByType(String agencyType) {
+       return jdbcTemplate.query(
+               getQuery("GET_AGENCIES_BY_TYPE"),
+                createParams("agencyType", agencyType, "activeFlag", "Y", "excludeIds", List.of("OUT", "TRN")),
+                AGENCY_ROW_MAPPER);
+    }
+
+    @Override
     @Cacheable("findAgenciesByUsername")
     public List<Agency> findAgenciesByUsername(String username) {
         String initialSql = getQuery("FIND_AGENCIES_BY_USERNAME");
@@ -141,6 +149,7 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
     }
 
     @Override
+    @Cacheable(value = "getAgencyLocationsBooked", key = "#agencyId + '-' + #bookedOnDay + '-' + #bookedOnPeriod")
     public List<Location> getAgencyLocationsBooked(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod) {
         final MapSqlParameterSource params = createParams("agencyId", agencyId);
 

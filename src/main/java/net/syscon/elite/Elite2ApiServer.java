@@ -6,12 +6,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.io.IOException;
 import java.util.Properties;
 
 @SpringBootApplication
 @ConfigurationProperties
+@EnableScheduling
 public class Elite2ApiServer {
 
     @Bean(name="groupsProperties")
