@@ -39,8 +39,11 @@ public class LocationGroupServiceImpl implements LocationGroupService {
     @Override
     @VerifyAgencyAccess
     public List<LocationGroup> getLocationGroupsForAgency(String agencyId) {
+        return getLocationGroups(agencyId);
+    }
 
-        final Set<String> fullKeys = groupsProperties.stringPropertyNames();
+    public List<LocationGroup> getLocationGroups(String agencyId) {
+        final var fullKeys = groupsProperties.stringPropertyNames();
 
         return fullKeys.stream()
                 .filter(key -> key.startsWith(agencyId))
