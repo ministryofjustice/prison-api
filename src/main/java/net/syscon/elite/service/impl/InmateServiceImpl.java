@@ -157,10 +157,10 @@ public class InmateServiceImpl implements InmateService {
     }
 
     private void setAssessmentsFields(Long bookingId, InmateDetail inmate) {
-        var assessments = getAllAssessmentsOrdered(bookingId);
+        final var assessments = getAllAssessmentsOrdered(bookingId);
         if (!CollectionUtils.isEmpty(assessments)) {
             inmate.setAssessments(filterAssessmentsByCode(assessments));
-            var csra = assessments.get(0);
+            final var csra = assessments.get(0);
             if (csra != null) {
                 inmate.setCsra(csra.getClassification());
             }
