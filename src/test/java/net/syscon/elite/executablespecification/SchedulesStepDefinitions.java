@@ -66,17 +66,17 @@ public class SchedulesStepDefinitions extends AbstractStepDefinitions {
 
     @When("^schedules are requested for a valid agency and location group$")
     public void schedulesAreRequestedForValidAgencyAndLocationGroup() {
-        schedulesSteps.getSchedulesForLocationGroup("LEI", "BlockA");
+        schedulesSteps.getSchedulesForLocationGroup("LEI", "A-Wing");
     }
 
     @When("^schedules are requested for a valid agency and location group with 'timeSlot' = '([APMED]+)'$")
     public void schedulesAreRequestedForValidAgencyAndLocationGroupwithTimeSlot(TimeSlot timeSlot) {
-        schedulesSteps.getSchedulesForLocationGroup("LEI", "BlockA", null, timeSlot);
+        schedulesSteps.getSchedulesForLocationGroup("LEI", "A-Wing", null, timeSlot);
     }
 
     @When("^schedules are requested for a valid agency and location group with date = '([0-9-]+)' and 'timeSlot' = '([APMED]+)'$")
     public void schedulesAreRequestedForValidAgencyAndLocationGroupwithTimeSlot(String date, TimeSlot timeSlot) {
-        schedulesSteps.getSchedulesForLocationGroup("LEI", "BlockA", date, timeSlot);
+        schedulesSteps.getSchedulesForLocationGroup("LEI", "A-Wing", date, timeSlot);
     }
 
     @Then("^response is a list of offender's schedules with size ([0-9]+)$")

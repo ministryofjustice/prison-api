@@ -77,7 +77,7 @@ public class AgencyRepositoryTest {
     @Test
     public void testGetAgencyLocationsAll() {
         final List<Location> locations = repository.getAgencyLocations("LEI", Collections.emptyList(), null, null);
-        assertThat(locations).hasSize(38);
+        assertThat(locations).hasSize(40);
     }
 
     @Test
