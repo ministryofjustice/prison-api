@@ -20,13 +20,16 @@ import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.ReferenceDomain;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static net.syscon.elite.web.config.CacheConfig.GET_AGENCY_LOCATIONS_BOOKED;
 
 /**
  * Agency API service implementation.
@@ -149,22 +152,23 @@ public class AgencyServiceImpl implements AgencyService {
     }
 
     @Override
-    @CacheEvict(value = "getAgencyLocationsBooked", key = "#agencyId + '-' + #bookedOnDay + '-' + #bookedOnPeriod")
-    public void evictAgencyEventLocationsBooked(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod) {
-        // evict
-        log.info("Evicting Locations {}, {}, {}", agencyId, bookedOnDay, bookedOnPeriod);
+    @Cacheable(value = GET_AGENCY_LOCATIONS_BOOKED, key = "#agencyId + '-' + #bookedOnDay + '-' + #bookedOnPeriod")
+    public List<Location> getAgencyEventLocationsBooked(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod) {
+        return getAgencyLocationsOnDayAndPeriod(agencyId, bookedOnDay, bookedOnPeriod);
     }
 
     @Override
-    public List<Location> getAgencyEventLocationsBooked(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod) {
+    @CachePut(value = GET_AGENCY_LOCATIONS_BOOKED, key = "#agencyId + '-' + #bookedOnDay + '-' + #bookedOnPeriod")
+    public List<Location> getAgencyEventLocationsBookedNonCached(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod) {
+        return getAgencyLocationsOnDayAndPeriod(agencyId, bookedOnDay, bookedOnPeriod);
+    }
+
+    private List<Location> getAgencyLocationsOnDayAndPeriod(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod) {
         Objects.requireNonNull(bookedOnDay, "bookedOnDay must be specified.");
 
-        List<Location> locations = agencyRepository.getAgencyLocationsBooked(agencyId, bookedOnDay, bookedOnPeriod);
-
-        List<Location> processedLocations =  LocationProcessor.processLocations(locations, true);
-
+        final var locations = agencyRepository.getAgencyLocationsBooked(agencyId, bookedOnDay, bookedOnPeriod);
+        final var processedLocations =  LocationProcessor.processLocations(locations, true);
         processedLocations.sort(LOCATION_DESCRIPTION_COMPARATOR);
-
         return processedLocations;
     }
 

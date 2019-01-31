@@ -149,7 +149,6 @@ public class AgencyRepositoryImpl extends RepositoryBase implements AgencyReposi
     }
 
     @Override
-    @Cacheable(value = "getAgencyLocationsBooked", key = "#agencyId + '-' + #bookedOnDay + '-' + #bookedOnPeriod")
     public List<Location> getAgencyLocationsBooked(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod) {
         final MapSqlParameterSource params = createParams("agencyId", agencyId);
 
