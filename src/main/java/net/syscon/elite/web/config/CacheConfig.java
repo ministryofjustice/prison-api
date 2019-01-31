@@ -15,6 +15,8 @@ import org.springframework.context.annotation.Configuration;
 @EnableCaching
 public class CacheConfig implements CachingConfigurer {
 
+    public static final String GET_AGENCY_LOCATIONS_BOOKED = "getAgencyLocationsBooked";
+
     @Value("${cache.timeout.seconds.reference-data:3600}")
     private int referenceDataTimeoutSeconds;
 
@@ -88,7 +90,7 @@ public class CacheConfig implements CachingConfigurer {
         config.addCache(config("bookingIdByOffenderNo", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("payableAttendanceOutcomes", 100, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
-        config.addCache(config("getAgencyLocationsBooked", 500, activityTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config(GET_AGENCY_LOCATIONS_BOOKED, 500, activityTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
 
         return net.sf.ehcache.CacheManager.newInstance(config);
