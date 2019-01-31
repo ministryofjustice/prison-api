@@ -297,6 +297,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
         List<UserDetail> users = jdbcTemplate.query(
                 sql,
                 createParamSource(pageRequest, "caseloadId", agencyId,
+                        "activeFlag", "Y",
                         "searchTerm", StringUtils.isNotBlank(nameFilter.getSearchTerm()) ? StringUtils.trimToEmpty(nameFilter.getSearchTerm()).toUpperCase() + "%" : null,
                         "surname", StringUtils.isNotBlank(nameFilter.getSurname()) ? StringUtils.trimToEmpty(nameFilter.getSurname()).toUpperCase() + "%" : null,
                         "firstName", StringUtils.isNotBlank(nameFilter.getFirstName()) ? StringUtils.trimToEmpty(nameFilter.getFirstName()).toUpperCase() + "%" : null,
