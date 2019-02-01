@@ -297,3 +297,6 @@ Feature: Booking Sentence Details
     When sentence details are requested for offenders who are candidates for Home Detention Curfew
     Then some offender sentence details are returned
 
+  Scenario: Retrieve sentence terms for a booking id.
+    When sentence terms are requested for booking id "-3"
+    Then correct sentence terms data is returned
