@@ -47,7 +47,7 @@ public class UserDetail {
     @ApiModelProperty(value = "Current Active Caseload", example = "MDI", position = 5)
     private String activeCaseLoadId;
 
-    @ApiModelProperty(required = true, value = "Status of the User Account (Active or Inactive)", allowableValues = "ACTIVE,INACT", example = "ACTIVE", position = 6)
+    @ApiModelProperty(required = true, value = "Status of the User Account", allowableValues = "ACTIVE,INACT,SUS,CAREER,MAT,SAB,SICK", example = "ACTIVE", position = 6)
     private String accountStatus;
 
     @ApiModelProperty(required = true, value = "Date the user account was locked", example = "2018-06-04T12:35:00", position = 7)
@@ -62,14 +62,14 @@ public class UserDetail {
     @ApiModelProperty(value = "Indicates the user account has expired", example = "true", position = 10)
     private Boolean expiredFlag;
 
+    @JsonIgnore
+    @ApiModelProperty(hidden = true)
+    private Map<String, Object> additionalProperties;
+
     @ApiModelProperty(required = true, value = "Indicate if the account is active", example = "true", position = 11)
     @JsonGetter
     public boolean isActive() {
         return "ACTIVE".equals(accountStatus);
     }
-
-    @JsonIgnore
-    @ApiModelProperty(hidden = true)
-    private Map<String, Object> additionalProperties;
 
 }

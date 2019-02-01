@@ -198,7 +198,7 @@ public class UserRepositoryTest {
 
     @Test
     public void testFindLocalAdministratorUsersByCaseloadAndNameFilter() {
-
+        UserDetail
         final Page<UserDetail> usersByCaseload = userRepository.getUsersAsLocalAdministrator("LAA_USER", null, new NameFilter("ITAG_USER"), new PageRequest());
 
         assertThat(usersByCaseload.getItems()).extracting("username").containsOnly("ITAG_USER");
