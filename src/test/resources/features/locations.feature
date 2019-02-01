@@ -25,7 +25,6 @@ Feature: Locations
     When a request is made to retrieve location with locationId of "-9999"
     Then resource not found response is received from locations API
 
-    @sdar
   Scenario Outline: Retrieve a list/group of locations
     When a request is made at agency "<agency>" to retrieve the list named "<name>"
     Then location ids are "<locationIds>"

@@ -2,6 +2,7 @@ package net.syscon.elite.executablespecification.steps;
 
 import com.google.common.collect.ImmutableList;
 import net.syscon.elite.api.model.OffenderSentenceDetail;
+import net.syscon.elite.api.model.OffenderSentenceTerms;
 import net.syscon.elite.api.model.SentenceDetail;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
@@ -10,6 +11,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,18 +24,19 @@ public class BookingSentenceDetailSteps extends CommonSteps {
 
     private static final String OFFENDER_SENTENCE_DETAIL_API_URL = API_PREFIX + "offender-sentences";
     private static final String OFFENDER_BOOKING_SENTENCE_DETAIL_API_URL = OFFENDER_SENTENCE_DETAIL_API_URL + "/bookings";
-
     private static final String HOME_DETENTION_CURFEW_CANDIDATES = OFFENDER_SENTENCE_DETAIL_API_URL + "/home-detention-curfew-candidates";
+    private static final String BOOKING_SENTENCE_TERMS_API_URL = OFFENDER_SENTENCE_DETAIL_API_URL + "/booking/{bookingId}/sentenceTerms";
+
     private static final ParameterizedTypeReference<List<OffenderSentenceDetail>> LIST_OF_OFFENDER_SENTENCE_DETAIL_TYPE = new ParameterizedTypeReference<>() {
     };
 
     private SentenceDetail sentenceDetail;
-
+    private OffenderSentenceTerms offenderSentenceTerms;
     private List<OffenderSentenceDetail> offenderSentenceDetails;
 
     @Step("Get booking sentence detail")
     public void getBookingSentenceDetail(Long bookingId) {
-        dispatchRequest(bookingId);
+        dispatchSentenceDetail(bookingId);
     }
 
     @Step("Get offender sentence details by offender nos and agency id")
@@ -216,10 +219,11 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     protected void init() {
         super.init();
         offenderSentenceDetails = null;
+        offenderSentenceTerms = null;
         sentenceDetail = null;
     }
 
-    private void dispatchRequest(Long bookingId) {
+    private void dispatchSentenceDetail(Long bookingId) {
         init();
 
         ResponseEntity<SentenceDetail> response;
@@ -229,6 +233,21 @@ public class BookingSentenceDetailSteps extends CommonSteps {
                     SentenceDetail.class, bookingId);
 
             sentenceDetail = response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    private void dispatchSentenceTerms(String bookingId) {
+        init();
+
+        ResponseEntity<OffenderSentenceTerms> response;
+
+        try {
+            response = restTemplate.exchange(BOOKING_SENTENCE_TERMS_API_URL, HttpMethod.GET, createEntity(),
+                    OffenderSentenceTerms.class, bookingId);
+
+            offenderSentenceTerms = response.getBody();
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
@@ -300,5 +319,14 @@ public class BookingSentenceDetailSteps extends CommonSteps {
 
     private String initialiseUrlModifier(StringBuilder urlModifier) {
         return urlModifier.length() > 0 ? "&" : "?";
+    }
+
+    public void requestSentenceTerms(String bookingId) {
+        dispatchSentenceTerms(bookingId);
+    }
+
+    public void verifySentenceTerms() {
+        assertThat(offenderSentenceTerms).isEqualTo(new OffenderSentenceTerms(
+                -3L, LocalDate.of(2015, 3, 16), 5, null, null, null, false));
     }
 }

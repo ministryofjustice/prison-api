@@ -636,13 +636,22 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<OffenderSentenceCalculation> getOffenderSentenceCalculationsForAgency(Set<String> agencyIds) {
 
-        final List<OffenderSentenceCalculation> offenderSentenceSummaryRaw = bookingRepository.getOffenderSentenceCalculatons(agencyIds);
+        final List<OffenderSentenceCalculation> offenderSentenceSummaryRaw = bookingRepository.getOffenderSentenceCalculations(agencyIds);
 
         Map<Long, Optional<OffenderSentenceCalculation>> identifyLatest = offenderSentenceSummaryRaw.parallelStream()
                 .collect(Collectors.groupingBy(OffenderSentenceCalculation::getBookingId,
                         Collectors.maxBy(Comparator.comparing(OffenderSentenceCalculation::getOffenderSentCalculationId))));
 
        return identifyLatest.values().stream().filter(Optional::isPresent).map(Optional::get).collect(toList());
+    }
+
+    @Override
+    @VerifyBookingAccess
+    public OffenderSentenceTerms getOffenderSentenceTerms(Long bookingId) {
+
+        final List<OffenderSentenceTerms> results = bookingRepository.getOffenderSentenceTerms(bookingId);
+        Optional<OffenderSentenceTerms> earliest = results.stream().min(Comparator.comparing(OffenderSentenceTerms::getStartDate));
+        return earliest.orElseThrow(EntityNotFoundException.withId(bookingId));
     }
 
     @Override

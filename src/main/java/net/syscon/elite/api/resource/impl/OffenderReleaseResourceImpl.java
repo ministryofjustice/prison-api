@@ -6,6 +6,7 @@ import net.syscon.elite.api.model.ApprovalStatus;
 import net.syscon.elite.api.model.HdcChecks;
 import net.syscon.elite.api.model.OffenderSentenceCalc;
 import net.syscon.elite.api.model.OffenderSentenceDetail;
+import net.syscon.elite.api.model.OffenderSentenceTerms;
 import net.syscon.elite.api.resource.OffenderSentenceResource;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
@@ -93,6 +94,13 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
                 authenticationFacade.getCurrentUsername(), bookingIds);
 
         return PostOffenderSentencesBookingsResponse.respond200WithApplicationJson(sentences);
+    }
+
+    @Override
+    public GetOffenderSentenceTermsResponse getOffenderSentenceTerms(Long bookingId) {
+        OffenderSentenceTerms sentences = bookingService.getOffenderSentenceTerms(bookingId);
+
+        return GetOffenderSentenceTermsResponse.respond200WithApplicationJson(sentences);
     }
 
     private void validateOffenderList(List offenderList) {
