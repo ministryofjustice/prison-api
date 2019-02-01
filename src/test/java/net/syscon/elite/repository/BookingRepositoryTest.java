@@ -377,7 +377,7 @@ public class BookingRepositoryTest {
     @Test
     public void testGetOffenderSentenceTerms() {
 
-        final List<OffenderSentenceTerms> results = repository.getOffenderSentenceTerms(-2L);
+        final List<OffenderSentenceTerms> results = repository.getOffenderSentenceTerms(-2L, "IMP");
 
         assertThat(results)
                 .asList()

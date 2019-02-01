@@ -55,7 +55,7 @@ public interface BookingRepository {
 
     List<OffenderSentenceDetailDto> getOffenderSentenceSummary(String query, Set<String> allowedCaseloadsOnly, boolean filterByCaseload, boolean viewInactiveBookings);
     List<OffenderSentenceCalculation> getOffenderSentenceCalculations(Set<String> agencyIds);
-    List<OffenderSentenceTerms> getOffenderSentenceTerms(Long bookingId);
+    List<OffenderSentenceTerms> getOffenderSentenceTerms(Long bookingId, String sentenceTermCode);
 
     Visit getBookingVisitLast(Long bookingId, LocalDateTime cutoffDate);
     Visit getBookingVisitNext(Long bookingId, LocalDateTime from);

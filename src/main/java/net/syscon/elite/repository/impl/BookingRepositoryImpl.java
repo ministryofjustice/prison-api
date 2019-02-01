@@ -694,12 +694,12 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    public List<OffenderSentenceTerms> getOffenderSentenceTerms(Long bookingId) {
+    public List<OffenderSentenceTerms> getOffenderSentenceTerms(Long bookingId, String sentenceTermCode) {
         var sql = getQuery("GET_OFFENDER_SENTENCE_TERMS");
         return jdbcTemplate
                 .query(
                         sql,
-                        createParams("bookingId", bookingId),
+                        createParams("bookingId", bookingId, "sentenceTermCode", sentenceTermCode),
                         SENTENCE_TERMS_ROW_MAPPER);
     }
 }

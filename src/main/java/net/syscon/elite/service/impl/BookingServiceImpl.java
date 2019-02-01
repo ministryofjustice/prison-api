@@ -649,7 +649,7 @@ public class BookingServiceImpl implements BookingService {
     @VerifyBookingAccess
     public OffenderSentenceTerms getOffenderSentenceTerms(Long bookingId) {
 
-        final List<OffenderSentenceTerms> results = bookingRepository.getOffenderSentenceTerms(bookingId);
+        final List<OffenderSentenceTerms> results = bookingRepository.getOffenderSentenceTerms(bookingId, "IMP");
         Optional<OffenderSentenceTerms> earliest = results.stream().min(Comparator.comparing(OffenderSentenceTerms::getStartDate));
         return earliest.orElseThrow(EntityNotFoundException.withId(bookingId));
     }
