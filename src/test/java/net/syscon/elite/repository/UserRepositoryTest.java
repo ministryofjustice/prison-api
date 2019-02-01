@@ -189,17 +189,17 @@ public class UserRepositoryTest {
     @Test
     public void testFindLocalAdministratorUsersByCaseload() {
 
-        final Page<UserDetail> page = userRepository.findLocalAdministratorUsersByCaseload("LEI", null, new NameFilter(), new PageRequest("last_name", Order.ASC, 0L, 5L));
+        final Page<UserDetail> page = userRepository.getUsersAsLocalAdministrator("LAA_USER", null, new NameFilter(), new PageRequest("last_name", Order.ASC, 0L, 5L));
         final List<UserDetail> items = page.getItems();
 
-        assertThat(items).hasSize(2);
+        assertThat(items).hasSize(3);
         assertThat(items).extracting("username").first().isEqualTo("CA_USER");
     }
 
     @Test
     public void testFindLocalAdministratorUsersByCaseloadAndNameFilter() {
 
-        final Page<UserDetail> usersByCaseload = userRepository.findLocalAdministratorUsersByCaseload("LEI", null, new NameFilter("ITAG_USER"), new PageRequest());
+        final Page<UserDetail> usersByCaseload = userRepository.getUsersAsLocalAdministrator("LAA_USER", null, new NameFilter("ITAG_USER"), new PageRequest());
 
         assertThat(usersByCaseload.getItems()).extracting("username").containsOnly("ITAG_USER");
     }
@@ -207,7 +207,7 @@ public class UserRepositoryTest {
     @Test
     public void testFindLocalAdministratorUsersByCaseloadAndAccessRoleFilter() {
 
-        Page<UserDetail> usersByCaseload = userRepository.findLocalAdministratorUsersByCaseload("LEI", "OMIC_ADMIN", new NameFilter("User"), new PageRequest());
+        Page<UserDetail> usersByCaseload = userRepository.getUsersAsLocalAdministrator("LAA_USER", "OMIC_ADMIN", new NameFilter("User"), new PageRequest());
 
         assertThat(usersByCaseload.getItems()).extracting("username").contains("ITAG_USER");
     }

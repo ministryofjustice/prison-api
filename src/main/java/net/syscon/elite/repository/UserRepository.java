@@ -42,7 +42,7 @@ public interface UserRepository {
 
     Page<UserDetail> findUsersByCaseload(String agencyId, String accessRole, NameFilter nameFilter, PageRequest pageRequest);
 
-    Page<UserDetail> findLocalAdministratorUsersByCaseload(String agencyId, String accessRole, NameFilter nameFilter, PageRequest pageRequest);
+    Page<UserDetail> getUsersAsLocalAdministrator(String laaUsername, String accessRole, NameFilter nameFilter, PageRequest pageRequest);
 
     Page<UserDetail> findUsers(String accessRole, NameFilter nameFilter, PageRequest pageWithDefaults);
 }

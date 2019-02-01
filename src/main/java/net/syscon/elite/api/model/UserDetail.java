@@ -1,17 +1,15 @@
 package net.syscon.elite.api.model;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -24,204 +22,54 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@ToString
+@Data
 public class UserDetail {
-    @JsonIgnore
-    private Map<String, Object> additionalProperties;
-    
+    @ApiModelProperty(required = true, value = "Staff Id", example = "231232")
     @NotNull
     private Long staffId;
 
+    @ApiModelProperty(required = true, value = "Username", example = "DEMO_USER1", position = 1)
     @NotBlank
     private String username;
 
+    @ApiModelProperty(required = true, value = "First Name", example = "John", position = 2)
     @NotBlank
     private String firstName;
 
+    @ApiModelProperty(required = true, value = "Last Name", example = "Smith", position = 3)
     @NotBlank
     private String lastName;
 
+    @ApiModelProperty(value = "Image Thumbnail Id", example = "2342341224", position = 4)
     private Long thumbnailId;
 
+    @ApiModelProperty(value = "Current Active Caseload", example = "MDI", position = 5)
     private String activeCaseLoadId;
 
-    @NotBlank
+    @ApiModelProperty(required = true, value = "Status of the User Account (Active or Inactive)", allowableValues = "ACTIVE,INACT", example = "ACTIVE", position = 6)
     private String accountStatus;
 
-    @NotNull
+    @ApiModelProperty(required = true, value = "Date the user account was locked", example = "2018-06-04T12:35:00", position = 7)
     private LocalDateTime lockDate;
 
-    @NotNull
+    @ApiModelProperty(value = "Date the user account has expired", example = "2018-01-04T12:35:00", position = 8)
     private LocalDateTime expiryDate;
 
-    @NotNull
-    private boolean lockedFlag;
+    @ApiModelProperty(value = "The User account is locked", example = "false", position = 9)
+    private Boolean lockedFlag;
 
-    @NotNull
-    private boolean expiredFlag;
+    @ApiModelProperty(value = "Indicates the user account has expired", example = "true", position = 10)
+    private Boolean expiredFlag;
 
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return additionalProperties == null ? new HashMap<>() : additionalProperties;
+    @ApiModelProperty(required = true, value = "Indicate if the account is active", example = "true", position = 11)
+    @JsonGetter
+    public boolean isActive() {
+        return "ACTIVE".equals(accountStatus);
     }
 
+    @JsonIgnore
     @ApiModelProperty(hidden = true)
-    @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
-        this.additionalProperties = additionalProperties;
-    }
+    private Map<String, Object> additionalProperties;
 
-    /**
-      * Staff Id
-      */
-    @ApiModelProperty(required = true, value = "Staff Id")
-    @JsonProperty("staffId")
-    public Long getStaffId() {
-        return staffId;
-    }
-
-    public void setStaffId(Long staffId) {
-        this.staffId = staffId;
-    }
-
-    /**
-      */
-    @ApiModelProperty(required = true, value = "")
-    @JsonProperty("username")
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    /**
-      */
-    @ApiModelProperty(required = true, value = "")
-    @JsonProperty("firstName")
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    /**
-      */
-    @ApiModelProperty(required = true, value = "")
-    @JsonProperty("lastName")
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    /**
-      */
-    @ApiModelProperty(value = "")
-    @JsonProperty("thumbnailId")
-    public Long getThumbnailId() {
-        return thumbnailId;
-    }
-
-    public void setThumbnailId(Long thumbnailId) {
-        this.thumbnailId = thumbnailId;
-    }
-
-    /**
-      */
-    @ApiModelProperty(value = "")
-    @JsonProperty("activeCaseLoadId")
-    public String getActiveCaseLoadId() {
-        return activeCaseLoadId;
-    }
-
-    public void setActiveCaseLoadId(String activeCaseLoadId) {
-        this.activeCaseLoadId = activeCaseLoadId;
-    }
-
-    /**
-      */
-    @ApiModelProperty(required = true, value = "")
-    @JsonProperty("accountStatus")
-    public String getAccountStatus() {
-        return accountStatus;
-    }
-
-    public void setAccountStatus(String accountStatus) {
-        this.accountStatus = accountStatus;
-    }
-
-    /**
-      */
-    @ApiModelProperty(required = true, value = "")
-    @JsonProperty("lockDate")
-    public LocalDateTime getLockDate() {
-        return lockDate;
-    }
-
-    public void setLockDate(LocalDateTime lockDate) {
-        this.lockDate = lockDate;
-    }
-
-    /**
-      */
-    @ApiModelProperty(required = true, value = "")
-    @JsonProperty("expiryDate")
-    public LocalDateTime getExpiryDate() {
-        return expiryDate;
-    }
-
-    public void setExpiryDate(LocalDateTime expiryDate) {
-        this.expiryDate = expiryDate;
-    }
-
-    /**
-      */
-    @ApiModelProperty(required = true, value = "")
-    @JsonProperty("lockedFlag")
-    public boolean getLockedFlag() {
-        return lockedFlag;
-    }
-
-    public void setLockedFlag(boolean lockedFlag) {
-        this.lockedFlag = lockedFlag;
-    }
-
-    /**
-      */
-    @ApiModelProperty(required = true, value = "")
-    @JsonProperty("expiredFlag")
-    public boolean getExpiredFlag() {
-        return expiredFlag;
-    }
-
-    public void setExpiredFlag(boolean expiredFlag) {
-        this.expiredFlag = expiredFlag;
-    }
-
-    @Override
-    public String toString()  {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("class UserDetail {\n");
-        
-        sb.append("  staffId: ").append(staffId).append("\n");
-        sb.append("  username: ").append(username).append("\n");
-        sb.append("  firstName: ").append(firstName).append("\n");
-        sb.append("  lastName: ").append(lastName).append("\n");
-        sb.append("  thumbnailId: ").append(thumbnailId).append("\n");
-        sb.append("  activeCaseLoadId: ").append(activeCaseLoadId).append("\n");
-        sb.append("  accountStatus: ").append(accountStatus).append("\n");
-        sb.append("  lockDate: ").append(lockDate).append("\n");
-        sb.append("  expiryDate: ").append(expiryDate).append("\n");
-        sb.append("  lockedFlag: ").append(lockedFlag).append("\n");
-        sb.append("  expiredFlag: ").append(expiredFlag).append("\n");
-        sb.append("}\n");
-
-        return sb.toString();
-    }
 }

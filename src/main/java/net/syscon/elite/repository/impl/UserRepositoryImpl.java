@@ -259,30 +259,30 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
 
     @Override
-    public Page<UserDetail> findUsersByCaseload(String agencyId, String accessRole, NameFilter nameFilter, PageRequest pageRequest) {
-		Validate.notBlank(agencyId, "An agency id is required.");
+    public Page<UserDetail> findUsersByCaseload(String caseload, String accessRole, NameFilter nameFilter, PageRequest pageRequest) {
+		Validate.notBlank(caseload, "An caseload id is required.");
 		Validate.notNull(pageRequest, "Page request details are required.");
 
-		return getUsersByCaseload(agencyId, accessRole, nameFilter, pageRequest, "FIND_USERS_BY_CASELOAD");
+		return getUsersByCaseload("FIND_USERS_BY_CASELOAD", nameFilter, accessRole, pageRequest, caseload, null);
     }
 
 	@Override
 	public Page<UserDetail> findUsers(String accessRole, NameFilter nameFilter, PageRequest pageRequest) {
 		Validate.notNull(pageRequest, "Page request details are required.");
 
-		return getUsersByCaseload(null, accessRole, nameFilter, pageRequest, "FIND_USERS");
+		return getUsersByCaseload("FIND_USERS", nameFilter, accessRole, pageRequest, null, null);
 	}
 
 	@Override
-	public Page<UserDetail> findLocalAdministratorUsersByCaseload(String agencyId, String accessRole, NameFilter nameFilter, PageRequest pageRequest) {
-		Validate.notBlank(agencyId, "An agency id is required.");
+	public Page<UserDetail> getUsersAsLocalAdministrator(String laaUsername, String accessRole, NameFilter nameFilter, PageRequest pageRequest) {
+		Validate.notBlank(laaUsername, "A username is required.");
 		Validate.notNull(pageRequest, "Page request details are required.");
 
-		return getUsersByCaseload(agencyId, accessRole, nameFilter, pageRequest, "FIND_LOCAL_ADMINISTRATOR_USERS_BY_CASELOAD");
+		return getUsersByCaseload("FIND_USERS_AVAILABLE_TO_LAA_USER", nameFilter, accessRole, pageRequest, null, laaUsername);
     }
 
-    private Page<UserDetail> getUsersByCaseload(String agencyId, String accessRole, NameFilter nameFilter, PageRequest pageRequest, String find_local_administrator_users_by_caseload) {
-        String baseSql = applyAccessRoleQuery(applyNameFilterQuery(getQuery(find_local_administrator_users_by_caseload), nameFilter), accessRole);
+    private Page<UserDetail> getUsersByCaseload(String namedSql, NameFilter nameFilter, String accessRole, PageRequest pageRequest, String caseload, String laaUsername) {
+        String baseSql = applyAccessRoleQuery(applyNameFilterQuery(getQuery(namedSql), nameFilter), accessRole);
 
 
         IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(baseSql, USER_DETAIL_ROW_MAPPER.getFieldMap());
@@ -296,7 +296,9 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
         List<UserDetail> users = jdbcTemplate.query(
                 sql,
-                createParamSource(pageRequest, "caseloadId", agencyId,
+                createParamSource(pageRequest,
+						"caseloadId", caseload,
+                        "laaUsername", laaUsername,
                         "activeFlag", "Y",
                         "searchTerm", StringUtils.isNotBlank(nameFilter.getSearchTerm()) ? StringUtils.trimToEmpty(nameFilter.getSearchTerm()).toUpperCase() + "%" : null,
                         "surname", StringUtils.isNotBlank(nameFilter.getSurname()) ? StringUtils.trimToEmpty(nameFilter.getSurname()).toUpperCase() + "%" : null,

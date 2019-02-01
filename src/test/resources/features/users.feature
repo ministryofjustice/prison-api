@@ -80,7 +80,7 @@ Feature: User Details and Roles
   Scenario: A list of staff users can be retrieved
     Given a user has a token name of "ADMIN_TOKEN"
     When a request for users is made
-    Then a list of users is returned with usernames "ELITE2_API_USER,ITAG_USER,JBRIEN,NONWEB,RENEGADE,CA_USER,DM_USER,EXOFF5,API_TEST_USER,RO_USER,GLOBAL_SEARCH_USER,ELITE2_API_USER_ADM"
+    Then a list of users is returned with usernames "ELITE2_API_USER,ITAG_USER,JBRIEN,NONWEB,RENEGADE,CA_USER,DM_USER,EXOFF5,API_TEST_USER,RO_USER,GLOBAL_SEARCH_USER,ELITE2_API_USER_ADM,LAA_USER"
 
   Scenario: A list of staff users by caseload and namefilter can be retrieved
     Given a user has a token name of "ADMIN_TOKEN"
@@ -92,15 +92,20 @@ Feature: User Details and Roles
     When a request for users with caseload "LEI" and namefilter "User" and role "OMIC_ADMIN" is made
     Then a list of users is returned with usernames "ITAG_USER"
 
-  Scenario: A list of local administrator staff users by caseload and namefilter can be retrieved
-    Given a user has a token name of "ADMIN_TOKEN"
-    When a request for local administrator users with caseload "LEI" and namefilter "User" and role "" is made
-    Then a list of users is returned with usernames "ITAG_USER,CA_USER"
+  Scenario: A list of staff users by LAA and namefilter can be retrieved
+    Given a user has a token name of "LAA_USER"
+    When a request for users by local administrator with namefilter "User" and role "" is made
+    Then a list of users is returned with usernames "ITAG_USER,CA_USER,RO_USER"
 
-  Scenario: A list of local administrator staff users by caseload and namefilter and access role can be retrieved
-    Given a user has a token name of "ADMIN_TOKEN"
-    When a request for local administrator users with caseload "LEI" and namefilter "User" and role "OMIC_ADMIN" is made
+  Scenario: A list of users by LAA access and namefilter can be retrieved
+    Given a user has a token name of "LAA_USER"
+    When a request for users by local administrator with namefilter "User" and role "OMIC_ADMIN" is made
     Then a list of users is returned with usernames "ITAG_USER"
+
+  Scenario: A list of staff users by inactive LAA cannot be retrieved
+    Given a user has a token name of "ELITE2_API_USER"
+    When a request for users by local administrator with namefilter "User" and role "" is made
+    Then a list of users is returned with usernames ""
 
   Scenario: A list of staff roles for a user and caseload can be retrieved
     Given a user has authenticated with the API

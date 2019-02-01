@@ -246,13 +246,12 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
-	public Page<UserDetail> getLocalAdministratorUsersByCaseload(String caseload, String nameFilter, String accessRole, PageRequest pageRequest) {
+	public Page<UserDetail> getUsersAsLocalAdministrator(String laaUsername, String nameFilter, String accessRole, PageRequest pageRequest) {
 
 		PageRequest pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
 
 		return userRepository
-				.findLocalAdministratorUsersByCaseload(caseload, accessRole, new NameFilter(nameFilter), pageWithDefaults);
+				.getUsersAsLocalAdministrator(laaUsername, accessRole, new NameFilter(nameFilter), pageWithDefaults);
 	}
 
 	private PageRequest getPageRequestDefaultLastNameOrder(PageRequest pageRequest) {
