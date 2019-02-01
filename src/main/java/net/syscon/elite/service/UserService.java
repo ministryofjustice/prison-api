@@ -48,7 +48,7 @@ public interface UserService {
 
     Page<UserDetail> getUsersByCaseload(String caseload, String nameFilter, String accessRole, PageRequest pageRequest);
 
-    Page<UserDetail> getLocalAdministratorUsersByCaseload(String caseload, String nameFilter, String accessRole, PageRequest pageRequest);
+    Page<UserDetail> getUsersAsLocalAdministrator(String username, String nameFilter, String accessRole, PageRequest pageRequest);
 
     List<AccessRole> getAccessRolesByUserAndCaseload(String username, String caseload, boolean includeAdmin);
 

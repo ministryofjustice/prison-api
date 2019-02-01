@@ -31,7 +31,7 @@ public class UserSteps extends CommonSteps {
     private static final String API_REMOVE_ROLE_FROM_USER_AT_CASELOAD = API_PREFIX + "/users/{username}/caseload/{caseload}/access-role/{roleCode}";
     private static final String API_USERS_AT_CASELOAD = API_PREFIX + "/users/caseload/{caseload}";
     private static final String API_USERS = API_PREFIX + "/users";
-    private static final String API_LOCAL_ADMINISTRATOR_USERS_AT_CASELOAD = API_PREFIX + "/users/local-administrator/caseload/{caseload}";
+    private static final String API_LOCAL_ADMINISTRATOR_USERS = API_PREFIX + "/users/local-administrator/available";
     private static final String API_ROLES_BY_USERS_AT_CASELOAD = API_PREFIX + "/users/{username}/access-roles/caseload/{caseload}";
 
     private List<Location> userLocations;
@@ -112,6 +112,10 @@ public class UserSteps extends CommonSteps {
 
     public void getUsersByCaseload(String caseloadId, String roleCode, String nameFilter, boolean localAdministratorUsersOnly) {
         dispatchUsersByCaseloadRequest(caseloadId, roleCode, nameFilter, localAdministratorUsersOnly);
+    }
+
+    public void getUsersByLaa(String roleCode, String nameFilter) {
+        dispatchUsersByCaseloadRequest(null, roleCode, nameFilter, true);
     }
 
     public void getUsers(String roleCode, String nameFilter, boolean localAdministratorUsersOnly) {
@@ -229,7 +233,7 @@ public class UserSteps extends CommonSteps {
 
     private void dispatchUsersByCaseloadRequest(String caseload, String role, String nameFilter, boolean localAdministratorUsers) {
         init();
-        String url = localAdministratorUsers ? API_LOCAL_ADMINISTRATOR_USERS_AT_CASELOAD : API_USERS_AT_CASELOAD;
+        var url = localAdministratorUsers ? API_LOCAL_ADMINISTRATOR_USERS : API_USERS_AT_CASELOAD;
 
         if(StringUtils.isNotBlank(role) || StringUtils.isNotBlank(nameFilter)) {
             String queryParameters = buildQueryStringParameters(ImmutableMap.of("accessRole", role,"nameFilter", nameFilter));
@@ -237,7 +241,7 @@ public class UserSteps extends CommonSteps {
                 url += String.format("?=%s", queryParameters);
         }
 
-        ResponseEntity<List<UserDetail>> response = restTemplate.exchange(
+        var response = restTemplate.exchange(
                 url,
                 HttpMethod.GET,
                 createEntity(),
