@@ -76,6 +76,16 @@ public interface OffenderSentenceResource {
             @ApiResponse(code = 200, message = "The list of offenders is returned.", response = OffenderSentenceDetail.class, responseContainer = "List")})
     PostOffenderSentencesBookingsResponse postOffenderSentencesBookings(@ApiParam(value = "The required booking ids (mandatory)", required = true) List<Long> body);
 
+    @GET
+    @Path("/booking/{bookingId}/sentenceTerms")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Sentence term details for a prisoner", nickname = "getOffenderSentenceTerms")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Sentence term details for a prisoner.", response = OffenderSentenceTerms.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List")})
+    GetOffenderSentenceTermsResponse getOffenderSentenceTerms(@ApiParam(value = "The required booking id (mandatory)", required = true) @PathParam("bookingId") Long bookingId);
+
     class GetOffenderSentencesResponse extends ResponseDelegate {
 
         private GetOffenderSentencesResponse(Response response) {
@@ -115,6 +125,26 @@ public interface OffenderSentenceResource {
         }
     }
 
+    class GetOffenderSentenceTermsResponse extends ResponseDelegate {
+
+        private GetOffenderSentenceTermsResponse(Response response, Object entity) {
+            super(response, entity);
+        }
+
+        public static GetOffenderSentenceTermsResponse respond200WithApplicationJson(OffenderSentenceTerms entity) {
+            ResponseBuilder responseBuilder = Response.status(200)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetOffenderSentenceTermsResponse(responseBuilder.build(), entity);
+        }
+
+        public static GetOffenderSentenceTermsResponse respond404WithApplicationJson(ErrorResponse entity) {
+            ResponseBuilder responseBuilder = Response.status(404)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetOffenderSentenceTermsResponse(responseBuilder.build(), entity);
+        }
+    }
     class GetOffenderSentencesHomeDetentionCurfewCandidatesResponse extends ResponseDelegate {
 
         private GetOffenderSentencesHomeDetentionCurfewCandidatesResponse(Response response) {

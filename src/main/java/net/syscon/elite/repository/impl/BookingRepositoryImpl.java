@@ -78,6 +78,9 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     private static final StandardBeanPropertyRowMapper<OffenderSentenceCalculation> SENTENCE_CALC_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(OffenderSentenceCalculation.class);
 
+    private static final StandardBeanPropertyRowMapper<OffenderSentenceTerms> SENTENCE_TERMS_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(OffenderSentenceTerms.class);
+
     private static final StandardBeanPropertyRowMapper<Visit> VISIT_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(Visit.class);
 
@@ -681,12 +684,22 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    public List<OffenderSentenceCalculation> getOffenderSentenceCalculatons(Set<String> agencyIds) {
+    public List<OffenderSentenceCalculation> getOffenderSentenceCalculations(Set<String> agencyIds) {
         var sql = getQuery("GET_OFFENDER_SENT_CALCULATIONS");
         return jdbcTemplate
                 .query(
-                sql,
-                createParams( "agencyIds", agencyIds, "activeFlag", "Y", "bookingSeq", 1),
-                SENTENCE_CALC_ROW_MAPPER);
+                        sql,
+                        createParams("agencyIds", agencyIds, "activeFlag", "Y", "bookingSeq", 1),
+                        SENTENCE_CALC_ROW_MAPPER);
+    }
+
+    @Override
+    public List<OffenderSentenceTerms> getOffenderSentenceTerms(Long bookingId, String sentenceTermCode) {
+        var sql = getQuery("GET_OFFENDER_SENTENCE_TERMS");
+        return jdbcTemplate
+                .query(
+                        sql,
+                        createParams("bookingId", bookingId, "sentenceTermCode", sentenceTermCode),
+                        SENTENCE_TERMS_ROW_MAPPER);
     }
 }
