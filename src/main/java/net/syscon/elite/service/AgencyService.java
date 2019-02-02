@@ -17,6 +17,7 @@ import java.util.Set;
 public interface AgencyService {
     Agency getAgency(String agencyId);
     void checkAgencyExists(String agencyId);
+    List<Agency> getAgenciesByType(String agencyType);
     Page<Agency> getAgencies(long offset, long limit);
     List<Agency> findAgenciesByUsername(String username);
     Set<String> getAgencyIds();
@@ -24,9 +25,7 @@ public interface AgencyService {
     List<Location> getAgencyLocations(String agencyId, String eventType, String sortFields, Order sortOrder);
     List<Location> getAgencyEventLocations(String agencyId, String sortFields, Order sortOrder);
     List<Location> getAgencyEventLocationsBooked(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod);
-
-    void evictAgencyEventLocationsBooked(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod);
-
+    List<Location> getAgencyEventLocationsBookedNonCached(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod);
     List<PrisonContactDetail> getPrisonContactDetail();
     PrisonContactDetail getPrisonContactDetail(String agencyId);
     List<Agency> getAgenciesByCaseload(String caseload);

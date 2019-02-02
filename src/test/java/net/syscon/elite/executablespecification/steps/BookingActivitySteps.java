@@ -54,7 +54,7 @@ public class BookingActivitySteps extends ScheduledEventSteps {
 
     @Step("Verify Attendance")
     public void verifySavedDetails() {
-        schedulesSteps.getSchedulesForLocationGroup("LEI", "BlockA", "2017-09-12", TimeSlot.PM);
+        schedulesSteps.getSchedulesForLocationGroup("LEI", "A-Wing", "2017-09-12", TimeSlot.PM);
         schedulesSteps.verifyAttendanceDetails(-6);
         schedulesSteps.getSchedulesForLocation("LEI", -27L, "PROG", "2017-09-12", TimeSlot.PM);
         schedulesSteps.verifyAttendanceDetails(-6);

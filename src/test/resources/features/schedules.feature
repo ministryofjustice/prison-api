@@ -25,13 +25,6 @@ Feature: Location and Location Group Events
     When schedules are requested for agency and location group
     Then schedules response is an empty list
 
-  Scenario: no locations in group
-    Given an existing agency and location group
-    And location group does not define any locations
-    When schedules are requested for agency and location group
-    Then schedules response is HTTP 500 server error
-    And schedules response error message is "There are no cells set up for location 'BlockE'"
-
   Scenario: location group scheduled events in order
     Given one or more offenders have scheduled events for current day
     And offenders are located in a location that belongs to requested agency and location group

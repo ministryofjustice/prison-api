@@ -16,6 +16,7 @@ import java.util.Optional;
  */
 public interface AgencyRepository {
     Page<Agency> getAgencies(String orderByField, Order order, long offset, long limit);
+    List<Agency> getAgenciesByType(String agencyType);
     List<Agency> findAgenciesByUsername(String username);
     List<Agency> findAgenciesForCurrentCaseloadByUsername(String username);
     List<Agency> findAgenciesByCaseload(String caseload);

@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -24,32 +25,27 @@ public class ActivityCacheScheduler {
     @Scheduled(fixedRate = 10 * 60 * 1000, initialDelay = 30000)
     public void cacheActivityLocations() {
 
+        log.info("START: cacheActivityLocations");
         // get all prisons
-        var prisons = agencyService.getPrisonContactDetail();
+        var prisons = agencyService.getAgenciesByType("INST");
 
         prisons.forEach(prison -> {
-            var locationGroups = locationGroupService.getLocationGroups(prison.getAgencyId());
+            final var locationGroups = locationGroupService.getLocationGroups(prison.getAgencyId());
 
             if (!locationGroups.isEmpty()) {
                 log.info("Caching event locations for {}", prison.getAgencyId());
 
-                agencyService.evictAgencyEventLocationsBooked(prison.getAgencyId(), LocalDate.now(), TimeSlot.AM);
-                agencyService.getAgencyEventLocationsBooked(prison.getAgencyId(), LocalDate.now(), TimeSlot.AM);
-
-                agencyService.evictAgencyEventLocationsBooked(prison.getAgencyId(), LocalDate.now(), TimeSlot.PM);
-                agencyService.getAgencyEventLocationsBooked(prison.getAgencyId(), LocalDate.now(), TimeSlot.PM);
-
-                agencyService.evictAgencyEventLocationsBooked(prison.getAgencyId(), LocalDate.now(), TimeSlot.ED);
-                agencyService.getAgencyEventLocationsBooked(prison.getAgencyId(), LocalDate.now(), TimeSlot.ED);
+                final var now = LocalDate.now();
+                List.of(TimeSlot.values()).forEach(slot -> {
+                    log.info("Refreshing cache for {}, {}", prison.getAgencyId(), slot);
+                    var locations = agencyService.getAgencyEventLocationsBookedNonCached(prison.getAgencyId(), now, slot);
+                    log.info("{} locations cached for {}, {}", locations.size(), prison.getAgencyId(), slot);
+                });
             }
-
-            locationGroups.forEach(lg -> {
-                // load all the locations
-
-            });
-
-
         });
+
+        log.info("END: cacheActivityLocations");
+
     }
 
 }

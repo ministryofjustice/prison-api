@@ -52,6 +52,17 @@ public class AgencyRepositoryTest {
     }
 
     @Test
+    public void testGetAgencyByType() {
+        final var agencies = repository.getAgenciesByType("INST");
+        assertThat(agencies).extracting("agencyId")
+                .contains("BMI", "BXI", "LEI", "MDI", "MUL", "SYI", "TRO", "WAI");
+
+        assertThat(agencies).extracting("agencyType")
+                .contains("INST", "INST", "INST", "INST", "INST", "INST", "INST", "INST");
+    }
+
+
+    @Test
     public void testGetAgencyLocationsNoResults1() {
         final List<Location> locations = repository.getAgencyLocations("LEI", Arrays.asList("OTHER"), null, null);
         assertThat(locations).isEmpty();
@@ -66,7 +77,7 @@ public class AgencyRepositoryTest {
     @Test
     public void testGetAgencyLocationsAll() {
         final List<Location> locations = repository.getAgencyLocations("LEI", Collections.emptyList(), null, null);
-        assertThat(locations).hasSize(38);
+        assertThat(locations).hasSize(40);
     }
 
     @Test
