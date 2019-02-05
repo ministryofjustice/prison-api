@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class BookingAlertSteps extends CommonSteps {
     private static final String API_REQUEST_BASE_URL = API_PREFIX + "bookings/{bookingId}/alerts";
+    private static final String API_REQUEST_OFFENDER_NO_BASE_URL = API_PREFIX + "bookings/offenderNo/{offenderNo}/alerts";
     private static final String API_REQUEST_ALERT_URL = API_PREFIX + "bookings/{bookingId}/alerts/{alertId}";
     private static final String API_REQUEST_ALERT_POST_URL_AGENCY = API_PREFIX + "bookings/offenderNo/{agencyId}/alerts";
     private static final String API_REQUEST_ALERT_POST_URL = API_PREFIX + "bookings/offenderNo/alerts";
@@ -27,6 +28,11 @@ public class BookingAlertSteps extends CommonSteps {
     @Step("Retrieve alerts for offender booking")
     public void getAlerts(Long bookingId) {
         doListApiCall(bookingId);
+    }
+
+    @Step("Retrieve alerts for offender no")
+    public void getAlertsByOffenderNo(String offenderNo) {
+        doListApiCallForOffender(offenderNo);
     }
 
     @Step("Retrieve alerts for offender nos")
@@ -50,6 +56,28 @@ public class BookingAlertSteps extends CommonSteps {
                             createEntity(),
                             new ParameterizedTypeReference<List<Alert>>() {},
                             bookingId);
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+            alerts = response.getBody();
+
+            buildResourceData(response);
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    private void doListApiCallForOffender(String offenderNo) {
+        init();
+
+        try {
+            ResponseEntity<List<Alert>> response =
+                    restTemplate.exchange(
+                            API_REQUEST_OFFENDER_NO_BASE_URL,
+                            HttpMethod.GET,
+                            createEntity(),
+                            new ParameterizedTypeReference<List<Alert>>() {},
+                            offenderNo);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 

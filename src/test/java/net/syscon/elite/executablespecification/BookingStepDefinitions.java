@@ -295,6 +295,11 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAlerts.getAlerts(bookingId);
     }
 
+    @When("^alerts are requested for an offender booking using offender No \"([^\"]*)\"$")
+    public void alertsAreRequestedForOffenderBookingByOffenderNo(String offenderNo) {
+        bookingAlerts.getAlertsByOffenderNo(offenderNo);
+    }
+
     @Then("^\"([^\"]*)\" alerts are returned$")
     public void numberAlertsAreReturned(String expectedCount) {
         bookingAlerts.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
