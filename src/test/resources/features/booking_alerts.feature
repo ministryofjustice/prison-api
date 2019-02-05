@@ -1,3 +1,4 @@
+@lucy
 Feature: Booking Alerts
 
   Acceptance Criteria:
@@ -15,6 +16,16 @@ Feature: Booking Alerts
        | bookingId | number | alert code list |
        | -1        | 3      | XA,HC,RSS       |
        | -2        | 1      | HA              |
+
+  Scenario Outline: Retrieve alerts for an offender by Offender No
+    When alerts are requested for an offender booking using offender No "<offenderNo>"
+    Then "<number>" alerts are returned
+    And alerts codes match "<alert code list>"
+
+    Examples:
+      | offenderNo | number | alert code list |
+      | A1234AA    | 3      | XA,HC,RSS       |
+      | A1234AB    | 1      | HA              |
 
   Scenario Outline: Retrieve alert for an offender booking
     When alert is requested for an offender booking "<bookingId>" and alert id "<alertId>"
