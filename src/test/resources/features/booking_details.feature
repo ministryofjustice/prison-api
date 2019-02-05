@@ -226,3 +226,12 @@ Feature: Booking Details
   Scenario: Request for image metadata
     When image metadata is requested for Booking Id "-1"
     Then image data is returned
+
+    Scenario Outline: Request offender basic details by offender numbers
+      When a request is made for  "A1234AE,A1234AB"
+      Then data is returned that includes "<firstName>" "<lastName>" "<middleName>" "<offenderNo>" "<bookingId>" "<agencyId>"
+
+      Examples:
+      | firstName | lastName   | middleName     | offenderNo   | bookingId | agencyId |
+      | Donald    | Duck       | Jeffrey Robert | A1234AE      | -5        | LEI      |
+      | Gillian   | Anderson   | Eve            | A1234AB      | -2        | LEI      |

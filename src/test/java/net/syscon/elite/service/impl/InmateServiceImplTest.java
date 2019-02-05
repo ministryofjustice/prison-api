@@ -1,10 +1,7 @@
 package net.syscon.elite.service.impl;
 
 import com.microsoft.applicationinsights.TelemetryClient;
-import net.syscon.elite.api.model.Assessment;
-import net.syscon.elite.api.model.CategorisationDetail;
-import net.syscon.elite.api.model.OffenderSummary;
-import net.syscon.elite.api.model.UserDetail;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.UserRepository;
@@ -12,6 +9,7 @@ import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.AssessmentDto;
+import org.assertj.core.api.Assertions;
 import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +26,7 @@ import java.time.Month;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -152,5 +151,30 @@ public class InmateServiceImplTest {
         serviceToTest.createCategorisation(1234L, catDetail);
 
         Mockito.verify(repository, Mockito.times(1)).insertCategory(catDetail, "CDI", 444L, "ME", 1004L);
+    }
+
+    @Test
+    public void testMappingForOffenderDetailsAreCorrect() {
+        final var offenderNumbers = Set.of("A123");
+        final var caseLoadsIds = Set.of("1");
+
+        Mockito.when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
+        Mockito.when(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(caseLoadsIds);
+
+        Mockito.when(repository.getBasicOffenderDetails(offenderNumbers, caseLoadsIds, true))
+                 .thenReturn(List.of(InmateDetail.builder()
+                         .lastName("LAST NAME")
+                         .firstName("FIRST NAME")
+                         .middleName("MIDDLE NAME")
+                         .build()));
+
+        final var offenders = serviceToTest.getBasicOffenderDetails(offenderNumbers, true);
+
+        Assertions.assertThat(offenders)
+                .containsExactly(InmateDetail.builder()
+                        .lastName("Last Name")
+                        .firstName("First Name")
+                        .middleName("Middle Name")
+                        .build());
     }
 }

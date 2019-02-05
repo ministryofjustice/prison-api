@@ -20,11 +20,13 @@ import static org.junit.Assert.assertNotNull;
  */
 public class BookingDetailSteps extends CommonSteps {
     private static final String API_BOOKING_REQUEST_URL = API_PREFIX + "bookings/{bookingId}";
+    private static final String API_BOOKING_DETAILS_BY_OFFENDERS = API_PREFIX + "bookings/offenders";
 
     private InmateDetail inmateDetail;
     private PhysicalAttributes physicalAttributes;
     private List<PhysicalCharacteristic> physicalCharacteristics;
     private ImageDetail imageDetail;
+    private List<InmateDetail> offenders;
     private List<ProfileInformation> profileInformation;
 
     @Override
@@ -36,6 +38,7 @@ public class BookingDetailSteps extends CommonSteps {
         physicalCharacteristics = null;
         imageDetail = null;
         profileInformation = null;
+        offenders = null;
     }
 
     @Step("Retrieve offender booking details record")
@@ -261,5 +264,39 @@ public class BookingDetailSteps extends CommonSteps {
                 ProfileInformation.builder().type("RELF").question("Religion").resultValue("Church of England").build(),
                 ProfileInformation.builder().type("NAT").question("Nationality?").resultValue("Spaniard").build(),
                 ProfileInformation.builder().type("SMOKE").question("Is the Offender a smoker?").resultValue("No").build());
+    }
+
+    public void findBookingDetails(List<String> offenderNumbers) {
+        init();
+        try {
+            final var response =
+                    restTemplate.exchange(
+                            API_BOOKING_DETAILS_BY_OFFENDERS,
+                            HttpMethod.POST,
+                            createEntity(offenderNumbers),
+                            new ParameterizedTypeReference<List<InmateDetail>>() {});
+
+            offenders = response.getBody();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    public void verifyOffenders(String firstName, String lastName, String middleName, String offenderNo, String bookingId, String agencyId) {
+
+        assertThat(offenders
+                .stream()
+                .filter(offender -> offender.getFirstName().equals(firstName) &&
+                        offender.getLastName().equals(lastName) &&
+                        offender.getMiddleName().equals(middleName) &&
+                        offender.getBookingId().equals(Long.parseLong(bookingId)) &&
+                        offender.getAgencyId().equals(agencyId) &&
+                        offender.getOffenderNo().equals(offenderNo))
+                 .count())
+                .isEqualTo(1);
+    }
+
+    public void verifyOffenderCount(int size) {
+        assertThat(offenders).hasSize(size);
     }
 }

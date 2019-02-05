@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 @Api(tags = {"/bookings"})
 @SuppressWarnings("unused")
@@ -539,6 +540,18 @@ public interface BookingResource {
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
     GetOffenderBookingByOffenderNoResponse getOffenderBookingByOffenderNo(@ApiParam(value = "The offenderNo of offender", required = true) @PathParam("offenderNo") String offenderNo,
                                                                           @ApiParam(value = "If set to true then full data is returned", defaultValue = "false") @QueryParam("fullInfo") boolean fullInfo);
+
+    @POST
+    @Path("/offenders")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Offender detail.", notes = "Offender detail.", nickname = "getBasicOffenderDetails")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = InmateDetail.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    List<InmateDetail> getBasicOffenderDetails(@ApiParam(value = "The offenderNo of offender", required = true) Set<String> offenders,  @ApiParam(value = "If set to true then only active offenders are returned", defaultValue = "true") @QueryParam("activeOnly") boolean activeOnly);
 
     @GET
     @Path("/offenderNo/{offenderNo}/image/data")
