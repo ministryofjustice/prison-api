@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
@@ -167,6 +168,11 @@ public class BookingResourceImpl implements BookingResource {
                 inmateService.getBasicInmateDetail(bookingId);
 
         return GetOffenderBookingByOffenderNoResponse.respond200WithApplicationJson(inmate);
+    }
+
+    @Override
+    public List<InmateDetail> getBasicOffenderDetails(Set<String> offenders, boolean activeOnly) {
+        return inmateService.getBasicOffenderDetails(offenders, activeOnly);
     }
 
 

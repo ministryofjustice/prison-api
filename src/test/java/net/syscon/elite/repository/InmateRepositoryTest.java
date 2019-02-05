@@ -597,6 +597,26 @@ public class InmateRepositoryTest {
 
     }
 
+    @Test
+    public void thatThatOffendersOfAllStatusAreReturnedMatchingNumberAndCaseLoad() {
+        final var offenders = repository.getBasicOffenderDetails(Set.of("A1234AI"), Set.of("LEI"), false);
+        assertThat(offenders).hasSize(3);
+        assertThat(offenders).asList().extracting("offenderNo", "bookingId", "activeFlag", "agencyId").contains(
+                Tuple.tuple("A1234AI", -15L, false, "OUT"),
+                Tuple.tuple("A1234AI", -14L, false, "OUT"),
+                Tuple.tuple("A1234AI", -9L, true, "LEI")
+        );
+    }
+
+    @Test
+    public void testThatActiveOffendersAreReturnedMatchingNumberAndCaseLoad() {
+        final var offenders = repository.getBasicOffenderDetails(Set.of("A1234AI"), Set.of("LEI"), true);
+        assertThat(offenders).hasSize(1);
+        assertThat(offenders).asList().extracting("offenderNo", "bookingId", "activeFlag", "agencyId").contains(
+                Tuple.tuple("A1234AI", -9L, true, "LEI")
+        );
+    }
+
     /*****************************************************************************************/
 
     private PrisonerDetailSearchCriteria criteriaForOffenderNo(String offenderNo) {
