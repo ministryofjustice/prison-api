@@ -8,6 +8,7 @@ import net.syscon.elite.api.model.ScheduledEvent;
 
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @ApiModel(description = "Outcomes from a bulk create appointments request")
@@ -16,10 +17,32 @@ import java.util.List;
 public class CreateAppointmentsOutcomes {
     @ApiModelProperty(required=true, value="The set of ScheduledEvents that were created")
     @NotNull
-    private List<ScheduledEvent> createdEvents = new ArrayList<>();
+    private final List<ScheduledEvent> createdEvents;
 
 
     @ApiModelProperty(required=true, value="Error responses for each rejected AppointmentDetails")
     @NotNull
-    private List<RejectedAppointment> rejectedAppointments = new ArrayList<>();
+    private final List<RejectedAppointment> rejectedAppointments;
+
+    private CreateAppointmentsOutcomes(List<ScheduledEvent> createdEvents, List<RejectedAppointment> rejectedAppointments) {
+        this.createdEvents = createdEvents;
+        this.rejectedAppointments = rejectedAppointments;
+    }
+
+    public static CreateAppointmentsOutcomes success(ScheduledEvent e) {
+        return new CreateAppointmentsOutcomes(Collections.singletonList(e), Collections.emptyList());
+    }
+
+    public static CreateAppointmentsOutcomes failure(RejectedAppointment a) {
+        return new CreateAppointmentsOutcomes(Collections.emptyList(), Collections.singletonList(a));
+    }
+
+    public static CreateAppointmentsOutcomes accumulator() {
+        return new CreateAppointmentsOutcomes(new ArrayList<>(), new ArrayList<>());
+    }
+
+    public void add(CreateAppointmentsOutcomes that) {
+        createdEvents.addAll(that.getCreatedEvents());
+        rejectedAppointments.addAll(that.getRejectedAppointments());
+    }
 }

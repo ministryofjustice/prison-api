@@ -1,6 +1,5 @@
 package net.syscon.elite.service.impl;
 
-import io.vavr.control.Either;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.NewAppointment;
 import net.syscon.elite.api.model.ScheduledEvent;
@@ -14,7 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
@@ -130,18 +128,8 @@ public class AppointmentsServiceImplTest {
     }
 
     @Test
-    public void shouldConvertThrowableToErrorResponse() {
-        assertThat(AppointmentsServiceImpl.throwableToErrorResponse(new Throwable("my message")))
-                .isEqualTo(ErrorResponse.builder()
-                        .status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
-                        .userMessage("An internal error has occurred - please try again later.")
-                        .developerMessage("my message")
-                        .build());
-    }
-
-    @Test
     public void toCreateAppointmentOutcomesNoOutcomes() {
-        var outcomes = AppointmentsServiceImpl.toCreateAppointmentOutcomes(Stream.empty());
+        var outcomes = AppointmentsServiceImpl.mergeCreateAppointmentOutcomes(Stream.empty());
         assertThat(outcomes.getCreatedEvents()).isEmpty();
         assertThat(outcomes.getRejectedAppointments()).isEmpty();
     }
@@ -149,7 +137,7 @@ public class AppointmentsServiceImplTest {
     @Test
     public void toCreateAppointmentOutcomesOneSuccess() {
         var scheduledEvent = ScheduledEvent.builder().eventId(1L).build();
-        var outcomes = AppointmentsServiceImpl.toCreateAppointmentOutcomes(Stream.of(Either.right(scheduledEvent)));
+        var outcomes = AppointmentsServiceImpl.mergeCreateAppointmentOutcomes(Stream.of(CreateAppointmentsOutcomes.success(scheduledEvent)));
         assertThat(outcomes.getCreatedEvents()).containsExactly(scheduledEvent);
         assertThat(outcomes.getRejectedAppointments()).isEmpty();
     }
@@ -158,7 +146,7 @@ public class AppointmentsServiceImplTest {
     public void toCreateAppointmentOutcomesOneFailure() {
         var rejectedAppointment = RejectedAppointment.builder().build();
 
-        var outcomes = AppointmentsServiceImpl.toCreateAppointmentOutcomes(Stream.of(Either.left(rejectedAppointment)));
+        var outcomes = AppointmentsServiceImpl.mergeCreateAppointmentOutcomes(Stream.of(CreateAppointmentsOutcomes.failure(rejectedAppointment)));
         assertThat(outcomes.getCreatedEvents()).isEmpty();
         assertThat(outcomes.getRejectedAppointments()).containsExactly(rejectedAppointment);
     }
@@ -171,11 +159,11 @@ public class AppointmentsServiceImplTest {
         var se2 = ScheduledEvent.builder().eventId(2L).build();
 
 
-        var outcomes = AppointmentsServiceImpl.toCreateAppointmentOutcomes(Stream.of(
-                Either.left(ra1),
-                Either.right(se1),
-                Either.right(se2),
-                Either.left(ra2)
+        var outcomes = AppointmentsServiceImpl.mergeCreateAppointmentOutcomes(Stream.of(
+                CreateAppointmentsOutcomes.failure(ra1),
+                CreateAppointmentsOutcomes.success(se1),
+                CreateAppointmentsOutcomes.success(se2),
+                CreateAppointmentsOutcomes.failure(ra2)
         ));
         assertThat(outcomes.getCreatedEvents()).containsExactly(se1, se2);
         assertThat(outcomes.getRejectedAppointments()).containsExactly(ra1, ra2);
@@ -196,7 +184,7 @@ public class AppointmentsServiceImplTest {
         verify(bookingService).getBookingIdByOffenderNo(OFFENDER_NO);
         verify(bookingService).createBookingAppointment(BOOKING_ID, USERNAME, NewAppointment.builder().locationId(LOCATION_ID).build());
 
-        assertThat(result).isEqualTo(Either.right(se));
+        assertThat(result).isEqualTo(CreateAppointmentsOutcomes.success(se));
     }
 
     @Test
@@ -210,7 +198,7 @@ public class AppointmentsServiceImplTest {
 
         verify(bookingService).getBookingIdByOffenderNo(OFFENDER_NO);
 
-        assertThat(result).isEqualTo(Either.left(
+        assertThat(result).isEqualTo(CreateAppointmentsOutcomes.failure(
                 RejectedAppointment.builder()
                         .appointmentDetails(AppointmentDetails
                                 .builder()
@@ -234,7 +222,7 @@ public class AppointmentsServiceImplTest {
                 .appointments(Collections.emptyList())
                 .build();
 
-        CreateAppointmentsOutcomes outcomes = appointmentsService.createAppointments(newAppointments);
+        var outcomes = appointmentsService.createAppointments(newAppointments);
 
         assertThat(outcomes.getCreatedEvents()).isEmpty();
         assertThat(outcomes.getRejectedAppointments()).isEmpty();
@@ -256,11 +244,11 @@ public class AppointmentsServiceImplTest {
 
         when(bookingService.getBookingIdByOffenderNo(OFFENDER_NO)).thenReturn(BOOKING_ID);
 
-        final ScheduledEvent event = ScheduledEvent.builder().eventId(1000L).build();
+        final var event = ScheduledEvent.builder().eventId(1000L).build();
 
         when(bookingService.createBookingAppointment(eq(BOOKING_ID), eq(USERNAME), any())).thenReturn(event);
 
-        CreateAppointmentsOutcomes outcomes = appointmentsService.createAppointments(newAppointments);
+        var outcomes = appointmentsService.createAppointments(newAppointments);
 
         assertThat(outcomes.getCreatedEvents()).containsExactly(event);
         assertThat(outcomes.getRejectedAppointments()).isEmpty();
@@ -296,13 +284,13 @@ public class AppointmentsServiceImplTest {
         when(bookingService.getBookingIdByOffenderNo("ON2")).thenThrow(new NullPointerException());
         when(bookingService.getBookingIdByOffenderNo("ON3")).thenReturn(BOOKING_ID + 1);
 
-        final ScheduledEvent e1 = ScheduledEvent.builder().eventId(1000L).build();
-        final ScheduledEvent e2 = ScheduledEvent.builder().eventId(10001L).build();
+        final var e1 = ScheduledEvent.builder().eventId(1000L).build();
+        final var e2 = ScheduledEvent.builder().eventId(10001L).build();
 
         when(bookingService.createBookingAppointment(eq(BOOKING_ID), eq(USERNAME), any())).thenReturn(e1);
-        when(bookingService.createBookingAppointment(eq(BOOKING_ID+1), eq(USERNAME), any())).thenReturn(e2);
+        when(bookingService.createBookingAppointment(eq(BOOKING_ID + 1), eq(USERNAME), any())).thenReturn(e2);
 
-        CreateAppointmentsOutcomes outcomes = appointmentsService.createAppointments(newAppointments);
+        var outcomes = appointmentsService.createAppointments(newAppointments);
 
         assertThat(outcomes.getCreatedEvents()).containsExactly(e1, e2);
         assertThat(outcomes.getRejectedAppointments()).hasSize(1);
