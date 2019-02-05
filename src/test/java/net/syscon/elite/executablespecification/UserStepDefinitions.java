@@ -170,9 +170,9 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.getUsers(null, null, false);
     }
 
-    @When("^a request for local administrator users with caseload \"([^\"]*)\" is made$")
-    public void aRequestForLocalAdministratorUsersWithCaseloadIsMade(String caseloadId) {
-        user.getUsersByCaseload(caseloadId, null, null, true);
+    @When("^a request for users by local administrator is made$")
+    public void aRequestForLocalAdministratorUsersWithCaseloadIsMade() {
+        user.getUsersByLaa(null, null);
     }
 
     @Then("^a list of users is returned with usernames \"([^\"]*)\"$")
@@ -190,9 +190,9 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
         user.getUsersByCaseload(caseloadId, roleCode, nameFilter, false);
     }
 
-    @When("^a request for local administrator users with caseload \"([^\"]*)\" and namefilter \"([^\"]*)\" and role \"([^\"]*)\" is made$")
-    public void aRequestForLocalAdminUsersWithCaseloadAndNamefilterAndRoleIsMade(String caseloadId, String nameFilter, String roleCode) {
-        user.getUsersByCaseload(caseloadId, roleCode, nameFilter, true);
+    @When("^a request for users by local administrator with namefilter \"([^\"]*)\" and role \"([^\"]*)\" is made$")
+    public void aRequestForLocalAdminUsersWithCaseloadAndNamefilterAndRoleIsMade(String nameFilter, String roleCode) {
+        user.getUsersByLaa(roleCode, nameFilter);
     }
 
     @When("^a request for roles for user \"([^\"]*)\" with caseload \"([^\"]*)\" is made$")

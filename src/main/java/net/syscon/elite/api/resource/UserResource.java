@@ -12,7 +12,6 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Api(tags = {"/users"})
-@SuppressWarnings("unused")
 public interface UserResource {
 
     @DELETE
@@ -79,19 +78,37 @@ public interface UserResource {
     @Path("/local-administrator/caseload/{caseload}")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
-    @ApiOperation(value = "Get user details for local administrators by prison.", notes = "Get user details for local administrators by prison.", nickname="getLocalAdministratorUsersByCaseLoad")
+    @ApiOperation(value = "Deprecated: Get staff details for local administrators", notes = "Deprecated: please use /users/local-administrator/available", nickname="getStaffUsersForLocalAdministrator")
+    @Deprecated
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "OK", response = UserDetail.class, responseContainer = "List"),
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
-    GetLocalAdministratorUsersByCaseLoadResponse getLocalAdministratorUsersByCaseLoad(@ApiParam(value = "The agency (prison) id.", required = true) @PathParam("caseload") String caseload,
-                                                                                      @ApiParam(value = "Filter results by first name and/or username and/or last name of staff member.") @QueryParam("nameFilter") String nameFilter,
-                                                                                      @ApiParam(value = "Filter results by access role") @QueryParam("accessRole") String accessRole,
-                                                                                      @ApiParam(value = "Requested offset of first record in returned collection of caseload records.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
-                                                                                      @ApiParam(value = "Requested limit to number of caseload records returned.", defaultValue = "10") @HeaderParam("Page-Limit") Long pageLimit,
-                                                                                      @ApiParam(value = "Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") @HeaderParam("Sort-Fields") String sortFields,
-                                                                                      @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);
+    GetStaffUsersForLocalAdminstrator deprecatedPleaseRemove(@ApiParam(value = "The agency (prison) id.", required = true, defaultValue = "", allowEmptyValue = true) @PathParam("caseload") String caseload,
+                                                                         @ApiParam(value = "Filter results by first name and/or username and/or last name of staff member.") @QueryParam("nameFilter") String nameFilter,
+                                                                         @ApiParam(value = "Filter results by access role") @QueryParam("accessRole") String accessRole,
+                                                                         @ApiParam(value = "Requested offset of first record in returned collection of caseload records.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
+                                                                         @ApiParam(value = "Requested limit to number of caseload records returned.", defaultValue = "10") @HeaderParam("Page-Limit") Long pageLimit,
+                                                                         @ApiParam(value = "Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") @HeaderParam("Sort-Fields") String sortFields,
+                                                                         @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);
+
+    @GET
+    @Path("/local-administrator/available")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Get staff details for local administrator", notes = "Get user details for local administrator", nickname="getStaffUsersForLocalAdministrator")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = UserDetail.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+    GetStaffUsersForLocalAdminstrator getStaffUsersForLocalAdministrator(@ApiParam(value = "Filter results by first name and/or username and/or last name of staff member.") @QueryParam("nameFilter") String nameFilter,
+                                                                         @ApiParam(value = "Filter results by access role") @QueryParam("accessRole") String accessRole,
+                                                                         @ApiParam(value = "Requested offset of first record in returned collection of caseload records.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
+                                                                         @ApiParam(value = "Requested limit to number of caseload records returned.", defaultValue = "10") @HeaderParam("Page-Limit") Long pageLimit,
+                                                                         @ApiParam(value = "Comma separated list of one or more of the following fields - <b>firstName, lastName</b>") @HeaderParam("Sort-Fields") String sortFields,
+                                                                         @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);
 
     @GET
     @Path("/me")
@@ -377,40 +394,40 @@ public interface UserResource {
         }
     }
 
-    class GetLocalAdministratorUsersByCaseLoadResponse extends ResponseDelegate {
+    class GetStaffUsersForLocalAdminstrator extends ResponseDelegate {
 
-        private GetLocalAdministratorUsersByCaseLoadResponse(Response response) { super(response); }
-        private GetLocalAdministratorUsersByCaseLoadResponse(Response response, Object entity) { super(response, entity); }
+        private GetStaffUsersForLocalAdminstrator(Response response) { super(response); }
+        private GetStaffUsersForLocalAdminstrator(Response response, Object entity) { super(response, entity); }
 
-        public static GetLocalAdministratorUsersByCaseLoadResponse respond200WithApplicationJson(Page<UserDetail> page) {
+        public static GetStaffUsersForLocalAdminstrator respond200WithApplicationJson(Page<UserDetail> page) {
             ResponseBuilder responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON)
                     .header("Total-Records", page.getTotalRecords())
                     .header("Page-Offset", page.getPageOffset())
                     .header("Page-Limit", page.getPageLimit());
             responseBuilder.entity(page.getItems());
-            return new GetLocalAdministratorUsersByCaseLoadResponse(responseBuilder.build(), page.getItems());
+            return new GetStaffUsersForLocalAdminstrator(responseBuilder.build(), page.getItems());
         }
 
-        public static GetLocalAdministratorUsersByCaseLoadResponse respond400WithApplicationJson(ErrorResponse entity) {
+        public static GetStaffUsersForLocalAdminstrator respond400WithApplicationJson(ErrorResponse entity) {
             ResponseBuilder responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
-            return new GetLocalAdministratorUsersByCaseLoadResponse(responseBuilder.build(), entity);
+            return new GetStaffUsersForLocalAdminstrator(responseBuilder.build(), entity);
         }
 
-        public static GetLocalAdministratorUsersByCaseLoadResponse respond404WithApplicationJson(ErrorResponse entity) {
+        public static GetStaffUsersForLocalAdminstrator respond404WithApplicationJson(ErrorResponse entity) {
             ResponseBuilder responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
-            return new GetLocalAdministratorUsersByCaseLoadResponse(responseBuilder.build(), entity);
+            return new GetStaffUsersForLocalAdminstrator(responseBuilder.build(), entity);
         }
 
-        public static GetLocalAdministratorUsersByCaseLoadResponse respond500WithApplicationJson(ErrorResponse entity) {
+        public static GetStaffUsersForLocalAdminstrator respond500WithApplicationJson(ErrorResponse entity) {
             ResponseBuilder responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
-            return new GetLocalAdministratorUsersByCaseLoadResponse(responseBuilder.build(), entity);
+            return new GetStaffUsersForLocalAdminstrator(responseBuilder.build(), entity);
         }
     }
 

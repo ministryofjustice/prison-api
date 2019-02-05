@@ -68,13 +68,18 @@ public class UserResourceImpl implements UserResource {
     }
 
     @Override
-    public GetLocalAdministratorUsersByCaseLoadResponse getLocalAdministratorUsersByCaseLoad(String caseload, String nameFilter, String accessRole, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+    public GetStaffUsersForLocalAdminstrator getStaffUsersForLocalAdministrator(String nameFilter, String accessRole, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
 
         PageRequest pageRequest = new PageRequest(sortFields, sortOrder, pageOffset, pageLimit);
 
-        Page<UserDetail> userDetails = userService.getLocalAdministratorUsersByCaseload(caseload, nameFilter, accessRole, pageRequest);
+        Page<UserDetail> userDetails = userService.getUsersAsLocalAdministrator(authenticationFacade.getCurrentUsername(), nameFilter, accessRole, pageRequest);
 
-        return GetLocalAdministratorUsersByCaseLoadResponse.respond200WithApplicationJson(userDetails);
+        return GetStaffUsersForLocalAdminstrator.respond200WithApplicationJson(userDetails);
+    }
+
+    @Override
+    public GetStaffUsersForLocalAdminstrator deprecatedPleaseRemove(String caseload, String nameFilter, String accessRole, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+        return getStaffUsersForLocalAdministrator(nameFilter, accessRole, pageOffset, pageLimit, sortFields, sortOrder);
     }
 
     @Override
