@@ -1,4 +1,3 @@
-@lucy
 Feature: Booking Alerts
 
   Acceptance Criteria:
