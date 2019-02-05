@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
@@ -38,7 +39,7 @@ public class AppointmentsServiceImpl implements AppointmentsService {
      * @return The outcomes of creating each of the desired appointments.
      */
     @Override
-    public CreateAppointmentsOutcomes createAppointments(@Valid NewAppointments appointments) {
+    public CreateAppointmentsOutcomes createAppointments(@NotNull @Valid NewAppointments appointments) {
 
         final UnaryOperator<AppointmentDetails> withDefaults = defaultsDecoratorFactory(appointments.getAppointmentDefaults());
 

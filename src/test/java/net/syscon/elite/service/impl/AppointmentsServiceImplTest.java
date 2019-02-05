@@ -24,7 +24,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-
 public class AppointmentsServiceImplTest {
     private static final String USERNAME = "username";
     private static final String OFFENDER_NO = "A1234AX";
