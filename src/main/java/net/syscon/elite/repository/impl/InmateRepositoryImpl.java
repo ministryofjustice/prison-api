@@ -560,13 +560,13 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
     @Override
-    public List<InmateDetail> getBasicOffenderDetails(Set<String> offenders, Set<String> caseloads, boolean activeOnly) {
+    public List<InmateDetail> getBasicOffenderDetails(Set<String> offenders, Set<String> caseloads) {
         final var sql = getQuery("FIND_BASIC_INMATE_DETAIL_BY_OFFENDER_NO");
         final var mapper = Row2BeanRowMapper.makeMapping(sql, InmateDetail.class, inmateDetailsMapping);
 
         return jdbcTemplate.query(
                 sql,
-                createParams("offenders", offenders, "caseLoadIds", caseloads, "activeFlag", activeOnly ? "Y" : null),
+                createParams("offenders", offenders, "caseLoadIds", caseloads, "bookingSeq", 1, "activeFlag",  "Y"),
                 mapper);
     }
 

@@ -135,10 +135,10 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
-    public List<InmateDetail> getBasicOffenderDetails(Set<String> offenders, boolean activeOnly) {
+    public List<InmateDetail> getBasicOffenderDetails(Set<String> offenders) {
 
         final var caseloads = caseLoadService.getCaseLoadIdsForUser( authenticationFacade.getCurrentUsername(), false);
-        return repository.getBasicOffenderDetails(offenders, caseloads, activeOnly)
+        return repository.getBasicOffenderDetails(offenders, caseloads)
                 .stream()
                 .map(offender -> offender.toBuilder()
                         .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
