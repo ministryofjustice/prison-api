@@ -599,10 +599,10 @@ public class InmateRepositoryTest {
 
     @Test
     public void testThatActiveOffendersAreReturnedMatchingNumberAndCaseLoad() {
-        final var offenders = repository.getBasicOffenderDetails(Set.of("A1234AI", "A1183SH"), Set.of("LEI"));
+        final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI", "A1183SH"), Set.of("LEI"));
         assertThat(offenders).hasSize(1);
-        assertThat(offenders).asList().extracting("offenderNo", "bookingId", "activeFlag", "agencyId").contains(
-                Tuple.tuple("A1234AI", -9L, true, "LEI")
+        assertThat(offenders).asList().extracting("offenderNo", "bookingId", "agencyId", "firstName", "lastName", "middleName" , "dateOfBirth", "assignedLivingUnitId").contains(
+                Tuple.tuple("A1234AI", -9L, "LEI", "CHESTER", "THOMPSON", "JAMES", LocalDate.parse("1970-03-01"), -7L)
         );
     }
 
