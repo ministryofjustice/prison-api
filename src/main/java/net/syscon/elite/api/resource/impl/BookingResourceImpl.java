@@ -171,8 +171,8 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
-    public List<InmateDetail> getBasicOffenderDetails(Set<String> offenders) {
-        return inmateService.getBasicOffenderDetails(offenders);
+    public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders) {
+        return inmateService.getBasicInmateDetailsForOffenders(offenders);
     }
 
 
