@@ -21,6 +21,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Arrays;
@@ -177,4 +178,29 @@ public class InmateServiceImplTest {
                         .middleName("Middle Name")
                         .build());
     }
+
+    @Test
+    public void testThatAnExceptionIsThrownWhenAStandardUserWithNoActiveCaseloadsRequestsInmateDetails() {
+        Mockito.when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
+        Mockito.when(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(Collections.emptySet());
+        Mockito.when(securityUtils.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")).thenReturn(false);
+
+
+        Assertions.assertThatThrownBy(() -> {
+             serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123"));
+        })
+       .isInstanceOf(BadRequestException.class)
+       .hasMessageContaining("User has not active case loads");
+    }
+
+    @Test
+    public void testThatARequestForInmateDetailsWithNoCaseloadsIsMadeWhenTheUserIsASystemUser() {
+        Mockito.when(securityUtils.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")).thenReturn(true);
+
+        serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123"));
+
+        Mockito.verify(repository).getBasicInmateDetailsForOffenders(Set.of("A123"), Collections.emptySet());
+        Mockito.verify(caseLoadService, Mockito.never()).getCaseLoadIdsForUser("ME", false);
+     }
+
 }

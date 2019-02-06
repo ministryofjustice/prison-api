@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.ws.rs.BadRequestException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -136,9 +137,9 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders) {
+        final var hasOverrideRoles = securityUtils.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER");
 
-        final var caseloads = caseLoadService.getCaseLoadIdsForUser( authenticationFacade.getCurrentUsername(), false);
-        return repository.getBasicInmateDetailsForOffenders(offenders, caseloads)
+        return repository.getBasicInmateDetailsForOffenders(offenders, hasOverrideRoles ? Collections.emptySet() : loadCaseLoadsOrThrow())
                 .stream()
                 .map(offender -> offender.toBuilder()
                         .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
@@ -146,6 +147,14 @@ public class InmateServiceImpl implements InmateService {
                         .lastName(WordUtils.capitalizeFully(offender.getLastName()))
                         .build()
                 ).collect(Collectors.toList());
+    }
+
+    private Set<String> loadCaseLoadsOrThrow() {
+        final var caseloads = caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
+        if (caseloads.isEmpty())
+            throw new BadRequestException("User has not active case loads.");
+
+        return caseloads;
     }
 
     @Override
