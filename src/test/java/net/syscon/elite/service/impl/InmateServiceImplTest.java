@@ -161,14 +161,14 @@ public class InmateServiceImplTest {
         Mockito.when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
         Mockito.when(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(caseLoadsIds);
 
-        Mockito.when(repository.getBasicOffenderDetails(offenderNumbers, caseLoadsIds, true))
+        Mockito.when(repository.getBasicOffenderDetails(offenderNumbers, caseLoadsIds))
                  .thenReturn(List.of(InmateDetail.builder()
                          .lastName("LAST NAME")
                          .firstName("FIRST NAME")
                          .middleName("MIDDLE NAME")
                          .build()));
 
-        final var offenders = serviceToTest.getBasicOffenderDetails(offenderNumbers, true);
+        final var offenders = serviceToTest.getBasicOffenderDetails(offenderNumbers);
 
         Assertions.assertThat(offenders)
                 .containsExactly(InmateDetail.builder()
