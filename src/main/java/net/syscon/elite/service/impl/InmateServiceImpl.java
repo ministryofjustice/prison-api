@@ -137,9 +137,9 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders) {
-        final var hasOverrideRoles = securityUtils.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER");
+        final var accessToAllData = securityUtils.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER");
 
-        return repository.getBasicInmateDetailsForOffenders(offenders, hasOverrideRoles ? Collections.emptySet() : loadCaseLoadsOrThrow())
+        return repository.getBasicInmateDetailsForOffenders(offenders, accessToAllData,  !accessToAllData ? loadCaseLoadsOrThrow() : null)
                 .stream()
                 .map(offender -> offender.toBuilder()
                         .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
@@ -152,7 +152,7 @@ public class InmateServiceImpl implements InmateService {
     private Set<String> loadCaseLoadsOrThrow() {
         final var caseloads = caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
         if (caseloads.isEmpty())
-            throw new BadRequestException("User has not active case loads.");
+            throw new BadRequestException("User has not active caseloads.");
 
         return caseloads;
     }

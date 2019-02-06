@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InmateServiceImplTest {
@@ -82,7 +83,7 @@ public class InmateServiceImplTest {
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("CODE1").assessmentDate(LocalDate.of(2018, Month.APRIL, 5)).cellSharingAlertFlag(true).build(),
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("CODE1").assessmentDate(LocalDate.of(2018, Month.APRIL, 4)).cellSharingAlertFlag(true).build()
         );
-        Mockito.when(repository.findAssessments(Collections.singletonList(10L), null, Collections.emptySet())).thenReturn(data);
+        when(repository.findAssessments(Collections.singletonList(10L), null, Collections.emptySet())).thenReturn(data);
 
         final List<Assessment> assessments = serviceToTest.getAssessments(10L);
 
@@ -105,7 +106,7 @@ public class InmateServiceImplTest {
                 AssessmentDto.builder().bookingId(11L).offenderNo("OFFENDER11").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY,   7)).cellSharingAlertFlag(true).build(),
                 AssessmentDto.builder().bookingId(11L).offenderNo("OFFENDER11").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY,   6)).cellSharingAlertFlag(true).build()
         );
-        Mockito.when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10","OFFENDER11"), "THECODE", Collections.emptySet(), true)).thenReturn(data);
+        when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10","OFFENDER11"), "THECODE", Collections.emptySet(), true)).thenReturn(data);
 
         final List<Assessment> assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10","OFFENDER11"), "THECODE", true);
 
@@ -127,7 +128,7 @@ public class InmateServiceImplTest {
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("CODE3").assessmentDate(LocalDate.of(2018, Month.APRIL, 3)).cellSharingAlertFlag(true).reviewSupLevelType("MED").reviewSupLevelTypeDesc("Medium").build(),
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("CODE2").assessmentDate(LocalDate.of(2018, Month.APRIL, 1)).cellSharingAlertFlag(false).reviewSupLevelType("HIGH").reviewSupLevelTypeDesc("High").build()
         );
-        Mockito.when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10", "OFFENDER11"), null, Collections.emptySet(), true)).thenReturn(data);
+        when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10", "OFFENDER11"), null, Collections.emptySet(), true)).thenReturn(data);
 
         final List<Assessment> assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), null, true);
 
@@ -145,9 +146,9 @@ public class InmateServiceImplTest {
 
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("ME", "credentials"));
 
-        Mockito.when(bookingService.getLatestBookingByBookingId(1234L)).thenReturn(OffenderSummary.builder().agencyLocationId("CDI").bookingId(-5L).build());
-        Mockito.when(userService.getUserByUsername("ME")).thenReturn(UserDetail.builder().staffId(444L).username("ME").build());
-        Mockito.when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
+        when(bookingService.getLatestBookingByBookingId(1234L)).thenReturn(OffenderSummary.builder().agencyLocationId("CDI").bookingId(-5L).build());
+        when(userService.getUserByUsername("ME")).thenReturn(UserDetail.builder().staffId(444L).username("ME").build());
+        when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
 
         serviceToTest.createCategorisation(1234L, catDetail);
 
@@ -159,10 +160,9 @@ public class InmateServiceImplTest {
         final var offenderNumbers = Set.of("A123");
         final var caseLoadsIds = Set.of("1");
 
-        Mockito.when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
-        Mockito.when(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(caseLoadsIds);
-
-        Mockito.when(repository.getBasicInmateDetailsForOffenders(offenderNumbers, caseLoadsIds))
+        when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
+        when(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(caseLoadsIds);
+        when(repository.getBasicInmateDetailsForOffenders(offenderNumbers, false, caseLoadsIds))
                  .thenReturn(List.of(InmateBasicDetails.builder()
                          .lastName("LAST NAME")
                          .firstName("FIRST NAME")
@@ -171,7 +171,7 @@ public class InmateServiceImplTest {
 
         final var offenders = serviceToTest.getBasicInmateDetailsForOffenders(offenderNumbers);
 
-        Assertions.assertThat(offenders)
+        assertThat(offenders)
                 .containsExactly(InmateBasicDetails.builder()
                         .lastName("Last Name")
                         .firstName("First Name")
@@ -181,25 +181,25 @@ public class InmateServiceImplTest {
 
     @Test
     public void testThatAnExceptionIsThrownWhenAStandardUserWithNoActiveCaseloadsRequestsInmateDetails() {
-        Mockito.when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
-        Mockito.when(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(Collections.emptySet());
-        Mockito.when(securityUtils.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")).thenReturn(false);
+        when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
+        when(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(Collections.emptySet());
+        when(securityUtils.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")).thenReturn(false);
 
 
         Assertions.assertThatThrownBy(() -> {
              serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123"));
         })
        .isInstanceOf(BadRequestException.class)
-       .hasMessageContaining("User has not active case loads");
+       .hasMessageContaining("User has not active caseloads");
     }
 
     @Test
     public void testThatARequestForInmateDetailsWithNoCaseloadsIsMadeWhenTheUserIsASystemUser() {
-        Mockito.when(securityUtils.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")).thenReturn(true);
+        when(securityUtils.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")).thenReturn(true);
 
         serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123"));
 
-        Mockito.verify(repository).getBasicInmateDetailsForOffenders(Set.of("A123"), Collections.emptySet());
+        Mockito.verify(repository).getBasicInmateDetailsForOffenders(Set.of("A123"),true,  null);
         Mockito.verify(caseLoadService, Mockito.never()).getCaseLoadIdsForUser("ME", false);
      }
 

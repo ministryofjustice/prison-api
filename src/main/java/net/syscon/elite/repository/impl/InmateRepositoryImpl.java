@@ -562,13 +562,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
     @Override
-    public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders, Set<String> caseloads) {
+    public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders, boolean accessToAllData, Set<String> caseloads) {
         final var baseSql = getQuery("FIND_BASIC_INMATE_DETAIL_BY_OFFENDER_NO");
-        final var filterByCaseLoadsSql = getQuery("CASELOAD_FILTER");
-
-        final var sql =  caseloads.isEmpty() ?
-                baseSql:
-                String.format("%s AND %s", baseSql ,filterByCaseLoadsSql);
+        final var sql = accessToAllData ? baseSql : String.format("%s AND %s", baseSql ,getQuery("CASELOAD_FILTER"));
 
         return jdbcTemplate.query(
                 sql,

@@ -82,7 +82,7 @@ public interface InmateRepository {
 
     void insertCategory(CategorisationDetail detail, String agencyId, Long assessStaffId, String userId, Long score);
 
-    List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders, Set<String> caseloads);
+    List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders, boolean accessToAllData , Set<String> caseloads);
 
 	static String generateFindOffendersQuery(PrisonerDetailSearchCriteria criteria) {
 		final String likeTemplate = "%s:like:'%s%%'";
