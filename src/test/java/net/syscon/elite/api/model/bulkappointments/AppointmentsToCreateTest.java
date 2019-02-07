@@ -1,6 +1,5 @@
 package net.syscon.elite.api.model.bulkappointments;
 
-import net.syscon.util.DateTimeConverter;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
@@ -16,19 +15,19 @@ public class AppointmentsToCreateTest {
     private static final LocalDateTime END_TIME = LocalDateTime.of(2022,1,1,0,0);
     @Test
     public void shouldFlattenNoAppointments() {
-        List<AppointmentToCreate> flattened = AppointmentsToCreate
+        List<AppointmentDetails> flattened = AppointmentsToCreate
                 .builder()
                 .appointments(Collections.emptyList())
                 .appointmentDefaults(AppointmentDefaults.builder().build())
                 .build()
-                .flatten("ABC");
+                .withDefaults();
 
         assertThat(flattened).isNotNull();
     }
 
     @Test
     public void shouldUseDefaults() {
-        List<AppointmentToCreate> flattened = AppointmentsToCreate
+        List<AppointmentDetails> flattened = AppointmentsToCreate
                 .builder()
                 .appointmentDefaults(AppointmentDefaults
                         .builder()
@@ -43,16 +42,12 @@ public class AppointmentsToCreateTest {
                         .bookingId(1L)
                         .build()))
                 .build()
-                .flatten("ABC");
+                .withDefaults();
 
-        assertThat(flattened).containsExactly(AppointmentToCreate
+        assertThat(flattened).containsExactly(AppointmentDetails
                 .builder()
-                .agencyId("ABC")
-                .eventSubType("AT")
-                .locationId(1000L)
-                .eventDate(DateTimeConverter.toDate(DEFAULT_START_TIME.toLocalDate()))
-                .startTime(DateTimeConverter.fromLocalDateTime(DEFAULT_START_TIME))
-                .endTime(DateTimeConverter.fromLocalDateTime(DEFAULT_END_TIME))
+                .startTime(DEFAULT_START_TIME)
+                .endTime(DEFAULT_END_TIME)
                 .comment("DC")
                 .bookingId(1L)
                 .build());
@@ -60,7 +55,7 @@ public class AppointmentsToCreateTest {
 
     @Test
     public void shouldOverrideDefaults() {
-        List<AppointmentToCreate> flattened = AppointmentsToCreate
+        List<AppointmentDetails> flattened = AppointmentsToCreate
                 .builder()
                 .appointmentDefaults(AppointmentDefaults
                         .builder()
@@ -78,16 +73,12 @@ public class AppointmentsToCreateTest {
                         .comment("C")
                         .build()))
                 .build()
-                .flatten("ABC");
+                .withDefaults();
 
-        assertThat(flattened).containsExactly(AppointmentToCreate
+        assertThat(flattened).containsExactly(AppointmentDetails
                 .builder()
-                .agencyId("ABC")
-                .eventSubType("AT")
-                .locationId(1000L)
-                .eventDate(DateTimeConverter.toDate(START_TIME.toLocalDate()))
-                .startTime(DateTimeConverter.fromLocalDateTime(START_TIME))
-                .endTime(DateTimeConverter.fromLocalDateTime(END_TIME))
+                .startTime(START_TIME)
+                .endTime(END_TIME)
                 .comment("C")
                 .bookingId(1L)
                 .build());

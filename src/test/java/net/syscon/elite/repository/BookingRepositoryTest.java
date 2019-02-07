@@ -1,12 +1,12 @@
 package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.*;
-import net.syscon.elite.api.model.bulkappointments.AppointmentToCreate;
+import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
+import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
 import net.syscon.elite.web.config.PersistenceConfigs;
-import net.syscon.util.DateTimeConverter;
 import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Test;
@@ -422,22 +422,24 @@ public class BookingRepositoryTest {
         assertThat(scheduledEventsBefore).hasSize(0);
 
         // When
-        var appointmentsToCreate = bookingIds
+        var defaults = AppointmentDefaults
+                .builder()
+                .locationId(-25L) // LEI-CHAP
+                .appointmentType("ACTI") // Activity
+                .build();
+
+        var appointments = bookingIds
                 .stream()
-                .map(id -> AppointmentToCreate
+                .map(id -> AppointmentDetails
                         .builder()
                         .bookingId(id)
-                        .eventDate(DateTimeConverter.toDate(today))
-                        .startTime(DateTimeConverter.fromLocalDateTime(now))
-                        .endTime(DateTimeConverter.fromLocalDateTime(in1Hour))
-                        .agencyId("LEI")
-                        .eventSubType("ACTI") // Activity
-                        .locationId(-25L) // LEI-CHAP
+                        .startTime(now)
+                        .endTime(in1Hour)
                         .comment("Comment")
                         .build())
                 .collect(Collectors.toList());
 
-        repository.createMultipleAppointments(appointmentsToCreate);
+        repository.createMultipleAppointments(appointments, defaults, "LEI");
 
         // Then
         var scheduledEventsAfter = repository.getBookingAppointments(bookingIds, today, today, null, Order.ASC);

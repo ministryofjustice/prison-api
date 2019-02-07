@@ -6,7 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
-import net.syscon.elite.api.model.bulkappointments.AppointmentToCreate;
+import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
+import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
@@ -25,7 +26,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
@@ -707,10 +708,25 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
     }
 
     @Override
-    public void createMultipleAppointments(List<AppointmentToCreate> appointments) {
+    public void createMultipleAppointments(List<AppointmentDetails> flattenedDetails, AppointmentDefaults defaults, String agencyId){
         jdbcTemplate.batchUpdate(
                 getQuery("INSERT_APPOINTMENT"),
-                SqlParameterSourceUtils.createBatch(appointments));
+                toSqlParameterSourceList(flattenedDetails, defaults, agencyId));
+    }
+
+    private SqlParameterSource[] toSqlParameterSourceList(List<AppointmentDetails> flattenedDetails, AppointmentDefaults defaults, String agencyId) {
+        return flattenedDetails
+                .stream()
+                .map(appointment -> createParams(
+                        "bookingId", appointment.getBookingId(),
+                        "eventSubType", defaults.getAppointmentType(),
+                        "eventDate", DateTimeConverter.toDate(appointment.getStartTime().toLocalDate()),
+                        "startTime", DateTimeConverter.fromLocalDateTime(appointment.getStartTime()),
+                        "endTime", DateTimeConverter.fromLocalDateTime(appointment.getEndTime()),
+                        "locationId", defaults.getLocationId(),
+                        "agencyId", agencyId,
+                        "comment", appointment.getComment()
+                )).toArray(SqlParameterSource[]::new);
     }
 
     @Override

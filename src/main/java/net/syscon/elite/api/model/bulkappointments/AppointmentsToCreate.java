@@ -5,10 +5,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Data;
-import net.syscon.util.DateTimeConverter;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,22 +23,13 @@ public class AppointmentsToCreate {
     @NotNull
     private List<AppointmentDetails> appointments;
 
-    public List<AppointmentToCreate> flatten(String agencyId) {
-        return appointments.stream().map(detail -> {
-            LocalDateTime startTime = detail.getStartTime() == null ? appointmentDefaults.getStartTime() : detail.getStartTime();
-            LocalDateTime endTime = detail.getEndTime() == null ? appointmentDefaults.getEndTime() : detail.getEndTime();
-
-            return AppointmentToCreate
-                    .builder()
-                    .bookingId(detail.getBookingId())
-                    .eventSubType(appointmentDefaults.getAppointmentType())
-                    .eventDate(DateTimeConverter.toDate(startTime.toLocalDate()))
-                    .startTime(DateTimeConverter.fromLocalDateTime(startTime))
-                    .endTime(DateTimeConverter.fromLocalDateTime(endTime))
-                    .comment(detail.getComment() == null ? appointmentDefaults.getComment() : detail.getComment())
-                    .locationId(appointmentDefaults.getLocationId())
-                    .agencyId(agencyId)
-                    .build();
+    public List<AppointmentDetails> withDefaults() {
+        return appointments.stream().map(appt -> {
+                    var builder = appt.toBuilder();
+                    if (appt.getStartTime() == null) builder.startTime(appointmentDefaults.getStartTime());
+                    if (appt.getEndTime() == null) builder.endTime(appointmentDefaults.getEndTime());
+                    if (appt.getComment() == null) builder.comment(appointmentDefaults.getComment());
+                    return builder.build();
                 }
         ).collect(Collectors.toList());
     }

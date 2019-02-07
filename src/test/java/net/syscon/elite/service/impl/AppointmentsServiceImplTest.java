@@ -1,50 +1,62 @@
 package net.syscon.elite.service.impl;
 
-import net.syscon.elite.api.model.ErrorResponse;
-import net.syscon.elite.api.model.NewAppointment;
-import net.syscon.elite.api.model.ScheduledEvent;
-import net.syscon.elite.api.model.bulkappointments.*;
+import com.microsoft.applicationinsights.TelemetryClient;
+import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
+import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
+import net.syscon.elite.api.model.bulkappointments.AppointmentsToCreate;
+import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
-import net.syscon.elite.service.BookingService;
-import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.LocationService;
+import net.syscon.elite.service.ReferenceDomainService;
+import net.syscon.elite.service.support.ReferenceDomain;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import javax.ws.rs.BadRequestException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.stream.Stream;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class AppointmentsServiceImplTest {
     private static final String USERNAME = "username";
-    private static final String OFFENDER_NO = "A1234AX";
-    private static final Long BOOKING_ID = 100L;
-    private static final Long LOCATION_ID = 9090L;
-    private static final String APPOINTMENT_TYPE = "AT";
-    private static final LocalDateTime START_TIME = LocalDateTime.of(2017, 1, 1, 0, 0);
-    private static final LocalDateTime END_TIME = LocalDateTime.of(2021, 1, 1, 0, 0);
-    private static final String COMMENT = "C";
 
-    private static final String DEFAULT_APPOINTMENT_TYPE = "DAT";
-    private static final String DEFAULT_COMMENT = "DC";
-    private static final LocalDateTime DEFAULT_START_TIME = LocalDateTime.of(2019, 1, 1, 0, 0);
-    private static final LocalDateTime DEFAULT_END_TIME = LocalDateTime.of(2019, 1, 1, 1, 0);
-    private static final Long DEFAULT_LOCATION_ID = 10101L;
+    private static final Location LOCATION_A = Location.builder().locationId(0L).agencyId("A").build();
+    private static final Location LOCATION_B = Location.builder().locationId(1L).agencyId("B").build();
+    private static final Location LOCATION_C = Location.builder().locationId(2L).agencyId("C").build();
+
+    private static final AppointmentDetails DETAILS_1 = AppointmentDetails.builder().bookingId(1L).build();
+
+    private static final ReferenceCode REFERENCE_CODE_T = ReferenceCode
+            .builder()
+            .activeFlag("Y")
+            .code("T")
+            .domain(ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain())
+            .build();
+
 
     @Mock
-    private BookingService bookingService;
+    private BookingRepository bookingRepository;
 
     @Mock
     private AuthenticationFacade authenticationFacade;
+
+    @Mock
+    private LocationService locationService;
+
+    @Mock
+    private ReferenceDomainService referenceDomainService;
+
+    @Mock
+    private TelemetryClient telemetryClient;
 
     @InjectMocks
     private AppointmentsServiceImpl appointmentsService;
@@ -53,5 +65,220 @@ public class AppointmentsServiceImplTest {
     public void initMocks() {
         MockitoAnnotations.initMocks(this);
         when(authenticationFacade.getCurrentUsername()).thenReturn(USERNAME);
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void createTooManyAppointments() {
+        appointmentsService.createAppointments(AppointmentsToCreate
+                .builder()
+                .appointmentDefaults(
+                        AppointmentDefaults
+                                .builder()
+                                .build())
+                .appointments(Arrays.asList(new AppointmentDetails[1001]))
+                .build());
+
+        verifyNoMoreInteractions(telemetryClient);
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void locationNotInCaseload() {
+        stubLocation(LOCATION_C);
+
+        appointmentsService.createAppointments(
+                AppointmentsToCreate
+                        .builder()
+                        .appointmentDefaults(
+                                AppointmentDefaults
+                                        .builder()
+                                        .locationId(LOCATION_C.getLocationId())
+                                        .build())
+                        .appointments(Collections.emptyList())
+                        .build());
+
+        verifyNoMoreInteractions(telemetryClient);
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void unknownAppointmentType() {
+        stubLocation(LOCATION_B);
+
+        appointmentsService.createAppointments(
+                AppointmentsToCreate
+                        .builder()
+                        .appointmentDefaults(
+                                AppointmentDefaults
+                                        .builder()
+                                        .locationId(LOCATION_B.getLocationId())
+                                        .appointmentType("NOT_KNOWN")
+                                        .startTime(LocalDateTime.now())
+                                        .build())
+                        .appointments(Collections.emptyList())
+                        .build());
+
+        verifyNoMoreInteractions(telemetryClient);
+    }
+
+    @Test
+    public void createNoAppointments() {
+        stubLocation(LOCATION_B);
+        stubValidReferenceCode(REFERENCE_CODE_T);
+
+        appointmentsService.createAppointments(
+                AppointmentsToCreate
+                        .builder()
+                        .appointmentDefaults(
+                                AppointmentDefaults
+                                        .builder()
+                                        .locationId(LOCATION_B.getLocationId())
+                                        .appointmentType(REFERENCE_CODE_T.getCode())
+                                        .startTime(LocalDateTime.now())
+                                        .build())
+                        .appointments(Collections.emptyList())
+                        .build());
+
+        verifyNoMoreInteractions(telemetryClient);
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void bookingIdNotInCaseload() {
+        stubLocation(LOCATION_B);
+        stubValidReferenceCode(REFERENCE_CODE_T);
+
+        appointmentsService.createAppointments(
+                AppointmentsToCreate
+                        .builder()
+                        .appointmentDefaults(
+                                AppointmentDefaults
+                                        .builder()
+                                        .locationId(LOCATION_B.getLocationId())
+                                        .appointmentType(REFERENCE_CODE_T.getCode())
+                                        .startTime(LocalDateTime.now().plusHours(1))
+                                        .build())
+                        .appointments(Collections.singletonList(DETAILS_1))
+                        .build());
+
+        verifyNoMoreInteractions(telemetryClient);
+    }
+
+    @Test
+    public void bookingIdInCaseload() {
+        stubLocation(LOCATION_B);
+        stubValidReferenceCode(REFERENCE_CODE_T);
+        stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
+
+        final var appointmentsToCreate = AppointmentsToCreate
+                .builder()
+                .appointmentDefaults(
+                        AppointmentDefaults
+                                .builder()
+                                .locationId(LOCATION_B.getLocationId())
+                                .appointmentType(REFERENCE_CODE_T.getCode())
+                                .startTime(LocalDateTime.now().plusHours(1))
+                                .build())
+                .appointments(Collections.singletonList(DETAILS_1))
+                .build();
+
+        appointmentsService.createAppointments(appointmentsToCreate);
+
+        verify(bookingRepository)
+                .createMultipleAppointments(
+                        appointmentsToCreate.withDefaults(),
+                        appointmentsToCreate.getAppointmentDefaults(),
+                        LOCATION_B.getAgencyId());
+
+        verify(telemetryClient).trackEvent(eq("AppointmentsCreated"), anyMap(), isNull());
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void rejectStartTimeInThePast() {
+        stubLocation(LOCATION_B);
+        stubValidReferenceCode(REFERENCE_CODE_T);
+        stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
+
+        final var appointmentsToCreate = AppointmentsToCreate
+                .builder()
+                .appointmentDefaults(
+                        AppointmentDefaults
+                                .builder()
+                                .locationId(LOCATION_B.getLocationId())
+                                .appointmentType(REFERENCE_CODE_T.getCode())
+                                .startTime(LocalDateTime.now().minusHours(1))
+                                .build())
+                .appointments(Collections.singletonList(DETAILS_1))
+                .build();
+
+        appointmentsService.createAppointments(appointmentsToCreate);
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void rejectEndTimeBeforeStartTime() {
+        stubLocation(LOCATION_B);
+        stubValidReferenceCode(REFERENCE_CODE_T);
+        stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
+
+        final var appointmentsToCreate = AppointmentsToCreate
+                .builder()
+                .appointmentDefaults(
+                        AppointmentDefaults
+                                .builder()
+                                .locationId(LOCATION_B.getLocationId())
+                                .appointmentType(REFERENCE_CODE_T.getCode())
+                                .startTime(LocalDateTime.now().plusHours(2L))
+                                .endTime(LocalDateTime.now().plusHours(1L))
+                                .build())
+                .appointments(Collections.singletonList(DETAILS_1))
+                .build();
+
+        appointmentsService.createAppointments(appointmentsToCreate);
+    }
+
+    @Test()
+    public void acceptEndTimeSameAsStartTime() {
+        stubLocation(LOCATION_B);
+        stubValidReferenceCode(REFERENCE_CODE_T);
+        stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
+
+        var in1Hour = LocalDateTime.now().plusHours(1);
+
+        final var appointmentsToCreate = AppointmentsToCreate
+                .builder()
+                .appointmentDefaults(
+                        AppointmentDefaults
+                                .builder()
+                                .locationId(LOCATION_B.getLocationId())
+                                .appointmentType(REFERENCE_CODE_T.getCode())
+                                .startTime(in1Hour)
+                                .endTime(in1Hour)
+                                .build())
+                .appointments(Collections.singletonList(DETAILS_1))
+                .build();
+
+        appointmentsService.createAppointments(appointmentsToCreate);
+
+        verify(bookingRepository)
+                .createMultipleAppointments(
+                        appointmentsToCreate.withDefaults(),
+                        appointmentsToCreate.getAppointmentDefaults(),
+                        LOCATION_B.getAgencyId());
+    }
+
+    private void stubValidBookingIds(String agencyId, long... bookingIds) {
+        var ids = Arrays.stream(bookingIds).boxed().collect(Collectors.toList());
+        when(bookingRepository.findBookingsIdsInAgency(ids, agencyId)).thenReturn(ids);
+    }
+
+
+    private void stubValidReferenceCode(ReferenceCode code) {
+        when(referenceDomainService.getReferenceCodeByDomainAndCode(
+                ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(),
+                code.getCode(),
+                false))
+                .thenReturn(Optional.of(REFERENCE_CODE_T));
+    }
+
+    private void stubLocation(Location location) {
+        when(locationService.getUserLocations(anyString())).thenReturn(Arrays.asList(LOCATION_A, LOCATION_B));
+        when(locationService.getLocation(location.getLocationId())).thenReturn(location);
     }
 }
