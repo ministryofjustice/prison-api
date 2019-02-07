@@ -350,17 +350,25 @@ SELECT
   at_offender.first_name,
   categories.assessment_seq,
   categories.assessment_date,
-  categories.assess_status
+  categories.assess_status,
+  categories.categoriser_first_name,
+  categories.categoriser_last_name,
+  categories.category
 FROM
   offenders at_offender
     INNER JOIN offender_bookings at_offender_booking ON at_offender.offender_id = at_offender_booking.offender_id AND at_offender_booking.active_flag = 'Y'
     LEFT JOIN (SELECT
          off_ass.offender_book_id,
          off_ass.assess_status,
+         sm.first_name               AS CATEGORISER_FIRST_NAME,
+         sm.last_name                AS CATEGORISER_LAST_NAME,
+         -- this is the correct column for a PENDING assessment:
+         off_ass.calc_sup_level_type AS CATEGORY,
          off_ass.assessment_seq,
          off_ass.assessment_date
        FROM offender_assessments off_ass
        JOIN assessments ass ON off_ass.assessment_type_id = ass.assessment_id
+       JOIN staff_members sm ON off_ass.assess_staff_id = sm.staff_id
        WHERE ass.assessment_code = 'CATEGORY'
          AND ass.assessment_class = 'TYPE'
          AND off_ass.assess_status IN ('A','P')
