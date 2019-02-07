@@ -1,6 +1,7 @@
 package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.bulkappointments.AppointmentToCreate;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
@@ -87,4 +88,8 @@ public interface BookingRepository {
     Long createBooking(String agencyId, NewBooking newBooking);
 
     Long recallBooking(String agencyId, RecallBooking recallBooking);
+
+    void createMultipleAppointments(List<AppointmentToCreate> appointments);
+
+    List<Long> findBookingsIdsInAgency(List<Long> bookingIds, String agencyId);
 }

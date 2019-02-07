@@ -1,7 +1,6 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.bulkappointments.CreateAppointmentsOutcomes;
-import net.syscon.elite.api.model.bulkappointments.NewAppointments;
+import net.syscon.elite.api.model.bulkappointments.AppointmentsToCreate;
 import net.syscon.elite.api.resource.AppointmentsResource;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.AppointmentsService;
@@ -18,7 +17,7 @@ public class AppointmentsResourceImpl implements AppointmentsResource {
     }
 
     @Override
-    public CreateAppointmentsOutcomes createAppointments(NewAppointments newAppointments) {
-        return appointmentsService.createAppointments(newAppointments);
+    public void createAppointments(AppointmentsToCreate createAppointmentsRequest) {
+        appointmentsService.createAppointments(createAppointmentsRequest);
     }
 }

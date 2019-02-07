@@ -1,34 +1,51 @@
 package net.syscon.elite.service.impl;
 
-import net.syscon.elite.api.model.NewAppointment;
-import net.syscon.elite.api.model.bulkappointments.*;
+import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
+import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
+import net.syscon.elite.api.model.bulkappointments.AppointmentToCreate;
+import net.syscon.elite.api.model.bulkappointments.AppointmentsToCreate;
+import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.AppointmentsService;
-import net.syscon.elite.service.BookingService;
-import net.syscon.elite.web.handler.ResourceExceptionHandler;
+import net.syscon.elite.service.LocationService;
+import net.syscon.elite.service.ReferenceDomainService;
+import net.syscon.elite.service.support.ReferenceDomain;
+import net.syscon.util.DateTimeConverter;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.util.function.UnaryOperator;
-import java.util.stream.Stream;
-
-import static net.syscon.elite.api.model.bulkappointments.CreateAppointmentsOutcomes.failure;
-import static net.syscon.elite.api.model.bulkappointments.CreateAppointmentsOutcomes.success;
+import javax.ws.rs.BadRequestException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Validated
+@Transactional
 public class AppointmentsServiceImpl implements AppointmentsService {
 
-    private final BookingService bookingService;
+    private final BookingRepository bookingRepository;
     private final AuthenticationFacade authenticationFacade;
+    private final LocationService locationService;
+    private final ReferenceDomainService referenceDomainService;
 
     public AppointmentsServiceImpl(
-            BookingService bookingService,
-            AuthenticationFacade authenticationFacade) {
-        this.bookingService = bookingService;
+            BookingRepository bookingRepository,
+            AuthenticationFacade authenticationFacade,
+            LocationService locationService,
+            ReferenceDomainService referenceDomainService) {
+        this.bookingRepository = bookingRepository;
         this.authenticationFacade = authenticationFacade;
+        this.locationService = locationService;
+        this.referenceDomainService = referenceDomainService;
     }
 
     /**
@@ -36,66 +53,77 @@ public class AppointmentsServiceImpl implements AppointmentsService {
      * This implementation creates each appointment using BookingService#createBookingAppointment.
      *
      * @param appointments Details of the new appointments to be created.
-     * @return The outcomes of creating each of the desired appointments.
      */
+    @PreAuthorize("#oauth2.hasScope('write')")
+
     @Override
-    public CreateAppointmentsOutcomes createAppointments(@NotNull @Valid NewAppointments appointments) {
+    public void createAppointments(@NotNull @Valid AppointmentsToCreate appointments) {
+        final var defaults = appointments.getAppointmentDefaults();
 
-        final UnaryOperator<AppointmentDetails> withDefaults = defaultsDecoratorFactory(appointments.getAppointmentDefaults());
+        Location location = findValidLocation(authenticationFacade.getCurrentUsername(), defaults.getLocationId())
+                .orElseThrow(() -> new BadRequestException("Location does not exist or is not in your caseload."));
 
-        final Stream<CreateAppointmentsOutcomes> outcomes = appointments
-                .getAppointments()
-                .stream()
-                .map(withDefaults)
-                .map(this::createAppointment);
+        validateAppointmentType(defaults);
 
-        return mergeCreateAppointmentOutcomes(outcomes);
+        validateBookingIds(appointments.getAppointments(), location.getAgencyId());
+
+        List<AppointmentToCreate> appointmentsToCreate = appointments.flatten(location.getAgencyId());
+
+        validateAppointmentTimes(appointmentsToCreate);
+
+        bookingRepository.createMultipleAppointments(appointmentsToCreate);
     }
 
-    static UnaryOperator<AppointmentDetails> defaultsDecoratorFactory(AppointmentDefaults defaults) {
-        return appointment -> {
-            var b = appointment.toBuilder();
-            if (null == appointment.getAppointmentType()) b.appointmentType(defaults.getAppointmentType());
-            if (null == appointment.getStartTime()) b.startTime(defaults.getStartTime());
-            if (null == appointment.getEndTime()) b.endTime(defaults.getEndTime());
-            if (null == appointment.getLocationId()) b.locationId(defaults.getLocationId());
-            if (null == appointment.getComment()) b.comment(defaults.getComment());
-            return b.build();
-        };
-    }
-
-    CreateAppointmentsOutcomes createAppointment(AppointmentDetails appointment) {
-        try {
-            return success(
-                    bookingService.createBookingAppointment(
-                            bookingService.getBookingIdByOffenderNo(appointment.getOffenderNo()),
-                            authenticationFacade.getCurrentUsername(),
-                            toNewAppointment(appointment)));
-        } catch (Exception e) {
-            return failure(RejectedAppointment
-                    .builder()
-                    .errorResponse(ResourceExceptionHandler.processResponse(e))
-                    .appointmentDetails(appointment)
-                    .build());
+    private void validateBookingIds(List<AppointmentDetails> appointments, String agencyId) {
+        List<Long> bookingIds = appointments.stream().map(AppointmentDetails::getBookingId).collect(Collectors.toList());
+        List<Long> bookingIdsInAgency = bookingRepository.findBookingsIdsInAgency(bookingIds, agencyId);
+        if (bookingIdsInAgency.size() < bookingIds.size()) {
+            throw new BadRequestException("A BookingId does not exist in your caseload");
         }
     }
 
-    static NewAppointment toNewAppointment(AppointmentDetails appointment) {
-        return NewAppointment
-                .builder()
-                .appointmentType(appointment.getAppointmentType())
-                .comment(appointment.getComment())
-                .endTime(appointment.getEndTime())
-                .startTime(appointment.getStartTime())
-                .locationId(appointment.getLocationId())
-                .build();
+    private void validateAppointmentTimes(List<AppointmentToCreate> appointments) {
+        final Timestamp now = DateTimeConverter.fromLocalDateTime(LocalDateTime.now());
+
+        appointments.forEach(appointment -> {
+            validateStartTime(now, appointment);
+            validateEndTime(appointment);
+        });
     }
 
-    static CreateAppointmentsOutcomes mergeCreateAppointmentOutcomes(Stream<CreateAppointmentsOutcomes> outcomes) {
-        return outcomes.collect(
-                CreateAppointmentsOutcomes::accumulator,
-                CreateAppointmentsOutcomes::add,
-                CreateAppointmentsOutcomes::add
-        );
+    private void validateStartTime(Timestamp now, AppointmentToCreate appointment) {
+        if (appointment.getStartTime().before(now)) {
+            throw new BadRequestException("Appointment time is in the past.");
+        }
+    }
+
+    private void validateEndTime(AppointmentToCreate appointment) {
+        if (appointment.getEndTime() != null
+                && appointment.getEndTime().before(appointment.getStartTime())) {
+            throw new BadRequestException("Appointment end time is before the start time.");
+        }
+    }
+
+    private void validateAppointmentType(AppointmentDefaults defaults) {
+        findEventType(defaults.getAppointmentType()).orElseThrow(() -> new BadRequestException("Event type not recognised."));
+    }
+
+    private Optional<ReferenceCode> findEventType(String appointmentType) {
+        return referenceDomainService.getReferenceCodeByDomainAndCode(
+                ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(),
+                appointmentType,
+                false);
+    }
+
+    private Optional<Location> findValidLocation(String username, long locationId) {
+        Location appointmentLocation = locationService.getLocation(locationId);
+        List<Location> userLocations = locationService.getUserLocations(username);
+
+        for (Location location : userLocations) {
+            if (location.getAgencyId().equals(appointmentLocation.getAgencyId())) {
+                return Optional.of(location);
+            }
+        }
+        return Optional.empty();
     }
 }

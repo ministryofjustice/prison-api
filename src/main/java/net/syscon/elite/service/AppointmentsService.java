@@ -1,11 +1,10 @@
 package net.syscon.elite.service;
 
-import net.syscon.elite.api.model.bulkappointments.CreateAppointmentsOutcomes;
-import net.syscon.elite.api.model.bulkappointments.NewAppointments;
+import net.syscon.elite.api.model.bulkappointments.AppointmentsToCreate;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 public interface AppointmentsService {
-    CreateAppointmentsOutcomes createAppointments(@NotNull @Valid NewAppointments appointments);
+    void createAppointments(@NotNull @Valid AppointmentsToCreate appointments);
 }

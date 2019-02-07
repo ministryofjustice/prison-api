@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.bulkappointments.AppointmentToCreate;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.BookingRepository;
@@ -24,6 +25,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSourceUtils;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
@@ -69,10 +71,10 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
 
     private final Map<String, FieldMapper> PAYABLE_ATTENDANCE_OUTCOMES_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
             .put("PAYABLE_ATTENDANCE_OUTCOMES_ID", new FieldMapper("payableAttendanceOutcomeId"))
-            .put("EVENT_TYPE",                     new FieldMapper("eventType"))
-            .put("OUTCOME_CODE",                   new FieldMapper("outcomeCode"))
-            .put("PAY_FLAG",                       new FieldMapper("paid", value -> "Y".equalsIgnoreCase(value.toString())))
-            .put("AUTHORISED_ABSENCE_FLAG",        new FieldMapper("authorisedAbsence", value -> "Y".equalsIgnoreCase(value.toString())))
+            .put("EVENT_TYPE", new FieldMapper("eventType"))
+            .put("OUTCOME_CODE", new FieldMapper("outcomeCode"))
+            .put("PAY_FLAG", new FieldMapper("paid", value -> "Y".equalsIgnoreCase(value.toString())))
+            .put("AUTHORISED_ABSENCE_FLAG", new FieldMapper("authorisedAbsence", value -> "Y".equalsIgnoreCase(value.toString())))
             .build();
 
     private static final StandardBeanPropertyRowMapper<OffenderSentenceCalculation> SENTENCE_CALC_ROW_MAPPER =
@@ -116,6 +118,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                     .build();
 
     private static final Map<String, FieldMapper> SENTENCE_DETAIL_ROW_MAPPER;
+
     static {
         Map<String, FieldMapper> builderMap = new HashMap<>();
         builderMap.put("OFFENDER_BOOK_ID", new FieldMapper("bookingId"));
@@ -273,8 +276,8 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         return jdbcTemplate.query(
                 sql,
                 createParams("bookingId", bookingId,
-                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
-                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
+                        "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
+                        "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
                 EVENT_ROW_MAPPER);
     }
 
@@ -293,8 +296,8 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         return jdbcTemplate.query(
                 sql,
                 createParams("bookingIds", bookingIds,
-                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
-                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
+                        "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
+                        "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
                 EVENT_ROW_MAPPER);
     }
 
@@ -394,8 +397,8 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         return jdbcTemplate.query(
                 sql,
                 createParams("bookingId", bookingId,
-                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
-                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
+                        "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
+                        "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
                 EVENT_ROW_MAPPER);
     }
 
@@ -413,8 +416,8 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         return jdbcTemplate.query(
                 sql,
                 createParams("bookingIds", bookingIds,
-                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
-                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
+                        "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
+                        "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
                 EVENT_ROW_MAPPER);
     }
 
@@ -539,8 +542,8 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         return jdbcTemplate.query(
                 sql,
                 createParams("bookingId", bookingId,
-                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
-                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
+                        "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
+                        "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
                 EVENT_ROW_MAPPER);
     }
 
@@ -558,8 +561,8 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         return jdbcTemplate.query(
                 sql,
                 createParams("bookingIds", bookingIds,
-                        "fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
-                        "toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
+                        "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
+                        "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
                 EVENT_ROW_MAPPER);
     }
 
@@ -577,16 +580,16 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
         final LocalDateTime startTime = newAppointment.getStartTime();
         jdbcTemplate.update(
                 sql,
-                createParams("bookingId", bookingId,
-                             "eventSubType", newAppointment.getAppointmentType(),
-                             "eventDate", DateTimeConverter.toDate(startTime.toLocalDate()),
-                             "startTime", DateTimeConverter.fromLocalDateTime(startTime),
-                             "endTime", DateTimeConverter.fromLocalDateTime(newAppointment.getEndTime()),
-                             "comment", newAppointment.getComment(),
-                             "locationId", newAppointment.getLocationId(),
-                             "agencyId", agencyId),
+                    createParams("bookingId", bookingId,
+                            "eventSubType", newAppointment.getAppointmentType(),
+                            "eventDate", DateTimeConverter.toDate(startTime.toLocalDate()),
+                            "startTime", DateTimeConverter.fromLocalDateTime(startTime),
+                            "endTime", DateTimeConverter.fromLocalDateTime(newAppointment.getEndTime()),
+                            "comment", newAppointment.getComment(),
+                            "locationId", newAppointment.getLocationId(),
+                            "agencyId", agencyId),
                 generatedKeyHolder,
-                new String[] {"EVENT_ID"});
+                new String[]{"EVENT_ID"});
         return generatedKeyHolder.getKey().longValue();
     }
 
@@ -617,7 +620,7 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
 
         return jdbcTemplate.query(
                 sql,
-                createParams( "caseLoadId", allowedCaseloadsOnly, "activeFlag", "Y", "bookingSeq", 1),
+                createParams("caseLoadId", allowedCaseloadsOnly, "activeFlag", "Y", "bookingSeq", 1),
                 offenderSentenceDetailDtoRowMapper);
     }
 
@@ -701,5 +704,22 @@ public class BookingRepositoryImpl extends RepositoryBase implements BookingRepo
                         sql,
                         createParams("bookingId", bookingId, "sentenceTermCode", sentenceTermCode),
                         SENTENCE_TERMS_ROW_MAPPER);
+    }
+
+    @Override
+    public void createMultipleAppointments(List<AppointmentToCreate> appointments) {
+        jdbcTemplate.batchUpdate(
+                getQuery("INSERT_APPOINTMENT"),
+                SqlParameterSourceUtils.createBatch(appointments));
+    }
+
+    @Override
+    public List<Long> findBookingsIdsInAgency(List<Long> bookingIds, String agencyId) {
+        if (bookingIds.isEmpty()) return Collections.emptyList();
+
+        return jdbcTemplate.query(
+                getQuery("FIND_BOOKING_IDS_IN_AGENCY"),
+                createParams("bookingIds", bookingIds, "agencyId", agencyId),
+                (rs, rowNum) -> rs.getLong(1));
     }
 }

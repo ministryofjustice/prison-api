@@ -1,9 +1,12 @@
 package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.bulkappointments.AppointmentToCreate;
+import net.syscon.elite.api.support.Order;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
 import net.syscon.elite.web.config.PersistenceConfigs;
+import net.syscon.util.DateTimeConverter;
 import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +26,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -85,7 +90,7 @@ public class BookingRepositoryTest {
         assertThat(event.getStartTime()).isEqualTo(appt.getStartTime());
         assertThat(event.getEventDate()).isEqualTo(appt.getStartTime().toLocalDate());
     }
-    
+
     @Test
     public void testCreateBookingAppointmentWithEndComment() {
         NewAppointment appt = NewAppointment.builder()
@@ -349,7 +354,7 @@ public class BookingRepositoryTest {
     public void testGetAlertCodesForBookingsFuture() {
 
         final Map<Long, List<String>> resultsFuture = repository.getAlertCodesForBookings(Arrays.asList(-1L, -2L, -16L),
-                LocalDateTime.of (LocalDate.now().plusDays(1), LocalTime.of(12,0)));
+                LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(12, 0)));
 
         assertThat(resultsFuture.get(-1L)).asList().containsExactly("XA", "HC");
         assertThat(resultsFuture.get(-2L)).asList().containsExactly("HA");
@@ -360,7 +365,7 @@ public class BookingRepositoryTest {
     public void testGetAlertCodesForBookingsPast() {
 
         final Map<Long, List<String>> resultsPast = repository.getAlertCodesForBookings(Arrays.asList(-1L, -2L, -16L),
-                LocalDateTime.of (LocalDate.now().plusDays(-1), LocalTime.of(12,0)));
+                LocalDateTime.of(LocalDate.now().plusDays(-1), LocalTime.of(12, 0)));
 
         assertThat(resultsPast.get(-16L)).asList().containsExactly("OIOM");
     }
@@ -387,5 +392,60 @@ public class BookingRepositoryTest {
                         new OffenderSentenceTerms(-2L, LocalDate.of(2017, 6, 22), null, null, 2, 3, false),
                         new OffenderSentenceTerms(-2L, LocalDate.of(2017, 7, 22), 25, null, null, null, true)
                 );
+    }
+
+    @Test
+    public void findNoBookingIdsInAgency() {
+        assertThat(repository.findBookingsIdsInAgency(Collections.emptyList(), "LEI")).isEmpty();
+    }
+
+    @Test
+    public void findBookingIdsInLEI() {
+        assertThat(repository.findBookingsIdsInAgency(Arrays.asList(-1L, -2L, -13L, -14L), "LEI")).containsExactlyInAnyOrder(-1L, -2L);
+    }
+
+    @Test
+    public void findBookingIdsInOUT() {
+        assertThat(repository.findBookingsIdsInAgency(Arrays.asList(-1L, -2L, -13L, -14L), "OUT")).containsExactlyInAnyOrder(-13L, -14L);
+    }
+
+    @Test
+    public void createMultipleAppointments() {
+        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+        LocalDateTime in1Hour = now.plusHours(1L);
+        LocalDate today = now.toLocalDate();
+
+        var bookingIds = Arrays.asList(-31L, -32L);
+
+        // Given
+        var scheduledEventsBefore = repository.getBookingAppointments(bookingIds, today, today, null, Order.ASC);
+        assertThat(scheduledEventsBefore).hasSize(0);
+
+        // When
+        var appointmentsToCreate = bookingIds
+                .stream()
+                .map(id -> AppointmentToCreate
+                        .builder()
+                        .bookingId(id)
+                        .eventDate(DateTimeConverter.toDate(today))
+                        .startTime(DateTimeConverter.fromLocalDateTime(now))
+                        .endTime(DateTimeConverter.fromLocalDateTime(in1Hour))
+                        .agencyId("LEI")
+                        .eventSubType("ACTI") // Activity
+                        .locationId(-25L) // LEI-CHAP
+                        .comment("Comment")
+                        .build())
+                .collect(Collectors.toList());
+
+        repository.createMultipleAppointments(appointmentsToCreate);
+
+        // Then
+        var scheduledEventsAfter = repository.getBookingAppointments(bookingIds, today, today, null, Order.ASC);
+
+        assertThat(scheduledEventsAfter)
+                .extracting("bookingId", "eventType", "eventSubType", "eventDate", "startTime", "endTime", "eventLocation")
+                .containsExactlyInAnyOrder(
+                        Tuple.tuple(-31L, "APP", "ACTI", today, now, in1Hour, "Chapel"),
+                        Tuple.tuple(-32L, "APP", "ACTI", today, now, in1Hour, "Chapel"));
     }
 }

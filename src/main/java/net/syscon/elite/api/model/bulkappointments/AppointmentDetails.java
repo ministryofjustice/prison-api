@@ -17,17 +17,9 @@ import java.time.LocalDateTime;
 @Builder(toBuilder = true)
 public class AppointmentDetails {
 
-    @ApiModelProperty(required=true, value="The Prison Number of the offender for whom the appointment is to be created")
+    @ApiModelProperty(required=true, value="The Booking id of the offender for whom the appointment is to be created")
     @NotEmpty
-    private String OffenderNo;
-
-    @ApiModelProperty(required = true, value = "The scheduled event subType")
-    @Length(max = 12)
-    @Pattern(regexp = "\\w*")
-    private String appointmentType;
-
-    @ApiModelProperty(required = true, value = "The Location at which the appointment takes place")
-    private Long locationId;
+    private Long bookingId;
 
     @ApiModelProperty(required = true, value = "Date and time at which the appointment starts")
     private LocalDateTime startTime;

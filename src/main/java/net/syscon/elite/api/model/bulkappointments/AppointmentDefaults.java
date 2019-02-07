@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 
@@ -18,9 +20,11 @@ public class AppointmentDefaults {
     @ApiModelProperty(required = true, value = "The scheduled event subType")
     @Length(max = 12)
     @Pattern(regexp = "\\w*")
+    @NotEmpty
     private String appointmentType;
 
     @ApiModelProperty(required = true, value = "The Location at which the appointment takes place")
+    @NotNull
     private Long locationId;
 
     @ApiModelProperty(required = true, value = "The date and time at which the appointment starts")
