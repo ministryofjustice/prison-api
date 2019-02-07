@@ -12,7 +12,7 @@ import net.syscon.elite.api.support.CategorisationStatus;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-@ApiModel(description = "Summary of an offender counted as Establishment Roll - Reception")
+@ApiModel(description = "Prisoner that is Uncategorised or has a pending categorisation")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @Data
@@ -26,17 +26,32 @@ public class OffenderCategorise {
     @NotNull
     private Long bookingId;
 
+    @ApiModelProperty(required = true, value = "Prisoner First Name")
     private String firstName;
 
+    @ApiModelProperty(required = true, value = "Prisoner Last Name")
     private String lastName;
 
+    @ApiModelProperty(value = "Categorisation date if any")
     private LocalDate assessmentDate;
 
+    @ApiModelProperty(value = "Sequence number within booking")
     private Integer assessmentSeq;
 
+    @ApiModelProperty(value = "assessment type", allowableValues = "CATEGORY")
     private Long assessmentTypeId;
 
+    @ApiModelProperty(value = "Categorisation status", allowableValues = "P,null")
     private String assessStatus;
+
+    @ApiModelProperty(value = "Categoriser First Name")
+    private String  categoriserFirstName;
+
+    @ApiModelProperty(value = "Categoriser Last Name")
+    private String  categoriserLastName;
+
+    @ApiModelProperty(value = "Categorisation")
+    private String  category;
 
     @ApiModelProperty(required = true, value = "Where in the categorisation workflow the prisoner is")
     private CategorisationStatus status;

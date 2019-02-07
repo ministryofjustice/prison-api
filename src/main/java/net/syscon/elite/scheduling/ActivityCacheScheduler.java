@@ -33,13 +33,13 @@ public class ActivityCacheScheduler {
             final var locationGroups = locationGroupService.getLocationGroups(prison.getAgencyId());
 
             if (!locationGroups.isEmpty()) {
-                log.info("Caching event locations for {}", prison.getAgencyId());
+                log.info("cacheActivityLocations: Caching event locations for {}", prison.getAgencyId());
 
                 final var now = LocalDate.now();
                 List.of(TimeSlot.values()).forEach(slot -> {
-                    log.info("Refreshing cache for {}, {}", prison.getAgencyId(), slot);
+                    log.info("cacheActivityLocations: Refreshing cache for {}, {}", prison.getAgencyId(), slot);
                     var locations = agencyService.getAgencyEventLocationsBookedNonCached(prison.getAgencyId(), now, slot);
-                    log.info("{} locations cached for {}, {}", locations.size(), prison.getAgencyId(), slot);
+                    log.info("cacheActivityLocations: {} locations cached for {}, {}", locations.size(), prison.getAgencyId(), slot);
                 });
             }
         });
