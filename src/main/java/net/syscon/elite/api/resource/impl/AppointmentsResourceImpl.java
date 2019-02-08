@@ -6,6 +6,7 @@ import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.AppointmentsService;
 
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
 
 @RestResource
 @Path("/appointments")
@@ -17,7 +18,8 @@ public class AppointmentsResourceImpl implements AppointmentsResource {
     }
 
     @Override
-    public void createAppointments(AppointmentsToCreate createAppointmentsRequest) {
+    public Response createAppointments(AppointmentsToCreate createAppointmentsRequest) {
         appointmentsService.createAppointments(createAppointmentsRequest);
+        return Response.ok().build();
     }
 }

@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,13 +16,14 @@ import java.util.stream.Collectors;
 @Data
 @Builder
 public class AppointmentsToCreate {
-    @ApiModelProperty(value = "The default values to be applied to each new appointment")
+    @ApiModelProperty(required = true, value = "The default values to be applied to each new appointment. An individual appointment may change the startTime, add or change the endTime and provide text for that appointment's comment.")
     @NotNull
+    @Valid
     private AppointmentDefaults appointmentDefaults;
 
-    @ApiModelProperty(value = "The details for creating each appointment.  A Missing value falls back to the default value if present")
+    @ApiModelProperty(required = true, value = "The details for creating each appointment.  A Missing value falls back to the default value if present. Mandatory, but an empty list is accepted.", position = 1)
     @NotNull
-    private List<AppointmentDetails> appointments;
+    private List<@Valid AppointmentDetails> appointments;
 
     public List<AppointmentDetails> withDefaults() {
         return appointments.stream().map(appt -> {

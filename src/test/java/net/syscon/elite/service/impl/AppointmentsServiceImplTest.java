@@ -191,27 +191,6 @@ public class AppointmentsServiceImplTest {
     }
 
     @Test(expected = BadRequestException.class)
-    public void rejectStartTimeInThePast() {
-        stubLocation(LOCATION_B);
-        stubValidReferenceCode(REFERENCE_CODE_T);
-        stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
-
-        final var appointmentsToCreate = AppointmentsToCreate
-                .builder()
-                .appointmentDefaults(
-                        AppointmentDefaults
-                                .builder()
-                                .locationId(LOCATION_B.getLocationId())
-                                .appointmentType(REFERENCE_CODE_T.getCode())
-                                .startTime(LocalDateTime.now().minusHours(1))
-                                .build())
-                .appointments(Collections.singletonList(DETAILS_1))
-                .build();
-
-        appointmentsService.createAppointments(appointmentsToCreate);
-    }
-
-    @Test(expected = BadRequestException.class)
     public void rejectEndTimeBeforeStartTime() {
         stubLocation(LOCATION_B);
         stubValidReferenceCode(REFERENCE_CODE_T);

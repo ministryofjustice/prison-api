@@ -9,7 +9,6 @@ import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -30,11 +29,13 @@ public class BulkAppointmentSteps extends CommonSteps {
     private static final String BULK_APPOINTMENTS_URL = API_PREFIX + "appointments";
     private static final String BOOKING_APPOINTMENT_URL = API_PREFIX + "bookings/{bookingId}/appointments";
 
-    private static final ParameterizedTypeReference<List<ScheduledEvent>> LIST_OF_SCHEDULED_EVENT = new ParameterizedTypeReference<>(){};
+    private static final ParameterizedTypeReference<List<ScheduledEvent>> LIST_OF_SCHEDULED_EVENT = new ParameterizedTypeReference<>() {
+    };
     private AppointmentDefaults defaults;
     private List<AppointmentDetails> details;
     private ErrorResponse errorResponse;
     private Map<Long, List<ScheduledEvent>> eventsByBookingId;
+    private int httpStatus;
 
     @Step("bulkAppointmentDefaults")
     public void appointmentDefaults(AppointmentDefaults appointmentDefaults) {
@@ -60,9 +61,10 @@ public class BulkAppointmentSteps extends CommonSteps {
                             .build()),
                     Void.class
             );
-            HttpStatus status = response.getStatusCode();
+            httpStatus = response.getStatusCodeValue();
         } catch (EliteClientException e) {
             errorResponse = e.getErrorResponse();
+            httpStatus = errorResponse.getStatus();
         }
     }
 
@@ -107,17 +109,25 @@ public class BulkAppointmentSteps extends CommonSteps {
         return new SimpleImmutableEntry<>(entry.getKey(), scheduledEventsToMaps(entry.getValue()));
     }
 
-    private Set<Map<String,String>> scheduledEventsToMaps(List<ScheduledEvent> events) {
+    private Set<Map<String, String>> scheduledEventsToMaps(List<ScheduledEvent> events) {
         return events.stream()
                 .map(se -> {
                     Map<String, String> m = new HashMap<>();
                     m.put("bookingId", se.getBookingId().toString());
                     m.put("appointmentType", se.getEventSubType());
                     m.put("startTime", se.getStartTime().toString());
-                    m.put("endTime",  se.getEndTime() == null ? "" : se.getEndTime().toString());
+                    m.put("endTime", se.getEndTime() == null ? "" : se.getEndTime().toString());
                     m.put("eventLocation", se.getEventLocation());
                     return m;
                 })
                 .collect(Collectors.toSet());
+    }
+
+    public void assertRequestRejected() {
+        assertThat(errorResponse).isNotNull();
+    }
+
+    public void assertHttpStatusCode(int expectedStatusCode) {
+        assertThat(httpStatus).isEqualTo(expectedStatusCode);
     }
 }

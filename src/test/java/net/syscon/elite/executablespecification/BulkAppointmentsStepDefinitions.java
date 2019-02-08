@@ -64,4 +64,14 @@ public class BulkAppointmentsStepDefinitions extends AbstractStepDefinitions {
         if (StringUtils.isBlank(string)) return null;
         return LocalDateTime.parse(string);
     }
+
+    @Then("^the bulk appointment request is rejected$")
+    public void theBulkAppointmentRequestIsRejected() {
+        bulkAppointmentSteps.assertRequestRejected();
+    }
+
+    @And("^The bulk appointment request status code is <(\\d+)>$")
+    public void theBulkAppointmentRequestStatusCodeIs(int expectedStatusCode) {
+        bulkAppointmentSteps.assertHttpStatusCode(expectedStatusCode);
+    }
 }

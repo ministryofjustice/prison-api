@@ -20,8 +20,6 @@ import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
-import java.time.Clock;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +77,7 @@ public class AppointmentsServiceImpl implements AppointmentsService {
 
         List<AppointmentDetails> flattenedDetails = appointments.withDefaults();
 
-        assertValidAppointmentTimes(flattenedDetails);
+        assertAdditionalAppointmentConstraints(flattenedDetails);
 
         bookingRepository.createMultipleAppointments(flattenedDetails, defaults, agencyId);
 
@@ -102,22 +100,11 @@ public class AppointmentsServiceImpl implements AppointmentsService {
         }
     }
 
-    private void assertValidAppointmentTimes(List<AppointmentDetails> appointments) {
-        final LocalDateTime now = LocalDateTime.now();
-
-        appointments.forEach(appointment -> {
-            assertValidStartTime(now, appointment);
-            assertValidEndTime(appointment);
-        });
+    private void assertAdditionalAppointmentConstraints(List<AppointmentDetails> appointments) {
+        appointments.forEach(AppointmentsServiceImpl::assertStartTimePrecedesEndTime);
     }
 
-    private void assertValidStartTime(LocalDateTime now, AppointmentDetails appointment) {
-        if (appointment.getStartTime().isBefore(now)) {
-            throw new BadRequestException("Appointment time is in the past.");
-        }
-    }
-
-    private void assertValidEndTime(AppointmentDetails appointment) {
+    private static void assertStartTimePrecedesEndTime(AppointmentDetails appointment) {
         if (appointment.getEndTime() != null
                 && appointment.getEndTime().isBefore(appointment.getStartTime())) {
             throw new BadRequestException("Appointment end time is before the start time.");
