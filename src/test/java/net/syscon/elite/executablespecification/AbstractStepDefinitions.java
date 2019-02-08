@@ -193,6 +193,11 @@ abstract class AbstractStepDefinitions {
 
         @Bean
         public CurfewSteps curfewSteps() { return new CurfewSteps(); }
+
+        @Bean
+        public BulkAppointmentSteps bulkAppointmentSteps() {
+            return new BulkAppointmentSteps();
+        }
     }
 
     int ord2idx(String ordinal) {
