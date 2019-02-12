@@ -33,7 +33,7 @@ public class AppointmentDefaults {
     @Future
     private LocalDateTime startTime;
 
-    @ApiModelProperty(value = "The date and time at which the appointments end. ISO 8601 Date-time format. endTime, if present, must be later than startTime.", example="2018-12-31:T14:50:00", position = 3)
+    @ApiModelProperty(value = "The date and time at which the appointments end. ISO 8601 Date-time format. endTime, if present, must be later than startTime.", example="2018-12-31T14:50:00", position = 3)
     private LocalDateTime endTime;
 
     @ApiModelProperty(value = "A comment that applies to all the appointments in this request.", example="Please provide helpful supporting text when it applies to all the appointments specified by this request.", position = 4)
