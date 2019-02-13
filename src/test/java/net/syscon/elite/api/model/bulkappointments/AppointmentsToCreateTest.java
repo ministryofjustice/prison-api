@@ -145,7 +145,7 @@ public class AppointmentsToCreateTest {
     }
 
     @Test
-    public void shouldRejecInvalidAppointmentDetails() {
+    public void shouldRejectInvalidAppointmentDetails() {
         var validations = validator.validate(
                 AppointmentsToCreate
                         .builder()
@@ -180,5 +180,52 @@ public class AppointmentsToCreateTest {
         assertThat(validations).hasSize(0);
     }
 
+    @Test
+    public void shouldRejectInvalidRepeatPeriod() {
+        var validations = validator.validate(
+                AppointmentsToCreate
+                        .builder()
+                        .appointmentDefaults(VALID_DEFAULTS)
+                        .appointments(Collections.emptyList())
+                        .repeat(Repeat
+                                .builder()
+                                .count(1)
+                                .build())
+                        .build());
+        assertThat(validations).hasSize(1);
+    }
 
+    @Test
+    public void shouldRejectInvalidRepeatCount() {
+        var validations = validator.validate(
+                AppointmentsToCreate
+                        .builder()
+                        .appointmentDefaults(VALID_DEFAULTS)
+                        .appointments(Collections.emptyList())
+
+                        .repeat(Repeat
+                                .builder()
+                                .repeatPeriod(RepeatPeriod.DAILY)
+                                .count(0)
+                                .build())
+                        .build());
+        assertThat(validations).hasSize(1);
+    }
+
+    @Test
+    public void shouldAcceptValidRepeat() {
+        var validations = validator.validate(
+                AppointmentsToCreate
+                        .builder()
+                        .appointmentDefaults(VALID_DEFAULTS)
+                        .appointments(Collections.emptyList())
+
+                        .repeat(Repeat
+                                .builder()
+                                .repeatPeriod(RepeatPeriod.DAILY)
+                                .count(1)
+                                .build())
+                        .build());
+        assertThat(validations).hasSize(0);
+    }
 }

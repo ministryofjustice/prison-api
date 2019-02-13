@@ -6,6 +6,7 @@ import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
 import net.syscon.elite.api.model.bulkappointments.AppointmentsToCreate;
+import net.syscon.elite.api.model.bulkappointments.Repeat;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.AppointmentsService;
@@ -20,11 +21,14 @@ import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
+import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @Validated
@@ -79,9 +83,7 @@ public class AppointmentsServiceImpl implements AppointmentsService {
 
         assertAdditionalAppointmentConstraints(flattenedDetails);
 
-        bookingRepository.createMultipleAppointments(flattenedDetails, defaults, agencyId);
-
-        trackAppointmentsCreated(flattenedDetails, defaults);
+        createAppointments(repeat(flattenedDetails, appointments.getRepeat()), defaults, agencyId);
     }
 
     private void enforceMaximumNumberOfAppointments(AppointmentsToCreate appointments) {
@@ -149,5 +151,31 @@ public class AppointmentsServiceImpl implements AppointmentsService {
         logMap.put("count", Integer.toString(appointments.size()));
 
         telemetryClient.trackEvent("AppointmentsCreated", logMap, null);
+    }
+
+    static List<AppointmentDetails> repeat(List<AppointmentDetails> details, Repeat repeat) {
+        if (repeat == null) return details;
+        final Period repeatPeriod = repeat.getRepeatPeriod().getPeriod();
+        return IntStream
+                .rangeClosed(0, repeat.getCount())
+                .boxed()
+                .flatMap(i -> details
+                        .stream()
+                        .map(d -> d
+                                .toBuilder()
+                                .startTime(addRepeatOffset(d.getStartTime(), repeatPeriod, i))
+                                .endTime(addRepeatOffset(d.getEndTime(), repeatPeriod, i))
+                                .build()))
+                .collect(Collectors.toList());
+    }
+
+    private static LocalDateTime addRepeatOffset(LocalDateTime time, Period period, int times) {
+        if (time == null) return null;
+        return time.plus(period.multipliedBy(times));
+    }
+
+    private void createAppointments(List<AppointmentDetails> details, AppointmentDefaults defaults, String agencyId) {
+        bookingRepository.createMultipleAppointments(details, defaults, agencyId);
+        trackAppointmentsCreated(details, defaults);
     }
 }
