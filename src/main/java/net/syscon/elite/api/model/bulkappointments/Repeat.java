@@ -6,6 +6,7 @@ import lombok.Data;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
@@ -30,4 +31,9 @@ public class Repeat {
         return Stream.iterate(startDateTime, repeatPeriod::next).limit(count);
     }
 
+    public Duration duration() {
+        final var first = LocalDateTime.now();
+        final var last =  dateTimeStream(first).skip(count-1).findFirst();
+        return Duration.between(first, last.orElseThrow(RuntimeException::new)); // The exception will never be thrown.
+    }
 }

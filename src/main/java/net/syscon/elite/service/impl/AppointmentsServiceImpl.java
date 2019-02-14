@@ -18,6 +18,7 @@ import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +34,7 @@ public class AppointmentsServiceImpl implements AppointmentsService {
 
     // Maximum of 1000 values in an Oracle 'IN' clause is current hard limit. (See #validateBookingIds below).
     private static final int MAXIMUM_NUMBER_OF_APPOINTMENTS = 1000;
+    private static final Duration MAXIMUM_DURATION = Duration.ofDays(365);
 
     private final BookingRepository bookingRepository;
     private final AuthenticationFacade authenticationFacade;
@@ -64,7 +66,9 @@ public class AppointmentsServiceImpl implements AppointmentsService {
     @Override
     public void createAppointments(@NotNull @Valid AppointmentsToCreate appointments) {
 
-        enforceMaximumNumberOfAppointments(appointments);
+        assertFewerThanMaximumNumberOfBookingIds(appointments);
+        assertRepeatsFallWithinYear(appointments.getRepeat());
+
 
         final var defaults = appointments.getAppointmentDefaults();
 
@@ -82,7 +86,15 @@ public class AppointmentsServiceImpl implements AppointmentsService {
         createAppointments(withRepeats(appointments.getRepeat(), flattenedDetails), defaults, agencyId);
     }
 
-    private void enforceMaximumNumberOfAppointments(AppointmentsToCreate appointments) {
+    private void assertRepeatsFallWithinYear(Repeat repeat) {
+        if (repeat == null) return;
+        Duration duration = repeat.duration();
+        if (duration.compareTo(MAXIMUM_DURATION) > 0) {
+            throw new BadRequestException("Specified repeats exceed the maximum interval of 365 days");
+        }
+    }
+
+    private void assertFewerThanMaximumNumberOfBookingIds(AppointmentsToCreate appointments) {
         final int numberOfAppointments = appointments.getAppointments().size();
 
         if (numberOfAppointments > MAXIMUM_NUMBER_OF_APPOINTMENTS) {

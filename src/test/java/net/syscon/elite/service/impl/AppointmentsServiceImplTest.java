@@ -94,6 +94,26 @@ public class AppointmentsServiceImplTest {
     }
 
     @Test(expected = BadRequestException.class)
+    public void repeatIntervalTooLarge() {
+        appointmentsService.createAppointments(AppointmentsToCreate
+                .builder()
+                .appointmentDefaults(
+                        AppointmentDefaults
+                                .builder()
+                                .build())
+                .appointments(Collections.emptyList())
+                .repeat(Repeat
+                        .builder()
+                        .repeatPeriod(RepeatPeriod.DAILY)
+                        .count(367)
+                        .build())
+                .build());
+
+        verifyNoMoreInteractions(telemetryClient);
+    }
+
+
+    @Test(expected = BadRequestException.class)
     public void locationNotInCaseload() {
         stubLocation(LOCATION_C);
 
