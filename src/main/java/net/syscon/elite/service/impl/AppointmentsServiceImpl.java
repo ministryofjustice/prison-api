@@ -3,10 +3,7 @@ package net.syscon.elite.service.impl;
 import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.ReferenceCode;
-import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
-import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
-import net.syscon.elite.api.model.bulkappointments.AppointmentsToCreate;
-import net.syscon.elite.api.model.bulkappointments.Repeat;
+import net.syscon.elite.api.model.bulkappointments.*;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.AppointmentsService;
@@ -22,13 +19,12 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @Service
 @Validated
@@ -83,7 +79,7 @@ public class AppointmentsServiceImpl implements AppointmentsService {
 
         assertAdditionalAppointmentConstraints(flattenedDetails);
 
-        createAppointments(repeat(flattenedDetails, appointments.getRepeat()), defaults, agencyId);
+        createAppointments(withRepeats(appointments.getRepeat(), flattenedDetails), defaults, agencyId);
     }
 
     private void enforceMaximumNumberOfAppointments(AppointmentsToCreate appointments) {
@@ -153,26 +149,33 @@ public class AppointmentsServiceImpl implements AppointmentsService {
         telemetryClient.trackEvent("AppointmentsCreated", logMap, null);
     }
 
-    static List<AppointmentDetails> repeat(List<AppointmentDetails> details, Repeat repeat) {
+    static List<AppointmentDetails> withRepeats(Repeat repeat, List<AppointmentDetails> details) {
         if (repeat == null) return details;
-        final Period repeatPeriod = repeat.getRepeatPeriod().getPeriod();
-        return IntStream
-                .rangeClosed(0, repeat.getCount())
-                .boxed()
-                .flatMap(i -> details
-                        .stream()
-                        .map(d -> d
-                                .toBuilder()
-                                .startTime(addRepeatOffset(d.getStartTime(), repeatPeriod, i))
-                                .endTime(addRepeatOffset(d.getEndTime(), repeatPeriod, i))
-                                .build()))
+        return details.stream()
+                .flatMap(d -> withRepeats(repeat, d))
                 .collect(Collectors.toList());
     }
 
-    private static LocalDateTime addRepeatOffset(LocalDateTime time, Period period, int times) {
-        if (time == null) return null;
-        return time.plus(period.multipliedBy(times));
+    static Stream<AppointmentDetails> withRepeats(Repeat repeat, AppointmentDetails details) {
+        return repeat
+                .dateTimeStream(details.getStartTime())
+                .map(t -> buildFromPrototypeWithStartTime(details, t));
     }
+
+
+    private static AppointmentDetails buildFromPrototypeWithStartTime(AppointmentDetails prototype, LocalDateTime startTime) {
+        var builder = prototype.toBuilder().startTime(startTime);
+        if (prototype.getEndTime() != null) {
+            builder.endTime(LocalDateTime.of(
+                    startTime.getYear(),
+                    startTime.getMonth(),
+                    startTime.getDayOfMonth(),
+                    prototype.getEndTime().getHour(),
+                    prototype.getEndTime().getMinute()));
+        }
+        return builder.build();
+    }
+
 
     private void createAppointments(List<AppointmentDetails> details, AppointmentDefaults defaults, String agencyId) {
         bookingRepository.createMultipleAppointments(details, defaults, agencyId);

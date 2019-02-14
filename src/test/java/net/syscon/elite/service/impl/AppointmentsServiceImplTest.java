@@ -37,14 +37,14 @@ public class AppointmentsServiceImplTest {
     private static final AppointmentDetails DETAILS_2 = AppointmentDetails
             .builder()
             .bookingId(2L)
-            .startTime(LocalDateTime.of(2018, 2, 27, 13, 30))
+            .startTime(LocalDateTime.of(2018, 2, 27, 13, 30)) // Tuesday
             .endTime(LocalDateTime.of(2018, 2, 27, 13, 50))
             .build();
 
     private static final AppointmentDetails DETAILS_3 = AppointmentDetails
             .builder()
             .bookingId(2L)
-            .startTime(LocalDateTime.of(2018, 2, 27, 13, 30))
+            .startTime(LocalDateTime.of(2018, 2, 27, 13, 30)) // Tuesday
             .build();
 
     private static final ReferenceCode REFERENCE_CODE_T = ReferenceCode
@@ -256,14 +256,24 @@ public class AppointmentsServiceImplTest {
 
     @Test
     public void shouldHandleNoRepeats() {
-        assertThat(AppointmentsServiceImpl.repeat(Collections.singletonList(DETAILS_2), null)).containsExactly(DETAILS_2);
+        assertThat(AppointmentsServiceImpl.withRepeats(null, Collections.singletonList(DETAILS_2))).containsExactly(DETAILS_2);
     }
 
     @Test
-    public void shouldRepeatDaily() {
-        assertThat(AppointmentsServiceImpl.repeat(
-                Collections.singletonList(DETAILS_2),
-                Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(2).build()))
+    public void shouldHandleOneRepeat() {
+        assertThat(AppointmentsServiceImpl.withRepeats(
+                Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(1).build(),
+                Collections.singletonList(DETAILS_2)
+        ))
+                .containsExactly(DETAILS_2);
+    }
+
+    @Test
+    public void shouldHandleMultipleRepeats() {
+        assertThat(AppointmentsServiceImpl.withRepeats(
+                Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(3).build(),
+                Collections.singletonList(DETAILS_2)
+        ))
                 .containsExactly(
                         DETAILS_2,
                         DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(1)).endTime(DETAILS_2.getEndTime().plusDays(1)).build(),
@@ -272,46 +282,11 @@ public class AppointmentsServiceImplTest {
     }
 
     @Test
-    public void shouldRepeatWeekly() {
-        assertThat(AppointmentsServiceImpl.repeat(
-                Collections.singletonList(DETAILS_2),
-                Repeat.builder().repeatPeriod(RepeatPeriod.WEEKLY).count(2).build()))
-                .containsExactly(
-                        DETAILS_2,
-                        DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusWeeks(1)).endTime(DETAILS_2.getEndTime().plusWeeks(1)).build(),
-                        DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusWeeks(2)).endTime(DETAILS_2.getEndTime().plusWeeks(2)).build()
-                );
-    }
-
-    @Test
-    public void shouldRepeatFortnightly() {
-        assertThat(AppointmentsServiceImpl.repeat(
-                Collections.singletonList(DETAILS_2),
-                Repeat.builder().repeatPeriod(RepeatPeriod.FORTNIGHTLY).count(2).build()))
-                .containsExactly(
-                        DETAILS_2,
-                        DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusWeeks(2)).endTime(DETAILS_2.getEndTime().plusWeeks(2)).build(),
-                        DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusWeeks(4)).endTime(DETAILS_2.getEndTime().plusWeeks(4)).build()
-                );
-    }
-
-    @Test
-    public void shouldRepeatMonthly() {
-        assertThat(AppointmentsServiceImpl.repeat(
-                Collections.singletonList(DETAILS_2),
-                Repeat.builder().repeatPeriod(RepeatPeriod.MONTHLY).count(2).build()))
-                .containsExactly(
-                        DETAILS_2,
-                        DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusMonths(1)).endTime(DETAILS_2.getEndTime().plusMonths(1)).build(),
-                        DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusMonths(2)).endTime(DETAILS_2.getEndTime().plusMonths(2)).build()
-                );
-    }
-
-    @Test
     public void shouldHandleNullEndTime() {
-        assertThat(AppointmentsServiceImpl.repeat(
-                Collections.singletonList(DETAILS_3),
-                Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(1).build()))
+        assertThat(AppointmentsServiceImpl.withRepeats(
+                Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(2).build(),
+                Collections.singletonList(DETAILS_3)
+        ))
                 .containsExactly(
                         DETAILS_3,
                         DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(1)).build()
@@ -320,15 +295,16 @@ public class AppointmentsServiceImplTest {
 
     @Test
     public void shouldRepeatMultipleAppointments() {
-        assertThat(AppointmentsServiceImpl.repeat(
-                Arrays.asList(DETAILS_2, DETAILS_3),
-                Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(2).build()))
+        assertThat(AppointmentsServiceImpl.withRepeats(
+                Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(3).build(),
+                Arrays.asList(DETAILS_2, DETAILS_3)
+        ))
                 .containsExactly(
                         DETAILS_2,
-                        DETAILS_3,
                         DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(1)).endTime(DETAILS_2.getEndTime().plusDays(1)).build(),
-                        DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(1)).build(),
                         DETAILS_2.toBuilder().startTime(DETAILS_2.getStartTime().plusDays(2)).endTime(DETAILS_2.getEndTime().plusDays(2)).build(),
+                        DETAILS_3,
+                        DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(1)).build(),
                         DETAILS_3.toBuilder().startTime(DETAILS_3.getStartTime().plusDays(2)).build()
                 );
     }
