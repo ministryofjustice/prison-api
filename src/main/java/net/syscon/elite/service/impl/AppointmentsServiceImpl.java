@@ -3,9 +3,7 @@ package net.syscon.elite.service.impl;
 import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.ReferenceCode;
-import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
-import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
-import net.syscon.elite.api.model.bulkappointments.AppointmentsToCreate;
+import net.syscon.elite.api.model.bulkappointments.*;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.AppointmentsService;
@@ -20,11 +18,14 @@ import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Validated
@@ -33,6 +34,7 @@ public class AppointmentsServiceImpl implements AppointmentsService {
 
     // Maximum of 1000 values in an Oracle 'IN' clause is current hard limit. (See #validateBookingIds below).
     private static final int MAXIMUM_NUMBER_OF_APPOINTMENTS = 1000;
+    private static final Duration MAXIMUM_DURATION = Duration.ofDays(365);
 
     private final BookingRepository bookingRepository;
     private final AuthenticationFacade authenticationFacade;
@@ -64,7 +66,9 @@ public class AppointmentsServiceImpl implements AppointmentsService {
     @Override
     public void createAppointments(@NotNull @Valid AppointmentsToCreate appointments) {
 
-        enforceMaximumNumberOfAppointments(appointments);
+        assertFewerThanMaximumNumberOfBookingIds(appointments);
+        assertRepeatsFallWithinYear(appointments.getRepeat());
+
 
         final var defaults = appointments.getAppointmentDefaults();
 
@@ -79,12 +83,18 @@ public class AppointmentsServiceImpl implements AppointmentsService {
 
         assertAdditionalAppointmentConstraints(flattenedDetails);
 
-        bookingRepository.createMultipleAppointments(flattenedDetails, defaults, agencyId);
-
-        trackAppointmentsCreated(flattenedDetails, defaults);
+        createAppointments(withRepeats(appointments.getRepeat(), flattenedDetails), defaults, agencyId);
     }
 
-    private void enforceMaximumNumberOfAppointments(AppointmentsToCreate appointments) {
+    private void assertRepeatsFallWithinYear(Repeat repeat) {
+        if (repeat == null) return;
+        Duration duration = repeat.duration();
+        if (duration.compareTo(MAXIMUM_DURATION) > 0) {
+            throw new BadRequestException("Specified repeats exceed the maximum interval of 365 days");
+        }
+    }
+
+    private void assertFewerThanMaximumNumberOfBookingIds(AppointmentsToCreate appointments) {
         final int numberOfAppointments = appointments.getAppointments().size();
 
         if (numberOfAppointments > MAXIMUM_NUMBER_OF_APPOINTMENTS) {
@@ -149,5 +159,38 @@ public class AppointmentsServiceImpl implements AppointmentsService {
         logMap.put("count", Integer.toString(appointments.size()));
 
         telemetryClient.trackEvent("AppointmentsCreated", logMap, null);
+    }
+
+    static List<AppointmentDetails> withRepeats(Repeat repeat, List<AppointmentDetails> details) {
+        if (repeat == null) return details;
+        return details.stream()
+                .flatMap(d -> withRepeats(repeat, d))
+                .collect(Collectors.toList());
+    }
+
+    static Stream<AppointmentDetails> withRepeats(Repeat repeat, AppointmentDetails details) {
+        return repeat
+                .dateTimeStream(details.getStartTime())
+                .map(t -> buildFromPrototypeWithStartTime(details, t));
+    }
+
+
+    private static AppointmentDetails buildFromPrototypeWithStartTime(AppointmentDetails prototype, LocalDateTime startTime) {
+        var builder = prototype.toBuilder().startTime(startTime);
+        if (prototype.getEndTime() != null) {
+            builder.endTime(LocalDateTime.of(
+                    startTime.getYear(),
+                    startTime.getMonth(),
+                    startTime.getDayOfMonth(),
+                    prototype.getEndTime().getHour(),
+                    prototype.getEndTime().getMinute()));
+        }
+        return builder.build();
+    }
+
+
+    private void createAppointments(List<AppointmentDetails> details, AppointmentDefaults defaults, String agencyId) {
+        bookingRepository.createMultipleAppointments(details, defaults, agencyId);
+        trackAppointmentsCreated(details, defaults);
     }
 }
