@@ -8,14 +8,17 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static java.util.stream.Collectors.groupingBy;
 
 @Repository
 public class MovementsRepositoryImpl extends RepositoryBase implements MovementsRepository {
 
+    private static final Set<String> DEACTIVATE_REASON_CODES = Set.of("A", "C", "E", "I");
     private final StandardBeanPropertyRowMapper<Movement> MOVEMENT_MAPPER = new StandardBeanPropertyRowMapper<>(Movement.class);
     private final StandardBeanPropertyRowMapper<OffenderMovement> OFFENDER_MOVEMENT_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderMovement.class);
     private final StandardBeanPropertyRowMapper<RollCount> ROLLCOUNT_MAPPER = new StandardBeanPropertyRowMapper<>(RollCount.class);
@@ -62,7 +65,9 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
         return jdbcTemplate.query(sql, createParams(
                 "agencyId", agencyId,
                 "certifiedFlag", certifiedFlag,
-                "livingUnitId", null),
+                "livingUnitId", null,
+                "deactivateReasonCodes", DEACTIVATE_REASON_CODES,
+                "currentDateTime", new Date()),
                 ROLLCOUNT_MAPPER);
     }
 
