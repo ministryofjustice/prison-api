@@ -8,6 +8,7 @@ import lombok.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.SortedSet;
 
 @ApiModel(description = "Incident Case")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -53,16 +54,16 @@ public class IncidentCase {
     @NotNull
     private LocalDateTime reportTime;
 
-    @ApiModelProperty(required = true, value = "Current Status of Incident", example = "2131231", position = 9,
+    @ApiModelProperty(required = true, value = "Current Status of Incident", example = "CLOSE", position = 9,
             allowableValues = "CLOSE,DUP,AWAN,INAN,INREQ,INAME,PIU,IUP",
             notes = "AWAN = Awaiting Analysis\n" +
-            "INAN = In Analysis\n" +
-            "INREQ = Information Required\n" +
-            "INAME =Information Amended\n" +
-            "CLOSE = Closed\n" +
-            "PIU = Post Incident Update\n" +
-            "IUP = Incident Updated\n" +
-            "DUP = Duplicate (Created In Error)")
+                    "INAN = In Analysis\n" +
+                    "INREQ = Information Required\n" +
+                    "INAME =Information Amended\n" +
+                    "CLOSE = Closed\n" +
+                    "PIU = Post Incident Update\n" +
+                    "IUP = Incident Updated\n" +
+                    "DUP = Duplicate (Created In Error)")
     @NotNull
     private String incidentStatus;
 
@@ -71,4 +72,12 @@ public class IncidentCase {
 
     @ApiModelProperty(value = "Is the response completed?", example = "true", position = 11)
     private Boolean responseLockedFlag;
+
+    @ApiModelProperty(value = "Question And Answer Responses", position = 12)
+    private SortedSet<IncidentResponse> responses;
+
+    @ApiModelProperty(value = "Parties Involved in case", position = 13)
+    private SortedSet<IncidentParty> parties;
 }
+
+

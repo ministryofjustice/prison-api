@@ -1,5 +1,6 @@
 package net.syscon.elite.repository;
 
+import net.syscon.elite.api.model.IncidentCase;
 import net.syscon.elite.repository.impl.IncidentCaseRepository;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
@@ -15,6 +16,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -37,11 +40,33 @@ public class IncidentCaseRepositoryTest {
 
     @Test
     public void testGetIncident() {
-        var incidentCase = repository.getIncidentCase(-1L);
-        assertThat(incidentCase).isPresent();
-        assertThat(incidentCase.get().getIncidentCaseId()).isEqualTo(-1L);
+        var incidentCases = repository.getIncidentCases(List.of(-1L));
+        assertThat(incidentCases).hasSize(1);
+        IncidentCase incidentCase1 = incidentCases.get(0);
+        assertThat(incidentCase1.getIncidentCaseId()).isEqualTo(-1L);
+        assertThat(incidentCase1.getResponses()).hasSize(19);
+        assertThat(incidentCase1.getParties()).hasSize(6);
     }
 
+    @Test
+    public void testGetIncidentCasesByBookingId() {
+        var incidentCases = repository.getIncidentCasesByBookingId(-1L, "ASSAULT", null);
+        assertThat(incidentCases).hasSize(3);
+        IncidentCase incidentCase1 = incidentCases.get(0);
+        assertThat(incidentCase1.getIncidentCaseId()).isEqualTo(-1L);
+        assertThat(incidentCase1.getResponses()).hasSize(19);
+        assertThat(incidentCase1.getParties()).hasSize(6);
+    }
+
+    @Test
+    public void testGetIncidentCasesByOffenderNo() {
+        var incidentCases = repository.getIncidentCasesByOffenderNo("A1234AA", null, List.of("ASSIAL", "POR"));
+        assertThat(incidentCases).hasSize(1);
+        IncidentCase incidentCase1 = incidentCases.get(0);
+        assertThat(incidentCase1.getIncidentCaseId()).isEqualTo(-1L);
+        assertThat(incidentCase1.getResponses()).hasSize(19);
+        assertThat(incidentCase1.getParties()).hasSize(6);
+    }
     @Test
     public void testGetQuestionnaire() {
         var questionnaire = repository.getQuestionnaire("IR_TYPE", "ASSAULT").orElse(null);

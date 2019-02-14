@@ -2,6 +2,7 @@ package net.syscon.elite.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 
@@ -19,15 +20,23 @@ import java.util.SortedSet;
 @ToString
 public class QuestionnaireQuestion implements Comparable<QuestionnaireQuestion>{
 
+    @ApiModelProperty(required = true, value = "")
     private Long questionnaireQueId;
+    @ApiModelProperty(required = true, value = "", position = 1)
     private int questionSeq;
+    @ApiModelProperty(required = true, value = "", position = 2)
     private String questionDesc;
+    @ApiModelProperty(required = true, value = "", position = 3)
     private int questionListSeq;
+    @ApiModelProperty(required = true, value = "", position = 4)
     private Boolean questionActiveFlag;
+    @ApiModelProperty(required = true, value = "", position = 5)
     private LocalDateTime questionExpiryDate;
+    @ApiModelProperty(required = true, value = "", position = 6)
     private Boolean multipleAnswerFlag;
+    @ApiModelProperty(required = true, value = "", position = 7)
     private Long nextQuestionnaireQueId;
-
+    @ApiModelProperty(required = true, value = "", position = 8)
     private SortedSet<QuestionnaireAnswer> answers;
 
     @Override
