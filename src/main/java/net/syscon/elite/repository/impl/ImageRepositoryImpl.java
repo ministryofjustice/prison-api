@@ -2,8 +2,6 @@ package net.syscon.elite.repository.impl;
 
 import net.syscon.elite.api.model.ImageDetail;
 import net.syscon.elite.repository.ImageRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
@@ -14,8 +12,6 @@ import java.util.Optional;
 
 @Repository
 public class ImageRepositoryImpl extends RepositoryBase implements ImageRepository {
-
-	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	@Override
 	public Optional<ImageDetail> findImageDetail(final Long imageId) {
