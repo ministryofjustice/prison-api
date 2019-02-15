@@ -7,6 +7,7 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.ResponseDelegate;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -732,6 +733,20 @@ public interface BookingResource {
     UpdateAttendanceResponse updateAttendance(@ApiParam(value = "The offenderNo of the prisoner", required = true) @PathParam("offenderNo") String offenderNo,
                                               @ApiParam(value = "The activity id", required = true) @PathParam("activityId") Long activityId,
                                               @ApiParam(value = "", required = true) UpdateAttendance body);
+
+    @GET
+    @Path("/{bookingId}/incidents")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Return a set Incidents for a given booking Id", notes = "Can be filtered by participation type and incident type")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = IncidentCase.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    IncidentsResource.IncidentListResponse getIncidentsByBookingId(@ApiParam(value = "bookingId", required = true) @PathParam("bookingId") @NotNull Long bookingId,
+                                                                   @ApiParam(value = "incidentType", example = "ASSAULT") @QueryParam("incidentType") String incidentType,
+                                                                   @ApiParam(value = "participationRoles", example = "ASSIAL", allowMultiple = true, allowableValues = "ACTINV,ASSIAL,FIGHT,IMPED,PERP,SUSASS,SUSINV,VICT,AI,PAS,AO") @QueryParam("participationRoles") List<String> participationRoles) ;
 
     class GetOffenderBookingsResponse extends ResponseDelegate {
 
