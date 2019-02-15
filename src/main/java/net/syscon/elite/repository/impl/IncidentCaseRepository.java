@@ -2,6 +2,7 @@ package net.syscon.elite.repository.impl;
 
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
+import net.syscon.elite.service.EntityNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.stereotype.Repository;
@@ -26,32 +27,43 @@ public class IncidentCaseRepository extends RepositoryBase {
 
 
     public List<IncidentCase> getIncidentCasesByOffenderNo(String offenderNo, String incidentType, List<String> participationRoles) {
-        String sql = getQuery("GET_INCIDENT_CASES_BY_OFFENDER_NO");
+        String sql = generateSql(incidentType, participationRoles, "GET_INCIDENT_CASES_BY_OFFENDER_NO");
+        var incidentCaseIds = jdbcTemplate.queryForList(sql,
+                createParams("offenderNo", offenderNo, "incidentType", incidentType, "participationRoles", participationRoles),
+                Long.class);
+        if (incidentCaseIds.isEmpty()) {
+            throw EntityNotFoundException.withId(offenderNo);
+        }
+        return getIncidentCases(incidentCaseIds);
 
+    }
+
+    public List<IncidentCase> getIncidentCasesByBookingId(Long bookingId, String incidentType, List<String> participationRoles) {
+        String sql = generateSql(incidentType, participationRoles, "GET_INCIDENT_CASES_BY_BOOKING_ID");
+
+        var incidentCaseIds = jdbcTemplate.queryForList(sql,
+                createParams("bookingId", bookingId, "incidentType", incidentType, "participationRoles", participationRoles),
+                Long.class);
+
+        if (incidentCaseIds.isEmpty()) {
+            throw EntityNotFoundException.withId(bookingId);
+        }
+        return getIncidentCases(incidentCaseIds);
+    }
+
+    private String generateSql(String incidentType, List<String> participationRoles, String get_incident_cases_by_offender_no) {
+        String sql = getQuery(get_incident_cases_by_offender_no);
         if (StringUtils.isNotBlank(incidentType)) {
             sql += " AND " + getQuery("FILTER_BY_TYPE");
         }
         if (participationRoles != null && !participationRoles.isEmpty()) {
             sql += " AND " + getQuery("FILTER_BY_PARTICIPATION");
         }
-        var incidentCaseIds = jdbcTemplate.queryForList(sql,
-                createParams("offenderNo", offenderNo, "incidentType", incidentType, "participationRoles", participationRoles),
-                Long.class);
-        return getIncidentCases(incidentCaseIds);
-
-    }
-
-    public List<IncidentCase> getIncidentCasesByBookingId(Long bookingId, String incidentType, List<String> participationRoles) {
-        String sql = getQuery("GET_INCIDENT_CASES_BY_BOOKING_ID");
-        var incidentCaseIds = jdbcTemplate.queryForList(sql,
-                createParams("bookingId", bookingId, "incidentType", incidentType, "participationRoles", participationRoles),
-                Long.class);
-
-        return getIncidentCases(incidentCaseIds);
+        return sql;
     }
 
     public List<IncidentCase> getIncidentCases(List<Long> incidentCaseIds) {
-        Validate.notNull(incidentCaseIds, "incidentCaseIds are required.");
+        Validate.notEmpty(incidentCaseIds, "incidentCaseIds are required.");
 
         var flatIncidentCases = jdbcTemplate.query(getQuery("GET_INCIDENT_CASE"),
                 createParams("incidentCaseIds", incidentCaseIds),
