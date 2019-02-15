@@ -94,26 +94,6 @@ public class AppointmentsServiceImplTest {
     }
 
     @Test(expected = BadRequestException.class)
-    public void repeatIntervalTooLarge() {
-        appointmentsService.createAppointments(AppointmentsToCreate
-                .builder()
-                .appointmentDefaults(
-                        AppointmentDefaults
-                                .builder()
-                                .build())
-                .appointments(Collections.emptyList())
-                .repeat(Repeat
-                        .builder()
-                        .repeatPeriod(RepeatPeriod.DAILY)
-                        .count(367)
-                        .build())
-                .build());
-
-        verifyNoMoreInteractions(telemetryClient);
-    }
-
-
-    @Test(expected = BadRequestException.class)
     public void locationNotInCaseload() {
         stubLocation(LOCATION_C);
 
@@ -220,6 +200,59 @@ public class AppointmentsServiceImplTest {
                         LOCATION_B.getAgencyId());
 
         verify(telemetryClient).trackEvent(eq("AppointmentsCreated"), anyMap(), isNull());
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void appointmentStartTimeTooLate() {
+        stubLocation(LOCATION_B);
+        stubValidReferenceCode(REFERENCE_CODE_T);
+        stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
+
+        final var appointmentsToCreate = AppointmentsToCreate
+                .builder()
+                .appointmentDefaults(
+                        AppointmentDefaults
+                                .builder()
+                                .locationId(LOCATION_B.getLocationId())
+                                .appointmentType(REFERENCE_CODE_T.getCode())
+                                .startTime(LocalDateTime.now().plusHours(1L))
+                                .build())
+                .appointments(Collections.singletonList(DETAILS_1))
+                .repeat(Repeat
+                        .builder()
+                        .count(13)
+                        .repeatPeriod(RepeatPeriod.MONTHLY)
+                        .build())
+                .build();
+
+        appointmentsService.createAppointments(appointmentsToCreate);
+    }
+
+    @Test(expected = BadRequestException.class)
+    public void appointmentEndTimeTooLate() {
+        stubLocation(LOCATION_B);
+        stubValidReferenceCode(REFERENCE_CODE_T);
+        stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
+
+        final var appointmentsToCreate = AppointmentsToCreate
+                .builder()
+                .appointmentDefaults(
+                        AppointmentDefaults
+                                .builder()
+                                .locationId(LOCATION_B.getLocationId())
+                                .appointmentType(REFERENCE_CODE_T.getCode())
+                                .startTime(LocalDateTime.now().plusHours(1L))
+                                .endTime(LocalDateTime.now().plusDays(31L).plusHours(1L))
+                                .build())
+                .appointments(Collections.singletonList(DETAILS_1))
+                .repeat(Repeat
+                        .builder()
+                        .count(12)
+                        .repeatPeriod(RepeatPeriod.MONTHLY)
+                        .build())
+                .build();
+
+        appointmentsService.createAppointments(appointmentsToCreate);
     }
 
     @Test(expected = BadRequestException.class)
