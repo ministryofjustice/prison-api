@@ -3,7 +3,10 @@ package net.syscon.elite.service.impl;
 import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.ReferenceCode;
-import net.syscon.elite.api.model.bulkappointments.*;
+import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
+import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
+import net.syscon.elite.api.model.bulkappointments.AppointmentsToCreate;
+import net.syscon.elite.api.model.bulkappointments.Repeat;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.AppointmentsService;
@@ -34,7 +37,7 @@ public class AppointmentsServiceImpl implements AppointmentsService {
 
     // Maximum of 1000 values in an Oracle 'IN' clause is current hard limit. (See #validateBookingIds below).
     private static final int MAXIMUM_NUMBER_OF_APPOINTMENTS = 1000;
-    private static final Duration MAXIMUM_DURATION = Duration.ofDays(365);
+    private static final int APPOINTMENT_TIME_LIMIT_IN_DAYS = 365;
 
     private final BookingRepository bookingRepository;
     private final AuthenticationFacade authenticationFacade;
@@ -67,8 +70,6 @@ public class AppointmentsServiceImpl implements AppointmentsService {
     public void createAppointments(@NotNull @Valid AppointmentsToCreate appointments) {
 
         assertFewerThanMaximumNumberOfBookingIds(appointments);
-        assertRepeatsFallWithinYear(appointments.getRepeat());
-
 
         final var defaults = appointments.getAppointmentDefaults();
 
@@ -79,19 +80,34 @@ public class AppointmentsServiceImpl implements AppointmentsService {
         assertValidAppointmentType(defaults.getAppointmentType());
         assertAllBookingIdsInCaseload(appointments.getAppointments(), agencyId);
 
-        List<AppointmentDetails> flattenedDetails = appointments.withDefaults();
+        final var flattenedDetails = appointments.withDefaults();
 
         assertAdditionalAppointmentConstraints(flattenedDetails);
 
-        createAppointments(withRepeats(appointments.getRepeat(), flattenedDetails), defaults, agencyId);
+        final var withRepeats = withRepeats(appointments.getRepeat(), flattenedDetails);
+
+        assertThatAppointmentsFallWithin(withRepeats, appointmentTimeLimit());
+        createAppointments(withRepeats, defaults, agencyId);
     }
 
-    private void assertRepeatsFallWithinYear(Repeat repeat) {
-        if (repeat == null) return;
-        Duration duration = repeat.duration();
-        if (duration.compareTo(MAXIMUM_DURATION) > 0) {
-            throw new BadRequestException("Specified repeats exceed the maximum interval of 365 days");
+    private void assertThatAppointmentsFallWithin(List<AppointmentDetails> appointments, LocalDateTime limit) {
+        for (var appointment : appointments) {
+            assertThatAppointmentFallsWithin(appointment, limit);
         }
+    }
+
+    private void assertThatAppointmentFallsWithin(AppointmentDetails appointment, LocalDateTime limit) {
+        if (appointment.getStartTime().isAfter(limit)) {
+            throw new BadRequestException("An appointment startTime is later than the limit of " + limit);
+        }
+        if (appointment.getEndTime() == null) return;
+        if (appointment.getEndTime().isAfter(limit)) {
+            throw new BadRequestException("An appointment endTime is later than the limit of " + limit);
+        }
+    }
+
+    private static LocalDateTime appointmentTimeLimit() {
+        return LocalDateTime.now().plusDays(APPOINTMENT_TIME_LIMIT_IN_DAYS);
     }
 
     private void assertFewerThanMaximumNumberOfBookingIds(AppointmentsToCreate appointments) {
@@ -169,22 +185,21 @@ public class AppointmentsServiceImpl implements AppointmentsService {
     }
 
     static Stream<AppointmentDetails> withRepeats(Repeat repeat, AppointmentDetails details) {
+        final var appointmentDuration = Optional
+                .ofNullable(details.getEndTime())
+                .map(endTime -> Duration.between(details.getStartTime(), endTime));
+
         return repeat
                 .dateTimeStream(details.getStartTime())
-                .map(t -> buildFromPrototypeWithStartTime(details, t));
+                .map(startTime -> buildFromPrototypeWithStartTimeAndDuration(details, startTime, appointmentDuration));
     }
 
 
-    private static AppointmentDetails buildFromPrototypeWithStartTime(AppointmentDetails prototype, LocalDateTime startTime) {
+    private static AppointmentDetails buildFromPrototypeWithStartTimeAndDuration(AppointmentDetails prototype,
+                                                                                 LocalDateTime startTime,
+                                                                                 Optional<Duration> appointmentDuration) {
         var builder = prototype.toBuilder().startTime(startTime);
-        if (prototype.getEndTime() != null) {
-            builder.endTime(LocalDateTime.of(
-                    startTime.getYear(),
-                    startTime.getMonth(),
-                    startTime.getDayOfMonth(),
-                    prototype.getEndTime().getHour(),
-                    prototype.getEndTime().getMinute()));
-        }
+        appointmentDuration.ifPresent(d -> builder.endTime(startTime.plus(d)));
         return builder.build();
     }
 
