@@ -4,6 +4,7 @@ import net.syscon.elite.api.model.IncidentCase;
 import net.syscon.elite.api.model.Questionnaire;
 import net.syscon.elite.repository.impl.IncidentCaseRepository;
 import net.syscon.elite.security.VerifyBookingAccess;
+import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.EntityNotFoundException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -17,9 +18,11 @@ import static java.lang.String.format;
 public class IncidentService {
 
     private final IncidentCaseRepository repository;
+    private final BookingService bookingService;
 
-    public IncidentService(IncidentCaseRepository repository) {
+    public IncidentService(IncidentCaseRepository repository, BookingService bookingService) {
         this.repository = repository;
+        this.bookingService = bookingService;
     }
 
     @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER')")
@@ -28,13 +31,15 @@ public class IncidentService {
     }
 
     @VerifyBookingAccess
-    public List<IncidentCase> getIncidentCasesByBookingId(@NotNull long bookingId, String incidentType, List<String> participationRoles) {
-        return repository.getIncidentCasesByBookingId(bookingId, incidentType, participationRoles);
+    public List<IncidentCase> getIncidentCasesByBookingId(@NotNull long bookingId, List<String> incidentTypes, List<String> participationRoles) {
+        bookingService.checkBookingExists(bookingId);
+        return repository.getIncidentCasesByBookingId(bookingId, incidentTypes, participationRoles);
     }
 
     @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER')")
-    public List<IncidentCase> getIncidentCasesByOffenderNo(@NotNull String offenderNo, String incidentType, List<String> participationRoles) {
-        return repository.getIncidentCasesByOffenderNo(offenderNo, incidentType, participationRoles);
+    public List<IncidentCase> getIncidentCasesByOffenderNo(@NotNull String offenderNo, List<String> incidentTypes, List<String> participationRoles) {
+        bookingService.getBookingIdByOffenderNo(offenderNo);
+        return repository.getIncidentCasesByOffenderNo(offenderNo, incidentTypes, participationRoles);
     }
 
     public Questionnaire getQuestionnaire(@NotNull String category, @NotNull String code) {

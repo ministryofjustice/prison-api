@@ -87,5 +87,5 @@ FILTER_BY_PARTICIPATION {
 }
 
 FILTER_BY_TYPE {
-  ic.incident_type = :incidentType
+  ic.incident_type IN (:incidentTypes)
 }

@@ -745,7 +745,7 @@ public interface BookingResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     IncidentsResource.IncidentListResponse getIncidentsByBookingId(@ApiParam(value = "bookingId", required = true) @PathParam("bookingId") @NotNull Long bookingId,
-                                                                   @ApiParam(value = "incidentType", example = "ASSAULT") @QueryParam("incidentType") String incidentType,
+                                                                   @ApiParam(value = "incidentType", example = "ASSAULT", allowMultiple = true) @QueryParam("incidentType") List<String> incidentTypes,
                                                                    @ApiParam(value = "participationRoles", example = "ASSIAL", allowMultiple = true, allowableValues = "ACTINV,ASSIAL,FIGHT,IMPED,PERP,SUSASS,SUSINV,VICT,AI,PAS,AO") @QueryParam("participationRoles") List<String> participationRoles) ;
 
     class GetOffenderBookingsResponse extends ResponseDelegate {

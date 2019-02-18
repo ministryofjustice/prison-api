@@ -2,8 +2,6 @@ package net.syscon.elite.repository.impl;
 
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
-import net.syscon.elite.service.EntityNotFoundException;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.stereotype.Repository;
 
@@ -26,34 +24,35 @@ public class IncidentCaseRepository extends RepositoryBase {
             new StandardBeanPropertyRowMapper<>(FlatQuestionnaire.class);
 
 
-    public List<IncidentCase> getIncidentCasesByOffenderNo(String offenderNo, String incidentType, List<String> participationRoles) {
-        String sql = generateSql(incidentType, participationRoles, "GET_INCIDENT_CASES_BY_OFFENDER_NO");
+    public List<IncidentCase> getIncidentCasesByOffenderNo(String offenderNo, List<String> incidentTypes, List<String> participationRoles) {
+        String sql = generateSql(incidentTypes, participationRoles, "GET_INCIDENT_CASES_BY_OFFENDER_NO");
         var incidentCaseIds = jdbcTemplate.queryForList(sql,
-                createParams("offenderNo", offenderNo, "incidentType", incidentType, "participationRoles", participationRoles),
+                createParams("offenderNo", offenderNo, "incidentTypes", incidentTypes, "participationRoles", participationRoles),
                 Long.class);
-        if (incidentCaseIds.isEmpty()) {
-            throw EntityNotFoundException.withId(offenderNo);
+        if (!incidentCaseIds.isEmpty()) {
+            return getIncidentCases(incidentCaseIds);
         }
-        return getIncidentCases(incidentCaseIds);
 
+        return Collections.emptyList();
     }
 
-    public List<IncidentCase> getIncidentCasesByBookingId(Long bookingId, String incidentType, List<String> participationRoles) {
-        String sql = generateSql(incidentType, participationRoles, "GET_INCIDENT_CASES_BY_BOOKING_ID");
+    public List<IncidentCase> getIncidentCasesByBookingId(Long bookingId, List<String> incidentTypes, List<String> participationRoles) {
+        String sql = generateSql(incidentTypes, participationRoles, "GET_INCIDENT_CASES_BY_BOOKING_ID");
 
         var incidentCaseIds = jdbcTemplate.queryForList(sql,
-                createParams("bookingId", bookingId, "incidentType", incidentType, "participationRoles", participationRoles),
+                createParams("bookingId", bookingId, "incidentTypes", incidentTypes, "participationRoles", participationRoles),
                 Long.class);
 
-        if (incidentCaseIds.isEmpty()) {
-            throw EntityNotFoundException.withId(bookingId);
+        if (!incidentCaseIds.isEmpty()) {
+            return getIncidentCases(incidentCaseIds);
         }
-        return getIncidentCases(incidentCaseIds);
+
+        return Collections.emptyList();
     }
 
-    private String generateSql(String incidentType, List<String> participationRoles, String get_incident_cases_by_offender_no) {
-        String sql = getQuery(get_incident_cases_by_offender_no);
-        if (StringUtils.isNotBlank(incidentType)) {
+    private String generateSql( List<String> incidentTypes, List<String> participationRoles, String sqlName) {
+        String sql = getQuery(sqlName);
+        if (incidentTypes != null && !incidentTypes.isEmpty()) {
             sql += " AND " + getQuery("FILTER_BY_TYPE");
         }
         if (participationRoles != null && !participationRoles.isEmpty()) {
