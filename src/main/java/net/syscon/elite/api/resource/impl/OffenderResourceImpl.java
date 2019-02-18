@@ -26,10 +26,10 @@ public class OffenderResourceImpl implements OffenderResource {
     }
 
     @Override
-    public IncidentListResponse getIncidentsByOffenderNo(@NotNull String offenderNo, String incidentType, List<String> participationRoles) {
+    public IncidentListResponse getIncidentsByOffenderNo(@NotNull String offenderNo, List<String> incidentTypes, List<String> participationRoles) {
         return new IncidentListResponse(Response.status(200)
                 .header("Content-Type", MediaType.APPLICATION_JSON).build(),
-                incidentService.getIncidentCasesByOffenderNo(offenderNo, incidentType, participationRoles));
+                incidentService.getIncidentCasesByOffenderNo(offenderNo, incidentTypes, participationRoles));
     }
 
     @Override

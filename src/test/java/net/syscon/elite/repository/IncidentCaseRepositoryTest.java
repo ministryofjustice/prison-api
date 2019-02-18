@@ -50,12 +50,18 @@ public class IncidentCaseRepositoryTest {
 
     @Test
     public void testGetIncidentCasesByBookingId() {
-        var incidentCases = repository.getIncidentCasesByBookingId(-1L, "ASSAULT", null);
+        var incidentCases = repository.getIncidentCasesByBookingId(-1L, List.of("ASSAULT", "ASSULTS3"), null);
         assertThat(incidentCases).hasSize(3);
         IncidentCase incidentCase1 = incidentCases.get(0);
         assertThat(incidentCase1.getIncidentCaseId()).isEqualTo(-1L);
         assertThat(incidentCase1.getResponses()).hasSize(19);
         assertThat(incidentCase1.getParties()).hasSize(6);
+    }
+
+    @Test
+    public void testGetIncidentCasesNoIncidents() {
+        var incidentCases = repository.getIncidentCasesByBookingId(-10L, List.of("ASSAULT", "ASSULTS3"), null);
+        assertThat(incidentCases).hasSize(0);
     }
 
     @Test

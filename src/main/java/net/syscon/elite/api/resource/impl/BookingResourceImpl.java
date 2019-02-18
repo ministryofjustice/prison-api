@@ -217,11 +217,11 @@ public class BookingResourceImpl implements BookingResource {
         return UpdateAttendanceResponse.respond201WithApplicationJson();
     }
 
-    public IncidentsResource.IncidentListResponse getIncidentsByBookingId(@NotNull Long bookingId, String incidentType, List<String> participationRoles) {
+    public IncidentsResource.IncidentListResponse getIncidentsByBookingId(@NotNull Long bookingId, List<String> incidentTypes, List<String> participationRoles) {
 
         return new IncidentsResource.IncidentListResponse(Response.status(200)
                 .header("Content-Type", MediaType.APPLICATION_JSON).build(),
-                incidentService.getIncidentCasesByBookingId(bookingId, incidentType, participationRoles));
+                incidentService.getIncidentCasesByBookingId(bookingId, incidentTypes, participationRoles));
 
     }
 
