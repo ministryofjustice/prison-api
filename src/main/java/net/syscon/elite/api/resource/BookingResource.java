@@ -7,11 +7,13 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.ResponseDelegate;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 @Api(tags = {"/bookings"})
 @SuppressWarnings("unused")
@@ -109,6 +111,25 @@ public interface BookingResource {
                                                 @ApiParam(value = "Requested limit to number of alert records returned.", defaultValue = "10") @HeaderParam("Page-Limit") Long pageLimit,
                                                 @ApiParam(value = "Comma separated list of one or more of the following fields - <b>alertType, alertCode, dateCreated, dateExpires</b>") @HeaderParam("Sort-Fields") String sortFields,
                                                 @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);
+
+    @GET
+    @Path("/offenderNo/{offenderNo}/alerts")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Offender alerts offenderNo.", notes = "Offender alerts by offenderNo.", nickname="getOffenderAlertsByOffenderNo")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = Alert.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+    GetOffenderAlertsResponse getOffenderAlertsByOffenderNo(@ApiParam(value = "The offender no of the offender", required = true) @PathParam("offenderNo") String offenderNo,
+                                                @ApiParam(value = "Search parameters with the format [connector]:&lt;fieldName&gt;:&lt;operator&gt;:&lt;value&gt;:[format],... <p>Connector operators - and, or <p>Supported Operators - eq, neq, gt, gteq, lt, lteq, like, in</p> <p>Supported Fields - alertType, alertCode, dateCreated, dateExpires</p> ", required = true) @QueryParam("query") String query,
+                                                @ApiParam(value = "Requested offset of first record in returned collection of alert records.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
+                                                @ApiParam(value = "Requested limit to number of alert records returned.", defaultValue = "10") @HeaderParam("Page-Limit") Long pageLimit,
+                                                @ApiParam(value = "Comma separated list of one or more of the following fields - <b>alertType, alertCode, dateCreated, dateExpires</b>") @HeaderParam("Sort-Fields") String sortFields,
+                                                @ApiParam(value = "Sort order (ASC or DESC) - defaults to ASC.", defaultValue = "ASC") @HeaderParam("Sort-Order") Order sortOrder);
+
+
 
     @GET
     @Path("/{bookingId}/alerts/{alertId}")
@@ -540,6 +561,18 @@ public interface BookingResource {
     GetOffenderBookingByOffenderNoResponse getOffenderBookingByOffenderNo(@ApiParam(value = "The offenderNo of offender", required = true) @PathParam("offenderNo") String offenderNo,
                                                                           @ApiParam(value = "If set to true then full data is returned", defaultValue = "false") @QueryParam("fullInfo") boolean fullInfo);
 
+    @POST
+    @Path("/offenders")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Offender detail.", notes = "Offender detail for active offenders", nickname = "getBasicInmateDetailsForOffenders")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = InmateBasicDetails.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    List<InmateBasicDetails> getBasicInmateDetailsForOffenders(@ApiParam(value = "The offenderNo of offender", required = true) Set<String> offenders);
+
     @GET
     @Path("/offenderNo/{offenderNo}/image/data")
     @Consumes({ "application/json" })
@@ -700,6 +733,20 @@ public interface BookingResource {
     UpdateAttendanceResponse updateAttendance(@ApiParam(value = "The offenderNo of the prisoner", required = true) @PathParam("offenderNo") String offenderNo,
                                               @ApiParam(value = "The activity id", required = true) @PathParam("activityId") Long activityId,
                                               @ApiParam(value = "", required = true) UpdateAttendance body);
+
+    @GET
+    @Path("/{bookingId}/incidents")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Return a set Incidents for a given booking Id", notes = "Can be filtered by participation type and incident type")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = IncidentCase.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    IncidentsResource.IncidentListResponse getIncidentsByBookingId(@ApiParam(value = "bookingId", required = true) @PathParam("bookingId") @NotNull Long bookingId,
+                                                                   @ApiParam(value = "incidentType", example = "ASSAULT", allowMultiple = true) @QueryParam("incidentType") List<String> incidentTypes,
+                                                                   @ApiParam(value = "participationRoles", example = "ASSIAL", allowMultiple = true, allowableValues = "ACTINV,ASSIAL,FIGHT,IMPED,PERP,SUSASS,SUSINV,VICT,AI,PAS,AO") @QueryParam("participationRoles") List<String> participationRoles) ;
 
     class GetOffenderBookingsResponse extends ResponseDelegate {
 

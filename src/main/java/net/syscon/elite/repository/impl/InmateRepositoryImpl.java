@@ -101,6 +101,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     private final StandardBeanPropertyRowMapper<PrisonerDetail> PRISONER_DETAIL_MAPPER =
             new StandardBeanPropertyRowMapper<>(PrisonerDetail.class);
 
+    private final StandardBeanPropertyRowMapper<InmateBasicDetails> OFFENDER_BASIC_DETAILS_MAPPER = new StandardBeanPropertyRowMapper<>(InmateBasicDetails.class);
+
     private final Map<String, FieldMapper> PRISONER_DETAIL_WITH_OFFENDER_ID_FIELD_MAP;
 
     private final Map<String, FieldMapper> aliasMapping = new ImmutableMap.Builder<String, FieldMapper>()
@@ -558,6 +560,17 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "agencyId", agencyId));
 
 	}
+
+    @Override
+    public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders, boolean accessToAllData, Set<String> caseloads) {
+        final var baseSql = getQuery("FIND_BASIC_INMATE_DETAIL_BY_OFFENDER_NO");
+        final var sql = accessToAllData ? baseSql : String.format("%s AND %s", baseSql ,getQuery("CASELOAD_FILTER"));
+
+        return jdbcTemplate.query(
+                sql,
+                createParams("offenders", offenders, "caseLoadId", caseloads, "bookingSeq", 1, "activeFlag",  "Y"),
+                OFFENDER_BASIC_DETAILS_MAPPER);
+    }
 
     private int getOffenderAssessmentSeq(Long bookingId) {
         final String sql = getQuery("OFFENDER_ASSESSMENTS_SEQ_MAX");

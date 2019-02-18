@@ -555,8 +555,12 @@ public class InmateRepositoryTest {
         assertThat(list).asList().extracting("offenderNo", "bookingId", "firstName", "lastName", "status").contains(
                 Tuple.tuple("A1234AB", -2L, "GILLIAN", "ANDERSON", UNCATEGORISED),
                 Tuple.tuple("A1234AB", -2L, "GILLIAN", "ANDERSON", UNCATEGORISED),
-                Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", AWAITING_APPROVAL),
                 Tuple.tuple("A1176RS", -32L, "FRED", "JAMES", UNCATEGORISED));
+
+        assertThat(list).asList().extracting("offenderNo", "bookingId", "firstName", "lastName", "status",
+                "categoriserFirstName", "categoriserLastName", "category").contains(
+                Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", AWAITING_APPROVAL, "Elite2", "User", "B"));
+
         assertThat(list).asList().hasSize(23);
 
         assertThat(list).asList().extracting("offenderNo").doesNotContain("-7");  // "Active" categorisation should be ignored
@@ -588,13 +592,22 @@ public class InmateRepositoryTest {
 
         final CategorisationDetail catDetail = CategorisationDetail.builder().bookingId(-5L).category("D").committee("GOV").build();
 
-        repository.insertCategory(catDetail, "LEI", 123L, "JDOG", 1004L);
+        repository.insertCategory(catDetail, "LEI", -11L, "JDOG", 1004L);
 
         final List<OffenderCategorise> list = repository.getUncategorised("LEI");
 
         assertThat(list).asList().extracting("offenderNo", "bookingId", "firstName", "lastName", "status").contains(
                 Tuple.tuple("A1234AE", -5L, "DONALD", "DUCK", AWAITING_APPROVAL));
 
+    }
+
+    @Test
+    public void testThatActiveOffendersAreReturnedMatchingNumberAndCaseLoad() {
+        final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI", "A1183SH"),false, Set.of("LEI"));
+        assertThat(offenders).hasSize(1);
+        assertThat(offenders).asList().extracting("offenderNo", "bookingId", "agencyId", "firstName", "lastName", "middleName" , "dateOfBirth", "assignedLivingUnitId").contains(
+                Tuple.tuple("A1234AI", -9L, "LEI", "CHESTER", "THOMPSON", "JAMES", LocalDate.parse("1970-03-01"), -7L)
+        );
     }
 
     /*****************************************************************************************/

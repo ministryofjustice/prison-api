@@ -7,6 +7,7 @@ import net.syscon.elite.service.support.InmateDto;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface InmateService {
 
@@ -34,4 +35,6 @@ public interface InmateService {
 
 	List<Long> getPersonalOfficerBookings(String username);
 	List<InmateDto> findInmatesByLocation(String username, String agencyId, List<Long> locations);
+
+    List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders);
 }

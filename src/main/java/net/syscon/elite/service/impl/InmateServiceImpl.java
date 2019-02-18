@@ -21,6 +21,7 @@ import net.syscon.elite.service.support.InmatesHelper;
 import net.syscon.elite.service.support.LocationProcessor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.WordUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.ws.rs.BadRequestException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -131,6 +133,28 @@ public class InmateServiceImpl implements InmateService {
         Set<String> caseLoadIds = getUserCaseloadIds(username);
 
         return repository.findInmatesByLocation(agencyId, locations, caseLoadIds);
+    }
+
+    @Override
+    public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders) {
+        final var accessToAllData = securityUtils.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER");
+
+        return repository.getBasicInmateDetailsForOffenders(offenders, accessToAllData,  !accessToAllData ? loadCaseLoadsOrThrow() : null)
+                .stream()
+                .map(offender -> offender.toBuilder()
+                        .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
+                        .middleName(WordUtils.capitalizeFully(offender.getMiddleName()))
+                        .lastName(WordUtils.capitalizeFully(offender.getLastName()))
+                        .build()
+                ).collect(Collectors.toList());
+    }
+
+    private Set<String> loadCaseLoadsOrThrow() {
+        final var caseloads = caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
+        if (caseloads.isEmpty())
+            throw new BadRequestException("User has not active caseloads.");
+
+        return caseloads;
     }
 
     @Override

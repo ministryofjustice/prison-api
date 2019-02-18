@@ -21,7 +21,7 @@ import java.util.Map;
 @SuppressWarnings("unused")
 @ApiModel(description = "Inmate Detail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Builder
+@Builder(toBuilder = true   )
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode

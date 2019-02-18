@@ -2,6 +2,7 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.resource.BookingResource;
+import net.syscon.elite.api.resource.IncidentsResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
@@ -9,6 +10,7 @@ import net.syscon.elite.core.RestResource;
 import net.syscon.elite.repository.support.IdempotentRequestControl;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.*;
+import net.syscon.elite.service.impl.IncidentService;
 import net.syscon.elite.service.keyworker.KeyWorkerAllocationService;
 import net.syscon.elite.service.support.WrappedErrorResponseException;
 import net.syscon.elite.web.handler.ResourceExceptionHandler;
@@ -16,7 +18,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +29,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static javax.ws.rs.core.Response.Status.CREATED;
 import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
@@ -47,6 +53,7 @@ public class BookingResourceImpl implements BookingResource {
     private final KeyWorkerAllocationService keyworkerService;
     private final BookingMaintenanceService bookingMaintenanceService;
     private final IdempotentRequestService idempotentRequestService;
+    private final IncidentService incidentService;
 
     public BookingResourceImpl(AuthenticationFacade authenticationFacade, BookingService bookingService,
                                InmateService inmateService, CaseNoteService caseNoteService,
@@ -54,7 +61,7 @@ public class BookingResourceImpl implements BookingResource {
                                ContactService contactService, AdjudicationService adjudicationService,
                                ImageService imageService, KeyWorkerAllocationService keyworkerService,
                                BookingMaintenanceService bookingMaintenanceService,
-                               IdempotentRequestService idempotentRequestService) {
+                               IdempotentRequestService idempotentRequestService, IncidentService incidentService) {
         this.authenticationFacade = authenticationFacade;
         this.bookingService = bookingService;
         this.inmateService = inmateService;
@@ -67,6 +74,7 @@ public class BookingResourceImpl implements BookingResource {
         this.keyworkerService = keyworkerService;
         this.bookingMaintenanceService = bookingMaintenanceService;
         this.idempotentRequestService = idempotentRequestService;
+        this.incidentService = incidentService;
     }
 
     @Override
@@ -169,6 +177,11 @@ public class BookingResourceImpl implements BookingResource {
         return GetOffenderBookingByOffenderNoResponse.respond200WithApplicationJson(inmate);
     }
 
+    @Override
+    public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders) {
+        return inmateService.getBasicInmateDetailsForOffenders(offenders);
+    }
+
 
     @Override
     public GetBookingActivitiesResponse getBookingActivities(Long bookingId, String fromDate, String toDate, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
@@ -204,6 +217,14 @@ public class BookingResourceImpl implements BookingResource {
         return UpdateAttendanceResponse.respond201WithApplicationJson();
     }
 
+    public IncidentsResource.IncidentListResponse getIncidentsByBookingId(@NotNull Long bookingId, List<String> incidentTypes, List<String> participationRoles) {
+
+        return new IncidentsResource.IncidentListResponse(Response.status(200)
+                .header("Content-Type", MediaType.APPLICATION_JSON).build(),
+                incidentService.getIncidentCasesByBookingId(bookingId, incidentTypes, participationRoles));
+
+    }
+
     @Override
     public GetOffenderAlertsResponse getOffenderAlerts(Long bookingId, String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
         Page<Alert> inmateAlerts = inmateAlertService.getInmateAlerts(
@@ -215,6 +236,12 @@ public class BookingResourceImpl implements BookingResource {
                 nvl(pageLimit, 10L));
 
         return GetOffenderAlertsResponse.respond200WithApplicationJson(inmateAlerts);
+    }
+
+    @Override
+    public GetOffenderAlertsResponse getOffenderAlertsByOffenderNo(String offenderNo, String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
+        Long bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
+        return getOffenderAlerts(bookingId, query, pageOffset, pageLimit, sortFields, sortOrder);
     }
 
     @Override

@@ -295,6 +295,11 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAlerts.getAlerts(bookingId);
     }
 
+    @When("^alerts are requested for an offender booking using offender No \"([^\"]*)\"$")
+    public void alertsAreRequestedForOffenderBookingByOffenderNo(String offenderNo) {
+        bookingAlerts.getAlertsByOffenderNo(offenderNo);
+    }
+
     @Then("^\"([^\"]*)\" alerts are returned$")
     public void numberAlertsAreReturned(String expectedCount) {
         bookingAlerts.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
@@ -538,5 +543,20 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @Then("^offender with booking \"([^\"]*)\" has a categorised status of AWAITING_APROVAL$")
     public void offenderWithBookingHasACategorisedStatusOfAWAITING_APROVAL(String bookingId) throws Throwable {
         bookingAssessment.verifyCategorisedPendingApproval(Long.parseLong(bookingId));
+    }
+
+    @When("^a request is made for  \"([^\"]*)\"$")
+    public void aRequestIsMadeFor(String offenders) throws Throwable {
+        bookingDetail.findBookingDetails(List.of(offenders.split(",")));
+    }
+
+    @Then("^data is returned that includes \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
+    public void dataIsReturnedThatIncludes(String firstName, String lastName, String middleName, String offenderNo, String bookingId, String agencyId) throws Throwable {
+        bookingDetail.verifyOffenders(firstName, lastName, middleName, offenderNo, bookingId, agencyId);
+    }
+
+    @Then("^the total records returned are \"([^\"]*)\"$")
+    public void theTotalRecordsReturnedAre(int size) throws Throwable {
+        bookingDetail.verifyOffenderCount(size);
     }
 }

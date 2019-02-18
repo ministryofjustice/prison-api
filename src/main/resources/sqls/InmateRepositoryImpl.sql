@@ -44,6 +44,23 @@ FIND_BASIC_INMATE_DETAIL {
   WHERE B.OFFENDER_BOOK_ID = :bookingId
 }
 
+FIND_BASIC_INMATE_DETAIL_BY_OFFENDER_NO {
+SELECT OB.OFFENDER_BOOK_ID  as BOOKING_ID,
+       OB.BOOKING_NO,
+       OB.AGY_LOC_ID        as AGENCY_ID,
+       OB.LIVING_UNIT_ID    as ASSIGNED_LIVING_UNIT_ID,
+       O.OFFENDER_ID_DISPLAY as OFFENDER_NO,
+       O.FIRST_NAME,
+       CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL THEN concat(' ', O.middle_name_2) ELSE '' END) MIDDLE_NAME,
+       O.LAST_NAME,
+       O.BIRTH_DATE as DATE_OF_BIRTH
+FROM OFFENDER_BOOKINGS OB
+       INNER JOIN OFFENDERS O ON OB.OFFENDER_ID = O.OFFENDER_ID
+WHERE O.OFFENDER_ID_DISPLAY IN (:offenders)
+ AND OB.ACTIVE_FLAG = :activeFlag
+ AND OB.BOOKING_SEQ = :bookingSeq
+}
+
 GET_IMAGE_DATA_FOR_BOOKING {
   SELECT
     I.OFFENDER_IMAGE_ID AS IMAGE_ID,
@@ -333,17 +350,25 @@ SELECT
   at_offender.first_name,
   categories.assessment_seq,
   categories.assessment_date,
-  categories.assess_status
+  categories.assess_status,
+  categories.categoriser_first_name,
+  categories.categoriser_last_name,
+  categories.category
 FROM
   offenders at_offender
     INNER JOIN offender_bookings at_offender_booking ON at_offender.offender_id = at_offender_booking.offender_id AND at_offender_booking.active_flag = 'Y'
     LEFT JOIN (SELECT
          off_ass.offender_book_id,
          off_ass.assess_status,
+         sm.first_name               AS CATEGORISER_FIRST_NAME,
+         sm.last_name                AS CATEGORISER_LAST_NAME,
+         -- this is the correct column for a PENDING assessment:
+         off_ass.calc_sup_level_type AS CATEGORY,
          off_ass.assessment_seq,
          off_ass.assessment_date
        FROM offender_assessments off_ass
        JOIN assessments ass ON off_ass.assessment_type_id = ass.assessment_id
+       JOIN staff_members sm ON off_ass.assess_staff_id = sm.staff_id
        WHERE ass.assessment_code = 'CATEGORY'
          AND ass.assessment_class = 'TYPE'
          AND off_ass.assess_status IN ('A','P')

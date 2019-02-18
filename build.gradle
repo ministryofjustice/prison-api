@@ -112,8 +112,7 @@ dependencies {
     compile("io.springfox:springfox-swagger-ui:2.9.2")
     compile("io.springfox:springfox-swagger2:2.9.2")
     compile("net.logstash.logback:logstash-logback-encoder:5.2")
-    compile("com.microsoft.azure:applicationinsights-core:${version_applicationinsights}")
-    compile("com.microsoft.azure:applicationinsights-web:${version_applicationinsights}")
+    compile("com.microsoft.azure:applicationinsights-spring-boot-starter:1.1.1")
     compile("com.microsoft.azure:applicationinsights-logging-logback:${version_applicationinsights}")
 
     compile("org.apache.commons:commons-lang3:3.8.1")
