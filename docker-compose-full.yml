@@ -40,7 +40,7 @@ services:
       - MAINTAIN_ROLES_ENABLED=true
 
   prisonstaffhub:
-    image: mojdigitalstudio/whereabouts:latest
+    image: mojdigitalstudio/prisonstaffhub:latest
     depends_on:
       - oauth-server
       - elite2-api
