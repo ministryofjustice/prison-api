@@ -29,11 +29,13 @@ public class CacheInfoContributor implements InfoContributor {
         for (String name : cacheManager.getCacheNames()) {
             final Cache cache = cacheManager.getCache(name);
             final StatisticsGateway statistics = cache.getStatistics();
-            results.put(name, String.format("%d / %d hits:%d misses:%d bytes:%d",
+            results.put(name, String.format("%d / %d hits:%d misses:%d exp:%d notfound:%d bytes:%d",
                     cache.getKeysNoDuplicateCheck().size(),
                     cache.getCacheConfiguration().getMaxEntriesLocalHeap(),
                     statistics.cacheHitCount(),
                     statistics.cacheMissCount(),
+                    statistics.cacheMissExpiredCount(),
+                    statistics.cacheMissNotFoundCount(),
                     statistics.getLocalHeapSizeInBytes()
             ));
             memory += statistics.getLocalHeapSizeInBytes();
