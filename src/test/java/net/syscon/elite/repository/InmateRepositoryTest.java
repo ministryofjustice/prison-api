@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
@@ -21,6 +22,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
@@ -40,6 +42,9 @@ public class InmateRepositoryTest {
 
     @Autowired
     private InmateRepository repository;
+
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
     @Before
     public void init() {
@@ -598,7 +603,32 @@ public class InmateRepositoryTest {
 
         assertThat(list).asList().extracting("offenderNo", "bookingId", "firstName", "lastName", "status").contains(
                 Tuple.tuple("A1234AE", -5L, "DONALD", "DUCK", AWAITING_APPROVAL));
+    }
 
+    @Test
+    public void testApproveCategory() {
+        final CategoryApprovalDetail catDetail = CategoryApprovalDetail.builder()
+                .bookingId(-1L)
+                .category("C")
+                .evaluationDate(LocalDate.of(2019, 2, 27))
+                .reviewSupLevelText("My comment").build();
+
+        repository.approveCategory(catDetail,"KDOG");
+
+        final List<AssessmentDto> list = repository.findAssessments(Arrays.asList(-1L), "CATEGORY", Collections.emptySet());
+
+        assertThat(list).asList().extracting("reviewSupLevelType", "assessStatus").contains(Tuple.tuple("C", "A"));
+
+        final List<Map<String, Object>> results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -1 AND ASSESSMENT_SEQ = 8");
+        assertThat(results).asList().hasSize(1);
+        assertThat(results.get(0).get("REVIEW_SUP_LEVEL_TYPE")).isEqualTo("C");
+        assertThat(results.get(0).get("REVIEW_COMMITTE_CODE")).isEqualTo("REVIEW");
+        assertThat(results.get(0).get("EVALUATION_RESULT_CODE")).isEqualTo("APP");
+        assertThat(results.get(0).get("ASSESS_STATUS")).isEqualTo("A");
+        assertThat((Timestamp) results.get(0).get("EVALUATION_DATE")).isCloseTo("2019-02-27T00:00:00.000", 1000);
+        assertThat(results.get(0).get("REVIEW_SUP_LEVEL_TEXT")).isEqualTo("My comment");
+        assertThat(results.get(0).get("MODIFY_USER_ID")).isEqualTo("KDOG");
+        assertThat((Date) results.get(0).get("MODIFY_DATETIME")).isToday();
     }
 
     @Test

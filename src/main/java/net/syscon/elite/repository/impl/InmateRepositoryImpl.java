@@ -24,6 +24,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -540,11 +541,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	@Override
 	public void insertCategory(CategorisationDetail detail, String agencyId, Long assessStaffId, String userId, Long score) {
 
-
-		final String sql = getQuery("INSERT_CATEGORY");
-
-        jdbcTemplate.update(
-                sql,
+		jdbcTemplate.update(
+				getQuery("INSERT_CATEGORY"),
                 createParams("bookingId", detail.getBookingId(),
                         "seq", getOffenderAssessmentSeq(detail.getBookingId()) + 1,
                         "assessmentDate", LocalDate.now(),
@@ -558,10 +556,41 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "assessCommitteeCode", detail.getCommittee(),
                         "dateTime", LocalDateTime.now(),
                         "agencyId", agencyId));
-
 	}
 
-    @Override
+	@Override
+	public void approveCategory(CategoryApprovalDetail detail, String userId) {
+		final Integer seq = getOffenderCategorySeq(detail.getBookingId());
+		if (seq == null) {
+			throw new BadRequestException(String.format("No category assessment found, category %.10s, booking %d",
+					detail.getCategory(),
+					detail.getBookingId()));
+		}
+		int result = jdbcTemplate.update(
+				getQuery("APPROVE_CATEGORY"),
+				createParams("bookingId", detail.getBookingId(),
+						"seq", seq,
+						"assessStatus", "A",
+						"category", detail.getCategory(),
+						"evaluationDate", detail.getEvaluationDate(),
+						"evaluationResultCode", "APP", // or 'REJ'
+						"reviewCommitteeCode", "REVIEW", //detail.getReviewCommitteeCode(),
+//						"reviewPlacementText", detail.getReviewPlacementText(),
+//						"committeeCommentText", detail.getCommitteeCommentText(),
+//						"nextReviewDate", detail.getNextReviewDate(),
+						"reviewSupLevelText", detail.getReviewSupLevelText(),
+						"userId", userId,
+						"dateTime", LocalDateTime.now())
+		);
+		if (result != 1) {
+			throw new BadRequestException(String.format("No pending category assessment found, category %.10s, booking %d, seq %d",
+					detail.getCategory(),
+					detail.getBookingId(),
+					seq));
+		}
+	}
+
+	@Override
     public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders, boolean accessToAllData, Set<String> caseloads) {
         final var baseSql = getQuery("FIND_BASIC_INMATE_DETAIL_BY_OFFENDER_NO");
         final var sql = accessToAllData ? baseSql : String.format("%s AND %s", baseSql ,getQuery("CASELOAD_FILTER"));
@@ -572,14 +601,13 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 OFFENDER_BASIC_DETAILS_MAPPER);
     }
 
-    private int getOffenderAssessmentSeq(Long bookingId) {
-        final String sql = getQuery("OFFENDER_ASSESSMENTS_SEQ_MAX");
+    private Integer getOffenderAssessmentSeq(Long bookingId) {
 
-        Integer maxSeq = null;
+		Integer maxSeq = null;
 
         try {
             maxSeq = jdbcTemplate.queryForObject(
-                    sql,
+					getQuery("OFFENDER_ASSESSMENTS_SEQ_MAX"),
                     createParams("bookingId", bookingId), Integer.class);
         } catch (EmptyResultDataAccessException ex) {
             // no row - null response
@@ -587,4 +615,11 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
         return maxSeq == null ? 1 : maxSeq;
     }
+
+	private Integer getOffenderCategorySeq(Long bookingId) {
+
+		return jdbcTemplate.queryForObject(
+				getQuery("OFFENDER_CATEGORY_SEQ_MAX"),
+				createParams("bookingId", bookingId), Integer.class);
+	}
 }

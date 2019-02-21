@@ -8,7 +8,8 @@ public enum ReferenceDomain {
     INTERNAL_SCHEDULE_TYPE("INT_SCH_TYPE"),
     INTERNAL_LOCATION_USAGE("ILOC_USG"),
     PERFORMANCE("PERFORMANCE"),
-    EVENT_OUTCOME("PS_PA_OC");
+    EVENT_OUTCOME("PS_PA_OC"),
+    CATEGORY("SUP_LVL_TYPE");
 
     private final String domain;
 

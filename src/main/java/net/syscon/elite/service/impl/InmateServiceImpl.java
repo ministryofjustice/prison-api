@@ -19,6 +19,7 @@ import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
 import net.syscon.elite.service.support.InmatesHelper;
 import net.syscon.elite.service.support.LocationProcessor;
+import net.syscon.elite.service.support.ReferenceDomain;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
@@ -28,6 +29,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.validation.annotation.Validated;
 
 import javax.ws.rs.BadRequestException;
 import java.math.BigDecimal;
@@ -41,12 +43,14 @@ import static net.syscon.elite.service.support.InmatesHelper.deriveClassificatio
 
 @Service
 @Transactional(readOnly = true)
+@Validated
 public class InmateServiceImpl implements InmateService {
     private final InmateRepository repository;
     private final CaseLoadService caseLoadService;
     private final BookingService bookingService;
     private final UserService userService;
     private final InmateAlertService inmateAlertService;
+    private final ReferenceDomainService referenceDomainService;
     private final AuthenticationFacade authenticationFacade;
     private final int maxBatchSize;
     private final UserRepository userRepository;
@@ -60,6 +64,7 @@ public class InmateServiceImpl implements InmateService {
     public InmateServiceImpl(InmateRepository repository,
                              CaseLoadService caseLoadService,
                              InmateAlertService inmateAlertService,
+                             ReferenceDomainService referenceDomainService,
                              BookingService bookingService,
                              UserService userService,
                              UserRepository userRepository,
@@ -73,6 +78,7 @@ public class InmateServiceImpl implements InmateService {
         this.repository = repository;
         this.caseLoadService = caseLoadService;
         this.inmateAlertService = inmateAlertService;
+        this.referenceDomainService = referenceDomainService;
         this.securityUtils = securityUtils;
         this.telemetryClient = telemetryClient;
         this.locationTypeGranularity = locationTypeGranularity;
@@ -380,11 +386,29 @@ public class InmateServiceImpl implements InmateService {
         repository.insertCategory(categorisationDetail, currentBooking.getAgencyLocationId(), userDetail.getStaffId(), userDetail.getUsername(), 1004L);  // waiting for Paul Morris response
 
         // Log event
-        telemetryClient.trackEvent("CategorisationCreated", ImmutableMap.of("bookingId", bookingId.toString(), "category", categorisationDetail.getCategory()), null);
+        telemetryClient.trackEvent("CategorisationCreated", ImmutableMap.of("bookingId", bookingId.toString(),"category", categorisationDetail.getCategory()), null);
     }
 
+    @Override
+    @VerifyBookingAccess
+    @PreAuthorize("hasRole('APPROVE_CATEGORISATION')")
+    @Transactional
+    public void approveCategorisation(Long bookingId, CategoryApprovalDetail detail) {
+        validate(detail);
+        final UserDetail userDetail = userService.getUserByUsername(authenticationFacade.getCurrentUsername());
+        repository.approveCategory(detail, userDetail.getUsername());
 
+        // Log event
+        telemetryClient.trackEvent("CategorisationApproved", ImmutableMap.of("bookingId", bookingId.toString(), "category", detail.getCategory()), null);
+    }
 
+    private void validate(CategoryApprovalDetail detail) {
+        try {
+            referenceDomainService.getReferenceCodeByDomainAndCode(ReferenceDomain.CATEGORY.getDomain(), detail.getCategory(), false);
+        } catch (EntityNotFoundException ex) {
+            throw new BadRequestException("Category not recognised.");
+        }
+    }
 
     @Override
     @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH"})

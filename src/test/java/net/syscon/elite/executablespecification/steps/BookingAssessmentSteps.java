@@ -3,6 +3,7 @@ package net.syscon.elite.executablespecification.steps;
 import com.google.common.collect.ImmutableList;
 import net.syscon.elite.api.model.Assessment;
 import net.syscon.elite.api.model.CategorisationDetail;
+import net.syscon.elite.api.model.CategoryApprovalDetail;
 import net.syscon.elite.api.model.OffenderCategorise;
 import net.syscon.elite.api.support.CategorisationStatus;
 import net.syscon.elite.test.EliteClientException;
@@ -21,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.Assert.assertNotNull;
 import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.PUT;
 
 public class BookingAssessmentSteps extends CommonSteps {
     private static final String API_BOOKING_PREFIX = API_PREFIX + "bookings/";
@@ -120,13 +122,30 @@ public class BookingAssessmentSteps extends CommonSteps {
         try {
             createUpdateResponse =
                     restTemplate.exchange(
-                            API_ASSESSMENTS_PREFIX  + "category/categorise",
+                            API_ASSESSMENTS_PREFIX + "category/categorise",
                             POST,
                             createEntity(CategorisationDetail.builder().bookingId(bookingId).category(category).committee(committee).build()), ResponseEntity.class);
 
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    private void doApproveCategorisationApiCall(Long bookingId, String category, LocalDate date, String comment) {
+        init();
+        try {
+            createUpdateResponse =
+                    restTemplate.exchange(
+                            API_ASSESSMENTS_PREFIX + "category/approve",
+                            PUT,
+                            createEntity(CategoryApprovalDetail.builder()
+                                    .bookingId(bookingId)
+                                    .category(category)
+                                    .evaluationDate(date)
+                                    .reviewSupLevelText(comment)
+                                    .build()), ResponseEntity.class);
 
         } catch (EliteClientException ex) {
-            createUpdateResponse = null;
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -137,6 +156,7 @@ public class BookingAssessmentSteps extends CommonSteps {
         assessment = null;
         assessments = null;
         uncategorised = null;
+        createUpdateResponse = null;
     }
 
     public void verifyField(String field, String value) throws ReflectiveOperationException {
@@ -201,7 +221,18 @@ public class BookingAssessmentSteps extends CommonSteps {
         assertThat(uncategorised).extracting("bookingId", "status").contains(tuple(Long.valueOf(bookingId), CategorisationStatus.AWAITING_APPROVAL));
     }
 
-    public void createCategorisation(long bookingId, String category, String committee) {
+    public void verifyCategorisedNotPresent(long bookingId) {
+        verifyNoError();
+        assertThat(uncategorised).asList().noneSatisfy(c -> {
+            assertThat(((OffenderCategorise) c).getBookingId()).isEqualTo(bookingId);
+        });
+    }
+
+    public void createCategorisation(Long bookingId, String category, String committee) {
         doCreateCategorisationApiCall(bookingId, category, committee);
+    }
+
+    public void approveCategorisation(Long bookingId, String category, LocalDate date, String comment) {
+        doApproveCategorisationApiCall(bookingId, category, date, comment);
     }
 }

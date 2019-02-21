@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -331,7 +332,7 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^alert details are returned as follows:$")
-    public void alertsAreReturnedAsFollows(DataTable table) throws Throwable {
+    public void alertsAreReturnedAsFollows(DataTable table) {
         final List<Alert> expected = table.asList(Alert.class);
         bookingAlerts.verifyAlerts(expected);
     }
@@ -413,9 +414,14 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAssessment.getCsrasUsingPost(offenderNoList);
     }
 
-    @Then("^bad request response is received from booking assessments API$")
-    public void badRequestResponseIsReceivedFromBookingAssessmentsAPI() {
-        bookingAssessment.verifyBadRequest("List of Offender Ids must be provided");
+    @Then("^bad request response is received from booking assessments API with message \"([^\"]*)\"$")
+    public void badRequestResponseIsReceivedFromBookingAssessmentsAPI(String message) {
+        bookingAssessment.verifyBadRequest(message);
+    }
+
+    @Then("^access denied response is received from booking assessments API$")
+    public void accessDeniedResponseIsReceivedFromAssessmentsAPI() {
+        bookingAssessment.verifyAccessDenied();
     }
 
     @Then("^correct results are returned as for single assessment$")
@@ -519,44 +525,56 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     }
 
     @When("^a request for IEP summaries are made for the following booking ids \"([^\"]*)\"$")
-    public void aRequestForIEPSummariesAreMadeForTheFollowingBookingIds(String bookings) throws Throwable {
+    public void aRequestForIEPSummariesAreMadeForTheFollowingBookingIds(String bookings) {
         var bookingIds = Arrays.asList(bookings.split(","));
         bookingIEP.getBookingIEPSummaryForOffenders(bookingIds, false);
     }
 
     @Then("^the response should contain an entry with \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
-    public void theResponseShouldContainAnEntryWith(String bookingId, String iepLevel, String iepDetailCount, String iepDate) throws Throwable {
+    public void theResponseShouldContainAnEntryWith(String bookingId, String iepLevel, String iepDetailCount, String iepDate) {
         bookingIEP.verifyIepEntry(Long.parseLong(bookingId), iepLevel, Integer.parseInt(iepDetailCount), LocalDate.parse(iepDate) );
     }
 
     @When("^a request for IEP summaries are made for the following booking ids \"([^\"]*)\" including extra details$")
-    public void aRequestForIEPSummariesAreMadeForTheFollowingBookingIdsIncludingExtraDetails(String bookings) throws Throwable {
+    public void aRequestForIEPSummariesAreMadeForTheFollowingBookingIdsIncludingExtraDetails(String bookings) {
         var bookingIds = Arrays.asList(bookings.split(","));
         bookingIEP.getBookingIEPSummaryForOffenders(bookingIds, true);
     }
 
     @When("^a categorisation request is made for booking \"([^\"]*)\" with category \"([^\"]*)\" for committee \"([^\"]*)\"$")
-    public void aCategorisationRequestIsMadeForBookingWithCategoryForCommitteeAt(String bookingId, String category, String committee) throws Throwable {
+    public void aCategorisationRequestIsMadeForBookingWithCategoryForCommitteeAt(String bookingId, String category, String committee) {
         bookingAssessment.createCategorisation(Long.parseLong(bookingId), category, committee);
     }
 
+    @When("^a categorisation is approved for booking \"([^\"]*)\" with category \"([^\"]*)\" date \"([^\"]*)\" and comment \"([^\"]*)\"$")
+    public void aCategorisationApprovalForBookingWithCategory(String bookingId, String category, String date, String comment) {
+        final LocalDate localDate = StringUtils.isBlank(date) ? null : LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE);
+        final Long id = StringUtils.isBlank(bookingId) ? null : Long.parseLong(bookingId);
+        bookingAssessment.approveCategorisation(id, StringUtils.trimToNull(category), localDate, StringUtils.trimToNull(comment));
+    }
+
     @Then("^offender with booking \"([^\"]*)\" has a categorised status of AWAITING_APROVAL$")
-    public void offenderWithBookingHasACategorisedStatusOfAWAITING_APROVAL(String bookingId) throws Throwable {
+    public void offenderWithBookingHasACategorisedStatusOfAWAITINGAPROVAL(String bookingId) {
         bookingAssessment.verifyCategorisedPendingApproval(Long.parseLong(bookingId));
     }
 
+    @Then("^offender with booking \"([^\"]*)\" is not present$")
+    public void offenderWithBookingNotPresent(String bookingId) {
+        bookingAssessment.verifyCategorisedNotPresent(Long.parseLong(bookingId));
+    }
+
     @When("^a request is made for  \"([^\"]*)\"$")
-    public void aRequestIsMadeFor(String offenders) throws Throwable {
+    public void aRequestIsMadeFor(String offenders) {
         bookingDetail.findBookingDetails(List.of(offenders.split(",")));
     }
 
     @Then("^data is returned that includes \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
-    public void dataIsReturnedThatIncludes(String firstName, String lastName, String middleName, String offenderNo, String bookingId, String agencyId) throws Throwable {
+    public void dataIsReturnedThatIncludes(String firstName, String lastName, String middleName, String offenderNo, String bookingId, String agencyId) {
         bookingDetail.verifyOffenders(firstName, lastName, middleName, offenderNo, bookingId, agencyId);
     }
 
     @Then("^the total records returned are \"([^\"]*)\"$")
-    public void theTotalRecordsReturnedAre(int size) throws Throwable {
+    public void theTotalRecordsReturnedAre(int size) {
         bookingDetail.verifyOffenderCount(size);
     }
 }

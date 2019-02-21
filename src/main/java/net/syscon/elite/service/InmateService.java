@@ -18,6 +18,7 @@ public interface InmateService {
 	InmateDetail getBasicInmateDetail(Long bookingId);
 
     void createCategorisation(Long bookingId, CategorisationDetail detail);
+	void approveCategorisation(Long bookingId, CategoryApprovalDetail detail);
 
     Page<Alias> findInmateAliases(Long bookingId, String orderBy, Order order, long offset, long limit);
 
