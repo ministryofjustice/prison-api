@@ -72,8 +72,7 @@ public class BulkAppointmentSteps extends CommonSteps {
     public void appointmentsAre(LocalDate date, List<Map<String, String>> appointments) {
         Function<Map<String, String>, Long> classifier = item -> Long.valueOf(item.get("bookingId"));
 
-        Map<Long, Set<Map<String, String>>> expectedAppointments = appointments
-                .stream()
+        Map<Long, Set<Map<String, String>>> expectedAppointments = appointments.stream()
                 .collect(Collectors.groupingBy(classifier, Collectors.toSet()));
 
         expectedAppointments.forEach((id, x) -> getAppointments(id, date));
