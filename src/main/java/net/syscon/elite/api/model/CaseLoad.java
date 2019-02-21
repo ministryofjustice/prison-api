@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import net.syscon.elite.service.support.LocationProcessor;
 
 import javax.validation.constraints.NotBlank;
 import java.util.HashMap;
@@ -25,7 +26,7 @@ import java.util.Map;
 public class CaseLoad {
     @JsonIgnore
     private Map<String, Object> additionalProperties;
-    
+
     @NotBlank
     private String caseLoadId;
 
@@ -37,6 +38,9 @@ public class CaseLoad {
 
     private String caseloadFunction;
 
+    @NotBlank
+    private boolean currentlyActive;
+
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
@@ -44,46 +48,46 @@ public class CaseLoad {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
     /**
-      * Case Load ID
-      */
+     * Case Load ID
+     */
     @ApiModelProperty(required = true, value = "Case Load ID")
     @JsonProperty("caseLoadId")
     public String getCaseLoadId() {
         return caseLoadId;
     }
 
-    public void setCaseLoadId(String caseLoadId) {
+    public void setCaseLoadId(final String caseLoadId) {
         this.caseLoadId = caseLoadId;
     }
 
     /**
-      * Full description of the case load
-      */
+     * Full description of the case load
+     */
     @ApiModelProperty(required = true, value = "Full description of the case load")
     @JsonProperty("description")
     public String getDescription() {
-        return description;
+        return LocationProcessor.formatLocation(description);
     }
 
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
     /**
-      * Type of case load
-      */
+     * Type of case load
+     */
     @ApiModelProperty(required = true, value = "Type of case load")
     @JsonProperty("type")
     public String getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(final String type) {
         this.type = type;
     }
 
@@ -91,31 +95,37 @@ public class CaseLoad {
     public boolean isAdminType() {
         return "ADMIN".equals(caseloadFunction);
     }
+
     /**
-      * Functional Use of the case load (nomis only)
-      */
+     * Functional Use of the case load (nomis only)
+     */
     @ApiModelProperty(value = "Functional Use of the case load (nomis only)")
     @JsonProperty("caseloadFunction")
     public String getCaseloadFunction() {
         return caseloadFunction;
     }
 
-    public void setCaseloadFunction(String caseloadFunction) {
+    public void setCaseloadFunction(final String caseloadFunction) {
         this.caseloadFunction = caseloadFunction;
     }
 
+    @ApiModelProperty(required = true, value = "Indicates that this caseload in the context of a staff member is the current active", example = "false")
+    @JsonProperty("currentlyActive")
+    public boolean isCurrentlyActive() {
+        return currentlyActive;
+    }
+
+    public void setCurrentlyActive(final boolean currentlyActive) {
+        this.currentlyActive = currentlyActive;
+    }
+
     @Override
-    public String toString()  {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("class CaseLoad {\n");
-        
-        sb.append("  caseLoadId: ").append(caseLoadId).append("\n");
-        sb.append("  description: ").append(description).append("\n");
-        sb.append("  type: ").append(type).append("\n");
-        sb.append("  caseloadFunction: ").append(caseloadFunction).append("\n");
-        sb.append("}\n");
-
-        return sb.toString();
+    public String toString() {
+        return String.format("class CaseLoad {\n" +
+                "  caseLoadId: %s\n" +
+                "  description: %s\n" +
+                "  type: %s\n" +
+                "  caseloadFunction: %s\n" +
+                "}\n", caseLoadId, description, type, caseloadFunction);
     }
 }
