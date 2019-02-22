@@ -6,9 +6,6 @@ import net.syscon.elite.api.support.OperationResponse;
 import net.syscon.elite.service.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.util.CollectionUtils;
-
-import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
@@ -18,7 +15,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import java.util.Set;
 
 @Provider
 @Slf4j
@@ -59,7 +55,8 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
             log.warn("Insufficient privileges to access resource.", ex);
         } else if (ex instanceof ConstraintViolationException) {
             status = Response.Status.BAD_REQUEST.getStatusCode();
-            userMessage = formatConstraintErrors(ex);
+            developerMessage = ex.toString();
+            userMessage = ex.getMessage();
             log.warn("JSR303 error.", ex);
         } else if (ex instanceof BadRequestException) {
             status = Response.Status.BAD_REQUEST.getStatusCode();
@@ -79,7 +76,6 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
         } else if (ex instanceof RestServiceException) {
             status = ((RestServiceException) ex).getResponseStatus().getStatusCode();
             userMessage = ex.getMessage();
-            developerMessage = ((RestServiceException) ex).getDetailedMessage();
             log.error("Rest service error", ex);
         } else {
             status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
@@ -93,19 +89,5 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
                 .userMessage(userMessage)
                 .developerMessage(developerMessage)
                 .build();
-    }
-
-    private static String formatConstraintErrors(Exception ex) {
-        StringBuilder sb = new StringBuilder();
-        final Set<ConstraintViolation<?>> constraintViolations = ((ConstraintViolationException) ex).getConstraintViolations();
-        if (CollectionUtils.isEmpty(constraintViolations)) {
-            return "";
-        }
-        for (ConstraintViolation<?> cv : constraintViolations) {
-            sb.append(cv.getMessage());
-            sb.append(',');
-        }
-        sb.setLength(sb.length() - 1);
-        return sb.toString();
     }
 }
