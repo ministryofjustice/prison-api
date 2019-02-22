@@ -1,6 +1,7 @@
 package net.syscon.elite.web.config;
 
 import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.SizeOfPolicyConfiguration;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
@@ -51,6 +52,7 @@ public class CacheConfig implements CachingConfigurer {
     @Bean(destroyMethod="shutdown")
     public net.sf.ehcache.CacheManager ehCacheManager() {
         net.sf.ehcache.config.Configuration config = new net.sf.ehcache.config.Configuration();
+        config.sizeOfPolicy(new SizeOfPolicyConfiguration().maxDepth(10000));
 
         config.addCache(config("referenceDomain", 500, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("referenceCodesByDomain", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
@@ -86,7 +88,7 @@ public class CacheConfig implements CachingConfigurer {
         config.addCache(config("bookingProfileInformation", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("bookingPhysicalCharacteristics", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("bookingPhysicalAttributes", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("offenderIdentifiers", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("offenderIdentifiers", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("bookingIdByOffenderNo", 10000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("payableAttendanceOutcomes", 100, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 

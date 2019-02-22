@@ -3,6 +3,7 @@ package net.syscon.elite.api.resource.impl;
 import io.jsonwebtoken.lang.Collections;
 import net.syscon.elite.api.model.Assessment;
 import net.syscon.elite.api.model.CategorisationDetail;
+import net.syscon.elite.api.model.CategoryApprovalDetail;
 import net.syscon.elite.api.model.OffenderCategorise;
 import net.syscon.elite.api.resource.OffenderAssessmentResource;
 import net.syscon.elite.core.RestResource;
@@ -10,6 +11,8 @@ import net.syscon.elite.service.InmateService;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 /**
@@ -58,6 +61,15 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
     public CreateCategorisationResponse createCategorisation(CategorisationDetail detail) {
         inmateService.createCategorisation(detail.getBookingId(), detail);
         return CreateCategorisationResponse.respond201WithApplicationJson();
+    }
+
+    @Override
+    public Response approveCategorisation(CategoryApprovalDetail detail) {
+        inmateService.approveCategorisation(detail.getBookingId(), detail);
+        return Response.ok()
+                .status(201)
+                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .build();
     }
 
     private void validateOffenderList(List offenderList) {

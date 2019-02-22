@@ -61,7 +61,7 @@ public class InmateServiceImplTest {
 
     @Before
     public void init() {
-        serviceToTest = new InmateServiceImpl(repository, caseLoadService, inmateAlertService,
+        serviceToTest = new InmateServiceImpl(repository, caseLoadService, inmateAlertService, null,
                 bookingService, userService, userRepository, authenticationFacade,
                 keyWorkerAllocationRepository, env, securityUtils, telemetryClient,"WING", 100);
     }

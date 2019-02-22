@@ -138,7 +138,7 @@ Feature: Booking Details
 
   Scenario: Request for assessment information with empty list of offenders (using post request which allows large sets of offenders)
     When an offender booking assessment information POST request is made with offender numbers "" and "CSR"
-    Then bad request response is received from booking assessments API
+    Then bad request response is received from booking assessments API with message "List of Offender Ids must be provided"
 
   Scenario: Request for CSRAs for multiple offenders (using post request which allows large sets of offenders)
     When an offender booking CSRA information POST request is made with offender numbers "A1234AA,A1234AB,A1234AC,A1234AD,A1234AE,A1234AF,A1234AG,A1234AP,NEXIST"
@@ -158,6 +158,47 @@ Feature: Booking Details
     And a request is made for uncategorised offenders at "MDI"
     Then offender with booking "-35" has a categorised status of AWAITING_APROVAL
 
+  Scenario: Approve categorisation
+    Given a user has a token name of "CATEGORISATION_APPROVE"
+    And a request is made for uncategorised offenders at "LEI"
+    And offender with booking "-34" has a categorised status of AWAITING_APROVAL
+    When a categorisation is approved for booking "-34" with category "D" date "2019-02-28" and comment "Make it so"
+    And a request is made for uncategorised offenders at "LEI"
+    Then offender with booking "-34" is not present
+
+  Scenario: Approve categorisation validation: no auth
+    When a categorisation is approved for booking "-34" with category "D" date "2019-02-28" and comment "Make it so"
+    Then access denied response is received from booking assessments API
+
+  Scenario: Approve categorisation validation: no category
+    Given a user has a token name of "CATEGORISATION_APPROVE"
+    When a categorisation is approved for booking "-34" with category "" date "2019-02-28" and comment "Make it so"
+    Then bad request response is received from booking assessments API with message "category must be provided"
+
+  Scenario: Approve categorisation validation: no booking
+    Given a user has a token name of "CATEGORISATION_APPROVE"
+    When a categorisation is approved for booking "" with category "C" date "2019-02-28" and comment "Make it so"
+    Then bad request response is received from booking assessments API with message "bookingId must be provided"
+
+  Scenario: Approve categorisation validation: invalid booking
+    Given a user has a token name of "CATEGORISATION_APPROVE"
+    When a categorisation is approved for booking "-999" with category "C" date "2019-02-28" and comment ""
+    Then resource not found response is received from booking assessments API
+
+  Scenario: Approve categorisation validation: no date
+    Given a user has a token name of "CATEGORISATION_APPROVE"
+    When a categorisation is approved for booking "-34" with category "B" date "" and comment ""
+    Then bad request response is received from booking assessments API with message "Date of approval must be provided"
+
+  Scenario: Approve categorisation validation: invalid category
+    Given a user has a token name of "CATEGORISATION_APPROVE"
+    When a categorisation is approved for booking "-34" with category "hmm" date "2019-02-28" and comment ""
+    Then bad request response is received from booking assessments API with message "Category not recognised."
+
+  Scenario: Approve categorisation validation: no pending category exists
+    Given a user has a token name of "CATEGORISATION_APPROVE"
+    When a categorisation is approved for booking "-33" with category "C" date "2019-02-28" and comment ""
+    Then bad request response is received from booking assessments API with message "No category assessment found, category C, booking -33"
 
   Scenario Outline: Request for specific offender booking record returns language
     When an offender booking request is made with booking id "<bookingId>"
