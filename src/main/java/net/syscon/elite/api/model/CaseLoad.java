@@ -1,14 +1,14 @@
 package net.syscon.elite.api.model;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import net.syscon.elite.service.support.LocationProcessor;
 
 import javax.validation.constraints.NotBlank;
-import java.util.HashMap;
-import java.util.Map;
 
 @ApiModel(description = "Case Load")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -18,9 +18,6 @@ import java.util.Map;
 @EqualsAndHashCode(of = "caseLoadId")
 @Data
 public class CaseLoad {
-    @JsonIgnore
-    private Map<String, Object> additionalProperties;
-
     @ApiModelProperty(required = true, value = "Case Load ID")
     @JsonProperty("caseLoadId")
     @NotBlank
@@ -44,17 +41,6 @@ public class CaseLoad {
     @JsonProperty("currentlyActive")
     @NotBlank
     private boolean currentlyActive;
-
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return additionalProperties == null ? new HashMap<>() : additionalProperties;
-    }
-
-    @ApiModelProperty(hidden = true)
-    @JsonAnySetter
-    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
-        this.additionalProperties = additionalProperties;
-    }
 
     public String getDescription() {
         return LocationProcessor.formatLocation(description);
