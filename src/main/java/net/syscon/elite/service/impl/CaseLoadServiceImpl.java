@@ -11,8 +11,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.lang.String.format;
-
 @Service
 @Transactional(readOnly = true)
 public class CaseLoadServiceImpl implements CaseLoadService {
@@ -29,8 +27,7 @@ public class CaseLoadServiceImpl implements CaseLoadService {
 
     @Override
     public List<CaseLoad> getCaseLoadsForUser(final String username, final boolean allCaseloads) {
-        final var query = allCaseloads ? null : format("type:eq:'%s'", "INST");
-        return caseLoadRepository.getCaseLoadsByUsername(username, query);
+        return allCaseloads ? caseLoadRepository.getAllCaseLoadsByUsername(username) : caseLoadRepository.getCaseLoadsByUsername(username);
     }
 
     @Override

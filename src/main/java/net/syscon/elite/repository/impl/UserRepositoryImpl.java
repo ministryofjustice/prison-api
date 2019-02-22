@@ -12,7 +12,6 @@ import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.elite.service.impl.NameFilter;
 import net.syscon.util.DateTimeConverter;
-import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,7 +63,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
 	@Override
 	public Optional<UserDetail> findByUsername(final String username) {
-		String sql = getQuery("FIND_USER_BY_USERNAME");
+		final var sql = getQuery("FIND_USER_BY_USERNAME");
 		UserDetail userDetails;
 		try {
 			userDetails = jdbcTemplate.queryForObject(
@@ -79,13 +78,13 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
 	@Override
 	@Cacheable("findRolesByUsername")
-	public List<UserRole> findRolesByUsername(final String username, String query) {
-		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(getQuery("FIND_ROLES_BY_USERNAME"), USER_ROLE_MAPPER);
+	public List<UserRole> findRolesByUsername(final String username, final String query) {
+		var builder = queryBuilderFactory.getQueryBuilder(getQuery("FIND_ROLES_BY_USERNAME"), USER_ROLE_MAPPER);
 
 		if (StringUtils.isNotBlank(query)) {
 			builder = builder.addQuery(query);
 		}
-		String sql = builder
+		final var sql = builder
 				.addOrderBy(Order.ASC, "roleCode")
 				.build();
 
@@ -93,14 +92,14 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	}
 
 	@Override
-	public List<AccessRole> findAccessRolesByUsernameAndCaseload(final String username, String caseload, boolean includeAdmin) {
-		String query = getQuery("FIND_ACCESS_ROLES_BY_USERNAME_AND_CASELOAD");
+	public List<AccessRole> findAccessRolesByUsernameAndCaseload(final String username, final String caseload, final boolean includeAdmin) {
+		var query = getQuery("FIND_ACCESS_ROLES_BY_USERNAME_AND_CASELOAD");
 
 		if(!includeAdmin) query += EXCLUDE_BY_ROLE_FUNCTION_CLAUSE;
 
-		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(query, ACCESS_ROLE_MAPPER);
+		final var builder = queryBuilderFactory.getQueryBuilder(query, ACCESS_ROLE_MAPPER);
 
-		String sql = builder
+		final var sql = builder
 				.addOrderBy(Order.ASC, "roleName")
 				.build();
 
@@ -108,18 +107,19 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	}
 
 	@Override
+	@CacheEvict(value = {"getCaseLoadsByUsername", "getAllCaseLoadsByUsername"}, key = "#username")
 	public void updateWorkingCaseLoad(final String username, final String caseLoadId) {
-		final String sql = getQuery("UPDATE_STAFF_ACTIVE_CASE_LOAD");
+		final var sql = getQuery("UPDATE_STAFF_ACTIVE_CASE_LOAD");
 		jdbcTemplate.update(sql, createParams("caseLoadId", caseLoadId, "username", username));
 	}
 
 	@Override
     @Cacheable("findByStaffIdAndStaffUserType")
-	public Optional<UserDetail> findByStaffIdAndStaffUserType(Long staffId, String staffUserType) {
+	public Optional<UserDetail> findByStaffIdAndStaffUserType(final Long staffId, final String staffUserType) {
 		Validate.notNull(staffId, "Staff id is required.");
 		Validate.notBlank(staffUserType, "Staff user type is required.");
 
-		String sql = getQuery("FIND_USER_BY_STAFF_ID_STAFF_USER_TYPE");
+		final var sql = getQuery("FIND_USER_BY_STAFF_ID_STAFF_USER_TYPE");
 
 		UserDetail userDetail;
 
@@ -128,7 +128,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 					sql,
 					createParams("staffId", staffId, "staffUserType", staffUserType),
 					USER_DETAIL_ROW_MAPPER);
-		} catch (EmptyResultDataAccessException ex) {
+		} catch (final EmptyResultDataAccessException ex) {
 			userDetail = null;
 		}
 
@@ -136,11 +136,11 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	}
 
 	@Override
-	public boolean isRoleAssigned(String username, String caseload, long roleId) {
+	public boolean isRoleAssigned(final String username, final String caseload, final long roleId) {
 		Validate.notBlank(caseload, "caseload is required.");
 		Validate.notBlank(username, "username is required.");
 
-		Long count = jdbcTemplate.queryForObject(
+		final var count = jdbcTemplate.queryForObject(
 				getQuery("ROLE_ASSIGNED_COUNT"),
 				createParams(
 						"caseloadId", caseload,
@@ -152,11 +152,11 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	}
 
 	@Override
-	public boolean isUserAssessibleCaseloadAvailable(String caseload, String username) {
+	public boolean isUserAssessibleCaseloadAvailable(final String caseload, final String username) {
 		Validate.notBlank(caseload, "caseload is required.");
 		Validate.notBlank(username, "username is required.");
 
-		Long count = jdbcTemplate.queryForObject(
+		final var count = jdbcTemplate.queryForObject(
 				getQuery("USER_ACCESSIBLE_CASELOAD_COUNT"),
 				createParams("caseloadId", caseload, "username", username),
 				Long.class);
@@ -165,7 +165,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	}
 
     @Override
-    public Optional<Long> getRoleIdForCode(String roleCode) {
+	public Optional<Long> getRoleIdForCode(final String roleCode) {
 	    Validate.notBlank(roleCode, "roleCode is required.");
 
 	    Long roleId;
@@ -182,7 +182,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
     }
 
 	@Override
-	public Optional<AccessRole> getRoleByCode(String roleCode) {
+	public Optional<AccessRole> getRoleByCode(final String roleCode) {
 		Validate.notBlank(roleCode, "roleCode is required.");
 
 		AccessRole role;
@@ -201,7 +201,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
 
 	@Override
-	public void addUserAssessibleCaseload(String caseload, String username) {
+	public void addUserAssessibleCaseload(final String caseload, final String username) {
 		Validate.notBlank(caseload, "caseload is required.");
 		Validate.notBlank(username, "username is required.");
 
@@ -211,7 +211,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	}
 
 	@Override
-	public List<StaffUserRole> getAllStaffRolesForCaseload(String caseload, String roleCode) {
+	public List<StaffUserRole> getAllStaffRolesForCaseload(final String caseload, final String roleCode) {
 		Validate.notBlank(caseload, "caseload is required.");
 		Validate.notBlank(roleCode, "roleCode is required.");
 
@@ -223,7 +223,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
 	@Override
     @CacheEvict(value="findRolesByUsername", allEntries = true)
-    public void addRole(String username, String caseload, Long roleId) {
+	public void addRole(final String username, final String caseload, final Long roleId) {
 		Validate.notBlank(caseload, "caseload is required.");
 		Validate.notBlank(username, "username is required.");
 		Validate.notNull(roleId, "roleId is required.");
@@ -235,7 +235,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
 	@Override
     @CacheEvict(value="findRolesByUsername", allEntries = true)
-	public void removeRole(String username, String caseload, Long roleId) {
+	public void removeRole(final String username, final String caseload, final Long roleId) {
 		Validate.notBlank(caseload, "caseload is required.");
 		Validate.notBlank(username, "username is required.");
 		Validate.notNull(roleId, "roleId is required.");
@@ -246,10 +246,10 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	}
 
 	@Override
-	public List<UserDetail> findAllUsersWithCaseload(String caseloadId, String missingCaseloadId) {
+	public List<UserDetail> findAllUsersWithCaseload(final String caseloadId, final String missingCaseloadId) {
 		Validate.notBlank(caseloadId, "An caseload id is required.");
 
-		String sql = getQuery("FIND_ACTIVE_STAFF_USERS_WITH_ACCESSIBLE_CASELOAD");
+		final var sql = getQuery("FIND_ACTIVE_STAFF_USERS_WITH_ACCESSIBLE_CASELOAD");
 
         return jdbcTemplate.query(
                 sql,
@@ -259,7 +259,7 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 
 
     @Override
-    public Page<UserDetail> findUsersByCaseload(String caseload, String accessRole, NameFilter nameFilter, PageRequest pageRequest) {
+	public Page<UserDetail> findUsersByCaseload(final String caseload, final String accessRole, final NameFilter nameFilter, final PageRequest pageRequest) {
 		Validate.notBlank(caseload, "An caseload id is required.");
 		Validate.notNull(pageRequest, "Page request details are required.");
 
@@ -267,34 +267,34 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
     }
 
 	@Override
-	public Page<UserDetail> findUsers(String accessRole, NameFilter nameFilter, PageRequest pageRequest) {
+	public Page<UserDetail> findUsers(final String accessRole, final NameFilter nameFilter, final PageRequest pageRequest) {
 		Validate.notNull(pageRequest, "Page request details are required.");
 
 		return getUsersByCaseload("FIND_USERS", nameFilter, accessRole, pageRequest, null, null);
 	}
 
 	@Override
-	public Page<UserDetail> getUsersAsLocalAdministrator(String laaUsername, String accessRole, NameFilter nameFilter, PageRequest pageRequest) {
+	public Page<UserDetail> getUsersAsLocalAdministrator(final String laaUsername, final String accessRole, final NameFilter nameFilter, final PageRequest pageRequest) {
 		Validate.notBlank(laaUsername, "A username is required.");
 		Validate.notNull(pageRequest, "Page request details are required.");
 
 		return getUsersByCaseload("FIND_USERS_AVAILABLE_TO_LAA_USER", nameFilter, accessRole, pageRequest, null, laaUsername);
     }
 
-    private Page<UserDetail> getUsersByCaseload(String namedSql, NameFilter nameFilter, String accessRole, PageRequest pageRequest, String caseload, String laaUsername) {
-        String baseSql = applyAccessRoleQuery(applyNameFilterQuery(getQuery(namedSql), nameFilter), accessRole);
+	private Page<UserDetail> getUsersByCaseload(final String namedSql, final NameFilter nameFilter, final String accessRole, final PageRequest pageRequest, final String caseload, final String laaUsername) {
+		final var baseSql = applyAccessRoleQuery(applyNameFilterQuery(getQuery(namedSql), nameFilter), accessRole);
 
 
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(baseSql, USER_DETAIL_ROW_MAPPER.getFieldMap());
-        String sql = builder
+		final var builder = queryBuilderFactory.getQueryBuilder(baseSql, USER_DETAIL_ROW_MAPPER.getFieldMap());
+		final var sql = builder
                 .addRowCount()
                 .addOrderBy(pageRequest)
                 .addPagination()
                 .build();
 
-        PageAwareRowMapper<UserDetail> paRowMapper = new PageAwareRowMapper<>(USER_DETAIL_ROW_MAPPER);
+		final var paRowMapper = new PageAwareRowMapper<>(USER_DETAIL_ROW_MAPPER);
 
-        List<UserDetail> users = jdbcTemplate.query(
+		final var users = jdbcTemplate.query(
                 sql,
                 createParamSource(pageRequest,
 						"caseloadId", caseload,
@@ -311,8 +311,8 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
         return new Page<>(users, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
     }
 
-    private String applyNameFilterQuery(String baseSql, NameFilter nameFilter) {
-        String nameFilterQuery = baseSql;
+	private String applyNameFilterQuery(final String baseSql, final NameFilter nameFilter) {
+		var nameFilterQuery = baseSql;
 
         if (nameFilter.isProvided()) {
             if(nameFilter.isFullNameSearch()) {
@@ -324,8 +324,8 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
         return nameFilterQuery;
     }
 
-    private String applyAccessRoleQuery(String baseSql, String accessRole) {
-        String resultSql = baseSql;
+	private String applyAccessRoleQuery(final String baseSql, final String accessRole) {
+		var resultSql = baseSql;
 
         if (StringUtils.isNotBlank(accessRole)) {
 
