@@ -16,8 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -41,27 +40,36 @@ public class CaseLoadRepositoryTest {
 
     @Test
     public void testGetCaseLoad() {
-        Optional<CaseLoad> caseLoad = repository.getCaseLoad("LEI");
+        final var caseLoad = repository.getCaseLoad("LEI");
 
-        assertThat(caseLoad.isPresent()).isTrue();
-        assertThat(caseLoad.get().getDescription()).isEqualTo("LEEDS (HMP)");
+        assertThat(caseLoad).get().extracting(CaseLoad::getDescription).isEqualTo("Leeds (HMP)");
     }
     
     @Test
     public void testGetCaseLoadsByUsername() {
-        List<CaseLoad> caseLoads = repository.getCaseLoadsByUsername(TEST_USERNAME, "type:eq:'INST'");
-
-        assertThat(caseLoads).isNotEmpty();
-        assertThat(caseLoads).hasSize(5);
-        assertThat(caseLoads).extracting("caseLoadId").contains("LEI", "BXI", "MDI", "SYI", "WAI");
+        final var caseLoads = repository.getCaseLoadsByUsername(TEST_USERNAME, "type:eq:'INST'");
+        assertThat(caseLoads).extracting(CaseLoad::getCaseLoadId).containsOnly("LEI", "BXI", "MDI", "SYI", "WAI");
     }
-    
+
+    @Test
+    public void testGetCaseLoadsByUsername_CurrentActive() {
+        final var caseLoads = repository.getCaseLoadsByUsername(TEST_USERNAME, "type:eq:'INST'");
+        final var activeCaseLoads = caseLoads.stream().filter(CaseLoad::isCurrentlyActive).collect(Collectors.toList());
+        assertThat(activeCaseLoads).extracting(CaseLoad::getCaseLoadId).containsOnly("LEI");
+    }
+
+    @Test
+    public void testGetCaseLoadsByUsername_CurrentInactive() {
+        final var caseLoads = repository.getCaseLoadsByUsername(TEST_USERNAME, "type:eq:'INST'");
+        final var activeCaseLoads = caseLoads.stream().filter(cl -> !cl.isCurrentlyActive()).collect(Collectors.toList());
+        assertThat(activeCaseLoads).extracting(CaseLoad::getCaseLoadId).containsOnly("BXI", "MDI", "SYI", "WAI");
+    }
+
     @Test
     public void testGetWorkingCaseLoadByUsername() {
-        Optional<CaseLoad> caseLoad = repository.getWorkingCaseLoadByUsername(TEST_USERNAME);
+        final var caseLoad = repository.getWorkingCaseLoadByUsername(TEST_USERNAME);
 
-        assertThat(caseLoad.isPresent()).isTrue();
-        assertThat(caseLoad.get().getDescription()).isEqualTo("LEEDS (HMP)");
+        assertThat(caseLoad).get().extracting(CaseLoad::getDescription).isEqualTo("Leeds (HMP)");
     }
 
 }
