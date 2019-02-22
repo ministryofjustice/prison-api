@@ -81,7 +81,7 @@ public interface OffenderAssessmentResource {
             @ApiResponse(code = 201, message = ""),
             @ApiResponse(code = 400, message = "Invalid request - e.g. category does not exist.", response = ErrorResponse.class),
             @ApiResponse(code = 403, message = "Forbidden - user not authorised to approve the categorisation.", response = ErrorResponse.class) })
-    ApproveCategorisationResponse approveCategorisation(@ApiParam(value = "Approval details", required = true) @Valid CategoryApprovalDetail body);
+    Response approveCategorisation(@ApiParam(value = "Approval details", required = true) @Valid CategoryApprovalDetail body);
 
     class GetOffenderAssessmentsAssessmentCodeResponse extends ResponseDelegate {
 
@@ -158,81 +158,12 @@ public interface OffenderAssessmentResource {
 
     class CreateCategorisationResponse extends ResponseDelegate {
 
-        private CreateCategorisationResponse(Response response) { super(response); }
-        private CreateCategorisationResponse(Response response, Object entity) { super(response, entity); }
+        public CreateCategorisationResponse(Response response) { super(response); }
 
         public static OffenderAssessmentResource.CreateCategorisationResponse respond201WithApplicationJson() {
             ResponseBuilder responseBuilder = Response.status(201)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             return new OffenderAssessmentResource.CreateCategorisationResponse(responseBuilder.build());
-        }
-
-        public static OffenderAssessmentResource.CreateCategorisationResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new OffenderAssessmentResource.CreateCategorisationResponse(responseBuilder.build(), entity);
-        }
-
-        public static OffenderAssessmentResource.CreateCategorisationResponse respond403WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(403)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new OffenderAssessmentResource.CreateCategorisationResponse(responseBuilder.build(), entity);
-        }
-
-        public static OffenderAssessmentResource.CreateCategorisationResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new OffenderAssessmentResource.CreateCategorisationResponse(responseBuilder.build(), entity);
-        }
-
-        public static OffenderAssessmentResource.CreateCategorisationResponse respond409WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(409)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new OffenderAssessmentResource.CreateCategorisationResponse(responseBuilder.build(), entity);
-        }
-    }
-
-    class ApproveCategorisationResponse extends ResponseDelegate {
-
-        private ApproveCategorisationResponse(Response response) { super(response); }
-        private ApproveCategorisationResponse(Response response, Object entity) { super(response, entity); }
-
-        public static OffenderAssessmentResource.ApproveCategorisationResponse respond201WithApplicationJson() {
-            ResponseBuilder responseBuilder = Response.status(201)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            return new OffenderAssessmentResource.ApproveCategorisationResponse(responseBuilder.build());
-        }
-
-        public static OffenderAssessmentResource.ApproveCategorisationResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new OffenderAssessmentResource.ApproveCategorisationResponse(responseBuilder.build(), entity);
-        }
-
-        public static OffenderAssessmentResource.ApproveCategorisationResponse respond403WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(403)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new OffenderAssessmentResource.ApproveCategorisationResponse(responseBuilder.build(), entity);
-        }
-
-        public static OffenderAssessmentResource.ApproveCategorisationResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new OffenderAssessmentResource.ApproveCategorisationResponse(responseBuilder.build(), entity);
-        }
-
-        public static OffenderAssessmentResource.ApproveCategorisationResponse respond409WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(409)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new OffenderAssessmentResource.ApproveCategorisationResponse(responseBuilder.build(), entity);
         }
     }
 }

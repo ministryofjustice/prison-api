@@ -11,6 +11,8 @@ import net.syscon.elite.service.InmateService;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 /**
@@ -62,9 +64,12 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
     }
 
     @Override
-    public ApproveCategorisationResponse approveCategorisation(CategoryApprovalDetail detail) {
+    public Response approveCategorisation(CategoryApprovalDetail detail) {
         inmateService.approveCategorisation(detail.getBookingId(), detail);
-        return ApproveCategorisationResponse.respond201WithApplicationJson();
+        return Response.ok()
+                .status(201)
+                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .build();
     }
 
     private void validateOffenderList(List offenderList) {
