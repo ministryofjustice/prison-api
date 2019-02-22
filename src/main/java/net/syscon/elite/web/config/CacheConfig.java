@@ -51,7 +51,7 @@ public class CacheConfig implements CachingConfigurer {
 
     @Bean(destroyMethod="shutdown")
     public net.sf.ehcache.CacheManager ehCacheManager() {
-        net.sf.ehcache.config.Configuration config = new net.sf.ehcache.config.Configuration();
+        final var config = new net.sf.ehcache.config.Configuration();
         config.sizeOfPolicy(new SizeOfPolicyConfiguration().maxDepth(10000));
 
         config.addCache(config("referenceDomain", 500, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
@@ -70,6 +70,7 @@ public class CacheConfig implements CachingConfigurer {
         config.addCache(config("findByStaffIdAndStaffUserType", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config("getCaseLoadsByUsername", 1000, caseLoadTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("getAllCaseLoadsByUsername", 1000, caseLoadTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config("findAgenciesByUsername", 1000, agencyTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
@@ -98,7 +99,7 @@ public class CacheConfig implements CachingConfigurer {
         return net.sf.ehcache.CacheManager.newInstance(config);
     }
 
-    public static CacheConfiguration config(String name, int maxElements, int timeoutSeconds, MemoryStoreEvictionPolicy policy){
+    public static CacheConfiguration config(final String name, final int maxElements, final int timeoutSeconds, final MemoryStoreEvictionPolicy policy) {
         return new CacheConfiguration().name(name)
                 .memoryStoreEvictionPolicy(policy)
                 .eternal(false)

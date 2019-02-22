@@ -3,8 +3,6 @@ package net.syscon.elite.repository.impl;
 import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.repository.CaseLoadRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
-import net.syscon.util.IQueryBuilder;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
@@ -15,61 +13,61 @@ import java.util.Optional;
 @Repository
 public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRepository {
 
-	private static final StandardBeanPropertyRowMapper<CaseLoad> CASELOAD_ROW_MAPPER =
-			new StandardBeanPropertyRowMapper<>(CaseLoad.class);
+    private static final StandardBeanPropertyRowMapper<CaseLoad> CASELOAD_ROW_MAPPER =
+            new StandardBeanPropertyRowMapper<>(CaseLoad.class);
 
 
-	@Override
-	public Optional<CaseLoad> getCaseLoad(final String caseLoadId) {
-		String sql = getQuery("FIND_CASE_LOAD_BY_ID");
+    @Override
+    public Optional<CaseLoad> getCaseLoad(final String caseLoadId) {
+        final var sql = getQuery("FIND_CASE_LOAD_BY_ID");
 
-		CaseLoad caseload;
+        CaseLoad caseload;
 
-		try {
-			caseload = jdbcTemplate.queryForObject(
-					sql,
-					createParams("caseLoadId", caseLoadId),
-					CASELOAD_ROW_MAPPER);
-		} catch (EmptyResultDataAccessException e) {
-			caseload = null;
-		}
+        try {
+            caseload = jdbcTemplate.queryForObject(
+                    sql,
+                    createParams("caseLoadId", caseLoadId),
+                    CASELOAD_ROW_MAPPER);
+        } catch (final EmptyResultDataAccessException e) {
+            caseload = null;
+        }
 
-		return Optional.ofNullable(caseload);
-	}
-	
-	@Override
-	@Cacheable("getCaseLoadsByUsername")
-	public List<CaseLoad> getCaseLoadsByUsername(String username, String query) {
+        return Optional.ofNullable(caseload);
+    }
 
-		String initialSql = getQuery("FIND_CASE_LOADS_BY_USERNAME");
-		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, CASELOAD_ROW_MAPPER);
+    @Override
+    @Cacheable("getCaseLoadsByUsername")
+    public List<CaseLoad> getCaseLoadsByUsername(final String username) {
+        final var initialSql = getQuery("FIND_CASE_LOADS_BY_USERNAME");
+        final var sql = queryBuilderFactory.getQueryBuilder(initialSql, CASELOAD_ROW_MAPPER).
+                addWhereClause("type = :type").
+                build();
+        return jdbcTemplate.query(sql, createParams("username", username, "type", "INST"), CASELOAD_ROW_MAPPER);
+    }
 
-		if (StringUtils.isNotBlank(query)) {
-			builder = builder.addQuery(query);
-		}
-		String sql = builder.build();
+    @Override
+    @Cacheable("getAllCaseLoadsByUsername")
+    public List<CaseLoad> getAllCaseLoadsByUsername(final String username) {
+        final var initialSql = getQuery("FIND_CASE_LOADS_BY_USERNAME");
+        final var sql = queryBuilderFactory.getQueryBuilder(initialSql, CASELOAD_ROW_MAPPER).build();
+        return jdbcTemplate.query(sql, createParams("username", username), CASELOAD_ROW_MAPPER);
+    }
 
-		return jdbcTemplate.query(
-				sql,
-				createParams("username", username),
-				CASELOAD_ROW_MAPPER);
-	}
+    @Override
+    public Optional<CaseLoad> getWorkingCaseLoadByUsername(final String username) {
+        final var sql = getQuery("FIND_ACTIVE_CASE_LOAD_BY_USERNAME");
 
-	@Override
-	public Optional<CaseLoad> getWorkingCaseLoadByUsername(final String username) {
-		String sql = getQuery("FIND_ACTIVE_CASE_LOAD_BY_USERNAME");
+        CaseLoad caseload;
 
-		CaseLoad caseload;
+        try {
+            caseload = jdbcTemplate.queryForObject(
+                    sql,
+                    createParams("username", username),
+                    CASELOAD_ROW_MAPPER);
+        } catch (final EmptyResultDataAccessException e) {
+            caseload = null;
+        }
 
-		try {
-			caseload = jdbcTemplate.queryForObject(
-					sql,
-					createParams("username", username),
-					CASELOAD_ROW_MAPPER);
-		} catch (EmptyResultDataAccessException e) {
-			caseload = null;
-		}
-
-		return Optional.ofNullable(caseload);
-	}
+        return Optional.ofNullable(caseload);
+    }
 }
