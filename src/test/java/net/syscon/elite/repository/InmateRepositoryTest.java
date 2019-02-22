@@ -566,9 +566,8 @@ public class InmateRepositoryTest {
                 "categoriserFirstName", "categoriserLastName", "category").contains(
                 Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", AWAITING_APPROVAL, "Elite2", "User", "B"));
 
-        assertThat(list).asList().hasSize(23);
-
-        assertThat(list).asList().extracting("offenderNo").doesNotContain("-7");  // "Active" categorisation should be ignored
+        assertThat(list).asList().extracting("offenderNo").doesNotContain("A1234AG");  // "Active" categorisation should be ignored
+        // Note that size of list may vary depending on whether feature tests have run, e.g. approving booking id -34
     }
 
     @Test
@@ -589,6 +588,7 @@ public class InmateRepositoryTest {
     }
 
     @Test
+    @Transactional
     public void testInsertCategory() {
         final List<OffenderCategorise> uncat = repository.getUncategorised("LEI");
 
@@ -606,6 +606,7 @@ public class InmateRepositoryTest {
     }
 
     @Test
+    @Transactional
     public void testApproveCategory() {
         final CategoryApprovalDetail catDetail = CategoryApprovalDetail.builder()
                 .bookingId(-1L)
