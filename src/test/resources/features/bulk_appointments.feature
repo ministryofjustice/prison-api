@@ -1,4 +1,3 @@
-@wip
 Feature: Creating multiple appointments
 
   Background:
@@ -8,21 +7,21 @@ Feature: Creating multiple appointments
     Given These appointment defaults:
     | locationId      |               -25 |
     | appointmentType |              ACTI |
-    | startTime       |  2030-01-01T14:30 |
-    | endTime         |  2030-01-01T14:45 |
+    | startTime       |  2020-02-20T14:30 |
+    | endTime         |  2020-02-20T14:45 |
     | comment         | A default comment |
 
     And these appointment details:
     | bookingId |        startTime |          endTime |         comment |
     |       -31 |                  |                  |                 |
-    |       -32 | 2030-01-01T14:35 | 2030-01-01T14:55 | Another comment |
+    |       -32 | 2020-02-20T14:35 | 2020-02-20T14:55 | Another comment |
 
     When I make a request to create bulk appointments
 
-    Then appointments for the date <2030-01-01> are:
+    Then appointments for the date <2020-02-20> are:
     | bookingId | appointmentType | startTime        | endTime          | eventLocation |
-    |       -31 |            ACTI | 2030-01-01T14:30 | 2030-01-01T14:45 |        Chapel |
-    |       -32 |            ACTI | 2030-01-01T14:35 | 2030-01-01T14:55 |        Chapel |
+    |       -31 |            ACTI | 2020-02-20T14:30 | 2020-02-20T14:45 |        Chapel |
+    |       -32 |            ACTI | 2020-02-20T14:35 | 2020-02-20T14:55 |        Chapel |
 
     And The bulk appointment request status code is <200>
 
@@ -30,25 +29,25 @@ Feature: Creating multiple appointments
     Given These appointment defaults:
       | locationId      |               -25 |
       | appointmentType |              ACTI |
-      | startTime       |  2030-02-02T14:30 |
+      | startTime       |  2020-02-02T14:30 |
       | endTime         |                   |
       | comment         | A default comment |
 
     And these appointment details:
       | bookingId |        startTime |          endTime |         comment |
       |       -31 |                  |                  |                 |
-      |       -32 | 2030-02-02T14:35 | 2030-02-02T14:55 | Another comment |
+      |       -32 | 2020-02-02T14:35 | 2020-02-02T14:55 | Another comment |
 
     When I make a request to create bulk appointments
 
-    Then appointments for the date <2030-02-02> are:
+    Then appointments for the date <2020-02-02> are:
       | bookingId | appointmentType | startTime        | endTime          | eventLocation |
-      |       -31 |            ACTI | 2030-02-02T14:30 |                  |        Chapel |
-      |       -32 |            ACTI | 2030-02-02T14:35 | 2030-02-02T14:55 |        Chapel |
+      |       -31 |            ACTI | 2020-02-02T14:30 |                  |        Chapel |
+      |       -32 |            ACTI | 2020-02-02T14:35 | 2020-02-02T14:55 |        Chapel |
 
     And The bulk appointment request status code is <200>
 
-    Scenario: Reject invalid reqeust
+    Scenario: Reject invalid request
       Given These appointment defaults:
         | locationId      |               -25 |
         | appointmentType |              ACTI |
