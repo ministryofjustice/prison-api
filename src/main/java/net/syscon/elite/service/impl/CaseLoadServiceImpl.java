@@ -3,7 +3,6 @@ package net.syscon.elite.service.impl;
 import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.repository.CaseLoadRepository;
 import net.syscon.elite.service.CaseLoadService;
-import net.syscon.elite.service.support.LocationProcessor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,39 +18,28 @@ import static java.lang.String.format;
 public class CaseLoadServiceImpl implements CaseLoadService {
     private final CaseLoadRepository caseLoadRepository;
 
-    public CaseLoadServiceImpl(CaseLoadRepository caseLoadRepository) {
+    public CaseLoadServiceImpl(final CaseLoadRepository caseLoadRepository) {
         this.caseLoadRepository = caseLoadRepository;
     }
 
     @Override
-    public Optional<CaseLoad> getCaseLoad(String caseLoadId) {
+    public Optional<CaseLoad> getCaseLoad(final String caseLoadId) {
         return caseLoadRepository.getCaseLoad(caseLoadId);
     }
 
     @Override
-    public List<CaseLoad> getCaseLoadsForUser(String username, boolean allCaseloads) {
-        String query = null;
-        if (!allCaseloads) {
-            query = format("type:eq:'%s'", "INST");
-        }
-        List<CaseLoad> caseLoadsByUsername = caseLoadRepository.getCaseLoadsByUsername(username, query);
-        caseLoadsByUsername.forEach(cl -> cl.setDescription(LocationProcessor.formatLocation(cl.getDescription())));
-        return caseLoadsByUsername;
+    public List<CaseLoad> getCaseLoadsForUser(final String username, final boolean allCaseloads) {
+        final var query = allCaseloads ? null : format("type:eq:'%s'", "INST");
+        return caseLoadRepository.getCaseLoadsByUsername(username, query);
     }
 
     @Override
-    public Optional<CaseLoad> getWorkingCaseLoadForUser(String username) {
-        Optional<CaseLoad> workingCaseLoadByUsername = caseLoadRepository.getWorkingCaseLoadByUsername(username);
-        if (workingCaseLoadByUsername.isPresent()) {
-            CaseLoad caseLoad = workingCaseLoadByUsername.get();
-            caseLoad.setDescription(LocationProcessor.formatLocation(caseLoad.getDescription()));
-        }
-        return workingCaseLoadByUsername;
+    public Optional<CaseLoad> getWorkingCaseLoadForUser(final String username) {
+        return caseLoadRepository.getWorkingCaseLoadByUsername(username);
     }
 
     @Override
-    public Set<String> getCaseLoadIdsForUser(String username, boolean allCaseloads) {
+    public Set<String> getCaseLoadIdsForUser(final String username, final boolean allCaseloads) {
         return getCaseLoadsForUser(username, allCaseloads).stream().map(CaseLoad::getCaseLoadId).collect(Collectors.toSet());
     }
-
 }
