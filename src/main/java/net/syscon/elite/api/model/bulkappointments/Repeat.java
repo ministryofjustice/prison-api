@@ -6,8 +6,8 @@ import lombok.Data;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 @Data
@@ -28,6 +28,6 @@ public class Repeat {
      * @return a Stream of (count) instances of LocalDateTime, starting with startDateTime according to the values in this Repeat instance.
      */
     public Stream<LocalDateTime> dateTimeStream(LocalDateTime startDateTime) {
-        return Stream.iterate(startDateTime, repeatPeriod::next).limit(count);
+        return LongStream.range(0, count).mapToObj(l -> repeatPeriod.endDateTime(startDateTime, l));
     }
 }
