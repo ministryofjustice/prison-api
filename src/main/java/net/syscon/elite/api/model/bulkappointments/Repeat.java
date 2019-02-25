@@ -28,6 +28,6 @@ public class Repeat {
      * @return a Stream of (count) instances of LocalDateTime, starting with startDateTime according to the values in this Repeat instance.
      */
     public Stream<LocalDateTime> dateTimeStream(LocalDateTime startDateTime) {
-        return LongStream.range(0, count).boxed().map(l -> repeatPeriod.endDateTime(startDateTime, l));
+        return LongStream.range(0, count).mapToObj(l -> repeatPeriod.endDateTime(startDateTime, l));
     }
 }
