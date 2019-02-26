@@ -8,7 +8,7 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.UserRepository;
-import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.StaffService;
@@ -47,7 +47,7 @@ public class UserServiceImplTest {
     private CaseLoadService caseLoadService;
 
     @Mock
-    private UserSecurityUtils securityUtils;
+    private AuthenticationFacade securityUtils;
 
     private UserService userService;
 

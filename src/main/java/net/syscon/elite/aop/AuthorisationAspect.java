@@ -1,7 +1,7 @@
 package net.syscon.elite.aop;
 
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.AgencyService;
@@ -50,7 +50,7 @@ public class AuthorisationAspect {
         VerifyBookingAccess annotation = method.getAnnotation(VerifyBookingAccess.class);
         String[] overrideRoles = annotation.overrideRoles();
 
-        if (UserSecurityUtils.hasRoles(overrideRoles)) {
+        if (AuthenticationFacade.hasRoles(overrideRoles)) {
             bookingService.checkBookingExists(bookingId);
         } else {
             bookingService.verifyBookingAccess(bookingId);
@@ -61,7 +61,7 @@ public class AuthorisationAspect {
     public void verifyAgencyAccess(JoinPoint jp, String agencyId) {
         log.debug("Verifying agency access for agency [{}]", agencyId);
 
-        if (UserSecurityUtils.hasRoles(getOverrideRoles(jp))) {
+        if (AuthenticationFacade.hasRoles(getOverrideRoles(jp))) {
             agencyService.checkAgencyExists(agencyId);
         } else {
             agencyService.verifyAgencyAccess(agencyId);
@@ -72,7 +72,7 @@ public class AuthorisationAspect {
     public void verifyAgencyRequestAccess(JoinPoint jp, AgencyRequest request) {
         log.debug("Verifying agency access for agency [{}]", request.getAgencyId());
 
-        if (UserSecurityUtils.hasRoles(getOverrideRoles(jp))) {
+        if (AuthenticationFacade.hasRoles(getOverrideRoles(jp))) {
             agencyService.checkAgencyExists(request.getAgencyId());
         } else {
             agencyService.verifyAgencyAccess(request.getAgencyId());

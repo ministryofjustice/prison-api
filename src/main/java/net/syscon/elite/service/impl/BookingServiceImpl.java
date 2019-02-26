@@ -9,7 +9,7 @@ import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.repository.SentenceRepository;
-import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.LocationProcessor;
@@ -59,7 +59,7 @@ public class BookingServiceImpl implements BookingService {
     private final ReferenceDomainService referenceDomainService;
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
     private final TelemetryClient telemetryClient;
-    private final UserSecurityUtils securityUtils;
+    private final AuthenticationFacade securityUtils;
     private final String defaultIepLevel;
     private final int maxBatchSize;
 
@@ -88,7 +88,7 @@ public class BookingServiceImpl implements BookingService {
                               ReferenceDomainService referenceDomainService,
                               CaseloadToAgencyMappingService caseloadToAgencyMappingService,
                               TelemetryClient telemetryClient,
-                              UserSecurityUtils securityUtils,
+                              AuthenticationFacade securityUtils,
                               @Value("${api.bookings.iepLevel.default:Unknown}") String defaultIepLevel,
                               @Value("${batch.max.size:1000}") int maxBatchSize) {
         this.bookingRepository = bookingRepository;
@@ -546,7 +546,7 @@ public class BookingServiceImpl implements BookingService {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
         var agencyIds = agencyService.getAgencyIds();
-        if (UserSecurityUtils.hasRoles("INACTIVE_BOOKINGS")) {
+        if (AuthenticationFacade.hasRoles("INACTIVE_BOOKINGS")) {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
         if (agencyIds.isEmpty()) {

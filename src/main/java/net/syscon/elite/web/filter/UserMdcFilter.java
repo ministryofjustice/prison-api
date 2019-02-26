@@ -1,7 +1,7 @@
 package net.syscon.elite.web.filter;
 
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.security.AuthenticationFacade;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
@@ -17,10 +17,10 @@ import static net.syscon.util.MdcUtility.USER_ID_HEADER;
 @Order(1)
 public class UserMdcFilter implements Filter {
 
-    private final UserSecurityUtils userSecurityUtils;
+    private final AuthenticationFacade userSecurityUtils;
 
     @Autowired
-    public UserMdcFilter(UserSecurityUtils userSecurityUtils) {
+    public UserMdcFilter(AuthenticationFacade userSecurityUtils) {
         this.userSecurityUtils = userSecurityUtils;
     }
 

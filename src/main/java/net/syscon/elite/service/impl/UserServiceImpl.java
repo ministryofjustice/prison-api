@@ -5,7 +5,7 @@ import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.UserRepository;
-import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.StaffService;
@@ -42,11 +42,11 @@ public class UserServiceImpl implements UserService {
 	private final CaseLoadService caseLoadService;
 	private final StaffService staffService;
 	private final UserRepository userRepository;
-	private final UserSecurityUtils securityUtils;
+	private final AuthenticationFacade securityUtils;
 	private final String apiCaseloadId;
 
 	public UserServiceImpl(CaseLoadService caseLoadService, StaffService staffService,
-						   UserRepository userRepository, UserSecurityUtils securityUtils, @Value("${application.caseload.id:NWEB}") String apiCaseloadId) {
+						   UserRepository userRepository, AuthenticationFacade securityUtils, @Value("${application.caseload.id:NWEB}") String apiCaseloadId) {
 		this.caseLoadService = caseLoadService;
 		this.staffService = staffService;
 		this.userRepository = userRepository;

@@ -1,7 +1,6 @@
 package net.syscon.elite.web.config;
 
 import net.syscon.elite.security.EntryPointUnauthorizedHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,8 +15,11 @@ import org.springframework.security.oauth2.provider.token.ResourceServerTokenSer
 @EnableResourceServer
 public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
-    @Autowired
-    private ResourceServerTokenServices tokenServices;
+    private final ResourceServerTokenServices tokenServices;
+
+    public ResourceServerConfiguration(final ResourceServerTokenServices tokenServices) {
+        this.tokenServices = tokenServices;
+    }
 
     @Bean
     public EntryPointUnauthorizedHandler unauthorizedHandler() {
@@ -25,19 +27,19 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     }
 
     @Override
-    public void configure(HttpSecurity http) throws Exception {
+    public void configure(final HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler())
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .antMatchers(            "/api/swagger*").permitAll()
-                .antMatchers(            "/swagger-resources/**").permitAll()
+                .antMatchers("/api/swagger*").permitAll()
+                .antMatchers("/swagger-resources/**").permitAll()
                 .antMatchers("/api/**").authenticated();
     }
 
     @Override
-    public void configure(ResourceServerSecurityConfigurer config) {
+    public void configure(final ResourceServerSecurityConfigurer config) {
         config.tokenServices(tokenServices);
     }
 }

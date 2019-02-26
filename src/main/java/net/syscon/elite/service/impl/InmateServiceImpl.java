@@ -11,15 +11,11 @@ import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.security.AuthenticationFacade;
-import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.*;
-import net.syscon.elite.service.support.AssessmentDto;
-import net.syscon.elite.service.support.InmateDto;
-import net.syscon.elite.service.support.InmatesHelper;
-import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.elite.service.support.ReferenceDomain;
+import net.syscon.elite.service.support.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
@@ -58,7 +54,6 @@ public class InmateServiceImpl implements InmateService {
     private final Environment env;
     private final TelemetryClient telemetryClient;
 
-    private final UserSecurityUtils securityUtils;
     private final String locationTypeGranularity;
 
     public InmateServiceImpl(InmateRepository repository,
@@ -71,7 +66,6 @@ public class InmateServiceImpl implements InmateService {
                              AuthenticationFacade authenticationFacade,
                              KeyWorkerAllocationRepository keyWorkerAllocationRepository,
                              Environment env,
-                             UserSecurityUtils securityUtils,
                              TelemetryClient telemetryClient,
                              @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity,
                              @Value("${batch.max.size:1000}") int maxBatchSize) {
@@ -79,7 +73,6 @@ public class InmateServiceImpl implements InmateService {
         this.caseLoadService = caseLoadService;
         this.inmateAlertService = inmateAlertService;
         this.referenceDomainService = referenceDomainService;
-        this.securityUtils = securityUtils;
         this.telemetryClient = telemetryClient;
         this.locationTypeGranularity = locationTypeGranularity;
         this.bookingService = bookingService;
@@ -106,7 +99,7 @@ public class InmateServiceImpl implements InmateService {
         query.append((query.length() == 0) ? inOffenderNos : StringUtils.isNotEmpty(inOffenderNos) ? ",and:" + inOffenderNos : "");
 
         Page<OffenderBooking> bookings = repository.findAllInmates(
-                securityUtils.isOverrideRole() ? Collections.emptySet() : getUserCaseloadIds(criteria.getUsername()),
+                authenticationFacade.isOverrideRole() ? Collections.emptySet() : getUserCaseloadIds(criteria.getUsername()),
                 locationTypeGranularity,
                 query.toString(),
                 pageRequest);
@@ -143,7 +136,7 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders) {
-        final var accessToAllData = securityUtils.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER");
+        final var accessToAllData = authenticationFacade.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER");
 
         return repository.getBasicInmateDetailsForOffenders(offenders, accessToAllData,  !accessToAllData ? loadCaseLoadsOrThrow() : null)
                 .stream()
@@ -334,7 +327,7 @@ public class InmateServiceImpl implements InmateService {
     public List<Assessment> getInmatesAssessmentsByCode(List<String> offenderNos, String assessmentCode, boolean latestOnly) {
         List<Assessment> results = new ArrayList<>();
         if (!offenderNos.isEmpty()) {
-                      final Set<String> caseLoadIds = securityUtils.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")
+            final Set<String> caseLoadIds = authenticationFacade.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")
                     ? Collections.emptySet()
                     : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
 

@@ -6,7 +6,6 @@ import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.security.AuthenticationFacade;
-import net.syscon.elite.security.UserSecurityUtils;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.AssessmentDto;
 import org.assertj.core.api.Assertions;
@@ -53,8 +52,6 @@ public class InmateServiceImplTest {
     @Mock
     private Environment env;
     @Mock
-    private UserSecurityUtils securityUtils;
-    @Mock
     private TelemetryClient telemetryClient;
 
     private InmateService serviceToTest;
@@ -63,7 +60,7 @@ public class InmateServiceImplTest {
     public void init() {
         serviceToTest = new InmateServiceImpl(repository, caseLoadService, inmateAlertService, null,
                 bookingService, userService, userRepository, authenticationFacade,
-                keyWorkerAllocationRepository, env, securityUtils, telemetryClient,"WING", 100);
+                keyWorkerAllocationRepository, env, telemetryClient, "WING", 100);
     }
 
     @Test
@@ -183,7 +180,7 @@ public class InmateServiceImplTest {
     public void testThatAnExceptionIsThrownWhenAStandardUserWithNoActiveCaseloadsRequestsInmateDetails() {
         when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
         when(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(Collections.emptySet());
-        when(securityUtils.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")).thenReturn(false);
+        when(authenticationFacade.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")).thenReturn(false);
 
 
         Assertions.assertThatThrownBy(() -> {
@@ -195,7 +192,7 @@ public class InmateServiceImplTest {
 
     @Test
     public void testThatARequestForInmateDetailsWithNoCaseloadsIsMadeWhenTheUserIsASystemUser() {
-        when(securityUtils.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")).thenReturn(true);
+        when(authenticationFacade.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")).thenReturn(true);
 
         serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123"));
 
