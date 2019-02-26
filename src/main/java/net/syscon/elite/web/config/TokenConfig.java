@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.security.oauth2.provider.token.DefaultAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
@@ -19,7 +20,7 @@ public class TokenConfig {
     @Bean
     @Primary
     public DefaultTokenServices tokenServices() {
-        DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
+        final var defaultTokenServices = new DefaultTokenServices();
         defaultTokenServices.setTokenStore(tokenStore());
         return defaultTokenServices;
     }
@@ -31,8 +32,11 @@ public class TokenConfig {
 
     @Bean
     public JwtAccessTokenConverter accessTokenConverter() {
-        JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
+        final var converter = new JwtAccessTokenConverter();
         converter.setVerifierKey(new String(Base64.decodeBase64(jwtPublicKey)));
+        final var defaultAccessTokenConverter = new DefaultAccessTokenConverter();
+        converter.setAccessTokenConverter(defaultAccessTokenConverter);
+        defaultAccessTokenConverter.setUserTokenConverter(new AuthAwareAuthenticationConverter());
         return converter;
     }
 

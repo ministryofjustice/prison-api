@@ -3,7 +3,7 @@ package net.syscon.elite.service.impl;
 import com.microsoft.applicationinsights.TelemetryClient;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.BookingRepository;
-import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.ReferenceDomain;
 import org.junit.Before;
@@ -44,7 +44,7 @@ public class  BookingServiceImplTest {
     private TelemetryClient telemetryClient;
 
     @Mock
-    private UserSecurityUtils securityUtils;
+    private AuthenticationFacade securityUtils;
 
     private BookingService bookingService;
 

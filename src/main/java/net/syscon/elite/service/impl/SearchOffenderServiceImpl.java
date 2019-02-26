@@ -6,7 +6,7 @@ import net.syscon.elite.api.model.PrivilegeSummary;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.InmateRepository;
-import net.syscon.elite.security.UserSecurityUtils;
+import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.SearchOffenderService;
 import net.syscon.elite.service.UserService;
@@ -35,11 +35,11 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
     private final BookingService bookingService;
     private final UserService userService;
     private final InmateRepository repository;
-    private final UserSecurityUtils securityUtils;
+    private final AuthenticationFacade securityUtils;
     private final String locationTypeGranularity;
     private final Pattern offenderNoRegex;
 
-    public SearchOffenderServiceImpl(BookingService bookingService, UserService userService, InmateRepository repository, UserSecurityUtils securityUtils,
+    public SearchOffenderServiceImpl(BookingService bookingService, UserService userService, InmateRepository repository, AuthenticationFacade securityUtils,
                                      @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity,
                                      @Value("${api.offender.no.regex.pattern:^[A-Za-z]\\d{4}[A-Za-z]{2}$}") String offenderNoRegex) {
         this.bookingService = bookingService;
