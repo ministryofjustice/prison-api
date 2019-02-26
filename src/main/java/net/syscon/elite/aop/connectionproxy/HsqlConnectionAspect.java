@@ -10,11 +10,10 @@ import java.sql.SQLException;
 
 @Aspect
 @Slf4j
-public class HsqlConnectionAspect extends OracleConnectionAspect {
+public class HsqlConnectionAspect extends AbstractConnectionAspect {
     private final AuthenticationFacade authenticationFacade;
 
     public HsqlConnectionAspect(final AuthenticationFacade authenticationFacade) {
-        super(authenticationFacade, null, null);
         this.authenticationFacade = authenticationFacade;
     }
 

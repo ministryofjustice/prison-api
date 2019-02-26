@@ -2,13 +2,9 @@ package net.syscon.elite.aop.connectionproxy;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.security.AuthenticationFacade;
-import net.syscon.util.MdcUtility;
 import oracle.jdbc.driver.OracleConnection;
 import org.apache.commons.lang3.StringUtils;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -18,7 +14,7 @@ import static java.lang.String.format;
 
 @Aspect
 @Slf4j
-public class OracleConnectionAspect {
+public class OracleConnectionAspect extends AbstractConnectionAspect {
 
     private final AuthenticationFacade authenticationFacade;
     private final RoleConfigurer roleConfigurer;
@@ -34,44 +30,7 @@ public class OracleConnectionAspect {
         this.defaultSchema = defaultSchema;
     }
 
-    @Pointcut("execution (* com.zaxxer.hikari.HikariDataSource.getConnection())")
-    protected void onNewConnectionPointcut() {
-        // No code needed
-    }
-
-    @Around("onNewConnectionPointcut()")
-    public Object connectionAround(final ProceedingJoinPoint joinPoint) throws Throwable {
-
-        if (log.isDebugEnabled() && MdcUtility.isLoggingAllowed()) {
-            log.debug("Enter: {}.{}()", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
-        }
-        final var pooledConnection = (Connection) joinPoint.proceed();
-        try {
-            final var connectionToReturn = openProxySessionIfIdentifiedAuthentication(pooledConnection);
-
-            if (log.isDebugEnabled() && MdcUtility.isLoggingAllowed()) {
-                log.debug(
-                        "Exit: {}.{}()",
-                        joinPoint.getSignature().getDeclaringTypeName(),
-                        joinPoint.getSignature().getName());
-            }
-            return connectionToReturn;
-
-        } catch (final Throwable e) {
-            log.error(
-                    "Exception thrown in OracleConnectionAspect.connectionAround(), join point {}.{}(): {}",
-                    joinPoint.getSignature().getDeclaringTypeName(),
-                    joinPoint.getSignature().getName(),
-                    e.getMessage());
-
-            // pooledConnection will never be returned to the connection pool unless it is closed here...
-
-            pooledConnection.close();
-
-            throw e;
-        }
-    }
-
+    @Override
     protected Connection openProxySessionIfIdentifiedAuthentication(final Connection pooledConnection) throws SQLException {
         if (authenticationFacade.isIdentifiedAuthentication()) {
             log.debug("Configuring Oracle Proxy Session.");
