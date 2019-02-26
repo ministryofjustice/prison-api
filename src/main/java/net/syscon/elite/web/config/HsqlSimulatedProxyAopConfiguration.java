@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Profile;
 public class HsqlSimulatedProxyAopConfiguration {
 
     @Bean
-    public HsqlConnectionAspect oracleProxyConnectionAspect(final AuthenticationFacade authenticationFacade) {
+    public HsqlConnectionAspect hsqlProxyConnectionAspect(final AuthenticationFacade authenticationFacade) {
         return new HsqlConnectionAspect(authenticationFacade);
     }
 }
