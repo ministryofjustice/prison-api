@@ -29,22 +29,27 @@ public class HsqlConnectionAspect extends AbstractConnectionAspect {
     private Connection openAndConfigureProxySessionForConnection(final Connection pooledConnection) throws SQLException {
 
         openProxySessionForCurrentUsername(pooledConnection);
-        return new ProxySessionClosingConnection(pooledConnection);
+        return pooledConnection;
     }
 
     private void openProxySessionForCurrentUsername(final Connection pooledConnection) throws SQLException {
 
-        final var statement = pooledConnection.prepareStatement("SELECT username FROM staff_user_accounts WHERE username = ?");
-        final var currentUsername = authenticationFacade.getCurrentUsername();
-        statement.setString(1, currentUsername);
+        // just check that the current user exists in the database
+        try (final var statement = pooledConnection.prepareStatement("SELECT username FROM staff_user_accounts WHERE username = ?")) {
+            final var currentUsername = authenticationFacade.getCurrentUsername();
+            statement.setString(1, currentUsername);
 
-        try {
-            final var resultSet = statement.executeQuery();
-            Assert.isTrue(resultSet.next(), String.format("User %s not found", currentUsername));
-        } catch (final SQLException e) {
-            log.error("User {} does not support Proxy Connection", currentUsername);
-            throw e;
+            try {
+                try (final var resultSet = statement.executeQuery()) {
+                    Assert.isTrue(resultSet.next(), String.format("User %s not found", currentUsername));
+                }
+
+            } catch (final SQLException e) {
+                log.error("User {} does not support Proxy Connection", currentUsername);
+                pooledConnection.close();
+                throw e;
+            }
+            log.debug("Proxy Connection for {} Successful", currentUsername);
         }
-        log.debug("Proxy Connection for {} Successful", currentUsername);
     }
 }
