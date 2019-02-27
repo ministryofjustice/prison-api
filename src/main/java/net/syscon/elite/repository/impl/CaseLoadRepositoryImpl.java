@@ -3,7 +3,6 @@ package net.syscon.elite.repository.impl;
 import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.repository.CaseLoadRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
@@ -36,7 +35,6 @@ public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRe
     }
 
     @Override
-    @Cacheable("getCaseLoadsByUsername")
     public List<CaseLoad> getCaseLoadsByUsername(final String username) {
         final var initialSql = getQuery("FIND_CASE_LOADS_BY_USERNAME");
         final var sql = queryBuilderFactory.getQueryBuilder(initialSql, CASELOAD_ROW_MAPPER).
@@ -46,7 +44,6 @@ public class CaseLoadRepositoryImpl extends RepositoryBase implements CaseLoadRe
     }
 
     @Override
-    @Cacheable("getAllCaseLoadsByUsername")
     public List<CaseLoad> getAllCaseLoadsByUsername(final String username) {
         final var initialSql = getQuery("FIND_CASE_LOADS_BY_USERNAME");
         final var sql = queryBuilderFactory.getQueryBuilder(initialSql, CASELOAD_ROW_MAPPER).build();

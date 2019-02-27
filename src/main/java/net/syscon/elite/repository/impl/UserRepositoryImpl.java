@@ -107,7 +107,6 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
 	}
 
 	@Override
-	@CacheEvict(value = {"getCaseLoadsByUsername", "getAllCaseLoadsByUsername"}, key = "#username")
 	public void updateWorkingCaseLoad(final String username, final String caseLoadId) {
 		final var sql = getQuery("UPDATE_STAFF_ACTIVE_CASE_LOAD");
 		jdbcTemplate.update(sql, createParams("caseLoadId", caseLoadId, "username", username));
