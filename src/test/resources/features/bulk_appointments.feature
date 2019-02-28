@@ -1,7 +1,7 @@
 Feature: Creating multiple appointments
 
   Background:
-    Given a user has authenticated with the API
+    Given a user has a token name of "BULK_APPOINTMENTS_USER"
 
   Scenario: Create several appointments with start and end times using the bulk appointments end-point.
     Given These appointment defaults:
