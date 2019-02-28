@@ -30,6 +30,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static net.syscon.elite.security.AuthenticationFacade.hasRoles;
+
 @Service
 @Validated
 @Transactional
@@ -69,6 +71,7 @@ public class AppointmentsServiceImpl implements AppointmentsService {
     @Override
     public void createAppointments(@NotNull @Valid AppointmentsToCreate appointments) {
 
+        assertThatRequestHasPermission(appointments);
         assertFewerThanMaximumNumberOfBookingIds(appointments);
 
         final var defaults = appointments.getAppointmentDefaults();
@@ -88,6 +91,12 @@ public class AppointmentsServiceImpl implements AppointmentsService {
 
         assertThatAppointmentsFallWithin(withRepeats, appointmentTimeLimit());
         createAppointments(withRepeats, defaults, agencyId);
+    }
+
+    private void assertThatRequestHasPermission(AppointmentsToCreate appointments) {
+        if (appointments.moreThanOneOffender() && !hasRoles("BULK_APPOINTMENTS")) {
+            throw new BadRequestException("You do not have the 'BULK_APPOINTMENTS' role. Creating appointments for more than one offender is not permitted without this role.");
+        }
     }
 
     private void assertThatAppointmentsFallWithin(List<AppointmentDetails> appointments, LocalDateTime limit) {

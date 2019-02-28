@@ -9,24 +9,31 @@ import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.LocationService;
 import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.support.ReferenceDomain;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 public class AppointmentsServiceImplTest {
     private static final String USERNAME = "username";
+    private static final String BULK_APPOINTMENTS_ROLE = "BULK_APPOINTMENTS";
+    private static final Authentication AUTHENTICATION_NO_ROLES = new TestingAuthenticationToken(USERNAME, null);
 
     private static final Location LOCATION_A = Location.builder().locationId(0L).agencyId("A").build();
     private static final Location LOCATION_B = Location.builder().locationId(1L).agencyId("B").build();
@@ -59,9 +66,6 @@ public class AppointmentsServiceImplTest {
     private BookingRepository bookingRepository;
 
     @Mock
-    private AuthenticationFacade authenticationFacade;
-
-    @Mock
     private LocationService locationService;
 
     @Mock
@@ -70,17 +74,30 @@ public class AppointmentsServiceImplTest {
     @Mock
     private TelemetryClient telemetryClient;
 
-    @InjectMocks
     private AppointmentsServiceImpl appointmentsService;
 
     @Before
     public void initMocks() {
+        SecurityContextHolder.createEmptyContext();
+        ensureRoles(BULK_APPOINTMENTS_ROLE);
         MockitoAnnotations.initMocks(this);
-        when(authenticationFacade.getCurrentUsername()).thenReturn(USERNAME);
+        appointmentsService = new AppointmentsServiceImpl(
+                bookingRepository,
+                new AuthenticationFacade(),
+                locationService,
+                referenceDomainService,
+                telemetryClient
+        );
     }
 
-    @Test(expected = BadRequestException.class)
+    @After
+    public void clearSecurityContext() {
+        SecurityContextHolder.clearContext();
+    }
+
+    @Test
     public void createTooManyAppointments() {
+        assertThatThrownBy(() ->
         appointmentsService.createAppointments(AppointmentsToCreate
                 .builder()
                 .appointmentDefaults(
@@ -88,15 +105,22 @@ public class AppointmentsServiceImplTest {
                                 .builder()
                                 .build())
                 .appointments(Arrays.asList(new AppointmentDetails[1001]))
-                .build());
+                .build()))
+        .isInstanceOf(BadRequestException.class)
+        .hasMessage("Request to create 1001 appointments exceeds limit of 1000");
 
         verifyNoMoreInteractions(telemetryClient);
     }
 
-    @Test(expected = BadRequestException.class)
+    private void ensureRoles(String... roles) {
+        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(USERNAME, null, roles));
+    }
+
+    @Test
     public void locationNotInCaseload() {
         stubLocation(LOCATION_C);
 
+        assertThatThrownBy(() ->
         appointmentsService.createAppointments(
                 AppointmentsToCreate
                         .builder()
@@ -105,28 +129,33 @@ public class AppointmentsServiceImplTest {
                                         .builder()
                                         .locationId(LOCATION_C.getLocationId())
                                         .build())
-                        .appointments(Collections.emptyList())
-                        .build());
+                        .appointments(List.of())
+                        .build()))
+        .isInstanceOf(BadRequestException.class)
+        .hasMessage("Location does not exist or is not in your caseload.");
 
         verifyNoMoreInteractions(telemetryClient);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void unknownAppointmentType() {
         stubLocation(LOCATION_B);
 
-        appointmentsService.createAppointments(
-                AppointmentsToCreate
-                        .builder()
-                        .appointmentDefaults(
-                                AppointmentDefaults
-                                        .builder()
-                                        .locationId(LOCATION_B.getLocationId())
-                                        .appointmentType("NOT_KNOWN")
-                                        .startTime(LocalDateTime.now())
-                                        .build())
-                        .appointments(Collections.emptyList())
-                        .build());
+        assertThatThrownBy(() ->
+                appointmentsService.createAppointments(
+                        AppointmentsToCreate
+                                .builder()
+                                .appointmentDefaults(
+                                        AppointmentDefaults
+                                                .builder()
+                                                .locationId(LOCATION_B.getLocationId())
+                                                .appointmentType("NOT_KNOWN")
+                                                .startTime(LocalDateTime.now())
+                                                .build())
+                                .appointments(List.of())
+                                .build()))
+        .isInstanceOf(BadRequestException.class)
+        .hasMessage("Event type not recognised.");
 
         verifyNoMoreInteractions(telemetryClient);
     }
@@ -146,29 +175,32 @@ public class AppointmentsServiceImplTest {
                                         .appointmentType(REFERENCE_CODE_T.getCode())
                                         .startTime(LocalDateTime.now())
                                         .build())
-                        .appointments(Collections.emptyList())
+                        .appointments(List.of())
                         .build());
 
         verifyNoMoreInteractions(telemetryClient);
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void bookingIdNotInCaseload() {
         stubLocation(LOCATION_B);
         stubValidReferenceCode(REFERENCE_CODE_T);
 
-        appointmentsService.createAppointments(
-                AppointmentsToCreate
-                        .builder()
-                        .appointmentDefaults(
-                                AppointmentDefaults
-                                        .builder()
-                                        .locationId(LOCATION_B.getLocationId())
-                                        .appointmentType(REFERENCE_CODE_T.getCode())
-                                        .startTime(LocalDateTime.now().plusHours(1))
-                                        .build())
-                        .appointments(Collections.singletonList(DETAILS_1))
-                        .build());
+        assertThatThrownBy(() ->
+                appointmentsService.createAppointments(
+                        AppointmentsToCreate
+                                .builder()
+                                .appointmentDefaults(
+                                        AppointmentDefaults
+                                                .builder()
+                                                .locationId(LOCATION_B.getLocationId())
+                                                .appointmentType(REFERENCE_CODE_T.getCode())
+                                                .startTime(LocalDateTime.now().plusHours(1))
+                                                .build())
+                                .appointments(List.of(DETAILS_1))
+                                .build()))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("A BookingId does not exist in your caseload");
 
         verifyNoMoreInteractions(telemetryClient);
     }
@@ -188,7 +220,7 @@ public class AppointmentsServiceImplTest {
                                 .appointmentType(REFERENCE_CODE_T.getCode())
                                 .startTime(LocalDateTime.now().plusHours(1))
                                 .build())
-                .appointments(Collections.singletonList(DETAILS_1))
+                .appointments(List.of(DETAILS_1))
                 .build();
 
         appointmentsService.createAppointments(appointmentsToCreate);
@@ -202,7 +234,7 @@ public class AppointmentsServiceImplTest {
         verify(telemetryClient).trackEvent(eq("AppointmentsCreated"), anyMap(), isNull());
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void appointmentStartTimeTooLate() {
         stubLocation(LOCATION_B);
         stubValidReferenceCode(REFERENCE_CODE_T);
@@ -217,7 +249,7 @@ public class AppointmentsServiceImplTest {
                                 .appointmentType(REFERENCE_CODE_T.getCode())
                                 .startTime(LocalDateTime.now().plusHours(1L))
                                 .build())
-                .appointments(Collections.singletonList(DETAILS_1))
+                .appointments(List.of(DETAILS_1))
                 .repeat(Repeat
                         .builder()
                         .count(13)
@@ -225,10 +257,12 @@ public class AppointmentsServiceImplTest {
                         .build())
                 .build();
 
-        appointmentsService.createAppointments(appointmentsToCreate);
+        assertThatThrownBy(() -> appointmentsService.createAppointments(appointmentsToCreate))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessageStartingWith("An appointment startTime is later than the limit of ");
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void appointmentEndTimeTooLate() {
         stubLocation(LOCATION_B);
         stubValidReferenceCode(REFERENCE_CODE_T);
@@ -244,7 +278,7 @@ public class AppointmentsServiceImplTest {
                                 .startTime(LocalDateTime.now().plusHours(1L))
                                 .endTime(LocalDateTime.now().plusDays(31L).plusHours(1L))
                                 .build())
-                .appointments(Collections.singletonList(DETAILS_1))
+                .appointments(List.of(DETAILS_1))
                 .repeat(Repeat
                         .builder()
                         .count(12)
@@ -252,10 +286,12 @@ public class AppointmentsServiceImplTest {
                         .build())
                 .build();
 
-        appointmentsService.createAppointments(appointmentsToCreate);
+        assertThatThrownBy(() -> appointmentsService.createAppointments(appointmentsToCreate))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessageStartingWith("An appointment endTime is later than the limit of ");
     }
 
-    @Test(expected = BadRequestException.class)
+    @Test
     public void rejectEndTimeBeforeStartTime() {
         stubLocation(LOCATION_B);
         stubValidReferenceCode(REFERENCE_CODE_T);
@@ -271,14 +307,20 @@ public class AppointmentsServiceImplTest {
                                 .startTime(LocalDateTime.now().plusHours(2L))
                                 .endTime(LocalDateTime.now().plusHours(1L))
                                 .build())
-                .appointments(Collections.singletonList(DETAILS_1))
+                .appointments(List.of(DETAILS_1))
                 .build();
 
-        appointmentsService.createAppointments(appointmentsToCreate);
+        assertThatThrownBy(() -> appointmentsService.createAppointments(appointmentsToCreate))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("Appointment end time is before the start time.");
     }
 
-    @Test()
+    /**
+     * Also shows that BULK_APPOINTMENTS role is not required when creating appointments for a single offender.
+     */
+    @Test
     public void acceptEndTimeSameAsStartTime() {
+        ensureRoles(); // No roles
         stubLocation(LOCATION_B);
         stubValidReferenceCode(REFERENCE_CODE_T);
         stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
@@ -295,7 +337,7 @@ public class AppointmentsServiceImplTest {
                                 .startTime(in1Hour)
                                 .endTime(in1Hour)
                                 .build())
-                .appointments(Collections.singletonList(DETAILS_1))
+                .appointments(List.of(DETAILS_1))
                 .build();
 
         appointmentsService.createAppointments(appointmentsToCreate);
@@ -308,6 +350,58 @@ public class AppointmentsServiceImplTest {
     }
 
     @Test
+    public void rejectMultipleOffendersWithoutBulkAppointmentRole() {
+        ensureRoles(); // No roles
+        stubLocation(LOCATION_B);
+        stubValidReferenceCode(REFERENCE_CODE_T);
+        stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId(), DETAILS_2.getBookingId());
+
+        final var appointmentsToCreate = AppointmentsToCreate
+                .builder()
+                .appointmentDefaults(
+                        AppointmentDefaults
+                                .builder()
+                                .locationId(LOCATION_B.getLocationId())
+                                .appointmentType(REFERENCE_CODE_T.getCode())
+                                .startTime(LocalDateTime.now().plusHours(1))
+                                .build())
+                .appointments(List.of(DETAILS_1, DETAILS_2))
+                .build();
+
+        assertThatThrownBy(() -> appointmentsService.createAppointments(appointmentsToCreate))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("You do not have the 'BULK_APPOINTMENTS' role. Creating appointments for more than one offender is not permitted without this role.");
+    }
+
+    @Test
+    public void permitMultipleOffendersWithBulkAppointmentRole() {
+        stubLocation(LOCATION_B);
+        stubValidReferenceCode(REFERENCE_CODE_T);
+        stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId(), DETAILS_2.getBookingId());
+
+        final var appointmentsToCreate = AppointmentsToCreate
+                .builder()
+                .appointmentDefaults(
+                        AppointmentDefaults
+                                .builder()
+                                .locationId(LOCATION_B.getLocationId())
+                                .appointmentType(REFERENCE_CODE_T.getCode())
+                                .startTime(LocalDateTime.now().plusHours(1))
+                                .build())
+                .appointments(List.of(DETAILS_1, DETAILS_2))
+                .build();
+
+        appointmentsService.createAppointments(appointmentsToCreate);
+
+        verify(bookingRepository)
+                .createMultipleAppointments(
+                        appointmentsToCreate.withDefaults(),
+                        appointmentsToCreate.getAppointmentDefaults(),
+                        LOCATION_B.getAgencyId());
+    }
+
+
+    @Test
     public void shouldHandleNoRepeats() {
         assertThat(AppointmentsServiceImpl.withRepeats(null, Collections.singletonList(DETAILS_2))).containsExactly(DETAILS_2);
     }
@@ -316,7 +410,7 @@ public class AppointmentsServiceImplTest {
     public void shouldHandleOneRepeat() {
         assertThat(AppointmentsServiceImpl.withRepeats(
                 Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(1).build(),
-                Collections.singletonList(DETAILS_2)
+                List.of(DETAILS_2)
         ))
                 .containsExactly(DETAILS_2);
     }
@@ -325,7 +419,7 @@ public class AppointmentsServiceImplTest {
     public void shouldHandleMultipleRepeats() {
         assertThat(AppointmentsServiceImpl.withRepeats(
                 Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(3).build(),
-                Collections.singletonList(DETAILS_2)
+                List.of(DETAILS_2)
         ))
                 .containsExactly(
                         DETAILS_2,
@@ -338,7 +432,7 @@ public class AppointmentsServiceImplTest {
     public void shouldHandleNullEndTime() {
         assertThat(AppointmentsServiceImpl.withRepeats(
                 Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(2).build(),
-                Collections.singletonList(DETAILS_3)
+                List.of(DETAILS_3)
         ))
                 .containsExactly(
                         DETAILS_3,
@@ -350,7 +444,7 @@ public class AppointmentsServiceImplTest {
     public void shouldRepeatMultipleAppointments() {
         assertThat(AppointmentsServiceImpl.withRepeats(
                 Repeat.builder().repeatPeriod(RepeatPeriod.DAILY).count(3).build(),
-                Arrays.asList(DETAILS_2, DETAILS_3)
+                List.of(DETAILS_2, DETAILS_3)
         ))
                 .containsExactly(
                         DETAILS_2,
@@ -377,7 +471,7 @@ public class AppointmentsServiceImplTest {
     }
 
     private void stubLocation(Location location) {
-        when(locationService.getUserLocations(anyString())).thenReturn(Arrays.asList(LOCATION_A, LOCATION_B));
+        when(locationService.getUserLocations(anyString())).thenReturn(List.of(LOCATION_A, LOCATION_B));
         when(locationService.getLocation(location.getLocationId())).thenReturn(location);
     }
 }

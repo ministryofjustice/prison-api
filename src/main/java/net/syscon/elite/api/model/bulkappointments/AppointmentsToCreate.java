@@ -39,4 +39,8 @@ public class AppointmentsToCreate {
                 }
         ).collect(Collectors.toList());
     }
+
+    public boolean moreThanOneOffender() {
+        return appointments != null && appointments.size() > 1;
+    }
 }
