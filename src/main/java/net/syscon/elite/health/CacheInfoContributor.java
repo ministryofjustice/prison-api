@@ -8,6 +8,8 @@ import org.springframework.boot.actuate.info.Info;
 import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.stereotype.Component;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +31,7 @@ public class CacheInfoContributor implements InfoContributor {
         for (String name : cacheManager.getCacheNames()) {
             final Cache cache = cacheManager.getCache(name);
             final StatisticsGateway statistics = cache.getStatistics();
-            results.put(name, String.format("%d / %d hits:%d misses:%d exp:%d notfound:%d bytes:%d",
+            results.put(String.format("%-50s", name), String.format("%5d /%5d  hits:%4d misses:%4d exp:%4d notfound:%4d bytes:%d",
                     cache.getKeysNoDuplicateCheck().size(),
                     cache.getCacheConfiguration().getMaxEntriesLocalHeap(),
                     statistics.cacheHitCount(),
@@ -43,5 +45,11 @@ public class CacheInfoContributor implements InfoContributor {
         }
         builder.withDetail("caches", results);
         builder.withDetail("cacheTotalMemoryMB", String.format("%.2f", memory / 1048576.0));
+
+        RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+        long uptime = runtimeMXBean.getUptime();
+        long seconds = uptime / 1000;
+        double days = seconds / 86400.0;
+        builder.withDetail("uptime", String.format("%.1f days (%d seconds)", days, seconds));
     }
 }

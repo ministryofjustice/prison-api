@@ -24,9 +24,6 @@ public class CacheConfig implements CachingConfigurer {
     @Value("${cache.timeout.seconds.user:3600}")
     private int userTimeoutSeconds;
 
-    @Value("${cache.timeout.seconds.caseload:3600}")
-    private int caseLoadTimeoutSeconds;
-
     @Value("${cache.timeout.seconds.casenote:3600}")
     private int caseNoteTimeoutSeconds;
 
@@ -52,7 +49,7 @@ public class CacheConfig implements CachingConfigurer {
     @Bean(destroyMethod="shutdown")
     public net.sf.ehcache.CacheManager ehCacheManager() {
         final var config = new net.sf.ehcache.config.Configuration();
-        config.sizeOfPolicy(new SizeOfPolicyConfiguration().maxDepth(10000));
+        config.sizeOfPolicy(new SizeOfPolicyConfiguration().maxDepth(20000));
 
         config.addCache(config("referenceDomain", 500, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("referenceCodesByDomain", 1000, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
@@ -68,9 +65,6 @@ public class CacheConfig implements CachingConfigurer {
         config.addCache(config("loadUserByUsername", 5000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config("findByStaffIdAndStaffUserType", 1000, userTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-
-        config.addCache(config("getCaseLoadsByUsername", 1000, caseLoadTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-        config.addCache(config("getAllCaseLoadsByUsername", 1000, caseLoadTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config("findAgenciesByUsername", 1000, agencyTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
@@ -94,7 +88,6 @@ public class CacheConfig implements CachingConfigurer {
         config.addCache(config("payableAttendanceOutcomes", 100, referenceDataTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
 
         config.addCache(config(GET_AGENCY_LOCATIONS_BOOKED, 500, activityTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
-
 
         return net.sf.ehcache.CacheManager.newInstance(config);
     }
