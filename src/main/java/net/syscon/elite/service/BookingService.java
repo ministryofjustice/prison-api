@@ -44,6 +44,7 @@ public interface BookingService {
     void checkBookingExists(Long bookingId);
 
     List<OffenceDetail> getMainOffenceDetails(Long bookingId);
+    List<OffenceHistoryDetail> getOffenceHistory(String offenderNo);
 
     List<ScheduledEvent> getEventsToday(Long bookingId);
     List<ScheduledEvent> getEventsOnDay(Collection<Long> bookingIds, LocalDate day);

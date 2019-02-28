@@ -21,6 +21,7 @@ import net.syscon.util.CalcDateRanges;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -570,6 +571,12 @@ public class BookingServiceImpl implements BookingService {
     @VerifyBookingAccess
     public List<OffenceDetail> getMainOffenceDetails(Long bookingId) {
         return sentenceRepository.getMainOffenceDetails(bookingId);
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'SYSTEM_READ_ONLY', 'CREATE_CATEGORISATION', 'APPROVE_CATEGORISATION')")
+    public List<OffenceHistoryDetail> getOffenceHistory(String offenderNo) {
+        return sentenceRepository.getOffenceHistory(offenderNo);
     }
 
     @Override

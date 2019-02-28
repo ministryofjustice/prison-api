@@ -1,19 +1,19 @@
-Feature: Booking Main Offence Detail
+Feature: Booking Offences
 
   Acceptence Criteria
-  A logged on staff user can retrieve details of main offences for an offender booking.
+  A logged on staff user can retrieve details of offences for an offender booking.
 
   Background:
     Given a user has authenticated with the API
 
   Scenario: Retrieve single main offence
     When a sentence with booking id -1 is requested
-    Then 1 offence detail records are returned
+    Then 1 offence records are returned
     And offence description of "1st" offence detail record is "Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)"
 
   Scenario: Retrieve multiple main offences
     When a sentence with booking id -7 is requested
-    Then 2 offence detail records are returned
+    Then 2 offence records are returned
     And offence description of "1st" offence detail record is "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury"
     And offence description of "2nd" offence detail record is "Cause another to use a vehicle where the seat belt is not securely fastened to the anchorage point."
 
@@ -27,4 +27,11 @@ Feature: Booking Main Offence Detail
 
   Scenario: Request main offence details for offender that does not yet have any on record
     When a sentence with booking id -9 is requested
-    Then 0 offence detail records are returned
+    Then 0 offence records are returned
+
+  Scenario: Request offence history for offender
+    Given a categorisation user has authenticated with the API
+    When a sentence history with offender no "A1234AG" is requested
+    Then 2 offence records are returned
+    And offence description of "1st" offence history record is "Cause another to use a vehicle where the seat belt is not securely fastened to the anchorage point."
+    And offence description of "2nd" offence history record is "Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury"

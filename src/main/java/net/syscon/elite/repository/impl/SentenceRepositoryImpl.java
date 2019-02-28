@@ -1,6 +1,7 @@
 package net.syscon.elite.repository.impl;
 
 import net.syscon.elite.api.model.OffenceDetail;
+import net.syscon.elite.api.model.OffenceHistoryDetail;
 import net.syscon.elite.repository.SentenceRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.DateTimeConverter;
@@ -17,6 +18,7 @@ import java.util.Optional;
 public class SentenceRepositoryImpl extends RepositoryBase implements SentenceRepository {
 
     private final StandardBeanPropertyRowMapper<OffenceDetail> offenceDetailMapper = new StandardBeanPropertyRowMapper<>(OffenceDetail.class);
+    private final StandardBeanPropertyRowMapper<OffenceHistoryDetail> offenceHistoryMapper = new StandardBeanPropertyRowMapper<>(OffenceHistoryDetail.class);
 
     @Override
     public List<OffenceDetail> getMainOffenceDetails(Long bookingId) {
@@ -27,6 +29,19 @@ public class SentenceRepositoryImpl extends RepositoryBase implements SentenceRe
                 sql,
                 createParams("bookingId", bookingId),
                 offenceDetailMapper);
+
+        return offences;
+    }
+
+    @Override
+    public List<OffenceHistoryDetail> getOffenceHistory(String offenderNo) {
+        Objects.requireNonNull(offenderNo, "offenderNo is a required parameter");
+        String sql = getQuery("GET_OFFENCES");
+
+        List<OffenceHistoryDetail> offences = jdbcTemplate.query(
+                sql,
+                createParams("offenderNo", offenderNo),
+                offenceHistoryMapper);
 
         return offences;
     }
