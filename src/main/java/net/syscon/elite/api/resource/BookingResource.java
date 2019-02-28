@@ -420,6 +420,18 @@ public interface BookingResource {
     GetMainOffenceResponse getMainOffence(@ApiParam(value = "The offender booking id", required = true) @PathParam("bookingId") Long bookingId);
 
     @GET
+    @Path("/offenderNo/{offenderNo}/offenceHistory")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Offence history.", notes = "All Offences recorded for this offender.", nickname="getOffenceHistory")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = OffenceDetail.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+    Response getOffenceHistory(@ApiParam(value = "The offender number", required = true) @PathParam("offenderNo") String offenderNo);
+
+    @GET
     @Path("/{bookingId}/physicalAttributes")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
@@ -1615,27 +1627,6 @@ public interface BookingResource {
 
         public static GetMainOffenceResponse respond200WithApplicationJson(List<OffenceDetail> entity) {
             ResponseBuilder responseBuilder = Response.status(200)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetMainOffenceResponse(responseBuilder.build(), entity);
-        }
-
-        public static GetMainOffenceResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetMainOffenceResponse(responseBuilder.build(), entity);
-        }
-
-        public static GetMainOffenceResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetMainOffenceResponse(responseBuilder.build(), entity);
-        }
-
-        public static GetMainOffenceResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMainOffenceResponse(responseBuilder.build(), entity);

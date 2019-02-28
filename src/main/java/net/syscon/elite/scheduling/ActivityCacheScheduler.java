@@ -25,6 +25,7 @@ public class ActivityCacheScheduler {
     @Scheduled(fixedRate = 10 * 60 * 1000, initialDelay = 30000)
     public void cacheActivityLocations() {
 
+        final long start = System.currentTimeMillis();
         log.info("START: cacheActivityLocations");
         // get all prisons
         var prisons = agencyService.getAgenciesByType("INST");
@@ -43,9 +44,7 @@ public class ActivityCacheScheduler {
                 });
             }
         });
-
-        log.info("END: cacheActivityLocations");
-
+        log.info("END: cacheActivityLocations, elapsed {} ms", System.currentTimeMillis() - start);
     }
 
 }

@@ -435,6 +435,15 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    public Response getOffenceHistory(String offenderNo) {
+        List<OffenceHistoryDetail> list = bookingService.getOffenceHistory(offenderNo);
+        return Response.status(200)
+                .header("Content-Type", MediaType.APPLICATION_JSON)
+                .entity(list)
+                .build();
+    }
+
+    @Override
     public GetPhysicalAttributesResponse getPhysicalAttributes(Long bookingId) {
         return GetPhysicalAttributesResponse.respond200WithApplicationJson(inmateService.getPhysicalAttributes(bookingId));
     }

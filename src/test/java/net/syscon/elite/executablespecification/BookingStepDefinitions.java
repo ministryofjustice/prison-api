@@ -347,13 +347,13 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAlerts.verifyAccessDenied();
     }
 
-    // ----------------------------- Main Sentence --------------------------
+    // ----------------------------- Sentence ----------------------------------------
     @When("^a sentence with booking id ([0-9-]+) is requested$")
     public void sentenceWithBookingId(Long bookingId) {
         bookingSentence.getMainOffenceDetails(bookingId);
     }
 
-    @Then("^(\\d+) offence detail records are returned$")
+    @Then("^(\\d+) offence records are returned$")
     public void offenceDetailRecordsAreReturned(long expectedCount) {
         bookingSentence.verifyResourceRecordsReturned(expectedCount);
     }
@@ -366,6 +366,16 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @Then("resource not found response is received from sentence API")
     public void resourceNotFoundResponse() {
         bookingSentence.verifyResourceNotFound();
+    }
+
+    @When("^a sentence history with offender no \"([^\"]*)\" is requested$")
+    public void sentenceWithOffenderNo(String offenderNo) {
+        bookingSentence.getOffenceHistory(offenderNo);
+    }
+
+    @And("^offence description of \"([^\"]*)\" offence history record is \"([^\"]*)\"$")
+    public void offenceDescriptionOfOffenceHistoryRecordIs(String ordinal, String expectedDescription) {
+        bookingSentence.verifyOffenceHistory(ord2idx(ordinal), expectedDescription);
     }
 
     // ----------------------------- Assessments --------------------------
