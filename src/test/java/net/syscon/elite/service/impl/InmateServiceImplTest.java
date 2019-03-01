@@ -137,7 +137,7 @@ public class InmateServiceImplTest {
     }
 
     @Test
-    public void testCreateBookingAppointment() {
+    public void testCreateCategorisation() {
 
         final CategorisationDetail catDetail = CategorisationDetail.builder().bookingId(-5L).category("D").committee("GOV").comment("comment").build();
 
@@ -149,7 +149,7 @@ public class InmateServiceImplTest {
 
         serviceToTest.createCategorisation(1234L, catDetail);
 
-        Mockito.verify(repository, Mockito.times(1)).insertCategory(catDetail, "CDI", 444L, "ME", 1004L);
+        Mockito.verify(repository, Mockito.times(1)).insertCategory(catDetail, "CDI", 444L, "ME");
     }
 
     @Test

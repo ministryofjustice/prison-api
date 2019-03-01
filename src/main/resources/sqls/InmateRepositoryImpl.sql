@@ -379,6 +379,10 @@ WHERE at_offender_booking.in_out_status IN ('IN', 'OUT')
   AND at_offender_booking.agy_loc_id = :agencyId
 }
 
+GET_CATEGORY_ASSESSMENT_ID {
+  select assessment_id from assessments a where a.assessment_class='TYPE' and a.assessment_code='CATEGORY'
+}
+
 INSERT_CATEGORY {
 Insert into OFFENDER_ASSESSMENTS
     (OFFENDER_BOOK_ID,
@@ -403,15 +407,15 @@ VALUES
      (:bookingId,
      :seq,
      :assessmentDate,
-     (select assessment_id from assessments a where a.assessment_class='TYPE' and a.assessment_code='CATEGORY'),
-     :score, --  how is this calculated  ????
+     :assessmentId,
+     (select s.MAX_SCORE from assessment_supervisions s where s.assessment_id = :assessmentId and s.supervision_level_type = :category),
      :assessStatus,  -- P  (AWAITING_APPROVAL)
      :category,
      :assessStaffId,
      :assessComment,
      :reviewDate, -- (+ 6 months )
      :userId,
-     :assessCommitteeCode,  -- record originating system ??
+     :assessCommitteeCode,
      :dateTime,
      :userId, --
      :agencyId,

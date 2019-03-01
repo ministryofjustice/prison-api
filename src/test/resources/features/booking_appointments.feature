@@ -110,6 +110,7 @@ Feature: Booking Appointments
     And end time for "10th" returned appointment is "2017-06-15 15:00:00"
     And event location for "6th" returned appointment is "Medical Centre"
 
+  @lucy
   Scenario: Create a new appointment
     When A medical appointment is created for an existing offender with booking id "-4", tomorrow at "16:00", at location "-28"
     Then The appointment exists in the database

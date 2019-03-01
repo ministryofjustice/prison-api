@@ -376,7 +376,7 @@ public class InmateServiceImpl implements InmateService {
     public void createCategorisation(Long bookingId, CategorisationDetail categorisationDetail) {
         final UserDetail userDetail = userService.getUserByUsername(authenticationFacade.getCurrentUsername());
         final OffenderSummary currentBooking = bookingService.getLatestBookingByBookingId(bookingId);
-        repository.insertCategory(categorisationDetail, currentBooking.getAgencyLocationId(), userDetail.getStaffId(), userDetail.getUsername(), 1004L);  // waiting for Paul Morris response
+        repository.insertCategory(categorisationDetail, currentBooking.getAgencyLocationId(), userDetail.getStaffId(), userDetail.getUsername());
 
         // Log event
         telemetryClient.trackEvent("CategorisationCreated", ImmutableMap.of("bookingId", bookingId.toString(),"category", categorisationDetail.getCategory()), null);

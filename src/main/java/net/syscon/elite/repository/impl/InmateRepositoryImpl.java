@@ -539,14 +539,16 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public void insertCategory(CategorisationDetail detail, String agencyId, Long assessStaffId, String userId, Long score) {
+	public void insertCategory(CategorisationDetail detail, String agencyId, Long assessStaffId, String userId) {
+
+		Long assessmentId = jdbcTemplate.queryForObject(getQuery("GET_CATEGORY_ASSESSMENT_ID"), Map.of(), Long.class);
 
 		jdbcTemplate.update(
 				getQuery("INSERT_CATEGORY"),
                 createParams("bookingId", detail.getBookingId(),
+                        "assessmentId", assessmentId,
                         "seq", getOffenderAssessmentSeq(detail.getBookingId()) + 1,
                         "assessmentDate", LocalDate.now(),
-                        "score", score,  // waiting for Paul morris response to determine how calculated
                         "assessStatus", "P",
                         "category", detail.getCategory(),
                         "assessStaffId", assessStaffId,
