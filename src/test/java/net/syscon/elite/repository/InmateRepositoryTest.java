@@ -597,7 +597,7 @@ public class InmateRepositoryTest {
 
         final CategorisationDetail catDetail = CategorisationDetail.builder().bookingId(-5L).category("D").committee("GOV").build();
 
-        repository.insertCategory(catDetail, "LEI", -11L, "JDOG", 1004L);
+        repository.insertCategory(catDetail, "LEI", -11L, "JDOG");
 
         final List<OffenderCategorise> list = repository.getUncategorised("LEI");
 
