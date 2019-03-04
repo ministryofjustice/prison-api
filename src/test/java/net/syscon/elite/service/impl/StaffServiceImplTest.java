@@ -76,11 +76,11 @@ public class StaffServiceImplTest {
 
     @Test(expected = BadRequestException.class)
     public void testInvalidId() {
-        when(staffRepository.findByStaffId(ID_SINGLE)).thenThrow(new BadRequestException());
-        List<String> addresses = staffService.getStaffEmailAddresses(ID_NONE);
+        when(staffRepository.findByStaffId(ID_BAD)).thenThrow(new BadRequestException());
+        List<String> addresses = staffService.getStaffEmailAddresses(ID_BAD);
         assertThat(addresses).isNull();
-        verify(staffRepository, times(1)).findByStaffId(ID_NONE);
-        verify(staffRepository, times(0)).findEmailAddressesForStaffId(ID_NONE);
+        verify(staffRepository, times(1)).findByStaffId(ID_BAD);
+        verify(staffRepository, times(0)).findEmailAddressesForStaffId(ID_BAD);
     }
 
     private Optional<StaffDetail> getValidStaffDetails(Long staffId) {
