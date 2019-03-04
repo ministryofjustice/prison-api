@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.repository.StaffRepository;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.service.EntityNotFoundException;
@@ -12,9 +13,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.ws.rs.BadRequestException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -42,32 +43,49 @@ public class StaffServiceImplTest {
     }
 
     @Test
-    public void testGetStaffEmailMultipleExist() {
+    public void testMultipleEmails() {
+        when(staffRepository.findByStaffId(ID_MULTIPLE)).thenReturn(getValidStaffDetails(ID_MULTIPLE));
         when(staffRepository.findEmailAddressesForStaffId(ID_MULTIPLE)).thenReturn(multipleAddresses);
-        List<String> addreses = staffService.getStaffEmailAddresses(ID_MULTIPLE);
-        // Assertions for list content - multiple entries
+        List<String> addresses = staffService.getStaffEmailAddresses(ID_MULTIPLE);
+        assertThat(addresses.size()).isGreaterThan(1);
+        assertThat(addresses.get(0)).isEqualToIgnoringCase(multipleAddresses.get(0));
+        verify(staffRepository, times(1)).findByStaffId(ID_MULTIPLE);
         verify(staffRepository, times(1)).findEmailAddressesForStaffId(ID_MULTIPLE);
     }
 
     @Test
-    public void testGetStaffEmailSingleExists() {
+    public void testSingleEmail() {
+        when(staffRepository.findByStaffId(ID_SINGLE)).thenReturn(getValidStaffDetails(ID_SINGLE));
         when(staffRepository.findEmailAddressesForStaffId(ID_SINGLE)).thenReturn(singleAddress);
-        List<String> addreses = staffService.getStaffEmailAddresses(ID_SINGLE);
-        // Assertions for list content - one entry
+        List<String> addresses = staffService.getStaffEmailAddresses(ID_SINGLE);
+        assertThat(addresses.size()).isEqualTo(1);
+        assertThat(addresses.get(0)).isEqualToIgnoringCase(singleAddress.get(0));
+        verify(staffRepository, times(1)).findByStaffId(ID_SINGLE);
         verify(staffRepository, times(1)).findEmailAddressesForStaffId(ID_SINGLE);
     }
 
     @Test(expected = EntityNotFoundException.class)
-    public void testGetStaffEmailsNoneExist() {
-        when(staffRepository.findEmailAddressesForStaffId(ID_NONE)).thenThrow(new EntityNotFoundException(""));
-        List<String> addreses = staffService.getStaffEmailAddresses(ID_NONE);
+    public void testNoneExist() {
+        when(staffRepository.findByStaffId(ID_NONE)).thenReturn(getValidStaffDetails(ID_NONE));
+        when(staffRepository.findEmailAddressesForStaffId(ID_NONE)).thenReturn(emptyList).thenThrow(EntityNotFoundException.withId(ID_NONE));
+        List<String> addresses = staffService.getStaffEmailAddresses(ID_NONE);
+        assertThat(addresses).isEmpty();
+        verify(staffRepository, times(1)).findByStaffId(ID_NONE);
         verify(staffRepository, times(1)).findEmailAddressesForStaffId(ID_NONE);
     }
 
     @Test(expected = BadRequestException.class)
-    public void testGetStaffEmailInvalidId() {
-        when(staffRepository.findEmailAddressesForStaffId(ID_BAD)).thenReturn(emptyList);
-        List<String> addreses = staffService.getStaffEmailAddresses(ID_NONE);
-        verify(staffRepository, times(1)).findEmailAddressesForStaffId(ID_NONE);
+    public void testInvalidId() {
+        when(staffRepository.findByStaffId(ID_SINGLE)).thenThrow(new BadRequestException());
+        List<String> addresses = staffService.getStaffEmailAddresses(ID_NONE);
+        assertThat(addresses).isNull();
+        verify(staffRepository, times(1)).findByStaffId(ID_NONE);
+        verify(staffRepository, times(0)).findEmailAddressesForStaffId(ID_NONE);
+    }
+
+    private Optional<StaffDetail> getValidStaffDetails(Long staffId) {
+        HashMap<String,Object> additionalProperties = new HashMap<String,Object>();
+        StaffDetail staffDetail = new StaffDetail(additionalProperties, staffId, "Bob", "Harris", "ACTIVE", 0L);
+        return Optional.of(staffDetail);
     }
 }
