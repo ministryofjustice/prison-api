@@ -18,7 +18,7 @@ import java.util.List;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class StaffServiceImpl {
+public class StaffServiceImplTest {
 
     private static final Long ID_MULTIPLE = 8888L;
     private static final Long ID_SINGLE = 9999L;
