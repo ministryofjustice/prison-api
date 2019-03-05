@@ -47,7 +47,6 @@ public class StaffStepDefinitions extends AbstractStepDefinitions {
         staff.findStaffByAgencyRole(agencyId, role, null, null);
     }
 
-
     @When("^request is submitted for staff members having role \"([^\"]*)\" in agency \"([^\"]*)\" with name filter \"([^\"]*)\" and staff id filter \"([^\"]*)\"$")
     public void requestIsSubmittedForStaffMembersHavingRoleInAgencyWithNameFilter(String role, String agencyId, String nameFilter, Long staffId) {
         staff.findStaffByAgencyRole(agencyId, role, nameFilter, staffId);
@@ -81,5 +80,22 @@ public class StaffStepDefinitions extends AbstractStepDefinitions {
     @Then("^a role containing \"([^\"]*)\" \"([^\"]*)\" is returned without duplicates$")
     public void aRoleContainingIsReturnedWithoutDuplicates(String role, String roleDescription) {
         staff.verifyStaffRoleWithNoDuplicates(role, roleDescription);
+    }
+
+    // Step definitions related to staff emails
+
+    @When("^request is submitted for email addresses associated with staff id \"([^\"]*)\"$")
+    public void requestSubmittedForEmails(Long staffId) {
+        staff.getEmails(staffId);
+    }
+
+    @Then("^\"([^\"]*)\" email address records are returned$")
+    public void staffEmailAddressesAreReturned(String expectedEmails) {
+        staff.verifyNumberOfEmailAddressesReturned(Long.valueOf(expectedEmails));
+    }
+
+    @And("^response code matches \"([^\"]*)\"$")
+    public void emailResponseCodeMatches(String responseCode) {
+        staff.verifyResponseCodeMatches(Long.valueOf(responseCode).intValue());
     }
 }

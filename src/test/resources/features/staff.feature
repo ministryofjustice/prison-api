@@ -5,6 +5,7 @@ Feature: Staff Details and Roles
    - find staff details for any valid staff id.
    - retrieve a paged list of staff members having a specified position/role in an agency, optionally filtering the list
      by staff member name.
+   - find a list of email addresses associated with an existing staff id.
 
   Background:
     Given a user has authenticated with the API
@@ -107,5 +108,13 @@ Feature: Staff Details and Roles
       | -1      |LEI       |KW    | Key Worker         |
       | -2      |BXI       |KW    | Key Worker         |
 
-
-
+  Scenario Outline: Retrieve a list of email addresses for a specified staff member
+     When request is submitted for email addresses associated with staff id "<staffId>"
+     Then "<count>" email address records are returned
+     And response code matches "<responseCode>"
+    Examples:
+    | staffId | count | responseCode |
+    | -1      | 1     | 200          |
+    | -2      | 1     | 200          |
+    | -7      | 0     | 404          |
+    |99999    | 0     | 400          |

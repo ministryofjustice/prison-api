@@ -27,10 +27,14 @@ public class StaffSteps extends CommonSteps {
     private static final String QUERY_PARAM_NAME_FILTER = "nameFilter";
     private static final String QUERY_PARAM_STAFF_ID_FILTER = "staffId";
     private static final String QUERY_PARAM_ACTIVE_ONLY_FILTER = "activeOnly";
+    private static final String API_STAFF_EMAILS_URL = API_PREFIX + "staff/{staffId}/emails";
 
     private StaffDetail staffDetail;
     private List<StaffLocationRole> staffDetails;
     private List<StaffRole> roles;
+
+    private int emailResponseCode = 0;
+    private List<String> staffEmailAddresses;
 
     @Override
     protected void init() {
@@ -39,6 +43,9 @@ public class StaffSteps extends CommonSteps {
         staffDetail = null;
         staffDetails = null;
         roles = null;
+
+        emailResponseCode = 0;
+        staffEmailAddresses = null;
     }
 
     @Step("Find staff details")
@@ -160,5 +167,40 @@ public class StaffSteps extends CommonSteps {
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
+    }
+
+    // Step implementations for staff emails
+
+    public void getEmails(Long staffId) {
+        init();
+
+        try {
+            ResponseEntity<List> response = restTemplate.exchange(
+                    API_STAFF_EMAILS_URL,
+                    HttpMethod.GET,
+                    createEntity(),
+                    List.class,
+                    staffId);
+
+            staffEmailAddresses = response.getBody();
+            emailResponseCode = response.getStatusCode().value();
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+            emailResponseCode = ex.getErrorResponse().getStatus().intValue();
+        }
+    }
+
+    public void verifyNumberOfEmailAddressesReturned(Long numberOfEmails) {
+        Long count = 0L;
+        if (staffEmailAddresses == null || staffEmailAddresses.isEmpty()) {
+            assertThat(numberOfEmails).isEqualTo(count);
+        }
+        else {
+            assertThat(staffEmailAddresses.size()).isEqualTo(numberOfEmails.intValue());
+        }
+    }
+
+    public void verifyResponseCodeMatches(int responseCode) {
+        assertThat(emailResponseCode).isEqualTo(responseCode);
     }
 }
