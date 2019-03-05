@@ -29,6 +29,7 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.ws.rs.BadRequestException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -370,6 +371,12 @@ public class InmateServiceImpl implements InmateService {
     }
 
     @Override
+    @VerifyAgencyAccess
+    public List<OffenderCategorise> getApprovedCategorised(String agencyId, LocalDate cutOfDate) {
+        return repository.getApprovedCategorised(agencyId, cutOfDate);
+    }
+
+    @Override
     @VerifyBookingAccess
     @PreAuthorize("hasRole('CREATE_CATEGORISATION')")
     @Transactional
@@ -389,7 +396,7 @@ public class InmateServiceImpl implements InmateService {
     public void approveCategorisation(Long bookingId, CategoryApprovalDetail detail) {
         validate(detail);
         final UserDetail userDetail = userService.getUserByUsername(authenticationFacade.getCurrentUsername());
-        repository.approveCategory(detail, userDetail.getUsername());
+        repository.approveCategory(detail, userDetail);
 
         // Log event
         telemetryClient.trackEvent("CategorisationApproved", ImmutableMap.of("bookingId", bookingId.toString(), "category", detail.getCategory()), null);

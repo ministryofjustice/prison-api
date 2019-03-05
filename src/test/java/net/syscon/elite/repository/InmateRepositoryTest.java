@@ -570,6 +570,22 @@ public class InmateRepositoryTest {
         // Note that size of list may vary depending on whether feature tests have run, e.g. approving booking id -34
     }
 
+
+    @Test
+    public void testGetApprovedCategorised() {
+        final List<OffenderCategorise> list = repository.getApprovedCategorised("LEI", LocalDate.of(1976, 5, 5));
+
+        list.sort(Comparator.comparing(OffenderCategorise::getOffenderNo));
+        assertThat(list).asList().extracting("offenderNo", "bookingId", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName").contains(
+                Tuple.tuple("A5576RS", -31L, "API", "User", "CA", "User"));
+    }
+
+    @Test
+    public void testGetApprovedCategorisedNoResults() {
+        final List<OffenderCategorise> list = repository.getApprovedCategorised("MDI", LocalDate.of(2022, 5, 5));
+        assertThat(list).hasSize(0);
+    }
+
     @Test
     public void testGetAllAssessments() {
         final List<AssessmentDto> list = repository.findAssessmentsByOffenderNo(
@@ -614,7 +630,7 @@ public class InmateRepositoryTest {
                 .evaluationDate(LocalDate.of(2019, 2, 27))
                 .reviewSupLevelText("My comment").build();
 
-        repository.approveCategory(catDetail,"KDOG");
+        repository.approveCategory(catDetail, UserDetail.builder().staffId(-10L).username("KDOG").build());
 
         final List<AssessmentDto> list = repository.findAssessments(Arrays.asList(-1L), "CATEGORY", Collections.emptySet());
 

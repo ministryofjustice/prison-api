@@ -425,33 +425,49 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 				createParams("agencyId", agencyId),
 				UNCATEGORISED_MAPPER);
 
-
-        final Map<@NotNull Long, List<OffenderCategorise>> bookingIdMap = rawData.stream().collect(Collectors.groupingBy(OffenderCategorise::getBookingId));
-
-        return applyCategorisationRestrictions(bookingIdMap);
+        return applyCategorisationRestrictions(rawData);
 	}
 
-	private List<OffenderCategorise> applyCategorisationRestrictions(Map<@NotNull Long, List<OffenderCategorise>> bookingIdMap) {
+	@Override
+	public List<OffenderCategorise> getApprovedCategorised(String agencyId, LocalDate cutoffDate) {
+		List<OffenderCategorise> rawData = jdbcTemplate.query(
+				getQuery("GET_APPROVED_CATEGORISED"),
+				createParams("agencyId", agencyId, "cutOffDate", DateTimeConverter.toDate(cutoffDate)),
+				UNCATEGORISED_MAPPER);
+
+
+		return removeEarlierCategorisations(rawData);
+	}
+
+
+	private List<OffenderCategorise> applyCategorisationRestrictions(List<OffenderCategorise> catListRaw) {
 		// for every group check that assessment is null OR it is the latest categorisation record
-		bookingIdMap.replaceAll((k, v) -> removeEarlierCategorisations(v));
+		final List<OffenderCategorise> catList = removeEarlierCategorisations(catListRaw);
 
 		// remove the active assessment status offenders - we only want null assessment or pending assessments
-		return bookingIdMap.values().stream()
-				.flatMap(List::stream)
+		return catList.stream()
 				.filter(o -> ((o.getAssessStatus() == null || !o.getAssessStatus().equals("A"))))
 				.map(o -> OffenderCategorise.deriveStatus(o))
 				.collect(Collectors.toList());
 	}
 
-	private List<OffenderCategorise> removeEarlierCategorisations(List<OffenderCategorise> v) {
-		List<OffenderCategorise> bookingList = v;
-		Optional<OffenderCategorise> maxSeqOpt = bookingList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentSeq));
-		Optional<OffenderCategorise> maxDateOpt = bookingList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentDate));
-		if (maxDateOpt.isEmpty() || maxSeqOpt.isEmpty()) return bookingList;
+	private List<OffenderCategorise> removeEarlierCategorisations(List<OffenderCategorise> catList) {
+		final Map<@NotNull Long, List<OffenderCategorise>> bookingIdMap = catList.stream().collect(Collectors.groupingBy(OffenderCategorise::getBookingId));
+		bookingIdMap.replaceAll((k, v) -> cleanDuplicateRecordsUsingAssessmentSeq(v));
 
-		final List<OffenderCategorise> toReplace = bookingList.stream()
-			.filter(oc -> oc.getAssessmentSeq() == null || (oc.getAssessmentSeq().equals(maxSeqOpt.get().getAssessmentSeq()) && oc.getAssessmentDate().equals(maxDateOpt.get().getAssessmentDate())))
-			.collect(Collectors.toList());
+		return bookingIdMap.values().stream()
+				.flatMap(List::stream)
+				.collect(Collectors.toList());
+	}
+
+	private List<OffenderCategorise> cleanDuplicateRecordsUsingAssessmentSeq(List<OffenderCategorise> individualCatList) {
+		Optional<OffenderCategorise> maxSeqOpt = individualCatList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentSeq));
+		Optional<OffenderCategorise> maxDateOpt = individualCatList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentDate));
+		if (maxDateOpt.isEmpty() || maxSeqOpt.isEmpty()) return individualCatList;
+
+		final List<OffenderCategorise> toReplace = individualCatList.stream()
+				.filter(oc -> oc.getAssessmentSeq() == null || (oc.getAssessmentSeq().equals(maxSeqOpt.get().getAssessmentSeq()) && oc.getAssessmentDate().equals(maxDateOpt.get().getAssessmentDate())))
+				.collect(Collectors.toList());
 		return toReplace;
 	}
 
@@ -561,7 +577,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	@Override
-	public void approveCategory(CategoryApprovalDetail detail, String userId) {
+	public void approveCategory(CategoryApprovalDetail detail, UserDetail currentUser) {
 		final Integer seq = getOffenderCategorySeq(detail.getBookingId());
 		if (seq == null) {
 			throw new BadRequestException(String.format("No category assessment found, category %.10s, booking %d",
@@ -577,11 +593,12 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 						"evaluationDate", detail.getEvaluationDate(),
 						"evaluationResultCode", "APP", // or 'REJ'
 						"reviewCommitteeCode", "REVIEW", //detail.getReviewCommitteeCode(),
+						"approverStaffId", currentUser.getStaffId(),
 //						"reviewPlacementText", detail.getReviewPlacementText(),
 //						"committeeCommentText", detail.getCommitteeCommentText(),
 //						"nextReviewDate", detail.getNextReviewDate(),
 						"reviewSupLevelText", detail.getReviewSupLevelText(),
-						"userId", userId,
+						"userId", currentUser.getUsername(),
 						"dateTime", LocalDateTime.now())
 		);
 		if (result != 1) {

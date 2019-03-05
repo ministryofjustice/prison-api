@@ -30,7 +30,7 @@ public class BookingAssessmentSteps extends CommonSteps {
 
     private Assessment assessment;
     private List<Assessment> assessments;
-    private List<OffenderCategorise> uncategorised;
+    private List<OffenderCategorise> offenderCatList;
     private ResponseEntity createUpdateResponse;
 
     public void getAssessmentByCode(Long bookingId, String assessmentCode) {
@@ -110,7 +110,21 @@ public class BookingAssessmentSteps extends CommonSteps {
             ResponseEntity<List<OffenderCategorise>> response = restTemplate.exchange(API_ASSESSMENTS_PREFIX + "category/{agencyId}/uncategorised", HttpMethod.GET,
                     createEntity(), new ParameterizedTypeReference<List<OffenderCategorise>>() {}, agencyId);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            uncategorised = response.getBody();
+            offenderCatList = response.getBody();
+            buildResourceData(response);
+        } catch (EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    private void doGetCategorisedApiCall(String agencyId, String fromDate) {
+        init();
+        try {
+            final String url = API_ASSESSMENTS_PREFIX + "category/{agencyId}/categorised" + (StringUtils.isNotBlank(fromDate) ? "?fromDate=" + fromDate : "");
+            ResponseEntity<List<OffenderCategorise>> response = restTemplate.exchange(url, HttpMethod.GET,
+                    createEntity(), new ParameterizedTypeReference<List<OffenderCategorise>>() {}, agencyId);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            offenderCatList = response.getBody();
             buildResourceData(response);
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
@@ -155,7 +169,7 @@ public class BookingAssessmentSteps extends CommonSteps {
         super.init();
         assessment = null;
         assessments = null;
-        uncategorised = null;
+        offenderCatList = null;
         createUpdateResponse = null;
     }
 
@@ -211,19 +225,19 @@ public class BookingAssessmentSteps extends CommonSteps {
         doUncategorisedApiCall(agencyId);
     }
 
-    public void verifyUncategorisedOffenders(int size) {
+    public void verifyOffenderCategoryListSize(int size) {
         verifyNoError();
-        assertThat(uncategorised).asList().hasSize(size);
+        assertThat(offenderCatList).asList().hasSize(size);
     }
 
     public void verifyCategorisedPendingApproval(long bookingId) {
         verifyNoError();
-        assertThat(uncategorised).extracting("bookingId", "status").contains(tuple(Long.valueOf(bookingId), CategorisationStatus.AWAITING_APPROVAL));
+        assertThat(offenderCatList).extracting("bookingId", "status").contains(tuple(Long.valueOf(bookingId), CategorisationStatus.AWAITING_APPROVAL));
     }
 
     public void verifyCategorisedNotPresent(long bookingId) {
         verifyNoError();
-        assertThat(uncategorised).asList().noneSatisfy(c -> {
+        assertThat(offenderCatList).asList().noneSatisfy(c -> {
             assertThat(((OffenderCategorise) c).getBookingId()).isEqualTo(bookingId);
         });
     }
@@ -234,5 +248,9 @@ public class BookingAssessmentSteps extends CommonSteps {
 
     public void approveCategorisation(Long bookingId, String category, LocalDate date, String comment) {
         doApproveCategorisationApiCall(bookingId, category, date, comment);
+    }
+
+    public void getCategorisedOffenders(String agencyId, String fromDateString)  {
+        doGetCategorisedApiCall(agencyId, fromDateString);
     }
 }

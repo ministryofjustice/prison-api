@@ -13,6 +13,7 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -54,6 +55,13 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
     @Override
     public GetUncategorisedResponse getUncategorised(String agencyId) {
         final List<OffenderCategorise> results = inmateService.getUncategorised(agencyId);
+        return GetUncategorisedResponse.respond200WithApplicationJson(results);
+    }
+
+    @Override
+    public GetUncategorisedResponse getApprovedCategorised(String agencyId, LocalDate fromDate) {
+        LocalDate cutOffDate = fromDate != null ? fromDate : LocalDate.now().minusMonths(1);
+        final List<OffenderCategorise> results = inmateService.getApprovedCategorised(agencyId, cutOffDate);
         return GetUncategorisedResponse.respond200WithApplicationJson(results);
     }
 
