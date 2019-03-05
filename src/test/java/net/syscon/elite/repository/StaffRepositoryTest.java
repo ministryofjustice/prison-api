@@ -282,4 +282,30 @@ public class StaffRepositoryTest {
 
         assertThat(items.size()).isEqualTo(0);
     }
+
+    @Test
+    public void testEmailAddresses() {
+        final Long validStaffId = -1L;
+
+        StaffDetail staffDetail = repository.findByStaffId(validStaffId)
+                .orElseThrow(EntityNotFoundException.withId(validStaffId));
+        assertThat(staffDetail).isNotNull();
+
+        List<String> staffEmails = repository.findEmailAddressesForStaffId(validStaffId);
+
+        assertThat(staffEmails.size()).isEqualTo(1);
+        assertThat(staffEmails.get(0)).isEqualTo("elite2-api-user@syscon.net");
+    }
+
+    @Test
+    public void testNoEmailAddresses() {
+        final long validStaffId = -3L;
+
+        Optional<StaffDetail> staffDetail = repository.findByStaffId(validStaffId);
+        assertThat(staffDetail).isPresent();
+
+        // Data has no email addresses for this staff member
+        List<String> staffEmails = repository.findEmailAddressesForStaffId(validStaffId);
+        assertThat(staffEmails.isEmpty());
+    }
 }

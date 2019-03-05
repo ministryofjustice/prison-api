@@ -16,6 +16,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.ws.rs.BadRequestException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,6 +40,25 @@ public class StaffServiceImpl implements StaffService {
         Validate.notNull(staffId, "A staff id is required.");
 
         return staffRepository.findByStaffId(staffId).orElseThrow(EntityNotFoundException.withId(staffId));
+    }
+
+    @Override
+    public List<String> getStaffEmailAddresses(Long staffId) {
+        Validate.notNull(staffId,"A staffId is required.");
+
+        // Check that the staff ID is valid and throw a bad request exception if not
+        Optional<StaffDetail> staffDetail = staffRepository.findByStaffId(staffId);
+        if (staffDetail.isEmpty()) {
+            throw new BadRequestException();
+        }
+
+        // Retrieve the staff email addresses and throw an EntityNotFound exception if not
+        List<String> emailAddressList = staffRepository.findEmailAddressesForStaffId(staffId);
+        if (emailAddressList == null || emailAddressList.isEmpty()) {
+            throw EntityNotFoundException.withId(staffId);
+        }
+
+        return emailAddressList;
     }
 
     @Override

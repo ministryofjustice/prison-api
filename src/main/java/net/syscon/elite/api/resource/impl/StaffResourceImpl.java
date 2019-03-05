@@ -33,6 +33,11 @@ public class StaffResourceImpl implements StaffResource {
     }
 
     @Override
+    public GetStaffEmailResponse getStaffEmailAddresses(Long staffId) {
+        return GetStaffEmailResponse.respond200WithApplicationJson(staffService.getStaffEmailAddresses(staffId));
+    }
+
+    @Override
     public GetStaffByAgencyPositionRoleResponse getStaffByAgencyPositionRole(
             String agencyId, String position, String role, String nameFilter, Long staffId, Boolean activeOnly,
             Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {

@@ -10,7 +10,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface StaffRepository {
+
     Optional<StaffDetail> findByStaffId(Long staffId);
+
+    List<String> findEmailAddressesForStaffId(Long staffId);
 
     Optional<StaffDetail> findStaffByPersonnelIdentifier(String idType, String id);
 

@@ -93,6 +93,18 @@ public interface StaffResource {
     GetStaffDetailResponse getStaffDetail(@ApiParam(value = "The staff id of the staff member.", required = true) @PathParam("staffId") Long staffId);
 
     @GET
+    @Path("/{staffId}/emails")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Returns a list of email addresses associated with this staff user", notes = "List of email addresses for a specified staff user", nickname="getStaffEmailAddresses")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "The staffId supplied was not valid.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "No email addresses were found for this staff member.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
+    GetStaffEmailResponse getStaffEmailAddresses(@ApiParam(value = "The staff id of the staff user.", required = true) @PathParam("staffId") Long staffId);
+
+    @GET
     @Path("/{staffId}/access-roles")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
@@ -269,6 +281,40 @@ public interface StaffResource {
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffByAgencyRoleResponse(responseBuilder.build(), entity);
+        }
+    }
+
+    class GetStaffEmailResponse extends ResponseDelegate {
+
+        private GetStaffEmailResponse(Response response) { super(response); }
+        private GetStaffEmailResponse(Response response, Object entity) { super(response, entity); }
+
+        public static GetStaffEmailResponse respond200WithApplicationJson(List<String> entity) {
+            ResponseBuilder responseBuilder = Response.status(200)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetStaffEmailResponse(responseBuilder.build(), entity);
+        }
+
+        public static GetStaffEmailResponse respond400WithApplicationJson(ErrorResponse entity) {
+            ResponseBuilder responseBuilder = Response.status(400)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetStaffEmailResponse(responseBuilder.build(), entity);
+        }
+
+        public static GetStaffEmailResponse respond404WithApplicationJson(ErrorResponse entity) {
+            ResponseBuilder responseBuilder = Response.status(404)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetStaffEmailResponse(responseBuilder.build(), entity);
+        }
+
+        public static GetStaffEmailResponse respond500WithApplicationJson(ErrorResponse entity) {
+            ResponseBuilder responseBuilder = Response.status(500)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new GetStaffEmailResponse(responseBuilder.build(), entity);
         }
     }
 
