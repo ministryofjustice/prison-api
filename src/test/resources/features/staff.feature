@@ -115,6 +115,6 @@ Feature: Staff Details and Roles
     Examples:
     | staffId | count | responseCode |
     | -1      | 1     | 200          |
-    | -2      | 1     | 200          |
+    | -2      | 2     | 200          |
     | -7      | 0     | 404          |
     |99999    | 0     | 400          |
