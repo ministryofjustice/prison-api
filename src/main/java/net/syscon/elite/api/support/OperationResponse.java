@@ -7,8 +7,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 public class OperationResponse extends ResponseDelegate {
+
     private OperationResponse(final Response response, final Object entity) {
         super(response, entity);
+    }
+
+    public static OperationResponse respond204WithNoResponseBody() {
+
+        final var responseBuilder = Response.status(204).header("Content-Type", MediaType.APPLICATION_JSON);
+
+        // No entity defined - which produces an emtpy response body
+
+        return new OperationResponse(responseBuilder.build(), new String());
     }
 
     public static OperationResponse respond400WithApplicationJson(final ErrorResponse errorResponse) {
@@ -61,6 +71,10 @@ public class OperationResponse extends ResponseDelegate {
 
     public static OperationResponse respondErrorWithApplicationJson(final ErrorResponse errorResponse) {
         switch(Status.fromStatusCode(errorResponse.getStatus().intValue())) {
+
+            case NO_CONTENT:
+                return respond204WithNoResponseBody();
+
             case BAD_REQUEST:
                 return respond400WithApplicationJson(errorResponse);
 

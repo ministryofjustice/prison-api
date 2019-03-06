@@ -324,8 +324,8 @@ public interface StaffResource {
         public static GetStaffEmailResponse respond204WithApplicationJson(final List<String> entity) {
             final var responseBuilder = Response.status(204)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetStaffEmailResponse(responseBuilder.build(), entity);
+            // Empty response body
+            return new GetStaffEmailResponse(responseBuilder.build(), null);
         }
 
         public static GetStaffEmailResponse respond400WithApplicationJson(final ErrorResponse entity) {
