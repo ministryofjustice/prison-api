@@ -459,9 +459,19 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAssessment.getUncategorisedOffenders(agencyId);
     }
 
+    @When("^a request is made for categorised offenders at \"([^\"]*)\" with an approval from Date of \"([^\"]*)\"$")
+    public void aRequestIsMadeForCategorisedOffendersAtWithAnApprovalFromDateOf(String agencyId, String fromDateString) throws Throwable {
+        bookingAssessment.getCategorisedOffenders(agencyId, fromDateString);
+    }
+
     @Then("^([0-9]+) uncategorised offenders are returned$")
     public void returnedUncategorisedOffenders(int size) {
-        bookingAssessment.verifyUncategorisedOffenders(size);
+        bookingAssessment.verifyOffenderCategoryListSize(size);
+    }
+
+    @Then("^([0-9]+) categorised offenders are returned$")
+    public void returnedCategorisedOffenders(int size) {
+        bookingAssessment.verifyOffenderCategoryListSize(size);
     }
 
     @Then("^the number of active alerts is ([0-9-]+)$")
@@ -587,4 +597,5 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     public void theTotalRecordsReturnedAre(int size) {
         bookingDetail.verifyOffenderCount(size);
     }
+
 }

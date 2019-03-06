@@ -152,6 +152,15 @@ Feature: Booking Details
     When a request is made for uncategorised offenders at "XXXX"
     Then resource not found response is received from booking assessments API
 
+  Scenario: Request for offenders who have an approved categorisation
+    When a request is made for categorised offenders at "LEI" with an approval from Date of "2018-02-02"
+    Then 1 categorised offenders are returned
+
+  @lucy
+  Scenario: Request for offenders who have an approved categorisation using default 1 month period
+    When a request is made for categorised offenders at "LEI" with an approval from Date of ""
+    Then 0 categorised offenders are returned
+
   Scenario: Create categorisation request
     Given a categorisation user has authenticated with the API
     When a categorisation request is made for booking "-35" with category "D" for committee "RECP"
