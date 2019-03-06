@@ -82,11 +82,16 @@ public interface LocationResource {
 
     class GetOffendersAtLocationDescriptionResponse extends ResponseDelegate {
 
-        private GetOffendersAtLocationDescriptionResponse(Response response) { super(response); }
-        private GetOffendersAtLocationDescriptionResponse(Response response, Object entity) { super(response, entity); }
+        private GetOffendersAtLocationDescriptionResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetOffendersAtLocationDescriptionResponse respond200WithApplicationJson(Page<OffenderBooking> page) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetOffendersAtLocationDescriptionResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetOffendersAtLocationDescriptionResponse respond200WithApplicationJson(final Page<OffenderBooking> page) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON)
                     .header("Total-Records", page.getTotalRecords())
                     .header("Page-Offset", page.getPageOffset())
@@ -95,22 +100,22 @@ public interface LocationResource {
             return new GetOffendersAtLocationDescriptionResponse(responseBuilder.build(), page.getItems());
         }
 
-        public static GetOffendersAtLocationDescriptionResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetOffendersAtLocationDescriptionResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffendersAtLocationDescriptionResponse(responseBuilder.build(), entity);
         }
 
-        public static GetOffendersAtLocationDescriptionResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetOffendersAtLocationDescriptionResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffendersAtLocationDescriptionResponse(responseBuilder.build(), entity);
         }
 
-        public static GetOffendersAtLocationDescriptionResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetOffendersAtLocationDescriptionResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffendersAtLocationDescriptionResponse(responseBuilder.build(), entity);
@@ -119,32 +124,37 @@ public interface LocationResource {
 
     class GetLocationGroupResponse extends ResponseDelegate {
 
-        private GetLocationGroupResponse(Response response) { super(response); }
-        private GetLocationGroupResponse(Response response, Object entity) { super(response, entity); }
+        private GetLocationGroupResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetLocationGroupResponse respond200WithApplicationJson(List<Location> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetLocationGroupResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetLocationGroupResponse respond200WithApplicationJson(final List<Location> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetLocationGroupResponse(responseBuilder.build(), entity);
         }
 
-        public static GetLocationGroupResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetLocationGroupResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetLocationGroupResponse(responseBuilder.build(), entity);
         }
 
-        public static GetLocationGroupResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetLocationGroupResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetLocationGroupResponse(responseBuilder.build(), entity);
         }
 
-        public static GetLocationGroupResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetLocationGroupResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetLocationGroupResponse(responseBuilder.build(), entity);
@@ -153,32 +163,37 @@ public interface LocationResource {
 
     class GetLocationResponse extends ResponseDelegate {
 
-        private GetLocationResponse(Response response) { super(response); }
-        private GetLocationResponse(Response response, Object entity) { super(response, entity); }
+        private GetLocationResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetLocationResponse respond200WithApplicationJson(Location entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetLocationResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetLocationResponse respond200WithApplicationJson(final Location entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetLocationResponse(responseBuilder.build(), entity);
         }
 
-        public static GetLocationResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetLocationResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetLocationResponse(responseBuilder.build(), entity);
         }
 
-        public static GetLocationResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetLocationResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetLocationResponse(responseBuilder.build(), entity);
         }
 
-        public static GetLocationResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetLocationResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetLocationResponse(responseBuilder.build(), entity);
@@ -187,11 +202,16 @@ public interface LocationResource {
 
     class GetOffendersAtLocationResponse extends ResponseDelegate {
 
-        private GetOffendersAtLocationResponse(Response response) { super(response); }
-        private GetOffendersAtLocationResponse(Response response, Object entity) { super(response, entity); }
+        private GetOffendersAtLocationResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetOffendersAtLocationResponse respond200WithApplicationJson(Page<OffenderBooking> page) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetOffendersAtLocationResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetOffendersAtLocationResponse respond200WithApplicationJson(final Page<OffenderBooking> page) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON)
                     .header("Total-Records", page.getTotalRecords())
                     .header("Page-Offset", page.getPageOffset())
@@ -200,22 +220,22 @@ public interface LocationResource {
             return new GetOffendersAtLocationResponse(responseBuilder.build(), page.getItems());
         }
 
-        public static GetOffendersAtLocationResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetOffendersAtLocationResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffendersAtLocationResponse(responseBuilder.build(), entity);
         }
 
-        public static GetOffendersAtLocationResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetOffendersAtLocationResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffendersAtLocationResponse(responseBuilder.build(), entity);
         }
 
-        public static GetOffendersAtLocationResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetOffendersAtLocationResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffendersAtLocationResponse(responseBuilder.build(), entity);

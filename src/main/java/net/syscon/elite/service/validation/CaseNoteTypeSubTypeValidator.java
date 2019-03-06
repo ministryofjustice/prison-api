@@ -1,8 +1,6 @@
 package net.syscon.elite.service.validation;
 
-import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.api.model.NewCaseNote;
-import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.CaseNoteService;
@@ -11,8 +9,6 @@ import org.springframework.util.Assert;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.List;
-import java.util.Optional;
 
 @Component
 public class CaseNoteTypeSubTypeValidator implements ConstraintValidator<CaseNoteTypeSubTypeValid, NewCaseNote> {
@@ -20,39 +16,39 @@ public class CaseNoteTypeSubTypeValidator implements ConstraintValidator<CaseNot
     private final CaseLoadService caseLoadService;
     private final CaseNoteService caseNoteService;
 
-    public CaseNoteTypeSubTypeValidator(AuthenticationFacade authenticationFacade,
-                                        CaseLoadService caseLoadService, CaseNoteService caseNoteService) {
+    public CaseNoteTypeSubTypeValidator(final AuthenticationFacade authenticationFacade,
+                                        final CaseLoadService caseLoadService, final CaseNoteService caseNoteService) {
         this.authenticationFacade = authenticationFacade;
         this.caseLoadService = caseLoadService;
         this.caseNoteService = caseNoteService;
     }
 
     @Override
-    public void initialize(CaseNoteTypeSubTypeValid constraintAnnotation) {
+    public void initialize(final CaseNoteTypeSubTypeValid constraintAnnotation) {
         Assert.notNull(caseLoadService, "Spring injection failed for caseLoadService");
         Assert.notNull(caseNoteService, "Spring injection failed for caseNoteService");
     }
 
     @Override
-    public boolean isValid(NewCaseNote value, ConstraintValidatorContext context) {
+    public boolean isValid(final NewCaseNote value, final ConstraintValidatorContext context) {
         if (value == null) {
             // skip
             return true;
         }
-        boolean valid = true;
+        var valid = true;
 
         // This should be ok as it is cached:
-        Optional<CaseLoad> caseLoad = caseLoadService.getWorkingCaseLoadForUser(authenticationFacade.getCurrentUsername());
-        String caseLoadType = caseLoad.isPresent() ? caseLoad.get().getType() : "BOTH";
-        List<ReferenceCode> allTypes = caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType);
+        final var caseLoad = caseLoadService.getWorkingCaseLoadForUser(authenticationFacade.getCurrentUsername());
+        final var caseLoadType = caseLoad.isPresent() ? caseLoad.get().getType() : "BOTH";
+        final var allTypes = caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType);
 
-        Optional<ReferenceCode> type =
+        final var type =
                 allTypes.stream().filter(x -> x.getCode().equals(value.getType())).findFirst();
 
         if (!type.isPresent()) {
             valid = false;
         } else {
-            Optional<ReferenceCode> subType =
+            final var subType =
                     type.get().getSubCodes().stream().filter(x -> x.getCode().equals(value.getSubType())).findFirst();
 
             valid = subType.isPresent();
@@ -61,7 +57,7 @@ public class CaseNoteTypeSubTypeValidator implements ConstraintValidator<CaseNot
         if (!valid) {
             context.disableDefaultConstraintViolation();
 
-            String message = "CaseNote (type,subtype)=(" + value.getType() + ',' + value.getSubType()
+            final var message = "CaseNote (type,subtype)=(" + value.getType() + ',' + value.getSubType()
                     + ") does not exist";
 
             context.buildConstraintViolationWithTemplate(message).addConstraintViolation();

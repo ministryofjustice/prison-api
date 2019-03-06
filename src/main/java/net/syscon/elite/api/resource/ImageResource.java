@@ -40,32 +40,37 @@ public interface ImageResource {
 
     class GetImageResponse extends ResponseDelegate {
 
-        private GetImageResponse(Response response) { super(response); }
-        private GetImageResponse(Response response, Object entity) { super(response, entity); }
+        private GetImageResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetImageResponse respond200WithApplicationJson(ImageDetail entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetImageResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetImageResponse respond200WithApplicationJson(final ImageDetail entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetImageResponse(responseBuilder.build(), entity);
         }
 
-        public static GetImageResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetImageResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetImageResponse(responseBuilder.build(), entity);
         }
 
-        public static GetImageResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetImageResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetImageResponse(responseBuilder.build(), entity);
         }
 
-        public static GetImageResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetImageResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetImageResponse(responseBuilder.build(), entity);
@@ -74,32 +79,37 @@ public interface ImageResource {
 
     class GetImageDataResponse extends ResponseDelegate {
 
-        private GetImageDataResponse(Response response) { super(response); }
-        private GetImageDataResponse(Response response, Object entity) { super(response, entity); }
+        private GetImageDataResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetImageDataResponse respond200WithApplicationJson(File entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetImageDataResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetImageDataResponse respond200WithApplicationJson(final File entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", "image/jpeg");
             responseBuilder.entity(entity);
             return new GetImageDataResponse(responseBuilder.build(), entity);
         }
 
-        public static GetImageDataResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetImageDataResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetImageDataResponse(responseBuilder.build(), entity);
         }
 
-        public static GetImageDataResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetImageDataResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetImageDataResponse(responseBuilder.build(), entity);
         }
 
-        public static GetImageDataResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetImageDataResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetImageDataResponse(responseBuilder.build(), entity);

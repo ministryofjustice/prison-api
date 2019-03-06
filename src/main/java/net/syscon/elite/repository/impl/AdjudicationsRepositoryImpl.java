@@ -13,7 +13,7 @@ public class AdjudicationsRepositoryImpl extends RepositoryBase implements Adjud
     private final StandardBeanPropertyRowMapper<Award> rowMapper = new StandardBeanPropertyRowMapper<>(Award.class);
 
     @Override
-    public List<Award> findAwards(long bookingId) {
+    public List<Award> findAwards(final long bookingId) {
         return jdbcTemplate.query(getQuery("FIND_AWARDS"), createParams("bookingId", bookingId), rowMapper);
     }
 }

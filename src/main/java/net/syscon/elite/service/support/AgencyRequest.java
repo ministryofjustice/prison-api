@@ -5,7 +5,7 @@ import org.apache.commons.lang3.Validate;
 public abstract class AgencyRequest {
     private final String agencyId;
 
-    protected AgencyRequest(String agencyId) {
+    protected AgencyRequest(final String agencyId) {
         Validate.notBlank(agencyId, "Agency id is required.");
 
         this.agencyId = agencyId;

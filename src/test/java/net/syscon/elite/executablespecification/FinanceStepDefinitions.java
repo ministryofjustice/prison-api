@@ -17,12 +17,12 @@ public class FinanceStepDefinitions extends AbstractStepDefinitions {
     private FinanceSteps finance;
 
     @When("^an account with booking id ([0-9-]+) is requested$")
-    public void anAccountIsRequested(Long id) {
+    public void anAccountIsRequested(final Long id) {
         finance.getAccount(id);
     }
 
     @Then("^the returned account ([^\"]+) is ([\\w-\\.]+)$")
-    public void theFieldIs(String field, String value) throws ReflectiveOperationException {
+    public void theFieldIs(final String field, final String value) throws ReflectiveOperationException {
         finance.verifyField(field, value);
     }
 

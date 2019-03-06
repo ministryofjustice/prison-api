@@ -52,9 +52,9 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	private final TelemetryClient telemetryClient;
     private final int maxBatchSize;
 
-    public CaseNoteServiceImpl(CaseNoteRepository caseNoteRepository, CaseNoteTransformer transformer,
-							   UserService userService, TelemetryClient telemetryClient,
-                               @Value("${batch.max.size:1000}") int maxBatchSize) {
+    public CaseNoteServiceImpl(final CaseNoteRepository caseNoteRepository, final CaseNoteTransformer transformer,
+                               final UserService userService, final TelemetryClient telemetryClient,
+                               @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.caseNoteRepository = caseNoteRepository;
         this.transformer = transformer;
         this.userService = userService;
@@ -65,10 +65,10 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	@Override
     @Transactional(readOnly = true)
 	@VerifyBookingAccess
-	public Page<CaseNote> getCaseNotes(Long bookingId, String query, LocalDate from, LocalDate to, String orderBy, Order order, long offset, long limit) {
-		final boolean orderByBlank = StringUtils.isBlank(orderBy);
+    public Page<CaseNote> getCaseNotes(final Long bookingId, final String query, final LocalDate from, final LocalDate to, final String orderBy, final Order order, final long offset, final long limit) {
+        final var orderByBlank = StringUtils.isBlank(orderBy);
 
-        Page<CaseNote> caseNotePage = caseNoteRepository.getCaseNotes(
+        final var caseNotePage = caseNoteRepository.getCaseNotes(
 				bookingId,
 				query,
 				from,
@@ -78,7 +78,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 				offset,
 				limit);
 
-		List<CaseNote> transformedCaseNotes =
+        final var transformedCaseNotes =
 				caseNotePage.getItems().stream().map(transformer::transform).collect(Collectors.toList());
 
 		log.info("Returning {} out of {} matching Case Notes, starting at {} for booking id {}", transformedCaseNotes.size(), caseNotePage.getTotalRecords(), caseNotePage.getPageOffset(), bookingId);
@@ -89,8 +89,8 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	@Override
 	@Transactional(readOnly = true)
 	@VerifyBookingAccess
-	public CaseNote getCaseNote(Long bookingId, Long caseNoteId) {
-		CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId)
+    public CaseNote getCaseNote(final Long bookingId, final Long caseNoteId) {
+        final var caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId)
 				.orElseThrow(EntityNotFoundException.withId(caseNoteId));
 
 		log.info("Returning casenote {} for bookingId {}", caseNoteId, bookingId);
@@ -100,12 +100,12 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
 	@Override
 	@VerifyBookingAccess
-    public CaseNote createCaseNote(Long bookingId, @NotNull @Valid @CaseNoteTypeSubTypeValid NewCaseNote caseNote, String username) {
-    	final UserDetail userDetail = userService.getUserByUsername(username);
+    public CaseNote createCaseNote(final Long bookingId, @NotNull @Valid @CaseNoteTypeSubTypeValid final NewCaseNote caseNote, final String username) {
+        final var userDetail = userService.getUserByUsername(username);
 		// TODO: For Elite - check Booking Id Sealed status. If status is not sealed then allow to add Case Note.
-		Long caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote, caseNoteSource, userDetail.getUsername(), userDetail.getStaffId());
+        final var caseNoteId = caseNoteRepository.createCaseNote(bookingId, caseNote, caseNoteSource, userDetail.getUsername(), userDetail.getStaffId());
 
-		final CaseNote caseNoteCreated = getCaseNote(bookingId, caseNoteId);
+        final var caseNoteCreated = getCaseNote(bookingId, caseNoteId);
 
 		// Log event
 		telemetryClient.trackEvent("CaseNoteCreated", ImmutableMap.of("type", caseNoteCreated.getType(), "subType", caseNoteCreated.getSubType()), null);
@@ -115,18 +115,18 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
 	@Override
 	@VerifyBookingAccess
-	public CaseNote updateCaseNote(Long bookingId, Long caseNoteId, String username, @NotBlank(message="{caseNoteTextBlank}") String newCaseNoteText) {
-        CaseNote caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId)
+    public CaseNote updateCaseNote(final Long bookingId, final Long caseNoteId, final String username, @NotBlank(message = "{caseNoteTextBlank}") final String newCaseNoteText) {
+        final var caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId)
 				.orElseThrow(EntityNotFoundException.withId(caseNoteId));
 
         // Verify that user attempting to amend case note is same one who created it.
-        UserDetail userDetail = userService.getUserByUsername(username);
+        final var userDetail = userService.getUserByUsername(username);
 
 		if (!caseNote.getStaffId().equals(userDetail.getStaffId())) {
             throw new AccessDeniedException("User not authorised to amend case note.");
         }
 
-        String amendedText = format(AMEND_CASE_NOTE_FORMAT,
+        final var amendedText = format(AMEND_CASE_NOTE_FORMAT,
                 caseNote.getText(),
                 username,
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss")),
@@ -134,9 +134,9 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
 		if (amendedText.length() > MAXIMUM_CHARACTER_LIMIT) {
 
-			int spaceLeft = MAXIMUM_CHARACTER_LIMIT - (caseNote.getText().length() + (amendedText.length() - newCaseNoteText.length()));
+            final var spaceLeft = MAXIMUM_CHARACTER_LIMIT - (caseNote.getText().length() + (amendedText.length() - newCaseNoteText.length()));
 
-			String errorMessage = spaceLeft <= 0 ?
+            final var errorMessage = spaceLeft <= 0 ?
                     "Amendments can no longer be made due to the maximum character limit being reached" :
                     format("Length should not exceed %d characters", spaceLeft);
 
@@ -151,13 +151,13 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	@Override
 	@Transactional(readOnly = true)
 	@VerifyBookingAccess
-	public CaseNoteCount getCaseNoteCount(Long bookingId, String type, String subType, LocalDate fromDate, LocalDate toDate) {
+    public CaseNoteCount getCaseNoteCount(final Long bookingId, final String type, final String subType, final LocalDate fromDate, final LocalDate toDate) {
 		// Validate date range
 		if (Objects.nonNull(fromDate) && Objects.nonNull(toDate) && toDate.isBefore(fromDate)) {
 			throw new BadRequestException("Invalid date range: toDate is before fromDate.");
 		}
 
-		Long count = caseNoteRepository.getCaseNoteCount(bookingId, type, subType, fromDate, toDate);
+        final var count = caseNoteRepository.getCaseNoteCount(bookingId, type, subType, fromDate, toDate);
 
         return CaseNoteCount.builder()
 				.bookingId(bookingId)
@@ -171,13 +171,13 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<ReferenceCode> getCaseNoteTypesByCaseLoadType(String caseLoadType) {
+    public List<ReferenceCode> getCaseNoteTypesByCaseLoadType(final String caseLoadType) {
 		return caseNoteRepository.getCaseNoteTypesByCaseLoadType(caseLoadType);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(String caseLoadType) {
+    public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(final String caseLoadType) {
 		return caseNoteRepository.getCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType);
 	}
 
@@ -188,8 +188,8 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	}
 
 	@Override
-	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, @NotEmpty List<String> offenderNos, Integer staffId, String agencyId, LocalDate fromDate, LocalDate toDate, int numMonths) {
-		DeriveDates deriveDates = new DeriveDates(fromDate, toDate, numMonths);
+    public List<CaseNoteUsage> getCaseNoteUsage(final String type, final String subType, @NotEmpty final List<String> offenderNos, final Integer staffId, final String agencyId, final LocalDate fromDate, final LocalDate toDate, final int numMonths) {
+        final var deriveDates = new DeriveDates(fromDate, toDate, numMonths);
 		final List<CaseNoteUsage> caseNoteUsage = new ArrayList<>();
 
 		Lists.partition(offenderNos, maxBatchSize).forEach(offenderNosList ->
@@ -201,8 +201,8 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	}
 
 	@Override
-	public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(String type, String subType, @NotEmpty List<Integer> staffIds, LocalDate fromDate, LocalDate toDate, int numMonths) {
-		DeriveDates deriveDates = new DeriveDates(fromDate, toDate, numMonths);
+    public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(final String type, final String subType, @NotEmpty final List<Integer> staffIds, final LocalDate fromDate, final LocalDate toDate, final int numMonths) {
+        final var deriveDates = new DeriveDates(fromDate, toDate, numMonths);
 
         final List<CaseNoteStaffUsage> caseNoteStaffUsage = new ArrayList<>();
         Lists.partition(staffIds, maxBatchSize).forEach(staffIdList ->
@@ -217,8 +217,8 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 		private LocalDate fromDateToUse;
 		private LocalDate toDateToUse;
 
-		public DeriveDates(LocalDate fromDate, LocalDate toDate, int numMonths) {
-			LocalDate now = LocalDate.now();
+        public DeriveDates(final LocalDate fromDate, final LocalDate toDate, final int numMonths) {
+            final var now = LocalDate.now();
 			fromDateToUse = now.minusMonths(numMonths);
 			toDateToUse = now;
 

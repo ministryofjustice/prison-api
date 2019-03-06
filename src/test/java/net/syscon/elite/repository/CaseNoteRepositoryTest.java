@@ -1,8 +1,6 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.CaseNote;
 import net.syscon.elite.api.model.NewCaseNote;
-import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.web.config.CacheConfig;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Test;
@@ -20,9 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
@@ -44,7 +39,7 @@ public class CaseNoteRepositoryTest {
 
     @Test
     public void testGetCaseNoteTypesByCaseLoadType() {
-        List<ReferenceCode> types = repository.getCaseNoteTypesByCaseLoadType("COMM");
+        final var types = repository.getCaseNoteTypesByCaseLoadType("COMM");
 
         assertNotNull(types);
         assertFalse(types.isEmpty());
@@ -55,14 +50,14 @@ public class CaseNoteRepositoryTest {
 
     @Test
     public void testGetCaseNoteTypeWithSubTypesByCaseLoadType() {
-        List<ReferenceCode> types = repository.getCaseNoteTypesWithSubTypesByCaseLoadType("COMM");
+        final var types = repository.getCaseNoteTypesWithSubTypesByCaseLoadType("COMM");
 
         // Spot check
-        Optional<ReferenceCode> type = types.stream().filter(x -> x.getCode().equals("DRR")).findFirst();
+        final var type = types.stream().filter(x -> x.getCode().equals("DRR")).findFirst();
 
         assertTrue(type.isPresent());
 
-        List<ReferenceCode> subTypes = type.get().getSubCodes();
+        final var subTypes = type.get().getSubCodes();
 
         assertNotNull(subTypes);
         assertFalse(subTypes.isEmpty());
@@ -73,19 +68,19 @@ public class CaseNoteRepositoryTest {
     @Test
     public void testCreateCaseNote() {
 
-        LocalDateTime startTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+        final var startTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 
-        long bookingId = -4;
-        NewCaseNote newCaseNote = newCaseNote();
-        String sourceCode = "source code";
-        String username = "username";
-        long staffId = -2;
-        long caseNoteId = repository.createCaseNote(bookingId, newCaseNote, sourceCode, username, staffId);
+        final long bookingId = -4;
+        final var newCaseNote = newCaseNote();
+        final var sourceCode = "source code";
+        final var username = "username";
+        final long staffId = -2;
+        final long caseNoteId = repository.createCaseNote(bookingId, newCaseNote, sourceCode, username, staffId);
 
-        Map<String, Object> map = jdbcTemplate.queryForMap("select TIME_CREATION, CREATE_DATETIME from offender_case_notes where CASE_NOTE_ID = ?", caseNoteId);
+        final var map = jdbcTemplate.queryForMap("select TIME_CREATION, CREATE_DATETIME from offender_case_notes where CASE_NOTE_ID = ?", caseNoteId);
 
-        LocalDateTime timeCreation = ((Timestamp) map.get("TIME_CREATION")).toLocalDateTime();
-        LocalDateTime createDateTime = ((Timestamp) map.get("CREATE_DATETIME")).toLocalDateTime();
+        final var timeCreation = ((Timestamp) map.get("TIME_CREATION")).toLocalDateTime();
+        final var createDateTime = ((Timestamp) map.get("CREATE_DATETIME")).toLocalDateTime();
 
         assertThat(timeCreation).isBetween(startTime, startTime.plusSeconds(5));
 
@@ -97,17 +92,17 @@ public class CaseNoteRepositoryTest {
 
     @Test
     public void testCaseNoteTimes() {
-        long bookingId = -4;
-        NewCaseNote newCaseNote = newCaseNote();
-        String sourceCode = "source code";
-        String username = "username";
-        long staffId = -2;
-        long caseNoteId = repository.createCaseNote(bookingId, newCaseNote, sourceCode, username, staffId);
+        final long bookingId = -4;
+        final var newCaseNote = newCaseNote();
+        final var sourceCode = "source code";
+        final var username = "username";
+        final long staffId = -2;
+        final long caseNoteId = repository.createCaseNote(bookingId, newCaseNote, sourceCode, username, staffId);
 
-        CaseNote caseNote = repository.getCaseNote(-4, caseNoteId).get();
+        final var caseNote = repository.getCaseNote(-4, caseNoteId).get();
 
-        LocalDateTime contactDateTime = caseNote.getOccurrenceDateTime();
-        LocalDateTime createDateTime = caseNote.getCreationDateTime();
+        final var contactDateTime = caseNote.getOccurrenceDateTime();
+        final var createDateTime = caseNote.getCreationDateTime();
 
         assertThat(contactDateTime).isBetween(createDateTime.minusSeconds(2), createDateTime.plusSeconds(1));
 
@@ -115,7 +110,7 @@ public class CaseNoteRepositoryTest {
     }
 
     private NewCaseNote newCaseNote() {
-        NewCaseNote newCaseNote = new NewCaseNote();
+        final var newCaseNote = new NewCaseNote();
         newCaseNote.setText("text");
         newCaseNote.setType("GEN");
         newCaseNote.setSubType("HIS");

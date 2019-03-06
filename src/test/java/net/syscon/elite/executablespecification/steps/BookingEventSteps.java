@@ -2,7 +2,6 @@ package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.ScheduledEvent;
 
-import java.util.Iterator;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -24,24 +23,24 @@ public class BookingEventSteps extends ScheduledEventSteps {
         return BOOKING_EVENTS_API_URL;
     }
 
-    public void getThisWeeksEvents(Long bookingId) {
+    public void getThisWeeksEvents(final Long bookingId) {
         dispatchRequestForPeriod(bookingId, ScheduledEventPeriod.THISWEEK);
     }
 
-    public void getNextWeeksEvents(Long bookingId) {
+    public void getNextWeeksEvents(final Long bookingId) {
         dispatchRequestForPeriod(bookingId, ScheduledEventPeriod.NEXTWEEK);
     }
 
-    public void getTodaysEvents(Long bookingId) {
+    public void getTodaysEvents(final Long bookingId) {
         dispatchRequestForPeriod(bookingId, ScheduledEventPeriod.TODAY);
     }
 
-    public void verifyEvents(List<ScheduledEvent> expected) {
-        final Iterator<ScheduledEvent> expectedIterator = expected.iterator();
-        final Iterator<ScheduledEvent> actualIterator = scheduledEvents.iterator();
+    public void verifyEvents(final List<ScheduledEvent> expected) {
+        final var expectedIterator = expected.iterator();
+        final var actualIterator = scheduledEvents.iterator();
         while (expectedIterator.hasNext()) {
-            final ScheduledEvent expectedThis = expectedIterator.next();
-            final ScheduledEvent actualThis = actualIterator.next();
+            final var expectedThis = expectedIterator.next();
+            final var actualThis = actualIterator.next();
             assertEquals(getDump(), expectedThis.getEventType(), actualThis.getEventType());
             assertEquals(getDump(), expectedThis.getEventLocation(), actualThis.getEventLocation());
         }

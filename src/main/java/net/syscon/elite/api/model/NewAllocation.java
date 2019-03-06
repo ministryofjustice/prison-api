@@ -47,7 +47,7 @@ public class NewAllocation {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -60,7 +60,7 @@ public class NewAllocation {
         return bookingId;
     }
 
-    public void setBookingId(Long bookingId) {
+    public void setBookingId(final Long bookingId) {
         this.bookingId = bookingId;
     }
 
@@ -73,7 +73,7 @@ public class NewAllocation {
         return staffId;
     }
 
-    public void setStaffId(Long staffId) {
+    public void setStaffId(final Long staffId) {
         this.staffId = staffId;
     }
 
@@ -86,7 +86,7 @@ public class NewAllocation {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(final String type) {
         this.type = type;
     }
 
@@ -99,13 +99,13 @@ public class NewAllocation {
         return reason;
     }
 
-    public void setReason(String reason) {
+    public void setReason(final String reason) {
         this.reason = reason;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class NewAllocation {\n");
         

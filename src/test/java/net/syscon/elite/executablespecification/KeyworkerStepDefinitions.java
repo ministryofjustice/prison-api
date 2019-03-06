@@ -16,17 +16,17 @@ public class KeyworkerStepDefinitions extends AbstractStepDefinitions {
     private KeyWorkerSteps keyworker;
 
     @When("^an available key worker request is made with agency id \"([^\"]*)\"$")
-    public void anAvailableKeyWorkerRequestIsMadeWithAgencyId(String agencyId) throws Throwable {
+    public void anAvailableKeyWorkerRequestIsMadeWithAgencyId(final String agencyId) throws Throwable {
         keyworker.getAvailableKeyworkersList(agencyId);
     }
 
     @Then("^a list of \"([^\"]*)\" key workers are returned$")
-    public void aListOfKeyWorkersAreReturned(int count) throws Throwable {
+    public void aListOfKeyWorkersAreReturned(final int count) throws Throwable {
         keyworker.verifyAListOfKeyworkersIsReturned(count);
     }
 
     @When("^a key worker details request is made with staff id \"([^\"]*)\"$")
-    public void anAvailableKeyWorkerRequestIsMadeWithAgencyId(Long staffId) throws Throwable {
+    public void anAvailableKeyWorkerRequestIsMadeWithAgencyId(final Long staffId) throws Throwable {
         keyworker.getKeyworkerDetails(staffId);
     }
 
@@ -36,23 +36,23 @@ public class KeyworkerStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^the key worker service returns a resource not found response with message \"([^\"]*)\"$")
-    public void aResourceNotFoundResponseIsReceivedWithMessage(String message) throws Throwable {
+    public void aResourceNotFoundResponseIsReceivedWithMessage(final String message) throws Throwable {
         keyworker.verifyResourceNotFound();
         keyworker.verifyErrorUserMessage(message);
     }
 
     @And("^the key worker has (\\d+) allocations$")
-    public void theKeyWorkerHasAllocations(int expectedAllocationCount) throws Throwable {
+    public void theKeyWorkerHasAllocations(final int expectedAllocationCount) throws Throwable {
         keyworker.verifyKeyWorkerAllocationCount(expectedAllocationCount);
     }
 
     @And("^the key worker has (\\d+) allocation history entries$")
-    public void theKeyWorkerHasAllocationHistoryEntries(int expectedAllocationCount) throws Throwable {
+    public void theKeyWorkerHasAllocationHistoryEntries(final int expectedAllocationCount) throws Throwable {
         keyworker.verifyKeyWorkerAllocationHistoryCount(expectedAllocationCount);
     }
 
     @When("^a key worker allocations request is made with staff id \"([^\"]*)\" and agency \"([^\"]*)\"$")
-    public void keyWorkerAllocationsRequestIsMade(Long staffId, String agency) throws Throwable {
+    public void keyWorkerAllocationsRequestIsMade(final Long staffId, final String agency) throws Throwable {
         keyworker.getKeyworkerAllocations(staffId, agency);
     }
     
@@ -63,22 +63,22 @@ public class KeyworkerStepDefinitions extends AbstractStepDefinitions {
     }
 
     @When("^a key worker allocations request is made with staff ids \"([^\"]*)\" and agency \"([^\"]*)\"$")
-    public void aKeyWorkerAllocationsRequestIsMadeWithStaffIdsAndAgency(String staffIds, String agencyId) throws Throwable {
+    public void aKeyWorkerAllocationsRequestIsMadeWithStaffIdsAndAgency(final String staffIds, final String agencyId) throws Throwable {
         keyworker.getKeyworkerAllocationsByStaffIds(Arrays.stream(StringUtils.split(staffIds, ",")).map(Long::new).collect(Collectors.toList()), agencyId);
     }
 
     @When("^a key worker allocations request is made with nomis ids \"([^\"]*)\" and agency \"([^\"]*)\"$")
-    public void aKeyWorkerAllocationsRequestIsMadeWithNomisIdsAndAgency(String offenderNos, String agencyId) throws Throwable {
+    public void aKeyWorkerAllocationsRequestIsMadeWithNomisIdsAndAgency(final String offenderNos, final String agencyId) throws Throwable {
         keyworker.getKeyworkerAllocationsByOffenderNos(Arrays.asList(StringUtils.split(offenderNos, ",")), agencyId);
     }
 
     @When("^a key worker allocation history request is made with staff ids \"([^\"]*)\"$")
-    public void aKeyWorkerAllocationHistoryRequestIsMadeWithStaffIdsAndAgency(String staffIds) throws Throwable {
+    public void aKeyWorkerAllocationHistoryRequestIsMadeWithStaffIdsAndAgency(final String staffIds) throws Throwable {
         keyworker.getKeyworkerAllocationHistoryByStaffIds(Arrays.stream(StringUtils.split(staffIds, ",")).map(Long::new).collect(Collectors.toList()));
     }
 
     @When("^a key worker allocation history request is made with nomis ids \"([^\"]*)\"$")
-    public void aKeyWorkerAllocationHistoryRequestIsMadeWithNomisIdsAndAgency(String offenderNos) throws Throwable {
+    public void aKeyWorkerAllocationHistoryRequestIsMadeWithNomisIdsAndAgency(final String offenderNos) throws Throwable {
         keyworker.getKeyworkerAllocationHistoryByOffenderNos(Arrays.asList(StringUtils.split(offenderNos, ",")));
     }
 }

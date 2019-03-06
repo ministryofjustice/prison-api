@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static net.syscon.elite.service.SearchOffenderService.DEFAULT_OFFENDER_SORT;
@@ -43,12 +41,12 @@ public class LocationServiceImpl implements LocationService {
     private final String locationTypeGranularity;
 
     public LocationServiceImpl(
-            AgencyRepository agencyRepository,
-            LocationRepository locationRepository,
-            InmateRepository inmateRepository,
-            CaseLoadService caseLoadService,
-            LocationGroupService locationGroupService,
-            @Value("${api.users.me.locations.locationType:WING}") String locationTypeGranularity) throws IOException {
+            final AgencyRepository agencyRepository,
+            final LocationRepository locationRepository,
+            final InmateRepository inmateRepository,
+            final CaseLoadService caseLoadService,
+            final LocationGroupService locationGroupService,
+            @Value("${api.users.me.locations.locationType:WING}") final String locationTypeGranularity) throws IOException {
         this.locationRepository = locationRepository;
         this.inmateRepository = inmateRepository;
         this.caseLoadService = caseLoadService;
@@ -84,13 +82,13 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
-    public Page<OffenderBooking> getInmatesFromLocation(long locationId, String username, String query, String orderByField, Order order, long offset, long limit) {
+    public Page<OffenderBooking> getInmatesFromLocation(final long locationId, final String username, final String query, final String orderByField, final Order order, final long offset, final long limit) {
         // validation check?
         locationRepository.findLocation(locationId, username);
 
-        String colSort = StringUtils.isNotBlank(orderByField) ? orderByField : DEFAULT_OFFENDER_SORT;
+        final var colSort = StringUtils.isNotBlank(orderByField) ? orderByField : DEFAULT_OFFENDER_SORT;
 
-        Page<OffenderBooking> inmates = inmateRepository.findInmatesByLocation(
+        final var inmates = inmateRepository.findInmatesByLocation(
                 locationId,
                 locationTypeGranularity,
                 getWorkingCaseLoad(username),
@@ -104,7 +102,7 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
-    public Location getLocation(long locationId) {
+    public Location getLocation(final long locationId) {
         return locationRepository.getLocation(locationId).orElseThrow(EntityNotFoundException.withId(locationId));
     }
 
@@ -114,15 +112,15 @@ public class LocationServiceImpl implements LocationService {
      */
     @Override
     @VerifyAgencyAccess
-    public List<Location> getCellLocationsForGroup(String agencyId, String groupName) {
+    public List<Location> getCellLocationsForGroup(final String agencyId, final String groupName) {
 
-        final List<Predicate<Location>> groupFilters = locationGroupService.locationGroupFilters(agencyId, groupName);
+        final var groupFilters = locationGroupService.locationGroupFilters(agencyId, groupName);
 
-        final List<Location> cells = locationRepository.findLocationsByAgencyAndType(agencyId, "CELL", false);
+        final var cells = locationRepository.findLocationsByAgencyAndType(agencyId, "CELL", false);
 
         cells.forEach(c -> c.setDescription(LocationProcessor.formatLocation(c.getDescription())));
 
-        List<Location> cellLocations = groupFilters.stream()
+        final var cellLocations = groupFilters.stream()
                 .flatMap(groupFilter -> cells.stream().filter(groupFilter))
                 .collect(Collectors.toList());
 
@@ -132,13 +130,13 @@ public class LocationServiceImpl implements LocationService {
         return cellLocations;
     }
 
-     private String getWorkingCaseLoad(String username) {
-        Optional<CaseLoad> workingCaseLoad = caseLoadService.getWorkingCaseLoadForUser(username);
+    private String getWorkingCaseLoad(final String username) {
+        final var workingCaseLoad = caseLoadService.getWorkingCaseLoadForUser(username);
 
         return workingCaseLoad.map(CaseLoad::getCaseLoadId).orElse(null);
     }
 
-    private Location convertToLocation(Agency agency) {
+    private Location convertToLocation(final Agency agency) {
         return Location.builder()
                 .locationId(-1L)
                 .agencyId(agency.getAgencyId())

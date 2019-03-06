@@ -11,12 +11,12 @@ import javax.ws.rs.Path;
 public class PersonResourceImpl implements PersonResource {
     private final PersonService service;
 
-    public PersonResourceImpl(PersonService service) {
+    public PersonResourceImpl(final PersonService service) {
         this.service = service;
     }
 
     @Override
-    public GetPersonIdentifiersResponse getPersonIdentifiers(Long personId) {
+    public GetPersonIdentifiersResponse getPersonIdentifiers(final Long personId) {
         return GetPersonIdentifiersResponse.respond200WithApplicationJson(service.getPersonIdentifiers(personId));
     }
 }

@@ -21,11 +21,11 @@ public class SentenceRepositoryImpl extends RepositoryBase implements SentenceRe
     private final StandardBeanPropertyRowMapper<OffenceHistoryDetail> offenceHistoryMapper = new StandardBeanPropertyRowMapper<>(OffenceHistoryDetail.class);
 
     @Override
-    public List<OffenceDetail> getMainOffenceDetails(Long bookingId) {
+    public List<OffenceDetail> getMainOffenceDetails(final Long bookingId) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
-        String sql = getQuery("GET_BOOKING_MAIN_OFFENCES");
+        final var sql = getQuery("GET_BOOKING_MAIN_OFFENCES");
 
-        List<OffenceDetail> offences = jdbcTemplate.query(
+        final var offences = jdbcTemplate.query(
                 sql,
                 createParams("bookingId", bookingId),
                 offenceDetailMapper);
@@ -34,11 +34,11 @@ public class SentenceRepositoryImpl extends RepositoryBase implements SentenceRe
     }
 
     @Override
-    public List<OffenceHistoryDetail> getOffenceHistory(String offenderNo) {
+    public List<OffenceHistoryDetail> getOffenceHistory(final String offenderNo) {
         Objects.requireNonNull(offenderNo, "offenderNo is a required parameter");
-        String sql = getQuery("GET_OFFENCES");
+        final var sql = getQuery("GET_OFFENCES");
 
-        List<OffenceHistoryDetail> offences = jdbcTemplate.query(
+        final var offences = jdbcTemplate.query(
                 sql,
                 createParams("offenderNo", offenderNo),
                 offenceHistoryMapper);
@@ -47,9 +47,9 @@ public class SentenceRepositoryImpl extends RepositoryBase implements SentenceRe
     }
 
     @Override
-    public Optional<LocalDate> getConfirmedReleaseDate(Long bookingId) {
+    public Optional<LocalDate> getConfirmedReleaseDate(final Long bookingId) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
-        String sql = getQuery("GET_BOOKING_CONFIRMED_RELEASE_DATE");
+        final var sql = getQuery("GET_BOOKING_CONFIRMED_RELEASE_DATE");
 
         Date releaseDate;
 
@@ -58,7 +58,7 @@ public class SentenceRepositoryImpl extends RepositoryBase implements SentenceRe
                     sql,
                     createParams("bookingId", bookingId),
                     Date.class);
-        } catch (EmptyResultDataAccessException e) {
+        } catch (final EmptyResultDataAccessException e) {
             releaseDate = null;
         }
 

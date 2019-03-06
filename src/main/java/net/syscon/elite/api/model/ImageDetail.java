@@ -54,7 +54,7 @@ public class ImageDetail {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -67,7 +67,7 @@ public class ImageDetail {
         return imageId;
     }
 
-    public void setImageId(Long imageId) {
+    public void setImageId(final Long imageId) {
         this.imageId = imageId;
     }
 
@@ -80,7 +80,7 @@ public class ImageDetail {
         return captureDate;
     }
 
-    public void setCaptureDate(LocalDate captureDate) {
+    public void setCaptureDate(final LocalDate captureDate) {
         this.captureDate = captureDate;
     }
 
@@ -93,7 +93,7 @@ public class ImageDetail {
         return imageView;
     }
 
-    public void setImageView(String imageView) {
+    public void setImageView(final String imageView) {
         this.imageView = imageView;
     }
 
@@ -106,7 +106,7 @@ public class ImageDetail {
         return imageOrientation;
     }
 
-    public void setImageOrientation(String imageOrientation) {
+    public void setImageOrientation(final String imageOrientation) {
         this.imageOrientation = imageOrientation;
     }
 
@@ -119,7 +119,7 @@ public class ImageDetail {
         return imageType;
     }
 
-    public void setImageType(String imageType) {
+    public void setImageType(final String imageType) {
         this.imageType = imageType;
     }
 
@@ -132,7 +132,7 @@ public class ImageDetail {
         return objectId;
     }
 
-    public void setObjectId(Long objectId) {
+    public void setObjectId(final Long objectId) {
         this.objectId = objectId;
     }
 
@@ -145,13 +145,13 @@ public class ImageDetail {
         return imageData;
     }
 
-    public void setImageData(String imageData) {
+    public void setImageData(final String imageData) {
         this.imageData = imageData;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class ImageDetail {\n");
         

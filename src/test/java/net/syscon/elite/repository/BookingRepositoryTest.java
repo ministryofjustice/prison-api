@@ -1,6 +1,9 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.NewAppointment;
+import net.syscon.elite.api.model.OffenderSentenceTerms;
+import net.syscon.elite.api.model.UpdateAttendance;
+import net.syscon.elite.api.model.Visit;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
 import net.syscon.elite.api.support.Order;
@@ -27,7 +30,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,7 +57,7 @@ public class BookingRepositoryTest {
                 .setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
     }
 
-    private static void assertVisitDetails(Visit visit) {
+    private static void assertVisitDetails(final Visit visit) {
         assertThat(visit).isNotNull();
 
         assertThat(visit.getStartTime().toString()).isEqualTo("2016-12-11T14:30");
@@ -74,15 +78,15 @@ public class BookingRepositoryTest {
 
     @Test
     public void testCreateBookingAppointment() {
-        NewAppointment appt = NewAppointment.builder()
+        final var appt = NewAppointment.builder()
                 .appointmentType("APT_TYPE")
                 .locationId(-29L)
                 .startTime(LocalDateTime.parse("2017-12-23T10:15:30"))
                 .build();
 
-        Long eventId = repository.createBookingAppointment(-2L, appt, "LEI");
+        final var eventId = repository.createBookingAppointment(-2L, appt, "LEI");
 
-        ScheduledEvent event = repository.getBookingAppointment(-2L, eventId);
+        final var event = repository.getBookingAppointment(-2L, eventId);
 
         assertThat(event).isNotNull();
         assertThat(event.getEventSubType()).isEqualTo(appt.getAppointmentType());
@@ -93,7 +97,7 @@ public class BookingRepositoryTest {
 
     @Test
     public void testCreateBookingAppointmentWithEndComment() {
-        NewAppointment appt = NewAppointment.builder()
+        final var appt = NewAppointment.builder()
                 .appointmentType("APT_TYPE")
                 .locationId(-29L)
                 .startTime(LocalDateTime.parse("2017-12-24T10:15:30"))
@@ -101,9 +105,9 @@ public class BookingRepositoryTest {
                 .comment("Hi there")
                 .build();
 
-        Long eventId = repository.createBookingAppointment(-2L, appt, "LEI");
+        final var eventId = repository.createBookingAppointment(-2L, appt, "LEI");
 
-        ScheduledEvent event = repository.getBookingAppointment(-2L, eventId);
+        final var event = repository.getBookingAppointment(-2L, eventId);
 
         assertThat(event).isNotNull();
         assertThat(event.getEventSubType()).isEqualTo(appt.getAppointmentType());
@@ -116,21 +120,21 @@ public class BookingRepositoryTest {
 
     @Test
     public void testGetBookingVisitLastSameDay() {
-        Visit visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2016-12-11T16:00"));
+        final var visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2016-12-11T16:00"));
 
         assertVisitDetails(visit);
     }
 
     @Test
     public void testGetBookingVisitLastDifferentDay() {
-        Visit visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2016-12-20T00:00"));
+        final var visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2016-12-20T00:00"));
 
         assertVisitDetails(visit);
     }
 
     @Test
     public void testGetBookingVisitLastMultipleCandidates() {
-        Visit visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2017-12-07T00:00"));
+        final var visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2017-12-07T00:00"));
 
         assertThat(visit).isNotNull();
         assertThat(visit.getStartTime().toString()).isEqualTo("2017-11-13T14:30");
@@ -141,21 +145,21 @@ public class BookingRepositoryTest {
 
     @Test
     public void testGetBookingVisitLastNonexistentBooking() {
-        Visit visit = repository.getBookingVisitLast(-99L, LocalDateTime.parse("2016-12-11T16:00:00"));
+        final var visit = repository.getBookingVisitLast(-99L, LocalDateTime.parse("2016-12-11T16:00:00"));
 
         assertThat(visit).isNull();
     }
 
     @Test
     public void testGetBookingVisitLastEarlyDate() {
-        Visit visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2011-12-11T16:00:00"));
+        final var visit = repository.getBookingVisitLast(-1L, LocalDateTime.parse("2011-12-11T16:00:00"));
 
         assertThat(visit).isNull();
     }
 
     @Test
     public void testGetBookingActivities() {
-        List<ScheduledEvent> results = repository.getBookingActivities(-2L, LocalDate.parse("2011-12-11"), LocalDate.now(), null, null);
+        final var results = repository.getBookingActivities(-2L, LocalDate.parse("2011-12-11"), LocalDate.now(), null, null);
 
         assertThat(results).asList().hasSize(8);
         assertThat(results).asList().extracting("eventId", "payRate").contains(new Tuple(-11L, new BigDecimal("1.000")));
@@ -163,20 +167,20 @@ public class BookingRepositoryTest {
 
     @Test
     public void testGetLatestBookingByBookingIdInvalidBookingId() {
-        Optional<OffenderSummary> response = repository.getLatestBookingByBookingId(99999L);
+        final var response = repository.getLatestBookingByBookingId(99999L);
 
         assertThat(response.isPresent()).isFalse();
     }
 
     @Test
     public void testGetLatestBookingByBookingIdHavingActiveBooking() {
-        Long bookingIdForActiveBooking = -5L;
+        final Long bookingIdForActiveBooking = -5L;
 
-        Optional<OffenderSummary> response = repository.getLatestBookingByBookingId(bookingIdForActiveBooking);
+        final var response = repository.getLatestBookingByBookingId(bookingIdForActiveBooking);
 
         assertThat(response.isPresent()).isTrue();
 
-        OffenderSummary summary = response.get();
+        final var summary = response.get();
 
         assertThat(summary.getOffenderNo()).isEqualTo("A1234AE");
         assertThat(summary.getFirstName()).isEqualTo("DONALD");
@@ -189,13 +193,13 @@ public class BookingRepositoryTest {
 
     @Test
     public void testGetLatestBookingByBookingIdHavingInactiveBooking() {
-        Long bookingIdForInactiveBooking = -20L;
+        final Long bookingIdForInactiveBooking = -20L;
 
-        Optional<OffenderSummary> response = repository.getLatestBookingByBookingId(bookingIdForInactiveBooking);
+        final var response = repository.getLatestBookingByBookingId(bookingIdForInactiveBooking);
 
         assertThat(response.isPresent()).isTrue();
 
-        OffenderSummary summary = response.get();
+        final var summary = response.get();
 
         assertThat(summary.getOffenderNo()).isEqualTo("Z0020ZZ");
         assertThat(summary.getFirstName()).isEqualTo("BURT");
@@ -208,13 +212,13 @@ public class BookingRepositoryTest {
 
     @Test
     public void testGetLatestBookingByBookingIdHavingLaterActiveBooking() {
-        Long bookingIdForInactiveBooking = -15L;
+        final Long bookingIdForInactiveBooking = -15L;
 
-        Optional<OffenderSummary> response = repository.getLatestBookingByBookingId(bookingIdForInactiveBooking);
+        final var response = repository.getLatestBookingByBookingId(bookingIdForInactiveBooking);
 
         assertThat(response.isPresent()).isTrue();
 
-        OffenderSummary summary = response.get();
+        final var summary = response.get();
 
         assertThat(summary.getOffenderNo()).isEqualTo("A1234AI");
         assertThat(summary.getFirstName()).isEqualTo("CHESTER");
@@ -227,20 +231,20 @@ public class BookingRepositoryTest {
 
     @Test
     public void testGetLatestBookingByOffenderNoInvalidOffenderNo() {
-        Optional<OffenderSummary> response = repository.getLatestBookingByOffenderNo("X9999XX");
+        final var response = repository.getLatestBookingByOffenderNo("X9999XX");
 
         assertThat(response.isPresent()).isFalse();
     }
 
     @Test
     public void testGetLatestBookingByOffenderNoHavingActiveBooking() {
-        String offenderNoWithActiveBooking = "A1234AA";
+        final var offenderNoWithActiveBooking = "A1234AA";
 
-        Optional<OffenderSummary> response = repository.getLatestBookingByOffenderNo(offenderNoWithActiveBooking);
+        final var response = repository.getLatestBookingByOffenderNo(offenderNoWithActiveBooking);
 
         assertThat(response.isPresent()).isTrue();
 
-        OffenderSummary summary = response.get();
+        final var summary = response.get();
 
         assertThat(summary.getOffenderNo()).isEqualTo(offenderNoWithActiveBooking);
         assertThat(summary.getFirstName()).isEqualTo("ARTHUR");
@@ -253,13 +257,13 @@ public class BookingRepositoryTest {
 
     @Test
     public void testGetLatestBookingByOffenderNoHavingInactiveBooking() {
-        String offenderNoWithInactiveBooking = "Z0023ZZ";
+        final var offenderNoWithInactiveBooking = "Z0023ZZ";
 
-        Optional<OffenderSummary> response = repository.getLatestBookingByOffenderNo(offenderNoWithInactiveBooking);
+        final var response = repository.getLatestBookingByOffenderNo(offenderNoWithInactiveBooking);
 
         assertThat(response.isPresent()).isTrue();
 
-        OffenderSummary summary = response.get();
+        final var summary = response.get();
 
         assertThat(summary.getOffenderNo()).isEqualTo(offenderNoWithInactiveBooking);
         assertThat(summary.getFirstName()).isEqualTo("RICHARD");
@@ -272,7 +276,7 @@ public class BookingRepositoryTest {
 
     @Test
     public void testUpdateAttendance() {
-        UpdateAttendance updateAttendance = UpdateAttendance.builder()
+        final var updateAttendance = UpdateAttendance.builder()
                 .eventOutcome("Great")
                 .performance("Poor")
                 .outcomeComment("Hi there")
@@ -280,8 +284,8 @@ public class BookingRepositoryTest {
 
         repository.updateAttendance(-3L, -1L, updateAttendance, true, true);
 
-        List<PrisonerSchedule> prisonerSchedules = scheduleRepository.getLocationActivities(-26L, null, null, null, null);
-        final Optional<PrisonerSchedule> first = prisonerSchedules.stream()
+        final var prisonerSchedules = scheduleRepository.getLocationActivities(-26L, null, null, null, null);
+        final var first = prisonerSchedules.stream()
                 .filter(ps -> ps.getEventId() != null && ps.getEventId() == -1L)
                 .peek(ps -> {
                     assertThat(ps.getEventOutcome()).isEqualTo("Great");
@@ -294,26 +298,26 @@ public class BookingRepositoryTest {
 
     @Test
     public void testUpdateAttendanceInvalidActivityId() {
-        UpdateAttendance ua = UpdateAttendance.builder()
+        final var ua = UpdateAttendance.builder()
                 .eventOutcome("Great")
                 .build();
         try {
             repository.updateAttendance(-3L, -111L, ua, false, false);
             fail("No exception thrown");
-        } catch (EntityNotFoundException e) {
+        } catch (final EntityNotFoundException e) {
             assertThat(e.getMessage()).isEqualTo("Activity with booking Id -3 and activityId -111 not found");
         }
     }
 
     @Test
     public void testUpdateAttendanceInvalidBookingId() {
-        UpdateAttendance ua = UpdateAttendance.builder()
+        final var ua = UpdateAttendance.builder()
                 .eventOutcome("Great")
                 .build();
         try {
             repository.updateAttendance(-333L, -1L, ua, false, false);
             fail("No exception thrown");
-        } catch (EntityNotFoundException e) {
+        } catch (final EntityNotFoundException e) {
             assertThat(e.getMessage()).isEqualTo("Activity with booking Id -333 and activityId -1 not found");
         }
     }
@@ -353,7 +357,7 @@ public class BookingRepositoryTest {
     @Test
     public void testGetAlertCodesForBookingsFuture() {
 
-        final Map<Long, List<String>> resultsFuture = repository.getAlertCodesForBookings(Arrays.asList(-1L, -2L, -16L),
+        final var resultsFuture = repository.getAlertCodesForBookings(Arrays.asList(-1L, -2L, -16L),
                 LocalDateTime.of(LocalDate.now().plusDays(1), LocalTime.of(12, 0)));
 
         assertThat(resultsFuture.get(-1L)).asList().containsExactly("XA", "HC");
@@ -364,7 +368,7 @@ public class BookingRepositoryTest {
     @Test
     public void testGetAlertCodesForBookingsPast() {
 
-        final Map<Long, List<String>> resultsPast = repository.getAlertCodesForBookings(Arrays.asList(-1L, -2L, -16L),
+        final var resultsPast = repository.getAlertCodesForBookings(Arrays.asList(-1L, -2L, -16L),
                 LocalDateTime.of(LocalDate.now().plusDays(-1), LocalTime.of(12, 0)));
 
         assertThat(resultsPast.get(-16L)).asList().containsExactly("OIOM");
@@ -373,7 +377,7 @@ public class BookingRepositoryTest {
     @Test
     public void testGetAlertCodesForBookingsEmpty() {
 
-        final Map<Long, List<String>> resultsPast = repository.getAlertCodesForBookings(Collections.emptyList(),
+        final var resultsPast = repository.getAlertCodesForBookings(Collections.emptyList(),
                 LocalDateTime.now());
 
         assertThat(resultsPast).isEmpty();
@@ -382,7 +386,7 @@ public class BookingRepositoryTest {
     @Test
     public void testGetOffenderSentenceTerms() {
 
-        final List<OffenderSentenceTerms> results = repository.getOffenderSentenceTerms(-2L, "IMP");
+        final var results = repository.getOffenderSentenceTerms(-2L, "IMP");
 
         assertThat(results)
                 .asList()
@@ -411,24 +415,24 @@ public class BookingRepositoryTest {
 
     @Test
     public void createMultipleAppointments() {
-        LocalDateTime now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-        LocalDateTime in1Hour = now.plusHours(1L);
-        LocalDate today = now.toLocalDate();
+        final var now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
+        final var in1Hour = now.plusHours(1L);
+        final var today = now.toLocalDate();
 
-        var bookingIds = Arrays.asList(-31L, -32L);
+        final var bookingIds = Arrays.asList(-31L, -32L);
 
         // Given
-        var scheduledEventsBefore = repository.getBookingAppointments(bookingIds, today, today, null, Order.ASC);
+        final var scheduledEventsBefore = repository.getBookingAppointments(bookingIds, today, today, null, Order.ASC);
         assertThat(scheduledEventsBefore).hasSize(0);
 
         // When
-        var defaults = AppointmentDefaults
+        final var defaults = AppointmentDefaults
                 .builder()
                 .locationId(-25L) // LEI-CHAP
                 .appointmentType("ACTI") // Activity
                 .build();
 
-        var appointments = bookingIds
+        final var appointments = bookingIds
                 .stream()
                 .map(id -> AppointmentDetails
                         .builder()
@@ -442,7 +446,7 @@ public class BookingRepositoryTest {
         repository.createMultipleAppointments(appointments, defaults, "LEI");
 
         // Then
-        var scheduledEventsAfter = repository.getBookingAppointments(bookingIds, today, today, null, Order.ASC);
+        final var scheduledEventsAfter = repository.getBookingAppointments(bookingIds, today, today, null, Order.ASC);
 
         assertThat(scheduledEventsAfter)
                 .extracting("bookingId", "eventType", "eventSubType", "eventDate", "startTime", "endTime", "eventLocation")

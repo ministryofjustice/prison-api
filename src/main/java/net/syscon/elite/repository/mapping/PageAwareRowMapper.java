@@ -12,14 +12,14 @@ public class PageAwareRowMapper<T> implements RowMapper<T> {
     private long totalRecords;
     private boolean recordCountSet;
 
-    public PageAwareRowMapper(RowMapper<T> wrappedRowMapper) {
+    public PageAwareRowMapper(final RowMapper<T> wrappedRowMapper) {
         this.wrappedRowMapper = wrappedRowMapper;
     }
 
     @Override
-    public T mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public T mapRow(final ResultSet rs, final int rowNum) throws SQLException {
         if (!recordCountSet) {
-            Object val = rs.getObject(Constants.RECORD_COUNT_COLUMN);
+            final var val = rs.getObject(Constants.RECORD_COUNT_COLUMN);
 
             totalRecords = ((Number) ObjectUtils.defaultIfNull(val, 0)).longValue();
 

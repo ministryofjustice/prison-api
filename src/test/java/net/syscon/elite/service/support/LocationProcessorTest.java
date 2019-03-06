@@ -23,7 +23,7 @@ public class LocationProcessorTest {
 
     @Test
     public void stripAgencyId() {
-        String newDescription = LocationProcessor.stripAgencyId(TEST_LOCATION_DESCRIPTION, TEST_AGENCY_ID);
+        var newDescription = LocationProcessor.stripAgencyId(TEST_LOCATION_DESCRIPTION, TEST_AGENCY_ID);
 
         assertThat(newDescription).isEqualTo(TEST_LOCATION_DESCRIPTION_WITH_AGENCY_ID_STRIPPED);
 
@@ -42,9 +42,9 @@ public class LocationProcessorTest {
 
     @Test
     public void processLocationUserDescNotPreferred() {
-        Location testLocation = buildTestLocation(TEST_LOCATION_USER_DESCRIPTION);
+        final var testLocation = buildTestLocation(TEST_LOCATION_USER_DESCRIPTION);
 
-        Location processedLocation = LocationProcessor.processLocation(testLocation);
+        final var processedLocation = LocationProcessor.processLocation(testLocation);
 
         assertThat(processedLocation.getAgencyId()).isEqualTo(TEST_AGENCY_ID);
         assertThat(processedLocation.getLocationId()).isEqualTo(TEST_LOCATION_ID);
@@ -56,9 +56,9 @@ public class LocationProcessorTest {
 
     @Test
     public void processLocationUserDescPreferred() {
-        Location testLocation = buildTestLocation(TEST_LOCATION_USER_DESCRIPTION);
+        final var testLocation = buildTestLocation(TEST_LOCATION_USER_DESCRIPTION);
 
-        Location processedLocation = LocationProcessor.processLocation(testLocation, true);
+        final var processedLocation = LocationProcessor.processLocation(testLocation, true);
 
         assertThat(processedLocation.getAgencyId()).isEqualTo(TEST_AGENCY_ID);
         assertThat(processedLocation.getLocationId()).isEqualTo(TEST_LOCATION_ID);
@@ -70,9 +70,9 @@ public class LocationProcessorTest {
 
     @Test
     public void processLocationUserDescPreferredButNull() {
-        Location testLocation = buildTestLocation(null);
+        final var testLocation = buildTestLocation(null);
 
-        Location processedLocation = LocationProcessor.processLocation(testLocation, true);
+        final var processedLocation = LocationProcessor.processLocation(testLocation, true);
 
         assertThat(processedLocation.getAgencyId()).isEqualTo(TEST_AGENCY_ID);
         assertThat(processedLocation.getLocationId()).isEqualTo(TEST_LOCATION_ID);
@@ -84,9 +84,9 @@ public class LocationProcessorTest {
 
     @Test
     public void processLocationsUserDescNotPreferred() {
-        List<Location> testLocations = buildTestLocationList(TEST_LOCATION_USER_DESCRIPTION, TEST_SECOND_LOCATION_USER_DESCRIPTION);
+        final var testLocations = buildTestLocationList(TEST_LOCATION_USER_DESCRIPTION, TEST_SECOND_LOCATION_USER_DESCRIPTION);
 
-        List<Location> processedLocations = LocationProcessor.processLocations(testLocations);
+        final var processedLocations = LocationProcessor.processLocations(testLocations);
 
         assertThat(processedLocations.size()).isEqualTo(testLocations.size());
 
@@ -107,9 +107,9 @@ public class LocationProcessorTest {
 
     @Test
     public void processLocationsUserDescPreferred() {
-        List<Location> testLocations = buildTestLocationList(TEST_LOCATION_USER_DESCRIPTION, TEST_SECOND_LOCATION_USER_DESCRIPTION);
+        final var testLocations = buildTestLocationList(TEST_LOCATION_USER_DESCRIPTION, TEST_SECOND_LOCATION_USER_DESCRIPTION);
 
-        List<Location> processedLocations = LocationProcessor.processLocations(testLocations, true);
+        final var processedLocations = LocationProcessor.processLocations(testLocations, true);
 
         assertThat(processedLocations.size()).isEqualTo(testLocations.size());
 
@@ -130,9 +130,9 @@ public class LocationProcessorTest {
 
     @Test
     public void processLocationsUserDescPreferredButNull() {
-        List<Location> testLocations = buildTestLocationList(null, null);
+        final var testLocations = buildTestLocationList(null, null);
 
-        List<Location> processedLocations = LocationProcessor.processLocations(testLocations, true);
+        final var processedLocations = LocationProcessor.processLocations(testLocations, true);
 
         assertThat(processedLocations.size()).isEqualTo(testLocations.size());
 
@@ -151,7 +151,7 @@ public class LocationProcessorTest {
         assertThat(processedLocations.get(1).getUserDescription()).isNull();
     }
 
-    private Location buildTestLocation(String userDescription) {
+    private Location buildTestLocation(final String userDescription) {
         return Location.builder()
                 .agencyId(TEST_AGENCY_ID)
                 .locationId(TEST_LOCATION_ID)
@@ -161,8 +161,8 @@ public class LocationProcessorTest {
                 .build();
     }
 
-    private List<Location> buildTestLocationList(String userDescription1, String userDescription2) {
-        List<Location> locations = new ArrayList<>();
+    private List<Location> buildTestLocationList(final String userDescription1, final String userDescription2) {
+        final List<Location> locations = new ArrayList<>();
 
         locations.add(Location.builder()
                 .agencyId(TEST_AGENCY_ID)

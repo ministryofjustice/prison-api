@@ -3,7 +3,6 @@ package net.syscon.elite.aop.connectionproxy;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 import static java.lang.String.format;
@@ -16,21 +15,21 @@ public class RoleConfigurer {
     private final String tagUser;
 
     public RoleConfigurer(
-            String tagUser,
-            RolePasswordSupplier rolePasswordSupplier
+            final String tagUser,
+            final RolePasswordSupplier rolePasswordSupplier
     ) {
         this.tagUser = tagUser;
         this.rolePasswordSupplier = rolePasswordSupplier;
     }
 
-    protected void setRoleForConnection(Connection conn) throws SQLException {
+    protected void setRoleForConnection(final Connection conn) throws SQLException {
 
-        final String startSessionSQL = format(
+        final var startSessionSQL = format(
                 "SET ROLE %s IDENTIFIED BY %s",
                 tagUser,
                 rolePasswordSupplier.getRolePassword());
 
-        try (PreparedStatement stmt = conn.prepareStatement(startSessionSQL)) {
+        try (final var stmt = conn.prepareStatement(startSessionSQL)) {
             stmt.execute();
         }
     }

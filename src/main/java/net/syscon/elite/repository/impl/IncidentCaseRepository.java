@@ -24,9 +24,9 @@ public class IncidentCaseRepository extends RepositoryBase {
             new StandardBeanPropertyRowMapper<>(FlatQuestionnaire.class);
 
 
-    public List<IncidentCase> getIncidentCasesByOffenderNo(String offenderNo, List<String> incidentTypes, List<String> participationRoles) {
-        String sql = generateSql(incidentTypes, participationRoles, "GET_INCIDENT_CASES_BY_OFFENDER_NO");
-        var incidentCaseIds = jdbcTemplate.queryForList(sql,
+    public List<IncidentCase> getIncidentCasesByOffenderNo(final String offenderNo, final List<String> incidentTypes, final List<String> participationRoles) {
+        final var sql = generateSql(incidentTypes, participationRoles, "GET_INCIDENT_CASES_BY_OFFENDER_NO");
+        final var incidentCaseIds = jdbcTemplate.queryForList(sql,
                 createParams("offenderNo", offenderNo, "incidentTypes", incidentTypes, "participationRoles", participationRoles),
                 Long.class);
         if (!incidentCaseIds.isEmpty()) {
@@ -36,10 +36,10 @@ public class IncidentCaseRepository extends RepositoryBase {
         return Collections.emptyList();
     }
 
-    public List<IncidentCase> getIncidentCasesByBookingId(Long bookingId, List<String> incidentTypes, List<String> participationRoles) {
-        String sql = generateSql(incidentTypes, participationRoles, "GET_INCIDENT_CASES_BY_BOOKING_ID");
+    public List<IncidentCase> getIncidentCasesByBookingId(final Long bookingId, final List<String> incidentTypes, final List<String> participationRoles) {
+        final var sql = generateSql(incidentTypes, participationRoles, "GET_INCIDENT_CASES_BY_BOOKING_ID");
 
-        var incidentCaseIds = jdbcTemplate.queryForList(sql,
+        final var incidentCaseIds = jdbcTemplate.queryForList(sql,
                 createParams("bookingId", bookingId, "incidentTypes", incidentTypes, "participationRoles", participationRoles),
                 Long.class);
 
@@ -50,8 +50,8 @@ public class IncidentCaseRepository extends RepositoryBase {
         return Collections.emptyList();
     }
 
-    private String generateSql( List<String> incidentTypes, List<String> participationRoles, String sqlName) {
-        String sql = getQuery(sqlName);
+    private String generateSql(final List<String> incidentTypes, final List<String> participationRoles, final String sqlName) {
+        var sql = getQuery(sqlName);
         if (incidentTypes != null && !incidentTypes.isEmpty()) {
             sql += " AND " + getQuery("FILTER_BY_TYPE");
         }
@@ -61,25 +61,25 @@ public class IncidentCaseRepository extends RepositoryBase {
         return sql;
     }
 
-    public List<IncidentCase> getIncidentCases(List<Long> incidentCaseIds) {
+    public List<IncidentCase> getIncidentCases(final List<Long> incidentCaseIds) {
         Validate.notEmpty(incidentCaseIds, "incidentCaseIds are required.");
 
-        var flatIncidentCases = jdbcTemplate.query(getQuery("GET_INCIDENT_CASE"),
+        final var flatIncidentCases = jdbcTemplate.query(getQuery("GET_INCIDENT_CASE"),
                 createParams("incidentCaseIds", incidentCaseIds),
                 INCIDENT_CASE_MAPPER);
         final var incidentCases = new ArrayList<IncidentCase>();
 
         if (flatIncidentCases.size() > 0) {
-            var incidentParties = jdbcTemplate.query(getQuery("GET_PARTIES_INVOLVED"),
+            final var incidentParties = jdbcTemplate.query(getQuery("GET_PARTIES_INVOLVED"),
                     createParams("incidentCaseIds", incidentCaseIds),
                     INCIDENT_PARTY_MAPPER);
 
-            Map<Long, List<FlatIncidentCase>> collect = flatIncidentCases.stream()
+            final var collect = flatIncidentCases.stream()
                     .collect(groupingBy(FlatIncidentCase::getIncidentCaseId));
 
             collect.forEach((key, value) -> {
-                var responses = new TreeSet<IncidentResponse>();
-                var incidentCaseBuilder = IncidentCase.builder()
+                final var responses = new TreeSet<IncidentResponse>();
+                final var incidentCaseBuilder = IncidentCase.builder()
                         .responses(responses);
 
                 final var caseId = new AtomicReference<Long>();
@@ -129,29 +129,29 @@ public class IncidentCaseRepository extends RepositoryBase {
         return incidentCases;
     }
 
-    public Optional<Questionnaire> getQuestionnaire(String category, String code) {
+    public Optional<Questionnaire> getQuestionnaire(final String category, final String code) {
 
-        var questionnaireData = jdbcTemplate.query(getQuery("QUESTIONNAIRE"),
+        final var questionnaireData = jdbcTemplate.query(getQuery("QUESTIONNAIRE"),
                 createParams(
                         "category", category,
                         "code", code),
                 QUESTIONNAIRE_MAPPER);
 
         if (!questionnaireData.isEmpty()) {
-            var collect = questionnaireData.stream()
+            final var collect = questionnaireData.stream()
                     .collect(groupingBy(FlatQuestionnaire::getQuestionnaireId,
                             groupingBy(FlatQuestionnaire::getQuestionnaireQueId)));
 
-            Questionnaire.QuestionnaireBuilder questionnaireBuilder = Questionnaire.builder().code(code);
+            final var questionnaireBuilder = Questionnaire.builder().code(code);
 
             collect.forEach((key, value) -> {
-                var questions = new TreeSet<QuestionnaireQuestion>();
+                final var questions = new TreeSet<QuestionnaireQuestion>();
                 questionnaireBuilder.questionnaireId(key);
                 questionnaireBuilder.questions(questions);
 
                 final var quesId = new AtomicReference<Long>();
                 value.forEach((k, v) -> {
-                    var answers = new TreeSet<QuestionnaireAnswer>();
+                    final var answers = new TreeSet<QuestionnaireAnswer>();
 
                     v.forEach(q -> {
                         if (quesId.get() == null || !quesId.get().equals(q.getQuestionnaireQueId())) {

@@ -10,11 +10,11 @@ class SortAssertion {
     private final List<String> actual;
 
 
-    SortAssertion(String... input) {
+    SortAssertion(final String... input) {
         this.actual = Arrays.asList(input);
     }
 
-    void sortsTo(String... expected) {
+    void sortsTo(final String... expected) {
         actual.sort(new AlphaNumericComparator());
 
         assertThat(actual)
@@ -137,7 +137,7 @@ public class AlphaNumericComparatorTest {
         );
     }
 
-    private static SortAssertion expectThat(String... input) {
+    private static SortAssertion expectThat(final String... input) {
         return new SortAssertion(input);
     }
 }

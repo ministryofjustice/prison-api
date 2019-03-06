@@ -7,7 +7,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.StringJoiner;
@@ -25,49 +24,49 @@ public class BookingSearchSteps extends CommonSteps {
     private List<OffenderBooking> inmateSummaries;
 
     @Step("Perform search using full last name")
-    public void fullLastNameSearch(String criteria) {
-        String query = buildSimpleQuery("lastName", criteria);
+    public void fullLastNameSearch(final String criteria) {
+        final var query = buildSimpleQuery("lastName", criteria);
 
         dispatchQuery(query);
     }
 
     @Step("Perform search using partial last name")
-    public void partialLastNameSearch(String criteria) {
-        String query = buildSimpleQuery("lastName", criteria);
+    public void partialLastNameSearch(final String criteria) {
+        final var query = buildSimpleQuery("lastName", criteria);
 
         dispatchQuery(query);
     }
 
     @Step("Perform search using full first name")
-    public void fullFirstNameSearch(String criteria) {
-        String query = buildSimpleQuery("firstName", criteria);
+    public void fullFirstNameSearch(final String criteria) {
+        final var query = buildSimpleQuery("firstName", criteria);
 
         dispatchQuery(query);
     }
 
     @Step("Perform search using partial first name")
-    public void partialFirstNameSearch(String criteria) {
-        String query = buildSimpleQuery("firstName", criteria);
+    public void partialFirstNameSearch(final String criteria) {
+        final var query = buildSimpleQuery("firstName", criteria);
 
         dispatchQuery(query);
     }
 
     @Step("Perform search using first name and last name")
-    public void firstNameAndLastNameSearch(String firstName, String lastName) {
-        String firstNameQuery = buildSimpleQuery("firstName", firstName);
-        String lastNameQuery = buildSimpleQuery("lastName", lastName);
+    public void firstNameAndLastNameSearch(final String firstName, final String lastName) {
+        final var firstNameQuery = buildSimpleQuery("firstName", firstName);
+        final var lastNameQuery = buildSimpleQuery("lastName", lastName);
 
-        String query = buildAndQuery(firstNameQuery, lastNameQuery);
+        final var query = buildAndQuery(firstNameQuery, lastNameQuery);
 
         dispatchQuery(query);
     }
 
     @Step("Perform search using first name or last name")
-    public void firstNameOrLastNameSearch(String firstName, String lastName) {
-        String firstNameQuery = buildSimpleQuery("firstName", firstName);
-        String lastNameQuery = buildSimpleQuery("lastName", lastName);
+    public void firstNameOrLastNameSearch(final String firstName, final String lastName) {
+        final var firstNameQuery = buildSimpleQuery("firstName", firstName);
+        final var lastNameQuery = buildSimpleQuery("lastName", lastName);
 
-        String query = buildOrQuery(firstNameQuery, lastNameQuery);
+        final var query = buildOrQuery(firstNameQuery, lastNameQuery);
 
         dispatchQuery(query);
     }
@@ -78,41 +77,41 @@ public class BookingSearchSteps extends CommonSteps {
     }
 
     @Step("Verify first names of inmates returned by search")
-    public void verifyFirstNames(String nameList) {
+    public void verifyFirstNames(final String nameList) {
         verifyPropertyValues(inmateSummaries, OffenderBooking::getFirstName, nameList);
     }
 
     @Step("Verify middle names of inmates returned by search")
-    public void verifyMiddleNames(String nameList) {
+    public void verifyMiddleNames(final String nameList) {
         verifyPropertyValues(inmateSummaries, OffenderBooking::getMiddleName, nameList);
     }
 
     @Step("Verify last names of inmates returned by search")
-    public void verifyLastNames(String nameList) {
+    public void verifyLastNames(final String nameList) {
         verifyPropertyValues(inmateSummaries, OffenderBooking::getLastName, nameList);
     }
 
     @Step("Verify living unit descriptions returned by search")
-    public void verifyLivingUnits(String livingUnitList) {
+    public void verifyLivingUnits(final String livingUnitList) {
         verifyPropertyValues(inmateSummaries, OffenderBooking::getAssignedLivingUnitDesc, livingUnitList);
     }
 
     @Step("Verify image ids returned by search")
-    public void verifyImageIds(String imageIds) {
+    public void verifyImageIds(final String imageIds) {
         verifyLongValues(inmateSummaries, OffenderBooking::getFacialImageId, imageIds);
     }
 
     @Step("Verify dobs returned by search")
-    public void verifyDobs(String dobs) {
+    public void verifyDobs(final String dobs) {
         verifyLocalDateValues(inmateSummaries, OffenderBooking::getDateOfBirth, dobs);
     }
 
-    private void dispatchQuery(String query) {
+    private void dispatchQuery(final String query) {
         init();
 
-        String queryUrl = API_QUERY_PREFIX + StringUtils.trimToEmpty(query);
+        final var queryUrl = API_QUERY_PREFIX + StringUtils.trimToEmpty(query);
 
-        ResponseEntity<List<OffenderBooking>> response = restTemplate.exchange(queryUrl,
+        final var response = restTemplate.exchange(queryUrl,
                 HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<OffenderBooking>>() {});
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -120,8 +119,8 @@ public class BookingSearchSteps extends CommonSteps {
         buildResourceData(response);
     }
 
-    private String buildSimpleQuery(String fieldName, Object criteria) {
-        StringJoiner sj = new StringJoiner(":");
+    private String buildSimpleQuery(final String fieldName, final Object criteria) {
+        final var sj = new StringJoiner(":");
 
         sj.add(fieldName);
         sj.add(deriveOperator(criteria).getJsonOperator());
@@ -130,16 +129,16 @@ public class BookingSearchSteps extends CommonSteps {
         return sj.toString();
     }
 
-    private String buildAndQuery(String... terms) {
+    private String buildAndQuery(final String... terms) {
         return Stream.of(terms).collect(Collectors.joining(",and:"));
     }
 
-    private String buildOrQuery(String... terms) {
+    private String buildOrQuery(final String... terms) {
         return Stream.of(terms).collect(Collectors.joining(",or:"));
     }
 
-    private QueryOperator deriveOperator(Object criteria) {
-        QueryOperator operator;
+    private QueryOperator deriveOperator(final Object criteria) {
+        final QueryOperator operator;
 
         if (criteria instanceof String) {
             operator = (((String) criteria).contains("%") ? QueryOperator.LIKE : QueryOperator.EQUAL);
@@ -150,8 +149,8 @@ public class BookingSearchSteps extends CommonSteps {
         return operator;
     }
 
-    private String parseCriteria(Object criteria) {
-        String formatter;
+    private String parseCriteria(final Object criteria) {
+        final String formatter;
 
         if (criteria instanceof String) {
             formatter = "'%s'";

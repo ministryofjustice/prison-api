@@ -48,7 +48,7 @@ public class StaffDetail {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -61,7 +61,7 @@ public class StaffDetail {
         return staffId;
     }
 
-    public void setStaffId(Long staffId) {
+    public void setStaffId(final Long staffId) {
         this.staffId = staffId;
     }
 
@@ -74,7 +74,7 @@ public class StaffDetail {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
@@ -87,7 +87,7 @@ public class StaffDetail {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
@@ -100,7 +100,7 @@ public class StaffDetail {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(final String status) {
         this.status = status;
     }
 
@@ -113,13 +113,13 @@ public class StaffDetail {
         return thumbnailId;
     }
 
-    public void setThumbnailId(Long thumbnailId) {
+    public void setThumbnailId(final Long thumbnailId) {
         this.thumbnailId = thumbnailId;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class StaffDetail {\n");
         

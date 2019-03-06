@@ -13,12 +13,12 @@ public final class OffenderRepositorySearchHelper {
 
     private OffenderRepositorySearchHelper() {}
 
-    public static String generateFindOffendersQuery(PrisonerDetailSearchCriteria criteria, Map<String, String> columnMapping) {
-        final String eqTemplate = "%s = '%s'";
+    public static String generateFindOffendersQuery(final PrisonerDetailSearchCriteria criteria, final Map<String, String> columnMapping) {
+        final var eqTemplate = "%s = '%s'";
 
-        final String logicOperator = criteria.isAnyMatch() ? QUERY_OPERATOR_OR : QUERY_OPERATOR_AND;
+        final var logicOperator = criteria.isAnyMatch() ? QUERY_OPERATOR_OR : QUERY_OPERATOR_AND;
 
-        final StringBuilder query = new StringBuilder();
+        final var query = new StringBuilder();
 
         appendPNCNumberCriteria(query, criteria.getPncNumber(), logicOperator, columnMapping);
         appendNonBlankCriteria(query, "croNumber", criteria.getCroNumber(), eqTemplate, logicOperator, columnMapping);
@@ -26,22 +26,22 @@ public final class OffenderRepositorySearchHelper {
         return StringUtils.trimToNull(query.toString());
     }
 
-    private static void appendNonBlankCriteria(StringBuilder query, String criteriaName, String criteriaValue,
-                                       String operatorTemplate, String logicOperator, Map<String, String> columnMapping) {
+    private static void appendNonBlankCriteria(final StringBuilder query, final String criteriaName, final String criteriaValue,
+                                               final String operatorTemplate, final String logicOperator, final Map<String, String> columnMapping) {
         if (StringUtils.isNotBlank(criteriaValue)) {
             if (query.length() > 0) {
                 query.append(logicOperator);
             }
 
-            String columnName = columnMapping.get(criteriaName);
+            final var columnName = columnMapping.get(criteriaName);
 
             query.append(format(operatorTemplate, columnName, criteriaValue.toUpperCase()));
         }
     }
 
-    private static void appendPNCNumberCriteria(StringBuilder query, String criteriaValue, String logicOperator, Map<String, String> columnMapping) {
+    private static void appendPNCNumberCriteria(final StringBuilder query, final String criteriaValue, final String logicOperator, final Map<String, String> columnMapping) {
         if (StringUtils.isNotBlank(criteriaValue)) {
-            int slashIdx = criteriaValue.indexOf('/');
+            final var slashIdx = criteriaValue.indexOf('/');
 
             if ((slashIdx != 2) && (slashIdx != 4)) {
                 throw new IllegalArgumentException("Incorrectly formatted PNC number.");
@@ -51,16 +51,16 @@ public final class OffenderRepositorySearchHelper {
                 query.append(logicOperator);
             }
 
-            String columnName = columnMapping.get("pncNumber");
-            String upperCriteriaVal = criteriaValue.toUpperCase();
+            final var columnName = columnMapping.get("pncNumber");
+            final var upperCriteriaVal = criteriaValue.toUpperCase();
 
             if (slashIdx == 2) {
-                String altValue1 = StringUtils.join("19", upperCriteriaVal);
-                String altValue2 = StringUtils.join("20", upperCriteriaVal);
+                final var altValue1 = StringUtils.join("19", upperCriteriaVal);
+                final var altValue2 = StringUtils.join("20", upperCriteriaVal);
 
                 query.append(format("%s IN ('%s', '%s', '%s')", columnName, upperCriteriaVal, altValue1, altValue2));
             } else {
-                String altValue = StringUtils.substring(upperCriteriaVal, 2);
+                final var altValue = StringUtils.substring(upperCriteriaVal, 2);
 
                 query.append(format("%s IN ('%s', '%s')", columnName, upperCriteriaVal, altValue));
             }

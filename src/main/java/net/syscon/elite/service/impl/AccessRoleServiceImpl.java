@@ -13,7 +13,6 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -22,22 +21,22 @@ import java.util.Optional;
 public class AccessRoleServiceImpl implements AccessRoleService {
     private final AccessRoleRepository accessRoleRepository;
 
-    public AccessRoleServiceImpl(AccessRoleRepository accessRoleRepository) {
+    public AccessRoleServiceImpl(final AccessRoleRepository accessRoleRepository) {
         this.accessRoleRepository = accessRoleRepository;
     }
 
     @Override
     @Transactional
     @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
-    public void createAccessRole(@Valid AccessRole accessRole) {
+    public void createAccessRole(@Valid final AccessRole accessRole) {
         if(accessRole.getParentRoleCode() != null) {
-            final Optional<AccessRole> roleOptional = accessRoleRepository.getAccessRole(accessRole.getParentRoleCode());
+            final var roleOptional = accessRoleRepository.getAccessRole(accessRole.getParentRoleCode());
             if(!roleOptional.isPresent()) {
                 throw  EntityNotFoundException.withMessage("Parent Access role with code [%s] not found", accessRole.getParentRoleCode());
             }
         }
 
-        final Optional<AccessRole> roleOptional = accessRoleRepository.getAccessRole(accessRole.getRoleCode());
+        final var roleOptional = accessRoleRepository.getAccessRole(accessRole.getRoleCode());
 
         if(roleOptional.isPresent()) {
             throw  EntityAlreadyExistsException.withMessage("Access role with code [%s] already exists: [%s]", accessRole.getRoleCode(), roleOptional.get().getRoleName());
@@ -52,11 +51,11 @@ public class AccessRoleServiceImpl implements AccessRoleService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
-    public void updateAccessRole(@Valid AccessRole accessRole) {
+    public void updateAccessRole(@Valid final AccessRole accessRole) {
 
-        final Optional<AccessRole> roleOptional = accessRoleRepository.getAccessRole(accessRole.getRoleCode());
+        final var roleOptional = accessRoleRepository.getAccessRole(accessRole.getRoleCode());
 
-        final AccessRole roleBeforeUpdate = roleOptional.orElseThrow(EntityNotFoundException.withMessage("Access role with code [%s] not found", accessRole.getRoleCode()));
+        final var roleBeforeUpdate = roleOptional.orElseThrow(EntityNotFoundException.withMessage("Access role with code [%s] not found", accessRole.getRoleCode()));
 
         /* fill in optional parameters for mandatory fields */
         if (accessRole.getRoleName() == null ) accessRole.setRoleName(roleBeforeUpdate.getRoleName());
@@ -67,7 +66,7 @@ public class AccessRoleServiceImpl implements AccessRoleService {
     }
 
     @Override
-    public List<AccessRole> getAccessRoles(boolean includeAdmin) {
+    public List<AccessRole> getAccessRoles(final boolean includeAdmin) {
         return accessRoleRepository.getAccessRoles(includeAdmin);
     }
 }

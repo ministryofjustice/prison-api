@@ -50,7 +50,7 @@ public class PhysicalMark {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -63,7 +63,7 @@ public class PhysicalMark {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(final String type) {
         this.type = type;
     }
 
@@ -76,7 +76,7 @@ public class PhysicalMark {
         return side;
     }
 
-    public void setSide(String side) {
+    public void setSide(final String side) {
         this.side = side;
     }
 
@@ -89,7 +89,7 @@ public class PhysicalMark {
         return bodyPart;
     }
 
-    public void setBodyPart(String bodyPart) {
+    public void setBodyPart(final String bodyPart) {
         this.bodyPart = bodyPart;
     }
 
@@ -102,7 +102,7 @@ public class PhysicalMark {
         return orientation;
     }
 
-    public void setOrientation(String orientation) {
+    public void setOrientation(final String orientation) {
         this.orientation = orientation;
     }
 
@@ -115,7 +115,7 @@ public class PhysicalMark {
         return comment;
     }
 
-    public void setComment(String comment) {
+    public void setComment(final String comment) {
         this.comment = comment;
     }
 
@@ -128,13 +128,13 @@ public class PhysicalMark {
         return imageId;
     }
 
-    public void setImageId(Long imageId) {
+    public void setImageId(final Long imageId) {
         this.imageId = imageId;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class PhysicalMark {\n");
         

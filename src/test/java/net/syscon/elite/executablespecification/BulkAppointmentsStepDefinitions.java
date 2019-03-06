@@ -21,8 +21,8 @@ public class BulkAppointmentsStepDefinitions extends AbstractStepDefinitions {
     private BulkAppointmentSteps bulkAppointmentSteps;
 
     @When("^These appointment defaults:$")
-    public void appointmentDefaults(Map<String, String> defaults) {
-        var builder = AppointmentDefaults
+    public void appointmentDefaults(final Map<String, String> defaults) {
+        final var builder = AppointmentDefaults
                 .builder()
                 .locationId(Long.parseLong(defaults.get("locationId")))
                 .appointmentType(defaults.get("appointmentType"))
@@ -35,8 +35,8 @@ public class BulkAppointmentsStepDefinitions extends AbstractStepDefinitions {
     }
 
     @And("^these appointment details:$")
-    public void theseAppointmentDetails(List<Map<String, String>> details) {
-        List<AppointmentDetails>  appointmentDetails = details
+    public void theseAppointmentDetails(final List<Map<String, String>> details) {
+        final var appointmentDetails = details
                 .stream()
                 .map(row -> AppointmentDetails
                         .builder()
@@ -50,8 +50,8 @@ public class BulkAppointmentsStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^appointments for the date <(\\d+)-(\\d+)-(\\d+)> are:$")
-    public void appointmentsForTheDateAre(int yyyy, int mm, int dd, List<Map<String,String>> appointments) {
-        LocalDate date = LocalDate.of(yyyy, mm, dd);
+    public void appointmentsForTheDateAre(final int yyyy, final int mm, final int dd, final List<Map<String, String>> appointments) {
+        final var date = LocalDate.of(yyyy, mm, dd);
         bulkAppointmentSteps.appointmentsAre(date, appointments);
     }
 
@@ -60,7 +60,7 @@ public class BulkAppointmentsStepDefinitions extends AbstractStepDefinitions {
         bulkAppointmentSteps.createBulkAppointments();
     }
 
-    private LocalDateTime getOptionalTime(String string) {
+    private LocalDateTime getOptionalTime(final String string) {
         if (StringUtils.isBlank(string)) return null;
         return LocalDateTime.parse(string);
     }
@@ -71,7 +71,7 @@ public class BulkAppointmentsStepDefinitions extends AbstractStepDefinitions {
     }
 
     @And("^The bulk appointment request status code is <(\\d+)>$")
-    public void theBulkAppointmentRequestStatusCodeIs(int expectedStatusCode) {
+    public void theBulkAppointmentRequestStatusCodeIs(final int expectedStatusCode) {
         bulkAppointmentSteps.assertHttpStatusCode(expectedStatusCode);
     }
 }

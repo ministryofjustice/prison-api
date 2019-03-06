@@ -78,7 +78,7 @@ public class Alert {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -91,7 +91,7 @@ public class Alert {
         return alertId;
     }
 
-    public void setAlertId(Long alertId) {
+    public void setAlertId(final Long alertId) {
         this.alertId = alertId;
     }
 
@@ -104,7 +104,7 @@ public class Alert {
         return bookingId;
     }
 
-    public void setBookingId(Long bookingId) {
+    public void setBookingId(final Long bookingId) {
         this.bookingId = bookingId;
     }
 
@@ -117,7 +117,7 @@ public class Alert {
         return offenderNo;
     }
 
-    public void setOffenderNo(String offenderNo) {
+    public void setOffenderNo(final String offenderNo) {
         this.offenderNo = offenderNo;
     }
 
@@ -130,7 +130,7 @@ public class Alert {
         return alertType;
     }
 
-    public void setAlertType(String alertType) {
+    public void setAlertType(final String alertType) {
         this.alertType = alertType;
     }
 
@@ -143,7 +143,7 @@ public class Alert {
         return alertTypeDescription;
     }
 
-    public void setAlertTypeDescription(String alertTypeDescription) {
+    public void setAlertTypeDescription(final String alertTypeDescription) {
         this.alertTypeDescription = alertTypeDescription;
     }
 
@@ -156,7 +156,7 @@ public class Alert {
         return alertCode;
     }
 
-    public void setAlertCode(String alertCode) {
+    public void setAlertCode(final String alertCode) {
         this.alertCode = alertCode;
     }
 
@@ -169,7 +169,7 @@ public class Alert {
         return alertCodeDescription;
     }
 
-    public void setAlertCodeDescription(String alertCodeDescription) {
+    public void setAlertCodeDescription(final String alertCodeDescription) {
         this.alertCodeDescription = alertCodeDescription;
     }
 
@@ -182,7 +182,7 @@ public class Alert {
         return comment;
     }
 
-    public void setComment(String comment) {
+    public void setComment(final String comment) {
         this.comment = comment;
     }
 
@@ -195,7 +195,7 @@ public class Alert {
         return dateCreated;
     }
 
-    public void setDateCreated(LocalDate dateCreated) {
+    public void setDateCreated(final LocalDate dateCreated) {
         this.dateCreated = dateCreated;
     }
 
@@ -208,7 +208,7 @@ public class Alert {
         return dateExpires;
     }
 
-    public void setDateExpires(LocalDate dateExpires) {
+    public void setDateExpires(final LocalDate dateExpires) {
         this.dateExpires = dateExpires;
     }
 
@@ -221,7 +221,7 @@ public class Alert {
         return expired;
     }
 
-    public void setExpired(boolean expired) {
+    public void setExpired(final boolean expired) {
         this.expired = expired;
     }
 
@@ -234,7 +234,7 @@ public class Alert {
         return active;
     }
 
-    public void setActive(boolean active) {
+    public void setActive(final boolean active) {
         this.active = active;
     }
 
@@ -247,7 +247,7 @@ public class Alert {
         return addedByFirstName;
     }
 
-    public void setAddedByFirstName(String addedByFirstName) {
+    public void setAddedByFirstName(final String addedByFirstName) {
         this.addedByFirstName = addedByFirstName;
     }
 
@@ -260,7 +260,7 @@ public class Alert {
         return addedByLastName;
     }
 
-    public void setAddedByLastName(String addedByLastName) {
+    public void setAddedByLastName(final String addedByLastName) {
         this.addedByLastName = addedByLastName;
     }
 
@@ -273,7 +273,7 @@ public class Alert {
         return expiredByFirstName;
     }
 
-    public void setExpiredByFirstName(String expiredByFirstName) {
+    public void setExpiredByFirstName(final String expiredByFirstName) {
         this.expiredByFirstName = expiredByFirstName;
     }
 
@@ -286,13 +286,13 @@ public class Alert {
         return expiredByLastName;
     }
 
-    public void setExpiredByLastName(String expiredByLastName) {
+    public void setExpiredByLastName(final String expiredByLastName) {
         this.expiredByLastName = expiredByLastName;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class Alert {\n");
         

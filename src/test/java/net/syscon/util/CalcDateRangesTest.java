@@ -23,7 +23,7 @@ public class CalcDateRangesTest {
 
     @Test
     public void testFromAndToDateSetForDobOnly() {
-        final LocalDate dob = LocalDate.now().atStartOfDay().toLocalDate();
+        final var dob = LocalDate.now().atStartOfDay().toLocalDate();
         testClass = new CalcDateRanges(dob, null,null, TEN_YEARS);
         assertThat(testClass.getDateFrom()).isEqualTo(dob);
         assertThat(testClass.getDateTo()).isEqualTo(dob);
@@ -31,8 +31,8 @@ public class CalcDateRangesTest {
 
     @Test
     public void testDateRangeCalcLessThan10Years() {
-        LocalDate fromDate = LocalDate.now().atStartOfDay().toLocalDate();
-        LocalDate toDate = fromDate.plusYears(3);
+        final var fromDate = LocalDate.now().atStartOfDay().toLocalDate();
+        final var toDate = fromDate.plusYears(3);
 
         testClass = new CalcDateRanges(null, fromDate, toDate, TEN_YEARS);
         assertThat(testClass.getDateFrom()).isEqualTo(fromDate);
@@ -41,8 +41,8 @@ public class CalcDateRangesTest {
 
     @Test
     public void testDateRangeCalcEqual10Years() {
-        LocalDate fromDate = LocalDate.now().atStartOfDay().toLocalDate();
-        LocalDate toDate = fromDate.plusYears(TEN_YEARS);
+        final var fromDate = LocalDate.now().atStartOfDay().toLocalDate();
+        final var toDate = fromDate.plusYears(TEN_YEARS);
 
         testClass = new CalcDateRanges(null, fromDate, toDate, TEN_YEARS);
         assertThat(testClass.getDateFrom()).isEqualTo(fromDate);
@@ -51,8 +51,8 @@ public class CalcDateRangesTest {
 
     @Test
     public void testDateRangeCalcMoreThan10Years() {
-        LocalDate fromDate = LocalDate.now().atStartOfDay().toLocalDate();
-        LocalDate toDate = fromDate.plusYears(30);
+        final var fromDate = LocalDate.now().atStartOfDay().toLocalDate();
+        final var toDate = fromDate.plusYears(30);
 
         testClass = new CalcDateRanges(null, fromDate, toDate, TEN_YEARS);
         assertThat(testClass.getDateFrom()).isEqualTo(fromDate);
@@ -63,7 +63,7 @@ public class CalcDateRangesTest {
 
     @Test
     public void testDateRangeCalcOnlyFromSpecified() {
-        LocalDate fromDate = LocalDate.now().atStartOfDay().toLocalDate();
+        final var fromDate = LocalDate.now().atStartOfDay().toLocalDate();
 
         testClass = new CalcDateRanges(null, fromDate, null, TEN_YEARS);
         assertThat(testClass.getDateFrom()).isEqualTo(fromDate);
@@ -72,7 +72,7 @@ public class CalcDateRangesTest {
 
     @Test
     public void testDateRangeCalcOnlyToSpecified() {
-        LocalDate toDate = LocalDate.now().atStartOfDay().toLocalDate();
+        final var toDate = LocalDate.now().atStartOfDay().toLocalDate();
 
         testClass = new CalcDateRanges(null, null, toDate, TEN_YEARS);
         assertThat(testClass.getDateTo()).isEqualTo(toDate);
@@ -81,7 +81,7 @@ public class CalcDateRangesTest {
 
     @Test
     public void testStartTimeToTimeSlot() {
-        LocalDate dummy = LocalDate.of(2018,10,5);
+        final var dummy = LocalDate.of(2018, 10, 5);
         assertThat(CalcDateRanges.startTimeToTimeSlot(LocalDateTime.of(dummy, LocalTime.of(0,0)))).isEqualTo(TimeSlot.AM);
         assertThat(CalcDateRanges.startTimeToTimeSlot(LocalDateTime.of(dummy, LocalTime.of(11,59)))).isEqualTo(TimeSlot.AM);
         assertThat(CalcDateRanges.startTimeToTimeSlot(LocalDateTime.of(dummy, LocalTime.of(12,0)))).isEqualTo(TimeSlot.PM);
@@ -92,7 +92,7 @@ public class CalcDateRangesTest {
 
     @Test
     public void testEventStartsInTimeslot() {
-        LocalDate dummy = LocalDate.of(2018,10,5);
+        final var dummy = LocalDate.of(2018, 10, 5);
         assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(0,0)), TimeSlot.AM)).isTrue();
         assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(11,59)), TimeSlot.AM)).isTrue();
         assertThat(CalcDateRanges.eventStartsInTimeslot(LocalDateTime.of(dummy, LocalTime.of(12,0)), TimeSlot.PM)).isTrue();

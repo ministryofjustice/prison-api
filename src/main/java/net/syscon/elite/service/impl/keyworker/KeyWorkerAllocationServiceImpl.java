@@ -1,6 +1,9 @@
 package net.syscon.elite.service.impl.keyworker;
 
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.KeyWorkerAllocationDetail;
+import net.syscon.elite.api.model.Keyworker;
+import net.syscon.elite.api.model.OffenderKeyWorker;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.AgencyRepository;
@@ -29,9 +32,9 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
     private final AgencyRepository agencyRepository;
     private final UserRepository userRepository;
 
-    public KeyWorkerAllocationServiceImpl(KeyWorkerAllocationRepository repository,
-                                          AgencyRepository agencyRepository,
-                                          UserRepository userRepository) {
+    public KeyWorkerAllocationServiceImpl(final KeyWorkerAllocationRepository repository,
+                                          final AgencyRepository agencyRepository,
+                                          final UserRepository userRepository) {
         this.repository = repository;
         this.agencyRepository = agencyRepository;
         this.userRepository = userRepository;
@@ -40,41 +43,41 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
 
     @Override
     @VerifyAgencyAccess
-    public List<Keyworker> getAvailableKeyworkers(String agencyId) {
+    public List<Keyworker> getAvailableKeyworkers(final String agencyId) {
         return repository.getAvailableKeyworkers(agencyId);
     }
 
     @Override
-    public Keyworker getKeyworkerDetailsByBooking(Long bookingId) {
+    public Keyworker getKeyworkerDetailsByBooking(final Long bookingId) {
         return repository.getKeyworkerDetailsByBooking(bookingId)
                 .orElseThrow(EntityNotFoundException.withMessage(String.format("Key worker not found for booking Id %d", bookingId)));
     }
 
     @Override
-    public List<KeyWorkerAllocationDetail> getAllocationsForCurrentCaseload(String username) {
+    public List<KeyWorkerAllocationDetail> getAllocationsForCurrentCaseload(final String username) {
         Validate.notNull(username, "Key worker username must be specified.");
 
-        UserDetail userDetail = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
-        List<String> agencyIds = agencyRepository.findAgenciesByCaseload(userDetail.getActiveCaseLoadId())
+        final var userDetail = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
+        final var agencyIds = agencyRepository.findAgenciesByCaseload(userDetail.getActiveCaseLoadId())
                                         .stream().map(Agency::getAgencyId).collect(Collectors.toList());
-        List<KeyWorkerAllocationDetail> allocations = repository.getAllocationDetailsForKeyworker(userDetail.getStaffId(), agencyIds);
+        final var allocations = repository.getAllocationDetailsForKeyworker(userDetail.getStaffId(), agencyIds);
         allocations.forEach(a -> a.setInternalLocationDesc(LocationProcessor.stripAgencyId(a.getInternalLocationDesc(), a.getAgencyId())));
 
         return allocations;
     }
 
     @Override
-    public List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworkers(List<Long> staffIds, String agencyId) {
+    public List<KeyWorkerAllocationDetail> getAllocationDetailsForKeyworkers(final List<Long> staffIds, final String agencyId) {
         Validate.notEmpty(staffIds, "Key worker staffIds must be specified.");
         Validate.notNull(agencyId, "agencyId must be specified.");
 
         if (staffIds.size() == 1) {
-            Long staffId = staffIds.get(0);
+            final var staffId = staffIds.get(0);
             if (!repository.checkKeyworkerExists(staffId)) {
                 throw EntityNotFoundException.withId(staffId);
             }
         }
-        List<KeyWorkerAllocationDetail> allocations = repository.getAllocationDetailsForKeyworkers(staffIds, Collections.singletonList(agencyId));
+        final var allocations = repository.getAllocationDetailsForKeyworkers(staffIds, Collections.singletonList(agencyId));
         allocations.forEach(a -> a.setInternalLocationDesc(LocationProcessor.stripAgencyId(a.getInternalLocationDesc(), a.getAgencyId())));
 
         return allocations.stream()
@@ -86,11 +89,11 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
     }
 
     @Override
-    public List<KeyWorkerAllocationDetail> getAllocationDetailsForOffenders(List<String> offenderNos, String agencyId) {
+    public List<KeyWorkerAllocationDetail> getAllocationDetailsForOffenders(final List<String> offenderNos, final String agencyId) {
         Validate.notEmpty(offenderNos, "Offender Nos must be specified.");
         Validate.notNull(agencyId, "agencyId must be specified.");
 
-        List<KeyWorkerAllocationDetail> allocations = repository.getAllocationDetailsForOffenders(offenderNos, Collections.singletonList(agencyId));
+        final var allocations = repository.getAllocationDetailsForOffenders(offenderNos, Collections.singletonList(agencyId));
 
         allocations.forEach(a -> a.setInternalLocationDesc(LocationProcessor.stripAgencyId(a.getInternalLocationDesc(), a.getAgencyId())));
 
@@ -104,7 +107,7 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
 
     @Override
     @VerifyAgencyAccess
-    public Page<OffenderKeyWorker> getAllocationHistoryByAgency(String agencyId, PageRequest pageRequest) {
+    public Page<OffenderKeyWorker> getAllocationHistoryByAgency(final String agencyId, final PageRequest pageRequest) {
         Validate.notBlank(agencyId, "Agency id is required.");
         Validate.notNull(pageRequest, "Page request details are requreid.");
 
@@ -112,9 +115,9 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
     }
 
     @Override
-    public List<OffenderKeyWorker> getAllocationHistoryByStaffIds(List<Long> staffIds) {
+    public List<OffenderKeyWorker> getAllocationHistoryByStaffIds(final List<Long> staffIds) {
         Validate.notEmpty(staffIds, "At least 1 staff Id is required.");
-        List<OffenderKeyWorker> allocations = repository.getAllocationHistoryByStaffIds(staffIds);
+        final var allocations = repository.getAllocationHistoryByStaffIds(staffIds);
         return allocations.stream()
                 .sorted(Comparator
                         .comparing(OffenderKeyWorker::getOffenderNo)
@@ -124,9 +127,9 @@ public class KeyWorkerAllocationServiceImpl implements KeyWorkerAllocationServic
     }
 
     @Override
-    public List<OffenderKeyWorker> getAllocationHistoryByOffenderNos(List<String> offenderNos) {
+    public List<OffenderKeyWorker> getAllocationHistoryByOffenderNos(final List<String> offenderNos) {
         Validate.notEmpty(offenderNos, "At lease 1 offender no is required.");
-        List<OffenderKeyWorker> allocations = repository.getAllocationHistoryByOffenderNos(offenderNos);
+        final var allocations = repository.getAllocationHistoryByOffenderNos(offenderNos);
         return allocations.stream()
                 .sorted(Comparator
                         .comparing(OffenderKeyWorker::getOffenderNo)

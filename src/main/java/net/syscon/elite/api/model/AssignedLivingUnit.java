@@ -46,7 +46,7 @@ public class AssignedLivingUnit {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -59,7 +59,7 @@ public class AssignedLivingUnit {
         return agencyId;
     }
 
-    public void setAgencyId(String agencyId) {
+    public void setAgencyId(final String agencyId) {
         this.agencyId = agencyId;
     }
 
@@ -72,7 +72,7 @@ public class AssignedLivingUnit {
         return locationId;
     }
 
-    public void setLocationId(Long locationId) {
+    public void setLocationId(final Long locationId) {
         this.locationId = locationId;
     }
 
@@ -85,7 +85,7 @@ public class AssignedLivingUnit {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
@@ -98,13 +98,13 @@ public class AssignedLivingUnit {
         return agencyName;
     }
 
-    public void setAgencyName(String agencyName) {
+    public void setAgencyName(final String agencyName) {
         this.agencyName = agencyName;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class AssignedLivingUnit {\n");
         

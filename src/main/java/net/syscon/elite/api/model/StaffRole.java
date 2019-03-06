@@ -38,7 +38,7 @@ public class StaffRole {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -51,7 +51,7 @@ public class StaffRole {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(final String role) {
         this.role = role;
     }
 
@@ -64,13 +64,13 @@ public class StaffRole {
         return roleDescription;
     }
 
-    public void setRoleDescription(String roleDescription) {
+    public void setRoleDescription(final String roleDescription) {
         this.roleDescription = roleDescription;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class StaffRole {\n");
         

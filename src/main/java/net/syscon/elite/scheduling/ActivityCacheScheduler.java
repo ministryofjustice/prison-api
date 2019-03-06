@@ -17,7 +17,7 @@ public class ActivityCacheScheduler {
     private final AgencyService agencyService;
     private final LocationGroupService locationGroupService;
 
-    public ActivityCacheScheduler(AgencyService agencyService, LocationGroupService locationGroupService) {
+    public ActivityCacheScheduler(final AgencyService agencyService, final LocationGroupService locationGroupService) {
         this.agencyService = agencyService;
         this.locationGroupService = locationGroupService;
     }
@@ -25,10 +25,10 @@ public class ActivityCacheScheduler {
     @Scheduled(fixedRate = 10 * 60 * 1000, initialDelay = 30000)
     public void cacheActivityLocations() {
 
-        final long start = System.currentTimeMillis();
+        final var start = System.currentTimeMillis();
         log.info("START: cacheActivityLocations");
         // get all prisons
-        var prisons = agencyService.getAgenciesByType("INST");
+        final var prisons = agencyService.getAgenciesByType("INST");
 
         prisons.forEach(prison -> {
             final var locationGroups = locationGroupService.getLocationGroups(prison.getAgencyId());
@@ -39,7 +39,7 @@ public class ActivityCacheScheduler {
                 final var now = LocalDate.now();
                 List.of(TimeSlot.values()).forEach(slot -> {
                     log.info("cacheActivityLocations: Refreshing cache for {}, {}", prison.getAgencyId(), slot);
-                    var locations = agencyService.getAgencyEventLocationsBookedNonCached(prison.getAgencyId(), now, slot);
+                    final var locations = agencyService.getAgencyEventLocationsBookedNonCached(prison.getAgencyId(), now, slot);
                     log.info("cacheActivityLocations: {} locations cached for {}, {}", locations.size(), prison.getAgencyId(), slot);
                 });
             }

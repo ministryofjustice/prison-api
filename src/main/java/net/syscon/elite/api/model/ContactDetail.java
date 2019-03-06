@@ -42,7 +42,7 @@ public class ContactDetail {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -55,7 +55,7 @@ public class ContactDetail {
         return bookingId;
     }
 
-    public void setBookingId(Long bookingId) {
+    public void setBookingId(final Long bookingId) {
         this.bookingId = bookingId;
     }
 
@@ -68,13 +68,13 @@ public class ContactDetail {
         return nextOfKin;
     }
 
-    public void setNextOfKin(List<Contact> nextOfKin) {
+    public void setNextOfKin(final List<Contact> nextOfKin) {
         this.nextOfKin = nextOfKin;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class ContactDetail {\n");
         

@@ -11,9 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -37,10 +35,10 @@ public class AgencySteps extends CommonSteps {
     private List<Location> locations;
     private WhereaboutsConfig whereaboutsConfig;
 
-    private void dispatchPagedListRequest(String resourcePath, Long offset, Long limit, Object... params) {
+    private void dispatchPagedListRequest(final String resourcePath, final Long offset, final Long limit, final Object... params) {
         init();
 
-        HttpEntity<?> httpEntity;
+        final HttpEntity<?> httpEntity;
 
         if (Objects.nonNull(offset) && Objects.nonNull(limit)) {
             applyPagination(offset, limit);
@@ -49,10 +47,10 @@ public class AgencySteps extends CommonSteps {
             httpEntity = createEntity();
         }
 
-        String url = resourcePath;
+        final var url = resourcePath;
 
         try {
-            ResponseEntity<List<Agency>> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     httpEntity,
@@ -62,19 +60,19 @@ public class AgencySteps extends CommonSteps {
             agencies = response.getBody();
 
             buildResourceData(response);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void dispatchListRequest(String resourcePath, String agencyId, String eventType, Map<String,String> headers) {
+    private void dispatchListRequest(final String resourcePath, final String agencyId, final String eventType, final Map<String, String> headers) {
         init();
 
-        String urlModifier = StringUtils.isBlank(eventType) ? "" : "?eventType=" + eventType;
-        String url = resourcePath + urlModifier;
+        final var urlModifier = StringUtils.isBlank(eventType) ? "" : "?eventType=" + eventType;
+        final var url = resourcePath + urlModifier;
 
         try {
-            ResponseEntity<List<Location>> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     createEntity(null, headers),
@@ -84,22 +82,22 @@ public class AgencySteps extends CommonSteps {
             locations = response.getBody();
 
             buildResourceData(response);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void dispatchBookedLocationsRequest(String resourcePath, String agencyId, String bookedOnDay, TimeSlot timeSlot) {
+    private void dispatchBookedLocationsRequest(final String resourcePath, final String agencyId, final String bookedOnDay, final TimeSlot timeSlot) {
         init();
 
-        String urlModifier = "?bookedOnDay=" + bookedOnDay;
+        var urlModifier = "?bookedOnDay=" + bookedOnDay;
         if (timeSlot != null) {
             urlModifier += "&timeSlot=" + timeSlot.name();
         }
-        String url = resourcePath + urlModifier;
+        final var url = resourcePath + urlModifier;
 
         try {
-            ResponseEntity<List<Location>> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     createEntity(),
@@ -109,38 +107,38 @@ public class AgencySteps extends CommonSteps {
             locations = response.getBody();
 
             buildResourceData(response);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void dispatchObjectRequest(String resourcePath, String agencyId) {
+    private void dispatchObjectRequest(final String resourcePath, final String agencyId) {
         init();
 
-        String urlModifier = "";
+        final var urlModifier = "";
 
-        String url = resourcePath + urlModifier;
+        final var url = resourcePath + urlModifier;
 
         try {
-            ResponseEntity<Agency> response = restTemplate.exchange(url, HttpMethod.GET, createEntity(),
+            final var response = restTemplate.exchange(url, HttpMethod.GET, createEntity(),
                     new ParameterizedTypeReference<Agency>() {
                     }, agencyId);
 
             agency = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void dispatchObjectRequestForCaseload(String resourcePath, String caseload) {
+    private void dispatchObjectRequestForCaseload(final String resourcePath, final String caseload) {
         init();
         try {
-            ResponseEntity<List<Agency>> response = restTemplate.exchange(resourcePath, HttpMethod.GET, createEntity(),
+            final var response = restTemplate.exchange(resourcePath, HttpMethod.GET, createEntity(),
                     new ParameterizedTypeReference<List<Agency>>() {}, caseload);
 
             agencies = response.getBody();
             buildResourceData(response);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -159,29 +157,29 @@ public class AgencySteps extends CommonSteps {
     }
 
     @Step("Submit request for agency locations")
-    public void getLocations(String agencyId, String eventType, String sortFields, Order sortOrder) {
-        Map<String,String> headers = buildSortHeaders(sortFields, sortOrder);
+    public void getLocations(final String agencyId, final String eventType, final String sortFields, final Order sortOrder) {
+        final var headers = buildSortHeaders(sortFields, sortOrder);
 
         dispatchListRequest(API_LOCATIONS_URL, agencyId, eventType, headers);
     }
 
     @Step("Submit request for any event locations")
-    public void getLocationsForAnyEvents(String agencyId) {
+    public void getLocationsForAnyEvents(final String agencyId) {
         dispatchListRequest(API_EVENT_LOCATIONS_URL, agencyId, null, null);
     }
 
     @Step("Submit request for booked agency locations")
-    public void getBookedLocations(String agencyId, String bookedOnDay, TimeSlot timeSlot) {
+    public void getBookedLocations(final String agencyId, final String bookedOnDay, final TimeSlot timeSlot) {
         dispatchBookedLocationsRequest(API_BOOKED_EVENT_LOCATIONS_URL, agencyId, bookedOnDay, timeSlot);
     }
 
-    public void verifyAgencyList(List<Agency> expected) {
+    public void verifyAgencyList(final List<Agency> expected) {
 
-        final Iterator<Agency> expectedIterator = expected.iterator();
-        final Iterator<Agency> actualIterator = agencies.iterator();
+        final var expectedIterator = expected.iterator();
+        final var actualIterator = agencies.iterator();
         while (expectedIterator.hasNext()) {
-            final Agency expectedThis = expectedIterator.next();
-            final Agency actualThis = actualIterator.next();
+            final var expectedThis = expectedIterator.next();
+            final var actualThis = actualIterator.next();
             assertEquals(expectedThis.getAgencyId(), actualThis.getAgencyId());
             assertEquals(expectedThis.getAgencyType(), actualThis.getAgencyType());
             assertEquals(expectedThis.getDescription(), actualThis.getDescription());
@@ -190,21 +188,21 @@ public class AgencySteps extends CommonSteps {
     }
 
     @Step("Verify agency property")
-    public void verifyField(String field, String value) throws ReflectiveOperationException {
+    public void verifyField(final String field, final String value) throws ReflectiveOperationException {
         super.verifyField(agency, field, value);
     }
 
     @Step("Submit request for agency details")
-    public void getAgency(String agencyId) {
+    public void getAgency(final String agencyId) {
         dispatchObjectRequest(API_AGENCY_URL, agencyId);
     }
 
-    public void verifyLocationList(List<Location> expected) {
-        final Iterator<Location> expectedIterator = expected.iterator();
-        final Iterator<Location> actualIterator = locations.iterator();
+    public void verifyLocationList(final List<Location> expected) {
+        final var expectedIterator = expected.iterator();
+        final var actualIterator = locations.iterator();
         while (expectedIterator.hasNext()) {
-            final Location expectedThis = expectedIterator.next();
-            final Location actualThis = actualIterator.next();
+            final var expectedThis = expectedIterator.next();
+            final var actualThis = actualIterator.next();
             assertEquals(expectedThis.getLocationId(), actualThis.getLocationId());
             assertEquals(expectedThis.getLocationPrefix(), actualThis.getLocationPrefix());
             assertEquals(expectedThis.getDescription(), actualThis.getDescription());
@@ -213,30 +211,30 @@ public class AgencySteps extends CommonSteps {
         assertFalse("Too many actual events", actualIterator.hasNext());
     }
 
-    public void getAgenciesByCaseload(String caseload) {
+    public void getAgenciesByCaseload(final String caseload) {
         dispatchObjectRequestForCaseload(API_CASELOAD_URL, caseload);
     }
 
-    public void aRequestIsMadeToGetWhereabouts(String agencyId) {
+    public void aRequestIsMadeToGetWhereabouts(final String agencyId) {
         dispatchWhereaboutsCall(WHEREABOUTS_API_URL, agencyId);
     }
 
-    private void dispatchWhereaboutsCall(String url, String agencyId) {
+    private void dispatchWhereaboutsCall(final String url, final String agencyId) {
         init();
         try {
-            ResponseEntity<WhereaboutsConfig> response = restTemplate.exchange(url,
+            final var response = restTemplate.exchange(url,
                     HttpMethod.GET,
                     createEntity(),
                     new ParameterizedTypeReference<WhereaboutsConfig>() {
                     }, agencyId);
             whereaboutsConfig = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
     @Step("Verify whereabouts property")
-    public void verifyWhereaboutsField(String field, String value) throws ReflectiveOperationException {
+    public void verifyWhereaboutsField(final String field, final String value) throws ReflectiveOperationException {
         super.verifyField(whereaboutsConfig, field, value);
     }
 }

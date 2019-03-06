@@ -40,7 +40,7 @@ public class OffenceDetail {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -53,7 +53,7 @@ public class OffenceDetail {
         return bookingId;
     }
 
-    public void setBookingId(Long bookingId) {
+    public void setBookingId(final Long bookingId) {
         this.bookingId = bookingId;
     }
 
@@ -66,13 +66,13 @@ public class OffenceDetail {
         return offenceDescription;
     }
 
-    public void setOffenceDescription(String offenceDescription) {
+    public void setOffenceDescription(final String offenceDescription) {
         this.offenceDescription = offenceDescription;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class OffenceDetail {\n");
         

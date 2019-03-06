@@ -12,7 +12,6 @@ import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.elite.service.support.LocationProcessor;
 import net.syscon.util.DateTimeConverter;
-import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.cache.annotation.Cacheable;
@@ -43,10 +42,10 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
 
     @Override
     @Cacheable("findByStaffId")
-    public Optional<StaffDetail> findByStaffId(Long staffId) {
+    public Optional<StaffDetail> findByStaffId(final Long staffId) {
         Validate.notNull(staffId, "A staff id is required in order to retrieve staff details.");
 
-        String sql = getQuery("FIND_STAFF_BY_STAFF_ID");
+        final var sql = getQuery("FIND_STAFF_BY_STAFF_ID");
 
         StaffDetail staffDetail;
 
@@ -55,7 +54,7 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
                     sql,
                     createParams("staffId", staffId),
                     STAFF_DETAIL_ROW_MAPPER);
-        } catch (EmptyResultDataAccessException ex) {
+        } catch (final EmptyResultDataAccessException ex) {
             staffDetail = null;
         }
 
@@ -63,11 +62,11 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
     }
 
     @Override
-    public Optional<StaffDetail> findStaffByPersonnelIdentifier(String idType, String id) {
+    public Optional<StaffDetail> findStaffByPersonnelIdentifier(final String idType, final String id) {
         Validate.notBlank(idType, "An id type is required.");
         Validate.notBlank(id, "An id is required.");
 
-        String sql = getQuery("FIND_STAFF_BY_PERSONNEL_IDENTIFIER");
+        final var sql = getQuery("FIND_STAFF_BY_PERSONNEL_IDENTIFIER");
 
         StaffDetail staffDetail;
 
@@ -76,9 +75,9 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
                     sql,
                     createParams("idType", idType, "id", id),
                     STAFF_DETAIL_ROW_MAPPER);
-        } catch (EmptyResultDataAccessException ex) {
+        } catch (final EmptyResultDataAccessException ex) {
             staffDetail = null;
-        } catch (IncorrectResultSizeDataAccessException ex) {
+        } catch (final IncorrectResultSizeDataAccessException ex) {
             log.error("Duplicate personnel identification records found for idType [{}] and id [{}].", idType, id);
             staffDetail = null;
         }
@@ -86,31 +85,31 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
         return Optional.ofNullable(staffDetail);
     }
 
-    public List<String> findEmailAddressesForStaffId(Long staffId) {
+    public List<String> findEmailAddressesForStaffId(final Long staffId) {
 
         return jdbcTemplate.query(getQuery("GET_STAFF_EMAIL_ADDRESSES"), createParams("staffId", staffId, "ownerClass", "STF", "addressClass", "EMAIL"), (rs, rowNum) -> rs.getString(1));
    }
 
     @Override
-    public Page<StaffLocationRole> findStaffByAgencyPositionRole(String agencyId, String position, String role, String nameFilter, Long staffId, Boolean activeOnly, PageRequest pageRequest) {
+    public Page<StaffLocationRole> findStaffByAgencyPositionRole(final String agencyId, final String position, final String role, final String nameFilter, final Long staffId, final Boolean activeOnly, final PageRequest pageRequest) {
         Validate.notBlank(agencyId, "An agency id is required.");
         Validate.notBlank(position, "A position code is required.");
         Validate.notBlank(role, "A role code is required.");
         Validate.notNull(pageRequest, "Page request details are required.");
 
-        String baseSql = applyStaffIdFilterQuery(applyNameFilterQuery(getQuery("FIND_STAFF_BY_AGENCY_POSITION_ROLE"), nameFilter), staffId);
+        var baseSql = applyStaffIdFilterQuery(applyNameFilterQuery(getQuery("FIND_STAFF_BY_AGENCY_POSITION_ROLE"), nameFilter), staffId);
         baseSql = applyActiveClause(baseSql, activeOnly);
 
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(baseSql, STAFF_LOCATION_ROLE_ROW_MAPPER.getFieldMap());
-        String sql = builder
+        final var builder = queryBuilderFactory.getQueryBuilder(baseSql, STAFF_LOCATION_ROLE_ROW_MAPPER.getFieldMap());
+        final var sql = builder
                 .addRowCount()
                 .addOrderBy(pageRequest)
                 .addPagination()
                 .build();
 
-        PageAwareRowMapper<StaffLocationRole> paRowMapper = new PageAwareRowMapper<>(STAFF_LOCATION_ROLE_ROW_MAPPER);
+        final var paRowMapper = new PageAwareRowMapper<StaffLocationRole>(STAFF_LOCATION_ROLE_ROW_MAPPER);
 
-        List<StaffLocationRole> staffDetails = jdbcTemplate.query(
+        final var staffDetails = jdbcTemplate.query(
                 sql,
                 createParamSource(pageRequest, "agencyId", agencyId, "position", position, "role", role),
                 paRowMapper);
@@ -120,24 +119,24 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
     }
 
     @Override
-    public Page<StaffLocationRole> findStaffByAgencyRole(String agencyId, String role, String nameFilter, Long staffId, Boolean activeOnly, PageRequest pageRequest) {
+    public Page<StaffLocationRole> findStaffByAgencyRole(final String agencyId, final String role, final String nameFilter, final Long staffId, final Boolean activeOnly, final PageRequest pageRequest) {
         Validate.notBlank(agencyId, "An agency id is required.");
         Validate.notBlank(role, "A role code is required.");
         Validate.notNull(pageRequest, "Page request details are required.");
 
-        String baseSql = applyStaffIdFilterQuery(applyNameFilterQuery(getQuery("FIND_STAFF_BY_AGENCY_AND_ROLE"), nameFilter), staffId);
+        var baseSql = applyStaffIdFilterQuery(applyNameFilterQuery(getQuery("FIND_STAFF_BY_AGENCY_AND_ROLE"), nameFilter), staffId);
         baseSql = applyActiveClause(baseSql, activeOnly);
 
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(baseSql, STAFF_LOCATION_ROLE_ROW_MAPPER.getFieldMap());
-        String sql = builder
+        final var builder = queryBuilderFactory.getQueryBuilder(baseSql, STAFF_LOCATION_ROLE_ROW_MAPPER.getFieldMap());
+        final var sql = builder
                 .addRowCount()
                 .addOrderBy(pageRequest)
                 .addPagination()
                 .build();
 
-        PageAwareRowMapper<StaffLocationRole> paRowMapper = new PageAwareRowMapper<>(STAFF_LOCATION_ROLE_ROW_MAPPER);
+        final var paRowMapper = new PageAwareRowMapper<StaffLocationRole>(STAFF_LOCATION_ROLE_ROW_MAPPER);
 
-        List<StaffLocationRole> staffDetails = jdbcTemplate.query(
+        final var staffDetails = jdbcTemplate.query(
                 sql,
                 createParamSource(pageRequest, "agencyId", agencyId, "role", role),
                 paRowMapper);
@@ -147,11 +146,11 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
     }
 
     @Override
-    public List<StaffRole> getAllRolesForAgency(Long staffId, String agencyId) {
+    public List<StaffRole> getAllRolesForAgency(final Long staffId, final String agencyId) {
         Validate.notNaN(staffId, "A staffId code is required.");
         Validate.notBlank(agencyId, "An agency id is required.");
 
-        String sql = getQuery("GET_STAFF_ROLES_FOR_AGENCY");
+        final var sql = getQuery("GET_STAFF_ROLES_FOR_AGENCY");
 
         return jdbcTemplate.query(
                 sql,
@@ -159,19 +158,19 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
                 STAFF_ROLES_MAPPER);
     }
 
-    private String applyNameFilterQuery(String baseSql, String nameFilter) {
-        String nameFilterQuery = baseSql;
+    private String applyNameFilterQuery(final String baseSql, final String nameFilter) {
+        var nameFilterQuery = baseSql;
 
         if (StringUtils.isNotBlank(nameFilter)) {
-            String upperNameFilter = StringEscapeUtils.escapeSql(nameFilter.toUpperCase());
+            final var upperNameFilter = StringEscapeUtils.escapeSql(nameFilter.toUpperCase());
 
             nameFilterQuery += String.format(NAME_FILTER_QUERY_TEMPLATE, upperNameFilter, upperNameFilter);
         }
         return nameFilterQuery;
     }
 
-    private String applyStaffIdFilterQuery(String baseSql, Long staffIdFilter) {
-        String nameFilterQuery = baseSql;
+    private String applyStaffIdFilterQuery(final String baseSql, final Long staffIdFilter) {
+        var nameFilterQuery = baseSql;
 
         if (staffIdFilter != null) {
             nameFilterQuery += String.format(STAFF_ID_FILTER_QUERY_TEMPLATE, staffIdFilter);
@@ -179,8 +178,8 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
         return nameFilterQuery;
     }
 
-    private String applyActiveClause(String baseSql, Boolean activeOnly) {
-        String query = baseSql;
+    private String applyActiveClause(final String baseSql, final Boolean activeOnly) {
+        var query = baseSql;
 
         if (activeOnly != null && activeOnly) {
             query += ACTIVE_FILTER_CLAUSE;

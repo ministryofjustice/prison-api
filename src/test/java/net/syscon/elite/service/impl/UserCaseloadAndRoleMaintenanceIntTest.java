@@ -10,8 +10,6 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Set;
-
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @ActiveProfiles("nomis-hsqldb")
@@ -25,18 +23,18 @@ public class UserCaseloadAndRoleMaintenanceIntTest {
     @Test
     @WithUserDetails("ITAG_USER")
     public void testGetSpecificRoles() {
-        Set<String> users = userService.getAllUsernamesForCaseloadAndRole("NWEB", "KW_ADMIN");
+        final var users = userService.getAllUsernamesForCaseloadAndRole("NWEB", "KW_ADMIN");
         assertThat(users).containsExactly("API_TEST_USER", "ITAG_USER");
     }
 
     @Test
     @WithMockUser(username="ITAG_USER",roles={"MAINTAIN_ACCESS_ROLES"})
     public void addAndRemoveRoleFromStaffMember() {
-        Set<String> users = userService.getAllUsernamesForCaseloadAndRole("NWEB", "LICENCE_CA");
+        var users = userService.getAllUsernamesForCaseloadAndRole("NWEB", "LICENCE_CA");
         assertThat(users).hasSize(1);
         assertThat(users).containsExactly("CA_USER");
 
-        boolean added = userService.addAccessRole("ITAG_USER", "LICENCE_CA");
+        final var added = userService.addAccessRole("ITAG_USER", "LICENCE_CA");
         assertThat(added).isTrue();
 
         users = userService.getAllUsernamesForCaseloadAndRole("NWEB", "LICENCE_CA");

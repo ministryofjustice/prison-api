@@ -6,7 +6,6 @@ import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,19 +18,19 @@ public class FinanceSteps extends CommonSteps {
     private Account result;
 
     @Step("Get offender account balances")
-    public void getAccount(Long bookingId) {
+    public void getAccount(final Long bookingId) {
         doSingleResultApiCall(API_BOOKING_PREFIX + bookingId + "/balances");
     }
 
-    private void doSingleResultApiCall(String url) {
+    private void doSingleResultApiCall(final String url) {
         init();
         try {
-            ResponseEntity<Account> response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
+            final var response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
                     new ParameterizedTypeReference<Account>() {
                     });
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             result = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -42,7 +41,7 @@ public class FinanceSteps extends CommonSteps {
         result = null;
     }
 
-    public void verifyField(String field, String expectedValue) throws ReflectiveOperationException {
+    public void verifyField(final String field, final String expectedValue) throws ReflectiveOperationException {
         super.verifyField(result, field, expectedValue);
     }
 }

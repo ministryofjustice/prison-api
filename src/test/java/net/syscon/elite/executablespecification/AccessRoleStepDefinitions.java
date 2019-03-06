@@ -16,7 +16,7 @@ public class AccessRoleStepDefinitions extends AbstractStepDefinitions {
     private AccessRoleSteps steps;
 
     @When("^an access role creation request is made with role code \"([^\"]*)\"$")
-    public void anAccessRoleCreationRequestIsMadeWithRoleCode(String roleCode) {
+    public void anAccessRoleCreationRequestIsMadeWithRoleCode(final String roleCode) {
         steps.createAccessRole(roleCode, "roleName", null);
     }
 
@@ -36,7 +36,7 @@ public class AccessRoleStepDefinitions extends AbstractStepDefinitions {
     }
 
     @When("^an update access role request is made with role code \"([^\"]*)\" and role name \"([^\"]*)\"$")
-    public void anUpdateAccessRoleCreationRequestIsMadeWithRoleCodeAndRoleName(String roleCode, String roleName) {
+    public void anUpdateAccessRoleCreationRequestIsMadeWithRoleCodeAndRoleName(final String roleCode, final String roleName) {
         steps.updateAccessRole(roleCode, roleName);
     }
 

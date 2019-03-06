@@ -62,7 +62,7 @@ public class Award {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -75,7 +75,7 @@ public class Award {
         return sanctionCode;
     }
 
-    public void setSanctionCode(String sanctionCode) {
+    public void setSanctionCode(final String sanctionCode) {
         this.sanctionCode = sanctionCode;
     }
 
@@ -88,7 +88,7 @@ public class Award {
         return sanctionCodeDescription;
     }
 
-    public void setSanctionCodeDescription(String sanctionCodeDescription) {
+    public void setSanctionCodeDescription(final String sanctionCodeDescription) {
         this.sanctionCodeDescription = sanctionCodeDescription;
     }
 
@@ -101,7 +101,7 @@ public class Award {
         return months;
     }
 
-    public void setMonths(Integer months) {
+    public void setMonths(final Integer months) {
         this.months = months;
     }
 
@@ -114,7 +114,7 @@ public class Award {
         return days;
     }
 
-    public void setDays(Integer days) {
+    public void setDays(final Integer days) {
         this.days = days;
     }
 
@@ -127,7 +127,7 @@ public class Award {
         return limit;
     }
 
-    public void setLimit(BigDecimal limit) {
+    public void setLimit(final BigDecimal limit) {
         this.limit = limit;
     }
 
@@ -140,7 +140,7 @@ public class Award {
         return comment;
     }
 
-    public void setComment(String comment) {
+    public void setComment(final String comment) {
         this.comment = comment;
     }
 
@@ -153,7 +153,7 @@ public class Award {
         return effectiveDate;
     }
 
-    public void setEffectiveDate(LocalDate effectiveDate) {
+    public void setEffectiveDate(final LocalDate effectiveDate) {
         this.effectiveDate = effectiveDate;
     }
 
@@ -166,7 +166,7 @@ public class Award {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(final String status) {
         this.status = status;
     }
 
@@ -179,7 +179,7 @@ public class Award {
         return statusDescription;
     }
 
-    public void setStatusDescription(String statusDescription) {
+    public void setStatusDescription(final String statusDescription) {
         this.statusDescription = statusDescription;
     }
 
@@ -192,7 +192,7 @@ public class Award {
         return hearingId;
     }
 
-    public void setHearingId(Long hearingId) {
+    public void setHearingId(final Long hearingId) {
         this.hearingId = hearingId;
     }
 
@@ -205,13 +205,13 @@ public class Award {
         return hearingSequence;
     }
 
-    public void setHearingSequence(Integer hearingSequence) {
+    public void setHearingSequence(final Integer hearingSequence) {
         this.hearingSequence = hearingSequence;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class Award {\n");
         

@@ -1,6 +1,5 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.Location;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,8 +14,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -39,7 +36,7 @@ public class LocationRepositoryTest {
 
     @Test
     public void testFindLocationsByAgencyAndType() {
-        final List<Location> result = repository.findLocationsByAgencyAndType("LEI", "CELL", false);
+        final var result = repository.findLocationsByAgencyAndType("LEI", "CELL", false);
         assertEquals(30, result.size());
         assertEquals("LEI-A-1-1", result.get(0).getLocationPrefix());
     }

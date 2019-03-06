@@ -9,7 +9,6 @@ import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
@@ -50,20 +49,20 @@ public class UserSteps extends CommonSteps {
     }
 
     @Step("Verify current user details")
-    public void verifyDetails(String username, String firstName, String lastName) {
+    public void verifyDetails(final String username, final String firstName, final String lastName) {
         try {
-            ResponseEntity<UserDetail> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     API_USERS_ME_REQUEST_URL,
                     HttpMethod.GET,
                     createEntity(),
                     UserDetail.class);
 
-            UserDetail userDetails = response.getBody();
+            final var userDetails = response.getBody();
 
             assertThat(userDetails.getUsername()).isEqualToIgnoringCase(username);
             assertThat(userDetails).hasFieldOrPropertyWithValue("firstName", firstName);
             assertThat(userDetails).hasFieldOrPropertyWithValue("lastName", lastName);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -74,27 +73,27 @@ public class UserSteps extends CommonSteps {
     }
 
     @Step("Verify location agency ids")
-    public void verifyLocationAgencies(String agencies) {
+    public void verifyLocationAgencies(final String agencies) {
         verifyPropertyValues(userLocations, Location::getAgencyId, agencies);
     }
 
     @Step("Verify location desscriptions")
-    public void verifyLocationDescriptions(String descriptions) {
+    public void verifyLocationDescriptions(final String descriptions) {
         verifyPropertyValues(userLocations, Location::getDescription, descriptions);
     }
 
     @Step("Verify location prefixes")
-    public void verifyLocationPrefixes(String prefixes) {
+    public void verifyLocationPrefixes(final String prefixes) {
         verifyPropertyValues(userLocations, Location::getLocationPrefix, prefixes);
     }
 
     @Step("Get roles for current user")
-    public void getUserRoles(boolean allRoles) {
+    public void getUserRoles(final boolean allRoles) {
         dispatchUserRolesRequest(allRoles);
     }
 
     @Step("Verify roles retrieved for current user")
-    public void verifyRoles(String roles) {
+    public void verifyRoles(final String roles) {
         verifyPropertyValues(userRoles, UserRole::getRoleCode, roles);
     }
 
@@ -110,69 +109,69 @@ public class UserSteps extends CommonSteps {
         assertThat(caseNoteTypes.stream().filter(type -> type.getSubCodes().isEmpty()).count()).isEqualTo(0);
     }
 
-    public void getUsersByCaseload(String caseloadId, String roleCode, String nameFilter, boolean localAdministratorUsersOnly) {
+    public void getUsersByCaseload(final String caseloadId, final String roleCode, final String nameFilter, final boolean localAdministratorUsersOnly) {
         dispatchUsersByCaseloadRequest(caseloadId, roleCode, nameFilter, localAdministratorUsersOnly);
     }
 
-    public void getUsersByLaa(String roleCode, String nameFilter) {
+    public void getUsersByLaa(final String roleCode, final String nameFilter) {
         dispatchUsersByCaseloadRequest(null, roleCode, nameFilter, true);
     }
 
-    public void getUsers(String roleCode, String nameFilter, boolean localAdministratorUsersOnly) {
+    public void getUsers(final String roleCode, final String nameFilter, final boolean localAdministratorUsersOnly) {
         dispatchUsersRequest(roleCode, nameFilter);
     }
 
-    public void getRolesByUserAndCaseload(String username, String caseload) {
+    public void getRolesByUserAndCaseload(final String username, final String caseload) {
         dispatchRolesByUserAndCaseloadRequest(username, caseload);
     }
 
     //    @Step("Find usernames having role at caseload")
-    public void findUsernamesHavingRoleAtCaseload(String role, String caseload) {
+    public void findUsernamesHavingRoleAtCaseload(final String role, final String caseload) {
         dispatchUsernamesHavingRoleAtCaseloadRequest(role, caseload);
     }
 
     //    @Step("Verify usernames")
-    public void verifyUsernames(String expectedUsernames) {
+    public void verifyUsernames(final String expectedUsernames) {
         verifyIdentical(usernames, csv2list(expectedUsernames));
     }
 
-    public void assignApiRoleToUser(String role, String username) {
+    public void assignApiRoleToUser(final String role, final String username) {
         dispatchAssignApiRoleToUser(role, username);
     }
 
-    public void assignAccessRoleToUser(String role, String username, String caseloadId) {
+    public void assignAccessRoleToUser(final String role, final String username, final String caseloadId) {
         dispatchAssignAccessRoleToUserForCaseload(role, username, caseloadId);
     }
 
-    public void removeRole(String role, String username, String caseload) {
+    public void removeRole(final String role, final String username, final String caseload) {
         dispatchRemoveRoleFromUserAtCaseload(role, username, caseload);
     }
 
-    public void verifyApiRoleAssignment(String username, String role) {
+    public void verifyApiRoleAssignment(final String username, final String role) {
         dispatchUsernamesHavingRoleAtCaseloadRequest(role, "NWEB");
         assertThat(username).isIn(usernames);
     }
 
-    public void verifyAccessRoleAssignment(String username, String role, String caseload) {
+    public void verifyAccessRoleAssignment(final String username, final String role, final String caseload) {
         dispatchUsernamesHavingRoleAtCaseloadRequest(role,caseload);
         assertThat(username).isIn(usernames);
     }
 
-    public void userDoesNotHaveRoleAtCaseload(String username, String role, String caseload) {
+    public void userDoesNotHaveRoleAtCaseload(final String username, final String role, final String caseload) {
         dispatchUsernamesHavingRoleAtCaseloadRequest(role, caseload);
         assertThat(username).isNotIn(usernames);
 
     }
 
-    public void verifyUserList(String expectedUsernames) {
+    public void verifyUserList(final String expectedUsernames) {
         assertThat(userDetails).extracting("username").containsOnlyElementsOf(csv2list(expectedUsernames));
     }
 
-    public void verifyRoleList(String expectedRoleCodes) {
+    public void verifyRoleList(final String expectedRoleCodes) {
         assertThat(userRoles).extracting("roleCode").containsOnlyElementsOf(csv2list(expectedRoleCodes));
     }
 
-    private void dispatchRemoveRoleFromUserAtCaseload(String role, String username, String caseload) {
+    private void dispatchRemoveRoleFromUserAtCaseload(final String role, final String username, final String caseload) {
         init();
 
         restTemplate.exchange(
@@ -186,7 +185,7 @@ public class UserSteps extends CommonSteps {
     }
 
 
-    private void dispatchAssignApiRoleToUser(String role, String username) {
+    private void dispatchAssignApiRoleToUser(final String role, final String username) {
         init();
 
         restTemplate.exchange(
@@ -198,7 +197,7 @@ public class UserSteps extends CommonSteps {
                 role);
     }
 
-    private void dispatchAssignAccessRoleToUserForCaseload(String role, String username, String caseloadId) {
+    private void dispatchAssignAccessRoleToUserForCaseload(final String role, final String username, final String caseloadId) {
         init();
         try{
 
@@ -210,16 +209,16 @@ public class UserSteps extends CommonSteps {
                     username,
                     caseloadId,
                     role);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
 
-    private void dispatchUsernamesHavingRoleAtCaseloadRequest(String role, String caseload) {
+    private void dispatchUsernamesHavingRoleAtCaseloadRequest(final String role, final String caseload) {
         init();
 
-        ResponseEntity<List<String>> response = restTemplate.exchange(
+        final var response = restTemplate.exchange(
                 API_USERS_USERNAMES_HAVING_ROLE_AT_CASELOAD,
                 HttpMethod.GET,
                 createEntity(),
@@ -231,17 +230,17 @@ public class UserSteps extends CommonSteps {
         usernames = response.getBody();
     }
 
-    private void dispatchUsersByCaseloadRequest(String caseload, String role, String nameFilter, boolean localAdministratorUsers) {
+    private void dispatchUsersByCaseloadRequest(final String caseload, final String role, final String nameFilter, final boolean localAdministratorUsers) {
         init();
         var url = localAdministratorUsers ? API_LOCAL_ADMINISTRATOR_USERS : API_USERS_AT_CASELOAD;
 
         if(StringUtils.isNotBlank(role) || StringUtils.isNotBlank(nameFilter)) {
-            String queryParameters = buildQueryStringParameters(ImmutableMap.of("accessRole", role,"nameFilter", nameFilter));
+            final var queryParameters = buildQueryStringParameters(ImmutableMap.of("accessRole", role, "nameFilter", nameFilter));
             if(StringUtils.isNotBlank(queryParameters))
                 url += String.format("?=%s", queryParameters);
         }
 
-        var response = restTemplate.exchange(
+        final var response = restTemplate.exchange(
                 url,
                 HttpMethod.GET,
                 createEntity(),
@@ -252,20 +251,20 @@ public class UserSteps extends CommonSteps {
         userDetails = response.getBody();
     }
 
-    private void dispatchUsersRequest(String role, String nameFilter) {
+    private void dispatchUsersRequest(final String role, final String nameFilter) {
         init();
-        String url = API_USERS;
+        var url = API_USERS;
 
         if(StringUtils.isNotBlank(role) || StringUtils.isNotBlank(nameFilter)) {
-            String queryParameters = buildQueryStringParameters(ImmutableMap.of("accessRole", role,"nameFilter", nameFilter));
+            final var queryParameters = buildQueryStringParameters(ImmutableMap.of("accessRole", role, "nameFilter", nameFilter));
             if(StringUtils.isNotBlank(queryParameters))
                 url += String.format("?=%", queryParameters);
         }
 
         applyPagination(0L, 100L);
-        HttpEntity<?> httpEntity = createEntity(null, addPaginationHeaders());
+        final var httpEntity = createEntity(null, addPaginationHeaders());
 
-        ResponseEntity<List<UserDetail>> response = restTemplate.exchange(
+        final var response = restTemplate.exchange(
                 url,
                 HttpMethod.GET,
                 httpEntity,
@@ -274,10 +273,10 @@ public class UserSteps extends CommonSteps {
         userDetails = response.getBody();
     }
 
-    private void dispatchRolesByUserAndCaseloadRequest(String username, String caseload) {
+    private void dispatchRolesByUserAndCaseloadRequest(final String username, final String caseload) {
         init();
 
-        ResponseEntity<List<UserRole>> response = restTemplate.exchange(
+        final var response = restTemplate.exchange(
                 API_ROLES_BY_USERS_AT_CASELOAD,
                 HttpMethod.GET,
                 createEntity(),
@@ -289,11 +288,11 @@ public class UserSteps extends CommonSteps {
         userRoles = response.getBody();
     }
 
-    private void dispatchUserRolesRequest(boolean allRoles) {
+    private void dispatchUserRolesRequest(final boolean allRoles) {
         init();
 
         try {
-            ResponseEntity<List<UserRole>> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     API_USERS_ME_ROLES_REQUEST_URL + (allRoles ? "?allRoles=true" : ""),
                     HttpMethod.GET,
                     createEntity(),
@@ -303,7 +302,7 @@ public class UserSteps extends CommonSteps {
             userRoles = response.getBody();
 
             buildResourceData(response);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -312,7 +311,7 @@ public class UserSteps extends CommonSteps {
         init();
 
         try {
-            ResponseEntity<List<Location>> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     API_USERS_ME_LOCATIONS_REQUEST_URL,
                     HttpMethod.GET,
                     createEntity(),
@@ -322,7 +321,7 @@ public class UserSteps extends CommonSteps {
             userLocations = response.getBody();
 
             buildResourceData(response);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -330,7 +329,7 @@ public class UserSteps extends CommonSteps {
     private void dispatchUserCaseNoteTypesRequest() {
         init();
 
-        ResponseEntity<List<ReferenceCode>> response;
+        final ResponseEntity<List<ReferenceCode>> response;
 
         try {
             response = restTemplate.exchange(
@@ -343,7 +342,7 @@ public class UserSteps extends CommonSteps {
             caseNoteTypes = response.getBody();
 
             buildResourceData(response);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

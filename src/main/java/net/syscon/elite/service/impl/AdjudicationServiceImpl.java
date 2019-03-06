@@ -12,8 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -26,7 +24,7 @@ public class AdjudicationServiceImpl implements AdjudicationService {
     @Value("${api.cutoff.award.months:0}") private int awardCutoffDefault;
 
     @Autowired
-    public AdjudicationServiceImpl(AdjudicationsRepository adjudicationsRepository) {
+    public AdjudicationServiceImpl(final AdjudicationsRepository adjudicationsRepository) {
         this.repository = adjudicationsRepository;
     }
 
@@ -36,24 +34,24 @@ public class AdjudicationServiceImpl implements AdjudicationService {
      */
     @Override
     @VerifyBookingAccess
-    public AdjudicationDetail getAdjudications(Long bookingId, LocalDate awardCutoffDateParam, LocalDate adjudicationCutoffDateParam) {
-        final List<Award> list = repository.findAwards(bookingId);
-        final LocalDate today = LocalDate.now();
-        LocalDate awardCutoffDate = awardCutoffDateParam;
+    public AdjudicationDetail getAdjudications(final Long bookingId, final LocalDate awardCutoffDateParam, final LocalDate adjudicationCutoffDateParam) {
+        final var list = repository.findAwards(bookingId);
+        final var today = LocalDate.now();
+        var awardCutoffDate = awardCutoffDateParam;
         if (awardCutoffDate == null) {
             awardCutoffDate = today.plus(-awardCutoffDefault, ChronoUnit.MONTHS);
         }
-        LocalDate adjudicationCutoffDate = adjudicationCutoffDateParam;
+        var adjudicationCutoffDate = adjudicationCutoffDateParam;
         if (adjudicationCutoffDate == null) {
             adjudicationCutoffDate = today.plus(-adjudicationCutoffDefault, ChronoUnit.MONTHS);
         }
-        final Iterator<Award> iterator = list.iterator();
-        int adjudicationCount = 0;
+        final var iterator = list.iterator();
+        var adjudicationCount = 0;
         Award previous = null;
 
         while (iterator.hasNext()) {
-            final Award current = iterator.next();
-            final LocalDate endDate = calculateEndDate(current);
+            final var current = iterator.next();
+            final var endDate = calculateEndDate(current);
 
             if (!adjudicationCutoffDate.isAfter(endDate) && changed(previous, current)) {
                 adjudicationCount++;
@@ -67,7 +65,7 @@ public class AdjudicationServiceImpl implements AdjudicationService {
     }
 
     private LocalDate calculateEndDate(final Award award) {
-        LocalDate endDate = award.getEffectiveDate();
+        var endDate = award.getEffectiveDate();
         if (award.getMonths() != null) {
             endDate = endDate.plus(award.getMonths(), ChronoUnit.MONTHS);
         }
@@ -77,7 +75,7 @@ public class AdjudicationServiceImpl implements AdjudicationService {
         return endDate;
     }
 
-    private boolean changed(Award previous, Award current) {
+    private boolean changed(final Award previous, final Award current) {
         return previous == null || !Objects.equals(previous.getHearingId(), current.getHearingId());
         // Note we only consider the hearing id, not the sequence number as we only
         // expect at most one proved adjudication in the sequence list

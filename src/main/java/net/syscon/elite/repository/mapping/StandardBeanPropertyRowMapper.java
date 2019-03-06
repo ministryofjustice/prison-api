@@ -22,7 +22,7 @@ public class StandardBeanPropertyRowMapper<T> extends BeanPropertyRowMapper<T> {
      *
      * @param mappedClass the class that each row should be mapped to
      */
-    public StandardBeanPropertyRowMapper(Class<T> mappedClass) {
+    public StandardBeanPropertyRowMapper(final Class<T> mappedClass) {
         super(mappedClass);
     }
 
@@ -35,15 +35,15 @@ public class StandardBeanPropertyRowMapper<T> extends BeanPropertyRowMapper<T> {
      * @param mappedClass the mapped class
      */
     @Override
-    protected void initialize(Class<T> mappedClass) {
+    protected void initialize(final Class<T> mappedClass) {
         super.initialize(mappedClass);
 
-        ImmutableMap.Builder<String,FieldMapper> fieldMapBuilder = new ImmutableMap.Builder<>();
-        PropertyDescriptor[] pds = BeanUtils.getPropertyDescriptors(mappedClass);
+        final var fieldMapBuilder = new ImmutableMap.Builder<String, FieldMapper>();
+        final var pds = BeanUtils.getPropertyDescriptors(mappedClass);
 
-        for (PropertyDescriptor pd : pds) {
+        for (final var pd : pds) {
             if ((pd.getWriteMethod() != null) && !StringUtils.equals(pd.getName(), "additionalProperties")) {
-                String underscoredName = underscoreName(pd.getName());
+                final var underscoredName = underscoreName(pd.getName());
 
                 fieldMapBuilder.put(underscoredName.toUpperCase(), new FieldMapper(pd.getName()));
             }
@@ -53,14 +53,14 @@ public class StandardBeanPropertyRowMapper<T> extends BeanPropertyRowMapper<T> {
     }
 
     @Override
-    public T mapRow(ResultSet rs, int rowNumber) throws SQLException {
+    public T mapRow(final ResultSet rs, final int rowNumber) throws SQLException {
         return super.mapRow(rs, rowNumber);
     }
 
     @Override
-    protected Object getColumnValue(ResultSet rs, int index, PropertyDescriptor pd) throws SQLException {
-        Object colValue;
-        Class<?> clazz = pd.getPropertyType();
+    protected Object getColumnValue(final ResultSet rs, final int index, final PropertyDescriptor pd) throws SQLException {
+        final Object colValue;
+        final var clazz = pd.getPropertyType();
 
         if (LocalDate.class == clazz) {
             colValue = DateTimeConverter.toISO8601LocalDate(rs.getObject(index));

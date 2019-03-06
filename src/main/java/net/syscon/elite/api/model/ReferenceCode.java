@@ -52,7 +52,7 @@ public class ReferenceCode {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -65,7 +65,7 @@ public class ReferenceCode {
         return domain;
     }
 
-    public void setDomain(String domain) {
+    public void setDomain(final String domain) {
         this.domain = domain;
     }
 
@@ -78,7 +78,7 @@ public class ReferenceCode {
         return code;
     }
 
-    public void setCode(String code) {
+    public void setCode(final String code) {
         this.code = code;
     }
 
@@ -91,7 +91,7 @@ public class ReferenceCode {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
@@ -104,7 +104,7 @@ public class ReferenceCode {
         return parentDomain;
     }
 
-    public void setParentDomain(String parentDomain) {
+    public void setParentDomain(final String parentDomain) {
         this.parentDomain = parentDomain;
     }
 
@@ -117,7 +117,7 @@ public class ReferenceCode {
         return parentCode;
     }
 
-    public void setParentCode(String parentCode) {
+    public void setParentCode(final String parentCode) {
         this.parentCode = parentCode;
     }
 
@@ -130,7 +130,7 @@ public class ReferenceCode {
         return activeFlag;
     }
 
-    public void setActiveFlag(String activeFlag) {
+    public void setActiveFlag(final String activeFlag) {
         this.activeFlag = activeFlag;
     }
 
@@ -143,13 +143,13 @@ public class ReferenceCode {
         return subCodes;
     }
 
-    public void setSubCodes(List<ReferenceCode> subCodes) {
+    public void setSubCodes(final List<ReferenceCode> subCodes) {
         this.subCodes = subCodes;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class ReferenceCode {\n");
         

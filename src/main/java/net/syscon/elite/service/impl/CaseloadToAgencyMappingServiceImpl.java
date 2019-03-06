@@ -16,13 +16,13 @@ public class CaseloadToAgencyMappingServiceImpl implements CaseloadToAgencyMappi
     private final AgencyService agencyService;
     private final CaseLoadService caseLoadService;
 
-    public CaseloadToAgencyMappingServiceImpl(AgencyService agencyService, CaseLoadService caseLoadService) {
+    public CaseloadToAgencyMappingServiceImpl(final AgencyService agencyService, final CaseLoadService caseLoadService) {
         this.agencyService = agencyService;
         this.caseLoadService = caseLoadService;
     }
 
     @Override
-    public List<Agency> agenciesForUsersWorkingCaseload(String username) {
+    public List<Agency> agenciesForUsersWorkingCaseload(final String username) {
             return caseLoadService
                     .getWorkingCaseLoadForUser(username)
                     .map(CaseLoad::getCaseLoadId)

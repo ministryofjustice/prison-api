@@ -5,7 +5,6 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.LocationRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.elite.service.support.LocationProcessor;
-import net.syscon.util.IQueryBuilder;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
@@ -19,51 +18,51 @@ public class LocationRepositoryImpl extends RepositoryBase implements LocationRe
 			new StandardBeanPropertyRowMapper<>(Location.class);
 
 	@Override
-	public Optional<Location> getLocation(long locationId) {
-		String sql = getQuery("GET_LOCATION");
+    public Optional<Location> getLocation(final long locationId) {
+        final var sql = getQuery("GET_LOCATION");
 
 		try {
-			Location rawLocation = jdbcTemplate.queryForObject(
+            final var rawLocation = jdbcTemplate.queryForObject(
 					sql,
 					createParams("locationId", locationId),
 					LOCATION_ROW_MAPPER);
 
 			return Optional.of( LocationProcessor.processLocation(rawLocation, true));
-		} catch (EmptyResultDataAccessException e) {
+        } catch (final EmptyResultDataAccessException e) {
 			return Optional.empty();
 		}
 	}
 
 	@Override
-	public Optional<Location> findLocation(long locationId, String username) {
-		String sql = getQuery("FIND_LOCATION");
+    public Optional<Location> findLocation(final long locationId, final String username) {
+        final var sql = getQuery("FIND_LOCATION");
 
 		try {
-			Location rawLocation = jdbcTemplate.queryForObject(
+            final var rawLocation = jdbcTemplate.queryForObject(
 					sql,
 					createParams("locationId", locationId, "username", username),
                     LOCATION_ROW_MAPPER);
 
 			return Optional.of(LocationProcessor.processLocation(rawLocation, true));
-		} catch (EmptyResultDataAccessException e) {
+        } catch (final EmptyResultDataAccessException e) {
 			return Optional.empty();
 		}
 	}
 
 	@Override
 	@Cacheable("findLocationsByAgencyAndType")
-	public List<Location> findLocationsByAgencyAndType(String agencyId, String locationType, boolean noParentLocation) {
-		String initialSql = getQuery("FIND_LOCATIONS_BY_AGENCY_AND_TYPE");
-		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, LOCATION_ROW_MAPPER);
+    public List<Location> findLocationsByAgencyAndType(final String agencyId, final String locationType, final boolean noParentLocation) {
+        final var initialSql = getQuery("FIND_LOCATIONS_BY_AGENCY_AND_TYPE");
+        var builder = queryBuilderFactory.getQueryBuilder(initialSql, LOCATION_ROW_MAPPER);
 
 		if (noParentLocation) {
 			builder = builder.addQuery("parentLocationId:is:null");
 		}
-		String sql = builder
+        final var sql = builder
 				.addOrderBy(Order.ASC, "description")
 				.build();
 
-		List<Location> rawLocations = jdbcTemplate.query(
+        final var rawLocations = jdbcTemplate.query(
 				sql,
 				createParams(
 						"agencyId", agencyId,

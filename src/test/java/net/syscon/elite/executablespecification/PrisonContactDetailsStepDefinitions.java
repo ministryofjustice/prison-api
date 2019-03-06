@@ -25,7 +25,7 @@ public class PrisonContactDetailsStepDefinitions extends AbstractStepDefinitions
     }
 
     @When("^a request is made to retrieve contact details for prison \"([^\"]*)\"$")
-    public void getPrisonContactDetails(String agencyId) {
+    public void getPrisonContactDetails(final String agencyId) {
         agencySteps.getPrisonContactDetails(agencyId);
     }
 

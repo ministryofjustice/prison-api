@@ -7,8 +7,6 @@ import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.executablespecification.steps.BookingEventSteps;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
-
 /**
  * BDD step definitions for finance endpoints:
  * <ul>
@@ -21,17 +19,17 @@ public class BookingEventsStepDefinitions extends AbstractStepDefinitions {
     private BookingEventSteps eventsSteps;
 
     @When("^today's scheduled events are requested for an offender with booking id ([0-9-]+)$")
-    public void todaysScheduledEventsAreRequested(Long bookingId) throws Throwable {
+    public void todaysScheduledEventsAreRequested(final Long bookingId) throws Throwable {
         eventsSteps.getTodaysEvents(bookingId);
     }
 
     @When("^this week's scheduled events are requested for an offender with booking id ([0-9-]+)$")
-    public void thisWeeksScheduledEventsAreRequested(Long bookingId) throws Throwable {
+    public void thisWeeksScheduledEventsAreRequested(final Long bookingId) throws Throwable {
         eventsSteps.getThisWeeksEvents(bookingId);
     }
 
     @When("^next week's scheduled events are requested for an offender with booking id ([0-9-]+)$")
-    public void nextWeeksScheduledEventsAreRequested(Long bookingId) throws Throwable {
+    public void nextWeeksScheduledEventsAreRequested(final Long bookingId) throws Throwable {
         eventsSteps.getNextWeeksEvents(bookingId);
     }
 
@@ -46,8 +44,8 @@ public class BookingEventsStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^events are returned as follows:$")
-    public void eventsAreReturnedAsFollows(DataTable table) throws Throwable {
-        final List<ScheduledEvent> expected = table.asList(ScheduledEvent.class);
+    public void eventsAreReturnedAsFollows(final DataTable table) throws Throwable {
+        final var expected = table.asList(ScheduledEvent.class);
         eventsSteps.verifyEvents(expected);
     }
 }

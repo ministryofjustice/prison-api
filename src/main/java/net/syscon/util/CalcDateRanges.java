@@ -19,7 +19,7 @@ public class CalcDateRanges {
     private final LocalDate dateFrom;
     private final LocalDate dateTo;
 
-    public CalcDateRanges(LocalDate date, LocalDate dateFrom, LocalDate dateTo, int maxYears) {
+    public CalcDateRanges(final LocalDate date, final LocalDate dateFrom, final LocalDate dateTo, final int maxYears) {
         if (date != null) {
             this.dateFrom = date;
             this.dateTo = date;
@@ -50,12 +50,12 @@ public class CalcDateRanges {
         return dateTo;
     }
 
-    private boolean isGreaterThanMaxYearsSpan(LocalDate fromDate, LocalDate toDate, int maxYearsSpan) {
-        long years = YEARS.between(fromDate, toDate);
+    private boolean isGreaterThanMaxYearsSpan(final LocalDate fromDate, final LocalDate toDate, final int maxYearsSpan) {
+        final var years = YEARS.between(fromDate, toDate);
         return years >= maxYearsSpan;
     }
 
-    private LocalDate adjustYears(LocalDate fromLocal, int years) {
+    private LocalDate adjustYears(final LocalDate fromLocal, final int years) {
         return years < 0 ? fromLocal.minusYears(Math.abs(years)) : fromLocal.plusYears(Math.abs(years));
     }
 
@@ -67,24 +67,24 @@ public class CalcDateRanges {
         return hasDateRange() ? Range.between(dateFrom, dateTo, LOCAL_DATE_COMPARATOR) : null;
     }
 
-    public static boolean eventStartsInTimeslot(LocalDateTime start, TimeSlot timeSlot) {
-        final LocalDateTime midday = midday(start.toLocalDate());
-        final LocalDateTime evening = evening(start.toLocalDate());
+    public static boolean eventStartsInTimeslot(final LocalDateTime start, final TimeSlot timeSlot) {
+        final var midday = midday(start.toLocalDate());
+        final var evening = evening(start.toLocalDate());
         return timeSlot == null
                 || (timeSlot == TimeSlot.AM && start.isBefore(midday))
                 || (timeSlot == TimeSlot.PM && !start.isBefore(midday) && start.isBefore(evening))
                 || (timeSlot == TimeSlot.ED && !start.isBefore(evening));
     }
 
-    private static LocalDateTime midday(LocalDate date) {
+    private static LocalDateTime midday(final LocalDate date) {
         return LocalDateTime.of(date, LocalTime.of(12, 0));
     }
 
-    private static LocalDateTime evening(LocalDate date) {
+    private static LocalDateTime evening(final LocalDate date) {
         return LocalDateTime.of(date, LocalTime.of(17, 0));
     }
 
-    public static TimeSlot startTimeToTimeSlot(LocalDateTime time) {
+    public static TimeSlot startTimeToTimeSlot(final LocalDateTime time) {
         if (time.isBefore(midday(time.toLocalDate()))) {
             return TimeSlot.AM;
         } else if (time.isBefore(evening(time.toLocalDate()))) {

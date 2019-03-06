@@ -4,15 +4,15 @@ import java.util.function.Supplier;
 
 public class ConfigException extends RuntimeException implements Supplier<ConfigException> {
 
-    public static ConfigException withMessage(String message) {
+    public static ConfigException withMessage(final String message) {
         return new ConfigException(message);
     }
 
-    public static ConfigException withMessage(String message, Object... args) {
+    public static ConfigException withMessage(final String message, final Object... args) {
         return new ConfigException(String.format(message, args));
     }
 
-    public ConfigException(String message) {
+    public ConfigException(final String message) {
         super(message);
     }
 

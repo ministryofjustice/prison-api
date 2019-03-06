@@ -6,7 +6,6 @@ import net.syscon.elite.repository.FinanceRepository;
 import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.Map;
@@ -23,9 +22,9 @@ public class FinanceRepositoryImpl extends RepositoryBase implements FinanceRepo
 
     @Override
     public Account getBalances(final long bookingId) {
-        final String sql = getQuery("GET_ACCOUNT");
-        final RowMapper<Account> rowMapper = Row2BeanRowMapper.makeMapping(sql, Account.class, accountMapping);
-        final Account balances = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId), rowMapper);
+        final var sql = getQuery("GET_ACCOUNT");
+        final var rowMapper = Row2BeanRowMapper.makeMapping(sql, Account.class, accountMapping);
+        final var balances = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId), rowMapper);
         balances.setCurrency(currency);
         return balances;
     }

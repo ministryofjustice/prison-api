@@ -114,32 +114,37 @@ public interface ScheduleResource {
 
     class GetGroupEventsResponse extends ResponseDelegate {
 
-        private GetGroupEventsResponse(Response response) { super(response); }
-        private GetGroupEventsResponse(Response response, Object entity) { super(response, entity); }
+        private GetGroupEventsResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetGroupEventsResponse respond200WithApplicationJson(List<PrisonerSchedule> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetGroupEventsResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetGroupEventsResponse respond200WithApplicationJson(final List<PrisonerSchedule> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetGroupEventsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetGroupEventsResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetGroupEventsResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetGroupEventsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetGroupEventsResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetGroupEventsResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetGroupEventsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetGroupEventsResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetGroupEventsResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetGroupEventsResponse(responseBuilder.build(), entity);
@@ -148,32 +153,37 @@ public interface ScheduleResource {
 
     class GetLocationEventsResponse extends ResponseDelegate {
 
-        private GetLocationEventsResponse(Response response) { super(response); }
-        private GetLocationEventsResponse(Response response, Object entity) { super(response, entity); }
+        private GetLocationEventsResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetLocationEventsResponse respond200WithApplicationJson(List<PrisonerSchedule> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetLocationEventsResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetLocationEventsResponse respond200WithApplicationJson(final List<PrisonerSchedule> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetLocationEventsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetLocationEventsResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetLocationEventsResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetLocationEventsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetLocationEventsResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetLocationEventsResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetLocationEventsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetLocationEventsResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetLocationEventsResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetLocationEventsResponse(responseBuilder.build(), entity);
@@ -182,11 +192,16 @@ public interface ScheduleResource {
 
     class GetActivitiesResponse extends ResponseDelegate {
 
-        private GetActivitiesResponse(Response response) { super(response); }
-        private GetActivitiesResponse(Response response, Object entity) { super(response, entity); }
+        private GetActivitiesResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetActivitiesResponse respond200WithApplicationJson(List<PrisonerSchedule> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetActivitiesResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetActivitiesResponse respond200WithApplicationJson(final List<PrisonerSchedule> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetActivitiesResponse(responseBuilder.build(), entity);
@@ -195,11 +210,16 @@ public interface ScheduleResource {
 
     class GetAppointmentsResponse extends ResponseDelegate {
 
-        private GetAppointmentsResponse(Response response) { super(response); }
-        private GetAppointmentsResponse(Response response, Object entity) { super(response, entity); }
+        private GetAppointmentsResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetAppointmentsResponse respond200WithApplicationJson(List<PrisonerSchedule> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetAppointmentsResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetAppointmentsResponse respond200WithApplicationJson(final List<PrisonerSchedule> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAppointmentsResponse(responseBuilder.build(), entity);
@@ -208,11 +228,16 @@ public interface ScheduleResource {
 
     class GetCourtEventsResponse extends ResponseDelegate {
 
-        private GetCourtEventsResponse(Response response) { super(response); }
-        private GetCourtEventsResponse(Response response, Object entity) { super(response, entity); }
+        private GetCourtEventsResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetCourtEventsResponse respond200WithApplicationJson(List<PrisonerSchedule> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetCourtEventsResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetCourtEventsResponse respond200WithApplicationJson(final List<PrisonerSchedule> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetCourtEventsResponse(responseBuilder.build(), entity);
@@ -221,11 +246,16 @@ public interface ScheduleResource {
 
     class GetExternalTransfersResponse extends ResponseDelegate {
 
-        private GetExternalTransfersResponse(Response response) { super(response); }
-        private GetExternalTransfersResponse(Response response, Object entity) { super(response, entity); }
+        private GetExternalTransfersResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetExternalTransfersResponse respond200WithApplicationJson(List<PrisonerSchedule> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetExternalTransfersResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetExternalTransfersResponse respond200WithApplicationJson(final List<PrisonerSchedule> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetExternalTransfersResponse(responseBuilder.build(), entity);
@@ -234,11 +264,16 @@ public interface ScheduleResource {
 
     class GetVisitsResponse extends ResponseDelegate {
 
-        private GetVisitsResponse(Response response) { super(response); }
-        private GetVisitsResponse(Response response, Object entity) { super(response, entity); }
+        private GetVisitsResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetVisitsResponse respond200WithApplicationJson(List<PrisonerSchedule> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetVisitsResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetVisitsResponse respond200WithApplicationJson(final List<PrisonerSchedule> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetVisitsResponse(responseBuilder.build(), entity);

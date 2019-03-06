@@ -26,16 +26,16 @@ public class InmateAlertServiceImpl implements InmateAlertService {
     private final InmateAlertRepository inmateAlertRepository;
 
     @Autowired
-    public InmateAlertServiceImpl(InmateAlertRepository inmateAlertRepository) {
+    public InmateAlertServiceImpl(final InmateAlertRepository inmateAlertRepository) {
         this.inmateAlertRepository = inmateAlertRepository;
     }
 
     @Override
     @VerifyBookingAccess
-    public Page<Alert> getInmateAlerts(Long bookingId, String query, String orderBy, Order order, long offset, long limit) {
-        final boolean orderByBlank = StringUtils.isBlank(orderBy);
+    public Page<Alert> getInmateAlerts(final Long bookingId, final String query, final String orderBy, final Order order, final long offset, final long limit) {
+        final var orderByBlank = StringUtils.isBlank(orderBy);
 
-        Page<Alert> alerts = inmateAlertRepository.getInmateAlerts(//
+        final var alerts = inmateAlertRepository.getInmateAlerts(//
                 bookingId, query, //
                 orderByBlank ? "dateExpires,dateCreated" : orderBy, //
                 orderByBlank ? Order.DESC : order, //
@@ -47,8 +47,8 @@ public class InmateAlertServiceImpl implements InmateAlertService {
         return alerts;
     }
 
-    private boolean isExpiredAlert(Alert alert) {
-        boolean expiredAlert = false;
+    private boolean isExpiredAlert(final Alert alert) {
+        var expiredAlert = false;
 
         if (alert.getDateExpires() != null) {
             expiredAlert = alert.getDateExpires().compareTo(LocalDate.now()) <= 0;
@@ -59,8 +59,8 @@ public class InmateAlertServiceImpl implements InmateAlertService {
 
     @Override
     @VerifyBookingAccess
-    public Alert getInmateAlert(Long bookingId, Long alertSeqId) {
-        final Alert alert = inmateAlertRepository.getInmateAlerts(bookingId, alertSeqId)
+    public Alert getInmateAlert(final Long bookingId, final Long alertSeqId) {
+        final var alert = inmateAlertRepository.getInmateAlerts(bookingId, alertSeqId)
                 .orElseThrow(EntityNotFoundException.withId(alertSeqId));
 
         alert.setExpired(isExpiredAlert(alert));
@@ -71,9 +71,9 @@ public class InmateAlertServiceImpl implements InmateAlertService {
 
     @Override
     @VerifyAgencyAccess(overrideRoles = {"SYSTEM_READ_ONLY", "SYSTEM_USER"})
-    public List<Alert> getInmateAlertsByOffenderNosAtAgency(String agencyId, List<String>offenderNos) {
+    public List<Alert> getInmateAlertsByOffenderNosAtAgency(final String agencyId, final List<String> offenderNos) {
 
-        final List<Alert> alerts = inmateAlertRepository.getInmateAlertsByOffenderNos(agencyId, offenderNos);
+        final var alerts = inmateAlertRepository.getInmateAlertsByOffenderNos(agencyId, offenderNos);
         alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
 
         log.info("Returning {} matching Alerts for Offender Numbers {} in Agency '{}'", alerts.size(), offenderNos, agencyId);
@@ -82,9 +82,9 @@ public class InmateAlertServiceImpl implements InmateAlertService {
 
     @Override
     @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER')")
-    public List<Alert> getInmateAlertsByOffenderNos(List<String>offenderNos) {
+    public List<Alert> getInmateAlertsByOffenderNos(final List<String> offenderNos) {
 
-        final List<Alert> alerts = inmateAlertRepository.getInmateAlertsByOffenderNos(null, offenderNos);
+        final var alerts = inmateAlertRepository.getInmateAlertsByOffenderNos(null, offenderNos);
         alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
 
         log.info("Returning {} matching Alerts for Offender Numbers {}", alerts.size(), offenderNos);

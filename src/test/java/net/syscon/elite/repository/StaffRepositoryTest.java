@@ -1,8 +1,5 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.StaffDetail;
-import net.syscon.elite.api.model.StaffLocationRole;
-import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.web.config.PersistenceConfigs;
@@ -19,8 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -40,7 +35,7 @@ public class StaffRepositoryTest {
     public void testFindStaffDetailsByValidStaffId() {
         final Long testStaffId = -1L;
 
-        final StaffDetail staffDetail = repository.findByStaffId(testStaffId)
+        final var staffDetail = repository.findByStaffId(testStaffId)
                 .orElseThrow(EntityNotFoundException.withId(testStaffId));
 
         assertThat(staffDetail.getFirstName()).isEqualTo("Elite2");
@@ -48,48 +43,48 @@ public class StaffRepositoryTest {
 
     @Test
     public void testFindStaffDetailsByInvalidStaffId() {
-        Optional<StaffDetail> staffDetail = repository.findByStaffId(9999999999L);
+        final var staffDetail = repository.findByStaffId(9999999999L);
 
         assertThat(staffDetail).isNotPresent();
     }
 
     @Test
     public void testFindStaffByPersonnelIdentifierInvalidIdentifier() {
-        Optional<StaffDetail> staffDetail = repository.findStaffByPersonnelIdentifier("X", "X");
+        final var staffDetail = repository.findStaffByPersonnelIdentifier("X", "X");
 
         assertThat(staffDetail).isNotPresent();
     }
 
     @Test(expected = EntityNotFoundException.class)
     public void testFindStaffByPersonnelIdentifierWrongIdType() {
-        final String testIdType = "SYS2";
-        final String testId = "sysuser@system1.com";
+        final var testIdType = "SYS2";
+        final var testId = "sysuser@system1.com";
 
         repository.findStaffByPersonnelIdentifier(testIdType, testId).orElseThrow(EntityNotFoundException.withId(testId));
     }
 
     @Test(expected = EntityNotFoundException.class)
     public void testFindStaffByPersonnelIdentifierWrongId() {
-        final String testIdType = "SYS1";
-        final String testId = "sysuser@system2.com";
+        final var testIdType = "SYS1";
+        final var testId = "sysuser@system2.com";
 
         repository.findStaffByPersonnelIdentifier(testIdType, testId).orElseThrow(EntityNotFoundException.withId(testId));
     }
 
     @Test(expected = EntityNotFoundException.class)
     public void testFindStaffByPersonnelIdentifierDuplicateIdentifier() {
-        final String testIdType = "SYS9";
-        final String testId = "sysuser@system9.com";
+        final var testIdType = "SYS9";
+        final var testId = "sysuser@system9.com";
 
         repository.findStaffByPersonnelIdentifier(testIdType, testId).orElseThrow(EntityNotFoundException.withId(testId));
     }
 
     @Test
     public void testFindStaffByPersonnelIdentifierActive() {
-        final String testIdType = "SYS1";
-        final String testId = "sysuser@system1.com";
+        final var testIdType = "SYS1";
+        final var testId = "sysuser@system1.com";
 
-        StaffDetail staffDetail = repository.findStaffByPersonnelIdentifier(testIdType, testId)
+        final var staffDetail = repository.findStaffByPersonnelIdentifier(testIdType, testId)
                 .orElseThrow(EntityNotFoundException.withId(testId));
 
         assertThat(staffDetail.getStaffId()).isEqualTo(-1L);
@@ -99,10 +94,10 @@ public class StaffRepositoryTest {
 
     @Test
     public void testFindStaffByPersonnelIdentifierInactive() {
-        final String testIdType = "ITAG";
-        final String testId = "ex.officer5@itag.com";
+        final var testIdType = "ITAG";
+        final var testId = "ex.officer5@itag.com";
 
-        StaffDetail staffDetail = repository.findStaffByPersonnelIdentifier(testIdType, testId)
+        final var staffDetail = repository.findStaffByPersonnelIdentifier(testIdType, testId)
                 .orElseThrow(EntityNotFoundException.withId(testId));
 
         assertThat(staffDetail.getStaffId()).isEqualTo(-10L);
@@ -112,17 +107,17 @@ public class StaffRepositoryTest {
 
     @Test
     public void testFindStaffLocationRolesByRole() {
-        final String TEST_AGENCY = "SYI";
-        final String TEST_AGENCY_DESCRIPTION = "Shrewsbury";
-        final String TEST_ROLE = "KW";
+        final var TEST_AGENCY = "SYI";
+        final var TEST_AGENCY_DESCRIPTION = "Shrewsbury";
+        final var TEST_ROLE = "KW";
 
-        Page<StaffLocationRole> page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE, null, null, true, new PageRequest());
+        final var page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE, null, null, true, new PageRequest());
 
-        List<StaffLocationRole> items = page.getItems();
+        final var items = page.getItems();
 
         assertThat(items.size()).isEqualTo(1);
 
-        StaffLocationRole slr = items.get(0);
+        final var slr = items.get(0);
 
         assertThat(slr.getAgencyId()).isEqualTo(TEST_AGENCY);
         assertThat(slr.getAgencyDescription()).isEqualTo(TEST_AGENCY_DESCRIPTION);
@@ -142,17 +137,17 @@ public class StaffRepositoryTest {
 
     @Test
     public void testFindStaffLocationRolesByRole_handles_special_character() {
-        final String TEST_AGENCY = "LEI";
-        final String TEST_ROLE = "KW";
-        final String NAME_FILTER = "O'brien";
+        final var TEST_AGENCY = "LEI";
+        final var TEST_ROLE = "KW";
+        final var NAME_FILTER = "O'brien";
 
-        Page<StaffLocationRole> page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE, NAME_FILTER, null, true, new PageRequest());
+        final var page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE, NAME_FILTER, null, true, new PageRequest());
 
-        List<StaffLocationRole> items = page.getItems();
+        final var items = page.getItems();
 
         assertThat(items.size()).isEqualTo(1);
 
-        StaffLocationRole slr = items.get(0);
+        final var slr = items.get(0);
 
         assertThat(slr.getAgencyId()).isEqualTo(TEST_AGENCY);
         assertThat(slr.getStaffId()).isEqualTo(-12);
@@ -164,18 +159,18 @@ public class StaffRepositoryTest {
 
     @Test
     public void testFindStaffLocationRolesByPositionAndRole() {
-        final String TEST_AGENCY = "LEI";
-        final String TEST_POSITION = "PRO";
-        final String TEST_AGENCY_DESCRIPTION = "Leeds";
-        final String TEST_ROLE = "OS";
+        final var TEST_AGENCY = "LEI";
+        final var TEST_POSITION = "PRO";
+        final var TEST_AGENCY_DESCRIPTION = "Leeds";
+        final var TEST_ROLE = "OS";
 
-        Page<StaffLocationRole> page = repository.findStaffByAgencyPositionRole(TEST_AGENCY, TEST_POSITION, TEST_ROLE, null, null, true, new PageRequest());
+        final var page = repository.findStaffByAgencyPositionRole(TEST_AGENCY, TEST_POSITION, TEST_ROLE, null, null, true, new PageRequest());
 
-        List<StaffLocationRole> items = page.getItems();
+        final var items = page.getItems();
 
         assertThat(items.size()).isEqualTo(1);
 
-        StaffLocationRole slr = items.get(0);
+        final var slr = items.get(0);
 
         assertThat(slr.getAgencyId()).isEqualTo(TEST_AGENCY);
         assertThat(slr.getAgencyDescription()).isEqualTo(TEST_AGENCY_DESCRIPTION);
@@ -196,17 +191,17 @@ public class StaffRepositoryTest {
 
     @Test
     public void testFindStaffLocationRolesByStaffId() {
-        final String TEST_AGENCY = "LEI";
-        final String TEST_ROLE = "KW";
+        final var TEST_AGENCY = "LEI";
+        final var TEST_ROLE = "KW";
 
-        Page<StaffLocationRole> page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE, null, -1L, true,
+        final var page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE, null, -1L, true,
                 new PageRequest());
 
-        List<StaffLocationRole> items = page.getItems();
+        final var items = page.getItems();
 
         assertThat(items.size()).isEqualTo(1);
 
-        StaffLocationRole slr = items.get(0);
+        final var slr = items.get(0);
         assertThat(slr.getAgencyId()).isEqualTo(TEST_AGENCY);
         assertThat(slr.getStaffId()).isEqualTo(-1);
         assertThat(slr.getRole()).isEqualTo(TEST_ROLE);
@@ -214,71 +209,71 @@ public class StaffRepositoryTest {
 
     @Test
     public void testFindStaffLocationRolesByStaffIdActiveOnly() {
-        final String TEST_AGENCY = "SYI";
-        final String TEST_ROLE = "KW";
+        final var TEST_AGENCY = "SYI";
+        final var TEST_ROLE = "KW";
 
-        Page<StaffLocationRole> page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE, null, -10L, true,
+        final var page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE, null, -10L, true,
                 new PageRequest());
 
-        List<StaffLocationRole> items = page.getItems();
+        final var items = page.getItems();
 
         assertThat(items.size()).isEqualTo(0);
     }
 
     @Test
     public void testFindStaffLocationRolesByStaffIdDontIncludeInactive() {
-        final String TEST_AGENCY = "SYI";
-        final String TEST_ROLE = "KW";
+        final var TEST_AGENCY = "SYI";
+        final var TEST_ROLE = "KW";
 
-        Page<StaffLocationRole> page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE, null, -10L, false,
+        final var page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE, null, -10L, false,
                 new PageRequest());
 
-        List<StaffLocationRole> items = page.getItems();
+        final var items = page.getItems();
 
         assertThat(items.size()).isEqualTo(0);
     }
 
     @Test
     public void testFindStaffLocationPositionRolesByStaffId() {
-        final String TEST_AGENCY = "LEI";
-        final String TEST_POSITION = "AO";
-        final String TEST_ROLE = "KW";
+        final var TEST_AGENCY = "LEI";
+        final var TEST_POSITION = "AO";
+        final var TEST_ROLE = "KW";
 
-        Page<StaffLocationRole> page = repository.findStaffByAgencyPositionRole(TEST_AGENCY, TEST_POSITION, TEST_ROLE,
+        final var page = repository.findStaffByAgencyPositionRole(TEST_AGENCY, TEST_POSITION, TEST_ROLE,
                 null, -4L, true, new PageRequest());
 
-        List<StaffLocationRole> items = page.getItems();
+        final var items = page.getItems();
 
         assertThat(items.size()).isEqualTo(1);
 
-        StaffLocationRole slr = items.get(0);
+        final var slr = items.get(0);
         assertThat(slr.getAgencyId()).isEqualTo(TEST_AGENCY);
         assertThat(slr.getStaffId()).isEqualTo(-4);
     }
 
     @Test
     public void testFindStaffLocationRolesByInvalidStaffId() {
-        final String TEST_AGENCY = "LEI";
-        final String TEST_ROLE = "KW";
+        final var TEST_AGENCY = "LEI";
+        final var TEST_ROLE = "KW";
 
-        Page<StaffLocationRole> page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE,
+        final var page = repository.findStaffByAgencyRole(TEST_AGENCY, TEST_ROLE,
                 null, -999999L, true, new PageRequest());
 
-        List<StaffLocationRole> items = page.getItems();
+        final var items = page.getItems();
 
         assertThat(items.size()).isEqualTo(0);
     }
 
     @Test
     public void testFindStaffLocationPositionRolesByInvalidStaffId() {
-        final String TEST_AGENCY = "LEI";
-        final String TEST_POSITION = "AO";
-        final String TEST_ROLE = "KW";
+        final var TEST_AGENCY = "LEI";
+        final var TEST_POSITION = "AO";
+        final var TEST_ROLE = "KW";
 
-        Page<StaffLocationRole> page = repository.findStaffByAgencyPositionRole(TEST_AGENCY, TEST_POSITION, TEST_ROLE,
+        final var page = repository.findStaffByAgencyPositionRole(TEST_AGENCY, TEST_POSITION, TEST_ROLE,
                 null, -999999L, true, new PageRequest());
 
-        List<StaffLocationRole> items = page.getItems();
+        final var items = page.getItems();
 
         assertThat(items.size()).isEqualTo(0);
     }
@@ -287,7 +282,7 @@ public class StaffRepositoryTest {
     public void testEmailAddresses() {
         final Long validStaffId = -1L;
 
-        StaffDetail staffDetail = repository.findByStaffId(validStaffId)
+        final var staffDetail = repository.findByStaffId(validStaffId)
                 .orElseThrow(EntityNotFoundException.withId(validStaffId));
         assertThat(staffDetail).isNotNull();
 
@@ -298,9 +293,9 @@ public class StaffRepositoryTest {
 
     @Test
     public void testNoEmailAddresses() {
-        final long validStaffId = -3L;
+        final var validStaffId = -3L;
 
-        Optional<StaffDetail> staffDetail = repository.findByStaffId(validStaffId);
+        final var staffDetail = repository.findByStaffId(validStaffId);
         assertThat(staffDetail).isPresent();
 
         // The data has no email addresses for this staff member

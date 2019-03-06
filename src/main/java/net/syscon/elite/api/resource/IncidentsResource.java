@@ -27,13 +27,13 @@ public interface IncidentsResource {
     IncidentResponse getIncident(@ApiParam(value = "Incident Id", required = true) @PathParam("incidentId") @NotNull Long incidentId);
 
     class IncidentResponse extends ResponseDelegate {
-        public IncidentResponse(Response response, IncidentCase incidentCase) {
+        public IncidentResponse(final Response response, final IncidentCase incidentCase) {
             super(response, incidentCase);
         }
     }
 
     class IncidentListResponse extends ResponseDelegate {
-        public IncidentListResponse(Response response, List<IncidentCase> incidentCase) {
+        public IncidentListResponse(final Response response, final List<IncidentCase> incidentCase) {
             super(response, incidentCase);
         }
     }

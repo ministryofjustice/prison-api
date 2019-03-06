@@ -20,20 +20,20 @@ public class UserMdcFilter implements Filter {
     private final AuthenticationFacade userSecurityUtils;
 
     @Autowired
-    public UserMdcFilter(AuthenticationFacade userSecurityUtils) {
+    public UserMdcFilter(final AuthenticationFacade userSecurityUtils) {
         this.userSecurityUtils = userSecurityUtils;
     }
 
     @Override
-    public void init(FilterConfig filterConfig) {
+    public void init(final FilterConfig filterConfig) {
         // Initialise - no functionality
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+    public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
 
-        String currentUsername = userSecurityUtils.getCurrentUsername();
+        final var currentUsername = userSecurityUtils.getCurrentUsername();
 
         try {
             if (currentUsername != null) {

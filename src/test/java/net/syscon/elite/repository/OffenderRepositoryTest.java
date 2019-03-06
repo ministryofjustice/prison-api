@@ -1,7 +1,6 @@
 package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.PrisonerDetail;
-import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import net.syscon.elite.web.config.PersistenceConfigs;
@@ -41,11 +40,11 @@ public class OffenderRepositoryTest {
 
     @Test
     public void testfindOffendersWithValidPNCNumberOnly() {
-        final String TEST_PNC_NUMBER = "14/12345F";
+        final var TEST_PNC_NUMBER = "14/12345F";
 
-        PrisonerDetailSearchCriteria criteria = criteriaForPNCNumber(TEST_PNC_NUMBER);
+        final var criteria = criteriaForPNCNumber(TEST_PNC_NUMBER);
 
-        PrisonerDetail offender = findOffender(criteria);
+        final var offender = findOffender(criteria);
 
         assertThat(offender.getOffenderNo()).isEqualTo("A1234AF");
         assertThat(offender.getLastName()).isEqualTo("ANDREWS");
@@ -53,39 +52,39 @@ public class OffenderRepositoryTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testfindOffendersWithInvalidPNCNumberOnly() {
-        final String TEST_PNC_NUMBER = "PNC0193032";
+        final var TEST_PNC_NUMBER = "PNC0193032";
 
-        PrisonerDetailSearchCriteria criteria = criteriaForPNCNumber(TEST_PNC_NUMBER);
+        final var criteria = criteriaForPNCNumber(TEST_PNC_NUMBER);
 
         findOffender(criteria);
     }
 
     @Test
     public void testfindOffendersWithValidCRONumberOnly() {
-        final String TEST_CRO_NUMBER = "CRO112233";
+        final var TEST_CRO_NUMBER = "CRO112233";
 
-        PrisonerDetailSearchCriteria criteria = criteriaForCRONumber(TEST_CRO_NUMBER);
+        final var criteria = criteriaForCRONumber(TEST_CRO_NUMBER);
 
-        PrisonerDetail offender = findOffender(criteria);
+        final var offender = findOffender(criteria);
 
         assertThat(offender.getOffenderNo()).isEqualTo("A1234AC");
         assertThat(offender.getLastName()).isEqualTo("BATES");
     }
 
-    private PrisonerDetailSearchCriteria criteriaForPNCNumber(String pncNumber) {
+    private PrisonerDetailSearchCriteria criteriaForPNCNumber(final String pncNumber) {
         return PrisonerDetailSearchCriteria.builder()
                 .pncNumber(pncNumber)
                 .build();
     }
 
-    private PrisonerDetailSearchCriteria criteriaForCRONumber(String croNumber) {
+    private PrisonerDetailSearchCriteria criteriaForCRONumber(final String croNumber) {
         return PrisonerDetailSearchCriteria.builder()
                 .croNumber(croNumber)
                 .build();
     }
 
-    private PrisonerDetail findOffender(PrisonerDetailSearchCriteria criteria) {
-        Page<PrisonerDetail> page = repository.findOffenders(criteria, defaultPageRequest);
+    private PrisonerDetail findOffender(final PrisonerDetailSearchCriteria criteria) {
+        final var page = repository.findOffenders(criteria, defaultPageRequest);
 
         assertThat(page.getItems().size()).isEqualTo(1);
 

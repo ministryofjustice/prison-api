@@ -20,29 +20,29 @@ public class IncidentService {
     private final IncidentCaseRepository repository;
     private final BookingService bookingService;
 
-    public IncidentService(IncidentCaseRepository repository, BookingService bookingService) {
+    public IncidentService(final IncidentCaseRepository repository, final BookingService bookingService) {
         this.repository = repository;
         this.bookingService = bookingService;
     }
 
     @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER')")
-    public IncidentCase getIncidentCase(@NotNull long incidentCaseId) {
+    public IncidentCase getIncidentCase(@NotNull final long incidentCaseId) {
         return repository.getIncidentCases(List.of(incidentCaseId)).stream().findFirst().orElseThrow(EntityNotFoundException.withId(incidentCaseId));
     }
 
     @VerifyBookingAccess
-    public List<IncidentCase> getIncidentCasesByBookingId(@NotNull long bookingId, List<String> incidentTypes, List<String> participationRoles) {
+    public List<IncidentCase> getIncidentCasesByBookingId(@NotNull final long bookingId, final List<String> incidentTypes, final List<String> participationRoles) {
         bookingService.checkBookingExists(bookingId);
         return repository.getIncidentCasesByBookingId(bookingId, incidentTypes, participationRoles);
     }
 
     @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER')")
-    public List<IncidentCase> getIncidentCasesByOffenderNo(@NotNull String offenderNo, List<String> incidentTypes, List<String> participationRoles) {
+    public List<IncidentCase> getIncidentCasesByOffenderNo(@NotNull final String offenderNo, final List<String> incidentTypes, final List<String> participationRoles) {
         bookingService.getBookingIdByOffenderNo(offenderNo);
         return repository.getIncidentCasesByOffenderNo(offenderNo, incidentTypes, participationRoles);
     }
 
-    public Questionnaire getQuestionnaire(@NotNull String category, @NotNull String code) {
+    public Questionnaire getQuestionnaire(@NotNull final String category, @NotNull final String code) {
         return repository.getQuestionnaire(category, code).orElseThrow(EntityNotFoundException.withId(format("%s/%s", category, code)));
     }
 }

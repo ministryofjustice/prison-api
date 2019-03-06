@@ -31,21 +31,21 @@ public class KeyWorkerSteps extends CommonSteps{
     private List<KeyWorkerAllocationDetail> allocationsList;
     private List<OffenderKeyWorker> allocationHistoryList;
 
-    public void getAvailableKeyworkersList(String agencyId) {
+    public void getAvailableKeyworkersList(final String agencyId) {
         doListApiCall(agencyId);
     }
 
-    public void verifyAListOfKeyworkersIsReturned(int count) {
+    public void verifyAListOfKeyworkersIsReturned(final int count) {
         assertThat(keyworkerList).hasSize(count);
     }
 
-    private void doListApiCall(String agencyId) {
+    private void doListApiCall(final String agencyId) {
         init();
 
-        String queryUrl = String.format(KEY_WORKER_API_URL_WITH_AGENCY_PARAM, agencyId);
+        final var queryUrl = String.format(KEY_WORKER_API_URL_WITH_AGENCY_PARAM, agencyId);
 
         try {
-            ResponseEntity<List<Keyworker>> response =
+            final var response =
                     restTemplate.exchange(
                             queryUrl,
                             HttpMethod.GET,
@@ -56,15 +56,15 @@ public class KeyWorkerSteps extends CommonSteps{
 
             keyworkerList = response.getBody();
 
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void doAllocationsApiCall(Long staffId, String agencyId) {
+    private void doAllocationsApiCall(final Long staffId, final String agencyId) {
         init();
         try {
-            ResponseEntity<List<KeyWorkerAllocationDetail>> response =
+            final var response =
                     restTemplate.exchange(
                             KEY_WORKER_API_URL_WITH_STAFF_ID_PARAM,
                             HttpMethod.GET,
@@ -75,34 +75,34 @@ public class KeyWorkerSteps extends CommonSteps{
 
             allocationsList = response.getBody();
 
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void doAllocationHistoryApiCallByStaffList(List<Long> staffIds) {
+    private void doAllocationHistoryApiCallByStaffList(final List<Long> staffIds) {
         init();
         callPostApiForAllocationHistory(ALLOCATION_HISTORY_URL_FOR_STAFF, staffIds);
     }
 
-    private void doAllocationHistoryApiCallByOffenderList(List<String> offenderNos) {
+    private void doAllocationHistoryApiCallByOffenderList(final List<String> offenderNos) {
         init();
         callPostApiForAllocationHistory(ALLOCATION_HISTORY_URL_FOR_OFFENDERS, offenderNos);
     }
 
-    private void doAllocationsApiCallByStaffList(List<Long> staffIds, String agencyId) {
+    private void doAllocationsApiCallByStaffList(final List<Long> staffIds, final String agencyId) {
         init();
         callPostApiForAllocations(KEY_WORKER_CURRENT_ALLOCS_BY_STAFF, staffIds, agencyId);
     }
 
-    private void doAllocationsApiCallByOffenderList(List<String> offenderNos, String agencyId) {
+    private void doAllocationsApiCallByOffenderList(final List<String> offenderNos, final String agencyId) {
         init();
         callPostApiForAllocations(KEY_WORKER_CURRENT_ALLOCS_BY_OFFENDER, offenderNos, agencyId);
     }
 
-    private void callPostApiForAllocations(String url, List<?> lists, String agencyId) {
+    private void callPostApiForAllocations(final String url, final List<?> lists, final String agencyId) {
         try {
-            ResponseEntity<List<KeyWorkerAllocationDetail>> response =
+            final var response =
                     restTemplate.exchange(
                             url,
                             HttpMethod.POST,
@@ -113,14 +113,14 @@ public class KeyWorkerSteps extends CommonSteps{
 
             allocationsList = response.getBody();
 
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void callPostApiForAllocationHistory(String url, List<?> lists) {
+    private void callPostApiForAllocationHistory(final String url, final List<?> lists) {
         try {
-            ResponseEntity<List<OffenderKeyWorker>> response =
+            final var response =
                     restTemplate.exchange(
                             url,
                             HttpMethod.POST,
@@ -131,22 +131,22 @@ public class KeyWorkerSteps extends CommonSteps{
 
             allocationHistoryList= response.getBody();
 
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void doDetailsApiCall(Long staffId) {
+    private void doDetailsApiCall(final Long staffId) {
         init();
 
-        ResponseEntity<Keyworker> response;
+        final ResponseEntity<Keyworker> response;
 
         try {
             response = restTemplate.exchange(KEY_WORKER_API_DETAILS, HttpMethod.GET, createEntity(),
                     Keyworker.class, staffId);
 
             keyworker = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -159,7 +159,7 @@ public class KeyWorkerSteps extends CommonSteps{
     }
 
     @Step("Get Key worker details")
-    public void getKeyworkerDetails(Long staffId) {
+    public void getKeyworkerDetails(final Long staffId) {
         doDetailsApiCall(staffId);
     }
 
@@ -171,32 +171,32 @@ public class KeyWorkerSteps extends CommonSteps{
     }
 
     @Step("Verify number of offender allocations for Key worker")
-    public void verifyKeyWorkerAllocationCount(int expectedAllocationCount) {
+    public void verifyKeyWorkerAllocationCount(final int expectedAllocationCount) {
         assertThat(allocationsList).hasSize(expectedAllocationCount);
     }
 
     @Step("Verify number of offender allocation history for Key worker")
-    public void verifyKeyWorkerAllocationHistoryCount(int expectedAllocationCount) {
+    public void verifyKeyWorkerAllocationHistoryCount(final int expectedAllocationCount) {
         assertThat(allocationHistoryList).hasSize(expectedAllocationCount);
     }
 
-    public void getKeyworkerAllocations(Long staffId, String agencyId) {
+    public void getKeyworkerAllocations(final Long staffId, final String agencyId) {
         doAllocationsApiCall(staffId, agencyId);
     }
 
-    public void getKeyworkerAllocationsByStaffIds(List<Long> staffIds, String agencyId) {
+    public void getKeyworkerAllocationsByStaffIds(final List<Long> staffIds, final String agencyId) {
         doAllocationsApiCallByStaffList(staffIds, agencyId);
     }
 
-    public void getKeyworkerAllocationsByOffenderNos(List<String> offenderNos, String agencyId) {
+    public void getKeyworkerAllocationsByOffenderNos(final List<String> offenderNos, final String agencyId) {
         doAllocationsApiCallByOffenderList(offenderNos, agencyId);
     }
 
-    public void getKeyworkerAllocationHistoryByStaffIds(List<Long> staffIds) {
+    public void getKeyworkerAllocationHistoryByStaffIds(final List<Long> staffIds) {
         doAllocationHistoryApiCallByStaffList(staffIds);
     }
 
-    public void getKeyworkerAllocationHistoryByOffenderNos(List<String> offenderNos) {
+    public void getKeyworkerAllocationHistoryByOffenderNos(final List<String> offenderNos) {
         doAllocationHistoryApiCallByOffenderList(offenderNos);
     }
 

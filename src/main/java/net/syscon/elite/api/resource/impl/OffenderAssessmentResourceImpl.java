@@ -1,10 +1,8 @@
 package net.syscon.elite.api.resource.impl;
 
 import io.jsonwebtoken.lang.Collections;
-import net.syscon.elite.api.model.Assessment;
 import net.syscon.elite.api.model.CategorisationDetail;
 import net.syscon.elite.api.model.CategoryApprovalDetail;
-import net.syscon.elite.api.model.OffenderCategorise;
 import net.syscon.elite.api.resource.OffenderAssessmentResource;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.InmateService;
@@ -24,55 +22,55 @@ import java.util.List;
 public class OffenderAssessmentResourceImpl implements OffenderAssessmentResource {
     private final InmateService inmateService;
 
-    public OffenderAssessmentResourceImpl(InmateService inmateService) {
+    public OffenderAssessmentResourceImpl(final InmateService inmateService) {
         this.inmateService = inmateService;
     }
 
     @Override
-    public GetOffenderAssessmentsAssessmentCodeResponse getOffenderAssessmentsAssessmentCode(String assessmentCode, List<String> offenderList, Boolean latestOnly) {
-        final List<Assessment> results = inmateService.getInmatesAssessmentsByCode(offenderList, assessmentCode, !Boolean.FALSE.equals(latestOnly));
+    public GetOffenderAssessmentsAssessmentCodeResponse getOffenderAssessmentsAssessmentCode(final String assessmentCode, final List<String> offenderList, final Boolean latestOnly) {
+        final var results = inmateService.getInmatesAssessmentsByCode(offenderList, assessmentCode, !Boolean.FALSE.equals(latestOnly));
         return GetOffenderAssessmentsAssessmentCodeResponse.respond200WithApplicationJson(results);
     }
 
     @Override
-    public PostOffenderAssessmentsAssessmentCodeResponse postOffenderAssessmentsAssessmentCode(String assessmentCode, List<String> offenderList) {
+    public PostOffenderAssessmentsAssessmentCodeResponse postOffenderAssessmentsAssessmentCode(final String assessmentCode, final List<String> offenderList) {
 
         validateOffenderList(offenderList);
 
-        final List<Assessment> results = inmateService.getInmatesAssessmentsByCode(offenderList, assessmentCode, true);
+        final var results = inmateService.getInmatesAssessmentsByCode(offenderList, assessmentCode, true);
         return PostOffenderAssessmentsAssessmentCodeResponse.respond200WithApplicationJson(results);
     }
 
     @Override
-    public PostOffenderAssessmentsCsraListResponse postOffenderAssessmentsCsraList(List<String> offenderList) {
+    public PostOffenderAssessmentsCsraListResponse postOffenderAssessmentsCsraList(final List<String> offenderList) {
 
         validateOffenderList(offenderList);
 
-        final List<Assessment> results = inmateService.getInmatesAssessmentsByCode(offenderList, null, true);
+        final var results = inmateService.getInmatesAssessmentsByCode(offenderList, null, true);
         return PostOffenderAssessmentsCsraListResponse.respond200WithApplicationJson(results);
     }
 
     @Override
-    public GetUncategorisedResponse getUncategorised(String agencyId) {
-        final List<OffenderCategorise> results = inmateService.getUncategorised(agencyId);
+    public GetUncategorisedResponse getUncategorised(final String agencyId) {
+        final var results = inmateService.getUncategorised(agencyId);
         return GetUncategorisedResponse.respond200WithApplicationJson(results);
     }
 
     @Override
-    public GetUncategorisedResponse getApprovedCategorised(String agencyId, LocalDate fromDate) {
-        LocalDate cutOffDate = fromDate != null ? fromDate : LocalDate.now().minusMonths(1);
-        final List<OffenderCategorise> results = inmateService.getApprovedCategorised(agencyId, cutOffDate);
+    public GetUncategorisedResponse getApprovedCategorised(final String agencyId, final LocalDate fromDate) {
+        final var cutOffDate = fromDate != null ? fromDate : LocalDate.now().minusMonths(1);
+        final var results = inmateService.getApprovedCategorised(agencyId, cutOffDate);
         return GetUncategorisedResponse.respond200WithApplicationJson(results);
     }
 
     @Override
-    public CreateCategorisationResponse createCategorisation(CategorisationDetail detail) {
+    public CreateCategorisationResponse createCategorisation(final CategorisationDetail detail) {
         inmateService.createCategorisation(detail.getBookingId(), detail);
         return CreateCategorisationResponse.respond201WithApplicationJson();
     }
 
     @Override
-    public Response approveCategorisation(CategoryApprovalDetail detail) {
+    public Response approveCategorisation(final CategoryApprovalDetail detail) {
         inmateService.approveCategorisation(detail.getBookingId(), detail);
         return Response.ok()
                 .status(201)
@@ -80,7 +78,7 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
                 .build();
     }
 
-    private void validateOffenderList(List offenderList) {
+    private void validateOffenderList(final List offenderList) {
         if (Collections.isEmpty(offenderList)) {
             throw new BadRequestException("List of Offender Ids must be provided.");
         }

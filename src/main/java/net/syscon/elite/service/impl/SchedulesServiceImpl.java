@@ -21,7 +21,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -40,9 +43,9 @@ public class SchedulesServiceImpl implements SchedulesService {
     private final ScheduleRepository scheduleRepository;
     private final AuthenticationFacade authenticationFacade;
 
-    public SchedulesServiceImpl(LocationService locationService, InmateService inmateService,
-                                BookingService bookingService, ReferenceDomainService referenceDomainService,
-                                ScheduleRepository scheduleRepository, AuthenticationFacade authenticationFacade) {
+    public SchedulesServiceImpl(final LocationService locationService, final InmateService inmateService,
+                                final BookingService bookingService, final ReferenceDomainService referenceDomainService,
+                                final ScheduleRepository scheduleRepository, final AuthenticationFacade authenticationFacade) {
         this.locationService = locationService;
         this.inmateService = inmateService;
         this.bookingService = bookingService;
@@ -53,10 +56,10 @@ public class SchedulesServiceImpl implements SchedulesService {
 
     @Override
     @VerifyAgencyAccess
-    public List<PrisonerSchedule> getLocationGroupEvents(String agencyId, String groupName, LocalDate date, TimeSlot timeSlot,
-                                                         String sortFields, Order sortOrder) {
+    public List<PrisonerSchedule> getLocationGroupEvents(final String agencyId, final String groupName, final LocalDate date, final TimeSlot timeSlot,
+                                                         final String sortFields, final Order sortOrder) {
 
-        final List<InmateDto> inmates = inmateService.findInmatesByLocation(
+        final var inmates = inmateService.findInmatesByLocation(
                 authenticationFacade.getCurrentUsername(),
                 agencyId,
                 locationIdsForGroup(agencyId, groupName));
@@ -65,18 +68,18 @@ public class SchedulesServiceImpl implements SchedulesService {
             return Collections.emptyList();
         }
 
-        final LocalDate day = date == null ? LocalDate.now() : date;
+        final var day = date == null ? LocalDate.now() : date;
 
-        final List<PrisonerSchedule> prisonerSchedules = prisonerSchedules(inmates, timeSlot, day);
+        final var prisonerSchedules = prisonerSchedules(inmates, timeSlot, day);
 
         return prisonerSchedules.stream()
                 .sorted(getPrisonerScheduleComparator(sortFields, sortOrder))
                 .collect(Collectors.toList());
     }
 
-    private Comparator<PrisonerSchedule> getPrisonerScheduleComparator(String sortFields, Order sortOrder) {
-        final String orderFields = StringUtils.defaultString(sortFields, "cellLocation");
-        Comparator<PrisonerSchedule> comparator = "cellLocation".equals(orderFields) ? BY_CELL_LOCATION : BY_LAST_NAME;
+    private Comparator<PrisonerSchedule> getPrisonerScheduleComparator(final String sortFields, final Order sortOrder) {
+        final var orderFields = StringUtils.defaultString(sortFields, "cellLocation");
+        var comparator = "cellLocation".equals(orderFields) ? BY_CELL_LOCATION : BY_LAST_NAME;
         comparator = comparator.thenComparing(PrisonerSchedule::getOffenderNo);
         if (sortOrder == Order.DESC) {
             comparator = comparator.reversed();
@@ -85,31 +88,31 @@ public class SchedulesServiceImpl implements SchedulesService {
         return comparator;
     }
 
-    private List<Long> locationIdsForGroup(String agencyId, String groupName) {
-        final List<Location> locations = locationService.getCellLocationsForGroup(agencyId, groupName);
+    private List<Long> locationIdsForGroup(final String agencyId, final String groupName) {
+        final var locations = locationService.getCellLocationsForGroup(agencyId, groupName);
         return idsOfLocations(locations);
     }
 
-    private List<Long> idsOfLocations(List<Location> locations) {
+    private List<Long> idsOfLocations(final List<Location> locations) {
         return locations
                 .stream()
                 .map(Location::getLocationId)
                 .collect(Collectors.toList());
     }
 
-    private List<PrisonerSchedule> prisonerSchedules(Collection<InmateDto> inmates, TimeSlot timeSlot, LocalDate date) {
+    private List<PrisonerSchedule> prisonerSchedules(final Collection<InmateDto> inmates, final TimeSlot timeSlot, final LocalDate date) {
 
-        Map<Long, InmateDto> bookingIdMap =
+        final var bookingIdMap =
                 inmates.stream().collect(Collectors.toMap(InmateDto::getBookingId, inmateDto -> inmateDto));
 
-        final List<ScheduledEvent> eventsOnDay = bookingService.getEventsOnDay(bookingIdMap.keySet(), date);
+        final var eventsOnDay = bookingService.getEventsOnDay(bookingIdMap.keySet(), date);
 
         return eventsOnDay.stream()
                 .filter(event -> CalcDateRanges.eventStartsInTimeslot(event.getStartTime(), timeSlot))
                 .map(event -> prisonerSchedule(bookingIdMap.get(event.getBookingId()), event)).collect(Collectors.toList());
     }
 
-    private PrisonerSchedule prisonerSchedule(InmateDto inmate, ScheduledEvent event) {
+    private PrisonerSchedule prisonerSchedule(final InmateDto inmate, final ScheduledEvent event) {
         return PrisonerSchedule.builder()
                 .cellLocation(inmate.getLocationDescription())
                 .lastName(inmate.getLastName())
@@ -134,19 +137,19 @@ public class SchedulesServiceImpl implements SchedulesService {
 
     @Override
     @VerifyAgencyAccess
-    public List<PrisonerSchedule> getLocationEvents(String agencyId, Long locationId, String usage,
-                                                    LocalDate date, TimeSlot timeSlot, String sortFields, Order sortOrder) {
+    public List<PrisonerSchedule> getLocationEvents(final String agencyId, final Long locationId, final String usage,
+                                                    final LocalDate date, final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
 
         validateLocation(locationId);
         validateUsage(usage);
-        final LocalDate day = date == null ? LocalDate.now() : date;
-        final List<PrisonerSchedule> events = getPrisonerSchedules(locationId, usage, sortFields, sortOrder, day);
+        final var day = date == null ? LocalDate.now() : date;
+        final var events = getPrisonerSchedules(locationId, usage, sortFields, sortOrder, day);
         return filterByTimeSlot(timeSlot, events);
     }
 
-    private List<PrisonerSchedule> getPrisonerSchedules(Long locationId, String usage, String sortFields, Order sortOrder, LocalDate day) {
-        final String orderByFields = StringUtils.defaultString(sortFields, "lastName");
-        final Order order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
+    private List<PrisonerSchedule> getPrisonerSchedules(final Long locationId, final String usage, final String sortFields, final Order sortOrder, final LocalDate day) {
+        final var orderByFields = StringUtils.defaultString(sortFields, "lastName");
+        final var order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
         switch (usage) {
             case "APP":
                 return scheduleRepository.getLocationAppointments(locationId, day, day, orderByFields, order);
@@ -158,41 +161,41 @@ public class SchedulesServiceImpl implements SchedulesService {
     }
 
     @Override
-    public List<PrisonerSchedule> getVisits(String agencyId, List<String> offenderNo, LocalDate date, TimeSlot timeSlot) {
+    public List<PrisonerSchedule> getVisits(final String agencyId, final List<String> offenderNo, final LocalDate date, final TimeSlot timeSlot) {
 
         Validate.notBlank(agencyId, "An agency id is required.");
         if (offenderNo.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<PrisonerSchedule> visits = scheduleRepository.getVisits(agencyId, offenderNo, date);
+        final var visits = scheduleRepository.getVisits(agencyId, offenderNo, date);
 
         return filterByTimeSlot(timeSlot, visits);
     }
 
     @Override
-    public List<PrisonerSchedule> getAppointments(String agencyId, List<String> offenderNo, LocalDate date, TimeSlot timeSlot) {
+    public List<PrisonerSchedule> getAppointments(final String agencyId, final List<String> offenderNo, final LocalDate date, final TimeSlot timeSlot) {
 
         Validate.notBlank(agencyId, "An agency id is required.");
         if (offenderNo.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<PrisonerSchedule> appointments = scheduleRepository.getAppointments(agencyId, offenderNo, date);
+        final var appointments = scheduleRepository.getAppointments(agencyId, offenderNo, date);
 
         return filterByTimeSlot(timeSlot, appointments);
     }
 
     @Override
-    public List<PrisonerSchedule> getActivities(String agencyId, List<String> offenderNumbers, LocalDate date, TimeSlot timeSlot, boolean includeExcluded) {
+    public List<PrisonerSchedule> getActivities(final String agencyId, final List<String> offenderNumbers, final LocalDate date, final TimeSlot timeSlot, final boolean includeExcluded) {
         Validate.notBlank(agencyId, "An agency id is required.");
         if (offenderNumbers.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<PrisonerSchedule> activities = scheduleRepository.getActivities(agencyId, offenderNumbers, date);
+        final var activities = scheduleRepository.getActivities(agencyId, offenderNumbers, date);
 
-        final List<PrisonerSchedule> filtered = filterByTimeSlot(timeSlot, activities);
+        final var filtered = filterByTimeSlot(timeSlot, activities);
         if (includeExcluded) {
             return filtered;
         }
@@ -200,19 +203,19 @@ public class SchedulesServiceImpl implements SchedulesService {
     }
 
     @Override
-    public List<PrisonerSchedule> getCourtEvents(String agencyId, List<String> offenderNumbers, LocalDate date, TimeSlot timeSlot) {
+    public List<PrisonerSchedule> getCourtEvents(final String agencyId, final List<String> offenderNumbers, final LocalDate date, final TimeSlot timeSlot) {
         Validate.notBlank(agencyId, "An agency id is required.");
         if (offenderNumbers.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<PrisonerSchedule> events = scheduleRepository.getCourtEvents(offenderNumbers, date);
+        final var events = scheduleRepository.getCourtEvents(offenderNumbers, date);
 
         return filterByTimeSlot(timeSlot, events);
     }
 
     @Override
-    public List<PrisonerSchedule> getExternalTransfers(String agencyId, List<String> offenderNumbers, LocalDate date) {
+    public List<PrisonerSchedule> getExternalTransfers(final String agencyId, final List<String> offenderNumbers, final LocalDate date) {
         Validate.notBlank(agencyId, "An agency id is required.");
         if (offenderNumbers.isEmpty()) {
             return Collections.emptyList();
@@ -221,7 +224,7 @@ public class SchedulesServiceImpl implements SchedulesService {
         return scheduleRepository.getExternalTransfers(agencyId, offenderNumbers, date);
     }
 
-    private List<PrisonerSchedule> filterByTimeSlot(TimeSlot timeSlot, List<PrisonerSchedule> events) {
+    private List<PrisonerSchedule> filterByTimeSlot(final TimeSlot timeSlot, final List<PrisonerSchedule> events) {
 
         if (timeSlot == null) {
             return events;
@@ -232,15 +235,15 @@ public class SchedulesServiceImpl implements SchedulesService {
                 .collect(Collectors.toList());
     }
 
-    private void validateLocation(Long locationId) {
+    private void validateLocation(final Long locationId) {
         locationService.getLocation(locationId);
     }
 
-    private void validateUsage(String usage) {
+    private void validateUsage(final String usage) {
         try {
             referenceDomainService.getReferenceCodeByDomainAndCode(ReferenceDomain.INTERNAL_LOCATION_USAGE.getDomain(),
                     usage, false);
-        } catch (EntityNotFoundException ex) {
+        } catch (final EntityNotFoundException ex) {
             throw new BadRequestException("Usage not recognised.");
         }
     }

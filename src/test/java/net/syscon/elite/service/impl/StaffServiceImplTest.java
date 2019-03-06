@@ -97,9 +97,9 @@ public class StaffServiceImplTest {
         verify(staffRepository, times(1)).findByStaffId(ID_BAD);
     }
 
-    private Optional<StaffDetail> getValidStaffDetails(Long staffId) {
+    private Optional<StaffDetail> getValidStaffDetails(final Long staffId) {
         final var additionalProperties = new HashMap<String,Object>();
-        StaffDetail staffDetail = new StaffDetail(additionalProperties, staffId, "Bob", "Harris", "ACTIVE", 0L);
+        final var staffDetail = new StaffDetail(additionalProperties, staffId, "Bob", "Harris", "ACTIVE", 0L);
         return Optional.of(staffDetail);
     }
 }

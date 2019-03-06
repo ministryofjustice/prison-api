@@ -1,7 +1,10 @@
 package net.syscon.elite.service.impl;
 
 import com.microsoft.applicationinsights.TelemetryClient;
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.CategorisationDetail;
+import net.syscon.elite.api.model.InmateBasicDetails;
+import net.syscon.elite.api.model.OffenderSummary;
+import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.UserRepository;
@@ -66,7 +69,7 @@ public class InmateServiceImplTest {
     @Test
     public void testGetAssessments() {
 
-        List<AssessmentDto> data = Arrays.asList(
+        final var data = Arrays.asList(
                 // need to ensure we OrderBy:
                 // Order.DESC, "cellSharingAlertFlag"
                 // Order.DESC, "assessmentDate"
@@ -82,7 +85,7 @@ public class InmateServiceImplTest {
         );
         when(repository.findAssessments(Collections.singletonList(10L), null, Collections.emptySet())).thenReturn(data);
 
-        final List<Assessment> assessments = serviceToTest.getAssessments(10L);
+        final var assessments = serviceToTest.getAssessments(10L);
 
         assertThat(assessments).hasSize(4); // 1 per code
         assertThat(assessments).extracting("bookingId","assessmentCode","assessmentDate").contains(
@@ -96,7 +99,7 @@ public class InmateServiceImplTest {
     @Test
     public void testGetInmatesAssessmentsByCode() {
 
-        List<AssessmentDto> data = Arrays.asList(
+        final var data = Arrays.asList(
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.APRIL, 5)).cellSharingAlertFlag(false).build(),
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.APRIL, 4)).cellSharingAlertFlag(true).build(),
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.APRIL, 1)).cellSharingAlertFlag(true).build(),
@@ -105,7 +108,7 @@ public class InmateServiceImplTest {
         );
         when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10","OFFENDER11"), "THECODE", Collections.emptySet(), true)).thenReturn(data);
 
-        final List<Assessment> assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10","OFFENDER11"), "THECODE", true);
+        final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", true);
 
         assertThat(assessments).hasSize(2); // 1 per offender
         assertThat(assessments).extracting("bookingId","assessmentCode","assessmentDate").contains(
@@ -117,7 +120,7 @@ public class InmateServiceImplTest {
     @Test
     public void testAllCodes() {
         // Ensure Ordering is same as from repository
-        List<AssessmentDto> data = Arrays.asList(
+        final var data = Arrays.asList(
                 AssessmentDto.builder().bookingId(11L).offenderNo("OFFENDER11").assessmentCode("CODE1").assessmentDate(LocalDate.of(2018, Month.MAY, 7)).cellSharingAlertFlag(true).reviewSupLevelType("STANDARD").reviewSupLevelTypeDesc("Standard").build(),
                 AssessmentDto.builder().bookingId(11L).offenderNo("OFFENDER11").assessmentCode("CODE1").assessmentDate(LocalDate.of(2018, Month.MAY, 6)).cellSharingAlertFlag(true).reviewSupLevelType("HIGH").reviewSupLevelTypeDesc("High").build(),
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("CODE3").assessmentDate(LocalDate.of(2018, Month.APRIL, 5)).cellSharingAlertFlag(true).reviewSupLevelType("HIGH").reviewSupLevelTypeDesc("High").build(),
@@ -127,7 +130,7 @@ public class InmateServiceImplTest {
         );
         when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10", "OFFENDER11"), null, Collections.emptySet(), true)).thenReturn(data);
 
-        final List<Assessment> assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), null, true);
+        final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), null, true);
 
         assertThat(assessments).hasSize(2); // 1 per offender
         assertThat(assessments).extracting("bookingId", "assessmentCode", "assessmentDate", "classification").contains(
@@ -139,7 +142,7 @@ public class InmateServiceImplTest {
     @Test
     public void testCreateCategorisation() {
 
-        final CategorisationDetail catDetail = CategorisationDetail.builder().bookingId(-5L).category("D").committee("GOV").comment("comment").build();
+        final var catDetail = CategorisationDetail.builder().bookingId(-5L).category("D").committee("GOV").comment("comment").build();
 
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("ME", "credentials"));
 

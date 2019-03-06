@@ -6,7 +6,6 @@ import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -51,7 +50,7 @@ public class MovementsSteps extends CommonSteps {
     }
 
     @Step("Retrieve all movement records")
-    public void retrieveAllMovementRecords(String fromDateTime, String movementDate) {
+    public void retrieveAllMovementRecords(final String fromDateTime, final String movementDate) {
         doPrisonerMovementListApiCall(fromDateTime, movementDate);
     }
 
@@ -67,12 +66,12 @@ public class MovementsSteps extends CommonSteps {
     }
 
     @Step("Retrieve all rollcount records")
-    public void retrieveRollCounts(String agencyId) {
+    public void retrieveRollCounts(final String agencyId) {
         doRollCountListApiCall(agencyId, false);
     }
 
     @Step("Retrieve all unassigned rollcount records")
-    public void retrieveUnassignedRollCounts(String agencyId) {
+    public void retrieveUnassignedRollCounts(final String agencyId) {
         doRollCountListApiCall(agencyId, true);
     }
 
@@ -95,10 +94,10 @@ public class MovementsSteps extends CommonSteps {
     }
 
 
-    public void retrieveMovementsByOffenders(List<String> offenderNumbers, Boolean includeMovementTypes) {
+    public void retrieveMovementsByOffenders(final List<String> offenderNumbers, final Boolean includeMovementTypes) {
         init();
         try {
-            ResponseEntity<List<Movement>> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     includeMovementTypes ? API_REQUEST_RECENT_MOVEMENTS + "?movementTypes=TRN&movementTypes=REL" :
                             API_REQUEST_RECENT_MOVEMENTS,
                     HttpMethod.POST, createEntity(offenderNumbers),
@@ -109,24 +108,24 @@ public class MovementsSteps extends CommonSteps {
             movements = response.getBody();
 
             buildResourceData(response);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
 
-    public void retrieveMovementCounts(String agencyId, String date) {
+    public void retrieveMovementCounts(final String agencyId, final String date) {
         doMovementCountApiCall(agencyId, date);
     }
 
 
-    public void verifyMovementCounts(Integer outToday, Integer inToday) {
+    public void verifyMovementCounts(final Integer outToday, final Integer inToday) {
         assertThat(movementCount.getOut()).isEqualTo(outToday);
         assertThat(movementCount.getIn()).isEqualTo(inToday);
     }
 
-    public void verifyMovements(String movementType,String fromDescription, String toDescription, String movementReason, String movementTime) {
-      boolean matched = movements
+    public void verifyMovements(final String movementType, final String fromDescription, final String toDescription, final String movementReason, final String movementTime) {
+        final var matched = movements
               .stream()
               .filter(m -> m.getMovementType().equals(movementType) &&
                       m.getFromAgencyDescription().equals(fromDescription) &&
@@ -140,12 +139,12 @@ public class MovementsSteps extends CommonSteps {
       assertThat(matched).isTrue();
     }
 
-    public void verifyOutToday(List<OffenderOutTodayDto> offenders) {
+    public void verifyOutToday(final List<OffenderOutTodayDto> offenders) {
         assertThat(offendersOutToday).containsSequence(offenders);
     }
 
-    public void verifyOffenderMovements(String offenderNo, String lastName, String fromDescription, String toDescription, String movementReason, String movementTime) {
-        boolean matched = offenderMovements
+    public void verifyOffenderMovements(final String offenderNo, final String lastName, final String fromDescription, final String toDescription, final String movementReason, final String movementTime) {
+        final var matched = offenderMovements
                 .stream()
                 .filter(m -> m.getOffenderNo().equals(offenderNo) &&
                         m.getLastName().equals(lastName) &&
@@ -160,11 +159,11 @@ public class MovementsSteps extends CommonSteps {
         assertThat(matched).isTrue();
     }
 
-    private void doPrisonerMovementListApiCall(String fromDateTime, String movementDate) {
+    private void doPrisonerMovementListApiCall(final String fromDateTime, final String movementDate) {
         init();
 
         try {
-            ResponseEntity<List<Movement>> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     String.format(API_REQUEST_BASE_URL, fromDateTime, movementDate),
                     HttpMethod.GET, createEntity(),
                     new ParameterizedTypeReference<List<Movement>>() {
@@ -175,16 +174,16 @@ public class MovementsSteps extends CommonSteps {
             movements = response.getBody();
 
             buildResourceData(response);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void doRollCountListApiCall(String agencyId, boolean unassigned) {
+    private void doRollCountListApiCall(final String agencyId, final boolean unassigned) {
         init();
 
         try {
-            ResponseEntity<List<RollCount>> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     API_REQUEST_ROLLCOUNT_URL,
                     HttpMethod.GET, createEntity(),
                     new ParameterizedTypeReference<List<RollCount>>() {
@@ -195,16 +194,16 @@ public class MovementsSteps extends CommonSteps {
             rollCounts = response.getBody();
 
             buildResourceData(response);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void doMovementCountApiCall(String agencyId, String date) {
+    private void doMovementCountApiCall(final String agencyId, final String date) {
         init();
 
         try {
-            ResponseEntity<MovementCount> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     API_REQUEST_MOVEMENT_COUNT_URL,
                     HttpMethod.GET, createEntity(),
                     new ParameterizedTypeReference<MovementCount>() {
@@ -214,16 +213,16 @@ public class MovementsSteps extends CommonSteps {
 
             movementCount = response.getBody();
 
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    public void getOffendersOut(String agencyId, LocalDate movementDate) {
+    public void getOffendersOut(final String agencyId, final LocalDate movementDate) {
         init();
 
         try {
-            var response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     API_REQUEST_OUT_TODAY,
                     HttpMethod.GET, createEntity(),
                     new ParameterizedTypeReference<List<OffenderOutTodayDto>>() {},
@@ -234,16 +233,16 @@ public class MovementsSteps extends CommonSteps {
 
             offendersOutToday = response.getBody();
 
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    public void retrieveEnrouteOffenders(String agencyId, String date) {
+    public void retrieveEnrouteOffenders(final String agencyId, final String date) {
         init();
 
         try {
-            ResponseEntity<List<OffenderMovement>> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     API_REQUEST_MOVEMENT_ENROUTE_URL,
                     HttpMethod.GET, createEntity(),
                     new ParameterizedTypeReference<List<OffenderMovement>>() {
@@ -253,15 +252,15 @@ public class MovementsSteps extends CommonSteps {
 
             offenderMovements = response.getBody();
 
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    public void getOffendersIn(String agencyId, LocalDate movementsDate) {
+    public void getOffendersIn(final String agencyId, final LocalDate movementsDate) {
         init();
         try {
-            var response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     API_REQUEST_OFFENDERS_IN,
                     HttpMethod.GET,
                     createEntity(),
@@ -270,19 +269,19 @@ public class MovementsSteps extends CommonSteps {
                     movementsDate
             );
             offendersIn = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    public void verifyOffendersIn(List<OffenderIn> expectedOffendersIn) {
+    public void verifyOffendersIn(final List<OffenderIn> expectedOffendersIn) {
         assertThat(offendersIn).containsOnlyElementsOf(expectedOffendersIn);
     }
 
-    public void getOffendersInReception(String agencyId) {
+    public void getOffendersInReception(final String agencyId) {
         init();
         try {
-            var response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     API_REQUEST_OFFENDERS_IN_RECEPTION,
                     HttpMethod.GET,
                     createEntity(),
@@ -290,23 +289,23 @@ public class MovementsSteps extends CommonSteps {
                     agencyId
             );
             offendersInReception = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    public void verifyOffendersInReception(List<OffenderInReception> offenders) {
+    public void verifyOffendersInReception(final List<OffenderInReception> offenders) {
         assertThat(offendersInReception).containsSubsequence(offenders);
     }
 
-    public void verifyMovements(List<Movement> recentMovements) {
+    public void verifyMovements(final List<Movement> recentMovements) {
         assertThat(movements).containsSubsequence(recentMovements);
     }
 
-    public void verifyOffenderMovements(String offenderNo, String movementType, String fromDescription, String toDescription, String reasonDescription, String movementTime, String fromCity, String toCity) {
+    public void verifyOffenderMovements(final String offenderNo, final String movementType, final String fromDescription, final String toDescription, final String reasonDescription, final String movementTime, final String fromCity, final String toCity) {
 
 
-        boolean matched = movements
+        final var matched = movements
                 .stream()
                 .filter(m -> m.getOffenderNo().equals(offenderNo) &&
                         m.getMovementType().equals(movementType) &&

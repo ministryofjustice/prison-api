@@ -8,7 +8,7 @@ import net.syscon.elite.api.model.ErrorResponse;
 public class EliteClientException extends RuntimeException {
     private ErrorResponse errorResponse;
 
-    public EliteClientException(ErrorResponse errorResponse) {
+    public EliteClientException(final ErrorResponse errorResponse) {
         this.errorResponse = errorResponse;
     }
 

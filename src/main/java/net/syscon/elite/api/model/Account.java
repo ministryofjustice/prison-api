@@ -47,7 +47,7 @@ public class Account {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -60,7 +60,7 @@ public class Account {
         return spends;
     }
 
-    public void setSpends(BigDecimal spends) {
+    public void setSpends(final BigDecimal spends) {
         this.spends = spends;
     }
 
@@ -73,7 +73,7 @@ public class Account {
         return cash;
     }
 
-    public void setCash(BigDecimal cash) {
+    public void setCash(final BigDecimal cash) {
         this.cash = cash;
     }
 
@@ -86,7 +86,7 @@ public class Account {
         return savings;
     }
 
-    public void setSavings(BigDecimal savings) {
+    public void setSavings(final BigDecimal savings) {
         this.savings = savings;
     }
 
@@ -99,13 +99,13 @@ public class Account {
         return currency;
     }
 
-    public void setCurrency(String currency) {
+    public void setCurrency(final String currency) {
         this.currency = currency;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class Account {\n");
         

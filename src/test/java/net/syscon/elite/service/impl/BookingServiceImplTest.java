@@ -84,17 +84,17 @@ public class  BookingServiceImplTest {
     @Test
     public void testCreateBookingAppointment() {
 
-        final String appointmentType = "MEDE";
-        final long locationId = -20L;
-        final long bookingId = 100L;
-        final String agencyId = "LEI";
-        final long eventId = -10L;
-        final String principal = "ME";
-        final ScheduledEvent expectedEvent = ScheduledEvent.builder().bookingId(bookingId).build();
-        final Location location = Location.builder().locationId(locationId).agencyId(agencyId).build();
-        final Agency agency = Agency.builder().agencyId(agencyId).build();
-        
-        final NewAppointment newAppointment =  NewAppointment.builder()
+        final var appointmentType = "MEDE";
+        final var locationId = -20L;
+        final var bookingId = 100L;
+        final var agencyId = "LEI";
+        final var eventId = -10L;
+        final var principal = "ME";
+        final var expectedEvent = ScheduledEvent.builder().bookingId(bookingId).build();
+        final var location = Location.builder().locationId(locationId).agencyId(agencyId).build();
+        final var agency = Agency.builder().agencyId(agencyId).build();
+
+        final var newAppointment = NewAppointment.builder()
                 .appointmentType(appointmentType)
                 .startTime(LocalDateTime.now().plusDays(1))
                 .endTime(LocalDateTime.now().plusDays(2))
@@ -104,7 +104,7 @@ public class  BookingServiceImplTest {
         programMocks(appointmentType, bookingId, agencyId, eventId, principal, expectedEvent, location,
                 newAppointment);
 
-        final ScheduledEvent actualEvent = bookingService.createBookingAppointment(bookingId, principal, newAppointment);
+        final var actualEvent = bookingService.createBookingAppointment(bookingId, principal, newAppointment);
 
         assertThat(actualEvent).isEqualTo(expectedEvent);
     }
@@ -112,16 +112,16 @@ public class  BookingServiceImplTest {
     @Test
     public void testCreateBookingAppointmentInvalidStartTime() {
 
-        final long bookingId = 100L;
-        final String principal = "ME";
+        final var bookingId = 100L;
+        final var principal = "ME";
 
-        final NewAppointment newAppointment = NewAppointment.builder().startTime(LocalDateTime.now().plusDays(-1))
+        final var newAppointment = NewAppointment.builder().startTime(LocalDateTime.now().plusDays(-1))
                 .endTime(LocalDateTime.now().plusDays(2)).build();
 
         try {
             bookingService.createBookingAppointment(bookingId, principal, newAppointment);
             fail("Should have thrown exception");
-        } catch (BadRequestException e) {
+        } catch (final BadRequestException e) {
             assertThat(e.getMessage()).isEqualTo("Appointment time is in the past.");
         }
     }
@@ -129,16 +129,16 @@ public class  BookingServiceImplTest {
     @Test
     public void testCreateBookingAppointmentInvalidEndTime() {
 
-        final long bookingId = 100L;
-        final String principal = "ME";
+        final var bookingId = 100L;
+        final var principal = "ME";
 
-        final NewAppointment newAppointment = NewAppointment.builder().startTime(LocalDateTime.now().plusDays(2))
+        final var newAppointment = NewAppointment.builder().startTime(LocalDateTime.now().plusDays(2))
                 .endTime(LocalDateTime.now().plusDays(1)).build();
 
         try {
             bookingService.createBookingAppointment(bookingId, principal, newAppointment);
             fail("Should have thrown exception");
-        } catch (BadRequestException e) {
+        } catch (final BadRequestException e) {
             assertThat(e.getMessage()).isEqualTo("Appointment end time is before the start time.");
         }
     }
@@ -146,17 +146,17 @@ public class  BookingServiceImplTest {
     @Test
     public void testCreateBookingAppointmentInvalidLocation() {
 
-        final String appointmentType = "MEDE";
-        final long locationId = -20L;
-        final long bookingId = 100L;
-        final String agencyId = "LEI";
-        final long eventId = -10L;
-        final String principal = "ME";
-        final ScheduledEvent expectedEvent = ScheduledEvent.builder().bookingId(bookingId).build();
-        final Location location = Location.builder().locationId(locationId).agencyId(agencyId).build();
-        final Agency agency = Agency.builder().agencyId(agencyId).build();
-        
-        final NewAppointment newAppointment =  NewAppointment.builder()
+        final var appointmentType = "MEDE";
+        final var locationId = -20L;
+        final var bookingId = 100L;
+        final var agencyId = "LEI";
+        final var eventId = -10L;
+        final var principal = "ME";
+        final var expectedEvent = ScheduledEvent.builder().bookingId(bookingId).build();
+        final var location = Location.builder().locationId(locationId).agencyId(agencyId).build();
+        final var agency = Agency.builder().agencyId(agencyId).build();
+
+        final var newAppointment = NewAppointment.builder()
                 .appointmentType(appointmentType)
                 .startTime(LocalDateTime.now().plusDays(1))
                 .endTime(LocalDateTime.now().plusDays(2))
@@ -172,7 +172,7 @@ public class  BookingServiceImplTest {
         try {
             bookingService.createBookingAppointment(bookingId, principal, newAppointment);
             fail("Should have thrown exception");
-        } catch (BadRequestException e) {
+        } catch (final BadRequestException e) {
             assertThat(e.getMessage()).isEqualTo("Location does not exist or is not in your caseload.");
         }
     }
@@ -180,17 +180,17 @@ public class  BookingServiceImplTest {
     @Test
     public void testCreateBookingAppointmentInvalidAppointmentType() {
 
-        final String appointmentType = "MEDE";
-        final long locationId = -20L;
-        final long bookingId = 100L;
-        final String agencyId = "LEI";
-        final long eventId = -10L;
-        final String principal = "ME";
-        final ScheduledEvent expectedEvent = ScheduledEvent.builder().bookingId(bookingId).build();
-        final Location location = Location.builder().locationId(locationId).agencyId(agencyId).build();
-        final Agency agency = Agency.builder().agencyId(agencyId).build();
+        final var appointmentType = "MEDE";
+        final var locationId = -20L;
+        final var bookingId = 100L;
+        final var agencyId = "LEI";
+        final var eventId = -10L;
+        final var principal = "ME";
+        final var expectedEvent = ScheduledEvent.builder().bookingId(bookingId).build();
+        final var location = Location.builder().locationId(locationId).agencyId(agencyId).build();
+        final var agency = Agency.builder().agencyId(agencyId).build();
 
-        final NewAppointment newAppointment = NewAppointment.builder().appointmentType(appointmentType)
+        final var newAppointment = NewAppointment.builder().appointmentType(appointmentType)
                 .startTime(LocalDateTime.now().plusDays(1)).endTime(LocalDateTime.now().plusDays(2)).comment("comment")
                 .locationId(locationId).build();
 
@@ -204,7 +204,7 @@ public class  BookingServiceImplTest {
         try {
             bookingService.createBookingAppointment(bookingId, principal, newAppointment);
             fail("Should have thrown exception");
-        } catch (BadRequestException e) {
+        } catch (final BadRequestException e) {
             assertThat(e.getMessage()).isEqualTo("Event type not recognised.");
         }
     }

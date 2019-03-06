@@ -1,7 +1,6 @@
 package net.syscon.elite.repository;
 
 import com.google.common.collect.ImmutableList;
-import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.PrisonContactDetail;
 import net.syscon.elite.api.model.Telephone;
 import net.syscon.elite.api.support.TimeSlot;
@@ -24,7 +23,6 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -47,7 +45,7 @@ public class AgencyRepositoryTest {
 
     @Test
     public void testGetAgencyLocations() {
-        final List<Location> locations = repository.getAgencyLocations("LEI", Arrays.asList("APP", "VISIT"), null, null);
+        final var locations = repository.getAgencyLocations("LEI", Arrays.asList("APP", "VISIT"), null, null);
         assertThat(locations).extracting("locationType").contains("AREA", "AREA", "CLAS", "WSHP");
     }
 
@@ -64,43 +62,43 @@ public class AgencyRepositoryTest {
 
     @Test
     public void testGetAgencyLocationsNoResults1() {
-        final List<Location> locations = repository.getAgencyLocations("LEI", Arrays.asList("OTHER"), null, null);
+        final var locations = repository.getAgencyLocations("LEI", Arrays.asList("OTHER"), null, null);
         assertThat(locations).isEmpty();
     }
 
     @Test
     public void testGetAgencyLocationsNoResults2() {
-        final List<Location> locations = repository.getAgencyLocations("doesnotexist", Arrays.asList("APP"), null, null);
+        final var locations = repository.getAgencyLocations("doesnotexist", Arrays.asList("APP"), null, null);
         assertThat(locations).isEmpty();
     }
 
     @Test
     public void testGetAgencyLocationsAll() {
-        final List<Location> locations = repository.getAgencyLocations("LEI", Collections.emptyList(), null, null);
+        final var locations = repository.getAgencyLocations("LEI", Collections.emptyList(), null, null);
         assertThat(locations).hasSize(40);
     }
 
     @Test
     public void testGetAgencyLocationsWithDates() {
-        final List<Location> locations = repository.getAgencyLocationsBooked("LEI", LocalDate.of(2017, Month.SEPTEMBER, 11), null);
+        final var locations = repository.getAgencyLocationsBooked("LEI", LocalDate.of(2017, Month.SEPTEMBER, 11), null);
         assertThat(locations).hasSize(3);
     }
 
     @Test
     public void testGetAgencyLocationsWithDatesAM() {
-        final List<Location> locations = repository.getAgencyLocationsBooked("LEI", LocalDate.of(2017, Month.SEPTEMBER, 11), TimeSlot.AM);
+        final var locations = repository.getAgencyLocationsBooked("LEI", LocalDate.of(2017, Month.SEPTEMBER, 11), TimeSlot.AM);
         assertThat(locations).hasSize(1);
     }
 
     @Test
     public void testGetAgencyLocationsWithDatesPM() {
-        final List<Location> locations = repository.getAgencyLocationsBooked("LEI", LocalDate.of(2017, Month.SEPTEMBER, 11), TimeSlot.PM);
+        final var locations = repository.getAgencyLocationsBooked("LEI", LocalDate.of(2017, Month.SEPTEMBER, 11), TimeSlot.PM);
         assertThat(locations).hasSize(2);
     }
 
     @Test
     public void testGetAllPrisonContactDetailsInAgencyIdOrder() {
-        final List<PrisonContactDetail> prisonContactDetailList = repository.getPrisonContactDetails(null);
+        final var prisonContactDetailList = repository.getPrisonContactDetails(null);
         assertThat(prisonContactDetailList).extracting("agencyId")
                 .containsExactly(
                         "BMI", "BXI", "LEI", "MDI", "MUL", "SYI", "TRO", "WAI"
@@ -110,7 +108,7 @@ public class AgencyRepositoryTest {
 
     @Test
     public void testGetAllPrisonContactDetailsByAgencyIdMultipleAddressesOnePrimary() {
-        final List<PrisonContactDetail> prisonContactDetailList = repository.getPrisonContactDetails("TRO");
+        final var prisonContactDetailList = repository.getPrisonContactDetails("TRO");
         assertThat(prisonContactDetailList).extracting("agencyId")
                 .containsExactly(
                         "TRO"
@@ -119,7 +117,7 @@ public class AgencyRepositoryTest {
 
     @Test
     public void testGetPrisonContactDetailsByAgencyId() {
-        final List<PrisonContactDetail> prisonContactDetails = repository.getPrisonContactDetails("BMI");
+        final var prisonContactDetails = repository.getPrisonContactDetails("BMI");
         assertThat(prisonContactDetails.get(0)).isEqualTo(buildBmiPrisonContactDetails());
     }
 

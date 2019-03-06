@@ -27,16 +27,16 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     private UserSteps user;
 
     @Given("^a user has a token name of \"([^\"]*)\"$")
-    public void aUserHasAToken(String tokenName) {
+    public void aUserHasAToken(final String tokenName) {
         user.authenticateAsClient(AuthenticationSteps.AuthToken.valueOf(tokenName));
     }
 
     @Given("^a user has logged in with username \"([^\"]*)\" and password \"([^\"]*)\"$")
-    public void aUserHasLoggedInWithUsernameAndPassword(String username, String password) {
+    public void aUserHasLoggedInWithUsernameAndPassword(final String username, final String password) {
         user.authenticateAsClient(NORMAL_USER);
     }
     @Given("^user \"([^\"]*)\" with password \"([^\"]*)\" has authenticated with the API$")
-    public void userWithPasswordHasAuthenticatedWithTheAPI(String username, String password) {
+    public void userWithPasswordHasAuthenticatedWithTheAPI(final String username, final String password) {
         user.authenticateAsClient(NORMAL_USER);
     }
 
@@ -51,7 +51,7 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Given("^a system client \"([^\"]*)\" has authenticated with the API$")
-    public void trustedClientWithPasswordHasAuthenticatedWithTheAPI(String clientId) {
+    public void trustedClientWithPasswordHasAuthenticatedWithTheAPI(final String clientId) {
         user.authenticateAsClient(LOCAL_ADMIN);
     }
 
@@ -66,22 +66,22 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^\"([^\"]*)\" user locations are returned$")
-    public void userLocationsAreReturned(String expectedCount) {
+    public void userLocationsAreReturned(final String expectedCount) {
         user.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
     }
 
     @And("^user location agency ids are \"([^\"]*)\"$")
-    public void userLocationAgencyIdsAre(String expectedAgencies) {
+    public void userLocationAgencyIdsAre(final String expectedAgencies) {
         user.verifyLocationAgencies(expectedAgencies);
     }
 
     @And("^user location descriptions are \"([^\"]*)\"$")
-    public void userLocationDescriptionsAre(String expectedDescriptions) {
+    public void userLocationDescriptionsAre(final String expectedDescriptions) {
         user.verifyLocationDescriptions(expectedDescriptions);
     }
 
     @And("^user location prefixes are \"([^\"]*)\"$")
-    public void userLocationPrefixesAre(String expectedPrefixes) {
+    public void userLocationPrefixesAre(final String expectedPrefixes) {
         user.verifyLocationPrefixes(expectedPrefixes);
     }
 
@@ -101,7 +101,7 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^the roles returned are \"([^\"]*)\"$")
-    public void theRolesReturnedAre(String roles) {
+    public void theRolesReturnedAre(final String roles) {
         user.verifyRoles(roles);
     }
 
@@ -111,7 +111,7 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^\"([^\"]*)\" case note types are returned$")
-    public void caseNoteTypesAreReturned(String expectedCount) {
+    public void caseNoteTypesAreReturned(final String expectedCount) {
         user.verifyResourceRecordsReturned(Long.parseLong(expectedCount));
     }
 
@@ -121,47 +121,47 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     }
 
     @When("^a request for users having role \"([^\"]*)\" at caseload \"([^\"]*)\" is made$")
-    public void aRequestForUsersHavingAtIsMade(String role, String caseload) {
+    public void aRequestForUsersHavingAtIsMade(final String role, final String caseload) {
         user.findUsernamesHavingRoleAtCaseload(role, caseload);
     }
 
     @Then("^the matching \"([^\"]*)\" are returned$")
-    public void theMatchingAreReturned(String usernames) {
+    public void theMatchingAreReturned(final String usernames) {
         user.verifyUsernames(usernames);
     }
 
     @When("^the client assigns api-role \"([^\"]*)\" to user \"([^\"]*)\"$")
-    public void theClientAssignsApiRoleToUser(String role, String username) {
+    public void theClientAssignsApiRoleToUser(final String role, final String username) {
         user.assignApiRoleToUser(role, username);
     }
 
     @When("^the client assigns access role \"([^\"]*)\" to user \"([^\"]*)\" for caseload \"([^\"]*)\"$")
-    public void theClientAssignsApiRoleToUserForCaseload(String role, String username, String caseload) {
+    public void theClientAssignsApiRoleToUserForCaseload(final String role, final String username, final String caseload) {
         user.assignAccessRoleToUser(role, username, caseload);
     }
 
     @Then("^user \"([^\"]*)\" has been assigned api-role \"([^\"]*)\"$")
-    public void userHasBeenAssignedApiRole(String username, String role) {
+    public void userHasBeenAssignedApiRole(final String username, final String role) {
         user.verifyApiRoleAssignment(username, role);
     }
 
     @Then("^user \"([^\"]*)\" has been assigned access role \"([^\"]*)\" for caseload \"([^\"]*)\"$")
-    public void userHasBeenAssignedAccessRole(String username, String role, String caseload){
+    public void userHasBeenAssignedAccessRole(final String username, final String role, final String caseload) {
         user.verifyAccessRoleAssignment(username, role, caseload);
     }
 
     @When("^the client removes role \"([^\"]*)\" from user \"([^\"]*)\" at caseload \"([^\"]*)\"$")
-    public void theClientRemovesRoleFromUserAtCaseload(String role, String username, String caseload) {
+    public void theClientRemovesRoleFromUserAtCaseload(final String role, final String username, final String caseload) {
         user.removeRole(role, username, caseload);
     }
 
     @Then("^user \"([^\"]*)\" does not have role \"([^\"]*)\" at caseload \"([^\"]*)\"$")
-    public void userDoesNotHaveRoleAtCaseload(String username, String role, String caseload) {
+    public void userDoesNotHaveRoleAtCaseload(final String username, final String role, final String caseload) {
         user.userDoesNotHaveRoleAtCaseload( username,  role,  caseload);
     }
 
     @When("^a request for users with caseload \"([^\"]*)\" is made$")
-    public void aRequestForUsersWithCaseloadIsMade(String caseloadId) {
+    public void aRequestForUsersWithCaseloadIsMade(final String caseloadId) {
         user.getUsersByCaseload(caseloadId, null, null, false);
     }
 
@@ -176,27 +176,27 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^a list of users is returned with usernames \"([^\"]*)\"$")
-    public void aListOfUsersIsReturnedWithUsernames(String usernameList) {
+    public void aListOfUsersIsReturnedWithUsernames(final String usernameList) {
         user.verifyUserList(usernameList);
     }
 
     @Then("^a list of roles is returned with role codes \"([^\"]*)\"$")
-    public void aListOfRolesIsReturnedWithRoleCodes(String roleCodeList) {
+    public void aListOfRolesIsReturnedWithRoleCodes(final String roleCodeList) {
         user.verifyRoleList(roleCodeList);
     }
 
     @When("^a request for users with caseload \"([^\"]*)\" and namefilter \"([^\"]*)\" and role \"([^\"]*)\" is made$")
-    public void aRequestForUsersWithCaseloadAndNamefilterAndRoleIsMade(String caseloadId, String nameFilter, String roleCode) {
+    public void aRequestForUsersWithCaseloadAndNamefilterAndRoleIsMade(final String caseloadId, final String nameFilter, final String roleCode) {
         user.getUsersByCaseload(caseloadId, roleCode, nameFilter, false);
     }
 
     @When("^a request for users by local administrator with namefilter \"([^\"]*)\" and role \"([^\"]*)\" is made$")
-    public void aRequestForLocalAdminUsersWithCaseloadAndNamefilterAndRoleIsMade(String nameFilter, String roleCode) {
+    public void aRequestForLocalAdminUsersWithCaseloadAndNamefilterAndRoleIsMade(final String nameFilter, final String roleCode) {
         user.getUsersByLaa(roleCode, nameFilter);
     }
 
     @When("^a request for roles for user \"([^\"]*)\" with caseload \"([^\"]*)\" is made$")
-    public void aRequestForRolesForUserWithCaseloadIsMade(String username, String caseload) {
+    public void aRequestForRolesForUserWithCaseloadIsMade(final String username, final String caseload) {
         user.getRolesByUserAndCaseload(username, caseload);
     }
 

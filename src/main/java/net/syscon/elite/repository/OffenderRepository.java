@@ -32,13 +32,13 @@ public interface OffenderRepository {
         private final DatabaseDialect databaseDialect;
         private final Map<String, String> columnMappings;
 
-        ColumnMapper(DatabaseDialect databaseDialect, Map<String, String> columnMappings) {
+        ColumnMapper(final DatabaseDialect databaseDialect, final Map<String, String> columnMappings) {
             this.databaseDialect = databaseDialect;
             this.columnMappings = columnMappings;
         }
 
-        public static Map<String, String> getColumnMappingsForDialect(DatabaseDialect databaseDialect) {
-            Map<String, String> mappings;
+        public static Map<String, String> getColumnMappingsForDialect(final DatabaseDialect databaseDialect) {
+            final Map<String, String> mappings;
 
             switch(databaseDialect) {
                 case ORACLE_11:
@@ -73,14 +73,14 @@ class ColumnMappings {
     private static final Map<String, String> ANSI_COLUMN_MAPPINGS;
 
     static {
-        Map<String, String> oracleColumnMappings = new HashMap<>();
+        final Map<String, String> oracleColumnMappings = new HashMap<>();
 
         oracleColumnMappings.put("pncNumber", "OI1.IDENTIFIER");
         oracleColumnMappings.put("croNumber", "OI2.IDENTIFIER");
 
         ORACLE_COLUMN_MAPPINGS = Collections.unmodifiableMap(oracleColumnMappings);
 
-        Map<String, String> ansiColumnMappings = new HashMap<>();
+        final Map<String, String> ansiColumnMappings = new HashMap<>();
 
         ansiColumnMappings.put("pncNumber", "PNC_NUMBER");
         ansiColumnMappings.put("croNumber", "CRO_NUMBER");

@@ -1,8 +1,6 @@
 package net.syscon.elite.service.impl;
 
-import net.syscon.elite.api.model.Contact;
 import net.syscon.elite.api.model.OffenderRelationship;
-import net.syscon.elite.api.model.OffenderSummary;
 import net.syscon.elite.service.BookingService;
 import net.syscon.elite.service.ContactService;
 import org.junit.Test;
@@ -12,8 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,10 +30,10 @@ public class ContactRelationshipIntTest {
     @Test
     @WithMockUser(username= "ITAG_USER", roles = { "CONTACT_CREATE" })
     public void testCreateRelationshipWithMultipleOffendersAndLinkedRelationships() {
-        List<Contact> contactList = contactService.getRelationships(BOOKING1_ID, "COM");
+        var contactList = contactService.getRelationships(BOOKING1_ID, "COM");
         assertThat(contactList).isEmpty();
 
-        Contact relationship = contactService.createRelationship(BOOKING1_ID,
+        final var relationship = contactService.createRelationship(BOOKING1_ID,
                 OffenderRelationship.builder()
                         .firstName("TESTFIRST")
                         .lastName("TESTLAST")
@@ -56,7 +52,7 @@ public class ContactRelationshipIntTest {
         assertThat(contactList.get(0).getFirstName()).isEqualTo("TESTFIRST");
         assertThat(contactList.get(0).getLastName()).isEqualTo("TESTLAST");
 
-        List<OffenderSummary> offenders = bookingService.getBookingsByExternalRefAndType("EX123", "COM");
+        var offenders = bookingService.getBookingsByExternalRefAndType("EX123", "COM");
         assertThat(offenders).hasSize(1);
         assertThat(offenders.get(0).getBookingId()).isEqualTo(BOOKING1_ID);
 
@@ -66,7 +62,7 @@ public class ContactRelationshipIntTest {
         assertThat(offenders.get(0).getBookingId()).isEqualTo(BOOKING1_ID);
 
         // update relationship
-        Contact updatedRelationship = contactService.createRelationship(BOOKING1_ID,
+        final var updatedRelationship = contactService.createRelationship(BOOKING1_ID,
                 OffenderRelationship.builder()
                         .firstName("NewFirstName")
                         .lastName("NewLastName")
@@ -81,14 +77,14 @@ public class ContactRelationshipIntTest {
         assertThat(contactList.get(0).getFirstName()).isEqualTo("NewFirstName");
         assertThat(contactList.get(0).getLastName()).isEqualTo("NewLastName");
 
-        Contact secondRelationship = contactService.createRelationship(BOOKING2_ID,
+        final var secondRelationship = contactService.createRelationship(BOOKING2_ID,
                 OffenderRelationship.builder()
                         .firstName("SECONDTEST")
                         .lastName("SECONDTESTLAST")
                         .relationshipType("COM")
                         .build());
 
-        Contact updatedSecondRelationship = contactService.createRelationship(BOOKING2_ID,
+        final var updatedSecondRelationship = contactService.createRelationship(BOOKING2_ID,
                 OffenderRelationship.builder()
                         .firstName("AnotherFirstName")
                         .lastName("AnotherLastName")
@@ -102,7 +98,7 @@ public class ContactRelationshipIntTest {
         assertThat(updatedSecondRelationship.getPersonId()).isNotEqualTo(secondRelationship.getPersonId());
         assertThat(updatedSecondRelationship.getRelationshipId()).isEqualTo(secondRelationship.getRelationshipId());
 
-        Contact newUpdatedSecondRelationship = contactService.createRelationship(BOOKING2_ID,
+        final var newUpdatedSecondRelationship = contactService.createRelationship(BOOKING2_ID,
                 OffenderRelationship.builder()
                         .firstName("MoreAnotherFirstName")
                         .lastName("MoreAnotherLastName")

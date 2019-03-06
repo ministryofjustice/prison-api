@@ -14,22 +14,22 @@ import java.time.format.DateTimeFormatter;
  * Allow cucumber to transparently convert strings to/from LocalTime type,
  */
 public class LocalTimeConverter implements Converter {
-    public boolean canConvert(Class type) {
+    public boolean canConvert(final Class type) {
         return LocalTime.class.isAssignableFrom(type);
     }
 
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm");
 
-    public void marshal(Object value, HierarchicalStreamWriter writer, MarshallingContext context) {
+    public void marshal(final Object value, final HierarchicalStreamWriter writer, final MarshallingContext context) {
         if (value != null) {
-            LocalTime time = (LocalTime) value;
-            String result = time.format(dateTimeFormatter);
+            final var time = (LocalTime) value;
+            final var result = time.format(dateTimeFormatter);
             writer.setValue(result);
         }
     }
 
-    public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {
-        final String value = reader.getValue();
+    public Object unmarshal(final HierarchicalStreamReader reader, final UnmarshallingContext context) {
+        final var value = reader.getValue();
         if (StringUtils.isBlank(value)) {
             return null;
         }

@@ -50,115 +50,115 @@ public class QueryBuilderTest {
 
 	@Test
 	public void buildSqlPreOracle12WithoutPaginationShouldReturnTheSameSQL() {
-		final String sql = oracle11Builder.getQueryBuilder(INITIAL_SQL, agencyMapping).removeSpecialChars().build();
+        final var sql = oracle11Builder.getQueryBuilder(INITIAL_SQL, agencyMapping).removeSpecialChars().build();
 		assertThat(sql, equalTo(INITIAL_SQL));
 	}
 	
 	@Test
 	public void buildSqlOracle12WithoutPaginationShouldReturnTheSameSql() {
-		final String sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping).removeSpecialChars().build();
+        final var sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping).removeSpecialChars().build();
 		assertThat(sql, equalTo(INITIAL_SQL));
 	}
 
 	@Test
 	public void buildSqlOracle12AndRowCountShouldReturnOracleNativePaginatedSql() {
-		final String sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
+        final var sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
 				.removeSpecialChars()
 				.addRowCount()
 				.build();
-		final String expectedSql = "SELECT COUNT(*) OVER() RECORD_COUNT, QRY_ALIAS.* FROM ( " + INITIAL_SQL + " ) QRY_ALIAS";
+        final var expectedSql = "SELECT COUNT(*) OVER() RECORD_COUNT, QRY_ALIAS.* FROM ( " + INITIAL_SQL + " ) QRY_ALIAS";
 		assertThat(sql, equalTo(expectedSql));
 	}
 
 	@Test
 	public void buildSqlPostgresAndRowCountShouldReturnOracleNativePaginatedSql() {
-		final String sql = postgresBuilder.getQueryBuilder(INITIAL_SQL, agencyMapping)
+        final var sql = postgresBuilder.getQueryBuilder(INITIAL_SQL, agencyMapping)
 				.removeSpecialChars()
 				.addRowCount()
 				.build();
-		final String expectedSql = "SELECT COUNT(*) OVER() RECORD_COUNT, QRY_ALIAS.* FROM ( " + INITIAL_SQL+ " ) QRY_ALIAS";
+        final var expectedSql = "SELECT COUNT(*) OVER() RECORD_COUNT, QRY_ALIAS.* FROM ( " + INITIAL_SQL + " ) QRY_ALIAS";
 		assertThat(sql, equalTo(expectedSql));
 	}
 
 	@Test
 	public void buildSqlHsqlDBAndRowCountShouldReturnOracleNativePaginatedSql() {
-		final String sql = hsqldbBuilder.getQueryBuilder(INITIAL_SQL, agencyMapping)
+        final var sql = hsqldbBuilder.getQueryBuilder(INITIAL_SQL, agencyMapping)
 				.removeSpecialChars()
 				.addRowCount()
 				.build();
-		final String expectedSql = "WITH TOTAL_COUNT AS ( SELECT COUNT(*) AS RECORD_COUNT FROM (" + INITIAL_SQL + ") QRY_ALIAS ) SELECT * FROM TOTAL_COUNT, (SELECT QRY_ALIAS.* FROM (" + INITIAL_SQL + ") QRY_ALIAS";
+        final var expectedSql = "WITH TOTAL_COUNT AS ( SELECT COUNT(*) AS RECORD_COUNT FROM (" + INITIAL_SQL + ") QRY_ALIAS ) SELECT * FROM TOTAL_COUNT, (SELECT QRY_ALIAS.* FROM (" + INITIAL_SQL + ") QRY_ALIAS";
 		assertThat(sql, equalTo(expectedSql));
 	}
 
 	@Test
 	public void buildSqlOracle12AndPaginationShouldReturnOracleNativePaginatedSql() {
-		final String sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
+        final var sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
 				.removeSpecialChars()
 				.addPagination()
 				.build();
-		final String expectedSql = INITIAL_SQL + " OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY";
+        final var expectedSql = INITIAL_SQL + " OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY";
 		assertThat(sql, equalTo(expectedSql));
 	}
 
 	@Test
 	public void buildSqlPostgresAndPaginationShouldReturnOracleNativePaginatedSql() {
-		final String sql = postgresBuilder.getQueryBuilder(INITIAL_SQL, agencyMapping)
+        final var sql = postgresBuilder.getQueryBuilder(INITIAL_SQL, agencyMapping)
 				.removeSpecialChars()
 				.addPagination()
 				.build();
-		final String expectedSql = INITIAL_SQL + " OFFSET (:offset) ROWS FETCH NEXT (:limit) ROWS ONLY";
+        final var expectedSql = INITIAL_SQL + " OFFSET (:offset) ROWS FETCH NEXT (:limit) ROWS ONLY";
 		assertThat(sql, equalTo(expectedSql));
 	}
 
 	@Test
 	public void buildSqlHsqlDBAndPaginationShouldReturnOracleNativePaginatedSql() {
-		final String sql = hsqldbBuilder.getQueryBuilder(INITIAL_SQL, agencyMapping)
+        final var sql = hsqldbBuilder.getQueryBuilder(INITIAL_SQL, agencyMapping)
 				.removeSpecialChars()
 				.addPagination()
 				.build();
-		final String expectedSql = INITIAL_SQL + "  OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY";
+        final var expectedSql = INITIAL_SQL + "  OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY";
 		assertThat(sql, equalTo(expectedSql));
 	}
 
 	@Test
 	public void buildSqlPreOracle12AndPaginationShouldReturnSubQueryPaginatedSql() {
-		final String sql = oracle11Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
+        final var sql = oracle11Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
 				.removeSpecialChars()
 				.addPagination()
 				.build();
-		final String expectedSql = String.format("SELECT * FROM (SELECT QRY_PAG.*, ROWNUM rnum FROM ( %s  ) QRY_PAG WHERE ROWNUM <= :offset+:limit) WHERE rnum >= :offset+1", INITIAL_SQL);
+        final var expectedSql = String.format("SELECT * FROM (SELECT QRY_PAG.*, ROWNUM rnum FROM ( %s  ) QRY_PAG WHERE ROWNUM <= :offset+:limit) WHERE rnum >= :offset+1", INITIAL_SQL);
 		assertThat(sql, equalTo(expectedSql));
 	}
 		
 	@Test
 	public void buildSqlUsingAliasColumnWithConditionShouldReturnQueryWithSubQuery() {
-		final String sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
+        final var sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
 				.removeSpecialChars()
 				.addQuery("agencyId:eq:'ITAG'")
 				.build();
-		final String expectedSql = String.format("SELECT QRY_ALIAS.* FROM ( %s ) QRY_ALIAS WHERE AGENCY_CODE = 'ITAG'", INITIAL_SQL);
+        final var expectedSql = String.format("SELECT QRY_ALIAS.* FROM ( %s ) QRY_ALIAS WHERE AGENCY_CODE = 'ITAG'", INITIAL_SQL);
 		assertThat(sql, equalTo(expectedSql));
 	}
 		
 	@Test
 	public void buildSqlUsingAliasColumnWithConditionAndRowCountingShouldReturnQueryWithSubQuery() {
-		final String sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
+        final var sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
 			.removeSpecialChars()
 			.addQuery("agencyId:eq:'ITAG'")
 			.addRowCount()
 			.build();
-		final String expectedSql = String.format("SELECT COUNT(*) OVER() RECORD_COUNT, QRY_ALIAS.* FROM ( %s ) QRY_ALIAS WHERE AGENCY_CODE = 'ITAG'", INITIAL_SQL);
+        final var expectedSql = String.format("SELECT COUNT(*) OVER() RECORD_COUNT, QRY_ALIAS.* FROM ( %s ) QRY_ALIAS WHERE AGENCY_CODE = 'ITAG'", INITIAL_SQL);
 		assertThat(sql, equalTo(expectedSql));
 	}
 
 	@Test
 	@UseDataProvider("data")
-	public void buildSqlUsingQueryOperatorsShouldReturnExpectedParam(final String jsonOperator, final String sqlOperator, final String paramValue, String paramExpected) {
-		final String sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
+    public void buildSqlUsingQueryOperatorsShouldReturnExpectedParam(final String jsonOperator, final String sqlOperator, final String paramValue, final String paramExpected) {
+        final var sql = oracle12Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
 				.removeSpecialChars()
 				.addQuery("agencyId:" + jsonOperator + ":" + paramValue)
 				.build();
-		final String expectedSql = String.format("SELECT QRY_ALIAS.* FROM ( %s ) QRY_ALIAS WHERE AGENCY_CODE %s %s", INITIAL_SQL, sqlOperator, paramExpected);
+        final var expectedSql = String.format("SELECT QRY_ALIAS.* FROM ( %s ) QRY_ALIAS WHERE AGENCY_CODE %s %s", INITIAL_SQL, sqlOperator, paramExpected);
 		assertThat(sql, equalTo(expectedSql));
 	}
 }

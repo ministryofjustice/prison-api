@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Implementation of offender booking maintenance operations.
@@ -28,15 +27,15 @@ public class BookingMaintenanceServiceImpl implements BookingMaintenanceService 
     private final BookingRepository bookingRepository;
     private final TelemetryClient telemetryClient;
 
-    public BookingMaintenanceServiceImpl(AgencyService agencyService, BookingRepository bookingRepository,
-                                         TelemetryClient telemetryClient) {
+    public BookingMaintenanceServiceImpl(final AgencyService agencyService, final BookingRepository bookingRepository,
+                                         final TelemetryClient telemetryClient) {
         this.agencyService = agencyService;
         this.bookingRepository = bookingRepository;
         this.telemetryClient = telemetryClient;
     }
 
     @Override
-    public OffenderSummary createBooking(String username, @Valid NewBooking newBooking) {
+    public OffenderSummary createBooking(final String username, @Valid final NewBooking newBooking) {
         // Perform matching or de-duplication checks depending on presence of offenderNo in request.
         //
         // If offenderNo is present, the intent is to create new booking for an existing offender. Following statements
@@ -54,17 +53,17 @@ public class BookingMaintenanceServiceImpl implements BookingMaintenanceService 
 
         // NB: Offender matching and dedup checks are handled within PL/SQL stored procedure - for time being.
 
-        String agencyId = getCurrentUserAgency();
+        final var agencyId = getCurrentUserAgency();
 
-        Long bookingId;
+        final Long bookingId;
 
         try {
             bookingId = bookingRepository.createBooking(agencyId, newBooking);
-        } catch (DataAccessException ex) {
+        } catch (final DataAccessException ex) {
             throw RestServiceException.forDataAccessException(ex);
         }
 
-        OffenderSummary offenderSummary =
+        final var offenderSummary =
                 bookingRepository.getLatestBookingByBookingId(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
         createLog(username, agencyId, offenderSummary, "BookingCreated");
 
@@ -72,23 +71,23 @@ public class BookingMaintenanceServiceImpl implements BookingMaintenanceService 
     }
 
     @Override
-    public OffenderSummary recallBooking(String username, @Valid RecallBooking recallBooking) {
+    public OffenderSummary recallBooking(final String username, @Valid final RecallBooking recallBooking) {
         // NB: The new 'Recall Booking' stored procedure performs the following validation:
         //   - verifies that matching offender exists based on offenderNo, lastName, firstName, dateOfBirth and gender.
         //   - verifies that matched offender does not already have an acive booking
         //   - verifies that matched offender has at least one inactive booking
 
-        String agencyId = getCurrentUserAgency();
+        final var agencyId = getCurrentUserAgency();
 
-        Long bookingId;
+        final Long bookingId;
 
         try {
             bookingId = bookingRepository.recallBooking(agencyId, recallBooking);
-        } catch (DataAccessException ex) {
+        } catch (final DataAccessException ex) {
             throw RestServiceException.forDataAccessException(ex);
         }
 
-        OffenderSummary offenderSummary =
+        final var offenderSummary =
                 bookingRepository.getLatestBookingByBookingId(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
 
         // Log recall of offender booking
@@ -97,7 +96,7 @@ public class BookingMaintenanceServiceImpl implements BookingMaintenanceService 
         return offenderSummary;
     }
 
-    private void createLog(String username, String agencyId, OffenderSummary offenderSummary, String message) {
+    private void createLog(final String username, final String agencyId, final OffenderSummary offenderSummary, final String message) {
         // Log creation of offender booking
         final Map<String, String> eventLog = new HashMap<>();
 
@@ -110,7 +109,7 @@ public class BookingMaintenanceServiceImpl implements BookingMaintenanceService 
     }
 
     private String getCurrentUserAgency() {
-        Set<String> agencyIds = agencyService.getAgencyIds();
+        final var agencyIds = agencyService.getAgencyIds();
 
         if (agencyIds.size() != 1) {
             throw new IllegalStateException("Unable to determine agency location for current user.");
@@ -119,7 +118,7 @@ public class BookingMaintenanceServiceImpl implements BookingMaintenanceService 
         return agencyIds.toArray(new String[1])[0];
     }
 
-    private void createTelemetryLog(String eventName, Map<String,String> eventLog) {
+    private void createTelemetryLog(final String eventName, final Map<String, String> eventLog) {
         if (telemetryClient != null) {
             telemetryClient.trackEvent(eventName, eventLog, null);
         }

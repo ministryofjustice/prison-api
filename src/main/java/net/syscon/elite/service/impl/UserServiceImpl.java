@@ -45,8 +45,8 @@ public class UserServiceImpl implements UserService {
 	private final AuthenticationFacade securityUtils;
 	private final String apiCaseloadId;
 
-	public UserServiceImpl(CaseLoadService caseLoadService, StaffService staffService,
-						   UserRepository userRepository, AuthenticationFacade securityUtils, @Value("${application.caseload.id:NWEB}") String apiCaseloadId) {
+    public UserServiceImpl(final CaseLoadService caseLoadService, final StaffService staffService,
+                           final UserRepository userRepository, final AuthenticationFacade securityUtils, @Value("${application.caseload.id:NWEB}") final String apiCaseloadId) {
 		this.caseLoadService = caseLoadService;
 		this.staffService = staffService;
 		this.userRepository = userRepository;
@@ -55,9 +55,9 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserDetail getUserByUsername(String username) {
-		var userDetail = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
-		var caseLoadsForUser = caseLoadService.getCaseLoadsForUser(username, false);
+    public UserDetail getUserByUsername(final String username) {
+        final var userDetail = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
+        final var caseLoadsForUser = caseLoadService.getCaseLoadsForUser(username, false);
 		if (userDetail.getActiveCaseLoadId() == null && (caseLoadsForUser.isEmpty() || caseLoadsForUser.get(0).equals(EMPTY_CASELOAD))) {
 			userDetail.setActiveCaseLoadId(EMPTY_CASELOAD.getCaseLoadId());
 		}
@@ -65,8 +65,8 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<CaseLoad> getCaseLoads(String username, boolean allCaseloads) {
-		var caseLoadsForUser = caseLoadService.getCaseLoadsForUser(username, allCaseloads);
+    public List<CaseLoad> getCaseLoads(final String username, final boolean allCaseloads) {
+        final var caseLoadsForUser = caseLoadService.getCaseLoadsForUser(username, allCaseloads);
 		if (caseLoadsForUser.isEmpty()) {
 			caseLoadsForUser.add(EMPTY_CASELOAD);
 		}
@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public Set<String> getCaseLoadIds(String username) {
+    public Set<String> getCaseLoadIds(final String username) {
 		return getCaseLoads(username, false).stream()
 				.map(CaseLoad::getCaseLoadId)
 				.collect(Collectors.toSet()) ;
@@ -82,8 +82,8 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional
-	public void setActiveCaseLoad(String username, String caseLoadId) {
-		List<CaseLoad> userCaseLoads = caseLoadService.getCaseLoadsForUser(username, true);
+    public void setActiveCaseLoad(final String username, final String caseLoadId) {
+        final var userCaseLoads = caseLoadService.getCaseLoadsForUser(username, true);
 
 		if (userCaseLoads.stream().anyMatch(cl -> cl.getCaseLoadId().equalsIgnoreCase(caseLoadId))) {
 			userRepository.updateWorkingCaseLoad(username, caseLoadId);
@@ -93,9 +93,9 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<UserRole> getRolesByUsername(String username, boolean allRoles) {
-		String query = allRoles ? null : format("caseloadId:eq:'%s',or:caseloadId:is:null", apiCaseloadId);
-		final List<UserRole> rolesByUsername = userRepository.findRolesByUsername(username, query);
+    public List<UserRole> getRolesByUsername(final String username, final boolean allRoles) {
+        final var query = allRoles ? null : format("caseloadId:eq:'%s',or:caseloadId:is:null", apiCaseloadId);
+        final var rolesByUsername = userRepository.findRolesByUsername(username, query);
 
 		if (!allRoles) {
 			rolesByUsername.forEach(role -> role.setRoleCode(RegExUtils.replaceFirst(role.getRoleCode(), apiCaseloadId + "_", "")));
@@ -104,10 +104,10 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserDetail getUserByExternalIdentifier(String idType, String id, boolean activeOnly) {
-	    StaffDetail staffDetail = staffService.getStaffDetailByPersonnelIdentifier(idType, id);
+    public UserDetail getUserByExternalIdentifier(final String idType, final String id, final boolean activeOnly) {
+        final var staffDetail = staffService.getStaffDetailByPersonnelIdentifier(idType, id);
 
-        Optional<UserDetail> userDetail;
+        final Optional<UserDetail> userDetail;
 
         if (activeOnly && !StaffService.isStaffActive(staffDetail)) {
         	log.info("Staff member found for external identifier with idType [{}] and id [{}] but not active.", idType, id);
@@ -123,7 +123,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-    public Set<String> getAllUsernamesForCaseloadAndRole(String caseload, String roleCode) {
+    public Set<String> getAllUsernamesForCaseloadAndRole(final String caseload, final String roleCode) {
 		return userRepository
                 .getAllStaffRolesForCaseload(caseload, roleCode)
                 .stream()
@@ -133,15 +133,15 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public boolean isUserAssessibleCaseloadAvailable(String caseload, String username) {
+    public boolean isUserAssessibleCaseloadAvailable(final String caseload, final String username) {
 		return userRepository.isUserAssessibleCaseloadAvailable(caseload, username);
 	}
 
 	@Override
     @PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
 	@Transactional
-	public void removeUsersAccessRoleForCaseload(String username, String caseload, String roleCode) {
-		final AccessRole role = userRepository.getRoleByCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
+    public void removeUsersAccessRoleForCaseload(final String username, final String caseload, final String roleCode) {
+        final var role = userRepository.getRoleByCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
 
         verifyMaintainRolesAdminAccess(role);
 
@@ -152,7 +152,7 @@ public class UserServiceImpl implements UserService {
         log.info("Removed role '{}' from username '{}' at caseload '{}'", roleCode,  username, caseload);
 	}
 
-    private void verifyMaintainRolesAdminAccess(AccessRole role) {
+    private void verifyMaintainRolesAdminAccess(final AccessRole role) {
         if(role.getRoleFunction().equals(ROLE_FUNCTION_ADMIN)){
             if (!securityUtils.isOverrideRole("MAINTAIN_ACCESS_ROLES_ADMIN")){
                 throw new AccessDeniedException("Maintain roles Admin access required to perform this action");
@@ -169,7 +169,7 @@ public class UserServiceImpl implements UserService {
 	@Override
     @PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
 	@Transactional
-    public boolean addAccessRole(String username, String roleCode) {
+    public boolean addAccessRole(final String username, final String roleCode) {
 
 		return addAccessRole(username, roleCode, apiCaseloadId);
 	}
@@ -184,9 +184,9 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
 	@Transactional
-	public boolean addAccessRole(String username, String roleCode, String caseloadId) {
+    public boolean addAccessRole(final String username, final String roleCode, final String caseloadId) {
 
-		final AccessRole role = userRepository.getRoleByCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
+        final var role = userRepository.getRoleByCode(roleCode).orElseThrow(EntityNotFoundException.withId(roleCode));
 
 		verifyMaintainRolesAdminAccess(role);
 
@@ -213,17 +213,17 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES,MAINTAIN_ACCESS_ROLES_ADMIN')")
 	@Transactional
-	public CaseloadUpdate addDefaultCaseloadForPrison(String caseloadId) {
-		List<UserDetail> users = userRepository.findAllUsersWithCaseload(caseloadId, apiCaseloadId);
+    public CaseloadUpdate addDefaultCaseloadForPrison(final String caseloadId) {
+        final var users = userRepository.findAllUsersWithCaseload(caseloadId, apiCaseloadId);
 
 		log.debug("Found {} users with caseload {} that do not have {} caseload", users.size(), caseloadId);
 		final List<UserDetail> caseloadsAdded = new ArrayList<>();
 		users.forEach(user -> {
-		    var username = user.getUsername();
+            final var username = user.getUsername();
             	try {
 					userRepository.addUserAssessibleCaseload(apiCaseloadId, username);
 					caseloadsAdded.add(user);
-				} catch (Exception e) {
+                } catch (final Exception e) {
             		log.error("Failed to add {} caseload to user {}", apiCaseloadId, username);
 				}
         });
@@ -237,25 +237,25 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES_ADMIN')")
-	public Page<UserDetail> getUsersByCaseload(String caseload, String nameFilter, String accessRole, PageRequest pageRequest) {
+    public Page<UserDetail> getUsersByCaseload(final String caseload, final String nameFilter, final String accessRole, final PageRequest pageRequest) {
 
-		PageRequest pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
+        final var pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
 
 		return userRepository
 				.findUsersByCaseload(caseload, accessRole, new NameFilter(nameFilter), pageWithDefaults);
 	}
 
 	@Override
-	public Page<UserDetail> getUsersAsLocalAdministrator(String laaUsername, String nameFilter, String accessRole, PageRequest pageRequest) {
+    public Page<UserDetail> getUsersAsLocalAdministrator(final String laaUsername, final String nameFilter, final String accessRole, final PageRequest pageRequest) {
 
-		PageRequest pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
+        final var pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
 
 		return userRepository
 				.getUsersAsLocalAdministrator(laaUsername, accessRole, new NameFilter(nameFilter), pageWithDefaults);
 	}
 
-	private PageRequest getPageRequestDefaultLastNameOrder(PageRequest pageRequest) {
-		PageRequest pageWithDefaults = pageRequest;
+    private PageRequest getPageRequestDefaultLastNameOrder(final PageRequest pageRequest) {
+        var pageWithDefaults = pageRequest;
 		if (pageWithDefaults == null) {
 			pageWithDefaults = new PageRequest("lastName,firstName");
 		} else {
@@ -267,7 +267,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<AccessRole> getAccessRolesByUserAndCaseload(String username, String caseload, boolean includeAdmin) {
+    public List<AccessRole> getAccessRolesByUserAndCaseload(final String username, final String caseload, final boolean includeAdmin) {
 		Validate.notBlank(caseload, "A caseload id is required.");
 		Validate.notBlank(username, "A username is required.");
 
@@ -281,9 +281,9 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES_ADMIN')")
-	public Page<UserDetail> getUsers(String nameFilter, String accessRole, PageRequest pageRequest) {
+    public Page<UserDetail> getUsers(final String nameFilter, final String accessRole, final PageRequest pageRequest) {
 
-		PageRequest pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
+        final var pageWithDefaults = getPageRequestDefaultLastNameOrder(pageRequest);
 
 		return userRepository
 				.findUsers(accessRole, new NameFilter(nameFilter), pageWithDefaults);

@@ -2,7 +2,6 @@ package net.syscon.elite.service.impl;
 
 import net.syscon.elite.api.model.CaseNote;
 import net.syscon.elite.api.model.CaseNoteAmendment;
-import net.syscon.elite.api.model.UserDetail;
 import net.syscon.elite.service.UserService;
 import net.syscon.util.DateTimeConverter;
 import org.apache.commons.lang3.StringUtils;
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
@@ -26,7 +24,7 @@ public class CaseNoteTransformer {
     private final UserService userService;
 
     @Autowired
-    public CaseNoteTransformer(UserService userService, @Value("${caseNote.dateFormat:yyyy/MM/dd HH:mm:ss}") String caseNoteDateFormat) {
+    public CaseNoteTransformer(final UserService userService, @Value("${caseNote.dateFormat:yyyy/MM/dd HH:mm:ss}") final String caseNoteDateFormat) {
         this.userService = userService;
         this.caseNoteDateFormat = caseNoteDateFormat;
     }
@@ -62,11 +60,11 @@ public class CaseNoteTransformer {
 
     private CaseNote splitOutAmendments(final String originalText, final CaseNote caseNote) {
 
-        String[] breakUp = originalText.split(AMEND_REGEX);
-        String workingText = originalText;
+        final var breakUp = originalText.split(AMEND_REGEX);
+        var workingText = originalText;
 
-        for (int amendmentCount = 0; amendmentCount < breakUp.length; amendmentCount ++) {
-            final String caseNoteText = breakUp[amendmentCount];
+        for (var amendmentCount = 0; amendmentCount < breakUp.length; amendmentCount++) {
+            final var caseNoteText = breakUp[amendmentCount];
 
             if (amendmentCount == 0) {
                 caseNote.setOriginalNoteText(caseNoteText.trim());
@@ -74,13 +72,13 @@ public class CaseNoteTransformer {
                 workingText = StringUtils.replace(workingText, caseNoteText, StringUtils.EMPTY, 1);
             } else {
                 // split up string
-                final int firstOcc = StringUtils.indexOf(workingText, caseNoteText);
+                final var firstOcc = StringUtils.indexOf(workingText, caseNoteText);
 
-                String amendmentDetails = StringUtils.substring(workingText, 0, firstOcc);
-                Matcher m = AMEND_CASE_NOTE_REGEX.matcher(amendmentDetails);
+                final var amendmentDetails = StringUtils.substring(workingText, 0, firstOcc);
+                final var m = AMEND_CASE_NOTE_REGEX.matcher(amendmentDetails);
                 if (m.find()) {
-                    final String dateTimeOfAmendment = m.group(2);
-                    CaseNoteAmendment caseNoteAmendment = CaseNoteAmendment.builder()
+                    final var dateTimeOfAmendment = m.group(2);
+                    final var caseNoteAmendment = CaseNoteAmendment.builder()
                             .additionalNoteText(caseNoteText.trim())
                             .authorName(getFullNameFromUsername(m.group(1)))
                             .creationDateTime(DateTimeConverter.fromStringToLocalDateTime(dateTimeOfAmendment, caseNoteDateFormat))
@@ -94,10 +92,10 @@ public class CaseNoteTransformer {
         return caseNote;
     }
 
-    private String getFullNameFromUsername(String username) {
-        String authorUsername = username;
+    private String getFullNameFromUsername(final String username) {
+        var authorUsername = username;
         if (StringUtils.isNotBlank(username)) {
-            final UserDetail authorDetails = userService.getUserByUsername(username);
+            final var authorDetails = userService.getUserByUsername(username);
             if (authorDetails != null) {
                 authorUsername = WordUtils.capitalize(StringUtils.lowerCase(authorDetails.getLastName() + ", " + authorDetails.getFirstName()));
             }

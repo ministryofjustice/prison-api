@@ -46,7 +46,7 @@ public class OffenderIdentifier {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -59,7 +59,7 @@ public class OffenderIdentifier {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(final String type) {
         this.type = type;
     }
 
@@ -72,7 +72,7 @@ public class OffenderIdentifier {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(final String value) {
         this.value = value;
     }
 
@@ -85,7 +85,7 @@ public class OffenderIdentifier {
         return issuedAuthorityText;
     }
 
-    public void setIssuedAuthorityText(String issuedAuthorityText) {
+    public void setIssuedAuthorityText(final String issuedAuthorityText) {
         this.issuedAuthorityText = issuedAuthorityText;
     }
 
@@ -98,7 +98,7 @@ public class OffenderIdentifier {
         return issuedDate;
     }
 
-    public void setIssuedDate(LocalDate issuedDate) {
+    public void setIssuedDate(final LocalDate issuedDate) {
         this.issuedDate = issuedDate;
     }
 
@@ -111,13 +111,13 @@ public class OffenderIdentifier {
         return caseloadType;
     }
 
-    public void setCaseloadType(String caseloadType) {
+    public void setCaseloadType(final String caseloadType) {
         this.caseloadType = caseloadType;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class OffenderIdentifier {\n");
         

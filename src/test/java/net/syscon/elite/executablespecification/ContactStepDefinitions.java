@@ -22,7 +22,7 @@ public class ContactStepDefinitions extends AbstractStepDefinitions {
     private ContactSteps contactSteps;
 
     @When("^contact details with booking id ([0-9-]+) is requested$")
-    public void sentenceWithBookingId(Long id) {
+    public void sentenceWithBookingId(final Long id) {
         contactSteps.getContacts(id);
     }
 
@@ -32,12 +32,12 @@ public class ContactStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^the next of kin (\\w+) is \"([^\"]*)\"$")
-    public void theNextOfKinFieldIs(String field, String value) throws Throwable {
+    public void theNextOfKinFieldIs(final String field, final String value) throws Throwable {
         contactSteps.verifyNextOfKinField(field, value);
     }
 
     @Then("^the next of kin results are:$")
-    public void nextOfKinResultListIsAsFollows(List<Contact> list) throws Throwable {
+    public void nextOfKinResultListIsAsFollows(final List<Contact> list) throws Throwable {
         contactSteps.verifyNextOfKinList(list);
     }
 

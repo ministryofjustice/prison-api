@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 /**
  * BDD step definitions for the Booking Visits API endpoints:
@@ -23,7 +22,7 @@ public class BookingVisitsStepDefinitions extends AbstractStepDefinitions {
     private BookingVisitSteps bookingVisits;
 
     @When("^scheduled visits are requested for an offender with booking id \"([^\"]*)\"$")
-    public void scheduledVisitsAreRequestedForAnOffenderWithBookingId(String bookingId) throws Throwable {
+    public void scheduledVisitsAreRequestedForAnOffenderWithBookingId(final String bookingId) throws Throwable {
         bookingVisits.getBookingVisits(Long.valueOf(bookingId), null, null, null, null);
     }
 
@@ -38,141 +37,141 @@ public class BookingVisitsStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^\"([^\"]*)\" visits are returned$")
-    public void visitsAreReturned(String expectedCount) throws Throwable {
+    public void visitsAreReturned(final String expectedCount) throws Throwable {
         bookingVisits.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
     }
 
     @And("^booking id for all visits is \"([^\"]*)\"$")
-    public void bookingIdForAllVisitsIs(String expectedBookingId) throws Throwable {
+    public void bookingIdForAllVisitsIs(final String expectedBookingId) throws Throwable {
         bookingVisits.verifyBookingId(Long.valueOf(expectedBookingId));
     }
 
     @And("^event class for all visits is \"([^\"]*)\"$")
-    public void eventClassForAllVisitsIs(String expectedEventClass) throws Throwable {
+    public void eventClassForAllVisitsIs(final String expectedEventClass) throws Throwable {
         bookingVisits.verifyEventClass(expectedEventClass);
     }
 
     @And("^event status for all visits is \"([^\"]*)\"$")
-    public void eventStatusForAllVisitsIs(String expectedEventStatus) throws Throwable {
+    public void eventStatusForAllVisitsIs(final String expectedEventStatus) throws Throwable {
         bookingVisits.verifyEventStatus(expectedEventStatus);
     }
 
     @And("^event type for all visits is \"([^\"]*)\"$")
-    public void eventTypeForAllVisitsIs(String expectedEventType) throws Throwable {
+    public void eventTypeForAllVisitsIs(final String expectedEventType) throws Throwable {
         bookingVisits.verifyEventType(expectedEventType);
     }
 
     @And("^event type description for all visits is \"([^\"]*)\"$")
-    public void eventTypeDescriptionForAllVisitsIs(String expectedEventTypeDescription) throws Throwable {
+    public void eventTypeDescriptionForAllVisitsIs(final String expectedEventTypeDescription) throws Throwable {
         bookingVisits.verifyEventTypeDescription(expectedEventTypeDescription);
     }
 
     @And("^event source for all visits is \"([^\"]*)\"$")
-    public void eventSourceForAllVisitsIs(String expectedEventSource) throws Throwable {
+    public void eventSourceForAllVisitsIs(final String expectedEventSource) throws Throwable {
         bookingVisits.verifyEventSource(expectedEventSource);
     }
 
     @And("^event sub type for \"([^\"]*)\" returned visit is \"([^\"]*)\"$")
-    public void eventSubTypeForReturnedVisitIs(String ordinal, String expectedEventSubType) throws Throwable {
+    public void eventSubTypeForReturnedVisitIs(final String ordinal, final String expectedEventSubType) throws Throwable {
         bookingVisits.verifyEventSubType(ord2idx(ordinal), expectedEventSubType);
     }
 
     @And("^event sub type description for \"([^\"]*)\" returned visit is \"([^\"]*)\"$")
-    public void eventSubTypeDescriptionForReturnedVisitIs(String ordinal, String expectedEventSubTypeDescription) throws Throwable {
+    public void eventSubTypeDescriptionForReturnedVisitIs(final String ordinal, final String expectedEventSubTypeDescription) throws Throwable {
         bookingVisits.verifyEventSubTypeDescription(ord2idx(ordinal), expectedEventSubTypeDescription);
     }
 
     @And("^event date for \"([^\"]*)\" returned visit is \"([^\"]*)\"$")
-    public void eventDateForReturnedVisitIs(String ordinal, String expectedEventDate) throws Throwable {
+    public void eventDateForReturnedVisitIs(final String ordinal, final String expectedEventDate) throws Throwable {
         bookingVisits.verifyEventDate(ord2idx(ordinal), expectedEventDate);
     }
 
     @And("^start time for \"([^\"]*)\" returned visit is \"([^\"]*)\"$")
-    public void startTimeForReturnedVisitIs(String ordinal, String expectedStartTime) throws Throwable {
+    public void startTimeForReturnedVisitIs(final String ordinal, final String expectedStartTime) throws Throwable {
         bookingVisits.verifyStartTime(ord2idx(ordinal), expectedStartTime);
     }
 
     @And("^end time for \"([^\"]*)\" returned visit is \"([^\"]*)\"$")
-    public void endTimeForReturnedVisitIs(String ordinal, String expectedEndTime) throws Throwable {
+    public void endTimeForReturnedVisitIs(final String ordinal, final String expectedEndTime) throws Throwable {
         bookingVisits.verifyEndTime(ord2idx(ordinal), expectedEndTime);
     }
 
     @And("^event location for \"([^\"]*)\" returned visit is \"([^\"]*)\"$")
-    public void eventLocationForReturnedVisitIs(String ordinal, String expectedEventLocation) throws Throwable {
+    public void eventLocationForReturnedVisitIs(final String ordinal, final String expectedEventLocation) throws Throwable {
         bookingVisits.verifyEventLocation(ord2idx(ordinal), expectedEventLocation);
     }
 
     @And("^event source code for \"([^\"]*)\" returned visit is \"([^\"]*)\"$")
-    public void eventSourceCodeForReturnedVisitIs(String ordinal, String expectedSourceCode) throws Throwable {
+    public void eventSourceCodeForReturnedVisitIs(final String ordinal, final String expectedSourceCode) throws Throwable {
         bookingVisits.verifyEventSourceCode(ord2idx(ordinal), expectedSourceCode);
     }
 
     @And("^event source description for \"([^\"]*)\" returned visit is \"([^\"]*)\"$")
-    public void eventSourceDescriptionForReturnedVisitIs(String ordinal, String expectedSourceDescription) throws Throwable {
+    public void eventSourceDescriptionForReturnedVisitIs(final String ordinal, final String expectedSourceDescription) throws Throwable {
         bookingVisits.verifyEventSourceDescription(ord2idx(ordinal), expectedSourceDescription);
     }
 
     @When("^scheduled visits for current day are requested for an offender with booking id \"([^\"]*)\"$")
-    public void scheduledVisitsForCurrentDayAreRequestedForAnOffenderWithBookingId(String bookingId) throws Throwable {
+    public void scheduledVisitsForCurrentDayAreRequestedForAnOffenderWithBookingId(final String bookingId) throws Throwable {
         bookingVisits.getBookingVisitsForCurrentDay(Long.valueOf(bookingId));
     }
 
     @When("^scheduled visits from \"([^\"]*)\" are requested for an offender with booking id \"([^\"]*)\"$")
-    public void scheduledVisitsFromAreRequestedForAnOffenderWithBookingId(String fromDate, String bookingId) throws Throwable {
+    public void scheduledVisitsFromAreRequestedForAnOffenderWithBookingId(final String fromDate, final String bookingId) throws Throwable {
         bookingVisits.getBookingVisits(Long.valueOf(bookingId), fromDate, null, null, null);
     }
 
     @When("^scheduled visits to \"([^\"]*)\" are requested for an offender with booking id \"([^\"]*)\"$")
-    public void scheduledVisitsToAreRequestedForAnOffenderWithBookingId(String toDate, String bookingId) throws Throwable {
+    public void scheduledVisitsToAreRequestedForAnOffenderWithBookingId(final String toDate, final String bookingId) throws Throwable {
         bookingVisits.getBookingVisits(Long.valueOf(bookingId), null, toDate, null, null);
     }
 
     @When("^scheduled visits between \"([^\"]*)\" and \"([^\"]*)\" are requested for an offender with booking id \"([^\"]*)\"$")
-    public void scheduledVisitsBetweenAndAreRequestedForAnOffenderWithBookingId(String fromDate, String toDate, String bookingId) throws Throwable {
+    public void scheduledVisitsBetweenAndAreRequestedForAnOffenderWithBookingId(final String fromDate, final String toDate, final String bookingId) throws Throwable {
         bookingVisits.getBookingVisits(Long.valueOf(bookingId), fromDate, toDate, null, null);
     }
 
     @And("^\"([^\"]*)\" visits in total are available$")
-    public void visitsInTotalAreAvailable(String expectedTotal) throws Throwable {
+    public void visitsInTotalAreAvailable(final String expectedTotal) throws Throwable {
         bookingVisits.verifyTotalResourceRecordsAvailable(Long.parseLong(expectedTotal));
     }
 
     @When("^scheduled visits, sorted by \"([^\"]*)\" in \"([^\"]*)\" order, are requested for an offender with booking id \"([^\"]*)\"$")
-    public void scheduledVisitsSortedByInOrderAreRequestedForAnOffenderWithBookingId(String sortFields, String sortOrder, String bookingId) throws Throwable {
+    public void scheduledVisitsSortedByInOrderAreRequestedForAnOffenderWithBookingId(final String sortFields, final String sortOrder, final String bookingId) throws Throwable {
         bookingVisits.getBookingVisits(Long.valueOf(bookingId), null, null, sortFields, parseSortOrder(sortOrder));
     }
 
     @Then("^bad request response, with \"([^\"]*)\" message, is received from booking visits API$")
-    public void badRequestResponseWithMessageIsReceivedFromBookingVisitsAPI(String expectedUserMessage) throws Throwable {
+    public void badRequestResponseWithMessageIsReceivedFromBookingVisitsAPI(final String expectedUserMessage) throws Throwable {
         bookingVisits.verifyBadRequest(expectedUserMessage);
     }
 
     @When("the last visit is requested for an offender with booking id \"([^\"]*)\"$")
-    public void lastVisitIsRequested(String bookingId) throws Throwable {
+    public void lastVisitIsRequested(final String bookingId) throws Throwable {
         bookingVisits.getBookingVisitLast(Long.valueOf(bookingId));
     }
 
     @Then("the visit ([^\\\"]*) is \"([^\"]*)\"$")
-    public void theVisitFieldIs(String field, String value) throws Throwable {
+    public void theVisitFieldIs(final String field, final String value) throws Throwable {
         bookingVisits.verifyVisitField(field, value);
     }
 
     @When("^the next visit is requested for an offender with booking id \"([^\"]*)\"$")
-    public void theNextVisitIsRequestedForAnOffenderWithBookingId(Long bookingId) throws Throwable {
+    public void theNextVisitIsRequestedForAnOffenderWithBookingId(final Long bookingId) throws Throwable {
         bookingVisits.getBookingVisitNext(bookingId);
     }
 
     @And("^the visit startTime is offset from the start of today by \"([^\"]*)\"$")
-    public void theVisitStartTimeIsOffsetFromTheStartOfTodayBy(String durationString) throws Throwable {
-        Duration offset = Duration.parse(durationString);
-        LocalDateTime expectedDateTime = LocalDate.now().atStartOfDay().plus(offset);
+    public void theVisitStartTimeIsOffsetFromTheStartOfTodayBy(final String durationString) throws Throwable {
+        final var offset = Duration.parse(durationString);
+        final var expectedDateTime = LocalDate.now().atStartOfDay().plus(offset);
         bookingVisits.verifyStartDateTime(expectedDateTime);
     }
 
     @And("^the visit endTime is offset from the start of today by \"([^\"]*)\"$")
-    public void theVisitEndTimeIsIsOffsetFromTheStartOfTodayBy(String durationString) throws Throwable {
-        Duration offset = Duration.parse(durationString);
-        LocalDateTime expectedDateTime = LocalDate.now().atStartOfDay().plus(offset);
+    public void theVisitEndTimeIsIsOffsetFromTheStartOfTodayBy(final String durationString) throws Throwable {
+        final var offset = Duration.parse(durationString);
+        final var expectedDateTime = LocalDate.now().atStartOfDay().plus(offset);
         bookingVisits.verifyEndDateTime(expectedDateTime);
     }
 }

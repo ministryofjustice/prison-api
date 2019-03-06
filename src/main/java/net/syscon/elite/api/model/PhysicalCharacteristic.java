@@ -44,7 +44,7 @@ public class PhysicalCharacteristic {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -57,7 +57,7 @@ public class PhysicalCharacteristic {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(final String type) {
         this.type = type;
     }
 
@@ -70,7 +70,7 @@ public class PhysicalCharacteristic {
         return characteristic;
     }
 
-    public void setCharacteristic(String characteristic) {
+    public void setCharacteristic(final String characteristic) {
         this.characteristic = characteristic;
     }
 
@@ -83,7 +83,7 @@ public class PhysicalCharacteristic {
         return detail;
     }
 
-    public void setDetail(String detail) {
+    public void setDetail(final String detail) {
         this.detail = detail;
     }
 
@@ -96,13 +96,13 @@ public class PhysicalCharacteristic {
         return imageId;
     }
 
-    public void setImageId(Long imageId) {
+    public void setImageId(final Long imageId) {
         this.imageId = imageId;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class PhysicalCharacteristic {\n");
         

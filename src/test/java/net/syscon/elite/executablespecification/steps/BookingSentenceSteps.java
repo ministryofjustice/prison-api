@@ -20,34 +20,34 @@ public class BookingSentenceSteps extends CommonSteps {
     private List<OffenceHistoryDetail> offenceHistory;
 
     @Step("Get main offence details for offender")
-    public void getMainOffenceDetails(Long bookingId) {
+    public void getMainOffenceDetails(final Long bookingId) {
         dispatchMainOffenceRequest(bookingId);
     }
 
     @Step("Verify offence description for specific offence")
-    public void verifyOffenceDescription(int index, String expectedOffenceDescription) {
+    public void verifyOffenceDescription(final int index, final String expectedOffenceDescription) {
         validateResourcesIndex(index);
         assertThat(offenceDetails.get(index).getOffenceDescription()).isEqualTo(expectedOffenceDescription);
     }
 
     @Step("Get offence history for offender")
-    public void getOffenceHistory(String offenderNo) {
+    public void getOffenceHistory(final String offenderNo) {
         dispatchHistoryRequest(offenderNo);
     }
 
     @Step("Verify offence history")
-    public void verifyOffenceHistory(int index, String expectedOffenceDescription) {
+    public void verifyOffenceHistory(final int index, final String expectedOffenceDescription) {
         validateResourcesIndex(index);
         assertThat(offenceHistory.get(index).getOffenceDescription()).isEqualTo(expectedOffenceDescription);
     }
 
-    public void verifyHistoryRecordsReturned(long expectedCount) {
+    public void verifyHistoryRecordsReturned(final long expectedCount) {
     }
 
-    private void dispatchMainOffenceRequest(Long bookingId) {
+    private void dispatchMainOffenceRequest(final Long bookingId) {
         init();
 
-        ResponseEntity<List<OffenceDetail>> response;
+        final ResponseEntity<List<OffenceDetail>> response;
 
         try {
             response =
@@ -61,15 +61,15 @@ public class BookingSentenceSteps extends CommonSteps {
             offenceDetails = response.getBody();
 
             buildResourceData(response);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void dispatchHistoryRequest(String offenderNo) {
+    private void dispatchHistoryRequest(final String offenderNo) {
         init();
         try {
-            ResponseEntity<List<OffenceHistoryDetail>> response =
+            final var response =
                     restTemplate.exchange(
                             BOOKING_OFFENCE_HISTORY_API_URL,
                             HttpMethod.GET,
@@ -80,7 +80,7 @@ public class BookingSentenceSteps extends CommonSteps {
             offenceHistory = response.getBody();
 
             buildResourceData(response);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

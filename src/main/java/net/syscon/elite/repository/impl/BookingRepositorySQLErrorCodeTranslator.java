@@ -33,8 +33,8 @@ public class BookingRepositorySQLErrorCodeTranslator extends SQLErrorCodeSQLExce
     public static final int SQL_ERROR_INVALID_TO_AGENCY_LOCATION = 20109;
 
     @Override
-    protected DataAccessException customTranslate(String task, String sql, SQLException sqlEx) {
-        int errorCode = sqlEx.getErrorCode();
+    protected DataAccessException customTranslate(final String task, final String sql, final SQLException sqlEx) {
+        final var errorCode = sqlEx.getErrorCode();
 
         if (errorCode == SQL_ERROR_MISSING_NOMS_ID) {
             throw new InvalidDataAccessApiUsageException("Missing offender number.", sqlEx);

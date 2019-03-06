@@ -21,9 +21,9 @@ public class OffenderCurfewRepositoryImpl extends RepositoryBase implements Offe
     private static final RowMapper<OffenderCurfew> OFFENDER_CURFEW_ROW_MAPPER = new StandardBeanPropertyRowMapper<>(OffenderCurfew.class);
 
     @Override
-    public Collection<OffenderCurfew> offenderCurfews(Set<String> agencyIds) {
+    public Collection<OffenderCurfew> offenderCurfews(final Set<String> agencyIds) {
 
-        String sql = queryBuilderFactory
+        final var sql = queryBuilderFactory
                 .getQueryBuilder(
                         getQuery("OFFENDER_CURFEWS"),
                         Collections.emptyMap())
@@ -36,8 +36,8 @@ public class OffenderCurfewRepositoryImpl extends RepositoryBase implements Offe
     }
 
     @Override
-    public void setHDCChecksPassed(long bookingId, HdcChecks hdcChecks) {
-        final int rowsUpdated = jdbcTemplate.update(
+    public void setHDCChecksPassed(final long bookingId, final HdcChecks hdcChecks) {
+        final var rowsUpdated = jdbcTemplate.update(
                 getQuery("UPDATE_CURFEW_CHECKS_PASSED"),
                 createParams(
                         "bookingId", bookingId,
@@ -51,8 +51,8 @@ public class OffenderCurfewRepositoryImpl extends RepositoryBase implements Offe
     }
 
     @Override
-    public void setApprovalStatusForLatestCurfew(long bookingId, ApprovalStatus approvalStatus) {
-        int rowsUpdated = jdbcTemplate.update(
+    public void setApprovalStatusForLatestCurfew(final long bookingId, final ApprovalStatus approvalStatus) {
+        final var rowsUpdated = jdbcTemplate.update(
                 getQuery("UPDATE_APPROVAL_STATUS"),
                 createParams(
                         "bookingId", bookingId,

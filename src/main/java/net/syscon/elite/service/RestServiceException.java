@@ -16,20 +16,20 @@ public class RestServiceException extends RuntimeException {
     private static final Map<String, Exception2Status> lookup = new HashMap<>();
 
     static {
-        for (Exception2Status mapping : Exception2Status.values()) {
+        for (final var mapping : Exception2Status.values()) {
             lookup.put(mapping.exceptionName, mapping);
         }
     }
 
-    public static RestServiceException forDataAccessException(DataAccessException ex) {
-        String rootCauseMessage = (ex.getRootCause() != null) ? ex.getRootCause().getMessage() : ex.getMessage();
+    public static RestServiceException forDataAccessException(final DataAccessException ex) {
+        final var rootCauseMessage = (ex.getRootCause() != null) ? ex.getRootCause().getMessage() : ex.getMessage();
 
-        String simpleMessage = StringUtils.removePattern(ex.getMessage(), "; nested exception is.+$");
+        final var simpleMessage = StringUtils.removePattern(ex.getMessage(), "; nested exception is.+$");
 
         return new RestServiceException(Exception2Status.get(ex).getResponseStatus(), simpleMessage, rootCauseMessage);
     }
 
-    public RestServiceException(Response.Status responseStatus, String message, String detailedMessage) {
+    public RestServiceException(final Response.Status responseStatus, final String message, final String detailedMessage) {
         super(message);
 
         Validate.notNull(responseStatus);
@@ -56,7 +56,7 @@ public class RestServiceException extends RuntimeException {
         private final String exceptionName;
         private final Response.Status responseStatus;
 
-        Exception2Status(String exceptionName, Response.Status responseStatus) {
+        Exception2Status(final String exceptionName, final Response.Status responseStatus) {
             this.exceptionName = exceptionName;
             this.responseStatus = responseStatus;
         }
@@ -69,7 +69,7 @@ public class RestServiceException extends RuntimeException {
             return responseStatus;
         }
 
-        public static Exception2Status get(Exception ex) {
+        public static Exception2Status get(final Exception ex) {
             return lookup.get(ex.getClass().getName());
         }
     }

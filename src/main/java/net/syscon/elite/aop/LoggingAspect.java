@@ -43,7 +43,7 @@ public class LoggingAspect {
 
     @Around("loggingPointcut()")
     public Object logAround(final ProceedingJoinPoint joinPoint) throws Throwable {
-        LocalDateTime start = LocalDateTime.now();
+        final var start = LocalDateTime.now();
         if (log.isDebugEnabled() && MdcUtility.isLoggingAllowed()) {
             log.debug(
                     "Enter: {}.{}()",
@@ -51,7 +51,7 @@ public class LoggingAspect {
                     joinPoint.getSignature().getName());
         }
         try {
-            final Object result = joinPoint.proceed();
+            final var result = joinPoint.proceed();
             if (log.isDebugEnabled() && MdcUtility.isLoggingAllowed()) {
                 log.debug(
                         "Exit: {}.{}() - Duration {} ms",

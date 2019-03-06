@@ -1,10 +1,7 @@
 package net.syscon.elite.api.resource.impl;
 
-import net.syscon.elite.api.model.Location;
-import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.api.resource.LocationResource;
 import net.syscon.elite.api.support.Order;
-import net.syscon.elite.api.support.Page;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.LocationService;
@@ -23,7 +20,7 @@ public class LocationsResourceImpl implements LocationResource {
 	private final LocationService locationService;
 	private final SearchOffenderService searchOffenderService;
 
-	public LocationsResourceImpl(AuthenticationFacade authenticationFacade, LocationService locationService, SearchOffenderService searchOffenderService) {
+    public LocationsResourceImpl(final AuthenticationFacade authenticationFacade, final LocationService locationService, final SearchOffenderService searchOffenderService) {
 		this.authenticationFacade = authenticationFacade;
 		this.locationService = locationService;
 		this.searchOffenderService = searchOffenderService;
@@ -31,10 +28,10 @@ public class LocationsResourceImpl implements LocationResource {
 
 	@Override
 	public GetOffendersAtLocationDescriptionResponse getOffendersAtLocationDescription(
-			String locationPrefix, String keywords, List<String> alerts,
-			boolean returnIep, boolean returnAlerts, boolean returnCategory,
-			Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-		SearchOffenderRequest request = SearchOffenderRequest.builder()
+            final String locationPrefix, final String keywords, final List<String> alerts,
+            final boolean returnIep, final boolean returnAlerts, final boolean returnCategory,
+            final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+        final var request = SearchOffenderRequest.builder()
 				.username(authenticationFacade.getCurrentUsername())
 				.keywords(keywords)
 				.locationPrefix(locationPrefix)
@@ -48,21 +45,21 @@ public class LocationsResourceImpl implements LocationResource {
 				.limit(nvl(pageLimit, 10L))
 				.build();
 
-		Page<OffenderBooking> offenders = searchOffenderService.findOffenders(request);
+        final var offenders = searchOffenderService.findOffenders(request);
 
 		return GetOffendersAtLocationDescriptionResponse.respond200WithApplicationJson(offenders);
 	}
 
 	@Override
-	public GetLocationResponse getLocation(Long locationId) {
-		Location location = locationService.getLocation(locationId);
+    public GetLocationResponse getLocation(final Long locationId) {
+        final var location = locationService.getLocation(locationId);
 
 		return GetLocationResponse.respond200WithApplicationJson(location);
 	}
 
 	@Override
-	public GetOffendersAtLocationResponse getOffendersAtLocation(Long locationId, String query, Long pageOffset, Long pageLimit, String sortFields, Order sortOrder) {
-		Page<OffenderBooking> inmates = locationService.getInmatesFromLocation(
+    public GetOffendersAtLocationResponse getOffendersAtLocation(final Long locationId, final String query, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
+        final var inmates = locationService.getInmatesFromLocation(
 				locationId,
 				authenticationFacade.getCurrentUsername(),
 				query,
@@ -75,7 +72,7 @@ public class LocationsResourceImpl implements LocationResource {
 	}
 
     @Override
-    public GetLocationGroupResponse getLocationGroup(String agencyId, String name) {
+    public GetLocationGroupResponse getLocationGroup(final String agencyId, final String name) {
         return GetLocationGroupResponse.respond200WithApplicationJson(locationService.getCellLocationsForGroup(agencyId, name));
     }
 }

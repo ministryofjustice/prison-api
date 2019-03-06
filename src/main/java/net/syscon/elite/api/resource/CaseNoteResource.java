@@ -70,32 +70,37 @@ public interface CaseNoteResource {
 
     class GetCaseNoteStaffUsageSummaryResponse extends ResponseDelegate {
 
-        private GetCaseNoteStaffUsageSummaryResponse(Response response) { super(response); }
-        private GetCaseNoteStaffUsageSummaryResponse(Response response, Object entity) { super(response, entity); }
+        private GetCaseNoteStaffUsageSummaryResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetCaseNoteStaffUsageSummaryResponse respond200WithApplicationJson(List<CaseNoteStaffUsage> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetCaseNoteStaffUsageSummaryResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetCaseNoteStaffUsageSummaryResponse respond200WithApplicationJson(final List<CaseNoteStaffUsage> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetCaseNoteStaffUsageSummaryResponse(responseBuilder.build(), entity);
         }
 
-        public static GetCaseNoteStaffUsageSummaryResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetCaseNoteStaffUsageSummaryResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetCaseNoteStaffUsageSummaryResponse(responseBuilder.build(), entity);
         }
 
-        public static GetCaseNoteStaffUsageSummaryResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetCaseNoteStaffUsageSummaryResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetCaseNoteStaffUsageSummaryResponse(responseBuilder.build(), entity);
         }
 
-        public static GetCaseNoteStaffUsageSummaryResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetCaseNoteStaffUsageSummaryResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetCaseNoteStaffUsageSummaryResponse(responseBuilder.build(), entity);
@@ -104,32 +109,37 @@ public interface CaseNoteResource {
 
     class GetCaseNoteUsageSummaryResponse extends ResponseDelegate {
 
-        private GetCaseNoteUsageSummaryResponse(Response response) { super(response); }
-        private GetCaseNoteUsageSummaryResponse(Response response, Object entity) { super(response, entity); }
+        private GetCaseNoteUsageSummaryResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetCaseNoteUsageSummaryResponse respond200WithApplicationJson(List<CaseNoteUsage> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetCaseNoteUsageSummaryResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetCaseNoteUsageSummaryResponse respond200WithApplicationJson(final List<CaseNoteUsage> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetCaseNoteUsageSummaryResponse(responseBuilder.build(), entity);
         }
 
-        public static GetCaseNoteUsageSummaryResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetCaseNoteUsageSummaryResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetCaseNoteUsageSummaryResponse(responseBuilder.build(), entity);
         }
 
-        public static GetCaseNoteUsageSummaryResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetCaseNoteUsageSummaryResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetCaseNoteUsageSummaryResponse(responseBuilder.build(), entity);
         }
 
-        public static GetCaseNoteUsageSummaryResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetCaseNoteUsageSummaryResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetCaseNoteUsageSummaryResponse(responseBuilder.build(), entity);
@@ -138,11 +148,16 @@ public interface CaseNoteResource {
 
     class GetCaseNoteStaffUsageSummaryByPostResponse extends ResponseDelegate {
 
-        private GetCaseNoteStaffUsageSummaryByPostResponse(Response response) { super(response); }
-        private GetCaseNoteStaffUsageSummaryByPostResponse(Response response, Object entity) { super(response, entity); }
+        private GetCaseNoteStaffUsageSummaryByPostResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetCaseNoteStaffUsageSummaryByPostResponse respond200WithApplicationJson(List<CaseNoteStaffUsage> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetCaseNoteStaffUsageSummaryByPostResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetCaseNoteStaffUsageSummaryByPostResponse respond200WithApplicationJson(final List<CaseNoteStaffUsage> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetCaseNoteStaffUsageSummaryByPostResponse(responseBuilder.build(), entity);
@@ -151,11 +166,16 @@ public interface CaseNoteResource {
 
     class GetCaseNoteUsageSummaryByPostResponse extends ResponseDelegate {
 
-        private GetCaseNoteUsageSummaryByPostResponse(Response response) { super(response); }
-        private GetCaseNoteUsageSummaryByPostResponse(Response response, Object entity) { super(response, entity); }
+        private GetCaseNoteUsageSummaryByPostResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetCaseNoteUsageSummaryByPostResponse respond200WithApplicationJson(List<CaseNoteUsage> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetCaseNoteUsageSummaryByPostResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetCaseNoteUsageSummaryByPostResponse respond200WithApplicationJson(final List<CaseNoteUsage> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetCaseNoteUsageSummaryByPostResponse(responseBuilder.build(), entity);

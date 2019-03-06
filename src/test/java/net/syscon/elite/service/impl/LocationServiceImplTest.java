@@ -51,22 +51,22 @@ public class LocationServiceImplTest {
 
     @Test
     public void getUserLocations() {
-        
-        List<Agency> agencies =  Collections.singletonList(Agency.builder().agencyId("LEI").build());
+
+        final var agencies = Collections.singletonList(Agency.builder().agencyId("LEI").build());
  
         when(agencyRepository.findAgenciesForCurrentCaseloadByUsername("me")).thenReturn(agencies);
-        
-        List<Location> locations = new ArrayList<>();
-        Location location = createTestLocation();
+
+        final List<Location> locations = new ArrayList<>();
+        final var location = createTestLocation();
         locations.add(location);
         when(locationRepository.findLocationsByAgencyAndType("LEI","WING", true)).thenReturn(locations);
         when(caseLoadService.getWorkingCaseLoadForUser("me")).thenReturn(Optional.of(CaseLoad.builder().caseLoadId("LEI").type("INST").build()));
-        List<Location> returnedLocations = locationService.getUserLocations("me");
+        final var returnedLocations = locationService.getUserLocations("me");
 
         assertFalse(returnedLocations.isEmpty());
         assertThat(returnedLocations).hasSize(2);
 
-        Location returnedLocation = returnedLocations.get(1);
+        final var returnedLocation = returnedLocations.get(1);
         assertEquals(location.getLocationId().longValue(), returnedLocation.getLocationId().longValue());
         assertEquals(location.getAgencyId(), returnedLocation.getAgencyId());
         assertEquals(location.getLocationType(), returnedLocation.getLocationType());
@@ -77,7 +77,7 @@ public class LocationServiceImplTest {
     public void getUserLocationsWithCentralOnly() {
 
         when(caseLoadService.getWorkingCaseLoadForUser("admin")).thenReturn(Optional.of(CaseLoad.builder().caseLoadId("CADM_I").type("ADMIN").build()));
-        List<Location> returnedLocations = locationService.getUserLocations("admin");
+        final var returnedLocations = locationService.getUserLocations("admin");
 
         assertThat(returnedLocations).isEmpty();
     }
@@ -86,13 +86,13 @@ public class LocationServiceImplTest {
     public void getUserLocationsWithNoCaseload() {
 
         when(caseLoadService.getWorkingCaseLoadForUser("noone")).thenReturn(Optional.empty());
-        List<Location> returnedLocations = locationService.getUserLocations("noone");
+        final var returnedLocations = locationService.getUserLocations("noone");
 
         assertThat(returnedLocations).isEmpty();
     }
 
     private static Location createTestLocation() {
-        Location location = new Location();
+        final var location = new Location();
 
         location.setLocationId(1L);
         location.setAgencyId("LEI");
@@ -111,7 +111,7 @@ public class LocationServiceImplTest {
         when(locationGroupService.locationGroupFilters("LEI", "mylist"))
                 .thenReturn(Stream.of("cell4", "cell1", "cell3").map(filterFactory).collect(Collectors.toList()));
 
-        final List<Location> group = locationService.getCellLocationsForGroup("LEI", "mylist");
+        final var group = locationService.getCellLocationsForGroup("LEI", "mylist");
 
         // Note that the locationGroupFilter ordering imposes an ordering on the results
         assertThat(group).asList().containsExactly(cell4, cell1, cell3);
@@ -144,7 +144,7 @@ public class LocationServiceImplTest {
         locationService.getCellLocationsForGroup("LEI", "mylist");
     }
 
-    private Set<String> setOf(String... values) {
+    private Set<String> setOf(final String... values) {
         return new HashSet<>(Arrays.asList(values));
     }
 }

@@ -36,7 +36,7 @@ public class IncidentResponse implements Comparable<IncidentResponse>  {
     private Long recordStaffId;
 
     @Override
-    public int compareTo(IncidentResponse response) {
+    public int compareTo(final IncidentResponse response) {
         return new CompareToBuilder()
                 .append(this.getQuestionSeq(), response.getQuestionSeq())
                 .toComparison();

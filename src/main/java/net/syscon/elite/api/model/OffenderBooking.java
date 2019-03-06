@@ -84,7 +84,7 @@ public class OffenderBooking {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -97,7 +97,7 @@ public class OffenderBooking {
         return bookingId;
     }
 
-    public void setBookingId(Long bookingId) {
+    public void setBookingId(final Long bookingId) {
         this.bookingId = bookingId;
     }
 
@@ -110,7 +110,7 @@ public class OffenderBooking {
         return bookingNo;
     }
 
-    public void setBookingNo(String bookingNo) {
+    public void setBookingNo(final String bookingNo) {
         this.bookingNo = bookingNo;
     }
 
@@ -123,7 +123,7 @@ public class OffenderBooking {
         return offenderNo;
     }
 
-    public void setOffenderNo(String offenderNo) {
+    public void setOffenderNo(final String offenderNo) {
         this.offenderNo = offenderNo;
     }
 
@@ -136,7 +136,7 @@ public class OffenderBooking {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
@@ -149,7 +149,7 @@ public class OffenderBooking {
         return middleName;
     }
 
-    public void setMiddleName(String middleName) {
+    public void setMiddleName(final String middleName) {
         this.middleName = middleName;
     }
 
@@ -162,7 +162,7 @@ public class OffenderBooking {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
@@ -175,7 +175,7 @@ public class OffenderBooking {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(LocalDate dateOfBirth) {
+    public void setDateOfBirth(final LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -188,7 +188,7 @@ public class OffenderBooking {
         return age;
     }
 
-    public void setAge(Integer age) {
+    public void setAge(final Integer age) {
         this.age = age;
     }
 
@@ -201,7 +201,7 @@ public class OffenderBooking {
         return alertsCodes;
     }
 
-    public void setAlertsCodes(List<String> alertsCodes) {
+    public void setAlertsCodes(final List<String> alertsCodes) {
         this.alertsCodes = alertsCodes;
     }
 
@@ -214,7 +214,7 @@ public class OffenderBooking {
         return alertsDetails;
     }
 
-    public void setAlertsDetails(List<String> alertsDetails) {
+    public void setAlertsDetails(final List<String> alertsDetails) {
         this.alertsDetails = alertsDetails;
     }
 
@@ -227,7 +227,7 @@ public class OffenderBooking {
         return agencyId;
     }
 
-    public void setAgencyId(String agencyId) {
+    public void setAgencyId(final String agencyId) {
         this.agencyId = agencyId;
     }
 
@@ -240,7 +240,7 @@ public class OffenderBooking {
         return assignedLivingUnitId;
     }
 
-    public void setAssignedLivingUnitId(Long assignedLivingUnitId) {
+    public void setAssignedLivingUnitId(final Long assignedLivingUnitId) {
         this.assignedLivingUnitId = assignedLivingUnitId;
     }
 
@@ -253,7 +253,7 @@ public class OffenderBooking {
         return assignedLivingUnitDesc;
     }
 
-    public void setAssignedLivingUnitDesc(String assignedLivingUnitDesc) {
+    public void setAssignedLivingUnitDesc(final String assignedLivingUnitDesc) {
         this.assignedLivingUnitDesc = assignedLivingUnitDesc;
     }
 
@@ -266,7 +266,7 @@ public class OffenderBooking {
         return facialImageId;
     }
 
-    public void setFacialImageId(Long facialImageId) {
+    public void setFacialImageId(final Long facialImageId) {
         this.facialImageId = facialImageId;
     }
 
@@ -279,7 +279,7 @@ public class OffenderBooking {
         return assignedOfficerUserId;
     }
 
-    public void setAssignedOfficerUserId(String assignedOfficerUserId) {
+    public void setAssignedOfficerUserId(final String assignedOfficerUserId) {
         this.assignedOfficerUserId = assignedOfficerUserId;
     }
 
@@ -292,7 +292,7 @@ public class OffenderBooking {
         return aliases;
     }
 
-    public void setAliases(List<String> aliases) {
+    public void setAliases(final List<String> aliases) {
         this.aliases = aliases;
     }
 
@@ -305,7 +305,7 @@ public class OffenderBooking {
         return iepLevel;
     }
 
-    public void setIepLevel(String iepLevel) {
+    public void setIepLevel(final String iepLevel) {
         this.iepLevel = iepLevel;
     }
 
@@ -318,13 +318,13 @@ public class OffenderBooking {
         return categoryCode;
     }
 
-    public void setCategoryCode(String categoryCode) {
+    public void setCategoryCode(final String categoryCode) {
         this.categoryCode = categoryCode;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class OffenderBooking {\n");
         

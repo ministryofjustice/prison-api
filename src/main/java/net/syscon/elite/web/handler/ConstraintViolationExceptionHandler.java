@@ -21,7 +21,7 @@ public class ConstraintViolationExceptionHandler implements ExceptionMapper<Vali
 
     @Override
     @Produces(MediaType.APPLICATION_JSON)
-    public Response toResponse(ValidationException ex) {
+    public Response toResponse(final ValidationException ex) {
         return new ResourceExceptionHandler().toResponse(ex);
     }
 }

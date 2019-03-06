@@ -13,42 +13,40 @@ import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 
-import java.lang.reflect.Method;
-
 @Aspect
 @Slf4j
 public class AuthorisationAspect {
     private final BookingService bookingService;
     private final AgencyService agencyService;
-    
-    public AuthorisationAspect(BookingService bookingService, AgencyService agencyService) {
+
+    public AuthorisationAspect(final BookingService bookingService, final AgencyService agencyService) {
         this.bookingService = bookingService;
         this.agencyService = agencyService;
     }
 
     @Pointcut("@annotation(net.syscon.elite.security.VerifyBookingAccess) && execution(* *(Long,..)) && args(bookingId,..)")
-    public void verifyBookingAccessPointcut(Long bookingId) {
+    public void verifyBookingAccessPointcut(final Long bookingId) {
         // no code needed - pointcut definition
     }
 
     @Pointcut("@annotation(net.syscon.elite.security.VerifyAgencyAccess) && execution(* *(String,..)) && args(agencyId,..)")
-    public void verifyAgencyAccessPointcut(String agencyId) {
+    public void verifyAgencyAccessPointcut(final String agencyId) {
         // no code needed - pointcut definition
     }
 
     @Pointcut("@annotation(net.syscon.elite.security.VerifyAgencyAccess) && args(net.syscon.elite.service.support.AgencyRequest,..) && args(request,..)")
-    public void verifyAgencyRequestAccessPointcut(AgencyRequest request) {
+    public void verifyAgencyRequestAccessPointcut(final AgencyRequest request) {
         // no code needed - pointcut definition
     }
 
     @Before(value = "verifyBookingAccessPointcut(bookingId)", argNames = "jp,bookingId")
-    public void verifyBookingAccess(JoinPoint jp, Long bookingId) {
+    public void verifyBookingAccess(final JoinPoint jp, final Long bookingId) {
         log.debug("Verifying booking access for booking [{}]", bookingId);
 
-        MethodSignature signature = (MethodSignature) jp.getSignature();
-        Method method = signature.getMethod();
-        VerifyBookingAccess annotation = method.getAnnotation(VerifyBookingAccess.class);
-        String[] overrideRoles = annotation.overrideRoles();
+        final var signature = (MethodSignature) jp.getSignature();
+        final var method = signature.getMethod();
+        final var annotation = method.getAnnotation(VerifyBookingAccess.class);
+        final var overrideRoles = annotation.overrideRoles();
 
         if (AuthenticationFacade.hasRoles(overrideRoles)) {
             bookingService.checkBookingExists(bookingId);
@@ -58,7 +56,7 @@ public class AuthorisationAspect {
     }
 
     @Before(value = "verifyAgencyAccessPointcut(agencyId)", argNames = "jp,agencyId")
-    public void verifyAgencyAccess(JoinPoint jp, String agencyId) {
+    public void verifyAgencyAccess(final JoinPoint jp, final String agencyId) {
         log.debug("Verifying agency access for agency [{}]", agencyId);
 
         if (AuthenticationFacade.hasRoles(getOverrideRoles(jp))) {
@@ -69,7 +67,7 @@ public class AuthorisationAspect {
     }
 
     @Before(value = "verifyAgencyRequestAccessPointcut(request)", argNames = "jp,request")
-    public void verifyAgencyRequestAccess(JoinPoint jp, AgencyRequest request) {
+    public void verifyAgencyRequestAccess(final JoinPoint jp, final AgencyRequest request) {
         log.debug("Verifying agency access for agency [{}]", request.getAgencyId());
 
         if (AuthenticationFacade.hasRoles(getOverrideRoles(jp))) {
@@ -79,10 +77,10 @@ public class AuthorisationAspect {
         }
     }
 
-    private String[] getOverrideRoles(JoinPoint jp) {
-        MethodSignature signature = (MethodSignature) jp.getSignature();
-        Method method = signature.getMethod();
-        VerifyAgencyAccess annotation = method.getAnnotation(VerifyAgencyAccess.class);
+    private String[] getOverrideRoles(final JoinPoint jp) {
+        final var signature = (MethodSignature) jp.getSignature();
+        final var method = signature.getMethod();
+        final var annotation = method.getAnnotation(VerifyAgencyAccess.class);
         return annotation.overrideRoles();
     }
 

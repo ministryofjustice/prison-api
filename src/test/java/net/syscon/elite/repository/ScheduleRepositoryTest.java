@@ -24,7 +24,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -61,9 +60,9 @@ public class ScheduleRepositoryTest {
 
     @Test
     public void testGetLocationActivities() {
-        final LocalDate date = LocalDate.parse("2015-12-11");
-        final LocalDate toDate = LocalDate.now();
-        final List<PrisonerSchedule> results = repository.getLocationActivities(-26L, date, toDate, "lastName,startTime", Order.ASC);
+        final var date = LocalDate.parse("2015-12-11");
+        final var toDate = LocalDate.now();
+        final var results = repository.getLocationActivities(-26L, date, toDate, "lastName,startTime", Order.ASC);
         assertThat(results).hasSize(24);
         assertPrisonerDetails(results.get(0));
         // assert at least 1 field from all results
@@ -100,9 +99,9 @@ public class ScheduleRepositoryTest {
 
     @Test
     public void testGetLocationAppointments() {
-        final LocalDate date = LocalDate.parse("2015-12-11");
-        final LocalDate toDate = LocalDate.now();
-          final List<PrisonerSchedule> results =  repository.getLocationAppointments(-28L, date, toDate, null, null);
+        final var date = LocalDate.parse("2015-12-11");
+        final var toDate = LocalDate.now();
+        final var results = repository.getLocationAppointments(-28L, date, toDate, null, null);
           assertThat(results).hasSize(4);
           assertThat(results.get(0).getLastName()).isEqualTo("ANDERSON");
           assertThat(results.get(1).getLastName()).isEqualTo("BATES");
@@ -114,9 +113,9 @@ public class ScheduleRepositoryTest {
 
     @Test
     public void testGetLocationVisits() {
-        final LocalDate date = LocalDate.parse("2015-12-11");
-        final LocalDate toDate = LocalDate.now();
-          final List<PrisonerSchedule> results =  repository.getLocationVisits(-25L, date, toDate, null, null);
+        final var date = LocalDate.parse("2015-12-11");
+        final var toDate = LocalDate.now();
+        final var results = repository.getLocationVisits(-25L, date, toDate, null, null);
           assertThat(results).hasSize(6);
           assertThat(results.get(0).getLastName()).isEqualTo("ANDERSON");
           assertThat(results.get(1).getLastName()).isEqualTo("ANDERSON");
@@ -130,8 +129,8 @@ public class ScheduleRepositoryTest {
 
     @Test
     public void testGetAppointments() {
-        final LocalDate date = LocalDate.parse("2017-05-12");
-        final List<PrisonerSchedule> results =  repository.getAppointments("LEI", Collections.singletonList("A1234AB"), date);
+        final var date = LocalDate.parse("2017-05-12");
+        final var results = repository.getAppointments("LEI", Collections.singletonList("A1234AB"), date);
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getOffenderNo()).isEqualTo("A1234AB");
         assertThat(results.get(0).getStartTime()).isEqualTo(LocalDateTime.parse("2017-05-12T09:30"));
@@ -142,8 +141,8 @@ public class ScheduleRepositoryTest {
 
     @Test
     public void testGetVisits() {
-        final LocalDate date = LocalDate.parse("2017-09-15");
-        final List<PrisonerSchedule> results =  repository.getVisits("LEI", Collections.singletonList("A1234AA"), date);
+        final var date = LocalDate.parse("2017-09-15");
+        final var results = repository.getVisits("LEI", Collections.singletonList("A1234AA"), date);
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getOffenderNo()).isEqualTo("A1234AA");
         assertThat(results.get(0).getStartTime()).isEqualTo(LocalDateTime.parse("2017-09-15T14:00"));
@@ -153,8 +152,8 @@ public class ScheduleRepositoryTest {
 
     @Test
     public void testGetActivities() {
-        final LocalDate date = LocalDate.parse("2017-09-15");
-        final List<PrisonerSchedule> results =  repository.getActivities("LEI", Collections.singletonList("A1234AB"), date);
+        final var date = LocalDate.parse("2017-09-15");
+        final var results = repository.getActivities("LEI", Collections.singletonList("A1234AB"), date);
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getOffenderNo()).isEqualTo("A1234AB");
         assertThat(results.get(0).getExcluded()).isFalse();
@@ -166,8 +165,8 @@ public class ScheduleRepositoryTest {
 
     @Test
     public void testGetActivitiesExcluded() {
-        final LocalDate date = LocalDate.parse("2017-09-11");
-        final List<PrisonerSchedule> results =  repository.getActivities("LEI", Collections.singletonList("A1234AE"), date);
+        final var date = LocalDate.parse("2017-09-11");
+        final var results = repository.getActivities("LEI", Collections.singletonList("A1234AE"), date);
         assertThat(results).asList().extracting("offenderNo", "excluded", "locationId", "timeSlot", "startTime")
                 .contains(
                         new Tuple("A1234AE", true,  -25L, TimeSlot.AM, LocalDateTime.parse("2017-09-11T09:30:00")),
@@ -176,7 +175,7 @@ public class ScheduleRepositoryTest {
 
     @Test
     public void testGetCourtEvents() {
-        List<PrisonerSchedule> results = repository.getCourtEvents(Arrays.asList("A1234AA", "A1234AB"), LocalDate.parse("2017-02-17"));
+        final var results = repository.getCourtEvents(Arrays.asList("A1234AA", "A1234AB"), LocalDate.parse("2017-02-17"));
 
         assertThat(results).asList().hasSize(2);
         assertThat(results).asList().extracting("offenderNo", "eventType", "event", "eventDescription", "eventStatus", "startTime").contains(

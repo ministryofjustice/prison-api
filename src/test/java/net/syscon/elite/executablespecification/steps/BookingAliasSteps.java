@@ -6,7 +6,6 @@ import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -21,30 +20,30 @@ public class BookingAliasSteps extends CommonSteps {
     private List<Alias> aliases;
 
     @Step("Retrieve aliases for offender booking")
-    public void getAliasesForBooking(Long bookingId) {
+    public void getAliasesForBooking(final Long bookingId) {
         dispatchRequest(bookingId);
     }
 
     @Step("Verify returned offender alias first names")
-    public void verifyAliasFirstNames(String firstNames) {
+    public void verifyAliasFirstNames(final String firstNames) {
         verifyPropertyValues(aliases, Alias::getFirstName, firstNames);
     }
 
     @Step("Verify returned offender alias last names")
-    public void verifyAliasLastNames(String lastNames) {
+    public void verifyAliasLastNames(final String lastNames) {
         verifyPropertyValues(aliases, Alias::getLastName, lastNames);
     }
 
     @Step("Verify returned offender alias ethnicities")
-    public void verifyAliasEthnicities(String ethnicities) {
+    public void verifyAliasEthnicities(final String ethnicities) {
         verifyPropertyValues(aliases, Alias::getEthnicity, ethnicities);
     }
 
-    private void dispatchRequest(Long bookingId) {
+    private void dispatchRequest(final Long bookingId) {
         init();
 
         try {
-            ResponseEntity<List<Alias>> response =
+            final var response =
                     restTemplate.exchange(
                             API_REQUEST_BASE_URL,
                             HttpMethod.GET, createEntity(),
@@ -56,7 +55,7 @@ public class BookingAliasSteps extends CommonSteps {
             aliases = response.getBody();
 
             buildResourceData(response);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

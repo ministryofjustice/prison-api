@@ -52,7 +52,7 @@ public class LocationCount {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -65,7 +65,7 @@ public class LocationCount {
         return physicalCountId;
     }
 
-    public void setPhysicalCountId(Long physicalCountId) {
+    public void setPhysicalCountId(final Long physicalCountId) {
         this.physicalCountId = physicalCountId;
     }
 
@@ -78,7 +78,7 @@ public class LocationCount {
         return locationId;
     }
 
-    public void setLocationId(Long locationId) {
+    public void setLocationId(final Long locationId) {
         this.locationId = locationId;
     }
 
@@ -91,7 +91,7 @@ public class LocationCount {
         return enteredByUserId;
     }
 
-    public void setEnteredByUserId(Long enteredByUserId) {
+    public void setEnteredByUserId(final Long enteredByUserId) {
         this.enteredByUserId = enteredByUserId;
     }
 
@@ -104,7 +104,7 @@ public class LocationCount {
         return initialCount;
     }
 
-    public void setInitialCount(LocationCountDetail initialCount) {
+    public void setInitialCount(final LocationCountDetail initialCount) {
         this.initialCount = initialCount;
     }
 
@@ -117,7 +117,7 @@ public class LocationCount {
         return recount;
     }
 
-    public void setRecount(LocationCountDetail recount) {
+    public void setRecount(final LocationCountDetail recount) {
         this.recount = recount;
     }
 
@@ -130,13 +130,13 @@ public class LocationCount {
         return countStatusCode;
     }
 
-    public void setCountStatusCode(CountStatusCode countStatusCode) {
+    public void setCountStatusCode(final CountStatusCode countStatusCode) {
         this.countStatusCode = countStatusCode;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class LocationCount {\n");
         

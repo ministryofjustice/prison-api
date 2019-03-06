@@ -19,128 +19,128 @@ public class BookingSentenceDetailStepDefinitions extends AbstractStepDefinition
 
     // Sentence Detail Step Definitions (for testing of /bookings/{bookingId}/sentenceDetail endpoint)
     @When("^sentence details are requested for an offender with booking id \"([^\"]*)\"$")
-    public void sentenceDetailsAreRequestedForAnOffenderWithBookingId(String bookingId) {
+    public void sentenceDetailsAreRequestedForAnOffenderWithBookingId(final String bookingId) {
         bookingSentenceDetail.getBookingSentenceDetail(Long.valueOf(bookingId));
     }
 
     @When("^I look at row \"([^\"]*)\"$")
-    public void iLookAtRow(String index) {
+    public void iLookAtRow(final String index) {
         bookingSentenceDetail.putARowFromListInContext(Integer.valueOf(index) - 1);
     }
 
     @Then("^sentence start date matches \"([^\"]*)\"$")
-    public void sentenceStartDateMatches(String sentenceStartDate) {
+    public void sentenceStartDateMatches(final String sentenceStartDate) {
         bookingSentenceDetail.verifySentenceStartDate(sentenceStartDate);
     }
 
     @And("^sentence expiry date matches \"([^\"]*)\"$")
-    public void sentenceExpiryDateMatches(String sentenceExpiryDate) {
+    public void sentenceExpiryDateMatches(final String sentenceExpiryDate) {
         bookingSentenceDetail.verifySentenceExpiryDate(sentenceExpiryDate);
     }
 
     @And("^early term date matches \"([^\"]*)\"$")
-    public void earlyTermDateMatches(String earlyTermDate) {
+    public void earlyTermDateMatches(final String earlyTermDate) {
         bookingSentenceDetail.verifyEarlyTermDate(earlyTermDate);
     }
 
     @And("^mid term date matches \"([^\"]*)\"$")
-    public void midTermDateMatches(String midTermDate) {
+    public void midTermDateMatches(final String midTermDate) {
         bookingSentenceDetail.verifyMidTermDate(midTermDate);
     }
 
     @And("^late term date matches \"([^\"]*)\"$")
-    public void lateTermDateMatches(String lateTermDate) {
+    public void lateTermDateMatches(final String lateTermDate) {
         bookingSentenceDetail.verifyLateTermDate(lateTermDate);
     }
 
     @And("^automatic release date matches \"([^\"]*)\"$")
-    public void automaticReleaseDateMatches(String automaticReleaseDate) {
+    public void automaticReleaseDateMatches(final String automaticReleaseDate) {
         bookingSentenceDetail.verifyAutomaticReleaseDate(automaticReleaseDate);
     }
 
     @And("^override automatic release date matches \"([^\"]*)\"$")
-    public void automaticOverrideReleaseDateMatches(String overrideAutomaticReleaseDate) {
+    public void automaticOverrideReleaseDateMatches(final String overrideAutomaticReleaseDate) {
         bookingSentenceDetail.verifyOverrideAutomaticReleaseDate(overrideAutomaticReleaseDate);
     }
 
     @And("^conditional release date matches \"([^\"]*)\"$")
-    public void conditionalReleaseDateMatches(String conditionalReleaseDate) {
+    public void conditionalReleaseDateMatches(final String conditionalReleaseDate) {
         bookingSentenceDetail.verifyConditionalReleaseDate(conditionalReleaseDate);
     }
 
     @And("^override conditional release date matches \"([^\"]*)\"$")
-    public void conditionalOverrideReleaseDateMatches(String overrideConditionalReleaseDate) {
+    public void conditionalOverrideReleaseDateMatches(final String overrideConditionalReleaseDate) {
         bookingSentenceDetail.verifyOverrideConditionalReleaseDate(overrideConditionalReleaseDate);
     }
 
     @And("^non-parole date matches \"([^\"]*)\"$")
-    public void nonParoleDateMatches(String nonParoleDate) {
+    public void nonParoleDateMatches(final String nonParoleDate) {
         bookingSentenceDetail.verifyNonParoleDate(nonParoleDate);
     }
 
     @And("^override non-parole date matches \"([^\"]*)\"$")
-    public void nonParoleOverrideDateMatches(String overrideNonParoleDate) {
+    public void nonParoleOverrideDateMatches(final String overrideNonParoleDate) {
         bookingSentenceDetail.verifyOverrideNonParoleDate(overrideNonParoleDate);
     }
 
     @And("^post-recall release date matches \"([^\"]*)\"$")
-    public void postRecallReleaseDateMatches(String postRecallReleaseDate) {
+    public void postRecallReleaseDateMatches(final String postRecallReleaseDate) {
         bookingSentenceDetail.verifyPostRecallReleaseDate(postRecallReleaseDate);
     }
 
     @And("^override post-recall release date matches \"([^\"]*)\"$")
-    public void postRecallOverrideReleaseDateMatches(String overridePostRecallReleaseDate) {
+    public void postRecallOverrideReleaseDateMatches(final String overridePostRecallReleaseDate) {
         bookingSentenceDetail.verifyOverridePostRecallReleaseDate(overridePostRecallReleaseDate);
     }
 
     @And("^home detention curfew eligibility date matches \"([^\"]*)\"$")
-    public void homeDetentionCurfewEligibilityDateMatches(String homeDetentionCurfewEligibilityDate) {
+    public void homeDetentionCurfewEligibilityDateMatches(final String homeDetentionCurfewEligibilityDate) {
         bookingSentenceDetail.verifyHomeDetentionCurfewEligibilityDate(homeDetentionCurfewEligibilityDate);
     }
 
     @And("^parole eligibility date matches \"([^\"]*)\"$")
-    public void paroleEligibilityDateMatches(String paroleEligibilityDate) {
+    public void paroleEligibilityDateMatches(final String paroleEligibilityDate) {
         bookingSentenceDetail.verifyParoleEligibilityDate(paroleEligibilityDate);
     }
 
     @And("^licence expiry date matches \"([^\"]*)\"$")
-    public void licenceExpiryDateMatches(String licenceExpiryDate) {
+    public void licenceExpiryDateMatches(final String licenceExpiryDate) {
         bookingSentenceDetail.verifyLicenceExpiryDate(licenceExpiryDate);
     }
 
     @And("^non-DTO release date matches \"([^\"]*)\"$")
-    public void nonDtoReleaseDateMatches(String releaseDate) {
+    public void nonDtoReleaseDateMatches(final String releaseDate) {
         bookingSentenceDetail.verifyNonDtoReleaseDate(releaseDate);
     }
 
     @And("^additional days awarded matches \"([^\"]*)\"$")
-    public void additionalDaysAwardedMatches(String additionalDaysAwarded) {
+    public void additionalDaysAwardedMatches(final String additionalDaysAwarded) {
         bookingSentenceDetail.verifyAdditionalDaysAwarded(
                 isBlank(additionalDaysAwarded) ? null : Integer.valueOf(additionalDaysAwarded));
     }
 
     @And("^non-DTO release date type matches \"([^\"]*)\"$")
-    public void nonDtoReleaseDateTypeMatches(String releaseDateType) {
+    public void nonDtoReleaseDateTypeMatches(final String releaseDateType) {
         bookingSentenceDetail.verifyNonDtoReleaseDateType(releaseDateType);
     }
 
     @And("^home detention curfew actual date matches \"([^\"]*)\"$")
-    public void homeDetentionCurfewActualDateMatches(String homeDetentionCurfewActualDate) {
+    public void homeDetentionCurfewActualDateMatches(final String homeDetentionCurfewActualDate) {
         bookingSentenceDetail.verifyHomeDetentionCurfewActualDate(homeDetentionCurfewActualDate);
     }
 
     @And("^actual parole date matches \"([^\"]*)\"$")
-    public void actualParoleDateMatches(String actualParoleDate) {
+    public void actualParoleDateMatches(final String actualParoleDate) {
         bookingSentenceDetail.verifyActualParoleDate(actualParoleDate);
     }
 
     @And("^release on temporary licence date matches \"([^\"]*)\"$")
-    public void releaseOnTemporaryLicenceDateMatches(String releaseOnTemporaryLicenceDate) {
+    public void releaseOnTemporaryLicenceDateMatches(final String releaseOnTemporaryLicenceDate) {
         bookingSentenceDetail.verifyReleaseOnTemporaryLicenceDate(releaseOnTemporaryLicenceDate);
     }
 
     @And("^early removal scheme eligibility date matches \"([^\"]*)\"$")
-    public void earlyRemovalSchemeEligibilityDateMatches(String earlyRemovalSchemeEligibilityDate) {
+    public void earlyRemovalSchemeEligibilityDateMatches(final String earlyRemovalSchemeEligibilityDate) {
         bookingSentenceDetail.verifyEarlyRemovalSchemeEligibilityDate(earlyRemovalSchemeEligibilityDate);
     }
 
@@ -150,37 +150,37 @@ public class BookingSentenceDetailStepDefinitions extends AbstractStepDefinition
     }
 
     @And("^confirmed release date matches \"([^\"]*)\"$")
-    public void confirmedReleaseDateMatches(String confirmedReleaseDate) {
+    public void confirmedReleaseDateMatches(final String confirmedReleaseDate) {
         bookingSentenceDetail.verifyConfirmedReleaseDate(confirmedReleaseDate);
     }
 
     @And("^topup supervision expiry date matches \"([^\"]*)\"$")
-    public void topupSupervisionExpiryDateMatches(String topupSupervisionExpiryDate) {
+    public void topupSupervisionExpiryDateMatches(final String topupSupervisionExpiryDate) {
         bookingSentenceDetail.verifyTopupSupervisionExpiryDate(topupSupervisionExpiryDate);
     }
 
     @And("^release date matches \"([^\"]*)\"$")
-    public void releaseDateMatches(String releaseDate) {
+    public void releaseDateMatches(final String releaseDate) {
         bookingSentenceDetail.verifyReleaseDate(releaseDate);
     }
 
     @And("^tariff date matches \"([^\"]*)\"$")
-    public void tariffDateMatches(String tariffDate) {
+    public void tariffDateMatches(final String tariffDate) {
         bookingSentenceDetail.verifyTariffDate(tariffDate);
     }
 
     @When("^sentence details are requested for an offenders in logged in users caseloads with offender No \"([^\"]*)\"$")
-    public void sentenceDetailsAreRequestedForAnOffendersInLoggedInUsersCaseloadsWithBookingId(String offenderNos) {
+    public void sentenceDetailsAreRequestedForAnOffendersInLoggedInUsersCaseloadsWithBookingId(final String offenderNos) {
         bookingSentenceDetail.getOffenderSentenceDetails(offenderNos, null);
     }
 
     @When("^sentence details are requested by a POST request for offender Nos \"([^\"]*)\"$")
-    public void sentenceDetailsAreRequestedByPostForOffenderNos(String offenderNos) {
+    public void sentenceDetailsAreRequestedByPostForOffenderNos(final String offenderNos) {
         bookingSentenceDetail.getOffenderSentenceDetailsUsingPostRequest(offenderNos);
     }
 
     @When("^sentence details are requested by a POST request for booking ids \"([^\"]*)\"$")
-    public void sentenceDetailsAreRequestedByPostForBookingIds(String bookingIds) {
+    public void sentenceDetailsAreRequestedByPostForBookingIds(final String bookingIds) {
         bookingSentenceDetail.getBookingSentenceDetailsUsingPostRequest(bookingIds);
     }
 
@@ -195,18 +195,18 @@ public class BookingSentenceDetailStepDefinitions extends AbstractStepDefinition
     }
 
     @When("^sentence details are requested of offenders for agency \"([^\"]*)\"$")
-    public void sentenceDetailsAreRequestedForAnAgency(String agencyId) {
+    public void sentenceDetailsAreRequestedForAnAgency(final String agencyId) {
         bookingSentenceDetail.getOffenderSentenceDetails(agencyId);
     }
 
     @Then("^\"([0-9-]+)\" offenders are returned$")
-    public void offendersAreReturned(long total) {
+    public void offendersAreReturned(final long total) {
         bookingSentenceDetail.verifyNoError();
         bookingSentenceDetail.verifyResourceRecordsReturned(total);
     }
 
     @And("^\"([0-9-]+)\" offenders in total$")
-    public void offendersInTotal(long total) {
+    public void offendersInTotal(final long total) {
         bookingSentenceDetail.verifyTotalResourceRecordsAvailable(total);
     }
 
@@ -216,7 +216,7 @@ public class BookingSentenceDetailStepDefinitions extends AbstractStepDefinition
     }
 
     @When("^sentence details are requested for offender Nos of \"([^\"]*)\"$")
-    public void sentenceDetailsAreRequestedForOffenderNosOf(String offenderNos) {
+    public void sentenceDetailsAreRequestedForOffenderNosOf(final String offenderNos) {
         bookingSentenceDetail.getOffenderSentenceDetails(offenderNos, null);
     }
 
@@ -226,7 +226,7 @@ public class BookingSentenceDetailStepDefinitions extends AbstractStepDefinition
     }
 
     @When("^sentence terms are requested for booking id \"([^\"]*)\"$")
-    public void sentenceTermsAreRequested(String bookingId) {
+    public void sentenceTermsAreRequested(final String bookingId) {
         bookingSentenceDetail.requestSentenceTerms(bookingId);
     }
     @Then("^correct sentence terms data is returned$")

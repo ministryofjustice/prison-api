@@ -16,7 +16,7 @@ public class LocalDateProviderTest {
 
     @Test
     public void testStringToLocalDateTime() {
-        final LocalDate localDate = converter.fromString("2018-02-27");
+        final var localDate = converter.fromString("2018-02-27");
         assertEquals("2018-02-27", localDate.toString());
     }
 
@@ -32,7 +32,7 @@ public class LocalDateProviderTest {
 
     @Test
     public void testLocalDateToString() {
-        final String date = converter.toString(LocalDate.of(2018,Month.JUNE,15));
+        final var date = converter.toString(LocalDate.of(2018, Month.JUNE, 15));
         assertEquals("2018-06-15", date);
     }
 

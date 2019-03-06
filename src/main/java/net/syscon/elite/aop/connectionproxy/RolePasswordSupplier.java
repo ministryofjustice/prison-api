@@ -28,9 +28,9 @@ public class RolePasswordSupplier {
     private volatile String rolePassword;
 
     public RolePasswordSupplier(
-            SQLProvider sqlProvider,
-            NamedParameterJdbcTemplate jdbcTemplate,
-            String defaultSchema
+            final SQLProvider sqlProvider,
+            final NamedParameterJdbcTemplate jdbcTemplate,
+            final String defaultSchema
     ) {
         this.sqlProvider = sqlProvider;
         this.jdbcTemplate = jdbcTemplate;
@@ -47,17 +47,17 @@ public class RolePasswordSupplier {
     private void retrieveRolePassword() {
         log.debug("Retrieving role password");
 
-        final String encryptedPassword = getEncryptedPassword();
+        final var encryptedPassword = getEncryptedPassword();
         rolePassword = decryptPassword(encryptedPassword);
     }
 
     private String getEncryptedPassword() {
-        final String sql = format(sqlProvider.get("FIND_ROLE_PASSWORD"), replaceSchema());
+        final var sql = format(sqlProvider.get("FIND_ROLE_PASSWORD"), replaceSchema());
         return jdbcTemplate.queryForObject(sql, Collections.emptyMap(), String.class);
     }
 
-    private String decryptPassword(String encryptedPassword) {
-        final MapSqlParameterSource params = new MapSqlParameterSource();
+    private String decryptPassword(final String encryptedPassword) {
+        final var params = new MapSqlParameterSource();
         params.addValue("password", encryptedPassword);
         return jdbcTemplate.queryForObject(format("SELECT %sdecryption('2DECRYPTPASSWRD', :password) FROM DUAL", replaceSchema()), params, String.class);
     }

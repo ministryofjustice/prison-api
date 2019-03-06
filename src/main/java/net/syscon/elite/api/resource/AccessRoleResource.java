@@ -53,32 +53,37 @@ public interface AccessRoleResource {
 
     class GetAccessRolesResponse extends ResponseDelegate {
 
-        private GetAccessRolesResponse(Response response) { super(response); }
-        private GetAccessRolesResponse(Response response, Object entity) { super(response, entity); }
+        private GetAccessRolesResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetAccessRolesResponse respond200WithApplicationJson(List<AccessRole> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetAccessRolesResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetAccessRolesResponse respond200WithApplicationJson(final List<AccessRole> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAccessRolesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAccessRolesResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetAccessRolesResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAccessRolesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAccessRolesResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetAccessRolesResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAccessRolesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAccessRolesResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetAccessRolesResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAccessRolesResponse(responseBuilder.build(), entity);
@@ -87,38 +92,43 @@ public interface AccessRoleResource {
 
     class CreateAccessRoleResponse extends ResponseDelegate {
 
-        private CreateAccessRoleResponse(Response response) { super(response); }
-        private CreateAccessRoleResponse(Response response, Object entity) { super(response, entity); }
+        private CreateAccessRoleResponse(final Response response) {
+            super(response);
+        }
+
+        private CreateAccessRoleResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
 
         public static CreateAccessRoleResponse respond201WithApplicationJson() {
-            ResponseBuilder responseBuilder = Response.status(201)
+            final var responseBuilder = Response.status(201)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             return new CreateAccessRoleResponse(responseBuilder.build());
         }
 
-        public static CreateAccessRoleResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static CreateAccessRoleResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new CreateAccessRoleResponse(responseBuilder.build(), entity);
         }
 
-        public static CreateAccessRoleResponse respond403WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(403)
+        public static CreateAccessRoleResponse respond403WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(403)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new CreateAccessRoleResponse(responseBuilder.build(), entity);
         }
 
-        public static CreateAccessRoleResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static CreateAccessRoleResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new CreateAccessRoleResponse(responseBuilder.build(), entity);
         }
 
-        public static CreateAccessRoleResponse respond409WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(409)
+        public static CreateAccessRoleResponse respond409WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(409)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new CreateAccessRoleResponse(responseBuilder.build(), entity);
@@ -127,31 +137,36 @@ public interface AccessRoleResource {
 
     class UpdateAccessRoleResponse extends ResponseDelegate {
 
-        private UpdateAccessRoleResponse(Response response) { super(response); }
-        private UpdateAccessRoleResponse(Response response, Object entity) { super(response, entity); }
+        private UpdateAccessRoleResponse(final Response response) {
+            super(response);
+        }
+
+        private UpdateAccessRoleResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
 
         public static UpdateAccessRoleResponse respond200WithApplicationJson() {
-            ResponseBuilder responseBuilder = Response.status(200)
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             return new UpdateAccessRoleResponse(responseBuilder.build());
         }
 
-        public static UpdateAccessRoleResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static UpdateAccessRoleResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new UpdateAccessRoleResponse(responseBuilder.build(), entity);
         }
 
-        public static UpdateAccessRoleResponse respond403WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(403)
+        public static UpdateAccessRoleResponse respond403WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(403)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new UpdateAccessRoleResponse(responseBuilder.build(), entity);
         }
 
-        public static UpdateAccessRoleResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static UpdateAccessRoleResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new UpdateAccessRoleResponse(responseBuilder.build(), entity);

@@ -20,8 +20,8 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
 
     @When("^a request is made to retrieve recent movements$")
     public void aRequestIsMadeToRetrieveAllRecords() {
-        final String fromDateTime = "2017-02-20T13:56:00";
-        final String movementDate = "2017-08-16";
+        final var fromDateTime = "2017-02-20T13:56:00";
+        final var movementDate = "2017-08-16";
         movementsSteps.retrieveAllMovementRecords(fromDateTime, movementDate);
     }
 
@@ -52,86 +52,86 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
 
 
     @When("^a request is made to retrieve the movement counts for an \"([^\"]*)\" on \"([^\"]*)\"$")
-    public void aRequestIsMadeToRetrieveTheMovementCountsForAnOn(String agency, String date) throws Throwable {
+    public void aRequestIsMadeToRetrieveTheMovementCountsForAnOn(final String agency, final String date) throws Throwable {
         movementsSteps.retrieveMovementCounts(agency, date.equals("today") ? LocalDate.now().toString() : date);
 
     }
 
     @When("^a make a request for recent movements for \"([^\"]*)\" and \"([^\"]*)\"$")
-    public void aMakeARequestForRecentMovementsForAnd(String offenderNo1, String offenderNo2) {
+    public void aMakeARequestForRecentMovementsForAnd(final String offenderNo1, final String offenderNo2) {
         movementsSteps.retrieveMovementsByOffenders(Arrays.asList(offenderNo1, offenderNo2), true);
     }
 
     @Then("^the records should contain a entry for \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
-    public void theRecordsShouldContainAEntryFor(String movementType, String fromDescription, String toDescription, String movementReason, String movementTime)  {
+    public void theRecordsShouldContainAEntryFor(final String movementType, final String fromDescription, final String toDescription, final String movementReason, final String movementTime) {
         movementsSteps.verifyMovements(movementType, fromDescription, toDescription, movementReason, movementTime);
     }
 
     @Then("^a total count of out today as \"([^\"]*)\" offender numbers that are out today matching \"([^\"]*)\" and a count of in today as \"([^\"]*)\"\"$")
-    public void aTotalCountOfOutTodayAsOffenderNumbersThatAreOutTodayMatchingAndACountOfInTodayAs(Integer outToday, String offenderNumbers, Integer inToday) {
+    public void aTotalCountOfOutTodayAsOffenderNumbersThatAreOutTodayMatchingAndACountOfInTodayAs(final Integer outToday, final String offenderNumbers, final Integer inToday) {
         movementsSteps.verifyMovementCounts(outToday, inToday);
     }
 
     @Then("^the following rows should be returned:$")
-    public void theFollowingFieldsShouldBeReturned(DataTable table) throws Throwable {
+    public void theFollowingFieldsShouldBeReturned(final DataTable table) throws Throwable {
         movementsSteps.verifyOutToday(table.asList(OffenderOutTodayDto.class));
     }
 
     @Then("^\"([^\"]*)\" offenders are out today and \"([^\"]*)\" are in$")
-    public void offendersOutTodayAndAreIn(Integer outToday, Integer inToday) throws Throwable {
+    public void offendersOutTodayAndAreIn(final Integer outToday, final Integer inToday) throws Throwable {
         movementsSteps.verifyMovementCounts(outToday, inToday);
     }
 
     @When("^a request is made for en-route offenders for agency \"([^\"]*)\" on movement date \"([^\"]*)\"$")
-    public void aMakeARequestForEnRouteOffendersForAgencyOnMovementDate(String agencyId, String date) {
+    public void aMakeARequestForEnRouteOffendersForAgencyOnMovementDate(final String agencyId, final String date) {
         movementsSteps.retrieveEnrouteOffenders(agencyId, date);
     }
 
     @Then("^the records should contain a entry for \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
-    public void theRecordsShouldContainAEntryFor(String offenderNo, String lastName, String fromAgency, String toAgency, String reason, String time) {
+    public void theRecordsShouldContainAEntryFor(final String offenderNo, final String lastName, final String fromAgency, final String toAgency, final String reason, final String time) {
        movementsSteps.verifyOffenderMovements(offenderNo, lastName, fromAgency, toAgency, reason, time);
     }
     @When("^a request is made to retrieve the 'offenders in' for agency \"([^\"]*)\" on date \"([^\"]*)\"$")
-    public void aRequestIsMadeToRetrieveTheOffendersInForAgencyOnDate(String agencyId, String isoDateString) {
+    public void aRequestIsMadeToRetrieveTheOffendersInForAgencyOnDate(final String agencyId, final String isoDateString) {
         movementsSteps.getOffendersIn(agencyId, LocalDate.parse(isoDateString));
     }
 
     @Then("^information about 'offenders in' is returned as follows:$")
-    public void informationAboutOffendersInIsReturnedAsFollows(DataTable table) {
-        var offendersIn = table.asList(OffenderIn.class);
+    public void informationAboutOffendersInIsReturnedAsFollows(final DataTable table) {
+        final var offendersIn = table.asList(OffenderIn.class);
 
         movementsSteps.verifyOffendersIn(offendersIn);
     }
 
     @When("^a request is made to retrieve the 'offenders out' for agency \"([^\"]*)\" for \"([^\"]*)\"$")
-    public void aRequestIsMadeToRetrieveTheOffendersOutForAgencyFor(String agencyId, String isoDateString) throws Throwable {
+    public void aRequestIsMadeToRetrieveTheOffendersOutForAgencyFor(final String agencyId, final String isoDateString) throws Throwable {
         movementsSteps.getOffendersOut(agencyId, LocalDate.parse(isoDateString));
     }
 
     @When("^a request is made to retrieve 'offenders in reception' for agency \"([^\"]*)\"$")
-    public void aRequestIsMadeToRetrieveOffendersInReceptionForAgency(String agencyId) throws Throwable {
+    public void aRequestIsMadeToRetrieveOffendersInReceptionForAgency(final String agencyId) throws Throwable {
         movementsSteps.getOffendersInReception(agencyId);
     }
 
     @Then("^information about 'offenders in reception' is returned as follows:$")
-    public void informationAboutOffendersInReceptionIsReturnedAsFollows(DataTable table) {
-        var offendersInReception = table.asList(OffenderInReception.class);
+    public void informationAboutOffendersInReceptionIsReturnedAsFollows(final DataTable table) {
+        final var offendersInReception = table.asList(OffenderInReception.class);
         movementsSteps.verifyOffendersInReception(offendersInReception);
     }
 
     @Then("^information about 'recent movements' is returned as follows:$")
-    public void informationAboutRecentMovementsIsReturnedAsFollows(DataTable table) {
-        var recentMovements = table.asList(Movement.class);
+    public void informationAboutRecentMovementsIsReturnedAsFollows(final DataTable table) {
+        final var recentMovements = table.asList(Movement.class);
         movementsSteps.verifyMovements(recentMovements);
     }
 
     @Then("^the records should contain a entry for \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
-    public void theRecordsShouldContainAEntryFor(String offenderNo, String movementType, String fromDescription, String toDescription, String reasonDescription, String movementTime, String fromCity, String toCity) throws Throwable {
+    public void theRecordsShouldContainAEntryFor(final String offenderNo, final String movementType, final String fromDescription, final String toDescription, final String reasonDescription, final String movementTime, final String fromCity, final String toCity) throws Throwable {
         movementsSteps.verifyOffenderMovements(offenderNo, movementType, fromDescription, toDescription, reasonDescription, movementTime, fromCity, toCity);
     }
 
     @When("^a make a request for recent movements for \"([^\"]*)\" and \"([^\"]*)\" for all movement types$")
-    public void aMakeARequestForRecentMovementsForAndForAllMovementTypes(String offenderNo1, String offenderNo2) throws Throwable {
+    public void aMakeARequestForRecentMovementsForAndForAllMovementTypes(final String offenderNo1, final String offenderNo2) throws Throwable {
         movementsSteps.retrieveMovementsByOffenders(Arrays.asList(offenderNo1, offenderNo2), false);
     }
 }

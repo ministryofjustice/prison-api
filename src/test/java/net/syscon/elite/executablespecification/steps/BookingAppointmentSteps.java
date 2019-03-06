@@ -7,7 +7,6 @@ import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,27 +25,27 @@ public class BookingAppointmentSteps extends ScheduledEventSteps {
     }
 
     @Step("Get appointments for booking")
-    public void getBookingAppointments(Long bookingId, String fromDate, String toDate, String sortFields, Order sortOrder) {
+    public void getBookingAppointments(final Long bookingId, final String fromDate, final String toDate, final String sortFields, final Order sortOrder) {
         dispatchRequest(bookingId, fromDate, toDate, sortFields, sortOrder);
     }
 
     @Step("Get appointments for booking for current day only")
-    public void getBookingAppointmentsForCurrentDay(Long bookingId) {
+    public void getBookingAppointmentsForCurrentDay(final Long bookingId) {
         dispatchRequestForPeriod(bookingId, ScheduledEventPeriod.TODAY);
     }
 
     @Step("Get appointments for booking for 7 days ahead starting from current day")
-    public void getBookingAppointmentsForThisWeek(Long bookingId) {
+    public void getBookingAppointmentsForThisWeek(final Long bookingId) {
         dispatchRequestForPeriod(bookingId, ScheduledEventPeriod.THISWEEK);
     }
 
     @Step("Get appointments for booking for 7 days ahead starting from a week from current day")
-    public void getBookingAppointmentsForNextWeek(Long bookingId) {
+    public void getBookingAppointmentsForNextWeek(final Long bookingId) {
         dispatchRequestForPeriod(bookingId, ScheduledEventPeriod.NEXTWEEK);
     }
 
     @Step("Create appointment")
-    public void createAppointment(Long bookingId, String eventType, LocalDateTime startDateTime, Long locationId, String comment) {
+    public void createAppointment(final Long bookingId, final String eventType, final LocalDateTime startDateTime, final Long locationId, final String comment) {
         dispatchCreateRequest(bookingId, NewAppointment.builder()
                 .appointmentType(eventType)
                 .startTime(startDateTime)
@@ -55,15 +54,15 @@ public class BookingAppointmentSteps extends ScheduledEventSteps {
                 .build());
     }
 
-    private void dispatchCreateRequest(Long bookingId, NewAppointment newAppointment) {
+    private void dispatchCreateRequest(final Long bookingId, final NewAppointment newAppointment) {
         init();
         try {
-            ResponseEntity<ScheduledEvent> response = restTemplate.exchange(BOOKING_APPOINTMENTS_API_URL,
+            final var response = restTemplate.exchange(BOOKING_APPOINTMENTS_API_URL,
                     HttpMethod.POST, createEntity(newAppointment), ScheduledEvent.class, bookingId);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
             scheduledEvent = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

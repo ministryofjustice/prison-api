@@ -29,28 +29,28 @@ public class BookingVisitSteps extends ScheduledEventSteps {
     }
 
     @Step("Get visits for booking")
-    public void getBookingVisits(Long bookingId, String fromDate, String toDate, String sortFields, Order sortOrder) {
+    public void getBookingVisits(final Long bookingId, final String fromDate, final String toDate, final String sortFields, final Order sortOrder) {
         dispatchRequest(bookingId, fromDate, toDate, sortFields, sortOrder);
     }
 
     @Step("Get visits for booking for current day only")
-    public void getBookingVisitsForCurrentDay(Long bookingId) {
+    public void getBookingVisitsForCurrentDay(final Long bookingId) {
         dispatchRequestForPeriod(bookingId, ScheduledEventPeriod.TODAY);
     }
 
     @Step("Get last visit for booking")
-    public void getBookingVisitLast(Long bookingId) {
+    public void getBookingVisitLast(final Long bookingId) {
         dispatchRequest(BOOKING_VISIT_LAST_API_URL, bookingId);
     }
 
     @Step("Get next visit for booking")
-    public void getBookingVisitNext(Long bookingId) {
+    public void getBookingVisitNext(final Long bookingId) {
         dispatchRequest(BOOKING_VISIT_NEXT_API_URL, bookingId);
     }
 
-    private void dispatchRequest(String url, Long bookingId) {
+    private void dispatchRequest(final String url, final Long bookingId) {
         init();
-        ResponseEntity<Visit> response;
+        final ResponseEntity<Visit> response;
         try {
             response = restTemplate.exchange(
                             url,
@@ -60,20 +60,20 @@ public class BookingVisitSteps extends ScheduledEventSteps {
                             bookingId);
             lastVisit = response.getBody();
 
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    public void verifyVisitField(String field, String value) throws ReflectiveOperationException {
+    public void verifyVisitField(final String field, final String value) throws ReflectiveOperationException {
         verifyField(lastVisit, field, value);
     }
 
-    public void verifyStartDateTime(LocalDateTime expectedStartDateTime) {
+    public void verifyStartDateTime(final LocalDateTime expectedStartDateTime) {
         assertThat(lastVisit.getStartTime()).isEqualTo(expectedStartDateTime);
     }
 
-    public void verifyEndDateTime(LocalDateTime expectedEndDateTime) {
+    public void verifyEndDateTime(final LocalDateTime expectedEndDateTime) {
         assertThat(lastVisit.getEndTime()).isEqualTo(expectedEndDateTime);
 
     }

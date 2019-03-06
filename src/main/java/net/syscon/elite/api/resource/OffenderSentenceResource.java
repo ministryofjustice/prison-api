@@ -88,37 +88,37 @@ public interface OffenderSentenceResource {
 
     class GetOffenderSentencesResponse extends ResponseDelegate {
 
-        private GetOffenderSentencesResponse(Response response) {
+        private GetOffenderSentencesResponse(final Response response) {
             super(response);
         }
 
-        private GetOffenderSentencesResponse(Response response, Object entity) {
+        private GetOffenderSentencesResponse(final Response response, final Object entity) {
             super(response, entity);
         }
 
-        public static GetOffenderSentencesResponse respond200WithApplicationJson(List<OffenderSentenceDetail> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        public static GetOffenderSentencesResponse respond200WithApplicationJson(final List<OffenderSentenceDetail> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffenderSentencesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetOffenderSentencesResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetOffenderSentencesResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffenderSentencesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetOffenderSentencesResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetOffenderSentencesResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffenderSentencesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetOffenderSentencesResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetOffenderSentencesResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffenderSentencesResponse(responseBuilder.build(), entity);
@@ -127,19 +127,19 @@ public interface OffenderSentenceResource {
 
     class GetOffenderSentenceTermsResponse extends ResponseDelegate {
 
-        private GetOffenderSentenceTermsResponse(Response response, Object entity) {
+        private GetOffenderSentenceTermsResponse(final Response response, final Object entity) {
             super(response, entity);
         }
 
-        public static GetOffenderSentenceTermsResponse respond200WithApplicationJson(OffenderSentenceTerms entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        public static GetOffenderSentenceTermsResponse respond200WithApplicationJson(final OffenderSentenceTerms entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffenderSentenceTermsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetOffenderSentenceTermsResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetOffenderSentenceTermsResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffenderSentenceTermsResponse(responseBuilder.build(), entity);
@@ -147,37 +147,37 @@ public interface OffenderSentenceResource {
     }
     class GetOffenderSentencesHomeDetentionCurfewCandidatesResponse extends ResponseDelegate {
 
-        private GetOffenderSentencesHomeDetentionCurfewCandidatesResponse(Response response) {
+        private GetOffenderSentencesHomeDetentionCurfewCandidatesResponse(final Response response) {
             super(response);
         }
 
-        private GetOffenderSentencesHomeDetentionCurfewCandidatesResponse(Response response, Object entity) {
+        private GetOffenderSentencesHomeDetentionCurfewCandidatesResponse(final Response response, final Object entity) {
             super(response, entity);
         }
 
-        public static GetOffenderSentencesHomeDetentionCurfewCandidatesResponse respond200WithApplicationJson(List<OffenderSentenceCalc> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        public static GetOffenderSentencesHomeDetentionCurfewCandidatesResponse respond200WithApplicationJson(final List<OffenderSentenceCalc> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffenderSentencesHomeDetentionCurfewCandidatesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetOffenderSentencesHomeDetentionCurfewCandidatesResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetOffenderSentencesHomeDetentionCurfewCandidatesResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffenderSentencesHomeDetentionCurfewCandidatesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetOffenderSentencesHomeDetentionCurfewCandidatesResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetOffenderSentencesHomeDetentionCurfewCandidatesResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffenderSentencesHomeDetentionCurfewCandidatesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetOffenderSentencesHomeDetentionCurfewCandidatesResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetOffenderSentencesHomeDetentionCurfewCandidatesResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffenderSentencesHomeDetentionCurfewCandidatesResponse(responseBuilder.build(), entity);
@@ -186,16 +186,16 @@ public interface OffenderSentenceResource {
 
     class PostOffenderSentencesResponse extends ResponseDelegate {
 
-        private PostOffenderSentencesResponse(Response response) {
+        private PostOffenderSentencesResponse(final Response response) {
             super(response);
         }
 
-        private PostOffenderSentencesResponse(Response response, Object entity) {
+        private PostOffenderSentencesResponse(final Response response, final Object entity) {
             super(response, entity);
         }
 
-        public static PostOffenderSentencesResponse respond200WithApplicationJson(List<OffenderSentenceDetail> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        public static PostOffenderSentencesResponse respond200WithApplicationJson(final List<OffenderSentenceDetail> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new PostOffenderSentencesResponse(responseBuilder.build(), entity);
@@ -204,16 +204,16 @@ public interface OffenderSentenceResource {
 
     class PostOffenderSentencesBookingsResponse extends ResponseDelegate {
 
-        private PostOffenderSentencesBookingsResponse(Response response) {
+        private PostOffenderSentencesBookingsResponse(final Response response) {
             super(response);
         }
 
-        private PostOffenderSentencesBookingsResponse(Response response, Object entity) {
+        private PostOffenderSentencesBookingsResponse(final Response response, final Object entity) {
             super(response, entity);
         }
 
-        public static PostOffenderSentencesBookingsResponse respond200WithApplicationJson(List<OffenderSentenceDetail> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        public static PostOffenderSentencesBookingsResponse respond200WithApplicationJson(final List<OffenderSentenceDetail> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new PostOffenderSentencesBookingsResponse(responseBuilder.build(), entity);

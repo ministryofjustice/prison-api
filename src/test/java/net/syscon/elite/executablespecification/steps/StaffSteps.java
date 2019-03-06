@@ -49,11 +49,11 @@ public class StaffSteps extends CommonSteps {
     }
 
     @Step("Find staff details")
-    public void findStaffDetails(Long staffId) {
+    public void findStaffDetails(final Long staffId) {
         init();
 
         try {
-            ResponseEntity<StaffDetail> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     API_STAFF_DETAIL_REQUEST_URL,
                             HttpMethod.GET,
                             createEntity(),
@@ -61,14 +61,14 @@ public class StaffSteps extends CommonSteps {
                             staffId);
 
             staffDetail = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
     @Step("Find staff members having position and role in agency")
-    public void findStaffByAgencyPositionRole(String agencyId, String position, String role, String nameFilter, Long staffId, Boolean activeOnly) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(API_STAFF_BY_AGENCY_POSITION_ROLE_REQUEST_URL);
+    public void findStaffByAgencyPositionRole(final String agencyId, final String position, final String role, final String nameFilter, final Long staffId, final Boolean activeOnly) {
+        var builder = UriComponentsBuilder.fromUriString(API_STAFF_BY_AGENCY_POSITION_ROLE_REQUEST_URL);
 
         if (StringUtils.isNotBlank(nameFilter)) {
             builder = builder.queryParam(QUERY_PARAM_NAME_FILTER, nameFilter);
@@ -84,8 +84,8 @@ public class StaffSteps extends CommonSteps {
     }
 
     @Step("Find staff members having role in agency")
-    public void findStaffByAgencyRole(String agencyId, String role, String nameFilter, Long staffId) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(API_STAFF_BY_AGENCY_ROLE_REQUEST_URL);
+    public void findStaffByAgencyRole(final String agencyId, final String role, final String nameFilter, final Long staffId) {
+        var builder = UriComponentsBuilder.fromUriString(API_STAFF_BY_AGENCY_ROLE_REQUEST_URL);
 
         if (StringUtils.isNotBlank(nameFilter)) {
             builder = builder.queryParam(QUERY_PARAM_NAME_FILTER, nameFilter);
@@ -98,30 +98,30 @@ public class StaffSteps extends CommonSteps {
     }
 
     @Step("Verify staff details - first name")
-    public void verifyStaffFirstName(String firstName) {
+    public void verifyStaffFirstName(final String firstName) {
         assertThat(staffDetail.getFirstName()).isEqualTo(firstName);
     }
 
     @Step("Verify staff details - last name")
-    public void verifyStaffLastName(String lastName) {
+    public void verifyStaffLastName(final String lastName) {
         assertThat(staffDetail.getLastName()).isEqualTo(lastName);
     }
 
     @Step("Verify staff ids returned")
-    public void verifyStaffIds(String staffIds) {
+    public void verifyStaffIds(final String staffIds) {
         verifyLongValues(staffDetails, StaffLocationRole::getStaffId, staffIds);
     }
 
-    public void verifyStaffRoleWithNoDuplicates(String role, String roleDescription) {
-        long roleCount  = roles.stream()
+    public void verifyStaffRoleWithNoDuplicates(final String role, final String roleDescription) {
+        final var roleCount = roles.stream()
                 .filter(r -> r.getRole().equals(role) && r.getRoleDescription().equals(roleDescription))
                 .count();
 
         assertThat(roleCount == 1).isTrue();
     }
 
-    public void getRoles(Long staffId, String agencyId) {
-        URI getJobRolesUri =
+    public void getRoles(final Long staffId, final String agencyId) {
+        final var getJobRolesUri =
                 UriComponentsBuilder.fromUriString(API_STAFF_ROLES)
                         .buildAndExpand(staffId, agencyId)
                         .toUri();
@@ -129,12 +129,12 @@ public class StaffSteps extends CommonSteps {
         dispatchGetStaffRoles(getJobRolesUri);
     }
 
-    private void dispatchGetStaffRoles(URI uri) {
+    private void dispatchGetStaffRoles(final URI uri) {
         init();
 
         try {
 
-            ResponseEntity<List<StaffRole>> response =
+            final var response =
                     restTemplate.exchange(
                             uri,
                             HttpMethod.GET,
@@ -143,15 +143,15 @@ public class StaffSteps extends CommonSteps {
 
             roles = response.getBody();
 
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void dispatchStaffByAgencyPositionRoleRequest(URI uri) {
+    private void dispatchStaffByAgencyPositionRoleRequest(final URI uri) {
         init();
 
-        ResponseEntity<List<StaffLocationRole>> response;
+        final ResponseEntity<List<StaffLocationRole>> response;
 
         try {
             response =
@@ -164,16 +164,16 @@ public class StaffSteps extends CommonSteps {
             staffDetails = response.getBody();
 
             buildResourceData(response);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    public void getEmails(Long staffId) {
+    public void getEmails(final Long staffId) {
         init();
 
         try {
-            ResponseEntity<List> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     API_STAFF_EMAILS_URL,
                     HttpMethod.GET,
                     createEntity(),
@@ -182,20 +182,20 @@ public class StaffSteps extends CommonSteps {
 
             staffEmailAddresses = response.getBody();
             emailResponseCode = response.getStatusCode().value();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
             emailResponseCode = ex.getErrorResponse().getStatus().intValue();
         }
     }
 
-    public void verifyNumberOfEmailAddressesReturned(Long numberOfEmails) {
+    public void verifyNumberOfEmailAddressesReturned(final Long numberOfEmails) {
 
         if (staffEmailAddresses != null) {
             assertThat(staffEmailAddresses).hasSize(numberOfEmails.intValue());
         }
     }
 
-    public void verifyResponseCodeMatches(int responseCode) {
+    public void verifyResponseCodeMatches(final int responseCode) {
         assertThat(emailResponseCode).isEqualTo(responseCode);
     }
 }

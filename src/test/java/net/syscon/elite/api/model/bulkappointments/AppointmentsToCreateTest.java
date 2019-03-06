@@ -8,7 +8,6 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,7 +33,7 @@ public class AppointmentsToCreateTest {
 
     @Test
     public void shouldFlattenNoAppointments() {
-        List<AppointmentDetails> flattened = AppointmentsToCreate
+        final var flattened = AppointmentsToCreate
                 .builder()
                 .appointments(Collections.emptyList())
                 .appointmentDefaults(AppointmentDefaults.builder().build())
@@ -46,7 +45,7 @@ public class AppointmentsToCreateTest {
 
     @Test
     public void shouldUseDefaults() {
-        List<AppointmentDetails> flattened = AppointmentsToCreate
+        final var flattened = AppointmentsToCreate
                 .builder()
                 .appointmentDefaults(AppointmentDefaults
                         .builder()
@@ -74,7 +73,7 @@ public class AppointmentsToCreateTest {
 
     @Test
     public void shouldOverrideDefaults() {
-        List<AppointmentDetails> flattened = AppointmentsToCreate
+        final var flattened = AppointmentsToCreate
                 .builder()
                 .appointmentDefaults(AppointmentDefaults
                         .builder()
@@ -105,13 +104,13 @@ public class AppointmentsToCreateTest {
 
     @Test
     public void shouldRejectEmptyAppointmentsToCreate() {
-        var validations = validator.validate(AppointmentsToCreate.builder().build());
+        final var validations = validator.validate(AppointmentsToCreate.builder().build());
         assertThat(validations).hasSize(2);
     }
 
     @Test
     public void shouldRejectMissingDefaults() {
-        var validations = validator.validate(
+        final var validations = validator.validate(
                 AppointmentsToCreate
                         .builder()
                         .appointmentDefaults(AppointmentDefaults.builder().build())
@@ -122,7 +121,7 @@ public class AppointmentsToCreateTest {
 
     @Test
     public void shouldAcceptValidDefaults() {
-        var validations = validator.validate(
+        final var validations = validator.validate(
                 AppointmentsToCreate
                         .builder()
                         .appointmentDefaults(VALID_DEFAULTS)
@@ -133,7 +132,7 @@ public class AppointmentsToCreateTest {
 
     @Test
     public void shouldRejectMissingAppointmentDetails() {
-        var validations = validator.validate(
+        final var validations = validator.validate(
                 AppointmentsToCreate
                         .builder()
                         .appointmentDefaults(VALID_DEFAULTS)
@@ -146,7 +145,7 @@ public class AppointmentsToCreateTest {
 
     @Test
     public void shouldRejectInvalidAppointmentDetails() {
-        var validations = validator.validate(
+        final var validations = validator.validate(
                 AppointmentsToCreate
                         .builder()
                         .appointmentDefaults(VALID_DEFAULTS)
@@ -164,7 +163,7 @@ public class AppointmentsToCreateTest {
 
     @Test
     public void shouldAcceptValidAppointmentDetails() {
-        var validations = validator.validate(
+        final var validations = validator.validate(
                 AppointmentsToCreate
                         .builder()
                         .appointmentDefaults(VALID_DEFAULTS)
@@ -182,7 +181,7 @@ public class AppointmentsToCreateTest {
 
     @Test
     public void shouldRejectInvalidRepeatPeriod() {
-        var validations = validator.validate(
+        final var validations = validator.validate(
                 AppointmentsToCreate
                         .builder()
                         .appointmentDefaults(VALID_DEFAULTS)
@@ -197,7 +196,7 @@ public class AppointmentsToCreateTest {
 
     @Test
     public void shouldRejectInvalidRepeatCount() {
-        var validations = validator.validate(
+        final var validations = validator.validate(
                 AppointmentsToCreate
                         .builder()
                         .appointmentDefaults(VALID_DEFAULTS)
@@ -214,7 +213,7 @@ public class AppointmentsToCreateTest {
 
     @Test
     public void shouldAcceptValidRepeat() {
-        var validations = validator.validate(
+        final var validations = validator.validate(
                 AppointmentsToCreate
                         .builder()
                         .appointmentDefaults(VALID_DEFAULTS)

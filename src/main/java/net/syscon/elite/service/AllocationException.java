@@ -4,15 +4,15 @@ import java.util.function.Supplier;
 
 public class AllocationException extends RuntimeException implements Supplier<AllocationException> {
 
-    public static AllocationException withMessage(String message) {
+    public static AllocationException withMessage(final String message) {
         return new AllocationException(message);
     }
 
-    public static AllocationException withMessage(String message, Object... args) {
+    public static AllocationException withMessage(final String message, final Object... args) {
         return new AllocationException(String.format(message, args));
     }
 
-    public AllocationException(String message) {
+    public AllocationException(final String message) {
         super(message);
     }
 

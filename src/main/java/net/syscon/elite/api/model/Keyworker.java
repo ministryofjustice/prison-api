@@ -51,7 +51,7 @@ public class Keyworker {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -64,7 +64,7 @@ public class Keyworker {
         return staffId;
     }
 
-    public void setStaffId(Long staffId) {
+    public void setStaffId(final Long staffId) {
         this.staffId = staffId;
     }
 
@@ -77,7 +77,7 @@ public class Keyworker {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
@@ -90,7 +90,7 @@ public class Keyworker {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
@@ -103,7 +103,7 @@ public class Keyworker {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(final String status) {
         this.status = status;
     }
 
@@ -116,7 +116,7 @@ public class Keyworker {
         return thumbnailId;
     }
 
-    public void setThumbnailId(Long thumbnailId) {
+    public void setThumbnailId(final Long thumbnailId) {
         this.thumbnailId = thumbnailId;
     }
 
@@ -129,13 +129,13 @@ public class Keyworker {
         return numberAllocated;
     }
 
-    public void setNumberAllocated(Integer numberAllocated) {
+    public void setNumberAllocated(final Integer numberAllocated) {
         this.numberAllocated = numberAllocated;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class Keyworker {\n");
         

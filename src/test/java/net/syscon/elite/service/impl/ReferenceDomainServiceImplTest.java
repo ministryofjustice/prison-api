@@ -11,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +54,7 @@ public class ReferenceDomainServiceImplTest {
                         ReferenceCode.builder().code("CODE6").description("COMPUTERS").build()
                 ));
 
-        List<ReferenceCode> scheduleReasons = service.getScheduleReasons("APP");
+        final var scheduleReasons = service.getScheduleReasons("APP");
 
         assertThat(scheduleReasons.size()).isEqualTo(6);
         assertThat(scheduleReasons.get(0).getDescription()).isEqualTo("Apple");

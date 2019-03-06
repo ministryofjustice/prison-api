@@ -34,8 +34,8 @@ public class AccessRoleServiceImplTest {
     public void testCreateAccessRole() {
         Mockito.when(accessRoleRepository.getAccessRole("ROLE_CODE")).thenReturn(Optional.empty());
 
-        final AccessRole newAccessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").build();
-        final AccessRole defaultedAccessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").roleFunction("GENERAL").build();
+        final var newAccessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").build();
+        final var defaultedAccessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").roleFunction("GENERAL").build();
         accessRoleService.createAccessRole(newAccessRole);
 
         Mockito.verify(accessRoleRepository, Mockito.times(1)).createAccessRole(defaultedAccessRole);
@@ -45,7 +45,7 @@ public class AccessRoleServiceImplTest {
     public void testCreateAccessRoleWithAdminRoleFunction() {
         Mockito.when(accessRoleRepository.getAccessRole("ROLE_CODE")).thenReturn(Optional.empty());
 
-        final AccessRole newAccessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").roleFunction("ADMIN").build();
+        final var newAccessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").roleFunction("ADMIN").build();
         accessRoleService.createAccessRole(newAccessRole);
 
         Mockito.verify(accessRoleRepository, Mockito.times(1)).createAccessRole(newAccessRole);
@@ -53,7 +53,7 @@ public class AccessRoleServiceImplTest {
 
     @Test(expected = EntityAlreadyExistsException.class)
     public void testCreateAccessRoleAlreadyExists() {
-        final AccessRole accessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").build();
+        final var accessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").build();
 
         Mockito.when(accessRoleRepository.getAccessRole("ROLE_CODE")).thenReturn(Optional.of(accessRole));
 
@@ -64,7 +64,7 @@ public class AccessRoleServiceImplTest {
     public void testCreateAccessRoleParentNotFound() {
         Mockito.when(accessRoleRepository.getAccessRole("PARENT_NOT_FOUND")).thenReturn(Optional.empty());
 
-        final AccessRole newAccessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").parentRoleCode("PARENT_NOT_FOUND").build();
+        final var newAccessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").parentRoleCode("PARENT_NOT_FOUND").build();
         accessRoleService.createAccessRole(newAccessRole);
     }
 
@@ -72,13 +72,13 @@ public class AccessRoleServiceImplTest {
     public void testUpdateAccessRoleNotFound() {
         Mockito.when(accessRoleRepository.getAccessRole("ROLE_CODE")).thenReturn(Optional.empty());
 
-        final AccessRole newAccessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").build();
+        final var newAccessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").build();
         accessRoleService.updateAccessRole(newAccessRole);
     }
 
     @Test()
     public void testUpdateAccessRole() {
-        final AccessRole accessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").build();
+        final var accessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").build();
 
         Mockito.when(accessRoleRepository.getAccessRole("ROLE_CODE")).thenReturn(Optional.of(accessRole));
 
@@ -89,9 +89,9 @@ public class AccessRoleServiceImplTest {
 
     @Test()
     public void testUpdateAccessRoleNameOnly() {
-        final AccessRole accessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").roleFunction("ROLE_FUNCTION").build();
-        final AccessRole accessRoleIn = AccessRole.builder().roleCode("ROLE_CODE").roleName("NEW_ROLE_NAME").build();
-        final AccessRole populatedAccessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("NEW_ROLE_NAME").roleFunction("ROLE_FUNCTION").build();
+        final var accessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").roleFunction("ROLE_FUNCTION").build();
+        final var accessRoleIn = AccessRole.builder().roleCode("ROLE_CODE").roleName("NEW_ROLE_NAME").build();
+        final var populatedAccessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("NEW_ROLE_NAME").roleFunction("ROLE_FUNCTION").build();
 
         Mockito.when(accessRoleRepository.getAccessRole("ROLE_CODE")).thenReturn(Optional.of(accessRole));
 
@@ -102,9 +102,9 @@ public class AccessRoleServiceImplTest {
 
     @Test()
     public void testUpdateAccessRoleFunctionOnly() {
-        final AccessRole accessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").roleFunction("ROLE_FUNCTION").build();
-        final AccessRole accessRoleIn = AccessRole.builder().roleCode("ROLE_CODE").roleFunction("NEW_ROLE_FUNCTION").build();
-        final AccessRole populatedAccessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").roleFunction("NEW_ROLE_FUNCTION").build();
+        final var accessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").roleFunction("ROLE_FUNCTION").build();
+        final var accessRoleIn = AccessRole.builder().roleCode("ROLE_CODE").roleFunction("NEW_ROLE_FUNCTION").build();
+        final var populatedAccessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").roleFunction("NEW_ROLE_FUNCTION").build();
 
         Mockito.when(accessRoleRepository.getAccessRole("ROLE_CODE")).thenReturn(Optional.of(accessRole));
 
@@ -115,7 +115,7 @@ public class AccessRoleServiceImplTest {
 
     @Test
     public void testGetAccessRoles() {
-        final AccessRole accessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").build();
+        final var accessRole = AccessRole.builder().roleCode("ROLE_CODE").roleName("ROLE_NAME").build();
         Mockito.when(accessRoleRepository.getAccessRoles(true)).thenReturn(ImmutableList.of(accessRole));
 
         accessRoleService.getAccessRoles(true);

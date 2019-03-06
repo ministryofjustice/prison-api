@@ -1,10 +1,8 @@
 package net.syscon.elite.api.resource.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import net.syscon.elite.api.model.PrisonerDetail;
 import net.syscon.elite.api.resource.PrisonerResource;
 import net.syscon.elite.api.support.Order;
-import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.GlobalSearchService;
@@ -21,34 +19,34 @@ import static net.syscon.util.DateTimeConverter.fromISO8601DateString;
 public class PrisonerResourceImpl implements PrisonerResource {
     private final GlobalSearchService globalSearchService;
 
-    public PrisonerResourceImpl(GlobalSearchService globalSearchService) {
+    public PrisonerResourceImpl(final GlobalSearchService globalSearchService) {
         this.globalSearchService = globalSearchService;
     }
 
     @Override
     @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
     public GetPrisonersResponse getPrisoners(
-            boolean includeAliases,
-            String offenderNo,
-            String pncNumber,
-            String croNumber,
-            String firstName,
-            String middleNames,
-            String lastName,
-            String dob,
-            String dobFrom,
-            String dobTo,
-            String location,
-            String genderCode,
-            boolean partialNameMatch,
-            boolean prioritisedMatch,
-            boolean anyMatch,
-            Long pageOffset,
-            Long pageLimit,
-            String sortFields,
-            Order sortOrder) {
+            final boolean includeAliases,
+            final String offenderNo,
+            final String pncNumber,
+            final String croNumber,
+            final String firstName,
+            final String middleNames,
+            final String lastName,
+            final String dob,
+            final String dobFrom,
+            final String dobTo,
+            final String location,
+            final String genderCode,
+            final boolean partialNameMatch,
+            final boolean prioritisedMatch,
+            final boolean anyMatch,
+            final Long pageOffset,
+            final Long pageLimit,
+            final String sortFields,
+            final Order sortOrder) {
 
-        PrisonerDetailSearchCriteria criteria = PrisonerDetailSearchCriteria.builder()
+        final var criteria = PrisonerDetailSearchCriteria.builder()
                 .includeAliases(includeAliases)
                 .offenderNo(offenderNo)
                 .firstName(firstName)
@@ -67,7 +65,7 @@ public class PrisonerResourceImpl implements PrisonerResource {
                 .build();
 
         log.info("Global Search with search criteria: {}", criteria);
-        Page<PrisonerDetail> offenders = globalSearchService.findOffenders(
+        final var offenders = globalSearchService.findOffenders(
                 criteria,
                 new PageRequest(sortFields, sortOrder, pageOffset, pageLimit));
         log.info("Global Search returned {} records", offenders.getTotalRecords());
@@ -75,14 +73,14 @@ public class PrisonerResourceImpl implements PrisonerResource {
     }
 
     @Override
-    public GetPrisonersOffenderNoResponse getPrisonersOffenderNo(String offenderNo) {
+    public GetPrisonersOffenderNoResponse getPrisonersOffenderNo(final String offenderNo) {
 
-        PrisonerDetailSearchCriteria criteria = PrisonerDetailSearchCriteria.builder()
+        final var criteria = PrisonerDetailSearchCriteria.builder()
                 .offenderNo(offenderNo)
                 .build();
 
         log.info("Global Search with search criteria: {}", criteria);
-        Page<PrisonerDetail> offenders = globalSearchService.findOffenders(
+        final var offenders = globalSearchService.findOffenders(
                 criteria,
                 new PageRequest(null, null, 0L, 1000L));
         log.debug("Global Search returned {} records", offenders.getTotalRecords());

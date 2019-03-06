@@ -64,7 +64,7 @@ public class RollCount {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -77,7 +77,7 @@ public class RollCount {
         return livingUnitId;
     }
 
-    public void setLivingUnitId(Long livingUnitId) {
+    public void setLivingUnitId(final Long livingUnitId) {
         this.livingUnitId = livingUnitId;
     }
 
@@ -90,7 +90,7 @@ public class RollCount {
         return livingUnitDesc;
     }
 
-    public void setLivingUnitDesc(String livingUnitDesc) {
+    public void setLivingUnitDesc(final String livingUnitDesc) {
         this.livingUnitDesc = livingUnitDesc;
     }
 
@@ -103,7 +103,7 @@ public class RollCount {
         return bedsInUse;
     }
 
-    public void setBedsInUse(Integer bedsInUse) {
+    public void setBedsInUse(final Integer bedsInUse) {
         this.bedsInUse = bedsInUse;
     }
 
@@ -116,7 +116,7 @@ public class RollCount {
         return currentlyInCell;
     }
 
-    public void setCurrentlyInCell(Integer currentlyInCell) {
+    public void setCurrentlyInCell(final Integer currentlyInCell) {
         this.currentlyInCell = currentlyInCell;
     }
 
@@ -129,7 +129,7 @@ public class RollCount {
         return currentlyOut;
     }
 
-    public void setCurrentlyOut(Integer currentlyOut) {
+    public void setCurrentlyOut(final Integer currentlyOut) {
         this.currentlyOut = currentlyOut;
     }
 
@@ -142,7 +142,7 @@ public class RollCount {
         return operationalCapacity;
     }
 
-    public void setOperationalCapacity(Integer operationalCapacity) {
+    public void setOperationalCapacity(final Integer operationalCapacity) {
         this.operationalCapacity = operationalCapacity;
     }
 
@@ -155,7 +155,7 @@ public class RollCount {
         return netVacancies;
     }
 
-    public void setNetVacancies(Integer netVacancies) {
+    public void setNetVacancies(final Integer netVacancies) {
         this.netVacancies = netVacancies;
     }
 
@@ -168,7 +168,7 @@ public class RollCount {
         return maximumCapacity;
     }
 
-    public void setMaximumCapacity(Integer maximumCapacity) {
+    public void setMaximumCapacity(final Integer maximumCapacity) {
         this.maximumCapacity = maximumCapacity;
     }
 
@@ -181,7 +181,7 @@ public class RollCount {
         return availablePhysical;
     }
 
-    public void setAvailablePhysical(Integer availablePhysical) {
+    public void setAvailablePhysical(final Integer availablePhysical) {
         this.availablePhysical = availablePhysical;
     }
 
@@ -194,13 +194,13 @@ public class RollCount {
         return outOfOrder;
     }
 
-    public void setOutOfOrder(Integer outOfOrder) {
+    public void setOutOfOrder(final Integer outOfOrder) {
         this.outOfOrder = outOfOrder;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class RollCount {\n");
         

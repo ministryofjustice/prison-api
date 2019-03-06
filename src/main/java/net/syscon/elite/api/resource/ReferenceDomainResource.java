@@ -103,11 +103,16 @@ public interface ReferenceDomainResource {
 
     class GetAlertTypesResponse extends ResponseDelegate {
 
-        private GetAlertTypesResponse(Response response) { super(response); }
-        private GetAlertTypesResponse(Response response, Object entity) { super(response, entity); }
+        private GetAlertTypesResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetAlertTypesResponse respond200WithApplicationJson(Page<ReferenceCode> page) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetAlertTypesResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetAlertTypesResponse respond200WithApplicationJson(final Page<ReferenceCode> page) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON)
                     .header("Total-Records", page.getTotalRecords())
                     .header("Page-Offset", page.getPageOffset())
@@ -116,22 +121,22 @@ public interface ReferenceDomainResource {
             return new GetAlertTypesResponse(responseBuilder.build(), page.getItems());
         }
 
-        public static GetAlertTypesResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetAlertTypesResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAlertTypesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAlertTypesResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetAlertTypesResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAlertTypesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAlertTypesResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetAlertTypesResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAlertTypesResponse(responseBuilder.build(), entity);
@@ -140,11 +145,16 @@ public interface ReferenceDomainResource {
 
     class GetCaseNoteSourcesResponse extends ResponseDelegate {
 
-        private GetCaseNoteSourcesResponse(Response response) { super(response); }
-        private GetCaseNoteSourcesResponse(Response response, Object entity) { super(response, entity); }
+        private GetCaseNoteSourcesResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetCaseNoteSourcesResponse respond200WithApplicationJson(Page<ReferenceCode> page) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetCaseNoteSourcesResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetCaseNoteSourcesResponse respond200WithApplicationJson(final Page<ReferenceCode> page) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON)
                     .header("Total-Records", page.getTotalRecords())
                     .header("Page-Offset", page.getPageOffset())
@@ -153,22 +163,22 @@ public interface ReferenceDomainResource {
             return new GetCaseNoteSourcesResponse(responseBuilder.build(), page.getItems());
         }
 
-        public static GetCaseNoteSourcesResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetCaseNoteSourcesResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetCaseNoteSourcesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetCaseNoteSourcesResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetCaseNoteSourcesResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetCaseNoteSourcesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetCaseNoteSourcesResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetCaseNoteSourcesResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetCaseNoteSourcesResponse(responseBuilder.build(), entity);
@@ -177,32 +187,37 @@ public interface ReferenceDomainResource {
 
     class GetCaseNoteTypesResponse extends ResponseDelegate {
 
-        private GetCaseNoteTypesResponse(Response response) { super(response); }
-        private GetCaseNoteTypesResponse(Response response, Object entity) { super(response, entity); }
+        private GetCaseNoteTypesResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetCaseNoteTypesResponse respond200WithApplicationJson(List<ReferenceCode> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetCaseNoteTypesResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetCaseNoteTypesResponse respond200WithApplicationJson(final List<ReferenceCode> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetCaseNoteTypesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetCaseNoteTypesResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetCaseNoteTypesResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetCaseNoteTypesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetCaseNoteTypesResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetCaseNoteTypesResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetCaseNoteTypesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetCaseNoteTypesResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetCaseNoteTypesResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetCaseNoteTypesResponse(responseBuilder.build(), entity);
@@ -211,11 +226,16 @@ public interface ReferenceDomainResource {
 
     class GetReferenceCodesByDomainResponse extends ResponseDelegate {
 
-        private GetReferenceCodesByDomainResponse(Response response) { super(response); }
-        private GetReferenceCodesByDomainResponse(Response response, Object entity) { super(response, entity); }
+        private GetReferenceCodesByDomainResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetReferenceCodesByDomainResponse respond200WithApplicationJson(Page<ReferenceCode> page) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetReferenceCodesByDomainResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetReferenceCodesByDomainResponse respond200WithApplicationJson(final Page<ReferenceCode> page) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON)
                     .header("Total-Records", page.getTotalRecords())
                     .header("Page-Offset", page.getPageOffset())
@@ -224,22 +244,22 @@ public interface ReferenceDomainResource {
             return new GetReferenceCodesByDomainResponse(responseBuilder.build(), page.getItems());
         }
 
-        public static GetReferenceCodesByDomainResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetReferenceCodesByDomainResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetReferenceCodesByDomainResponse(responseBuilder.build(), entity);
         }
 
-        public static GetReferenceCodesByDomainResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetReferenceCodesByDomainResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetReferenceCodesByDomainResponse(responseBuilder.build(), entity);
         }
 
-        public static GetReferenceCodesByDomainResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetReferenceCodesByDomainResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetReferenceCodesByDomainResponse(responseBuilder.build(), entity);
@@ -248,32 +268,37 @@ public interface ReferenceDomainResource {
 
     class GetReferenceCodeByDomainAndCodeResponse extends ResponseDelegate {
 
-        private GetReferenceCodeByDomainAndCodeResponse(Response response) { super(response); }
-        private GetReferenceCodeByDomainAndCodeResponse(Response response, Object entity) { super(response, entity); }
+        private GetReferenceCodeByDomainAndCodeResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetReferenceCodeByDomainAndCodeResponse respond200WithApplicationJson(ReferenceCode entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetReferenceCodeByDomainAndCodeResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetReferenceCodeByDomainAndCodeResponse respond200WithApplicationJson(final ReferenceCode entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetReferenceCodeByDomainAndCodeResponse(responseBuilder.build(), entity);
         }
 
-        public static GetReferenceCodeByDomainAndCodeResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetReferenceCodeByDomainAndCodeResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetReferenceCodeByDomainAndCodeResponse(responseBuilder.build(), entity);
         }
 
-        public static GetReferenceCodeByDomainAndCodeResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetReferenceCodeByDomainAndCodeResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetReferenceCodeByDomainAndCodeResponse(responseBuilder.build(), entity);
         }
 
-        public static GetReferenceCodeByDomainAndCodeResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetReferenceCodeByDomainAndCodeResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetReferenceCodeByDomainAndCodeResponse(responseBuilder.build(), entity);
@@ -282,32 +307,37 @@ public interface ReferenceDomainResource {
 
     class GetScheduleReasonsResponse extends ResponseDelegate {
 
-        private GetScheduleReasonsResponse(Response response) { super(response); }
-        private GetScheduleReasonsResponse(Response response, Object entity) { super(response, entity); }
+        private GetScheduleReasonsResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetScheduleReasonsResponse respond200WithApplicationJson(List<ReferenceCode> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetScheduleReasonsResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetScheduleReasonsResponse respond200WithApplicationJson(final List<ReferenceCode> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetScheduleReasonsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetScheduleReasonsResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetScheduleReasonsResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetScheduleReasonsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetScheduleReasonsResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetScheduleReasonsResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetScheduleReasonsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetScheduleReasonsResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetScheduleReasonsResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetScheduleReasonsResponse(responseBuilder.build(), entity);

@@ -40,7 +40,7 @@ public class QuestionnaireQuestion implements Comparable<QuestionnaireQuestion>{
     private SortedSet<QuestionnaireAnswer> answers;
 
     @Override
-    public int compareTo(QuestionnaireQuestion question) {
+    public int compareTo(final QuestionnaireQuestion question) {
         return new CompareToBuilder()
                 .append(this.getQuestionSeq(), question.getQuestionSeq())
                 .toComparison();

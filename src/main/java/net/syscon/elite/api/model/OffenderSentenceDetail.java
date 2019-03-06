@@ -34,7 +34,7 @@ public class OffenderSentenceDetail extends OffenderSentenceCalc<SentenceDetail>
     private Long facialImageId;
 
     @Builder(builderMethodName = "offenderSentenceDetailBuilder")
-    public OffenderSentenceDetail(@NotNull Long bookingId, @NotBlank String offenderNo, @NotBlank String firstName, @NotBlank String lastName, @NotBlank String agencyLocationId, @NotNull Long bookingId1, @NotBlank String offenderNo1, @NotBlank String firstName1, @NotBlank String lastName1, @NotNull LocalDate dateOfBirth, @NotBlank String agencyLocationId1, @NotBlank String agencyLocationDesc, @NotBlank String internalLocationDesc, Long facialImageId, SentenceDetail sentenceDetail) {
+    public OffenderSentenceDetail(@NotNull final Long bookingId, @NotBlank final String offenderNo, @NotBlank final String firstName, @NotBlank final String lastName, @NotBlank final String agencyLocationId, @NotNull final Long bookingId1, @NotBlank final String offenderNo1, @NotBlank final String firstName1, @NotBlank final String lastName1, @NotNull final LocalDate dateOfBirth, @NotBlank final String agencyLocationId1, @NotBlank final String agencyLocationDesc, @NotBlank final String internalLocationDesc, final Long facialImageId, final SentenceDetail sentenceDetail) {
         super(bookingId, offenderNo, firstName, lastName, agencyLocationId, sentenceDetail);
         this.dateOfBirth = dateOfBirth;
         this.agencyLocationDesc = agencyLocationDesc;

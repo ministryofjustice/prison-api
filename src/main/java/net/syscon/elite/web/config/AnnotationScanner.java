@@ -1,7 +1,6 @@
 package net.syscon.elite.web.config;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
@@ -20,7 +19,7 @@ import java.util.Objects;
 @Slf4j
 public class AnnotationScanner {
 
-    public static Class[] findAnnotatedClasses(Class annotationClass, String[] scanPackages) {
+    public static Class[] findAnnotatedClasses(final Class annotationClass, final String[] scanPackages) {
         Objects.requireNonNull(annotationClass, "Annotation class must be specified.");
         Objects.requireNonNull(scanPackages, "Scan packages must be specified.");
 
@@ -28,7 +27,7 @@ public class AnnotationScanner {
             throw new IllegalArgumentException("At least one scan package must be specified.");
         }
 
-        List<Class> annotatedClasses = new ArrayList<>();
+        final List<Class> annotatedClasses = new ArrayList<>();
 
         Arrays.asList(scanPackages).forEach(pkg -> {
             annotatedClasses.addAll(locateAnnotatedClasses(annotationClass, pkg));
@@ -37,25 +36,25 @@ public class AnnotationScanner {
         return annotatedClasses.toArray(new Class[0]);
     }
 
-    public static Class[] findAnnotatedClasses(Class annotationClass, String scanPackage) {
+    public static Class[] findAnnotatedClasses(final Class annotationClass, final String scanPackage) {
         Objects.requireNonNull(annotationClass, "Annotation class must be specified.");
 
-        List<Class> annotatedClasses = locateAnnotatedClasses(annotationClass, scanPackage);
+        final var annotatedClasses = locateAnnotatedClasses(annotationClass, scanPackage);
 
         return annotatedClasses.toArray(new Class[0]);
     }
 
-    private static List<Class> locateAnnotatedClasses(Class annotationClass, String scanPackage) {
+    private static List<Class> locateAnnotatedClasses(final Class annotationClass, final String scanPackage) {
         Objects.requireNonNull(scanPackage, "Scan package must be specified.");
 
-        List<Class> annotatedClasses = new ArrayList<>();
+        final List<Class> annotatedClasses = new ArrayList<>();
 
-        ClassPathScanningCandidateComponentProvider provider = createComponentScanner(annotationClass);
+        final var provider = createComponentScanner(annotationClass);
 
-        for (BeanDefinition beanDef : provider.findCandidateComponents(scanPackage)) {
+        for (final var beanDef : provider.findCandidateComponents(scanPackage)) {
             try {
                 annotatedClasses.add(Class.forName(beanDef.getBeanClassName()));
-            } catch (ClassNotFoundException e) {
+            } catch (final ClassNotFoundException e) {
                 log.warn("Failed to locate annotated class:", e);
             }
         }
@@ -63,9 +62,9 @@ public class AnnotationScanner {
         return annotatedClasses;
     }
 
-    private static ClassPathScanningCandidateComponentProvider createComponentScanner(Class annotationClass) {
+    private static ClassPathScanningCandidateComponentProvider createComponentScanner(final Class annotationClass) {
         // Don't pull default filters (@Component, etc.):
-        ClassPathScanningCandidateComponentProvider provider
+        final var provider
                 = new ClassPathScanningCandidateComponentProvider(false);
 
         provider.addIncludeFilter(new AnnotationTypeFilter(annotationClass));

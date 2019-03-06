@@ -39,7 +39,7 @@ public class PersonIdentifier {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -52,7 +52,7 @@ public class PersonIdentifier {
         return identifierType;
     }
 
-    public void setIdentifierType(String identifierType) {
+    public void setIdentifierType(final String identifierType) {
         this.identifierType = identifierType;
     }
 
@@ -65,13 +65,13 @@ public class PersonIdentifier {
         return identifierValue;
     }
 
-    public void setIdentifierValue(String identifierValue) {
+    public void setIdentifierValue(final String identifierValue) {
         this.identifierValue = identifierValue;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class PersonIdentifier {\n");
         

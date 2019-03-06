@@ -1,10 +1,8 @@
 package net.syscon.elite.web.listener;
 
-import com.fasterxml.classmate.ResolvedType;
 import com.fasterxml.classmate.TypeResolver;
 import org.glassfish.jersey.server.model.Resource;
 import org.glassfish.jersey.server.model.ResourceMethod;
-import org.glassfish.jersey.server.model.ResourceModel;
 import org.glassfish.jersey.server.monitoring.ApplicationEvent;
 import org.glassfish.jersey.server.monitoring.ApplicationEventListener;
 import org.glassfish.jersey.server.monitoring.RequestEvent;
@@ -33,8 +31,8 @@ public class EndpointLoggingListener implements ApplicationEventListener {
 	@Override
 	public void onEvent(final ApplicationEvent event) {
 		if (event.getType() == ApplicationEvent.Type.INITIALIZATION_APP_FINISHED) {
-			final ResourceModel resourceModel = event.getResourceModel();
-			final ResourceLogDetails logDetails = new ResourceLogDetails();
+            final var resourceModel = event.getResourceModel();
+            final var logDetails = new ResourceLogDetails();
 			resourceModel.getResources().forEach(resource ->
 				logDetails.addEndpointLogLines(getLinesFromResource(resource))
 			);
@@ -75,19 +73,19 @@ public class EndpointLoggingListener implements ApplicationEventListener {
 	}
 
 	private void populate(final String path, final boolean isLocator, final Resource resource, final Set<EndpointLogLine> endpointLogLines) {
-		String basePath = path;
+        var basePath = path;
 		if (!isLocator) {
 			basePath = normalizePath(basePath, resource.getPath());
 		}
-		
-		for (final ResourceMethod method : resource.getResourceMethods()) {
+
+        for (final var method : resource.getResourceMethods()) {
 			if (shouldLog(basePath, method)) {
 				endpointLogLines.add(new EndpointLogLine(method.getHttpMethod(), basePath, null));
 			}
 		}
 
-		for (final Resource childResource : resource.getChildResources()) {
-			for (final ResourceMethod method : childResource.getAllMethods()) {
+        for (final var childResource : resource.getChildResources()) {
+            for (final var method : childResource.getAllMethods()) {
 				populateMethodInfo(basePath, endpointLogLines, childResource, method);
 			}
 		}
@@ -97,7 +95,7 @@ public class EndpointLoggingListener implements ApplicationEventListener {
 
 	private void populateMethodInfo(final String basePath, final Set<EndpointLogLine> endpointLogLines, final Resource childResource, final ResourceMethod method) {
 		if (method.getType() == ResourceMethod.JaxrsType.RESOURCE_METHOD) {
-			final String path = normalizePath(basePath, childResource.getPath());
+            final var path = normalizePath(basePath, childResource.getPath());
 			if (!withOptions &&  "OPTIONS".equalsIgnoreCase(method.getHttpMethod())) {
 				return;
 			}
@@ -106,10 +104,10 @@ public class EndpointLoggingListener implements ApplicationEventListener {
 			}
 			endpointLogLines.add(new EndpointLogLine(method.getHttpMethod(), path, null));
 		} else if (method.getType() == ResourceMethod.JaxrsType.SUB_RESOURCE_LOCATOR) {
-			final String path = normalizePath(basePath, childResource.getPath());
-			final ResolvedType responseType = TYPE_RESOLVER
+            final var path = normalizePath(basePath, childResource.getPath());
+            final var responseType = TYPE_RESOLVER
 					.resolve(method.getInvocable().getResponseType());
-			final Class<?> erasedType = !responseType.getTypeBindings().isEmpty()
+            final var erasedType = !responseType.getTypeBindings().isEmpty()
 					? responseType.getTypeBindings().getBoundType(0).getErasedType()
 					: responseType.getErasedType();
 			populate(path, erasedType, true, endpointLogLines);
@@ -131,7 +129,7 @@ public class EndpointLoggingListener implements ApplicationEventListener {
 		private static final Comparator<EndpointLogLine> COMPARATOR = Comparator.comparing((final EndpointLogLine e) -> e.path).thenComparing((final EndpointLogLine e) -> e.httpMethod);
 		private final Set<EndpointLogLine> logLines = new TreeSet<>(COMPARATOR);
 		private void log() {
-			final StringBuilder sb = new StringBuilder("\nAll endpoints for Jersey application\n");
+            final var sb = new StringBuilder("\nAll endpoints for Jersey application\n");
 			logLines.forEach(line -> sb.append(line).append("\n"));
 			logger.info(sb.toString());
 		}

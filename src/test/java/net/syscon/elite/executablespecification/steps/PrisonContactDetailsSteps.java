@@ -6,7 +6,6 @@ import net.syscon.elite.test.EliteClientException;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -23,7 +22,7 @@ public class PrisonContactDetailsSteps extends CommonSteps {
         doListApiCall();
     }
 
-    public void getPrisonContactDetails(String agencyId) {
+    public void getPrisonContactDetails(final String agencyId) {
         doSingleResultApiCall(agencyId);
     }
 
@@ -40,7 +39,7 @@ public class PrisonContactDetailsSteps extends CommonSteps {
         init();
 
         try {
-            ResponseEntity<List<PrisonContactDetail>> response =
+            final var response =
                     restTemplate.exchange(
                             PRISON_CONTACT_DETAILS_LIST_URL,
                             HttpMethod.GET,
@@ -51,18 +50,18 @@ public class PrisonContactDetailsSteps extends CommonSteps {
 
             detailsList = response.getBody();
 
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-   private void doSingleResultApiCall(String agencyId) {
+    private void doSingleResultApiCall(final String agencyId) {
         init();
         try {
-            ResponseEntity<PrisonContactDetail> response = restTemplate.exchange(PRISON_CONTACT_DETAILS_URL, HttpMethod.GET, createEntity(),
+            final var response = restTemplate.exchange(PRISON_CONTACT_DETAILS_URL, HttpMethod.GET, createEntity(),
                     PrisonContactDetail.class, agencyId);
             details = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

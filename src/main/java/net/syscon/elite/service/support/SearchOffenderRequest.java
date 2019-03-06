@@ -20,8 +20,8 @@ public class SearchOffenderRequest extends PageRequest {
     private List<String> alerts;
 
     @Builder(toBuilder = true)
-    public SearchOffenderRequest(String orderBy, Order order, long offset, long limit, String username, String keywords,
-                                 String locationPrefix, List<String> alerts, boolean returnIep, boolean returnAlerts, boolean returnCategory) {
+    public SearchOffenderRequest(final String orderBy, final Order order, final long offset, final long limit, final String username, final String keywords,
+                                 final String locationPrefix, final List<String> alerts, final boolean returnIep, final boolean returnAlerts, final boolean returnCategory) {
         super(orderBy, order, offset, limit);
 
         this.username = username;

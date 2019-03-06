@@ -13,12 +13,12 @@ import java.util.List;
 public class PersonServiceImpl implements PersonService {
     private final PersonRepository personRepository;
 
-    public PersonServiceImpl(PersonRepository personRepository) {
+    public PersonServiceImpl(final PersonRepository personRepository) {
         this.personRepository = personRepository;
     }
 
     @Override
-    public List<PersonIdentifier> getPersonIdentifiers(long personId) {
+    public List<PersonIdentifier> getPersonIdentifiers(final long personId) {
         return personRepository.getPersonIdentifiers(personId);
     }
 }

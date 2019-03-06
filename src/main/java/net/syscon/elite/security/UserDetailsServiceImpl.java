@@ -1,7 +1,5 @@
 package net.syscon.elite.security;
 
-import net.syscon.elite.api.model.UserDetail;
-import net.syscon.elite.api.model.UserRole;
 import net.syscon.elite.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,8 +33,8 @@ public class UserDetailsServiceImpl implements UserDetailsService, Authenticatio
 	@Autowired
 	private Environment env;
 
-	public UserDetailsServiceImpl(UserService userService,
-								  @Value("${application.caseload.id:NEWB}") String apiCaseloadId) {
+    public UserDetailsServiceImpl(final UserService userService,
+                                  @Value("${application.caseload.id:NEWB}") final String apiCaseloadId) {
 		this.userService = userService;
 		this.apiCaseloadId = apiCaseloadId;
 	}
@@ -45,16 +42,16 @@ public class UserDetailsServiceImpl implements UserDetailsService, Authenticatio
 	@Override
 	@Cacheable("loadUserByUsername")
 	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
-		boolean nomisProfile = Arrays.stream(env.getActiveProfiles()).anyMatch(p -> p.contains("nomis"));
+        final var nomisProfile = Arrays.stream(env.getActiveProfiles()).anyMatch(p -> p.contains("nomis"));
 
-		final UserDetail userDetail = userService.getUserByUsername(username);
-		List<UserRole> roles = userService.getRolesByUsername(username, false);
+        final var userDetail = userService.getUserByUsername(username);
+        final var roles = userService.getRolesByUsername(username, false);
 
 		if (nomisProfile && !userService.isUserAssessibleCaseloadAvailable(apiCaseloadId, username)) {
 			throw new UnapprovedClientAuthenticationException(format("User does not have access to caseload %s", apiCaseloadId));
 		}
 
-		Set<GrantedAuthority> authorities = roles.stream()
+        final Set<GrantedAuthority> authorities = roles.stream()
 				.filter(Objects::nonNull)
 				.map(role -> new SimpleGrantedAuthority("ROLE_" + StringUtils.upperCase(StringUtils.replaceAll(role.getRoleCode(),"-", "_"))))
 				.collect(Collectors.toSet());
@@ -63,7 +60,7 @@ public class UserDetailsServiceImpl implements UserDetailsService, Authenticatio
 	}
 
     @Override
-    public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken token) throws UsernameNotFoundException {
+    public UserDetails loadUserDetails(final PreAuthenticatedAuthenticationToken token) throws UsernameNotFoundException {
         return loadUserByUsername(token.getName());
     }
 }

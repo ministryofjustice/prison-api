@@ -10,7 +10,6 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,7 +34,7 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 		public boolean equals(final Object o) {
 			if (this == o) return true;
 			if (o == null || getClass() != o.getClass()) return false;
-			final MappingInfo that = (MappingInfo) o;
+            final var that = (MappingInfo) o;
 			return Objects.equals(sql, that.sql) &&
 					Objects.equals(type, that.type);
 		}
@@ -48,8 +47,8 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 	public Row2BeanRowMapper(final Class<? extends T> type, final Map<String, FieldMapper> mappings) {
 		this.type = type;
 		this.columnsMapping = new HashMap<>();
-		for (final Map.Entry<String, FieldMapper> entry: mappings.entrySet()) {
-			final String upperKey = entry.getKey() != null? entry.getKey().toUpperCase(): null;
+        for (final var entry : mappings.entrySet()) {
+            final var upperKey = entry.getKey() != null ? entry.getKey().toUpperCase() : null;
 			this.columnsMapping.put(upperKey, entry.getValue());
 		}
 	}
@@ -58,9 +57,9 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 		if (sqlToCollumns == null) {
 			final List<String> loadingCols = new ArrayList<>();
 			try {
-				final ResultSetMetaData rsmd = rs.getMetaData();
-				final int count = rsmd.getColumnCount();
-				for (int i = 1; i <= count; i++) {
+                final var rsmd = rs.getMetaData();
+                final var count = rsmd.getColumnCount();
+                for (var i = 1; i <= count; i++) {
 					loadingCols.add(rsmd.getColumnName(i).toUpperCase());
 				}
 				sqlToCollumns = loadingCols;
@@ -73,7 +72,7 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static <M> RowMapper<M> makeMapping(final String sql, final Class<M> type, final Map<String, FieldMapper> mappings) {
-		final MappingInfo mappingInfo = new MappingInfo(sql, type);
+        final var mappingInfo = new MappingInfo(sql, type);
 		if (!cachedMappings.containsKey(mappingInfo)) {
 			cachedMappings.put(mappingInfo, new Row2BeanRowMapper(type, mappings));
 		}
@@ -81,7 +80,7 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 	}
 
 	private String camelize(final String columnName) {
-		String result = WordUtils.capitalizeFully(columnName.toLowerCase(), '_');
+        var result = WordUtils.capitalizeFully(columnName.toLowerCase(), '_');
 		result = (result.substring(0, 1).toLowerCase() + result.substring(1)).replaceAll("_", "");
 		return result;
 	}
@@ -89,15 +88,15 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 	@Override
 	public T mapRow(final ResultSet rs, final int rowNum) throws SQLException {
 		try {
-			final T bean = type.getDeclaredConstructor().newInstance();
+            final var bean = type.getDeclaredConstructor().newInstance();
 			loadColumns(rs);
 
-			for (final String columnName: sqlToCollumns) {
+            for (final var columnName : sqlToCollumns) {
 				if (!StringUtils.equals(Constants.RECORD_COUNT_COLUMN, columnName)) {
-					final Object value = rs.getObject(columnName);
+                    final var value = rs.getObject(columnName);
 
 					if (value != null) {
-						final FieldMapper fieldMapper = getFieldMapper(bean, columnName, value);
+                        final var fieldMapper = getFieldMapper(bean, columnName, value);
 
 						fieldMapper.setValue(bean, value);
 					}
@@ -112,10 +111,10 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 
 	@SuppressWarnings({"squid:S00108", "squid:S1166"})
 	private FieldMapper getFieldMapper(final T bean, final String columnName, final Object value) {
-		FieldMapper fieldMapper = columnsMapping.get(columnName);
+        var fieldMapper = columnsMapping.get(columnName);
 		if (fieldMapper == null) {
 			Field candidateField = null;
-			final String fieldName = camelize(columnName);
+            final var fieldName = camelize(columnName);
 			try { candidateField = bean.getClass().getDeclaredField(fieldName); } catch (final Exception ex) {}
 			if (candidateField != null) {
 				fieldMapper = new FieldMapper(fieldName);
@@ -132,7 +131,7 @@ public class Row2BeanRowMapper<T> implements RowMapper<T> {
 			try {
 				if (field != null && field.getType().equals(Map.class)) {
 					@SuppressWarnings("unchecked")
-					Map<String, Object> additionalProperties = (Map<String, Object>) field.get(bean);
+                    var additionalProperties = (Map<String, Object>) field.get(bean);
 					if (additionalProperties == null) {
 						additionalProperties = new HashMap<>();
 						field.set(bean, additionalProperties);

@@ -67,7 +67,7 @@ public class Visit {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -80,7 +80,7 @@ public class Visit {
         return eventStatus;
     }
 
-    public void setEventStatus(String eventStatus) {
+    public void setEventStatus(final String eventStatus) {
         this.eventStatus = eventStatus;
     }
 
@@ -93,7 +93,7 @@ public class Visit {
         return eventStatusDescription;
     }
 
-    public void setEventStatusDescription(String eventStatusDescription) {
+    public void setEventStatusDescription(final String eventStatusDescription) {
         this.eventStatusDescription = eventStatusDescription;
     }
 
@@ -106,7 +106,7 @@ public class Visit {
         return visitType;
     }
 
-    public void setVisitType(String visitType) {
+    public void setVisitType(final String visitType) {
         this.visitType = visitType;
     }
 
@@ -119,7 +119,7 @@ public class Visit {
         return visitTypeDescription;
     }
 
-    public void setVisitTypeDescription(String visitTypeDescription) {
+    public void setVisitTypeDescription(final String visitTypeDescription) {
         this.visitTypeDescription = visitTypeDescription;
     }
 
@@ -132,7 +132,7 @@ public class Visit {
         return leadVisitor;
     }
 
-    public void setLeadVisitor(String leadVisitor) {
+    public void setLeadVisitor(final String leadVisitor) {
         this.leadVisitor = leadVisitor;
     }
 
@@ -145,7 +145,7 @@ public class Visit {
         return relationship;
     }
 
-    public void setRelationship(String relationship) {
+    public void setRelationship(final String relationship) {
         this.relationship = relationship;
     }
 
@@ -158,7 +158,7 @@ public class Visit {
         return relationshipDescription;
     }
 
-    public void setRelationshipDescription(String relationshipDescription) {
+    public void setRelationshipDescription(final String relationshipDescription) {
         this.relationshipDescription = relationshipDescription;
     }
 
@@ -171,7 +171,7 @@ public class Visit {
         return startTime;
     }
 
-    public void setStartTime(LocalDateTime startTime) {
+    public void setStartTime(final LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
@@ -184,7 +184,7 @@ public class Visit {
         return endTime;
     }
 
-    public void setEndTime(LocalDateTime endTime) {
+    public void setEndTime(final LocalDateTime endTime) {
         this.endTime = endTime;
     }
 
@@ -197,7 +197,7 @@ public class Visit {
         return location;
     }
 
-    public void setLocation(String location) {
+    public void setLocation(final String location) {
         this.location = location;
     }
 
@@ -210,7 +210,7 @@ public class Visit {
         return eventOutcome;
     }
 
-    public void setEventOutcome(String eventOutcome) {
+    public void setEventOutcome(final String eventOutcome) {
         this.eventOutcome = eventOutcome;
     }
 
@@ -223,7 +223,7 @@ public class Visit {
         return eventOutcomeDescription;
     }
 
-    public void setEventOutcomeDescription(String eventOutcomeDescription) {
+    public void setEventOutcomeDescription(final String eventOutcomeDescription) {
         this.eventOutcomeDescription = eventOutcomeDescription;
     }
 
@@ -236,7 +236,7 @@ public class Visit {
         return cancellationReason;
     }
 
-    public void setCancellationReason(String cancellationReason) {
+    public void setCancellationReason(final String cancellationReason) {
         this.cancellationReason = cancellationReason;
     }
 
@@ -249,13 +249,13 @@ public class Visit {
         return cancelReasonDescription;
     }
 
-    public void setCancelReasonDescription(String cancelReasonDescription) {
+    public void setCancelReasonDescription(final String cancelReasonDescription) {
         this.cancelReasonDescription = cancelReasonDescription;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class Visit {\n");
         

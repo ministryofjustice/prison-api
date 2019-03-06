@@ -33,10 +33,10 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
             .build();
 
     @Override
-    public Long createPerson(String firstName, String lastName) {
+    public Long createPerson(final String firstName, final String lastName) {
 
-        final String sql = getQuery("CREATE_PERSON");
-        final GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
+        final var sql = getQuery("CREATE_PERSON");
+        final var generatedKeyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(
                 sql,
@@ -48,9 +48,9 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
     }
 
     @Override
-    public void updatePerson(Long personId, String firstName, String lastName) {
+    public void updatePerson(final Long personId, final String firstName, final String lastName) {
 
-        final String sql = getQuery("UPDATE_PERSON");
+        final var sql = getQuery("UPDATE_PERSON");
         jdbcTemplate.update(
                 sql,
                 createParams("personId", personId, "firstName", firstName, "lastName", lastName));
@@ -58,22 +58,22 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
     }
 
     @Override
-    public Optional<Person> getPersonById(Long personId) {
-        final String sql = getQuery("GET_PERSON_BY_ID");
+    public Optional<Person> getPersonById(final Long personId) {
+        final var sql = getQuery("GET_PERSON_BY_ID");
 
         Person person;
         try {
             person = jdbcTemplate.queryForObject(sql, createParams("personId", personId), PERSON_ROW_MAPPER);
-        } catch (EmptyResultDataAccessException e) {
+        } catch (final EmptyResultDataAccessException e) {
             person = null;
         }
         return Optional.ofNullable(person);
     }
 
     @Override
-    public Optional<Person> getPersonByRef(String externalRef, String identifierType) {
-        final String sql = getQuery("GET_PERSON_BY_REF");
-        List<Person> persons = jdbcTemplate.query(sql,
+    public Optional<Person> getPersonByRef(final String externalRef, final String identifierType) {
+        final var sql = getQuery("GET_PERSON_BY_REF");
+        final var persons = jdbcTemplate.query(sql,
                 createParams("identifierType", identifierType,
                         "identifier", externalRef),  PERSON_ROW_MAPPER);
 
@@ -81,8 +81,8 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
     }
 
     @Override
-    public void createExternalReference(Long personId, String externalRef, String identifierType) {
-        final String sql = getQuery("CREATE_PERSON_IDENTIFIER");
+    public void createExternalReference(final Long personId, final String externalRef, final String identifierType) {
+        final var sql = getQuery("CREATE_PERSON_IDENTIFIER");
         jdbcTemplate.update(
                 sql,
                 createParams("personId", personId,
@@ -92,8 +92,8 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
     }
 
     @Override
-    public List<Contact> getOffenderRelationships(Long bookingId, String relationshipType) {
-        final String sql = getQuery("RELATIONSHIP_TO_OFFENDER");
+    public List<Contact> getOffenderRelationships(final Long bookingId, final String relationshipType) {
+        final var sql = getQuery("RELATIONSHIP_TO_OFFENDER");
 
         return jdbcTemplate.query(sql,
                 createParams("bookingId", bookingId,
@@ -102,9 +102,9 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
     }
 
     @Override
-    public Long createRelationship(Long personId, Long bookingId, String relationshipType, String contactType) {
-        final String sql = getQuery("CREATE_OFFENDER_CONTACT_PERSONS");
-        final GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
+    public Long createRelationship(final Long personId, final Long bookingId, final String relationshipType, final String contactType) {
+        final var sql = getQuery("CREATE_OFFENDER_CONTACT_PERSONS");
+        final var generatedKeyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(
                 sql,
@@ -122,8 +122,8 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
     }
 
     @Override
-    public void updateRelationship(Long personId, Long bookingContactPersonId) {
-        final String sql = getQuery("UPDATE_OFFENDER_CONTACT_PERSONS_SAME_REL_TYPE");
+    public void updateRelationship(final Long personId, final Long bookingContactPersonId) {
+        final var sql = getQuery("UPDATE_OFFENDER_CONTACT_PERSONS_SAME_REL_TYPE");
 
         jdbcTemplate.update(
                 sql,
@@ -132,8 +132,8 @@ public class ContactRepositoryImpl extends RepositoryBase implements ContactRepo
 
     }
 
-    private long getIdentifierSequenceNumber(Long personId, String identifierType) {
-        final String sql = getQuery("GET_MAX_IDENTIFIER_SEQ");
+    private long getIdentifierSequenceNumber(final Long personId, final String identifierType) {
+        final var sql = getQuery("GET_MAX_IDENTIFIER_SEQ");
         return jdbcTemplate.queryForObject(
                 sql,
                 createParams("personId", personId,

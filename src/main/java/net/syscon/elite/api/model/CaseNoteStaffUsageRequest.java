@@ -50,7 +50,7 @@ public class CaseNoteStaffUsageRequest {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -63,7 +63,7 @@ public class CaseNoteStaffUsageRequest {
         return staffIds;
     }
 
-    public void setStaffIds(List<Integer> staffIds) {
+    public void setStaffIds(final List<Integer> staffIds) {
         this.staffIds = staffIds;
     }
 
@@ -76,7 +76,7 @@ public class CaseNoteStaffUsageRequest {
         return numMonths;
     }
 
-    public void setNumMonths(Integer numMonths) {
+    public void setNumMonths(final Integer numMonths) {
         this.numMonths = numMonths;
     }
 
@@ -89,7 +89,7 @@ public class CaseNoteStaffUsageRequest {
         return fromDate;
     }
 
-    public void setFromDate(LocalDate fromDate) {
+    public void setFromDate(final LocalDate fromDate) {
         this.fromDate = fromDate;
     }
 
@@ -102,7 +102,7 @@ public class CaseNoteStaffUsageRequest {
         return toDate;
     }
 
-    public void setToDate(LocalDate toDate) {
+    public void setToDate(final LocalDate toDate) {
         this.toDate = toDate;
     }
 
@@ -115,7 +115,7 @@ public class CaseNoteStaffUsageRequest {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(final String type) {
         this.type = type;
     }
 
@@ -128,13 +128,13 @@ public class CaseNoteStaffUsageRequest {
         return subType;
     }
 
-    public void setSubType(String subType) {
+    public void setSubType(final String subType) {
         this.subType = subType;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class CaseNoteStaffUsageRequest {\n");
         

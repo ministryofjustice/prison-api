@@ -32,9 +32,9 @@ public class ContactServiceImpl implements ContactService {
     private final ReferenceDomainService referenceDomainService;
 
     @Autowired
-    public ContactServiceImpl(ContactRepository contactRepository,
-                              BookingService bookingService,
-                              ReferenceDomainService referenceDomainService) {
+    public ContactServiceImpl(final ContactRepository contactRepository,
+                              final BookingService bookingService,
+                              final ReferenceDomainService referenceDomainService) {
         this.repository = contactRepository;
         this.bookingService = bookingService;
         this.referenceDomainService = referenceDomainService;
@@ -43,15 +43,15 @@ public class ContactServiceImpl implements ContactService {
     @Override
     @VerifyBookingAccess
     @Transactional(readOnly = true)
-    public ContactDetail getContacts(Long bookingId) {
-        final List<Contact> contacts = repository.getOffenderRelationships(bookingId, null);
+    public ContactDetail getContacts(final Long bookingId) {
+        final var contacts = repository.getOffenderRelationships(bookingId, null);
 
         Comparator<Contact> sortCriteria = (c1, c2) -> Boolean.compare(
                 c2.getEmergencyContact(), c1.getEmergencyContact());
 
         sortCriteria = sortCriteria.thenComparing(Contact::getLastName);
 
-        final List<Contact> list = contacts.stream()
+        final var list = contacts.stream()
                 .filter(Contact::getNextOfKin)
                 .sorted(sortCriteria)
                 .collect(toList());
@@ -60,37 +60,37 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     @VerifyBookingAccess
-    public List<Contact> getRelationships(Long bookingId, String relationshipType) {
+    public List<Contact> getRelationships(final Long bookingId, final String relationshipType) {
         return repository.getOffenderRelationships(bookingId, relationshipType);
     }
 
     @Override
-    public List<Contact> getRelationshipsByOffenderNo(String offenderNo, String relationshipType) {
-        Long bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
+    public List<Contact> getRelationshipsByOffenderNo(final String offenderNo, final String relationshipType) {
+        final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
         return getRelationships(bookingId, relationshipType);
     }
 
     @Override
     @PreAuthorize("hasRole('CONTACT_CREATE')")
-    public Contact createRelationshipByOffenderNo(String offenderNo, OffenderRelationship relationshipDetail) {
-        Long bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
+    public Contact createRelationshipByOffenderNo(final String offenderNo, final OffenderRelationship relationshipDetail) {
+        final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
         return createRelationship(bookingId, relationshipDetail);
     }
 
     @Override
     @PreAuthorize("hasRole('CONTACT_CREATE')")
-    public Contact createRelationship(Long bookingId, OffenderRelationship relationshipDetail) {
+    public Contact createRelationship(final Long bookingId, final OffenderRelationship relationshipDetail) {
 
         // Check relationship type exists - TODO: Move to validator
         referenceDomainService.getReferenceCodeByDomainAndCode("RELATIONSHIP", relationshipDetail.getRelationshipType(), false);
 
-        Person person = createPersonAndRef(relationshipDetail, relationshipDetail.getPersonId());
+        final var person = createPersonAndRef(relationshipDetail, relationshipDetail.getPersonId());
 
         // now check the relationship exists already
-        final List<Contact> offenderRelationships = getOffenderRelationships(bookingId, relationshipDetail);
+        final var offenderRelationships = getOffenderRelationships(bookingId, relationshipDetail);
 
         // should only be one of this type
-        final Optional<Contact> existingRelationship = offenderRelationships.stream()
+        final var existingRelationship = offenderRelationships.stream()
                 .filter(r -> r.getPersonId().equals(person.getPersonId()))
                 .findFirst();
 
@@ -109,12 +109,12 @@ public class ContactServiceImpl implements ContactService {
                 .findFirst().orElseThrow(EntityNotFoundException.withId(bookingId));
     }
 
-    private List<Contact> getOffenderRelationships(Long bookingId, OffenderRelationship relationshipDetail) {
+    private List<Contact> getOffenderRelationships(final Long bookingId, final OffenderRelationship relationshipDetail) {
         return repository.getOffenderRelationships(bookingId, relationshipDetail.getRelationshipType());
     }
 
     private Person createPersonAndRef(final OffenderRelationship relationshipDetail, final Long personId) {
-        boolean foundRef = false;
+        var foundRef = false;
         Optional<Person> person = Optional.empty();
         // check if person ref set
         if (StringUtils.isNotBlank(relationshipDetail.getExternalRef())) {
@@ -124,7 +124,7 @@ public class ContactServiceImpl implements ContactService {
             person = repository.getPersonById(personId);
         }
 
-        Long newPersonId;
+        final Long newPersonId;
         // for now if person is null, create it!
         if (person.isPresent()) {
             newPersonId = person.get().getPersonId();

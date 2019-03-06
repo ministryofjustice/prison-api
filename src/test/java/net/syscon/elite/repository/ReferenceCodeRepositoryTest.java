@@ -1,9 +1,7 @@
 package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.ReferenceCode;
-import net.syscon.elite.api.model.ReferenceDomain;
 import net.syscon.elite.api.support.Order;
-import net.syscon.elite.api.support.Page;
 import net.syscon.elite.web.config.CacheConfig;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Test;
@@ -19,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -37,7 +34,7 @@ public class ReferenceCodeRepositoryTest {
 
     @Test
     public void testGetReferenceDomainExists() {
-        Optional<ReferenceDomain> refDomain =
+        final var refDomain =
                 repository.getReferenceDomain("NOTE_SOURCE");
 
         assertThat(refDomain.isPresent()).isTrue();
@@ -47,7 +44,7 @@ public class ReferenceCodeRepositoryTest {
 
     @Test
     public void testGetReferenceDomainNotExists() {
-        Optional<ReferenceDomain> refDomain =
+        final var refDomain =
                 repository.getReferenceDomain("UNKNOWN");
 
         assertThat(refDomain.isPresent()).isFalse();
@@ -55,7 +52,7 @@ public class ReferenceCodeRepositoryTest {
 
     @Test
     public void testGetReferenceCodeByDomainAndCodeWithSubCodes() {
-        Optional<ReferenceCode> refCode =
+        final var refCode =
                 repository.getReferenceCodeByDomainAndCode("ALERT", "A", true);
 
         assertThat(refCode.isPresent()).isTrue();
@@ -65,7 +62,7 @@ public class ReferenceCodeRepositoryTest {
 
     @Test
     public void testGetReferenceCodeByDomainAndCodeWithoutSubCodes() {
-        Optional<ReferenceCode> refCode =
+        final var refCode =
                 repository.getReferenceCodeByDomainAndCode("ALERT", "A", false);
 
         assertThat(refCode.isPresent()).isTrue();
@@ -75,7 +72,7 @@ public class ReferenceCodeRepositoryTest {
     // Tests (without retrieval of sub-codes) ordering by code (ascending) and 0-10 pagination.
     @Test
     public void testGetReferenceCodesByDomainWithoutSubCodes1() {
-        Page<ReferenceCode> refCodes =
+        final var refCodes =
                 repository.getReferenceCodesByDomain("TASK_TYPE", false,"code", Order.ASC, 0, 10);
 
         assertThat(refCodes).isNotNull();
@@ -99,7 +96,7 @@ public class ReferenceCodeRepositoryTest {
     // Tests (without retrieval of sub-codes) ordering by code (descending) and 15-30 pagination.
     @Test
     public void testGetReferenceCodesByDomainWithoutSubCodes2() {
-        Page<ReferenceCode> refCodes =
+        final var refCodes =
                 repository.getReferenceCodesByDomain("TASK_TYPE", false,"code", Order.DESC, 15, 15);
 
         assertThat(refCodes).isNotNull();
@@ -124,7 +121,7 @@ public class ReferenceCodeRepositoryTest {
     // Tests (with retrieval of sub-codes) ordering by code (ascending) and 0-10 pagination.
     @Test
     public void testGetReferenceCodesByDomainWithSubCodes1() {
-        Page<ReferenceCode> refCodes =
+        final var refCodes =
                 repository.getReferenceCodesByDomain("TASK_TYPE", true,"code", Order.ASC, 0, 10);
 
         assertThat(refCodes).isNotNull();
@@ -160,7 +157,7 @@ public class ReferenceCodeRepositoryTest {
     // Tests (with retrieval of sub-codes) ordering by code (descending) and 15-30 pagination.
     @Test
     public void testGetReferenceCodesByDomainWithSubCodes2() {
-        Page<ReferenceCode> refCodes =
+        final var refCodes =
                 repository.getReferenceCodesByDomain("TASK_TYPE", true,"code", Order.DESC, 15, 16);
 
         assertThat(refCodes).isNotNull();
@@ -198,7 +195,7 @@ public class ReferenceCodeRepositoryTest {
     // Tests (without retrieval of sub-codes) ordering by code (ascending) and 0-1000 pagination.
     @Test
     public void testGetReferenceCodesByDomainWithoutSubCodes3() {
-        Page<ReferenceCode> refCodes =
+        final var refCodes =
                 repository.getReferenceCodesByDomain("TASK_TYPE", false,"code", Order.ASC, 0, 1000);
 
         assertThat(refCodes).isNotNull();
@@ -223,7 +220,7 @@ public class ReferenceCodeRepositoryTest {
     // Tests (with retrieval of sub-codes) ordering by code (ascending) and 0-1000 pagination.
     @Test
     public void testGetReferenceCodesByDomainWithSubCodes3() {
-        Page<ReferenceCode> refCodes =
+        final var refCodes =
                 repository.getReferenceCodesByDomain("TASK_TYPE", true,"code", Order.ASC, 0, 1000);
 
         assertThat(refCodes).isNotNull();
@@ -262,7 +259,7 @@ public class ReferenceCodeRepositoryTest {
     // Tests (without retrieval of sub-codes) ordering by description (ascending) and 0-10 pagination.
     @Test
     public void testGetReferenceCodesByDomainWithoutSubCodes4() {
-        Page<ReferenceCode> refCodes =
+        final var refCodes =
                 repository.getReferenceCodesByDomain("TASK_TYPE", false,"description", Order.ASC, 0, 10);
 
         assertThat(refCodes).isNotNull();
@@ -288,7 +285,7 @@ public class ReferenceCodeRepositoryTest {
     // Tests (without retrieval of sub-codes) ordering by description (descending) and 15-30 pagination.
     @Test
     public void testGetReferenceCodesByDomainWithoutSubCodes5() {
-        Page<ReferenceCode> refCodes =
+        final var refCodes =
                 repository.getReferenceCodesByDomain("TASK_TYPE", false,"description", Order.DESC, 15, 15);
 
         assertThat(refCodes).isNotNull();
@@ -316,7 +313,7 @@ public class ReferenceCodeRepositoryTest {
     // Tests (with retrieval of sub-codes) ordering by description (ascending) and 0-10 pagination.
     @Test
     public void testGetReferenceCodesByDomainWithSubCodes4() {
-        Page<ReferenceCode> refCodes =
+        final var refCodes =
                 repository.getReferenceCodesByDomain("TASK_TYPE", true,"description", Order.ASC, 0, 10);
 
         assertThat(refCodes).isNotNull();
@@ -357,7 +354,7 @@ public class ReferenceCodeRepositoryTest {
     // Tests (with retrieval of sub-codes) ordering by description (descending) and 15-30 pagination.
     @Test
     public void testGetReferenceCodesByDomainWithSubCodes6() {
-        Page<ReferenceCode> refCodes =
+        final var refCodes =
                 repository.getReferenceCodesByDomain("TASK_TYPE", true,"description", Order.DESC, 15, 16);
 
         assertThat(refCodes).isNotNull();
@@ -400,13 +397,13 @@ public class ReferenceCodeRepositoryTest {
         verifySubCodeParentCodeRelationship(refCodes.getItems());
     }
 
-    private void verifySubCodesPresent(List<ReferenceCode> refCodes) {
+    private void verifySubCodesPresent(final List<ReferenceCode> refCodes) {
         refCodes.forEach(rc -> {
             assertThat(rc.getSubCodes()).as("Check code [%s] has sub-codes", rc.getCode()).isNotEmpty();
         });
     }
 
-    private void verifySubCodeParentCodeRelationship(List<ReferenceCode> refCodes) {
+    private void verifySubCodeParentCodeRelationship(final List<ReferenceCode> refCodes) {
         refCodes.forEach(rc -> {
             if (Objects.nonNull(rc.getSubCodes())) {
                 rc.getSubCodes().forEach(sc -> {

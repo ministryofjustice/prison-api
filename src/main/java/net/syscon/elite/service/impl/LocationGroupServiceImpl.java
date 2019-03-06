@@ -26,7 +26,7 @@ public class LocationGroupServiceImpl implements LocationGroupService {
     private final Map<String, List<Pattern>> cellPatternsByGroup = new HashMap<>();
 
     @ConstructorProperties({"groupsProperties"})
-    public LocationGroupServiceImpl(Properties groupsProperties) {
+    public LocationGroupServiceImpl(final Properties groupsProperties) {
         this.groupsProperties = groupsProperties;
     }
 
@@ -38,11 +38,11 @@ public class LocationGroupServiceImpl implements LocationGroupService {
      */
     @Override
     @VerifyAgencyAccess
-    public List<LocationGroup> getLocationGroupsForAgency(String agencyId) {
+    public List<LocationGroup> getLocationGroupsForAgency(final String agencyId) {
         return getLocationGroups(agencyId);
     }
 
-    public List<LocationGroup> getLocationGroups(String agencyId) {
+    public List<LocationGroup> getLocationGroups(final String agencyId) {
         final var fullKeys = groupsProperties.stringPropertyNames();
 
         return fullKeys.stream()
@@ -60,11 +60,11 @@ public class LocationGroupServiceImpl implements LocationGroupService {
      * @param groupName The  name of a group
      * @return Alphabetically sorted List of subgroups matching the criteria
      */
-    private List<LocationGroup> getAvailableSubGroups(String agencyId, String groupName) {
+    private List<LocationGroup> getAvailableSubGroups(final String agencyId, final String groupName) {
 
-        final Set<String> fullKeys = groupsProperties.stringPropertyNames();
+        final var fullKeys = groupsProperties.stringPropertyNames();
 
-        final String agencyAndGroupName = agencyId + '_' + groupName + '_';
+        final var agencyAndGroupName = agencyId + '_' + groupName + '_';
 
         return fullKeys.stream()
                 .filter(key -> key.startsWith(agencyAndGroupName))
@@ -83,13 +83,13 @@ public class LocationGroupServiceImpl implements LocationGroupService {
      * @return A list of Predicates that is true for any Location which is a member of the named group or sub-group and false
      * for any other Location.
      */
-    public List<Predicate<Location>> locationGroupFilters(String agencyId, String compoundGroupName) {
-        final String patternStrings = groupsProperties.getProperty(agencyId + '_' + compoundGroupName);
+    public List<Predicate<Location>> locationGroupFilters(final String agencyId, final String compoundGroupName) {
+        final var patternStrings = groupsProperties.getProperty(agencyId + '_' + compoundGroupName);
         if (patternStrings == null) {
             throw new EntityNotFoundException(
                     "Group '" + compoundGroupName + "' does not exist for agencyId '" + agencyId + "'.");
         }
-        String[]  patternString = patternStrings.split(",");
+        final var patternString = patternStrings.split(",");
         return Arrays.stream(patternString)
                 .map(Pattern::compile)
                 .map(p -> (Predicate<Location>) ((Location l) -> p.matcher(l.getLocationPrefix()).matches()))

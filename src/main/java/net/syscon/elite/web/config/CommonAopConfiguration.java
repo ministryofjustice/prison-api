@@ -24,7 +24,7 @@ public class CommonAopConfiguration {
     }
 
     @Bean
-    public AuthorisationAspect authorisationAspect(BookingService bookingService, AgencyService agencyService) {
+    public AuthorisationAspect authorisationAspect(final BookingService bookingService, final AgencyService agencyService) {
         return new AuthorisationAspect(bookingService, agencyService);
     }
 

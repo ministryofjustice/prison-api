@@ -8,7 +8,6 @@ import net.syscon.elite.service.PrisonerDetailSearchCriteria;
 import net.syscon.elite.service.support.AssessmentDto;
 import net.syscon.elite.service.support.InmateDto;
 import net.syscon.util.CalcDateRanges;
-import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -86,17 +85,17 @@ public interface InmateRepository {
 
     List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders, boolean accessToAllData , Set<String> caseloads);
 
-	static String generateFindOffendersQuery(PrisonerDetailSearchCriteria criteria) {
-		final String likeTemplate = "%s:like:'%s%%'";
-		final String eqTemplate = "%s:eq:'%s'";
-		final String dateRangeTemplate = "(%s%s:gteq:'%s':'YYYY-MM-DD',and:%s:lteq:'%s':'YYYY-MM-DD')";
+    static String generateFindOffendersQuery(final PrisonerDetailSearchCriteria criteria) {
+        final var likeTemplate = "%s:like:'%s%%'";
+        final var eqTemplate = "%s:eq:'%s'";
+        final var dateRangeTemplate = "(%s%s:gteq:'%s':'YYYY-MM-DD',and:%s:lteq:'%s':'YYYY-MM-DD')";
 
-		final String nameMatchingTemplate = criteria.isPartialNameMatch() ? likeTemplate : eqTemplate;
-		final String logicOperator = criteria.isAnyMatch() ? QUERY_OPERATOR_OR : QUERY_OPERATOR_AND;
+        final var nameMatchingTemplate = criteria.isPartialNameMatch() ? likeTemplate : eqTemplate;
+        final var logicOperator = criteria.isAnyMatch() ? QUERY_OPERATOR_OR : QUERY_OPERATOR_AND;
 
-		final StringBuilder query = new StringBuilder();
+        final var query = new StringBuilder();
 
-		String sexCode = "ALL".equals(criteria.getSexCode()) ? null : criteria.getSexCode();
+        final var sexCode = "ALL".equals(criteria.getSexCode()) ? null : criteria.getSexCode();
 
 		appendNonBlankCriteria(query, "offenderNo", criteria.getOffenderNo(), eqTemplate, logicOperator);
 		appendNonBlankNameCriteria(query, "firstName", criteria.getFirstName(), nameMatchingTemplate, logicOperator);
@@ -112,9 +111,9 @@ public interface InmateRepository {
 		return StringUtils.trimToNull(query.toString());
 	}
 
-	static void appendLocationCriteria(StringBuilder query, String criteriaValue,
-									       String operatorTemplate, String logicOperator) {
-		final String neqTemplate = "%s:neq:'%s'";
+    static void appendLocationCriteria(final StringBuilder query, final String criteriaValue,
+                                       final String operatorTemplate, final String logicOperator) {
+        final var neqTemplate = "%s:neq:'%s'";
 
         if (StringUtils.isNotBlank(criteriaValue)) {
             switch (criteriaValue) {
@@ -129,10 +128,10 @@ public interface InmateRepository {
         }
 	}
 
-	static void appendNonBlankNameCriteria(StringBuilder query, String criteriaName, String criteriaValue,
-										   String operatorTemplate, String logicOperator) {
+    static void appendNonBlankNameCriteria(final StringBuilder query, final String criteriaName, final String criteriaValue,
+                                           final String operatorTemplate, final String logicOperator) {
 		if (StringUtils.isNotBlank(criteriaValue)) {
-			String escapedCriteriaValue;
+            final String escapedCriteriaValue;
 
 			if (StringUtils.contains(criteriaValue, "''")) {
 				escapedCriteriaValue = criteriaValue;
@@ -144,8 +143,8 @@ public interface InmateRepository {
 		}
 	}
 
-	static void appendNonBlankCriteria(StringBuilder query, String criteriaName, String criteriaValue,
-									   String operatorTemplate, String logicOperator) {
+    static void appendNonBlankCriteria(final StringBuilder query, final String criteriaName, final String criteriaValue,
+                                       final String operatorTemplate, final String logicOperator) {
 		if (StringUtils.isNotBlank(criteriaValue)) {
 			if (query.length() > 0) {
 				query.append(",").append(logicOperator);
@@ -155,13 +154,13 @@ public interface InmateRepository {
 		}
 	}
 
-	static void appendDateRangeCriteria(StringBuilder query, String criteriaName, PrisonerDetailSearchCriteria criteria,
-                                        String operatorTemplate, String logicOperator) {
-        CalcDateRanges calcDates = new CalcDateRanges(
+    static void appendDateRangeCriteria(final StringBuilder query, final String criteriaName, final PrisonerDetailSearchCriteria criteria,
+                                        final String operatorTemplate, final String logicOperator) {
+        final var calcDates = new CalcDateRanges(
         		criteria.getDob(), criteria.getDobFrom(), criteria.getDobTo(), criteria.getMaxYearsRange());
 
         if (calcDates.hasDateRange()) {
-            Range<LocalDate> dateRange = calcDates.getDateRange();
+            final var dateRange = calcDates.getDateRange();
 
             query.append(format(operatorTemplate, logicOperator, criteriaName,
                     DateTimeFormatter.ISO_LOCAL_DATE.format(dateRange.getMinimum()), criteriaName,
@@ -169,9 +168,9 @@ public interface InmateRepository {
         }
     }
 
-    static void appendPNCNumberCriteria(StringBuilder query, String criteriaValue, String logicOperator) {
+    static void appendPNCNumberCriteria(final StringBuilder query, final String criteriaValue, final String logicOperator) {
         if (StringUtils.isNotBlank(criteriaValue)) {
-            int slashIdx = criteriaValue.indexOf('/');
+            final var slashIdx = criteriaValue.indexOf('/');
 
             if ((slashIdx != 2) && (slashIdx != 4)) {
                 throw new IllegalArgumentException("Incorrectly formatted PNC number.");
@@ -181,12 +180,12 @@ public interface InmateRepository {
                 query.append(",").append(logicOperator);
             }
 
-            String criteriaName = "pncNumber";
+            final var criteriaName = "pncNumber";
 
             if (slashIdx == 2) {
                 query.append(format("%s:like:'%%%s'", criteriaName, criteriaValue.toUpperCase()));
             } else {
-                String altValue = StringUtils.substring(criteriaValue, 2);
+                final var altValue = StringUtils.substring(criteriaValue, 2);
 
                 query.append(format("(%s:eq:'%s',or:%s:eq:'%s')", criteriaName, criteriaValue.toUpperCase(), criteriaName, altValue.toUpperCase()));
             }

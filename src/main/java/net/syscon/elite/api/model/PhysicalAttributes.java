@@ -62,7 +62,7 @@ public class PhysicalAttributes {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -75,7 +75,7 @@ public class PhysicalAttributes {
         return gender;
     }
 
-    public void setGender(String gender) {
+    public void setGender(final String gender) {
         this.gender = gender;
     }
 
@@ -88,7 +88,7 @@ public class PhysicalAttributes {
         return raceCode;
     }
 
-    public void setRaceCode(String raceCode) {
+    public void setRaceCode(final String raceCode) {
         this.raceCode = raceCode;
     }
 
@@ -101,7 +101,7 @@ public class PhysicalAttributes {
         return ethnicity;
     }
 
-    public void setEthnicity(String ethnicity) {
+    public void setEthnicity(final String ethnicity) {
         this.ethnicity = ethnicity;
     }
 
@@ -114,7 +114,7 @@ public class PhysicalAttributes {
         return heightFeet;
     }
 
-    public void setHeightFeet(Integer heightFeet) {
+    public void setHeightFeet(final Integer heightFeet) {
         this.heightFeet = heightFeet;
     }
 
@@ -127,7 +127,7 @@ public class PhysicalAttributes {
         return heightInches;
     }
 
-    public void setHeightInches(Integer heightInches) {
+    public void setHeightInches(final Integer heightInches) {
         this.heightInches = heightInches;
     }
 
@@ -140,7 +140,7 @@ public class PhysicalAttributes {
         return heightMetres;
     }
 
-    public void setHeightMetres(BigDecimal heightMetres) {
+    public void setHeightMetres(final BigDecimal heightMetres) {
         this.heightMetres = heightMetres;
     }
 
@@ -153,7 +153,7 @@ public class PhysicalAttributes {
         return heightCentimetres;
     }
 
-    public void setHeightCentimetres(Integer heightCentimetres) {
+    public void setHeightCentimetres(final Integer heightCentimetres) {
         this.heightCentimetres = heightCentimetres;
     }
 
@@ -166,7 +166,7 @@ public class PhysicalAttributes {
         return weightPounds;
     }
 
-    public void setWeightPounds(Integer weightPounds) {
+    public void setWeightPounds(final Integer weightPounds) {
         this.weightPounds = weightPounds;
     }
 
@@ -179,13 +179,13 @@ public class PhysicalAttributes {
         return weightKilograms;
     }
 
-    public void setWeightKilograms(Integer weightKilograms) {
+    public void setWeightKilograms(final Integer weightKilograms) {
         this.weightKilograms = weightKilograms;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class PhysicalAttributes {\n");
         

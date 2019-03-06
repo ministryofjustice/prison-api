@@ -35,15 +35,15 @@ public abstract class RepositoryBase  {
 		((JdbcTemplate)jdbcTemplate.getJdbcOperations()).setFetchSize(fetchSize);
 	}
 
-	protected MapSqlParameterSource createParams(Object ... params) {
+    protected MapSqlParameterSource createParams(final Object... params) {
 		return new MapSqlParameterSource(array2map(params));
 	}
 
-	protected MapSqlParameterSource createParamSource(PageRequest pageRequest, Object... params) {
+    protected MapSqlParameterSource createParamSource(final PageRequest pageRequest, final Object... params) {
 		Validate.notNull(pageRequest, "Page request must be provided.");
 
 
-		MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+        final var parameterSource = new MapSqlParameterSource();
 
 		parameterSource.addValue("offset", pageRequest.getOffset());
 		parameterSource.addValue("limit", pageRequest.getLimit());
@@ -54,13 +54,13 @@ public abstract class RepositoryBase  {
 	}
 
 	// Converts one-dimensional array of key/value pairs to map
-	private Map<String,Object> array2map(Object... params) {
+    private Map<String, Object> array2map(final Object... params) {
 		Validate.isTrue(params.length % 2 == 0, "Additional parameters must be provided as key/value pairs.");
 
-		Map<String,Object> theMap = new HashMap<>();
+        final Map<String, Object> theMap = new HashMap<>();
 
-		for (int i = 0; i < params.length / 2; i++) {
-			int j = i * 2;
+        for (var i = 0; i < params.length / 2; i++) {
+            final var j = i * 2;
 
 			theMap.put(params[j].toString(), params[j + 1]);
 		}

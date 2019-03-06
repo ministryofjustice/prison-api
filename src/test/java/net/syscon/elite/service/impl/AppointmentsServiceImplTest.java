@@ -112,7 +112,7 @@ public class AppointmentsServiceImplTest {
         verifyNoMoreInteractions(telemetryClient);
     }
 
-    private void ensureRoles(String... roles) {
+    private void ensureRoles(final String... roles) {
         SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken(USERNAME, null, roles));
     }
 
@@ -325,7 +325,7 @@ public class AppointmentsServiceImplTest {
         stubValidReferenceCode(REFERENCE_CODE_T);
         stubValidBookingIds(LOCATION_B.getAgencyId(), DETAILS_1.getBookingId());
 
-        var in1Hour = LocalDateTime.now().plusHours(1);
+        final var in1Hour = LocalDateTime.now().plusHours(1);
 
         final var appointmentsToCreate = AppointmentsToCreate
                 .builder()
@@ -456,13 +456,13 @@ public class AppointmentsServiceImplTest {
                 );
     }
 
-    private void stubValidBookingIds(String agencyId, long... bookingIds) {
-        var ids = Arrays.stream(bookingIds).boxed().collect(Collectors.toList());
+    private void stubValidBookingIds(final String agencyId, final long... bookingIds) {
+        final var ids = Arrays.stream(bookingIds).boxed().collect(Collectors.toList());
         when(bookingRepository.findBookingsIdsInAgency(ids, agencyId)).thenReturn(ids);
     }
 
 
-    private void stubValidReferenceCode(ReferenceCode code) {
+    private void stubValidReferenceCode(final ReferenceCode code) {
         when(referenceDomainService.getReferenceCodeByDomainAndCode(
                 ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(),
                 code.getCode(),
@@ -470,7 +470,7 @@ public class AppointmentsServiceImplTest {
                 .thenReturn(Optional.of(REFERENCE_CODE_T));
     }
 
-    private void stubLocation(Location location) {
+    private void stubLocation(final Location location) {
         when(locationService.getUserLocations(anyString())).thenReturn(List.of(LOCATION_A, LOCATION_B));
         when(locationService.getLocation(location.getLocationId())).thenReturn(location);
     }

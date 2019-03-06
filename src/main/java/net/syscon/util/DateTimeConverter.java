@@ -17,7 +17,7 @@ public class DateTimeConverter {
 	 * @param localDate date only
 	 * @return Date with date only information
 	 */
-	public static Date toDate(LocalDate localDate) {
+    public static Date toDate(final LocalDate localDate) {
 		if (localDate != null) {
 			return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 		}
@@ -29,7 +29,7 @@ public class DateTimeConverter {
 	 * @param localDateTime Date time
 	 * @return Date with date and time information
 	 */
-	public static Date toDate(LocalDateTime localDateTime) {
+    public static Date toDate(final LocalDateTime localDateTime) {
 		Date result = null;
 		if (localDateTime != null) {
 			result = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
@@ -37,53 +37,53 @@ public class DateTimeConverter {
 		return result;
 	}
 
-	public static Timestamp fromLocalDateTime(LocalDateTime localDateTime) {
+    public static Timestamp fromLocalDateTime(final LocalDateTime localDateTime) {
 	    if (localDateTime == null) {
 	        return null;
 	    }
 		return Timestamp.valueOf(localDateTime);
 	}
 
-	public static Timestamp now(ZoneOffset zoneOffset) {
-		LocalDateTime now = Instant.now().atOffset(zoneOffset).toLocalDateTime();
+    public static Timestamp now(final ZoneOffset zoneOffset) {
+        final var now = Instant.now().atOffset(zoneOffset).toLocalDateTime();
 
 		return Timestamp.valueOf(now);
 	}
 
-	public static java.sql.Date fromTimestamp(Timestamp timestamp) {
+    public static java.sql.Date fromTimestamp(final Timestamp timestamp) {
 	    if (timestamp == null) {
             return null;
         }
-		LocalDateTime localDateTime = timestamp.toLocalDateTime();
+        final var localDateTime = timestamp.toLocalDateTime();
 
 		return java.sql.Date.valueOf(localDateTime.toLocalDate());
 	}
 
-	public static LocalDateTime fromISO8601DateTimeToLocalDateTime(String iso8601DateTime, ZoneOffset zoneOffset) {
+    public static LocalDateTime fromISO8601DateTimeToLocalDateTime(final String iso8601DateTime, final ZoneOffset zoneOffset) {
         if (StringUtils.isBlank(iso8601DateTime)) {
             return null;
         }
         LocalDateTime ldt;
 		try {
-			OffsetDateTime odt = OffsetDateTime.parse(iso8601DateTime);
+            final var odt = OffsetDateTime.parse(iso8601DateTime);
 
 			ldt = odt.toInstant().atOffset(zoneOffset).toLocalDateTime();
-		} catch (DateTimeParseException dtpex) {
+        } catch (final DateTimeParseException dtpex) {
 			// Perhaps input lacks offset-from-UTC. Try parsing as a local date-time.
 			ldt = LocalDateTime.parse(iso8601DateTime);
 		}
 		return ldt;
 	}
 
-	public static LocalDateTime fromStringToLocalDateTime(String strLocalDate, String localDateTimeFormat) {
+    public static LocalDateTime fromStringToLocalDateTime(final String strLocalDate, final String localDateTimeFormat) {
         if (StringUtils.isBlank(strLocalDate)) {
             return null;
         }
         LocalDateTime ldt;
 		try {
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(localDateTimeFormat);
+            final var formatter = DateTimeFormatter.ofPattern(localDateTimeFormat);
 			ldt = LocalDateTime.parse(strLocalDate, formatter);
-		} catch (DateTimeParseException dtpex) {
+        } catch (final DateTimeParseException dtpex) {
 			ldt = null;
 		}
 		return ldt;
@@ -95,8 +95,8 @@ public class DateTimeConverter {
      * @param iso8601DateString date string to convert.
      * @return LocalDate or {@code null} if provided date string is blank or {@code null}.
      */
-	public static LocalDate fromISO8601DateString(String iso8601DateString) {
-		LocalDate outDate;
+    public static LocalDate fromISO8601DateString(final String iso8601DateString) {
+        final LocalDate outDate;
 
 		if (StringUtils.isNotBlank(iso8601DateString)) {
 			outDate = LocalDate.parse(iso8601DateString, DateTimeFormatter.ISO_LOCAL_DATE);
@@ -115,7 +115,7 @@ public class DateTimeConverter {
 	 * @return LocalDate or {@code null} if provided date object is {@code null}.
 	 * @throws IllegalArgumentException if provided date object is not of a supported type.
 	 */
-	public static LocalDate toISO8601LocalDate(Object date) {
+    public static LocalDate toISO8601LocalDate(final Object date) {
 		LocalDate localDate = null;
 
 		if (date != null) {
@@ -138,7 +138,7 @@ public class DateTimeConverter {
 	 * @return a {@link LocalDateTime} or {@code null} if provided dateTime object is {@code null}.
 	 * @throws IllegalArgumentException if provided dateTime object is not of a supported type.
 	 */
-	public static LocalDateTime toISO8601LocalDateTime(Object dateTime) {
+    public static LocalDateTime toISO8601LocalDateTime(final Object dateTime) {
 		LocalDateTime localDateTime = null;
 
 		if (dateTime != null) {
@@ -159,8 +159,8 @@ public class DateTimeConverter {
 	 * @param dateOfBirth
 	 * @return age in years
 	 */
-	public static int getAge(LocalDate dateOfBirth) {
-		Period period = Period.between(dateOfBirth, LocalDate.now());
+    public static int getAge(final LocalDate dateOfBirth) {
+        final var period = Period.between(dateOfBirth, LocalDate.now());
 		return period.getYears();
 	}
 }

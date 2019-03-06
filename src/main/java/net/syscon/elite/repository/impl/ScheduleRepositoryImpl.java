@@ -5,7 +5,6 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.repository.ScheduleRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.DateTimeConverter;
-import net.syscon.util.IQueryBuilder;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.stereotype.Repository;
 
@@ -22,13 +21,13 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
 
     
     @Override
-    public List<PrisonerSchedule> getLocationActivities(Long locationId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
+    public List<PrisonerSchedule> getLocationActivities(final Long locationId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
         Objects.requireNonNull(locationId, "locationId is a required parameter");
 
-        String initialSql = getQuery("GET_ACTIVITIES_AT_LOCATION");
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
+        final var initialSql = getQuery("GET_ACTIVITIES_AT_LOCATION");
+        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
 
-        String sql = builder
+        final var sql = builder
                 .addOrderBy(order, orderByFields)
                 .build();
 
@@ -41,13 +40,13 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
     }
 
     @Override
-    public List<PrisonerSchedule> getLocationAppointments(Long locationId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
+    public List<PrisonerSchedule> getLocationAppointments(final Long locationId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
         Objects.requireNonNull(locationId, "locationId is a required parameter");
 
-        String initialSql = getQuery("GET_APPOINTMENTS_AT_LOCATION");
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
+        final var initialSql = getQuery("GET_APPOINTMENTS_AT_LOCATION");
+        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
 
-        String sql = builder
+        final var sql = builder
                 .addOrderBy(order, orderByFields)
                 .build();
 
@@ -60,13 +59,13 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
     }
     
     @Override
-    public List<PrisonerSchedule> getLocationVisits(Long locationId, LocalDate fromDate, LocalDate toDate, String orderByFields, Order order) {
+    public List<PrisonerSchedule> getLocationVisits(final Long locationId, final LocalDate fromDate, final LocalDate toDate, final String orderByFields, final Order order) {
         Objects.requireNonNull(locationId, "locationId is a required parameter");
 
-        String initialSql = getQuery("GET_VISITS_AT_LOCATION");
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
+        final var initialSql = getQuery("GET_VISITS_AT_LOCATION");
+        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, EVENT_ROW_MAPPER.getFieldMap());
 
-        String sql = builder
+        final var sql = builder
                 .addOrderBy(order, orderByFields)
                 .build();
 
@@ -79,7 +78,7 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
     }
 
     @Override
-    public List<PrisonerSchedule> getVisits(String agencyId, List<String> offenderNo, LocalDate date) {
+    public List<PrisonerSchedule> getVisits(final String agencyId, final List<String> offenderNo, final LocalDate date) {
         return jdbcTemplate.query(
                 getQuery("GET_VISITS") + AND_OFFENDER_NUMBERS,
                 createParams(
@@ -89,7 +88,7 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
     }
 
     @Override
-    public List<PrisonerSchedule> getAppointments(String agencyId, List<String> offenderNo, LocalDate date) {
+    public List<PrisonerSchedule> getAppointments(final String agencyId, final List<String> offenderNo, final LocalDate date) {
         return jdbcTemplate.query(
                 getQuery("GET_APPOINTMENTS") + AND_OFFENDER_NUMBERS,
                 createParams(
@@ -99,7 +98,7 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
     }
 
     @Override
-    public List<PrisonerSchedule> getActivities(String agencyId, List<String> offenderNumbers, LocalDate date) {
+    public List<PrisonerSchedule> getActivities(final String agencyId, final List<String> offenderNumbers, final LocalDate date) {
         return jdbcTemplate.query(
                 getQuery("GET_ACTIVITIES") + AND_OFFENDER_NUMBERS,
                 createParams(
@@ -109,7 +108,7 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
     }
 
     @Override
-    public List<PrisonerSchedule> getCourtEvents(List<String> offenderNumbers, LocalDate date) {
+    public List<PrisonerSchedule> getCourtEvents(final List<String> offenderNumbers, final LocalDate date) {
         return jdbcTemplate.query(
                 getQuery("GET_COURT_EVENTS"),
                 createParams(
@@ -119,7 +118,7 @@ public class ScheduleRepositoryImpl extends RepositoryBase implements ScheduleRe
     }
 
     @Override
-    public List<PrisonerSchedule> getExternalTransfers(String agencyId, List<String> offenderNumbers, LocalDate date) {
+    public List<PrisonerSchedule> getExternalTransfers(final String agencyId, final List<String> offenderNumbers, final LocalDate date) {
         return jdbcTemplate.query(
                 getQuery("GET_EXTERNAL_TRANSFERS") + AND_OFFENDER_NUMBERS,
                 createParams(

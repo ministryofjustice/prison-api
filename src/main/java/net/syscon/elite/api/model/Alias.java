@@ -60,7 +60,7 @@ public class Alias {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -73,7 +73,7 @@ public class Alias {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
@@ -86,7 +86,7 @@ public class Alias {
         return middleName;
     }
 
-    public void setMiddleName(String middleName) {
+    public void setMiddleName(final String middleName) {
         this.middleName = middleName;
     }
 
@@ -99,7 +99,7 @@ public class Alias {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
@@ -112,7 +112,7 @@ public class Alias {
         return age;
     }
 
-    public void setAge(Integer age) {
+    public void setAge(final Integer age) {
         this.age = age;
     }
 
@@ -125,7 +125,7 @@ public class Alias {
         return dob;
     }
 
-    public void setDob(LocalDate dob) {
+    public void setDob(final LocalDate dob) {
         this.dob = dob;
     }
 
@@ -138,7 +138,7 @@ public class Alias {
         return gender;
     }
 
-    public void setGender(String gender) {
+    public void setGender(final String gender) {
         this.gender = gender;
     }
 
@@ -151,7 +151,7 @@ public class Alias {
         return ethnicity;
     }
 
-    public void setEthnicity(String ethnicity) {
+    public void setEthnicity(final String ethnicity) {
         this.ethnicity = ethnicity;
     }
 
@@ -164,7 +164,7 @@ public class Alias {
         return nameType;
     }
 
-    public void setNameType(String nameType) {
+    public void setNameType(final String nameType) {
         this.nameType = nameType;
     }
 
@@ -177,13 +177,13 @@ public class Alias {
         return createDate;
     }
 
-    public void setCreateDate(LocalDate createDate) {
+    public void setCreateDate(final LocalDate createDate) {
         this.createDate = createDate;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class Alias {\n");
         

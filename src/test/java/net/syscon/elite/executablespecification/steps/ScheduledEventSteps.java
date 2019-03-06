@@ -36,97 +36,97 @@ public abstract class ScheduledEventSteps extends CommonSteps {
     protected abstract String getResourcePath();
 
     @Step("Verify booking id for all scheduled events")
-    public void verifyBookingId(Long expectedBookingId) {
+    public void verifyBookingId(final Long expectedBookingId) {
         scheduledEvents.forEach(event -> {
             assertThat(event.getBookingId()).isEqualTo(expectedBookingId);
         });
     }
 
     @Step("Verify event class for all scheduled events")
-    public void verifyEventClass(String expectedEventClass) {
+    public void verifyEventClass(final String expectedEventClass) {
         scheduledEvents.forEach(event -> {
             assertThat(event.getEventClass()).isEqualTo(expectedEventClass);
         });
     }
 
     @Step("Verify event status for all scheduled events")
-    public void verifyEventStatus(String expectedEventStatus) {
+    public void verifyEventStatus(final String expectedEventStatus) {
         scheduledEvents.forEach(event -> {
             assertThat(event.getEventStatus()).isEqualTo(expectedEventStatus);
         });
     }
 
     @Step("Verify event type for all scheduled events")
-    public void verifyEventType(String expectedEventType) {
+    public void verifyEventType(final String expectedEventType) {
         scheduledEvents.forEach(event -> {
             assertThat(event.getEventType()).isEqualTo(expectedEventType);
         });
     }
 
     @Step("Verify event type description for all scheduled events")
-    public void verifyEventTypeDescription(String expectedEventTypeDescription) {
+    public void verifyEventTypeDescription(final String expectedEventTypeDescription) {
         scheduledEvents.forEach(event -> {
             assertThat(event.getEventTypeDesc()).isEqualTo(expectedEventTypeDescription);
         });
     }
 
     @Step("Verify event source for all scheduled events")
-    public void verifyEventSource(String expectedEventSource) {
+    public void verifyEventSource(final String expectedEventSource) {
         scheduledEvents.forEach(event -> {
             assertThat(event.getEventSource()).isEqualTo(expectedEventSource);
         });
     }
 
     @Step("Verify event status for specific scheduled event")
-    public void verifyEventStatus(int index, String expectedEventStatus) {
+    public void verifyEventStatus(final int index, final String expectedEventStatus) {
         validateResourcesIndex(index);
         assertThat(scheduledEvents.get(index).getEventStatus()).isEqualTo(expectedEventStatus);
     }
 
     @Step("Verify event sub type for specific scheduled event")
-    public void verifyEventSubType(int index, String expectedEventSubType) {
+    public void verifyEventSubType(final int index, final String expectedEventSubType) {
         validateResourcesIndex(index);
         assertThat(scheduledEvents.get(index).getEventSubType()).isEqualTo(expectedEventSubType);
     }
 
     @Step("Verify event sub type description for specific scheduled event")
-    public void verifyEventSubTypeDescription(int index, String expectedEventSubTypeDescription) {
+    public void verifyEventSubTypeDescription(final int index, final String expectedEventSubTypeDescription) {
         validateResourcesIndex(index);
         assertThat(scheduledEvents.get(index).getEventSubTypeDesc()).isEqualTo(expectedEventSubTypeDescription);
     }
 
     @Step("Verify event date for specific scheduled event")
-    public void verifyEventDate(int index, String expectedEventDate) {
+    public void verifyEventDate(final int index, final String expectedEventDate) {
         validateResourcesIndex(index);
         verifyLocalDate(scheduledEvents.get(index).getEventDate(), expectedEventDate);
     }
 
     @Step("Verify start time for specific scheduled event")
-    public void verifyStartTime(int index, String expectedStartTime) {
+    public void verifyStartTime(final int index, final String expectedStartTime) {
         validateResourcesIndex(index);
         verifyLocalDateTime(scheduledEvents.get(index).getStartTime(), expectedStartTime);
     }
 
     @Step("Verify end time for specific scheduled event")
-    public void verifyEndTime(int index, String expectedEndTime) {
+    public void verifyEndTime(final int index, final String expectedEndTime) {
         validateResourcesIndex(index);
         verifyLocalDateTime(scheduledEvents.get(index).getEndTime(), expectedEndTime);
     }
 
     @Step("Verify event location for specific scheduled event")
-    public void verifyEventLocation(int index, String expectedEventLocation) {
+    public void verifyEventLocation(final int index, final String expectedEventLocation) {
         validateResourcesIndex(index);
         assertThat(scheduledEvents.get(index).getEventLocation()).isEqualTo(expectedEventLocation);
     }
 
     @Step("Verify event source code for specific scheduled event")
-    public void verifyEventSourceCode(int index, String expectedEventSource) {
+    public void verifyEventSourceCode(final int index, final String expectedEventSource) {
         validateResourcesIndex(index);
         assertThat(scheduledEvents.get(index).getEventSourceCode()).isEqualTo(expectedEventSource);
     }
 
     @Step("Verify event source description for specific scheduled event")
-    public void verifyEventSourceDescription(int index, String expectedEventSourceDescription) {
+    public void verifyEventSourceDescription(final int index, final String expectedEventSourceDescription) {
         validateResourcesIndex(index);
         assertThat(scheduledEvents.get(index).getEventSourceDesc()).isEqualTo(expectedEventSourceDescription);
     }
@@ -135,12 +135,12 @@ public abstract class ScheduledEventSteps extends CommonSteps {
         assertTrue("Expecting no results", scheduledEvents.isEmpty());
     }
 
-    public void verifyNumber(int number) {
+    public void verifyNumber(final int number) {
         assertEquals(number, scheduledEvents.size());
     }
 
-    protected void dispatchRequest(Long bookingId, String fromDate, String toDate, String sortFields, Order sortOrder) {
-        String urlModifier = "";
+    protected void dispatchRequest(final Long bookingId, final String fromDate, final String toDate, final String sortFields, final Order sortOrder) {
+        var urlModifier = "";
 
         if (StringUtils.isNotBlank(fromDate)) {
             urlModifier += (FROM_DATE_QUERY_PARAM_PREFIX + fromDate);
@@ -154,21 +154,21 @@ public abstract class ScheduledEventSteps extends CommonSteps {
             urlModifier = "?" + urlModifier.substring(1);
         }
 
-        Map<String,String> headers = buildSortHeaders(sortFields, sortOrder);
+        final var headers = buildSortHeaders(sortFields, sortOrder);
 
         dispatchRequest(bookingId, urlModifier, headers);
     }
 
-    protected void dispatchRequestForPeriod(Long bookingId, ScheduledEventPeriod period) {
+    protected void dispatchRequestForPeriod(final Long bookingId, final ScheduledEventPeriod period) {
         dispatchRequest(bookingId, period.getUrlModifier(), null);
     }
 
-    private void dispatchRequest(Long bookingId, String urlModifier, Map<String,String> headers) {
+    private void dispatchRequest(final Long bookingId, final String urlModifier, final Map<String, String> headers) {
         init();
 
-        ResponseEntity<List<ScheduledEvent>> response;
+        final ResponseEntity<List<ScheduledEvent>> response;
 
-        String url = getResourcePath() + urlModifier;
+        final var url = getResourcePath() + urlModifier;
 
         try {
             response =
@@ -182,7 +182,7 @@ public abstract class ScheduledEventSteps extends CommonSteps {
             scheduledEvents = response.getBody();
 
             buildResourceData(response);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -194,7 +194,7 @@ public abstract class ScheduledEventSteps extends CommonSteps {
 
         private String urlModifier;
 
-        ScheduledEventPeriod(String urlModifier) {
+        ScheduledEventPeriod(final String urlModifier) {
             this.urlModifier = urlModifier;
         }
 

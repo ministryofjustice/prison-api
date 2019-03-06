@@ -1,6 +1,5 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.Account;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +36,7 @@ public class FinanceRepositoryTest {
 
     @Test
     public void testGetAccount() {
-        final Account account = repository.getBalances(-1L);
+        final var account = repository.getBalances(-1L);
         assertNotNull(account);
         assertEquals("1.24", account.getCash().toString());
         assertEquals("2.50", account.getSpends().toString());
@@ -46,7 +45,7 @@ public class FinanceRepositoryTest {
 
     @Test
     public void testGetAccountInvalidBookingId() {
-        final Account account = repository.getBalances(1001L);
+        final var account = repository.getBalances(1001L);
         assertNotNull(account);
         assertNull(account.getCash());
         assertNull(account.getSpends());

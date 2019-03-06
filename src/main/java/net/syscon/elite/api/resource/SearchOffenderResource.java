@@ -37,11 +37,16 @@ public interface SearchOffenderResource {
 
     class SearchForOffendersLocationAndKeywordResponse extends ResponseDelegate {
 
-        private SearchForOffendersLocationAndKeywordResponse(Response response) { super(response); }
-        private SearchForOffendersLocationAndKeywordResponse(Response response, Object entity) { super(response, entity); }
+        private SearchForOffendersLocationAndKeywordResponse(final Response response) {
+            super(response);
+        }
 
-        public static SearchForOffendersLocationAndKeywordResponse respond200WithApplicationJson(Page<OffenderBooking> page) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private SearchForOffendersLocationAndKeywordResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static SearchForOffendersLocationAndKeywordResponse respond200WithApplicationJson(final Page<OffenderBooking> page) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON)
                     .header("Total-Records", page.getTotalRecords())
                     .header("Page-Offset", page.getPageOffset())
@@ -50,22 +55,22 @@ public interface SearchOffenderResource {
             return new SearchForOffendersLocationAndKeywordResponse(responseBuilder.build(), page.getItems());
         }
 
-        public static SearchForOffendersLocationAndKeywordResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static SearchForOffendersLocationAndKeywordResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new SearchForOffendersLocationAndKeywordResponse(responseBuilder.build(), entity);
         }
 
-        public static SearchForOffendersLocationAndKeywordResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static SearchForOffendersLocationAndKeywordResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new SearchForOffendersLocationAndKeywordResponse(responseBuilder.build(), entity);
         }
 
-        public static SearchForOffendersLocationAndKeywordResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static SearchForOffendersLocationAndKeywordResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new SearchForOffendersLocationAndKeywordResponse(responseBuilder.build(), entity);

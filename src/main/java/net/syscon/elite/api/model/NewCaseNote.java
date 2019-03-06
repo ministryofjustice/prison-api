@@ -46,7 +46,7 @@ public class NewCaseNote {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -59,7 +59,7 @@ public class NewCaseNote {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(final String type) {
         this.type = type;
     }
 
@@ -72,7 +72,7 @@ public class NewCaseNote {
         return subType;
     }
 
-    public void setSubType(String subType) {
+    public void setSubType(final String subType) {
         this.subType = subType;
     }
 
@@ -85,7 +85,7 @@ public class NewCaseNote {
         return occurrenceDateTime;
     }
 
-    public void setOccurrenceDateTime(LocalDateTime occurrenceDateTime) {
+    public void setOccurrenceDateTime(final LocalDateTime occurrenceDateTime) {
         this.occurrenceDateTime = occurrenceDateTime;
     }
 
@@ -98,13 +98,13 @@ public class NewCaseNote {
         return text;
     }
 
-    public void setText(String text) {
+    public void setText(final String text) {
         this.text = text;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class NewCaseNote {\n");
         

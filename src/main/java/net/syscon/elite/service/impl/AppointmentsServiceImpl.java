@@ -48,11 +48,11 @@ public class AppointmentsServiceImpl implements AppointmentsService {
     private final TelemetryClient telemetryClient;
 
     public AppointmentsServiceImpl(
-            BookingRepository bookingRepository,
-            AuthenticationFacade authenticationFacade,
-            LocationService locationService,
-            ReferenceDomainService referenceDomainService,
-            TelemetryClient telemetryClient) {
+            final BookingRepository bookingRepository,
+            final AuthenticationFacade authenticationFacade,
+            final LocationService locationService,
+            final ReferenceDomainService referenceDomainService,
+            final TelemetryClient telemetryClient) {
         this.bookingRepository = bookingRepository;
         this.authenticationFacade = authenticationFacade;
         this.locationService = locationService;
@@ -69,14 +69,14 @@ public class AppointmentsServiceImpl implements AppointmentsService {
     @PreAuthorize("#oauth2.hasScope('write')")
 
     @Override
-    public void createAppointments(@NotNull @Valid AppointmentsToCreate appointments) {
+    public void createAppointments(@NotNull @Valid final AppointmentsToCreate appointments) {
 
         assertThatRequestHasPermission(appointments);
         assertFewerThanMaximumNumberOfBookingIds(appointments);
 
         final var defaults = appointments.getAppointmentDefaults();
 
-        final String agencyId = findLocationInUserLocations(defaults.getLocationId())
+        final var agencyId = findLocationInUserLocations(defaults.getLocationId())
                 .orElseThrow(() -> new BadRequestException("Location does not exist or is not in your caseload."))
                 .getAgencyId();
 
@@ -93,19 +93,19 @@ public class AppointmentsServiceImpl implements AppointmentsService {
         createAppointments(withRepeats, defaults, agencyId);
     }
 
-    private void assertThatRequestHasPermission(AppointmentsToCreate appointments) {
+    private void assertThatRequestHasPermission(final AppointmentsToCreate appointments) {
         if (appointments.moreThanOneOffender() && !hasRoles("BULK_APPOINTMENTS")) {
             throw new BadRequestException("You do not have the 'BULK_APPOINTMENTS' role. Creating appointments for more than one offender is not permitted without this role.");
         }
     }
 
-    private void assertThatAppointmentsFallWithin(List<AppointmentDetails> appointments, LocalDateTime limit) {
-        for (var appointment : appointments) {
+    private void assertThatAppointmentsFallWithin(final List<AppointmentDetails> appointments, final LocalDateTime limit) {
+        for (final var appointment : appointments) {
             assertThatAppointmentFallsWithin(appointment, limit);
         }
     }
 
-    private void assertThatAppointmentFallsWithin(AppointmentDetails appointment, LocalDateTime limit) {
+    private void assertThatAppointmentFallsWithin(final AppointmentDetails appointment, final LocalDateTime limit) {
         if (appointment.getStartTime().isAfter(limit)) {
             throw new BadRequestException("An appointment startTime is later than the limit of " + limit);
         }
@@ -119,50 +119,50 @@ public class AppointmentsServiceImpl implements AppointmentsService {
         return LocalDateTime.now().plusDays(APPOINTMENT_TIME_LIMIT_IN_DAYS);
     }
 
-    private void assertFewerThanMaximumNumberOfBookingIds(AppointmentsToCreate appointments) {
-        final int numberOfAppointments = appointments.getAppointments().size();
+    private void assertFewerThanMaximumNumberOfBookingIds(final AppointmentsToCreate appointments) {
+        final var numberOfAppointments = appointments.getAppointments().size();
 
         if (numberOfAppointments > MAXIMUM_NUMBER_OF_APPOINTMENTS) {
             throw new BadRequestException("Request to create " + numberOfAppointments + " appointments exceeds limit of " + MAXIMUM_NUMBER_OF_APPOINTMENTS);
         }
     }
 
-    private void assertAllBookingIdsInCaseload(List<AppointmentDetails> appointments, String agencyId) {
-        List<Long> bookingIds = appointments.stream().map(AppointmentDetails::getBookingId).collect(Collectors.toList());
-        List<Long> bookingIdsInAgency = bookingRepository.findBookingsIdsInAgency(bookingIds, agencyId);
+    private void assertAllBookingIdsInCaseload(final List<AppointmentDetails> appointments, final String agencyId) {
+        final var bookingIds = appointments.stream().map(AppointmentDetails::getBookingId).collect(Collectors.toList());
+        final var bookingIdsInAgency = bookingRepository.findBookingsIdsInAgency(bookingIds, agencyId);
         if (bookingIdsInAgency.size() < bookingIds.size()) {
             throw new BadRequestException("A BookingId does not exist in your caseload");
         }
     }
 
-    private void assertAdditionalAppointmentConstraints(List<AppointmentDetails> appointments) {
+    private void assertAdditionalAppointmentConstraints(final List<AppointmentDetails> appointments) {
         appointments.forEach(AppointmentsServiceImpl::assertStartTimePrecedesEndTime);
     }
 
-    private static void assertStartTimePrecedesEndTime(AppointmentDetails appointment) {
+    private static void assertStartTimePrecedesEndTime(final AppointmentDetails appointment) {
         if (appointment.getEndTime() != null
                 && appointment.getEndTime().isBefore(appointment.getStartTime())) {
             throw new BadRequestException("Appointment end time is before the start time.");
         }
     }
 
-    private void assertValidAppointmentType(String appointmentType) {
+    private void assertValidAppointmentType(final String appointmentType) {
         findEventType(appointmentType).orElseThrow(() -> new BadRequestException("Event type not recognised."));
     }
 
-    private Optional<ReferenceCode> findEventType(String appointmentType) {
+    private Optional<ReferenceCode> findEventType(final String appointmentType) {
         return referenceDomainService.getReferenceCodeByDomainAndCode(
                 ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(),
                 appointmentType,
                 false);
     }
 
-    private Optional<Location> findLocationInUserLocations(long locationId) {
+    private Optional<Location> findLocationInUserLocations(final long locationId) {
 
-        Location appointmentLocation = locationService.getLocation(locationId);
-        List<Location> userLocations = locationService.getUserLocations(authenticationFacade.getCurrentUsername());
+        final var appointmentLocation = locationService.getLocation(locationId);
+        final var userLocations = locationService.getUserLocations(authenticationFacade.getCurrentUsername());
 
-        for (Location location : userLocations) {
+        for (final var location : userLocations) {
             if (location.getAgencyId().equals(appointmentLocation.getAgencyId())) {
                 return Optional.of(location);
             }
@@ -170,7 +170,7 @@ public class AppointmentsServiceImpl implements AppointmentsService {
         return Optional.empty();
     }
 
-    private void trackAppointmentsCreated(List<AppointmentDetails> appointments, AppointmentDefaults defaults) {
+    private void trackAppointmentsCreated(final List<AppointmentDetails> appointments, final AppointmentDefaults defaults) {
         if (appointments.size() < 1) return;
 
         final Map<String, String> logMap = new HashMap<>();
@@ -186,14 +186,14 @@ public class AppointmentsServiceImpl implements AppointmentsService {
         telemetryClient.trackEvent("AppointmentsCreated", logMap, null);
     }
 
-    static List<AppointmentDetails> withRepeats(Repeat repeat, List<AppointmentDetails> details) {
+    static List<AppointmentDetails> withRepeats(final Repeat repeat, final List<AppointmentDetails> details) {
         if (repeat == null) return details;
         return details.stream()
                 .flatMap(d -> withRepeats(repeat, d))
                 .collect(Collectors.toList());
     }
 
-    static Stream<AppointmentDetails> withRepeats(Repeat repeat, AppointmentDetails details) {
+    static Stream<AppointmentDetails> withRepeats(final Repeat repeat, final AppointmentDetails details) {
         final var appointmentDuration = Optional
                 .ofNullable(details.getEndTime())
                 .map(endTime -> Duration.between(details.getStartTime(), endTime));
@@ -204,16 +204,16 @@ public class AppointmentsServiceImpl implements AppointmentsService {
     }
 
 
-    private static AppointmentDetails buildFromPrototypeWithStartTimeAndDuration(AppointmentDetails prototype,
-                                                                                 LocalDateTime startTime,
-                                                                                 Optional<Duration> appointmentDuration) {
-        var builder = prototype.toBuilder().startTime(startTime);
+    private static AppointmentDetails buildFromPrototypeWithStartTimeAndDuration(final AppointmentDetails prototype,
+                                                                                 final LocalDateTime startTime,
+                                                                                 final Optional<Duration> appointmentDuration) {
+        final var builder = prototype.toBuilder().startTime(startTime);
         appointmentDuration.ifPresent(d -> builder.endTime(startTime.plus(d)));
         return builder.build();
     }
 
 
-    private void createAppointments(List<AppointmentDetails> details, AppointmentDefaults defaults, String agencyId) {
+    private void createAppointments(final List<AppointmentDetails> details, final AppointmentDefaults defaults, final String agencyId) {
         bookingRepository.createMultipleAppointments(details, defaults, agencyId);
         trackAppointmentsCreated(details, defaults);
     }

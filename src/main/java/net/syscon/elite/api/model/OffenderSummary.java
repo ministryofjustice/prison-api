@@ -62,7 +62,7 @@ public class OffenderSummary {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -75,7 +75,7 @@ public class OffenderSummary {
         return bookingId;
     }
 
-    public void setBookingId(Long bookingId) {
+    public void setBookingId(final Long bookingId) {
         this.bookingId = bookingId;
     }
 
@@ -88,7 +88,7 @@ public class OffenderSummary {
         return offenderNo;
     }
 
-    public void setOffenderNo(String offenderNo) {
+    public void setOffenderNo(final String offenderNo) {
         this.offenderNo = offenderNo;
     }
 
@@ -101,7 +101,7 @@ public class OffenderSummary {
         return title;
     }
 
-    public void setTitle(String title) {
+    public void setTitle(final String title) {
         this.title = title;
     }
 
@@ -114,7 +114,7 @@ public class OffenderSummary {
         return suffix;
     }
 
-    public void setSuffix(String suffix) {
+    public void setSuffix(final String suffix) {
         this.suffix = suffix;
     }
 
@@ -127,7 +127,7 @@ public class OffenderSummary {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
@@ -140,7 +140,7 @@ public class OffenderSummary {
         return middleNames;
     }
 
-    public void setMiddleNames(String middleNames) {
+    public void setMiddleNames(final String middleNames) {
         this.middleNames = middleNames;
     }
 
@@ -153,7 +153,7 @@ public class OffenderSummary {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
@@ -166,7 +166,7 @@ public class OffenderSummary {
         return currentlyInPrison;
     }
 
-    public void setCurrentlyInPrison(String currentlyInPrison) {
+    public void setCurrentlyInPrison(final String currentlyInPrison) {
         this.currentlyInPrison = currentlyInPrison;
     }
 
@@ -179,7 +179,7 @@ public class OffenderSummary {
         return agencyLocationId;
     }
 
-    public void setAgencyLocationId(String agencyLocationId) {
+    public void setAgencyLocationId(final String agencyLocationId) {
         this.agencyLocationId = agencyLocationId;
     }
 
@@ -192,7 +192,7 @@ public class OffenderSummary {
         return agencyLocationDesc;
     }
 
-    public void setAgencyLocationDesc(String agencyLocationDesc) {
+    public void setAgencyLocationDesc(final String agencyLocationDesc) {
         this.agencyLocationDesc = agencyLocationDesc;
     }
 
@@ -205,7 +205,7 @@ public class OffenderSummary {
         return internalLocationId;
     }
 
-    public void setInternalLocationId(String internalLocationId) {
+    public void setInternalLocationId(final String internalLocationId) {
         this.internalLocationId = internalLocationId;
     }
 
@@ -218,13 +218,13 @@ public class OffenderSummary {
         return internalLocationDesc;
     }
 
-    public void setInternalLocationDesc(String internalLocationDesc) {
+    public void setInternalLocationDesc(final String internalLocationDesc) {
         this.internalLocationDesc = internalLocationDesc;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class OffenderSummary {\n");
         

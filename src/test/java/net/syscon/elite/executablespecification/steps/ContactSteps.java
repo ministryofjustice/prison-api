@@ -5,9 +5,7 @@ import net.syscon.elite.api.model.ContactDetail;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 
-import java.util.Iterator;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -18,22 +16,22 @@ public class ContactSteps extends CommonSteps {
     private int index;
 
     @Step("Get offender contact details")
-    public void getContacts(Long bookingId) {
+    public void getContacts(final Long bookingId) {
         doSingleResultApiCall(bookingId);
     }
 
     @Step("Verify value of next of kin field in details")
-    public void verifyNextOfKinField(String field, String value) throws ReflectiveOperationException {
+    public void verifyNextOfKinField(final String field, final String value) throws ReflectiveOperationException {
         verifyField(details.getNextOfKin().get(index), field, value);
     }
 
-    private void doSingleResultApiCall(long bookingId) {
+    private void doSingleResultApiCall(final long bookingId) {
         init();
         try {
-            ResponseEntity<ContactDetail> response = restTemplate.exchange(BOOKING_CONTACTS_API_URL, HttpMethod.GET,
+            final var response = restTemplate.exchange(BOOKING_CONTACTS_API_URL, HttpMethod.GET,
                     createEntity(), ContactDetail.class, bookingId);
             details = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -47,12 +45,12 @@ public class ContactSteps extends CommonSteps {
         assertTrue("There is " + details.getNextOfKin().size() + " next of kin", details.getNextOfKin().isEmpty());
     }
 
-    public void verifyNextOfKinList(List<Contact> expected) {
-        final Iterator<Contact> expectedIterator = expected.iterator();
-        final Iterator<Contact> awardsIterator = details.getNextOfKin().iterator();
+    public void verifyNextOfKinList(final List<Contact> expected) {
+        final var expectedIterator = expected.iterator();
+        final var awardsIterator = details.getNextOfKin().iterator();
         while (expectedIterator.hasNext()) {
-            final Contact expectedThis = expectedIterator.next();
-            final Contact actualThis = awardsIterator.next();
+            final var expectedThis = expectedIterator.next();
+            final var actualThis = awardsIterator.next();
             assertEquals(expectedThis.getLastName(), actualThis.getLastName());
             assertEquals(expectedThis.getFirstName(), actualThis.getFirstName());
             assertEqualsBlankIsNull(expectedThis.getMiddleName(), actualThis.getMiddleName());
