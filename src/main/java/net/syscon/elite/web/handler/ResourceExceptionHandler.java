@@ -6,6 +6,7 @@ import net.syscon.elite.api.support.OperationResponse;
 import net.syscon.elite.service.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
@@ -77,6 +78,11 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
             status = ((RestServiceException) ex).getResponseStatus().getStatusCode();
             userMessage = ex.getMessage();
             log.error("Rest service error", ex);
+        } else if (ex instanceof NoContentException) {
+            status = Response.Status.NO_CONTENT.getStatusCode();
+            userMessage = "No content returned";
+            developerMessage = ex.getMessage();
+            log.info(developerMessage);
         } else {
             status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
             userMessage = "An internal error has occurred - please try again later.";

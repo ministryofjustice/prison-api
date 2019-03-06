@@ -116,5 +116,5 @@ Feature: Staff Details and Roles
     | staffId | count | responseCode |
     | -1      | 1     | 200          |
     | -2      | 2     | 200          |
-    | -7      | 0     | 404          |
-    |99999    | 0     | 400          |
+    | -7      | 0     | 204          |
+    |99999    | 0     | 404          |

@@ -169,8 +169,6 @@ public class StaffSteps extends CommonSteps {
         }
     }
 
-    // Step implementations for staff emails
-
     public void getEmails(Long staffId) {
         init();
 

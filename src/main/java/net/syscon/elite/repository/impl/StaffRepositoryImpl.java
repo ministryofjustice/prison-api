@@ -18,11 +18,8 @@ import org.apache.commons.lang3.Validate;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -91,18 +88,7 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
 
     public List<String> findEmailAddressesForStaffId(Long staffId) {
 
-        Validate.notNull(staffId, "A staff id is required");
-
-        List<String> emailAddresses = null;
-
-        String sql = getQuery("GET_STAFF_EMAIL_ADDRESSES");
-        emailAddresses = jdbcTemplate.query(sql, createParams("staffId", staffId), new RowMapper<String>() {
-            public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return rs.getString(1);
-            }
-        });
-
-        return emailAddresses;
+        return jdbcTemplate.query(getQuery("GET_STAFF_EMAIL_ADDRESSES"), createParams("staffId", staffId, "ownerClass", "STF", "addressClass", "EMAIL"), (rs, rowNum) -> rs.getString(1));
    }
 
     @Override
