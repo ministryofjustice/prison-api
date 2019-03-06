@@ -56,14 +56,14 @@ public class BulkAppointmentsStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^appointments for tomorrow are:$")
     public void appointmentsForTomorrow(List<Map<String, String>> appointments) {
-        LocalDate date = LocalDate.now().plusDays(1L);
+        final var date = LocalDate.now().plusDays(1L);
         bulkAppointmentSteps.appointmentsAre(date, replaceRelativeTimes(appointments));
     }
 
 
     @Then("^appointments for the day after tomorrow are:$")
     public void appointmentsForTheDayAfterTomorrow(List<Map<String, String>> appointments) {
-        LocalDate date = LocalDate.now().plusDays(2L);
+        final var date = LocalDate.now().plusDays(2L);
         bulkAppointmentSteps.appointmentsAre(date, replaceRelativeTimes(appointments));
     }
 
@@ -97,7 +97,7 @@ public class BulkAppointmentsStepDefinitions extends AbstractStepDefinitions {
         if (StringUtils.isBlank(string)) {
             return Optional.empty();
         }
-        var matcher = RELATIVE_TIME_PATTERN.matcher(string);
+        final var matcher = RELATIVE_TIME_PATTERN.matcher(string);
         if (matcher.matches()) {
             return Optional.of(
                     LocalDateTime.of(
@@ -108,7 +108,7 @@ public class BulkAppointmentsStepDefinitions extends AbstractStepDefinitions {
     }
 
     private static Map<String, String> replaceRelativeTimes(Map<String, String> map) {
-        var result = new HashMap<>(map);
+        final var result = new HashMap<>(map);
         result.computeIfPresent("startTime", BulkAppointmentsStepDefinitions::asDateTimeString);
         result.computeIfPresent("endTime", BulkAppointmentsStepDefinitions::asDateTimeString);
         return result;
