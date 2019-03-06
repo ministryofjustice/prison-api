@@ -8,6 +8,7 @@ import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.service.EntityAlreadyExistsException;
 import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.NoContentException;
 import net.syscon.elite.service.StaffService;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -39,6 +40,23 @@ public class StaffServiceImpl implements StaffService {
         Validate.notNull(staffId, "A staff id is required.");
 
         return staffRepository.findByStaffId(staffId).orElseThrow(EntityNotFoundException.withId(staffId));
+    }
+
+    @Override
+    public List<String> getStaffEmailAddresses(Long staffId) {
+        Validate.notNull(staffId,"A staffId is required.");
+
+        Optional<StaffDetail> staffDetail = staffRepository.findByStaffId(staffId);
+        if (staffDetail.isEmpty()) {
+            throw EntityNotFoundException.withId(staffId);
+        }
+
+        final var emailAddressList = staffRepository.findEmailAddressesForStaffId(staffId);
+        if (emailAddressList == null || emailAddressList.isEmpty()) {
+            throw NoContentException.withId(staffId);
+        }
+
+        return emailAddressList;
     }
 
     @Override

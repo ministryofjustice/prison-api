@@ -24,6 +24,8 @@ public interface StaffService {
 
     StaffDetail getStaffDetail(Long staffId);
 
+    List<String> getStaffEmailAddresses(Long staffId);
+
     Page<StaffLocationRole> getStaffByAgencyPositionRole(GetStaffRoleRequest request, PageRequest pageRequest);
 
     StaffDetail getStaffDetailByPersonnelIdentifier(String idType, String id);

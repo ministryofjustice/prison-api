@@ -80,12 +80,16 @@ public class StaffRepositoryImpl extends RepositoryBase implements StaffReposito
             staffDetail = null;
         } catch (IncorrectResultSizeDataAccessException ex) {
             log.error("Duplicate personnel identification records found for idType [{}] and id [{}].", idType, id);
-
             staffDetail = null;
         }
 
         return Optional.ofNullable(staffDetail);
     }
+
+    public List<String> findEmailAddressesForStaffId(Long staffId) {
+
+        return jdbcTemplate.query(getQuery("GET_STAFF_EMAIL_ADDRESSES"), createParams("staffId", staffId, "ownerClass", "STF", "addressClass", "EMAIL"), (rs, rowNum) -> rs.getString(1));
+   }
 
     @Override
     public Page<StaffLocationRole> findStaffByAgencyPositionRole(String agencyId, String position, String role, String nameFilter, Long staffId, Boolean activeOnly, PageRequest pageRequest) {
