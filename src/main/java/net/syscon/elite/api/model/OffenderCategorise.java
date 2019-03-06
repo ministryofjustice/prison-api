@@ -35,6 +35,9 @@ public class OffenderCategorise {
     @ApiModelProperty(value = "Categorisation date if any")
     private LocalDate assessmentDate;
 
+    @ApiModelProperty(value = "Date categorisation was approved if any")
+    private LocalDate approvalDate;
+
     @ApiModelProperty(value = "Sequence number within booking")
     private Integer assessmentSeq;
 
@@ -49,6 +52,12 @@ public class OffenderCategorise {
 
     @ApiModelProperty(value = "Categoriser Last Name")
     private String  categoriserLastName;
+
+    @ApiModelProperty(value = "Approver First Name if any")
+    private String  approverFirstName;
+
+    @ApiModelProperty(value = "Approver Last Name if any")
+    private String  approverLastName;
 
     @ApiModelProperty(value = "Categorisation")
     private String  category;

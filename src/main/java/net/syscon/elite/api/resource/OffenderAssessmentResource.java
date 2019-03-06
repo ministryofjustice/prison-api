@@ -1,17 +1,14 @@
 package net.syscon.elite.api.resource;
 
 import io.swagger.annotations.*;
-import net.syscon.elite.api.model.Assessment;
-import net.syscon.elite.api.model.CategorisationDetail;
-import net.syscon.elite.api.model.CategoryApprovalDetail;
-import net.syscon.elite.api.model.ErrorResponse;
-import net.syscon.elite.api.model.OffenderCategorise;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.ResponseDelegate;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDate;
 import java.util.List;
 
 @Api(tags = {"/offender-assessments"})
@@ -59,6 +56,17 @@ public interface OffenderAssessmentResource {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = OffenderCategorise.class, responseContainer = "List") })
     GetUncategorisedResponse getUncategorised(@ApiParam(value = "Prison id", required = true) @PathParam("agencyId")String agencyId);
+
+    @GET
+    @Path("/category/{agencyId}/categorised")
+    @Consumes({ "application/json" })
+    @Produces({ "application/json" })
+    @ApiOperation(value = "Offenders who have an approved categorisation.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = OffenderCategorise.class, responseContainer = "List") })
+    GetUncategorisedResponse getApprovedCategorised(@ApiParam(value = "Prison id", required = true) @PathParam("agencyId")String agencyId,
+                                                    @ApiParam(value = "The date from which categorisations are returned", required = false) @QueryParam("fromDate") LocalDate fromDate);
+
 
 
     @POST

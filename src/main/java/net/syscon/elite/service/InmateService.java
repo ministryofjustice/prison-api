@@ -5,6 +5,7 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.service.support.InmateDto;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -33,6 +34,7 @@ public interface InmateService {
 	Optional<Assessment> getInmateAssessmentByCode(Long bookingId, String assessmentCode);
     List<Assessment> getInmatesAssessmentsByCode(List<String> offenderNos, String assessmentCode, boolean latestOnly);
 	List<OffenderCategorise> getUncategorised(String agencyId);
+	List<OffenderCategorise> getApprovedCategorised(String agencyId, LocalDate cutOffDate);
 
 	List<Long> getPersonalOfficerBookings(String username);
 	List<InmateDto> findInmatesByLocation(String username, String agencyId, List<Long> locations);
