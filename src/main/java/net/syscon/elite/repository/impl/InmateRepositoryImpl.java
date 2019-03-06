@@ -23,7 +23,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -430,9 +429,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 	@Override
 	public List<OffenderCategorise> getApprovedCategorised(String agencyId, LocalDate cutoffDate) {
-		List<OffenderCategorise> rawData = jdbcTemplate.query(
+		var rawData = jdbcTemplate.query(
 				getQuery("GET_APPROVED_CATEGORISED"),
-				createParams("agencyId", agencyId, "cutOffDate", DateTimeConverter.toDate(cutoffDate)),
+				createParams("agencyId", agencyId, "cutOffDate", DateTimeConverter.toDate(cutoffDate), "assessStatus", "A"),
 				UNCATEGORISED_MAPPER);
 
 
@@ -442,7 +441,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 	private List<OffenderCategorise> applyCategorisationRestrictions(List<OffenderCategorise> catListRaw) {
 		// for every group check that assessment is null OR it is the latest categorisation record
-		final List<OffenderCategorise> catList = removeEarlierCategorisations(catListRaw);
+		final var catList = removeEarlierCategorisations(catListRaw);
 
 		// remove the active assessment status offenders - we only want null assessment or pending assessments
 		return catList.stream()
@@ -452,7 +451,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	private List<OffenderCategorise> removeEarlierCategorisations(List<OffenderCategorise> catList) {
-		final Map<@NotNull Long, List<OffenderCategorise>> bookingIdMap = catList.stream().collect(Collectors.groupingBy(OffenderCategorise::getBookingId));
+		final var bookingIdMap = catList.stream().collect(Collectors.groupingBy(OffenderCategorise::getBookingId));
 		bookingIdMap.replaceAll((k, v) -> cleanDuplicateRecordsUsingAssessmentSeq(v));
 
 		return bookingIdMap.values().stream()
@@ -461,11 +460,11 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	}
 
 	private List<OffenderCategorise> cleanDuplicateRecordsUsingAssessmentSeq(List<OffenderCategorise> individualCatList) {
-		Optional<OffenderCategorise> maxSeqOpt = individualCatList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentSeq));
-		Optional<OffenderCategorise> maxDateOpt = individualCatList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentDate));
+		var maxSeqOpt = individualCatList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentSeq));
+		var maxDateOpt = individualCatList.stream().max(Comparator.comparing(OffenderCategorise::getAssessmentDate));
 		if (maxDateOpt.isEmpty() || maxSeqOpt.isEmpty()) return individualCatList;
 
-		final List<OffenderCategorise> toReplace = individualCatList.stream()
+		final var toReplace = individualCatList.stream()
 				.filter(oc -> oc.getAssessmentSeq() == null || (oc.getAssessmentSeq().equals(maxSeqOpt.get().getAssessmentSeq()) && oc.getAssessmentDate().equals(maxDateOpt.get().getAssessmentDate())))
 				.collect(Collectors.toList());
 		return toReplace;
