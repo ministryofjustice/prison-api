@@ -189,12 +189,9 @@ public class StaffSteps extends CommonSteps {
     }
 
     public void verifyNumberOfEmailAddressesReturned(Long numberOfEmails) {
-        Long count = 0L;
-        if (staffEmailAddresses == null || staffEmailAddresses.isEmpty()) {
-            assertThat(numberOfEmails).isEqualTo(count);
-        }
-        else {
-            assertThat(staffEmailAddresses.size()).isEqualTo(numberOfEmails.intValue());
+
+        if (staffEmailAddresses != null) {
+            assertThat(staffEmailAddresses).hasSize(numberOfEmails.intValue());
         }
     }
 
