@@ -388,7 +388,7 @@ GET_APPROVED_CATEGORISED {
     off_ass.assessment_seq,
     off_ass.assessment_date,
     off_ass.evaluation_date as approval_date,
-    off_ass.calc_sup_level_type,
+    off_ass.calc_sup_level_type as category,
     sm.first_name as categoriser_first_name,
     sm.last_name as categoriser_last_name,
     sm_a.first_name as approver_first_name,

@@ -576,8 +576,8 @@ public class InmateRepositoryTest {
         final List<OffenderCategorise> list = repository.getApprovedCategorised("LEI", LocalDate.of(1976, 5, 5));
 
         list.sort(Comparator.comparing(OffenderCategorise::getOffenderNo));
-        assertThat(list).asList().extracting("offenderNo", "bookingId", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName").contains(
-                Tuple.tuple("A5576RS", -31L, "API", "User", "CA", "User"));
+        assertThat(list).asList().extracting("offenderNo", "bookingId", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName", "category").contains(
+                Tuple.tuple("A5576RS", -31L, "API", "User", "CA", "User", "C"));
     }
 
     @Test
