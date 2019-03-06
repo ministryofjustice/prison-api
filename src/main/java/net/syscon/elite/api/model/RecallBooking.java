@@ -55,7 +55,7 @@ public class RecallBooking {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -68,7 +68,7 @@ public class RecallBooking {
         return offenderNo;
     }
 
-    public void setOffenderNo(String offenderNo) {
+    public void setOffenderNo(final String offenderNo) {
         this.offenderNo = offenderNo;
     }
 
@@ -81,7 +81,7 @@ public class RecallBooking {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
@@ -94,7 +94,7 @@ public class RecallBooking {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
@@ -107,7 +107,7 @@ public class RecallBooking {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(String dateOfBirth) {
+    public void setDateOfBirth(final String dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -120,7 +120,7 @@ public class RecallBooking {
         return gender;
     }
 
-    public void setGender(String gender) {
+    public void setGender(final String gender) {
         this.gender = gender;
     }
 
@@ -133,7 +133,7 @@ public class RecallBooking {
         return reason;
     }
 
-    public void setReason(String reason) {
+    public void setReason(final String reason) {
         this.reason = reason;
     }
 
@@ -146,13 +146,13 @@ public class RecallBooking {
         return youthOffender;
     }
 
-    public void setYouthOffender(boolean youthOffender) {
+    public void setYouthOffender(final boolean youthOffender) {
         this.youthOffender = youthOffender;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class RecallBooking {\n");
         

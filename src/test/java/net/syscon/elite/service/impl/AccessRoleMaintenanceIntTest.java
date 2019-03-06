@@ -11,8 +11,6 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.List;
-
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @ActiveProfiles("nomis-hsqldb")
@@ -26,7 +24,7 @@ public class AccessRoleMaintenanceIntTest {
     @Test
     @WithUserDetails("ITAG_USER")
     public void testGetAllRolesInCaseload() {
-        List<StaffUserRole> allRolesInCaseload = staffService.getAllStaffRolesForCaseload("NWEB", "KW_ADMIN");
+        final var allRolesInCaseload = staffService.getAllStaffRolesForCaseload("NWEB", "KW_ADMIN");
         assertThat(allRolesInCaseload).containsExactly(
                 StaffUserRole.builder()
                     .roleId(-201L)
@@ -49,7 +47,7 @@ public class AccessRoleMaintenanceIntTest {
     @Test
     @WithUserDetails("ITAG_USER")
     public void testGetSpecificRoles() {
-        List<StaffUserRole> roles = staffService.getRolesByCaseload(-2L, "NWEB");
+        final var roles = staffService.getRolesByCaseload(-2L, "NWEB");
         assertThat(roles).containsExactly(
                 StaffUserRole.builder()
                         .roleId(-301L)
@@ -96,7 +94,7 @@ public class AccessRoleMaintenanceIntTest {
     @Test
     @WithUserDetails("API_TEST_USER")
     public void testGetAllRolesForStaffMember() {
-        List<StaffUserRole> roles = staffService.getStaffRoles(-5L);
+        final var roles = staffService.getStaffRoles(-5L);
         assertThat(roles).containsExactly(
                 StaffUserRole.builder()
                         .roleId(-304L)
@@ -120,10 +118,10 @@ public class AccessRoleMaintenanceIntTest {
     @Test
     @WithMockUser(username="ITAG_USER",roles={"MAINTAIN_ACCESS_ROLES"})
     public void addAndRemoveRoleFromStaffMember() {
-        List<StaffUserRole> roles = staffService.getStaffRoles(-4L);
+        var roles = staffService.getStaffRoles(-4L);
         assertThat(roles).hasSize(3);
 
-        StaffUserRole addedRole = staffService.addStaffRole(-4L, "NWEB", "LICENCE_CA");
+        final var addedRole = staffService.addStaffRole(-4L, "NWEB", "LICENCE_CA");
         roles = staffService.getStaffRoles(-4L);
         assertThat(roles).hasSize(4);
 

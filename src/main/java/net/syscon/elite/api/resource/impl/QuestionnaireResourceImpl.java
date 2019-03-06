@@ -14,12 +14,12 @@ import javax.ws.rs.core.Response;
 public class QuestionnaireResourceImpl implements QuestionnaireResource {
     private final IncidentService incidentService;
 
-    public QuestionnaireResourceImpl(IncidentService incidentService) {
+    public QuestionnaireResourceImpl(final IncidentService incidentService) {
         this.incidentService = incidentService;
     }
 
     @Override
-    public QuestionnaireResponse getQuestionnaire(@NotNull String category, @NotNull String code) {
+    public QuestionnaireResponse getQuestionnaire(@NotNull final String category, @NotNull final String code) {
         return new QuestionnaireResponse(Response.status(200)
                 .header("Content-Type", MediaType.APPLICATION_JSON).build(), incidentService.getQuestionnaire(category, code));
     }

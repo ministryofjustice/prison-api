@@ -3,7 +3,6 @@ package net.syscon.elite.repository.impl;
 import net.syscon.elite.api.model.AccessRole;
 import net.syscon.elite.repository.AccessRoleRepository;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
-import net.syscon.util.IQueryBuilder;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
@@ -21,7 +20,7 @@ public class AccessRoleRepositoryImpl extends RepositoryBase implements AccessRo
 
 
 	@Override
-	public void createAccessRole(AccessRole accessRole) {
+    public void createAccessRole(final AccessRole accessRole) {
         Objects.requireNonNull(accessRole.getRoleName(), "Access role name is a required parameter");
         Objects.requireNonNull(accessRole.getRoleCode(), "Access role code is a required parameter");
         Objects.requireNonNull(accessRole.getRoleFunction(), "Access role function is a required parameter");
@@ -32,9 +31,9 @@ public class AccessRoleRepositoryImpl extends RepositoryBase implements AccessRo
 	}
 
 	@Override
-	public void updateAccessRole(AccessRole accessRole) {
+    public void updateAccessRole(final AccessRole accessRole) {
 
-	    String query = "UPDATE_ACCESS_ROLE";
+        final var query = "UPDATE_ACCESS_ROLE";
 
 	    jdbcTemplate.update(
 				getQuery(query),
@@ -42,7 +41,7 @@ public class AccessRoleRepositoryImpl extends RepositoryBase implements AccessRo
 	}
 
 	@Override
-	public Optional<AccessRole> getAccessRole(String accessRoleCode) {
+    public Optional<AccessRole> getAccessRole(final String accessRoleCode) {
 		Objects.requireNonNull(accessRoleCode, "Access role code is a required parameter");
 		AccessRole accessRole;
 		try {
@@ -50,21 +49,21 @@ public class AccessRoleRepositoryImpl extends RepositoryBase implements AccessRo
 					getQuery("GET_ACCESS_ROLE"),
 					createParams("roleCode", accessRoleCode),
 					ACCESS_ROLE_ROW_MAPPER);
-		} catch (EmptyResultDataAccessException ex) {
+        } catch (final EmptyResultDataAccessException ex) {
 			accessRole = null;
 		}
 		return Optional.ofNullable(accessRole);
 	}
 
     @Override
-    public List<AccessRole> getAccessRoles(boolean includeAdmin){
+    public List<AccessRole> getAccessRoles(final boolean includeAdmin) {
 
-        String query = getQuery("GET_ACCESS_ROLES");
+        var query = getQuery("GET_ACCESS_ROLES");
         if (!includeAdmin) {
             query += EXCLUDE_ADMIN_ROLES_QUERY_TEMPLATE;
         }
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(query, ACCESS_ROLE_ROW_MAPPER);
-		String sql = builder.build();
+        final var builder = queryBuilderFactory.getQueryBuilder(query, ACCESS_ROLE_ROW_MAPPER);
+        final var sql = builder.build();
 
 		return jdbcTemplate.query(sql, ACCESS_ROLE_ROW_MAPPER);
     }

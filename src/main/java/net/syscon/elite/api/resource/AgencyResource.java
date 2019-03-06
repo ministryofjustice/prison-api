@@ -147,11 +147,16 @@ public interface AgencyResource {
 
     class GetAgenciesResponse extends ResponseDelegate {
 
-        private GetAgenciesResponse(Response response) { super(response); }
-        private GetAgenciesResponse(Response response, Object entity) { super(response, entity); }
+        private GetAgenciesResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetAgenciesResponse respond200WithApplicationJson(Page<Agency> page) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetAgenciesResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetAgenciesResponse respond200WithApplicationJson(final Page<Agency> page) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON)
                     .header("Total-Records", page.getTotalRecords())
                     .header("Page-Offset", page.getPageOffset())
@@ -160,22 +165,22 @@ public interface AgencyResource {
             return new GetAgenciesResponse(responseBuilder.build(), page.getItems());
         }
 
-        public static GetAgenciesResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetAgenciesResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgenciesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAgenciesResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetAgenciesResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgenciesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAgenciesResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetAgenciesResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgenciesResponse(responseBuilder.build(), entity);
@@ -184,32 +189,37 @@ public interface AgencyResource {
 
     class GetAgencyResponse extends ResponseDelegate {
 
-        private GetAgencyResponse(Response response) { super(response); }
-        private GetAgencyResponse(Response response, Object entity) { super(response, entity); }
+        private GetAgencyResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetAgencyResponse respond200WithApplicationJson(Agency entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetAgencyResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetAgencyResponse respond200WithApplicationJson(final Agency entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgencyResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAgencyResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetAgencyResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgencyResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAgencyResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetAgencyResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgencyResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAgencyResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetAgencyResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgencyResponse(responseBuilder.build(), entity);
@@ -218,32 +228,37 @@ public interface AgencyResource {
 
     class GetAgencyEventLocationsResponse extends ResponseDelegate {
 
-        private GetAgencyEventLocationsResponse(Response response) { super(response); }
-        private GetAgencyEventLocationsResponse(Response response, Object entity) { super(response, entity); }
+        private GetAgencyEventLocationsResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetAgencyEventLocationsResponse respond200WithApplicationJson(List<Location> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetAgencyEventLocationsResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetAgencyEventLocationsResponse respond200WithApplicationJson(final List<Location> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgencyEventLocationsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAgencyEventLocationsResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetAgencyEventLocationsResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgencyEventLocationsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAgencyEventLocationsResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetAgencyEventLocationsResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgencyEventLocationsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAgencyEventLocationsResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetAgencyEventLocationsResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgencyEventLocationsResponse(responseBuilder.build(), entity);
@@ -252,32 +267,37 @@ public interface AgencyResource {
 
     class GetAgencyEventLocationsBookedResponse extends ResponseDelegate {
 
-        private GetAgencyEventLocationsBookedResponse(Response response) { super(response); }
-        private GetAgencyEventLocationsBookedResponse(Response response, Object entity) { super(response, entity); }
+        private GetAgencyEventLocationsBookedResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetAgencyEventLocationsBookedResponse respond200WithApplicationJson(List<Location> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetAgencyEventLocationsBookedResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetAgencyEventLocationsBookedResponse respond200WithApplicationJson(final List<Location> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgencyEventLocationsBookedResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAgencyEventLocationsBookedResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetAgencyEventLocationsBookedResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgencyEventLocationsBookedResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAgencyEventLocationsBookedResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetAgencyEventLocationsBookedResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgencyEventLocationsBookedResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAgencyEventLocationsBookedResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetAgencyEventLocationsBookedResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgencyEventLocationsBookedResponse(responseBuilder.build(), entity);
@@ -286,32 +306,37 @@ public interface AgencyResource {
 
     class GetAgencyLocationsResponse extends ResponseDelegate {
 
-        private GetAgencyLocationsResponse(Response response) { super(response); }
-        private GetAgencyLocationsResponse(Response response, Object entity) { super(response, entity); }
+        private GetAgencyLocationsResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetAgencyLocationsResponse respond200WithApplicationJson(List<Location> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetAgencyLocationsResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetAgencyLocationsResponse respond200WithApplicationJson(final List<Location> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgencyLocationsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAgencyLocationsResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetAgencyLocationsResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgencyLocationsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAgencyLocationsResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetAgencyLocationsResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgencyLocationsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAgencyLocationsResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetAgencyLocationsResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgencyLocationsResponse(responseBuilder.build(), entity);
@@ -320,32 +345,37 @@ public interface AgencyResource {
 
     class GetAvailableLocationGroupsResponse extends ResponseDelegate {
 
-        private GetAvailableLocationGroupsResponse(Response response) { super(response); }
-        private GetAvailableLocationGroupsResponse(Response response, Object entity) { super(response, entity); }
+        private GetAvailableLocationGroupsResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetAvailableLocationGroupsResponse respond200WithApplicationJson(List<LocationGroup> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetAvailableLocationGroupsResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetAvailableLocationGroupsResponse respond200WithApplicationJson(final List<LocationGroup> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAvailableLocationGroupsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAvailableLocationGroupsResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetAvailableLocationGroupsResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAvailableLocationGroupsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAvailableLocationGroupsResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetAvailableLocationGroupsResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAvailableLocationGroupsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAvailableLocationGroupsResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetAvailableLocationGroupsResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAvailableLocationGroupsResponse(responseBuilder.build(), entity);
@@ -354,32 +384,37 @@ public interface AgencyResource {
 
     class GetWhereaboutsResponse extends ResponseDelegate {
 
-        private GetWhereaboutsResponse(Response response) { super(response); }
-        private GetWhereaboutsResponse(Response response, Object entity) { super(response, entity); }
+        private GetWhereaboutsResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetWhereaboutsResponse respond200WithApplicationJson(WhereaboutsConfig entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetWhereaboutsResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetWhereaboutsResponse respond200WithApplicationJson(final WhereaboutsConfig entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetWhereaboutsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetWhereaboutsResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetWhereaboutsResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetWhereaboutsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetWhereaboutsResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetWhereaboutsResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetWhereaboutsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetWhereaboutsResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetWhereaboutsResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetWhereaboutsResponse(responseBuilder.build(), entity);
@@ -388,32 +423,37 @@ public interface AgencyResource {
 
     class GetAgenciesByCaseloadResponse extends ResponseDelegate {
 
-        private GetAgenciesByCaseloadResponse(Response response) { super(response); }
-        private GetAgenciesByCaseloadResponse(Response response, Object entity) { super(response, entity); }
+        private GetAgenciesByCaseloadResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetAgenciesByCaseloadResponse respond200WithApplicationJson(List<Agency> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetAgenciesByCaseloadResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetAgenciesByCaseloadResponse respond200WithApplicationJson(final List<Agency> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgenciesByCaseloadResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAgenciesByCaseloadResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetAgenciesByCaseloadResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgenciesByCaseloadResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAgenciesByCaseloadResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetAgenciesByCaseloadResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgenciesByCaseloadResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAgenciesByCaseloadResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetAgenciesByCaseloadResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAgenciesByCaseloadResponse(responseBuilder.build(), entity);
@@ -422,32 +462,37 @@ public interface AgencyResource {
 
     class GetPrisonContactDetailListResponse extends ResponseDelegate {
 
-        private GetPrisonContactDetailListResponse(Response response) { super(response); }
-        private GetPrisonContactDetailListResponse(Response response, Object entity) { super(response, entity); }
+        private GetPrisonContactDetailListResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetPrisonContactDetailListResponse respond200WithApplicationJson(List<PrisonContactDetail> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetPrisonContactDetailListResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetPrisonContactDetailListResponse respond200WithApplicationJson(final List<PrisonContactDetail> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetPrisonContactDetailListResponse(responseBuilder.build(), entity);
         }
 
-        public static GetPrisonContactDetailListResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetPrisonContactDetailListResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetPrisonContactDetailListResponse(responseBuilder.build(), entity);
         }
 
-        public static GetPrisonContactDetailListResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetPrisonContactDetailListResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetPrisonContactDetailListResponse(responseBuilder.build(), entity);
         }
 
-        public static GetPrisonContactDetailListResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetPrisonContactDetailListResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetPrisonContactDetailListResponse(responseBuilder.build(), entity);
@@ -456,32 +501,37 @@ public interface AgencyResource {
 
     class GetPrisonContactDetailResponse extends ResponseDelegate {
 
-        private GetPrisonContactDetailResponse(Response response) { super(response); }
-        private GetPrisonContactDetailResponse(Response response, Object entity) { super(response, entity); }
+        private GetPrisonContactDetailResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetPrisonContactDetailResponse respond200WithApplicationJson(PrisonContactDetail entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetPrisonContactDetailResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetPrisonContactDetailResponse respond200WithApplicationJson(final PrisonContactDetail entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetPrisonContactDetailResponse(responseBuilder.build(), entity);
         }
 
-        public static GetPrisonContactDetailResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetPrisonContactDetailResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetPrisonContactDetailResponse(responseBuilder.build(), entity);
         }
 
-        public static GetPrisonContactDetailResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetPrisonContactDetailResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetPrisonContactDetailResponse(responseBuilder.build(), entity);
         }
 
-        public static GetPrisonContactDetailResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetPrisonContactDetailResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetPrisonContactDetailResponse(responseBuilder.build(), entity);

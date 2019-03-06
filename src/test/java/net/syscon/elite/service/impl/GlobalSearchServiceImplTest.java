@@ -83,13 +83,13 @@ public class GlobalSearchServiceImplTest {
                 .pncNumber(TEST_PNC_NUMBER)
                 .build();
 
-        PrisonerDetailSearchCriteria offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
+        final var offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
 
         when(InmateRepository.generateFindOffendersQuery(offNoCriteria)).thenReturn(TEST_OFFENDER_NO_QUERY);
 
         Mockito.when(inmateRepository.findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class))).thenReturn(pageResponse(1));
 
-        Page<PrisonerDetail> response = service.findOffenders(criteria, pageRequest);
+        final var response = service.findOffenders(criteria, pageRequest);
 
         assertThat(response.getItems()).isNotEmpty();
 
@@ -105,15 +105,15 @@ public class GlobalSearchServiceImplTest {
                 .pncNumber(TEST_PNC_NUMBER)
                 .build();
 
-        PrisonerDetailSearchCriteria offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
-        PrisonerDetailSearchCriteria pncNumberCriteria = PrisonerDetailSearchCriteria.builder().pncNumber(TEST_PNC_NUMBER).build();
+        final var offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
+        final var pncNumberCriteria = PrisonerDetailSearchCriteria.builder().pncNumber(TEST_PNC_NUMBER).build();
 
         when(InmateRepository.generateFindOffendersQuery(offNoCriteria)).thenReturn(TEST_OFFENDER_NO_QUERY);
 
         Mockito.when(inmateRepository.findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class))).thenReturn(pageResponse(0));
         Mockito.when(offenderRepository.findOffenders(eq(pncNumberCriteria), any(PageRequest.class))).thenReturn(pageResponse(1));
 
-        Page<PrisonerDetail> response = service.findOffenders(criteria, pageRequest);
+        final var response = service.findOffenders(criteria, pageRequest);
 
         assertThat(response.getItems()).isNotEmpty();
 
@@ -128,11 +128,11 @@ public class GlobalSearchServiceImplTest {
                 .pncNumber(TEST_PNC_NUMBER)
                 .build();
 
-        PrisonerDetailSearchCriteria pncNumberCriteria = PrisonerDetailSearchCriteria.builder().pncNumber(TEST_PNC_NUMBER).build();
+        final var pncNumberCriteria = PrisonerDetailSearchCriteria.builder().pncNumber(TEST_PNC_NUMBER).build();
 
         Mockito.when(offenderRepository.findOffenders(eq(pncNumberCriteria), any(PageRequest.class))).thenReturn(pageResponse(1));
 
-        Page<PrisonerDetail> response = service.findOffenders(criteria, pageRequest);
+        final var response = service.findOffenders(criteria, pageRequest);
 
         assertThat(response.getItems()).isNotEmpty();
 
@@ -149,9 +149,9 @@ public class GlobalSearchServiceImplTest {
                 .croNumber(TEST_CRO_NUMBER)
                 .build();
 
-        PrisonerDetailSearchCriteria offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
-        PrisonerDetailSearchCriteria pncNumberCriteria = PrisonerDetailSearchCriteria.builder().pncNumber(TEST_PNC_NUMBER).build();
-        PrisonerDetailSearchCriteria croNumberCriteria = PrisonerDetailSearchCriteria.builder().croNumber(TEST_CRO_NUMBER).build();
+        final var offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
+        final var pncNumberCriteria = PrisonerDetailSearchCriteria.builder().pncNumber(TEST_PNC_NUMBER).build();
+        final var croNumberCriteria = PrisonerDetailSearchCriteria.builder().croNumber(TEST_CRO_NUMBER).build();
 
         when(InmateRepository.generateFindOffendersQuery(offNoCriteria)).thenReturn(TEST_OFFENDER_NO_QUERY);
 
@@ -159,7 +159,7 @@ public class GlobalSearchServiceImplTest {
         Mockito.when(offenderRepository.findOffenders(eq(pncNumberCriteria), any(PageRequest.class))).thenReturn(pageResponse(0));
         Mockito.when(offenderRepository.findOffenders(eq(croNumberCriteria), any(PageRequest.class))).thenReturn(pageResponse(1));
 
-        Page<PrisonerDetail> response = service.findOffenders(criteria, pageRequest);
+        final var response = service.findOffenders(criteria, pageRequest);
 
         assertThat(response.getItems()).isNotEmpty();
 
@@ -176,11 +176,11 @@ public class GlobalSearchServiceImplTest {
                 .croNumber(TEST_CRO_NUMBER)
                 .build();
 
-        PrisonerDetailSearchCriteria croNumberCriteria = PrisonerDetailSearchCriteria.builder().croNumber(TEST_CRO_NUMBER).build();
+        final var croNumberCriteria = PrisonerDetailSearchCriteria.builder().croNumber(TEST_CRO_NUMBER).build();
 
         Mockito.when(offenderRepository.findOffenders(eq(croNumberCriteria), any(PageRequest.class))).thenReturn(pageResponse(1));
 
-        Page<PrisonerDetail> response = service.findOffenders(criteria, pageRequest);
+        final var response = service.findOffenders(criteria, pageRequest);
 
         assertThat(response.getItems()).isNotEmpty();
 
@@ -190,8 +190,8 @@ public class GlobalSearchServiceImplTest {
 
     @Test
     public void testFindOffendersPrioritisedMatchWithPersonalAttrsMatch() {
-        final String TEST_LAST_NAME = "STEPHENS";
-        final String TEST_PERSONAL_ATTRS_QUERY = "lastName:eq:'STEPHENS'";
+        final var TEST_LAST_NAME = "STEPHENS";
+        final var TEST_PERSONAL_ATTRS_QUERY = "lastName:eq:'STEPHENS'";
 
         criteria = PrisonerDetailSearchCriteria.builder()
                 .prioritisedMatch(true)
@@ -199,8 +199,8 @@ public class GlobalSearchServiceImplTest {
                 .lastName(TEST_LAST_NAME)
                 .build();
 
-        PrisonerDetailSearchCriteria offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
-        PrisonerDetailSearchCriteria personalAttrsCriteria = PrisonerDetailSearchCriteria.builder().lastName(TEST_LAST_NAME).build();
+        final var offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
+        final var personalAttrsCriteria = PrisonerDetailSearchCriteria.builder().lastName(TEST_LAST_NAME).build();
 
         when(InmateRepository.generateFindOffendersQuery(offNoCriteria)).thenReturn(TEST_OFFENDER_NO_QUERY);
         when(InmateRepository.generateFindOffendersQuery(personalAttrsCriteria)).thenReturn(TEST_PERSONAL_ATTRS_QUERY);
@@ -208,7 +208,7 @@ public class GlobalSearchServiceImplTest {
         Mockito.when(inmateRepository.findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class))).thenReturn(pageResponse(0));
         Mockito.when(inmateRepository.findOffenders(eq(TEST_PERSONAL_ATTRS_QUERY), any(PageRequest.class))).thenReturn(pageResponse(3));
 
-        Page<PrisonerDetail> response = service.findOffenders(criteria, pageRequest);
+        final var response = service.findOffenders(criteria, pageRequest);
 
         assertThat(response.getItems()).isNotEmpty();
 
@@ -226,7 +226,7 @@ public class GlobalSearchServiceImplTest {
         when(InmateRepository.generateFindOffendersQuery(criteria)).thenReturn(TEST_OFFENDER_NO_QUERY);
         when(inmateRepository.findOffendersWithAliases(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class))).thenReturn(pageResponse(1));
 
-        Page<PrisonerDetail> response = service.findOffenders(criteria, pageRequest);
+        final var response = service.findOffenders(criteria, pageRequest);
 
         assertThat(response.getItems()).isNotEmpty();
 
@@ -245,11 +245,11 @@ public class GlobalSearchServiceImplTest {
 
     @Test
     public void testFindOffendersPrioritisedMatchWithDobRangeMatch() {
-        final String TEST_LAST_NAME = "STEPHENS";
-        final LocalDate TEST_DOB_FROM = LocalDate.of(1960, 1, 1);
-        final LocalDate TEST_DOB_TO = LocalDate.of(1964, 12, 31);
-        final String TEST_PERSONAL_ATTRS_QUERY = "lastName:eq:'STEPHENS'";
-        final String TEST_DOB_RANGE_QUERY = "(and:dateOfBirth:gteq:'1960-01-01':'YYYY-MM-DD',and:dateOfBirth:lteq:'1964-12-31':'YYYY-MM-DD')";
+        final var TEST_LAST_NAME = "STEPHENS";
+        final var TEST_DOB_FROM = LocalDate.of(1960, 1, 1);
+        final var TEST_DOB_TO = LocalDate.of(1964, 12, 31);
+        final var TEST_PERSONAL_ATTRS_QUERY = "lastName:eq:'STEPHENS'";
+        final var TEST_DOB_RANGE_QUERY = "(and:dateOfBirth:gteq:'1960-01-01':'YYYY-MM-DD',and:dateOfBirth:lteq:'1964-12-31':'YYYY-MM-DD')";
 
         criteria = PrisonerDetailSearchCriteria.builder()
                 .prioritisedMatch(true)
@@ -259,10 +259,10 @@ public class GlobalSearchServiceImplTest {
                 .dobTo(TEST_DOB_TO)
                 .build();
 
-        PrisonerDetailSearchCriteria offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
-        PrisonerDetailSearchCriteria personalAttrsCriteria = PrisonerDetailSearchCriteria.builder().lastName(TEST_LAST_NAME).build();
+        final var offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
+        final var personalAttrsCriteria = PrisonerDetailSearchCriteria.builder().lastName(TEST_LAST_NAME).build();
 
-        PrisonerDetailSearchCriteria dobRangeCriteria = PrisonerDetailSearchCriteria.builder()
+        final var dobRangeCriteria = PrisonerDetailSearchCriteria.builder()
                 .dobFrom(TEST_DOB_FROM)
                 .dobTo(TEST_DOB_TO)
                 .build();
@@ -275,7 +275,7 @@ public class GlobalSearchServiceImplTest {
         Mockito.when(inmateRepository.findOffenders(eq(TEST_PERSONAL_ATTRS_QUERY), any(PageRequest.class))).thenReturn(pageResponse(0));
         Mockito.when(inmateRepository.findOffenders(eq(TEST_DOB_RANGE_QUERY), any(PageRequest.class))).thenReturn(pageResponse(5));
 
-        Page<PrisonerDetail> response = service.findOffenders(criteria, pageRequest);
+        final var response = service.findOffenders(criteria, pageRequest);
 
         assertThat(response.getItems()).isNotEmpty();
 
@@ -291,23 +291,23 @@ public class GlobalSearchServiceImplTest {
                 .offenderNo(TEST_OFFENDER_NO)
                 .build();
 
-        PrisonerDetailSearchCriteria offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
+        final var offNoCriteria = PrisonerDetailSearchCriteria.builder().offenderNo(TEST_OFFENDER_NO).build();
 
         when(InmateRepository.generateFindOffendersQuery(offNoCriteria)).thenReturn(TEST_OFFENDER_NO_QUERY);
 
         Mockito.when(inmateRepository.findOffenders(eq(TEST_OFFENDER_NO_QUERY), any(PageRequest.class))).thenReturn(pageResponse(1));
 
-        Page<PrisonerDetail> response = service.findOffenders(criteria, pageRequest);
+        final var response = service.findOffenders(criteria, pageRequest);
 
         assertThat(response.getItems()).isNotEmpty();
 
         assertThat(response.getItems().get(0).getLatestLocation()).isEqualTo("Wakefield (HMP)");
     }
 
-    private Page<PrisonerDetail> pageResponse(int prisonerCount) {
-        List<PrisonerDetail> prisoners = new ArrayList<>();
+    private Page<PrisonerDetail> pageResponse(final int prisonerCount) {
+        final List<PrisonerDetail> prisoners = new ArrayList<>();
 
-        for (int i = 1; i <= prisonerCount; i++) {
+        for (var i = 1; i <= prisonerCount; i++) {
             prisoners.add(PrisonerDetail.builder().offenderNo(String.format("A%4dAA", i)).latestLocation("WAKEFIELD (HMP)").build());
         }
 

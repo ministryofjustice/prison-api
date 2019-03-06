@@ -23,27 +23,27 @@ public class BookingActivitySteps extends ScheduledEventSteps {
     }
 
     @Step("Get activities for booking")
-    public void getBookingActivities(Long bookingId, String fromDate, String toDate, String sortFields, Order sortOrder) {
+    public void getBookingActivities(final Long bookingId, final String fromDate, final String toDate, final String sortFields, final Order sortOrder) {
         dispatchRequest(bookingId, fromDate, toDate, sortFields, sortOrder);
     }
 
     @Step("Get activities for booking for current day only")
-    public void getBookingActivitiesForCurrentDay(Long bookingId) {
+    public void getBookingActivitiesForCurrentDay(final Long bookingId) {
         dispatchRequestForPeriod(bookingId, ScheduledEventPeriod.TODAY);
     }
 
-    private void dispatchUpdateRequest(String offenderNo, Long eventId, UpdateAttendance updateAttendance) {
+    private void dispatchUpdateRequest(final String offenderNo, final Long eventId, final UpdateAttendance updateAttendance) {
         init();
         try {
              restTemplate.exchange(API_REQUEST_FOR_UPDATE, HttpMethod.PUT,
                     createEntity(updateAttendance), Object.class, offenderNo, eventId);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
     @Step("Update Attendance")
-    public void updateAttendance(String offenderNo, Long activityId, String outcome, String performance, String comment) {
+    public void updateAttendance(final String offenderNo, final Long activityId, final String outcome, final String performance, final String comment) {
         dispatchUpdateRequest(offenderNo, activityId,
                 UpdateAttendance.builder()
                         .eventOutcome(outcome)
@@ -61,7 +61,7 @@ public class BookingActivitySteps extends ScheduledEventSteps {
     }
 
     @Step("Verify Already Paid")
-    public void verifyOffenderAlreadyPaid(String paidActivity) {
+    public void verifyOffenderAlreadyPaid(final String paidActivity) {
         verifyBadRequest("Prisoner A1234AC has already been paid for '" + paidActivity + "'");
     }
 }

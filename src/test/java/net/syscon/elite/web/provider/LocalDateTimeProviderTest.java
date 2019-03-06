@@ -16,7 +16,7 @@ public class LocalDateTimeProviderTest {
 
     @Test
     public void testStringToLocalDateTime() {
-        final LocalDateTime localDateTime = converter.fromString("2018-02-27T01:02:03");
+        final var localDateTime = converter.fromString("2018-02-27T01:02:03");
         assertEquals("2018-02-27T01:02:03", localDateTime.toString());
     }
 
@@ -47,19 +47,19 @@ public class LocalDateTimeProviderTest {
 
     @Test
     public void testStringToLocalDateTimeMissingSeconds() {
-        final LocalDateTime localDateTime = converter.fromString("2018-02-27T01:02");
+        final var localDateTime = converter.fromString("2018-02-27T01:02");
         assertEquals("2018-02-27T01:02", localDateTime.toString());
     }
 
     @Test
     public void testLocalDateTimeToStringSeconds() {
-        final String value = converter.toString(LocalDateTime.of(2018, Month.APRIL, 18, 13, 14, 15));
+        final var value = converter.toString(LocalDateTime.of(2018, Month.APRIL, 18, 13, 14, 15));
         assertEquals("2018-04-18T13:14:15", value);
     }
 
     @Test
     public void testLocalDateTimeToStringNoSeconds() {
-        final String value = converter.toString(LocalDateTime.of(2018, Month.APRIL, 18, 13, 14));
+        final var value = converter.toString(LocalDateTime.of(2018, Month.APRIL, 18, 13, 14));
         assertEquals("2018-04-18T13:14:00", value);
     }
 

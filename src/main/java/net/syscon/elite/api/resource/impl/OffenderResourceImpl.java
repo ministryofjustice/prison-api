@@ -20,20 +20,20 @@ public class OffenderResourceImpl implements OffenderResource {
     private final IncidentService incidentService;
     private final InmateAlertService alertService;
 
-    public OffenderResourceImpl(IncidentService incidentService, InmateAlertService alertService) {
+    public OffenderResourceImpl(final IncidentService incidentService, final InmateAlertService alertService) {
         this.incidentService = incidentService;
         this.alertService = alertService;
     }
 
     @Override
-    public IncidentListResponse getIncidentsByOffenderNo(@NotNull String offenderNo, List<String> incidentTypes, List<String> participationRoles) {
+    public IncidentListResponse getIncidentsByOffenderNo(@NotNull final String offenderNo, final List<String> incidentTypes, final List<String> participationRoles) {
         return new IncidentListResponse(Response.status(200)
                 .header("Content-Type", MediaType.APPLICATION_JSON).build(),
                 incidentService.getIncidentCasesByOffenderNo(offenderNo, incidentTypes, participationRoles));
     }
 
     @Override
-    public GetAlertsByOffenderNosResponse getAlertsByOffenderNo(@NotNull String offenderNo) {
+    public GetAlertsByOffenderNosResponse getAlertsByOffenderNo(@NotNull final String offenderNo) {
         return GetAlertsByOffenderNosResponse.respond200WithApplicationJson(alertService.getInmateAlertsByOffenderNos(List.of(offenderNo)));
     }
 

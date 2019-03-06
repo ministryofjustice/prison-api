@@ -47,27 +47,27 @@ public class AgencyServiceImpl implements AgencyService {
     private final AgencyRepository agencyRepository;
     private final ReferenceDomainService referenceDomainService;
 
-    public AgencyServiceImpl(AuthenticationFacade authenticationFacade, AgencyRepository agencyRepository,
-            ReferenceDomainService referenceDomainService) {
+    public AgencyServiceImpl(final AuthenticationFacade authenticationFacade, final AgencyRepository agencyRepository,
+                             final ReferenceDomainService referenceDomainService) {
         this.authenticationFacade = authenticationFacade;
         this.agencyRepository = agencyRepository;
         this.referenceDomainService = referenceDomainService;
     }
 
     @Override
-    public Agency getAgency(String agencyId) {
-        Agency agency = agencyRepository.getAgency(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
+    public Agency getAgency(final String agencyId) {
+        final var agency = agencyRepository.getAgency(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
         agency.setDescription(LocationProcessor.formatLocation(agency.getDescription()));
         return agency;
     }
 
     @Override
-    public List<Agency> getAgenciesByType(String agencyType) {
+    public List<Agency> getAgenciesByType(final String agencyType) {
         return agencyRepository.getAgenciesByType(agencyType);
     }
 
     @Override
-    public void checkAgencyExists(String agencyId) {
+    public void checkAgencyExists(final String agencyId) {
         Objects.requireNonNull(agencyId, "agencyId is a required parameter");
 
         if(agencyRepository.getAgency(agencyId).isEmpty()) {
@@ -76,13 +76,13 @@ public class AgencyServiceImpl implements AgencyService {
     }
 
     @Override
-    public Page<Agency> getAgencies(long offset, long limit) {
+    public Page<Agency> getAgencies(final long offset, final long limit) {
         return agencyRepository.getAgencies("agencyId", Order.ASC, offset, limit);
     }
 
     @Override
-    public List<Agency> findAgenciesByUsername(String username) {
-        List<Agency> agenciesByUsername = agencyRepository.findAgenciesByUsername(username);
+    public List<Agency> findAgenciesByUsername(final String username) {
+        final var agenciesByUsername = agencyRepository.findAgenciesByUsername(username);
         agenciesByUsername.forEach(a -> a.setDescription(LocationProcessor.formatLocation(a.getDescription())));
         return agenciesByUsername;
     }
@@ -110,10 +110,10 @@ public class AgencyServiceImpl implements AgencyService {
      * @throws EntityNotFoundException if current user does not have access to this agency.
      */
     @Override
-    public void verifyAgencyAccess(String agencyId) {
+    public void verifyAgencyAccess(final String agencyId) {
         Objects.requireNonNull(agencyId, "agencyId is a required parameter");
 
-        var agencyIds = getAgencyIds();
+        final var agencyIds = getAgencyIds();
         if (AuthenticationFacade.hasRoles("INACTIVE_BOOKINGS")) {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
@@ -123,46 +123,46 @@ public class AgencyServiceImpl implements AgencyService {
     }
 
     @Override
-    public List<Location> getAgencyLocations(String agencyId, String eventType, String sortFields, Order sortOrder) {
+    public List<Location> getAgencyLocations(final String agencyId, final String eventType, final String sortFields, final Order sortOrder) {
         // If no sort fields defined, sort in ascending order of user description then description (by default)
-        String orderBy = StringUtils.defaultIfBlank(sortFields, "userDescription,description");
-        Order order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
+        final var orderBy = StringUtils.defaultIfBlank(sortFields, "userDescription,description");
+        final var order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
 
-        List<String> eventTypes = StringUtils.isBlank(eventType) ? Collections.emptyList() : Collections.singletonList(eventType);
-        List<Location> rawLocations = agencyRepository.getAgencyLocations(agencyId, eventTypes, orderBy, order);
+        final List<String> eventTypes = StringUtils.isBlank(eventType) ? Collections.emptyList() : Collections.singletonList(eventType);
+        final var rawLocations = agencyRepository.getAgencyLocations(agencyId, eventTypes, orderBy, order);
 
         return LocationProcessor.processLocations(rawLocations);
     }
 
     @Override
-    public List<Location> getAgencyEventLocations(String agencyId, String sortFields, Order sortOrder) {
-        String orderBy = StringUtils.defaultIfBlank(sortFields, "userDescription,description");
-        Order order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
+    public List<Location> getAgencyEventLocations(final String agencyId, final String sortFields, final Order sortOrder) {
+        final var orderBy = StringUtils.defaultIfBlank(sortFields, "userDescription,description");
+        final var order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
 
         // Get all location usages for locations that an event could possibly be held in. (reference domain ILOC_USG )
         // Note this should be cached. Also assuming small number of values
-        final List<String> allEventLocationUsages = referenceDomainService
+        final var allEventLocationUsages = referenceDomainService
                 .getReferenceCodesByDomain(ReferenceDomain.INTERNAL_LOCATION_USAGE.getDomain(), false, null, null, 0, 1000)
                 .getItems().stream().map(ReferenceCode::getCode).collect(Collectors.toList());
 
-        List<Location> rawLocations = agencyRepository.getAgencyLocations(agencyId, allEventLocationUsages, orderBy, order);
+        final var rawLocations = agencyRepository.getAgencyLocations(agencyId, allEventLocationUsages, orderBy, order);
 
         return LocationProcessor.processLocations(rawLocations);
     }
 
     @Override
     @Cacheable(value = GET_AGENCY_LOCATIONS_BOOKED, key = "#agencyId + '-' + #bookedOnDay + '-' + #bookedOnPeriod")
-    public List<Location> getAgencyEventLocationsBooked(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod) {
+    public List<Location> getAgencyEventLocationsBooked(final String agencyId, final LocalDate bookedOnDay, final TimeSlot bookedOnPeriod) {
         return getAgencyLocationsOnDayAndPeriod(agencyId, bookedOnDay, bookedOnPeriod);
     }
 
     @Override
     @CachePut(value = GET_AGENCY_LOCATIONS_BOOKED, key = "#agencyId + '-' + #bookedOnDay + '-' + #bookedOnPeriod")
-    public List<Location> getAgencyEventLocationsBookedNonCached(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod) {
+    public List<Location> getAgencyEventLocationsBookedNonCached(final String agencyId, final LocalDate bookedOnDay, final TimeSlot bookedOnPeriod) {
         return getAgencyLocationsOnDayAndPeriod(agencyId, bookedOnDay, bookedOnPeriod);
     }
 
-    private List<Location> getAgencyLocationsOnDayAndPeriod(String agencyId, LocalDate bookedOnDay, TimeSlot bookedOnPeriod) {
+    private List<Location> getAgencyLocationsOnDayAndPeriod(final String agencyId, final LocalDate bookedOnDay, final TimeSlot bookedOnPeriod) {
         Objects.requireNonNull(bookedOnDay, "bookedOnDay must be specified.");
 
         final var locations = agencyRepository.getAgencyLocationsBooked(agencyId, bookedOnDay, bookedOnPeriod);
@@ -177,9 +177,9 @@ public class AgencyServiceImpl implements AgencyService {
     }
 
     @Override
-    public PrisonContactDetail getPrisonContactDetail(String agencyId) {
+    public PrisonContactDetail getPrisonContactDetail(final String agencyId) {
 
-        final List<PrisonContactDetail> prisonContactDetailList = removeBlankAddresses(agencyRepository.getPrisonContactDetails(agencyId));
+        final var prisonContactDetailList = removeBlankAddresses(agencyRepository.getPrisonContactDetails(agencyId));
         if(prisonContactDetailList.isEmpty()) {
             throw EntityNotFoundException.withMessage(String.format("Contact details not found for Prison %s", agencyId));
         }
@@ -187,19 +187,19 @@ public class AgencyServiceImpl implements AgencyService {
     }
 
     @Override
-    public List<Agency> getAgenciesByCaseload(String caseload) {
-        List<Agency> agenciesByCaseload = agencyRepository.findAgenciesByCaseload(caseload);
+    public List<Agency> getAgenciesByCaseload(final String caseload) {
+        final var agenciesByCaseload = agencyRepository.findAgenciesByCaseload(caseload);
         agenciesByCaseload.forEach(a -> a.setDescription(LocationProcessor.formatLocation(a.getDescription())));
         return agenciesByCaseload;
     }
 
     //It is possible for invalid/empty address records to be persisted
     @VisibleForTesting
-    List<PrisonContactDetail> removeBlankAddresses(List<PrisonContactDetail> list) {
+    List<PrisonContactDetail> removeBlankAddresses(final List<PrisonContactDetail> list) {
         return list.stream().filter(pcd -> !isBlankAddress(pcd)).collect(Collectors.toList());
     }
 
-    private boolean isBlankAddress(PrisonContactDetail pcd) {
+    private boolean isBlankAddress(final PrisonContactDetail pcd) {
         return pcd.getPremise() == null && pcd.getCity() == null && pcd.getLocality() == null && pcd.getPostCode() == null;
     }
 }

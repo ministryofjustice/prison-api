@@ -13,7 +13,7 @@ public enum ReferenceDomain {
 
     private final String domain;
 
-    ReferenceDomain(String domainCode) {
+    ReferenceDomain(final String domainCode) {
         this.domain = domainCode;
     }
 

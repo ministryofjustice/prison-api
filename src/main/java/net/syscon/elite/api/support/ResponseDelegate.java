@@ -13,12 +13,12 @@ public class ResponseDelegate extends Response {
 
     private final Object entity;
 
-    protected ResponseDelegate(Response delegate, Object entity) {
+    protected ResponseDelegate(final Response delegate, final Object entity) {
         this.delegate = delegate;
         this.entity = entity;
     }
 
-    protected ResponseDelegate(Response delegate) {
+    protected ResponseDelegate(final Response delegate) {
         this(delegate, null);
     }
 
@@ -48,12 +48,12 @@ public class ResponseDelegate extends Response {
     }
 
     @Override
-    public boolean hasLink(String p0) {
+    public boolean hasLink(final String p0) {
         return this.delegate.hasLink(p0);
     }
 
     @Override
-    public Link getLink(String p0) {
+    public Link getLink(final String p0) {
         return this.delegate.getLink(p0);
     }
 
@@ -93,22 +93,22 @@ public class ResponseDelegate extends Response {
     }
 
     @Override
-    public <T> T readEntity(Class<T> p0, Annotation[] p1) {
+    public <T> T readEntity(final Class<T> p0, final Annotation[] p1) {
         return this.delegate.readEntity(p0, p1);
     }
 
     @Override
-    public <T> T readEntity(GenericType<T> p0, Annotation[] p1) {
+    public <T> T readEntity(final GenericType<T> p0, final Annotation[] p1) {
         return this.delegate.readEntity(p0, p1);
     }
 
     @Override
-    public <T> T readEntity(GenericType<T> p0) {
+    public <T> T readEntity(final GenericType<T> p0) {
         return this.delegate.readEntity(p0);
     }
 
     @Override
-    public <T> T readEntity(Class<T> p0) {
+    public <T> T readEntity(final Class<T> p0) {
         return this.delegate.readEntity(p0);
     }
 
@@ -143,7 +143,7 @@ public class ResponseDelegate extends Response {
     }
 
     @Override
-    public Link.Builder getLinkBuilder(String p0) {
+    public Link.Builder getLinkBuilder(final String p0) {
         return this.delegate.getLinkBuilder(p0);
     }
 
@@ -153,7 +153,7 @@ public class ResponseDelegate extends Response {
     }
 
     @Override
-    public String getHeaderString(String p0) {
+    public String getHeaderString(final String p0) {
         return this.delegate.getHeaderString(p0);
     }
 }

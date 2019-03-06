@@ -36,27 +36,27 @@ public class BookingIEPSteps extends CommonSteps {
     }
 
     @Step("Get booking IEP summary")
-    public void getBookingIEPSummary(Long bookingId, boolean withDetails) {
+    public void getBookingIEPSummary(final Long bookingId, final boolean withDetails) {
         dispatchRequest(bookingId, withDetails);
     }
 
     @Step("Verify current IEP level")
-    public void verifyCurrentIEPLevel(String expectedIEPLevel) {
+    public void verifyCurrentIEPLevel(final String expectedIEPLevel) {
         assertThat(privilegeSummary.getIepLevel()).isEqualTo(expectedIEPLevel);
     }
 
     @Step("Verify IEP detail record count")
-    public void verifyIEPDetailRecordCount(int expectedDetailCount) {
+    public void verifyIEPDetailRecordCount(final int expectedDetailCount) {
         assertThat(privilegeSummary.getIepDetails().size()).isEqualTo(expectedDetailCount);
     }
 
     @Step("Verify days since IEP review")
-    public void verifyDaysSinceReview(String iepDate) {
+    public void verifyDaysSinceReview(final String iepDate) {
         if (StringUtils.isNotBlank(iepDate)) {
             // When there is an IEP date, days since review is expected to be logical days between current system date
             // and provided IEP date.
-            var ldIEPDate = LocalDate.parse(iepDate, DateTimeFormatter.ISO_LOCAL_DATE);
-            var expectedDaysSinceReview = DAYS.between(ldIEPDate, now());
+            final var ldIEPDate = LocalDate.parse(iepDate, DateTimeFormatter.ISO_LOCAL_DATE);
+            final var expectedDaysSinceReview = DAYS.between(ldIEPDate, now());
 
             assertThat(privilegeSummary.getDaysSinceReview()).isEqualTo(Long.valueOf(expectedDaysSinceReview).intValue());
         } else {
@@ -65,8 +65,8 @@ public class BookingIEPSteps extends CommonSteps {
         }
     }
 
-    public void verifyIepEntry(Long bookingId, String iepLevel, Integer iepDetailCount, LocalDate iepDate) {
-        var count = privilegeSummaries
+    public void verifyIepEntry(final Long bookingId, final String iepLevel, final Integer iepDetailCount, final LocalDate iepDate) {
+        final var count = privilegeSummaries
                 .stream()
                 .filter(
                         privilegeSummary -> privilegeSummary.getBookingId().equals(bookingId) &&
@@ -78,18 +78,18 @@ public class BookingIEPSteps extends CommonSteps {
         assertThat(count).isEqualTo(1);
     }
 
-    public void getBookingIEPSummaryForOffenders(List<String> bookings, boolean withDetails) {
+    public void getBookingIEPSummaryForOffenders(final List<String> bookings, final boolean withDetails) {
         init();
 
-        var bookingIdParameters =  bookings
+        final var bookingIdParameters = bookings
                 .stream()
                 .map(booking -> String.format("bookings=%s", booking))
                 .collect(Collectors.joining("&"));
 
-        var queryParameters = (withDetails ?  BOOKING_IEP_SUMMARY_WITH_DETAILS_QUERY + "&" : "?") + bookingIdParameters;
+        final var queryParameters = (withDetails ? BOOKING_IEP_SUMMARY_WITH_DETAILS_QUERY + "&" : "?") + bookingIdParameters;
 
         try {
-            var response =
+            final var response =
                     restTemplate.exchange(
                             BOOKING_IEP_SUMMARY_API_FOR_OFFENDERS_URL + queryParameters,
                             HttpMethod.GET,
@@ -98,16 +98,16 @@ public class BookingIEPSteps extends CommonSteps {
                             bookings);
 
             privilegeSummaries = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void dispatchRequest(Long bookingId, boolean withDetails) {
+    private void dispatchRequest(final Long bookingId, final boolean withDetails) {
         init();
 
         try {
-            var response =
+            final var response =
                     restTemplate.exchange(
                             BOOKING_IEP_SUMMARY_API_URL + (withDetails ? BOOKING_IEP_SUMMARY_WITH_DETAILS_QUERY : ""),
                             HttpMethod.GET,
@@ -116,7 +116,7 @@ public class BookingIEPSteps extends CommonSteps {
                             bookingId);
 
             privilegeSummary = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

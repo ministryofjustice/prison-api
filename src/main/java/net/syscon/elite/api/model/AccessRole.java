@@ -44,7 +44,7 @@ public class AccessRole {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -57,7 +57,7 @@ public class AccessRole {
         return roleId;
     }
 
-    public void setRoleId(Long roleId) {
+    public void setRoleId(final Long roleId) {
         this.roleId = roleId;
     }
 
@@ -70,7 +70,7 @@ public class AccessRole {
         return roleCode;
     }
 
-    public void setRoleCode(String roleCode) {
+    public void setRoleCode(final String roleCode) {
         this.roleCode = roleCode;
     }
 
@@ -83,7 +83,7 @@ public class AccessRole {
         return roleName;
     }
 
-    public void setRoleName(String roleName) {
+    public void setRoleName(final String roleName) {
         this.roleName = roleName;
     }
 
@@ -96,7 +96,7 @@ public class AccessRole {
         return parentRoleCode;
     }
 
-    public void setParentRoleCode(String parentRoleCode) {
+    public void setParentRoleCode(final String parentRoleCode) {
         this.parentRoleCode = parentRoleCode;
     }
 
@@ -109,13 +109,13 @@ public class AccessRole {
         return roleFunction;
     }
 
-    public void setRoleFunction(String roleFunction) {
+    public void setRoleFunction(final String roleFunction) {
         this.roleFunction = roleFunction;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class AccessRole {\n");
         

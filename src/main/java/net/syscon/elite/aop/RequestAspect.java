@@ -26,16 +26,16 @@ public class RequestAspect {
     @Around("controllerPointcut()")
     public Object controllerCall(final ProceedingJoinPoint joinPoint) throws Throwable {
 
-        LocalDateTime start = LocalDateTime.now();
+        final var start = LocalDateTime.now();
         if (MdcUtility.isLoggingAllowed()) {
             log.debug("Enter: {}.{}() with argument[s] = {}",
                     joinPoint.getSignature().getDeclaringTypeName(),
                     joinPoint.getSignature().getName(), Arrays.toString(joinPoint.getArgs()));
         }
-        final Object result = joinPoint.proceed();
+        final var result = joinPoint.proceed();
 
         if (MdcUtility.isLoggingAllowed()) {
-            long duration = Duration.between(start, LocalDateTime.now()).toMillis();
+            final var duration = Duration.between(start, LocalDateTime.now()).toMillis();
             log.debug("Exit: {}.{}() - Started: {}, Duration: {} ms",
                     joinPoint.getSignature().getDeclaringTypeName(),
                     joinPoint.getSignature().getName(), start.format(formatter), duration);

@@ -13,8 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,24 +41,24 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     }
 
     private void seedCaseNoteForUpdateTest() {
-        NewCaseNote newCaseNote = buildNewCaseNote(
+        final var newCaseNote = buildNewCaseNote(
                 "CHAP",
                 "FAMMAR",
                 "Hello this is a new case note",
                 null);
 
         // this must exist and must be accessible to test user
-        Long caseNoteBookingId = -32L;
+        final Long caseNoteBookingId = -32L;
         seededCaseNote = caseNote.createCaseNote(caseNoteBookingId, newCaseNote);
     }
 
     @When("^a case note is created for booking:$")
-    public void aCaseNoteIsCreatedForBooking(DataTable rawData) throws Throwable {
-        Map<String, String> caseNoteData = rawData.asMap(String.class, String.class);
+    public void aCaseNoteIsCreatedForBooking(final DataTable rawData) throws Throwable {
+        final var caseNoteData = rawData.asMap(String.class, String.class);
 
-        Long bookingId = Long.valueOf(caseNoteData.get("bookingId"));
+        final var bookingId = Long.valueOf(caseNoteData.get("bookingId"));
 
-        NewCaseNote newCaseNote =
+        final var newCaseNote =
                 buildNewCaseNote(caseNoteData.get("type"),
                         caseNoteData.get("subType"),
                         caseNoteData.get("text"),
@@ -70,12 +68,12 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     }
 
     @When("^attempt is made to create case note for booking:$")
-    public void attemptIsMadeToCreateCaseNoteForBooking(DataTable rawData) throws Throwable {
-        Map<String, String> caseNoteData = rawData.asMap(String.class, String.class);
+    public void attemptIsMadeToCreateCaseNoteForBooking(final DataTable rawData) throws Throwable {
+        final var caseNoteData = rawData.asMap(String.class, String.class);
 
-        Long bookingId = Long.valueOf(caseNoteData.get("bookingId"));
+        final var bookingId = Long.valueOf(caseNoteData.get("bookingId"));
 
-        NewCaseNote newCaseNote =
+        final var newCaseNote =
                 buildNewCaseNote(caseNoteData.get("type"),
                         caseNoteData.get("subType"),
                         caseNoteData.get("text"),
@@ -91,46 +89,46 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("case note validation errors are:")
-    public void caseNoteValidationErrorsAre(DataTable rawData) {
-        List<String> errors = rawData.asList(String.class);
+    public void caseNoteValidationErrorsAre(final DataTable rawData) {
+        final var errors = rawData.asList(String.class);
         caseNote.verifyBadRequest(errors);
     }
 
     @Then("^case note validation error \"([^\"]*)\" occurs$")
-    public void caseNoteValidationErrorOccurs(String error) {
+    public void caseNoteValidationErrorOccurs(final String error) {
         caseNote.verifyBadRequest(error);
     }
 
     @When("^existing case note is updated with text \"([^\"]*)\"$")
-    public void theCaseNoteIsUpdatedWithText(String caseNoteText) throws Throwable {
+    public void theCaseNoteIsUpdatedWithText(final String caseNoteText) throws Throwable {
         updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
     }
 
     @When("^existing case note is updated with valid text$")
     public void theCaseNoteIsUpdatedWithValidText() throws Throwable {
-        CaseNote existingCaseNote = caseNote.getCaseNote(-5, -2);
+        final var existingCaseNote = caseNote.getCaseNote(-5, -2);
         // Allow 100 chars for the 1st part of the updated text which includes the
         // original text and the user/timestamp text
-        String caseNoteText = StringUtils.repeat("a", 100);
+        final var caseNoteText = StringUtils.repeat("a", 100);
         updatedCaseNote = caseNote.updateCaseNote(existingCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
     }
 
     @When("^existing case note for a different user is updated with valid text$")
     public void existingCaseNoteForADifferentUserIsUpdatedWithValidText() throws Throwable {
-        CaseNote existingCaseNote = caseNote.getCaseNote(-1, -1);
-        String caseNoteText = StringUtils.repeat("a", 100);
+        final var existingCaseNote = caseNote.getCaseNote(-1, -1);
+        final var caseNoteText = StringUtils.repeat("a", 100);
         updatedCaseNote = caseNote.updateCaseNote(existingCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
     }
 
     @When("^the created case note is updated with long text$")
     public void theCaseNoteIsUpdatedWithInvalidText() throws Throwable {
-        final String caseNoteText = StringUtils.repeat("a", 3950); // total text will be over 4000
+        final var caseNoteText = StringUtils.repeat("a", 3950); // total text will be over 4000
         updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
     }
 
     @When("^a case note is created to use up all free space$")
     public void aCaseNoteIsCreatedToUseUpAllFreeSpace() throws Throwable {
-        final String caseNoteText = StringUtils.repeat("a", 3900);
+        final var caseNoteText = StringUtils.repeat("a", 3900);
         updatedCaseNote = caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text(caseNoteText).build());
     }
 
@@ -154,8 +152,8 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         caseNote.verifyNotCreated();
     }
 
-    private NewCaseNote buildNewCaseNote(String type, String subType, String text, String occurrenceDateTime) {
-        NewCaseNote newCaseNote = new NewCaseNote();
+    private NewCaseNote buildNewCaseNote(final String type, final String subType, final String text, final String occurrenceDateTime) {
+        final var newCaseNote = new NewCaseNote();
 
         newCaseNote.setType(type);
         newCaseNote.setSubType(subType);
@@ -169,73 +167,73 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     }
 
     @When("^case notes are requested for offender booking \"([^\"]*)\"$")
-    public void caseNotesAreRequestedForOffenderBooking(String bookingId) throws Throwable {
+    public void caseNotesAreRequestedForOffenderBooking(final String bookingId) throws Throwable {
         caseNote.getCaseNotes(Long.valueOf(bookingId));
     }
 
     @Then("^\"([^\"]*)\" case notes are returned$")
-    public void caseNotesAreReturned(String count) throws Throwable {
+    public void caseNotesAreReturned(final String count) throws Throwable {
         caseNote.verifyResourceRecordsReturned(Long.valueOf(count));
     }
 
     @And("^case note types match \"([^\"]*)\"$")
-    public void caseNoteTypesMatch(String caseNoteTypes) throws Throwable {
+    public void caseNoteTypesMatch(final String caseNoteTypes) throws Throwable {
         caseNote.verifyCaseNoteTypes(caseNoteTypes);
     }
 
     @And("^case note sub types match \"([^\"]*)\"$")
-    public void caseNoteSubTypesMatch(String caseNoteSubTypes) throws Throwable {
+    public void caseNoteSubTypesMatch(final String caseNoteSubTypes) throws Throwable {
         caseNote.verifyCaseNoteSubTypes(caseNoteSubTypes);
     }
 
     @And("^case note type \"([^\"]*)\" filter applied$")
-    public void caseNoteTypeFilterApplied(String caseNoteType) throws Throwable {
+    public void caseNoteTypeFilterApplied(final String caseNoteType) throws Throwable {
         caseNote.applyCaseNoteTypeFilter(caseNoteType);
     }
 
     @And("^case note sub type \"([^\"]*)\" filter applied$")
-    public void caseNoteSubTypeFilterApplied(String caseNoteSubType) throws Throwable {
+    public void caseNoteSubTypeFilterApplied(final String caseNoteSubType) throws Throwable {
         caseNote.applyCaseNoteSubTypeFilter(caseNoteSubType);
     }
 
     @And("^case note agency \"([^\"]*)\" filter applied$")
-    public void caseNoteAgencyFilterApplied(String agencyId) throws Throwable {
+    public void caseNoteAgencyFilterApplied(final String agencyId) throws Throwable {
         caseNote.applyAgencyFilter(agencyId);
     }
 
     @And("^date from \"([^\"]*)\" filter applied$")
-    public void dateFromFilterApplied(String dateFrom) throws Throwable {
+    public void dateFromFilterApplied(final String dateFrom) throws Throwable {
         caseNote.applyDateFromFilter(dateFrom);
     }
 
     @And("^date to \"([^\"]*)\" filter applied$")
-    public void dateToFilterApplied(String dateTo) throws Throwable {
+    public void dateToFilterApplied(final String dateTo) throws Throwable {
         caseNote.applyDateToFilter(dateTo);
     }
 
     @And("^pagination with limit \"([0-9]*)\" and offset \"([0-9]*)\" applied$")
-    public void paginationWithLimitAndOffsetApplied(Long limit, Long offset) throws Throwable {
+    public void paginationWithLimitAndOffsetApplied(final Long limit, final Long offset) throws Throwable {
         caseNote.applyPagination(offset, limit);
     }
 
     @And("^filtered case notes are requested for offender booking \"([^\"]*)\"$")
-    public void filteredCaseNotesAreRequestedForOffenderBooking(String bookingId) throws Throwable {
+    public void filteredCaseNotesAreRequestedForOffenderBooking(final String bookingId) throws Throwable {
         caseNote.getCaseNotes(Long.valueOf(bookingId));
     }
 
     @And("^\"([^\"]*)\" case notes are available$")
-    public void caseNotesAreAvailable(String count) throws Throwable {
+    public void caseNotesAreAvailable(final String count) throws Throwable {
         caseNote.verifyTotalResourceRecordsAvailable(Long.valueOf(count));
     }
 
     @When("^attempt is made to update case note for booking with id \"([^\"]*)\"$")
-    public void attemptIsMadeToUpdateCaseNoteForBookingWithId(String bookingId) throws Throwable {
+    public void attemptIsMadeToUpdateCaseNoteForBookingWithId(final String bookingId) throws Throwable {
         seededCaseNote.setBookingId(Long.valueOf(bookingId));
         caseNote.updateCaseNote(seededCaseNote, UpdateCaseNote.builder().text("Updated text").build());
     }
 
     @When("^a case note is requested for offender booking \"([^\"]*)\"")
-    public void caseNotesDifferentCaseloadGet(long bookingId) throws Throwable {
+    public void caseNotesDifferentCaseloadGet(final long bookingId) throws Throwable {
         caseNote.getCaseNote(bookingId, -1L);
     }
 
@@ -245,68 +243,68 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
     }
 
     @When("^case note count is requested for offender booking \"([^\"]*)\" for case note type \"([^\"]*)\" and sub-type \"([^\"]*)\"$")
-    public void caseNoteCountIsRequestedForOffenderBookingForCaseNoteTypeAndSubType(String bookingId, String type, String subType) throws Throwable {
+    public void caseNoteCountIsRequestedForOffenderBookingForCaseNoteTypeAndSubType(final String bookingId, final String type, final String subType) throws Throwable {
         caseNote.getCaseNoteCount(Long.valueOf(bookingId), type, subType, null, null);
     }
 
     @Then("^case note count response \"([^\"]*)\" is \"([^\"]*)\"$")
-    public void caseNoteCountResponseIs(String propertyName, String expectedValue) throws Throwable {
+    public void caseNoteCountResponseIs(final String propertyName, final String expectedValue) throws Throwable {
         caseNote.verifyCaseNoteCountPropertyValue(propertyName, expectedValue);
     }
 
     @Then("^case note size is \"([^\"]*)\"$")
-    public void caseNoteSizeIs(String size) throws Throwable {
+    public void caseNoteSizeIs(final String size) throws Throwable {
         caseNote.verifyCaseNoteUsageSize(Integer.valueOf(size));
     }
 
     @Then("^case note staff usage size is \"([^\"]*)\"$")
-    public void caseNoteStaffUsageSizeIs(String size) throws Throwable {
+    public void caseNoteStaffUsageSizeIs(final String size) throws Throwable {
         caseNote.verifyCaseNoteStaffUsageSize(Integer.valueOf(size));
     }
 
     @Then("^case note usage response \"([^\"]*)\" is \"([^\"]*)\"$")
-    public void caseNoteUsageResponseIs(String propertyName, String expectedValue) throws Throwable {
+    public void caseNoteUsageResponseIs(final String propertyName, final String expectedValue) throws Throwable {
         caseNote.verifyCaseNoteUsagePropertyValue(propertyName, expectedValue);
     }
 
     @Then("^case note staff usage response \"([^\"]*)\" is \"([^\"]*)\"$")
-    public void caseNoteStaffUsageResponseIs(String propertyName, String expectedValue) throws Throwable {
+    public void caseNoteStaffUsageResponseIs(final String propertyName, final String expectedValue) throws Throwable {
         caseNote.verifyCaseNoteStaffUsagePropertyValue(propertyName, expectedValue);
     }
 
 
     @Then("^bad request response, with \"([^\"]*)\" message, is received from casenotes API$")
-    public void badRequestResponseWithMessageIsReceivedFromCasenotesAPI(String expectedUserMessage) throws Throwable {
+    public void badRequestResponseWithMessageIsReceivedFromCasenotesAPI(final String expectedUserMessage) throws Throwable {
         caseNote.verifyBadRequest(expectedUserMessage);
     }
 
     @When("^case note count between \"([^\"]*)\" and \"([^\"]*)\" is requested for offender booking \"([^\"]*)\" for case note type \"([^\"]*)\" and sub-type \"([^\"]*)\"$")
-    public void caseNoteCountBetweenAndIsRequestedForOffenderBookingForCaseNoteTypeAndSubType(String fromDate, String toDate, String bookingId, String type, String subType) throws Throwable {
+    public void caseNoteCountBetweenAndIsRequestedForOffenderBookingForCaseNoteTypeAndSubType(final String fromDate, final String toDate, final String bookingId, final String type, final String subType) throws Throwable {
         caseNote.getCaseNoteCount(Long.valueOf(bookingId), type, subType, fromDate, toDate);
     }
 
     @Then("^access denied response, with \"([^\"]*)\" message, is received from booking case notes API$")
-    public void accessDeniedResponseWithMessageIsReceivedFromBookingCaseNotesAPI(String userMessage) throws Throwable {
+    public void accessDeniedResponseWithMessageIsReceivedFromBookingCaseNotesAPI(final String userMessage) throws Throwable {
         caseNote.verifyAccessDenied(userMessage);
     }
 
     @When("^case note usage between \"([^\"]*)\" and \"([^\"]*)\" is requested of offender No \"([^\"]*)\" for case note type \"([^\"]*)\"  and sub-type \"([^\"]*)\"$")
-    public void caseNoteUsageBetweenAndIsRequestedOfOffenderNoForCaseNoteTypeAndSubType(String fromDate, String toDate, String offenderNos, String type, String subType) throws Throwable {
+    public void caseNoteUsageBetweenAndIsRequestedOfOffenderNoForCaseNoteTypeAndSubType(final String fromDate, final String toDate, final String offenderNos, final String type, final String subType) throws Throwable {
         caseNote.getCaseNoteUsage(offenderNos, null, null, type, subType, fromDate, toDate);
     }
 
     @When("^case note usage between \"([^\"]*)\" and \"([^\"]*)\" is requested of offender No \"([^\"]*)\" with staff Id \"([^\"]*)\" for case note type \"([^\"]*)\"  and sub-type \"([^\"]*)\"$")
-    public void caseNoteUsageBetweenAndIsRequestedOfOffenderNoForCaseNoteTypeAndSubType(String fromDate, String toDate, String offenderNos, String staffId, String type, String subType) throws Throwable {
+    public void caseNoteUsageBetweenAndIsRequestedOfOffenderNoForCaseNoteTypeAndSubType(final String fromDate, final String toDate, final String offenderNos, final String staffId, final String type, final String subType) throws Throwable {
         caseNote.getCaseNoteUsage(offenderNos, staffId, null, type, subType, fromDate, toDate);
     }
 
     @When("^case note usage between \"([^\"]*)\" and \"([^\"]*)\" is requested of offender No \"([^\"]*)\" with staff Id \"([^\"]*)\" for case note type \"([^\"]*)\"  and sub-type \"([^\"]*)\" and agencyId \"([^\"]*)\"$")
-    public void caseNoteUsageBetweenAndIsRequestedOfOffenderNoForCaseNoteTypeAndSubTypeAndAgency(String fromDate, String toDate, String offenderNos, String staffId, String type, String subType, String agencyId) throws Throwable {
+    public void caseNoteUsageBetweenAndIsRequestedOfOffenderNoForCaseNoteTypeAndSubTypeAndAgency(final String fromDate, final String toDate, final String offenderNos, final String staffId, final String type, final String subType, final String agencyId) throws Throwable {
         caseNote.getCaseNoteUsage(offenderNos, staffId, agencyId, type, subType, fromDate, toDate);
     }
 
     @When("^case note usage between \"([^\"]*)\" and \"([^\"]*)\" is requested of staff ID \"([^\"]*)\" for case note type \"([^\"]*)\"  and sub-type \"([^\"]*)\"$")
-    public void caseNoteUsageBetweenAndIsRequestedOfStaffIDForCaseNoteTypeAndSubType(String fromDate, String toDate, String staffIds, String type, String subType) throws Throwable {
+    public void caseNoteUsageBetweenAndIsRequestedOfStaffIDForCaseNoteTypeAndSubType(final String fromDate, final String toDate, final String staffIds, final String type, final String subType) throws Throwable {
         caseNote.getCaseNoteStaffUsage(staffIds, type, subType, fromDate, toDate);
     }
 }

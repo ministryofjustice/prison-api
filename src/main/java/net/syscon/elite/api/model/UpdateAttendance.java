@@ -41,7 +41,7 @@ public class UpdateAttendance {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -54,7 +54,7 @@ public class UpdateAttendance {
         return eventOutcome;
     }
 
-    public void setEventOutcome(String eventOutcome) {
+    public void setEventOutcome(final String eventOutcome) {
         this.eventOutcome = eventOutcome;
     }
 
@@ -67,7 +67,7 @@ public class UpdateAttendance {
         return performance;
     }
 
-    public void setPerformance(String performance) {
+    public void setPerformance(final String performance) {
         this.performance = performance;
     }
 
@@ -80,13 +80,13 @@ public class UpdateAttendance {
         return outcomeComment;
     }
 
-    public void setOutcomeComment(String outcomeComment) {
+    public void setOutcomeComment(final String outcomeComment) {
         this.outcomeComment = outcomeComment;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class UpdateAttendance {\n");
         

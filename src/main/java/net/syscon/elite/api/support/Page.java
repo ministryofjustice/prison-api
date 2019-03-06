@@ -8,7 +8,7 @@ public class Page<T> {
     private final long pageOffset;
     private final long pageLimit;
 
-    public Page(List<T> items, long totalRecords, long pageOffset, long pageLimit) {
+    public Page(final List<T> items, final long totalRecords, final long pageOffset, final long pageLimit) {
         this.items = items;
         this.totalRecords = totalRecords;
         this.pageOffset = pageOffset;

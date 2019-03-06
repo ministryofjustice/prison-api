@@ -36,7 +36,7 @@ public class QuestionnaireAnswer implements Comparable<QuestionnaireAnswer>{
     private Boolean commentRequiredFlag;
 
     @Override
-    public int compareTo(QuestionnaireAnswer answer) {
+    public int compareTo(final QuestionnaireAnswer answer) {
         return new CompareToBuilder()
                 .append(this.getAnswerSeq(), answer.getAnswerSeq())
                 .toComparison();

@@ -11,9 +11,9 @@ import java.util.Objects;
 public class DatasourceActiveProfilesResolver implements ActiveProfilesResolver {
 
     @Override
-    public String[] resolve(Class<?> testClass) {
-        String datasourceProfile = System.getenv("api.db.target");
-        String datasourceDialect = System.getenv("api.db.dialect");
+    public String[] resolve(final Class<?> testClass) {
+        final var datasourceProfile = System.getenv("api.db.target");
+        final var datasourceDialect = System.getenv("api.db.dialect");
 
         Objects.requireNonNull(datasourceProfile, "'api.db.target' environment variable must be specified.");
 

@@ -22,7 +22,7 @@ public class AuthenticationSteps {
 
         private final String token;
 
-        AuthToken(String token) {
+        AuthToken(final String token) {
             this.token = token;
         }
     }
@@ -33,7 +33,7 @@ public class AuthenticationSteps {
         return currentToken;
     }
 
-    public void setToken(AuthToken clientId) {
+    public void setToken(final AuthToken clientId) {
         this.currentToken = clientId.token;
     }
 }

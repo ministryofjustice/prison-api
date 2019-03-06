@@ -65,7 +65,7 @@ public class OffenderKeyWorker {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -78,7 +78,7 @@ public class OffenderKeyWorker {
         return offenderNo;
     }
 
-    public void setOffenderNo(String offenderNo) {
+    public void setOffenderNo(final String offenderNo) {
         this.offenderNo = offenderNo;
     }
 
@@ -91,7 +91,7 @@ public class OffenderKeyWorker {
         return staffId;
     }
 
-    public void setStaffId(Long staffId) {
+    public void setStaffId(final Long staffId) {
         this.staffId = staffId;
     }
 
@@ -104,7 +104,7 @@ public class OffenderKeyWorker {
         return agencyId;
     }
 
-    public void setAgencyId(String agencyId) {
+    public void setAgencyId(final String agencyId) {
         this.agencyId = agencyId;
     }
 
@@ -117,7 +117,7 @@ public class OffenderKeyWorker {
         return assigned;
     }
 
-    public void setAssigned(LocalDateTime assigned) {
+    public void setAssigned(final LocalDateTime assigned) {
         this.assigned = assigned;
     }
 
@@ -130,7 +130,7 @@ public class OffenderKeyWorker {
         return expired;
     }
 
-    public void setExpired(LocalDateTime expired) {
+    public void setExpired(final LocalDateTime expired) {
         this.expired = expired;
     }
 
@@ -143,7 +143,7 @@ public class OffenderKeyWorker {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(final String userId) {
         this.userId = userId;
     }
 
@@ -156,7 +156,7 @@ public class OffenderKeyWorker {
         return active;
     }
 
-    public void setActive(String active) {
+    public void setActive(final String active) {
         this.active = active;
     }
 
@@ -169,7 +169,7 @@ public class OffenderKeyWorker {
         return created;
     }
 
-    public void setCreated(LocalDateTime created) {
+    public void setCreated(final LocalDateTime created) {
         this.created = created;
     }
 
@@ -182,7 +182,7 @@ public class OffenderKeyWorker {
         return createdBy;
     }
 
-    public void setCreatedBy(String createdBy) {
+    public void setCreatedBy(final String createdBy) {
         this.createdBy = createdBy;
     }
 
@@ -195,7 +195,7 @@ public class OffenderKeyWorker {
         return modified;
     }
 
-    public void setModified(LocalDateTime modified) {
+    public void setModified(final LocalDateTime modified) {
         this.modified = modified;
     }
 
@@ -208,13 +208,13 @@ public class OffenderKeyWorker {
         return modifiedBy;
     }
 
-    public void setModifiedBy(String modifiedBy) {
+    public void setModifiedBy(final String modifiedBy) {
         this.modifiedBy = modifiedBy;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class OffenderKeyWorker {\n");
         

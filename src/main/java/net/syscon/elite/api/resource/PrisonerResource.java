@@ -60,11 +60,16 @@ public interface PrisonerResource {
 
     class GetPrisonersResponse extends ResponseDelegate {
 
-        private GetPrisonersResponse(Response response) { super(response); }
-        private GetPrisonersResponse(Response response, Object entity) { super(response, entity); }
+        private GetPrisonersResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetPrisonersResponse respond200WithApplicationJson(Page<PrisonerDetail> page) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetPrisonersResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetPrisonersResponse respond200WithApplicationJson(final Page<PrisonerDetail> page) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON)
                     .header("Total-Records", page.getTotalRecords())
                     .header("Page-Offset", page.getPageOffset())
@@ -73,22 +78,22 @@ public interface PrisonerResource {
             return new GetPrisonersResponse(responseBuilder.build(), page.getItems());
         }
 
-        public static GetPrisonersResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetPrisonersResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetPrisonersResponse(responseBuilder.build(), entity);
         }
 
-        public static GetPrisonersResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetPrisonersResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetPrisonersResponse(responseBuilder.build(), entity);
         }
 
-        public static GetPrisonersResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetPrisonersResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetPrisonersResponse(responseBuilder.build(), entity);
@@ -97,32 +102,37 @@ public interface PrisonerResource {
 
     class GetPrisonersOffenderNoResponse extends ResponseDelegate {
 
-        private GetPrisonersOffenderNoResponse(Response response) { super(response); }
-        private GetPrisonersOffenderNoResponse(Response response, Object entity) { super(response, entity); }
+        private GetPrisonersOffenderNoResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetPrisonersOffenderNoResponse respond200WithApplicationJson(List<PrisonerDetail> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetPrisonersOffenderNoResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetPrisonersOffenderNoResponse respond200WithApplicationJson(final List<PrisonerDetail> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetPrisonersOffenderNoResponse(responseBuilder.build(), entity);
         }
 
-        public static GetPrisonersOffenderNoResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetPrisonersOffenderNoResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetPrisonersOffenderNoResponse(responseBuilder.build(), entity);
         }
 
-        public static GetPrisonersOffenderNoResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetPrisonersOffenderNoResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetPrisonersOffenderNoResponse(responseBuilder.build(), entity);
         }
 
-        public static GetPrisonersOffenderNoResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetPrisonersOffenderNoResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetPrisonersOffenderNoResponse(responseBuilder.build(), entity);

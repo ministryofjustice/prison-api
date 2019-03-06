@@ -6,7 +6,7 @@ import net.syscon.util.SQLFilter;
 public class DummySQLFilter implements SQLFilter {
 
 	@Override
-	public String apply(Object o) {
+    public String apply(final Object o) {
 		return "";
 	}
 }

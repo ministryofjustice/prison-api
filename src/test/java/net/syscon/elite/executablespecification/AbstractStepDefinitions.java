@@ -200,21 +200,21 @@ abstract class AbstractStepDefinitions {
         }
     }
 
-    int ord2idx(String ordinal) {
-        String numberOnly = StringUtils.trimToEmpty(ordinal).replaceAll("[^0-9]", "");
+    int ord2idx(final String ordinal) {
+        final var numberOnly = StringUtils.trimToEmpty(ordinal).replaceAll("[^0-9]", "");
         int index;
 
         try {
             index = Integer.parseInt(numberOnly) - 1;
-        } catch (NumberFormatException ex) {
+        } catch (final NumberFormatException ex) {
             index = -1;
         }
 
         return index;
     }
 
-    Order parseSortOrder(String sortOrder) {
-        Order order;
+    Order parseSortOrder(final String sortOrder) {
+        final Order order;
 
         if (StringUtils.startsWithIgnoreCase(sortOrder, "DESC")) {
             order = Order.DESC;

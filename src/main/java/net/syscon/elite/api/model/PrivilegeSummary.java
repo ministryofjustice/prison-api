@@ -53,7 +53,7 @@ public class PrivilegeSummary {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -66,7 +66,7 @@ public class PrivilegeSummary {
         return bookingId;
     }
 
-    public void setBookingId(Long bookingId) {
+    public void setBookingId(final Long bookingId) {
         this.bookingId = bookingId;
     }
 
@@ -79,7 +79,7 @@ public class PrivilegeSummary {
         return iepDate;
     }
 
-    public void setIepDate(LocalDate iepDate) {
+    public void setIepDate(final LocalDate iepDate) {
         this.iepDate = iepDate;
     }
 
@@ -92,7 +92,7 @@ public class PrivilegeSummary {
         return iepTime;
     }
 
-    public void setIepTime(LocalDateTime iepTime) {
+    public void setIepTime(final LocalDateTime iepTime) {
         this.iepTime = iepTime;
     }
 
@@ -105,7 +105,7 @@ public class PrivilegeSummary {
         return iepLevel;
     }
 
-    public void setIepLevel(String iepLevel) {
+    public void setIepLevel(final String iepLevel) {
         this.iepLevel = iepLevel;
     }
 
@@ -118,7 +118,7 @@ public class PrivilegeSummary {
         return daysSinceReview;
     }
 
-    public void setDaysSinceReview(Integer daysSinceReview) {
+    public void setDaysSinceReview(final Integer daysSinceReview) {
         this.daysSinceReview = daysSinceReview;
     }
 
@@ -131,13 +131,13 @@ public class PrivilegeSummary {
         return iepDetails;
     }
 
-    public void setIepDetails(List<PrivilegeDetail> iepDetails) {
+    public void setIepDetails(final List<PrivilegeDetail> iepDetails) {
         this.iepDetails = iepDetails;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class PrivilegeSummary {\n");
         

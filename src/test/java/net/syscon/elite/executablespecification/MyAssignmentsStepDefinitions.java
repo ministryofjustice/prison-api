@@ -24,12 +24,12 @@ public class MyAssignmentsStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^\"([^\"]*)\" total keyworker assignments records are returned$")
-    public void totalKeyworkerAssignmentsRecordsAreReturned(String expectedCount) throws Throwable {
+    public void totalKeyworkerAssignmentsRecordsAreReturned(final String expectedCount) throws Throwable {
         myAssignments.verifyTotalResourceRecordsAvailable(Long.valueOf(expectedCount));
     }
 
     @Then("^\"([^\"]*)\" keyworker assignments records are returned$")
-    public void keyworkerAssignmentsRecordsAreReturned(String expectedCount) throws Throwable {
+    public void keyworkerAssignmentsRecordsAreReturned(final String expectedCount) throws Throwable {
         myAssignments.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
     }
 }

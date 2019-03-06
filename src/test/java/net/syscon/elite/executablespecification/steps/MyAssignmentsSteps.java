@@ -5,7 +5,6 @@ import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -20,7 +19,7 @@ public class MyAssignmentsSteps extends CommonSteps {
     @Step("Retrieve my assignments")
     public void getMyAssignments() {
         init();
-        ResponseEntity<List<OffenderBooking>> response = restTemplate.exchange(API_MY_ASSIGNMENTS_URL,
+        final var response = restTemplate.exchange(API_MY_ASSIGNMENTS_URL,
                 HttpMethod.GET, createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<OffenderBooking>>() {});
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

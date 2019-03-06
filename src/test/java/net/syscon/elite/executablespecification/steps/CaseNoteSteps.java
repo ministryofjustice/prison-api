@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.List;
@@ -83,9 +82,9 @@ public class CaseNoteSteps extends CommonSteps {
     }
 
     @Step("Create case note")
-    public CaseNote createCaseNote(Long bookingId, NewCaseNote newCaseNote) {
+    public CaseNote createCaseNote(final Long bookingId, final NewCaseNote newCaseNote) {
         pendingCaseNote = newCaseNote;
-        Long caseNoteId = dispatchCreateRequest(bookingId, newCaseNote);
+        final var caseNoteId = dispatchCreateRequest(bookingId, newCaseNote);
 
         if (caseNoteId != null) {
             dispatchGetRequest(bookingId, caseNoteId);
@@ -97,7 +96,7 @@ public class CaseNoteSteps extends CommonSteps {
     }
 
     @Step("Update case note")
-    public CaseNote updateCaseNote(CaseNote originalCaseNote, UpdateCaseNote updatedCaseNote) {
+    public CaseNote updateCaseNote(final CaseNote originalCaseNote, final UpdateCaseNote updatedCaseNote) {
         dispatchUpdateRequest(originalCaseNote.getBookingId(), originalCaseNote.getCaseNoteId(), updatedCaseNote);
         dispatchGetRequest(originalCaseNote.getBookingId(), originalCaseNote.getCaseNoteId());
 
@@ -105,70 +104,70 @@ public class CaseNoteSteps extends CommonSteps {
     }
 
     @Step("Get case notes")
-    public void getCaseNotes(Long bookingId) {
+    public void getCaseNotes(final Long bookingId) {
         dispatchQueryRequest(bookingId);
     }
 
     @Step("Get case note")
-    public CaseNote getCaseNote(long bookingId, long caseNoteId) {
+    public CaseNote getCaseNote(final long bookingId, final long caseNoteId) {
         dispatchGetRequest(bookingId, caseNoteId);
 
         return caseNote;
     }
 
     @Step("Get case note count")
-    public void getCaseNoteCount(long bookingId, String type, String subType, String fromDate, String toDate) {
+    public void getCaseNoteCount(final long bookingId, final String type, final String subType, final String fromDate, final String toDate) {
         dispatchGetCaseNoteCountRequest(bookingId, type, subType, fromDate, toDate);
     }
 
     @Step("Get case note usage")
-    public void getCaseNoteUsage(String offenderNos, String staffId, String agencyId, String type, String subType, String fromDate, String toDate) {
+    public void getCaseNoteUsage(final String offenderNos, final String staffId, final String agencyId, final String type, final String subType, final String fromDate, final String toDate) {
         dispatchGetCaseNoteUsageRequest(offenderNos, staffId, agencyId, type, subType, fromDate, toDate);
     }
 
     @Step("Get case note staff usage")
-    public void getCaseNoteStaffUsage(String staffIds, String type, String subType, String fromDate, String toDate) {
+    public void getCaseNoteStaffUsage(final String staffIds, final String type, final String subType, final String fromDate, final String toDate) {
         dispatchGetCaseNoteStaffUsageRequest(staffIds, type, subType, fromDate, toDate);
     }
 
     @Step("Verify case note types")
-    public void verifyCaseNoteTypes(String caseNoteTypes) {
+    public void verifyCaseNoteTypes(final String caseNoteTypes) {
         verifyPropertyValues(caseNotes, CaseNote::getType, caseNoteTypes);
     }
 
     @Step("Verify case note sub types")
-    public void verifyCaseNoteSubTypes(String caseNoteSubTypes) {
+    public void verifyCaseNoteSubTypes(final String caseNoteSubTypes) {
         verifyPropertyValues(caseNotes, CaseNote::getSubType, caseNoteSubTypes);
     }
 
     @Step("Verify case note count response property value")
-    public void verifyCaseNoteCountPropertyValue(String propertyName, String expectedValue) throws Exception {
+    public void verifyCaseNoteCountPropertyValue(final String propertyName, final String expectedValue) throws Exception {
         verifyPropertyValue(caseNoteCount, propertyName, expectedValue);
     }
 
     @Step("Verify case note usage response property value")
-    public void verifyCaseNoteUsagePropertyValue(String propertyName, String expectedValue) throws Exception {
+    public void verifyCaseNoteUsagePropertyValue(final String propertyName, final String expectedValue) throws Exception {
         verifyPropertyValue(caseNoteUsage, propertyName, expectedValue);
     }
 
     @Step("Verify case note staff usage response property value")
-    public void verifyCaseNoteStaffUsagePropertyValue(String propertyName, String expectedValue) throws Exception {
+    public void verifyCaseNoteStaffUsagePropertyValue(final String propertyName, final String expectedValue) throws Exception {
         verifyPropertyValue(caseNoteStaffUsage, propertyName, expectedValue);
     }
 
     @Step("Verify case note usage size")
-    public void verifyCaseNoteUsageSize(int size) {
+    public void verifyCaseNoteUsageSize(final int size) {
         assertEquals(caseNoteUsageList.size(), size);
     }
 
     @Step("Verify case note usage size")
-    public void verifyCaseNoteStaffUsageSize(int size) {
+    public void verifyCaseNoteStaffUsageSize(final int size) {
         assertEquals(caseNoteStaffUsageList.size(), size);
     }
 
 
     @Step("Apply case note type filter")
-    public void applyCaseNoteTypeFilter(String caseNoteType) {
+    public void applyCaseNoteTypeFilter(final String caseNoteType) {
         if (StringUtils.isNotBlank(caseNoteType)) {
             if (StringUtils.isNotBlank(caseNoteFilter)) {
                 caseNoteFilter += ",and:";
@@ -179,7 +178,7 @@ public class CaseNoteSteps extends CommonSteps {
     }
 
     @Step("Apply case note sub type filter")
-    public void applyCaseNoteSubTypeFilter(String caseNoteSubType) {
+    public void applyCaseNoteSubTypeFilter(final String caseNoteSubType) {
         if (StringUtils.isNotBlank(caseNoteSubType)) {
             if (StringUtils.isNotBlank(caseNoteFilter)) {
                 caseNoteFilter += ",and:";
@@ -190,7 +189,7 @@ public class CaseNoteSteps extends CommonSteps {
     }
 
     @Step("Apply case note agency filter")
-    public void applyAgencyFilter(String agencyId) {
+    public void applyAgencyFilter(final String agencyId) {
         if (StringUtils.isNotBlank(agencyId)) {
             if (StringUtils.isNotBlank(caseNoteFilter)) {
                 caseNoteFilter += ",and:";
@@ -202,30 +201,30 @@ public class CaseNoteSteps extends CommonSteps {
 
 
     @Step("Apply date from filter")
-    public void applyDateFromFilter(String dateFrom) {
+    public void applyDateFromFilter(final String dateFrom) {
         if (StringUtils.isNotBlank(dateFrom)) {
             fromDate = dateFrom;
         }
     }
 
     @Step("Apply date to filter")
-    public void applyDateToFilter(String dateTo) {
+    public void applyDateToFilter(final String dateTo) {
         if (StringUtils.isNotBlank(dateTo)) {
             toDate = dateTo;
         }
     }
 
-    private Long dispatchCreateRequest(Long bookingId, NewCaseNote caseNote) {
+    private Long dispatchCreateRequest(final Long bookingId, final NewCaseNote caseNote) {
         Long caseNoteId;
 
         try {
-            ResponseEntity<CaseNote> response = restTemplate.exchange(API_REQUEST_BASE_URL, HttpMethod.POST, createEntity(caseNote),
+            final var response = restTemplate.exchange(API_REQUEST_BASE_URL, HttpMethod.POST, createEntity(caseNote),
                     CaseNote.class, bookingId);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
             caseNoteId = response.getBody().getCaseNoteId();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
 
             caseNoteId = null;
@@ -234,31 +233,31 @@ public class CaseNoteSteps extends CommonSteps {
         return caseNoteId;
     }
 
-    private void dispatchGetRequest(Long bookingId, Long caseNoteId) {
+    private void dispatchGetRequest(final Long bookingId, final Long caseNoteId) {
         try {
-            ResponseEntity<CaseNote> response = restTemplate.exchange(API_REQUEST_FOR_CASENOTE, HttpMethod.GET,
+            final var response = restTemplate.exchange(API_REQUEST_FOR_CASENOTE, HttpMethod.GET,
                     createEntity(), CaseNote.class, bookingId, caseNoteId);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             caseNote = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void dispatchUpdateRequest(Long bookingId, Long caseNoteId, UpdateCaseNote caseNote) {
+    private void dispatchUpdateRequest(final Long bookingId, final Long caseNoteId, final UpdateCaseNote caseNote) {
         try {
-            ResponseEntity<CaseNote> response = restTemplate.exchange(API_REQUEST_FOR_CASENOTE, HttpMethod.PUT,
+            final var response = restTemplate.exchange(API_REQUEST_FOR_CASENOTE, HttpMethod.PUT,
                     createEntity(caseNote), CaseNote.class, bookingId, caseNoteId);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void dispatchQueryRequest(Long bookingId) {
+    private void dispatchQueryRequest(final Long bookingId) {
         caseNotes = null;
 
-        String queryUrl = API_REQUEST_BASE_URL + buildQuery(caseNoteFilter);
+        var queryUrl = API_REQUEST_BASE_URL + buildQuery(caseNoteFilter);
 
         if (StringUtils.isNotBlank(fromDate)) {
             queryUrl += "&from=" + fromDate;
@@ -269,22 +268,22 @@ public class CaseNoteSteps extends CommonSteps {
         }
 
         try {
-            ResponseEntity<List<CaseNote>> response = restTemplate.exchange(queryUrl, HttpMethod.GET,
+            final var response = restTemplate.exchange(queryUrl, HttpMethod.GET,
                     createEntity(null, addPaginationHeaders()), new ParameterizedTypeReference<List<CaseNote>>() {
                     }, bookingId);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             buildResourceData(response);
             caseNotes = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void dispatchGetCaseNoteCountRequest(Long bookingId, String type, String subType, String fromDate, String toDate) {
+    private void dispatchGetCaseNoteCountRequest(final Long bookingId, final String type, final String subType, final String fromDate, final String toDate) {
         init();
 
-        String urlModifier = "";
+        var urlModifier = "";
 
         if (StringUtils.isNotBlank(fromDate)) {
             urlModifier += (FROM_DATE_QUERY_PARAM_PREFIX + fromDate);
@@ -298,10 +297,10 @@ public class CaseNoteSteps extends CommonSteps {
             urlModifier = "?" + urlModifier.substring(1);
         }
 
-        String url = API_REQUEST_FOR_CASENOTE_COUNT + urlModifier;
+        final var url = API_REQUEST_FOR_CASENOTE_COUNT + urlModifier;
 
         try {
-            ResponseEntity<CaseNoteCount> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     createEntity(),
@@ -313,18 +312,18 @@ public class CaseNoteSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
             caseNoteCount = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void dispatchGetCaseNoteUsageRequest(String offenderNos, String staffId, String agencyId, String type, String subType, String fromDate, String toDate) {
+    private void dispatchGetCaseNoteUsageRequest(final String offenderNos, final String staffId, final String agencyId, final String type, final String subType, final String fromDate, final String toDate) {
         init();
 
-        final StringBuilder queryBuilder = new StringBuilder();
+        final var queryBuilder = new StringBuilder();
 
         if (StringUtils.isNotBlank(offenderNos)) {
-            List<String> nos = Arrays.asList(offenderNos.split(","));
+            final var nos = Arrays.asList(offenderNos.split(","));
             nos.forEach(offenderNo -> queryBuilder.append(OFFENDER_NOS_QUERY_PARAM_PREFIX).append(offenderNo));
         }
 
@@ -338,16 +337,16 @@ public class CaseNoteSteps extends CommonSteps {
 
         setQueryParams(type, subType, fromDate, toDate, queryBuilder);
 
-        String urlModifier = "";
+        var urlModifier = "";
 
         if (queryBuilder.length() > 0) {
             urlModifier = "?" + queryBuilder.substring(1);
         }
 
-        String url = API_REQUEST_FOR_CASENOTE_USAGE + urlModifier;
+        final var url = API_REQUEST_FOR_CASENOTE_USAGE + urlModifier;
 
         try {
-            ResponseEntity<List<CaseNoteUsage>> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     createEntity(),
@@ -357,33 +356,33 @@ public class CaseNoteSteps extends CommonSteps {
 
             caseNoteUsageList = response.getBody();
             caseNoteUsage = caseNoteUsageList.isEmpty() ? null : caseNoteUsageList.get(0);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void dispatchGetCaseNoteStaffUsageRequest(String staffIds, String type, String subType, String fromDate, String toDate) {
+    private void dispatchGetCaseNoteStaffUsageRequest(final String staffIds, final String type, final String subType, final String fromDate, final String toDate) {
         init();
 
-        final StringBuilder queryBuilder = new StringBuilder();
+        final var queryBuilder = new StringBuilder();
 
         if (StringUtils.isNotBlank(staffIds)) {
-            List<String> ids = Arrays.asList(staffIds.split(","));
+            final var ids = Arrays.asList(staffIds.split(","));
             ids.forEach(staffId -> queryBuilder.append(STAFF_IDS_QUERY_PARAM_PREFIX).append(staffId));
         }
 
         setQueryParams(type, subType, fromDate, toDate, queryBuilder);
 
-        String urlModifier = "";
+        var urlModifier = "";
 
         if (queryBuilder.length() > 0) {
             urlModifier = "?" + queryBuilder.substring(1);
         }
 
-        String url = API_REQUEST_FOR_CASENOTE_STAFF_USAGE + urlModifier;
+        final var url = API_REQUEST_FOR_CASENOTE_STAFF_USAGE + urlModifier;
 
         try {
-            ResponseEntity<List<CaseNoteStaffUsage>> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     url,
                     HttpMethod.GET,
                     createEntity(),
@@ -393,12 +392,12 @@ public class CaseNoteSteps extends CommonSteps {
 
             caseNoteStaffUsageList = response.getBody();
             caseNoteStaffUsage = caseNoteStaffUsageList.isEmpty() ? null : caseNoteStaffUsageList.get(0);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void setQueryParams(String type, String subType, String fromDate, String toDate, StringBuilder queryBuilder) {
+    private void setQueryParams(final String type, final String subType, final String fromDate, final String toDate, final StringBuilder queryBuilder) {
         if (StringUtils.isNotBlank(type)) {
             queryBuilder.append(CASENOTE_TYPE_QUERY_PARAM_PREFIX).append(type);
         }

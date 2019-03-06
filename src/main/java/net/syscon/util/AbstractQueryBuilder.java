@@ -28,7 +28,7 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
     protected DatabaseDialect dialect;
     protected boolean removeSpecialChars;
 
-    protected AbstractQueryBuilder(String initialSQL, Map<String, FieldMapper> fieldMap, DatabaseDialect dialect) {
+    protected AbstractQueryBuilder(final String initialSQL, final Map<String, FieldMapper> fieldMap, final DatabaseDialect dialect) {
         this.initialSQL = initialSQL;
         this.dialect = dialect;
         this.fieldMap = fieldMap;
@@ -76,15 +76,15 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
     @Override
     public IQueryBuilder addQuery(final String query) {
         if (StringUtils.isNotBlank(query)) {
-            List<String> queryTerms = new ArrayList<>();
+            final List<String> queryTerms = new ArrayList<>();
 
-            List<String> queryList = QueryUtil.checkPrecedencyAndSplit(query, new ArrayList<>());
+            final var queryList = QueryUtil.checkPrecedencyAndSplit(query, new ArrayList<>());
 
             queryList.stream()
                     .filter(StringUtils::isNotBlank)
                     .forEach(queryItem -> {
                         if (queryItem.contains("(") && queryItem.contains(")")) {
-                            String modifiedQueryItem = queryItem
+                            final var modifiedQueryItem = queryItem
                                     .replace("(", "")
                                     .replace(")", "");
 
@@ -94,7 +94,7 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
                         }
                     });
 
-            String fullQuery = StringUtils.normalizeSpace(StringUtils.join(queryTerms, " "));
+            final var fullQuery = StringUtils.normalizeSpace(StringUtils.join(queryTerms, " "));
 
             if (fullQuery.startsWith("AND ")) {
                 extraWhere.append(fullQuery.substring(4));
@@ -107,7 +107,7 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
     }
 
     @Override
-    public IQueryBuilder addWhereClause(String whereClause) {
+    public IQueryBuilder addWhereClause(final String whereClause) {
         if (StringUtils.isNotBlank(whereClause)) {
 
             if (whereClause.startsWith("AND ")) {
@@ -123,7 +123,7 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
     }
 
     @Override
-    public IQueryBuilder addOrderBy(boolean isAscending, String fields) {
+    public IQueryBuilder addOrderBy(final boolean isAscending, final String fields) {
 
         if (extraOrderBy.length() > 0) {
             extraOrderBy += ", ";
@@ -139,16 +139,16 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
     }
 
     @Override
-    public IQueryBuilder addOrderBy(Order order, String fields) {
+    public IQueryBuilder addOrderBy(final Order order, final String fields) {
         return addOrderBy(Order.ASC == order, fields);
     }
 
     @Override
-    public IQueryBuilder addOrderBy(PageRequest pageRequest) {
+    public IQueryBuilder addOrderBy(final PageRequest pageRequest) {
         return addOrderBy(pageRequest.isAscendingOrder(), pageRequest.getOrderBy());
     }
 
-    private SQLKeyword addOrderDirection(boolean isAscending) {
+    private SQLKeyword addOrderDirection(final boolean isAscending) {
         return isAscending ? SQLKeyword.ASC : SQLKeyword.DESC;
     }
 
@@ -164,15 +164,15 @@ public abstract class AbstractQueryBuilder implements IQueryBuilder {
     }
 
     protected Optional<SQLKeyword> getStatementType() {
-        String modifiedSQL = initialSQL.toUpperCase()
+        final var modifiedSQL = initialSQL.toUpperCase()
                 .replace('\t', ' ')
                 .replace('\r', ' ');
 
-        String[] lines = modifiedSQL.split("\\n");
+        final var lines = modifiedSQL.split("\\n");
 
         SQLKeyword statementType = null;
 
-        for (String line : lines) {
+        for (final var line : lines) {
             if (StringUtils.startsWithIgnoreCase(line.trim(), SQLKeyword.SELECT.toString())) {
                 statementType = SQLKeyword.SELECT;
 

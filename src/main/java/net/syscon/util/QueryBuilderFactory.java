@@ -19,15 +19,15 @@ public class QueryBuilderFactory {
     private final DatabaseDialect dialect;
 
     @Autowired
-    public QueryBuilderFactory(@Value("${schema.database.dialect}") DatabaseDialect dialect) {
+    public QueryBuilderFactory(@Value("${schema.database.dialect}") final DatabaseDialect dialect) {
         this.dialect = dialect;
     }
 
-    public <T> IQueryBuilder getQueryBuilder(String initialSql, StandardBeanPropertyRowMapper<T> rowMapper) {
+    public <T> IQueryBuilder getQueryBuilder(final String initialSql, final StandardBeanPropertyRowMapper<T> rowMapper) {
         return getQueryBuilder(initialSql, rowMapper.getFieldMap());
     }
 
-    public IQueryBuilder getQueryBuilder(String initialSql, Map<String, FieldMapper> fieldMap) {
+    public IQueryBuilder getQueryBuilder(final String initialSql, final Map<String, FieldMapper> fieldMap) {
         final IQueryBuilder queryBuilder;
 
         switch(dialect) {

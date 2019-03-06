@@ -62,7 +62,7 @@ public class Assessment {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -75,7 +75,7 @@ public class Assessment {
         return bookingId;
     }
 
-    public void setBookingId(Long bookingId) {
+    public void setBookingId(final Long bookingId) {
         this.bookingId = bookingId;
     }
 
@@ -88,7 +88,7 @@ public class Assessment {
         return offenderNo;
     }
 
-    public void setOffenderNo(String offenderNo) {
+    public void setOffenderNo(final String offenderNo) {
         this.offenderNo = offenderNo;
     }
 
@@ -101,7 +101,7 @@ public class Assessment {
         return classificationCode;
     }
 
-    public void setClassificationCode(String classificationCode) {
+    public void setClassificationCode(final String classificationCode) {
         this.classificationCode = classificationCode;
     }
 
@@ -114,7 +114,7 @@ public class Assessment {
         return classification;
     }
 
-    public void setClassification(String classification) {
+    public void setClassification(final String classification) {
         this.classification = classification;
     }
 
@@ -127,7 +127,7 @@ public class Assessment {
         return assessmentCode;
     }
 
-    public void setAssessmentCode(String assessmentCode) {
+    public void setAssessmentCode(final String assessmentCode) {
         this.assessmentCode = assessmentCode;
     }
 
@@ -140,7 +140,7 @@ public class Assessment {
         return assessmentDescription;
     }
 
-    public void setAssessmentDescription(String assessmentDescription) {
+    public void setAssessmentDescription(final String assessmentDescription) {
         this.assessmentDescription = assessmentDescription;
     }
 
@@ -153,7 +153,7 @@ public class Assessment {
         return cellSharingAlertFlag;
     }
 
-    public void setCellSharingAlertFlag(boolean cellSharingAlertFlag) {
+    public void setCellSharingAlertFlag(final boolean cellSharingAlertFlag) {
         this.cellSharingAlertFlag = cellSharingAlertFlag;
     }
 
@@ -166,7 +166,7 @@ public class Assessment {
         return assessmentDate;
     }
 
-    public void setAssessmentDate(LocalDate assessmentDate) {
+    public void setAssessmentDate(final LocalDate assessmentDate) {
         this.assessmentDate = assessmentDate;
     }
 
@@ -179,13 +179,13 @@ public class Assessment {
         return nextReviewDate;
     }
 
-    public void setNextReviewDate(LocalDate nextReviewDate) {
+    public void setNextReviewDate(final LocalDate nextReviewDate) {
         this.nextReviewDate = nextReviewDate;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class Assessment {\n");
         

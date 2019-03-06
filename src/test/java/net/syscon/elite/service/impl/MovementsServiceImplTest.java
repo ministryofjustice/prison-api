@@ -1,7 +1,10 @@
 package net.syscon.elite.service.impl;
 
 import com.google.common.collect.ImmutableList;
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.Movement;
+import net.syscon.elite.api.model.OffenderInReception;
+import net.syscon.elite.api.model.OffenderMovement;
+import net.syscon.elite.api.model.OffenderOut;
 import net.syscon.elite.repository.MovementsRepository;
 import net.syscon.elite.service.MovementsService;
 import org.assertj.core.api.Assertions;
@@ -35,11 +38,11 @@ public class MovementsServiceImplTest {
 
     @Test
     public void testGetRecentMovementsByOffenders() {
-        List<Movement> movements = ImmutableList.of(Movement.builder().offenderNo(TEST_OFFENDER_NO).fromAgencyDescription("LEEDS").toAgencyDescription("BLACKBURN").build());
-        final ImmutableList<String> offenderNoList = ImmutableList.of(TEST_OFFENDER_NO);
+        final List<Movement> movements = ImmutableList.of(Movement.builder().offenderNo(TEST_OFFENDER_NO).fromAgencyDescription("LEEDS").toAgencyDescription("BLACKBURN").build());
+        final var offenderNoList = ImmutableList.of(TEST_OFFENDER_NO);
         Mockito.when(movementsRepository.getRecentMovementsByOffenders(offenderNoList,null)).thenReturn(movements);
 
-        final List<Movement> processedMovements = movementsService.getRecentMovementsByOffenders(offenderNoList, null);
+        final var processedMovements = movementsService.getRecentMovementsByOffenders(offenderNoList, null);
         Assertions.assertThat(processedMovements).extracting("toAgencyDescription").containsExactly("Blackburn");
         Assertions.assertThat(processedMovements).extracting("fromAgencyDescription").containsExactly("Leeds");
 
@@ -48,11 +51,11 @@ public class MovementsServiceImplTest {
 
     @Test
     public void testGetRecentMovementsByOffendersNullDescriptions() {
-        List<Movement> movements = ImmutableList.of(Movement.builder().offenderNo(TEST_OFFENDER_NO).build());
-        final ImmutableList<String> offenderNoList = ImmutableList.of(TEST_OFFENDER_NO);
+        final List<Movement> movements = ImmutableList.of(Movement.builder().offenderNo(TEST_OFFENDER_NO).build());
+        final var offenderNoList = ImmutableList.of(TEST_OFFENDER_NO);
         Mockito.when(movementsRepository.getRecentMovementsByOffenders(offenderNoList,null)).thenReturn(movements);
 
-        final List<Movement> processedMovements = movementsService.getRecentMovementsByOffenders(offenderNoList, null);
+        final var processedMovements = movementsService.getRecentMovementsByOffenders(offenderNoList, null);
 
         Assertions.assertThat(processedMovements.size()).isEqualTo(1);
         Assertions.assertThat(processedMovements.get(0).getFromAgencyDescription()).isEmpty();
@@ -61,7 +64,7 @@ public class MovementsServiceImplTest {
 
     @Test
     public void testGetEnrouteOffenderMovements() {
-        List<OffenderMovement> oms = ImmutableList.of(OffenderMovement.builder()
+        final List<OffenderMovement> oms = ImmutableList.of(OffenderMovement.builder()
                 .offenderNo(TEST_OFFENDER_NO)
                 .bookingId(123L).firstName("JAMES")
                 .lastName("SMITH")
@@ -70,7 +73,7 @@ public class MovementsServiceImplTest {
                 .build());
         Mockito.when(movementsRepository.getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2015, 9, 12))).thenReturn(oms);
 
-        final List<OffenderMovement> enrouteOffenderMovements = movementsService.getEnrouteOffenderMovements("LEI", LocalDate.of(2015, 9, 12));
+        final var enrouteOffenderMovements = movementsService.getEnrouteOffenderMovements("LEI", LocalDate.of(2015, 9, 12));
         Assertions.assertThat(enrouteOffenderMovements).extracting("fromAgencyDescription").contains("Leeds");
         Assertions.assertThat(enrouteOffenderMovements).extracting("toAgencyDescription").contains("Moorlands");
         Assertions.assertThat(enrouteOffenderMovements).extracting("lastName").contains("SMITH");
@@ -93,7 +96,7 @@ public class MovementsServiceImplTest {
     public void testGetEnrouteOffenderMovementsCount() {
         Mockito.when(movementsRepository.getEnrouteMovementsOffenderCount("LEI", LocalDate.of(2015, 9, 12))).thenReturn(5);
 
-        final int count = movementsService.getEnrouteOffenderCount("LEI", LocalDate.of(2015, 9, 12));
+        final var count = movementsService.getEnrouteOffenderCount("LEI", LocalDate.of(2015, 9, 12));
         Assertions.assertThat(count).isEqualTo(5);
 
         Mockito.verify(movementsRepository, Mockito.times(1)).getEnrouteMovementsOffenderCount("LEI", LocalDate.of(2015, 9, 12));
@@ -101,8 +104,8 @@ public class MovementsServiceImplTest {
 
     @Test
     public void testGetOffendersOutToday() {
-        final LocalTime timeOut = LocalTime.now();
-        List<OffenderMovement> offenders = ImmutableList.of(
+        final var timeOut = LocalTime.now();
+        final List<OffenderMovement> offenders = ImmutableList.of(
                 OffenderMovement.builder()
                         .offenderNo("1234")
                         .directionCode("OUT")
@@ -118,7 +121,7 @@ public class MovementsServiceImplTest {
 
         Mockito.when(movementsRepository.getOffendersOut("LEI", LocalDate.now())).thenReturn(offenders);
 
-        final List<OffenderOutTodayDto> offendersOutToday = movementsService.getOffendersOut("LEI", LocalDate.now());
+        final var offendersOutToday = movementsService.getOffendersOut("LEI", LocalDate.now());
 
         Assertions.assertThat(offendersOutToday).hasSize(1);
 
@@ -132,7 +135,7 @@ public class MovementsServiceImplTest {
 
     @Test
     public void testMappingToProperCase() {
-      String agency = "LEI";
+        final var agency = "LEI";
 
       Mockito.when(movementsRepository.getOffendersInReception(agency))
               .thenReturn(

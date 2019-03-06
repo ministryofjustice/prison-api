@@ -9,9 +9,7 @@ import net.syscon.elite.repository.mapping.FieldMapper;
 import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.util.DateTimeConverter;
-import net.syscon.util.IQueryBuilder;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -40,21 +38,21 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
         .build();
 
 	@Override
-	public Page<Alert> getInmateAlerts(long bookingId, String query, String orderByField, Order order, long offset, long limit) {
-		String initialSql = getQuery("FIND_INMATE_ALERTS");
-		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
+    public Page<Alert> getInmateAlerts(final long bookingId, final String query, final String orderByField, final Order order, final long offset, final long limit) {
+        final var initialSql = getQuery("FIND_INMATE_ALERTS");
+        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
 
-		String sql = builder
+        final var sql = builder
 				.addRowCount()
 				.addQuery(query)
 				.addOrderBy(order, orderByField)
 				.addPagination()
 				.build();
 
-		RowMapper<Alert> alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);
-        PageAwareRowMapper<Alert> paRowMapper = new PageAwareRowMapper<>(alertMapper);
+        final var alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);
+        final var paRowMapper = new PageAwareRowMapper<Alert>(alertMapper);
 
-        List<Alert> results = jdbcTemplate.query(
+        final var results = jdbcTemplate.query(
                 sql,
                 createParams("bookingId", bookingId, "offset", offset, "limit", limit),
                 paRowMapper);
@@ -63,11 +61,11 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 	}
 
 	@Override
-	public Optional<Alert> getInmateAlerts(long bookingId, long alertSeqId) {
-	    String initialSql = getQuery("FIND_INMATE_ALERT");
-	    IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
-	    String sql = builder.build();
-		RowMapper<Alert> alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);
+    public Optional<Alert> getInmateAlerts(final long bookingId, final long alertSeqId) {
+        final var initialSql = getQuery("FIND_INMATE_ALERT");
+        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
+        final var sql = builder.build();
+        final var alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);
 
 		Alert alert;
 
@@ -76,7 +74,7 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 			        sql,
                     createParams("bookingId", bookingId, "alertSeqId", alertSeqId),
                     alertMapper);
-		} catch (EmptyResultDataAccessException e) {
+        } catch (final EmptyResultDataAccessException e) {
 			alert = null;
 		}
 
@@ -84,9 +82,9 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 	}
 
     @Override
-    public List<Alert> getInmateAlertsByOffenderNos(String agencyId, List<String> offenderNos) {
-        final String sql = getQuery("FIND_INMATE_OFFENDERS_ALERTS");
-        RowMapper<Alert> alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);
+    public List<Alert> getInmateAlertsByOffenderNos(final String agencyId, final List<String> offenderNos) {
+        final var sql = getQuery("FIND_INMATE_OFFENDERS_ALERTS");
+        final var alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);
         return jdbcTemplate.query(
                 sql,
                 createParams(

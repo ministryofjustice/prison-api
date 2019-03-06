@@ -65,7 +65,7 @@ public class OffenderCategorise {
     @ApiModelProperty(required = true, value = "Where in the categorisation workflow the prisoner is")
     private CategorisationStatus status;
 
-    static public OffenderCategorise deriveStatus(OffenderCategorise cat) {
+    static public OffenderCategorise deriveStatus(final OffenderCategorise cat) {
         cat.status = (cat.getAssessStatus()) != null && cat.getAssessStatus().equals("P") ?
                 CategorisationStatus.AWAITING_APPROVAL : CategorisationStatus.UNCATEGORISED;
         return cat;

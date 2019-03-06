@@ -12,13 +12,13 @@ public class OracleQueryBuilder extends AbstractQueryBuilder {
 	private static final String ROW_NUM_SQL = "SELECT QRY_PAG.*, ROWNUM rnum FROM ( ";
 	private static final String OFFSET_LIMIT_SQL = " ) QRY_PAG WHERE ROWNUM <= :offset+:limit) WHERE rnum >= :offset+1";
 
-	public OracleQueryBuilder(final String initialSQL, final Map<String, FieldMapper> fieldMap, DatabaseDialect dialect) {
+    public OracleQueryBuilder(final String initialSQL, final Map<String, FieldMapper> fieldMap, final DatabaseDialect dialect) {
 		super(initialSQL, fieldMap, dialect);
 	}
 
 	public String build() {
-		StringBuilder result = new StringBuilder();
-		Optional<SQLKeyword> statementType = getStatementType();
+        var result = new StringBuilder();
+        final var statementType = getStatementType();
 
 		if (Optional.of(SQLKeyword.SELECT).equals(statementType)) {
 			// Wrap the initial Query ...
@@ -35,7 +35,7 @@ public class OracleQueryBuilder extends AbstractQueryBuilder {
 				result.append(" WHERE ").append(extraWhere);
 			}
 
-			String strOrderBy = (StringUtils.isBlank(extraOrderBy)) ? " " : " " + (SQLKeyword.ORDER_BY + " " + extraOrderBy);
+            final var strOrderBy = (StringUtils.isBlank(extraOrderBy)) ? " " : " " + (SQLKeyword.ORDER_BY + " " + extraOrderBy);
 
 			result.append(strOrderBy);
 
@@ -54,7 +54,7 @@ public class OracleQueryBuilder extends AbstractQueryBuilder {
 		return result.toString();
 	}
 
-	private void buildPaginationSql(StringBuilder result) {
+    private void buildPaginationSql(final StringBuilder result) {
 		if (dialect != DatabaseDialect.ORACLE_11) {
 			if (dialect == DatabaseDialect.POSTGRES) {
 				result.append("\nOFFSET (:offset) ROWS FETCH NEXT (:limit) ROWS ONLY");
@@ -67,7 +67,7 @@ public class OracleQueryBuilder extends AbstractQueryBuilder {
 		}
 	}
 
-	private void buildDataCountSql(StringBuilder result) {
+    private void buildDataCountSql(final StringBuilder result) {
 		result.append("SELECT QRY_ALIAS.* FROM (\n").append(initialSQL).append("\n) QRY_ALIAS\n");
 
 		if (includeRowCount) {
@@ -75,7 +75,7 @@ public class OracleQueryBuilder extends AbstractQueryBuilder {
         }
 	}
 
-	private void buildDirectRowCountSql(StringBuilder result) {
+    private void buildDirectRowCountSql(final StringBuilder result) {
 		if (includeDirectRowCount) {
 			result.append(
 					RegExUtils.replaceFirst(

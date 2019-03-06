@@ -5,7 +5,6 @@ import net.syscon.elite.test.EliteClientException;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -19,19 +18,19 @@ public class KeyWorkerAllocationSteps extends CommonSteps {
 
     private List<OffenderSummary> offenderSummaryList;
 
-    public void getUnallocatedOffendersList(String agencyId) {
+    public void getUnallocatedOffendersList(final String agencyId) {
         doListApiCall(agencyId);
     }
 
-    public void verifyAListOfUnallocatedOffendersIsReturned(int count) {
+    public void verifyAListOfUnallocatedOffendersIsReturned(final int count) {
         assertThat(offenderSummaryList).hasSize(count);
     }
 
-    private void doListApiCall(String agencyId) {
+    private void doListApiCall(final String agencyId) {
         init();
 
         try {
-            ResponseEntity<List<OffenderSummary>> response =
+            final var response =
                     restTemplate.exchange(
                             KEY_WORKER_API_URL,
                             HttpMethod.GET,
@@ -43,7 +42,7 @@ public class KeyWorkerAllocationSteps extends CommonSteps {
 
             offenderSummaryList = response.getBody();
 
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }

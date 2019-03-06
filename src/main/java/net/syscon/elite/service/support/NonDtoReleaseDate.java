@@ -19,7 +19,7 @@ public final class NonDtoReleaseDate implements Comparable<NonDtoReleaseDate> {
     private final LocalDate releaseDate;
     private final boolean isOverride;
 
-    public NonDtoReleaseDate(SentenceDetail.NonDtoReleaseDateType releaseDateType, LocalDate releaseDate, boolean isOverride) {
+    public NonDtoReleaseDate(final SentenceDetail.NonDtoReleaseDateType releaseDateType, final LocalDate releaseDate, final boolean isOverride) {
         Objects.requireNonNull(releaseDateType, "A release date type must be defined.");
         Objects.requireNonNull(releaseDate, "A release date must be defined.");
 
@@ -29,10 +29,10 @@ public final class NonDtoReleaseDate implements Comparable<NonDtoReleaseDate> {
     }
 
     @Override
-    public int compareTo(NonDtoReleaseDate otherNonDtoReleaseDate) {
-        final int HIGHER_PRIORITY = -1;
-        final int SAME_PRIORITY = 0;
-        final int LOWER_PRIORITY = 1;
+    public int compareTo(final NonDtoReleaseDate otherNonDtoReleaseDate) {
+        final var HIGHER_PRIORITY = -1;
+        final var SAME_PRIORITY = 0;
+        final var LOWER_PRIORITY = 1;
 
         // If equivalent, same priority.
         if (this == otherNonDtoReleaseDate) {

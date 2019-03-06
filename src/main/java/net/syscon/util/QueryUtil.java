@@ -1,10 +1,7 @@
 package net.syscon.util;
 
 import net.sf.jsqlparser.JSQLParserException;
-import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import net.sf.jsqlparser.statement.select.FromItem;
-import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.syscon.elite.repository.mapping.FieldMapper;
@@ -37,11 +34,11 @@ public class QueryUtil {
 	
 	public static List<String> checkPrecedencyAndSplit(final String queryInput, final List<String> queryBreak) {
 		if(queryInput.contains("(") && queryInput.contains(")")) {
-			final String beforePrecedence = queryInput.substring(0,queryInput.indexOf('(')); //It will never have precedence.
+            final var beforePrecedence = queryInput.substring(0, queryInput.indexOf('(')); //It will never have precedence.
 			queryBreak.add(beforePrecedence);
-			final String precedenceString = queryInput.substring(queryInput.indexOf('(') ,queryInput.indexOf(')')+1);// It has and identified.
+            final var precedenceString = queryInput.substring(queryInput.indexOf('('), queryInput.indexOf(')') + 1);// It has and identified.
 			queryBreak.add(precedenceString);
-			final String afterPrecedence = queryInput.substring(queryInput.indexOf(')')+1, queryInput.length());// Check it again.
+            final var afterPrecedence = queryInput.substring(queryInput.indexOf(')') + 1, queryInput.length());// Check it again.
 			checkPrecedencyAndSplit(afterPrecedence, queryBreak);
 		} else {
 			queryBreak.add(queryInput);
@@ -50,30 +47,30 @@ public class QueryUtil {
 	}
 
 	public static String prepareQuery(final String queryItem, final boolean isPrecedence, final Map<String, FieldMapper> fieldMap) {
-		final StringBuilder stringBuilder = new StringBuilder();
-		final String[] fields = queryItem.split(",");
+        final var stringBuilder = new StringBuilder();
+        final var fields = queryItem.split(",");
 
 		Arrays.stream(fields).filter(StringUtils::isNotBlank).forEach(fieldItem -> {
 			if (StringUtils.equals(fieldItem, fields[0]) && !StringUtils.startsWithAny(fieldItem, "and:", "or:")) {
 				fieldItem = "and:" + fieldItem;
 			}
 
-			final String[] operatorFieldValue = fieldItem.split(":");
-			final int size = operatorFieldValue.length;
-			
-			final String connector = size == 3 ? "" : operatorFieldValue[0]; // Get Real SQL Operator From Enum
-			final String fieldName = size == 3 ? operatorFieldValue[0] : operatorFieldValue[1];// Get Field Name form Field Mapper
-			final String operator = size == 3 ? operatorFieldValue[1] : operatorFieldValue[2];// Get Real SQL Operator From Enum
-			String value = size == 3 ? operatorFieldValue[2] : operatorFieldValue[3];// Supply it as it is.
-			final String format = size == 5 ? operatorFieldValue[4] : "";
+            final var operatorFieldValue = fieldItem.split(":");
+            final var size = operatorFieldValue.length;
+
+            final var connector = size == 3 ? "" : operatorFieldValue[0]; // Get Real SQL Operator From Enum
+            final var fieldName = size == 3 ? operatorFieldValue[0] : operatorFieldValue[1];// Get Field Name form Field Mapper
+            final var operator = size == 3 ? operatorFieldValue[1] : operatorFieldValue[2];// Get Real SQL Operator From Enum
+            var value = size == 3 ? operatorFieldValue[2] : operatorFieldValue[3];// Supply it as it is.
+            final var format = size == 5 ? operatorFieldValue[4] : "";
 			
 			if (value != null && (value.contains("|") || QueryOperator.IN.name().equalsIgnoreCase(getSqlOperator(operator)))) {
 				value = "(" + value.replaceAll("\\|", ",") + ")";
 			}
 
-			String sqlFieldName = getSqlFieldName(fieldMap, fieldName);
-			FieldMapper fieldMapper = fieldMap.get(sqlFieldName);
-			String encodedValue = fieldMapper.getEncodedValue(value);
+            final var sqlFieldName = getSqlFieldName(fieldMap, fieldName);
+            final var fieldMapper = fieldMap.get(sqlFieldName);
+            final var encodedValue = fieldMapper.getEncodedValue(value);
 
 			stringBuilder.append(" ")
 				.append(StringUtils.isNotBlank(connector) ? getSqlOperator(connector) : "")
@@ -95,25 +92,25 @@ public class QueryUtil {
 
 	public static String getCriteriaFromQuery(final String sql) {
 		try {
-            Select select = (Select) CCJSqlParserUtil.parse(sql);
-            PlainSelect pl = (PlainSelect) select.getSelectBody();
+            final var select = (Select) CCJSqlParserUtil.parse(sql);
+            final var pl = (PlainSelect) select.getSelectBody();
 
-            StringBuilder criteria = new StringBuilder();
-            final FromItem fromItem = pl.getFromItem();
+            final var criteria = new StringBuilder();
+            final var fromItem = pl.getFromItem();
             criteria.append("FROM ").append(fromItem.toString());
 
-            final List<Join> joins = pl.getJoins();
+            final var joins = pl.getJoins();
             if (joins != null) {
                 criteria.append(" ").append(StringUtils.join(joins, " "));
             }
 
-            final Expression whereExp = pl.getWhere();
+            final var whereExp = pl.getWhere();
             if (whereExp != null) {
                 criteria.append(" WHERE ").append(whereExp.toString());
             }
             return criteria.toString();
 
-        } catch (JSQLParserException e) {
+        } catch (final JSQLParserException e) {
 		    throw new InvalidDataAccessResourceUsageException(sql, e);
         }
 	}
@@ -124,18 +121,18 @@ public class QueryUtil {
 	 * @param dateValue ISO-8601 string representation of date - e.g. '2017-04-23'.
 	 * @return SQL conversion of date string to date type - e.g. {@code TO_DATE('2017-04-23', 'YYYY-MM-DD')}.
 	 */
-	public static String convertToDate(String dateValue) {
+    public static String convertToDate(final String dateValue) {
 		return convertToDate(dateValue, DateTimeConverter.ISO_LOCAL_DATE_FORMAT_PATTERN);
 	}
 
 	// Assumes use for date formatting only - with proposed deprecation of API that uses generic query format, a more
 	// sophisticated implementation is not worthwhile.
-	private static String applyFormat(String value, String format) {
+    private static String applyFormat(final String value, final String format) {
 		// If value already 'converted' to date or there is no format specified, just return value, otherwise apply format.
 		return (value.startsWith("TO_DATE") || StringUtils.isBlank(format)) ? value : convertToDate(value, format);
 	}
 
-	private static String convertToDate(String dateValue, String dateFormat) {
+    private static String convertToDate(final String dateValue, final String dateFormat) {
 		if (StringUtils.isBlank(dateValue)) {
 			throw new IllegalArgumentException("dateValue must be provided");
 		}
@@ -144,8 +141,8 @@ public class QueryUtil {
 			throw new IllegalArgumentException("dateFormat must be provided");
 		}
 
-		String quotedDateValue = StringUtils.appendIfMissing(StringUtils.prependIfMissing(dateValue, "'"), "'");
-		String quotedDateFormat = StringUtils.appendIfMissing(StringUtils.prependIfMissing(dateFormat, "'"), "'");
+        final var quotedDateValue = StringUtils.appendIfMissing(StringUtils.prependIfMissing(dateValue, "'"), "'");
+        final var quotedDateFormat = StringUtils.appendIfMissing(StringUtils.prependIfMissing(dateFormat, "'"), "'");
 
 		return "TO_DATE("+ quotedDateValue + ", " + quotedDateFormat + ")";
 	}

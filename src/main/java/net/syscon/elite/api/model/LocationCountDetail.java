@@ -48,7 +48,7 @@ public class LocationCountDetail {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -61,7 +61,7 @@ public class LocationCountDetail {
         return conductByUserId;
     }
 
-    public void setConductByUserId(Long conductByUserId) {
+    public void setConductByUserId(final Long conductByUserId) {
         this.conductByUserId = conductByUserId;
     }
 
@@ -74,7 +74,7 @@ public class LocationCountDetail {
         return enteredByUserId;
     }
 
-    public void setEnteredByUserId(Long enteredByUserId) {
+    public void setEnteredByUserId(final Long enteredByUserId) {
         this.enteredByUserId = enteredByUserId;
     }
 
@@ -87,7 +87,7 @@ public class LocationCountDetail {
         return inmateCount;
     }
 
-    public void setInmateCount(Integer inmateCount) {
+    public void setInmateCount(final Integer inmateCount) {
         this.inmateCount = inmateCount;
     }
 
@@ -100,7 +100,7 @@ public class LocationCountDetail {
         return countReasonCode;
     }
 
-    public void setCountReasonCode(String countReasonCode) {
+    public void setCountReasonCode(final String countReasonCode) {
         this.countReasonCode = countReasonCode;
     }
 
@@ -113,13 +113,13 @@ public class LocationCountDetail {
         return comment;
     }
 
-    public void setComment(String comment) {
+    public void setComment(final String comment) {
         this.comment = comment;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class LocationCountDetail {\n");
         

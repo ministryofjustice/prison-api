@@ -51,7 +51,7 @@ public class CaseNoteCount {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -64,7 +64,7 @@ public class CaseNoteCount {
         return bookingId;
     }
 
-    public void setBookingId(Long bookingId) {
+    public void setBookingId(final Long bookingId) {
         this.bookingId = bookingId;
     }
 
@@ -77,7 +77,7 @@ public class CaseNoteCount {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(final String type) {
         this.type = type;
     }
 
@@ -90,7 +90,7 @@ public class CaseNoteCount {
         return subType;
     }
 
-    public void setSubType(String subType) {
+    public void setSubType(final String subType) {
         this.subType = subType;
     }
 
@@ -103,7 +103,7 @@ public class CaseNoteCount {
         return count;
     }
 
-    public void setCount(Long count) {
+    public void setCount(final Long count) {
         this.count = count;
     }
 
@@ -116,7 +116,7 @@ public class CaseNoteCount {
         return fromDate;
     }
 
-    public void setFromDate(LocalDate fromDate) {
+    public void setFromDate(final LocalDate fromDate) {
         this.fromDate = fromDate;
     }
 
@@ -129,13 +129,13 @@ public class CaseNoteCount {
         return toDate;
     }
 
-    public void setToDate(LocalDate toDate) {
+    public void setToDate(final LocalDate toDate) {
         this.toDate = toDate;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class CaseNoteCount {\n");
         

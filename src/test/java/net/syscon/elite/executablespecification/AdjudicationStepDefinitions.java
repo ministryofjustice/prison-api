@@ -23,13 +23,13 @@ public class AdjudicationStepDefinitions extends AbstractStepDefinitions {
     private AdjudicationSteps adjudicationSteps;
 
     @When("^adjudication details with booking id ([0-9-]+) is requested$")
-    public void withBookingId(Long id) {
+    public void withBookingId(final Long id) {
         adjudicationSteps.setIndex(0);
         adjudicationSteps.getAwards(id, null, null);
     }
 
     @When("^adjudication details with booking id ([0-9-]+), award cutoff date \"([^\"]*)\" and adjudication cutoff date \"([^\"]*)\" is requested$")
-    public void withBookingId(Long id, String awardCutoffDate, String adjudicationCutoffDate) {
+    public void withBookingId(final Long id, final String awardCutoffDate, final String adjudicationCutoffDate) {
         adjudicationSteps.setIndex(0);
         adjudicationSteps.getAwards(id, awardCutoffDate, adjudicationCutoffDate);
     }
@@ -40,22 +40,22 @@ public class AdjudicationStepDefinitions extends AbstractStepDefinitions {
     }
 
     @Then("^the adjudication count is ([0-9-]+)")
-    public void theAdjudicationCountIs(Integer value) throws Throwable {
+    public void theAdjudicationCountIs(final Integer value) throws Throwable {
         adjudicationSteps.verifyAdjudicationCount(value);
     }
 
     @Then("^the award (\\w+) is \"([^\"]*)\"$")
-    public void theAwardsFieldIs(String field, String value) throws Throwable {
+    public void theAwardsFieldIs(final String field, final String value) throws Throwable {
         adjudicationSteps.verifyAwardField(field, value);
     }
 
     @Then("^there are ([0-9]+) awards$")
-    public void awardsNumber(Integer n) throws Throwable {
+    public void awardsNumber(final Integer n) throws Throwable {
         adjudicationSteps.verifyAwardsNumber(n);
     }
 
     @Then("^the award result list is as follows:$")
-    public void awardResultListIsAsFollows(@Format("yyyy-MM-dd") List<Award> list) throws Throwable {
+    public void awardResultListIsAsFollows(@Format("yyyy-MM-dd") final List<Award> list) throws Throwable {
         adjudicationSteps.verifyAwards(list);
     }
 

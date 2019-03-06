@@ -16,62 +16,62 @@ public class MovementResourceImpl implements MovementResource {
 
     private final MovementsService movementsService;
 
-    public MovementResourceImpl(MovementsService movementsService) {
+    public MovementResourceImpl(final MovementsService movementsService) {
         this.movementsService = movementsService;
     }
 
     @Override
-    public List<Movement> getRecentMovementsByDate(LocalDateTime fromDateTime, LocalDate movementDate, String agencyId) {
+    public List<Movement> getRecentMovementsByDate(final LocalDateTime fromDateTime, final LocalDate movementDate, final String agencyId) {
         return movementsService.getRecentMovementsByDate(fromDateTime, movementDate);
     }
 
     @Override
-    public List<RollCount> getRollcount(String agencyId, boolean unassigned) {
+    public List<RollCount> getRollcount(final String agencyId, final boolean unassigned) {
         return movementsService.getRollCount(agencyId, unassigned);
     }
 
     @Override
-    public MovementCount getRollcountMovements(String agencyId, LocalDate movementDate) {
+    public MovementCount getRollcountMovements(final String agencyId, final LocalDate movementDate) {
         return movementsService.getMovementCount(agencyId, movementDate);
     }
 
     @Override
-    public List<OffenderIn> getMovementsIn(String agencyId, LocalDate date) {
+    public List<OffenderIn> getMovementsIn(final String agencyId, final LocalDate date) {
         return movementsService.getOffendersIn(agencyId, date);
     }
 
     @Override
-    public List<Movement> getRecentMovementsByOffenders(List<String> offenderNumbers, List<String> movementTypes) {
+    public List<Movement> getRecentMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes) {
         return movementsService.getRecentMovementsByOffenders(offenderNumbers, movementTypes);
     }
 
     @Override
-    public List<OffenderMovement> getEnrouteOffenderMovements(String agencyId, LocalDate movementDate) {
+    public List<OffenderMovement> getEnrouteOffenderMovements(final String agencyId, final LocalDate movementDate) {
         return movementsService.getEnrouteOffenderMovements(agencyId, movementDate);
     }
 
     @Override
-    public int getEnrouteOffenderMovementCount(String agencyId, LocalDate movementDate) {
+    public int getEnrouteOffenderMovementCount(final String agencyId, final LocalDate movementDate) {
         return movementsService.getEnrouteOffenderCount(agencyId, movementDate);
     }
 
     @Override
-    public List<OffenderOutTodayDto> getOffendersOutToday(String agencyId, LocalDate movementsDate) {
+    public List<OffenderOutTodayDto> getOffendersOutToday(final String agencyId, final LocalDate movementsDate) {
         return movementsService.getOffendersOut(agencyId, movementsDate);
     }
 
     @Override
-    public List<OffenderInReception> getOffendersInReception(String agencyId) {
+    public List<OffenderInReception> getOffendersInReception(final String agencyId) {
         return movementsService.getOffendersInReception(agencyId);
     }
 
     @Override
-    public List<OffenderOut> getOffendersCurrentlyOut(Long livingUnitId) {
+    public List<OffenderOut> getOffendersCurrentlyOut(final Long livingUnitId) {
         return movementsService.getOffendersCurrentlyOut(livingUnitId);
     }
 
     @Override
-    public List<OffenderOut> getOffendersCurrentlyOut(String agencyId) {
+    public List<OffenderOut> getOffendersCurrentlyOut(final String agencyId) {
         return movementsService.getOffendersCurrentlyOut(agencyId);
     }
 }

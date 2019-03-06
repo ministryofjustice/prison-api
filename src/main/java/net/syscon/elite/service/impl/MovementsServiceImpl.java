@@ -23,19 +23,19 @@ public class MovementsServiceImpl implements MovementsService {
     private final MovementsRepository movementsRepository;
 
 
-    public MovementsServiceImpl(MovementsRepository movementsRepository) {
+    public MovementsServiceImpl(final MovementsRepository movementsRepository) {
         this.movementsRepository = movementsRepository;
     }
 
     @Override
     @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
-    public List<Movement> getRecentMovementsByDate(LocalDateTime fromDateTime, LocalDate movementDate) {
+    public List<Movement> getRecentMovementsByDate(final LocalDateTime fromDateTime, final LocalDate movementDate) {
         return movementsRepository.getRecentMovementsByDate(fromDateTime, movementDate);
     }
 
     @Override
     @PreAuthorize("hasAnyRole('SYSTEM_USER', 'SYSTEM_READ_ONLY', 'GLOBAL_SEARCH')")
-    public List<Movement> getRecentMovementsByOffenders(List<String> offenderNumbers, List<String> movementTypes) {
+    public List<Movement> getRecentMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes) {
         final var movements = movementsRepository.getRecentMovementsByOffenders(offenderNumbers, movementTypes);
 
         return movements.stream().map(movement -> movement.toBuilder()
@@ -49,19 +49,19 @@ public class MovementsServiceImpl implements MovementsService {
 
     @Override
     @VerifyAgencyAccess
-    public List<RollCount> getRollCount(String agencyId, boolean unassigned) {
+    public List<RollCount> getRollCount(final String agencyId, final boolean unassigned) {
         return movementsRepository.getRollCount(agencyId, unassigned ? "N" : "Y");
     }
 
     @Override
     @VerifyAgencyAccess
-    public MovementCount getMovementCount(String agencyId, LocalDate date) {
+    public MovementCount getMovementCount(final String agencyId, final LocalDate date) {
         return movementsRepository.getMovementCount(agencyId, date == null ? LocalDate.now() : date);
     }
 
     @Override
     @VerifyAgencyAccess
-    public List<OffenderOutTodayDto> getOffendersOut(String agencyId, LocalDate movementDate) {
+    public List<OffenderOutTodayDto> getOffendersOut(final String agencyId, final LocalDate movementDate) {
 
        final var offenders = movementsRepository.getOffendersOut(agencyId, movementDate);
 
@@ -71,7 +71,7 @@ public class MovementsServiceImpl implements MovementsService {
                 .collect(Collectors.toList());
     }
 
-    private OffenderOutTodayDto toOffenderOutTodayDto(OffenderMovement offenderMovement) {
+    private OffenderOutTodayDto toOffenderOutTodayDto(final OffenderMovement offenderMovement) {
         return OffenderOutTodayDto
                 .builder()
                 .dateOfBirth(offenderMovement.getDateOfBirth())
@@ -85,7 +85,7 @@ public class MovementsServiceImpl implements MovementsService {
 
     @Override
     @VerifyAgencyAccess
-    public List<OffenderMovement> getEnrouteOffenderMovements(String agencyId, LocalDate date) {
+    public List<OffenderMovement> getEnrouteOffenderMovements(final String agencyId, final LocalDate date) {
 
         final var movements = movementsRepository.getEnrouteMovementsOffenderMovementList(agencyId, date);
 
@@ -98,14 +98,14 @@ public class MovementsServiceImpl implements MovementsService {
     }
 
     @Override
-    public int getEnrouteOffenderCount(String agencyId, LocalDate date) {
-        final LocalDate defaultedDate = date == null ? LocalDate.now() : date;
+    public int getEnrouteOffenderCount(final String agencyId, final LocalDate date) {
+        final var defaultedDate = date == null ? LocalDate.now() : date;
         return movementsRepository.getEnrouteMovementsOffenderCount(agencyId, defaultedDate);
     }
 
     @Override
     @VerifyAgencyAccess
-    public List<OffenderIn> getOffendersIn(String agencyId, LocalDate date) {
+    public List<OffenderIn> getOffendersIn(final String agencyId, final LocalDate date) {
         final var offendersIn = movementsRepository.getOffendersIn(agencyId, date);
 
         return offendersIn
@@ -123,7 +123,7 @@ public class MovementsServiceImpl implements MovementsService {
 
     @Override
     @VerifyAgencyAccess
-    public List<OffenderInReception> getOffendersInReception(String agencyId) {
+    public List<OffenderInReception> getOffendersInReception(final String agencyId) {
         return movementsRepository.getOffendersInReception(agencyId)
                 .stream()
                 .map(offender -> offender.toBuilder()
@@ -134,7 +134,7 @@ public class MovementsServiceImpl implements MovementsService {
     }
 
     @Override
-    public List<OffenderOut> getOffendersCurrentlyOut(long livingUnitId) {
+    public List<OffenderOut> getOffendersCurrentlyOut(final long livingUnitId) {
         return movementsRepository
                 .getOffendersCurrentlyOut(livingUnitId)
                 .stream()
@@ -146,7 +146,7 @@ public class MovementsServiceImpl implements MovementsService {
     }
 
     @Override
-    public List<OffenderOut> getOffendersCurrentlyOut(String agencyId) {
+    public List<OffenderOut> getOffendersCurrentlyOut(final String agencyId) {
         return movementsRepository
                 .getOffendersCurrentlyOut(agencyId)
                 .stream()

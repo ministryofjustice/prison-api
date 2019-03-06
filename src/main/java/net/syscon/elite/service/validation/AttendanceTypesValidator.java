@@ -1,6 +1,5 @@
 package net.syscon.elite.service.validation;
 
-import net.syscon.elite.api.model.ReferenceCode;
 import net.syscon.elite.api.model.UpdateAttendance;
 import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.support.ReferenceDomain;
@@ -9,25 +8,23 @@ import org.springframework.util.Assert;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.List;
-import java.util.Optional;
 
 @Component
 public class AttendanceTypesValidator implements ConstraintValidator<AttendanceTypesValid, UpdateAttendance> {
     private final ReferenceDomainService referenceDomainService;
 
-    public AttendanceTypesValidator(ReferenceDomainService referenceDomainService) {
+    public AttendanceTypesValidator(final ReferenceDomainService referenceDomainService) {
         this.referenceDomainService = referenceDomainService;
     }
 
     @Override
-    public void initialize(AttendanceTypesValid constraintAnnotation) {
+    public void initialize(final AttendanceTypesValid constraintAnnotation) {
         Assert.notNull(referenceDomainService, "Spring injection failed for referenceDomainService");
     }
 
     @Override
-    public boolean isValid(UpdateAttendance value, ConstraintValidatorContext context) {
-        boolean valid = checkDomain(value.getEventOutcome(), context, ReferenceDomain.EVENT_OUTCOME, "Event outcome value %s does not exist");
+    public boolean isValid(final UpdateAttendance value, final ConstraintValidatorContext context) {
+        var valid = checkDomain(value.getEventOutcome(), context, ReferenceDomain.EVENT_OUTCOME, "Event outcome value %s does not exist");
         if (value.getPerformance() == null) {
             if (value.getEventOutcome().equals("ATT")) {
                 valid = false;
@@ -39,11 +36,11 @@ public class AttendanceTypesValidator implements ConstraintValidator<AttendanceT
         return valid;
     }
 
-    private boolean checkDomain(String value, ConstraintValidatorContext context, ReferenceDomain domain, String messageTemplate) {
+    private boolean checkDomain(final String value, final ConstraintValidatorContext context, final ReferenceDomain domain, final String messageTemplate) {
         // This should be ok as it is cached:
-        final List<ReferenceCode> codes = referenceDomainService.getReferenceCodesByDomain(
+        final var codes = referenceDomainService.getReferenceCodesByDomain(
                 domain.getDomain(), false, null, null, 0, 1000).getItems();
-        final Optional<ReferenceCode> code = codes.stream()
+        final var code = codes.stream()
                 .filter(x -> value.equals(x.getCode()))
                 .filter(x -> "Y".equals(x.getActiveFlag()))
                 .findFirst();
@@ -51,7 +48,7 @@ public class AttendanceTypesValidator implements ConstraintValidator<AttendanceT
             return true;
         }
         context.disableDefaultConstraintViolation();
-        final String message = String.format(messageTemplate, value);
+        final var message = String.format(messageTemplate, value);
         context.buildConstraintViolationWithTemplate(message).addConstraintViolation();
         return false;
     }

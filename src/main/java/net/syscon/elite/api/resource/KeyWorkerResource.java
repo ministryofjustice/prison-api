@@ -96,11 +96,16 @@ public interface KeyWorkerResource {
 
     class GetAllocationHistoryResponse extends ResponseDelegate {
 
-        private GetAllocationHistoryResponse(Response response) { super(response); }
-        private GetAllocationHistoryResponse(Response response, Object entity) { super(response, entity); }
+        private GetAllocationHistoryResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetAllocationHistoryResponse respond200WithApplicationJson(Page<OffenderKeyWorker> page) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetAllocationHistoryResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetAllocationHistoryResponse respond200WithApplicationJson(final Page<OffenderKeyWorker> page) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON)
                     .header("Total-Records", page.getTotalRecords())
                     .header("Page-Offset", page.getPageOffset())
@@ -109,22 +114,22 @@ public interface KeyWorkerResource {
             return new GetAllocationHistoryResponse(responseBuilder.build(), page.getItems());
         }
 
-        public static GetAllocationHistoryResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetAllocationHistoryResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAllocationHistoryResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAllocationHistoryResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetAllocationHistoryResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAllocationHistoryResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAllocationHistoryResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetAllocationHistoryResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAllocationHistoryResponse(responseBuilder.build(), entity);
@@ -133,32 +138,37 @@ public interface KeyWorkerResource {
 
     class GetAvailableKeyworkersResponse extends ResponseDelegate {
 
-        private GetAvailableKeyworkersResponse(Response response) { super(response); }
-        private GetAvailableKeyworkersResponse(Response response, Object entity) { super(response, entity); }
+        private GetAvailableKeyworkersResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetAvailableKeyworkersResponse respond200WithApplicationJson(List<Keyworker> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetAvailableKeyworkersResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetAvailableKeyworkersResponse respond200WithApplicationJson(final List<Keyworker> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAvailableKeyworkersResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAvailableKeyworkersResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetAvailableKeyworkersResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAvailableKeyworkersResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAvailableKeyworkersResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetAvailableKeyworkersResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAvailableKeyworkersResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAvailableKeyworkersResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetAvailableKeyworkersResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAvailableKeyworkersResponse(responseBuilder.build(), entity);
@@ -167,32 +177,37 @@ public interface KeyWorkerResource {
 
     class GetAllocationsForKeyworkerResponse extends ResponseDelegate {
 
-        private GetAllocationsForKeyworkerResponse(Response response) { super(response); }
-        private GetAllocationsForKeyworkerResponse(Response response, Object entity) { super(response, entity); }
+        private GetAllocationsForKeyworkerResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetAllocationsForKeyworkerResponse respond200WithApplicationJson(List<KeyWorkerAllocationDetail> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetAllocationsForKeyworkerResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetAllocationsForKeyworkerResponse respond200WithApplicationJson(final List<KeyWorkerAllocationDetail> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAllocationsForKeyworkerResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAllocationsForKeyworkerResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetAllocationsForKeyworkerResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAllocationsForKeyworkerResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAllocationsForKeyworkerResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetAllocationsForKeyworkerResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAllocationsForKeyworkerResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAllocationsForKeyworkerResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetAllocationsForKeyworkerResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAllocationsForKeyworkerResponse(responseBuilder.build(), entity);
@@ -201,11 +216,16 @@ public interface KeyWorkerResource {
 
     class PostKeyWorkerAgencyIdCurrentAllocationsResponse extends ResponseDelegate {
 
-        private PostKeyWorkerAgencyIdCurrentAllocationsResponse(Response response) { super(response); }
-        private PostKeyWorkerAgencyIdCurrentAllocationsResponse(Response response, Object entity) { super(response, entity); }
+        private PostKeyWorkerAgencyIdCurrentAllocationsResponse(final Response response) {
+            super(response);
+        }
 
-        public static PostKeyWorkerAgencyIdCurrentAllocationsResponse respond200WithApplicationJson(List<KeyWorkerAllocationDetail> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private PostKeyWorkerAgencyIdCurrentAllocationsResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static PostKeyWorkerAgencyIdCurrentAllocationsResponse respond200WithApplicationJson(final List<KeyWorkerAllocationDetail> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new PostKeyWorkerAgencyIdCurrentAllocationsResponse(responseBuilder.build(), entity);
@@ -214,11 +234,16 @@ public interface KeyWorkerResource {
 
     class PostKeyWorkerAgencyIdCurrentAllocationsOffendersResponse extends ResponseDelegate {
 
-        private PostKeyWorkerAgencyIdCurrentAllocationsOffendersResponse(Response response) { super(response); }
-        private PostKeyWorkerAgencyIdCurrentAllocationsOffendersResponse(Response response, Object entity) { super(response, entity); }
+        private PostKeyWorkerAgencyIdCurrentAllocationsOffendersResponse(final Response response) {
+            super(response);
+        }
 
-        public static PostKeyWorkerAgencyIdCurrentAllocationsOffendersResponse respond200WithApplicationJson(List<KeyWorkerAllocationDetail> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private PostKeyWorkerAgencyIdCurrentAllocationsOffendersResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static PostKeyWorkerAgencyIdCurrentAllocationsOffendersResponse respond200WithApplicationJson(final List<KeyWorkerAllocationDetail> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new PostKeyWorkerAgencyIdCurrentAllocationsOffendersResponse(responseBuilder.build(), entity);
@@ -227,11 +252,16 @@ public interface KeyWorkerResource {
 
     class PostKeyWorkerOffendersAllocationHistoryResponse extends ResponseDelegate {
 
-        private PostKeyWorkerOffendersAllocationHistoryResponse(Response response) { super(response); }
-        private PostKeyWorkerOffendersAllocationHistoryResponse(Response response, Object entity) { super(response, entity); }
+        private PostKeyWorkerOffendersAllocationHistoryResponse(final Response response) {
+            super(response);
+        }
 
-        public static PostKeyWorkerOffendersAllocationHistoryResponse respond200WithApplicationJson(List<OffenderKeyWorker> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private PostKeyWorkerOffendersAllocationHistoryResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static PostKeyWorkerOffendersAllocationHistoryResponse respond200WithApplicationJson(final List<OffenderKeyWorker> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new PostKeyWorkerOffendersAllocationHistoryResponse(responseBuilder.build(), entity);
@@ -240,11 +270,16 @@ public interface KeyWorkerResource {
 
     class PostKeyWorkerStaffAllocationHistoryResponse extends ResponseDelegate {
 
-        private PostKeyWorkerStaffAllocationHistoryResponse(Response response) { super(response); }
-        private PostKeyWorkerStaffAllocationHistoryResponse(Response response, Object entity) { super(response, entity); }
+        private PostKeyWorkerStaffAllocationHistoryResponse(final Response response) {
+            super(response);
+        }
 
-        public static PostKeyWorkerStaffAllocationHistoryResponse respond200WithApplicationJson(List<OffenderKeyWorker> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private PostKeyWorkerStaffAllocationHistoryResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static PostKeyWorkerStaffAllocationHistoryResponse respond200WithApplicationJson(final List<OffenderKeyWorker> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new PostKeyWorkerStaffAllocationHistoryResponse(responseBuilder.build(), entity);

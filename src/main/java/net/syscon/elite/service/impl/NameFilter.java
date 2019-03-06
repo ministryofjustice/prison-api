@@ -14,14 +14,14 @@ public class NameFilter {
     public NameFilter() {
     }
 
-    public NameFilter(String searchTerm) {
+    public NameFilter(final String searchTerm) {
         this.searchTerm = searchTerm;
         extractNames(searchTerm);
     }
 
-    private void extractNames(String searchTerm) {
+    private void extractNames(final String searchTerm) {
         if(searchTerm!=null){
-            String[] nameSplit = StringUtils.split(searchTerm, " ");
+            final var nameSplit = StringUtils.split(searchTerm, " ");
             if (nameSplit.length > 1) {
                 surname = nameSplit[0];
                 firstName = nameSplit[1];

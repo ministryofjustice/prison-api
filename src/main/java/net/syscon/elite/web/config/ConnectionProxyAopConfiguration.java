@@ -37,19 +37,19 @@ public class ConnectionProxyAopConfiguration {
 
     @Bean
     public OracleConnectionAspect oracleProxyConnectionAspect(
-            AuthenticationFacade authenticationFacade,
-            RoleConfigurer roleConfigurer
+            final AuthenticationFacade authenticationFacade,
+            final RoleConfigurer roleConfigurer
     ) {
         return new OracleConnectionAspect(authenticationFacade, roleConfigurer, defaultSchema);
     }
 
     @Bean
-    public RoleConfigurer roleConfigurer(RolePasswordSupplier rolePasswordSupplier) {
+    public RoleConfigurer roleConfigurer(final RolePasswordSupplier rolePasswordSupplier) {
         return new RoleConfigurer(tagUser, rolePasswordSupplier);
     }
 
     @Bean
-    public RolePasswordSupplier rolePasswordSupplier(SQLProvider sqlProvider) {
+    public RolePasswordSupplier rolePasswordSupplier(final SQLProvider sqlProvider) {
         return new RolePasswordSupplier(
                 sqlProvider,
                 new NamedParameterJdbcTemplate(

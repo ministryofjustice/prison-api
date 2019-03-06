@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -27,7 +26,7 @@ public class SQLProvider {
 	private final String schemaType;
 
     @Autowired
-    public SQLProvider(ApplicationContext applicationContext, @Value("${schema.type}") String schemaType) {
+    public SQLProvider(final ApplicationContext applicationContext, @Value("${schema.type}") final String schemaType) {
         this.applicationContext = applicationContext;
         this.schemaType = schemaType;
 
@@ -35,14 +34,14 @@ public class SQLProvider {
 
     public void loadSql(final String className) {
         loadSqlResource("classpath:sqls/" + className + ".sql");
-        final String[] schemas = StringUtils.split(schemaType, ",");
+        final var schemas = StringUtils.split(schemaType, ",");
         if (schemas != null) {
             Arrays.asList(schemas).forEach(schema -> loadSqlResource("classpath:sqls/" + schema + "/"  + className + ".sql"));
         }
     }
 
-    private void loadSqlResource(String resourcePath) {
-        final Resource resource = applicationContext.getResource(resourcePath);
+    private void loadSqlResource(final String resourcePath) {
+        final var resource = applicationContext.getResource(resourcePath);
         if (resource.exists()) {
             try {
                 log.debug("Loading resource {}", resourcePath);
@@ -54,11 +53,11 @@ public class SQLProvider {
     }
 
     private void loadFromStream(final InputStream in) {
-        final CharArrayWriter out = new CharArrayWriter();
-        final char[] cbuf = new char[1024];
+        final var out = new CharArrayWriter();
+        final var cbuf = new char[1024];
         try {
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-            int size = reader.read(cbuf);
+            final var reader = new BufferedReader(new InputStreamReader(in));
+            var size = reader.read(cbuf);
             while (size > -1) {
                 out.write(cbuf, 0, size);
                 size = reader.read(cbuf);
@@ -71,7 +70,7 @@ public class SQLProvider {
 
     private int getNext(final char[] content, final int offset, final char searchFor) {
     	if (offset >= 0) {
-	    	for (int i = offset; i < content.length; i++) {
+            for (var i = offset; i < content.length; i++) {
 	    		if (content[i] == searchFor) return i;
 	    	}
     	}
@@ -79,9 +78,9 @@ public class SQLProvider {
     }
 
 
-    private String makeString(final char[] content, int startIndex, int endIndex) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = startIndex; i < content.length && i < endIndex; i++) {
+    private String makeString(final char[] content, final int startIndex, final int endIndex) {
+        final var sb = new StringBuilder();
+        for (var i = startIndex; i < content.length && i < endIndex; i++) {
             sb.append(content[i]);
         }
         return sb.toString();
@@ -89,13 +88,13 @@ public class SQLProvider {
 
     private void parse(final char[] content) throws ParseException {
         final Map<String, String> newStatements = new HashMap<>();
-        int i = 0;
+        var i = 0;
         while (i < content.length) {
-        	final int startIndex = getNext(content, i, '{');
-        	final int endIndex = getNext(content, startIndex, '}');
+            final var startIndex = getNext(content, i, '{');
+            final var endIndex = getNext(content, startIndex, '}');
         	if (startIndex > -1 && endIndex > -1) {
-        		final String key = removeSpecialChars(makeString(content, i, startIndex).trim(), ' ', '\t', '\n', '\r');
-        		final String value = removeSpecialChars(makeString(content, startIndex + 1, endIndex),  '\r', '\n');
+                final var key = removeSpecialChars(makeString(content, i, startIndex).trim(), ' ', '\t', '\n', '\r');
+                final var value = removeSpecialChars(makeString(content, startIndex + 1, endIndex), '\r', '\n');
         		newStatements.put(key, value);
                 i = endIndex + 1;
         	} else {
@@ -110,17 +109,17 @@ public class SQLProvider {
     }
 
 
-    private boolean in(char value, char[] elements) {
-        boolean found = false;
-        for (int i = 0; !found && i < elements.length; i++) {
+    private boolean in(final char value, final char[] elements) {
+        var found = false;
+        for (var i = 0; !found && i < elements.length; i++) {
             found = elements[i] == value;
         }
         return found;
     }
 
 
-    private String removeCharsStartingWith(String text, char ... elementsToRemove) {
-        for (int i = 0; i < text.length(); i++) {
+    private String removeCharsStartingWith(final String text, final char... elementsToRemove) {
+        for (var i = 0; i < text.length(); i++) {
             if (!in(text.charAt(i), elementsToRemove)) {
                 return text.substring(i);
             }
@@ -128,8 +127,8 @@ public class SQLProvider {
         return "";
     }
 
-    private String removeCharsEndingWith(String text, char ... elementsToRemove) {
-        for (int i = text.length() - 1; i > 0; i--) {
+    private String removeCharsEndingWith(final String text, final char... elementsToRemove) {
+        for (var i = text.length() - 1; i > 0; i--) {
             if (!in(text.charAt(i), elementsToRemove)) {
                 return text.substring(0, i + 1);
             }
@@ -137,13 +136,13 @@ public class SQLProvider {
         return "";
     }
 
-    private String removeSpecialChars(final String text, char ... elementsToRemove) {
-        String result = removeCharsStartingWith(text, elementsToRemove);
+    private String removeSpecialChars(final String text, final char... elementsToRemove) {
+        final var result = removeCharsStartingWith(text, elementsToRemove);
         return removeCharsEndingWith(result, elementsToRemove);
     }
 
 
-    public String get(String name) {
+    public String get(final String name) {
         return statements.get(name);
     }
 }

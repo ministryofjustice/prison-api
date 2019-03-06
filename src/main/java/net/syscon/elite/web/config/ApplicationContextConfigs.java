@@ -9,7 +9,6 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.io.ClassPathResource;
 
@@ -27,10 +26,10 @@ public class ApplicationContextConfigs {
 
 	@Bean
 	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer(final ConfigurableEnvironment env) {
-		final PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
-		final MutablePropertySources sources = env.getPropertySources();
-		String filename = "application.yml";
-		final YamlPropertiesFactoryBean yamlFactory = new YamlPropertiesFactoryBean();
+        final var configurer = new PropertySourcesPlaceholderConfigurer();
+        final var sources = env.getPropertySources();
+        final var filename = "application.yml";
+        final var yamlFactory = new YamlPropertiesFactoryBean();
 		yamlFactory.setResources(new ClassPathResource(filename));
 		sources.addFirst(new PropertiesPropertySource("classpath:" + filename, yamlFactory.getObject()));
 		return configurer;

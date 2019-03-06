@@ -99,7 +99,7 @@ public class PrisonerDetail {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -112,7 +112,7 @@ public class PrisonerDetail {
         return offenderNo;
     }
 
-    public void setOffenderNo(String offenderNo) {
+    public void setOffenderNo(final String offenderNo) {
         this.offenderNo = offenderNo;
     }
 
@@ -125,7 +125,7 @@ public class PrisonerDetail {
         return title;
     }
 
-    public void setTitle(String title) {
+    public void setTitle(final String title) {
         this.title = title;
     }
 
@@ -138,7 +138,7 @@ public class PrisonerDetail {
         return suffix;
     }
 
-    public void setSuffix(String suffix) {
+    public void setSuffix(final String suffix) {
         this.suffix = suffix;
     }
 
@@ -151,7 +151,7 @@ public class PrisonerDetail {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
@@ -164,7 +164,7 @@ public class PrisonerDetail {
         return middleNames;
     }
 
-    public void setMiddleNames(String middleNames) {
+    public void setMiddleNames(final String middleNames) {
         this.middleNames = middleNames;
     }
 
@@ -177,7 +177,7 @@ public class PrisonerDetail {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
@@ -190,7 +190,7 @@ public class PrisonerDetail {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(LocalDate dateOfBirth) {
+    public void setDateOfBirth(final LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -203,7 +203,7 @@ public class PrisonerDetail {
         return sexCode;
     }
 
-    public void setSexCode(String sexCode) {
+    public void setSexCode(final String sexCode) {
         this.sexCode = sexCode;
     }
 
@@ -216,7 +216,7 @@ public class PrisonerDetail {
         return gender;
     }
 
-    public void setGender(String gender) {
+    public void setGender(final String gender) {
         this.gender = gender;
     }
 
@@ -229,7 +229,7 @@ public class PrisonerDetail {
         return nationalities;
     }
 
-    public void setNationalities(String nationalities) {
+    public void setNationalities(final String nationalities) {
         this.nationalities = nationalities;
     }
 
@@ -242,7 +242,7 @@ public class PrisonerDetail {
         return currentlyInPrison;
     }
 
-    public void setCurrentlyInPrison(String currentlyInPrison) {
+    public void setCurrentlyInPrison(final String currentlyInPrison) {
         this.currentlyInPrison = currentlyInPrison;
     }
 
@@ -255,7 +255,7 @@ public class PrisonerDetail {
         return latestBookingId;
     }
 
-    public void setLatestBookingId(Long latestBookingId) {
+    public void setLatestBookingId(final Long latestBookingId) {
         this.latestBookingId = latestBookingId;
     }
 
@@ -268,7 +268,7 @@ public class PrisonerDetail {
         return latestLocationId;
     }
 
-    public void setLatestLocationId(String latestLocationId) {
+    public void setLatestLocationId(final String latestLocationId) {
         this.latestLocationId = latestLocationId;
     }
 
@@ -281,7 +281,7 @@ public class PrisonerDetail {
         return latestLocation;
     }
 
-    public void setLatestLocation(String latestLocation) {
+    public void setLatestLocation(final String latestLocation) {
         this.latestLocation = latestLocation;
     }
 
@@ -294,7 +294,7 @@ public class PrisonerDetail {
         return internalLocation;
     }
 
-    public void setInternalLocation(String internalLocation) {
+    public void setInternalLocation(final String internalLocation) {
         this.internalLocation = internalLocation;
     }
 
@@ -307,7 +307,7 @@ public class PrisonerDetail {
         return pncNumber;
     }
 
-    public void setPncNumber(String pncNumber) {
+    public void setPncNumber(final String pncNumber) {
         this.pncNumber = pncNumber;
     }
 
@@ -320,7 +320,7 @@ public class PrisonerDetail {
         return croNumber;
     }
 
-    public void setCroNumber(String croNumber) {
+    public void setCroNumber(final String croNumber) {
         this.croNumber = croNumber;
     }
 
@@ -333,7 +333,7 @@ public class PrisonerDetail {
         return ethnicity;
     }
 
-    public void setEthnicity(String ethnicity) {
+    public void setEthnicity(final String ethnicity) {
         this.ethnicity = ethnicity;
     }
 
@@ -346,7 +346,7 @@ public class PrisonerDetail {
         return birthCountry;
     }
 
-    public void setBirthCountry(String birthCountry) {
+    public void setBirthCountry(final String birthCountry) {
         this.birthCountry = birthCountry;
     }
 
@@ -359,7 +359,7 @@ public class PrisonerDetail {
         return religion;
     }
 
-    public void setReligion(String religion) {
+    public void setReligion(final String religion) {
         this.religion = religion;
     }
 
@@ -372,7 +372,7 @@ public class PrisonerDetail {
         return convictedStatus;
     }
 
-    public void setConvictedStatus(String convictedStatus) {
+    public void setConvictedStatus(final String convictedStatus) {
         this.convictedStatus = convictedStatus;
     }
 
@@ -385,7 +385,7 @@ public class PrisonerDetail {
         return imprisonmentStatus;
     }
 
-    public void setImprisonmentStatus(String imprisonmentStatus) {
+    public void setImprisonmentStatus(final String imprisonmentStatus) {
         this.imprisonmentStatus = imprisonmentStatus;
     }
 
@@ -398,7 +398,7 @@ public class PrisonerDetail {
         return receptionDate;
     }
 
-    public void setReceptionDate(LocalDate receptionDate) {
+    public void setReceptionDate(final LocalDate receptionDate) {
         this.receptionDate = receptionDate;
     }
 
@@ -411,7 +411,7 @@ public class PrisonerDetail {
         return maritalStatus;
     }
 
-    public void setMaritalStatus(String maritalStatus) {
+    public void setMaritalStatus(final String maritalStatus) {
         this.maritalStatus = maritalStatus;
     }
 
@@ -424,7 +424,7 @@ public class PrisonerDetail {
         return currentWorkingFirstName;
     }
 
-    public void setCurrentWorkingFirstName(String currentWorkingFirstName) {
+    public void setCurrentWorkingFirstName(final String currentWorkingFirstName) {
         this.currentWorkingFirstName = currentWorkingFirstName;
     }
 
@@ -437,7 +437,7 @@ public class PrisonerDetail {
         return currentWorkingLastName;
     }
 
-    public void setCurrentWorkingLastName(String currentWorkingLastName) {
+    public void setCurrentWorkingLastName(final String currentWorkingLastName) {
         this.currentWorkingLastName = currentWorkingLastName;
     }
 
@@ -450,13 +450,13 @@ public class PrisonerDetail {
         return currentWorkingBirthDate;
     }
 
-    public void setCurrentWorkingBirthDate(LocalDate currentWorkingBirthDate) {
+    public void setCurrentWorkingBirthDate(final LocalDate currentWorkingBirthDate) {
         this.currentWorkingBirthDate = currentWorkingBirthDate;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class PrisonerDetail {\n");
         

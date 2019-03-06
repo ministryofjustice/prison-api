@@ -8,7 +8,7 @@ public abstract class ReferenceCodeDto {
     private final String parentDomain;
     private final String parentCode;
 
-    public ReferenceCodeDto(String domain, String code, String parentDomain, String parentCode) {
+    public ReferenceCodeDto(final String domain, final String code, final String parentDomain, final String parentCode) {
         Objects.requireNonNull(domain);
         Objects.requireNonNull(code);
 
@@ -18,7 +18,7 @@ public abstract class ReferenceCodeDto {
         this.parentCode = parentCode;
     }
 
-    public ReferenceCodeDto(String domain, String code) {
+    public ReferenceCodeDto(final String domain, final String code) {
         this(domain, code, null, null);
     }
 

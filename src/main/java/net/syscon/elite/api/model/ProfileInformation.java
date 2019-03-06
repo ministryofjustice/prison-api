@@ -42,7 +42,7 @@ public class ProfileInformation {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -55,7 +55,7 @@ public class ProfileInformation {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(final String type) {
         this.type = type;
     }
 
@@ -68,7 +68,7 @@ public class ProfileInformation {
         return question;
     }
 
-    public void setQuestion(String question) {
+    public void setQuestion(final String question) {
         this.question = question;
     }
 
@@ -81,13 +81,13 @@ public class ProfileInformation {
         return resultValue;
     }
 
-    public void setResultValue(String resultValue) {
+    public void setResultValue(final String resultValue) {
         this.resultValue = resultValue;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class ProfileInformation {\n");
         

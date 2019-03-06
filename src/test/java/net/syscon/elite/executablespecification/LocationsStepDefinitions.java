@@ -21,27 +21,27 @@ public class LocationsStepDefinitions extends AbstractStepDefinitions {
     private LocationsSteps location;
 
     @Then("^\"([^\"]*)\" location records are returned$")
-    public void locationRecordsAreReturned(String expectedCount) throws Throwable {
+    public void locationRecordsAreReturned(final String expectedCount) throws Throwable {
         location.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
     }
 
     @And("^\"([^\"]*)\" total location records are available$")
-    public void totalLocationRecordsAreAvailable(String expectedCount) throws Throwable {
+    public void totalLocationRecordsAreAvailable(final String expectedCount) throws Throwable {
         location.verifyTotalResourceRecordsAvailable(Long.valueOf(expectedCount));
     }
 
     @When("^a request is made to retrieve location with locationId of \"([^\"]*)\"$")
-    public void aRequestIsMadeToRetrieveASpecificLocationBy(String locationId) throws Throwable {
+    public void aRequestIsMadeToRetrieveASpecificLocationBy(final String locationId) throws Throwable {
         location.findByLocationId(Long.valueOf(locationId));
     }
 
     @And("^location type is \"([^\"]*)\"$")
-    public void locationTypeIs(String type) throws Throwable {
+    public void locationTypeIs(final String type) throws Throwable {
         location.verifyLocationType(type);
     }
 
     @And("^description is \"([^\"]*)\"$")
-    public void descriptionIs(String description) throws Throwable {
+    public void descriptionIs(final String description) throws Throwable {
         location.verifyLocationDescription(description);
     }
 
@@ -51,27 +51,27 @@ public class LocationsStepDefinitions extends AbstractStepDefinitions {
     }
 
     @When("^a request is made at agency \"([^\"]*)\" to retrieve the list named \"([^\"]*)\"$")
-    public void aRequestIsMadeToRetrieveListNamed(String agencyId, String name) throws Throwable {
+    public void aRequestIsMadeToRetrieveListNamed(final String agencyId, final String name) throws Throwable {
         location.findList(agencyId, name);
     }
 
     @Then("^locations are \"([^\"]*)\"$")
-    public void locationsAre(String list) throws Throwable {
+    public void locationsAre(final String list) throws Throwable {
         location.verifyLocationList(list);
     }
     
     @Then("^location ids are \"([^\"]*)\"$")
-    public void locationIdsAre(String list) throws Throwable {
+    public void locationIdsAre(final String list) throws Throwable {
         location.verifyLocationIdList(list);
     }
     
     @When("^a request is made at agency \"([^\"]*)\" to retrieve all the groups$")
-    public void aRequestIsMadeToRetrieveAllGroups(String agencyId) throws Throwable {
+    public void aRequestIsMadeToRetrieveAllGroups(final String agencyId) throws Throwable {
         location.aRequestIsMadeToRetrieveAllGroups(agencyId);
     }
 
     @Then("^location groups are \"([^\"]*)\"$")
-    public void groupsAre(String list) throws Throwable {
+    public void groupsAre(final String list) throws Throwable {
         location.groupsAre(list);
     }
 }

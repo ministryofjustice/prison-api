@@ -23,14 +23,14 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
 
     @Override
     @Produces(MediaType.APPLICATION_JSON)
-    public Response toResponse(Exception ex) {
+    public Response toResponse(final Exception ex) {
         return OperationResponse.respondErrorWithApplicationJson(processResponse(ex));
     }
 
-    public static ErrorResponse processResponse(Exception ex) {
-        int status;
-        String userMessage;
-        String developerMessage = "";
+    public static ErrorResponse processResponse(final Exception ex) {
+        final int status;
+        final String userMessage;
+        var developerMessage = "";
 
         if (ex instanceof BadCredentialsException) {
             status = Response.Status.UNAUTHORIZED.getStatusCode();

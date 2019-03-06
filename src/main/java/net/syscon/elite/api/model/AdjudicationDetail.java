@@ -45,7 +45,7 @@ public class AdjudicationDetail {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -58,7 +58,7 @@ public class AdjudicationDetail {
         return bookingId;
     }
 
-    public void setBookingId(Long bookingId) {
+    public void setBookingId(final Long bookingId) {
         this.bookingId = bookingId;
     }
 
@@ -71,7 +71,7 @@ public class AdjudicationDetail {
         return adjudicationCount;
     }
 
-    public void setAdjudicationCount(Integer adjudicationCount) {
+    public void setAdjudicationCount(final Integer adjudicationCount) {
         this.adjudicationCount = adjudicationCount;
     }
 
@@ -84,13 +84,13 @@ public class AdjudicationDetail {
         return awards;
     }
 
-    public void setAwards(List<Award> awards) {
+    public void setAwards(final List<Award> awards) {
         this.awards = awards;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class AdjudicationDetail {\n");
         

@@ -93,32 +93,37 @@ public interface OffenderAssessmentResource {
 
     class GetOffenderAssessmentsAssessmentCodeResponse extends ResponseDelegate {
 
-        private GetOffenderAssessmentsAssessmentCodeResponse(Response response) { super(response); }
-        private GetOffenderAssessmentsAssessmentCodeResponse(Response response, Object entity) { super(response, entity); }
+        private GetOffenderAssessmentsAssessmentCodeResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetOffenderAssessmentsAssessmentCodeResponse respond200WithApplicationJson(List<Assessment> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetOffenderAssessmentsAssessmentCodeResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetOffenderAssessmentsAssessmentCodeResponse respond200WithApplicationJson(final List<Assessment> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffenderAssessmentsAssessmentCodeResponse(responseBuilder.build(), entity);
         }
 
-        public static GetOffenderAssessmentsAssessmentCodeResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetOffenderAssessmentsAssessmentCodeResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffenderAssessmentsAssessmentCodeResponse(responseBuilder.build(), entity);
         }
 
-        public static GetOffenderAssessmentsAssessmentCodeResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetOffenderAssessmentsAssessmentCodeResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffenderAssessmentsAssessmentCodeResponse(responseBuilder.build(), entity);
         }
 
-        public static GetOffenderAssessmentsAssessmentCodeResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetOffenderAssessmentsAssessmentCodeResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetOffenderAssessmentsAssessmentCodeResponse(responseBuilder.build(), entity);
@@ -127,11 +132,16 @@ public interface OffenderAssessmentResource {
 
     class PostOffenderAssessmentsAssessmentCodeResponse extends ResponseDelegate {
 
-        private PostOffenderAssessmentsAssessmentCodeResponse(Response response) { super(response); }
-        private PostOffenderAssessmentsAssessmentCodeResponse(Response response, Object entity) { super(response, entity); }
+        private PostOffenderAssessmentsAssessmentCodeResponse(final Response response) {
+            super(response);
+        }
 
-        public static PostOffenderAssessmentsAssessmentCodeResponse respond200WithApplicationJson(List<Assessment> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private PostOffenderAssessmentsAssessmentCodeResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static PostOffenderAssessmentsAssessmentCodeResponse respond200WithApplicationJson(final List<Assessment> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new PostOffenderAssessmentsAssessmentCodeResponse(responseBuilder.build(), entity);
@@ -140,11 +150,16 @@ public interface OffenderAssessmentResource {
 
     class PostOffenderAssessmentsCsraListResponse extends ResponseDelegate {
 
-        private PostOffenderAssessmentsCsraListResponse(Response response) { super(response); }
-        private PostOffenderAssessmentsCsraListResponse(Response response, Object entity) { super(response, entity); }
+        private PostOffenderAssessmentsCsraListResponse(final Response response) {
+            super(response);
+        }
 
-        public static PostOffenderAssessmentsCsraListResponse respond200WithApplicationJson(List<Assessment> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private PostOffenderAssessmentsCsraListResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static PostOffenderAssessmentsCsraListResponse respond200WithApplicationJson(final List<Assessment> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new PostOffenderAssessmentsCsraListResponse(responseBuilder.build(), entity);
@@ -153,11 +168,16 @@ public interface OffenderAssessmentResource {
 
     class GetUncategorisedResponse extends ResponseDelegate {
 
-        private GetUncategorisedResponse(Response response) { super(response); }
-        private GetUncategorisedResponse(Response response, Object entity) { super(response, entity); }
+        private GetUncategorisedResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetUncategorisedResponse respond200WithApplicationJson(List<OffenderCategorise> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetUncategorisedResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetUncategorisedResponse respond200WithApplicationJson(final List<OffenderCategorise> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetUncategorisedResponse(responseBuilder.build(), entity);
@@ -166,10 +186,12 @@ public interface OffenderAssessmentResource {
 
     class CreateCategorisationResponse extends ResponseDelegate {
 
-        public CreateCategorisationResponse(Response response) { super(response); }
+        public CreateCategorisationResponse(final Response response) {
+            super(response);
+        }
 
         public static OffenderAssessmentResource.CreateCategorisationResponse respond201WithApplicationJson() {
-            ResponseBuilder responseBuilder = Response.status(201)
+            final var responseBuilder = Response.status(201)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             return new OffenderAssessmentResource.CreateCategorisationResponse(responseBuilder.build());
         }

@@ -16,7 +16,7 @@ import java.util.List;
 public interface StaffService {
     String STAFF_STATUS_ACTIVE = "ACTIVE";
 
-    static boolean isStaffActive(StaffDetail staffDetail) {
+    static boolean isStaffActive(final StaffDetail staffDetail) {
         Validate.notNull(staffDetail);
 
         return StringUtils.equals(STAFF_STATUS_ACTIVE, staffDetail.getStatus());
@@ -51,15 +51,15 @@ public interface StaffService {
         private final Boolean activeOnly;
         private final Long staffId;
 
-        public GetStaffRoleRequest(String agencyId, String role, Boolean activeOnly) {
+        public GetStaffRoleRequest(final String agencyId, final String role, final Boolean activeOnly) {
             this(agencyId, null, role, null, activeOnly, null);
         }
 
-        public GetStaffRoleRequest(String agencyId, String position, String role, Boolean activeOnly) {
+        public GetStaffRoleRequest(final String agencyId, final String position, final String role, final Boolean activeOnly) {
             this(agencyId, position, role, null, activeOnly, null);
         }
 
-        public GetStaffRoleRequest(String agencyId, String position, String role, String nameFilter, Boolean activeOnly, Long staffId) {
+        public GetStaffRoleRequest(final String agencyId, final String position, final String role, final String nameFilter, final Boolean activeOnly, final Long staffId) {
             super(agencyId);
             this.activeOnly = activeOnly;
 

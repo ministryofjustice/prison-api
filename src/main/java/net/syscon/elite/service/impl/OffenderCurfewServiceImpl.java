@@ -11,7 +11,10 @@ import org.springframework.validation.annotation.Validated;
 
 import java.time.Clock;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -51,11 +54,11 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
     private final Clock clock;
 
     public OffenderCurfewServiceImpl(
-            OffenderCurfewRepository offenderCurfewRepository,
-            CaseloadToAgencyMappingService caseloadToAgencyMappingService,
-            BookingService bookingService,
-            ReferenceDomainService referenceDomainService,
-            Clock clock) {
+            final OffenderCurfewRepository offenderCurfewRepository,
+            final CaseloadToAgencyMappingService caseloadToAgencyMappingService,
+            final BookingService bookingService,
+            final ReferenceDomainService referenceDomainService,
+            final Clock clock) {
         this.offenderCurfewRepository = offenderCurfewRepository;
         this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
         this.bookingService = bookingService;
@@ -64,12 +67,12 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
     }
 
     @Override
-    public List<OffenderSentenceCalc> getHomeDetentionCurfewCandidates(String username) {
+    public List<OffenderSentenceCalc> getHomeDetentionCurfewCandidates(final String username) {
 
-        var earliestArdOrCrd = LocalDate.now(clock).plusDays(DAYS_TO_ADD);
-        Set<String> agencyIds = agencyIdsFor(username);
+        final var earliestArdOrCrd = LocalDate.now(clock).plusDays(DAYS_TO_ADD);
+        final var agencyIds = agencyIdsFor(username);
 
-        var homeDetentionCurfewCandidates = getHomeDetentionCurfewCandidates(
+        final var homeDetentionCurfewCandidates = getHomeDetentionCurfewCandidates(
                         offenderCurfewRepository.offenderCurfews(agencyIds),
                         earliestArdOrCrd,
                         bookingService.getOffenderSentenceCalculationsForAgency(agencyIds));
@@ -106,20 +109,20 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
 
     @Override
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('SYSTEM_USER')")
-    public void setHdcChecks(long bookingId, HdcChecks hdcChecks) {
+    public void setHdcChecks(final long bookingId, final HdcChecks hdcChecks) {
         offenderCurfewRepository.setHDCChecksPassed(bookingId, hdcChecks);
     }
 
     @Override
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('SYSTEM_USER')")
-    public void setApprovalStatus(long bookingId, ApprovalStatus approvalStatus) {
+    public void setApprovalStatus(final long bookingId, final ApprovalStatus approvalStatus) {
         if (!referenceDomainService.isReferenceCodeActive("HDC_APPROVE", approvalStatus.getApprovalStatus())) {
             throw new EntityNotFoundException(String.format("Approval status code '%1$s' not found and active.",  approvalStatus));
         }
         offenderCurfewRepository.setApprovalStatusForLatestCurfew(bookingId, approvalStatus);
     }
 
-    private Set<String> agencyIdsFor(String username) {
+    private Set<String> agencyIdsFor(final String username) {
         return caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(username)
                 .stream()
                 .map(Agency::getAgencyId)
@@ -127,11 +130,11 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
     }
 
     static List<OffenderSentenceCalculation> getHomeDetentionCurfewCandidates(
-            Collection<OffenderCurfew> curfews,
-            LocalDate earliestArdOrCrd,
-            List<OffenderSentenceCalculation> offenderSentences) {
+            final Collection<OffenderCurfew> curfews,
+            final LocalDate earliestArdOrCrd,
+            final List<OffenderSentenceCalculation> offenderSentences) {
 
-        final Set<Long> offendersLackingCurfewApprovalStatus = offendersLackingCurfewApprovalStatus(currentOffenderCurfews(curfews));
+        final var offendersLackingCurfewApprovalStatus = offendersLackingCurfewApprovalStatus(currentOffenderCurfews(curfews));
 
         return offenderSentences
                 .stream()
@@ -148,9 +151,9 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
      * @param curfews The curfews to sift
      * @return The current curfew for each offenderBookId
      */
-    static Stream<OffenderCurfew> currentOffenderCurfews(Collection<OffenderCurfew> curfews) {
+    static Stream<OffenderCurfew> currentOffenderCurfews(final Collection<OffenderCurfew> curfews) {
 
-        Map<Long, Optional<OffenderCurfew>> currentByOffenderBookdId = curfews
+        final var currentByOffenderBookdId = curfews
                 .stream()
                 .collect(
                     groupingBy(
@@ -164,7 +167,7 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
                 .map(opt -> opt.orElseThrow(() -> new NullPointerException("Impossible")));
     }
 
-    static Set<Long> offendersLackingCurfewApprovalStatus(Stream<OffenderCurfew> currentOffenderCurfews) {
+    static Set<Long> offendersLackingCurfewApprovalStatus(final Stream<OffenderCurfew> currentOffenderCurfews) {
         return currentOffenderCurfews
                 .filter(oc -> oc.getApprovalStatus() == null)
                 .map(OffenderCurfew::getOffenderBookId)
@@ -172,8 +175,8 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
     }
 
     static Predicate<OffenderSentenceCalculation> offenderIsEligibleForHomeCurfew(
-            Set<Long> offendersWithoutCurfewApprovalStatus,
-            LocalDate earliestArdOrCrd) {
+            final Set<Long> offendersWithoutCurfewApprovalStatus,
+            final LocalDate earliestArdOrCrd) {
 
         return (OffenderSentenceCalculation os) -> (os.getHomeDetCurfEligibilityDate() != null) &&
         offendersWithoutCurfewApprovalStatus.contains(os.getBookingId()) &&
@@ -182,7 +185,7 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
         );
     }
 
-    private static boolean isBeforeOrEqual(LocalDate d1, LocalDate d2) {
+    private static boolean isBeforeOrEqual(final LocalDate d1, final LocalDate d2) {
         return
             d2 != null &&
             (

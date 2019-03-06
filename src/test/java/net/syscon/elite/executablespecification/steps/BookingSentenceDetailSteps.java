@@ -35,24 +35,24 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     private List<OffenderSentenceDetail> offenderSentenceDetails;
 
     @Step("Get booking sentence detail")
-    public void getBookingSentenceDetail(Long bookingId) {
+    public void getBookingSentenceDetail(final Long bookingId) {
         dispatchSentenceDetail(bookingId);
     }
 
     @Step("Get offender sentence details by offender nos and agency id")
-    public void getOffenderSentenceDetails(String offenderNos, String agencyId) {
+    public void getOffenderSentenceDetails(final String offenderNos, final String agencyId) {
         dispatchOffenderSentences(offenderNos, agencyId);
     }
 
     @Step("Get offender sentence details by offender nos (using post request)")
-    public void getOffenderSentenceDetailsUsingPostRequest(String offenderNos) {
-        List<String> offenderList = StringUtils.isNotBlank(offenderNos) ? ImmutableList.copyOf(offenderNos.split(",")) : Collections.emptyList();
+    public void getOffenderSentenceDetailsUsingPostRequest(final String offenderNos) {
+        final List<String> offenderList = StringUtils.isNotBlank(offenderNos) ? ImmutableList.copyOf(offenderNos.split(",")) : Collections.emptyList();
         dispatchOffenderSentencesForPostRequest(OFFENDER_SENTENCE_DETAIL_API_URL, offenderList);
     }
 
     @Step("Get offender sentence details by booking ids (using post request)")
-    public void getBookingSentenceDetailsUsingPostRequest(String bookingIds) {
-        List<String> list = StringUtils.isNotBlank(bookingIds) ? ImmutableList.copyOf(bookingIds.split(",")) : Collections.emptyList();
+    public void getBookingSentenceDetailsUsingPostRequest(final String bookingIds) {
+        final List<String> list = StringUtils.isNotBlank(bookingIds) ? ImmutableList.copyOf(bookingIds.split(",")) : Collections.emptyList();
         dispatchOffenderSentencesForPostRequest(OFFENDER_BOOKING_SENTENCE_DETAIL_API_URL, list);
     }
 
@@ -62,147 +62,147 @@ public class BookingSentenceDetailSteps extends CommonSteps {
     }
 
     @Step("Get offender sentence details for agency")
-    public void getOffenderSentenceDetails(String agencyId) {
+    public void getOffenderSentenceDetails(final String agencyId) {
         dispatchOffenderSentences(null, agencyId);
     }
 
     @Step("Set row from list in context")
-    public void putARowFromListInContext(int index) {
+    public void putARowFromListInContext(final int index) {
         sentenceDetail = offenderSentenceDetails.get(index).getSentenceDetail();
     }
 
     @Step("Verify sentence start date")
-    public void verifySentenceStartDate(String sentenceStartDate) {
+    public void verifySentenceStartDate(final String sentenceStartDate) {
         verifyLocalDate(sentenceDetail.getSentenceStartDate(), sentenceStartDate);
     }
 
     @Step("Verify sentence expiry date")
-    public void verifySentenceExpiryDate(String sentenceEndDate) {
+    public void verifySentenceExpiryDate(final String sentenceEndDate) {
         verifyLocalDate(sentenceDetail.getSentenceExpiryDate(), sentenceEndDate);
     }
 
     @Step("Verify early term date")
-    public void verifyEarlyTermDate(String earlyTermDate) {
+    public void verifyEarlyTermDate(final String earlyTermDate) {
         verifyLocalDate(sentenceDetail.getEarlyTermDate(), earlyTermDate);
     }
 
     @Step("Verify mid term date")
-    public void verifyMidTermDate(String midTermDate) {
+    public void verifyMidTermDate(final String midTermDate) {
         verifyLocalDate(sentenceDetail.getMidTermDate(), midTermDate);
     }
 
     @Step("Verify late term date")
-    public void verifyLateTermDate(String lateTermDate) {
+    public void verifyLateTermDate(final String lateTermDate) {
         verifyLocalDate(sentenceDetail.getLateTermDate(), lateTermDate);
     }
 
     @Step("Verify automatic release date")
-    public void verifyAutomaticReleaseDate(String automaticReleaseDate) {
+    public void verifyAutomaticReleaseDate(final String automaticReleaseDate) {
         verifyLocalDate(sentenceDetail.getAutomaticReleaseDate(), automaticReleaseDate);
     }
 
     @Step("Verify override automatic release date")
-    public void verifyOverrideAutomaticReleaseDate(String overrideAutomaticReleaseDate) {
+    public void verifyOverrideAutomaticReleaseDate(final String overrideAutomaticReleaseDate) {
         verifyLocalDate(sentenceDetail.getAutomaticReleaseOverrideDate(), overrideAutomaticReleaseDate);
     }
 
     @Step("Verify conditional release date")
-    public void verifyConditionalReleaseDate(String conditionalReleaseDate) {
+    public void verifyConditionalReleaseDate(final String conditionalReleaseDate) {
         verifyLocalDate(sentenceDetail.getConditionalReleaseDate(), conditionalReleaseDate);
     }
 
     @Step("Verify override conditional release date")
-    public void verifyOverrideConditionalReleaseDate(String overrideConditionalReleaseDate) {
+    public void verifyOverrideConditionalReleaseDate(final String overrideConditionalReleaseDate) {
         verifyLocalDate(sentenceDetail.getConditionalReleaseOverrideDate(), overrideConditionalReleaseDate);
     }
 
     @Step("Verify non-parole date")
-    public void verifyNonParoleDate(String nonParoleDate) {
+    public void verifyNonParoleDate(final String nonParoleDate) {
         verifyLocalDate(sentenceDetail.getNonParoleDate(), nonParoleDate);
     }
 
     @Step("Verify override non-parole date")
-    public void verifyOverrideNonParoleDate(String overrideNonParoleDate) {
+    public void verifyOverrideNonParoleDate(final String overrideNonParoleDate) {
         verifyLocalDate(sentenceDetail.getNonParoleOverrideDate(), overrideNonParoleDate);
     }
 
     @Step("Verify post-recall release date")
-    public void verifyPostRecallReleaseDate(String postRecallReleaseDate) {
+    public void verifyPostRecallReleaseDate(final String postRecallReleaseDate) {
         verifyLocalDate(sentenceDetail.getPostRecallReleaseDate(), postRecallReleaseDate);
     }
 
     @Step("Verify override post-recall release date")
-    public void verifyOverridePostRecallReleaseDate(String overridePostRecallReleaseDate) {
+    public void verifyOverridePostRecallReleaseDate(final String overridePostRecallReleaseDate) {
         verifyLocalDate(sentenceDetail.getPostRecallReleaseOverrideDate(), overridePostRecallReleaseDate);
     }
 
     @Step("Verify home detention curfew eligibility date")
-    public void verifyHomeDetentionCurfewEligibilityDate(String homeDetentionCurfewEligibilityDate) {
+    public void verifyHomeDetentionCurfewEligibilityDate(final String homeDetentionCurfewEligibilityDate) {
         verifyLocalDate(sentenceDetail.getHomeDetentionCurfewEligibilityDate(), homeDetentionCurfewEligibilityDate);
     }
 
     @Step("Verify parole eligibility date")
-    public void verifyParoleEligibilityDate(String paroleEligibilityDate) {
+    public void verifyParoleEligibilityDate(final String paroleEligibilityDate) {
         verifyLocalDate(sentenceDetail.getParoleEligibilityDate(), paroleEligibilityDate);
     }
 
     @Step("Verify home detention curfew actual date")
-    public void verifyHomeDetentionCurfewActualDate(String homeDetentionCurfewActualDate) {
+    public void verifyHomeDetentionCurfewActualDate(final String homeDetentionCurfewActualDate) {
         verifyLocalDate(sentenceDetail.getHomeDetentionCurfewActualDate(), homeDetentionCurfewActualDate);
     }
 
     @Step("Verify actual parole date")
-    public void verifyActualParoleDate(String actualParoleDate) {
+    public void verifyActualParoleDate(final String actualParoleDate) {
         verifyLocalDate(sentenceDetail.getActualParoleDate(), actualParoleDate);
     }
 
     @Step("Verify release on temporary licence date")
-    public void verifyReleaseOnTemporaryLicenceDate(String releaseOnTemporaryLicenceDate) {
+    public void verifyReleaseOnTemporaryLicenceDate(final String releaseOnTemporaryLicenceDate) {
         verifyLocalDate(sentenceDetail.getReleaseOnTemporaryLicenceDate(), releaseOnTemporaryLicenceDate);
     }
 
     @Step("Verify early removal scheme eligibility date")
-    public void verifyEarlyRemovalSchemeEligibilityDate(String earlyRemovalSchemeEligilityDate) {
+    public void verifyEarlyRemovalSchemeEligibilityDate(final String earlyRemovalSchemeEligilityDate) {
         verifyLocalDate(sentenceDetail.getEarlyRemovalSchemeEligibilityDate(), earlyRemovalSchemeEligilityDate);
     }
 
     @Step("Verify licence expiry date")
-    public void verifyLicenceExpiryDate(String licenceExpiryDate) {
+    public void verifyLicenceExpiryDate(final String licenceExpiryDate) {
         verifyLocalDate(sentenceDetail.getLicenceExpiryDate(), licenceExpiryDate);
     }
 
     @Step("Verify non-DTO release date")
-    public void verifyNonDtoReleaseDate(String releaseDate) {
+    public void verifyNonDtoReleaseDate(final String releaseDate) {
         verifyLocalDate(sentenceDetail.getNonDtoReleaseDate(), releaseDate);
     }
 
     @Step("verify non-DTO release date type")
-    public void verifyNonDtoReleaseDateType(String releaseDateType) {
+    public void verifyNonDtoReleaseDateType(final String releaseDateType) {
         verifyEnum(sentenceDetail.getNonDtoReleaseDateType(), releaseDateType);
     }
 
     @Step("Verify additional days awarded")
-    public void verifyAdditionalDaysAwarded(Integer additionalDaysAwarded) {
+    public void verifyAdditionalDaysAwarded(final Integer additionalDaysAwarded) {
         assertThat(sentenceDetail.getAdditionalDaysAwarded()).isEqualTo(additionalDaysAwarded);
     }
 
     @Step("Verify confirmed release date")
-    public void verifyConfirmedReleaseDate(String confirmedReleaseDate) {
+    public void verifyConfirmedReleaseDate(final String confirmedReleaseDate) {
         verifyLocalDate(sentenceDetail.getConfirmedReleaseDate(), confirmedReleaseDate);
     }
 
     @Step("Verify release date")
-    public void verifyReleaseDate(String releaseDate) {
+    public void verifyReleaseDate(final String releaseDate) {
         verifyLocalDate(sentenceDetail.getReleaseDate(), releaseDate);
     }
 
     @Step("Verify tariff date")
-    public void verifyTariffDate(String tariffDate) {
+    public void verifyTariffDate(final String tariffDate) {
         verifyLocalDate(sentenceDetail.getTariffDate(), tariffDate);
     }
 
     @Step("Verify topup supervision expiry date")
-    public void verifyTopupSupervisionExpiryDate(String topupSupervisionExpiryDate) {
+    public void verifyTopupSupervisionExpiryDate(final String topupSupervisionExpiryDate) {
         verifyLocalDate(sentenceDetail.getTopupSupervisionExpiryDate(), topupSupervisionExpiryDate);
     }
 
@@ -223,40 +223,40 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         sentenceDetail = null;
     }
 
-    private void dispatchSentenceDetail(Long bookingId) {
+    private void dispatchSentenceDetail(final Long bookingId) {
         init();
 
-        ResponseEntity<SentenceDetail> response;
+        final ResponseEntity<SentenceDetail> response;
 
         try {
             response = restTemplate.exchange(BOOKING_SENTENCE_DETAIL_API_URL, HttpMethod.GET, createEntity(),
                     SentenceDetail.class, bookingId);
 
             sentenceDetail = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void dispatchSentenceTerms(String bookingId) {
+    private void dispatchSentenceTerms(final String bookingId) {
         init();
 
-        ResponseEntity<OffenderSentenceTerms> response;
+        final ResponseEntity<OffenderSentenceTerms> response;
 
         try {
             response = restTemplate.exchange(BOOKING_SENTENCE_TERMS_API_URL, HttpMethod.GET, createEntity(),
                     OffenderSentenceTerms.class, bookingId);
 
             offenderSentenceTerms = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void dispatchOffenderSentences(String offenderNos, String agencyId) {
+    private void dispatchOffenderSentences(final String offenderNos, final String agencyId) {
         init();
 
-        StringBuilder urlModifier = new StringBuilder();
+        final var urlModifier = new StringBuilder();
         if (StringUtils.isNotBlank(offenderNos)) {
             Arrays.asList(offenderNos.split(",")).forEach(offenderNo -> urlModifier.append(initialiseUrlModifier(urlModifier)).append("offenderNo=").append(offenderNo));
         }
@@ -265,9 +265,9 @@ public class BookingSentenceDetailSteps extends CommonSteps {
             urlModifier.append(initialiseUrlModifier(urlModifier)).append("agencyId=").append(agencyId);
         }
 
-        Map<String, String> headers = new HashMap<>();
+        final Map<String, String> headers = new HashMap<>();
         try {
-            ResponseEntity<List<OffenderSentenceDetail>> response = restTemplate.exchange(OFFENDER_SENTENCE_DETAIL_API_URL + urlModifier,
+            final var response = restTemplate.exchange(OFFENDER_SENTENCE_DETAIL_API_URL + urlModifier,
                     HttpMethod.GET,
                     createEntity(null, headers),
                     LIST_OF_OFFENDER_SENTENCE_DETAIL_TYPE);
@@ -279,7 +279,7 @@ public class BookingSentenceDetailSteps extends CommonSteps {
                     offenderSentenceDetails.size() == 1) {
                 sentenceDetail = offenderSentenceDetails.get(0).getSentenceDetail();
             }
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -288,23 +288,23 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         init();
 
         try {
-            ResponseEntity<List<OffenderSentenceDetail>> response = restTemplate.exchange(HOME_DETENTION_CURFEW_CANDIDATES,
+            final var response = restTemplate.exchange(HOME_DETENTION_CURFEW_CANDIDATES,
                     HttpMethod.GET,
                     createEntity(null, Collections.emptyMap()),
                     LIST_OF_OFFENDER_SENTENCE_DETAIL_TYPE);
             buildResourceData(response);
 
             offenderSentenceDetails = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void dispatchOffenderSentencesForPostRequest(String url, List<String> idList) {
+    private void dispatchOffenderSentencesForPostRequest(final String url, final List<String> idList) {
         init();
 
         try {
-            ResponseEntity<List<OffenderSentenceDetail>> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     url,
                     HttpMethod.POST,
                     createEntity(idList),
@@ -312,16 +312,16 @@ public class BookingSentenceDetailSteps extends CommonSteps {
             buildResourceData(response);
 
             offenderSentenceDetails = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private String initialiseUrlModifier(StringBuilder urlModifier) {
+    private String initialiseUrlModifier(final StringBuilder urlModifier) {
         return urlModifier.length() > 0 ? "&" : "?";
     }
 
-    public void requestSentenceTerms(String bookingId) {
+    public void requestSentenceTerms(final String bookingId) {
         dispatchSentenceTerms(bookingId);
     }
 

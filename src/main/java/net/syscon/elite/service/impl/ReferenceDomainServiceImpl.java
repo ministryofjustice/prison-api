@@ -23,20 +23,20 @@ import java.util.stream.Collectors;
 public class ReferenceDomainServiceImpl implements ReferenceDomainService {
     private final ReferenceCodeRepository referenceCodeRepository;
 
-    public ReferenceDomainServiceImpl(ReferenceCodeRepository referenceCodeRepository) {
+    public ReferenceDomainServiceImpl(final ReferenceCodeRepository referenceCodeRepository) {
         this.referenceCodeRepository = referenceCodeRepository;
     }
 
-    private static String getDefaultOrderBy(String orderBy) {
+    private static String getDefaultOrderBy(final String orderBy) {
         return StringUtils.defaultIfBlank(orderBy, "code");
     }
 
-    private static Order getDefaultOrder(Order order) {
+    private static Order getDefaultOrder(final Order order) {
         return Objects.isNull(order) ? Order.ASC : order;
     }
 
     @Override
-    public Page<ReferenceCode> getAlertTypes(String orderBy, Order order, long offset, long limit) {
+    public Page<ReferenceCode> getAlertTypes(final String orderBy, final Order order, final long offset, final long limit) {
         return referenceCodeRepository.getReferenceCodesByDomain(
                 ReferenceDomain.ALERT.getDomain(), true,
                 getDefaultOrderBy(orderBy), getDefaultOrder(order),
@@ -44,7 +44,7 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
     }
 
     @Override
-    public Page<ReferenceCode> getCaseNoteSources(String orderBy, Order order, long offset, long limit) {
+    public Page<ReferenceCode> getCaseNoteSources(final String orderBy, final Order order, final long offset, final long limit) {
         return referenceCodeRepository.getReferenceCodesByDomain(
                 ReferenceDomain.CASE_NOTE_SOURCE.getDomain(), false,
                 getDefaultOrderBy(orderBy), getDefaultOrder(order),
@@ -52,7 +52,7 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
     }
 
     @Override
-    public Page<ReferenceCode> getReferenceCodesByDomain(String domain, boolean withSubCodes, String orderBy, Order order, long offset, long limit) {
+    public Page<ReferenceCode> getReferenceCodesByDomain(final String domain, final boolean withSubCodes, final String orderBy, final Order order, final long offset, final long limit) {
         verifyReferenceDomain(domain);
 
         return referenceCodeRepository.getReferenceCodesByDomain(
@@ -60,33 +60,33 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
     }
 
     @Override
-    public Optional<ReferenceCode> getReferenceCodeByDomainAndCode(String domain, String code, boolean withSubCodes) {
+    public Optional<ReferenceCode> getReferenceCodeByDomainAndCode(final String domain, final String code, final boolean withSubCodes) {
         verifyReferenceDomain(domain);
         verifyReferenceCode(domain, code);
 
         return referenceCodeRepository.getReferenceCodeByDomainAndCode(domain, code, withSubCodes);
     }
 
-    private void verifyReferenceDomain(String domain) {
+    private void verifyReferenceDomain(final String domain) {
         referenceCodeRepository.getReferenceDomain(domain)
                 .orElseThrow(EntityNotFoundException.withMessage("Reference domain [%s] not found.", domain));
     }
 
-    private void verifyReferenceCode(String domain, String code) {
+    private void verifyReferenceCode(final String domain, final String code) {
         referenceCodeRepository.getReferenceCodeByDomainAndCode(domain, code, false)
                 .orElseThrow(EntityNotFoundException.withMessage("Reference code for domain [%s] and code [%s] not found.", domain, code));
     }
 
     @Override
-    public List<ReferenceCode> getScheduleReasons(String eventType) {
+    public List<ReferenceCode> getScheduleReasons(final String eventType) {
         verifyReferenceCode(ReferenceDomain.INTERNAL_SCHEDULE_TYPE.getDomain(), eventType);
 
-        List<ReferenceCode> scheduleReasons = referenceCodeRepository.getScheduleReasons(eventType);
+        final var scheduleReasons = referenceCodeRepository.getScheduleReasons(eventType);
         return tidyDescriptionAndSort(scheduleReasons);
     }
 
     @Override
-    public boolean isReferenceCodeActive(String domain, String code) {
+    public boolean isReferenceCodeActive(final String domain, final String code) {
         // Call the advised version of the repository so that cacheing is applied.
         return referenceCodeRepository
                 .getReferenceCodeByDomainAndCode(domain, code, false)
@@ -94,7 +94,7 @@ public class ReferenceDomainServiceImpl implements ReferenceDomainService {
                 .orElse(false);
     }
 
-    private List<ReferenceCode> tidyDescriptionAndSort(List<ReferenceCode> refCodes) {
+    private List<ReferenceCode> tidyDescriptionAndSort(final List<ReferenceCode> refCodes) {
         return refCodes.stream()
                 .map(p -> ReferenceCode.builder()
                         .code(p.getCode())

@@ -41,7 +41,7 @@ public class Telephone {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -54,7 +54,7 @@ public class Telephone {
         return number;
     }
 
-    public void setNumber(String number) {
+    public void setNumber(final String number) {
         this.number = number;
     }
 
@@ -67,7 +67,7 @@ public class Telephone {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(final String type) {
         this.type = type;
     }
 
@@ -80,13 +80,13 @@ public class Telephone {
         return ext;
     }
 
-    public void setExt(String ext) {
+    public void setExt(final String ext) {
         this.ext = ext;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class Telephone {\n");
         

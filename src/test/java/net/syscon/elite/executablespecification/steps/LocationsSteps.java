@@ -32,62 +32,62 @@ public class LocationsSteps extends CommonSteps {
     private List<LocationGroup> groupList;
 
     @Step("Perform location search by location id")
-    public void findByLocationId(Long locationId) {
+    public void findByLocationId(final Long locationId) {
         dispatchQueryForObject("/" + locationId.toString());
     }
 
     @Step("Verify location type")
-    public void verifyLocationType(String type) {
-        String locationType = (location == null) ? StringUtils.EMPTY : location.getLocationType();
+    public void verifyLocationType(final String type) {
+        final var locationType = (location == null) ? StringUtils.EMPTY : location.getLocationType();
 
         assertThat(locationType).isEqualTo(type);
     }
 
     @Step("Verify location description")
-    public void verifyLocationDescription(String description) {
-        String locationDesc = (location == null) ? StringUtils.EMPTY : location.getDescription();
+    public void verifyLocationDescription(final String description) {
+        final var locationDesc = (location == null) ? StringUtils.EMPTY : location.getDescription();
 
         assertThat(locationDesc).isEqualTo(description);
     }
 
-    private void dispatchQueryForObject(String query) {
+    private void dispatchQueryForObject(final String query) {
         init();
 
-        String queryUrl = API_LOCATIONS + StringUtils.trimToEmpty(query);
+        final var queryUrl = API_LOCATIONS + StringUtils.trimToEmpty(query);
 
-        ResponseEntity<Location> response;
+        final ResponseEntity<Location> response;
 
         try {
             response = restTemplate.exchange(queryUrl, HttpMethod.GET, createEntity(), Location.class);
 
             location = response.getBody();
 
-            List<?> resources = Collections.singletonList(location);
+            final List<?> resources = Collections.singletonList(location);
 
             setResourceMetaData(resources);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void dispatchGroupCall(String url, String agencyId, String name) {
+    private void dispatchGroupCall(final String url, final String agencyId, final String name) {
         init();
         try {
-            ResponseEntity<List<Location>> response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
+            final var response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
                     new ParameterizedTypeReference<List<Location>>() {}, agencyId, name);
             locationList = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void dispatchGroupsCall(String url, String agencyId) {
+    private void dispatchGroupsCall(final String url, final String agencyId) {
         init();
         try {
-            ResponseEntity<List<LocationGroup>> response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
+            final var response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
                     new ParameterizedTypeReference<List<LocationGroup>>() {}, agencyId);
             groupList = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -101,26 +101,26 @@ public class LocationsSteps extends CommonSteps {
         groupList = null;
     }
 
-    public void findList(String agencyId, String name) {
+    public void findList(final String agencyId, final String name) {
         dispatchGroupCall(GROUP_API_URL, agencyId, name);
     }
 
-    public void verifyLocationList(String expectedList) {
+    public void verifyLocationList(final String expectedList) {
         assertThat(locationList).asList().extracting("locationPrefix")
                 .containsExactly((Object[]) commaDelimitedListToStringArray(expectedList));
     }
 
-    public void verifyLocationIdList(String expectedList) {
+    public void verifyLocationIdList(final String expectedList) {
         // Careful here - this does not check order, we are relying on verifyLocationList() for that
         verifyLongValues(locationList, Location::getLocationId, expectedList);
     }
 
-    public void aRequestIsMadeToRetrieveAllGroups(String agencyId) {
+    public void aRequestIsMadeToRetrieveAllGroups(final String agencyId) {
         dispatchGroupsCall(GROUPS_API_URL, agencyId);
     }
 
-    public void groupsAre(String expectedList) {
-        List<String> actual = groupList
+    public void groupsAre(final String expectedList) {
+        final var actual = groupList
                 .stream()
                 .flatMap(group -> Stream.concat(
                         Stream.of(group.getName()),

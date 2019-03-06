@@ -7,59 +7,59 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 public class OperationResponse extends ResponseDelegate {
-    private OperationResponse(Response response, Object entity) {
+    private OperationResponse(final Response response, final Object entity) {
         super(response, entity);
     }
 
-    public static OperationResponse respond400WithApplicationJson(ErrorResponse errorResponse) {
-        ResponseBuilder responseBuilder = Response.status(400).header("Content-Type", MediaType.APPLICATION_JSON);
+    public static OperationResponse respond400WithApplicationJson(final ErrorResponse errorResponse) {
+        final var responseBuilder = Response.status(400).header("Content-Type", MediaType.APPLICATION_JSON);
 
         responseBuilder.entity(errorResponse);
 
         return new OperationResponse(responseBuilder.build(), errorResponse);
     }
 
-    public static OperationResponse respond401WithApplicationJson(ErrorResponse errorResponse) {
-        ResponseBuilder responseBuilder = Response.status(401).header("Content-Type", MediaType.APPLICATION_JSON);
+    public static OperationResponse respond401WithApplicationJson(final ErrorResponse errorResponse) {
+        final var responseBuilder = Response.status(401).header("Content-Type", MediaType.APPLICATION_JSON);
 
         responseBuilder.entity(errorResponse);
 
         return new OperationResponse(responseBuilder.build(), errorResponse);
     }
 
-    public static OperationResponse respond403WithApplicationJson(ErrorResponse errorResponse) {
-        ResponseBuilder responseBuilder = Response.status(403).header("Content-Type", MediaType.APPLICATION_JSON);
+    public static OperationResponse respond403WithApplicationJson(final ErrorResponse errorResponse) {
+        final var responseBuilder = Response.status(403).header("Content-Type", MediaType.APPLICATION_JSON);
 
         responseBuilder.entity(errorResponse);
 
         return new OperationResponse(responseBuilder.build(), errorResponse);
     }
 
-    public static OperationResponse respond404WithApplicationJson(ErrorResponse errorResponse) {
-        ResponseBuilder responseBuilder = Response.status(404).header("Content-Type", MediaType.APPLICATION_JSON);
+    public static OperationResponse respond404WithApplicationJson(final ErrorResponse errorResponse) {
+        final var responseBuilder = Response.status(404).header("Content-Type", MediaType.APPLICATION_JSON);
 
         responseBuilder.entity(errorResponse);
 
         return new OperationResponse(responseBuilder.build(), errorResponse);
     }
 
-    public static OperationResponse respond409WithApplicationJson(ErrorResponse errorResponse) {
-        ResponseBuilder responseBuilder = Response.status(409).header("Content-Type", MediaType.APPLICATION_JSON);
+    public static OperationResponse respond409WithApplicationJson(final ErrorResponse errorResponse) {
+        final var responseBuilder = Response.status(409).header("Content-Type", MediaType.APPLICATION_JSON);
 
         responseBuilder.entity(errorResponse);
 
         return new OperationResponse(responseBuilder.build(), errorResponse);
     }
 
-    public static OperationResponse respond500WithApplicationJson(ErrorResponse errorResponse) {
-        ResponseBuilder responseBuilder = Response.status(500).header("Content-Type", MediaType.APPLICATION_JSON);
+    public static OperationResponse respond500WithApplicationJson(final ErrorResponse errorResponse) {
+        final var responseBuilder = Response.status(500).header("Content-Type", MediaType.APPLICATION_JSON);
 
         responseBuilder.entity(errorResponse);
 
         return new OperationResponse(responseBuilder.build(), errorResponse);
     }
 
-    public static OperationResponse respondErrorWithApplicationJson(ErrorResponse errorResponse) {
+    public static OperationResponse respondErrorWithApplicationJson(final ErrorResponse errorResponse) {
         switch(Status.fromStatusCode(errorResponse.getStatus().intValue())) {
             case BAD_REQUEST:
                 return respond400WithApplicationJson(errorResponse);

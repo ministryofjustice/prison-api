@@ -17,7 +17,7 @@ public enum SQLKeyword {
 
     private final String keyword;
 
-    SQLKeyword(String keyword) {
+    SQLKeyword(final String keyword) {
         this.keyword = keyword;
     }
 

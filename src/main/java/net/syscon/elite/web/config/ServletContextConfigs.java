@@ -66,17 +66,17 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
     private LocalValidatorFactoryBean localValidatorFactoryBean;
 
     @Override
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+    public void setBeanFactory(final BeanFactory beanFactory) throws BeansException {
         this.beanFactory = beanFactory;
     }
 
     @Autowired
-    public void setEnv(ConfigurableEnvironment env) {
-        Class[] restResources = AnnotationScanner.findAnnotatedClasses(RestResource.class, apiResourcePackages);
+    public void setEnv(final ConfigurableEnvironment env) {
+        final var restResources = AnnotationScanner.findAnnotatedClasses(RestResource.class, apiResourcePackages);
 
         registerClasses(restResources);
 
-        String contextPath = env.getProperty("spring.jersey.application-path");
+        final var contextPath = env.getProperty("spring.jersey.application-path");
 
         register(new EndpointLoggingListener(contextPath));
 
@@ -94,7 +94,7 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
     }
 
     @Autowired
-    public ServletContextConfigs(ObjectMapper objectMapper) {
+    public ServletContextConfigs(final ObjectMapper objectMapper) {
         objectMapper.setDateFormat(new ISO8601DateFormat());
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.INDENT_OUTPUT);
@@ -120,7 +120,7 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
     @Bean
     @DependsOn(value = "LocalValidatorFactoryBean")
     public MethodValidationPostProcessor methodPostProcessor() {
-        final MethodValidationPostProcessor methodValidationPostProcessor = new MethodValidationPostProcessor();
+        final var methodValidationPostProcessor = new MethodValidationPostProcessor();
         methodValidationPostProcessor.setValidator(localValidatorFactoryBean);
         return methodValidationPostProcessor;
     }
@@ -137,7 +137,7 @@ public class ServletContextConfigs extends ResourceConfig implements BeanFactory
         register(LocalDateProvider.class);
         register(LocalDateTimeProvider.class);
 
-        BeanConfig config = new BeanConfig();
+        final var config = new BeanConfig();
 
         config.setConfigId("net-syscon-elite2-api");
         config.setTitle("HMPPS Nomis API Documentation");

@@ -61,7 +61,7 @@ public class KeyWorkerAllocationDetail {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -74,7 +74,7 @@ public class KeyWorkerAllocationDetail {
         return bookingId;
     }
 
-    public void setBookingId(Long bookingId) {
+    public void setBookingId(final Long bookingId) {
         this.bookingId = bookingId;
     }
 
@@ -87,7 +87,7 @@ public class KeyWorkerAllocationDetail {
         return offenderNo;
     }
 
-    public void setOffenderNo(String offenderNo) {
+    public void setOffenderNo(final String offenderNo) {
         this.offenderNo = offenderNo;
     }
 
@@ -100,7 +100,7 @@ public class KeyWorkerAllocationDetail {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
@@ -113,7 +113,7 @@ public class KeyWorkerAllocationDetail {
         return middleNames;
     }
 
-    public void setMiddleNames(String middleNames) {
+    public void setMiddleNames(final String middleNames) {
         this.middleNames = middleNames;
     }
 
@@ -126,7 +126,7 @@ public class KeyWorkerAllocationDetail {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
@@ -139,7 +139,7 @@ public class KeyWorkerAllocationDetail {
         return staffId;
     }
 
-    public void setStaffId(Long staffId) {
+    public void setStaffId(final Long staffId) {
         this.staffId = staffId;
     }
 
@@ -152,7 +152,7 @@ public class KeyWorkerAllocationDetail {
         return agencyId;
     }
 
-    public void setAgencyId(String agencyId) {
+    public void setAgencyId(final String agencyId) {
         this.agencyId = agencyId;
     }
 
@@ -165,7 +165,7 @@ public class KeyWorkerAllocationDetail {
         return assigned;
     }
 
-    public void setAssigned(LocalDateTime assigned) {
+    public void setAssigned(final LocalDateTime assigned) {
         this.assigned = assigned;
     }
 
@@ -178,13 +178,13 @@ public class KeyWorkerAllocationDetail {
         return internalLocationDesc;
     }
 
-    public void setInternalLocationDesc(String internalLocationDesc) {
+    public void setInternalLocationDesc(final String internalLocationDesc) {
         this.internalLocationDesc = internalLocationDesc;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class KeyWorkerAllocationDetail {\n");
         

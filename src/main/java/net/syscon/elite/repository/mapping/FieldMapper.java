@@ -25,31 +25,31 @@ public class FieldMapper {
 	// encode value for query
 	private Function<String, String> encodeFunction;
 
-	public FieldMapper(String name) {
+    public FieldMapper(final String name) {
 		this.name = name;
 	}
 
-	public FieldMapper(String name,  Function<Object, Object> decodeFunction) {
+    public FieldMapper(final String name, final Function<Object, Object> decodeFunction) {
 		this.name = name;
 		this.decodeFunction = decodeFunction;
 	}
 
-	public FieldMapper(String name,  Function<Object, Object> decodeFunction, Function<Field, Void> setterFunction) {
+    public FieldMapper(final String name, final Function<Object, Object> decodeFunction, final Function<Field, Void> setterFunction) {
 		this.name = name;
 		this.decodeFunction = decodeFunction;
 		this.setterFunction = setterFunction;
 	}
 
-	public FieldMapper(String name,  Function<Object, Object> decodeFunction, Function<Field, Void> setterFunction,
-					   Function<String, String> encodeFunction) {
+    public FieldMapper(final String name, final Function<Object, Object> decodeFunction, final Function<Field, Void> setterFunction,
+                       final Function<String, String> encodeFunction) {
 		this.name = name;
 		this.decodeFunction = decodeFunction;
 		this.setterFunction = setterFunction;
 		this.encodeFunction = encodeFunction;
 	}
 
-	private Object getCompatibleValue(Field field, Object value) throws SQLException {
-		Class<?> fieldType = field.getType();
+    private Object getCompatibleValue(final Field field, final Object value) throws SQLException {
+        final var fieldType = field.getType();
 		if (decodeFunction != null) {
 			return decodeFunction.apply(value);
 		} else if (fieldType.isInstance(value)) {
@@ -64,15 +64,15 @@ public class FieldMapper {
 		return value;
 	}
 
-	private Object getBlobValue(Object value) throws SQLException {
-		Blob blob = (Blob)value;
-		int length = (int) blob.length();
-		byte[] result  = blob.getBytes(1, length);
+    private Object getBlobValue(final Object value) throws SQLException {
+        final var blob = (Blob) value;
+        final var length = (int) blob.length();
+        final var result = blob.getBytes(1, length);
 		blob.free();
 		return result;
 	}
 
-	private Object getDateValue(Object value, Class<?> fieldType) {
+    private Object getDateValue(final Object value, final Class<?> fieldType) {
 		if (fieldType.equals(java.sql.Date.class)) {
 			return new java.sql.Date(((java.util.Date) value).getTime());
 		} else if (fieldType.equals(java.sql.Time.class)) {
@@ -84,8 +84,8 @@ public class FieldMapper {
 	}
 
 	@SuppressWarnings({"squid:S3776", "squid:MethodCyclomaticComplexity"})
-	private Object getNumberValue(Object value, Class<?> fieldType) {
-		Number numberValue = (Number) value;
+    private Object getNumberValue(final Object value, final Class<?> fieldType) {
+        final var numberValue = (Number) value;
 		if (Long.TYPE.equals(fieldType) || Long.class.equals(fieldType))
 			return numberValue.longValue();
 		if (Integer.TYPE.equals(fieldType) || Integer.class.equals(fieldType))
@@ -109,11 +109,11 @@ public class FieldMapper {
 		return null;
 	}
 
-	private Field findField(Class clazz) {
+    private Field findField(final Class clazz) {
 		if (clazz != null) {
 			try {
 				return clazz.getDeclaredField(name);
-			} catch (NoSuchFieldException e) {
+            } catch (final NoSuchFieldException e) {
 				if (clazz.getSuperclass() != null) {
 					return findField(clazz.getSuperclass());
 				}
@@ -122,27 +122,27 @@ public class FieldMapper {
 		return null;
 	}
 
-	void setValue(Object target, Object value) {
+    void setValue(final Object target, final Object value) {
 		try {
-			var beanField = findField(target.getClass());
+            final var beanField = findField(target.getClass());
 			if (beanField != null) {
-				final boolean accessible = beanField.canAccess(target);
+                final var accessible = beanField.canAccess(target);
 				beanField.setAccessible(true);
 				if (setterFunction != null) {
 					setterFunction.apply(beanField);
 				} else {
-					final Object compatibleValue = getCompatibleValue(beanField, value);
+                    final var compatibleValue = getCompatibleValue(beanField, value);
 					ReflectionUtils.setField(beanField, target, compatibleValue);
 				}
 				beanField.setAccessible(accessible);
 			}
-		} catch (SQLException ex) {
+        } catch (final SQLException ex) {
 			logger.warn("Failure setting the field \"" + name + "\" on " + target.getClass().getName());
 		}
 	}
 
-	public String getEncodedValue(String value) {
-		String encodedValue;
+    public String getEncodedValue(final String value) {
+        final String encodedValue;
 
 		if (encodeFunction == null) {
 			encodedValue = value;

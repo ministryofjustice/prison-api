@@ -20,14 +20,14 @@ import java.time.format.DateTimeFormatter;
 public class LocalDateTimeProvider implements ParamConverterProvider {
 
     @Override
-    public <T> ParamConverter<T> getConverter(Class<T> clazz, Type type, Annotation[] annotations) {
+    public <T> ParamConverter<T> getConverter(final Class<T> clazz, final Type type, final Annotation[] annotations) {
         if (clazz.getName().equals(LocalDateTime.class.getName())) {
 
             return new ParamConverter<T>() {
 
                 @SuppressWarnings("unchecked")
                 @Override
-                public T fromString(String value) {
+                public T fromString(final String value) {
                     if (value == null) {
                         return null;
                     }
@@ -35,11 +35,11 @@ public class LocalDateTimeProvider implements ParamConverterProvider {
                 }
 
                 @Override
-                public String toString(T time) {
+                public String toString(final T time) {
                     if (time == null) {
                         return null;
                     }
-                    LocalDateTime t = (LocalDateTime) time;
+                    final var t = (LocalDateTime) time;
                     return t.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
                 }
             };

@@ -31,20 +31,20 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
     @Value("${offender.dob.max.range.years:10}")
     private int maxYears;
 
-    public GlobalSearchServiceImpl(InmateRepository inmateRepository, OffenderRepository offenderRepository) {
+    public GlobalSearchServiceImpl(final InmateRepository inmateRepository, final OffenderRepository offenderRepository) {
         this.inmateRepository = inmateRepository;
         this.offenderRepository = offenderRepository;
     }
 
     @Override
-    public Page<PrisonerDetail> findOffenders(PrisonerDetailSearchCriteria criteria, PageRequest pageRequest) {
+    public Page<PrisonerDetail> findOffenders(final PrisonerDetailSearchCriteria criteria, final PageRequest pageRequest) {
         validateGenderFilter(criteria.getSexCode());
         validateLocationFilter(criteria.getLatestLocationId());
 
-        PrisonerDetailSearchCriteria decoratedCriteria = criteria.withMaxYearsRange(maxYears);
-        PageRequest adjustedPageRequest = pageRequest.withDefaultOrderBy(DEFAULT_GLOBAL_SEARCH_OFFENDER_SORT);
+        final var decoratedCriteria = criteria.withMaxYearsRange(maxYears);
+        final var adjustedPageRequest = pageRequest.withDefaultOrderBy(DEFAULT_GLOBAL_SEARCH_OFFENDER_SORT);
 
-        Page<PrisonerDetail> prisonersPage;
+        final Page<PrisonerDetail> prisonersPage;
 
         try {
             // Always force the use of streamlined SQL when searching by PNC or CRO for performance reasons
@@ -54,15 +54,15 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
                 prisonersPage = executeQuery(decoratedCriteria, adjustedPageRequest);
             }
             prisonersPage.getItems().forEach(p -> p.setLatestLocation(LocationProcessor.formatLocation(p.getLatestLocation())));
-        } catch (IllegalArgumentException iaex) {
+        } catch (final IllegalArgumentException iaex) {
             throw new BadRequestException("Invalid search criteria.", iaex);
         }
 
         return prisonersPage;
     }
 
-    private Page<PrisonerDetail> executeQuery(PrisonerDetailSearchCriteria criteria, PageRequest pageRequest) {
-        String query = InmateRepository.generateFindOffendersQuery(criteria);
+    private Page<PrisonerDetail> executeQuery(final PrisonerDetailSearchCriteria criteria, final PageRequest pageRequest) {
+        final var query = InmateRepository.generateFindOffendersQuery(criteria);
 
         if (StringUtils.isNotBlank(query)) {
             return criteria.isIncludeAliases() ? inmateRepository.findOffendersWithAliases(query, pageRequest) : inmateRepository.findOffenders(query, pageRequest);
@@ -71,17 +71,17 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
         return new Page<>(Collections.emptyList(), 0, pageRequest.getOffset(), pageRequest.getLimit());
     }
 
-    private Page<PrisonerDetail> executePrioritisedQuery(PrisonerDetailSearchCriteria criteria, PageRequest pageRequest) {
+    private Page<PrisonerDetail> executePrioritisedQuery(final PrisonerDetailSearchCriteria criteria, final PageRequest pageRequest) {
         return executeOffenderNoQuery(criteria, pageRequest);
     }
 
-    private Page<PrisonerDetail> executeOffenderNoQuery(PrisonerDetailSearchCriteria originalCriteria, PageRequest pageRequest) {
+    private Page<PrisonerDetail> executeOffenderNoQuery(final PrisonerDetailSearchCriteria originalCriteria, final PageRequest pageRequest) {
         Page<PrisonerDetail> response;
 
-        String offenderNoCriteria = originalCriteria.getOffenderNo();
+        final var offenderNoCriteria = originalCriteria.getOffenderNo();
 
         if (StringUtils.isNotBlank(offenderNoCriteria)) {
-            PrisonerDetailSearchCriteria criteria = PrisonerDetailSearchCriteria.builder()
+            final var criteria = PrisonerDetailSearchCriteria.builder()
                     .offenderNo(offenderNoCriteria).build();
 
             response = executeQuery(criteria, pageRequest);
@@ -96,13 +96,13 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
         return response;
     }
 
-    private Page<PrisonerDetail> executePncNumberQuery(PrisonerDetailSearchCriteria originalCriteria, PageRequest pageRequest) {
+    private Page<PrisonerDetail> executePncNumberQuery(final PrisonerDetailSearchCriteria originalCriteria, final PageRequest pageRequest) {
         Page<PrisonerDetail> response;
 
-        String pncNumberCriteria = originalCriteria.getPncNumber();
+        final var pncNumberCriteria = originalCriteria.getPncNumber();
 
         if (StringUtils.isNotBlank(pncNumberCriteria)) {
-            PrisonerDetailSearchCriteria criteria = PrisonerDetailSearchCriteria.builder()
+            final var criteria = PrisonerDetailSearchCriteria.builder()
                     .pncNumber(pncNumberCriteria).build();
 
             response = offenderRepository.findOffenders(criteria, pageRequest);
@@ -117,13 +117,13 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
         return response;
     }
 
-    private Page<PrisonerDetail> executeCroNumberQuery(PrisonerDetailSearchCriteria originalCriteria, PageRequest pageRequest) {
+    private Page<PrisonerDetail> executeCroNumberQuery(final PrisonerDetailSearchCriteria originalCriteria, final PageRequest pageRequest) {
         Page<PrisonerDetail> response;
 
-        String croNumberCriteria = originalCriteria.getCroNumber();
+        final var croNumberCriteria = originalCriteria.getCroNumber();
 
         if (StringUtils.isNotBlank(croNumberCriteria)) {
-            PrisonerDetailSearchCriteria criteria = PrisonerDetailSearchCriteria.builder()
+            final var criteria = PrisonerDetailSearchCriteria.builder()
                     .croNumber(croNumberCriteria).build();
 
             response = offenderRepository.findOffenders(criteria, pageRequest);
@@ -138,8 +138,8 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
         return response;
     }
 
-    private Page<PrisonerDetail> executePersonalAttrsQuery(PrisonerDetailSearchCriteria originalCriteria, PageRequest pageRequest) {
-        PrisonerDetailSearchCriteria criteria =  PrisonerDetailSearchCriteria.builder()
+    private Page<PrisonerDetail> executePersonalAttrsQuery(final PrisonerDetailSearchCriteria originalCriteria, final PageRequest pageRequest) {
+        final var criteria = PrisonerDetailSearchCriteria.builder()
                 .lastName(originalCriteria.getLastName())
                 .firstName(originalCriteria.getFirstName())
                 .dob(originalCriteria.getDob())
@@ -147,7 +147,7 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
                 .anyMatch(originalCriteria.isAnyMatch())
                 .build();
 
-        Page<PrisonerDetail> response = executeQuery(criteria, pageRequest);
+        var response = executeQuery(criteria, pageRequest);
 
         if (response.getItems().isEmpty()) {
             response = executeDobRangeQuery(originalCriteria, pageRequest);
@@ -156,8 +156,8 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
         return response;
     }
 
-    private Page<PrisonerDetail> executeDobRangeQuery(PrisonerDetailSearchCriteria originalCriteria, PageRequest pageRequest) {
-        PrisonerDetailSearchCriteria criteria =   PrisonerDetailSearchCriteria.builder()
+    private Page<PrisonerDetail> executeDobRangeQuery(final PrisonerDetailSearchCriteria originalCriteria, final PageRequest pageRequest) {
+        final var criteria = PrisonerDetailSearchCriteria.builder()
                 .dobFrom(originalCriteria.getDobFrom())
                 .dobTo(originalCriteria.getDobTo())
                 .maxYearsRange(originalCriteria.getMaxYearsRange())
@@ -167,13 +167,13 @@ public class GlobalSearchServiceImpl implements GlobalSearchService {
     }
 
 
-    private void validateLocationFilter(String location) {
+    private void validateLocationFilter(final String location) {
         if (StringUtils.isNotBlank(location) && !VALID_LOCATION_FILTER_VALUES.contains(location)){
             throw new BadRequestException(String.format("Location filter value %s not recognised.", location));
         }
     }
 
-    private void validateGenderFilter(String gender) {
+    private void validateGenderFilter(final String gender) {
         if (StringUtils.isNotBlank(gender) && !VALID_GENDER_FILTER_VALUES.contains(gender)){
             throw new BadRequestException(String.format("Gender filter value %s not recognised.", gender));
         }

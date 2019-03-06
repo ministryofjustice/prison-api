@@ -10,22 +10,22 @@ public class HSQLDBQueryBuilder extends AbstractQueryBuilder {
 
 	private static final String COUNT_SELECT = "WITH TOTAL_COUNT AS ( SELECT COUNT(*) AS RECORD_COUNT %s ) SELECT * FROM TOTAL_COUNT, (";
 
-	public HSQLDBQueryBuilder(final String initialSQL, final Map<String, FieldMapper> fieldMap, DatabaseDialect dialect) {
+    public HSQLDBQueryBuilder(final String initialSQL, final Map<String, FieldMapper> fieldMap, final DatabaseDialect dialect) {
 		super(initialSQL, fieldMap, dialect);
 	}
 
 	public String build() {
-		StringBuilder result = new StringBuilder();
-		Optional<SQLKeyword> statementType = getStatementType();
+        var result = new StringBuilder();
+        final var statementType = getStatementType();
 
 		if (Optional.of(SQLKeyword.SELECT).equals(statementType)) {
             // Prepare initial SQL - wrap and apply additional criteria, as necessary.
-            String preparedSql = prepareSql();
+            final var preparedSql = prepareSql();
 
             result.append(preparedSql);
 
             // Apply any sorting...
-			String strOrderBy = (StringUtils.isBlank(extraOrderBy)) ? " " : " " + (SQLKeyword.ORDER_BY + " " + extraOrderBy);
+            final var strOrderBy = (StringUtils.isBlank(extraOrderBy)) ? " " : " " + (SQLKeyword.ORDER_BY + " " + extraOrderBy);
 
 			result.append(strOrderBy);
 
@@ -53,12 +53,12 @@ public class HSQLDBQueryBuilder extends AbstractQueryBuilder {
 		return result.toString();
 	}
 
-	private void buildPaginationSql(StringBuilder result) {
+    private void buildPaginationSql(final StringBuilder result) {
 		result.append(" OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY");
 	}
 
-	private void buildAnsiDataCountSql(StringBuilder result, String fullSql) {
-		final String criteria = QueryUtil.getCriteriaFromQuery(fullSql);
+    private void buildAnsiDataCountSql(final StringBuilder result, final String fullSql) {
+        final var criteria = QueryUtil.getCriteriaFromQuery(fullSql);
 
 		result.insert(0, String.format(COUNT_SELECT, criteria));
 
@@ -68,7 +68,7 @@ public class HSQLDBQueryBuilder extends AbstractQueryBuilder {
 	}
 
 	private String prepareSql() {
-        StringBuilder preparedSql = new StringBuilder();
+        final var preparedSql = new StringBuilder();
 
         if (includeRowCount || extraWhere.length() > 0 || extraOrderBy.length() > 0) {
             preparedSql.append("SELECT QRY_ALIAS.* FROM (").append(initialSQL).append(") QRY_ALIAS");

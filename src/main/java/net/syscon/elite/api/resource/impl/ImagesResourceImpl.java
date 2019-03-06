@@ -2,7 +2,6 @@ package net.syscon.elite.api.resource.impl;
 
 
 import net.syscon.elite.api.model.ErrorResponse;
-import net.syscon.elite.api.model.ImageDetail;
 import net.syscon.elite.api.resource.ImageResource;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.ImageService;
@@ -22,21 +21,21 @@ public class ImagesResourceImpl implements ImageResource {
 
 	@Override
 	public GetImageDataResponse getImageData(final Long imageId) {
-		final byte[] data = imageService.getImageContent(imageId);
+        final var data = imageService.getImageContent(imageId);
 		if (data != null) {
 			try {
-                File temp = File.createTempFile("userimage", ".tmp");
+                final var temp = File.createTempFile("userimage", ".tmp");
                 FileUtils.copyInputStreamToFile(new ByteArrayInputStream(data), temp);
                 return GetImageDataResponse.respond200WithApplicationJson(temp);
-			} catch (IOException e) {
-                final ErrorResponse errorResponse = ErrorResponse.builder()
+            } catch (final IOException e) {
+                final var errorResponse = ErrorResponse.builder()
                         .errorCode(500)
                         .userMessage("An error occurred loading the image ID "+ imageId)
                         .build();
                 return GetImageDataResponse.respond500WithApplicationJson(errorResponse);
 			}
 		} else {
-            final ErrorResponse errorResponse = ErrorResponse.builder()
+            final var errorResponse = ErrorResponse.builder()
                     .errorCode(404)
                     .userMessage("No image was found with ID "+ imageId)
                     .build();
@@ -45,8 +44,8 @@ public class ImagesResourceImpl implements ImageResource {
 	}
 
 	@Override
-	public GetImageResponse getImage(Long imageId) {
-		final ImageDetail imageDetail = imageService.findImageDetail(imageId);
+    public GetImageResponse getImage(final Long imageId) {
+        final var imageDetail = imageService.findImageDetail(imageId);
 		return GetImageResponse.respond200WithApplicationJson(imageDetail);
 
 	}

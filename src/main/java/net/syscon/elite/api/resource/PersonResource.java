@@ -28,32 +28,37 @@ public interface PersonResource {
 
     class GetPersonIdentifiersResponse extends ResponseDelegate {
 
-        private GetPersonIdentifiersResponse(Response response) { super(response); }
-        private GetPersonIdentifiersResponse(Response response, Object entity) { super(response, entity); }
+        private GetPersonIdentifiersResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetPersonIdentifiersResponse respond200WithApplicationJson(List<PersonIdentifier> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetPersonIdentifiersResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetPersonIdentifiersResponse respond200WithApplicationJson(final List<PersonIdentifier> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetPersonIdentifiersResponse(responseBuilder.build(), entity);
         }
 
-        public static GetPersonIdentifiersResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetPersonIdentifiersResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetPersonIdentifiersResponse(responseBuilder.build(), entity);
         }
 
-        public static GetPersonIdentifiersResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetPersonIdentifiersResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetPersonIdentifiersResponse(responseBuilder.build(), entity);
         }
 
-        public static GetPersonIdentifiersResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetPersonIdentifiersResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetPersonIdentifiersResponse(responseBuilder.build(), entity);

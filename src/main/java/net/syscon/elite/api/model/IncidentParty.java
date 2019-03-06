@@ -34,7 +34,7 @@ public class IncidentParty implements Comparable<IncidentParty> {
     private Long incidentCaseId;
 
     @Override
-    public int compareTo(IncidentParty party) {
+    public int compareTo(final IncidentParty party) {
         return new CompareToBuilder()
                 .append(this.getPartySeq(), party.getPartySeq())
                 .toComparison();

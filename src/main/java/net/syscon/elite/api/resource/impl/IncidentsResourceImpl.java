@@ -14,11 +14,11 @@ public class IncidentsResourceImpl implements IncidentsResource {
 
     private final IncidentService incidentService;
 
-    public IncidentsResourceImpl(IncidentService incidentService) {
+    public IncidentsResourceImpl(final IncidentService incidentService) {
         this.incidentService = incidentService;
     }
 
-    public IncidentResponse getIncident(Long incidentId) {
+    public IncidentResponse getIncident(final Long incidentId) {
         return new IncidentResponse(Response.status(200)
                 .header("Content-Type", MediaType.APPLICATION_JSON).build(), incidentService.getIncidentCase(incidentId));
 

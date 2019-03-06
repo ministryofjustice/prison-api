@@ -26,7 +26,7 @@ public interface QuestionnaireResource {
                                  @ApiParam(value = "Code", example = "ASSAULT", required = true) @PathParam("code") @NotNull String code);
 
     class QuestionnaireResponse extends ResponseDelegate {
-        public QuestionnaireResponse(Response response, Questionnaire questionnaire) {
+        public QuestionnaireResponse(final Response response, final Questionnaire questionnaire) {
             super(response, questionnaire);
         }
     }

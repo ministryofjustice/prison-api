@@ -22,72 +22,72 @@ public class OffenderSearchStepDefinitions extends AbstractStepDefinitions {
 
 
     @When("^an offender search is made without prisoner name or ID and across \"([^\"]*)\" location$")
-    public void aOffenderSearchIsMadeWithoutPrisonerNameOrIDAndAcrossAllLocations(String locationPrefix) throws Throwable {
+    public void aOffenderSearchIsMadeWithoutPrisonerNameOrIDAndAcrossAllLocations(final String locationPrefix) throws Throwable {
         offenderSearch.findAll(locationPrefix);
     }
 
     @When("^an offender search is made for location \"([^\"]*)\"$")
-    public void aOffenderSearchIsMadeForLocation(String locationPrefix) throws Throwable {
+    public void aOffenderSearchIsMadeForLocation(final String locationPrefix) throws Throwable {
         offenderSearch.search(locationPrefix, null, false, false, false, null);
     }
 
     @When("^an offender search is made with keywords \"([^\"]*)\" in location \"([^\"]*)\"$")
-    public void anOffenderSearchIsMadeWithKeywordsInLocation(String keywords, String locationPrefix) throws Throwable {
+    public void anOffenderSearchIsMadeWithKeywordsInLocation(final String keywords, final String locationPrefix) throws Throwable {
         offenderSearch.search(locationPrefix, keywords, true, false, false, null);
     }
 
     @When("^an offender search is made filtering by alerts \"([^\"]*)\" in location \"([^\"]*)\"$")
-    public void aBookingSearchIsMadeWithAlerts(String alerts, String locationPrefix) {
+    public void aBookingSearchIsMadeWithAlerts(final String alerts, final String locationPrefix) {
         offenderSearch.search(locationPrefix,  null, false, true, true, alerts);
     }
 
     @Then("^\"([^\"]*)\" offender records are returned$")
-    public void bookingRecordsAreReturned(String expectedCount) throws Throwable {
+    public void bookingRecordsAreReturned(final String expectedCount) throws Throwable {
         offenderSearch.verifyResourceRecordsReturned(Long.valueOf(expectedCount));
     }
 
     @Then("^\"([^\"]*)\" total offender records are available$")
-    public void totalBookingRecordsAreAvailable(String expectedCount) throws Throwable {
+    public void totalBookingRecordsAreAvailable(final String expectedCount) throws Throwable {
         offenderSearch.verifyTotalResourceRecordsAvailable(Long.valueOf(expectedCount));
     }
 
     @And("^the offender first names match \"([^\"]*)\"$")
-    public void offenderFirstNamesMatch(String firstNames) throws Throwable {
+    public void offenderFirstNamesMatch(final String firstNames) throws Throwable {
         offenderSearch.verifyFirstNames(firstNames);
     }
 
     @And("^the offender middle names match \"([^\"]*)\"$")
-    public void offenderMiddleNamesMatch(String middleNames) throws Throwable {
+    public void offenderMiddleNamesMatch(final String middleNames) throws Throwable {
         offenderSearch.verifyMiddleNames(middleNames);
     }
 
     @And("^the offender last names match \"([^\"]*)\"$")
-    public void offenderLastNamesMatch(String lastNames) throws Throwable {
+    public void offenderLastNamesMatch(final String lastNames) throws Throwable {
         offenderSearch.verifyLastNames(lastNames);
     }
 
     @And("^location name match \"([^\"]*)\"$")
-    public void livingUnitDescriptionsMatch(String livingUnits) throws Throwable {
+    public void livingUnitDescriptionsMatch(final String livingUnits) throws Throwable {
         offenderSearch.verifyLivingUnits(livingUnits);
     }
 
     @And("^the offender alerts match \"([^\"]*)\"$")
-    public void offenderAlertsMatch(String alerts) throws Throwable {
+    public void offenderAlertsMatch(final String alerts) throws Throwable {
         offenderSearch.verifyAlerts(alerts);
     }
 
     @And("^the offender categories match \"([^\"]*)\"$")
-    public void offenderCategoriesMatch(String categories) throws Throwable {
+    public void offenderCategoriesMatch(final String categories) throws Throwable {
         offenderSearch.verifyCategories(categories);
     }
 
     @When("^a booking search is made in \"([^\"]*)\"$")
-    public void aBookingSearchIsMadeIn(String subLocation) throws Throwable {
+    public void aBookingSearchIsMadeIn(final String subLocation) throws Throwable {
         offenderSearch.search(subLocation, null, true, true, false,null);
     }
 
     @Then("^only offenders situated in \"([^\"]*)\" be present in the results$")
-    public void onlyOffendersSituatedInBePresentInTheResults(String subLocationPrefix) throws Throwable {
+    public void onlyOffendersSituatedInBePresentInTheResults(final String subLocationPrefix) throws Throwable {
        offenderSearch.verifySubLocationPrefixInResults(subLocationPrefix);
     }
 }

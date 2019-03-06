@@ -20,8 +20,8 @@ public enum QueryOperator {
 	
 	private String jsonOperator;
 	private String sqlOperator;
-	
-	QueryOperator(String jsonOperator, String sqlOperator) {
+
+    QueryOperator(final String jsonOperator, final String sqlOperator) {
 		this.jsonOperator = jsonOperator;
 		this.sqlOperator = sqlOperator;
 	}

@@ -15,13 +15,13 @@ public class ImageRepositoryImpl extends RepositoryBase implements ImageReposito
 
 	@Override
 	public Optional<ImageDetail> findImageDetail(final Long imageId) {
-		final String sql = getQuery("FIND_IMAGE_DETAIL");
+        final var sql = getQuery("FIND_IMAGE_DETAIL");
 		ImageDetail imageDetail;
 		try {
 			imageDetail = jdbcTemplate.queryForObject(sql,
 					createParams("imageId", imageId),
 					IMAGE_DETAIL_MAPPER);
-		} catch (EmptyResultDataAccessException e) {
+        } catch (final EmptyResultDataAccessException e) {
 			imageDetail = null;
 		}
 		return Optional.ofNullable(imageDetail);
@@ -32,10 +32,10 @@ public class ImageRepositoryImpl extends RepositoryBase implements ImageReposito
         byte[] content = null;
 	    try {
 
-			final String sql = getQuery("FIND_IMAGE_CONTENT");
-			final Blob blob = jdbcTemplate.queryForObject(sql, createParams("imageId", imageId), Blob.class);
+            final var sql = getQuery("FIND_IMAGE_CONTENT");
+            final var blob = jdbcTemplate.queryForObject(sql, createParams("imageId", imageId), Blob.class);
 			if (blob != null) {
-				final int length = (int) blob.length();
+                final var length = (int) blob.length();
 				content = blob.getBytes(1, length);
 				blob.free();
 			}
@@ -49,10 +49,10 @@ public class ImageRepositoryImpl extends RepositoryBase implements ImageReposito
 	public byte[] getImageContent(final String offenderNo) {
         byte[] content = null;
         try {
-			final String sql = getQuery("FIND_IMAGE_CONTENT_BY_OFFENDER_NO");
-			final Blob blob = jdbcTemplate.queryForObject(sql, createParams("offenderNo", offenderNo), Blob.class);
+            final var sql = getQuery("FIND_IMAGE_CONTENT_BY_OFFENDER_NO");
+            final var blob = jdbcTemplate.queryForObject(sql, createParams("offenderNo", offenderNo), Blob.class);
 			if (blob != null) {
-				final int length = (int) blob.length();
+                final var length = (int) blob.length();
 				content = blob.getBytes(1, length);
 				blob.free();
 			}

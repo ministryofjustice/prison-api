@@ -22,7 +22,7 @@ public class LocationProcessor {
      * @return description with agency id removed (or unaltered description if description is not prefixed with agency
      * id or agency id is {@code null}.
      */
-    public static String stripAgencyId(String description, String agencyId) {
+    public static String stripAgencyId(final String description, final String agencyId) {
         if (StringUtils.isBlank(agencyId)) {
             return description;
         }
@@ -42,7 +42,7 @@ public class LocationProcessor {
      * @return new location representing processed input location.
      * @throws {@code NullPointerException} if no location provided for processing.
      */
-    public static List<Location> processLocations(List<Location> locations) {
+    public static List<Location> processLocations(final List<Location> locations) {
         return processLocations(locations, false);
     }
 
@@ -61,7 +61,7 @@ public class LocationProcessor {
      * @return new location representing processed input location.
      * @throws {@code NullPointerException} if no location provided for processing.
      */
-    public static List<Location> processLocations(List<Location> locations, boolean preferUserDescription) {
+    public static List<Location> processLocations(final List<Location> locations, final boolean preferUserDescription) {
         Objects.requireNonNull(locations);
 
         return locations.stream().map(loc -> processLocation(loc, preferUserDescription)).collect(Collectors.toList());
@@ -78,7 +78,7 @@ public class LocationProcessor {
      * @return new location representing processed input location.
      * @throws {@code NullPointerException} if no location provided for processing.
      */
-    public static Location processLocation(Location location) {
+    public static Location processLocation(final Location location) {
         return processLocation(location, false);
     }
 
@@ -96,12 +96,12 @@ public class LocationProcessor {
      * @return new location representing processed input location.
      * @throws {@code NullPointerException} if no location provided for processing.
      */
-    public static Location processLocation(Location location, boolean preferUserDescription) {
+    public static Location processLocation(final Location location, final boolean preferUserDescription) {
         Objects.requireNonNull(location);
 
-        String newLocationPrefix = StringUtils.defaultIfBlank(location.getLocationPrefix(), location.getDescription());
+        final var newLocationPrefix = StringUtils.defaultIfBlank(location.getLocationPrefix(), location.getDescription());
 
-        String newDescripton;
+        final String newDescripton;
 
         if (preferUserDescription && StringUtils.isNotBlank(location.getUserDescription())) {
             newDescripton = location.getUserDescription();
@@ -123,8 +123,8 @@ public class LocationProcessor {
                 .build();
     }
 
-    public static String formatLocation(String locationDescription) {
-        String description = WordUtils.capitalizeFully(locationDescription);
+    public static String formatLocation(final String locationDescription) {
+        var description = WordUtils.capitalizeFully(locationDescription);
         description = StringUtils.replaceAll(description, "hmp|Hmp", "HMP");
         description = StringUtils.replaceAll(description, "yoi|Yoi", "YOI");
         return description;

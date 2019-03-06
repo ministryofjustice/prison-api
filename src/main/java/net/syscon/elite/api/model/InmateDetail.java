@@ -100,7 +100,7 @@ public class InmateDetail {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -113,7 +113,7 @@ public class InmateDetail {
         return bookingId;
     }
 
-    public void setBookingId(Long bookingId) {
+    public void setBookingId(final Long bookingId) {
         this.bookingId = bookingId;
     }
 
@@ -126,7 +126,7 @@ public class InmateDetail {
         return bookingNo;
     }
 
-    public void setBookingNo(String bookingNo) {
+    public void setBookingNo(final String bookingNo) {
         this.bookingNo = bookingNo;
     }
 
@@ -139,7 +139,7 @@ public class InmateDetail {
         return offenderNo;
     }
 
-    public void setOffenderNo(String offenderNo) {
+    public void setOffenderNo(final String offenderNo) {
         this.offenderNo = offenderNo;
     }
 
@@ -152,7 +152,7 @@ public class InmateDetail {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
@@ -165,7 +165,7 @@ public class InmateDetail {
         return middleName;
     }
 
-    public void setMiddleName(String middleName) {
+    public void setMiddleName(final String middleName) {
         this.middleName = middleName;
     }
 
@@ -178,7 +178,7 @@ public class InmateDetail {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
@@ -191,7 +191,7 @@ public class InmateDetail {
         return agencyId;
     }
 
-    public void setAgencyId(String agencyId) {
+    public void setAgencyId(final String agencyId) {
         this.agencyId = agencyId;
     }
 
@@ -204,7 +204,7 @@ public class InmateDetail {
         return assignedLivingUnitId;
     }
 
-    public void setAssignedLivingUnitId(Long assignedLivingUnitId) {
+    public void setAssignedLivingUnitId(final Long assignedLivingUnitId) {
         this.assignedLivingUnitId = assignedLivingUnitId;
     }
 
@@ -217,7 +217,7 @@ public class InmateDetail {
         return activeFlag;
     }
 
-    public void setActiveFlag(boolean activeFlag) {
+    public void setActiveFlag(final boolean activeFlag) {
         this.activeFlag = activeFlag;
     }
 
@@ -230,7 +230,7 @@ public class InmateDetail {
         return religion;
     }
 
-    public void setReligion(String religion) {
+    public void setReligion(final String religion) {
         this.religion = religion;
     }
 
@@ -243,7 +243,7 @@ public class InmateDetail {
         return language;
     }
 
-    public void setLanguage(String language) {
+    public void setLanguage(final String language) {
         this.language = language;
     }
 
@@ -256,7 +256,7 @@ public class InmateDetail {
         return alertsCodes;
     }
 
-    public void setAlertsCodes(List<String> alertsCodes) {
+    public void setAlertsCodes(final List<String> alertsCodes) {
         this.alertsCodes = alertsCodes;
     }
 
@@ -269,7 +269,7 @@ public class InmateDetail {
         return activeAlertCount;
     }
 
-    public void setActiveAlertCount(Long activeAlertCount) {
+    public void setActiveAlertCount(final Long activeAlertCount) {
         this.activeAlertCount = activeAlertCount;
     }
 
@@ -282,7 +282,7 @@ public class InmateDetail {
         return inactiveAlertCount;
     }
 
-    public void setInactiveAlertCount(Long inactiveAlertCount) {
+    public void setInactiveAlertCount(final Long inactiveAlertCount) {
         this.inactiveAlertCount = inactiveAlertCount;
     }
 
@@ -295,7 +295,7 @@ public class InmateDetail {
         return alerts;
     }
 
-    public void setAlerts(List<Alert> alerts) {
+    public void setAlerts(final List<Alert> alerts) {
         this.alerts = alerts;
     }
 
@@ -308,7 +308,7 @@ public class InmateDetail {
         return assignedLivingUnit;
     }
 
-    public void setAssignedLivingUnit(AssignedLivingUnit assignedLivingUnit) {
+    public void setAssignedLivingUnit(final AssignedLivingUnit assignedLivingUnit) {
         this.assignedLivingUnit = assignedLivingUnit;
     }
 
@@ -321,7 +321,7 @@ public class InmateDetail {
         return facialImageId;
     }
 
-    public void setFacialImageId(Long facialImageId) {
+    public void setFacialImageId(final Long facialImageId) {
         this.facialImageId = facialImageId;
     }
 
@@ -334,7 +334,7 @@ public class InmateDetail {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(LocalDate dateOfBirth) {
+    public void setDateOfBirth(final LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -347,7 +347,7 @@ public class InmateDetail {
         return age;
     }
 
-    public void setAge(Integer age) {
+    public void setAge(final Integer age) {
         this.age = age;
     }
 
@@ -360,7 +360,7 @@ public class InmateDetail {
         return physicalAttributes;
     }
 
-    public void setPhysicalAttributes(PhysicalAttributes physicalAttributes) {
+    public void setPhysicalAttributes(final PhysicalAttributes physicalAttributes) {
         this.physicalAttributes = physicalAttributes;
     }
 
@@ -373,7 +373,7 @@ public class InmateDetail {
         return physicalCharacteristics;
     }
 
-    public void setPhysicalCharacteristics(List<PhysicalCharacteristic> physicalCharacteristics) {
+    public void setPhysicalCharacteristics(final List<PhysicalCharacteristic> physicalCharacteristics) {
         this.physicalCharacteristics = physicalCharacteristics;
     }
 
@@ -386,7 +386,7 @@ public class InmateDetail {
         return profileInformation;
     }
 
-    public void setProfileInformation(List<ProfileInformation> profileInformation) {
+    public void setProfileInformation(final List<ProfileInformation> profileInformation) {
         this.profileInformation = profileInformation;
     }
 
@@ -399,7 +399,7 @@ public class InmateDetail {
         return physicalMarks;
     }
 
-    public void setPhysicalMarks(List<PhysicalMark> physicalMarks) {
+    public void setPhysicalMarks(final List<PhysicalMark> physicalMarks) {
         this.physicalMarks = physicalMarks;
     }
 
@@ -412,7 +412,7 @@ public class InmateDetail {
         return assessments;
     }
 
-    public void setAssessments(List<Assessment> assessments) {
+    public void setAssessments(final List<Assessment> assessments) {
         this.assessments = assessments;
     }
 
@@ -425,7 +425,7 @@ public class InmateDetail {
         return csra;
     }
 
-    public void setCsra(String csra) {
+    public void setCsra(final String csra) {
         this.csra = csra;
     }
 
@@ -438,7 +438,7 @@ public class InmateDetail {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(final String category) {
         this.category = category;
     }
 
@@ -451,7 +451,7 @@ public class InmateDetail {
         return categoryCode;
     }
 
-    public void setCategoryCode(String categoryCode) {
+    public void setCategoryCode(final String categoryCode) {
         this.categoryCode = categoryCode;
     }
 
@@ -464,13 +464,13 @@ public class InmateDetail {
         return assignedOfficerId;
     }
 
-    public void setAssignedOfficerId(Long assignedOfficerId) {
+    public void setAssignedOfficerId(final Long assignedOfficerId) {
         this.assignedOfficerId = assignedOfficerId;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class InmateDetail {\n");
         

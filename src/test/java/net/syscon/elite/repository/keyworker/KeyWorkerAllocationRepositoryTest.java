@@ -1,8 +1,5 @@
 package net.syscon.elite.repository.keyworker;
 
-import net.syscon.elite.api.model.Keyworker;
-import net.syscon.elite.api.model.OffenderKeyWorker;
-import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.web.config.PersistenceConfigs;
@@ -18,8 +15,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -43,14 +38,14 @@ public class KeyWorkerAllocationRepositoryTest {
 
     @Test
     public void shouldGetAvailableKeyworkers() {
-        final List<Keyworker> availableKeyworkers = repo.getAvailableKeyworkers(AGENCY_ID);
+        final var availableKeyworkers = repo.getAvailableKeyworkers(AGENCY_ID);
         assertThat(availableKeyworkers).asList().hasSize(4);
     }
 
     @Test
     public void testGetAllocationHistoryByAgency() {
-        PageRequest pageRequest = new PageRequest();
-        Page<OffenderKeyWorker> allocations = repo.getAllocationHistoryByAgency(AGENCY_ID, pageRequest);
+        final var pageRequest = new PageRequest();
+        final var allocations = repo.getAllocationHistoryByAgency(AGENCY_ID, pageRequest);
 
         assertThat(allocations.getItems().size()).isEqualTo(pageRequest.getLimit().intValue());
         assertThat(allocations.getTotalRecords()).isEqualTo(23L);

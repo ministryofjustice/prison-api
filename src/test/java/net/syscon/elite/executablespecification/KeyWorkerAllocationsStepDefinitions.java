@@ -15,12 +15,12 @@ public class KeyWorkerAllocationsStepDefinitions extends AbstractStepDefinitions
     private KeyWorkerAllocationSteps keyworkerSteps;
 
     @When("^an unallocated offender request is made with agency id \"([^\"]*)\"$")
-    public void anUnallocatedOffenderRequestIsMadeWithAgencyId(String agencyId) throws Throwable {
+    public void anUnallocatedOffenderRequestIsMadeWithAgencyId(final String agencyId) throws Throwable {
         keyworkerSteps.getUnallocatedOffendersList(agencyId);
     }
 
     @Then("^a list of \"([^\"]*)\" unallocated offenders are returned$")
-    public void aListOfUnallocatedOffendersAreReturned(int count) throws Throwable {
+    public void aListOfUnallocatedOffendersAreReturned(final int count) throws Throwable {
         keyworkerSteps.verifyAListOfUnallocatedOffendersIsReturned(count);
     }
 
@@ -30,7 +30,7 @@ public class KeyWorkerAllocationsStepDefinitions extends AbstractStepDefinitions
     }
 
     @Then("^a resource not found response is received with message \"([^\"]*)\"$")
-    public void aResourceNotFoundResponseIsReceivedWithMessage(String message) throws Throwable {
+    public void aResourceNotFoundResponseIsReceivedWithMessage(final String message) throws Throwable {
         keyworkerSteps.verifyResourceNotFound();
         keyworkerSteps.verifyErrorUserMessage(message);
     }

@@ -270,17 +270,22 @@ public interface UserResource {
 
     class RemoveUsersAccessRoleForCaseloadResponse extends ResponseDelegate {
 
-        private RemoveUsersAccessRoleForCaseloadResponse(Response response) { super(response); }
-        private RemoveUsersAccessRoleForCaseloadResponse(Response response, Object entity) { super(response, entity); }
+        private RemoveUsersAccessRoleForCaseloadResponse(final Response response) {
+            super(response);
+        }
+
+        private RemoveUsersAccessRoleForCaseloadResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
 
         public static RemoveUsersAccessRoleForCaseloadResponse respond200WithApplicationJson() {
-            ResponseBuilder responseBuilder = Response.status(200)
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             return new RemoveUsersAccessRoleForCaseloadResponse(responseBuilder.build());
         }
 
         public static RemoveUsersAccessRoleForCaseloadResponse respond404WithApplicationJson() {
-            ResponseBuilder responseBuilder = Response.status(404)
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             return new RemoveUsersAccessRoleForCaseloadResponse(responseBuilder.build());
         }
@@ -288,11 +293,16 @@ public interface UserResource {
 
     class GetUsersResponse extends ResponseDelegate {
 
-        private GetUsersResponse(Response response) { super(response); }
-        private GetUsersResponse(Response response, Object entity) { super(response, entity); }
+        private GetUsersResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetUsersResponse respond200WithApplicationJson(Page<UserDetail> page) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetUsersResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetUsersResponse respond200WithApplicationJson(final Page<UserDetail> page) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON)
                     .header("Total-Records", page.getTotalRecords())
                     .header("Page-Offset", page.getPageOffset())
@@ -301,22 +311,22 @@ public interface UserResource {
             return new GetUsersResponse(responseBuilder.build(), page.getItems());
         }
 
-        public static GetUsersResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetUsersResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetUsersResponse(responseBuilder.build(), entity);
         }
 
-        public static GetUsersResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetUsersResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetUsersResponse(responseBuilder.build(), entity);
         }
 
-        public static GetUsersResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetUsersResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetUsersResponse(responseBuilder.build(), entity);
@@ -325,32 +335,37 @@ public interface UserResource {
 
     class GetAllUsersHavingRoleAtCaseloadResponse extends ResponseDelegate {
 
-        private GetAllUsersHavingRoleAtCaseloadResponse(Response response) { super(response); }
-        private GetAllUsersHavingRoleAtCaseloadResponse(Response response, Object entity) { super(response, entity); }
+        private GetAllUsersHavingRoleAtCaseloadResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetAllUsersHavingRoleAtCaseloadResponse respond200WithApplicationJson(List<String> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetAllUsersHavingRoleAtCaseloadResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetAllUsersHavingRoleAtCaseloadResponse respond200WithApplicationJson(final List<String> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAllUsersHavingRoleAtCaseloadResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAllUsersHavingRoleAtCaseloadResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetAllUsersHavingRoleAtCaseloadResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAllUsersHavingRoleAtCaseloadResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAllUsersHavingRoleAtCaseloadResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetAllUsersHavingRoleAtCaseloadResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAllUsersHavingRoleAtCaseloadResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAllUsersHavingRoleAtCaseloadResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetAllUsersHavingRoleAtCaseloadResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAllUsersHavingRoleAtCaseloadResponse(responseBuilder.build(), entity);
@@ -359,11 +374,16 @@ public interface UserResource {
 
     class GetUsersByCaseLoadResponse extends ResponseDelegate {
 
-        private GetUsersByCaseLoadResponse(Response response) { super(response); }
-        private GetUsersByCaseLoadResponse(Response response, Object entity) { super(response, entity); }
+        private GetUsersByCaseLoadResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetUsersByCaseLoadResponse respond200WithApplicationJson(Page<UserDetail> page) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetUsersByCaseLoadResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetUsersByCaseLoadResponse respond200WithApplicationJson(final Page<UserDetail> page) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON)
                     .header("Total-Records", page.getTotalRecords())
                     .header("Page-Offset", page.getPageOffset())
@@ -372,22 +392,22 @@ public interface UserResource {
             return new GetUsersByCaseLoadResponse(responseBuilder.build(), page.getItems());
         }
 
-        public static GetUsersByCaseLoadResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetUsersByCaseLoadResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetUsersByCaseLoadResponse(responseBuilder.build(), entity);
         }
 
-        public static GetUsersByCaseLoadResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetUsersByCaseLoadResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetUsersByCaseLoadResponse(responseBuilder.build(), entity);
         }
 
-        public static GetUsersByCaseLoadResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetUsersByCaseLoadResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetUsersByCaseLoadResponse(responseBuilder.build(), entity);
@@ -396,11 +416,16 @@ public interface UserResource {
 
     class GetStaffUsersForLocalAdminstrator extends ResponseDelegate {
 
-        private GetStaffUsersForLocalAdminstrator(Response response) { super(response); }
-        private GetStaffUsersForLocalAdminstrator(Response response, Object entity) { super(response, entity); }
+        private GetStaffUsersForLocalAdminstrator(final Response response) {
+            super(response);
+        }
 
-        public static GetStaffUsersForLocalAdminstrator respond200WithApplicationJson(Page<UserDetail> page) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetStaffUsersForLocalAdminstrator(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetStaffUsersForLocalAdminstrator respond200WithApplicationJson(final Page<UserDetail> page) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON)
                     .header("Total-Records", page.getTotalRecords())
                     .header("Page-Offset", page.getPageOffset())
@@ -409,22 +434,22 @@ public interface UserResource {
             return new GetStaffUsersForLocalAdminstrator(responseBuilder.build(), page.getItems());
         }
 
-        public static GetStaffUsersForLocalAdminstrator respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetStaffUsersForLocalAdminstrator respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffUsersForLocalAdminstrator(responseBuilder.build(), entity);
         }
 
-        public static GetStaffUsersForLocalAdminstrator respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetStaffUsersForLocalAdminstrator respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffUsersForLocalAdminstrator(responseBuilder.build(), entity);
         }
 
-        public static GetStaffUsersForLocalAdminstrator respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetStaffUsersForLocalAdminstrator respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffUsersForLocalAdminstrator(responseBuilder.build(), entity);
@@ -433,32 +458,37 @@ public interface UserResource {
 
     class GetMyUserInformationResponse extends ResponseDelegate {
 
-        private GetMyUserInformationResponse(Response response) { super(response); }
-        private GetMyUserInformationResponse(Response response, Object entity) { super(response, entity); }
+        private GetMyUserInformationResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetMyUserInformationResponse respond200WithApplicationJson(UserDetail entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetMyUserInformationResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetMyUserInformationResponse respond200WithApplicationJson(final UserDetail entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyUserInformationResponse(responseBuilder.build(), entity);
         }
 
-        public static GetMyUserInformationResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetMyUserInformationResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyUserInformationResponse(responseBuilder.build(), entity);
         }
 
-        public static GetMyUserInformationResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetMyUserInformationResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyUserInformationResponse(responseBuilder.build(), entity);
         }
 
-        public static GetMyUserInformationResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetMyUserInformationResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyUserInformationResponse(responseBuilder.build(), entity);
@@ -467,11 +497,16 @@ public interface UserResource {
 
     class GetMyAssignmentsResponse extends ResponseDelegate {
 
-        private GetMyAssignmentsResponse(Response response) { super(response); }
-        private GetMyAssignmentsResponse(Response response, Object entity) { super(response, entity); }
+        private GetMyAssignmentsResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetMyAssignmentsResponse respond200WithApplicationJson(Page<OffenderBooking> page) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetMyAssignmentsResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetMyAssignmentsResponse respond200WithApplicationJson(final Page<OffenderBooking> page) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON)
                     .header("Total-Records", page.getTotalRecords())
                     .header("Page-Offset", page.getPageOffset())
@@ -480,22 +515,22 @@ public interface UserResource {
             return new GetMyAssignmentsResponse(responseBuilder.build(), page.getItems());
         }
 
-        public static GetMyAssignmentsResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetMyAssignmentsResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyAssignmentsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetMyAssignmentsResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetMyAssignmentsResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyAssignmentsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetMyAssignmentsResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetMyAssignmentsResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyAssignmentsResponse(responseBuilder.build(), entity);
@@ -504,32 +539,37 @@ public interface UserResource {
 
     class GetMyCaseLoadsResponse extends ResponseDelegate {
 
-        private GetMyCaseLoadsResponse(Response response) { super(response); }
-        private GetMyCaseLoadsResponse(Response response, Object entity) { super(response, entity); }
+        private GetMyCaseLoadsResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetMyCaseLoadsResponse respond200WithApplicationJson(List<CaseLoad> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetMyCaseLoadsResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetMyCaseLoadsResponse respond200WithApplicationJson(final List<CaseLoad> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyCaseLoadsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetMyCaseLoadsResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetMyCaseLoadsResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyCaseLoadsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetMyCaseLoadsResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetMyCaseLoadsResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyCaseLoadsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetMyCaseLoadsResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetMyCaseLoadsResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyCaseLoadsResponse(responseBuilder.build(), entity);
@@ -538,32 +578,37 @@ public interface UserResource {
 
     class GetMyCaseNoteTypesResponse extends ResponseDelegate {
 
-        private GetMyCaseNoteTypesResponse(Response response) { super(response); }
-        private GetMyCaseNoteTypesResponse(Response response, Object entity) { super(response, entity); }
+        private GetMyCaseNoteTypesResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetMyCaseNoteTypesResponse respond200WithApplicationJson(List<ReferenceCode> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetMyCaseNoteTypesResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetMyCaseNoteTypesResponse respond200WithApplicationJson(final List<ReferenceCode> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyCaseNoteTypesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetMyCaseNoteTypesResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetMyCaseNoteTypesResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyCaseNoteTypesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetMyCaseNoteTypesResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetMyCaseNoteTypesResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyCaseNoteTypesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetMyCaseNoteTypesResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetMyCaseNoteTypesResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyCaseNoteTypesResponse(responseBuilder.build(), entity);
@@ -572,32 +617,37 @@ public interface UserResource {
 
     class GetMyLocationsResponse extends ResponseDelegate {
 
-        private GetMyLocationsResponse(Response response) { super(response); }
-        private GetMyLocationsResponse(Response response, Object entity) { super(response, entity); }
+        private GetMyLocationsResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetMyLocationsResponse respond200WithApplicationJson(List<Location> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetMyLocationsResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetMyLocationsResponse respond200WithApplicationJson(final List<Location> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyLocationsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetMyLocationsResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetMyLocationsResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyLocationsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetMyLocationsResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetMyLocationsResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyLocationsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetMyLocationsResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetMyLocationsResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyLocationsResponse(responseBuilder.build(), entity);
@@ -606,32 +656,37 @@ public interface UserResource {
 
     class GetMyRolesResponse extends ResponseDelegate {
 
-        private GetMyRolesResponse(Response response) { super(response); }
-        private GetMyRolesResponse(Response response, Object entity) { super(response, entity); }
+        private GetMyRolesResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetMyRolesResponse respond200WithApplicationJson(List<UserRole> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetMyRolesResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetMyRolesResponse respond200WithApplicationJson(final List<UserRole> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyRolesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetMyRolesResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetMyRolesResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyRolesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetMyRolesResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetMyRolesResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyRolesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetMyRolesResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetMyRolesResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetMyRolesResponse(responseBuilder.build(), entity);
@@ -640,32 +695,37 @@ public interface UserResource {
 
     class GetStaffDetailResponse extends ResponseDelegate {
 
-        private GetStaffDetailResponse(Response response) { super(response); }
-        private GetStaffDetailResponse(Response response, Object entity) { super(response, entity); }
+        private GetStaffDetailResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetStaffDetailResponse respond200WithApplicationJson(StaffDetail entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetStaffDetailResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetStaffDetailResponse respond200WithApplicationJson(final StaffDetail entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffDetailResponse(responseBuilder.build(), entity);
         }
 
-        public static GetStaffDetailResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetStaffDetailResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffDetailResponse(responseBuilder.build(), entity);
         }
 
-        public static GetStaffDetailResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetStaffDetailResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffDetailResponse(responseBuilder.build(), entity);
         }
 
-        public static GetStaffDetailResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetStaffDetailResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffDetailResponse(responseBuilder.build(), entity);
@@ -674,32 +734,37 @@ public interface UserResource {
 
     class GetUserDetailsResponse extends ResponseDelegate {
 
-        private GetUserDetailsResponse(Response response) { super(response); }
-        private GetUserDetailsResponse(Response response, Object entity) { super(response, entity); }
+        private GetUserDetailsResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetUserDetailsResponse respond200WithApplicationJson(UserDetail entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetUserDetailsResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetUserDetailsResponse respond200WithApplicationJson(final UserDetail entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetUserDetailsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetUserDetailsResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetUserDetailsResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetUserDetailsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetUserDetailsResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetUserDetailsResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetUserDetailsResponse(responseBuilder.build(), entity);
         }
 
-        public static GetUserDetailsResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetUserDetailsResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetUserDetailsResponse(responseBuilder.build(), entity);
@@ -708,32 +773,37 @@ public interface UserResource {
 
     class GetRolesForUserAndCaseloadResponse extends ResponseDelegate {
 
-        private GetRolesForUserAndCaseloadResponse(Response response) { super(response); }
-        private GetRolesForUserAndCaseloadResponse(Response response, Object entity) { super(response, entity); }
+        private GetRolesForUserAndCaseloadResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetRolesForUserAndCaseloadResponse respond200WithApplicationJson(List<AccessRole> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetRolesForUserAndCaseloadResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetRolesForUserAndCaseloadResponse respond200WithApplicationJson(final List<AccessRole> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetRolesForUserAndCaseloadResponse(responseBuilder.build(), entity);
         }
 
-        public static GetRolesForUserAndCaseloadResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetRolesForUserAndCaseloadResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetRolesForUserAndCaseloadResponse(responseBuilder.build(), entity);
         }
 
-        public static GetRolesForUserAndCaseloadResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetRolesForUserAndCaseloadResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetRolesForUserAndCaseloadResponse(responseBuilder.build(), entity);
         }
 
-        public static GetRolesForUserAndCaseloadResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetRolesForUserAndCaseloadResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetRolesForUserAndCaseloadResponse(responseBuilder.build(), entity);
@@ -742,18 +812,23 @@ public interface UserResource {
 
     class AddApiAccessForCaseloadResponse extends ResponseDelegate {
 
-        private AddApiAccessForCaseloadResponse(Response response) { super(response); }
-        private AddApiAccessForCaseloadResponse(Response response, Object entity) { super(response, entity); }
+        private AddApiAccessForCaseloadResponse(final Response response) {
+            super(response);
+        }
 
-        public static AddApiAccessForCaseloadResponse respond200WithApplicationJson(CaseloadUpdate caseloadUpdate) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private AddApiAccessForCaseloadResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static AddApiAccessForCaseloadResponse respond200WithApplicationJson(final CaseloadUpdate caseloadUpdate) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(caseloadUpdate);
             return new AddApiAccessForCaseloadResponse(responseBuilder.build(), caseloadUpdate);
         }
 
-        public static AddApiAccessForCaseloadResponse respond201WithApplicationJson(CaseloadUpdate caseloadUpdate) {
-            ResponseBuilder responseBuilder = Response.status(201)
+        public static AddApiAccessForCaseloadResponse respond201WithApplicationJson(final CaseloadUpdate caseloadUpdate) {
+            final var responseBuilder = Response.status(201)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(caseloadUpdate);
             return new AddApiAccessForCaseloadResponse(responseBuilder.build(), caseloadUpdate);
@@ -762,18 +837,23 @@ public interface UserResource {
 
     class UpdateMyActiveCaseLoadResponse extends ResponseDelegate {
 
-        private UpdateMyActiveCaseLoadResponse(Response response) { super(response); }
-        private UpdateMyActiveCaseLoadResponse(Response response, Object entity) { super(response, entity); }
+        private UpdateMyActiveCaseLoadResponse(final Response response) {
+            super(response);
+        }
 
-        public static UpdateMyActiveCaseLoadResponse respond401WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(401)
+        private UpdateMyActiveCaseLoadResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static UpdateMyActiveCaseLoadResponse respond401WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(401)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new UpdateMyActiveCaseLoadResponse(responseBuilder.build(), entity);
         }
 
-        public static UpdateMyActiveCaseLoadResponse respond403WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(403)
+        public static UpdateMyActiveCaseLoadResponse respond403WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(403)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new UpdateMyActiveCaseLoadResponse(responseBuilder.build(), entity);
@@ -782,17 +862,22 @@ public interface UserResource {
 
     class AddAccessRoleResponse extends ResponseDelegate {
 
-        private AddAccessRoleResponse(Response response) { super(response); }
-        private AddAccessRoleResponse(Response response, Object entity) { super(response, entity); }
+        private AddAccessRoleResponse(final Response response) {
+            super(response);
+        }
+
+        private AddAccessRoleResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
 
         public static AddAccessRoleResponse respond200WithApplicationJson() {
-            ResponseBuilder responseBuilder = Response.status(200)
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             return new AddAccessRoleResponse(responseBuilder.build());
         }
 
         public static AddAccessRoleResponse respond201WithApplicationJson() {
-            ResponseBuilder responseBuilder = Response.status(201)
+            final var responseBuilder = Response.status(201)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             return new AddAccessRoleResponse(responseBuilder.build());
         }
@@ -800,17 +885,22 @@ public interface UserResource {
 
     class AddAccessRoleByCaseloadResponse extends ResponseDelegate {
 
-        private AddAccessRoleByCaseloadResponse(Response response) { super(response); }
-        private AddAccessRoleByCaseloadResponse(Response response, Object entity) { super(response, entity); }
+        private AddAccessRoleByCaseloadResponse(final Response response) {
+            super(response);
+        }
+
+        private AddAccessRoleByCaseloadResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
 
         public static AddAccessRoleByCaseloadResponse respond200WithApplicationJson() {
-            ResponseBuilder responseBuilder = Response.status(200)
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             return new AddAccessRoleByCaseloadResponse(responseBuilder.build());
         }
 
         public static AddAccessRoleByCaseloadResponse respond201WithApplicationJson() {
-            ResponseBuilder responseBuilder = Response.status(201)
+            final var responseBuilder = Response.status(201)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             return new AddAccessRoleByCaseloadResponse(responseBuilder.build());
         }

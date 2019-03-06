@@ -23,7 +23,7 @@ public class AccessRoleSteps extends CommonSteps {
     private List<AccessRole> accessRoles;
 
     @Step("create access role")
-    public void createAccessRole(String roleCode, String roleName, String parentRoleCode) {
+    public void createAccessRole(final String roleCode, final String roleName, final String parentRoleCode) {
         dispatchCreateOrUpdateAccessRoleRequest(roleCode, roleName, parentRoleCode, true);
     }
 
@@ -57,7 +57,7 @@ public class AccessRoleSteps extends CommonSteps {
         assertErrorResponse(Response.Status.NOT_FOUND);
     }
 
-    private void dispatchCreateOrUpdateAccessRoleRequest(String roleCode, String roleName, String parentRoleCode, boolean create) {
+    private void dispatchCreateOrUpdateAccessRoleRequest(final String roleCode, final String roleName, final String parentRoleCode, final boolean create) {
         init();
         try {
             createUpdateResponse =
@@ -67,32 +67,32 @@ public class AccessRoleSteps extends CommonSteps {
                             createEntity(AccessRole.builder().roleCode(roleCode).roleName(roleName).parentRoleCode(parentRoleCode).build()), ResponseEntity.class);
 
 
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             createUpdateResponse = null;
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void dispatchAccessRolesGet(boolean includeAdmin) {
+    private void dispatchAccessRolesGet(final boolean includeAdmin) {
         init();
-        String url = API_ACCESS_ROLE_REQUEST_URL;
+        var url = API_ACCESS_ROLE_REQUEST_URL;
         if (includeAdmin) {
             url = API_ACCESS_ROLE_REQUEST_URL + "?includeAdmin=true";
         }
         try {
-            ResponseEntity<List<AccessRole>> response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
+            final var response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
                     new ParameterizedTypeReference<List<AccessRole>>() {});
             accessRoles = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    public void updateAccessRole(String roleCode, String roleName) {
+    public void updateAccessRole(final String roleCode, final String roleName) {
         dispatchCreateOrUpdateAccessRoleRequest(roleCode, roleName, null, false);
     }
 
-    public void getAccessRoles(boolean includeAdmin) {
+    public void getAccessRoles(final boolean includeAdmin) {
         dispatchAccessRolesGet(includeAdmin);
     }
 }

@@ -17,21 +17,21 @@ import java.util.List;
 public class ErrorResponseErrorHandler extends DefaultResponseErrorHandler {
 
     @Override
-    public void handleError(ClientHttpResponse response) throws IOException {
-        HttpMessageConverterExtractor<ErrorResponse> errorMessageExtractor =
-                new HttpMessageConverterExtractor<>(ErrorResponse.class, getMessageConverters());
+    public void handleError(final ClientHttpResponse response) throws IOException {
+        final var errorMessageExtractor =
+                new HttpMessageConverterExtractor<ErrorResponse>(ErrorResponse.class, getMessageConverters());
 
         ErrorResponse errorResponse = null;
         try {
             errorResponse = errorMessageExtractor.extractData(response);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             super.handleError(response);
         }
         throw new EliteClientException(errorResponse);
     }
 
     private List<HttpMessageConverter<?>> getMessageConverters() {
-        List<HttpMessageConverter<?>> converters = new ArrayList<>();
+        final List<HttpMessageConverter<?>> converters = new ArrayList<>();
 
         converters.add(new MappingJackson2HttpMessageConverter());
 

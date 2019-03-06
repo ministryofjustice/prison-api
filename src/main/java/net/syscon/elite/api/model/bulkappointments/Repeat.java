@@ -27,7 +27,7 @@ public class Repeat {
      * @param startDateTime The starting LocalDateTime
      * @return a Stream of (count) instances of LocalDateTime, starting with startDateTime according to the values in this Repeat instance.
      */
-    public Stream<LocalDateTime> dateTimeStream(LocalDateTime startDateTime) {
+    public Stream<LocalDateTime> dateTimeStream(final LocalDateTime startDateTime) {
         return LongStream.range(0, count).mapToObj(l -> repeatPeriod.endDateTime(startDateTime, l));
     }
 }

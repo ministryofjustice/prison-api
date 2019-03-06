@@ -46,7 +46,7 @@ public class ErrorResponse {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -59,7 +59,7 @@ public class ErrorResponse {
         return status;
     }
 
-    public void setStatus(Integer status) {
+    public void setStatus(final Integer status) {
         this.status = status;
     }
 
@@ -72,7 +72,7 @@ public class ErrorResponse {
         return errorCode;
     }
 
-    public void setErrorCode(Integer errorCode) {
+    public void setErrorCode(final Integer errorCode) {
         this.errorCode = errorCode;
     }
 
@@ -85,7 +85,7 @@ public class ErrorResponse {
         return userMessage;
     }
 
-    public void setUserMessage(String userMessage) {
+    public void setUserMessage(final String userMessage) {
         this.userMessage = userMessage;
     }
 
@@ -98,7 +98,7 @@ public class ErrorResponse {
         return developerMessage;
     }
 
-    public void setDeveloperMessage(String developerMessage) {
+    public void setDeveloperMessage(final String developerMessage) {
         this.developerMessage = developerMessage;
     }
 
@@ -111,13 +111,13 @@ public class ErrorResponse {
         return moreInfo;
     }
 
-    public void setMoreInfo(String moreInfo) {
+    public void setMoreInfo(final String moreInfo) {
         this.moreInfo = moreInfo;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class ErrorResponse {\n");
         

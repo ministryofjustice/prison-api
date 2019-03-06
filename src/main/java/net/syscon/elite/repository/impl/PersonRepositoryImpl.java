@@ -12,7 +12,7 @@ public class PersonRepositoryImpl extends RepositoryBase implements PersonReposi
     private static final StandardBeanPropertyRowMapper<PersonIdentifier> PERSON_IDENTIFIER_MAPPER = new StandardBeanPropertyRowMapper<>(PersonIdentifier.class);
 
     @Override
-    public List<PersonIdentifier> getPersonIdentifiers(long personId) {
+    public List<PersonIdentifier> getPersonIdentifiers(final long personId) {
 
         return jdbcTemplate.query(
                 getQuery("GET_PERSON_IDENTIFIERS"),

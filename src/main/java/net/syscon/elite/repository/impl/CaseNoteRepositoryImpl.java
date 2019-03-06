@@ -10,14 +10,12 @@ import net.syscon.elite.repository.mapping.PageAwareRowMapper;
 import net.syscon.elite.repository.mapping.Row2BeanRowMapper;
 import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.util.DateTimeConverter;
-import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
@@ -61,11 +59,11 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
             new StandardBeanPropertyRowMapper<>(CaseNoteStaffUsage.class);
 
     @Override
-    public Page<CaseNote> getCaseNotes(long bookingId, String query, LocalDate from, LocalDate to, String orderByField,
-            Order order, long offset, long limit) {
+    public Page<CaseNote> getCaseNotes(final long bookingId, final String query, final LocalDate from, final LocalDate to, final String orderByField,
+                                       final Order order, final long offset, final long limit) {
 
-        String initialSql = getQuery("FIND_CASENOTES");
-        final MapSqlParameterSource params = createParams("bookingId", bookingId, "offset", offset, "limit", limit);
+        var initialSql = getQuery("FIND_CASENOTES");
+        final var params = createParams("bookingId", bookingId, "offset", offset, "limit", limit);
         if (from != null) {
             initialSql += " AND CN.CONTACT_DATE >= :fromDate";
             params.addValue("fromDate", DateTimeConverter.toDate(from));
@@ -89,19 +87,19 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
             //
             params.addValue("toDate", DateTimeConverter.toDate(to.plusDays(1)));
         }
-        IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, CASE_NOTE_MAPPING);
+        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, CASE_NOTE_MAPPING);
 
-		String sql = builder
+        final var sql = builder
 				.addRowCount()
 				.addQuery(query)
 				.addOrderBy(order == Order.ASC, orderByField)
 				.addPagination()
 				.build();
 
-		RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, CASE_NOTE_MAPPING);
-		PageAwareRowMapper<CaseNote> paRowMapper = new PageAwareRowMapper<>(caseNoteRowMapper);
+        final var caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, CASE_NOTE_MAPPING);
+        final var paRowMapper = new PageAwareRowMapper<CaseNote>(caseNoteRowMapper);
 
-        List<CaseNote> caseNotes = jdbcTemplate.query(
+        final var caseNotes = jdbcTemplate.query(
 				sql,
 				params,
 				paRowMapper);
@@ -110,9 +108,9 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
-	public List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, List<String> offenderNos, Integer staffId, String agencyId, LocalDate fromDate, LocalDate toDate) {
+    public List<CaseNoteUsage> getCaseNoteUsage(final String type, final String subType, final List<String> offenderNos, final Integer staffId, final String agencyId, final LocalDate fromDate, final LocalDate toDate) {
 
-		String sql = String.format(getQuery("GROUP_BY_TYPES_AND_OFFENDERS"),
+        final var sql = String.format(getQuery("GROUP_BY_TYPES_AND_OFFENDERS"),
 				StringUtils.isNotBlank(agencyId) ? " AND OCS.AGY_LOC_ID = :agencyId " : "");
 
 		return jdbcTemplate.query(sql,
@@ -127,7 +125,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
     @Override
-    public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(String type, String subType, List<Integer> staffIds, LocalDate fromDate, LocalDate toDate) {
+    public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(final String type, final String subType, final List<Integer> staffIds, final LocalDate fromDate, final LocalDate toDate) {
 
         return jdbcTemplate.query(getQuery("GROUP_BY_TYPES_AND_STAFF"),
                 createParams("staffIds", staffIds,
@@ -139,31 +137,31 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
     }
 
     @Override
-	public Optional<CaseNote> getCaseNote(long bookingId, long caseNoteId) {
-		final String sql = getQuery("FIND_CASENOTE");
-		final RowMapper<CaseNote> caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, CASE_NOTE_MAPPING);
+    public Optional<CaseNote> getCaseNote(final long bookingId, final long caseNoteId) {
+        final var sql = getQuery("FIND_CASENOTE");
+        final var caseNoteRowMapper = Row2BeanRowMapper.makeMapping(sql, CaseNote.class, CASE_NOTE_MAPPING);
 
 		CaseNote caseNote;
 		try {
 			caseNote = jdbcTemplate.queryForObject(sql, createParams("bookingId", bookingId, "caseNoteId", caseNoteId), caseNoteRowMapper);
-		} catch (EmptyResultDataAccessException e) {
+        } catch (final EmptyResultDataAccessException e) {
 			caseNote = null;
 		}
 		return Optional.ofNullable(caseNote);
 	}
 
 	@Override
-	public Long createCaseNote(long bookingId, NewCaseNote newCaseNote, String sourceCode, String username, Long staffId) {
-		String initialSql = getQuery("INSERT_CASE_NOTE");
-		IQueryBuilder builder = queryBuilderFactory.getQueryBuilder(initialSql, CASE_NOTE_MAPPING);
-		String sql = builder.build();
+    public Long createCaseNote(final long bookingId, final NewCaseNote newCaseNote, final String sourceCode, final String username, final Long staffId) {
+        final var initialSql = getQuery("INSERT_CASE_NOTE");
+        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, CASE_NOTE_MAPPING);
+        final var sql = builder.build();
 
-		final LocalDateTime now = LocalDateTime.now();
+        final var now = LocalDateTime.now();
 
-		Timestamp createdDateTime = DateTimeConverter.fromLocalDateTime(now);
-		java.sql.Date createdDate = DateTimeConverter.fromTimestamp(createdDateTime);
+        final var createdDateTime = DateTimeConverter.fromLocalDateTime(now);
+        final var createdDate = DateTimeConverter.fromTimestamp(createdDateTime);
 
-		Timestamp occurrenceTime;
+        final Timestamp occurrenceTime;
 
 		if (newCaseNote.getOccurrenceDateTime() == null) {
 			occurrenceTime = DateTimeConverter.fromLocalDateTime(now);
@@ -171,9 +169,9 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 			occurrenceTime = DateTimeConverter.fromLocalDateTime(newCaseNote.getOccurrenceDateTime());
 		}
 
-        java.sql.Date occurrenceDate = DateTimeConverter.fromTimestamp(occurrenceTime);
+        final var occurrenceDate = DateTimeConverter.fromTimestamp(occurrenceTime);
 
-		GeneratedKeyHolder generatedKeyHolder = new GeneratedKeyHolder();
+        final var generatedKeyHolder = new GeneratedKeyHolder();
 
 		jdbcTemplate.update(
 				sql,
@@ -196,8 +194,8 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
-	public void updateCaseNote(long bookingId, long caseNoteId, @Length(max=4000, message="{caseNoteTextTooLong}") String updatedText, String userId) {
-		String sql = queryBuilderFactory.getQueryBuilder(getQuery("UPDATE_CASE_NOTE"), CASE_NOTE_MAPPING).build();
+    public void updateCaseNote(final long bookingId, final long caseNoteId, @Length(max = 4000, message = "{caseNoteTextTooLong}") final String updatedText, final String userId) {
+        final var sql = queryBuilderFactory.getQueryBuilder(getQuery("UPDATE_CASE_NOTE"), CASE_NOTE_MAPPING).build();
 
 		jdbcTemplate.update(sql, createParams("modifyBy", userId,
 												"caseNoteId", caseNoteId,
@@ -205,8 +203,8 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	}
 
 	@Override
-	public Long getCaseNoteCount(long bookingId, String type, String subType, LocalDate fromDate, LocalDate toDate) {
-		String sql = getQuery("GET_CASE_NOTE_COUNT");
+    public Long getCaseNoteCount(final long bookingId, final String type, final String subType, final LocalDate fromDate, final LocalDate toDate) {
+        final var sql = getQuery("GET_CASE_NOTE_COUNT");
 
 		return jdbcTemplate.queryForObject(
 				sql,
@@ -220,8 +218,8 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 
 	@Override
     @Cacheable("caseNoteTypesByCaseLoadType")
-	public List<ReferenceCode> getCaseNoteTypesByCaseLoadType(String caseLoadType) {
-		String sql = getQuery("GET_CASE_NOTE_TYPES_BY_CASELOAD_TYPE");
+    public List<ReferenceCode> getCaseNoteTypesByCaseLoadType(final String caseLoadType) {
+        final var sql = getQuery("GET_CASE_NOTE_TYPES_BY_CASELOAD_TYPE");
 
 		return jdbcTemplate.query(sql,
 				createParams("caseLoadType", caseLoadType),
@@ -230,10 +228,10 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 
 	@Override
     @Cacheable("caseNoteTypesWithSubTypesByCaseLoadType")
-	public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(String caseLoadType) {
-		String sql = getQuery("GET_CASE_NOTE_TYPES_WITH_SUB_TYPES_BY_CASELOAD_TYPE");
+    public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(final String caseLoadType) {
+        final var sql = getQuery("GET_CASE_NOTE_TYPES_WITH_SUB_TYPES_BY_CASELOAD_TYPE");
 
-		List<ReferenceCodeDetail> referenceCodeDetails = jdbcTemplate.query(sql,
+        final var referenceCodeDetails = jdbcTemplate.query(sql,
 				createParams("caseLoadType", caseLoadType),
                 REF_CODE_DETAIL_ROW_MAPPER);
 
@@ -243,19 +241,19 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	@Override
 	@Cacheable("usedCaseNoteTypesWithSubTypes")
 	public List<ReferenceCode> getUsedCaseNoteTypesWithSubTypes() {
-		String sql = getQuery("GET_USED_CASE_NOTE_TYPES_WITH_SUB_TYPES");
+        final var sql = getQuery("GET_USED_CASE_NOTE_TYPES_WITH_SUB_TYPES");
 
-		List<ReferenceCodeDetail> referenceCodeDetails = jdbcTemplate.query(sql,
+        final var referenceCodeDetails = jdbcTemplate.query(sql,
 					REF_CODE_DETAIL_ROW_MAPPER);
 
 		return buildCaseNoteTypes(referenceCodeDetails);
 	}
 
-	private List<ReferenceCode> buildCaseNoteTypes(List<ReferenceCodeDetail> results) {
-        Map<String,ReferenceCode> caseNoteTypes = new TreeMap<>();
+    private List<ReferenceCode> buildCaseNoteTypes(final List<ReferenceCodeDetail> results) {
+        final Map<String, ReferenceCode> caseNoteTypes = new TreeMap<>();
 
         results.forEach(ref -> {
-            ReferenceCode caseNoteType = caseNoteTypes.get(ref.getCode());
+            var caseNoteType = caseNoteTypes.get(ref.getCode());
 
             if (caseNoteType == null) {
                 caseNoteType = ReferenceCode.builder()
@@ -272,7 +270,7 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
             }
 
             if (StringUtils.isNotBlank(ref.getSubCode())) {
-                ReferenceCode caseNoteSubType = ReferenceCode.builder()
+                final var caseNoteSubType = ReferenceCode.builder()
                         .code(ref.getSubCode())
                         .domain(ref.getSubDomain())
                         .description(ref.getSubDescription())
@@ -283,11 +281,11 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
             }
         });
 
-		Predicate<ReferenceCode> typesWithSubTypes = type -> !type.getSubCodes().isEmpty();
+        final Predicate<ReferenceCode> typesWithSubTypes = type -> !type.getSubCodes().isEmpty();
 
 		caseNoteTypes.values().stream().filter(typesWithSubTypes).forEach(caseNoteType -> {
 
-       	   List<ReferenceCode> sortedSubTypes = caseNoteType.getSubCodes().stream()
+            final var sortedSubTypes = caseNoteType.getSubCodes().stream()
                    .sorted(Comparator.comparing(a -> a.getDescription().toLowerCase()))
 				   .collect(Collectors.toList());
 

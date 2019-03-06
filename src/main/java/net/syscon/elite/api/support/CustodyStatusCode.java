@@ -17,7 +17,7 @@ public enum CustodyStatusCode {
 
     private String custodyStatusCode;
 
-    CustodyStatusCode(String custodyStatusCode) {
+    CustodyStatusCode(final String custodyStatusCode) {
         this.custodyStatusCode = custodyStatusCode;
     }
 

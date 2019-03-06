@@ -14,13 +14,13 @@ public class FinanceServiceImpl implements FinanceService {
     private final FinanceRepository financeRepository;
 
     @Autowired
-    public FinanceServiceImpl(FinanceRepository financeRepository) {
+    public FinanceServiceImpl(final FinanceRepository financeRepository) {
         this.financeRepository = financeRepository;
     }
 
     @Override
     @VerifyBookingAccess
-    public Account getBalances(Long bookingId) {
+    public Account getBalances(final Long bookingId) {
         return financeRepository.getBalances(bookingId);
     }
 }

@@ -46,7 +46,7 @@ public class OffenderRelationship {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -59,7 +59,7 @@ public class OffenderRelationship {
         return personId;
     }
 
-    public void setPersonId(Long personId) {
+    public void setPersonId(final Long personId) {
         this.personId = personId;
     }
 
@@ -72,7 +72,7 @@ public class OffenderRelationship {
         return externalRef;
     }
 
-    public void setExternalRef(String externalRef) {
+    public void setExternalRef(final String externalRef) {
         this.externalRef = externalRef;
     }
 
@@ -85,7 +85,7 @@ public class OffenderRelationship {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
@@ -98,7 +98,7 @@ public class OffenderRelationship {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
@@ -111,13 +111,13 @@ public class OffenderRelationship {
         return relationshipType;
     }
 
-    public void setRelationshipType(String relationshipType) {
+    public void setRelationshipType(final String relationshipType) {
         this.relationshipType = relationshipType;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class OffenderRelationship {\n");
         

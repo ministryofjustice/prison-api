@@ -53,7 +53,7 @@ public class StaffUserRole {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -66,7 +66,7 @@ public class StaffUserRole {
         return roleId;
     }
 
-    public void setRoleId(Long roleId) {
+    public void setRoleId(final Long roleId) {
         this.roleId = roleId;
     }
 
@@ -79,7 +79,7 @@ public class StaffUserRole {
         return roleCode;
     }
 
-    public void setRoleCode(String roleCode) {
+    public void setRoleCode(final String roleCode) {
         this.roleCode = roleCode;
     }
 
@@ -92,7 +92,7 @@ public class StaffUserRole {
         return roleName;
     }
 
-    public void setRoleName(String roleName) {
+    public void setRoleName(final String roleName) {
         this.roleName = roleName;
     }
 
@@ -105,7 +105,7 @@ public class StaffUserRole {
         return parentRoleCode;
     }
 
-    public void setParentRoleCode(String parentRoleCode) {
+    public void setParentRoleCode(final String parentRoleCode) {
         this.parentRoleCode = parentRoleCode;
     }
 
@@ -118,7 +118,7 @@ public class StaffUserRole {
         return caseloadId;
     }
 
-    public void setCaseloadId(String caseloadId) {
+    public void setCaseloadId(final String caseloadId) {
         this.caseloadId = caseloadId;
     }
 
@@ -131,7 +131,7 @@ public class StaffUserRole {
         return username;
     }
 
-    public void setUsername(String username) {
+    public void setUsername(final String username) {
         this.username = username;
     }
 
@@ -144,13 +144,13 @@ public class StaffUserRole {
         return staffId;
     }
 
-    public void setStaffId(Long staffId) {
+    public void setStaffId(final Long staffId) {
         this.staffId = staffId;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class StaffUserRole {\n");
         

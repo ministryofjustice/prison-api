@@ -1,7 +1,6 @@
 package net.syscon.elite.repository.impl;
 
 import com.google.common.collect.ImmutableList;
-import net.syscon.elite.api.model.PrisonContactDetail;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
@@ -13,20 +12,20 @@ public class AgencyRepositoryImplTest {
 
     @Test
     public void shouldMapTupleResultsToPrisonContactDetailsList() throws Exception {
-        final List<PrisonContactDetail> prisonContactDetails = repo.mapResultsToPrisonContactDetailsList(getTestData());
+        final var prisonContactDetails = repo.mapResultsToPrisonContactDetailsList(getTestData());
         Assertions.assertThat(prisonContactDetails).hasSize(2);
     }
 
     @Test
     public void shouldHandleEmptyResultSetForSinglePrison() throws Exception {
-        final List<PrisonContactDetail> prisonContactDetails = repo.mapResultsToPrisonContactDetailsList(ImmutableList.of());
+        final var prisonContactDetails = repo.mapResultsToPrisonContactDetailsList(ImmutableList.of());
         Assertions.assertThat(prisonContactDetails).isEmpty();
     }
 
 
     @Test
     public void shouldReturnResultSetWithBlankAddressForSinglePrison() throws Exception {
-        final List<PrisonContactDetail> prisonContactDetails = repo.mapResultsToPrisonContactDetailsList(getResultForPrisonWithBlankAddress());
+        final var prisonContactDetails = repo.mapResultsToPrisonContactDetailsList(getResultForPrisonWithBlankAddress());
         Assertions.assertThat(prisonContactDetails).hasSize(1);
     }
 

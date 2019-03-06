@@ -76,7 +76,7 @@ public class StaffLocationRole {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -89,7 +89,7 @@ public class StaffLocationRole {
         return staffId;
     }
 
-    public void setStaffId(Long staffId) {
+    public void setStaffId(final Long staffId) {
         this.staffId = staffId;
     }
 
@@ -102,7 +102,7 @@ public class StaffLocationRole {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
@@ -115,7 +115,7 @@ public class StaffLocationRole {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
@@ -128,7 +128,7 @@ public class StaffLocationRole {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(final String status) {
         this.status = status;
     }
 
@@ -141,7 +141,7 @@ public class StaffLocationRole {
         return thumbnailId;
     }
 
-    public void setThumbnailId(Long thumbnailId) {
+    public void setThumbnailId(final Long thumbnailId) {
         this.thumbnailId = thumbnailId;
     }
 
@@ -154,7 +154,7 @@ public class StaffLocationRole {
         return agencyId;
     }
 
-    public void setAgencyId(String agencyId) {
+    public void setAgencyId(final String agencyId) {
         this.agencyId = agencyId;
     }
 
@@ -167,7 +167,7 @@ public class StaffLocationRole {
         return agencyDescription;
     }
 
-    public void setAgencyDescription(String agencyDescription) {
+    public void setAgencyDescription(final String agencyDescription) {
         this.agencyDescription = agencyDescription;
     }
 
@@ -180,7 +180,7 @@ public class StaffLocationRole {
         return fromDate;
     }
 
-    public void setFromDate(LocalDate fromDate) {
+    public void setFromDate(final LocalDate fromDate) {
         this.fromDate = fromDate;
     }
 
@@ -193,7 +193,7 @@ public class StaffLocationRole {
         return toDate;
     }
 
-    public void setToDate(LocalDate toDate) {
+    public void setToDate(final LocalDate toDate) {
         this.toDate = toDate;
     }
 
@@ -206,7 +206,7 @@ public class StaffLocationRole {
         return position;
     }
 
-    public void setPosition(String position) {
+    public void setPosition(final String position) {
         this.position = position;
     }
 
@@ -219,7 +219,7 @@ public class StaffLocationRole {
         return positionDescription;
     }
 
-    public void setPositionDescription(String positionDescription) {
+    public void setPositionDescription(final String positionDescription) {
         this.positionDescription = positionDescription;
     }
 
@@ -232,7 +232,7 @@ public class StaffLocationRole {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(final String role) {
         this.role = role;
     }
 
@@ -245,7 +245,7 @@ public class StaffLocationRole {
         return roleDescription;
     }
 
-    public void setRoleDescription(String roleDescription) {
+    public void setRoleDescription(final String roleDescription) {
         this.roleDescription = roleDescription;
     }
 
@@ -258,7 +258,7 @@ public class StaffLocationRole {
         return scheduleType;
     }
 
-    public void setScheduleType(String scheduleType) {
+    public void setScheduleType(final String scheduleType) {
         this.scheduleType = scheduleType;
     }
 
@@ -271,7 +271,7 @@ public class StaffLocationRole {
         return scheduleTypeDescription;
     }
 
-    public void setScheduleTypeDescription(String scheduleTypeDescription) {
+    public void setScheduleTypeDescription(final String scheduleTypeDescription) {
         this.scheduleTypeDescription = scheduleTypeDescription;
     }
 
@@ -284,13 +284,13 @@ public class StaffLocationRole {
         return hoursPerWeek;
     }
 
-    public void setHoursPerWeek(BigDecimal hoursPerWeek) {
+    public void setHoursPerWeek(final BigDecimal hoursPerWeek) {
         this.hoursPerWeek = hoursPerWeek;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class StaffLocationRole {\n");
         

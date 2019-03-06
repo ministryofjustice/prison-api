@@ -9,10 +9,8 @@ import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
 import java.time.LocalDate;
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.HashMap;
@@ -38,12 +36,12 @@ public class BulkAppointmentSteps extends CommonSteps {
     private int httpStatus;
 
     @Step("bulkAppointmentDefaults")
-    public void appointmentDefaults(AppointmentDefaults appointmentDefaults) {
+    public void appointmentDefaults(final AppointmentDefaults appointmentDefaults) {
         defaults = appointmentDefaults;
     }
 
     @Step("bulkAppointmentDetails")
-    public void appointmentDetails(List<AppointmentDetails> appointmentDetails) {
+    public void appointmentDetails(final List<AppointmentDetails> appointmentDetails) {
         details = appointmentDetails;
     }
 
@@ -51,7 +49,7 @@ public class BulkAppointmentSteps extends CommonSteps {
         errorResponse = null;
         eventsByBookingId = new HashMap<>();
         try {
-            ResponseEntity<Void> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     BULK_APPOINTMENTS_URL,
                     HttpMethod.POST,
                     createEntity(AppointmentsToCreate
@@ -62,22 +60,22 @@ public class BulkAppointmentSteps extends CommonSteps {
                     Void.class
             );
             httpStatus = response.getStatusCodeValue();
-        } catch (EliteClientException e) {
+        } catch (final EliteClientException e) {
             errorResponse = e.getErrorResponse();
             httpStatus = errorResponse.getStatus();
         }
     }
 
     @Step("appointmentsOnDateAre")
-    public void appointmentsAre(LocalDate date, List<Map<String, String>> appointments) {
-        Function<Map<String, String>, Long> classifier = item -> Long.valueOf(item.get("bookingId"));
+    public void appointmentsAre(final LocalDate date, final List<Map<String, String>> appointments) {
+        final Function<Map<String, String>, Long> classifier = item -> Long.valueOf(item.get("bookingId"));
 
-        Map<Long, Set<Map<String, String>>> expectedAppointments = appointments.stream()
+        final var expectedAppointments = appointments.stream()
                 .collect(Collectors.groupingBy(classifier, Collectors.toSet()));
 
         expectedAppointments.forEach((id, x) -> getAppointments(id, date));
 
-        Map<Long, Set<Map<String, String>>> actualAppointments = eventsByBookingId
+        final var actualAppointments = eventsByBookingId
                 .entrySet()
                 .stream()
                 .map(this::transformEntry)
@@ -86,15 +84,15 @@ public class BulkAppointmentSteps extends CommonSteps {
         assertThat(actualAppointments).isEqualTo(expectedAppointments);
     }
 
-    private void getAppointments(long bookingId, LocalDate date) {
-        URI uri = UriComponentsBuilder
+    private void getAppointments(final long bookingId, final LocalDate date) {
+        final var uri = UriComponentsBuilder
                 .fromPath(BOOKING_APPOINTMENT_URL)
                 .queryParam("fromDate", date.toString())
                 .queryParam("toDate", date.toString())
                 .build(bookingId)
                 .normalize();
 
-        ResponseEntity<List<ScheduledEvent>> response = restTemplate.exchange(
+        final var response = restTemplate.exchange(
                 uri,
                 HttpMethod.GET,
                 createEntity(),
@@ -104,11 +102,11 @@ public class BulkAppointmentSteps extends CommonSteps {
         eventsByBookingId.put(bookingId, response.getBody());
     }
 
-    private Map.Entry<Long, Set<Map<String, String>>> transformEntry(Map.Entry<Long, List<ScheduledEvent>> entry) {
+    private Map.Entry<Long, Set<Map<String, String>>> transformEntry(final Map.Entry<Long, List<ScheduledEvent>> entry) {
         return new SimpleImmutableEntry<>(entry.getKey(), scheduledEventsToMaps(entry.getValue()));
     }
 
-    private Set<Map<String, String>> scheduledEventsToMaps(List<ScheduledEvent> events) {
+    private Set<Map<String, String>> scheduledEventsToMaps(final List<ScheduledEvent> events) {
         return events.stream()
                 .map(se -> {
                     Map<String, String> m = new HashMap<>();
@@ -126,7 +124,7 @@ public class BulkAppointmentSteps extends CommonSteps {
         assertThat(errorResponse).isNotNull();
     }
 
-    public void assertHttpStatusCode(int expectedStatusCode) {
+    public void assertHttpStatusCode(final int expectedStatusCode) {
         assertThat(httpStatus).isEqualTo(expectedStatusCode);
     }
 }

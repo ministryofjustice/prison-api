@@ -6,7 +6,6 @@ import net.thucydides.core.annotations.Step;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 
@@ -34,19 +33,19 @@ public class CurfewSteps extends CommonSteps {
     }
 
     @Step("Update HDC status")
-    public void updateHdcStatus(String bookingId, String checksPassed, String dateString) {
+    public void updateHdcStatus(final String bookingId, final String checksPassed, final String dateString) {
         reset();
         putRequest(CURFEW_CHECKS_PASSED_URI, hdcChecksBody(checksPassed, dateString), bookingId);
     }
 
     @Step("Update HDC approval status")
-    public void updateHdcApprovalStatus(String bookingId, String approvalStatus, String dateString) {
+    public void updateHdcApprovalStatus(final String bookingId, final String approvalStatus, final String dateString) {
         reset();
         putRequest(CURFEW_APPROVAL_STATUS_URI, approvalStatusBody(approvalStatus, dateString), bookingId);
     }
 
     @Step("verify HTTP status code")
-    public void verifyHttpStatusCode(int expected) {
+    public void verifyHttpStatusCode(final int expected) {
         if (httpStatus != null) {
             assertThat(httpStatus.value()).isEqualTo(expected);
         } else if (errorResponse != null) {
@@ -56,10 +55,10 @@ public class CurfewSteps extends CommonSteps {
         }
     }
 
-    private void putRequest(String uri, String json, Object... uriVariables) {
+    private void putRequest(final String uri, final String json, final Object... uriVariables) {
         System.out.println("json: " + json);
         try {
-            ResponseEntity<Void> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     uri,
                     HttpMethod.PUT,
                     createEntity(
@@ -69,50 +68,50 @@ public class CurfewSteps extends CommonSteps {
                     uriVariables
             );
             httpStatus = response.getStatusCode();
-        } catch (RestClientException e) {
+        } catch (final RestClientException e) {
             extractHttpStatusCode(e);
-        } catch (EliteClientException e) {
+        } catch (final EliteClientException e) {
             errorResponse = e.getErrorResponse();
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             fail("Unexpected outcome from Http PUT request", t);
         }
     }
 
-    private void extractHttpStatusCode(RestClientException e) {
+    private void extractHttpStatusCode(final RestClientException e) {
         if (e instanceof HttpStatusCodeException) {
             httpStatus = ((HttpStatusCodeException) e).getStatusCode();
         }
     }
 
 
-    private void appendField(StringBuilder b, String fieldName, String fieldValue, BiConsumer<StringBuilder, String> appender) {
+    private void appendField(final StringBuilder b, final String fieldName, final String fieldValue, final BiConsumer<StringBuilder, String> appender) {
         if (fieldValue == null) return;
         if (b.length() > 0) b.append(',');
         b.append('"').append(fieldName).append("\":");
         appender.accept(b, fieldValue);
     }
 
-    private void appendField(StringBuilder b, String fieldName, String fieldValue) {
+    private void appendField(final StringBuilder b, final String fieldName, final String fieldValue) {
         appendField(b, fieldName, fieldValue, valueAppender);
     }
 
-    private void appendBareField(StringBuilder b, String fieldName, String fieldValue) {
+    private void appendBareField(final StringBuilder b, final String fieldName, final String fieldValue) {
         appendField(b, fieldName, fieldValue, bareValueAppender);
     }
 
-    private String wrap(StringBuilder fields) {
+    private String wrap(final StringBuilder fields) {
         return '{' + fields.append('}').toString();
     }
 
-    private String hdcChecksBody(String checksPassed, String dateString) {
-        StringBuilder b = new StringBuilder();
+    private String hdcChecksBody(final String checksPassed, final String dateString) {
+        final var b = new StringBuilder();
         appendField(b, "date", dateString);
         appendBareField(b, "passed", checksPassed);
         return wrap(b);
     }
 
-    private String approvalStatusBody(String approvalStatus, String dateString) {
-        StringBuilder b = new StringBuilder();
+    private String approvalStatusBody(final String approvalStatus, final String dateString) {
+        final var b = new StringBuilder();
         appendField(b, "date", dateString);
         appendField(b, "approvalStatus", approvalStatus);
         return wrap(b);

@@ -19,20 +19,20 @@ public class IdempotentRequestServiceImpl implements IdempotentRequestService {
     private final IdempotentRequestRepository repository;
     private final ObjectMapper objectMapper;
 
-    public IdempotentRequestServiceImpl(IdempotentRequestRepository repository, ObjectMapper objectMapper) {
+    public IdempotentRequestServiceImpl(final IdempotentRequestRepository repository, final ObjectMapper objectMapper) {
         this.repository = repository;
         this.objectMapper = objectMapper;
     }
 
     @Override
-    public IdempotentRequestControl getAndSet(String correlationId) {
+    public IdempotentRequestControl getAndSet(final String correlationId) {
         Validate.notBlank(correlationId);
 
         return repository.getAndSet(correlationId);
     }
 
     @Override
-    public void updateResponse(String correlationId, String responseData, Integer responseStatus) {
+    public void updateResponse(final String correlationId, final String responseData, final Integer responseStatus) {
         Validate.notBlank(correlationId);
         Validate.notBlank(responseData);
 
@@ -40,16 +40,16 @@ public class IdempotentRequestServiceImpl implements IdempotentRequestService {
     }
 
     @Override
-    public <T> T extractJsonResponse(IdempotentRequestControl irc, Class<T> responseType) {
+    public <T> T extractJsonResponse(final IdempotentRequestControl irc, final Class<T> responseType) {
         Validate.notNull(irc);
         Validate.notNull(responseType);
 
-        T response;
+        final T response;
 
         if (StringUtils.isNotBlank(irc.getResponse())) {
             try {
                 response = objectMapper.readValue(irc.getResponse(), responseType);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 log.error("Error converting response to JSON.");
                 throw new EliteRuntimeException(e);
             }
@@ -61,15 +61,15 @@ public class IdempotentRequestServiceImpl implements IdempotentRequestService {
     }
 
     @Override
-    public void convertAndStoreResponse(String correlationId, Object response, Integer responseStatus) {
+    public void convertAndStoreResponse(final String correlationId, final Object response, final Integer responseStatus) {
         Validate.notBlank(correlationId);
         Validate.notNull(response);
 
-        String jsonResponse;
+        final String jsonResponse;
 
         try {
             jsonResponse = objectMapper.writeValueAsString(response);
-        } catch (JsonProcessingException e) {
+        } catch (final JsonProcessingException e) {
             log.error("Error converting response to JSON.");
             throw new EliteRuntimeException(e);
         }

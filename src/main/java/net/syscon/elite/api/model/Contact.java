@@ -62,7 +62,7 @@ public class Contact {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -75,7 +75,7 @@ public class Contact {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
@@ -88,7 +88,7 @@ public class Contact {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
@@ -101,7 +101,7 @@ public class Contact {
         return middleName;
     }
 
-    public void setMiddleName(String middleName) {
+    public void setMiddleName(final String middleName) {
         this.middleName = middleName;
     }
 
@@ -114,7 +114,7 @@ public class Contact {
         return contactType;
     }
 
-    public void setContactType(String contactType) {
+    public void setContactType(final String contactType) {
         this.contactType = contactType;
     }
 
@@ -127,7 +127,7 @@ public class Contact {
         return contactTypeDescription;
     }
 
-    public void setContactTypeDescription(String contactTypeDescription) {
+    public void setContactTypeDescription(final String contactTypeDescription) {
         this.contactTypeDescription = contactTypeDescription;
     }
 
@@ -140,7 +140,7 @@ public class Contact {
         return relationship;
     }
 
-    public void setRelationship(String relationship) {
+    public void setRelationship(final String relationship) {
         this.relationship = relationship;
     }
 
@@ -153,7 +153,7 @@ public class Contact {
         return relationshipDescription;
     }
 
-    public void setRelationshipDescription(String relationshipDescription) {
+    public void setRelationshipDescription(final String relationshipDescription) {
         this.relationshipDescription = relationshipDescription;
     }
 
@@ -166,7 +166,7 @@ public class Contact {
         return emergencyContact;
     }
 
-    public void setEmergencyContact(boolean emergencyContact) {
+    public void setEmergencyContact(final boolean emergencyContact) {
         this.emergencyContact = emergencyContact;
     }
 
@@ -179,7 +179,7 @@ public class Contact {
         return nextOfKin;
     }
 
-    public void setNextOfKin(boolean nextOfKin) {
+    public void setNextOfKin(final boolean nextOfKin) {
         this.nextOfKin = nextOfKin;
     }
 
@@ -192,7 +192,7 @@ public class Contact {
         return relationshipId;
     }
 
-    public void setRelationshipId(Long relationshipId) {
+    public void setRelationshipId(final Long relationshipId) {
         this.relationshipId = relationshipId;
     }
 
@@ -205,13 +205,13 @@ public class Contact {
         return personId;
     }
 
-    public void setPersonId(Long personId) {
+    public void setPersonId(final Long personId) {
         this.personId = personId;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class Contact {\n");
         

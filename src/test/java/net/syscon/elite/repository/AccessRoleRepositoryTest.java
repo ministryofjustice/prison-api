@@ -13,9 +13,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
@@ -39,7 +36,7 @@ public class AccessRoleRepositoryTest {
 
     @Test
     public void testCreateAccessRole() {
-        AccessRole role = AccessRole.builder()
+        final var role = AccessRole.builder()
                 .roleCode(NEW_ROLE_CODE)
                 .roleName(NEW_ROLE_NAME)
                 .roleFunction(ROLE_FUNCTION_GENERAL)
@@ -48,11 +45,11 @@ public class AccessRoleRepositoryTest {
 
         repository.createAccessRole(role);
 
-        Optional<AccessRole> optionalRole = repository.getAccessRole(NEW_ROLE_CODE);
+        final var optionalRole = repository.getAccessRole(NEW_ROLE_CODE);
 
         assertThat(optionalRole.isPresent()).isTrue();
 
-        AccessRole accessRole = optionalRole.get();
+        final var accessRole = optionalRole.get();
 
         assertThat(accessRole.getRoleName()).isEqualTo(NEW_ROLE_NAME);
         assertThat(accessRole.getParentRoleCode()).isEqualTo(EXISTING_ROLE_CODE);
@@ -61,7 +58,7 @@ public class AccessRoleRepositoryTest {
 
     @Test
     public void testCreateAdminAccessRole() {
-        AccessRole role = AccessRole.builder()
+        final var role = AccessRole.builder()
                 .roleCode(NEW_ROLE_CODE_3)
                 .roleName(NEW_ROLE_NAME)
                 .parentRoleCode(EXISTING_ROLE_CODE)
@@ -70,11 +67,11 @@ public class AccessRoleRepositoryTest {
 
         repository.createAccessRole(role);
 
-        Optional<AccessRole> optionalRole = repository.getAccessRole(NEW_ROLE_CODE_3);
+        final var optionalRole = repository.getAccessRole(NEW_ROLE_CODE_3);
 
         assertThat(optionalRole.isPresent()).isTrue();
 
-        AccessRole accessRole = optionalRole.get();
+        final var accessRole = optionalRole.get();
 
         assertThat(accessRole.getRoleName()).isEqualTo(NEW_ROLE_NAME);
         assertThat(accessRole.getParentRoleCode()).isEqualTo(EXISTING_ROLE_CODE);
@@ -83,7 +80,7 @@ public class AccessRoleRepositoryTest {
 
     @Test
     public void testCreateAccessRoleNoParentRole() {
-        AccessRole role = AccessRole.builder()
+        final var role = AccessRole.builder()
                 .roleCode(NEW_ROLE_CODE_2)
                 .roleName(NEW_ROLE_NAME)
                 .roleFunction(ROLE_FUNCTION_ADMIN)
@@ -91,11 +88,11 @@ public class AccessRoleRepositoryTest {
 
         repository.createAccessRole(role);
 
-        Optional<AccessRole> optionalRole = repository.getAccessRole(NEW_ROLE_CODE_2);
+        final var optionalRole = repository.getAccessRole(NEW_ROLE_CODE_2);
 
         assertThat(optionalRole.isPresent()).isTrue();
 
-        AccessRole accessRole = optionalRole.get();
+        final var accessRole = optionalRole.get();
 
         assertThat(accessRole.getRoleName()).isEqualTo(NEW_ROLE_NAME);
         assertThat(accessRole.getParentRoleCode()).isNull();
@@ -103,7 +100,7 @@ public class AccessRoleRepositoryTest {
 
     @Test
     public void testUpdateAccessRole() {
-        AccessRole role = AccessRole.builder()
+        final var role = AccessRole.builder()
                 .roleCode(EXISTING_ROLE_CODE)
                 .roleName(NEW_ROLE_NAME)
                 .roleFunction("ADMIN")
@@ -111,11 +108,11 @@ public class AccessRoleRepositoryTest {
 
         repository.updateAccessRole(role);
 
-        Optional<AccessRole> optionalRole = repository.getAccessRole(EXISTING_ROLE_CODE);
+        final var optionalRole = repository.getAccessRole(EXISTING_ROLE_CODE);
 
         assertThat(optionalRole.isPresent()).isTrue();
 
-        AccessRole accessRole = optionalRole.get();
+        final var accessRole = optionalRole.get();
 
         assertThat(accessRole.getRoleName()).isEqualTo(NEW_ROLE_NAME);
     }
@@ -123,7 +120,7 @@ public class AccessRoleRepositoryTest {
     @Test
     public void testGetAccessRolesForAdmin() {
 
-        final List<AccessRole> accessRoles = repository.getAccessRoles(true);
+        final var accessRoles = repository.getAccessRoles(true);
 
         assertThat(accessRoles).extracting("roleCode").contains("ACCESS_ROLE_GENERAL", "ACCESS_ROLE_ADMIN");
     }
@@ -131,7 +128,7 @@ public class AccessRoleRepositoryTest {
     @Test
     public void testGetAccessRolesForGeneral() {
 
-        final List<AccessRole> accessRoles = repository.getAccessRoles(false);
+        final var accessRoles = repository.getAccessRoles(false);
 
         assertThat(accessRoles).extracting("roleCode").contains("ACCESS_ROLE_GENERAL");
     }

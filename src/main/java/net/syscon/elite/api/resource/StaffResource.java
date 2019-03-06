@@ -165,11 +165,16 @@ public interface StaffResource {
 
     class RemoveStaffAccessRoleResponse extends ResponseDelegate {
 
-        private RemoveStaffAccessRoleResponse(Response response) { super(response); }
-        private RemoveStaffAccessRoleResponse(Response response, Object entity) { super(response, entity); }
+        private RemoveStaffAccessRoleResponse(final Response response) {
+            super(response);
+        }
 
-        public static RemoveStaffAccessRoleResponse respond200WithApplicationJson(String entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private RemoveStaffAccessRoleResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static RemoveStaffAccessRoleResponse respond200WithApplicationJson(final String entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new RemoveStaffAccessRoleResponse(responseBuilder.build(), entity);
@@ -178,32 +183,37 @@ public interface StaffResource {
 
     class GetAllStaffAccessRolesForCaseloadResponse extends ResponseDelegate {
 
-        private GetAllStaffAccessRolesForCaseloadResponse(Response response) { super(response); }
-        private GetAllStaffAccessRolesForCaseloadResponse(Response response, Object entity) { super(response, entity); }
+        private GetAllStaffAccessRolesForCaseloadResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetAllStaffAccessRolesForCaseloadResponse respond200WithApplicationJson(List<StaffUserRole> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetAllStaffAccessRolesForCaseloadResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetAllStaffAccessRolesForCaseloadResponse respond200WithApplicationJson(final List<StaffUserRole> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAllStaffAccessRolesForCaseloadResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAllStaffAccessRolesForCaseloadResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetAllStaffAccessRolesForCaseloadResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAllStaffAccessRolesForCaseloadResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAllStaffAccessRolesForCaseloadResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetAllStaffAccessRolesForCaseloadResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAllStaffAccessRolesForCaseloadResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAllStaffAccessRolesForCaseloadResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetAllStaffAccessRolesForCaseloadResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAllStaffAccessRolesForCaseloadResponse(responseBuilder.build(), entity);
@@ -212,11 +222,16 @@ public interface StaffResource {
 
     class GetStaffByAgencyPositionRoleResponse extends ResponseDelegate {
 
-        private GetStaffByAgencyPositionRoleResponse(Response response) { super(response); }
-        private GetStaffByAgencyPositionRoleResponse(Response response, Object entity) { super(response, entity); }
+        private GetStaffByAgencyPositionRoleResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetStaffByAgencyPositionRoleResponse respond200WithApplicationJson(Page<StaffLocationRole> page) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetStaffByAgencyPositionRoleResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetStaffByAgencyPositionRoleResponse respond200WithApplicationJson(final Page<StaffLocationRole> page) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON)
                     .header("Total-Records", page.getTotalRecords())
                     .header("Page-Offset", page.getPageOffset())
@@ -225,22 +240,22 @@ public interface StaffResource {
             return new GetStaffByAgencyPositionRoleResponse(responseBuilder.build(), page.getItems());
         }
 
-        public static GetStaffByAgencyPositionRoleResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetStaffByAgencyPositionRoleResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffByAgencyPositionRoleResponse(responseBuilder.build(), entity);
         }
 
-        public static GetStaffByAgencyPositionRoleResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetStaffByAgencyPositionRoleResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffByAgencyPositionRoleResponse(responseBuilder.build(), entity);
         }
 
-        public static GetStaffByAgencyPositionRoleResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetStaffByAgencyPositionRoleResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffByAgencyPositionRoleResponse(responseBuilder.build(), entity);
@@ -249,11 +264,16 @@ public interface StaffResource {
 
     class GetStaffByAgencyRoleResponse extends ResponseDelegate {
 
-        private GetStaffByAgencyRoleResponse(Response response) { super(response); }
-        private GetStaffByAgencyRoleResponse(Response response, Object entity) { super(response, entity); }
+        private GetStaffByAgencyRoleResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetStaffByAgencyRoleResponse respond200WithApplicationJson(Page<StaffLocationRole> page) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetStaffByAgencyRoleResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetStaffByAgencyRoleResponse respond200WithApplicationJson(final Page<StaffLocationRole> page) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON)
                     .header("Total-Records", page.getTotalRecords())
                     .header("Page-Offset", page.getPageOffset())
@@ -262,22 +282,22 @@ public interface StaffResource {
             return new GetStaffByAgencyRoleResponse(responseBuilder.build(), page.getItems());
         }
 
-        public static GetStaffByAgencyRoleResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetStaffByAgencyRoleResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffByAgencyRoleResponse(responseBuilder.build(), entity);
         }
 
-        public static GetStaffByAgencyRoleResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetStaffByAgencyRoleResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffByAgencyRoleResponse(responseBuilder.build(), entity);
         }
 
-        public static GetStaffByAgencyRoleResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetStaffByAgencyRoleResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffByAgencyRoleResponse(responseBuilder.build(), entity);
@@ -286,39 +306,44 @@ public interface StaffResource {
 
     class GetStaffEmailResponse extends ResponseDelegate {
 
-        private GetStaffEmailResponse(Response response) { super(response); }
-        private GetStaffEmailResponse(Response response, Object entity) { super(response, entity); }
+        private GetStaffEmailResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetStaffEmailResponse respond200WithApplicationJson(List<String> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetStaffEmailResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetStaffEmailResponse respond200WithApplicationJson(final List<String> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffEmailResponse(responseBuilder.build(), entity);
         }
 
-        public static GetStaffEmailResponse respond204WithApplicationJson(List<String> entity) {
-            ResponseBuilder responseBuilder = Response.status(204)
+        public static GetStaffEmailResponse respond204WithApplicationJson(final List<String> entity) {
+            final var responseBuilder = Response.status(204)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffEmailResponse(responseBuilder.build(), entity);
         }
 
-        public static GetStaffEmailResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetStaffEmailResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffEmailResponse(responseBuilder.build(), entity);
         }
 
-        public static GetStaffEmailResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetStaffEmailResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffEmailResponse(responseBuilder.build(), entity);
         }
 
-        public static GetStaffEmailResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetStaffEmailResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffEmailResponse(responseBuilder.build(), entity);
@@ -327,32 +352,37 @@ public interface StaffResource {
 
     class GetStaffDetailResponse extends ResponseDelegate {
 
-        private GetStaffDetailResponse(Response response) { super(response); }
-        private GetStaffDetailResponse(Response response, Object entity) { super(response, entity); }
+        private GetStaffDetailResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetStaffDetailResponse respond200WithApplicationJson(StaffDetail entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetStaffDetailResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetStaffDetailResponse respond200WithApplicationJson(final StaffDetail entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffDetailResponse(responseBuilder.build(), entity);
         }
 
-        public static GetStaffDetailResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetStaffDetailResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffDetailResponse(responseBuilder.build(), entity);
         }
 
-        public static GetStaffDetailResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetStaffDetailResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffDetailResponse(responseBuilder.build(), entity);
         }
 
-        public static GetStaffDetailResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetStaffDetailResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffDetailResponse(responseBuilder.build(), entity);
@@ -361,32 +391,37 @@ public interface StaffResource {
 
     class GetStaffAccessRolesResponse extends ResponseDelegate {
 
-        private GetStaffAccessRolesResponse(Response response) { super(response); }
-        private GetStaffAccessRolesResponse(Response response, Object entity) { super(response, entity); }
+        private GetStaffAccessRolesResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetStaffAccessRolesResponse respond200WithApplicationJson(List<StaffUserRole> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetStaffAccessRolesResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetStaffAccessRolesResponse respond200WithApplicationJson(final List<StaffUserRole> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffAccessRolesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetStaffAccessRolesResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetStaffAccessRolesResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffAccessRolesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetStaffAccessRolesResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetStaffAccessRolesResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffAccessRolesResponse(responseBuilder.build(), entity);
         }
 
-        public static GetStaffAccessRolesResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetStaffAccessRolesResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetStaffAccessRolesResponse(responseBuilder.build(), entity);
@@ -395,32 +430,37 @@ public interface StaffResource {
 
     class GetAccessRolesByCaseloadResponse extends ResponseDelegate {
 
-        private GetAccessRolesByCaseloadResponse(Response response) { super(response); }
-        private GetAccessRolesByCaseloadResponse(Response response, Object entity) { super(response, entity); }
+        private GetAccessRolesByCaseloadResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetAccessRolesByCaseloadResponse respond200WithApplicationJson(List<StaffUserRole> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetAccessRolesByCaseloadResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetAccessRolesByCaseloadResponse respond200WithApplicationJson(final List<StaffUserRole> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAccessRolesByCaseloadResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAccessRolesByCaseloadResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetAccessRolesByCaseloadResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAccessRolesByCaseloadResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAccessRolesByCaseloadResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetAccessRolesByCaseloadResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAccessRolesByCaseloadResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAccessRolesByCaseloadResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetAccessRolesByCaseloadResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAccessRolesByCaseloadResponse(responseBuilder.build(), entity);
@@ -429,32 +469,37 @@ public interface StaffResource {
 
     class GetAllRolesForAgencyResponse extends ResponseDelegate {
 
-        private GetAllRolesForAgencyResponse(Response response) { super(response); }
-        private GetAllRolesForAgencyResponse(Response response, Object entity) { super(response, entity); }
+        private GetAllRolesForAgencyResponse(final Response response) {
+            super(response);
+        }
 
-        public static GetAllRolesForAgencyResponse respond200WithApplicationJson(List<StaffRole> entity) {
-            ResponseBuilder responseBuilder = Response.status(200)
+        private GetAllRolesForAgencyResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static GetAllRolesForAgencyResponse respond200WithApplicationJson(final List<StaffRole> entity) {
+            final var responseBuilder = Response.status(200)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAllRolesForAgencyResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAllRolesForAgencyResponse respond400WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(400)
+        public static GetAllRolesForAgencyResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAllRolesForAgencyResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAllRolesForAgencyResponse respond404WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(404)
+        public static GetAllRolesForAgencyResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAllRolesForAgencyResponse(responseBuilder.build(), entity);
         }
 
-        public static GetAllRolesForAgencyResponse respond500WithApplicationJson(ErrorResponse entity) {
-            ResponseBuilder responseBuilder = Response.status(500)
+        public static GetAllRolesForAgencyResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAllRolesForAgencyResponse(responseBuilder.build(), entity);
@@ -463,11 +508,16 @@ public interface StaffResource {
 
     class AddStaffAccessRoleForApiCaseloadResponse extends ResponseDelegate {
 
-        private AddStaffAccessRoleForApiCaseloadResponse(Response response) { super(response); }
-        private AddStaffAccessRoleForApiCaseloadResponse(Response response, Object entity) { super(response, entity); }
+        private AddStaffAccessRoleForApiCaseloadResponse(final Response response) {
+            super(response);
+        }
 
-        public static AddStaffAccessRoleForApiCaseloadResponse respond201WithApplicationJson(StaffUserRole entity) {
-            ResponseBuilder responseBuilder = Response.status(201)
+        private AddStaffAccessRoleForApiCaseloadResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static AddStaffAccessRoleForApiCaseloadResponse respond201WithApplicationJson(final StaffUserRole entity) {
+            final var responseBuilder = Response.status(201)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new AddStaffAccessRoleForApiCaseloadResponse(responseBuilder.build(), entity);
@@ -476,11 +526,16 @@ public interface StaffResource {
 
     class AddStaffAccessRoleResponse extends ResponseDelegate {
 
-        private AddStaffAccessRoleResponse(Response response) { super(response); }
-        private AddStaffAccessRoleResponse(Response response, Object entity) { super(response, entity); }
+        private AddStaffAccessRoleResponse(final Response response) {
+            super(response);
+        }
 
-        public static AddStaffAccessRoleResponse respond201WithApplicationJson(StaffUserRole entity) {
-            ResponseBuilder responseBuilder = Response.status(201)
+        private AddStaffAccessRoleResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static AddStaffAccessRoleResponse respond201WithApplicationJson(final StaffUserRole entity) {
+            final var responseBuilder = Response.status(201)
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new AddStaffAccessRoleResponse(responseBuilder.build(), entity);

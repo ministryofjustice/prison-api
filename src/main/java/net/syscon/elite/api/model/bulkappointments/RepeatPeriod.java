@@ -6,42 +6,42 @@ import java.time.LocalDateTime;
 public enum RepeatPeriod {
     DAILY() {
         @Override
-        public LocalDateTime endDateTime(LocalDateTime start, long offsetEndDateTimeByThisNumberOfPeriodsFromStart) {
+        public LocalDateTime endDateTime(final LocalDateTime start, final long offsetEndDateTimeByThisNumberOfPeriodsFromStart) {
             return start.plusDays(offsetEndDateTimeByThisNumberOfPeriodsFromStart);
         }
     },
 
     WEEKDAYS() {
         @Override
-        public LocalDateTime endDateTime(LocalDateTime start, long offsetEndDateTimeByThisNumberOfPeriodsFromStart) {
-            int dayOfWeek = start.getDayOfWeek().getValue(); // Monday == 1, Sunday == 7.
+        public LocalDateTime endDateTime(final LocalDateTime start, final long offsetEndDateTimeByThisNumberOfPeriodsFromStart) {
+            final var dayOfWeek = start.getDayOfWeek().getValue(); // Monday == 1, Sunday == 7.
             if (dayOfWeek > 5) {
                 throw new BadRequestException("Weekend starts not allowed for WEEKDAY repeat period, but "+ start + " is a Saturday or Sunday");
             }
-            long weeks = offsetEndDateTimeByThisNumberOfPeriodsFromStart / 5;
-            long remainder = offsetEndDateTimeByThisNumberOfPeriodsFromStart % 5;
-            long daysToIncrement = weeks * 7 + (remainder + dayOfWeek > 5 ? remainder + 2 : remainder);
+            final var weeks = offsetEndDateTimeByThisNumberOfPeriodsFromStart / 5;
+            final var remainder = offsetEndDateTimeByThisNumberOfPeriodsFromStart % 5;
+            final var daysToIncrement = weeks * 7 + (remainder + dayOfWeek > 5 ? remainder + 2 : remainder);
             return start.plusDays(daysToIncrement);
         }
     },
 
     WEEKLY() {
         @Override
-        public LocalDateTime endDateTime(LocalDateTime start, long offsetEndDateTimeByThisNumberOfPeriodsFromStart) {
+        public LocalDateTime endDateTime(final LocalDateTime start, final long offsetEndDateTimeByThisNumberOfPeriodsFromStart) {
             return start.plusWeeks(offsetEndDateTimeByThisNumberOfPeriodsFromStart);
         }
     },
 
     FORTNIGHTLY() {
         @Override
-        public LocalDateTime endDateTime(LocalDateTime start, long offsetEndDateTimeByThisNumberOfPeriodsFromStart) {
+        public LocalDateTime endDateTime(final LocalDateTime start, final long offsetEndDateTimeByThisNumberOfPeriodsFromStart) {
             return start.plusWeeks(2 * offsetEndDateTimeByThisNumberOfPeriodsFromStart);
         }
     },
 
     MONTHLY() {
         @Override
-        public LocalDateTime endDateTime(LocalDateTime start, long offsetEndDateTimeByThisNumberOfPeriodsFromStart) {
+        public LocalDateTime endDateTime(final LocalDateTime start, final long offsetEndDateTimeByThisNumberOfPeriodsFromStart) {
             return start.plusMonths(offsetEndDateTimeByThisNumberOfPeriodsFromStart);
         }
     };

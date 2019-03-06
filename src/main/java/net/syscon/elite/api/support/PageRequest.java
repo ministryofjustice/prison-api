@@ -16,7 +16,7 @@ public class PageRequest {
      * @param offset page offset. Defaults to 0 if not specified.
      * @param limit page limit. Defaults to 10 if not specified.
      */
-    public PageRequest(String orderBy, Order order, Long offset, Long limit) {
+    public PageRequest(final String orderBy, final Order order, final Long offset, final Long limit) {
         this.orderBy = orderBy;
         this.order = (order == null) ? Order.ASC : order;
         this.offset = (offset == null) ? 0 : offset;
@@ -29,7 +29,7 @@ public class PageRequest {
      * @param orderBy comma-seperated list of fields to order results by.
      * @param order sort order (see {@link Order}). Defaults to {@link Order#ASC} if not specified.
      */
-    public PageRequest(String orderBy, Order order) {
+    public PageRequest(final String orderBy, final Order order) {
         this(orderBy, order, null, null);
     }
 
@@ -39,7 +39,7 @@ public class PageRequest {
      * @param offset page offset. Defaults to 0 if not specified.
      * @param limit page limit. Defaults to 10 if not specified.
      */
-    public PageRequest(Long offset, Long limit) {
+    public PageRequest(final Long offset, final Long limit) {
         this.orderBy = null;
         this.order = null;
         this.offset = (offset == null) ? 0 : offset;
@@ -51,7 +51,7 @@ public class PageRequest {
      *
      * @param orderBy comma-seperated list of fields to order results by.
      */
-    public PageRequest(String orderBy) {
+    public PageRequest(final String orderBy) {
         this(orderBy, null, null, null);
     }
 
@@ -91,8 +91,8 @@ public class PageRequest {
      * @param defaultOrderBy default order by fields to be applied.
      * @return new {@code PageRequest} if default order by fields are applied, otherwise this unaltered {@code PageRequest}.
      */
-    public PageRequest withDefaultOrderBy(String defaultOrderBy) {
-        PageRequest response = this;
+    public PageRequest withDefaultOrderBy(final String defaultOrderBy) {
+        var response = this;
 
         if ((defaultOrderBy != null) && (defaultOrderBy.length() > 0) && ((orderBy == null) || "".equals(orderBy.trim()))) {
             response = new PageRequest(defaultOrderBy, this.order, this.offset, this.limit);
@@ -102,10 +102,10 @@ public class PageRequest {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) return true;
         if (!(o instanceof PageRequest)) return false;
-        PageRequest that = (PageRequest) o;
+        final var that = (PageRequest) o;
         return Objects.equals(getOrderBy(), that.getOrderBy()) &&
             getOrder() == that.getOrder() &&
             Objects.equals(getOffset(), that.getOffset()) &&

@@ -1,6 +1,5 @@
 package net.syscon.elite.repository;
 
-import net.syscon.elite.api.model.Award;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.assertj.core.groups.Tuple;
 import org.junit.Before;
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
@@ -43,7 +41,7 @@ public class AdjudicationsRepositoryTest {
 
     @Test
     public void testGetDetailsMultiple() {
-        List<Award> awards = repository.findAwards(-3L);
+        final var awards = repository.findAwards(-3L);
         assertNotNull(awards);
         assertEquals(2, awards.size());
 
@@ -55,14 +53,14 @@ public class AdjudicationsRepositoryTest {
 
     @Test
     public void testGetDetailsInvalidBookingId() {
-        List<Award> awards = repository.findAwards(1001L);
+        final var awards = repository.findAwards(1001L);
         assertNotNull(awards);
         assertTrue(awards.isEmpty());
     }
 
     @Test
     public void testGetDetailsMultiple2() {
-        List<Award> awards = repository.findAwards(-1L);
+        final var awards = repository.findAwards(-1L);
         assertNotNull(awards);
         assertEquals(2, awards.size());
 

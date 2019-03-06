@@ -42,10 +42,10 @@ public class BookingDetailSteps extends CommonSteps {
     }
 
     @Step("Retrieve offender booking details record")
-    public void findBookingDetails(Long bookingId, boolean basicInfo) {
+    public void findBookingDetails(final Long bookingId, final boolean basicInfo) {
         init();
 
-        ResponseEntity<InmateDetail> response;
+        final ResponseEntity<InmateDetail> response;
 
         try {
             response =
@@ -59,15 +59,15 @@ public class BookingDetailSteps extends CommonSteps {
             inmateDetail = response.getBody();
             physicalAttributes = inmateDetail.getPhysicalAttributes();
             physicalCharacteristics = inmateDetail.getPhysicalCharacteristics();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    public void getPhysicalAttributes(Long bookingId) {
+    public void getPhysicalAttributes(final Long bookingId) {
         init();
 
-        ResponseEntity<PhysicalAttributes> response;
+        final ResponseEntity<PhysicalAttributes> response;
 
         try {
             response =
@@ -79,59 +79,59 @@ public class BookingDetailSteps extends CommonSteps {
                             bookingId);
 
             physicalAttributes = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    public void getPhysicalCharacteristics(Long bookingId) {
+    public void getPhysicalCharacteristics(final Long bookingId) {
         init();
         try {
-            ResponseEntity<List<PhysicalCharacteristic>> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     API_BOOKING_REQUEST_URL + "/physicalCharacteristics", HttpMethod.GET,
                     createEntity(null, null),
                     new ParameterizedTypeReference<List<PhysicalCharacteristic>>() {}, bookingId);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             physicalCharacteristics = response.getBody();
             buildResourceData(response);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    public void getProfileInformation(Long bookingId) {
+    public void getProfileInformation(final Long bookingId) {
         init();
         try {
-            ResponseEntity<List<ProfileInformation>> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     API_BOOKING_REQUEST_URL + "/profileInformation", HttpMethod.GET,
                     createEntity(null, null),
                     new ParameterizedTypeReference<List<ProfileInformation>>() {}, bookingId);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             profileInformation = response.getBody();
             buildResourceData(response);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    public void getOffenderIdentifiers(Long bookingId) {
+    public void getOffenderIdentifiers(final Long bookingId) {
         init();
         try {
-            ResponseEntity<List<OffenderIdentifier>> response = restTemplate.exchange(
+            final var response = restTemplate.exchange(
                     API_BOOKING_REQUEST_URL + "/identifiers", HttpMethod.GET,
                     createEntity(null, null),
                     new ParameterizedTypeReference<List<OffenderIdentifier>>() {}, bookingId);
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             buildResourceData(response);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    public void getImageMetadata(Long bookingId) {
+    public void getImageMetadata(final Long bookingId) {
         init();
 
-        ResponseEntity<ImageDetail> response;
+        final ResponseEntity<ImageDetail> response;
 
         try {
             response =
@@ -143,37 +143,37 @@ public class BookingDetailSteps extends CommonSteps {
                             bookingId);
 
             imageDetail = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
     @Step("Verify offender booking number")
-    public void verifyOffenderBookingNo(String bookingNo) {
+    public void verifyOffenderBookingNo(final String bookingNo) {
         assertThat(inmateDetail.getBookingNo()).isEqualTo(bookingNo);
     }
 
     @Step("Verify offender first name")
-    public void verifyOffenderFirstName(String firstName) {
+    public void verifyOffenderFirstName(final String firstName) {
         assertThat(inmateDetail.getFirstName()).isEqualTo(firstName);
     }
 
     @Step("Verify offender last name")
-    public void verifyOffenderLastName(String lastName) {
+    public void verifyOffenderLastName(final String lastName) {
         assertThat(inmateDetail.getLastName()).isEqualTo(lastName);
     }
 
     @Step("Verify offender display no")
-    public void verifyOffenderNo(String offenderNo) {
+    public void verifyOffenderNo(final String offenderNo) {
         assertThat(inmateDetail.getOffenderNo()).isEqualTo(offenderNo);
     }
 
     @Step("Verify offender booking number")
-    public void verifyOffenderActiveFlag(boolean activeFlag) {
+    public void verifyOffenderActiveFlag(final boolean activeFlag) {
         assertThat(inmateDetail.getActiveFlag()).isEqualTo(activeFlag);
     }
     @Step("Verify offender assigned officer id")
-    public void verifyOffenderAssignedOfficerId(Long assignedOfficerId) {
+    public void verifyOffenderAssignedOfficerId(final Long assignedOfficerId) {
         assertThat(inmateDetail.getAssignedOfficerId())
                 .as("assignedOfficerId expected %d but was %d, inmateDetail = %s", assignedOfficerId,
                         inmateDetail.getAssignedOfficerId(), inmateDetail.toString())
@@ -181,65 +181,65 @@ public class BookingDetailSteps extends CommonSteps {
     }
 
     @Step("Verify language")
-    public void verifyLanguage(String language) throws ReflectiveOperationException {
+    public void verifyLanguage(final String language) throws ReflectiveOperationException {
         verifyField(inmateDetail, "language", language);
     }
 
     @Step("Verify offender gender")
-    public void verifyOffenderGender(String gender) {
+    public void verifyOffenderGender(final String gender) {
         assertThat(physicalAttributes.getGender()).isEqualTo(gender);
     }
 
     @Step("Verify offender ethnicity")
-    public void verifyOffenderEthnicity(String ethnicity) {
+    public void verifyOffenderEthnicity(final String ethnicity) {
         assertThat(physicalAttributes.getEthnicity()).isEqualTo(ethnicity);
     }
 
     @Step("Verify offender height in feet")
-    public void verifyOffenderHeightInFeet(Integer heightInFeet) {
+    public void verifyOffenderHeightInFeet(final Integer heightInFeet) {
         assertThat(physicalAttributes.getHeightFeet()).isEqualTo(heightInFeet);
     }
 
     @Step("Verify offender height in inches")
-    public void verifyOffenderHeightInInches(Integer heightInInches) {
+    public void verifyOffenderHeightInInches(final Integer heightInInches) {
         assertThat(physicalAttributes.getHeightInches()).isEqualTo(heightInInches);
     }
 
     @Step("Verify offender height in centimetres")
-    public void verifyOffenderHeightInCentimetres(Integer heightInCentimetres) {
+    public void verifyOffenderHeightInCentimetres(final Integer heightInCentimetres) {
         assertThat(physicalAttributes.getHeightCentimetres()).isEqualTo(heightInCentimetres);
     }
 
     @Step("Verify offender height in metres")
-    public void verifyOffenderHeightInMetres(BigDecimal heightInMetres) {
+    public void verifyOffenderHeightInMetres(final BigDecimal heightInMetres) {
         assertThat(physicalAttributes.getHeightMetres()).isEqualTo(heightInMetres);
     }
 
     @Step("Verify offender weight in pounds")
-    public void verifyOffenderWeightInPounds(Integer weightInPounds) {
+    public void verifyOffenderWeightInPounds(final Integer weightInPounds) {
         assertThat(physicalAttributes.getWeightPounds()).isEqualTo(weightInPounds);
     }
 
     @Step("Verify offender weight in kilograms")
-    public void verifyOffenderWeightInKilograms(Integer weightInKilograms) {
+    public void verifyOffenderWeightInKilograms(final Integer weightInKilograms) {
         assertThat(physicalAttributes.getWeightKilograms()).isEqualTo(weightInKilograms);
     }
 
     @Step("Verify offender physical characteristics")
-    public void verifyOffenderPhysicalCharacteristics(String characteristicsList) {
+    public void verifyOffenderPhysicalCharacteristics(final String characteristicsList) {
         verifyPropertyMapValues(physicalCharacteristics,
                 PhysicalCharacteristic::getCharacteristic, PhysicalCharacteristic::getDetail, characteristicsList);
     }
 
     @Step("Verify active alert count")
-    public void verifyActiveCount(int count) {
+    public void verifyActiveCount(final int count) {
         assertThat(inmateDetail.getActiveAlertCount())
                 .as(format("bookingId: %s",inmateDetail.getBookingId()))
                 .isEqualTo(count);
     }
 
     @Step("Verify inactive alert count")
-    public void verifyInactiveCount(int count) {
+    public void verifyInactiveCount(final int count) {
 
         assertThat(inmateDetail.getInactiveAlertCount())
                 .as(format("bookingId: %s",inmateDetail.getBookingId()))
@@ -250,11 +250,11 @@ public class BookingDetailSteps extends CommonSteps {
         assertThat(imageDetail).isNotNull();
     }
 
-    public void verifyAlertTypes(String types) {
+    public void verifyAlertTypes(final String types) {
         assertThat(inmateDetail.getAlertsCodes()).asList().containsAll(csv2list(types));
     }
 
-    public void verifyField(String field, String value) throws ReflectiveOperationException {
+    public void verifyField(final String field, final String value) throws ReflectiveOperationException {
         assertNotNull(inmateDetail);
         super.verifyField(inmateDetail, field, value);
     }
@@ -266,7 +266,7 @@ public class BookingDetailSteps extends CommonSteps {
                 ProfileInformation.builder().type("SMOKE").question("Is the Offender a smoker?").resultValue("No").build());
     }
 
-    public void findBookingDetails(List<String> offenderNumbers) {
+    public void findBookingDetails(final List<String> offenderNumbers) {
         init();
         try {
             final var response =
@@ -277,12 +277,12 @@ public class BookingDetailSteps extends CommonSteps {
                             new ParameterizedTypeReference<List<InmateDetail>>() {});
 
             offenders = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    public void verifyOffenders(String firstName, String lastName, String middleName, String offenderNo, String bookingId, String agencyId) {
+    public void verifyOffenders(final String firstName, final String lastName, final String middleName, final String offenderNo, final String bookingId, final String agencyId) {
 
         assertThat(offenders
                 .stream()
@@ -296,7 +296,7 @@ public class BookingDetailSteps extends CommonSteps {
                 .isEqualTo(1);
     }
 
-    public void verifyOffenderCount(int size) {
+    public void verifyOffenderCount(final int size) {
         assertThat(offenders).hasSize(size);
     }
 }

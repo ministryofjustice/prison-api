@@ -61,7 +61,7 @@ public class PrisonContactDetail {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -74,7 +74,7 @@ public class PrisonContactDetail {
         return agencyId;
     }
 
-    public void setAgencyId(String agencyId) {
+    public void setAgencyId(final String agencyId) {
         this.agencyId = agencyId;
     }
 
@@ -87,7 +87,7 @@ public class PrisonContactDetail {
         return addressType;
     }
 
-    public void setAddressType(String addressType) {
+    public void setAddressType(final String addressType) {
         this.addressType = addressType;
     }
 
@@ -100,7 +100,7 @@ public class PrisonContactDetail {
         return premise;
     }
 
-    public void setPremise(String premise) {
+    public void setPremise(final String premise) {
         this.premise = premise;
     }
 
@@ -113,7 +113,7 @@ public class PrisonContactDetail {
         return locality;
     }
 
-    public void setLocality(String locality) {
+    public void setLocality(final String locality) {
         this.locality = locality;
     }
 
@@ -126,7 +126,7 @@ public class PrisonContactDetail {
         return city;
     }
 
-    public void setCity(String city) {
+    public void setCity(final String city) {
         this.city = city;
     }
 
@@ -139,7 +139,7 @@ public class PrisonContactDetail {
         return country;
     }
 
-    public void setCountry(String country) {
+    public void setCountry(final String country) {
         this.country = country;
     }
 
@@ -152,7 +152,7 @@ public class PrisonContactDetail {
         return postCode;
     }
 
-    public void setPostCode(String postCode) {
+    public void setPostCode(final String postCode) {
         this.postCode = postCode;
     }
 
@@ -165,13 +165,13 @@ public class PrisonContactDetail {
         return phones;
     }
 
-    public void setPhones(List<Telephone> phones) {
+    public void setPhones(final List<Telephone> phones) {
         this.phones = phones;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class PrisonContactDetail {\n");
         

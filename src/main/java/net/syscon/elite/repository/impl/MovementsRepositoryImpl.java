@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -30,14 +29,14 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
 
 
     @Override
-    public List<Movement> getRecentMovementsByDate(LocalDateTime fromDateTime, LocalDate movementDate) {
-        String sql = getQuery("GET_RECENT_MOVEMENTS_BY_DATE_FOR_BATCH");
+    public List<Movement> getRecentMovementsByDate(final LocalDateTime fromDateTime, final LocalDate movementDate) {
+        final var sql = getQuery("GET_RECENT_MOVEMENTS_BY_DATE_FOR_BATCH");
         return jdbcTemplate.query(sql, createParams("fromDateTime", DateTimeConverter.fromLocalDateTime(fromDateTime),
                 "movementDate", DateTimeConverter.toDate(movementDate)), MOVEMENT_MAPPER);
     }
 
     @Override
-    public List<Movement> getRecentMovementsByOffenders(List<String> offenderNumbers, List<String> movementTypes) {
+    public List<Movement> getRecentMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes) {
         if (movementTypes.size() != 0) {
             return jdbcTemplate.query(getQuery("GET_RECENT_MOVEMENTS_BY_OFFENDERS_AND_MOVEMENT_TYPES"), createParams(
                     "offenderNumbers", offenderNumbers,
@@ -51,8 +50,8 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     }
 
     @Override
-    public List<OffenderMovement> getOffendersOut(String agencyId, LocalDate movementDate) {
-        String sql = getQuery("GET_OFFENDERS_OUT_TODAY");
+    public List<OffenderMovement> getOffendersOut(final String agencyId, final LocalDate movementDate) {
+        final var sql = getQuery("GET_OFFENDERS_OUT_TODAY");
         return jdbcTemplate.query(sql, createParams(
                 "agencyId", agencyId,
                 "movementDate", DateTimeConverter.toDate(movementDate)),
@@ -60,8 +59,8 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     }
 
     @Override
-    public List<RollCount> getRollCount(String agencyId, String certifiedFlag) {
-        String sql = getQuery("GET_ROLL_COUNT");
+    public List<RollCount> getRollCount(final String agencyId, final String certifiedFlag) {
+        final var sql = getQuery("GET_ROLL_COUNT");
         return jdbcTemplate.query(sql, createParams(
                 "agencyId", agencyId,
                 "certifiedFlag", certifiedFlag,
@@ -72,19 +71,19 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     }
 
     @Override
-    public MovementCount getMovementCount(String agencyId, LocalDate date) {
+    public MovementCount getMovementCount(final String agencyId, final LocalDate date) {
 
-        List<Movement> movements = jdbcTemplate.query(
+        final var movements = jdbcTemplate.query(
                 getQuery("GET_ROLLCOUNT_MOVEMENTS"),
                 createParams("agencyId", agencyId, "movementDate", DateTimeConverter.toDate(date)), MOVEMENT_MAPPER);
 
-        Map<String, List<Movement>> movementsGroupedByDirection = movements.stream().filter(movement ->
+        final var movementsGroupedByDirection = movements.stream().filter(movement ->
                 (movement.getDirectionCode().equals("IN") && movement.getToAgency().equals(agencyId)) ||
                 (movement.getDirectionCode().equals("OUT") && movement.getFromAgency().equals(agencyId)))
                 .collect(groupingBy(Movement::getDirectionCode));
 
-        int outMovements = movementsGroupedByDirection.containsKey("OUT") ? movementsGroupedByDirection.get("OUT").size() : 0;
-        int inMovements = movementsGroupedByDirection.containsKey("IN") ? movementsGroupedByDirection.get("IN").size() : 0;
+        final var outMovements = movementsGroupedByDirection.containsKey("OUT") ? movementsGroupedByDirection.get("OUT").size() : 0;
+        final var inMovements = movementsGroupedByDirection.containsKey("IN") ? movementsGroupedByDirection.get("IN").size() : 0;
 
         return MovementCount.builder()
                 .out(outMovements)
@@ -93,7 +92,7 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     }
 
     @Override
-    public List<OffenderMovement> getEnrouteMovementsOffenderMovementList(String agencyId, LocalDate date) {
+    public List<OffenderMovement> getEnrouteMovementsOffenderMovementList(final String agencyId, final LocalDate date) {
 
         final var initialSql = getQuery("GET_ENROUTE_OFFENDER_MOVEMENTS");
         final var sql = date == null ? initialSql : initialSql + MOVEMENT_DATE_CLAUSE;
@@ -106,7 +105,7 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     }
 
     @Override
-    public int getEnrouteMovementsOffenderCount(String agencyId, LocalDate date) {
+    public int getEnrouteMovementsOffenderCount(final String agencyId, final LocalDate date) {
 
         return jdbcTemplate.queryForObject(
                 getQuery("GET_ENROUTE_OFFENDER_COUNT"),
@@ -117,7 +116,7 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     }
 
     @Override
-    public List<OffenderIn> getOffendersIn(String agencyId, LocalDate movementDate) {
+    public List<OffenderIn> getOffendersIn(final String agencyId, final LocalDate movementDate) {
         return jdbcTemplate.query(getQuery("GET_OFFENDER_MOVEMENTS_IN"),
                 createParams(
                     "agencyId", agencyId,
@@ -126,14 +125,14 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     }
 
     @Override
-    public List<OffenderInReception> getOffendersInReception(String agencyId) {
+    public List<OffenderInReception> getOffendersInReception(final String agencyId) {
         return jdbcTemplate.query(getQuery("GET_OFFENDERS_IN_RECEPTION"),
                 createParams("agencyId", agencyId),
                 OFFENDER_IN_RECEPTION_MAPPER);
     }
 
     @Override
-    public List<OffenderOut> getOffendersCurrentlyOut(long livingUnitId) {
+    public List<OffenderOut> getOffendersCurrentlyOut(final long livingUnitId) {
         return jdbcTemplate.query(
                 getQuery("GET_OFFENDERS_CURRENTLY_OUT_OF_LIVING_UNIT"),
                 createParams(
@@ -144,7 +143,7 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
     }
 
     @Override
-    public List<OffenderOut> getOffendersCurrentlyOut(String agencyId) {
+    public List<OffenderOut> getOffendersCurrentlyOut(final String agencyId) {
         return jdbcTemplate.query(
                 getQuery("GET_OFFENDERS_CURRENTLY_OUT_OF_AGENCY"),
                 createParams(

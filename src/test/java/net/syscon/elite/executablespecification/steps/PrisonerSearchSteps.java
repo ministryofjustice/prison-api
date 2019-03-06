@@ -7,7 +7,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Map;
@@ -27,47 +26,47 @@ public class PrisonerSearchSteps extends CommonSteps {
     private boolean includeAliases;
 
     @Step("Verify offender numbers of prisoners returned by search")
-    public void verifyOffenderNumbers(String offenderNoList) {
+    public void verifyOffenderNumbers(final String offenderNoList) {
         verifyPropertyValues(prisonerDetails, PrisonerDetail::getOffenderNo, offenderNoList);
     }
 
     @Step("Verify offender internal location returned by search")
-    public void verifyInternalLocation(String internalLocation) {
+    public void verifyInternalLocation(final String internalLocation) {
         verifyPropertyValues(prisonerDetails, PrisonerDetail::getInternalLocation, internalLocation);
     }
 
     @Step("Verify first names of prisoner returned by search")
-    public void verifyFirstNames(String nameList) {
+    public void verifyFirstNames(final String nameList) {
         verifyPropertyValues(prisonerDetails, PrisonerDetail::getFirstName, nameList);
     }
 
     @Step("Verify middle names of prisoner returned by search")
-    public void verifyMiddleNames(String nameList) {
+    public void verifyMiddleNames(final String nameList) {
         verifyPropertyValues(prisonerDetails, PrisonerDetail::getMiddleNames, nameList);
     }
 
     @Step("Verify last names of prisoner returned by search")
-    public void verifyLastNames(String nameList) {
+    public void verifyLastNames(final String nameList) {
         verifyPropertyValues(prisonerDetails, PrisonerDetail::getLastName, nameList);
     }
 
     @Step("Verify working last names of prisoner returned by search")
-    public void verifyWorkingLastNames(String nameList) {
+    public void verifyWorkingLastNames(final String nameList) {
         verifyPropertyValues(prisonerDetails, PrisonerDetail::getCurrentWorkingLastName, nameList);
     }
 
     @Step("Verify working first names of prisoner returned by search")
-    public void verifyWorkingFirstNames(String nameList) {
+    public void verifyWorkingFirstNames(final String nameList) {
         verifyPropertyValues(prisonerDetails, PrisonerDetail::getCurrentWorkingFirstName, nameList);
     }
 
     @Step("Verify working date of birth of prisoner returned by search")
-    public void verifyWorkingBirthDate(String dobs) {
+    public void verifyWorkingBirthDate(final String dobs) {
         verifyLocalDateValues(prisonerDetails, PrisonerDetail::getCurrentWorkingBirthDate, dobs);
     }
 
     @Step("Verify dobs of prisoner returned by search")
-    public void verifyDobs(String dobs) {
+    public void verifyDobs(final String dobs) {
         verifyLocalDateValues(prisonerDetails, PrisonerDetail::getDateOfBirth, dobs);
     }
 
@@ -75,27 +74,27 @@ public class PrisonerSearchSteps extends CommonSteps {
         includeAliases = true;
     }
 
-    public void search(Map<String, String> queryParams, long offset, long limit, HttpStatus expectedStatus) {
+    public void search(final Map<String, String> queryParams, final long offset, final long limit, final HttpStatus expectedStatus) {
         init();
         applyPagination(offset, limit);
-        StringBuilder params = new StringBuilder();
+        final var params = new StringBuilder();
         queryParams.forEach((key, value) -> params.append(String.format("%s=%s&", key, value)));
 
-        final String query = params.toString();
-        String queryUrl = String.format(PRISONER_SEARCH, StringUtils.substring(query, 0, query.length() - 1));
-        boolean isErrorExpected = expectedStatus.is4xxClientError() || expectedStatus.is5xxServerError();
+        final var query = params.toString();
+        final var queryUrl = String.format(PRISONER_SEARCH, StringUtils.substring(query, 0, query.length() - 1));
+        final var isErrorExpected = expectedStatus.is4xxClientError() || expectedStatus.is5xxServerError();
 
         doSearch(expectedStatus, queryUrl, isErrorExpected);
     }
 
-    public void simpleSearch(String offenderNo, HttpStatus expectedStatus) {
+    public void simpleSearch(final String offenderNo, final HttpStatus expectedStatus) {
         init();
         doSearch(expectedStatus,
                 String.format(PRISONER_SIMPLE_SEARCH, offenderNo),
                 expectedStatus.is4xxClientError() || expectedStatus.is5xxServerError());
     }
 
-    private String adjustQueryUrl(String queryUrl) {
+    private String adjustQueryUrl(final String queryUrl) {
         if (!includeAliases) {
             return queryUrl;
         }
@@ -106,9 +105,9 @@ public class PrisonerSearchSteps extends CommonSteps {
         }
     }
 
-    private void doSearch(HttpStatus expectedStatus, String queryUrl, boolean isErrorExpected) {
+    private void doSearch(final HttpStatus expectedStatus, final String queryUrl, final boolean isErrorExpected) {
         try {
-            ResponseEntity<List<PrisonerDetail>> responseEntity = restTemplate.exchange(
+            final var responseEntity = restTemplate.exchange(
                     adjustQueryUrl(queryUrl),
                     HttpMethod.GET,
                     createEntity(null, addPaginationHeaders()),
@@ -119,7 +118,7 @@ public class PrisonerSearchSteps extends CommonSteps {
             prisonerDetails = responseEntity.getBody();
             buildResourceData(responseEntity);
 
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
             assertThat(isErrorExpected).isTrue();
         }

@@ -50,7 +50,7 @@ public class ReferenceDomain {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -63,7 +63,7 @@ public class ReferenceDomain {
         return domain;
     }
 
-    public void setDomain(String domain) {
+    public void setDomain(final String domain) {
         this.domain = domain;
     }
 
@@ -76,7 +76,7 @@ public class ReferenceDomain {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
@@ -89,7 +89,7 @@ public class ReferenceDomain {
         return domainStatus;
     }
 
-    public void setDomainStatus(String domainStatus) {
+    public void setDomainStatus(final String domainStatus) {
         this.domainStatus = domainStatus;
     }
 
@@ -102,7 +102,7 @@ public class ReferenceDomain {
         return ownerCode;
     }
 
-    public void setOwnerCode(String ownerCode) {
+    public void setOwnerCode(final String ownerCode) {
         this.ownerCode = ownerCode;
     }
 
@@ -115,7 +115,7 @@ public class ReferenceDomain {
         return applnCode;
     }
 
-    public void setApplnCode(String applnCode) {
+    public void setApplnCode(final String applnCode) {
         this.applnCode = applnCode;
     }
 
@@ -128,13 +128,13 @@ public class ReferenceDomain {
         return parentDomain;
     }
 
-    public void setParentDomain(String parentDomain) {
+    public void setParentDomain(final String parentDomain) {
         this.parentDomain = parentDomain;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class ReferenceDomain {\n");
         

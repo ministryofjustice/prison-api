@@ -119,7 +119,7 @@ public class OffenderSentenceDetailDto {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -132,7 +132,7 @@ public class OffenderSentenceDetailDto {
         return bookingId;
     }
 
-    public void setBookingId(Long bookingId) {
+    public void setBookingId(final Long bookingId) {
         this.bookingId = bookingId;
     }
 
@@ -145,7 +145,7 @@ public class OffenderSentenceDetailDto {
         return sentenceStartDate;
     }
 
-    public void setSentenceStartDate(LocalDate sentenceStartDate) {
+    public void setSentenceStartDate(final LocalDate sentenceStartDate) {
         this.sentenceStartDate = sentenceStartDate;
     }
 
@@ -158,7 +158,7 @@ public class OffenderSentenceDetailDto {
         return additionalDaysAwarded;
     }
 
-    public void setAdditionalDaysAwarded(Integer additionalDaysAwarded) {
+    public void setAdditionalDaysAwarded(final Integer additionalDaysAwarded) {
         this.additionalDaysAwarded = additionalDaysAwarded;
     }
 
@@ -171,7 +171,7 @@ public class OffenderSentenceDetailDto {
         return sentenceExpiryDate;
     }
 
-    public void setSentenceExpiryDate(LocalDate sentenceExpiryDate) {
+    public void setSentenceExpiryDate(final LocalDate sentenceExpiryDate) {
         this.sentenceExpiryDate = sentenceExpiryDate;
     }
 
@@ -184,7 +184,7 @@ public class OffenderSentenceDetailDto {
         return automaticReleaseDate;
     }
 
-    public void setAutomaticReleaseDate(LocalDate automaticReleaseDate) {
+    public void setAutomaticReleaseDate(final LocalDate automaticReleaseDate) {
         this.automaticReleaseDate = automaticReleaseDate;
     }
 
@@ -197,7 +197,7 @@ public class OffenderSentenceDetailDto {
         return automaticReleaseOverrideDate;
     }
 
-    public void setAutomaticReleaseOverrideDate(LocalDate automaticReleaseOverrideDate) {
+    public void setAutomaticReleaseOverrideDate(final LocalDate automaticReleaseOverrideDate) {
         this.automaticReleaseOverrideDate = automaticReleaseOverrideDate;
     }
 
@@ -210,7 +210,7 @@ public class OffenderSentenceDetailDto {
         return conditionalReleaseDate;
     }
 
-    public void setConditionalReleaseDate(LocalDate conditionalReleaseDate) {
+    public void setConditionalReleaseDate(final LocalDate conditionalReleaseDate) {
         this.conditionalReleaseDate = conditionalReleaseDate;
     }
 
@@ -223,7 +223,7 @@ public class OffenderSentenceDetailDto {
         return conditionalReleaseOverrideDate;
     }
 
-    public void setConditionalReleaseOverrideDate(LocalDate conditionalReleaseOverrideDate) {
+    public void setConditionalReleaseOverrideDate(final LocalDate conditionalReleaseOverrideDate) {
         this.conditionalReleaseOverrideDate = conditionalReleaseOverrideDate;
     }
 
@@ -236,7 +236,7 @@ public class OffenderSentenceDetailDto {
         return nonParoleDate;
     }
 
-    public void setNonParoleDate(LocalDate nonParoleDate) {
+    public void setNonParoleDate(final LocalDate nonParoleDate) {
         this.nonParoleDate = nonParoleDate;
     }
 
@@ -249,7 +249,7 @@ public class OffenderSentenceDetailDto {
         return nonParoleOverrideDate;
     }
 
-    public void setNonParoleOverrideDate(LocalDate nonParoleOverrideDate) {
+    public void setNonParoleOverrideDate(final LocalDate nonParoleOverrideDate) {
         this.nonParoleOverrideDate = nonParoleOverrideDate;
     }
 
@@ -262,7 +262,7 @@ public class OffenderSentenceDetailDto {
         return postRecallReleaseDate;
     }
 
-    public void setPostRecallReleaseDate(LocalDate postRecallReleaseDate) {
+    public void setPostRecallReleaseDate(final LocalDate postRecallReleaseDate) {
         this.postRecallReleaseDate = postRecallReleaseDate;
     }
 
@@ -275,7 +275,7 @@ public class OffenderSentenceDetailDto {
         return postRecallReleaseOverrideDate;
     }
 
-    public void setPostRecallReleaseOverrideDate(LocalDate postRecallReleaseOverrideDate) {
+    public void setPostRecallReleaseOverrideDate(final LocalDate postRecallReleaseOverrideDate) {
         this.postRecallReleaseOverrideDate = postRecallReleaseOverrideDate;
     }
 
@@ -288,7 +288,7 @@ public class OffenderSentenceDetailDto {
         return nonDtoReleaseDate;
     }
 
-    public void setNonDtoReleaseDate(LocalDate nonDtoReleaseDate) {
+    public void setNonDtoReleaseDate(final LocalDate nonDtoReleaseDate) {
         this.nonDtoReleaseDate = nonDtoReleaseDate;
     }
 
@@ -301,7 +301,7 @@ public class OffenderSentenceDetailDto {
         return nonDtoReleaseDateType;
     }
 
-    public void setNonDtoReleaseDateType(NonDtoReleaseDateType nonDtoReleaseDateType) {
+    public void setNonDtoReleaseDateType(final NonDtoReleaseDateType nonDtoReleaseDateType) {
         this.nonDtoReleaseDateType = nonDtoReleaseDateType;
     }
 
@@ -314,7 +314,7 @@ public class OffenderSentenceDetailDto {
         return licenceExpiryDate;
     }
 
-    public void setLicenceExpiryDate(LocalDate licenceExpiryDate) {
+    public void setLicenceExpiryDate(final LocalDate licenceExpiryDate) {
         this.licenceExpiryDate = licenceExpiryDate;
     }
 
@@ -327,7 +327,7 @@ public class OffenderSentenceDetailDto {
         return homeDetentionCurfewEligibilityDate;
     }
 
-    public void setHomeDetentionCurfewEligibilityDate(LocalDate homeDetentionCurfewEligibilityDate) {
+    public void setHomeDetentionCurfewEligibilityDate(final LocalDate homeDetentionCurfewEligibilityDate) {
         this.homeDetentionCurfewEligibilityDate = homeDetentionCurfewEligibilityDate;
     }
 
@@ -340,7 +340,7 @@ public class OffenderSentenceDetailDto {
         return paroleEligibilityDate;
     }
 
-    public void setParoleEligibilityDate(LocalDate paroleEligibilityDate) {
+    public void setParoleEligibilityDate(final LocalDate paroleEligibilityDate) {
         this.paroleEligibilityDate = paroleEligibilityDate;
     }
 
@@ -353,7 +353,7 @@ public class OffenderSentenceDetailDto {
         return homeDetentionCurfewActualDate;
     }
 
-    public void setHomeDetentionCurfewActualDate(LocalDate homeDetentionCurfewActualDate) {
+    public void setHomeDetentionCurfewActualDate(final LocalDate homeDetentionCurfewActualDate) {
         this.homeDetentionCurfewActualDate = homeDetentionCurfewActualDate;
     }
 
@@ -366,7 +366,7 @@ public class OffenderSentenceDetailDto {
         return actualParoleDate;
     }
 
-    public void setActualParoleDate(LocalDate actualParoleDate) {
+    public void setActualParoleDate(final LocalDate actualParoleDate) {
         this.actualParoleDate = actualParoleDate;
     }
 
@@ -379,7 +379,7 @@ public class OffenderSentenceDetailDto {
         return releaseOnTemporaryLicenceDate;
     }
 
-    public void setReleaseOnTemporaryLicenceDate(LocalDate releaseOnTemporaryLicenceDate) {
+    public void setReleaseOnTemporaryLicenceDate(final LocalDate releaseOnTemporaryLicenceDate) {
         this.releaseOnTemporaryLicenceDate = releaseOnTemporaryLicenceDate;
     }
 
@@ -392,7 +392,7 @@ public class OffenderSentenceDetailDto {
         return earlyRemovalSchemeEligibilityDate;
     }
 
-    public void setEarlyRemovalSchemeEligibilityDate(LocalDate earlyRemovalSchemeEligibilityDate) {
+    public void setEarlyRemovalSchemeEligibilityDate(final LocalDate earlyRemovalSchemeEligibilityDate) {
         this.earlyRemovalSchemeEligibilityDate = earlyRemovalSchemeEligibilityDate;
     }
 
@@ -405,7 +405,7 @@ public class OffenderSentenceDetailDto {
         return earlyTermDate;
     }
 
-    public void setEarlyTermDate(LocalDate earlyTermDate) {
+    public void setEarlyTermDate(final LocalDate earlyTermDate) {
         this.earlyTermDate = earlyTermDate;
     }
 
@@ -418,7 +418,7 @@ public class OffenderSentenceDetailDto {
         return midTermDate;
     }
 
-    public void setMidTermDate(LocalDate midTermDate) {
+    public void setMidTermDate(final LocalDate midTermDate) {
         this.midTermDate = midTermDate;
     }
 
@@ -431,7 +431,7 @@ public class OffenderSentenceDetailDto {
         return lateTermDate;
     }
 
-    public void setLateTermDate(LocalDate lateTermDate) {
+    public void setLateTermDate(final LocalDate lateTermDate) {
         this.lateTermDate = lateTermDate;
     }
 
@@ -444,7 +444,7 @@ public class OffenderSentenceDetailDto {
         return topupSupervisionExpiryDate;
     }
 
-    public void setTopupSupervisionExpiryDate(LocalDate topupSupervisionExpiryDate) {
+    public void setTopupSupervisionExpiryDate(final LocalDate topupSupervisionExpiryDate) {
         this.topupSupervisionExpiryDate = topupSupervisionExpiryDate;
     }
 
@@ -457,7 +457,7 @@ public class OffenderSentenceDetailDto {
         return confirmedReleaseDate;
     }
 
-    public void setConfirmedReleaseDate(LocalDate confirmedReleaseDate) {
+    public void setConfirmedReleaseDate(final LocalDate confirmedReleaseDate) {
         this.confirmedReleaseDate = confirmedReleaseDate;
     }
 
@@ -470,7 +470,7 @@ public class OffenderSentenceDetailDto {
         return releaseDate;
     }
 
-    public void setReleaseDate(LocalDate releaseDate) {
+    public void setReleaseDate(final LocalDate releaseDate) {
         this.releaseDate = releaseDate;
     }
 
@@ -483,7 +483,7 @@ public class OffenderSentenceDetailDto {
         return tariffDate;
     }
 
-    public void setTariffDate(LocalDate tariffDate) {
+    public void setTariffDate(final LocalDate tariffDate) {
         this.tariffDate = tariffDate;
     }
 
@@ -496,7 +496,7 @@ public class OffenderSentenceDetailDto {
         return offenderNo;
     }
 
-    public void setOffenderNo(String offenderNo) {
+    public void setOffenderNo(final String offenderNo) {
         this.offenderNo = offenderNo;
     }
 
@@ -509,7 +509,7 @@ public class OffenderSentenceDetailDto {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
@@ -522,7 +522,7 @@ public class OffenderSentenceDetailDto {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
@@ -535,7 +535,7 @@ public class OffenderSentenceDetailDto {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(LocalDate dateOfBirth) {
+    public void setDateOfBirth(final LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -548,7 +548,7 @@ public class OffenderSentenceDetailDto {
         return agencyLocationId;
     }
 
-    public void setAgencyLocationId(String agencyLocationId) {
+    public void setAgencyLocationId(final String agencyLocationId) {
         this.agencyLocationId = agencyLocationId;
     }
 
@@ -561,7 +561,7 @@ public class OffenderSentenceDetailDto {
         return agencyLocationDesc;
     }
 
-    public void setAgencyLocationDesc(String agencyLocationDesc) {
+    public void setAgencyLocationDesc(final String agencyLocationDesc) {
         this.agencyLocationDesc = agencyLocationDesc;
     }
 
@@ -574,7 +574,7 @@ public class OffenderSentenceDetailDto {
         return internalLocationDesc;
     }
 
-    public void setInternalLocationDesc(String internalLocationDesc) {
+    public void setInternalLocationDesc(final String internalLocationDesc) {
         this.internalLocationDesc = internalLocationDesc;
     }
 
@@ -587,13 +587,13 @@ public class OffenderSentenceDetailDto {
         return facialImageId;
     }
 
-    public void setFacialImageId(Long facialImageId) {
+    public void setFacialImageId(final Long facialImageId) {
         this.facialImageId = facialImageId;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class OffenderSentenceDetailDto {\n");
         

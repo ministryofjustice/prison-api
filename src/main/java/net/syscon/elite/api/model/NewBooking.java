@@ -74,7 +74,7 @@ public class NewBooking {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -87,7 +87,7 @@ public class NewBooking {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
+    public void setLastName(final String lastName) {
         this.lastName = lastName;
     }
 
@@ -100,7 +100,7 @@ public class NewBooking {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
+    public void setFirstName(final String firstName) {
         this.firstName = firstName;
     }
 
@@ -113,7 +113,7 @@ public class NewBooking {
         return middleName1;
     }
 
-    public void setMiddleName1(String middleName1) {
+    public void setMiddleName1(final String middleName1) {
         this.middleName1 = middleName1;
     }
 
@@ -126,7 +126,7 @@ public class NewBooking {
         return middleName2;
     }
 
-    public void setMiddleName2(String middleName2) {
+    public void setMiddleName2(final String middleName2) {
         this.middleName2 = middleName2;
     }
 
@@ -139,7 +139,7 @@ public class NewBooking {
         return title;
     }
 
-    public void setTitle(String title) {
+    public void setTitle(final String title) {
         this.title = title;
     }
 
@@ -152,7 +152,7 @@ public class NewBooking {
         return suffix;
     }
 
-    public void setSuffix(String suffix) {
+    public void setSuffix(final String suffix) {
         this.suffix = suffix;
     }
 
@@ -165,7 +165,7 @@ public class NewBooking {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(String dateOfBirth) {
+    public void setDateOfBirth(final String dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
@@ -178,7 +178,7 @@ public class NewBooking {
         return gender;
     }
 
-    public void setGender(String gender) {
+    public void setGender(final String gender) {
         this.gender = gender;
     }
 
@@ -191,7 +191,7 @@ public class NewBooking {
         return reason;
     }
 
-    public void setReason(String reason) {
+    public void setReason(final String reason) {
         this.reason = reason;
     }
 
@@ -204,7 +204,7 @@ public class NewBooking {
         return youthOffender;
     }
 
-    public void setYouthOffender(boolean youthOffender) {
+    public void setYouthOffender(final boolean youthOffender) {
         this.youthOffender = youthOffender;
     }
 
@@ -217,7 +217,7 @@ public class NewBooking {
         return ethnicity;
     }
 
-    public void setEthnicity(String ethnicity) {
+    public void setEthnicity(final String ethnicity) {
         this.ethnicity = ethnicity;
     }
 
@@ -230,7 +230,7 @@ public class NewBooking {
         return offenderNo;
     }
 
-    public void setOffenderNo(String offenderNo) {
+    public void setOffenderNo(final String offenderNo) {
         this.offenderNo = offenderNo;
     }
 
@@ -243,7 +243,7 @@ public class NewBooking {
         return pncNumber;
     }
 
-    public void setPncNumber(String pncNumber) {
+    public void setPncNumber(final String pncNumber) {
         this.pncNumber = pncNumber;
     }
 
@@ -256,7 +256,7 @@ public class NewBooking {
         return croNumber;
     }
 
-    public void setCroNumber(String croNumber) {
+    public void setCroNumber(final String croNumber) {
         this.croNumber = croNumber;
     }
 
@@ -269,7 +269,7 @@ public class NewBooking {
         return externalIdentifier;
     }
 
-    public void setExternalIdentifier(String externalIdentifier) {
+    public void setExternalIdentifier(final String externalIdentifier) {
         this.externalIdentifier = externalIdentifier;
     }
 
@@ -282,7 +282,7 @@ public class NewBooking {
         return externalIdentifierType;
     }
 
-    public void setExternalIdentifierType(String externalIdentifierType) {
+    public void setExternalIdentifierType(final String externalIdentifierType) {
         this.externalIdentifierType = externalIdentifierType;
     }
 
@@ -295,13 +295,13 @@ public class NewBooking {
         return correlationId;
     }
 
-    public void setCorrelationId(String correlationId) {
+    public void setCorrelationId(final String correlationId) {
         this.correlationId = correlationId;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class NewBooking {\n");
 

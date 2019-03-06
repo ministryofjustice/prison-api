@@ -54,7 +54,7 @@ public class PrivilegeDetail {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -67,7 +67,7 @@ public class PrivilegeDetail {
         return bookingId;
     }
 
-    public void setBookingId(Long bookingId) {
+    public void setBookingId(final Long bookingId) {
         this.bookingId = bookingId;
     }
 
@@ -80,7 +80,7 @@ public class PrivilegeDetail {
         return iepDate;
     }
 
-    public void setIepDate(LocalDate iepDate) {
+    public void setIepDate(final LocalDate iepDate) {
         this.iepDate = iepDate;
     }
 
@@ -93,7 +93,7 @@ public class PrivilegeDetail {
         return iepTime;
     }
 
-    public void setIepTime(LocalDateTime iepTime) {
+    public void setIepTime(final LocalDateTime iepTime) {
         this.iepTime = iepTime;
     }
 
@@ -106,7 +106,7 @@ public class PrivilegeDetail {
         return agencyId;
     }
 
-    public void setAgencyId(String agencyId) {
+    public void setAgencyId(final String agencyId) {
         this.agencyId = agencyId;
     }
 
@@ -119,7 +119,7 @@ public class PrivilegeDetail {
         return iepLevel;
     }
 
-    public void setIepLevel(String iepLevel) {
+    public void setIepLevel(final String iepLevel) {
         this.iepLevel = iepLevel;
     }
 
@@ -132,7 +132,7 @@ public class PrivilegeDetail {
         return comments;
     }
 
-    public void setComments(String comments) {
+    public void setComments(final String comments) {
         this.comments = comments;
     }
 
@@ -145,13 +145,13 @@ public class PrivilegeDetail {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(final String userId) {
         this.userId = userId;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class PrivilegeDetail {\n");
         

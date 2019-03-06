@@ -43,7 +43,7 @@ public class LocationGroup {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -56,7 +56,7 @@ public class LocationGroup {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -69,13 +69,13 @@ public class LocationGroup {
         return children;
     }
 
-    public void setChildren(List<LocationGroup> children) {
+    public void setChildren(final List<LocationGroup> children) {
         this.children = children;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class LocationGroup {\n");
         

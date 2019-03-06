@@ -6,7 +6,6 @@ import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -26,30 +25,30 @@ public class BookingAlertSteps extends CommonSteps {
     private Alert alert;
 
     @Step("Retrieve alerts for offender booking")
-    public void getAlerts(Long bookingId) {
+    public void getAlerts(final Long bookingId) {
         doListApiCall(bookingId);
     }
 
     @Step("Retrieve alerts for offender no")
-    public void getAlertsByOffenderNo(String offenderNo) {
+    public void getAlertsByOffenderNo(final String offenderNo) {
         doListApiCallForOffender(offenderNo);
     }
 
     @Step("Retrieve alerts for offender nos")
-    public void getAlerts(String agencyId, List<String> offenderNos) {
+    public void getAlerts(final String agencyId, final List<String> offenderNos) {
         doPostApiCall(agencyId, offenderNos);
     }
 
     @Step("Verify returned offender alias first names")
-    public void verifyCodeList(String codes) {
+    public void verifyCodeList(final String codes) {
         verifyPropertyValues(alerts, Alert::getAlertCode, codes);
     }
 
-    private void doListApiCall(Long bookingId) {
+    private void doListApiCall(final Long bookingId) {
         init();
 
         try {
-            ResponseEntity<List<Alert>> response =
+            final var response =
                     restTemplate.exchange(
                             API_REQUEST_BASE_URL,
                             HttpMethod.GET,
@@ -62,16 +61,16 @@ public class BookingAlertSteps extends CommonSteps {
             alerts = response.getBody();
 
             buildResourceData(response);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void doListApiCallForOffender(String offenderNo) {
+    private void doListApiCallForOffender(final String offenderNo) {
         init();
 
         try {
-            ResponseEntity<List<Alert>> response =
+            final var response =
                     restTemplate.exchange(
                             API_REQUEST_OFFENDER_NO_BASE_URL,
                             HttpMethod.GET,
@@ -84,16 +83,16 @@ public class BookingAlertSteps extends CommonSteps {
             alerts = response.getBody();
 
             buildResourceData(response);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void doSingleResultApiCall(Long bookingId, Long alertId) {
+    private void doSingleResultApiCall(final Long bookingId, final Long alertId) {
         init();
 
         try {
-            ResponseEntity<Alert> response =
+            final var response =
                     restTemplate.exchange(
                             API_REQUEST_ALERT_URL,
                             HttpMethod.GET,
@@ -105,16 +104,16 @@ public class BookingAlertSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
             alert = response.getBody();
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
-    private void doPostApiCall(String agencyId, List<String> offenderNoBody) {
+    private void doPostApiCall(final String agencyId, final List<String> offenderNoBody) {
         init();
         try {
-            final String POST_URL = agencyId == null ? API_REQUEST_ALERT_POST_URL : API_REQUEST_ALERT_POST_URL_AGENCY;
-            ResponseEntity<List<Alert>> response =
+            final var POST_URL = agencyId == null ? API_REQUEST_ALERT_POST_URL : API_REQUEST_ALERT_POST_URL_AGENCY;
+            final var response =
                     restTemplate.exchange(
                             POST_URL,
                             HttpMethod.POST,
@@ -125,7 +124,7 @@ public class BookingAlertSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
             alerts = response.getBody();
             buildResourceData(response);
-        } catch (EliteClientException ex) {
+        } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
@@ -138,17 +137,17 @@ public class BookingAlertSteps extends CommonSteps {
     }
 
     @Step("Retrieve specific alert detail for offender booking")
-    public void getAlert(Long bookingId, Long alertId) {
+    public void getAlert(final Long bookingId, final Long alertId) {
         doSingleResultApiCall(bookingId, alertId);
     }
 
     @Step("Verify value of specific field in alert detail")
-    public void verifyAlertField(String field, String value) throws ReflectiveOperationException {
+    public void verifyAlertField(final String field, final String value) throws ReflectiveOperationException {
         verifyField(alert, field, value);
     }
 
     @Step("Verify alert list")
-    public void verifyAlerts(List<Alert> expected) {
+    public void verifyAlerts(final List<Alert> expected) {
         assertThat(alerts).asList().containsAll(expected);
     }
 }

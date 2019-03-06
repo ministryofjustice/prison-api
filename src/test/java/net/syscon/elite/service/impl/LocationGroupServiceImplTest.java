@@ -146,7 +146,7 @@ public class LocationGroupServiceImplTest {
     public void givenFixedPatternThenPredicateMatchesThatPattern() {
         groupsProperties.setProperty("MDI_1", "1");
 
-        List<Predicate<Location>> predicates = service.locationGroupFilters("MDI", "1");
+        final var predicates = service.locationGroupFilters("MDI", "1");
 
         assertThat(applyPredicatesToLocations(predicates, "1", "11", "X", "MDI-1-1-01")).containsExactly("1");
     }
@@ -164,7 +164,7 @@ public class LocationGroupServiceImplTest {
     public void givenFixedPatternAssignedToSubGroupThenPredicateMatchesThatPattern() {
         groupsProperties.setProperty("MDI_1_A", "1");
 
-        List<Predicate<Location>> predicates = service.locationGroupFilters("MDI", "1_A");
+        final var predicates = service.locationGroupFilters("MDI", "1_A");
 
         assertThat(applyPredicatesToLocations(predicates, "1", "11", "2")).containsExactly("1");
     }
@@ -191,7 +191,7 @@ public class LocationGroupServiceImplTest {
     public void givenFixedPatternsThenPredicateMatchesThosePatterns() {
         groupsProperties.setProperty("MDI_1", "1|X|PQR|M");
 
-        List<Predicate<Location>> predicates = service.locationGroupFilters("MDI", "1");
+        final var predicates = service.locationGroupFilters("MDI", "1");
 
         assertThat(applyPredicatesToLocations(predicates,  "PQR", "11", "X","XY", "1", "PQ", "Z", "")).containsExactly("PQR", "X", "1");
     }
@@ -200,7 +200,7 @@ public class LocationGroupServiceImplTest {
     public void givenASequenceOfFixedPatternsThenPredicateMatchesThosePatternsAndResultsAreOrdered() {
         groupsProperties.setProperty("MDI_1", "1,X,PQR,M");
 
-        List<Predicate<Location>> predicates = service.locationGroupFilters("MDI", "1");
+        final var predicates = service.locationGroupFilters("MDI", "1");
 
         assertThat(applyPredicatesToLocations(predicates,  "PQR", "11", "X","XY", "1", "PQ", "Z", "")).containsExactly("1", "X", "PQR");
     }
@@ -224,7 +224,7 @@ public class LocationGroupServiceImplTest {
         groupsProperties.setProperty("MDI_2_B", "MDI-2-1-0(1[3-9]|2[0-6]),MDI-2-2-0(1[3-9]|2[0-6]),MDI-2-3-0(1[3-9]|2[0-6])");
         groupsProperties.setProperty("MDI_2_C", "MDI-2-1-0(2[7-9]|3[0-8]),MDI-2-2-0(2[7-9]|3[0-8]),MDI-2-3-0(2[7-9]|3[0-8])");
 
-        String[] ONE_A_PREFIXES = {
+        final String[] ONE_A_PREFIXES = {
                 "MDI-1-1-001",
                 "MDI-1-1-002",
                 "MDI-1-1-003",
@@ -266,7 +266,7 @@ public class LocationGroupServiceImplTest {
 
         };
 
-        String[] ONE_B_PREFIXES = {
+        final String[] ONE_B_PREFIXES = {
                 "MDI-1-1-013",
                 "MDI-1-1-014",
                 "MDI-1-1-015",
@@ -315,7 +315,7 @@ public class LocationGroupServiceImplTest {
 
         };
 
-        String[] ONE_C_PREFIXES = {
+        final String[] ONE_C_PREFIXES = {
                 "MDI-1-1-027",
                 "MDI-1-1-028",
                 "MDI-1-1-029",
@@ -357,12 +357,12 @@ public class LocationGroupServiceImplTest {
 
         };
 
-        String[] extraPrefixes = {
+        final String[] extraPrefixes = {
                 "MDI-1-1-039"
         };
 
 
-        String[] locationPrefixes = Stream.of(ONE_A_PREFIXES, ONE_B_PREFIXES, ONE_C_PREFIXES, extraPrefixes).flatMap(Stream::of).toArray(String[]::new);
+        final var locationPrefixes = Stream.of(ONE_A_PREFIXES, ONE_B_PREFIXES, ONE_C_PREFIXES, extraPrefixes).flatMap(Stream::of).toArray(String[]::new);
 
         assertThat(applyPredicatesToLocations(service.locationGroupFilters("MDI", "1"), locationPrefixes)).containsExactly(locationPrefixes);
         assertThat(applyPredicatesToLocations(service.locationGroupFilters("MDI", "1_A"), locationPrefixes)).containsExactly(ONE_A_PREFIXES);
@@ -380,7 +380,7 @@ public class LocationGroupServiceImplTest {
         groupsProperties.setProperty("HLI_B Wing", "HLI-B-.+");
         groupsProperties.setProperty("MDI_5", "MDI-5-.-A-.+,MDI-5-.-B-.+");
 
-        List<Predicate<Location>> predicates = service.locationGroupFilters("HLI", "A Wing");
+        final var predicates = service.locationGroupFilters("HLI", "A Wing");
 
         assertThat(applyPredicatesToLocations(predicates,  "HLI-A-1-001", "HLI-A-2-001", "HLI-B-1-001")).containsExactly("HLI-A-1-001", "HLI-A-2-001");
     }
@@ -395,26 +395,26 @@ public class LocationGroupServiceImplTest {
         groupsProperties.setProperty("HLI_B Wing", "HLI-B-.+");
         groupsProperties.setProperty("MDI_5", "MDI-5-.-A-.+,MDI-5-.-B-.+");
 
-        List<Predicate<Location>> predicates = service.locationGroupFilters("HLI", "A Wing_Landing 2");
+        final var predicates = service.locationGroupFilters("HLI", "A Wing_Landing 2");
 
         assertThat(applyPredicatesToLocations(predicates,  "HLI-A-1-001", "HLI-A-2-001", "HLI-B-1-001")).containsExactly( "HLI-A-2-001");
     }
 
-    private static LocationGroup group(String name) {
+    private static LocationGroup group(final String name) {
         return new LocationGroup(emptyMap(), name, emptyList());
     }
 
-    private static LocationGroup group(String name, String... subGroupNames) {
+    private static LocationGroup group(final String name, final String... subGroupNames) {
         return new LocationGroup(emptyMap(), name, Arrays.stream(subGroupNames).map(LocationGroupServiceImplTest::group).collect(Collectors.toList()));
     }
 
-    private static Location location(String locationPrefix) {
-        Location location = new Location();
+    private static Location location(final String locationPrefix) {
+        final var location = new Location();
         location.setLocationPrefix(locationPrefix);
         return location;
     }
 
-    private static List<String> applyPredicatesToLocations(List<Predicate<Location>> predicates, String... locationPrefixes) {
+    private static List<String> applyPredicatesToLocations(final List<Predicate<Location>> predicates, final String... locationPrefixes) {
         return predicates.stream()
                 .flatMap(filter ->
                     Arrays.stream(locationPrefixes)

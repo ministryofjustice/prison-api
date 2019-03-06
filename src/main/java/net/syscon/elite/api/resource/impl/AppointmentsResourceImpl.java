@@ -13,12 +13,12 @@ import javax.ws.rs.core.Response;
 public class AppointmentsResourceImpl implements AppointmentsResource {
     private final AppointmentsService appointmentsService;
 
-    AppointmentsResourceImpl(AppointmentsService appointmentsService) {
+    AppointmentsResourceImpl(final AppointmentsService appointmentsService) {
         this.appointmentsService = appointmentsService;
     }
 
     @Override
-    public Response createAppointments(AppointmentsToCreate createAppointmentsRequest) {
+    public Response createAppointments(final AppointmentsToCreate createAppointmentsRequest) {
         appointmentsService.createAppointments(createAppointmentsRequest);
         return Response.ok().build();
     }

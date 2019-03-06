@@ -12,8 +12,6 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.Types;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.Map;
 
 @Repository
 public class CreateBookingImpl {
@@ -23,30 +21,30 @@ public class CreateBookingImpl {
     @Qualifier("dataSource")
     private final DataSource dataSource;
 
-    public CreateBookingImpl(DataSource dataSource) {
+    public CreateBookingImpl(final DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    public Long createBooking(String agencyId, NewBooking newBooking) {
+    public Long createBooking(final String agencyId, final NewBooking newBooking) {
         Validate.notNull(newBooking);
 
         // Set up custom error translation
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        final var jdbcTemplate = new JdbcTemplate(dataSource);
 
         jdbcTemplate.setExceptionTranslator(new BookingRepositorySQLErrorCodeTranslator());
 
         // Prepare Stored Procedure call
-        final SimpleJdbcCall createBookingProc = new SimpleJdbcCall(jdbcTemplate)
+        final var createBookingProc = new SimpleJdbcCall(jdbcTemplate)
                 .withSchemaName("api2_owner")
                 .withCatalogName("api2_offender_booking")
                 .withProcedureName("create_offender_booking");
 
         // Initialise parameters
-        Date now = DateTimeConverter.toDate(LocalDateTime.now());
+        final var now = DateTimeConverter.toDate(LocalDateTime.now());
 
-        String youthOffender = newBooking.getYouthOffender() ? "Y" : "N";
+        final var youthOffender = newBooking.getYouthOffender() ? "Y" : "N";
 
-        MapSqlParameterSource params = new MapSqlParameterSource()
+        final var params = new MapSqlParameterSource()
                 .addValue("p_noms_id", newBooking.getOffenderNo(), Types.VARCHAR)
                 .addValue("p_last_name", newBooking.getLastName(), Types.VARCHAR)
                 .addValue("p_first_name", newBooking.getFirstName(), Types.VARCHAR)
@@ -72,7 +70,7 @@ public class CreateBookingImpl {
                 .addValue("p_imprisonment_status", DEFAULT_IMPRISONMENT_STATUS, Types.VARCHAR);
 
         // Execute call
-        Map<String, Object> result = createBookingProc.execute(params);
+        final var result = createBookingProc.execute(params);
 
         return ((Number) result.get("P_OFFENDER_BOOK_ID")).longValue();
     }

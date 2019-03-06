@@ -42,7 +42,7 @@ public class Agency {
 
     @ApiModelProperty(hidden = true)
     @JsonAnySetter
-    public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
         this.additionalProperties = additionalProperties;
     }
 
@@ -55,7 +55,7 @@ public class Agency {
         return agencyId;
     }
 
-    public void setAgencyId(String agencyId) {
+    public void setAgencyId(final String agencyId) {
         this.agencyId = agencyId;
     }
 
@@ -68,7 +68,7 @@ public class Agency {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(final String description) {
         this.description = description;
     }
 
@@ -81,13 +81,13 @@ public class Agency {
         return agencyType;
     }
 
-    public void setAgencyType(String agencyType) {
+    public void setAgencyType(final String agencyType) {
         this.agencyType = agencyType;
     }
 
     @Override
     public String toString()  {
-        StringBuilder sb = new StringBuilder();
+        final var sb = new StringBuilder();
 
         sb.append("class Agency {\n");
         

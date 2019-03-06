@@ -22,7 +22,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -140,7 +143,7 @@ public class OffenderCurfewRepositoryTest {
         );
     }
 
-    private static OffenderCurfew offenderCurfew(long offenderCurfewId, long offenderBookId, String assessmentDate, String approvalStatus, String ardCrdDate) {
+    private static OffenderCurfew offenderCurfew(final long offenderCurfewId, final long offenderBookId, final String assessmentDate, final String approvalStatus, final String ardCrdDate) {
 
         return OffenderCurfew
                 .builder()
@@ -152,34 +155,34 @@ public class OffenderCurfewRepositoryTest {
                 .build();
     }
 
-    private static LocalDate toLocalDate(String string) {
+    private static LocalDate toLocalDate(final String string) {
         if (string == null) return null;
         return LocalDate.parse(string);
     }
 
-    private static Set<String> agencyIds(String... agencyIds) {
+    private static Set<String> agencyIds(final String... agencyIds) {
         return new HashSet<>(Arrays.asList(agencyIds));
     }
 
     @SafeVarargs
-    private static <T> Set<T> union(Set<T>... sets) {
-        Set<T> result = new HashSet<>();
-        for (Set<T> set : sets) {
+    private static <T> Set<T> union(final Set<T>... sets) {
+        final Set<T> result = new HashSet<>();
+        for (final var set : sets) {
             result.addAll(set);
         }
         return result;
     }
 
-    private void assertCurfewHDCEqualTo(long curfewId, String passedFlag, LocalDateTime assessmentDate) {
+    private void assertCurfewHDCEqualTo(final long curfewId, final String passedFlag, final LocalDateTime assessmentDate) {
         assertCurfewEqualTo(curfewId, passedFlag, assessmentDate, null, null);
     }
 
-    private void assertCurfewApprovalStatusEqualTo(long curfewId, String approvalStatus, LocalDateTime decisionDate) {
+    private void assertCurfewApprovalStatusEqualTo(final long curfewId, final String approvalStatus, final LocalDateTime decisionDate) {
         assertCurfewEqualTo(curfewId, null, null, approvalStatus, decisionDate);
     }
 
-    private void assertCurfewEqualTo(long curfewId, String passedFlag, LocalDateTime assessmentDate, String approvalStatus, LocalDateTime decisionDate) {
-        Map<String, Object> results = jdbcTemplate.queryForMap("SELECT PASSED_FLAG, ASSESSMENT_DATE, DECISION_DATE, APPROVAL_STATUS FROM OFFENDER_CURFEWS WHERE OFFENDER_CURFEW_ID = ?", curfewId);
+    private void assertCurfewEqualTo(final long curfewId, final String passedFlag, final LocalDateTime assessmentDate, final String approvalStatus, final LocalDateTime decisionDate) {
+        final var results = jdbcTemplate.queryForMap("SELECT PASSED_FLAG, ASSESSMENT_DATE, DECISION_DATE, APPROVAL_STATUS FROM OFFENDER_CURFEWS WHERE OFFENDER_CURFEW_ID = ?", curfewId);
         assertThat(results.get("PASSED_FLAG")).isEqualTo(passedFlag);
         assertThat(results.get("ASSESSMENT_DATE")).isEqualTo(assessmentDate == null ? null : Timestamp.valueOf(assessmentDate));
         assertThat(results.get("APPROVAL_STATUS")).isEqualTo(approvalStatus);
