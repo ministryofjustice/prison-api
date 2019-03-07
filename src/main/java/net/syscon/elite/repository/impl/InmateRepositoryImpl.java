@@ -599,16 +599,17 @@ final var mapper = SingleColumnRowMapper.newInstance(Integer.class);
 						"assessmentTypeId", assessmentId,
 						"assessStatus", "A",
 						"category", detail.getCategory(),
-						"evaluationDate", detail.getEvaluationDate(),
+						"evaluationDate", DateTimeConverter.toDate(detail.getEvaluationDate()),
 						"evaluationResultCode", "APP", // or 'REJ'
 						"reviewCommitteeCode", detail.getReviewCommitteeCode(),
 						"committeeCommentText", detail.getCommitteeCommentText(),
 						"reviewPlacementAgencyId", detail.getReviewPlacementAgencyId(),
 						"reviewPlacementText", detail.getReviewPlacementText(),
-						"nextReviewDate", detail.getNextReviewDate(),
+						"nextReviewDate", DateTimeConverter.toDate(detail.getNextReviewDate()),
 						"approvedCategoryComment", detail.getApprovedCategoryComment(),
 						"userId", currentUser.getUsername(),
-						"dateTime", LocalDateTime.now())
+						"dateTime", DateTimeConverter.toDate(LocalDateTime.now())
+				)
 		);
 		if (result != 1) {
 			throw new BadRequestException(String.format("No pending category assessment found, category %.10s, booking %d, seq %d",
@@ -624,7 +625,8 @@ final var mapper = SingleColumnRowMapper.newInstance(Integer.class);
 							"seq", previousSequence,
 							"assessStatus", "I",
 							"userId", currentUser.getUsername(),
-							"dateTime", LocalDateTime.now())
+							"dateTime", DateTimeConverter.toDate(LocalDateTime.now())
+					)
 			);
 			if (result2 != 1) {
 				throw new BadRequestException(String.format("Previous category assessment not found, booking %d, seq %d",
