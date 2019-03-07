@@ -21,10 +21,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.*;
+import java.util.function.Function;
 
 import static net.syscon.elite.api.support.CategorisationStatus.AWAITING_APPROVAL;
 import static net.syscon.elite.api.support.CategorisationStatus.UNCATEGORISED;
@@ -622,29 +624,81 @@ public class InmateRepositoryTest {
 
     @Test
     @Transactional
-    public void testApproveCategory() {
+    public void testApproveCategoryAllFields() {
         final var catDetail = CategoryApprovalDetail.builder()
                 .bookingId(-1L)
                 .category("C")
                 .evaluationDate(LocalDate.of(2019, 2, 27))
-                .reviewSupLevelText("My comment").build();
+                .approvedCategoryComment("My comment")
+                .reviewCommitteeCode("REVIEW")
+                .committeeCommentText("committeeCommentText")
+                .reviewPlacementAgencyId("MDI")
+                .reviewPlacementText("reviewPlacementText")
+                .nextReviewDate(LocalDate.of(2019, 7, 24))
+                .build();
 
         repository.approveCategory(catDetail, UserDetail.builder().staffId(-10L).username("KDOG").build());
 
-        final var list = repository.findAssessments(Arrays.asList(-1L), "CATEGORY", Collections.emptySet());
-
-        assertThat(list).asList().extracting("reviewSupLevelType", "assessStatus").contains(Tuple.tuple("C", "A"));
-
-        final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -1 AND ASSESSMENT_SEQ = 8");
-        assertThat(results).asList().hasSize(1);
-        assertThat(results.get(0).get("REVIEW_SUP_LEVEL_TYPE")).isEqualTo("C");
-        assertThat(results.get(0).get("REVIEW_COMMITTE_CODE")).isEqualTo("REVIEW");
-        assertThat(results.get(0).get("EVALUATION_RESULT_CODE")).isEqualTo("APP");
-        assertThat(results.get(0).get("ASSESS_STATUS")).isEqualTo("A");
-        assertThat((Timestamp) results.get(0).get("EVALUATION_DATE")).isCloseTo("2019-02-27T00:00:00.000", 1000);
-        assertThat(results.get(0).get("REVIEW_SUP_LEVEL_TEXT")).isEqualTo("My comment");
-        assertThat(results.get(0).get("MODIFY_USER_ID")).isEqualTo("KDOG");
+        final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -1 AND ASSESSMENT_SEQ in (6, 8)");
+        assertThat(results).asList()
+                .extracting(InmateRepositoryTest::extractSeq, extractString("ASSESS_STATUS"), extractString("MODIFY_USER_ID"))
+                .contains(Tuple.tuple(6, "I", "KDOG")
+                );
+        assertThat(results).asList()
+                .extracting(InmateRepositoryTest::extractSeq,
+                        extractString("REVIEW_SUP_LEVEL_TYPE"),
+                        extractString("REVIEW_COMMITTE_CODE"),
+                        extractString("EVALUATION_RESULT_CODE"),
+                        extractString("ASSESS_STATUS"),
+                        extractString("REVIEW_SUP_LEVEL_TEXT"),
+                        extractString("COMMITTE_COMMENT_TEXT"),
+                        extractString("REVIEW_PLACE_AGY_LOC_ID"),
+                        extractString("REVIEW_PLACEMENT_TEXT"),
+                        extractString("MODIFY_USER_ID"))
+                .contains(Tuple.tuple(8, "C", "REVIEW", "APP", "A", "My comment", "committeeCommentText", "MDI", "reviewPlacementText", "KDOG")
+                );
         assertThat((Date) results.get(0).get("MODIFY_DATETIME")).isToday();
+        assertThat((Timestamp) results.get(0).get("EVALUATION_DATE")).isNull();
+        assertThat((Date) results.get(1).get("MODIFY_DATETIME")).isToday();
+        assertThat((Timestamp) results.get(1).get("EVALUATION_DATE")).isCloseTo("2019-02-27T00:00:00.000", 1000);
+        assertThat((Timestamp) results.get(1).get("NEXT_REVIEW_DATE")).isCloseTo("2019-07-24T00:00:00.000", 1000);
+    }
+
+    @Test
+    @Transactional
+    public void testApproveCategoryMinimalFields() {
+        final var catDetail = CategoryApprovalDetail.builder()
+                .bookingId(-1L)
+                .category("C")
+                .evaluationDate(LocalDate.of(2019, 2, 27))
+                .reviewCommitteeCode("REVIEW")
+                .build();
+
+        repository.approveCategory(catDetail, UserDetail.builder().staffId(-10L).username("KDOG").build());
+
+        final var results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -1 AND ASSESSMENT_SEQ in (6, 8)");
+        assertThat(results).asList()
+                .extracting(InmateRepositoryTest::extractSeq,
+                        extractString("REVIEW_SUP_LEVEL_TYPE"),
+                        extractString("REVIEW_COMMITTE_CODE"),
+                        extractString("EVALUATION_RESULT_CODE"),
+                        extractString("ASSESS_STATUS"),
+                        extractString("REVIEW_SUP_LEVEL_TEXT"),
+                        extractString("COMMITTE_COMMENT_TEXT"),
+                        extractString("REVIEW_PLACE_AGY_LOC_ID"),
+                        extractString("REVIEW_PLACEMENT_TEXT"),
+                        extractString("MODIFY_USER_ID"))
+                .contains(Tuple.tuple(8, "C", "REVIEW", "APP", "A", null, null, null, null, "KDOG")
+                );
+        assertThat((Timestamp) results.get(1).get("NEXT_REVIEW_DATE")).isCloseTo("2018-06-01T00:00:00.000", 1000);
+    }
+
+    private static Function<Object, String> extractString(String field) {
+        return m -> ((Map<String, String>) m).get(field);
+    }
+
+    private static int extractSeq(Object m) {
+        return ((BigDecimal) ((Map) m).get("ASSESSMENT_SEQ")).intValue();
     }
 
     @Test
