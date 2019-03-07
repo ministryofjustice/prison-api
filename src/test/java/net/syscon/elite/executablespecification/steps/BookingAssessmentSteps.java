@@ -156,7 +156,8 @@ public class BookingAssessmentSteps extends CommonSteps {
                                     .bookingId(bookingId)
                                     .category(category)
                                     .evaluationDate(date)
-                                    .reviewSupLevelText(comment)
+                                    .approvedCategoryComment(comment)
+                                    .reviewCommitteeCode("GOV")
                                     .build()), ResponseEntity.class);
 
         } catch (final EliteClientException ex) {
