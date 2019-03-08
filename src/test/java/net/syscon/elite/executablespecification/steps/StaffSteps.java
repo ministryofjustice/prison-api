@@ -1,6 +1,5 @@
 package net.syscon.elite.executablespecification.steps;
 
-import cucumber.api.java.en.And;
 import net.syscon.elite.api.model.StaffDetail;
 import net.syscon.elite.api.model.StaffLocationRole;
 import net.syscon.elite.api.model.StaffRole;
@@ -204,7 +203,7 @@ public class StaffSteps extends CommonSteps {
         if (staffEmailAddresses == null || staffEmailAddresses.isEmpty()) {
             assertThat("empty").isEqualTo(presentOrEmpty);
         } else {
-            assertThat("present").isEqualToIgnoringCase(presentOrEmpty);
+            assertThat("present").isEqualTo(presentOrEmpty);
         }
     }
 }

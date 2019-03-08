@@ -18,7 +18,7 @@ public class OperationResponse extends ResponseDelegate {
 
         // No entity defined - which produces an emtpy response body
 
-        return new OperationResponse(responseBuilder.build(), new String());
+        return new OperationResponse(responseBuilder.build(), null);
     }
 
     public static OperationResponse respond400WithApplicationJson(final ErrorResponse errorResponse) {
