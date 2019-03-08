@@ -33,8 +33,9 @@ public class StaffSteps extends CommonSteps {
     private List<StaffLocationRole> staffDetails;
     private List<StaffRole> roles;
 
-    private int emailResponseCode = 0;
+    private int emailResponseCode;
     private List<String> staffEmailAddresses;
+    private boolean nullBody;
 
     @Override
     protected void init() {
@@ -46,6 +47,7 @@ public class StaffSteps extends CommonSteps {
 
         emailResponseCode = 0;
         staffEmailAddresses = null;
+        nullBody = false;
     }
 
     @Step("Find staff details")
@@ -180,9 +182,15 @@ public class StaffSteps extends CommonSteps {
                     List.class,
                     staffId);
 
-            staffEmailAddresses = response.getBody();
+            if (response.hasBody()) {
+                staffEmailAddresses = response.getBody();
+            } else {
+                nullBody = true;
+            }
             emailResponseCode = response.getStatusCode().value();
+
         } catch (final EliteClientException ex) {
+            // This will produce an ErrorResponse body
             setErrorResponse(ex.getErrorResponse());
             emailResponseCode = ex.getErrorResponse().getStatus().intValue();
         }
@@ -200,10 +208,11 @@ public class StaffSteps extends CommonSteps {
     }
 
     public void verifyResponseBody(final String presentOrEmpty) {
-        if (staffEmailAddresses == null || staffEmailAddresses.isEmpty()) {
-            assertThat("empty").isEqualTo(presentOrEmpty);
+
+        if (presentOrEmpty.equals("empty")) {
+            assertThat(nullBody).isTrue();
         } else {
-            assertThat("present").isEqualTo(presentOrEmpty);
+            assertThat(nullBody).isFalse();
         }
     }
 }

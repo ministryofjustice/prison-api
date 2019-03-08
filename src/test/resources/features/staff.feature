@@ -118,4 +118,4 @@ Feature: Staff Details and Roles
     | -1      | 1     | 200          | present        |
     | -2      | 2     | 200          | present        |
     | -7      | 0     | 204          | empty          |
-    |99999    | 0     | 404          | empty          |
+    |99999    | 0     | 404          | present        |
