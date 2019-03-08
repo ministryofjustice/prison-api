@@ -21,10 +21,12 @@ import org.apache.commons.lang3.tuple.MutablePair;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
+import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
 import javax.ws.rs.BadRequestException;
+import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -599,16 +601,16 @@ final var mapper = SingleColumnRowMapper.newInstance(Integer.class);
 						"assessmentTypeId", assessmentId,
 						"assessStatus", "A",
 						"category", detail.getCategory(),
-						"evaluationDate", DateTimeConverter.toDate(detail.getEvaluationDate()),
+						"evaluationDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(detail.getEvaluationDate())),
 						"evaluationResultCode", "APP", // or 'REJ'
 						"reviewCommitteeCode", detail.getReviewCommitteeCode(),
 						"committeeCommentText", detail.getCommitteeCommentText(),
 						"reviewPlacementAgencyId", detail.getReviewPlacementAgencyId(),
 						"reviewPlacementText", detail.getReviewPlacementText(),
-						"nextReviewDate", DateTimeConverter.toDate(detail.getNextReviewDate()),
+						"nextReviewDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(detail.getNextReviewDate())),
 						"approvedCategoryComment", detail.getApprovedCategoryComment(),
 						"userId", currentUser.getUsername(),
-						"dateTime", DateTimeConverter.toDate(LocalDateTime.now())
+						"dateTime", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(LocalDateTime.now()))
 				)
 		);
 		if (result != 1) {
@@ -625,7 +627,7 @@ final var mapper = SingleColumnRowMapper.newInstance(Integer.class);
 							"seq", previousSequence,
 							"assessStatus", "I",
 							"userId", currentUser.getUsername(),
-							"dateTime", DateTimeConverter.toDate(LocalDateTime.now())
+							"dateTime", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(LocalDateTime.now()))
 					)
 			);
 			if (result2 != 1) {
