@@ -156,7 +156,6 @@ Feature: Booking Details
     When a request is made for categorised offenders at "LEI" with an approval from Date of "2018-02-02"
     Then 1 categorised offenders are returned
 
-  @lucy
   Scenario: Request for offenders who have an approved categorisation using default 1 month period
     When a request is made for categorised offenders at "LEI" with an approval from Date of ""
     Then 0 categorised offenders are returned

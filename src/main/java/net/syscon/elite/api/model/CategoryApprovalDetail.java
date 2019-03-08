@@ -27,23 +27,26 @@ public class CategoryApprovalDetail {
     @NotNull(message = "category must be provided")
     private String category;
 
-    @NotNull(message = "Date of approval must be provided")
     @ApiModelProperty(value = "Date of approval")
+    @NotNull(message = "Date of approval must be provided")
     private LocalDate evaluationDate;
 
-    @ApiModelProperty(value = "Approved result comment")
-    private String  reviewSupLevelText;
+    @ApiModelProperty(value = "Department, reference code in domain 'ASSESS_COMM'. Normally 'REVIEW'")
+    @NotNull(message = "Department must be provided")
+    private String reviewCommitteeCode;
 
-//    @NotNull(message = "Department must be provided")
-//    @ApiModelProperty(value = "Department, reference code in domain 'ASSESS_COMM'. Normally 'REVIEW'")
-//    private String   reviewCommitteeCode;
-//
-//    @ApiModelProperty(value = "Overall comment")
-//    private String  committeeCommentText;
-//
-//    @ApiModelProperty(value = "Approved placement comment")
-//    private String   reviewPlacementText;
-//
-//    @ApiModelProperty(value = "Next review date (date of recategorisation)")
-//    private LocalDate nextReviewDate;
+    @ApiModelProperty(value = "Approved result category comment")
+    private String approvedCategoryComment;
+
+    @ApiModelProperty(value = "Overall comment")
+    private String committeeCommentText;
+
+    @ApiModelProperty(value = "Prison which the prisoner should go to")
+    private String reviewPlacementAgencyId;
+
+    @ApiModelProperty(value = "Approved placement comment")
+    private String reviewPlacementText;
+
+    @ApiModelProperty(value = "Next review date (date of recategorisation, remains unchanged if not provided)")
+    private LocalDate nextReviewDate;
 }

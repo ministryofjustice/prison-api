@@ -17,11 +17,16 @@ import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.SingleColumnRowMapper;
+import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import javax.ws.rs.BadRequestException;
+import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -575,34 +580,61 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 	@Override
     public void approveCategory(final CategoryApprovalDetail detail, final UserDetail currentUser) {
-        final var seq = getOffenderCategorySeq(detail.getBookingId());
-		if (seq == null) {
+		final var assessmentId = jdbcTemplate.queryForObject(getQuery("GET_CATEGORY_ASSESSMENT_ID"), Map.of(), Long.class);
+final var mapper = SingleColumnRowMapper.newInstance(Integer.class);
+		final var sequences = jdbcTemplate.query(
+				getQuery("GET_ACTIVE_OFFENDER_CATEGORY_SEQUENCES"),
+				createParams("bookingId", detail.getBookingId(),
+						"assessmentTypeId", assessmentId),
+				mapper);
+		if (CollectionUtils.isEmpty(sequences)) {
 			throw new BadRequestException(String.format("No category assessment found, category %.10s, booking %d",
 					detail.getCategory(),
 					detail.getBookingId()));
 		}
-        final var result = jdbcTemplate.update(
+
+		final var maxSequence = sequences.get(0);
+		final var result = jdbcTemplate.update(
 				getQuery("APPROVE_CATEGORY"),
 				createParams("bookingId", detail.getBookingId(),
-						"seq", seq,
+						"seq", maxSequence,
+						"assessmentTypeId", assessmentId,
 						"assessStatus", "A",
 						"category", detail.getCategory(),
-						"evaluationDate", detail.getEvaluationDate(),
+						"evaluationDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(detail.getEvaluationDate())),
 						"evaluationResultCode", "APP", // or 'REJ'
-						"reviewCommitteeCode", "REVIEW", //detail.getReviewCommitteeCode(),
-						"approverStaffId", currentUser.getStaffId(),
-//						"reviewPlacementText", detail.getReviewPlacementText(),
-//						"committeeCommentText", detail.getCommitteeCommentText(),
-//						"nextReviewDate", detail.getNextReviewDate(),
-						"reviewSupLevelText", detail.getReviewSupLevelText(),
+						"reviewCommitteeCode", detail.getReviewCommitteeCode(),
+						"committeeCommentText", detail.getCommitteeCommentText(),
+						"reviewPlacementAgencyId", detail.getReviewPlacementAgencyId(),
+						"reviewPlacementText", detail.getReviewPlacementText(),
+						"nextReviewDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(detail.getNextReviewDate())),
+						"approvedCategoryComment", detail.getApprovedCategoryComment(),
 						"userId", currentUser.getUsername(),
-						"dateTime", LocalDateTime.now())
+						"dateTime", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(LocalDateTime.now()))
+				)
 		);
 		if (result != 1) {
 			throw new BadRequestException(String.format("No pending category assessment found, category %.10s, booking %d, seq %d",
 					detail.getCategory(),
 					detail.getBookingId(),
-					seq));
+					maxSequence));
+		}
+		if (sequences.size() > 1) {
+			final var previousSequence = sequences.get(1);
+			final var result2 = jdbcTemplate.update(
+					getQuery("APPROVE_CATEGORY_SET_STATUS"),
+					createParams("bookingId", detail.getBookingId(),
+							"seq", previousSequence,
+							"assessStatus", "I",
+							"userId", currentUser.getUsername(),
+							"dateTime", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(LocalDateTime.now()))
+					)
+			);
+			if (result2 != 1) {
+				throw new BadRequestException(String.format("Previous category assessment not found, booking %d, seq %d",
+						detail.getBookingId(),
+						previousSequence));
+			}
 		}
 	}
 
@@ -631,11 +663,4 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
         return maxSeq == null ? 1 : maxSeq;
     }
-
-    private Integer getOffenderCategorySeq(final Long bookingId) {
-
-		return jdbcTemplate.queryForObject(
-				getQuery("OFFENDER_CATEGORY_SEQ_MAX"),
-				createParams("bookingId", bookingId), Integer.class);
-	}
 }
