@@ -82,8 +82,6 @@ public class StaffStepDefinitions extends AbstractStepDefinitions {
         staff.verifyStaffRoleWithNoDuplicates(role, roleDescription);
     }
 
-    // Step definitions related to staff emails
-
     @When("^request is submitted for email addresses associated with staff id \"([^\"]*)\"$")
     public void requestSubmittedForEmails(final Long staffId) {
         staff.getEmails(staffId);
@@ -97,5 +95,10 @@ public class StaffStepDefinitions extends AbstractStepDefinitions {
     @And("^response code matches \"([^\"]*)\"$")
     public void emailResponseCodeMatches(final String responseCode) {
         staff.verifyResponseCodeMatches(Long.valueOf(responseCode).intValue());
+    }
+
+    @And("^response body is \"([^\"]*)\"$")
+    public void emailResponseBody(final String responseBody) {
+        staff.verifyResponseBody(responseBody);
     }
 }

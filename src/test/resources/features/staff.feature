@@ -112,9 +112,10 @@ Feature: Staff Details and Roles
      When request is submitted for email addresses associated with staff id "<staffId>"
      Then "<count>" email address records are returned
      And response code matches "<responseCode>"
+     And response body is "<presentOrEmpty>"
     Examples:
-    | staffId | count | responseCode |
-    | -1      | 1     | 200          |
-    | -2      | 2     | 200          |
-    | -7      | 0     | 204          |
-    |99999    | 0     | 404          |
+    | staffId | count | responseCode | presentOrEmpty |
+    | -1      | 1     | 200          | present        |
+    | -2      | 2     | 200          | present        |
+    | -7      | 0     | 204          | empty          |
+    |99999    | 0     | 404          | present        |
