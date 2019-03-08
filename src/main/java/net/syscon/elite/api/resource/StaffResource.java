@@ -100,7 +100,7 @@ public interface StaffResource {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = String.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "The staffId supplied was not valid.", response = ErrorResponse.class, responseContainer = "List"),
-            @ApiResponse(code = 204, message = "No email addresses were found for this staff member.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 204, message = "No email addresses were found for this staff member."),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List") })
     GetStaffEmailResponse getStaffEmailAddresses(@ApiParam(value = "The staff id of the staff user.", required = true) @PathParam("staffId") Long staffId);
 
