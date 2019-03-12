@@ -75,4 +75,11 @@ public class SentenceRepositoryTest {
                         false)
         );
     }
+
+    @Test
+    public final void testGetOffenceHistoryNoConviction() {
+        final var offenceDetails = repository.getOffenceHistory("A1234AB");
+
+        assertThat(offenceDetails).asList().isEmpty();
+    }
 }
