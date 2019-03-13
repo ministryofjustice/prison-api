@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -296,6 +297,12 @@ public class InmateServiceImpl implements InmateService {
     @VerifyBookingAccess
     public List<OffenderIdentifier> getOffenderIdentifiers(final Long bookingId) {
         return repository.getOffenderIdentifiers(bookingId);
+    }
+
+    @Override
+    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER"})
+    public List<OffenderIdentifier> getOffenderIdentifiersByTypeAndValue(@NotNull final String identifierType, @NotNull final String identifierValue) {
+        return repository.getOffenderIdentifiersByTypeAndValue(identifierType, identifierValue);
     }
 
     @Override
