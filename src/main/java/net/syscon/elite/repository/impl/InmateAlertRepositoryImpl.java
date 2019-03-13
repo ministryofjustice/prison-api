@@ -82,9 +82,16 @@ public class InmateAlertRepositoryImpl extends RepositoryBase implements InmateA
 	}
 
     @Override
-    public List<Alert> getInmateAlertsByOffenderNos(final String agencyId, final List<String> offenderNos) {
-        final var sql = getQuery("FIND_INMATE_OFFENDERS_ALERTS");
+    public List<Alert> getInmateAlertsByOffenderNos(final String agencyId, final List<String> offenderNos, final boolean latestOnly, final String query, final String orderByField, final Order order) {
+        final var basicSql = getQuery("FIND_INMATE_OFFENDERS_ALERTS");
+        final var initialSql = latestOnly ? basicSql + " AND B.BOOKING_SEQ=1" : basicSql;
+        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, alertMapping);
+        final var sql = builder
+                .addQuery(query)
+                .addOrderBy(order, orderByField)
+                .build();
         final var alertMapper = Row2BeanRowMapper.makeMapping(sql, Alert.class, alertMapping);
+
         return jdbcTemplate.query(
                 sql,
                 createParams(

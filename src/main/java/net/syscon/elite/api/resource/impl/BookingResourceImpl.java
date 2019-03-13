@@ -257,7 +257,7 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     public GetAlertsByOffenderNosResponse getAlertsByOffenderNos(final List<String> offenderNos) {
-        final var inmateAlerts = inmateAlertService.getInmateAlertsByOffenderNos(offenderNos);
+        final var inmateAlerts = inmateAlertService.getInmateAlertsByOffenderNos(offenderNos, true, null, "bookingId,alertId", Order.ASC);
 
         return GetAlertsByOffenderNosResponse.respond200WithApplicationJson(inmateAlerts);
     }

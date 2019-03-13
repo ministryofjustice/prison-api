@@ -73,7 +73,7 @@ public class InmateAlertServiceImpl implements InmateAlertService {
     @VerifyAgencyAccess(overrideRoles = {"SYSTEM_READ_ONLY", "SYSTEM_USER"})
     public List<Alert> getInmateAlertsByOffenderNosAtAgency(final String agencyId, final List<String> offenderNos) {
 
-        final var alerts = inmateAlertRepository.getInmateAlertsByOffenderNos(agencyId, offenderNos);
+        final var alerts = inmateAlertRepository.getInmateAlertsByOffenderNos(agencyId, offenderNos, true, null, "bookingId,alertId", Order.ASC);
         alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
 
         log.info("Returning {} matching Alerts for Offender Numbers {} in Agency '{}'", alerts.size(), offenderNos, agencyId);
@@ -81,10 +81,10 @@ public class InmateAlertServiceImpl implements InmateAlertService {
     }
 
     @Override
-    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER')")
-    public List<Alert> getInmateAlertsByOffenderNos(final List<String> offenderNos) {
+    @PreAuthorize("hasAnyRole('SYSTEM_READ_ONLY', 'SYSTEM_USER', 'CREATE_CATEGORISATION', 'APPROVE_CATEGORISATION')")
+    public List<Alert> getInmateAlertsByOffenderNos(final List<String> offenderNos, final boolean latestOnly, final String query, final String orderByField, final Order order) {
 
-        final var alerts = inmateAlertRepository.getInmateAlertsByOffenderNos(null, offenderNos);
+        final var alerts = inmateAlertRepository.getInmateAlertsByOffenderNos(null, offenderNos, latestOnly, query, orderByField, order);
         alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
 
         log.info("Returning {} matching Alerts for Offender Numbers {}", alerts.size(), offenderNos);
