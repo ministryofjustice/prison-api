@@ -79,7 +79,7 @@ public interface InmateRepository {
 	Optional<AssignedLivingUnit> findAssignedLivingUnit(long bookingId, String locationTypeGranularity);
 
 	List<OffenderIdentifier> getOffenderIdentifiers(long bookingId);
-
+	List<OffenderIdentifier> getOffenderIdentifiersByTypeAndValue(final String identifierType, final String identifierValue);
 	void insertCategory(CategorisationDetail detail, String agencyId, Long assessStaffId, String userId);
 	void approveCategory(CategoryApprovalDetail detail, UserDetail currentUser);
 

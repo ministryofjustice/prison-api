@@ -5,6 +5,7 @@ import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.service.support.InmateDto;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +29,7 @@ public interface InmateService {
 	List<PhysicalCharacteristic> getPhysicalCharacteristics(Long bookingId);
 	PhysicalAttributes getPhysicalAttributes(Long bookingId);
 	List<OffenderIdentifier> getOffenderIdentifiers(Long bookingId);
+	List<OffenderIdentifier> getOffenderIdentifiersByTypeAndValue(@NotNull final String identifierType, @NotNull final String identifierValue);
 	ImageDetail getMainBookingImage(Long bookingId);
 
 	List<Assessment> getAssessments(Long bookingId);

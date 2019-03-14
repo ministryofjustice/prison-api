@@ -17,7 +17,6 @@ import net.syscon.util.DateTimeConverter;
 import net.syscon.util.IQueryBuilder;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
@@ -289,7 +288,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 .addOrderBy(pageRequest.getOrder(), pageRequest.getOrderBy())
                 .build();
 
-        final var paRowMapper = new PageAwareRowMapper<PrisonerDetail>(PRISONER_DETAIL_MAPPER);
+        final var paRowMapper = new PageAwareRowMapper<>(PRISONER_DETAIL_MAPPER);
 
         final var params = createParams("offset", pageRequest.getOffset(), "limit", pageRequest.getLimit());
 
@@ -356,6 +355,16 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		return jdbcTemplate.query(
 				sql,
 				createParams("bookingId", bookingId),
+				OFFENDER_IDENTIFIER_MAPPER);
+	}
+
+	@Override
+	public List<OffenderIdentifier> getOffenderIdentifiersByTypeAndValue(final String identifierType, final String identifierValue) {
+		final var sql = getQuery("FIND_IDENTIFIER_RECORDS_BY_TYPE_AND_VALUE");
+
+		return jdbcTemplate.query(
+				sql,
+				createParams("identifierType", identifierType, "identifierValue", identifierValue),
 				OFFENDER_IDENTIFIER_MAPPER);
 	}
 

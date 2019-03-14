@@ -192,6 +192,11 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
+        public OffenderIdentifierSteps offenderIdentifierSteps() {
+            return new OffenderIdentifierSteps();
+        }
+
+        @Bean
         public CurfewSteps curfewSteps() { return new CurfewSteps(); }
 
         @Bean
