@@ -77,6 +77,8 @@ public class OffenderBooking {
 
     private String categoryCode;
 
+    private String convictedStatus;
+
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return additionalProperties == null ? new HashMap<>() : additionalProperties;
@@ -322,6 +324,19 @@ public class OffenderBooking {
         this.categoryCode = categoryCode;
     }
 
+    /**
+     * The convicted status of the offender 'Remand', 'Convicted' or 'Unknown'
+     */
+    @ApiModelProperty(value = "The convicted status of the offender")
+    @JsonProperty("convictedStatus")
+    public String getConvictedStatus() {
+        return convictedStatus;
+    }
+
+    public void setConvictedStatus(final String convictedStatus) {
+        this.convictedStatus = convictedStatus;
+    }
+
     @Override
     public String toString()  {
         final var sb = new StringBuilder();
@@ -346,6 +361,7 @@ public class OffenderBooking {
         sb.append("  aliases: ").append(aliases).append("\n");
         sb.append("  iepLevel: ").append(iepLevel).append("\n");
         sb.append("  categoryCode: ").append(categoryCode).append("\n");
+        sb.append("  convictedStatus: ").append(convictedStatus).append("\n");
         sb.append("}\n");
 
         return sb.toString();

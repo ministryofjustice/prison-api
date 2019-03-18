@@ -2,6 +2,7 @@ package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.LocationGroup;
+import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
@@ -22,14 +23,13 @@ import static org.springframework.util.StringUtils.commaDelimitedListToStringArr
  */
 public class LocationsSteps extends CommonSteps {
     private static final String API_LOCATIONS = API_PREFIX + "locations";
-
     private static final String GROUPS_API_URL = AgencySteps.API_AGENCY_URL + "/locations/groups";
     private static final String GROUP_API_URL = API_LOCATIONS + "/groups/{agencyId}/{name}";
-    
+
     private Location location;
     private List<Location> locationList;
-
     private List<LocationGroup> groupList;
+    private List<OffenderBooking> bookingList;
 
     @Step("Perform location search by location id")
     public void findByLocationId(final Long locationId) {
@@ -99,6 +99,7 @@ public class LocationsSteps extends CommonSteps {
         location = null;
         locationList = null;
         groupList = null;
+        bookingList = null;
     }
 
     public void findList(final String agencyId, final String name) {
@@ -127,5 +128,29 @@ public class LocationsSteps extends CommonSteps {
                         group.getChildren().stream().map(subGroup -> group.getName() + '_' + subGroup.getName())))
                 .collect(Collectors.toList());
         assertThat(actual).asList().containsExactly((Object[])commaDelimitedListToStringArray(expectedList));
+    }
+
+    public void retrieveListOfInmates(final String agency) {
+        init();
+        final var queryUrl = API_LOCATIONS + "/description/" + agency + "/inmates";
+
+        try {
+            final var response = restTemplate.exchange(queryUrl, HttpMethod.GET, createEntity(), List.class);
+            if (response.hasBody()) {
+                bookingList = response.getBody();
+            }
+        } catch (final EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    public void checkOffenderCount(int offenderCount) {
+        assertThat(bookingList).hasSize(offenderCount);
+    }
+
+    public void checkConvictedOffenderCount(int offenderCount, final String convictedStatus) {
+        assertThat(bookingList).isNotEmpty();
+        final var filteredList = bookingList.stream().filter(offender -> offender.getConvictedStatus().equals(convictedStatus)).collect(Collectors.toList());
+        assertThat(filteredList).hasSize(offenderCount);
     }
 }
