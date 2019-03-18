@@ -54,3 +54,21 @@ Feature: Locations
   Scenario: Retrieve groups for agency which does not exist
     When a request is made at agency "XXXX" to retrieve all the groups
     Then resource not found response is received from locations API
+
+  Scenario Outline: Retrieve a list of inmates at a specific agency location
+    When a request is made at agency "<agencyCode>" to retrieve a list of inmates
+    Then there are "<countInmates>" offenders returned
+
+    Examples:
+    | agencyCode | countInmates |
+    | LEI        |  10          |
+    | BMI        |  0           |
+
+  Scenario Outline: Retrieve a list of inmates at specific agency to check conviction status
+    When a request is made at agency "<agencyCode>" to retrieve a list of inmates
+    Then there are "<countInmates>" offenders returned with the conviction status "<convictionStatus>"
+
+    Examples:
+      | agencyCode | countInmates | convictionStatus |
+      | LEI        | 8            | Convicted        |
+      | LEI        | 2            | Remand           |

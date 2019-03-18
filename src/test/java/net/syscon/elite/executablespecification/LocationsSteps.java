@@ -1,0 +1,156 @@
+package net.syscon.elite.executablespecification.steps;
+
+import cucumber.api.java.en.Then;
+import cucumber.api.java.en.When;
+import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.LocationGroup;
+import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.test.EliteClientException;
+import net.thucydides.core.annotations.Step;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.util.StringUtils.commaDelimitedListToStringArray;
+
+/**
+ * BDD step implementations for Locations feature.
+ */
+public class LocationsSteps extends CommonSteps {
+    private static final String API_LOCATIONS = API_PREFIX + "locations";
+    private static final String GROUPS_API_URL = AgencySteps.API_AGENCY_URL + "/locations/groups";
+    private static final String GROUP_API_URL = API_LOCATIONS + "/groups/{agencyId}/{name}";
+
+    private Location location;
+    private List<Location> locationList;
+    private List<LocationGroup> groupList;
+    private List<OffenderBooking> bookingList;
+
+    @Step("Perform location search by location id")
+    public void findByLocationId(final Long locationId) {
+        dispatchQueryForObject("/" + locationId.toString());
+    }
+
+    @Step("Verify location type")
+    public void verifyLocationType(final String type) {
+        final var locationType = (location == null) ? StringUtils.EMPTY : location.getLocationType();
+
+        assertThat(locationType).isEqualTo(type);
+    }
+
+    @Step("Verify location description")
+    public void verifyLocationDescription(final String description) {
+        final var locationDesc = (location == null) ? StringUtils.EMPTY : location.getDescription();
+
+        assertThat(locationDesc).isEqualTo(description);
+    }
+
+    private void dispatchQueryForObject(final String query) {
+        init();
+
+        final var queryUrl = API_LOCATIONS + StringUtils.trimToEmpty(query);
+
+        final ResponseEntity<Location> response;
+
+        try {
+            response = restTemplate.exchange(queryUrl, HttpMethod.GET, createEntity(), Location.class);
+
+            location = response.getBody();
+
+            final List<?> resources = Collections.singletonList(location);
+
+            setResourceMetaData(resources);
+        } catch (final EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    private void dispatchGroupCall(final String url, final String agencyId, final String name) {
+        init();
+        try {
+            final var response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
+                    new ParameterizedTypeReference<List<Location>>() {}, agencyId, name);
+            locationList = response.getBody();
+        } catch (final EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    private void dispatchGroupsCall(final String url, final String agencyId) {
+        init();
+        try {
+            final var response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
+                    new ParameterizedTypeReference<List<LocationGroup>>() {}, agencyId);
+            groupList = response.getBody();
+        } catch (final EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+
+        location = null;
+        locationList = null;
+        groupList = null;
+        bookingList = null;
+    }
+
+    public void findList(final String agencyId, final String name) {
+        dispatchGroupCall(GROUP_API_URL, agencyId, name);
+    }
+
+    public void verifyLocationList(final String expectedList) {
+        assertThat(locationList).asList().extracting("locationPrefix")
+                .containsExactly((Object[]) commaDelimitedListToStringArray(expectedList));
+    }
+
+    public void verifyLocationIdList(final String expectedList) {
+        // Careful here - this does not check order, we are relying on verifyLocationList() for that
+        verifyLongValues(locationList, Location::getLocationId, expectedList);
+    }
+
+    public void aRequestIsMadeToRetrieveAllGroups(final String agencyId) {
+        dispatchGroupsCall(GROUPS_API_URL, agencyId);
+    }
+
+    public void groupsAre(final String expectedList) {
+        final var actual = groupList
+                .stream()
+                .flatMap(group -> Stream.concat(
+                        Stream.of(group.getName()),
+                        group.getChildren().stream().map(subGroup -> group.getName() + '_' + subGroup.getName())))
+                .collect(Collectors.toList());
+        assertThat(actual).asList().containsExactly((Object[])commaDelimitedListToStringArray(expectedList));
+    }
+
+    public void retrieveListOfInmates(final String agency) {
+        init();
+        final var queryUrl = API_LOCATIONS + "/description/" + agency + "/inmates";
+
+        try {
+            final var response = restTemplate.exchange(queryUrl, HttpMethod.GET, createEntity(), List.class);
+            bookingList = response.getBody();
+        } catch (final EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
+    public void checkOffenderCount(int offenderCount) {
+        assertThat(bookingList).hasSize(offenderCount);
+    }
+
+    public void checkConvictedOffenderCount(int offenderCount, final String convictionStatus) {
+        assertThat(bookingList).isNotEmpty();
+        final var filteredList = bookingList.stream().filter(offender -> offender.getConvictionStatus().equals(convictionStatus)).collect(Collectors.toList());
+        assertThat(filteredList).hasSize(offenderCount);
+    }
+}
