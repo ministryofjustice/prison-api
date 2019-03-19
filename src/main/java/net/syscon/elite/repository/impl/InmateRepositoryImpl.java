@@ -189,7 +189,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "offset", pageRequest.getOffset(),
                         "limit", pageRequest.getLimit()),
                 paRowMapper);
+
 		inmates.forEach(b -> b.setAge(DateTimeConverter.getAge(b.getDateOfBirth())));
+
 		return new Page<>(inmates, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
 	}
 

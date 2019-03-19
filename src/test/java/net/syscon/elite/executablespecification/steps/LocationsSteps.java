@@ -3,11 +3,14 @@ package net.syscon.elite.executablespecification.steps;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.LocationGroup;
 import net.syscon.elite.api.model.OffenderBooking;
+import net.syscon.elite.api.model.PrisonerDetail;
+import net.syscon.elite.api.support.Page;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Collections;
@@ -59,12 +62,10 @@ public class LocationsSteps extends CommonSteps {
 
         try {
             response = restTemplate.exchange(queryUrl, HttpMethod.GET, createEntity(), Location.class);
-
             location = response.getBody();
-
             final List<?> resources = Collections.singletonList(location);
-
             setResourceMetaData(resources);
+
         } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
@@ -72,6 +73,7 @@ public class LocationsSteps extends CommonSteps {
 
     private void dispatchGroupCall(final String url, final String agencyId, final String name) {
         init();
+
         try {
             final var response = restTemplate.exchange(url, HttpMethod.GET, createEntity(null, null),
                     new ParameterizedTypeReference<List<Location>>() {}, agencyId, name);
@@ -131,26 +133,43 @@ public class LocationsSteps extends CommonSteps {
     }
 
     public void retrieveListOfInmates(final String agency) {
+
         init();
+
         final var queryUrl = API_LOCATIONS + "/description/" + agency + "/inmates";
+        applyPagination(0L,10L);
 
         try {
-            final var response = restTemplate.exchange(queryUrl, HttpMethod.GET, createEntity(), List.class);
-            if (response.hasBody()) {
-                bookingList = response.getBody();
-            }
+            final var response = restTemplate.exchange(
+                    queryUrl,
+                    HttpMethod.GET,
+                    createEntity(null, addPaginationHeaders()),
+                    new ParameterizedTypeReference<List<OffenderBooking>>() {});
+            assertThat(response.getStatusCode()).isEqualByComparingTo(HttpStatus.OK);
+            bookingList = response.getBody();
+
         } catch (final EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
     }
 
     public void checkOffenderCount(int offenderCount) {
-        assertThat(bookingList).hasSize(offenderCount);
+        if (bookingList != null) {
+            assertThat(bookingList).hasSize(offenderCount);
+        } else {
+            assertThat(offenderCount).isEqualTo(0);
+        }
     }
 
     public void checkConvictedOffenderCount(int offenderCount, final String convictedStatus) {
-        assertThat(bookingList).isNotEmpty();
-        final var filteredList = bookingList.stream().filter(offender -> offender.getConvictedStatus().equals(convictedStatus)).collect(Collectors.toList());
-        assertThat(filteredList).hasSize(offenderCount);
+        if (bookingList != null) {
+            final var filteredList = bookingList
+                    .stream()
+                    .filter(offender -> offender.getConvictedStatus().trim().contentEquals(convictedStatus.trim()))
+                    .collect(Collectors.toList());
+            assertThat(filteredList).hasSize(offenderCount);
+        } else {
+            assertThat(offenderCount).isEqualTo(0);
+        }
     }
 }

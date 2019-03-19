@@ -63,12 +63,12 @@ Feature: Locations
     | LEI        |  10          |
     | BMI        |  0           |
 
-  Scenario Outline: Retrieve a list of inmates at specific agency to check conviction status
+  Scenario Outline: Retrieve a list of inmates at specific agency to check convicted status
     When a request is made at agency "<agencyCode>" to retrieve a list of inmates
     Then there are "<countInmates>" offenders returned with the convicted status "<convictedStatus>"
 
     Examples:
       | agencyCode | countInmates | convictedStatus |
-      | LEI        | 8            | Convicted       |
-      | LEI        | 2            | Remand          |
-      | LEI        | 0            | Unknown         |
+      | LEI        | 0            | Convicted       |
+      | LEI        | 0            | Remand          |
+      | LEI        | 10           | Unknown         |
