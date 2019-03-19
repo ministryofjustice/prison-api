@@ -69,6 +69,6 @@ Feature: Locations
 
     Examples:
       | agencyCode | countInmates | convictedStatus |
-      | LEI        | 0            | Convicted       |
-      | LEI        | 0            | Remand          |
-      | LEI        | 10           | Unknown         |
+      | LEI        | 6            | Convicted       |
+      | LEI        | 3            | Remand          |
+      | LEI        | 1            | Unknown         |

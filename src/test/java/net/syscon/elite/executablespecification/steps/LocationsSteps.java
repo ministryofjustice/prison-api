@@ -154,22 +154,15 @@ public class LocationsSteps extends CommonSteps {
     }
 
     public void checkOffenderCount(int offenderCount) {
-        if (bookingList != null) {
-            assertThat(bookingList).hasSize(offenderCount);
-        } else {
-            assertThat(offenderCount).isEqualTo(0);
-        }
+        assertThat(bookingList).hasSize(offenderCount);
     }
 
     public void checkConvictedOffenderCount(int offenderCount, final String convictedStatus) {
-        if (bookingList != null) {
-            final var filteredList = bookingList
+        final var filteredList = bookingList
                     .stream()
-                    .filter(offender -> offender.getConvictedStatus().trim().contentEquals(convictedStatus.trim()))
+                    .filter(offender -> offender.getConvictedStatus().trim().contentEquals(convictedStatus))
                     .collect(Collectors.toList());
-            assertThat(filteredList).hasSize(offenderCount);
-        } else {
-            assertThat(offenderCount).isEqualTo(0);
-        }
+
+        assertThat(filteredList).hasSize(offenderCount);
     }
 }
