@@ -15,7 +15,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SearchOffenderServiceImplTest {
@@ -40,7 +41,7 @@ public class SearchOffenderServiceImplTest {
                 OffenderBooking.builder().firstName("firstName2").bookingId(2L).bookingNo("2").build()
         );
 
-        when(inmateRepository.searchForOffenderBookings(anySet(), isNull(), eq("FIRSTNAME"), isNull(), eq("LEI"),
+        when(inmateRepository.searchForOffenderBookings(anySet(), isNull(), anyString(), isNull(), anyString(),
                 isNull(), eq(locationTypeGranularity), any())).thenReturn(new Page<>(bookings, bookings.size(), 0, bookings.size()));
 
         final var service = new SearchOffenderServiceImpl(bookingService, userService, inmateRepository, authenticationFacade,
@@ -48,7 +49,7 @@ public class SearchOffenderServiceImplTest {
 
         service.findOffenders(SearchOffenderRequest.builder().keywords("firstName").locationPrefix("LEI").returnCategory(true).build());
 
-        verify(inmateRepository, times(1)).findAssessments(eq(List.of(1L)), eq("CATEGORY"), anySet());
-        verify(inmateRepository, times(1)).findAssessments(eq(List.of(2L)), eq("CATEGORY"), anySet());
+        verify(inmateRepository).findAssessments(eq(List.of(1L)), anyString(), anySet());
+        verify(inmateRepository).findAssessments(eq(List.of(2L)), anyString(), anySet());
     }
 }
