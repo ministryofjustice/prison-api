@@ -160,7 +160,8 @@ public class LocationsSteps extends CommonSteps {
     public void checkConvictedOffenderCount(int offenderCount, final String convictedStatus) {
         final var filteredList = bookingList
                     .stream()
-                    .filter(offender -> offender.getConvictedStatus().trim().contentEquals(convictedStatus))
+                    .filter(offender -> offender.getConvictedStatus() != null)
+                    .filter(offender -> offender.getConvictedStatus().contentEquals(convictedStatus))
                     .collect(Collectors.toList());
 
         assertThat(filteredList).hasSize(offenderCount);

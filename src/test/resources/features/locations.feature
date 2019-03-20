@@ -71,4 +71,3 @@ Feature: Locations
       | agencyCode | countInmates | convictedStatus |
       | LEI        | 6            | Convicted       |
       | LEI        | 3            | Remand          |
-      | LEI        | 1            | Unknown         |

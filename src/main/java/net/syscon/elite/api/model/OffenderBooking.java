@@ -27,6 +27,7 @@ import java.util.Map;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class OffenderBooking {
+
     @JsonIgnore
     private Map<String, Object> additionalProperties;
     
@@ -78,6 +79,9 @@ public class OffenderBooking {
     private String categoryCode;
 
     private String convictedStatus;
+
+    @JsonIgnore
+    private String bandCode;
 
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
@@ -325,17 +329,33 @@ public class OffenderBooking {
     }
 
     /**
-     * The convicted status of the offender 'Remand', 'Convicted' or 'Unknown'
+     * The convicted status of the offender one of 'Remand', 'Convicted' or null
      */
-    @ApiModelProperty(value = "The convicted status of the offender")
+    @ApiModelProperty(value = "The convicted status of the offender calculated")
     @JsonProperty("convictedStatus")
     public String getConvictedStatus() {
+
+        if (this.bandCode != null) {
+            this.convictedStatus = Integer.valueOf(bandCode) <= 8 ? "Convicted" : "Remand";
+        }
         return convictedStatus;
     }
 
     public void setConvictedStatus(final String convictedStatus) {
         this.convictedStatus = convictedStatus;
     }
+
+    /**
+     * The bandCode is NOT returned in the JSON object - it has temporary usage in setting the convictedStatus.
+     */
+    public String getBandCode() {
+        return bandCode;
+    }
+
+    public void setBandCode(String bandCode) {
+        this.bandCode = bandCode;
+    }
+
 
     @Override
     public String toString()  {
@@ -362,6 +382,7 @@ public class OffenderBooking {
         sb.append("  iepLevel: ").append(iepLevel).append("\n");
         sb.append("  categoryCode: ").append(categoryCode).append("\n");
         sb.append("  convictedStatus: ").append(convictedStatus).append("\n");
+        sb.append("  bandCode: ").append(bandCode).append("\n");
         sb.append("}\n");
 
         return sb.toString();
