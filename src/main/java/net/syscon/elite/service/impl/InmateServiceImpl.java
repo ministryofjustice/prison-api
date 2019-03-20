@@ -138,9 +138,7 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(final Set<String> offenders) {
-        final var accessToAllData = authenticationFacade.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER");
-
-        return repository.getBasicInmateDetailsForOffenders(offenders, accessToAllData,  !accessToAllData ? loadCaseLoadsOrThrow() : null)
+        return repository.getBasicInmateDetailsForOffenders(offenders, false, loadCaseLoadsOrThrow())
                 .stream()
                 .map(offender -> offender.toBuilder()
                         .firstName(WordUtils.capitalizeFully(offender.getFirstName()))

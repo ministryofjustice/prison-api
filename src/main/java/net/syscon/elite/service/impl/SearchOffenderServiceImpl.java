@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.OffenderBooking;
 import net.syscon.elite.api.support.Page;
@@ -33,27 +34,67 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
     private final AuthenticationFacade securityUtils;
     private final String locationTypeGranularity;
     private final Pattern offenderNoRegex;
+    private final int maxBatchSize;
 
-    public SearchOffenderServiceImpl(final BookingService bookingService, final UserService userService, final InmateRepository repository, final AuthenticationFacade securityUtils,
+    public SearchOffenderServiceImpl(final BookingService bookingService,
+                                     final UserService userService,
+                                     final InmateRepository repository,
+                                     final AuthenticationFacade securityUtils,
                                      @Value("${api.users.me.locations.locationType:WING}") final String locationTypeGranularity,
-                                     @Value("${api.offender.no.regex.pattern:^[A-Za-z]\\d{4}[A-Za-z]{2}$}") final String offenderNoRegex) {
+                                     @Value("${api.offender.no.regex.pattern:^[A-Za-z]\\d{4}[A-Za-z]{2}$}") final String offenderNoRegex,
+                                     @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.bookingService = bookingService;
         this.userService = userService;
         this.repository = repository;
         this.securityUtils = securityUtils;
         this.locationTypeGranularity = locationTypeGranularity;
         this.offenderNoRegex = Pattern.compile(offenderNoRegex);
+        this.maxBatchSize = maxBatchSize;
     }
 
     @Override
     public Page<OffenderBooking> findOffenders(final SearchOffenderRequest request) {
         Objects.requireNonNull(request.getLocationPrefix(), "locationPrefix is a required parameter");
+        log.info("Searching for offenders, criteria: {}", request);
+
+        final Set<String> caseloads = securityUtils.isOverrideRole() ? Set.of() : userService.getCaseLoadIds(request.getUsername());
+
+        final var bookingsPage = getBookings(request, caseloads);
+        final var bookings = bookingsPage.getItems();
+        final var bookingIds = bookings.stream().map(OffenderBooking::getBookingId).collect(Collectors.toList());
+
+        log.info("Searching for offenders, Found {} offenders, page size {}", bookingsPage.getTotalRecords(), bookingsPage.getItems().size());
+
+        if (!CollectionUtils.isEmpty(bookingIds)) {
+            if (request.isReturnIep()) {
+                final var bookingIEPSummary = bookingService.getBookingIEPSummary(bookingIds, false);
+                bookings.forEach(booking -> booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel()));
+            }
+            if (request.isReturnAlerts()) {
+                final var alertCodesForBookings = bookingService.getBookingAlertSummary(bookingIds, LocalDateTime.now());
+                bookings.forEach(booking -> booking.setAlertsDetails(alertCodesForBookings.get(booking.getBookingId())));
+            }
+            if (request.isReturnCategory()) {
+                final var batch = Lists.partition(bookingIds, maxBatchSize);
+                batch.forEach(bookingIdList -> {
+                    log.info("Searching for offenders, calling findAssessments with {} bookingIds and {} caseloads", bookingIdList.size(), caseloads.size());
+                    final var assessmentsForBookings = repository.findAssessments(bookingIdList, "CATEGORY", caseloads);
+                    InmatesHelper.setCategory(bookings, assessmentsForBookings);
+                });
+            }
+        }
+
+        return bookingsPage;
+    }
+
+    private Page<OffenderBooking> getBookings(final SearchOffenderRequest request, final Set<String> caseloads) {
         final var keywordSearch = StringUtils.upperCase(StringUtils.trimToEmpty(request.getKeywords()));
+        final PageRequest pageRequest = StringUtils.isBlank(request.getOrderBy()) ? request.toBuilder().orderBy(DEFAULT_OFFENDER_SORT).build() : request;
+
         String offenderNo = null;
         String searchTerm1 = null;
         String searchTerm2 = null;
 
-        log.info("Searching for offenders, criteria: {}", request);
         if (StringUtils.isNotBlank(keywordSearch)) {
             if (isOffenderNo(keywordSearch)) {
                 offenderNo = keywordSearch;
@@ -67,41 +108,12 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
             }
         }
 
-        final PageRequest pageRequest;
 
-        if (StringUtils.isBlank(request.getOrderBy())) {
-            pageRequest = request.toBuilder().orderBy(DEFAULT_OFFENDER_SORT).build();
-        } else {
-            pageRequest = request;
-        }
-
-        final Set<String> caseloads = securityUtils.isOverrideRole() ? Set.of() : userService.getCaseLoadIds(request.getUsername());
-
-        final var bookingsPage = repository.searchForOffenderBookings(
+        return repository.searchForOffenderBookings(
                 caseloads, offenderNo, searchTerm1, searchTerm2,
                 request.getLocationPrefix(),
                 request.getAlerts(),
                 locationTypeGranularity, pageRequest);
-
-        final var bookings = bookingsPage.getItems();
-        final var bookingIds = bookings.stream().map(OffenderBooking::getBookingId).collect(Collectors.toList());
-        if (!CollectionUtils.isEmpty(bookingIds)) {
-            if (request.isReturnIep()) {
-                final var bookingIEPSummary = bookingService.getBookingIEPSummary(bookingIds, false);
-                bookings.forEach(booking -> booking.setIepLevel(bookingIEPSummary.get(booking.getBookingId()).getIepLevel()));
-            }
-            if (request.isReturnAlerts()) {
-                final var alertCodesForBookings = bookingService.getBookingAlertSummary(bookingIds, LocalDateTime.now());
-                bookings.forEach(booking -> booking.setAlertsDetails(alertCodesForBookings.get(booking.getBookingId())));
-            }
-            if (request.isReturnCategory()) {
-                final var assessmentsForBookings = repository.findAssessments(bookingIds, "CATEGORY", caseloads);
-                InmatesHelper.setCategory(bookings, assessmentsForBookings);
-            }
-        }
-        log.info("Found {} offenders, page size {}", bookingsPage.getTotalRecords(), bookingsPage.getItems().size());
-
-        return bookingsPage;
     }
 
     private boolean isOffenderNo(final String potentialOffenderNumber) {
