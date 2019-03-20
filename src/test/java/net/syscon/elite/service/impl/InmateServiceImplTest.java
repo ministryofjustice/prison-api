@@ -180,11 +180,9 @@ public class InmateServiceImplTest {
     }
 
     @Test
-    public void testThatAnExceptionIsThrownWhenAStandardUserWithNoActiveCaseloadsRequestsInmateDetails() {
+    public void testThatAnExceptionIsThrown_whenAStandardUserWithNoActiveCaseloadsRequestsInmateDetails() {
         when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
         when(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(Collections.emptySet());
-        when(authenticationFacade.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")).thenReturn(false);
-
 
         Assertions.assertThatThrownBy(() -> {
              serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123"));
@@ -194,13 +192,15 @@ public class InmateServiceImplTest {
     }
 
     @Test
-    public void testThatARequestForInmateDetailsWithNoCaseloadsIsMadeWhenTheUserIsASystemUser() {
-        when(authenticationFacade.isOverrideRole("SYSTEM_READ_ONLY", "SYSTEM_USER")).thenReturn(true);
+    public void testThatGetBasicInmateDetailsForOffenders_isCalledWithCorrectParameters() {
+        final var caseLoad = Set.of("LEI");
+
+        when(authenticationFacade.getCurrentUsername()).thenReturn("ME");
+        when(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(caseLoad);
 
         serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123"));
 
-        Mockito.verify(repository).getBasicInmateDetailsForOffenders(Set.of("A123"),true,  null);
-        Mockito.verify(caseLoadService, Mockito.never()).getCaseLoadIdsForUser("ME", false);
+        Mockito.verify(repository).getBasicInmateDetailsForOffenders(Set.of("A123"), false, caseLoad);
+        Mockito.verify(caseLoadService).getCaseLoadIdsForUser("ME", false);
      }
-
 }
