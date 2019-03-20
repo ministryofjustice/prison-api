@@ -62,6 +62,16 @@ public class InmateRepositoryTest {
     }
 
     @Test
+    public void testFindSpecificInmatesAtLocation() {
+        final var pageRequest = new PageRequest("lastName, firstName");
+        final var caseloads = new HashSet<String>(Arrays.asList("LEI"));
+        final var foundInmates = repository.findAllInmates(caseloads, "WING", "", pageRequest);
+
+        assertThat(foundInmates.getItems()).isNotEmpty();
+        assertThat(foundInmates.getItems()).extracting("lastName").contains("FOX","DUCK","BATES");
+    }
+
+    @Test
     public void testSearchForOffenderBookings() {
         final var pageRequest = new PageRequest("lastName, firstName");
         final var caseloads = new HashSet<String>(Arrays.asList("LEI", "BXI"));
