@@ -77,11 +77,6 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
 
         final Set<String> caseloads = securityUtils.isOverrideRole() ? Set.of() : userService.getCaseLoadIds(request.getUsername());
 
-        // TODO
-        // The paged list of OffenderBookings will now contain the the convictedStatus 'Convicted', 'Remand', or 'Unknown'
-        // Move the logic from the DB SQL to here - where the business rules should reside
-        // WARNING: The OffenderBooking object is returned from multiple repository calls
-
         final var bookingsPage = repository.searchForOffenderBookings(
                 caseloads, offenderNo, searchTerm1, searchTerm2,
                 request.getLocationPrefix(),

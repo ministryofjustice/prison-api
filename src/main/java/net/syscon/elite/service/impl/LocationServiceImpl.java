@@ -88,11 +88,6 @@ public class LocationServiceImpl implements LocationService {
 
         final var colSort = StringUtils.isNotBlank(orderByField) ? orderByField : DEFAULT_OFFENDER_SORT;
 
-        // TODO
-        // The paged list of OffenderBookings will now contain the the convictedStatus 'Convicted', 'Remand', or 'Unknown'
-        // Move the logic from the DB SQL to here - where the business rules should reside
-        // WARNING: The OffenderBooking object is returned from multiple repository calls
-
         final var inmates = inmateRepository.findInmatesByLocation(
                 locationId,
                 locationTypeGranularity,

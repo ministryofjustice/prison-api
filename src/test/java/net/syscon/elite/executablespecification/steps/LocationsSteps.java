@@ -3,8 +3,6 @@ package net.syscon.elite.executablespecification.steps;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.LocationGroup;
 import net.syscon.elite.api.model.OffenderBooking;
-import net.syscon.elite.api.model.PrisonerDetail;
-import net.syscon.elite.api.support.Page;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
