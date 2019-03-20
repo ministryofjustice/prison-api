@@ -63,6 +63,8 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
         final var bookings = bookingsPage.getItems();
         final var bookingIds = bookings.stream().map(OffenderBooking::getBookingId).collect(Collectors.toList());
 
+        log.info("Searching for offenders, Found {} offenders, page size {}", bookingsPage.getTotalRecords(), bookingsPage.getItems().size());
+
         if (!CollectionUtils.isEmpty(bookingIds)) {
             if (request.isReturnIep()) {
                 final var bookingIEPSummary = bookingService.getBookingIEPSummary(bookingIds, false);
@@ -75,12 +77,12 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
             if (request.isReturnCategory()) {
                 final var batch = Lists.partition(bookingIds, maxBatchSize);
                 batch.forEach(bookingIdList -> {
+                    log.info("Searching for offenders, calling findAssessments with {} bookingIds and {} caseloads", bookingIdList.size(), caseloads.size());
                     final var assessmentsForBookings = repository.findAssessments(bookingIdList, "CATEGORY", caseloads);
                     InmatesHelper.setCategory(bookings, assessmentsForBookings);
                 });
             }
         }
-        log.info("Found {} offenders, page size {}", bookingsPage.getTotalRecords(), bookingsPage.getItems().size());
 
         return bookingsPage;
     }
