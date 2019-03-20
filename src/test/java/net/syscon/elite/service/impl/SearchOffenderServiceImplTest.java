@@ -31,7 +31,7 @@ public class SearchOffenderServiceImplTest {
     AuthenticationFacade authenticationFacade;
 
     @Test
-    public void testFindAssessmentsCorrectlyBatchesQueries() {
+    public void testFindOffenders_findAssessmentsCorrectlyBatchesQueries() {
         final var locationTypeGranularity = "WING";
         final var offenderNoRegex = "^[A-Za-z]\\d{4}[A-Za-z]{2}$}";
         final int maxBatchSize = 1;
