@@ -336,7 +336,8 @@ public class OffenderBooking {
     public String getConvictedStatus() {
 
         if (this.bandCode != null) {
-            this.convictedStatus = Integer.valueOf(bandCode) <= 8 ? "Convicted" : "Remand";
+            // Persist the value whenever the bandCode is present - as and mapping to/from JSON will lose the bandCode value
+            setConvictedStatus(Integer.valueOf(bandCode) <= 8 ? "Convicted" : "Remand");
         }
         return convictedStatus;
     }
