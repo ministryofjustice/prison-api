@@ -10,11 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
  * BDD step definitions for Booking API endpoints:
  * <ul>
  *     <li>/locations</li>
- *     <li>/locations/{locationId}</li>
- *     <li>/locations/{locationId}/inmates</li>
+ *     <li>/locations/groups</li>
+ *     <li>/locations/groups/{agencyId}/{name}</li>
+ *     <li>/locations/description/{agencyId}/inmates</li>
  * </ul>
  *
- * NB: Not all API endpoints have associated tests at this point in time.
  */
 public class LocationsStepDefinitions extends AbstractStepDefinitions {
     @Autowired
@@ -73,5 +73,20 @@ public class LocationsStepDefinitions extends AbstractStepDefinitions {
     @Then("^location groups are \"([^\"]*)\"$")
     public void groupsAre(final String list) throws Throwable {
         location.groupsAre(list);
+    }
+
+    @When("^a request is made at agency \"([^\"]*)\" to retrieve a list of inmates$")
+    public void retrieveListOfInmates(final String agency) {
+        location.retrieveListOfInmates(agency);
+    }
+
+    @Then("^there are \"([^\"]*)\" offenders returned$")
+    public void verifyOffenderCount(final String countOffenders) {
+        location.checkOffenderCount(Integer.parseInt(countOffenders));
+    }
+
+    @Then("^there are \"([^\"]*)\" offenders returned with the convicted status \"([^\"]*)\"$")
+    public void checkConvictedOffenderCountByStatus(final String countOffenders, final String convictedStatus) {
+       location.checkConvictedOffenderCount(Integer.parseInt(countOffenders), convictedStatus);
     }
 }

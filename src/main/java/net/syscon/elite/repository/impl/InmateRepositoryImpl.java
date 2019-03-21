@@ -52,6 +52,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             .put("LIVING_UNIT_ID",      new FieldMapper("assignedLivingUnitId"))
             .put("LIVING_UNIT_DESC",    new FieldMapper("assignedLivingUnitDesc", value -> RegExUtils.replaceFirst((String)value, "^[A-Z|a-z|0-9]+\\-", "")))
             .put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerId"))
+            .put("BAND_CODE",           new FieldMapper("bandCode"))
             .build();
 
     private final Map<String, FieldMapper> inmateDetailsMapping = new ImmutableMap.Builder<String, FieldMapper>()
@@ -188,7 +189,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "offset", pageRequest.getOffset(),
                         "limit", pageRequest.getLimit()),
                 paRowMapper);
+
 		inmates.forEach(b -> b.setAge(DateTimeConverter.getAge(b.getDateOfBirth())));
+
 		return new Page<>(inmates, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
 	}
 
@@ -244,7 +247,9 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                         "alerts", alerts,
                         "offset", pageRequest.getOffset(), "limit", pageRequest.getLimit()),
                 paRowMapper);
+
 		offenderBookings.forEach(b -> b.setAge(DateTimeConverter.getAge(b.getDateOfBirth())));
+
 		return new Page<>(offenderBookings, paRowMapper.getTotalRecords(), pageRequest.getOffset(), pageRequest.getLimit());
 	}
 
