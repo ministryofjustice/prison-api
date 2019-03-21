@@ -720,7 +720,7 @@ public class InmateRepositoryTest {
     @Test
     public void testAccessToAllData_whenFalse() {
         final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI"), false, Set.of("HLI"));
-        assertThat(offenders).asList().isEmpty();
+        assertThat(offenders).isEmpty();
     }
 
     /*****************************************************************************************/
