@@ -29,10 +29,16 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
 
 
     @Override
-    public List<Movement> getRecentMovementsByDate(final LocalDateTime fromDateTime, final LocalDate movementDate) {
+    public List<Movement> getRecentMovementsByDate(final LocalDateTime fromDateTime, final LocalDate movementDate, List<String> movementTypes) {
         final var sql = getQuery("GET_RECENT_MOVEMENTS_BY_DATE_FOR_BATCH");
-        return jdbcTemplate.query(sql, createParams("fromDateTime", DateTimeConverter.fromLocalDateTime(fromDateTime),
-                "movementDate", DateTimeConverter.toDate(movementDate)), MOVEMENT_MAPPER);
+        final var types = (movementTypes == null || movementTypes.isEmpty()) ? Set.of("TRN", "REL", "ADM") : movementTypes;
+
+
+        return jdbcTemplate.query(sql,
+                createParams(
+                        "movementTypes", types,
+                        "fromDateTime", DateTimeConverter.fromLocalDateTime(fromDateTime),
+                        "movementDate", DateTimeConverter.toDate(movementDate)), MOVEMENT_MAPPER);
     }
 
     @Override
