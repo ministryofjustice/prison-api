@@ -3,6 +3,7 @@ package net.syscon.elite.service.impl;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
+import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
@@ -42,6 +43,7 @@ import static net.syscon.elite.service.support.InmatesHelper.deriveClassificatio
 @Service
 @Transactional(readOnly = true)
 @Validated
+@Slf4j
 public class InmateServiceImpl implements InmateService {
     private final InmateRepository repository;
     private final CaseLoadService caseLoadService;
@@ -138,7 +140,10 @@ public class InmateServiceImpl implements InmateService {
 
     @Override
     public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(final Set<String> offenders) {
-        return repository.getBasicInmateDetailsForOffenders(offenders, false, loadCaseLoadsOrThrow())
+        final var caseloads = loadCaseLoadsOrThrow();
+        log.info("getBasicInmateDetailsForOffenders, {} offenders, {} caseloads", offenders.size(), caseloads.size());
+
+        final var results = repository.getBasicInmateDetailsForOffenders(offenders, false, caseloads)
                 .stream()
                 .map(offender -> offender.toBuilder()
                         .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
@@ -146,6 +151,9 @@ public class InmateServiceImpl implements InmateService {
                         .lastName(WordUtils.capitalizeFully(offender.getLastName()))
                         .build()
                 ).collect(Collectors.toList());
+
+        log.info("getBasicInmateDetailsForOffenders, {} records returned", results.size());
+        return results;
     }
 
     private Set<String> loadCaseLoadsOrThrow() {
