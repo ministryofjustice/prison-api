@@ -334,10 +334,9 @@ public class OffenderBooking {
     @ApiModelProperty(value = "The convicted status of the offender calculated")
     @JsonProperty("convictedStatus")
     public String getConvictedStatus() {
-
         if (this.bandCode != null) {
-            // Persist the value whenever the bandCode is present - as and mapping to/from JSON will lose the bandCode value
-            setConvictedStatus(Integer.valueOf(bandCode) <= 8 ? "Convicted" : "Remand");
+            // Map the value of the bandCode to convictedStatus (but only if not null - any map to JSON loses the bandCode value due to @JsonIgnore)
+            setConvictedStatus(Integer.valueOf(this.bandCode) <= 8 ? "Convicted" : "Remand");
         }
         return convictedStatus;
     }
@@ -354,6 +353,7 @@ public class OffenderBooking {
     }
 
     public void setBandCode(String bandCode) {
+
         this.bandCode = bandCode;
     }
 
