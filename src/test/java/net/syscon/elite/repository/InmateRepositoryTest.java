@@ -710,6 +710,19 @@ public class InmateRepositoryTest {
         );
     }
 
+    @Test
+    public void testAccessToAllData_whenTrue() {
+        final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI"), true, Collections.emptySet());
+        assertThat(offenders).asList().extracting("offenderNo", "bookingId", "agencyId", "firstName", "lastName", "middleName", "dateOfBirth", "assignedLivingUnitId")
+                .contains(Tuple.tuple("A1234AI", -9L, "LEI", "CHESTER", "THOMPSON", "JAMES", LocalDate.parse("1970-03-01"), -7L));
+    }
+
+    @Test
+    public void testAccessToAllData_whenFalse() {
+        final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI"), false, Set.of("HLI"));
+        assertThat(offenders).asList().isEmpty();
+    }
+
     /*****************************************************************************************/
 
     private PrisonerDetailSearchCriteria criteriaForOffenderNo(final String offenderNo) {
