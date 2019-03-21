@@ -21,6 +21,7 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -40,8 +41,8 @@ public class MovementsRepositoryTest {
     @Test
     public void canRetrieveAListOfMovementDetails1() {
         final var threshold = LocalDateTime.of(2017, Month.JANUARY, 1, 0, 0, 0);
-        final var recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.JULY, 16));
-        assertThat(recentMovements.size()).isEqualTo(1); // TAP is excluded
+        final var recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.JULY, 16), Collections.emptyList());
+        assertThat(recentMovements).hasSize(1); // TAP is excluded
         assertThat(recentMovements).asList()
                 .extracting("offenderNo", "createDateTime", "fromAgency", "toAgency", "movementType", "directionCode")
                 .contains(tuple("Z0024ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 24, 0, 0), "OUT", "LEI", "ADM", "IN"));
@@ -50,8 +51,8 @@ public class MovementsRepositoryTest {
     @Test
     public void canRetrieveAListOfMovementDetails2() {
         final var threshold = LocalDateTime.of(2017, Month.JANUARY, 1, 0, 0, 0);
-        final var recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.AUGUST, 16));
-        assertThat(recentMovements.size()).isEqualTo(2);
+        final var recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.AUGUST, 16), Collections.emptyList());
+        assertThat(recentMovements).hasSize(2);
         assertThat(recentMovements).asList()
                 .extracting("offenderNo", "createDateTime", "fromAgency", "toAgency", "movementType", "directionCode")
                 .contains(
@@ -62,7 +63,7 @@ public class MovementsRepositoryTest {
     @Test
     public void canRetrieveRollcountCells() {
         final var rollCountList = repository.getRollCount("LEI", "Y");
-        assertThat(rollCountList.size()).isEqualTo(2);
+        assertThat(rollCountList).hasSize(2);
         assertThat(rollCountList).asList()
                 .extracting("livingUnitDesc", "bedsInUse", "currentlyInCell", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
                 .contains(
@@ -73,7 +74,7 @@ public class MovementsRepositoryTest {
     @Test
     public void canRetrieveRollcountUnassigned() {
         final var rollCountList = repository.getRollCount("LEI", "N");
-        assertThat(rollCountList.size()).isEqualTo(1);
+        assertThat(rollCountList).hasSize(1);
         assertThat(rollCountList).asList()
                 .extracting("livingUnitDesc", "bedsInUse", "currentlyInCell", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
                 .contains(
@@ -105,7 +106,7 @@ public class MovementsRepositoryTest {
     public void canRetrieveRecentMovementsByOffendersAndMovementTypes() {
         final var movements = repository.getRecentMovementsByOffenders(Arrays.asList("A6676RS"), Arrays.asList("TRN"));
 
-        assertThat(movements.size()).isEqualTo(1);
+        assertThat(movements).hasSize(1);
         assertThat(movements.get(0).getToAgency()).isEqualTo("MDI");
     }
 
@@ -113,7 +114,7 @@ public class MovementsRepositoryTest {
     public void canRetrieveRecentMovementsByOffenders() {
         final var movements = repository.getRecentMovementsByOffenders(Arrays.asList("A6676RS"), new ArrayList<>());
 
-        assertThat(movements.size()).isEqualTo(1);
+        assertThat(movements).hasSize(1);
         assertThat(movements.get(0).getToCity()).isEqualTo("Wadhurst");
     }
 
@@ -121,7 +122,7 @@ public class MovementsRepositoryTest {
     public void canRetrieveEnrouteOffenderMovements() {
         final var movements = repository.getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2017, 10, 12));
 
-        assertThat(movements.size()).isEqualTo(2);
+        assertThat(movements).hasSize(2);
         assertThat(movements.get(0).getOffenderNo()).isEqualTo("A1183SH");
         assertThat(movements.get(1).getOffenderNo()).isEqualTo("A1183AD");
     }
@@ -185,6 +186,16 @@ public class MovementsRepositoryTest {
                 OffenderOut.builder().offenderNo("Z0025ZZ").bookingId(-25L).dateOfBirth(LocalDate.of(1974, 1, 1)).firstName("MATTHEW").lastName("SMITH").location("Landing H/1").build(),
                 OffenderOut.builder().offenderNo("Z0024ZZ").bookingId(-24L).dateOfBirth(LocalDate.of(1958, 1, 1)).firstName("LUCIUS").lastName("FOX").location("Landing H/1").build()
         );
+    }
+
+    @Test
+    public void testRecentMovements_byMovementTypes() {
+        final var threshold = LocalDateTime.of(2000, Month.JANUARY, 1, 0, 0, 0);
+        final var recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.JULY, 16), Collections.singletonList("TAP"));
+        assertThat(recentMovements).hasSize(1);
+        assertThat(recentMovements).asList()
+                .extracting("offenderNo", "createDateTime", "fromAgency", "toAgency", "movementType", "directionCode")
+                .contains(tuple("Z0020ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 20, 0, 0), "LEI", "OUT", "TAP", "OUT"));
     }
 
 }

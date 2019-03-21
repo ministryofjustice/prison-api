@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface MovementsRepository {
 
-    List<Movement> getRecentMovementsByDate(LocalDateTime fromDateTime, LocalDate movementDate);
+    List<Movement> getRecentMovementsByDate(LocalDateTime fromDateTime, LocalDate movementDate, List<String> movementTypes);
 
     List<RollCount> getRollCount(String agencyId, String certifiedFlag);
 
