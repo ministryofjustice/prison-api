@@ -29,8 +29,8 @@ public class MovementsServiceImpl implements MovementsService {
 
     @Override
     @PreAuthorize("hasAnyRole('SYSTEM_USER', 'GLOBAL_SEARCH')")
-    public List<Movement> getRecentMovementsByDate(final LocalDateTime fromDateTime, final LocalDate movementDate) {
-        return movementsRepository.getRecentMovementsByDate(fromDateTime, movementDate);
+    public List<Movement> getRecentMovementsByDate(final LocalDateTime fromDateTime, final LocalDate movementDate, List<String> movementTypes) {
+        return movementsRepository.getRecentMovementsByDate(fromDateTime, movementDate, movementTypes);
     }
 
     @Override

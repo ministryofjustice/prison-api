@@ -21,6 +21,7 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -40,7 +41,7 @@ public class MovementsRepositoryTest {
     @Test
     public void canRetrieveAListOfMovementDetails1() {
         final var threshold = LocalDateTime.of(2017, Month.JANUARY, 1, 0, 0, 0);
-        final var recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.JULY, 16));
+        final var recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.JULY, 16), Collections.emptyList());
         assertThat(recentMovements.size()).isEqualTo(1); // TAP is excluded
         assertThat(recentMovements).asList()
                 .extracting("offenderNo", "createDateTime", "fromAgency", "toAgency", "movementType", "directionCode")
@@ -50,7 +51,7 @@ public class MovementsRepositoryTest {
     @Test
     public void canRetrieveAListOfMovementDetails2() {
         final var threshold = LocalDateTime.of(2017, Month.JANUARY, 1, 0, 0, 0);
-        final var recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.AUGUST, 16));
+        final var recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.AUGUST, 16), Collections.emptyList());
         assertThat(recentMovements.size()).isEqualTo(2);
         assertThat(recentMovements).asList()
                 .extracting("offenderNo", "createDateTime", "fromAgency", "toAgency", "movementType", "directionCode")
@@ -185,6 +186,16 @@ public class MovementsRepositoryTest {
                 OffenderOut.builder().offenderNo("Z0025ZZ").bookingId(-25L).dateOfBirth(LocalDate.of(1974, 1, 1)).firstName("MATTHEW").lastName("SMITH").location("Landing H/1").build(),
                 OffenderOut.builder().offenderNo("Z0024ZZ").bookingId(-24L).dateOfBirth(LocalDate.of(1958, 1, 1)).firstName("LUCIUS").lastName("FOX").location("Landing H/1").build()
         );
+    }
+
+    @Test
+    public void testRecentMovements_byMovementTypes() {
+        final var threshold = LocalDateTime.of(2000, Month.JANUARY, 1, 0, 0, 0);
+        final var recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.JULY, 16), Collections.singletonList("TAP"));
+        assertThat(recentMovements.size()).isEqualTo(1);
+        assertThat(recentMovements).asList()
+                .extracting("offenderNo", "createDateTime", "fromAgency", "toAgency", "movementType", "directionCode")
+                .contains(tuple("Z0020ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 20, 0, 0), "LEI", "OUT", "TAP", "OUT"));
     }
 
 }

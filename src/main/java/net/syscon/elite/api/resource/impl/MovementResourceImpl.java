@@ -21,8 +21,8 @@ public class MovementResourceImpl implements MovementResource {
     }
 
     @Override
-    public List<Movement> getRecentMovementsByDate(final LocalDateTime fromDateTime, final LocalDate movementDate, final String agencyId) {
-        return movementsService.getRecentMovementsByDate(fromDateTime, movementDate);
+    public List<Movement> getRecentMovementsByDate(final LocalDateTime fromDateTime, final LocalDate movementDate, final String agencyId, final List<String> movementTypes) {
+        return movementsService.getRecentMovementsByDate(fromDateTime, movementDate, movementTypes);
     }
 
     @Override

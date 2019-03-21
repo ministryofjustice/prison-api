@@ -25,7 +25,8 @@ public interface MovementResource {
     List<Movement> getRecentMovementsByDate(
             @ApiParam(value = "A timestamp that indicates the earliest record required", required = true) @QueryParam("fromDateTime") LocalDateTime fromDateTime,
             @ApiParam(value = "The date for which movements are searched", required = true) @QueryParam("movementDate") LocalDate movementDate,
-            @ApiParam(value = "Filter to just movements to or from this agency.") @QueryParam("agencyId") String agencyId);
+            @ApiParam(value = "Filter to just movements to or from this agency.") @QueryParam("agencyId") String agencyId,
+            @ApiParam(value = "movement type codes to filter by, defaults to TRN, REL, ADM") @QueryParam("movementTypes") List<String> movementTypes);
 
     @GET
     @Path("/rollcount/{agencyId}")
