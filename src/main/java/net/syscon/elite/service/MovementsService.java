@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface MovementsService {
 
-    List<Movement> getRecentMovementsByDate(LocalDateTime fromDateTime, LocalDate movementDate);
+    List<Movement> getRecentMovementsByDate(LocalDateTime fromDateTime, LocalDate movementDate, List<String> movementTypes);
 
     List<Movement> getRecentMovementsByOffenders(List<String> offenderNumbers, List<String> movementTypes);
 
