@@ -180,7 +180,7 @@ public class MovementsRepositoryTest {
     }
 
     @Test
-    public void canRetriveOffendersCurrentlyOutOfAgency() {
+    public void canRetrieveOffendersCurrentlyOutOfAgency() {
         final var offenders = repository.getOffendersCurrentlyOut("LEI");
         assertThat(offenders).containsExactlyInAnyOrder(
                 OffenderOut.builder().offenderNo("Z0025ZZ").bookingId(-25L).dateOfBirth(LocalDate.of(1974, 1, 1)).firstName("MATTHEW").lastName("SMITH").location("Landing H/1").build(),
@@ -197,5 +197,4 @@ public class MovementsRepositoryTest {
                 .extracting("offenderNo", "createDateTime", "fromAgency", "toAgency", "movementType", "directionCode")
                 .contains(tuple("Z0020ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 20, 0, 0), "LEI", "OUT", "TAP", "OUT"));
     }
-
 }

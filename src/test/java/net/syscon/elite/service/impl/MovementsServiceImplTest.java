@@ -33,11 +33,11 @@ public class MovementsServiceImplTest {
 
     @Before
     public void init() {
-        movementsService = new MovementsServiceImpl(movementsRepository);
+        movementsService = new MovementsServiceImpl(movementsRepository, 1);
     }
 
     @Test
-    public void testGetRecentMovementsByOffenders() {
+    public void testGetRecentMovements_ByOffenders() {
         final List<Movement> movements = ImmutableList.of(Movement.builder().offenderNo(TEST_OFFENDER_NO).fromAgencyDescription("LEEDS").toAgencyDescription("BLACKBURN").build());
         final var offenderNoList = ImmutableList.of(TEST_OFFENDER_NO);
         Mockito.when(movementsRepository.getRecentMovementsByOffenders(offenderNoList,null)).thenReturn(movements);
@@ -50,7 +50,7 @@ public class MovementsServiceImplTest {
     }
 
     @Test
-    public void testGetRecentMovementsByOffendersNullDescriptions() {
+    public void testGetRecentMovements_ByOffendersNullDescriptions() {
         final List<Movement> movements = ImmutableList.of(Movement.builder().offenderNo(TEST_OFFENDER_NO).build());
         final var offenderNoList = ImmutableList.of(TEST_OFFENDER_NO);
         Mockito.when(movementsRepository.getRecentMovementsByOffenders(offenderNoList,null)).thenReturn(movements);
@@ -85,7 +85,7 @@ public class MovementsServiceImplTest {
 
 
     @Test
-    public void testGetEnrouteOffenderNoDateFilter() {
+    public void testGetEnrouteOffender_NoDateFilter() {
         /* call service with no specified date */
         movementsService.getEnrouteOffenderMovements("LEI", null);
 
@@ -93,7 +93,7 @@ public class MovementsServiceImplTest {
     }
 
     @Test
-    public void testGetEnrouteOffenderMovementsCount() {
+    public void testGetEnrouteOffenderMovements_Count() {
         Mockito.when(movementsRepository.getEnrouteMovementsOffenderCount("LEI", LocalDate.of(2015, 9, 12))).thenReturn(5);
 
         final var count = movementsService.getEnrouteOffenderCount("LEI", LocalDate.of(2015, 9, 12));
@@ -103,7 +103,7 @@ public class MovementsServiceImplTest {
     }
 
     @Test
-    public void testGetOffendersOutToday() {
+    public void testGetOffenders_OutToday() {
         final var timeOut = LocalTime.now();
         final List<OffenderMovement> offenders = ImmutableList.of(
                 OffenderMovement.builder()
@@ -134,7 +134,7 @@ public class MovementsServiceImplTest {
     }
 
     @Test
-    public void testMappingToProperCase() {
+    public void testMapping_ToProperCase() {
         final var agency = "LEI";
 
       Mockito.when(movementsRepository.getOffendersInReception(agency))
@@ -160,7 +160,7 @@ public class MovementsServiceImplTest {
     }
 
     @Test
-    public void testMappingToProperCaseCurrentlyOut() {
+    public void testMappingToProperCase_CurrentlyOut() {
 
         Mockito.when(movementsRepository.getOffendersCurrentlyOut(1L))
                 .thenReturn(
@@ -184,6 +184,42 @@ public class MovementsServiceImplTest {
                         .offenderNo("1234A")
                         .location("x-1-1")
                         .build());
+    }
+
+    @Test
+    public void testThatCallsToRecentMovements_AreBatched() {
+        final var offenders = List.of("offender1", "offender2");
+        final var movement1 = Movement.builder()
+                .offenderNo("offender1")
+                .fromAgencyDescription("Lei")
+                .toAgencyDescription("York")
+                .toCity("York")
+                .fromCity("Leeds")
+                .movementType("TRN")
+                .movementReason("COURT")
+                .build();
+        final var movement2 = Movement.builder()
+                .offenderNo("offender2")
+                .fromAgencyDescription("Hli")
+                .toAgencyDescription("York")
+                .toCity("York")
+                .fromCity("Hull")
+                .movementType("TRN")
+                .movementReason("COURT")
+                .build();
+
+        Mockito.when(movementsRepository.getRecentMovementsByOffenders(List.of("offender1"), Collections.emptyList()))
+                .thenReturn(List.of(movement1));
+
+        Mockito.when(movementsRepository.getRecentMovementsByOffenders(List.of("offender2"), Collections.emptyList()))
+                .thenReturn(List.of(movement2));
+
+        final var movements = movementsService.getRecentMovementsByOffenders(offenders, Collections.emptyList());
+
+        Assertions.assertThat(movements).containsSequence(List.of(movement1, movement2));
+
+        Mockito.verify(movementsRepository).getRecentMovementsByOffenders(List.of("offender1"), Collections.emptyList());
+        Mockito.verify(movementsRepository).getRecentMovementsByOffenders(List.of("offender2"), Collections.emptyList());
     }
 
 }

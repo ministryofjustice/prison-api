@@ -1,5 +1,6 @@
 Feature: Movement
 
+  @wip
   Scenario: Retrieve a list of recent movements
 
     Acceptance Criteria:
