@@ -23,9 +23,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.when;
 
-/**
- * Test cases for {@link BookingServiceImpl}.
- */
 @RunWith(MockitoJUnitRunner.class)
 public class MovementsServiceImplTest {
     private static final String TEST_OFFENDER_NO = "AA1234A";
