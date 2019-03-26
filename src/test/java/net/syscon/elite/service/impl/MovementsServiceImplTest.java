@@ -7,12 +7,10 @@ import net.syscon.elite.api.model.OffenderMovement;
 import net.syscon.elite.api.model.OffenderOut;
 import net.syscon.elite.repository.MovementsRepository;
 import net.syscon.elite.service.MovementsService;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.LocalDate;
@@ -20,9 +18,10 @@ import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Test cases for {@link BookingServiceImpl}.
- */
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 @RunWith(MockitoJUnitRunner.class)
 public class MovementsServiceImplTest {
     private static final String TEST_OFFENDER_NO = "AA1234A";
@@ -33,34 +32,37 @@ public class MovementsServiceImplTest {
 
     @Before
     public void init() {
-        movementsService = new MovementsServiceImpl(movementsRepository);
+        movementsService = new MovementsServiceImpl(movementsRepository, 1);
     }
 
     @Test
-    public void testGetRecentMovementsByOffenders() {
+    public void testGetRecentMovements_ByOffenders() {
         final List<Movement> movements = ImmutableList.of(Movement.builder().offenderNo(TEST_OFFENDER_NO).fromAgencyDescription("LEEDS").toAgencyDescription("BLACKBURN").build());
         final var offenderNoList = ImmutableList.of(TEST_OFFENDER_NO);
-        Mockito.when(movementsRepository.getRecentMovementsByOffenders(offenderNoList,null)).thenReturn(movements);
+
+        when(movementsRepository.getRecentMovementsByOffenders(offenderNoList, null)).thenReturn(movements);
 
         final var processedMovements = movementsService.getRecentMovementsByOffenders(offenderNoList, null);
-        Assertions.assertThat(processedMovements).extracting("toAgencyDescription").containsExactly("Blackburn");
-        Assertions.assertThat(processedMovements).extracting("fromAgencyDescription").containsExactly("Leeds");
+        assertThat(processedMovements).extracting("toAgencyDescription").containsExactly("Blackburn");
+        assertThat(processedMovements).extracting("fromAgencyDescription").containsExactly("Leeds");
 
-        Mockito.verify(movementsRepository, Mockito.times(1)).getRecentMovementsByOffenders(offenderNoList,null);
+        verify(movementsRepository).getRecentMovementsByOffenders(offenderNoList, null);
     }
 
     @Test
-    public void testGetRecentMovementsByOffendersNullDescriptions() {
+    public void testGetRecentMovements_ByOffendersNullDescriptions() {
         final List<Movement> movements = ImmutableList.of(Movement.builder().offenderNo(TEST_OFFENDER_NO).build());
         final var offenderNoList = ImmutableList.of(TEST_OFFENDER_NO);
-        Mockito.when(movementsRepository.getRecentMovementsByOffenders(offenderNoList,null)).thenReturn(movements);
+
+        when(movementsRepository.getRecentMovementsByOffenders(offenderNoList, null)).thenReturn(movements);
 
         final var processedMovements = movementsService.getRecentMovementsByOffenders(offenderNoList, null);
 
-        Assertions.assertThat(processedMovements.size()).isEqualTo(1);
-        Assertions.assertThat(processedMovements.get(0).getFromAgencyDescription()).isEmpty();
+        assertThat(processedMovements.size()).isEqualTo(1);
+        assertThat(processedMovements.get(0).getFromAgencyDescription()).isEmpty();
 
-        Mockito.verify(movementsRepository, Mockito.times(1)).getRecentMovementsByOffenders(offenderNoList,null);    }
+        verify(movementsRepository).getRecentMovementsByOffenders(offenderNoList, null);
+    }
 
     @Test
     public void testGetEnrouteOffenderMovements() {
@@ -71,39 +73,40 @@ public class MovementsServiceImplTest {
                 .fromAgencyDescription("LEEDS")
                 .toAgencyDescription("MOORLANDS")
                 .build());
-        Mockito.when(movementsRepository.getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2015, 9, 12))).thenReturn(oms);
+
+        when(movementsRepository.getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2015, 9, 12))).thenReturn(oms);
 
         final var enrouteOffenderMovements = movementsService.getEnrouteOffenderMovements("LEI", LocalDate.of(2015, 9, 12));
-        Assertions.assertThat(enrouteOffenderMovements).extracting("fromAgencyDescription").contains("Leeds");
-        Assertions.assertThat(enrouteOffenderMovements).extracting("toAgencyDescription").contains("Moorlands");
-        Assertions.assertThat(enrouteOffenderMovements).extracting("lastName").contains("SMITH");
-        Assertions.assertThat(enrouteOffenderMovements).extracting("bookingId").contains(123L);
+        assertThat(enrouteOffenderMovements).extracting("fromAgencyDescription").contains("Leeds");
+        assertThat(enrouteOffenderMovements).extracting("toAgencyDescription").contains("Moorlands");
+        assertThat(enrouteOffenderMovements).extracting("lastName").contains("SMITH");
+        assertThat(enrouteOffenderMovements).extracting("bookingId").contains(123L);
 
-        Mockito.verify(movementsRepository, Mockito.times(1)).getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2015, 9, 12));
+        verify(movementsRepository).getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2015, 9, 12));
     }
 
 
 
     @Test
-    public void testGetEnrouteOffenderNoDateFilter() {
+    public void testGetEnrouteOffender_NoDateFilter() {
         /* call service with no specified date */
         movementsService.getEnrouteOffenderMovements("LEI", null);
 
-        Mockito.verify(movementsRepository, Mockito.times(1)).getEnrouteMovementsOffenderMovementList("LEI", null);
+        verify(movementsRepository).getEnrouteMovementsOffenderMovementList("LEI", null);
     }
 
     @Test
-    public void testGetEnrouteOffenderMovementsCount() {
-        Mockito.when(movementsRepository.getEnrouteMovementsOffenderCount("LEI", LocalDate.of(2015, 9, 12))).thenReturn(5);
+    public void testGetEnrouteOffenderMovements_Count() {
+        when(movementsRepository.getEnrouteMovementsOffenderCount("LEI", LocalDate.of(2015, 9, 12))).thenReturn(5);
 
         final var count = movementsService.getEnrouteOffenderCount("LEI", LocalDate.of(2015, 9, 12));
-        Assertions.assertThat(count).isEqualTo(5);
+        assertThat(count).isEqualTo(5);
 
-        Mockito.verify(movementsRepository, Mockito.times(1)).getEnrouteMovementsOffenderCount("LEI", LocalDate.of(2015, 9, 12));
+        verify(movementsRepository).getEnrouteMovementsOffenderCount("LEI", LocalDate.of(2015, 9, 12));
     }
 
     @Test
-    public void testGetOffendersOutToday() {
+    public void testGetOffenders_OutToday() {
         final var timeOut = LocalTime.now();
         final List<OffenderMovement> offenders = ImmutableList.of(
                 OffenderMovement.builder()
@@ -119,25 +122,25 @@ public class MovementsServiceImplTest {
                         .build());
 
 
-        Mockito.when(movementsRepository.getOffendersOut("LEI", LocalDate.now())).thenReturn(offenders);
+        when(movementsRepository.getOffendersOut("LEI", LocalDate.now())).thenReturn(offenders);
 
         final var offendersOutToday = movementsService.getOffendersOut("LEI", LocalDate.now());
 
-        Assertions.assertThat(offendersOutToday).hasSize(1);
+        assertThat(offendersOutToday).hasSize(1);
 
-        Assertions.assertThat(offendersOutToday).extracting("offenderNo").contains("1234");
-        Assertions.assertThat(offendersOutToday).extracting("firstName").contains("John");
-        Assertions.assertThat(offendersOutToday).extracting("lastName").contains("Doe");
-        Assertions.assertThat(offendersOutToday).extracting("dateOfBirth").contains(LocalDate.now());
-        Assertions.assertThat(offendersOutToday).extracting("timeOut").contains(timeOut);
-        Assertions.assertThat(offendersOutToday).extracting("reasonDescription").contains("Normal Transfer");
+        assertThat(offendersOutToday).extracting("offenderNo").contains("1234");
+        assertThat(offendersOutToday).extracting("firstName").contains("John");
+        assertThat(offendersOutToday).extracting("lastName").contains("Doe");
+        assertThat(offendersOutToday).extracting("dateOfBirth").contains(LocalDate.now());
+        assertThat(offendersOutToday).extracting("timeOut").contains(timeOut);
+        assertThat(offendersOutToday).extracting("reasonDescription").contains("Normal Transfer");
     }
 
     @Test
-    public void testMappingToProperCase() {
+    public void testMapping_ToProperCase() {
         final var agency = "LEI";
 
-      Mockito.when(movementsRepository.getOffendersInReception(agency))
+        when(movementsRepository.getOffendersInReception(agency))
               .thenReturn(
                       Collections.singletonList(OffenderInReception.builder()
                               .firstName("FIRST")
@@ -150,7 +153,7 @@ public class MovementsServiceImplTest {
 
         final var offenders = movementsService.getOffendersInReception(agency);
 
-        Assertions.assertThat(offenders)
+        assertThat(offenders)
                 .containsExactly(OffenderInReception.builder()
                 .firstName("First")
                 .lastName("Lastname")
@@ -160,9 +163,9 @@ public class MovementsServiceImplTest {
     }
 
     @Test
-    public void testMappingToProperCaseCurrentlyOut() {
+    public void testMappingToProperCase_CurrentlyOut() {
 
-        Mockito.when(movementsRepository.getOffendersCurrentlyOut(1L))
+        when(movementsRepository.getOffendersCurrentlyOut(1L))
                 .thenReturn(
                         Collections.singletonList(OffenderOut.builder()
                                 .firstName("FIRST")
@@ -176,7 +179,7 @@ public class MovementsServiceImplTest {
 
         final var offenders = movementsService.getOffendersCurrentlyOut(1L);
 
-        Assertions.assertThat(offenders)
+        assertThat(offenders)
                 .containsExactly(OffenderOut.builder()
                         .firstName("First")
                         .lastName("Lastname")
@@ -184,6 +187,42 @@ public class MovementsServiceImplTest {
                         .offenderNo("1234A")
                         .location("x-1-1")
                         .build());
+    }
+
+    @Test
+    public void testThatCallsToRecentMovements_AreBatched() {
+        final var offenders = List.of("offender1", "offender2");
+        final var movement1 = Movement.builder()
+                .offenderNo("offender1")
+                .fromAgencyDescription("Lei")
+                .toAgencyDescription("York")
+                .toCity("York")
+                .fromCity("Leeds")
+                .movementType("TRN")
+                .movementReason("COURT")
+                .build();
+        final var movement2 = Movement.builder()
+                .offenderNo("offender2")
+                .fromAgencyDescription("Hli")
+                .toAgencyDescription("York")
+                .toCity("York")
+                .fromCity("Hull")
+                .movementType("TRN")
+                .movementReason("COURT")
+                .build();
+
+        when(movementsRepository.getRecentMovementsByOffenders(List.of("offender1"), Collections.emptyList()))
+                .thenReturn(List.of(movement1));
+
+        when(movementsRepository.getRecentMovementsByOffenders(List.of("offender2"), Collections.emptyList()))
+                .thenReturn(List.of(movement2));
+
+        final var movements = movementsService.getRecentMovementsByOffenders(offenders, Collections.emptyList());
+
+        assertThat(movements).containsSequence(List.of(movement1, movement2));
+
+        verify(movementsRepository).getRecentMovementsByOffenders(List.of("offender1"), Collections.emptyList());
+        verify(movementsRepository).getRecentMovementsByOffenders(List.of("offender2"), Collections.emptyList());
     }
 
 }

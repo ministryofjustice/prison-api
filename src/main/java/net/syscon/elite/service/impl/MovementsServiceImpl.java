@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import com.google.common.collect.Lists;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.MovementsRepository;
 import net.syscon.elite.security.VerifyAgencyAccess;
@@ -7,6 +8,7 @@ import net.syscon.elite.service.MovementsService;
 import net.syscon.elite.service.support.LocationProcessor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.WordUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,10 +23,12 @@ import java.util.stream.Collectors;
 public class MovementsServiceImpl implements MovementsService {
 
     private final MovementsRepository movementsRepository;
+    private final int maxBatchSize;
 
 
-    public MovementsServiceImpl(final MovementsRepository movementsRepository) {
+    public MovementsServiceImpl(final MovementsRepository movementsRepository, @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.movementsRepository = movementsRepository;
+        this.maxBatchSize = maxBatchSize;
     }
 
     @Override
@@ -36,9 +40,12 @@ public class MovementsServiceImpl implements MovementsService {
     @Override
     @PreAuthorize("hasAnyRole('SYSTEM_USER', 'SYSTEM_READ_ONLY', 'GLOBAL_SEARCH')")
     public List<Movement> getRecentMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes) {
-        final var movements = movementsRepository.getRecentMovementsByOffenders(offenderNumbers, movementTypes);
+        final var movements = Lists.partition(offenderNumbers, maxBatchSize)
+                .stream()
+                .map(offenders -> movementsRepository.getRecentMovementsByOffenders(offenders, movementTypes))
+                .flatMap(List::stream);
 
-        return movements.stream().map(movement -> movement.toBuilder()
+        return movements.map(movement -> movement.toBuilder()
                 .fromAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getFromAgencyDescription())))
                 .toAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getToAgencyDescription())))
                 .toCity(WordUtils.capitalizeFully(StringUtils.trimToEmpty(movement.getToCity())))
