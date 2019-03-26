@@ -101,12 +101,11 @@ public class OffenderBooking {
     @ApiModelProperty(value = "The convicted status of the offender calculated")
     private String convictedStatus;
 
-    @JsonIgnore
     @ApiModelProperty(hidden = true)
     private String bandCode;
 
     /**
-     * Specialised getter which initialises the attribute if null
+     * Specialised getter which initialises the additionalProperties if it is null
      */
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
@@ -114,14 +113,14 @@ public class OffenderBooking {
     }
 
     /**
-     * Specialised setter for the 'virtual' attribute convictedStatus set based on the value of bandCode
-     * The convicted status of the offender one of 'Remand', 'Convicted' or null
+     * Specialised setter for the 'virtual' attribute convictedStatus, an interpreted value based on the bandCode value
+     * The convicted status of the offender is one of 'Remand', 'Convicted' or null
      */
     public String getConvictedStatus() {
+        String calculatedStatus = null;
         if (this.bandCode != null) {
-            // Map the value of the bandCode to convictedStatus (but only if not null - any map to JSON loses the bandCode value due to @JsonIgnore)
-            setConvictedStatus(Integer.valueOf(this.bandCode) <= 8 ? "Convicted" : "Remand");
+            calculatedStatus =  Integer.valueOf(this.bandCode) <= 8 ? "Convicted" : "Remand";
         }
-        return convictedStatus;
+        return calculatedStatus;
     }
 }
