@@ -129,12 +129,12 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('SYSTEM_USER')")
     public void setApprovalStatus(final long bookingId, final ApprovalStatus approvalStatus) {
         if (!referenceDomainService.isReferenceCodeActive("HDC_APPROVE", approvalStatus.getApprovalStatus())) {
-            throw new EntityNotFoundException(String.format("Approval status code '%1$s' not found and active.", approvalStatus));
+            throw new BadRequestException(String.format("Approval status code '%1$s' not found and active.", approvalStatus));
         }
         final var refusedReason = approvalStatus.getRefusedReason();
         if (refusedReason != null) {
             if (!referenceDomainService.isReferenceCodeActive("HDC_REJ_RSN", refusedReason)) {
-                throw new EntityNotFoundException(String.format("Refused reason code '%1$s' not found and active.", approvalStatus));
+                throw new BadRequestException(String.format("Refused reason code '%1$s' not found and active.", approvalStatus));
             }
         }
         offenderCurfewRepository.setApprovalStatusForLatestCurfew(bookingId, approvalStatus);

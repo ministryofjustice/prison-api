@@ -36,11 +36,13 @@ Feature: Updating Offender Curfew state
       | SYSTEM_USER_READ_WRITE | -35       | PP OUT RISK    |               | 2018-01-31         | 200        |
       | SYSTEM_USER_READ_WRITE | -35       | PRES UNSUIT    |               | 2018-01-31         | 200        |
       | SYSTEM_USER_READ_WRITE | -35       | REJECTED       |               | 2018-01-31         | 200        |
+      | SYSTEM_USER_READ_WRITE | -35       | REJECTED       | ADDRESS       | 2018-01-31         | 200        |
+      | SYSTEM_USER_READ_WRITE | -35       | REJECTED       | XXXXXXXX      | 2018-01-31         | 400        |
       | ELITE2_API_USER        | -35       | APPROVED       |               | 2018-01-31         | 403        |
       | SYSTEM_USER_READ_WRITE | 99999     | APPROVED       |               | 2018-01-31         | 404        |
       | SYSTEM_USER_READ_WRITE | -35       | APPROVED       |               | 2018-02-31         | 400        |
       | SYSTEM_USER_READ_WRITE | -35       | APPROVED       |               |                    | 400        |
       | SYSTEM_USER_READ_WRITE | -35       |                |               | 2018-01-31         | 400        |
-      | SYSTEM_USER_READ_WRITE | -35       | INACTIVE       |               | 2018-01-31         | 404        |
-      | SYSTEM_USER_READ_WRITE | -35       | XXXXXXXX       |               | 2018-01-31         | 404        |
+      | SYSTEM_USER_READ_WRITE | -35       | INACTIVE       |               | 2018-01-31         | 400        |
+      | SYSTEM_USER_READ_WRITE | -35       | XXXXXXXX       |               | 2018-01-31         | 400        |
       | SYSTEM_USER_READ_WRITE | -35       | APPROVED       |               | xxxxxxxxxx         | 400        |
