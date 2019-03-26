@@ -15,7 +15,7 @@ public interface MovementResource {
     @GET
     @Path("/")
     @Consumes({"application/json"})
-    @Produces({"x/json"})
+    @Produces({"application/json"})
     @ApiOperation(value = "Returns a list of recently released or moved offender nos and the associated timestamp.", notes = "Returns a list of recently released or moved offender nos and the associated timestamp.", nickname = "getRecentMovementsByDate")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = Movement.class, responseContainer = "List"),
