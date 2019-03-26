@@ -19,9 +19,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MovementsServiceImplTest {
@@ -47,7 +46,7 @@ public class MovementsServiceImplTest {
         assertThat(processedMovements).extracting("toAgencyDescription").containsExactly("Blackburn");
         assertThat(processedMovements).extracting("fromAgencyDescription").containsExactly("Leeds");
 
-        verify(movementsRepository, times(1)).getRecentMovementsByOffenders(offenderNoList, null);
+        verify(movementsRepository).getRecentMovementsByOffenders(offenderNoList, null);
     }
 
     @Test
@@ -62,7 +61,7 @@ public class MovementsServiceImplTest {
         assertThat(processedMovements.size()).isEqualTo(1);
         assertThat(processedMovements.get(0).getFromAgencyDescription()).isEmpty();
 
-        verify(movementsRepository, times(1)).getRecentMovementsByOffenders(offenderNoList, null);
+        verify(movementsRepository).getRecentMovementsByOffenders(offenderNoList, null);
     }
 
     @Test
@@ -83,7 +82,7 @@ public class MovementsServiceImplTest {
         assertThat(enrouteOffenderMovements).extracting("lastName").contains("SMITH");
         assertThat(enrouteOffenderMovements).extracting("bookingId").contains(123L);
 
-        verify(movementsRepository, times(1)).getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2015, 9, 12));
+        verify(movementsRepository).getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2015, 9, 12));
     }
 
 
@@ -93,7 +92,7 @@ public class MovementsServiceImplTest {
         /* call service with no specified date */
         movementsService.getEnrouteOffenderMovements("LEI", null);
 
-        verify(movementsRepository, times(1)).getEnrouteMovementsOffenderMovementList("LEI", null);
+        verify(movementsRepository).getEnrouteMovementsOffenderMovementList("LEI", null);
     }
 
     @Test
@@ -103,7 +102,7 @@ public class MovementsServiceImplTest {
         final var count = movementsService.getEnrouteOffenderCount("LEI", LocalDate.of(2015, 9, 12));
         assertThat(count).isEqualTo(5);
 
-        verify(movementsRepository, times(1)).getEnrouteMovementsOffenderCount("LEI", LocalDate.of(2015, 9, 12));
+        verify(movementsRepository).getEnrouteMovementsOffenderCount("LEI", LocalDate.of(2015, 9, 12));
     }
 
     @Test
