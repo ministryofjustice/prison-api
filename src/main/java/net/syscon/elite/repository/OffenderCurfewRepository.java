@@ -2,9 +2,11 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.ApprovalStatus;
 import net.syscon.elite.api.model.HdcChecks;
+import net.syscon.elite.api.model.HomeDetentionCurfew;
 import net.syscon.elite.service.support.OffenderCurfew;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 
@@ -19,4 +21,6 @@ public interface OffenderCurfewRepository {
     void setHDCChecksPassed(long bookingId, HdcChecks hdcChecks);
 
     void setApprovalStatusForLatestCurfew(long bookingId, ApprovalStatus approvalStatus);
+
+    Optional<HomeDetentionCurfew> getLatestHomeDetentionCurfew(Long bookingId);
 }

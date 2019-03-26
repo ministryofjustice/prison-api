@@ -2,6 +2,7 @@ package net.syscon.elite.api.resource.impl;
 
 import io.jsonwebtoken.lang.Collections;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import net.syscon.elite.api.model.ApprovalStatus;
 import net.syscon.elite.api.model.HdcChecks;
 import net.syscon.elite.api.resource.OffenderSentenceResource;
@@ -12,6 +13,7 @@ import net.syscon.elite.service.OffenderCurfewService;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
@@ -34,7 +36,7 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
 
     @Override
     public GetOffenderSentencesResponse getOffenderSentences(final String agencyId, final List<String> offenderNos) {
-        final var sentences = bookingService.getOffenderSentencesSummary(
+        val sentences = bookingService.getOffenderSentencesSummary(
                 agencyId,
                 authenticationFacade.getCurrentUsername(),
                 offenderNos);
@@ -44,10 +46,18 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
 
     @Override
     public GetOffenderSentencesHomeDetentionCurfewCandidatesResponse getOffenderSentencesHomeDetentionCurfewCandidates() {
-        final var sentences =
+        val sentences =
                 offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentUsername());
 
         return GetOffenderSentencesHomeDetentionCurfewCandidatesResponse.respond200WithApplicationJson(sentences);
+    }
+
+    @Override
+    public Response getLatestHomeDetentionCurfew(Long bookingId) {
+        return Response.ok(
+                        offenderCurfewService.getLatestHomeDetentionCurfew(bookingId),
+                        MediaType.APPLICATION_JSON_TYPE)
+                .build();
     }
 
     @Override
@@ -64,8 +74,8 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     @Override
     public Response setApprovalStatus(final Long bookingId, final ApprovalStatus approvalStatus) {
         try {
-        offenderCurfewService.setApprovalStatus(bookingId, approvalStatus);
-        return Response.ok().build();
+            offenderCurfewService.setApprovalStatus(bookingId, approvalStatus);
+            return Response.ok().build();
         } catch (final Throwable t) {
             log.debug("PUT ApprovalStatus failed");
             throw t;
@@ -77,7 +87,7 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
         validateOffenderList(offenderNos);
 
         //no agency id filter required here as offenderNos will always be provided
-        final var sentences = bookingService.getOffenderSentencesSummary(
+        val sentences = bookingService.getOffenderSentencesSummary(
                 null, authenticationFacade.getCurrentUsername(), offenderNos);
 
         return PostOffenderSentencesResponse.respond200WithApplicationJson(sentences);
@@ -87,7 +97,7 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     public PostOffenderSentencesBookingsResponse postOffenderSentencesBookings(final List<Long> bookingIds) {
         validateOffenderList(bookingIds);
 
-        final var sentences = bookingService.getBookingSentencesSummary(
+        val sentences = bookingService.getBookingSentencesSummary(
                 authenticationFacade.getCurrentUsername(), bookingIds);
 
         return PostOffenderSentencesBookingsResponse.respond200WithApplicationJson(sentences);
@@ -95,7 +105,7 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
 
     @Override
     public GetOffenderSentenceTermsResponse getOffenderSentenceTerms(final Long bookingId) {
-        final var sentences = bookingService.getOffenderSentenceTerms(bookingId);
+        val sentences = bookingService.getOffenderSentenceTerms(bookingId);
 
         return GetOffenderSentenceTermsResponse.respond200WithApplicationJson(sentences);
     }

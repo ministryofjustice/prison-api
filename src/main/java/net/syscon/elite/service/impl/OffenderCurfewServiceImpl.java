@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import javax.ws.rs.BadRequestException;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.Collection;
@@ -104,7 +105,18 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
                                 .tariffDate(os.getTariffDate())
                                 .build())
                         .build())
-        .collect(Collectors.toList());
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @PreAuthorize("hasRole('SYSTEM_USER')")
+    public HomeDetentionCurfew getLatestHomeDetentionCurfew(final Long bookingId) {
+        if (bookingId == null) {
+            throw new BadRequestException("Expected a bookingId");
+        }
+        return offenderCurfewRepository
+                .getLatestHomeDetentionCurfew(bookingId)
+                .orElseThrow(() -> new EntityNotFoundException("No 'latest' Home Detention Curfew found for bookingId " + bookingId));
     }
 
     @Override
@@ -117,7 +129,13 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('SYSTEM_USER')")
     public void setApprovalStatus(final long bookingId, final ApprovalStatus approvalStatus) {
         if (!referenceDomainService.isReferenceCodeActive("HDC_APPROVE", approvalStatus.getApprovalStatus())) {
-            throw new EntityNotFoundException(String.format("Approval status code '%1$s' not found and active.",  approvalStatus));
+            throw new EntityNotFoundException(String.format("Approval status code '%1$s' not found and active.", approvalStatus));
+        }
+        final var refusedReason = approvalStatus.getRefusedReason();
+        if (refusedReason != null) {
+            if (!referenceDomainService.isReferenceCodeActive("HDC_REJ_RSN", refusedReason)) {
+                throw new EntityNotFoundException(String.format("Refused reason code '%1$s' not found and active.", approvalStatus));
+            }
         }
         offenderCurfewRepository.setApprovalStatusForLatestCurfew(bookingId, approvalStatus);
     }

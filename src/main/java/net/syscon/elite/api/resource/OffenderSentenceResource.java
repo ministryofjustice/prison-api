@@ -37,6 +37,16 @@ public interface OffenderSentenceResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
     GetOffenderSentencesHomeDetentionCurfewCandidatesResponse getOffenderSentencesHomeDetentionCurfewCandidates();
 
+    @GET
+    @Path("/booking/{bookingId}/home-detention-curfews/latest")
+    @Produces({"application/json"})
+    @ApiOperation(value = "Retrieve the current state of the latest Home Detention Curfew for a booking")
+    @ApiResponses(value = {
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
+    })
+    Response getLatestHomeDetentionCurfew(@PathParam("bookingId") Long bookingId);
+
     @PUT
     @Path("/booking/{bookingId}/home-detention-curfews/latest/checks-passed")
     @Consumes({"application/json"})
