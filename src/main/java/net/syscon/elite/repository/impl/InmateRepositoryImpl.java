@@ -198,7 +198,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	@Override
 	@Cacheable("searchForOffenderBookings")
     public Page<OffenderBooking> searchForOffenderBookings(final Set<String> caseloads, final String offenderNo, final String searchTerm1, final String searchTerm2,
-                                                           final String locationPrefix, final List<String> alerts, final String locationTypeRoot, final PageRequest pageRequest) {
+                                                           final String locationPrefix, final List<String> alerts, final String bandCodeValue, final String locationTypeRoot, final PageRequest pageRequest) {
         var initialSql = getQuery("FIND_ALL_INMATES");
 		initialSql += " AND " + getQuery("LOCATION_FILTER_SQL");
 
@@ -222,6 +222,12 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		if (alerts != null && !alerts.isEmpty()) {
 			initialSql += " AND " + getQuery("ALERT_FILTER");
 		}
+
+        // Add a condition to limit the bandCode values returned which relate to the specific convictedStatus requested
+
+        if (bandCodeValue != null) {
+            initialSql += " AND CAST(IST.BAND_CODE AS int) " + bandCodeValue;
+        }
 
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_BOOKING_MAPPING);
 

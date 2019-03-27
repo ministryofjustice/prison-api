@@ -16,12 +16,13 @@ public class SearchOffenderRequest extends PageRequest {
     private boolean returnIep;
     private boolean returnAlerts;
     private boolean returnCategory;
+    private String convictedStatus;
     private String locationPrefix;
     private List<String> alerts;
 
     @Builder(toBuilder = true)
     public SearchOffenderRequest(final String orderBy, final Order order, final long offset, final long limit, final String username, final String keywords,
-                                 final String locationPrefix, final List<String> alerts, final boolean returnIep, final boolean returnAlerts, final boolean returnCategory) {
+                                 final String locationPrefix, final List<String> alerts, final boolean returnIep, final boolean returnAlerts, final boolean returnCategory, final String convictedStatus) {
         super(orderBy, order, offset, limit);
 
         this.username = username;
@@ -31,5 +32,6 @@ public class SearchOffenderRequest extends PageRequest {
         this.returnAlerts = returnAlerts;
         this.returnIep = returnIep;
         this.returnCategory = returnCategory;
+        this.convictedStatus = convictedStatus;
     }
 }

@@ -94,6 +94,9 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
         String offenderNo = null;
         String searchTerm1 = null;
         String searchTerm2 = null;
+        String bandCodeValue = null;
+
+        // Search by keywords and values
 
         if (StringUtils.isNotBlank(keywordSearch)) {
             if (isOffenderNo(keywordSearch)) {
@@ -108,11 +111,17 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
             }
         }
 
+        // Search by specific convictedStatus (Convicted is any sentence bandCode <=8, Remand is any > 8)
+
+        if (request.getConvictedStatus() != null && !request.getConvictedStatus().equals("All")) {
+            bandCodeValue = (request.getConvictedStatus().equalsIgnoreCase("Convicted")) ? " <= 8" : " > 8";
+        }
 
         return repository.searchForOffenderBookings(
                 caseloads, offenderNo, searchTerm1, searchTerm2,
                 request.getLocationPrefix(),
                 request.getAlerts(),
+                bandCodeValue,
                 locationTypeGranularity, pageRequest);
     }
 

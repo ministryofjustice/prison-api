@@ -89,4 +89,10 @@ public class LocationsStepDefinitions extends AbstractStepDefinitions {
     public void checkConvictedOffenderCountByStatus(final String countOffenders, final String convictedStatus) {
        location.checkConvictedOffenderCount(Integer.parseInt(countOffenders), convictedStatus);
     }
+
+    @When("^a request is made at agency \"([^\"]*)\" to retrieve a list of inmates with a convicted status of \"([^\"]*)\"$")
+    public void retrieveInmatesByConvictedStatus(final String agency, final String convictedStatus) {
+        location.retrieveListOfInmates(agency, convictedStatus);
+    }
+
 }

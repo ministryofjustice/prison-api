@@ -78,12 +78,28 @@ public class InmateRepositoryTest {
         final var alertFilter = Arrays.asList("XA", "HC");
 
         final var foundInmates = repository.searchForOffenderBookings(caseloads, "A1234AA", "A", "A", "LEI",
-                alertFilter, "WING", pageRequest);
+                alertFilter, null,"WING", pageRequest);
 
         final var results = foundInmates.getItems();
         assertThat(results).asList().hasSize(1);
         assertThat(results).asList().extracting("bookingId", "offenderNo", "dateOfBirth", "assignedLivingUnitDesc").contains(
                 Tuple.tuple(-1L, "A1234AA", LocalDate.of(1969, Month.DECEMBER, 30), "A-1-1"));
+    }
+
+    @Test
+    public void testSearchForConvictedOffenderBookings() {
+        final var pageRequest = new PageRequest("lastName, firstName");
+        final var caseloads = new HashSet<String>(Arrays.asList("LEI"));
+        final var alertFilter = Arrays.asList("XA", "HC");
+
+        final var foundInmates = repository.searchForOffenderBookings(caseloads, "A1234AA", "A", "A", "LEI",
+                alertFilter, "<= 8","WING", pageRequest);
+
+        final var results = foundInmates.getItems();
+
+        assertThat(results).asList().hasSize(1);
+        assertThat(results).asList().extracting("bookingId", "offenderNo", "convictedStatus").contains(
+                Tuple.tuple(-1L, "A1234AA", "Convicted"));
     }
 
     @Test
