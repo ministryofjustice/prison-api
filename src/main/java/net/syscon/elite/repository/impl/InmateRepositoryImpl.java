@@ -223,18 +223,17 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			initialSql += " AND " + getQuery("ALERT_FILTER");
 		}
 
-		// Search by specific convictedStatus (Convicted is any sentence with a bandCode <=8, Remand is any with a bandCode > 8)
+        // Search by specific convictedStatus (Convicted is any sentence with a bandCode <=8, Remand is any with a bandCode > 8)
 
-		if (convictedStatus == null || !StringUtils.equalsIgnoreCase(convictedStatus, "all")) {
-
-			if (StringUtils.equalsIgnoreCase(convictedStatus, "convicted")) {
-				initialSql += " AND CAST(IST.BAND_CODE AS int) <= 8 ";
-			} else if (StringUtils.equalsIgnoreCase(convictedStatus, "remand")) {
-				initialSql += " AND CAST(IST.BAND_CODE AS int) > 8 ";
-			} else {
-				log.info("Ignoring unrecognised value requested for convictionStatus [" + convictedStatus + "]");
-			}
-		}
+        if (convictedStatus == null || !StringUtils.equalsIgnoreCase(convictedStatus, "all")) {
+            if (StringUtils.equalsIgnoreCase(convictedStatus, "convicted")) {
+                initialSql += " AND CAST(IST.BAND_CODE AS int) <= 8 ";
+            } else if (StringUtils.equalsIgnoreCase(convictedStatus, "remand")) {
+                initialSql += " AND CAST(IST.BAND_CODE AS int) > 8 ";
+            } else {
+                log.info("Ignoring unrecognised value requested for convictionStatus [" + convictedStatus + "]");
+            }
+        }
 
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_BOOKING_MAPPING);
 

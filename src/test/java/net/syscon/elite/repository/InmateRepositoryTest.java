@@ -92,14 +92,41 @@ public class InmateRepositoryTest {
         final var caseloads = Set.of("LEI");
         final var alertFilter = List.of("XA", "HC");
 
-        final var foundInmates = repository.searchForOffenderBookings(caseloads, "A1234AA", "A", "A", "LEI",
+        final var foundInmates = repository.searchForOffenderBookings(caseloads, "A1234AA", null, null, "LEI",
                 alertFilter, "Convicted","WING", pageRequest);
 
         final var results = foundInmates.getItems();
 
         assertThat(results).hasSize(1);
-        assertThat(results).extracting("bookingId", "offenderNo", "convictedStatus").contains(
-                Tuple.tuple(-1L, "A1234AA", "Convicted"));
+        assertThat(results).extracting("bookingId", "offenderNo", "convictedStatus").contains(Tuple.tuple(-1L, "A1234AA", "Convicted"));
+    }
+
+    @Test
+    public void testSearchForRemandOffenderBookings() {
+        final var pageRequest = new PageRequest("lastName, firstName");
+        final var caseloads = Set.of("LEI");
+
+        final var foundInmates = repository.searchForOffenderBookings(caseloads, "A9876EC", null, null, "LEI",
+            null, "Remand", "WING", pageRequest);
+
+        final var results = foundInmates.getItems();
+
+        assertThat(results).hasSize(1);
+        assertThat(results).extracting("bookingId", "offenderNo", "convictedStatus").contains(Tuple.tuple(-27L, "A9876EC", "Remand"));
+    }
+
+    @Test
+    public void testSearchForAllConvictedStatus() {
+        final var pageRequest = new PageRequest("lastName, firstName");
+        final var caseloads = Set.of("LEI");
+
+        final var foundInmates = repository.searchForOffenderBookings(caseloads, null, null, null, "LEI",
+            null,"All", "WING", pageRequest);
+
+        final var results = foundInmates.getItems();
+
+        assertThat(results).hasSize(10);
+        assertThat(results).extracting("convictedStatus").containsAll(List.of("Convicted", "Remand"));
     }
 
     @Test
