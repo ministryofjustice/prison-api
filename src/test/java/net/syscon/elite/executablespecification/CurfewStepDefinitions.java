@@ -1,9 +1,14 @@
 package net.syscon.elite.executablespecification;
 
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.executablespecification.steps.CurfewSteps;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class CurfewStepDefinitions extends AbstractStepDefinitions {
 
@@ -15,13 +20,34 @@ public class CurfewStepDefinitions extends AbstractStepDefinitions {
         curfewSteps.updateHdcStatus(bookingIdString, checksPassed, dateString);
     }
 
-    @When("^that user requests an update of the HDC approval status of the latest Offender Curfew for booking \"([^\"]*)\" to \"([^\"]*)\" at \"([^\"]*)\"$")
-    public void updateHDCApprovalStatus(final String bookingIdString, final String approvalStatus, final String dateString) {
-        curfewSteps.updateHdcApprovalStatus(bookingIdString, approvalStatus, dateString);
+    @When("^that user requests an update of the HDC approval status of the latest Offender Curfew for booking \"([^\"]*)\" to \"([^\"]*)\" and \"([^\"]*)\" at \"([^\"]*)\"$")
+    public void updateHDCApprovalStatus(final String bookingIdString, final String approvalStatus, final String refusedReason, final String dateString) {
+        curfewSteps.updateHdcApprovalStatus(bookingIdString, approvalStatus, refusedReason, dateString);
     }
 
     @Then("^the response HTTP status should be \"([^\"]*)\"$")
     public void theResponseHTTPStatusIs(final String statusString) {
         curfewSteps.verifyHttpStatusCode(Integer.valueOf(statusString));
+    }
+
+    @And("^the latest home detention curfew for booking \"([^\"]*)\" should match \"([^\"]*)\", \"([^\"]*)\" if \"([^\"]*)\" is 200$")
+    public void theLatestHomeDetentionCurfewForBookingShouldMatchIfIs(Long bookingId, Boolean checksPassed, String checksPassedDate, int httpStatus) {
+        if (200 != httpStatus) return;
+        curfewSteps.verfyLatestHomeDetentionCurfew(bookingId, checksPassed, asLocalDate(checksPassedDate));
+    }
+
+    @And("^the latest home detention curfew for booking \"([^\"]*)\" should match \"([^\"]*)\", \"([^\"]*)\", \"([^\"]*)\" if \"([^\"]*)\" is 200$")
+    public void theLatestHomeDetentionCurfewForBookingShouldMatchIfIs(Long bookingId, String approvalStatus, String refusedReason, String approvalStatusDate, int httpStatus) {
+        if (200 != httpStatus) return;
+        curfewSteps.verifyLatestHomeDetentionCurfew(
+                bookingId,
+                approvalStatus,
+                StringUtils.defaultIfBlank(refusedReason, null),
+                asLocalDate(approvalStatusDate));
+    }
+
+    LocalDate asLocalDate(String localDateString) {
+        if (StringUtils.isEmpty(localDateString)) return null;
+        return LocalDate.parse(localDateString, DateTimeFormatter.ISO_DATE);
     }
 }

@@ -20,6 +20,9 @@ public class ApprovalStatus {
     @NotNull
     String approvalStatus;
 
+    @ApiModelProperty(value = "Refused reason. Must be one of the 'HDC_REJ_RSN' reference codes", example = "UNDER_14DAYS")
+    String refusedReason;
+
     @ApiModelProperty(required = true, value = "Approval status date. ISO-8601 format. YYYY-MM-DD", example = "2018-12-31")
     @NotNull
     LocalDate date;
