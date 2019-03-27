@@ -25,8 +25,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.assertj.core.api.Java6Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("nomis-hsqldb")
@@ -189,21 +189,39 @@ public class OffenderCurfewRepositoryTest {
     @Test
     public void shouldRetrieveLatestHDCForOffender() {
         Optional<HomeDetentionCurfew> hdcOptional = repository.getLatestHomeDetentionCurfew(BOOKING_ID);
-        assertThat(hdcOptional.isPresent()).isTrue();
+        assertThat(hdcOptional).isPresent();
     }
 
     @Test
     public void shouldNotFindCurfewForUnknownBookingId() {
         Optional<HomeDetentionCurfew> hdcOptional = repository.getLatestHomeDetentionCurfew(99999L);
-        assertThat(hdcOptional).isEqualTo(Optional.empty());
+        assertThat(hdcOptional).isNotPresent();
     }
 
 @Test public void updatesAreReflectedInGet() {
-    repository.setApprovalStatusForLatestCurfew(BOOKING_ID, ApprovalStatus.builder().approvalStatus(null).refusedReason(null).date(null).build());
-    repository.setHDCChecksPassed(BOOKING_ID, HdcChecks.builder().passed(false).date(null).build());
+    repository.setApprovalStatusForLatestCurfew(
+            BOOKING_ID,
+            ApprovalStatus
+                    .builder()
+                    .approvalStatus(null)
+                    .refusedReason(null)
+                    .date(null)
+                    .build());
 
-    assertThat(repository.getLatestHomeDetentionCurfew(BOOKING_ID).get())
-            .isEqualTo(HomeDetentionCurfew.builder().passed(false).build());
+    repository.setHDCChecksPassed(
+            BOOKING_ID,
+            HdcChecks
+                    .builder()
+                    .passed(false)
+                    .date(null)
+                    .build());
+
+    assertThat(repository.getLatestHomeDetentionCurfew(BOOKING_ID))
+            .contains(
+                    HomeDetentionCurfew
+                            .builder()
+                            .passed(false)
+                            .build());
 
     repository.setApprovalStatusForLatestCurfew(
             BOOKING_ID,
@@ -213,6 +231,7 @@ public class OffenderCurfewRepositoryTest {
                     .refusedReason("ADDRESS")
                     .date(LocalDate.of(2019, 1, 1))
                     .build());
+
     repository.setHDCChecksPassed(
             BOOKING_ID,
             HdcChecks
@@ -222,15 +241,14 @@ public class OffenderCurfewRepositoryTest {
                     .build());
 
     assertThat(repository.getLatestHomeDetentionCurfew(BOOKING_ID))
-            .isEqualTo(
-            Optional.of(HomeDetentionCurfew
+            .contains(HomeDetentionCurfew
                     .builder()
                     .approvalStatus("APPROVED")
                     .refusedReason("ADDRESS")
                     .approvalStatusDate(LocalDate.of(2019, 1, 1))
                     .passed(true)
                     .checksPassedDate(LocalDate.of(2019, 2, 3))
-                    .build())
+                    .build()
     );
 }
 

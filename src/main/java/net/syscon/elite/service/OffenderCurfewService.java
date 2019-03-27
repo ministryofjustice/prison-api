@@ -16,5 +16,5 @@ public interface OffenderCurfewService {
 
     void setApprovalStatus(long bookingId, @Valid ApprovalStatus approvalStatus);
 
-    HomeDetentionCurfew getLatestHomeDetentionCurfew(Long bookingId);
+    HomeDetentionCurfew getLatestHomeDetentionCurfew(long bookingId);
 }

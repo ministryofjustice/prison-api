@@ -110,10 +110,7 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
 
     @Override
     @PreAuthorize("hasRole('SYSTEM_USER')")
-    public HomeDetentionCurfew getLatestHomeDetentionCurfew(final Long bookingId) {
-        if (bookingId == null) {
-            throw new BadRequestException("Expected a bookingId");
-        }
+    public HomeDetentionCurfew getLatestHomeDetentionCurfew(final long bookingId) {
         return offenderCurfewRepository
                 .getLatestHomeDetentionCurfew(bookingId)
                 .orElseThrow(() -> new EntityNotFoundException("No 'latest' Home Detention Curfew found for bookingId " + bookingId));
