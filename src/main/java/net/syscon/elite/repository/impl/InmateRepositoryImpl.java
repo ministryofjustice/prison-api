@@ -198,8 +198,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	@Override
 	@Cacheable("searchForOffenderBookings")
     public Page<OffenderBooking> searchForOffenderBookings(final Set<String> caseloads, final String offenderNo, final String searchTerm1, final String searchTerm2,
-                                                           final String locationPrefix, final List<String> alerts, final String bandCodeValue, final String locationTypeRoot, final PageRequest pageRequest) {
-        var initialSql = getQuery("FIND_ALL_INMATES");
+                                                           final String locationPrefix, final List<String> alerts, final String convictedStatus, final String locationTypeRoot, final PageRequest pageRequest) {
+    	var initialSql = getQuery("FIND_ALL_INMATES");
 		initialSql += " AND " + getQuery("LOCATION_FILTER_SQL");
 
 		if (!caseloads.isEmpty()) {
@@ -223,10 +223,10 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 			initialSql += " AND " + getQuery("ALERT_FILTER");
 		}
 
-        // Add a condition to limit the bandCode values returned which relate to the specific convictedStatus requested
+		// Search by specific convictedStatus (Convicted is any sentence with a bandCode <=8, Remand is any with a bandCode > 8)
 
-        if (bandCodeValue != null) {
-            initialSql += " AND CAST(IST.BAND_CODE AS int) " + bandCodeValue;
+		if (convictedStatus != null && !convictedStatus.equals("All")) {
+			initialSql += " AND CAST(IST.BAND_CODE AS int) " + (convictedStatus.equalsIgnoreCase("Convicted") ? " <= 8" : " > 8");
         }
 
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_BOOKING_MAPPING);

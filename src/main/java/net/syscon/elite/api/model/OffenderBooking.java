@@ -117,10 +117,9 @@ public class OffenderBooking {
      * The convicted status of the offender is one of 'Remand', 'Convicted' or null
      */
     public String getConvictedStatus() {
-        String calculatedStatus = null;
         if (this.bandCode != null) {
-            calculatedStatus =  Integer.valueOf(this.bandCode) <= 8 ? "Convicted" : "Remand";
+            return Integer.valueOf(this.bandCode) <= 8 ? "Convicted" : "Remand";
         }
-        return calculatedStatus;
+        return null;
     }
 }
