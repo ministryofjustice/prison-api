@@ -119,13 +119,13 @@ public class OffenderCurfewRepositoryTest {
     @Test
     public void shouldRejectUnknownBookingIdForSetHDCChecksPassed() {
         assertThatThrownBy(() ->
-        repository.setHDCChecksPassed(
-                99999,
-                HdcChecks.builder()
-                        .passed(true)
-                        .date(LocalDate.of(2018, 1, 31))
-                        .build()
-        )).isInstanceOf(EntityNotFoundException.class);
+                repository.setHDCChecksPassed(
+                        99999,
+                        HdcChecks.builder()
+                                .passed(true)
+                                .date(LocalDate.of(2018, 1, 31))
+                                .build()
+                )).isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
@@ -177,13 +177,13 @@ public class OffenderCurfewRepositoryTest {
     @Test
     public void shouldRejectUnknownBookingIdForSetApprovalStatus() {
         assertThatThrownBy(() ->
-            repository.setApprovalStatusForLatestCurfew(
-                    99999,
-                    ApprovalStatus.builder()
-                            .approvalStatus("APPROVED")
-                            .date(LocalDate.of(2018, 1, 2))
-                            .build()
-        )).isInstanceOf(EntityNotFoundException.class);
+                repository.setApprovalStatusForLatestCurfew(
+                        99999,
+                        ApprovalStatus.builder()
+                                .approvalStatus("APPROVED")
+                                .date(LocalDate.of(2018, 1, 2))
+                                .build()
+                )).isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
@@ -198,59 +198,60 @@ public class OffenderCurfewRepositoryTest {
         assertThat(hdcOptional).isNotPresent();
     }
 
-@Test public void updatesAreReflectedInGet() {
-    repository.setApprovalStatusForLatestCurfew(
-            BOOKING_ID,
-            ApprovalStatus
-                    .builder()
-                    .approvalStatus(null)
-                    .refusedReason(null)
-                    .date(null)
-                    .build());
+    @Test
+    public void updatesAreReflectedInGet() {
+        repository.setApprovalStatusForLatestCurfew(
+                BOOKING_ID,
+                ApprovalStatus
+                        .builder()
+                        .approvalStatus(null)
+                        .refusedReason(null)
+                        .date(null)
+                        .build());
 
-    repository.setHDCChecksPassed(
-            BOOKING_ID,
-            HdcChecks
-                    .builder()
-                    .passed(false)
-                    .date(null)
-                    .build());
+        repository.setHDCChecksPassed(
+                BOOKING_ID,
+                HdcChecks
+                        .builder()
+                        .passed(false)
+                        .date(null)
+                        .build());
 
-    assertThat(repository.getLatestHomeDetentionCurfew(BOOKING_ID))
-            .contains(
-                    HomeDetentionCurfew
-                            .builder()
-                            .passed(false)
-                            .build());
+        assertThat(repository.getLatestHomeDetentionCurfew(BOOKING_ID))
+                .contains(
+                        HomeDetentionCurfew
+                                .builder()
+                                .passed(false)
+                                .build());
 
-    repository.setApprovalStatusForLatestCurfew(
-            BOOKING_ID,
-            ApprovalStatus
-                    .builder()
-                    .approvalStatus("APPROVED")
-                    .refusedReason("ADDRESS")
-                    .date(LocalDate.of(2019, 1, 1))
-                    .build());
+        repository.setApprovalStatusForLatestCurfew(
+                BOOKING_ID,
+                ApprovalStatus
+                        .builder()
+                        .approvalStatus("APPROVED")
+                        .refusedReason("ADDRESS")
+                        .date(LocalDate.of(2019, 1, 1))
+                        .build());
 
-    repository.setHDCChecksPassed(
-            BOOKING_ID,
-            HdcChecks
-                    .builder()
-                    .passed(true)
-                    .date(LocalDate.of(2019, 2, 3))
-                    .build());
+        repository.setHDCChecksPassed(
+                BOOKING_ID,
+                HdcChecks
+                        .builder()
+                        .passed(true)
+                        .date(LocalDate.of(2019, 2, 3))
+                        .build());
 
-    assertThat(repository.getLatestHomeDetentionCurfew(BOOKING_ID))
-            .contains(HomeDetentionCurfew
-                    .builder()
-                    .approvalStatus("APPROVED")
-                    .refusedReason("ADDRESS")
-                    .approvalStatusDate(LocalDate.of(2019, 1, 1))
-                    .passed(true)
-                    .checksPassedDate(LocalDate.of(2019, 2, 3))
-                    .build()
-    );
-}
+        assertThat(repository.getLatestHomeDetentionCurfew(BOOKING_ID))
+                .contains(HomeDetentionCurfew
+                        .builder()
+                        .approvalStatus("APPROVED")
+                        .refusedReason("ADDRESS")
+                        .approvalStatusDate(LocalDate.of(2019, 1, 1))
+                        .passed(true)
+                        .checksPassedDate(LocalDate.of(2019, 2, 3))
+                        .build()
+                );
+    }
 
     private static OffenderCurfew offenderCurfew(final long offenderCurfewId, final long offenderBookId, final String assessmentDate, final String approvalStatus, final String ardCrdDate) {
 
@@ -283,7 +284,7 @@ public class OffenderCurfewRepositoryTest {
     }
 
     private void assertCurfewHDCEqualTo(final long curfewId, final String passedFlag, final LocalDateTime assessmentDate) {
-        assertCurfewEqualTo(curfewId, passedFlag, assessmentDate, null, null,null);
+        assertCurfewEqualTo(curfewId, passedFlag, assessmentDate, null, null, null);
     }
 
     private void assertCurfewApprovalStatusEqualTo(
