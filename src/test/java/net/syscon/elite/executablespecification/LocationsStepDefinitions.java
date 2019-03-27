@@ -87,7 +87,7 @@ public class LocationsStepDefinitions extends AbstractStepDefinitions {
 
     @Then("^there are \"([^\"]*)\" offenders returned with the convicted status \"([^\"]*)\"$")
     public void checkConvictedOffenderCountByStatus(final String countOffenders, final String convictedStatus) {
-       location.checkConvictedOffenderCount(Integer.parseInt(countOffenders), convictedStatus);
+       location.checkOffenderCountByConvictedStatus(Integer.parseInt(countOffenders), convictedStatus);
     }
 
     @When("^a request is made at agency \"([^\"]*)\" to retrieve a list of inmates with a convicted status of \"([^\"]*)\"$")

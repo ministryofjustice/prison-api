@@ -131,13 +131,11 @@ public class LocationsSteps extends CommonSteps {
     }
 
     public void retrieveListOfInmates(final String agency) {
-        final var queryUrl = API_LOCATIONS + "/description/" + agency + "/inmates";
-        retrieveInmates(queryUrl);
+        retrieveInmates(API_LOCATIONS + "/description/" + agency + "/inmates");
     }
 
     public void retrieveListOfInmates(final String agency, final String convictedStatus) {
-        final var queryUrl = API_LOCATIONS + "/description/" + agency + "/inmates?convictedStatus=" + convictedStatus;
-        retrieveInmates(queryUrl);
+        retrieveInmates(API_LOCATIONS + "/description/" + agency + "/inmates?convictedStatus=" + convictedStatus);
     }
 
     private void retrieveInmates(final String queryUrl) {
@@ -165,7 +163,7 @@ public class LocationsSteps extends CommonSteps {
         assertThat(bookingList).hasSize(offenderCount);
     }
 
-    public void checkConvictedOffenderCount(int offenderCount, final String convictedStatus) {
+    public void checkOffenderCountByConvictedStatus(int offenderCount, final String convictedStatus) {
         final var filteredList = bookingList
                     .stream()
                     .filter(offender -> offender.getConvictedStatus() != null)
