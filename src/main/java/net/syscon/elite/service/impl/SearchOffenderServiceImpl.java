@@ -94,6 +94,9 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
         String offenderNo = null;
         String searchTerm1 = null;
         String searchTerm2 = null;
+        String bandCodeValue = null;
+
+        // Search by keywords and values
 
         if (StringUtils.isNotBlank(keywordSearch)) {
             if (isOffenderNo(keywordSearch)) {
@@ -108,11 +111,11 @@ public class SearchOffenderServiceImpl implements SearchOffenderService {
             }
         }
 
-
         return repository.searchForOffenderBookings(
                 caseloads, offenderNo, searchTerm1, searchTerm2,
                 request.getLocationPrefix(),
                 request.getAlerts(),
+                request.getConvictedStatus(),
                 locationTypeGranularity, pageRequest);
     }
 

@@ -71,3 +71,12 @@ Feature: Locations
       | agencyCode | countInmates | convictedStatus |
       | LEI        | 6            | Convicted       |
       | LEI        | 3            | Remand          |
+
+    Scenario Outline: Retrieve a list of inmates queried by convicted status
+      When a request is made at agency "<agencyCode>" to retrieve a list of inmates with a convicted status of "<convictedStatus>"
+      Then there are "<countInmates>" offenders returned
+
+      Examples:
+      | agencyCode | convictedStatus | countInmates |
+      |LEI         | Convicted       | 7            |
+      |LEI         | Remand          | 3            |

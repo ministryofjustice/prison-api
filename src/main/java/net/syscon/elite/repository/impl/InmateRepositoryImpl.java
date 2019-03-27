@@ -198,8 +198,8 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 	@Override
 	@Cacheable("searchForOffenderBookings")
     public Page<OffenderBooking> searchForOffenderBookings(final Set<String> caseloads, final String offenderNo, final String searchTerm1, final String searchTerm2,
-                                                           final String locationPrefix, final List<String> alerts, final String locationTypeRoot, final PageRequest pageRequest) {
-        var initialSql = getQuery("FIND_ALL_INMATES");
+                                                           final String locationPrefix, final List<String> alerts, final String convictedStatus, final String locationTypeRoot, final PageRequest pageRequest) {
+    	var initialSql = getQuery("FIND_ALL_INMATES");
 		initialSql += " AND " + getQuery("LOCATION_FILTER_SQL");
 
 		if (!caseloads.isEmpty()) {
@@ -222,6 +222,18 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 		if (alerts != null && !alerts.isEmpty()) {
 			initialSql += " AND " + getQuery("ALERT_FILTER");
 		}
+
+        // Search by specific convictedStatus (Convicted is any sentence with a bandCode <=8, Remand is any with a bandCode > 8)
+
+        if (convictedStatus == null || !StringUtils.equalsIgnoreCase(convictedStatus, "all")) {
+            if (StringUtils.equalsIgnoreCase(convictedStatus, "convicted")) {
+                initialSql += " AND CAST(IST.BAND_CODE AS int) <= 8 ";
+            } else if (StringUtils.equalsIgnoreCase(convictedStatus, "remand")) {
+                initialSql += " AND CAST(IST.BAND_CODE AS int) > 8 ";
+            } else {
+                log.info("Ignoring unrecognised value requested for convictionStatus [" + convictedStatus + "]");
+            }
+        }
 
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, OFFENDER_BOOKING_MAPPING);
 

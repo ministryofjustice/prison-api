@@ -29,7 +29,7 @@ public class LocationsResourceImpl implements LocationResource {
 	@Override
 	public GetOffendersAtLocationDescriptionResponse getOffendersAtLocationDescription(
             final String locationPrefix, final String keywords, final List<String> alerts,
-            final boolean returnIep, final boolean returnAlerts, final boolean returnCategory,
+            final boolean returnIep, final boolean returnAlerts, final boolean returnCategory, final String convictedStatus,
             final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {
         final var request = SearchOffenderRequest.builder()
 				.username(authenticationFacade.getCurrentUsername())
@@ -38,6 +38,7 @@ public class LocationsResourceImpl implements LocationResource {
 				.returnAlerts(returnAlerts)
 				.returnIep(returnIep)
 				.returnCategory(returnCategory)
+				.convictedStatus(convictedStatus)
 				.alerts(alerts)
 				.orderBy(sortFields)
 				.order(sortOrder)

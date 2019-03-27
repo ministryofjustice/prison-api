@@ -131,10 +131,17 @@ public class LocationsSteps extends CommonSteps {
     }
 
     public void retrieveListOfInmates(final String agency) {
+        retrieveInmates(API_LOCATIONS + "/description/" + agency + "/inmates");
+    }
+
+    public void retrieveListOfInmates(final String agency, final String convictedStatus) {
+        retrieveInmates(API_LOCATIONS + "/description/" + agency + "/inmates?convictedStatus=" + convictedStatus);
+    }
+
+    private void retrieveInmates(final String queryUrl) {
 
         init();
 
-        final var queryUrl = API_LOCATIONS + "/description/" + agency + "/inmates";
         applyPagination(0L,10L);
 
         try {
@@ -143,6 +150,7 @@ public class LocationsSteps extends CommonSteps {
                     HttpMethod.GET,
                     createEntity(null, addPaginationHeaders()),
                     new ParameterizedTypeReference<List<OffenderBooking>>() {});
+
             assertThat(response.getStatusCode()).isEqualByComparingTo(HttpStatus.OK);
             bookingList = response.getBody();
 
@@ -155,7 +163,7 @@ public class LocationsSteps extends CommonSteps {
         assertThat(bookingList).hasSize(offenderCount);
     }
 
-    public void checkConvictedOffenderCount(int offenderCount, final String convictedStatus) {
+    public void checkOffenderCountByConvictedStatus(int offenderCount, final String convictedStatus) {
         final var filteredList = bookingList
                     .stream()
                     .filter(offender -> offender.getConvictedStatus() != null)

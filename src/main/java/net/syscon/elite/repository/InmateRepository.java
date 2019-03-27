@@ -36,7 +36,7 @@ public interface InmateRepository {
 	Page<OffenderBooking> findAllInmates(Set<String> caseloads, String locationTypeRoot, String query, PageRequest pageRequest);
 
 	Page<OffenderBooking> searchForOffenderBookings(Set<String> caseloads, String offenderNo, String searchTerm1, String searchTerm2,
-													String locationPrefix, List<String> alerts, String locationTypeRoot, PageRequest pageRequest);
+													String locationPrefix, List<String> alerts, String convictedStatus, String locationTypeRoot, PageRequest pageRequest);
 
 	Page<OffenderBooking> findInmatesByLocation(Long locationId, String locationTypeRoot, String caseLoadId, String query, String orderByField, Order order, long offset, long limit);
 

@@ -55,7 +55,7 @@ public class InmateRepositoryTest {
     @Test
     public void testFindAllImates() {
         final var pageRequest = new PageRequest("lastName, firstName");
-        final var caseloads = new HashSet<String>(Arrays.asList("LEI", "BXI"));
+        final var caseloads = Set.of("LEI", "BXI");
         final var foundInmates = repository.findAllInmates(caseloads, "WING", "", pageRequest);
 
         assertThat(foundInmates.getItems()).isNotEmpty();
@@ -74,16 +74,59 @@ public class InmateRepositoryTest {
     @Test
     public void testSearchForOffenderBookings() {
         final var pageRequest = new PageRequest("lastName, firstName");
-        final var caseloads = new HashSet<String>(Arrays.asList("LEI", "BXI"));
-        final var alertFilter = Arrays.asList("XA", "HC");
+        final var caseloads = Set.of("LEI", "BXI");
+        final var alertFilter = List.of("XA", "HC");
 
         final var foundInmates = repository.searchForOffenderBookings(caseloads, "A1234AA", "A", "A", "LEI",
-                alertFilter, "WING", pageRequest);
+                alertFilter, "All","WING", pageRequest);
 
         final var results = foundInmates.getItems();
-        assertThat(results).asList().hasSize(1);
-        assertThat(results).asList().extracting("bookingId", "offenderNo", "dateOfBirth", "assignedLivingUnitDesc").contains(
+        assertThat(results).hasSize(1);
+        assertThat(results).extracting("bookingId", "offenderNo", "dateOfBirth", "assignedLivingUnitDesc").contains(
                 Tuple.tuple(-1L, "A1234AA", LocalDate.of(1969, Month.DECEMBER, 30), "A-1-1"));
+    }
+
+    @Test
+    public void testSearchForConvictedOffenderBookings() {
+        final var pageRequest = new PageRequest("lastName, firstName");
+        final var caseloads = Set.of("LEI");
+        final var alertFilter = List.of("XA", "HC");
+
+        final var foundInmates = repository.searchForOffenderBookings(caseloads, "A1234AA", null, null, "LEI",
+                alertFilter, "Convicted","WING", pageRequest);
+
+        final var results = foundInmates.getItems();
+
+        assertThat(results).hasSize(1);
+        assertThat(results).extracting("bookingId", "offenderNo", "convictedStatus").contains(Tuple.tuple(-1L, "A1234AA", "Convicted"));
+    }
+
+    @Test
+    public void testSearchForRemandOffenderBookings() {
+        final var pageRequest = new PageRequest("lastName, firstName");
+        final var caseloads = Set.of("LEI");
+
+        final var foundInmates = repository.searchForOffenderBookings(caseloads, "A9876EC", null, null, "LEI",
+            null, "Remand", "WING", pageRequest);
+
+        final var results = foundInmates.getItems();
+
+        assertThat(results).hasSize(1);
+        assertThat(results).extracting("bookingId", "offenderNo", "convictedStatus").contains(Tuple.tuple(-27L, "A9876EC", "Remand"));
+    }
+
+    @Test
+    public void testSearchForAllConvictedStatus() {
+        final var pageRequest = new PageRequest("lastName, firstName");
+        final var caseloads = Set.of("LEI");
+
+        final var foundInmates = repository.searchForOffenderBookings(caseloads, null, null, null, "LEI",
+            null,"All", "WING", pageRequest);
+
+        final var results = foundInmates.getItems();
+
+        assertThat(results).hasSize(10);
+        assertThat(results).extracting("convictedStatus").containsAll(List.of("Convicted", "Remand"));
     }
 
     @Test
@@ -129,7 +172,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders.size()).isEqualTo(42);
+        assertThat(offenders).hasSize(42);
     }
 
     @Test
@@ -139,7 +182,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders.size()).isEqualTo(5);
+        assertThat(offenders).hasSize(5);
     }
 
     @Test
@@ -149,7 +192,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders.size()).isEqualTo(47);
+        assertThat(offenders).hasSize(47);
     }
 
     @Test
@@ -159,7 +202,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders.size()).isEqualTo(45);
+        assertThat(offenders).hasSize(45);
     }
 
     @Test
@@ -169,7 +212,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders.size()).isEqualTo(47);
+        assertThat(offenders).hasSize(47);
     }
 
     @Test
@@ -218,7 +261,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffenders(query);
 
-        assertThat(offenders.size()).isEqualTo(4);
+        assertThat(offenders).hasSize(4);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("A1234AG", "A1234AJ", "A1234AK", "Z0025ZZ");
     }
 
@@ -228,7 +271,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffenders(query);
 
-        assertThat(offenders.size()).isEqualTo(4);
+        assertThat(offenders).hasSize(4);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("A1234AG", "A1234AJ", "A1234AK", "Z0025ZZ");
     }
 
@@ -238,7 +281,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffenders(query);
 
-        assertThat(offenders.size()).isEqualTo(2);
+        assertThat(offenders).hasSize(2);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("A1234AJ", "A1234AL");
     }
 
@@ -248,7 +291,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffenders(query);
 
-        assertThat(offenders.size()).isEqualTo(2);
+        assertThat(offenders).hasSize(2);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("A1234AJ", "A1234AL");
     }
 
@@ -308,7 +351,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffenders(query);
 
-        assertThat(offenders.size()).isEqualTo(3);
+        assertThat(offenders).hasSize(3);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("Z0019ZZ", "A9876RS", "A1182BS");
     }
 
@@ -320,7 +363,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffenders(query);
 
-        assertThat(offenders.size()).isEqualTo(3);
+        assertThat(offenders).hasSize(3);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("Z0017ZZ", "A1180MA", "A1181MV");
     }
 
@@ -343,7 +386,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffenders(query);
 
-        assertThat(offenders.size()).isEqualTo(2);
+        assertThat(offenders).hasSize(2);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("A1178RS", "A1179MT");
     }
 
@@ -357,7 +400,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffenders(query);
 
-        assertThat(offenders.size()).isEqualTo(2);
+        assertThat(offenders).hasSize(2);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("Z0021ZZ", "A1183CW");
     }
 
@@ -420,7 +463,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliases(query);
 
-        assertThat(offenders.size()).isEqualTo(4);
+        assertThat(offenders).hasSize(4);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("A1234AG", "A1234AJ", "A1234AK", "Z0025ZZ");
     }
 
@@ -430,7 +473,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliases(query);
 
-        assertThat(offenders.size()).isEqualTo(4);
+        assertThat(offenders).hasSize(4);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("A1234AG", "A1234AJ", "A1234AK", "Z0025ZZ");
     }
 
@@ -440,7 +483,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliases(query);
 
-        assertThat(offenders.size()).isEqualTo(2);
+        assertThat(offenders).hasSize(2);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("A1234AJ", "A1234AL");
     }
 
@@ -450,7 +493,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliases(query);
 
-        assertThat(offenders.size()).isEqualTo(2);
+        assertThat(offenders).hasSize(2);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("A1234AJ", "A1234AL");
     }
 
@@ -510,7 +553,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliases(query);
 
-        assertThat(offenders.size()).isEqualTo(3);
+        assertThat(offenders).hasSize(3);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("Z0019ZZ", "A9876RS", "A1182BS");
     }
 
@@ -522,7 +565,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliases(query);
 
-        assertThat(offenders.size()).isEqualTo(3);
+        assertThat(offenders).hasSize(3);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("Z0017ZZ", "A1180MA", "A1181MV");
     }
 
@@ -545,7 +588,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliases(query);
 
-        assertThat(offenders.size()).isEqualTo(2);
+        assertThat(offenders).hasSize(2);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("A1178RS", "A1179MT");
     }
 
@@ -559,7 +602,7 @@ public class InmateRepositoryTest {
 
         final var offenders = findOffendersWithAliases(query);
 
-        assertThat(offenders.size()).isEqualTo(2);
+        assertThat(offenders).hasSize(2);
         assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("Z0021ZZ", "A1183CW");
     }
 
@@ -568,16 +611,16 @@ public class InmateRepositoryTest {
         final var list = repository.getUncategorised("LEI");
 
         list.sort(Comparator.comparing(OffenderCategorise::getOffenderNo));
-        assertThat(list).asList().extracting("offenderNo", "bookingId", "firstName", "lastName", "status").contains(
+        assertThat(list).extracting("offenderNo", "bookingId", "firstName", "lastName", "status").contains(
                 Tuple.tuple("A1234AB", -2L, "GILLIAN", "ANDERSON", UNCATEGORISED),
                 Tuple.tuple("A1234AB", -2L, "GILLIAN", "ANDERSON", UNCATEGORISED),
                 Tuple.tuple("A1176RS", -32L, "FRED", "JAMES", UNCATEGORISED));
 
-        assertThat(list).asList().extracting("offenderNo", "bookingId", "firstName", "lastName", "status",
+        assertThat(list).extracting("offenderNo", "bookingId", "firstName", "lastName", "status",
                 "categoriserFirstName", "categoriserLastName", "category").contains(
                 Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", AWAITING_APPROVAL, "Elite2", "User", "B"));
 
-        assertThat(list).asList().extracting("offenderNo").doesNotContain("A1234AG");  // "Active" categorisation should be ignored
+        assertThat(list).extracting("offenderNo").doesNotContain("A1234AG");  // "Active" categorisation should be ignored
         // Note that size of list may vary depending on whether feature tests have run, e.g. approving booking id -34
     }
 
@@ -586,7 +629,7 @@ public class InmateRepositoryTest {
         final var list = repository.getApprovedCategorised("LEI", LocalDate.of(1976, 5, 5));
 
         list.sort(Comparator.comparing(OffenderCategorise::getOffenderNo));
-        assertThat(list).asList()
+        assertThat(list)
                 .extracting("offenderNo", "bookingId", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName", "category")
                 .contains(Tuple.tuple("A5576RS", -31L, "API", "User", "CA", "User", "A"));
     }
@@ -600,10 +643,10 @@ public class InmateRepositoryTest {
     @Test
     public void testGetAllAssessments() {
         final var list = repository.findAssessmentsByOffenderNo(
-                Arrays.asList("A1234AF"), "CATEGORY", Collections.emptySet(),false);
+                List.of("A1234AF"), "CATEGORY", Collections.emptySet(),false);
 
         list.sort(Comparator.comparing(AssessmentDto::getOffenderNo).thenComparing(AssessmentDto::getBookingId));
-        assertThat(list).asList().extracting("offenderNo", "bookingId", "assessmentCode",
+        assertThat(list).extracting("offenderNo", "bookingId", "assessmentCode",
                 "assessmentDescription", "assessmentDate", "assessmentSeq", "nextReviewDate",
                 "reviewSupLevelType", "reviewSupLevelTypeDesc", "overridedSupLevelType", "overridedSupLevelTypeDesc",
                 "calcSupLevelType", "calcSupLevelTypeDesc", "cellSharingAlertFlag", "assessStatus"
@@ -619,7 +662,7 @@ public class InmateRepositoryTest {
     public void testInsertCategory() {
         final var uncat = repository.getUncategorised("LEI");
 
-        assertThat(uncat).asList().extracting("offenderNo", "bookingId", "firstName", "lastName", "status").doesNotContain(
+        assertThat(uncat).extracting("offenderNo", "bookingId", "firstName", "lastName", "status").doesNotContain(
                 Tuple.tuple("A1234AE", -5L, "DONALD", "DUCK", AWAITING_APPROVAL));
 
         final var catDetail = CategorisationDetail.builder().bookingId(-5L).category("D").committee("GOV").build();
@@ -628,7 +671,7 @@ public class InmateRepositoryTest {
 
         final var list = repository.getUncategorised("LEI");
 
-        assertThat(list).asList().extracting("offenderNo", "bookingId", "firstName", "lastName", "status").contains(
+        assertThat(list).extracting("offenderNo", "bookingId", "firstName", "lastName", "status").contains(
                 Tuple.tuple("A1234AE", -5L, "DONALD", "DUCK", AWAITING_APPROVAL));
     }
 
@@ -715,7 +758,7 @@ public class InmateRepositoryTest {
     public void testThatActiveOffendersAreReturnedMatchingNumberAndCaseLoad() {
         final var offenders = repository.getBasicInmateDetailsForOffenders(Set.of("A1234AI", "A1183SH"),false, Set.of("LEI"));
         assertThat(offenders).hasSize(1);
-        assertThat(offenders).asList().extracting("offenderNo", "bookingId", "agencyId", "firstName", "lastName", "middleName" , "dateOfBirth", "assignedLivingUnitId").contains(
+        assertThat(offenders).extracting("offenderNo", "bookingId", "agencyId", "firstName", "lastName", "middleName" , "dateOfBirth", "assignedLivingUnitId").contains(
                 Tuple.tuple("A1234AI", -9L, "LEI", "CHESTER", "THOMPSON", "JAMES", LocalDate.parse("1970-03-01"), -7L)
         );
     }
