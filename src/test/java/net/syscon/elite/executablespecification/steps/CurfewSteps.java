@@ -1,6 +1,7 @@
 package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.ErrorResponse;
+import net.syscon.elite.api.model.HomeDetentionCurfew;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.http.HttpMethod;
@@ -9,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -19,6 +21,7 @@ import static org.assertj.core.api.Assertions.fail;
 public class CurfewSteps extends CommonSteps {
     private static final String CURFEW_CHECKS_PASSED_URI = API_PREFIX + "/offender-sentences/booking/{bookingId}/home-detention-curfews/latest/checks-passed";
     private static final String CURFEW_APPROVAL_STATUS_URI = API_PREFIX + "/offender-sentences/booking/{bookingId}/home-detention-curfews/latest/approval-status";
+    private static final String LATEST_HOME_DETENTION_CURFEW_URI = API_PREFIX + "/offender-sentences/booking/{bookingId}/home-detention-curfews/latest";
 
     private static final BiConsumer<StringBuilder, String> valueAppender = (b, value) -> b.append('"').append(value).append('"');
     private static final BiConsumer<StringBuilder, String> bareValueAppender = StringBuilder::append;
@@ -39,9 +42,9 @@ public class CurfewSteps extends CommonSteps {
     }
 
     @Step("Update HDC approval status")
-    public void updateHdcApprovalStatus(final String bookingId, final String approvalStatus, final String dateString) {
+    public void updateHdcApprovalStatus(final String bookingId, final String approvalStatus, final String refusedReason, final String dateString) {
         reset();
-        putRequest(CURFEW_APPROVAL_STATUS_URI, approvalStatusBody(approvalStatus, dateString), bookingId);
+        putRequest(CURFEW_APPROVAL_STATUS_URI, approvalStatusBody(approvalStatus, refusedReason, dateString), bookingId);
     }
 
     @Step("verify HTTP status code")
@@ -53,6 +56,35 @@ public class CurfewSteps extends CommonSteps {
         } else {
             fail("No Http status code to verify");
         }
+    }
+
+    @Step("Verify Latest Home Detention Curfew")
+    public void verfyLatestHomeDetentionCurfew(Long bookingId, Boolean checksPassed, LocalDate checksPassedDate) {
+        HomeDetentionCurfew hdc = getHomeDetentionCurfew(bookingId);
+
+        assertThat(hdc)
+                .extracting("passed", "checksPassedDate")
+                .containsExactly(checksPassed, checksPassedDate);
+    }
+
+    @Step("Verify Latest Home Detention Curfew")
+    public void verifyLatestHomeDetentionCurfew(Long bookingId, String approvalStatus, String refusedReason, LocalDate approvalStatusDate) {
+        HomeDetentionCurfew hdc = getHomeDetentionCurfew(bookingId);
+
+        assertThat(hdc)
+                .extracting("approvalStatus", "refusedReason", "approvalStatusDate")
+                .containsExactly(approvalStatus, refusedReason, approvalStatusDate);
+    }
+
+    private HomeDetentionCurfew getHomeDetentionCurfew(Long bookingId) {
+        return restTemplate
+                .exchange(
+                        LATEST_HOME_DETENTION_CURFEW_URI,
+                        HttpMethod.GET,
+                        createEntity(null, EXTRA_HEADERS),
+                        HomeDetentionCurfew.class,
+                        bookingId)
+                .getBody();
     }
 
     private void putRequest(final String uri, final String json, final Object... uriVariables) {
@@ -86,6 +118,7 @@ public class CurfewSteps extends CommonSteps {
 
     private void appendField(final StringBuilder b, final String fieldName, final String fieldValue, final BiConsumer<StringBuilder, String> appender) {
         if (fieldValue == null) return;
+        if (fieldValue.length() < 1) return;
         if (b.length() > 0) b.append(',');
         b.append('"').append(fieldName).append("\":");
         appender.accept(b, fieldValue);
@@ -110,10 +143,11 @@ public class CurfewSteps extends CommonSteps {
         return wrap(b);
     }
 
-    private String approvalStatusBody(final String approvalStatus, final String dateString) {
+    private String approvalStatusBody(final String approvalStatus, final String refusedReason, final String dateString) {
         final var b = new StringBuilder();
         appendField(b, "date", dateString);
         appendField(b, "approvalStatus", approvalStatus);
+        appendField(b, "refusedReason", refusedReason);
         return wrap(b);
     }
 }
