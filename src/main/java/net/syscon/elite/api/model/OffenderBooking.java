@@ -98,11 +98,14 @@ public class OffenderBooking {
     @ApiModelProperty(value = "The Cat A/B/C/D of the offender")
     private String categoryCode;
 
-    @ApiModelProperty(value = "The convicted status of the offender calculated")
+    @ApiModelProperty(value = "The convicted status of the offender calculated from their sentence band code")
     private String convictedStatus;
 
     @ApiModelProperty(hidden = true)
     private String bandCode;
+
+    @ApiModelProperty(value = "The imprisonment status of the offender")
+    private String imprisonmentStatus;
 
     /**
      * Specialised getter which initialises the additionalProperties if it is null
@@ -113,13 +116,20 @@ public class OffenderBooking {
     }
 
     /**
-     * Specialised setter for the 'virtual' attribute convictedStatus, an interpreted value based on the bandCode value
-     * The convicted status of the offender is one of 'Remand', 'Convicted' or null
+     * Specialised setter for the 'virtual' attribute convictedStatus, an interpreted value based on the bandCode
      */
     public String getConvictedStatus() {
         if (this.bandCode != null) {
             return Integer.valueOf(this.bandCode) <= 8 ? "Convicted" : "Remand";
         }
         return null;
+    }
+
+    /**
+     * Specialised getter so that the ApiModelProperty(hidden = true) is not ignored by a Lombok-generated getter for 'bandCode'
+     */
+    @ApiModelProperty(hidden=true)
+    public String getBandCode() {
+        return bandCode;
     }
 }
