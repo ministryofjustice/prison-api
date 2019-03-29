@@ -90,15 +90,15 @@ public class InmateRepositoryTest {
     public void testSearchForConvictedOffenderBookings() {
         final var pageRequest = new PageRequest("lastName, firstName");
         final var caseloads = Set.of("LEI");
-        final var alertFilter = List.of("XA", "HC");
 
-        final var foundInmates = repository.searchForOffenderBookings(caseloads, "A1234AA", null, null, "LEI",
-                alertFilter, "Convicted","WING", pageRequest);
+        final var foundInmates = repository.searchForOffenderBookings(caseloads, null, null, null, "LEI",
+                null, "Convicted","WING", pageRequest);
 
         final var results = foundInmates.getItems();
 
-        assertThat(results).hasSize(1);
-        assertThat(results).extracting("bookingId", "offenderNo", "convictedStatus").contains(Tuple.tuple(-1L, "A1234AA", "Convicted"));
+        assertThat(results).hasSize(7);
+        assertThat(results).extracting("convictedStatus").containsOnlyElementsOf(List.of("Convicted"));
+        assertThat(results).extracting("imprisonmentStatus").containsOnlyElementsOf(List.of("SENT"));
     }
 
     @Test
@@ -106,13 +106,14 @@ public class InmateRepositoryTest {
         final var pageRequest = new PageRequest("lastName, firstName");
         final var caseloads = Set.of("LEI");
 
-        final var foundInmates = repository.searchForOffenderBookings(caseloads, "A9876EC", null, null, "LEI",
+        final var foundInmates = repository.searchForOffenderBookings(caseloads, null, null, null, "LEI",
             null, "Remand", "WING", pageRequest);
 
         final var results = foundInmates.getItems();
 
-        assertThat(results).hasSize(1);
-        assertThat(results).extracting("bookingId", "offenderNo", "convictedStatus").contains(Tuple.tuple(-27L, "A9876EC", "Remand"));
+        assertThat(results).hasSize(3);
+        assertThat(results).extracting("convictedStatus").containsOnlyElementsOf(List.of("Remand"));
+        assertThat(results).extracting("imprisonmentStatus").containsOnlyElementsOf(List.of("TRL"));
     }
 
     @Test
@@ -127,6 +128,7 @@ public class InmateRepositoryTest {
 
         assertThat(results).hasSize(10);
         assertThat(results).extracting("convictedStatus").containsAll(List.of("Convicted", "Remand"));
+        assertThat(results).extracting("imprisonmentStatus").containsAll(List.of("TRL","SENT"));
     }
 
     @Test

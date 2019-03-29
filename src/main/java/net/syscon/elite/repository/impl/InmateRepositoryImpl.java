@@ -53,6 +53,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
             .put("LIVING_UNIT_DESC",    new FieldMapper("assignedLivingUnitDesc", value -> RegExUtils.replaceFirst((String)value, "^[A-Z|a-z|0-9]+\\-", "")))
             .put("ASSIGNED_OFFICER_ID", new FieldMapper("assignedOfficerId"))
             .put("BAND_CODE",           new FieldMapper("bandCode"))
+            .put("IMPRISONMENT_STATUS", new FieldMapper("imprisonmentStatus"))
             .build();
 
     private final Map<String, FieldMapper> inmateDetailsMapping = new ImmutableMap.Builder<String, FieldMapper>()
@@ -225,7 +226,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
         // Search by specific convictedStatus (Convicted is any sentence with a bandCode <=8, Remand is any with a bandCode > 8)
 
-        if (convictedStatus == null || !StringUtils.equalsIgnoreCase(convictedStatus, "all")) {
+        if (convictedStatus != null && !StringUtils.equalsIgnoreCase(convictedStatus, "all")) {
             if (StringUtils.equalsIgnoreCase(convictedStatus, "convicted")) {
                 initialSql += " AND CAST(IST.BAND_CODE AS int) <= 8 ";
             } else if (StringUtils.equalsIgnoreCase(convictedStatus, "remand")) {
