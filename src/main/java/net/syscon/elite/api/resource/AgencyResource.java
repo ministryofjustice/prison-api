@@ -107,7 +107,7 @@ public interface AgencyResource {
         @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
-    GetWhereaboutsResponse getWhereabouts(@ApiParam(value = "The prison", required = true) @PathParam("agencyId") String agencyId);
+    WhereaboutsConfig getWhereabouts(@ApiParam(value = "The prison", required = true) @PathParam("agencyId") String agencyId);
 
     @GET
     @Path("/caseload/{caseload}")
@@ -379,45 +379,6 @@ public interface AgencyResource {
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetAvailableLocationGroupsResponse(responseBuilder.build(), entity);
-        }
-    }
-
-    class GetWhereaboutsResponse extends ResponseDelegate {
-
-        private GetWhereaboutsResponse(final Response response) {
-            super(response);
-        }
-
-        private GetWhereaboutsResponse(final Response response, final Object entity) {
-            super(response, entity);
-        }
-
-        public static GetWhereaboutsResponse respond200WithApplicationJson(final WhereaboutsConfig entity) {
-            final var responseBuilder = Response.status(200)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetWhereaboutsResponse(responseBuilder.build(), entity);
-        }
-
-        public static GetWhereaboutsResponse respond400WithApplicationJson(final ErrorResponse entity) {
-            final var responseBuilder = Response.status(400)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetWhereaboutsResponse(responseBuilder.build(), entity);
-        }
-
-        public static GetWhereaboutsResponse respond404WithApplicationJson(final ErrorResponse entity) {
-            final var responseBuilder = Response.status(404)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetWhereaboutsResponse(responseBuilder.build(), entity);
-        }
-
-        public static GetWhereaboutsResponse respond500WithApplicationJson(final ErrorResponse entity) {
-            final var responseBuilder = Response.status(500)
-                    .header("Content-Type", MediaType.APPLICATION_JSON);
-            responseBuilder.entity(entity);
-            return new GetWhereaboutsResponse(responseBuilder.build(), entity);
         }
     }
 

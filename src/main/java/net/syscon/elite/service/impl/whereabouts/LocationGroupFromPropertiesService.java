@@ -1,15 +1,17 @@
-package net.syscon.elite.service.impl;
+package net.syscon.elite.service.impl.whereabouts;
 
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.Location;
 import net.syscon.elite.api.model.LocationGroup;
-import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.LocationGroupService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.beans.ConstructorProperties;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -17,17 +19,19 @@ import java.util.stream.Collectors;
 /**
  * An implementation of LocationGroupService backed by a properties file.
  */
-@Service
+@Service("overrideLocationGroupService")
 @Slf4j
-public class LocationGroupServiceImpl implements LocationGroupService {
+public class LocationGroupFromPropertiesService implements LocationGroupService {
 
     private final Properties groupsProperties;
 
-    private final Map<String, List<Pattern>> cellPatternsByGroup = new HashMap<>();
-
-    @ConstructorProperties({"groupsProperties"})
-    public LocationGroupServiceImpl(final Properties groupsProperties) {
+    public LocationGroupFromPropertiesService(@Qualifier("whereaboutsGroups") final Properties groupsProperties) {
         this.groupsProperties = groupsProperties;
+    }
+
+    @Override
+    public List<LocationGroup> getLocationGroupsForAgency(final String agencyId) {
+        return getLocationGroups(agencyId);
     }
 
     /**
@@ -37,11 +41,6 @@ public class LocationGroupServiceImpl implements LocationGroupService {
      * @return A list of LocationGroup, sorted by name, with each item containing its nested LocationGroups, also sorted by name.
      */
     @Override
-    @VerifyAgencyAccess
-    public List<LocationGroup> getLocationGroupsForAgency(final String agencyId) {
-        return getLocationGroups(agencyId);
-    }
-
     public List<LocationGroup> getLocationGroups(final String agencyId) {
         final var fullKeys = groupsProperties.stringPropertyNames();
 
@@ -50,7 +49,7 @@ public class LocationGroupServiceImpl implements LocationGroupService {
                 .map(key -> key.substring(agencyId.length() + 1))
                 .filter(key -> !key.contains("_"))
                 .sorted()
-                .map(key -> new LocationGroup(Collections.emptyMap(), key, getAvailableSubGroups(agencyId, key)))
+                .map(key -> new LocationGroup(key, key, getAvailableSubGroups(agencyId, key)))
                 .collect(Collectors.toList());
     }
 
@@ -70,7 +69,7 @@ public class LocationGroupServiceImpl implements LocationGroupService {
                 .filter(key -> key.startsWith(agencyAndGroupName))
                 .map(key -> key.substring(agencyAndGroupName.length()))
                 .sorted()
-                .map(key -> new LocationGroup(Collections.emptyMap(), key, Collections.emptyList()))
+                .map(key -> new LocationGroup(key, key, Collections.emptyList()))
                 .collect(Collectors.toList());
     }
 
@@ -92,7 +91,7 @@ public class LocationGroupServiceImpl implements LocationGroupService {
         final var patternString = patternStrings.split(",");
         return Arrays.stream(patternString)
                 .map(Pattern::compile)
-                .map(p -> (Predicate<Location>) ((Location l) -> p.matcher(l.getLocationPrefix()).matches()))
+                .map(pattern -> (Predicate<Location>) (Location l) -> pattern.matcher(l.getLocationPrefix()).matches())
                 .collect(Collectors.toList());
     }
 

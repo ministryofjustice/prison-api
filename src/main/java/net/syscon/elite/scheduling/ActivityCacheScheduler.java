@@ -3,7 +3,7 @@ package net.syscon.elite.scheduling;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.service.AgencyService;
-import net.syscon.elite.service.LocationGroupService;
+import net.syscon.elite.service.WhereaboutsEnabledService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -15,11 +15,11 @@ import java.util.List;
 public class ActivityCacheScheduler {
 
     private final AgencyService agencyService;
-    private final LocationGroupService locationGroupService;
+    private final WhereaboutsEnabledService whereaboutsEnabledService;
 
-    public ActivityCacheScheduler(final AgencyService agencyService, final LocationGroupService locationGroupService) {
+    public ActivityCacheScheduler(final AgencyService agencyService, final WhereaboutsEnabledService whereaboutsEnabledService) {
         this.agencyService = agencyService;
-        this.locationGroupService = locationGroupService;
+        this.whereaboutsEnabledService = whereaboutsEnabledService;
     }
 
     @Scheduled(fixedRate = 10 * 60 * 1000, initialDelay = 30000)
@@ -31,9 +31,7 @@ public class ActivityCacheScheduler {
         final var prisons = agencyService.getAgenciesByType("INST");
 
         prisons.forEach(prison -> {
-            final var locationGroups = locationGroupService.getLocationGroups(prison.getAgencyId());
-
-            if (!locationGroups.isEmpty()) {
+            if (whereaboutsEnabledService.isEnabled(prison.getAgencyId())) {
                 log.info("cacheActivityLocations: Caching event locations for {}", prison.getAgencyId());
 
                 final var now = LocalDate.now();

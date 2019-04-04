@@ -1,6 +1,7 @@
 package net.syscon.elite.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.CaseLoad;
 import net.syscon.elite.api.model.Location;
@@ -14,11 +15,11 @@ import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.LocationProcessor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -45,8 +46,8 @@ public class LocationServiceImpl implements LocationService {
             final LocationRepository locationRepository,
             final InmateRepository inmateRepository,
             final CaseLoadService caseLoadService,
-            final LocationGroupService locationGroupService,
-            @Value("${api.users.me.locations.locationType:WING}") final String locationTypeGranularity) throws IOException {
+            @Qualifier("locationGroupServiceSelector") final LocationGroupService locationGroupService,
+            @Value("${api.users.me.locations.locationType:WING}") final String locationTypeGranularity) {
         this.locationRepository = locationRepository;
         this.inmateRepository = inmateRepository;
         this.caseLoadService = caseLoadService;
@@ -108,21 +109,24 @@ public class LocationServiceImpl implements LocationService {
 
     /**
      * Get all cells for the prison/agency then filter them using the named pattern
-     * defined in the groups.properties file.
+     * defined in the whereabouts/*.properties files.
      */
     @Override
     @VerifyAgencyAccess
     public List<Location> getCellLocationsForGroup(final String agencyId, final String groupName) {
 
-        final var groupFilters = locationGroupService.locationGroupFilters(agencyId, groupName);
+        val cells = locationRepository.findLocationsByAgencyAndType(agencyId, "CELL", false);
 
-        final var cells = locationRepository.findLocationsByAgencyAndType(agencyId, "CELL", false);
-
-        cells.forEach(c -> c.setDescription(LocationProcessor.formatLocation(c.getDescription())));
-
-        final var cellLocations = groupFilters.stream()
-                .flatMap(groupFilter -> cells.stream().filter(groupFilter))
+        val cellLocations = locationGroupService
+                .locationGroupFilters(agencyId, groupName).stream()
+                .flatMap(groupFilter -> cells
+                                .stream()
+                                .filter(groupFilter))
                 .collect(Collectors.toList());
+
+        // At this point description may be userDescription, or if absent description with the agencyId prefix removed.
+        // Now we do some more munging of the description.
+        cells.forEach(c -> c.setDescription(LocationProcessor.formatLocation(c.getDescription())));
 
         if (cellLocations.isEmpty()) {
             throw ConfigException.withMessage("There are no cells set up for location '%s'", groupName);
@@ -132,7 +136,6 @@ public class LocationServiceImpl implements LocationService {
 
     private String getWorkingCaseLoad(final String username) {
         final var workingCaseLoad = caseLoadService.getWorkingCaseLoadForUser(username);
-
         return workingCaseLoad.map(CaseLoad::getCaseLoadId).orElse(null);
     }
 

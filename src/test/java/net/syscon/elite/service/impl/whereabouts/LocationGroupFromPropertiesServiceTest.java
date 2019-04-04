@@ -1,4 +1,4 @@
-package net.syscon.elite.service.impl;
+package net.syscon.elite.service.impl.whereabouts;
 
 
 import net.syscon.elite.api.model.Location;
@@ -17,10 +17,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LocationGroupServiceImplTest {
+public class LocationGroupFromPropertiesServiceTest {
 
     private Properties groupsProperties;
     private LocationGroupService service;
@@ -28,7 +27,7 @@ public class LocationGroupServiceImplTest {
     @Before
     public void initialiseTest() {
         groupsProperties = new Properties();
-        service = new LocationGroupServiceImpl(groupsProperties);
+        service = new LocationGroupFromPropertiesService(groupsProperties);
     }
 
     @Test
@@ -45,7 +44,7 @@ public class LocationGroupServiceImplTest {
     @Test
     public void whenGivenOneGroupForOneAgencyThenGetLocationGroupsForAnotherAgencyShouldReturnEmptyList() {
         groupsProperties.setProperty("MDI_1", "*");
-        assertThat(service.getLocationGroupsForAgency("MDI")).containsExactly(group("1"));
+        assertThat(service.getLocationGroupsForAgency("LEI")).isEmpty();
     }
 
     @Test
@@ -89,7 +88,7 @@ public class LocationGroupServiceImplTest {
     }
 
     @Test
-    public void whenThereAreManyGroupsAndManySubGroupsTenTheLookupReturnsTheCorrectRepresentation() {
+    public void whenThereAreManyGroupsAndManySubGroupsThenTheLookupReturnsTheCorrectRepresentation() {
         groupsProperties.setProperty("MDI_1", "");
         groupsProperties.setProperty("MDI_1_A", "");
         groupsProperties.setProperty("MDI_1_B", "");
@@ -126,7 +125,7 @@ public class LocationGroupServiceImplTest {
     }
 
     @Test
-    public void whenTherAreSpacesInLocationAndSubLoationNamesThenLookupReturnsTheCorrectRepresentation() {
+    public void whenThereAreSpacesInLocationAndSubLoationNamesThenLookupReturnsTheCorrectRepresentation() {
         groupsProperties.setProperty("HLI_A Wing", "HLI-A-.+");
         groupsProperties.setProperty("HLI_A Wing_Landing 1", "HLI-A-1-.+");
         groupsProperties.setProperty("HLI_A Wing_Landing 2", "HLI-A-2-.+");
@@ -401,11 +400,11 @@ public class LocationGroupServiceImplTest {
     }
 
     private static LocationGroup group(final String name) {
-        return new LocationGroup(emptyMap(), name, emptyList());
+        return new LocationGroup(name, name, emptyList());
     }
 
     private static LocationGroup group(final String name, final String... subGroupNames) {
-        return new LocationGroup(emptyMap(), name, Arrays.stream(subGroupNames).map(LocationGroupServiceImplTest::group).collect(Collectors.toList()));
+        return new LocationGroup(name, name, Arrays.stream(subGroupNames).map(LocationGroupFromPropertiesServiceTest::group).collect(Collectors.toList()));
     }
 
     private static Location location(final String locationPrefix) {
@@ -418,7 +417,7 @@ public class LocationGroupServiceImplTest {
         return predicates.stream()
                 .flatMap(filter ->
                     Arrays.stream(locationPrefixes)
-                        .map(LocationGroupServiceImplTest::location)
+                        .map(LocationGroupFromPropertiesServiceTest::location)
                         .filter(filter)
                         .map(Location::getLocationPrefix))
                 .collect(Collectors.toList());
