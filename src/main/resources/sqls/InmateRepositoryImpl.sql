@@ -428,6 +428,7 @@ GET_APPROVED_CATEGORISED {
   where off_ass.assessment_create_location = :agencyId
     and off_ass.evaluation_date >= :cutOffDate
     and off_ass.assess_status = :assessStatus
+    and off_ass.assessment_type_id = :assessmentId
 }
 
 GET_CATEGORY_ASSESSMENT_ID {

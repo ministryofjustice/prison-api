@@ -459,9 +459,14 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
 	@Override
     public List<OffenderCategorise> getApprovedCategorised(final String agencyId, final LocalDate cutoffDate) {
-        final var rawData = jdbcTemplate.query(
+		final var assessmentId = jdbcTemplate.queryForObject(getQuery("GET_CATEGORY_ASSESSMENT_ID"), Map.of(), Long.class);
+
+		final var rawData = jdbcTemplate.query(
 				getQuery("GET_APPROVED_CATEGORISED"),
-				createParams("agencyId", agencyId, "cutOffDate", DateTimeConverter.toDate(cutoffDate), "assessStatus", "A"),
+				createParams("agencyId", agencyId,
+						"cutOffDate", DateTimeConverter.toDate(cutoffDate),
+						"assessStatus", "A",
+						"assessmentId", assessmentId),
 				UNCATEGORISED_MAPPER);
 
 
