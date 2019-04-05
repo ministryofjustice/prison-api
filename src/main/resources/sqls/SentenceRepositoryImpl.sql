@@ -26,6 +26,8 @@ GET_OFFENCES {
         ORC1.CONVICTION_FLAG = 'Y'
      OR ORC2.CONVICTION_FLAG = 'Y'
     )
+    -- Avoid dups from merges (from NART team)
+    AND NOT (OCH.CREATE_USER_ID = 'SYS' AND OCH.AUDIT_MODULE_NAME = 'MERGE')
   ORDER BY OCH.offence_date
 }
 
