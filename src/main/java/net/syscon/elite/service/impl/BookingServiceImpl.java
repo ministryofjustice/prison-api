@@ -336,6 +336,11 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public void verifyCanViewLatestBooking(String offenderNo) {
+        getBookingIdByOffenderNo(offenderNo);
+    }
+
+    @Override
     public Long getBookingIdByOffenderNo(final String offenderNo) {
         final var bookingId = bookingRepository.getBookingIdByOffenderNo(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
         if (!isViewAllBookings()) {

@@ -64,6 +64,8 @@ public interface BookingService {
 
     Long getBookingIdByOffenderNo(String offenderNo);
 
+    void verifyCanViewLatestBooking(String offenderNo);
+
     /**
      * <<< FOR INTERNAL USE - ONLY CALL FROM SERVICE LAYER >>>
      * <p>
