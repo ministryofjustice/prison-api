@@ -10,6 +10,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Api(tags = {"/offender-assessments"})
 @SuppressWarnings("unused")
@@ -66,7 +67,15 @@ public interface OffenderAssessmentResource {
             @ApiResponse(code = 200, message = "OK", response = OffenderCategorise.class, responseContainer = "List") })
     GetUncategorisedResponse getApprovedCategorised(@ApiParam(value = "Prison id", required = true) @PathParam("agencyId")String agencyId,
                                                     @ApiParam(value = "The date from which categorisations are returned", required = false) @QueryParam("fromDate") LocalDate fromDate);
-
+    @POST
+    @Path("/category/{agencyId}")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Returns the latest Categorisation details for supplied Offenders (if one exists) - POST version to allow large offender lists.", notes = "Categorisation details for supplied Offenders", nickname = "postOffenderSentences")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The list of offenders with categorisation details is returned if categorisation record exists", response = OffenderCategorise.class, responseContainer = "List")})
+    GetUncategorisedResponse getOffenderCategorisations(@ApiParam(value = "Prison id", required = true) @PathParam("agencyId") String agencyId,
+                                                        @ApiParam(value = "The required booking Ids (mandatory)", required = true) Set<Long> bookingIds);
 
 
     @POST

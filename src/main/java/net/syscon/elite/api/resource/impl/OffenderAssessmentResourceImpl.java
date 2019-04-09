@@ -13,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Implementation of Offender Assessments (/offender-assessments) endpoint.
@@ -60,6 +61,12 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
     public GetUncategorisedResponse getApprovedCategorised(final String agencyId, final LocalDate fromDate) {
         final var cutOffDate = fromDate != null ? fromDate : LocalDate.now().minusMonths(1);
         final var results = inmateService.getApprovedCategorised(agencyId, cutOffDate);
+        return GetUncategorisedResponse.respond200WithApplicationJson(results);
+    }
+
+    @Override
+    public GetUncategorisedResponse getOffenderCategorisations(final String agencyId, final Set<Long> bookingIds) {
+        final var results = inmateService.getOffenderCategorisations(agencyId, bookingIds);
         return GetUncategorisedResponse.respond200WithApplicationJson(results);
     }
 

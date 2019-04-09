@@ -1,10 +1,8 @@
 package net.syscon.elite.service.impl;
 
+import com.google.common.collect.ImmutableList;
 import com.microsoft.applicationinsights.TelemetryClient;
-import net.syscon.elite.api.model.CategorisationDetail;
-import net.syscon.elite.api.model.InmateBasicDetails;
-import net.syscon.elite.api.model.OffenderSummary;
-import net.syscon.elite.api.model.UserDetail;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.InmateRepository;
 import net.syscon.elite.repository.KeyWorkerAllocationRepository;
 import net.syscon.elite.repository.UserRepository;
@@ -16,6 +14,7 @@ import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -30,6 +29,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -154,6 +155,42 @@ public class InmateServiceImplTest {
 
         Mockito.verify(repository, Mockito.times(1)).insertCategory(catDetail, "CDI", 444L, "ME");
     }
+
+    @Test
+    public void testGetOffenderCategorisationsBatching() {
+
+        var setOf150Longs = Stream.iterate(1L, n -> n + 1)
+                .limit(150)
+                .collect(Collectors.toSet());
+
+        ArgumentCaptor<String> agencyArgument = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<List<Long>> bookingIdsArgument = ArgumentCaptor.forClass(List.class);
+
+        final var catDetail1 = OffenderCategorise.builder().bookingId(-5L).category("D").build();
+        final var catDetail2 = OffenderCategorise.builder().bookingId(-4L).category("B").build();
+        final var catDetail3 = OffenderCategorise.builder().bookingId(-3L).category("C").build();
+
+        var listOf100Longs = Stream.iterate(1L, n -> n + 1)
+                .limit(100)
+                .collect(Collectors.toList());
+
+        var listOf50Longs = Stream.iterate(101L, n -> n + 1)
+                .limit(50)
+                .collect(Collectors.toList());
+
+        when(repository.getOffenderCategorisations(listOf100Longs, "LEI")).thenReturn(Collections.singletonList(catDetail1));
+        when(repository.getOffenderCategorisations(listOf50Longs, "LEI")).thenReturn(ImmutableList.of(catDetail2, catDetail3));
+
+        final var results = serviceToTest.getOffenderCategorisations("LEI", setOf150Longs);
+
+        assertThat(results).hasSize(3);
+
+        Mockito.verify(repository, Mockito.times(2)).getOffenderCategorisations(bookingIdsArgument.capture(), agencyArgument.capture());
+        var capturedArguments = bookingIdsArgument.getAllValues();
+        assertThat(capturedArguments.get(0)).containsAll(listOf100Longs);
+        assertThat(capturedArguments.get(1)).containsAll(listOf50Longs);
+    }
+
 
     @Test
     public void testMappingForOffenderDetailsAreCorrect() {
