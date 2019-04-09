@@ -102,6 +102,11 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
+        public OffenderSteps offenderSteps() {
+            return new OffenderSteps();
+        }
+
+        @Bean
         public PrisonerSearchSteps prisonerSearch() {
             return new PrisonerSearchSteps();
         }

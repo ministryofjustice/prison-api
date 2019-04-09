@@ -1,10 +1,18 @@
 package net.syscon.elite.service.impl;
 
 import com.microsoft.applicationinsights.TelemetryClient;
-import net.syscon.elite.api.model.*;
+import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.Location;
+import net.syscon.elite.api.model.NewAppointment;
+import net.syscon.elite.api.model.ReferenceCode;
+import net.syscon.elite.api.model.ScheduledEvent;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
-import net.syscon.elite.service.*;
+import net.syscon.elite.service.AgencyService;
+import net.syscon.elite.service.BookingService;
+import net.syscon.elite.service.EntityNotFoundException;
+import net.syscon.elite.service.LocationService;
+import net.syscon.elite.service.ReferenceDomainService;
 import net.syscon.elite.service.support.ReferenceDomain;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,15 +27,17 @@ import javax.ws.rs.BadRequestException;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 
 /**
  * Test cases for {@link BookingServiceImpl}.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class  BookingServiceImplTest {
+public class BookingServiceImplTest {
     @Mock
     private BookingRepository bookingRepository;
 
@@ -59,7 +69,7 @@ public class  BookingServiceImplTest {
         Mockito.when(referenceDomainService.getReferenceCodeByDomainAndCode(
                 ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
                 .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()));
-    
+
         Mockito.when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
                 .thenReturn(eventId);
 
@@ -77,7 +87,7 @@ public class  BookingServiceImplTest {
                 referenceDomainService,
                 null,
                 telemetryClient,
-                securityUtils,"1",
+                securityUtils, "1",
                 10);
     }
 
@@ -207,5 +217,34 @@ public class  BookingServiceImplTest {
         } catch (final BadRequestException e) {
             assertThat(e.getMessage()).isEqualTo("Event type not recognised.");
         }
+    }
+
+    @Test
+    public void testVerifyCanAccessLatestBooking() {
+
+        final var agencyIds = Set.of("agency-1");
+        final var bookingId = 1L;
+
+        Mockito.when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(bookingId));
+        Mockito.when(agencyService.getAgencyIds()).thenReturn(agencyIds);
+        Mockito.when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
+
+
+        bookingService.verifyCanViewLatestBooking("off-1");
+    }
+
+    @Test
+    public void testVerifyCannotAccessLatestBooking() {
+
+        final var agencyIds = Set.of("agency-1");
+        final var bookingId = 1L;
+
+        Mockito.when(bookingRepository.getBookingIdByOffenderNo("off-1")).thenReturn(Optional.of(bookingId));
+        Mockito.when(agencyService.getAgencyIds()).thenReturn(agencyIds);
+        Mockito.when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
+
+        assertThatThrownBy(() ->
+                bookingService.verifyCanViewLatestBooking("off-1"))
+                .isInstanceOf(EntityNotFoundException.class);
     }
 }
