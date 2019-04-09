@@ -73,6 +73,7 @@ public interface InmateRepository {
     List<AssessmentDto> findAssessmentsByOffenderNo(List<String> offenderNos, String assessmentCode, Set<String> caseLoadId, boolean latestOnly);
 	List<OffenderCategorise> getUncategorised(String agencyId);
 	List<OffenderCategorise> getApprovedCategorised(String agencyId, LocalDate cutoffDate);
+	List<OffenderCategorise> getOffenderCategorisations(List<Long> bookingIds, String agencyId);
 
 	Optional<ImageDetail> getMainBookingImage(long bookingId);
 

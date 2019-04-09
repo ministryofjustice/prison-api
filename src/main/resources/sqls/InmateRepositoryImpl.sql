@@ -431,6 +431,32 @@ GET_APPROVED_CATEGORISED {
     and off_ass.assessment_type_id = :assessmentId
 }
 
+GET_OFFENDER_CATEGORISATIONS {
+  select
+    o.offender_id_display as offender_no,
+    ob.offender_book_id as booking_id,
+    o.last_name,
+    o.first_name,
+    off_ass.assessment_seq,
+    off_ass.assessment_date,
+    off_ass.evaluation_date as approval_date,
+    COALESCE(off_ass.review_sup_level_type, off_ass.overrided_sup_level_type, off_ass.calc_sup_level_type) as category,
+    sm.first_name as categoriser_first_name,
+    sm.last_name as categoriser_last_name,
+    sm_a.first_name as approver_first_name,
+    sm_a.last_name as approver_last_name
+
+  from
+    offender_assessments off_ass
+      join offender_bookings ob on ob.offender_book_id = off_ass.offender_book_id
+      join offenders o on ob.offender_id = o.offender_id
+      join staff_members sm on off_ass.assess_staff_id = sm.staff_id
+      join staff_members sm_a ON sm_a.staff_id  = (select su.staff_id from staff_user_accounts su where off_ass.modify_user_id = su.username)
+
+  where off_ass.offender_book_id in (:bookingIds)
+    and off_ass.assessment_create_location = :agencyId -- included to ensure only authorised bookings are returned
+}
+
 GET_CATEGORY_ASSESSMENT_ID {
   select assessment_id from assessments a where a.assessment_class='TYPE' and a.assessment_code='CATEGORY'
 }

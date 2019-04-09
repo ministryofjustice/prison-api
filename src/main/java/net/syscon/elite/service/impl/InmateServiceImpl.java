@@ -195,7 +195,7 @@ public class InmateServiceImpl implements InmateService {
             if (csra != null) {
                 inmate.setCsra(csra.getClassification());
             }
-            findCategory(assessments).ifPresent( category -> {
+            findCategory(assessments).ifPresent(category -> {
                 inmate.setCategory(category.getClassification());
                 inmate.setCategoryCode(category.getClassificationCode());
             });
@@ -359,6 +359,20 @@ public class InmateServiceImpl implements InmateService {
         return results;
     }
 
+    @Override
+    @VerifyAgencyAccess
+    public List<OffenderCategorise> getOffenderCategorisations(final String agencyId, final Set<Long> bookingIds) {
+        final List<OffenderCategorise> results = new ArrayList<>();
+        if (!bookingIds.isEmpty()) {
+            final var batch = Lists.partition(new ArrayList<>(bookingIds), maxBatchSize);
+            batch.forEach(offenderBatch -> {
+                final var categorisations = repository.getOffenderCategorisations(offenderBatch, agencyId);
+                results.addAll(categorisations);
+            });
+        }
+        return results;
+    }
+
     private Optional<Assessment> findCategory(final List<Assessment> assessmentsForOffender) {
         return assessmentsForOffender.stream().filter(a -> "CATEGORY".equals(a.getAssessmentCode())).findFirst();
     }
@@ -399,7 +413,7 @@ public class InmateServiceImpl implements InmateService {
         repository.insertCategory(categorisationDetail, currentBooking.getAgencyLocationId(), userDetail.getStaffId(), userDetail.getUsername());
 
         // Log event
-        telemetryClient.trackEvent("CategorisationCreated", ImmutableMap.of("bookingId", bookingId.toString(),"category", categorisationDetail.getCategory()), null);
+        telemetryClient.trackEvent("CategorisationCreated", ImmutableMap.of("bookingId", bookingId.toString(), "category", categorisationDetail.getCategory()), null);
     }
 
     @Override

@@ -160,12 +160,20 @@ Feature: Booking Details
     When a request is made for categorised offenders at "LEI" with an approval from Date of ""
     Then 0 categorised offenders are returned
 
+  Scenario: Request for offender categorisation details for given booking ids
+    When a request is made for offender categorisation details at "LEI" with booking id "-31"
+    Then 1 categorised offenders are returned
+
+  Scenario: Request for offender categorisation details for given booking ids that do not match the given agency
+    When a request is made for offender categorisation details at "MDI" with booking id "-31"
+    Then 0 categorised offenders are returned
+
   Scenario: Create categorisation request
     Given a categorisation user has authenticated with the API
     When a categorisation request is made for booking "-35" with category "D" for committee "RECP"
     And a request is made for uncategorised offenders at "MDI"
     Then offender with booking "-35" has a categorised status of AWAITING_APROVAL
-
+@lucy
   Scenario: Approve categorisation
     Given a user has a token name of "CATEGORISATION_APPROVE"
     And a request is made for uncategorised offenders at "LEI"

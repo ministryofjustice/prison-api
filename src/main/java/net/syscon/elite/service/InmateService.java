@@ -37,6 +37,7 @@ public interface InmateService {
     List<Assessment> getInmatesAssessmentsByCode(List<String> offenderNos, String assessmentCode, boolean latestOnly);
 	List<OffenderCategorise> getUncategorised(String agencyId);
 	List<OffenderCategorise> getApprovedCategorised(String agencyId, LocalDate cutOffDate);
+	List<OffenderCategorise> getOffenderCategorisations(String agencyId, Set<Long> bookingIds);
 
 	List<Long> getPersonalOfficerBookings(String username);
 	List<InmateDto> findInmatesByLocation(String username, String agencyId, List<Long> locations);
