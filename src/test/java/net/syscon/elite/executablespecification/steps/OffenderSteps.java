@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import java.util.List;
 
 import static com.google.common.base.Strings.emptyToNull;
-import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,15 +25,13 @@ public class OffenderSteps extends CommonSteps {
 
         init();
 
-        final var queryUrl = format(API_PREFIX + "offenders/%s/addresses", offenderNumber.trim());
-
         try {
 
-            final var responseEntity = restTemplate.exchange(queryUrl,
+            final var responseEntity = restTemplate.exchange(API_PREFIX + "offenders/{offenderNumber}/addresses",
                     HttpMethod.GET,
                     createEntity(null, addPaginationHeaders()),
                     new ParameterizedTypeReference<List<OffenderAddress>>() {
-                    });
+                    }, offenderNumber);
 
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
             offenderAddresses = responseEntity.getBody();
