@@ -173,7 +173,7 @@ Feature: Booking Details
     When a categorisation request is made for booking "-35" with category "D" for committee "RECP"
     And a request is made for uncategorised offenders at "MDI"
     Then offender with booking "-35" has a categorised status of AWAITING_APROVAL
-@lucy
+
   Scenario: Approve categorisation
     Given a user has a token name of "CATEGORISATION_APPROVE"
     And a request is made for uncategorised offenders at "LEI"
