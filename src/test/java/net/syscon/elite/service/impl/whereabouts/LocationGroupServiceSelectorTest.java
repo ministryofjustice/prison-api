@@ -55,15 +55,15 @@ public class LocationGroupServiceSelectorTest {
 
     @Test
     public void locationGroupsFiltersCallsDefaultWhenNoOverride() {
-        service.locationGroupFilters("LEI", "Z");
-        verify(defaultService).locationGroupFilters("LEI", "Z");
+        service.locationGroupFilter("LEI", "Z");
+        verify(defaultService).locationGroupFilter("LEI", "Z");
     }
 
     @Test
     public void locationGroupsFiltersCallsOverrideOnlyIfOverridden() {
         when(overrideService.getLocationGroups("LEI")).thenReturn(List.of(LG1));
-        service.locationGroupFilters("LEI", "Z");
-        verify(overrideService).locationGroupFilters("LEI", "Z");
+        service.locationGroupFilter("LEI", "Z");
+        verify(overrideService).locationGroupFilter("LEI", "Z");
         verifyNoMoreInteractions(defaultService);
     }
 }

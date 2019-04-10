@@ -84,8 +84,8 @@ public class LocationGroupFromDBService implements LocationGroupService {
     }
 
     @Override
-    public List<Predicate<Location>> locationGroupFilters(String agencyId, String groupName) {
+    public Predicate<Location> locationGroupFilter(String agencyId, String groupName) {
         val prefixToMatch = agencyId + '-' + groupName.replace('_', '-');
-        return List.of((Location location) -> location.getLocationPrefix().startsWith(prefixToMatch));
+        return (Location location) -> location.getLocationPrefix().startsWith(prefixToMatch);
     }
 }

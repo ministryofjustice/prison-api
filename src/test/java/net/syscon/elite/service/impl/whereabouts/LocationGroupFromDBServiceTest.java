@@ -84,12 +84,9 @@ public class LocationGroupFromDBServiceTest {
 
     @Test
     public void locationGroupFilters() {
-        final var filters = service.locationGroupFilters("LEI", "A");
-        assertThat(filters).hasSize(1);
-        final var filter = filters.get(0);
+        final var filter = service.locationGroupFilter("LEI", "A");
         assertThat(locationStream(L1, L2, SL1, SL2, SL3).filter(filter))
-                .containsExactlyInAnyOrder(locationStream(L1, SL2, SL3).toArray(Location[]::new)
-                );
+                .containsExactlyInAnyOrder(locationStream(L1, SL2, SL3).toArray(Location[]::new));
     }
 
     private static Stream<Location> locationStream(Location... locations) {

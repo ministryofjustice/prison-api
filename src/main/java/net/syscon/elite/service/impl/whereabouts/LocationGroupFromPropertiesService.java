@@ -73,26 +73,19 @@ public class LocationGroupFromPropertiesService implements LocationGroupService 
                 .collect(Collectors.toList());
     }
 
-    /**
-     *  Return a Predicate which will filter Locations by agencyId and group/sub-group name.
-     *  For a group the compoundGroupName is the name of a group, while for a sub-group the compoundGoupName is
-     *  the group name followed by a '_' followed by the sub-group name.
-     * @param agencyId
-     * @param compoundGroupName The group name or compounded group / sub-group name.
-     * @return A list of Predicates that is true for any Location which is a member of the named group or sub-group and false
-     * for any other Location.
-     */
-    public List<Predicate<Location>> locationGroupFilters(final String agencyId, final String compoundGroupName) {
-        final var patternStrings = groupsProperties.getProperty(agencyId + '_' + compoundGroupName);
-        if (patternStrings == null) {
+    @Override
+    public Predicate<Location> locationGroupFilter(String agencyId, String groupName) {
+        final var patterns = groupsProperties.getProperty(agencyId + '_' + groupName);
+        if (patterns == null) {
             throw new EntityNotFoundException(
-                    "Group '" + compoundGroupName + "' does not exist for agencyId '" + agencyId + "'.");
+                    "Group '" + groupName + "' does not exist for agencyId '" + agencyId + "'.");
         }
-        final var patternString = patternStrings.split(",");
-        return Arrays.stream(patternString)
+        final var patternStrings = patterns.split(",");
+
+        return Arrays.stream(patternStrings)
                 .map(Pattern::compile)
                 .map(pattern -> (Predicate<Location>) (Location l) -> pattern.matcher(l.getLocationPrefix()).matches())
-                .collect(Collectors.toList());
+                .reduce(Predicate::or)
+                .orElseThrow();
     }
-
 }

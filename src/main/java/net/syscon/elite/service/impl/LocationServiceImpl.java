@@ -115,18 +115,12 @@ public class LocationServiceImpl implements LocationService {
     @VerifyAgencyAccess
     public List<Location> getCellLocationsForGroup(final String agencyId, final String groupName) {
 
-        val cells = locationRepository.findLocationsByAgencyAndType(agencyId, "CELL", false);
-
-        val cellLocations = locationGroupService
-                .locationGroupFilters(agencyId, groupName).stream()
-                .flatMap(groupFilter -> cells
-                                .stream()
-                                .filter(groupFilter))
+        val cellLocations = locationRepository.findLocationsByAgencyAndType(agencyId, "CELL", false)
+                .stream()
+                .filter(locationGroupService.locationGroupFilter(agencyId, groupName))
+                // At this point description may be userDescription, or if absent description with the agencyId prefix removed.
+                .peek(c -> c.setDescription(LocationProcessor.formatLocation(c.getDescription())))
                 .collect(Collectors.toList());
-
-        // At this point description may be userDescription, or if absent description with the agencyId prefix removed.
-        // Now we do some more munging of the description.
-        cells.forEach(c -> c.setDescription(LocationProcessor.formatLocation(c.getDescription())));
 
         if (cellLocations.isEmpty()) {
             throw ConfigException.withMessage("There are no cells set up for location '%s'", groupName);

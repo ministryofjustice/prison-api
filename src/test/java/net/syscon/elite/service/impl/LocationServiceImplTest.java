@@ -12,12 +12,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,7 +43,7 @@ public class LocationServiceImplTest {
     private Location cell4 = Location.builder().locationPrefix("cell4").build();
 
     @Before
-    public void init() throws IOException {
+    public void init() {
         locationService = new LocationServiceImpl(agencyRepository, locationRepository, null, caseLoadService, locationGroupService, "WING");
     }
 
@@ -108,28 +106,28 @@ public class LocationServiceImplTest {
         when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", false))
             .thenReturn(Arrays.asList(cell1, cell2, cell3, cell4));
 
-        when(locationGroupService.locationGroupFilters("LEI", "mylist"))
-                .thenReturn(Stream.of("cell4", "cell1", "cell3").map(filterFactory).collect(Collectors.toList()));
+        when(locationGroupService.locationGroupFilter("LEI", "mylist"))
+                .thenReturn(Stream.of("cell4", "cell1", "cell3").map(filterFactory).reduce(Predicate::or).get());
 
         final var group = locationService.getCellLocationsForGroup("LEI", "mylist");
 
-        // Note that the locationGroupFilter ordering imposes an ordering on the results
-        assertThat(group).asList().containsExactly(cell4, cell1, cell3);
+        // Note that the result order no longer matters.
+        assertThat(group).asList().containsExactlyInAnyOrder(cell4, cell1, cell3);
     }
 
     @Test(expected = EntityNotFoundException.class)
     public void testLocationGroupFilterThrowsEntityNotFoundException() {
 
-        when(locationGroupService.locationGroupFilters("LEI", "does-not-exist")).thenThrow(EntityNotFoundException.class);
+        when(locationGroupService.locationGroupFilter("LEI", "does-not-exist")).thenThrow(EntityNotFoundException.class);
 
         locationService.getCellLocationsForGroup("LEI", "does-not-exist");
     }
 
 
     @Test(expected = PatternSyntaxException.class)
-    public void testLocationGroupFilterThrowsPatternSyntaxException() throws Exception {
+    public void testLocationGroupFilterThrowsPatternSyntaxException() {
 
-        when(locationGroupService.locationGroupFilters("LEI", "mylist")).thenThrow(PatternSyntaxException.class);
+        when(locationGroupService.locationGroupFilter("LEI", "mylist")).thenThrow(PatternSyntaxException.class);
 
         locationService.getCellLocationsForGroup("LEI", "mylist");
     }
@@ -139,7 +137,7 @@ public class LocationServiceImplTest {
         when(locationRepository.findLocationsByAgencyAndType("LEI", "CELL", false))
             .thenReturn(Arrays.asList( cell1, cell2, cell3, cell4));
 
-        when(locationGroupService.locationGroupFilters("LEI", "mylist")).thenReturn(Collections.singletonList(l -> false));
+        when(locationGroupService.locationGroupFilter("LEI", "mylist")).thenReturn(l -> false);
 
         locationService.getCellLocationsForGroup("LEI", "mylist");
     }

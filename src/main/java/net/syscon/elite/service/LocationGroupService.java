@@ -18,6 +18,7 @@ public interface LocationGroupService {
      * @param groupName
      * @return
      */
-    List<Predicate<Location>> locationGroupFilters(String agencyId, String groupName);
+//    List<Predicate<Location>> locationGroupFilters(String agencyId, String groupName);
 
+    Predicate<Location> locationGroupFilter(String agencyId, String groupName);
 }
