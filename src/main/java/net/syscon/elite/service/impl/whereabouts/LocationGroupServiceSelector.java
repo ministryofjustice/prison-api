@@ -38,15 +38,6 @@ public class LocationGroupServiceSelector implements LocationGroupService {
         return defaultService.getLocationGroups(agencyId);
     }
 
-//    @Override
-//    public List<Predicate<Location>> locationGroupFilters(String agencyId, String groupName) {
-//
-//        if (!overrideService.getLocationGroups(agencyId).isEmpty()) {
-//            return overrideService.locationGroupFilters(agencyId, groupName);
-//        }
-//        return defaultService.locationGroupFilters(agencyId, groupName);
-//    }
-
     @Override
     public Predicate<Location> locationGroupFilter(String agencyId, String groupName) {
         if (!overrideService.getLocationGroups(agencyId).isEmpty()) {
