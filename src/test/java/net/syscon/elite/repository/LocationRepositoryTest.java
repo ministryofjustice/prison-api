@@ -1,5 +1,6 @@
 package net.syscon.elite.repository;
 
+import net.syscon.elite.api.model.Location;
 import net.syscon.elite.web.config.PersistenceConfigs;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +16,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
@@ -39,5 +44,25 @@ public class LocationRepositoryTest {
         final var result = repository.findLocationsByAgencyAndType("LEI", "CELL", false);
         assertEquals(30, result.size());
         assertEquals("LEI-A-1-1", result.get(0).getLocationPrefix());
+    }
+
+    @Test
+    public void testGetLocationGroupData() {
+        assertThat(repository.getLocationGroupData("LEI"))
+                .contains(
+                        Location.builder().locationId(-1L).locationType("WING").description("LEI-A").userDescription("Block A").internalLocationCode("A").build(),
+                        Location.builder().locationId(-13L).locationType("WING").description("LEI-H").internalLocationCode("H").build()
+                );
+    }
+
+    @Test
+    public void testGetSubLocationGroupData() {
+        final List<Location> subLocationGroupData = repository.getSubLocationGroupData(Set.of(-1L, -13L));
+        assertThat(subLocationGroupData)
+                .contains(
+                        Location.builder().locationId(-14L).locationType("LAND").description("LEI-H-1").parentLocationId(-13L).userDescription("Landing H/1").internalLocationCode("1").build(),
+                        Location.builder().locationId( -2L).locationType("LAND").description("LEI-A-1").parentLocationId( -1L).userDescription("Landing A/1").internalLocationCode("1").build(),
+                        Location.builder().locationId(-32L).locationType("LAND").description("LEI-A-2").parentLocationId( -1L).userDescription("Landing A/2").internalLocationCode("2").build()
+                );
     }
 }

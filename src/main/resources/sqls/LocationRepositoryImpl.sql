@@ -41,3 +41,33 @@ FIND_LOCATIONS_BY_AGENCY_AND_TYPE {
     AND A.AGY_LOC_ID = :agencyId
     AND A.INTERNAL_LOCATION_TYPE = :locationType
 }
+
+GET_LOCATION_GROUP_DATA {
+ SELECT AIL.INTERNAL_LOCATION_ID                        AS LOCATION_ID,
+        AIL.DESCRIPTION,
+        AIL.USER_DESC                                   AS USER_DESCRIPTION,
+        AIL.INTERNAL_LOCATION_CODE,
+        AIL.INTERNAL_LOCATION_TYPE                      AS LOCATION_TYPE,
+        AIL.PARENT_INTERNAL_LOCATION_ID                 AS PARENT_LOCATION_ID
+   FROM AGENCY_INTERNAL_LOCATIONS AIL
+  WHERE AIL.INTERNAL_LOCATION_TYPE in ('WING') AND
+        AIL.CERTIFIED_FLAG = 'Y'                      AND
+        AIL.UNIT_TYPE IS NOT NULL                     AND
+        AIL.AGY_LOC_ID = :agencyId                    AND
+        AIL.ACTIVE_FLAG = 'Y'                         AND
+        AIL.PARENT_INTERNAL_LOCATION_ID IS NULL
+}
+
+  GET_SUB_LOCATION_GROUP_DATA {
+SELECT AIL.INTERNAL_LOCATION_ID                        AS LOCATION_ID,
+       AIL.DESCRIPTION,
+       AIL.USER_DESC                                   AS USER_DESCRIPTION,
+       AIL.INTERNAL_LOCATION_CODE,
+       AIL.INTERNAL_LOCATION_TYPE                      AS LOCATION_TYPE,
+       AIL.PARENT_INTERNAL_LOCATION_ID                 AS PARENT_LOCATION_ID
+  FROM AGENCY_INTERNAL_LOCATIONS AIL
+ WHERE AIL.CERTIFIED_FLAG = 'Y'                      AND
+       AIL.UNIT_TYPE IS NOT NULL                     AND
+       AIL.ACTIVE_FLAG = 'Y'                         AND
+       AIL.PARENT_INTERNAL_LOCATION_ID IN (:parentLocationIds)
+  }

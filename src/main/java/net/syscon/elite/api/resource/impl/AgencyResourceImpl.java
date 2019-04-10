@@ -7,6 +7,8 @@ import net.syscon.elite.api.support.TimeSlot;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.AgencyService;
 import net.syscon.elite.service.LocationGroupService;
+import net.syscon.elite.service.WhereaboutsEnabledService;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.ws.rs.Path;
 import java.time.LocalDate;
@@ -18,10 +20,15 @@ import static net.syscon.util.ResourceUtils.nvl;
 public class AgencyResourceImpl implements AgencyResource {
     private final AgencyService agencyService;
     private final LocationGroupService locationGroupService;
+    private final WhereaboutsEnabledService whereaboutsEnabledService;
 
-    public AgencyResourceImpl(final AgencyService agencyService, final LocationGroupService locationGroupService) {
+    public AgencyResourceImpl(
+            final AgencyService agencyService,
+            @Qualifier("locationGroupServiceSelector") final LocationGroupService locationGroupService,
+            WhereaboutsEnabledService whereaboutsEnabledService) {
         this.agencyService = agencyService;
         this.locationGroupService = locationGroupService;
+        this.whereaboutsEnabledService = whereaboutsEnabledService;
     }
 
     @Override
@@ -52,10 +59,8 @@ public class AgencyResourceImpl implements AgencyResource {
     }
 
     @Override
-    public GetWhereaboutsResponse getWhereabouts(final String agencyId) {
-        final var locationGroups = locationGroupService.getLocationGroupsForAgency(agencyId);
-        final var whereaboutsConfig = WhereaboutsConfig.builder().enabled(!locationGroups.isEmpty()).build();
-        return GetWhereaboutsResponse.respond200WithApplicationJson(whereaboutsConfig);
+    public WhereaboutsConfig getWhereabouts(final String agencyId) {
+        return WhereaboutsConfig.builder().enabled(whereaboutsEnabledService.isEnabled(agencyId)).build();
     }
 
     @Override

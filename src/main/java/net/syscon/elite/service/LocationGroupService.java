@@ -12,12 +12,10 @@ public interface LocationGroupService {
     List<LocationGroup> getLocationGroups(String agencyId);
 
     /**
-     * Supply a sequence of filter predicates for LocationGroups.  The sequence is used to
-     * assist with ordering matching locations.
+     * Supply a filter predicate for LocationGroups.
      * @param agencyId
      * @param groupName
-     * @return
+     * @return a suitable predicate.
      */
-    List<Predicate<Location>> locationGroupFilters(String agencyId, String groupName);
-
+    Predicate<Location> locationGroupFilter(String agencyId, String groupName);
 }

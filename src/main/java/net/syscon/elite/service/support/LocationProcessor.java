@@ -101,18 +101,12 @@ public class LocationProcessor {
 
         final var newLocationPrefix = StringUtils.defaultIfBlank(location.getLocationPrefix(), location.getDescription());
 
-        final String newDescripton;
-
-        if (preferUserDescription && StringUtils.isNotBlank(location.getUserDescription())) {
-            newDescripton = location.getUserDescription();
-        } else {
-            newDescripton = stripAgencyId(location.getDescription(), location.getAgencyId());
-        }
+        final String newDescription = newDescription(location, preferUserDescription);
 
         return Location.builder()
                 .agencyId(location.getAgencyId())
                 .currentOccupancy(location.getCurrentOccupancy())
-                .description(newDescripton)
+                .description(newDescription)
                 .locationId(location.getLocationId())
                 .locationPrefix(newLocationPrefix)
                 .locationType(location.getLocationType())
@@ -121,6 +115,14 @@ public class LocationProcessor {
                 .userDescription(formatLocation(location.getUserDescription()))
                 .internalLocationCode(location.getInternalLocationCode())
                 .build();
+    }
+
+    private static String newDescription(Location location, boolean preferUserDescription) {
+        if (preferUserDescription && StringUtils.isNotBlank(location.getUserDescription())) {
+            return location.getUserDescription();
+        } else {
+            return stripAgencyId(location.getDescription(), location.getAgencyId());
+        }
     }
 
     public static String formatLocation(final String locationDescription) {

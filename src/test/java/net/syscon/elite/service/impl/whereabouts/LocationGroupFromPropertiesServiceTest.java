@@ -1,4 +1,4 @@
-package net.syscon.elite.service.impl;
+package net.syscon.elite.service.impl.whereabouts;
 
 
 import net.syscon.elite.api.model.Location;
@@ -17,10 +17,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LocationGroupServiceImplTest {
+public class LocationGroupFromPropertiesServiceTest {
 
     private Properties groupsProperties;
     private LocationGroupService service;
@@ -28,7 +27,7 @@ public class LocationGroupServiceImplTest {
     @Before
     public void initialiseTest() {
         groupsProperties = new Properties();
-        service = new LocationGroupServiceImpl(groupsProperties);
+        service = new LocationGroupFromPropertiesService(groupsProperties);
     }
 
     @Test
@@ -45,7 +44,7 @@ public class LocationGroupServiceImplTest {
     @Test
     public void whenGivenOneGroupForOneAgencyThenGetLocationGroupsForAnotherAgencyShouldReturnEmptyList() {
         groupsProperties.setProperty("MDI_1", "*");
-        assertThat(service.getLocationGroupsForAgency("MDI")).containsExactly(group("1"));
+        assertThat(service.getLocationGroupsForAgency("LEI")).isEmpty();
     }
 
     @Test
@@ -89,7 +88,7 @@ public class LocationGroupServiceImplTest {
     }
 
     @Test
-    public void whenThereAreManyGroupsAndManySubGroupsTenTheLookupReturnsTheCorrectRepresentation() {
+    public void whenThereAreManyGroupsAndManySubGroupsThenTheLookupReturnsTheCorrectRepresentation() {
         groupsProperties.setProperty("MDI_1", "");
         groupsProperties.setProperty("MDI_1_A", "");
         groupsProperties.setProperty("MDI_1_B", "");
@@ -126,7 +125,7 @@ public class LocationGroupServiceImplTest {
     }
 
     @Test
-    public void whenTherAreSpacesInLocationAndSubLoationNamesThenLookupReturnsTheCorrectRepresentation() {
+    public void whenThereAreSpacesInLocationAndSubLoationNamesThenLookupReturnsTheCorrectRepresentation() {
         groupsProperties.setProperty("HLI_A Wing", "HLI-A-.+");
         groupsProperties.setProperty("HLI_A Wing_Landing 1", "HLI-A-1-.+");
         groupsProperties.setProperty("HLI_A Wing_Landing 2", "HLI-A-2-.+");
@@ -146,7 +145,7 @@ public class LocationGroupServiceImplTest {
     public void givenFixedPatternThenPredicateMatchesThatPattern() {
         groupsProperties.setProperty("MDI_1", "1");
 
-        final var predicates = service.locationGroupFilters("MDI", "1");
+        final var predicates = service.locationGroupFilter("MDI", "1");
 
         assertThat(applyPredicatesToLocations(predicates, "1", "11", "X", "MDI-1-1-01")).containsExactly("1");
     }
@@ -156,15 +155,15 @@ public class LocationGroupServiceImplTest {
         groupsProperties.setProperty("MDI_1", "1");
         groupsProperties.setProperty("MDI_2", "2");
 
-        assertThat(applyPredicatesToLocations(service.locationGroupFilters("MDI", "1"), "1", "2")).containsExactly("1");
-        assertThat(applyPredicatesToLocations(service.locationGroupFilters("MDI", "2"), "1", "2")).containsExactly("2");
+        assertThat(applyPredicatesToLocations(service.locationGroupFilter("MDI", "1"), "1", "2")).containsExactly("1");
+        assertThat(applyPredicatesToLocations(service.locationGroupFilter("MDI", "2"), "1", "2")).containsExactly("2");
     }
 
     @Test
     public void givenFixedPatternAssignedToSubGroupThenPredicateMatchesThatPattern() {
         groupsProperties.setProperty("MDI_1_A", "1");
 
-        final var predicates = service.locationGroupFilters("MDI", "1_A");
+        final var predicates = service.locationGroupFilter("MDI", "1_A");
 
         assertThat(applyPredicatesToLocations(predicates, "1", "11", "2")).containsExactly("1");
     }
@@ -172,37 +171,37 @@ public class LocationGroupServiceImplTest {
     @Test(expected = EntityNotFoundException.class)
     public void givenCriteriaDoNotMatchAgencyThenEntityNotFoundExceptionIsThrown() {
         groupsProperties.setProperty("MDI_1_A", "1");
-        service.locationGroupFilters("XXX", "1");
+        service.locationGroupFilter("XXX", "1");
     }
 
     @Test(expected = EntityNotFoundException.class)
     public void givenCriteriaDoNotMatchGroupThenEntityNotFoundExceptionIsThrown() {
         groupsProperties.setProperty("MDI_1_A", "1");
-        service.locationGroupFilters("MDI", "2");
+        service.locationGroupFilter("MDI", "2");
     }
 
     @Test(expected = EntityNotFoundException.class)
     public void givenCriteriaDoNotMatchSubGroupThenEntityNotFoundExceptionIsThrown() {
         groupsProperties.setProperty("MDI_1", "1");
-        service.locationGroupFilters("MDI", "1_A");
+        service.locationGroupFilter("MDI", "1_A");
     }
 
     @Test
     public void givenFixedPatternsThenPredicateMatchesThosePatterns() {
         groupsProperties.setProperty("MDI_1", "1|X|PQR|M");
 
-        final var predicates = service.locationGroupFilters("MDI", "1");
+        final var predicates = service.locationGroupFilter("MDI", "1");
 
-        assertThat(applyPredicatesToLocations(predicates,  "PQR", "11", "X","XY", "1", "PQ", "Z", "")).containsExactly("PQR", "X", "1");
+        assertThat(applyPredicatesToLocations(predicates, "PQR", "11", "X", "XY", "1", "PQ", "Z", "")).containsExactly("PQR", "X", "1");
     }
 
     @Test
-    public void givenASequenceOfFixedPatternsThenPredicateMatchesThosePatternsAndResultsAreOrdered() {
+    public void givenASequenceOfFixedPatternsThenPredicateMatchesThosePatterns() {
         groupsProperties.setProperty("MDI_1", "1,X,PQR,M");
 
-        final var predicates = service.locationGroupFilters("MDI", "1");
+        final var predicates = service.locationGroupFilter("MDI", "1");
 
-        assertThat(applyPredicatesToLocations(predicates,  "PQR", "11", "X","XY", "1", "PQ", "Z", "")).containsExactly("1", "X", "PQR");
+        assertThat(applyPredicatesToLocations(predicates, "PQR", "11", "X", "XY", "1", "PQ", "Z", "")).containsExactlyInAnyOrder("1", "X", "PQR");
     }
 
 
@@ -210,7 +209,7 @@ public class LocationGroupServiceImplTest {
     public void givenInvalidPatternThenRequestingFilterThrowsException() {
         groupsProperties.setProperty("MDI_1", "1|[");
 
-        service.locationGroupFilters("MDI", "1");
+        service.locationGroupFilter("MDI", "1");
     }
 
     @Test
@@ -364,10 +363,10 @@ public class LocationGroupServiceImplTest {
 
         final var locationPrefixes = Stream.of(ONE_A_PREFIXES, ONE_B_PREFIXES, ONE_C_PREFIXES, extraPrefixes).flatMap(Stream::of).toArray(String[]::new);
 
-        assertThat(applyPredicatesToLocations(service.locationGroupFilters("MDI", "1"), locationPrefixes)).containsExactly(locationPrefixes);
-        assertThat(applyPredicatesToLocations(service.locationGroupFilters("MDI", "1_A"), locationPrefixes)).containsExactly(ONE_A_PREFIXES);
-        assertThat(applyPredicatesToLocations(service.locationGroupFilters("MDI", "1_B"), locationPrefixes)).containsExactly(ONE_B_PREFIXES);
-        assertThat(applyPredicatesToLocations(service.locationGroupFilters("MDI", "1_C"), locationPrefixes)).containsExactly(ONE_C_PREFIXES);
+        assertThat(applyPredicatesToLocations(service.locationGroupFilter("MDI", "1"), locationPrefixes)).containsExactly(locationPrefixes);
+        assertThat(applyPredicatesToLocations(service.locationGroupFilter("MDI", "1_A"), locationPrefixes)).containsExactly(ONE_A_PREFIXES);
+        assertThat(applyPredicatesToLocations(service.locationGroupFilter("MDI", "1_B"), locationPrefixes)).containsExactly(ONE_B_PREFIXES);
+        assertThat(applyPredicatesToLocations(service.locationGroupFilter("MDI", "1_C"), locationPrefixes)).containsExactly(ONE_C_PREFIXES);
     }
 
     @Test
@@ -380,9 +379,9 @@ public class LocationGroupServiceImplTest {
         groupsProperties.setProperty("HLI_B Wing", "HLI-B-.+");
         groupsProperties.setProperty("MDI_5", "MDI-5-.-A-.+,MDI-5-.-B-.+");
 
-        final var predicates = service.locationGroupFilters("HLI", "A Wing");
+        final var predicates = service.locationGroupFilter("HLI", "A Wing");
 
-        assertThat(applyPredicatesToLocations(predicates,  "HLI-A-1-001", "HLI-A-2-001", "HLI-B-1-001")).containsExactly("HLI-A-1-001", "HLI-A-2-001");
+        assertThat(applyPredicatesToLocations(predicates, "HLI-A-1-001", "HLI-A-2-001", "HLI-B-1-001")).containsExactly("HLI-A-1-001", "HLI-A-2-001");
     }
 
     @Test
@@ -395,17 +394,17 @@ public class LocationGroupServiceImplTest {
         groupsProperties.setProperty("HLI_B Wing", "HLI-B-.+");
         groupsProperties.setProperty("MDI_5", "MDI-5-.-A-.+,MDI-5-.-B-.+");
 
-        final var predicates = service.locationGroupFilters("HLI", "A Wing_Landing 2");
+        final var predicates = service.locationGroupFilter("HLI", "A Wing_Landing 2");
 
-        assertThat(applyPredicatesToLocations(predicates,  "HLI-A-1-001", "HLI-A-2-001", "HLI-B-1-001")).containsExactly( "HLI-A-2-001");
+        assertThat(applyPredicatesToLocations(predicates, "HLI-A-1-001", "HLI-A-2-001", "HLI-B-1-001")).containsExactly("HLI-A-2-001");
     }
 
     private static LocationGroup group(final String name) {
-        return new LocationGroup(emptyMap(), name, emptyList());
+        return new LocationGroup(name, name, emptyList());
     }
 
     private static LocationGroup group(final String name, final String... subGroupNames) {
-        return new LocationGroup(emptyMap(), name, Arrays.stream(subGroupNames).map(LocationGroupServiceImplTest::group).collect(Collectors.toList()));
+        return new LocationGroup(name, name, Arrays.stream(subGroupNames).map(LocationGroupFromPropertiesServiceTest::group).collect(Collectors.toList()));
     }
 
     private static Location location(final String locationPrefix) {
@@ -414,13 +413,11 @@ public class LocationGroupServiceImplTest {
         return location;
     }
 
-    private static List<String> applyPredicatesToLocations(final List<Predicate<Location>> predicates, final String... locationPrefixes) {
-        return predicates.stream()
-                .flatMap(filter ->
-                    Arrays.stream(locationPrefixes)
-                        .map(LocationGroupServiceImplTest::location)
-                        .filter(filter)
-                        .map(Location::getLocationPrefix))
+    private static List<String> applyPredicatesToLocations(final Predicate<Location> predicate, final String... locationPrefixes) {
+        return Arrays.stream(locationPrefixes)
+                .map(LocationGroupFromPropertiesServiceTest::location)
+                .filter(predicate)
+                .map(Location::getLocationPrefix)
                 .collect(Collectors.toList());
     }
 }

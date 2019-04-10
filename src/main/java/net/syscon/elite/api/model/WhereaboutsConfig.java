@@ -1,6 +1,7 @@
 package net.syscon.elite.api.model;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -9,8 +10,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Whereabouts Details
@@ -23,22 +22,8 @@ import java.util.Map;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class WhereaboutsConfig {
-    @JsonIgnore
-    private Map<String, Object> additionalProperties;
-    
     @NotNull
     private boolean enabled;
-
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return additionalProperties == null ? new HashMap<>() : additionalProperties;
-    }
-
-    @ApiModelProperty(hidden = true)
-    @JsonAnySetter
-    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
-        this.additionalProperties = additionalProperties;
-    }
 
     /**
       * Whether this prison is enabled for whereabouts
