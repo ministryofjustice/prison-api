@@ -52,8 +52,8 @@ public class LocationGroupFromDBServiceTest {
 
     @Test
     public void twoGroups() {
-        when(repository.getLocationGroupData("LEI")).thenReturn(List.of(L1, L2));
-        assertThat(service.getLocationGroups("LEI")).contains(LG1, LG2);
+        when(repository.getLocationGroupData("LEI")).thenReturn(List.of(L2, L1));
+        assertThat(service.getLocationGroups("LEI")).containsExactly(LG1, LG2);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class LocationGroupFromDBServiceTest {
     @Test
     public void oneGroupTwoSubGroups() {
         when(repository.getLocationGroupData("LEI")).thenReturn(List.of(L1));
-        when(repository.getSubLocationGroupData(Set.of(-1L))).thenReturn(List.of(SL2, SL3));
+        when(repository.getSubLocationGroupData(Set.of(-1L))).thenReturn(List.of(SL3, SL2));
         assertThat(service.getLocationGroups("LEI")).contains(
                 LG1.toBuilder().children(List.of(SLG2, SLG3)).build()
         );

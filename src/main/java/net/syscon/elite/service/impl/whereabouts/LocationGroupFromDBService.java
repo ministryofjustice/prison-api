@@ -9,9 +9,12 @@ import net.syscon.elite.service.LocationGroupService;
 import org.apache.commons.text.WordUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
 
 import static java.util.stream.Collectors.*;
 
@@ -19,6 +22,7 @@ import static java.util.stream.Collectors.*;
 @Slf4j
 public class LocationGroupFromDBService implements LocationGroupService {
 
+    private static final Comparator<LocationGroup> LOCATION_GROUP_COMPARATOR = Comparator.comparing(LocationGroup::getName);
     private final LocationRepository locationRepository;
 
     LocationGroupFromDBService(LocationRepository locationRepository) {
@@ -44,15 +48,13 @@ public class LocationGroupFromDBService implements LocationGroupService {
         return locations
                 .stream()
                 .map(location -> toLocationGroup(location, subGroupMap))
+                .sorted(LOCATION_GROUP_COMPARATOR)
                 .collect(toList());
     }
 
     private static Map<Long, List<LocationGroup>> toSubGroupMap(List<Location> locations) {
-        return locations
-                .stream()
-                .collect(groupingBy(
-                        Location::getParentLocationId,
-                        mapping(LocationGroupFromDBService::toLocationGroup, toList())));
+        final Collector<Location, ?, List<LocationGroup>> mapping = mapping(LocationGroupFromDBService::toLocationGroup, toList());
+        return locations.stream().collect(groupingBy(Location::getParentLocationId, mapping));
     }
 
     private static LocationGroup toLocationGroup(Location location, Map<Long, List<LocationGroup>> subGroupMap) {
@@ -66,7 +68,13 @@ public class LocationGroupFromDBService implements LocationGroupService {
 
     private static List<LocationGroup> subGroup(Location location, Map<Long, List<LocationGroup>> subGroupMap) {
         val group = subGroupMap.getOrDefault(location.getLocationId(), List.of());
-        return group.size() == 1 ? List.of(): group;
+        return group.size() == 1 ? List.of() : sort(group);
+    }
+
+    private static List<LocationGroup> sort(List<LocationGroup> group) {
+        val result = new ArrayList<>(group);
+        result.sort(LOCATION_GROUP_COMPARATOR);
+        return result;
     }
 
     private static LocationGroup toLocationGroup(Location location) {
