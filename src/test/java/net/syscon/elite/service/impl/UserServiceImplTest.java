@@ -24,7 +24,10 @@ import org.springframework.security.access.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 /**
@@ -53,7 +56,7 @@ public class UserServiceImplTest {
 
     @Before
     public void init() {
-        userService = new UserServiceImpl(caseLoadService, staffService, userRepository, securityUtils, API_CASELOAD_ID);
+        userService = new UserServiceImpl(caseLoadService, staffService, userRepository, securityUtils, API_CASELOAD_ID, 100);
     }
 
     @Test
@@ -176,6 +179,25 @@ public class UserServiceImplTest {
 
         userService.addAccessRole(USERNAME_GEN, ROLE_CODE, LEEDS_CASELOAD_ID);
         verify(securityUtils.isOverrideRole("MAINTAIN_ACCESS_ROLES_ADMIN"),times(1));
+    }
+
+    @Test
+    public void testGetOffenderCategorisationsBatching() {
+
+        var setOf150Strings = Stream.iterate("1", n -> String.valueOf(Integer.valueOf(n) + 1))
+                .limit(150)
+                .collect(Collectors.toSet());
+
+        final var detail2 = UserDetail.builder().staffId(-3L).lastName("B").build();
+        final var detail1 = UserDetail.builder().staffId(-2L).lastName("C").build();
+
+        when(userRepository.getUserListByUsernames(anyList())).thenReturn(ImmutableList.of(detail2, detail1));
+
+        final var results = userService.getUserListByUsernames(setOf150Strings);
+
+        assertThat(results).hasSize(4);
+
+        Mockito.verify(userRepository, Mockito.times(2)).getUserListByUsernames(anyList());
     }
 
     private Page<UserDetail> pageResponse(final int userCount) {

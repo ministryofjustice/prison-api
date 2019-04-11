@@ -40,6 +40,8 @@ public interface UserRepository {
 
 	List<UserDetail> findAllUsersWithCaseload(String caseloadId, String missingCaseloadId);
 
+	List<UserDetail> getUserListByUsernames(List<String> usernames);
+
     Page<UserDetail> findUsersByCaseload(String agencyId, String accessRole, NameFilter nameFilter, PageRequest pageRequest);
 
     Page<UserDetail> getUsersAsLocalAdministrator(String laaUsername, String accessRole, NameFilter nameFilter, PageRequest pageRequest);

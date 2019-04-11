@@ -179,6 +179,11 @@ public class BookingResourceImpl implements BookingResource {
         return inmateService.getBasicInmateDetailsForOffenders(offenders);
     }
 
+    @Override
+    public List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(final String caseload, final Set<Long> bookingIds) {
+        return inmateService.getBasicInmateDetailsByBookingIds(caseload, bookingIds);
+    }
+
 
     @Override
     public GetBookingActivitiesResponse getBookingActivities(final Long bookingId, final String fromDate, final String toDate, final Long pageOffset, final Long pageLimit, final String sortFields, final Order sortOrder) {

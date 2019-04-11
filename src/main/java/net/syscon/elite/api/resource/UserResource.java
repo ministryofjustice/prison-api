@@ -10,6 +10,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.Set;
 
 @Api(tags = {"/users"})
 public interface UserResource {
@@ -209,6 +210,19 @@ public interface UserResource {
         @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
         @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class) })
     GetUserDetailsResponse getUserDetails(@ApiParam(value = "The username of the user.", required = true) @PathParam("username") String username);
+
+
+
+    @POST
+    @Path("/list")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Returns the user details for supplied usernames - POST version to allow large user lists.", notes = "user details for supplied usernames", nickname = "getUserDetailsList")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The list of user details", response = UserDetail.class, responseContainer = "List")})
+    PostUserDetailsListResponse getUserDetailsList(@ApiParam(value = "The required usernames (mandatory)", required = true) Set<String> body);
+
+
 
     @GET
     @Path("/{username}/access-roles/caseload/{caseload}")
@@ -768,6 +782,45 @@ public interface UserResource {
                     .header("Content-Type", MediaType.APPLICATION_JSON);
             responseBuilder.entity(entity);
             return new GetUserDetailsResponse(responseBuilder.build(), entity);
+        }
+    }
+
+    class PostUserDetailsListResponse extends ResponseDelegate {
+
+        private PostUserDetailsListResponse(final Response response) {
+            super(response);
+        }
+
+        private PostUserDetailsListResponse(final Response response, final Object entity) {
+            super(response, entity);
+        }
+
+        public static PostUserDetailsListResponse respond200WithApplicationJson(final List<UserDetail> entity) {
+            final var responseBuilder = Response.status(200)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new PostUserDetailsListResponse(responseBuilder.build(), entity);
+        }
+
+        public static PostUserDetailsListResponse respond400WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(400)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new PostUserDetailsListResponse(responseBuilder.build(), entity);
+        }
+
+        public static PostUserDetailsListResponse respond404WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(404)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new PostUserDetailsListResponse(responseBuilder.build(), entity);
+        }
+
+        public static PostUserDetailsListResponse respond500WithApplicationJson(final ErrorResponse entity) {
+            final var responseBuilder = Response.status(500)
+                    .header("Content-Type", MediaType.APPLICATION_JSON);
+            responseBuilder.entity(entity);
+            return new PostUserDetailsListResponse(responseBuilder.build(), entity);
         }
     }
 

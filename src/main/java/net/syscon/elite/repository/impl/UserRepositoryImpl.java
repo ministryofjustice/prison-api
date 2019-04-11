@@ -256,6 +256,17 @@ public class UserRepositoryImpl extends RepositoryBase implements UserRepository
                 USER_DETAIL_ROW_MAPPER);
     }
 
+	@Override
+	public List<UserDetail> getUserListByUsernames(final List<String> usernames) {
+
+		final var sql = getQuery("FIND_USERS_BY_USERNAMES");
+
+		return jdbcTemplate.query(
+				sql,
+				createParams("usernames", usernames),
+				USER_DETAIL_ROW_MAPPER);
+	}
+
 
     @Override
 	public Page<UserDetail> findUsersByCaseload(final String caseload, final String accessRole, final NameFilter nameFilter, final PageRequest pageRequest) {

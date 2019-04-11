@@ -317,7 +317,20 @@ public class InmateServiceImpl implements InmateService {
         return repository.getBasicInmateDetail(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
     }
 
-
+    @Override
+    @VerifyAgencyAccess
+    public List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(final String caseload, final Set<Long> bookingIds) {
+        final List<InmateBasicDetails> results = new ArrayList<>();
+        if (!bookingIds.isEmpty()) {
+            final var batch = Lists.partition(new ArrayList<>(bookingIds), maxBatchSize);
+            batch.forEach(offenderBatch -> {
+                final var offenderList = repository.getBasicInmateDetailsByBookingIds(caseload, offenderBatch);
+                results.addAll(offenderList);
+            });
+        }
+        return results;
+    }
+    
     /**
      * @param bookingId
      * @param assessmentCode

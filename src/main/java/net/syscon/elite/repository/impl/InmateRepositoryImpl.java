@@ -694,6 +694,15 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
                 OFFENDER_BASIC_DETAILS_MAPPER);
     }
 
+    @Override
+    public List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(final String caseload, final List<Long> bookingIds) {
+        final var sql = getQuery("FIND_BASIC_INMATE_DETAIL_BY_BOOKING_IDS");
+        return jdbcTemplate.query(
+                sql,
+                createParams("bookingIds", bookingIds, "caseloadId", caseload),
+                OFFENDER_BASIC_DETAILS_MAPPER);
+    }
+
     private Integer getOffenderAssessmentSeq(final Long bookingId) {
 
         Integer maxSeq = null;

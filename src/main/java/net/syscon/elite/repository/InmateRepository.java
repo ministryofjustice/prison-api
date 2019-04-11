@@ -85,6 +85,7 @@ public interface InmateRepository {
 	void approveCategory(CategoryApprovalDetail detail, UserDetail currentUser);
 
     List<InmateBasicDetails> getBasicInmateDetailsForOffenders(Set<String> offenders, boolean accessToAllData , Set<String> caseloads);
+    List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(String caseload, List<Long> bookingIds);
 
     static String generateFindOffendersQuery(final PrisonerDetailSearchCriteria criteria) {
         final var likeTemplate = "%s:like:'%s%%'";

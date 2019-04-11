@@ -1,11 +1,13 @@
 package net.syscon.elite.service.impl;
 
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.UserRepository;
 import net.syscon.elite.security.AuthenticationFacade;
+import net.syscon.elite.security.VerifyAgencyAccess;
 import net.syscon.elite.service.CaseLoadService;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.StaffService;
@@ -44,14 +46,16 @@ public class UserServiceImpl implements UserService {
 	private final UserRepository userRepository;
 	private final AuthenticationFacade securityUtils;
 	private final String apiCaseloadId;
+	private final int maxBatchSize;
 
-    public UserServiceImpl(final CaseLoadService caseLoadService, final StaffService staffService,
-                           final UserRepository userRepository, final AuthenticationFacade securityUtils, @Value("${application.caseload.id:NWEB}") final String apiCaseloadId) {
+	public UserServiceImpl(final CaseLoadService caseLoadService, final StaffService staffService,
+                           final UserRepository userRepository, final AuthenticationFacade securityUtils, @Value("${application.caseload.id:NWEB}") final String apiCaseloadId, @Value("${batch.max.size:1000}") final int maxBatchSize) {
 		this.caseLoadService = caseLoadService;
 		this.staffService = staffService;
 		this.userRepository = userRepository;
 		this.securityUtils = securityUtils;
 		this.apiCaseloadId = apiCaseloadId;
+		this.maxBatchSize = maxBatchSize;
 	}
 
 	@Override
@@ -62,6 +66,20 @@ public class UserServiceImpl implements UserService {
 			userDetail.setActiveCaseLoadId(EMPTY_CASELOAD.getCaseLoadId());
 		}
 		return userDetail;
+	}
+
+	@Override
+	@VerifyAgencyAccess
+	public List<UserDetail> getUserListByUsernames(final Set<String> usernames) {
+		final List<UserDetail> results = new ArrayList<>();
+		if (!usernames.isEmpty()) {
+			final var batch = Lists.partition(new ArrayList<>(usernames), maxBatchSize);
+			batch.forEach(userBatch -> {
+				final var userList = userRepository.getUserListByUsernames(userBatch);
+				results.addAll(userList);
+			});
+		}
+		return results;
 	}
 
 	@Override

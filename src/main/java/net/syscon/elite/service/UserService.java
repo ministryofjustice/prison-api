@@ -12,6 +12,8 @@ public interface UserService {
 
     UserDetail getUserByUsername(String username);
 
+    List<UserDetail> getUserListByUsernames(Set<String> usernames);
+
     List<CaseLoad> getCaseLoads(String username, boolean allCaseloads);
 
     Set<String> getCaseLoadIds(String username);

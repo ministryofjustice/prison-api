@@ -585,6 +585,19 @@ public interface BookingResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     List<InmateBasicDetails> getBasicInmateDetailsForOffenders(@ApiParam(value = "The offenderNo of offender", required = true) Set<String> offenders);
 
+    @POST
+    @Path("/offenders/{agencyId}/list")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Basic offender details by booking ids - POST version to allow for large numbers", notes = "Basic offender details by booking ids", nickname = "getBasicInmateDetailsForOffendersByBookingIds")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = InmateBasicDetails.class, responseContainer = "List"),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(@ApiParam(value = "The prison where the offenders are booked - the response is restricted to bookings at this prison", required = true) @PathParam("agencyId") String agencyId,
+            @ApiParam(value = "The bookingIds to identify the offenders", required = true) Set<Long> bookingIds);
+
     @GET
     @Path("/offenderNo/{offenderNo}/image/data")
     @Consumes({ "application/json" })

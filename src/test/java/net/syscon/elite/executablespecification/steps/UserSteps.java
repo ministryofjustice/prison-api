@@ -30,6 +30,7 @@ public class UserSteps extends CommonSteps {
     private static final String API_REMOVE_ROLE_FROM_USER_AT_CASELOAD = API_PREFIX + "/users/{username}/caseload/{caseload}/access-role/{roleCode}";
     private static final String API_USERS_AT_CASELOAD = API_PREFIX + "/users/caseload/{caseload}";
     private static final String API_USERS = API_PREFIX + "/users";
+    private static final String API_USERS_LIST = API_PREFIX + "/users/list";
     private static final String API_LOCAL_ADMINISTRATOR_USERS = API_PREFIX + "/users/local-administrator/available";
     private static final String API_ROLES_BY_USERS_AT_CASELOAD = API_PREFIX + "/users/{username}/access-roles/caseload/{caseload}";
 
@@ -119,6 +120,10 @@ public class UserSteps extends CommonSteps {
 
     public void getUsers(final String roleCode, final String nameFilter, final boolean localAdministratorUsersOnly) {
         dispatchUsersRequest(roleCode, nameFilter);
+    }
+
+    public void getUsers(final List<String> usernames) {
+        dispatchPostUsersRequest(usernames);
     }
 
     public void getRolesByUserAndCaseload(final String username, final String caseload) {
@@ -268,6 +273,19 @@ public class UserSteps extends CommonSteps {
                 url,
                 HttpMethod.GET,
                 httpEntity,
+                new ParameterizedTypeReference<List<UserDetail>>() { });
+
+        userDetails = response.getBody();
+    }
+
+    private void dispatchPostUsersRequest(final List<String> usernames) {
+        init();
+        var url = API_USERS_LIST;
+
+        final var response = restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                createEntity(usernames),
                 new ParameterizedTypeReference<List<UserDetail>>() { });
 
         userDetails = response.getBody();
