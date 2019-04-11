@@ -6,6 +6,7 @@ import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.impl.NameFilter;
 import net.syscon.elite.web.config.PersistenceConfigs;
+import org.assertj.core.groups.Tuple;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static net.syscon.elite.service.UserService.STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -234,5 +237,13 @@ public class UserRepositoryTest {
         assertThat(caseLoadRepository.getWorkingCaseLoadByUsername(admUsername).map(CaseLoad::getCaseLoadId)).contains("CADM_I");
         // Restore the original so we don't break other tests
         userRepository.updateWorkingCaseLoad(genUsername, "LEI");
+    }
+
+    @Test
+    public void testGetBasicInmateDetailsByBookingIds() {
+        final var users = userRepository.getUserListByUsernames(List.of("JBRIEN", "RENEGADE"));
+        assertThat(users).extracting("username", "firstName", "staffId").contains(
+                Tuple.tuple("JBRIEN", "Jo", -12L),
+                Tuple.tuple("RENEGADE", "Renegade", -11L));
     }
 }

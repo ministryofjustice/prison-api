@@ -8,6 +8,8 @@ import net.syscon.elite.executablespecification.steps.AuthenticationSteps;
 import net.syscon.elite.executablespecification.steps.UserSteps;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Arrays;
+
 import static net.syscon.elite.executablespecification.steps.AuthenticationSteps.AuthToken.*;
 
 /**
@@ -168,6 +170,11 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     @When("^a request for users is made$")
     public void aRequestForUsersIsMade() {
         user.getUsers(null, null, false);
+    }
+
+    @When("^a request for users with usernames \"([^\"]*)\" is made$")
+    public void aRequestForUsersByusernamesIsMade(final String usernames) {
+        user.getUsers(Arrays.asList(usernames.split(",")));
     }
 
     @When("^a request for users by local administrator is made$")

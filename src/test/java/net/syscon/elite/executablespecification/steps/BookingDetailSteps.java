@@ -21,12 +21,14 @@ import static org.junit.Assert.assertNotNull;
 public class BookingDetailSteps extends CommonSteps {
     private static final String API_BOOKING_REQUEST_URL = API_PREFIX + "bookings/{bookingId}";
     private static final String API_BOOKING_DETAILS_BY_OFFENDERS = API_PREFIX + "bookings/offenders";
+    private static final String API_BOOKING_DETAILS_BY_BOOKING_IDS = API_PREFIX + "bookings/offenders/{agencyId}/list";
 
     private InmateDetail inmateDetail;
     private PhysicalAttributes physicalAttributes;
     private List<PhysicalCharacteristic> physicalCharacteristics;
     private ImageDetail imageDetail;
     private List<InmateDetail> offenders;
+    private List<InmateBasicDetails> offendersBasic;
     private List<ProfileInformation> profileInformation;
 
     @Override
@@ -282,6 +284,22 @@ public class BookingDetailSteps extends CommonSteps {
         }
     }
 
+    public void findInmateDetailsNyBookingIds(final String agencyId, final List<Long> bookingIds) {
+        init();
+        try {
+            final var response =
+                    restTemplate.exchange(
+                            API_BOOKING_DETAILS_BY_BOOKING_IDS,
+                            HttpMethod.POST,
+                            createEntity(bookingIds),
+                            new ParameterizedTypeReference<List<InmateBasicDetails>>() {}, agencyId);
+
+            offendersBasic = response.getBody();
+        } catch (final EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
     public void verifyOffenders(final String firstName, final String lastName, final String middleName, final String offenderNo, final String bookingId, final String agencyId) {
 
         assertThat(offenders
@@ -298,5 +316,9 @@ public class BookingDetailSteps extends CommonSteps {
 
     public void verifyOffenderCount(final int size) {
         assertThat(offenders).hasSize(size);
+    }
+
+    public void verifyOffendersBasicCount(final int size) {
+        assertThat(offendersBasic).hasSize(size);
     }
 }

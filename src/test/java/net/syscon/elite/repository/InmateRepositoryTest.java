@@ -787,6 +787,13 @@ public class InmateRepositoryTest {
         assertThat(offenders).isEmpty();
     }
 
+    @Test
+    public void testGetBasicInmateDetailsByBookingIds() {
+        final var offenders = repository.getBasicInmateDetailsByBookingIds("LEI", List.of(-3L, -4L, -35L));  //-35L ignored as it is MDI agency
+        assertThat(offenders).containsExactlyInAnyOrder(new InmateBasicDetails(-3L, "A00113", "A1234AC", "NORMAN", "JOHN", "BATES", "LEI", -3L, LocalDate.parse("1999-10-27"))
+        ,new InmateBasicDetails(-4L, "A00114", "A1234AD", "CHARLES", "JAMES", "CHAPLIN", "LEI", -2L, LocalDate.parse("1970-01-01")));
+    }
+
     /*****************************************************************************************/
 
     private PrisonerDetailSearchCriteria criteriaForOffenderNo(final String offenderNo) {

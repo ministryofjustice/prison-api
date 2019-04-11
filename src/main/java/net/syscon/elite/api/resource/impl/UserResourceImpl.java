@@ -18,10 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 
 import javax.ws.rs.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestResource
@@ -180,6 +177,13 @@ public class UserResourceImpl implements UserResource {
         final var userByUsername = userService.getUserByUsername(username.toUpperCase());
 
         return GetUserDetailsResponse.respond200WithApplicationJson(userByUsername);
+    }
+
+    @Override
+    public PostUserDetailsListResponse getUserDetailsList(final Set<String> usernames) {
+        final var users = userService.getUserListByUsernames(usernames);
+
+        return PostUserDetailsListResponse.respond200WithApplicationJson(users);
     }
 
     @Override

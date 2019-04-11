@@ -82,6 +82,11 @@ Feature: User Details and Roles
     When a request for users is made
     Then a list of users is returned with usernames "ELITE2_API_USER,ITAG_USER,ITAG_USER_ADM,JBRIEN,NONWEB,RENEGADE,CA_USER,DM_USER,EXOFF5,API_TEST_USER,RO_USER,GLOBAL_SEARCH_USER,ELITE2_API_USER_ADM,LAA_USER"
 
+  Scenario: A list of staff users by usernames can be retrieved
+    Given a user has a token name of "ADMIN_TOKEN"
+    When a request for users with usernames "JBRIEN,RENEGADE" is made
+    Then a list of users is returned with usernames "JBRIEN,RENEGADE"
+
   Scenario: A list of staff users by caseload and namefilter can be retrieved
     Given a user has a token name of "ADMIN_TOKEN"
     When a request for users with caseload "LEI" and namefilter "User" and role "" is made

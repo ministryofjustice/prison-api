@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -589,6 +590,11 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.findBookingDetails(List.of(offenders.split(",")));
     }
 
+    @When("^a request is made with booking Ids  \"([^\"]*)\" for prison \"([^\"]*)\"$")
+    public void aRequestIsMadeForBookingIds(final String bookingsIds, final String agency) {
+        bookingDetail.findInmateDetailsNyBookingIds(agency, Arrays.stream(bookingsIds.split(",")).map(Long::valueOf).collect(Collectors.toList()));
+    }
+
     @Then("^data is returned that includes \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
     public void dataIsReturnedThatIncludes(final String firstName, final String lastName, final String middleName, final String offenderNo, final String bookingId, final String agencyId) {
         bookingDetail.verifyOffenders(firstName, lastName, middleName, offenderNo, bookingId, agencyId);
@@ -602,5 +608,10 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @When("^a request is made for offender categorisation details at \"([^\"]*)\" with booking id \"([^\"]*)\"$")
     public void aRequestIsMadeForOffenderCategorisationDetailsAtWithBookingId(String agency, String bookingId) throws Throwable {
         bookingAssessment.getOffendersCategorisations(agency, Collections.singletonList(Long.valueOf(bookingId)));
+    }
+
+    @Then("^\"([^\"]*)\" rows of basic inmate details are returned$")
+    public void rowsOfBasicInmateDetailsAreReturned(String count) throws Throwable {
+        bookingDetail.verifyOffendersBasicCount(Integer.valueOf(count));
     }
 }

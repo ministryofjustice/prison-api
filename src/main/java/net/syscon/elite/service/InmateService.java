@@ -19,6 +19,8 @@ public interface InmateService {
 
 	InmateDetail getBasicInmateDetail(Long bookingId);
 
+	List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(String agencyId, Set<Long> bookingIds);
+
     void createCategorisation(Long bookingId, CategorisationDetail detail);
 	void approveCategorisation(Long bookingId, CategoryApprovalDetail detail);
 
