@@ -471,6 +471,7 @@ GET_OFFENDER_CATEGORISATIONS {
 
   where off_ass.offender_book_id in (:bookingIds)
     and off_ass.assessment_create_location = :agencyId -- included to ensure only authorised bookings are returned
+    and off_ass.assessment_type_id = :assessmentId
 }
 
 GET_CATEGORY_ASSESSMENT_ID {
