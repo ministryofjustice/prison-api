@@ -643,7 +643,7 @@ public class InmateRepositoryTest {
         list.sort(Comparator.comparing(OffenderCategorise::getOffenderNo));
         assertThat(list)
                 .extracting("offenderNo", "bookingId", "approverFirstName", "approverLastName", "categoriserFirstName", "categoriserLastName", "category")
-                .contains(Tuple.tuple("A5576RS", -31L, "API", "User", "CA", "User", "A"));
+                .containsExactly(Tuple.tuple("A5576RS", -31L, "API", "User", "CA", "User", "A"));
     }
 
     @Test
