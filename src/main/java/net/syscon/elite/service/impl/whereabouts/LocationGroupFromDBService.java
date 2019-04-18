@@ -93,7 +93,7 @@ public class LocationGroupFromDBService implements LocationGroupService {
 
     @Override
     public Predicate<Location> locationGroupFilter(String agencyId, String groupName) {
-        val prefixToMatch = agencyId + '-' + groupName.replace('_', '-');
+        val prefixToMatch = agencyId + '-' + groupName.replace('_', '-') + '-';
         return (Location location) -> location.getLocationPrefix().startsWith(prefixToMatch);
     }
 }
