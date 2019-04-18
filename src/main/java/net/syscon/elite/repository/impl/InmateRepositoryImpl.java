@@ -451,7 +451,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
     public List<OffenderCategorise> getUncategorised(final String agencyId) {
         final var rawData = jdbcTemplate.query(
                 getQuery("GET_UNCATEGORISED"),
-                createParams("agencyId", agencyId),
+                createParams("agencyId", agencyId, "assessmentId", getCategoryAssessmentId()),
                 UNCATEGORISED_MAPPER);
 
         return applyCategorisationRestrictions(rawData);
@@ -495,7 +495,7 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
 
         // remove the active assessment status offenders - we only want null assessment or pending assessments
         return catList.stream()
-                .filter(o -> ((o.getAssessStatus() == null || !o.getAssessStatus().equals("A"))))
+                .filter(o -> o.getAssessStatus() == null || o.getAssessStatus().equals("P"))
                 .map(o -> OffenderCategorise.deriveStatus(o))
                 .collect(Collectors.toList());
     }
