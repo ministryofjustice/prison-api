@@ -27,6 +27,11 @@ public class LocationGroupFromDBServiceTest {
     private final Location SL2 = Location.builder().locationId(-2L).locationType("LAND").description("LEI-A-1").parentLocationId(-1L).userDescription("LANDING A/1").internalLocationCode("1").build();
     private final Location SL3 = Location.builder().locationId(-32L).locationType("LAND").description("LEI-A-2").parentLocationId(-1L).userDescription("LANDING A/2").internalLocationCode("2").build();
 
+    private final Location CELL_A_1 = Location.builder().locationId(-320L).locationType("CELL").description("LEI-A-1-001").parentLocationId(-32L).build();
+    private final Location CELL_AA_1 = Location.builder().locationId(-320L).locationType("CELL").description("LEI-AA-1-001").parentLocationId(-32L).build();
+    private final Location CELL_A_3 = Location.builder().locationId(-320L).locationType("CELL").description("LEI-A-3-001").parentLocationId(-32L).build();
+    private final Location CELL_B_1 = Location.builder().locationId(-320L).locationType("CELL").description("LEI-B-2-001").parentLocationId(-32L).build();
+
     private final LocationGroup LG1 = LocationGroup.builder().key("A").name("Block A").build();
     private final LocationGroup LG2 = LocationGroup.builder().key("H").name("H").build();
 
@@ -85,8 +90,8 @@ public class LocationGroupFromDBServiceTest {
     @Test
     public void locationGroupFilters() {
         final var filter = service.locationGroupFilter("LEI", "A");
-        assertThat(locationStream(L1, L2, SL1, SL2, SL3).filter(filter))
-                .containsExactlyInAnyOrder(locationStream(L1, SL2, SL3).toArray(Location[]::new));
+        assertThat(locationStream(CELL_A_1, CELL_A_3, CELL_B_1, CELL_AA_1).filter(filter))
+                .containsExactlyInAnyOrder(locationStream(CELL_A_1, CELL_A_3).toArray(Location[]::new));
     }
 
     private static Stream<Location> locationStream(Location... locations) {
