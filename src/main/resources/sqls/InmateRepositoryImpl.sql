@@ -384,39 +384,26 @@ FIND_APPROVED_ASSESSMENT_BY_OFFENDER_NO {
 
 GET_UNCATEGORISED {
 SELECT
-  at_offender.offender_id_display AS OFFENDER_NO,
-  at_offender_booking.offender_book_id AS BOOKING_ID,
-  at_offender.last_name,
-  at_offender.first_name,
-  categories.assessment_seq,
-  categories.assessment_date,
-  categories.assess_status,
-  categories.categoriser_first_name,
-  categories.categoriser_last_name,
-  categories.category
+    at_offender.offender_id_display      AS OFFENDER_NO,
+    at_offender_booking.offender_book_id AS BOOKING_ID,
+    at_offender.last_name,
+    at_offender.first_name,
+    off_ass.assessment_seq,
+    off_ass.assessment_date,
+    off_ass.assess_status,
+    sm.first_name                        AS CATEGORISER_FIRST_NAME,
+    sm.last_name                         AS CATEGORISER_LAST_NAME,
+    off_ass.calc_sup_level_type          AS CATEGORY
 FROM
-  offenders at_offender
-    INNER JOIN offender_bookings at_offender_booking ON at_offender.offender_id = at_offender_booking.offender_id AND at_offender_booking.active_flag = 'Y'
-    LEFT JOIN (SELECT
-         off_ass.offender_book_id,
-         off_ass.assess_status,
-         sm.first_name               AS CATEGORISER_FIRST_NAME,
-         sm.last_name                AS CATEGORISER_LAST_NAME,
-         -- this is the correct column for a PENDING assessment:
-         off_ass.calc_sup_level_type AS CATEGORY,
-         off_ass.assessment_seq,
-         off_ass.assessment_date
-       FROM offender_assessments off_ass
-       JOIN assessments ass ON off_ass.assessment_type_id = ass.assessment_id
-       JOIN staff_members sm ON off_ass.assess_staff_id = sm.staff_id
-       WHERE ass.assessment_code = 'CATEGORY'
-         AND ass.assessment_class = 'TYPE'
-         AND off_ass.assess_status IN ('A','P')
-  ) categories ON categories.offender_book_id = at_offender_booking.offender_book_id
-WHERE at_offender_booking.in_out_status IN ('IN', 'OUT')
-  -- return ACTIVE and PENDING (ACTIVE is required for java tuning and will be removed later)
-  AND (categories.assess_status IN ('A','P') or categories.offender_book_id IS NULL)
-  AND at_offender_booking.agy_loc_id = :agencyId
+    offenders at_offender
+        INNER JOIN offender_bookings at_offender_booking ON at_offender.offender_id = at_offender_booking.offender_id
+                                                        AND at_offender_booking.active_flag = 'Y'
+                                                        AND at_offender_booking.in_out_status IN ('IN', 'OUT')
+        LEFT JOIN offender_assessments off_ass ON off_ass.offender_book_id = at_offender_booking.offender_book_id
+                                              AND off_ass.assessment_type_id = :assessmentId
+                                              AND off_ass.assess_status IN ('A','P')
+        LEFT JOIN staff_members sm ON off_ass.assess_staff_id = sm.staff_id
+WHERE at_offender_booking.agy_loc_id = :agencyId
 }
 
 GET_APPROVED_CATEGORISED {
