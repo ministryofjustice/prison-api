@@ -7,6 +7,7 @@ import net.syscon.elite.api.support.ResponseDelegate;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDate;
 import java.util.List;
 
 @Api(tags = {"/offender-sentences"})
@@ -35,7 +36,7 @@ public interface OffenderSentenceResource {
             @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class, responseContainer = "List"),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class, responseContainer = "List")})
-    GetOffenderSentencesHomeDetentionCurfewCandidatesResponse getOffenderSentencesHomeDetentionCurfewCandidates();
+    GetOffenderSentencesHomeDetentionCurfewCandidatesResponse getOffenderSentencesHomeDetentionCurfewCandidates(@ApiParam(value = "Include HD curfews having a checks passed date >= this date, when they have an assessment status. ISO-8601 date format. The default value is infinitely far in to the past") @QueryParam("minimumChecksPassedDateForAssessedCurfews") LocalDate minimumChecksPassedDateForAssessedCurfews);
 
     @GET
     @Path("/booking/{bookingId}/home-detention-curfews/latest")
@@ -155,6 +156,7 @@ public interface OffenderSentenceResource {
             return new GetOffenderSentenceTermsResponse(responseBuilder.build(), entity);
         }
     }
+
     class GetOffenderSentencesHomeDetentionCurfewCandidatesResponse extends ResponseDelegate {
 
         private GetOffenderSentencesHomeDetentionCurfewCandidatesResponse(final Response response) {

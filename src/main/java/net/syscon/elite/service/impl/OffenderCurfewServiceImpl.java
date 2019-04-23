@@ -12,10 +12,7 @@ import org.springframework.validation.annotation.Validated;
 import javax.ws.rs.BadRequestException;
 import java.time.Clock;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -68,7 +65,7 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
     }
 
     @Override
-    public List<OffenderSentenceCalc> getHomeDetentionCurfewCandidates(final String username) {
+    public List<OffenderSentenceCalc> getHomeDetentionCurfewCandidates(final String username, Optional<LocalDate> minimumChecksPassedDateForAssessedCurfews) {
 
         final var earliestArdOrCrd = LocalDate.now(clock).plusDays(DAYS_TO_ADD);
         final var agencyIds = agencyIdsFor(username);
@@ -76,7 +73,8 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
         final var homeDetentionCurfewCandidates = getHomeDetentionCurfewCandidates(
                         offenderCurfewRepository.offenderCurfews(agencyIds),
                         earliestArdOrCrd,
-                        bookingService.getOffenderSentenceCalculationsForAgency(agencyIds));
+                        bookingService.getOffenderSentenceCalculationsForAgency(agencyIds),
+                minimumChecksPassedDateForAssessedCurfews);
 
         return homeDetentionCurfewCandidates.stream()
                 .map(os -> OffenderSentenceCalc.builder()
@@ -147,13 +145,14 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
     static List<OffenderSentenceCalculation> getHomeDetentionCurfewCandidates(
             final Collection<OffenderCurfew> curfews,
             final LocalDate earliestArdOrCrd,
-            final List<OffenderSentenceCalculation> offenderSentences) {
+            final List<OffenderSentenceCalculation> offenderSentences,
+            final Optional<LocalDate> minimumChecksPassedDateForAssessedCurfews) {
 
-        final var offendersLackingCurfewApprovalStatus = offendersLackingCurfewApprovalStatus(currentOffenderCurfews(curfews));
+        final var offenderBookingIdsForNewHDCProcess = offenderBookingIdsForNewHDCProcess(currentOffenderCurfews(curfews), minimumChecksPassedDateForAssessedCurfews);
 
         return offenderSentences
                 .stream()
-                .filter(offenderIsEligibleForHomeCurfew(offendersLackingCurfewApprovalStatus, earliestArdOrCrd))
+                .filter(offenderIsEligibleForHomeCurfew(offenderBookingIdsForNewHDCProcess, earliestArdOrCrd))
                 .sorted(HDCED_COMPARATOR)
                 .collect(toList());
     }
@@ -182,11 +181,26 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
                 .map(opt -> opt.orElseThrow(() -> new NullPointerException("Impossible")));
     }
 
-    static Set<Long> offendersLackingCurfewApprovalStatus(final Stream<OffenderCurfew> currentOffenderCurfews) {
-        return currentOffenderCurfews
-                .filter(oc -> oc.getApprovalStatus() == null)
+    static Set<Long> offenderBookingIdsForNewHDCProcess(
+            final Stream<OffenderCurfew> currentOffenderCurfews,
+            final Optional<LocalDate> minimumChecksPassedDateForAssessedCurfews) {
+
+        return currentOffenderCurfews.filter(oc ->
+                        oc.getApprovalStatus() == null ||
+                        minimumDateFilter(oc.getAssessmentDate(), minimumChecksPassedDateForAssessedCurfews))
                 .map(OffenderCurfew::getOffenderBookId)
                 .collect(toSet());
+    }
+
+
+    private static boolean minimumDateFilter(LocalDate assessmentDate, Optional<LocalDate> minimumDate) {
+        return Optional
+                .ofNullable(assessmentDate)
+                .map( ad ->
+                        minimumDate
+                        .map(md -> ad.isEqual(md) || ad.isAfter(md))
+                        .orElse(Boolean.TRUE))
+                .orElse(Boolean.FALSE);
     }
 
     static Predicate<OffenderSentenceCalculation> offenderIsEligibleForHomeCurfew(

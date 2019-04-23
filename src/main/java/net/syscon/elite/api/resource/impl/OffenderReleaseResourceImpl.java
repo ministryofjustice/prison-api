@@ -15,7 +15,9 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestResource
@@ -45,9 +47,9 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     }
 
     @Override
-    public GetOffenderSentencesHomeDetentionCurfewCandidatesResponse getOffenderSentencesHomeDetentionCurfewCandidates() {
+    public GetOffenderSentencesHomeDetentionCurfewCandidatesResponse getOffenderSentencesHomeDetentionCurfewCandidates( LocalDate minimumChecksPassedDateForAssessedCurfews) {
         val sentences =
-                offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentUsername());
+                offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentUsername(), Optional.ofNullable(minimumChecksPassedDateForAssessedCurfews));
 
         return GetOffenderSentencesHomeDetentionCurfewCandidatesResponse.respond200WithApplicationJson(sentences);
     }
