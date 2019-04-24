@@ -3,8 +3,10 @@ package net.syscon.elite.api.model.bulkappointments;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -14,6 +16,8 @@ import java.util.stream.Collectors;
 @ApiModel(description = "Details for creating appointments in bulk")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class AppointmentsToCreate {
     @ApiModelProperty(required = true, value = "The default values to be applied to each new appointment. An individual appointment may change the startTime, add or change the endTime and provide text for that appointment's comment.")
