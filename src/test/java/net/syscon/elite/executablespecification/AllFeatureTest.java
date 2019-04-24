@@ -9,7 +9,7 @@ import net.syscon.elite.util.LocalTimeConverter;
 import org.junit.runner.RunWith;
 
 @RunWith(CucumberWithSerenity.class)
-@CucumberOptions(format = "pretty", features = "src/test/resources/features", tags = {"~@ignore"})
+@CucumberOptions(plugin = "pretty", features = "src/test/resources/features", tags = {"~@ignore"})
 @XStreamConverters(value = {
         @XStreamConverter(LocalDateConverter.class),
         @XStreamConverter(LocalTimeConverter.class)
