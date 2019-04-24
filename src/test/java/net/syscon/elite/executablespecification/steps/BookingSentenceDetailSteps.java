@@ -24,7 +24,7 @@ public class BookingSentenceDetailSteps extends CommonSteps {
 
     private static final String OFFENDER_SENTENCE_DETAIL_API_URL = API_PREFIX + "offender-sentences";
     private static final String OFFENDER_BOOKING_SENTENCE_DETAIL_API_URL = OFFENDER_SENTENCE_DETAIL_API_URL + "/bookings";
-    private static final String HOME_DETENTION_CURFEW_CANDIDATES = OFFENDER_SENTENCE_DETAIL_API_URL + "/home-detention-curfew-candidates";
+    private static final String HOME_DETENTION_CURFEW_CANDIDATES = OFFENDER_SENTENCE_DETAIL_API_URL + "/home-detention-curfew-candidates?minimumChecksPassedDateForAssessedCurfews={iso8601Date}";
     private static final String BOOKING_SENTENCE_TERMS_API_URL = OFFENDER_SENTENCE_DETAIL_API_URL + "/booking/{bookingId}/sentenceTerms";
 
     private static final ParameterizedTypeReference<List<OffenderSentenceDetail>> LIST_OF_OFFENDER_SENTENCE_DETAIL_TYPE = new ParameterizedTypeReference<>() {
@@ -288,10 +288,12 @@ public class BookingSentenceDetailSteps extends CommonSteps {
         init();
 
         try {
-            final var response = restTemplate.exchange(HOME_DETENTION_CURFEW_CANDIDATES,
+            final var response = restTemplate.exchange(
+                    HOME_DETENTION_CURFEW_CANDIDATES,
                     HttpMethod.GET,
                     createEntity(null, Collections.emptyMap()),
-                    LIST_OF_OFFENDER_SENTENCE_DETAIL_TYPE);
+                    LIST_OF_OFFENDER_SENTENCE_DETAIL_TYPE,
+                    LocalDate.EPOCH);
             buildResourceData(response);
 
             offenderSentenceDetails = response.getBody();
