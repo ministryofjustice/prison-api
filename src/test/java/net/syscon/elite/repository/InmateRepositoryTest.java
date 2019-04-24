@@ -156,7 +156,7 @@ public class InmateRepositoryTest {
     }
 
     @Test
-    public void testfindOffendersWithValidOffenderNoOnly() {
+    public void testFindOffendersWithValidOffenderNoOnly() {
         final var TEST_OFFENDER_NO = "A1234AP";
 
         final var query = buildQuery(criteriaForOffenderNo(TEST_OFFENDER_NO));
@@ -168,17 +168,17 @@ public class InmateRepositoryTest {
     }
 
     @Test
-    public void testfindOffendersWithLocationFilterIN() {
+    public void testFindOffendersWithLocationFilterIN() {
 
         final var query = buildQuery(criteriaForLocationFilter("IN"));
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders).hasSize(42);
+        assertThat(offenders).hasSize(44);
     }
 
     @Test
-    public void testfindOffendersWithLocationFilterOut() {
+    public void testFindOffendersWithLocationFilterOut() {
 
         final var query = buildQuery(criteriaForLocationFilter("OUT"));
 
@@ -188,37 +188,37 @@ public class InmateRepositoryTest {
     }
 
     @Test
-    public void testfindOffendersWithLocationFilterALL() {
+    public void testFindOffendersWithLocationFilterALL() {
 
         final var query = buildQuery(criteriaForLocationFilter("ALL"));
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders).hasSize(47);
+        assertThat(offenders).hasSize(49);
     }
 
     @Test
-    public void testfindOffendersWithGenderFilterMale() {
+    public void testFindOffendersWithGenderFilterMale() {
 
         final var query = buildQuery(criteriaForGenderFilter("M"));
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders).hasSize(45);
+        assertThat(offenders).hasSize(47);
     }
 
     @Test
-    public void testfindOffendersWithGenderFilterALL() {
+    public void testFindOffendersWithGenderFilterALL() {
 
         final var query = buildQuery(criteriaForGenderFilter("ALL"));
 
         final var offenders = findOffendersWithAliasesFullResults(query);
 
-        assertThat(offenders).hasSize(47);
+        assertThat(offenders).hasSize(49);
     }
 
     @Test
-    public void testfindOffendersWithInvalidOffenderNoOnly() {
+    public void testFindOffendersWithInvalidOffenderNoOnly() {
         final var TEST_OFFENDER_NO = "X9999XX";
 
         final var query = buildQuery(criteriaForOffenderNo(TEST_OFFENDER_NO));
@@ -227,7 +227,7 @@ public class InmateRepositoryTest {
     }
 
     @Test
-    public void testfindOffendersWithValidPNCNumberOnly() {
+    public void testFindOffendersWithValidPNCNumberOnly() {
         final var TEST_PNC_NUMBER = "14/12345F";
 
         final var query = buildQuery(criteriaForPNCNumber(TEST_PNC_NUMBER));
@@ -239,14 +239,14 @@ public class InmateRepositoryTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testfindOffendersWithInvalidPNCNumberOnly() {
+    public void testFindOffendersWithInvalidPNCNumberOnly() {
         final var TEST_PNC_NUMBER = "PNC0193032";
 
         buildQuery(criteriaForPNCNumber(TEST_PNC_NUMBER));
     }
 
     @Test
-    public void testfindOffendersWithValidCRONumberOnly() {
+    public void testFindOffendersWithValidCRONumberOnly() {
         final var TEST_CRO_NUMBER = "CRO112233";
 
         final var query = buildQuery(criteriaForCRONumber(TEST_CRO_NUMBER));
@@ -486,7 +486,7 @@ public class InmateRepositoryTest {
         final var offenders = findOffendersWithAliases(query);
 
         assertThat(offenders).hasSize(2);
-        assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("A1234AJ", "A1234AL");
+        assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).containsOnly("A1234AJ", "A1234AL");
     }
 
     @Test
@@ -496,7 +496,7 @@ public class InmateRepositoryTest {
         final var offenders = findOffendersWithAliases(query);
 
         assertThat(offenders).hasSize(2);
-        assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).contains("A1234AJ", "A1234AL");
+        assertThat(offenders).extracting(PrisonerDetail::getOffenderNo).containsOnly("A1234AJ", "A1234AL");
     }
 
     @Test
