@@ -64,7 +64,7 @@ public class KeyworkerStepDefinitions extends AbstractStepDefinitions {
 
     @When("^a key worker allocations request is made with staff ids \"([^\"]*)\" and agency \"([^\"]*)\"$")
     public void aKeyWorkerAllocationsRequestIsMadeWithStaffIdsAndAgency(final String staffIds, final String agencyId) throws Throwable {
-        keyworker.getKeyworkerAllocationsByStaffIds(Arrays.stream(StringUtils.split(staffIds, ",")).map(Long::new).collect(Collectors.toList()), agencyId);
+        keyworker.getKeyworkerAllocationsByStaffIds(Arrays.stream(StringUtils.split(staffIds, ",")).map(Long::valueOf).collect(Collectors.toList()), agencyId);
     }
 
     @When("^a key worker allocations request is made with nomis ids \"([^\"]*)\" and agency \"([^\"]*)\"$")

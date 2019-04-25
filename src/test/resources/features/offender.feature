@@ -1,7 +1,7 @@
 Feature: Offenders
 
   AcceptanceCriteria:
-    A logged in staff user view all their offender the addresses of offenders
+    A logged in staff user can view the addresses of offenders
 
   Scenario: A staff user views the address for an existing offender
     Given a user has a token name of "ELITE2_API_USER"

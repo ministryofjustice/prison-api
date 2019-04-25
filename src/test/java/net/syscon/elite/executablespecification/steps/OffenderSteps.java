@@ -43,7 +43,7 @@ public class OffenderSteps extends CommonSteps {
         }
     }
 
-    public void verifyAddressList(List<OffenderAddress> expected) {
+    public void verifyAddressList(final List<OffenderAddress> expected) {
 
         final var emptyToNullExpected = expected.stream()
                 .map(oa -> OffenderAddress.builder().

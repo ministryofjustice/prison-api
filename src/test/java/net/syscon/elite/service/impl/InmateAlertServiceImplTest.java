@@ -15,7 +15,7 @@ import java.util.Arrays;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.ArgumentMatchers.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InmateAlertServiceImplTest {

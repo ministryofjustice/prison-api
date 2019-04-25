@@ -1,6 +1,7 @@
 package net.syscon.elite.api.resource;
 
 import io.swagger.annotations.*;
+import net.syscon.elite.api.model.AdjudicationSearchResponse;
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.IncidentCase;
@@ -11,6 +12,8 @@ import net.syscon.elite.api.support.Order;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import java.time.LocalDate;
 import java.util.List;
 
 @Api(tags = {"/offenders"})
@@ -44,6 +47,23 @@ public interface OffenderResource {
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     List<OffenderAddress> getAddressesByOffenderNo(@ApiParam(value = "offenderNo", required = true) @PathParam("offenderNo") @NotNull String offenderNo);
 
+    @GET
+    @Path("/{offenderNo}/adjudications")
+    @Consumes({"application/json"})
+    @Produces({"application/json"})
+    @ApiOperation(value = "Return a list of adjudications for a given offender")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = AdjudicationSearchResponse.class),
+            @ApiResponse(code = 400, message = "Invalid request.", response = ErrorResponse.class),
+            @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
+            @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
+    Response getAdjudicationsByOffenderNo(@ApiParam(value = "offenderNo", required = true) @PathParam("offenderNo") @NotNull String offenderNo,
+                                          @ApiParam(value = "An offence id to allow optionally filtering by type of offence", required = true) @QueryParam("offenderId") String offenceId,
+                                          @ApiParam(value = "An agency id to allow optionally filtering by the agency in which the offence occurred") @QueryParam("agencyId") String agencyId,
+                                          @ApiParam(value = "Adjudications must have been reported on or after this date (in YYYY-MM-DD format).") @QueryParam("fromDate") LocalDate fromDate,
+                                          @ApiParam(value = "Adjudications must have been reported on or before this date (in YYYY-MM-DD format).") @QueryParam("toDate") LocalDate toDate,
+                                          @ApiParam(value = "Requested offset of first record in returned collection of adjudications.", defaultValue = "0") @HeaderParam("Page-Offset") Long pageOffset,
+                                          @ApiParam(value = "Requested limit to number of adjudications returned.", defaultValue = "10") @HeaderParam("Page-Limit") Long pageLimit);
 
     @GET
     @Path("/{offenderNo}/alerts")
