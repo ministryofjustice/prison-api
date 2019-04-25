@@ -78,7 +78,7 @@ dependencies {
     annotationProcessor('org.projectlombok:lombok:1.18.6')
     testAnnotationProcessor('org.projectlombok:lombok:1.18.6')
 
-    compile files("${rootDir}/lib/ojdbc8-12.2.0.1.jar")
+    compile files("${rootDir}/lib/ojdbc8-18.3.jar")
 
     compile("org.springframework.boot:spring-boot-starter-web") {
         exclude module: "spring-boot-starter-tomcat"
