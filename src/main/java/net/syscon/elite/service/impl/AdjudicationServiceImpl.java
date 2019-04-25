@@ -1,11 +1,15 @@
 package net.syscon.elite.service.impl;
 
+import lombok.RequiredArgsConstructor;
+import net.syscon.elite.api.model.Adjudication;
 import net.syscon.elite.api.model.AdjudicationDetail;
 import net.syscon.elite.api.model.Award;
+import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AdjudicationsRepository;
 import net.syscon.elite.security.VerifyBookingAccess;
+import net.syscon.elite.service.AdjudicationSearchCriteria;
 import net.syscon.elite.service.AdjudicationService;
-import org.springframework.beans.factory.annotation.Autowired;
+import net.syscon.elite.service.BookingService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,16 +20,20 @@ import java.util.Objects;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class AdjudicationServiceImpl implements AdjudicationService {
 
     private final AdjudicationsRepository repository;
+    private final BookingService bookingService;
 
     @Value("${api.cutoff.adjudication.months:3}") private int adjudicationCutoffDefault;
     @Value("${api.cutoff.award.months:0}") private int awardCutoffDefault;
 
-    @Autowired
-    public AdjudicationServiceImpl(final AdjudicationsRepository adjudicationsRepository) {
-        this.repository = adjudicationsRepository;
+
+    @Override
+    public Page<Adjudication> findAdjudications(final AdjudicationSearchCriteria criteria) {
+        bookingService.verifyCanViewLatestBooking(criteria.getOffenderNumber());
+        return repository.findAdjudications(criteria);
     }
 
     /**
@@ -67,7 +75,7 @@ public class AdjudicationServiceImpl implements AdjudicationService {
     private LocalDate calculateEndDate(final Award award) {
         var endDate = award.getEffectiveDate();
         if (award.getMonths() != null) {
-            endDate = endDate.plus(award.getMonths(), ChronoUnit.MONTHS);
+            endDate = endDate.plusMonths(award.getMonths());
         }
         if (award.getDays() != null) {
             endDate = endDate.plusDays(award.getDays());
