@@ -2,6 +2,7 @@ package net.syscon.elite.service.impl;
 
 import lombok.val;
 import net.syscon.elite.api.model.Adjudication;
+import net.syscon.elite.api.model.AdjudicationOffence;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.AdjudicationsRepository;
@@ -44,5 +45,15 @@ public class AdjudicationServiceImplTest {
         assertThat(adjudicationService.findAdjudications(criteria)).isEqualTo(expectedResult);
 
         verify(bookingService).verifyCanViewLatestBooking(criteria.getOffenderNumber());
+    }
+
+    @Test
+    public void adjudicationOffences() {
+
+        val expectedResult = List.of(AdjudicationOffence.builder().build());
+
+        when(adjudicationsRepository.findAdjudicationOffences("OFF-1")).thenReturn(expectedResult);
+
+        assertThat(adjudicationService.findAdjudicationsOffences("OFF-1")).isEqualTo(expectedResult);
     }
 }

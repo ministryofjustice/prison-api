@@ -1,6 +1,7 @@
 package net.syscon.elite.executablespecification;
 
 
+import com.google.common.base.Splitter;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.api.model.OffenderAddress;
@@ -9,6 +10,7 @@ import net.syscon.elite.executablespecification.steps.OffenderSteps;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Set;
 
 import static net.syscon.elite.executablespecification.steps.OffenderAdjudicationSteps.AdjudicationRow;
 
@@ -36,6 +38,11 @@ public class OffenderStepDefinitions extends AbstractStepDefinitions {
     @Then("^the adjudication results are:$")
     public void adjudicationResultIsAsFollows(final List<AdjudicationRow> list) {
         adjudicationSteps.verifyAdjudications(list);
+    }
+
+    @Then("^the associated offences for this offender are: \"([^\"]*)\"$")
+    public void associatedChargesAreAsFollows(final String vals) {
+        adjudicationSteps.verifyOffenceCodes(Splitter.on(',').trimResults().splitToList(vals));
     }
 
     @Then("^resource not found response is received from offender API")
