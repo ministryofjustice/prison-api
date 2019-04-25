@@ -1,23 +1,21 @@
 package net.syscon.elite.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
+@ApiModel(description = "Adjudication offences")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Builder(toBuilder = true)
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class AdjudicationCharge {
+public class AdjudicationOffence {
 
-    private String oicChargeId;
-    private String offenceDescription;
-    private String offenceCode;
-    private String findingCode;
+    private String id;
+    private String code;
+    private String description;
 }

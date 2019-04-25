@@ -3,6 +3,7 @@ package net.syscon.elite.repository.impl;
 import lombok.val;
 import net.syscon.elite.api.model.Adjudication;
 import net.syscon.elite.api.model.AdjudicationCharge;
+import net.syscon.elite.api.model.AdjudicationOffence;
 import net.syscon.elite.api.model.Award;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AdjudicationsRepository;
@@ -26,6 +27,7 @@ public class AdjudicationsRepositoryImpl extends RepositoryBase implements Adjud
 
     private final StandardBeanPropertyRowMapper<Award> rowMapper = new StandardBeanPropertyRowMapper<>(Award.class);
     private final StandardBeanPropertyRowMapper<AdjudicationChargeDto> adjudicationMapper = new StandardBeanPropertyRowMapper<>(AdjudicationChargeDto.class);
+    private final StandardBeanPropertyRowMapper<AdjudicationOffence> offenceMapper = new StandardBeanPropertyRowMapper<>(AdjudicationOffence.class);
 
     @Override
     public List<Award> findAwards(final long bookingId) {
@@ -33,7 +35,14 @@ public class AdjudicationsRepositoryImpl extends RepositoryBase implements Adjud
     }
 
     @Override
-    public Page<Adjudication> findAdjudicationsForOffender(final AdjudicationSearchCriteria criteria) {
+    public List<AdjudicationOffence> findAdjudicationOffences(final String offenderNumber) {
+        return jdbcTemplate.query(getQuery("FIND_ADJUDICATION_OFFENCE_TYPES_FOR_OFFENDER"),
+                createParams("offenderNo", offenderNumber),
+                offenceMapper);
+    }
+
+    @Override
+    public Page<Adjudication> findAdjudications(final AdjudicationSearchCriteria criteria) {
 
         val pageRequest = criteria.getPageRequest();
 

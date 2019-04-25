@@ -57,6 +57,7 @@ public class AdjudicationsRepositoryTest {
                     "Detains any person against his will - detention against will of staff (not prison offr)",
                     "51:2D",
                     "PROVED")));
+
     @Autowired
     private AdjudicationsRepository repository;
 
@@ -90,10 +91,28 @@ public class AdjudicationsRepositoryTest {
                         tuple("CC", "Cellular Confinement", null, null, 15, null, "IMMEDIATE", "Immediate", LocalDate.of(2016, 11, 9)));
     }
 
+
+    @Test
+    public void getAdjudicationOffences() {
+
+        var offences = repository.findAdjudicationOffences("A118GGG");
+        assertThat(offences).extracting("id", "code", "description").containsExactly(
+                tuple("81", "51:1N", "Commits any assault - assault on non prison officer member of staff"),
+                tuple("83", "51:2B", "Detains any person against his will - detention against will -non offr/staff/inmate"),
+                tuple("85", "51:2D", "Detains any person against his will - detention against will of staff (not prison offr)"),
+                tuple("86", "51:8D", "Fails to comply with any condition upon which he is temporarily released under rule 9 - failure to comply with conditions of temp release")
+        );
+
+        offences = repository.findAdjudicationOffences("A118HHH");
+        assertThat(offences).extracting("id", "code", "description").containsExactly(
+                tuple("84", "51:2C", "Detains any person against his will - detention against will of prison officer grade")
+        );
+    }
+
     @Test
     public void retrieveAdjudicationsForOffender() {
 
-        final var results = repository.findAdjudicationsForOffender(AdjudicationSearchCriteria.builder()
+        final var results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
                 .offenderNumber("A118GGG")
                 .pageRequest(new PageRequest(0L, 10L))
                 .build());
@@ -104,7 +123,7 @@ public class AdjudicationsRepositoryTest {
     @Test
     public void filterByStartDate() {
 
-        final var results = repository.findAdjudicationsForOffender(AdjudicationSearchCriteria.builder()
+        final var results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
                 .offenderNumber("A118GGG")
                 .startDate(MIDDLE_ADJUDICATION.getReportTime().plusDays(1).toLocalDate())
                 .pageRequest(new PageRequest(0L, 10L))
@@ -116,7 +135,7 @@ public class AdjudicationsRepositoryTest {
     @Test
     public void filterByEndDate() {
 
-        final var results = repository.findAdjudicationsForOffender(AdjudicationSearchCriteria.builder()
+        final var results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
                 .offenderNumber("A118GGG")
                 .endDate(MIDDLE_ADJUDICATION.getReportTime().minusDays(1).toLocalDate())
                 .pageRequest(new PageRequest(0L, 10L))
@@ -128,7 +147,7 @@ public class AdjudicationsRepositoryTest {
     @Test
     public void filterByOffence() {
 
-        final var results = repository.findAdjudicationsForOffender(AdjudicationSearchCriteria.builder()
+        final var results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
                 .offenderNumber("A118GGG")
                 .offenceId("86")
                 .pageRequest(new PageRequest(0L, 10L))
@@ -140,7 +159,7 @@ public class AdjudicationsRepositoryTest {
     @Test
     public void filterByLocation() {
 
-        final var results = repository.findAdjudicationsForOffender(AdjudicationSearchCriteria.builder()
+        final var results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
                 .offenderNumber("A118GGG")
                 .agencyId(LATEST_ADJUDICATION.getAgencyId())
                 .pageRequest(new PageRequest(0L, 10L))
@@ -171,17 +190,16 @@ public class AdjudicationsRepositoryTest {
     }
 
     private ListAssert<Adjudication> resultsFor(final PageRequest pageRequest) {
-        return assertThat(repository.findAdjudicationsForOffender(AdjudicationSearchCriteria.builder()
+        return assertThat(repository.findAdjudications(AdjudicationSearchCriteria.builder()
                 .offenderNumber("A118GGG")
                 .pageRequest(pageRequest)
                 .build()).getItems());
     }
 
-
     @Test
     public void anotherInmateHasAnAdjudicationForSameIncident() {
 
-        final var results = repository.findAdjudicationsForOffender(AdjudicationSearchCriteria.builder()
+        final var results = repository.findAdjudications(AdjudicationSearchCriteria.builder()
                 .offenderNumber("A118HHH")
                 .pageRequest(new PageRequest(0L, 10L))
                 .build());
