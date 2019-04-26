@@ -20,4 +20,5 @@ import java.util.List;
 public class AdjudicationSearchResponse {
 
     private List<Adjudication> results;
+    private List<AdjudicationOffence> offences;
 }

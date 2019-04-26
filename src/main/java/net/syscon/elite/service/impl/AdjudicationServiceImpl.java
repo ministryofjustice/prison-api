@@ -3,6 +3,7 @@ package net.syscon.elite.service.impl;
 import lombok.RequiredArgsConstructor;
 import net.syscon.elite.api.model.Adjudication;
 import net.syscon.elite.api.model.AdjudicationDetail;
+import net.syscon.elite.api.model.AdjudicationOffence;
 import net.syscon.elite.api.model.Award;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AdjudicationsRepository;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -34,6 +36,11 @@ public class AdjudicationServiceImpl implements AdjudicationService {
     public Page<Adjudication> findAdjudications(final AdjudicationSearchCriteria criteria) {
         bookingService.verifyCanViewLatestBooking(criteria.getOffenderNumber());
         return repository.findAdjudications(criteria);
+    }
+
+    @Override
+    public List<AdjudicationOffence> findAdjudicationsOffences(final String offenderNo) {
+        return repository.findAdjudicationOffences(offenderNo);
     }
 
     /**

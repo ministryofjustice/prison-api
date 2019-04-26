@@ -82,6 +82,7 @@ public class OffenderResourceImpl implements OffenderResource {
                 .header("Page-Limit", page.getPageLimit())
                 .entity(AdjudicationSearchResponse.builder()
                         .results(page.getItems())
+                        .offences(adjudicationService.findAdjudicationsOffences(criteria.getOffenderNumber()))
                         .build())
                 .build();
       }

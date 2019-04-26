@@ -2,6 +2,9 @@ package net.syscon.elite.web.config;
 
 import org.junit.Test;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 import static org.junit.Assert.assertEquals;
 
 public class AnnotationScannerTest {
@@ -40,7 +43,7 @@ public class AnnotationScannerTest {
 
     @Test
     public void testFindAnnotatedClassesSinglePackage4Deprecated() {
-        final var annotatedClasses = AnnotationScanner.findAnnotatedClasses(Deprecated.class, AnnotationScanner.class.getPackage().getName());
+        final var annotatedClasses = AnnotationScanner.findAnnotatedClasses(Here.class, AnnotationScanner.class.getPackage().getName());
 
         assertEquals(1, annotatedClasses.length);
 
@@ -60,10 +63,16 @@ public class AnnotationScannerTest {
     public void testFindAnnotatedClassesMultiplePackages4Deprecated() {
         final var packages = new String[]{AnnotationScanner.class.getPackage().getName(), "net.syscon.elite.not.a.real.package"};
 
-        final var annotatedClasses = AnnotationScanner.findAnnotatedClasses(Deprecated.class, packages);
+        final var annotatedClasses = AnnotationScanner.findAnnotatedClasses(Here.class, packages);
 
         assertEquals(1, annotatedClasses.length);
 
         assertEquals(GuineaPig.class, annotatedClasses[0]);
+    }
+
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface Here {
+
     }
 }

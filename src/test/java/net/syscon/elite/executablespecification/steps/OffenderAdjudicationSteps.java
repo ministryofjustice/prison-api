@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import net.syscon.elite.api.model.Adjudication;
 import net.syscon.elite.api.model.AdjudicationCharge;
+import net.syscon.elite.api.model.AdjudicationOffence;
 import net.syscon.elite.api.model.AdjudicationSearchResponse;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
@@ -12,13 +13,14 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -27,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class OffenderAdjudicationSteps extends CommonSteps {
 
     private List<Adjudication> adjudications;
+    private List<AdjudicationOffence> offences;
 
     @Step("Perform offender adjudication search")
     public void findAdjudications(final String offenderNumber) {
@@ -42,7 +45,9 @@ public class OffenderAdjudicationSteps extends CommonSteps {
                     }, offenderNumber);
 
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-            adjudications = responseEntity.getBody().getResults();
+            AdjudicationSearchResponse body = responseEntity.getBody();
+            adjudications = body.getResults();
+            offences = body.getOffences();
 
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
@@ -62,6 +67,11 @@ public class OffenderAdjudicationSteps extends CommonSteps {
                 .collect(toList());
 
         assertThat(found).containsExactlyElementsOf(expected);
+    }
+
+    public void verifyOffenceCodes(final List<String> expectedChargeCodes) {
+        final var found = offences.stream().map(AdjudicationOffence::getCode).collect(toSet());
+        assertThat(found).containsExactlyInAnyOrderElementsOf(Set.copyOf(expectedChargeCodes));
     }
 
     private String commaSeparated(final Adjudication adjudication, final Function<AdjudicationCharge, String> extractor) {
