@@ -11,3 +11,8 @@ spring:
 
   profiles:
     include: dev
+
+
+graceful:
+  shutdown:
+    enabled: false
