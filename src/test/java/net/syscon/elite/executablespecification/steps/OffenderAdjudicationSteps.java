@@ -7,6 +7,7 @@ import net.syscon.elite.api.model.Adjudication;
 import net.syscon.elite.api.model.AdjudicationCharge;
 import net.syscon.elite.api.model.AdjudicationOffence;
 import net.syscon.elite.api.model.AdjudicationSearchResponse;
+import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
@@ -30,6 +31,7 @@ public class OffenderAdjudicationSteps extends CommonSteps {
 
     private List<Adjudication> adjudications;
     private List<AdjudicationOffence> offences;
+    private List<Agency> agencies;
 
     @Step("Perform offender adjudication search")
     public void findAdjudications(final String offenderNumber) {
@@ -48,6 +50,7 @@ public class OffenderAdjudicationSteps extends CommonSteps {
             AdjudicationSearchResponse body = responseEntity.getBody();
             adjudications = body.getResults();
             offences = body.getOffences();
+            agencies = body.getAgencies();
 
         } catch (EliteClientException ex) {
             setErrorResponse(ex.getErrorResponse());
@@ -74,9 +77,17 @@ public class OffenderAdjudicationSteps extends CommonSteps {
         assertThat(found).containsExactlyInAnyOrderElementsOf(Set.copyOf(expectedChargeCodes));
     }
 
+
+    public void verifyAgencies(List<String> expectedAgencyIds) {
+        final var found = agencies.stream().map(Agency::getAgencyId).collect(toSet());
+        assertThat(found).containsExactlyInAnyOrderElementsOf(Set.copyOf(expectedAgencyIds));
+
+    }
+
     private String commaSeparated(final Adjudication adjudication, final Function<AdjudicationCharge, String> extractor) {
         return adjudication.getAdjudicationCharges().stream().map(extractor).collect(joining(","));
     }
+
 
     @Data
     @Builder

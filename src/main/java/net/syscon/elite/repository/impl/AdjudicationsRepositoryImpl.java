@@ -4,6 +4,7 @@ import lombok.val;
 import net.syscon.elite.api.model.Adjudication;
 import net.syscon.elite.api.model.AdjudicationCharge;
 import net.syscon.elite.api.model.AdjudicationOffence;
+import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Award;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AdjudicationsRepository;
@@ -26,6 +27,7 @@ import static java.util.stream.Collectors.toList;
 public class AdjudicationsRepositoryImpl extends RepositoryBase implements AdjudicationsRepository {
 
     private final StandardBeanPropertyRowMapper<Award> rowMapper = new StandardBeanPropertyRowMapper<>(Award.class);
+    private final StandardBeanPropertyRowMapper<Agency> agencyMapper = new StandardBeanPropertyRowMapper<>(Agency.class);
     private final StandardBeanPropertyRowMapper<AdjudicationChargeDto> adjudicationMapper = new StandardBeanPropertyRowMapper<>(AdjudicationChargeDto.class);
     private final StandardBeanPropertyRowMapper<AdjudicationOffence> offenceMapper = new StandardBeanPropertyRowMapper<>(AdjudicationOffence.class);
 
@@ -39,6 +41,13 @@ public class AdjudicationsRepositoryImpl extends RepositoryBase implements Adjud
         return jdbcTemplate.query(getQuery("FIND_ADJUDICATION_OFFENCE_TYPES_FOR_OFFENDER"),
                 createParams("offenderNo", offenderNumber),
                 offenceMapper);
+    }
+
+    @Override
+    public List<Agency> findAdjudicationAgencies(final String offenderNumber) {
+        return jdbcTemplate.query(getQuery("FIND_ADJUDICATION_AGENCIES_FOR_OFFENDER"),
+                createParams("offenderNo", offenderNumber),
+                agencyMapper);
     }
 
     @Override

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import net.syscon.elite.api.model.Adjudication;
 import net.syscon.elite.api.model.AdjudicationDetail;
 import net.syscon.elite.api.model.AdjudicationOffence;
+import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Award;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.repository.AdjudicationsRepository;
@@ -41,6 +42,11 @@ public class AdjudicationServiceImpl implements AdjudicationService {
     @Override
     public List<AdjudicationOffence> findAdjudicationsOffences(final String offenderNo) {
         return repository.findAdjudicationOffences(offenderNo);
+    }
+
+    @Override
+    public List<Agency> findAdjudicationAgencies(final String offenderNo) {
+        return repository.findAdjudicationAgencies(offenderNo);
     }
 
     /**

@@ -2,6 +2,8 @@ package net.syscon.elite.executablespecification;
 
 
 import com.google.common.base.Splitter;
+import cucumber.api.PendingException;
+import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import net.syscon.elite.api.model.OffenderAddress;
@@ -10,7 +12,6 @@ import net.syscon.elite.executablespecification.steps.OffenderSteps;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-import java.util.Set;
 
 import static net.syscon.elite.executablespecification.steps.OffenderAdjudicationSteps.AdjudicationRow;
 
@@ -40,9 +41,14 @@ public class OffenderStepDefinitions extends AbstractStepDefinitions {
         adjudicationSteps.verifyAdjudications(list);
     }
 
-    @Then("^the associated offences for this offender are: \"([^\"]*)\"$")
+    @And("^the associated offences for this offender are: \"([^\"]*)\"$")
     public void associatedChargesAreAsFollows(final String vals) {
         adjudicationSteps.verifyOffenceCodes(Splitter.on(',').trimResults().splitToList(vals));
+    }
+
+    @And("^the associated agencies for this offender are: \"([^\"]*)\"$")
+    public void theAssociatedAgenciesForThisOffenderAre(String vals) {
+        adjudicationSteps.verifyAgencies(Splitter.on(',').trimResults().splitToList(vals));
     }
 
     @Then("^resource not found response is received from offender API")
@@ -54,4 +60,5 @@ public class OffenderStepDefinitions extends AbstractStepDefinitions {
     public void verifyResourceNotFoundForAdjudicationApi() {
         adjudicationSteps.verifyResourceNotFound();
     }
+
 }

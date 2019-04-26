@@ -3,6 +3,7 @@ package net.syscon.elite.service.impl;
 import lombok.val;
 import net.syscon.elite.api.model.Adjudication;
 import net.syscon.elite.api.model.AdjudicationOffence;
+import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
 import net.syscon.elite.repository.AdjudicationsRepository;
@@ -18,6 +19,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +43,7 @@ public class AdjudicationServiceImplTest {
         val expectedResult = new Page<>(List.of(adjudication), 1, new PageRequest());
         val criteria = AdjudicationSearchCriteria.builder().offenderNumber("OFF-1").build();
 
-        when(adjudicationsRepository.findAdjudications(criteria)).thenReturn(expectedResult);
+        when(adjudicationsRepository.findAdjudications(any())).thenReturn(expectedResult);
 
         assertThat(adjudicationService.findAdjudications(criteria)).isEqualTo(expectedResult);
 
@@ -52,8 +55,22 @@ public class AdjudicationServiceImplTest {
 
         val expectedResult = List.of(AdjudicationOffence.builder().build());
 
-        when(adjudicationsRepository.findAdjudicationOffences("OFF-1")).thenReturn(expectedResult);
+        when(adjudicationsRepository.findAdjudicationOffences(anyString())).thenReturn(expectedResult);
 
         assertThat(adjudicationService.findAdjudicationsOffences("OFF-1")).isEqualTo(expectedResult);
+
+        verify(adjudicationsRepository).findAdjudicationOffences("OFF-1");
+    }
+
+    @Test
+    public void adjudicationAgencies() {
+
+        val expectedResult = List.of(Agency.builder().build());
+
+        when(adjudicationsRepository.findAdjudicationAgencies(anyString())).thenReturn(expectedResult);
+
+        assertThat(adjudicationService.findAdjudicationAgencies("OFF-1")).isEqualTo(expectedResult);
+
+        verify(adjudicationsRepository).findAdjudicationAgencies("OFF-1");
     }
 }

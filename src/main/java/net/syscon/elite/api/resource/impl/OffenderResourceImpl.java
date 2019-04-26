@@ -83,6 +83,7 @@ public class OffenderResourceImpl implements OffenderResource {
                 .entity(AdjudicationSearchResponse.builder()
                         .results(page.getItems())
                         .offences(adjudicationService.findAdjudicationsOffences(criteria.getOffenderNumber()))
+                        .agencies(adjudicationService.findAdjudicationAgencies(criteria.getOffenderNumber()))
                         .build())
                 .build();
       }
