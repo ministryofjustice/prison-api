@@ -93,7 +93,7 @@ public class AdjudicationsRepositoryTest {
 
 
     @Test
-    public void getAdjudicationOffences() {
+    public void findAdjudicationOffences() {
 
         var offences = repository.findAdjudicationOffences("A118GGG");
         assertThat(offences).extracting("id", "code", "description").containsExactly(
@@ -107,6 +107,22 @@ public class AdjudicationsRepositoryTest {
         assertThat(offences).extracting("id", "code", "description").containsExactly(
                 tuple("84", "51:2C", "Detains any person against his will - detention against will of prison officer grade")
         );
+    }
+
+    @Test
+    public void findAdjudicationLocations() {
+
+        var locations = repository.findAdjudicationAgencies("A118GGG");
+        assertThat(locations).extracting("agencyId", "description", "agencyType").containsExactly(
+                tuple("LEI", "LEEDS", "INST"),
+                tuple("MDI", "MOORLAND", "INST")
+        );
+
+        locations = repository.findAdjudicationAgencies("A118HHH");
+        assertThat(locations).extracting("agencyId", "description", "agencyType").containsExactly(
+                tuple("LEI", "LEEDS", "INST")
+        );
+
     }
 
     @Test

@@ -1,13 +1,12 @@
 package net.syscon.elite.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Singular;
-import net.syscon.elite.api.support.Page;
 
 import java.util.List;
 
@@ -19,6 +18,12 @@ import java.util.List;
 @Data
 public class AdjudicationSearchResponse {
 
+    @ApiModelProperty("Search results")
     private List<Adjudication> results;
+
+    @ApiModelProperty("A complete list of the type of offences that this offender has had adjudications for")
     private List<AdjudicationOffence> offences;
+
+    @ApiModelProperty("Complete list of agencies where this offender has had adjudications")
+    private List<Agency> agencies;
 }

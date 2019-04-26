@@ -11,8 +11,8 @@ Feature: Offenders Adjudications
       | adjudicationNumber | reportDate       | agencyId | offenceCodes | findings   |
       | -2                 | 2017-02-23 00:01 | LEI      | 51:2C        | NOT_PROVED |
     And the associated offences for this offender are: "51:2C"
-
-
+    And the associated agencies for this offender are: "LEI"
+    
   Scenario: A staff user views many adjudications for an existing offender
     Given a user has a token name of "SYSTEM_USER_READ_WRITE"
     When I view the adjudications of offender with offender display number of "A118GGG"
@@ -22,6 +22,7 @@ Feature: Offenders Adjudications
       | -5                 | 2019-01-25 00:02 | LEI      | 51:8D        | PROVED         |
       | -1                 | 2017-02-23 00:01 | LEI      | 51:1N,51:2B  | null,DISMISSED |
     And the associated offences for this offender are: "51:2D, 51:8D, 51:1N, 51:2B"
+    And the associated agencies for this offender are: "MDI, LEI"
 
   Scenario: A staff user cannot view adjudications for an offender on a caseload they don't have access to.
     Given a user has a token name of "ELITE2_API_USER"

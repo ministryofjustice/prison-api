@@ -2,6 +2,7 @@ package net.syscon.elite.repository;
 
 import net.syscon.elite.api.model.Adjudication;
 import net.syscon.elite.api.model.AdjudicationOffence;
+import net.syscon.elite.api.model.Agency;
 import net.syscon.elite.api.model.Award;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.service.AdjudicationSearchCriteria;
@@ -13,6 +14,8 @@ public interface AdjudicationsRepository {
     List<Award> findAwards(long bookingId);
 
     List<AdjudicationOffence> findAdjudicationOffences(String offenderNumber);
+
+    List<Agency> findAdjudicationAgencies(String offenderNumber);
 
     Page<Adjudication> findAdjudications(AdjudicationSearchCriteria criteria);
 }
