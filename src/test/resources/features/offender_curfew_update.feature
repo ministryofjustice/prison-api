@@ -18,6 +18,7 @@ Feature: Updating Offender Curfew state
       | ELITE2_API_USER        | -35       | true         | 2018-01-31       | 403        |
       | SYSTEM_USER_READ_WRITE | -35       | true         | 2018-02-31       | 400        |
 
+    @wip
   Scenario Outline:  Update the 'Approval status' for a booking's current (latest) curfew
     Given a user has a token name of "<tokenName>"
     When that user requests an update of the HDC approval status of the latest Offender Curfew for booking "<bookingId>" to "<approvalStatus>" and "<refusedReason>" at "<approvalStatusDate>"
@@ -27,14 +28,14 @@ Feature: Updating Offender Curfew state
     Examples:
       | tokenName              | bookingId | approvalStatus | refusedReason | approvalStatusDate | httpStatus |
       | SYSTEM_USER_READ_WRITE | -35       | APPROVED       |               | 2018-01-31         | 200        |
-      | SYSTEM_USER_READ_WRITE | -35       | INELIGIBLE     |               | 2018-01-31         | 200        |
-      | SYSTEM_USER_READ_WRITE | -35       | OPT_OUT        |               | 2018-01-31         | 200        |
-      | SYSTEM_USER_READ_WRITE | -35       | OPT_OUT ACCO   |               | 2018-01-31         | 200        |
-      | SYSTEM_USER_READ_WRITE | -35       | OPT_OUT OTH    |               | 2018-01-31         | 200        |
-      | SYSTEM_USER_READ_WRITE | -35       | PP INVEST      |               | 2018-01-31         | 200        |
-      | SYSTEM_USER_READ_WRITE | -35       | PP OUT RISK    |               | 2018-01-31         | 200        |
-      | SYSTEM_USER_READ_WRITE | -35       | PRES UNSUIT    |               | 2018-01-31         | 200        |
-      | SYSTEM_USER_READ_WRITE | -35       | REJECTED       |               | 2018-01-31         | 200        |
+      | SYSTEM_USER_READ_WRITE | -35       | INELIGIBLE     | BREACH        | 2018-01-31         | 200        |
+      | SYSTEM_USER_READ_WRITE | -35       | OPT_OUT        | BREACH        | 2018-01-31         | 200        |
+      | SYSTEM_USER_READ_WRITE | -35       | OPT_OUT ACCO   | BREACH        | 2018-01-31         | 200        |
+      | SYSTEM_USER_READ_WRITE | -35       | OPT_OUT OTH    | BREACH        | 2018-01-31         | 200        |
+      | SYSTEM_USER_READ_WRITE | -35       | PP INVEST      | BREACH        | 2018-01-31         | 200        |
+      | SYSTEM_USER_READ_WRITE | -35       | PP OUT RISK    | BREACH        | 2018-01-31         | 200        |
+      | SYSTEM_USER_READ_WRITE | -35       | PRES UNSUIT    | BREACH        | 2018-01-31         | 200        |
+      | SYSTEM_USER_READ_WRITE | -35       | REJECTED       | BREACH        | 2018-01-31         | 200        |
       | SYSTEM_USER_READ_WRITE | -35       | REJECTED       | ADDRESS       | 2018-01-31         | 200        |
       | SYSTEM_USER_READ_WRITE | -35       | REJECTED       | XXXXXXXX      | 2018-01-31         | 400        |
       | ELITE2_API_USER        | -35       | APPROVED       |               | 2018-01-31         | 403        |
@@ -42,6 +43,6 @@ Feature: Updating Offender Curfew state
       | SYSTEM_USER_READ_WRITE | -35       | APPROVED       |               | 2018-02-31         | 400        |
       | SYSTEM_USER_READ_WRITE | -35       | APPROVED       |               |                    | 400        |
       | SYSTEM_USER_READ_WRITE | -35       |                |               | 2018-01-31         | 400        |
-      | SYSTEM_USER_READ_WRITE | -35       | INACTIVE       |               | 2018-01-31         | 400        |
-      | SYSTEM_USER_READ_WRITE | -35       | XXXXXXXX       |               | 2018-01-31         | 400        |
+      | SYSTEM_USER_READ_WRITE | -35       | XXXXXXXX       | BREACH        | 2018-01-31         | 400        |
+      | SYSTEM_USER_READ_WRITE | -35       | INACTIVE       | BREACH        | 2018-01-31         | 400        |
       | SYSTEM_USER_READ_WRITE | -35       | APPROVED       |               | xxxxxxxxxx         | 400        |

@@ -20,7 +20,22 @@ public interface OffenderCurfewRepository {
 
     void setHDCChecksPassed(long bookingId, HdcChecks hdcChecks);
 
-    void setApprovalStatusForLatestCurfew(long bookingId, ApprovalStatus approvalStatus);
+    void setApprovalStatusForCurfew(long curfewId, ApprovalStatus approvalStatus);
 
-    Optional<HomeDetentionCurfew> getLatestHomeDetentionCurfew(Long bookingId);
+    long createHdcStatusTracking(long curfewId, String statusCode);
+
+    void createHdcStatusReason(long hdcStatusTrackingId, String statusReasonCode);
+
+    Optional<HomeDetentionCurfew> getLatestHomeDetentionCurfew(Long bookingId, String statusTrackingCodeToMatch);
+
+    Optional<Long> getLatestHomeDetentionCurfewId(long bookingId);
+
+    /**
+     * Set th hdcStatusReason for the HDC curfew identified by curfewId to hdcStatusReason
+     * @param curfewId
+     * @param hdcStatusTrackingCode The status tracking code to match when searching for a record to update
+     * @param hdcStatusReason
+     * @return true if the HDC curfew already has an entry and it was updated otherwise false
+     */
+    boolean updateHdcStatusReason(Long curfewId, String hdcStatusTrackingCode, String hdcStatusReason);
 }
