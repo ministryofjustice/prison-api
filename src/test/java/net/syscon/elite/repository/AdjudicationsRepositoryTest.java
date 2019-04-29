@@ -37,25 +37,25 @@ public class AdjudicationsRepositoryTest {
     private static final Adjudication EARLIEST_ADJUDICATION = new Adjudication(-1, LocalDateTime.of(2017, 2, 23, 0, 1), -1, "LEI", 1L, List.of(
             new AdjudicationCharge(
                     "5139/1",
-                    "Commits any assault - assault on non prison officer member of staff",
                     "51:1N",
+                    "Commits any assault - assault on non prison officer member of staff",
                     null),
             new AdjudicationCharge(
                     "5139/2",
-                    "Detains any person against his will - detention against will -non offr/staff/inmate",
                     "51:2B",
+                    "Detains any person against his will - detention against will -non offr/staff/inmate",
                     "DISMISSED")));
     private static final Adjudication MIDDLE_ADJUDICATION = new Adjudication(-5, LocalDateTime.of(2019, 1, 25, 0, 2), -2, "LEI", 1L, List.of(
             new AdjudicationCharge(
                     "5139/5",
-                    "Fails to comply with any condition upon which he is temporarily released under rule 9 - failure to comply with conditions of temp release",
                     "51:8D",
+                    "Fails to comply with any condition upon which he is temporarily released under rule 9 - failure to comply with conditions of temp release",
                     "PROVED")));
     private static final Adjudication LATEST_ADJUDICATION = new Adjudication(-3, LocalDateTime.of(2019, 8, 25, 0, 3), -3, "MDI", 1L, List.of(
             new AdjudicationCharge(
                     "5139/4",
-                    "Detains any person against his will - detention against will of staff (not prison offr)",
                     "51:2D",
+                    "Detains any person against his will - detention against will of staff (not prison offr)",
                     "PROVED")));
 
     @Autowired
@@ -224,8 +224,8 @@ public class AdjudicationsRepositoryTest {
                 new Adjudication(-2, LocalDateTime.of(2017, 2, 23, 0, 1), -1, "LEI", 2L, List.of(
                         new AdjudicationCharge(
                                 "5139/3",
-                                "Detains any person against his will - detention against will of prison officer grade",
                                 "51:2C",
+                                "Detains any person against his will - detention against will of prison officer grade",
                                 "NOT_PROVED"))));
     }
 }
