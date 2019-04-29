@@ -65,9 +65,10 @@ public class AdjudicationServiceImplTest {
     @Test
     public void adjudicationAgencies() {
 
-        val expectedResult = List.of(Agency.builder().build());
+        val dbResult = List.of(Agency.builder().description("MOORLANDS (HMP)").build());
+        val expectedResult = List.of(Agency.builder().description("Moorlands (HMP)").build());
 
-        when(adjudicationsRepository.findAdjudicationAgencies(anyString())).thenReturn(expectedResult);
+        when(adjudicationsRepository.findAdjudicationAgencies(anyString())).thenReturn(dbResult);
 
         assertThat(adjudicationService.findAdjudicationAgencies("OFF-1")).isEqualTo(expectedResult);
 

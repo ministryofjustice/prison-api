@@ -12,6 +12,7 @@ import net.syscon.elite.security.VerifyBookingAccess;
 import net.syscon.elite.service.AdjudicationSearchCriteria;
 import net.syscon.elite.service.AdjudicationService;
 import net.syscon.elite.service.BookingService;
+import net.syscon.elite.service.support.LocationProcessor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,8 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 @Transactional(readOnly = true)
@@ -46,7 +49,11 @@ public class AdjudicationServiceImpl implements AdjudicationService {
 
     @Override
     public List<Agency> findAdjudicationAgencies(final String offenderNo) {
-        return repository.findAdjudicationAgencies(offenderNo);
+        return repository.findAdjudicationAgencies(offenderNo).stream()
+                .map(agency -> agency.toBuilder()
+                        .description(LocationProcessor.formatLocation(agency.getDescription()))
+                        .build())
+                .collect(toList());
     }
 
     /**

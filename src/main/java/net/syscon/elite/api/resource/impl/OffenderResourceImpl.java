@@ -58,11 +58,11 @@ public class OffenderResourceImpl implements OffenderResource {
 
     @Override
     public Response getAdjudicationsByOffenderNo(@NotNull final String offenderNo,
-                                                                   final String offenceId,
-                                                                   final String agencyId,
-                                                                   final LocalDate fromDate, LocalDate toDate,
-                                                                   final Long pageOffset,
-                                                                   final Long pageLimit) {
+                                                 final String offenceId,
+                                                 final String agencyId,
+                                                 final LocalDate fromDate, LocalDate toDate,
+                                                 final Long pageOffset,
+                                                 final Long pageLimit) {
 
         val criteria = AdjudicationSearchCriteria.builder()
                 .offenderNumber(offenderNo)
@@ -86,7 +86,7 @@ public class OffenderResourceImpl implements OffenderResource {
                         .agencies(adjudicationService.findAdjudicationAgencies(criteria.getOffenderNumber()))
                         .build())
                 .build();
-      }
+    }
 
     @Override
     public GetAlertsByOffenderNosResponse getAlertsByOffenderNo(@NotNull final String offenderNo, final Boolean latestOnly, final String query, final String sortFields, final Order sortOrder) {
@@ -94,7 +94,7 @@ public class OffenderResourceImpl implements OffenderResource {
                 List.of(offenderNo),
                 nvl(latestOnly, true),
                 query,
-                StringUtils.defaultIfBlank(sortFields,"bookingId,alertId"),
+                StringUtils.defaultIfBlank(sortFields, "bookingId,alertId"),
                 nvl(sortOrder, Order.ASC));
         return GetAlertsByOffenderNosResponse.respond200WithApplicationJson(inmateAlertsByOffenderNos);
     }

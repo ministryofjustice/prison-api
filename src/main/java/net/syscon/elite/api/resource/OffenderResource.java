@@ -1,6 +1,11 @@
 package net.syscon.elite.api.resource;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.Authorization;
 import net.syscon.elite.api.model.AdjudicationSearchResponse;
 import net.syscon.elite.api.model.Alert;
 import net.syscon.elite.api.model.ErrorResponse;
@@ -11,7 +16,13 @@ import net.syscon.elite.api.resource.IncidentsResource.IncidentListResponse;
 import net.syscon.elite.api.support.Order;
 
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.util.List;
@@ -58,7 +69,7 @@ public interface OffenderResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     Response getAdjudicationsByOffenderNo(@ApiParam(value = "offenderNo", required = true) @PathParam("offenderNo") @NotNull String offenderNo,
-                                          @ApiParam(value = "An offence id to allow optionally filtering by type of offence", required = true) @QueryParam("offenderId") String offenceId,
+                                          @ApiParam(value = "An offence id to allow optionally filtering by type of offence") @QueryParam("offenderId") String offenceId,
                                           @ApiParam(value = "An agency id to allow optionally filtering by the agency in which the offence occurred") @QueryParam("agencyId") String agencyId,
                                           @ApiParam(value = "Adjudications must have been reported on or after this date (in YYYY-MM-DD format).") @QueryParam("fromDate") LocalDate fromDate,
                                           @ApiParam(value = "Adjudications must have been reported on or before this date (in YYYY-MM-DD format).") @QueryParam("toDate") LocalDate toDate,

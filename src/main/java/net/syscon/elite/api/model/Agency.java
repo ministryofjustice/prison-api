@@ -18,7 +18,7 @@ import java.util.Map;
 @SuppressWarnings("unused")
 @ApiModel(description = "Agency Details")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
