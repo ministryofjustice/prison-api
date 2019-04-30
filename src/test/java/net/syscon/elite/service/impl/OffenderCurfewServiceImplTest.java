@@ -1,13 +1,12 @@
 package net.syscon.elite.service.impl;
 
+import lombok.val;
 import net.syscon.elite.api.model.Agency;
+import net.syscon.elite.api.model.ApprovalStatus;
 import net.syscon.elite.api.model.OffenderSentenceCalc;
 import net.syscon.elite.api.model.OffenderSentenceCalculation;
 import net.syscon.elite.repository.OffenderCurfewRepository;
-import net.syscon.elite.service.BookingService;
-import net.syscon.elite.service.CaseloadToAgencyMappingService;
-import net.syscon.elite.service.OffenderCurfewService;
-import net.syscon.elite.service.ReferenceDomainService;
+import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.OffenderCurfew;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import javax.ws.rs.BadRequestException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -23,11 +23,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toList;
 import static net.syscon.elite.service.impl.OffenderCurfewServiceImpl.currentOffenderCurfews;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Java6Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 
@@ -133,7 +133,7 @@ public class OffenderCurfewServiceImplTest {
     @Test
     public void givenOneCurfewWhenFilteredForCurrentCurfewThenTheCurfewShouldBeReturned() {
         final var curfew = offenderCurfew(1, 2, null);
-        assertThat(extractCurfewIds(currentOffenderCurfews(singleton(curfew)))).containsOnly(1L);
+        assertThat(extractCurfewIds(currentOffenderCurfews(List.of(curfew)))).containsOnly(1L);
     }
 
     @Test
@@ -391,6 +391,85 @@ public class OffenderCurfewServiceImplTest {
                 .collect(Collectors.toList())
         ).containsExactly(3L, 4L);
     }
+
+    @Test
+    public void setApprovedApprovalStatus() {
+        when(referenceDomainService.isReferenceCodeActive("HDC_APPROVE", "APPROVED")).thenReturn(true);
+        when(offenderCurfewRepository.getLatestHomeDetentionCurfewId(1L)).thenReturn(Optional.of(2L));
+
+        val approvalStatus = ApprovalStatus.builder().approvalStatus(ApprovalStatus.APPROVED_STATUS).date(LocalDate.now()).build();
+
+        offenderCurfewService.setApprovalStatus(1L, approvalStatus);
+
+        verify(offenderCurfewRepository).setApprovalStatusForCurfew(2L, approvalStatus);
+    }
+
+
+    @Test
+    public void setRejectedApprovalStatus() {
+        val rejectedStatus = "REJECTED";
+        val refusedReason = "BREACH";
+
+        when(referenceDomainService.isReferenceCodeActive("HDC_APPROVE", rejectedStatus)).thenReturn(true);
+        when(referenceDomainService.isReferenceCodeActive("HDC_REJ_RSN", refusedReason)).thenReturn(true);
+
+        when(offenderCurfewRepository.getLatestHomeDetentionCurfewId(1L)).thenReturn(Optional.of(2L));
+        when(offenderCurfewRepository.createHdcStatusTracking(2L, "REFUSED")).thenReturn(3L);
+
+        val approvalStatus = ApprovalStatus
+                .builder()
+                .approvalStatus(rejectedStatus)
+                .date(LocalDate.now())
+                .refusedReason(refusedReason)
+                .build();
+
+        offenderCurfewService.setApprovalStatus(1L, approvalStatus);
+
+        verify(offenderCurfewRepository).setApprovalStatusForCurfew(2L, approvalStatus);
+        verify(offenderCurfewRepository).createHdcStatusReason(3L, refusedReason);
+    }
+
+    @Test
+    public void badApprovalStatus() {
+        val rejectedStatus = "XXX";
+
+        when(referenceDomainService.isReferenceCodeActive(eq("HDC_APPROVE"), anyString())).thenReturn(false);
+
+        val badApprovalStatus = ApprovalStatus.builder().approvalStatus(rejectedStatus).build();
+
+        assertThatThrownBy(() -> offenderCurfewService.setApprovalStatus(1L, badApprovalStatus))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("Approval status code 'XXX' is not a valid NOMIS value.");
+    }
+
+    @Test
+    public void badRefusedReason() {
+            val rejectedStatus = "REJECTED";
+            val refusedReason = "XXX";
+
+            when(referenceDomainService.isReferenceCodeActive("HDC_APPROVE", rejectedStatus)).thenReturn(true);
+            when(referenceDomainService.isReferenceCodeActive(eq("HDC_REJ_RSN"), anyString())).thenReturn(false);
+
+        val badApprovalStatus = ApprovalStatus.builder().approvalStatus(rejectedStatus).refusedReason(refusedReason).build();
+
+        assertThatThrownBy(() -> offenderCurfewService.setApprovalStatus(1L, badApprovalStatus))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessage("Refused reason code 'XXX' is not a valid NOMIS value.");
+    }
+
+    @Test
+    public void setApprovalStatusNoBooking() {
+        when(referenceDomainService.isReferenceCodeActive("HDC_APPROVE", "APPROVED")).thenReturn(true);
+        when(offenderCurfewRepository.getLatestHomeDetentionCurfewId(1L)).thenReturn(Optional.empty());
+
+        val approvalStatus = ApprovalStatus.builder().approvalStatus(ApprovalStatus.APPROVED_STATUS).date(LocalDate.now()).build();
+
+        assertThatThrownBy(() ->  offenderCurfewService.setApprovalStatus(1L, approvalStatus))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("There is no curfew resource for bookingId 1");
+    }
+
+
 
     private List<OffenderSentenceCalculation> offenderSentenceCalculations() {
 

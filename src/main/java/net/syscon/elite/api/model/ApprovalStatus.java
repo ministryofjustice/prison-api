@@ -1,12 +1,16 @@
 package net.syscon.elite.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
+import net.syscon.elite.service.validation.ValidApprovalStatus;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @ApiModel(description = "HDC Approval Status")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -15,7 +19,10 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @EqualsAndHashCode
 @Data
+@ValidApprovalStatus
 public class ApprovalStatus {
+    public static final String APPROVED_STATUS = "APPROVED";
+
     @ApiModelProperty(required = true, value = "Approval status. Must be one of the 'HDC_APPROVE' reference codes", example = "APPROVED")
     @NotNull
     String approvalStatus;
@@ -26,4 +33,14 @@ public class ApprovalStatus {
     @ApiModelProperty(required = true, value = "Approval status date. ISO-8601 format. YYYY-MM-DD", example = "2018-12-31")
     @NotNull
     LocalDate date;
+
+    @JsonIgnore
+    public boolean isApproved() {
+        return APPROVED_STATUS.equals(approvalStatus);
+    }
+
+    @JsonIgnore
+    public boolean hasRefusedReason() {
+        return !isEmpty(refusedReason);
+    }
 }

@@ -10,6 +10,7 @@ import net.syscon.elite.repository.mapping.StandardBeanPropertyRowMapper;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.support.OffenderCurfew;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -52,27 +53,74 @@ public class OffenderCurfewRepositoryImpl extends RepositoryBase implements Offe
     }
 
     @Override
-    public void setApprovalStatusForLatestCurfew(final long bookingId, final ApprovalStatus approvalStatus) {
-        final var rowsUpdated = jdbcTemplate.update(
+    public void setApprovalStatusForCurfew(final long curfewId, final ApprovalStatus approvalStatus) {
+        jdbcTemplate.update(
                 getQuery("UPDATE_APPROVAL_STATUS"),
                 createParams(
-                        "bookingId", bookingId,
+                        "curfewId", curfewId,
                         "date", approvalStatus.getDate(),
-                        "approvalStatus", approvalStatus.getApprovalStatus(),
-                        "refusedReason", approvalStatus.getRefusedReason()
+                        "approvalStatus", approvalStatus.getApprovalStatus()
                 )
         );
-        if (rowsUpdated < 1) {
-            throw new EntityNotFoundException("There is no curfew resource for bookingId " + bookingId);
-        }
     }
 
     @Override
-    public Optional<HomeDetentionCurfew> getLatestHomeDetentionCurfew(Long bookingId) {
+    public long createHdcStatusTracking(long curfewId, String statusCode) {
+        final var generatedKeyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(
+                getQuery("CREATE_HDC_STATUS_TRACKING"),
+                createParams(
+                        "offenderCurfewId", curfewId,
+                        "statusCode", statusCode),
+                generatedKeyHolder,
+                new String[] {"HDC_STATUS_TRACKING_ID"});
+
+        return generatedKeyHolder.getKey().longValue();
+
+    }
+
+    @Override
+    public void createHdcStatusReason(long hdcStatusTrackingId, String statusReasonCode) {
+        jdbcTemplate.update(
+            getQuery("CREATE_HDC_STATUS_REASON"),
+            createParams(
+                    "hdcStatusTrackingId", hdcStatusTrackingId,
+                    "statusReasonCode", statusReasonCode)
+        );
+    }
+
+    @Override
+    public boolean updateHdcStatusReason(Long curfewId, String hdcStatusTrackingCode, String hdcStatusReason){
+        return jdbcTemplate.update(
+                getQuery("UPDATE_HDC_STATUS_REASON"),
+                Map.of(
+                      "offenderCurfewId", curfewId,
+                      "hdcStatusTrackingCode", hdcStatusTrackingCode,
+                      "hdcStatusReason", hdcStatusReason
+                )
+        ) > 0;
+    }
+
+
+    @Override
+    public Optional<HomeDetentionCurfew> getLatestHomeDetentionCurfew(Long bookingId, String statusTrackingCodeToMatch) {
         val results = jdbcTemplate.query(
                 getQuery("LATEST_HOME_DETENTION_CURFEW"),
-                Map.of("bookingId", bookingId),
+                Map.of(
+                        "bookingId", bookingId,
+                        "statusTrackingCode", statusTrackingCodeToMatch),
                 HOME_DETENTION_CURFEW_ROW_MAPPER);
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
+    }
+
+    @Override
+    public Optional<Long> getLatestHomeDetentionCurfewId(long bookingId) {
+        val results = jdbcTemplate.queryForList(
+                getQuery("LATEST_HOME_DETENTION_CURFEW_ID"),
+                Map.of("bookingId", bookingId),
+                Long.class
+        );
         return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
     }
 }

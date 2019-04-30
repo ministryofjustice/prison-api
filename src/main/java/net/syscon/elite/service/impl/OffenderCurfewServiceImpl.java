@@ -1,5 +1,6 @@
 package net.syscon.elite.service.impl;
 
+import lombok.val;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.OffenderCurfewRepository;
 import net.syscon.elite.service.*;
@@ -27,6 +28,9 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
 
     private static final int DAYS_TO_ADD = 28;
 
+    private static final String REFUSED_HDC_STATUS_TRACKING_CODE = "REFUSED";
+    private static final String HDC_APPROVE_DOMAIN = "HDC_APPROVE";
+    private static final String HDC_REJECT_REASON_DOMAIN = "HDC_REJ_RSN";
     /**
      * Comparator for sorting OffenderCurfew instances by HDCED (HomeDetentionCurfewEligibilityDate). Nulls sort high.
      */
@@ -44,6 +48,7 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
     static final Comparator<OffenderCurfew> OFFENDER_CURFEW_COMPARATOR =
             comparing(OffenderCurfew::getAssessmentDate, nullsLast(naturalOrder()))
                     .thenComparing(OffenderCurfew::getOffenderCurfewId);
+    public static final String STATUS_TRACKING_CODE_REFUSED = "REFUSED";
 
     private final OffenderCurfewRepository offenderCurfewRepository;
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
@@ -109,8 +114,7 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
     @Override
     @PreAuthorize("hasRole('SYSTEM_USER')")
     public HomeDetentionCurfew getLatestHomeDetentionCurfew(final long bookingId) {
-        return offenderCurfewRepository
-                .getLatestHomeDetentionCurfew(bookingId)
+        return offenderCurfewRepository.getLatestHomeDetentionCurfew(bookingId, STATUS_TRACKING_CODE_REFUSED)
                 .orElseThrow(() -> new EntityNotFoundException("No 'latest' Home Detention Curfew found for bookingId " + bookingId));
     }
 
@@ -123,16 +127,31 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
     @Override
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('SYSTEM_USER')")
     public void setApprovalStatus(final long bookingId, final ApprovalStatus approvalStatus) {
-        if (!referenceDomainService.isReferenceCodeActive("HDC_APPROVE", approvalStatus.getApprovalStatus())) {
-            throw new BadRequestException(String.format("Approval status code '%1$s' not found and active.", approvalStatus));
+
+        if (!referenceDomainService.isReferenceCodeActive(HDC_APPROVE_DOMAIN, approvalStatus.getApprovalStatus())) {
+            throw new BadRequestException(String.format("Approval status code '%1$s' is not a valid NOMIS value.", approvalStatus.getApprovalStatus()));
         }
         final var refusedReason = approvalStatus.getRefusedReason();
         if (refusedReason != null) {
-            if (!referenceDomainService.isReferenceCodeActive("HDC_REJ_RSN", refusedReason)) {
-                throw new BadRequestException(String.format("Refused reason code '%1$s' not found and active.", approvalStatus));
+            if (!referenceDomainService.isReferenceCodeActive(HDC_REJECT_REASON_DOMAIN, refusedReason)) {
+                throw new BadRequestException(String.format("Refused reason code '%1$s' is not a valid NOMIS value.", refusedReason));
             }
         }
-        offenderCurfewRepository.setApprovalStatusForLatestCurfew(bookingId, approvalStatus);
+
+        val curfewId = offenderCurfewRepository.getLatestHomeDetentionCurfewId(bookingId).orElseThrow(() -> new EntityNotFoundException ("There is no curfew resource for bookingId " + bookingId));
+        offenderCurfewRepository.setApprovalStatusForCurfew(curfewId, approvalStatus);
+
+        if (approvalStatus.isApproved()) return;
+
+        addOrUpdateRefusedReason(curfewId, refusedReason);
+    }
+
+    private void addOrUpdateRefusedReason(Long curfewId, String refusedReason) {
+        if ( offenderCurfewRepository.updateHdcStatusReason(curfewId, REFUSED_HDC_STATUS_TRACKING_CODE, refusedReason)) {
+           return;
+        }
+        long hdcStatusTrackingId = offenderCurfewRepository.createHdcStatusTracking(curfewId, REFUSED_HDC_STATUS_TRACKING_CODE);
+        offenderCurfewRepository.createHdcStatusReason(hdcStatusTrackingId, refusedReason);
     }
 
     private Set<String> agencyIdsFor(final String username) {
