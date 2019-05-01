@@ -1,5 +1,6 @@
 package net.syscon.elite.aop.connectionproxy;
 
+import lombok.extern.slf4j.Slf4j;
 import oracle.jdbc.driver.OracleConnection;
 
 import java.sql.*;
@@ -12,6 +13,7 @@ import java.util.concurrent.Executor;
  * On close() the proxy session of the underlying Oracle connection will be closed before close() is called on the
  * wrapped connection.
  */
+@Slf4j
 public class ProxySessionClosingConnection implements Connection {
     private final Connection wrappedConnection;
 
@@ -22,6 +24,7 @@ public class ProxySessionClosingConnection implements Connection {
     @Override
     public void close() throws SQLException {
         final var oracleConnection = (OracleConnection) wrappedConnection.unwrap(Connection.class);
+        log.debug("Closing proxy connection {}", oracleConnection);
         oracleConnection.close(OracleConnection.PROXY_SESSION);
         wrappedConnection.close();
     }
