@@ -14,11 +14,11 @@ Feature: Booking Details
     And the category is "<category>"
 
     Examples:
-      | bookingId | bookingNo | assignedOfficerId | csra | category |
-      | -1        | A00111    | -1                | High | Low      |
-      | -2        | A00112    | -1                |      |          |
-      | -3        | A00113    | -1                | Low  |          |
-      | -8        | A00118    | -1                |      |          |
+      | bookingId | bookingNo | assignedOfficerId | csra | category                     |
+      | -1        | A00111    | -1                | High | Low                          |
+      | -2        | A00112    | -1                |      |                              |
+      | -3        | A00113    | -1                | Low  | Uncategorised Sentenced Male |
+      | -8        | A00118    | -1                |      |                              |
 
   Scenario Outline: Request for specific offender booking record basic details only
     When a basic offender booking request is made with booking id "<bookingId>"

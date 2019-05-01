@@ -87,7 +87,7 @@ Feature: Offender Search V2
 
     Examples:
       | alerts | location | number | last name list | alert lists | categories |
-      | SR     | LEI      | 1      | BATES          | SR          |            |
-      | V46,P1 | LEI      | 2      | ANDREWS,DUCK   | V46,P1      | C          |
+      | SR     | LEI      | 1      | BATES          | SR          | X          |
+      | V46,P1 | LEI      | 2      | ANDREWS,DUCK   | V46,P1      | C,Z        |
       | XA     | LEI      | 1      | ANDERSON       | XA,HC       | LOW        |
       | RSS    | LEI      | 0      |                |             |            |
