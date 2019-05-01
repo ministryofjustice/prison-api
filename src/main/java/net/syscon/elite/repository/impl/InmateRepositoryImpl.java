@@ -493,9 +493,12 @@ public class InmateRepositoryImpl extends RepositoryBase implements InmateReposi
         // for every group check that assessment is null OR it is the latest categorisation record
         final var catList = removeEarlierCategorisations(catListRaw);
 
-        // remove the active assessment status offenders - we only want null assessment or pending assessments
+        // remove the active assessment status offenders - we only want null assessment, pending assessments, or
+        // 'unclassified' (Z,X) or 'unsentenced' (U) categories
         return catList.stream()
-                .filter(o -> o.getAssessStatus() == null || o.getAssessStatus().equals("P"))
+                .filter(o -> o.getAssessStatus() == null || o.getAssessStatus().equals("P")
+                        || StringUtils.containsAny(o.getCategory(), "UXZ"))
+
                 .map(o -> OffenderCategorise.deriveStatus(o))
                 .collect(Collectors.toList());
     }

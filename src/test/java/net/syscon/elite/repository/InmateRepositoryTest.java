@@ -613,16 +613,18 @@ public class InmateRepositoryTest {
         final var list = repository.getUncategorised("LEI");
 
         list.sort(Comparator.comparing(OffenderCategorise::getOffenderNo));
-        assertThat(list).extracting("offenderNo", "bookingId", "firstName", "lastName", "status").contains(
-                Tuple.tuple("A1234AB", -2L, "GILLIAN", "ANDERSON", UNCATEGORISED),
-                Tuple.tuple("A1234AB", -2L, "GILLIAN", "ANDERSON", UNCATEGORISED),
-                Tuple.tuple("A1176RS", -32L, "FRED", "JAMES", UNCATEGORISED));
+        assertThat(list).extracting("offenderNo", "bookingId", "firstName", "lastName", "status", "category").contains(
+                Tuple.tuple("A1234AB", -2L, "GILLIAN", "ANDERSON", UNCATEGORISED, null),
+                Tuple.tuple("A1234AC", -3L, "NORMAN", "BATES", UNCATEGORISED, "X"),
+                Tuple.tuple("A1234AD", -4L, "CHARLES", "CHAPLIN", UNCATEGORISED, "U"),
+                Tuple.tuple("A1234AE", -5L, "DONALD", "DUCK", UNCATEGORISED, "Z"),
+                Tuple.tuple("A1176RS", -32L, "FRED", "JAMES", UNCATEGORISED, null));
 
         assertThat(list).extracting("offenderNo", "bookingId", "firstName", "lastName", "status",
                 "categoriserFirstName", "categoriserLastName", "category").contains(
                 Tuple.tuple("A1234AA", -1L, "ARTHUR", "ANDERSON", AWAITING_APPROVAL, "Elite2", "User", "B"));
 
-        assertThat(list).extracting("offenderNo").doesNotContain("A1234AG");  // "Active" categorisation should be ignored
+        assertThat(list).extracting("offenderNo").doesNotContain("A1234AF","A1234AG");  // "Active" categorisation should be ignored
         // Note that size of list may vary depending on whether feature tests have run, e.g. approving booking id -34
     }
 

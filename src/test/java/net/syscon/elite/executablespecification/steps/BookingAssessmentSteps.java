@@ -233,7 +233,8 @@ public class BookingAssessmentSteps extends CommonSteps {
         assertThat(assessments).asList()
                 .extracting("bookingId", "offenderNo", "classification", "assessmentCode", "nextReviewDate")
                 .containsExactlyInAnyOrder(tuple(-6L, "A1234AF", "Cat C", "CATEGORY", LocalDate.of(2018, Month.JUNE, 7)),
-                        tuple(-48L, "A1234AF", "Cat A", "CATEGORY", LocalDate.of(2016, Month.JUNE, 8)));
+                        tuple(-48L, "A1234AF", "Cat A", "CATEGORY", LocalDate.of(2016, Month.JUNE, 8)),
+                        tuple(-5L, "A1234AE", "Unclass", "CATEGORY", LocalDate.of(2016, Month.JUNE, 8)));
     }
 
     public void getUncategorisedOffenders(final String agencyId) {

@@ -384,16 +384,18 @@ FIND_APPROVED_ASSESSMENT_BY_OFFENDER_NO {
 
 GET_UNCATEGORISED {
 SELECT
-    at_offender.offender_id_display      AS OFFENDER_NO,
-    at_offender_booking.offender_book_id AS BOOKING_ID,
+    at_offender.offender_id_display       AS OFFENDER_NO,
+    at_offender_booking.offender_book_id  AS BOOKING_ID,
     at_offender.last_name,
     at_offender.first_name,
     off_ass.assessment_seq,
     off_ass.assessment_date,
     off_ass.assess_status,
-    sm.first_name                        AS CATEGORISER_FIRST_NAME,
-    sm.last_name                         AS CATEGORISER_LAST_NAME,
-    off_ass.calc_sup_level_type          AS CATEGORY
+    sm.first_name                         AS CATEGORISER_FIRST_NAME,
+    sm.last_name                          AS CATEGORISER_LAST_NAME,
+    COALESCE(off_ass.review_sup_level_type,
+             off_ass.overrided_sup_level_type,
+             off_ass.calc_sup_level_type) AS CATEGORY
 FROM
     offenders at_offender
         INNER JOIN offender_bookings at_offender_booking ON at_offender.offender_id = at_offender_booking.offender_id
