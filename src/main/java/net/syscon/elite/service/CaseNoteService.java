@@ -9,7 +9,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -32,7 +31,7 @@ public interface CaseNoteService {
 
     List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, @NotEmpty List<String> offenderNo, Integer staffId, String agencyId, LocalDate fromDate, LocalDate toDate, int numMonths);
 
-    List<CaseNoteUsageByBookingId> getCaseNoteUsageByBookingId(String type, String subType, @NotNull @Size(min = 1, max = 20) List<Integer> bookingIds, LocalDate fromDate, LocalDate toDate, int numMonths);
+    List<CaseNoteUsageByBookingId> getCaseNoteUsageByBookingId(String type, String subType, @NotEmpty List<Integer> bookingIds, LocalDate fromDate, LocalDate toDate, int numMonths);
 
     List<CaseNoteStaffUsage> getCaseNoteStaffUsage(String type, String subType, @NotEmpty List<Integer> staffIds, LocalDate fromDate, LocalDate toDate, int numMonths);
 }
