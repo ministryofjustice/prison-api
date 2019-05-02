@@ -24,7 +24,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -202,7 +201,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	}
 
 	@Override
-	public List<CaseNoteUsageByBookingId> getCaseNoteUsageByBookingId(final String type, final String subType, @NotNull @Size(min = 1, max = 20) final List<Integer> bookingIds, final LocalDate fromDate, final LocalDate toDate, final int numMonths) {
+    public List<CaseNoteUsageByBookingId> getCaseNoteUsageByBookingId(final String type, final String subType, @NotEmpty final List<Integer> bookingIds, final LocalDate fromDate, final LocalDate toDate, final int numMonths) {
 		final var deriveDates = new DeriveDates(fromDate, toDate, numMonths);
 
 		return caseNoteRepository.getCaseNoteUsageByBookingId(type, subType, bookingIds, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse());
