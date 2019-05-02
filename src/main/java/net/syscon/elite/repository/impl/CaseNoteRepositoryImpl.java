@@ -55,6 +55,9 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 	private static final RowMapper<CaseNoteUsage> CASE_NOTE_USAGE_MAPPER =
 			new StandardBeanPropertyRowMapper<>(CaseNoteUsage.class);
 
+	private static final RowMapper<CaseNoteUsageByBookingId> CASE_NOTE_USAGE_BY_BOOKING_ID_ROW_MAPPER =
+			new StandardBeanPropertyRowMapper<>(CaseNoteUsageByBookingId.class);
+
     private static final RowMapper<CaseNoteStaffUsage> CASE_NOTE_STAFF_USAGE_MAPPER =
             new StandardBeanPropertyRowMapper<>(CaseNoteStaffUsage.class);
 
@@ -122,6 +125,20 @@ public class CaseNoteRepositoryImpl extends RepositoryBase implements CaseNoteRe
 						"fromDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(fromDate)),
 						"toDate", new SqlParameterValue(Types.DATE,  DateTimeConverter.toDate(toDate))),
 				CASE_NOTE_USAGE_MAPPER);
+	}
+
+	@Override
+	public List<CaseNoteUsageByBookingId> getCaseNoteUsageByBookingId(final String type, final String subType, final List<Integer> bookingIds, final LocalDate fromDate, final LocalDate toDate) {
+
+		final var sql = getQuery("GROUP_BY_TYPES_AND_OFFENDERS_FOR_BOOKING");
+
+		return jdbcTemplate.query(sql,
+				createParams("bookingIds", bookingIds,
+						"type", new SqlParameterValue(Types.VARCHAR, type),
+						"subType", new SqlParameterValue(Types.VARCHAR, subType),
+						"fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
+						"toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
+				CASE_NOTE_USAGE_BY_BOOKING_ID_ROW_MAPPER);
 	}
 
     @Override

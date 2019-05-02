@@ -30,4 +30,6 @@ public interface CaseNoteRepository {
     List<CaseNoteUsage> getCaseNoteUsage(String type, String subType, List<String> offenderNos, Integer staffId, String agencyId, LocalDate fromDate, LocalDate toDate);
 
     List<CaseNoteStaffUsage> getCaseNoteStaffUsage(String type, String subType, List<Integer> staffIds, LocalDate fromDate, LocalDate toDate);
+
+    List<CaseNoteUsageByBookingId> getCaseNoteUsageByBookingId(String type, String subType, List<Integer> bookingIds, LocalDate fromDateToUse, LocalDate toDateToUse);
 }

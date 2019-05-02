@@ -1,5 +1,6 @@
 package net.syscon.elite.repository;
 
+import net.syscon.elite.api.model.CaseNoteUsageByBookingId;
 import net.syscon.elite.api.model.NewCaseNote;
 import net.syscon.elite.web.config.CacheConfig;
 import net.syscon.elite.web.config.PersistenceConfigs;
@@ -16,8 +17,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
@@ -107,6 +110,29 @@ public class CaseNoteRepositoryTest {
         assertThat(contactDateTime).isBetween(createDateTime.minusSeconds(2), createDateTime.plusSeconds(1));
 
         jdbcTemplate.update("delete from offender_case_notes where case_note_id = ?", caseNoteId);
+    }
+
+    @Test
+    public void getCaseNoteUsageByBookingIdSingleCaseNote() {
+        final var notes = repository.getCaseNoteUsageByBookingId("COMMS", "COM_OUT", List.of(-2), LocalDate.of(2017, 1, 1), LocalDate.of(2018, 1, 1));
+
+        assertThat(notes).containsOnly(new CaseNoteUsageByBookingId(-2, "COMMS", "COM_OUT", 1, LocalDateTime.parse("2017-05-06T17:11:00")));
+    }
+
+    @Test
+    public void getCaseNoteUsageByBookingIdMultipleCaseNote() {
+        final var notes = repository.getCaseNoteUsageByBookingId("OBSERVE", "OBS_GEN", List.of(-3), LocalDate.of(2017, 1, 1), LocalDate.of(2017, 8, 1));
+
+        assertThat(notes).containsOnly(new CaseNoteUsageByBookingId(-3, "OBSERVE", "OBS_GEN", 6, LocalDateTime.parse("2017-07-31T12:00")));
+    }
+
+    @Test
+    public void getCaseNoteUsageByBookingIdMultipleBookingIds() {
+        final var notes = repository.getCaseNoteUsageByBookingId("OBSERVE", "OBS_GEN", List.of(-16, -3), LocalDate.of(2017, 1, 1), LocalDate.of(2017, 8, 1));
+
+        assertThat(notes).containsOnly(
+                new CaseNoteUsageByBookingId(-3, "OBSERVE", "OBS_GEN", 6, LocalDateTime.parse("2017-07-31T12:00")),
+                new CaseNoteUsageByBookingId(-16, "OBSERVE", "OBS_GEN", 1, LocalDateTime.parse("2017-05-13T12:00")));
     }
 
     private NewCaseNote newCaseNote() {
