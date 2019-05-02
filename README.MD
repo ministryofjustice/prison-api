@@ -35,19 +35,6 @@ set JAVA_OPTS=-Dspring.profiles.active=nomis-hsqldb
 gradlew bootRun
 ```
 
-3) Using `java -jar` with a packaged version
-```bash
-gradle assemble
-
-nohup java -cp elite2-api-<VERSION>.jar:/etc/elite-mobile -Dloader.main=net.syscon.elite.Elite2ApiServer org.springframework.boot.loader.PropertiesLauncher &
-```
-Where `/etc/elite-mobile` is the external configuration directory. In the project this directory is `elite2-api/src/main/configs`
-
-If you need to build against Oracle 11 use:-
-```bash
-./gradlew clean assemble
-```
-
 ### Environment Variables
 
 Below are the key environment variables that can be set per service:-
@@ -57,7 +44,7 @@ SPRING_DATASOURCE_URL=<jdbc datasource url>
 SPRING_DATASOURCE_PASSWORD=<db password>
 ```
 
-4) In a Docker container
+3) In a Docker container
 
 Build Docker image and run
 
