@@ -1,5 +1,6 @@
 package net.syscon.elite.executablespecification.steps;
 
+import com.google.common.base.Splitter;
 import net.syscon.elite.api.model.*;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
@@ -23,6 +24,7 @@ public class CaseNoteSteps extends CommonSteps {
     private static final String API_REQUEST_FOR_CASENOTE = API_REQUEST_BASE_URL + "/{caseNoteId}";
     private static final String API_REQUEST_FOR_CASENOTE_COUNT = API_REQUEST_BASE_URL + "/{type}/{subType}/count";
     private static final String API_REQUEST_FOR_CASENOTE_USAGE = API_PREFIX + "case-notes/usage";
+    private static final String API_REQUEST_FOR_CASENOTE_SUMMARY = API_PREFIX + "case-notes/summary";
     private static final String API_REQUEST_FOR_CASENOTE_STAFF_USAGE = API_PREFIX + "case-notes/staff-usage";
     private static final String FROM_DATE_QUERY_PARAM_PREFIX = "&fromDate=";
     private static final String TO_DATE_QUERY_PARAM_PREFIX = "&toDate=";
@@ -123,6 +125,11 @@ public class CaseNoteSteps extends CommonSteps {
     @Step("Get case note usage")
     public void getCaseNoteUsage(final String offenderNos, final String staffId, final String agencyId, final String type, final String subType, final String fromDate, final String toDate) {
         dispatchGetCaseNoteUsageRequest(offenderNos, staffId, agencyId, type, subType, fromDate, toDate);
+    }
+
+    @Step("Get case note summary by booking id")
+    public void getCaseNoteUsageByBookingId(final String bookingIds, final String type, final String subType, final String fromDate, final String toDate) {
+        dispatchGetCaseNoteUsageByBookingIdRequest(bookingIds, type, subType, fromDate, toDate);
     }
 
     @Step("Get case note staff usage")
@@ -361,6 +368,29 @@ public class CaseNoteSteps extends CommonSteps {
         }
     }
 
+    private void dispatchGetCaseNoteUsageByBookingIdRequest(final String bookingIds, final String type, final String subType, final String fromDate, final String toDate) {
+        init();
+
+        final var queryBuilder = new StringBuilder();
+        Splitter.on(',').split(bookingIds).forEach(bookingId -> queryBuilder.append("&bookingId=").append(bookingId));
+        setQueryParams(type, subType, fromDate, toDate, queryBuilder);
+        final var urlModifier = "?" + queryBuilder.substring(1);
+        final var url = API_REQUEST_FOR_CASENOTE_SUMMARY + urlModifier;
+
+        try {
+            final var response = restTemplate.exchange(url, HttpMethod.GET, createEntity(),
+                    new ParameterizedTypeReference<List<CaseNoteUsage>>() {
+                    });
+
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+            caseNoteUsageList = response.getBody();
+            caseNoteUsage = caseNoteUsageList.isEmpty() ? null : caseNoteUsageList.get(0);
+        } catch (final EliteClientException ex) {
+            setErrorResponse(ex.getErrorResponse());
+        }
+    }
+
     private void dispatchGetCaseNoteStaffUsageRequest(final String staffIds, final String type, final String subType, final String fromDate, final String toDate) {
         init();
 
@@ -386,7 +416,8 @@ public class CaseNoteSteps extends CommonSteps {
                     url,
                     HttpMethod.GET,
                     createEntity(),
-                    new ParameterizedTypeReference<List<CaseNoteStaffUsage>>() {});
+                    new ParameterizedTypeReference<List<CaseNoteStaffUsage>>() {
+                    });
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
