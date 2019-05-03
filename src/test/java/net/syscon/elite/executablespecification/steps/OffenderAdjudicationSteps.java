@@ -1,5 +1,6 @@
 package net.syscon.elite.executablespecification.steps;
 
+import com.google.common.base.Joiner;
 import cucumber.api.Format;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -34,13 +36,15 @@ public class OffenderAdjudicationSteps extends CommonSteps {
     private List<Agency> agencies;
 
     @Step("Perform offender adjudication search")
-    public void findAdjudications(final String offenderNumber) {
+    public void findAdjudications(final String offenderNumber, final Map<String, String> params) {
 
         init();
 
         try {
 
-            final var responseEntity = restTemplate.exchange(API_PREFIX + "offenders/{offenderNumber}/adjudications",
+            final var queryParams = Joiner.on('&').withKeyValueSeparator('=').join(params);
+
+            final var responseEntity = restTemplate.exchange(API_PREFIX + "offenders/{offenderNumber}/adjudications?" + queryParams,
                     HttpMethod.GET,
                     createEntity(null, addPaginationHeaders()),
                     new ParameterizedTypeReference<AdjudicationSearchResponse>() {

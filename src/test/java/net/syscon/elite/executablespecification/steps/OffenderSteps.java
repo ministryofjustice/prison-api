@@ -26,7 +26,6 @@ public class OffenderSteps extends CommonSteps {
         init();
 
         try {
-
             final var responseEntity = restTemplate.exchange(API_PREFIX + "offenders/{offenderNumber}/addresses",
                     HttpMethod.GET,
                     createEntity(null, addPaginationHeaders()),
