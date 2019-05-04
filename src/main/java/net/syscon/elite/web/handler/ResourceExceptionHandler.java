@@ -67,10 +67,6 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
             status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
             userMessage = ex.getMessage();
             log.error("Internal Server Error", ex);
-        } else if (ex instanceof AllocationException) {
-            status = Response.Status.CONFLICT.getStatusCode();
-            userMessage = ex.getMessage();
-            log.error("Resource Conflict Error", ex);
         } else if (ex instanceof NotSupportedException) {
             userMessage = "Not Implemented Operation";
             status = Response.Status.NOT_IMPLEMENTED.getStatusCode();
@@ -83,6 +79,14 @@ public class ResourceExceptionHandler implements ExceptionMapper<Exception> {
             userMessage = "No content returned";
             developerMessage = ex.getMessage();
             log.info(developerMessage);
+        } else if (ex instanceof IllegalStateException) {
+            status = Response.Status.CONFLICT.getStatusCode();
+            userMessage = ex.getMessage();
+            log.info(userMessage);
+        } else if (ex instanceof IllegalArgumentException) {
+            status = Response.Status.BAD_REQUEST.getStatusCode();
+            userMessage = ex.getMessage();
+            log.info(userMessage);
         } else {
             status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
             userMessage = "An internal error has occurred - please try again later.";

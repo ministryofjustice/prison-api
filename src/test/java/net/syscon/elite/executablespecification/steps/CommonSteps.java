@@ -14,6 +14,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import javax.annotation.PostConstruct;
 import javax.ws.rs.core.Response;
@@ -56,7 +57,7 @@ public abstract class CommonSteps {
     @Step("Verify number of resource records returned")
     public void verifyResourceRecordsReturned(final long expectedCount) {
         assertThat(Integer.valueOf(resources.size()).longValue()).isEqualTo(expectedCount);
-    };
+    }
 
     @Step("Verify total number of resource records available")
     public void verifyTotalResourceRecordsAvailable(final long expectedCount) {
