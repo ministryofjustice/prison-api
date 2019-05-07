@@ -6,6 +6,7 @@ import net.syscon.elite.api.model.UpdateAttendance;
 import net.syscon.elite.api.model.Visit;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDefaults;
 import net.syscon.elite.api.model.bulkappointments.AppointmentDetails;
+import net.syscon.elite.api.model.PrivilegeDetail;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.support.PayableAttendanceOutcomeDto;
@@ -30,8 +31,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -453,5 +456,58 @@ public class BookingRepositoryTest {
                 .containsExactlyInAnyOrder(
                         Tuple.tuple(-31L, "APP", "ACTI", today, now, in1Hour, "Chapel"),
                         Tuple.tuple(-32L, "APP", "ACTI", today, now, in1Hour, "Chapel"));
+    }
+
+    @Test
+    public void testGetBookingIEPDetailsByBookingIds() {
+
+        final List<Long> bookingIds = new ArrayList<>();
+        bookingIds.add(-3L);
+
+        final var IEPDetails = repository.getBookingIEPDetailsByBookingIds(bookingIds);
+        assertThat(IEPDetails.get(-3L))
+                .asList()
+                .containsExactlyInAnyOrder(
+                        PrivilegeDetail.builder()
+                                .bookingId(-3L)
+                                .iepDate(LocalDate.of(2017, 10, 12))
+                                .iepTime(LocalDateTime.of(2017, 10, 12, 7, 53, 45))
+                                .agencyId("LEI")
+                                .iepLevel("Enhanced")
+                                .userId("ITAG_USER")
+                                .comments("Did not assault another inmate - data entry error.")
+                                .build(),
+
+                        PrivilegeDetail.builder()
+                                .bookingId(-3L)
+                                .iepDate(LocalDate.of(2017, 10, 12))
+                                .iepTime(LocalDateTime.of(2017, 10, 12, 9, 44, 1))
+                                .agencyId("LEI")
+                                .iepLevel("Basic")
+                                .userId("ITAG_USER")
+                                .comments("Assaulted another inmate.")
+                                .build(),
+
+                        PrivilegeDetail.builder()
+                                .bookingId(-3L)
+                                .iepDate(LocalDate.of(2017, 8, 22))
+                                .iepTime(LocalDateTime.of(2017, 8, 22, 18, 42, 35))
+                                .agencyId("LEI")
+                                .iepLevel("Standard")
+                                .userId("ITAG_USER")
+                                .comments("He has been a very good boy.")
+                                .build(),
+
+                        PrivilegeDetail.builder()
+                                .bookingId(-3L)
+                                .iepDate(LocalDate.of(2017, 7, 4))
+                                .iepTime(LocalDateTime.of(2017, 7, 4, 12, 15, 42))
+                                .agencyId("LEI")
+                                .iepLevel("Entry")
+                                .userId(null)
+                                .comments(null)
+                                .build()
+
+                );
     }
 }
