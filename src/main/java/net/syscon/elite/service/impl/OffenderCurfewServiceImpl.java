@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import javax.ws.rs.BadRequestException;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.*;
@@ -28,7 +27,13 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
 
     private static final int DAYS_TO_ADD = 28;
 
-    private static final String REFUSED_HDC_STATUS_TRACKING_CODE = "REFUSED";
+    private static final String STATUS_TRACKING_CODE_REFUSED = "REFUSED";
+    private static final String STATUS_TRACKING_CODE_MANUAL_FAIL = "MAN_CK_FAIL";
+
+    private static final Set<String> STATUS_TRACKING_CODES = Set.of(
+            STATUS_TRACKING_CODE_MANUAL_FAIL,
+            STATUS_TRACKING_CODE_REFUSED);
+
     private static final String HDC_APPROVE_DOMAIN = "HDC_APPROVE";
     private static final String HDC_REJECT_REASON_DOMAIN = "HDC_REJ_RSN";
     /**
@@ -48,7 +53,6 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
     static final Comparator<OffenderCurfew> OFFENDER_CURFEW_COMPARATOR =
             comparing(OffenderCurfew::getAssessmentDate, nullsLast(naturalOrder()))
                     .thenComparing(OffenderCurfew::getOffenderCurfewId);
-    public static final String STATUS_TRACKING_CODE_REFUSED = "REFUSED";
 
     private final OffenderCurfewRepository offenderCurfewRepository;
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
@@ -114,44 +118,115 @@ public class OffenderCurfewServiceImpl implements OffenderCurfewService {
     @Override
     @PreAuthorize("hasRole('SYSTEM_USER')")
     public HomeDetentionCurfew getLatestHomeDetentionCurfew(final long bookingId) {
-        return offenderCurfewRepository.getLatestHomeDetentionCurfew(bookingId, STATUS_TRACKING_CODE_REFUSED)
+        return offenderCurfewRepository.getLatestHomeDetentionCurfew(bookingId, STATUS_TRACKING_CODES)
                 .orElseThrow(() -> new EntityNotFoundException("No 'latest' Home Detention Curfew found for bookingId " + bookingId));
     }
 
+    /**
+     * Set the PASSED_FLAG on the 'latest' OFFENDER_CURFEWS row for a given bookingId according to values in the HdcChecks parameter.
+     * The PASSED_FLAG on an OFFENDER_CURFEWS row may only be set once. Subsequent attempts will result in an EntityNotFoundException.
+     * The OFFENDER_CURFEWS and HDC_STATUS_TRACKINGS tables have triggers that act to create rows in the HDC_STATUS_TRACKINGS and HDC_STATUS_REASONS tables when
+     * the OFFENDER_CURFEWS.PASSED_FLAG row is set by this method.
+     * @param bookingId The OFFENDER_BOOKINGS_ID value that selects the to be updated OFFENDER_CURFEWS
+     * @param hdcChecks The values to set
+     * @throws EntityNotFoundException If there is no OFFENDER_CURFEWS record associated with the given bookingId.
+     * @throws IllegalStateException If the PASSED_FLAG for the selected row has already been set.
+     */
     @Override
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('SYSTEM_USER')")
     public void setHdcChecks(final long bookingId, final HdcChecks hdcChecks) {
-        offenderCurfewRepository.setHDCChecksPassed(bookingId, hdcChecks);
+        val curfew = getLatestHomeDetentionCurfew(bookingId);
+        if (curfew.getPassed() != null) {
+            throw new IllegalStateException("HDC Checks already set to " + curfew.getPassed());
+        }
+        offenderCurfewRepository.setHDCChecksPassed(curfew.getId(), hdcChecks);
     }
 
+    /**
+     * Set the APPROVAL_STATUS on the latest OFFENDER_CURFEWS record associated with the given bookingId according to the values in the ApprovalStatus parameter.
+     * The APPROVAL_STATUS may only be set once for a given OFFENDER_CURFEWS record.  Subsequent attempts will result in an EntityNotFoundException.
+     * @param bookingId The Booking id
+     * @param approvalStatus The approval status to set
+     * @throws EntityNotFoundException if there is no OFFENDER_CURFEWS record associated with the given bookingId
+     * @throws IllegalStateException If the APPROVAL_STATUS for the selected row has already been set.
+     */
     @Override
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('SYSTEM_USER')")
     public void setApprovalStatus(final long bookingId, final ApprovalStatus approvalStatus) {
 
         if (!referenceDomainService.isReferenceCodeActive(HDC_APPROVE_DOMAIN, approvalStatus.getApprovalStatus())) {
-            throw new BadRequestException(String.format("Approval status code '%1$s' is not a valid NOMIS value.", approvalStatus.getApprovalStatus()));
+            throw new IllegalArgumentException(String.format("Approval status code '%1$s' is not a valid NOMIS value.", approvalStatus.getApprovalStatus()));
         }
         final var refusedReason = approvalStatus.getRefusedReason();
         if (refusedReason != null) {
             if (!referenceDomainService.isReferenceCodeActive(HDC_REJECT_REASON_DOMAIN, refusedReason)) {
-                throw new BadRequestException(String.format("Refused reason code '%1$s' is not a valid NOMIS value.", refusedReason));
+                throw new IllegalArgumentException(String.format("Refused reason code '%1$s' is not a valid NOMIS value.", refusedReason));
             }
         }
+        if (approvalStatus.isApproved() && refusedReason != null) {
+            throw new IllegalArgumentException("A refused reason is not allowed when the approval status set to APPROVED.");
+        }
 
-        val curfewId = offenderCurfewRepository.getLatestHomeDetentionCurfewId(bookingId).orElseThrow(() -> new EntityNotFoundException ("There is no curfew resource for bookingId " + bookingId));
-        offenderCurfewRepository.setApprovalStatusForCurfew(curfewId, approvalStatus);
+        val curfew = getLatestHomeDetentionCurfew(bookingId);
+        if (curfew.getPassed() == null) {
+            throw new IllegalStateException("Checks passed has not been set.");
+        }
+        if (curfew.getApprovalStatus() != null) {
+            throw new IllegalStateException(String.format("Approval status has already been set to %1$s.", curfew.getApprovalStatus()));
+        }
+
+        offenderCurfewRepository.setApprovalStatusForCurfew(curfew.getId(), approvalStatus);
 
         if (approvalStatus.isApproved()) return;
 
-        addOrUpdateRefusedReason(curfewId, refusedReason);
+        addRefusedReason(curfew.getId(), refusedReason);
     }
 
-    private void addOrUpdateRefusedReason(Long curfewId, String refusedReason) {
-        if ( offenderCurfewRepository.updateHdcStatusReason(curfewId, REFUSED_HDC_STATUS_TRACKING_CODE, refusedReason)) {
-           return;
-        }
-        long hdcStatusTrackingId = offenderCurfewRepository.createHdcStatusTracking(curfewId, REFUSED_HDC_STATUS_TRACKING_CODE);
+    /**
+     * <p>
+     * What happens here depends upon whether OFFENDER_CURFEWS.PASSED_FLAG is 'Y' or 'N': NOMIS database tables
+     * HDC_STATUS_TRACKINGS and HDC_STATUS_REASONS have triggers that fire when the PASSED_FLAG column is updated:
+     * If PASSED_FLAG is updated to 'Y' then two records are added to both tables as follows:
+     * <table>
+     *     <tr><th>HDC_STATUS_TRACKINGS.STATUS_CODE</th><th>HDC_STATUS_REASONS.STATUS_REASON_CODE</th></tr>
+     *     <tr><td>MAN_CK_PASS</td><td>MAN_CK</td></tr>
+     *     <tr><td>ELIGIBLE</td><td>PASS_ALL_CK</td></tr>
+     * </table>
+     * Whereas when PASSED_FLAG is updated to 'N' two records are added to HDC_STATUS_TRACKINGS and one to HDC_STATUS_REASONS
+     * <table>
+     *     <tr><th>HDC_STATUS_TRACKINGS.STATUS_CODE</th><th>HDC_STATUS_REASONS.STATUS_REASON_CODE</th></tr>
+     *     <tr><td>MAN_CK_FAIL</td><td></td></tr>
+     *     <tr><td>INELIGIBLE</td><td>MAN_CK_FAIL</td></tr>
+     * </table>
+     * When NOMIS subsequently sets an Approval Status other than ACCEPTED, it also sets a Refused reason.
+     * The Refused reason is stored in the STATUS_REASON_CODE column of the HDC_STATUS_REASONS table, but how it is stored
+     * depends upon the current value of PASSED_FLAG. </p>
+     *
+     * <p> If PASSED_FLAG is 'N' then the Refused Reason is stored as a new HDC_STATUS_REASONS record that points to the
+     * previously created HDC_STATUS_TRACKINGS record having STATUS_CODE MAN_CK_FAIL.</p>
+     *
+     * <p>If PASSED_FLAG is 'Y' then the Refused Reason is stored as a new HDC_STATUS_REASONS record that points to
+     * a new HDC_STATUS_TRACKINGS record having STATUS_CODE REFUSED</p>
+     *
+     * <p>I believe that the current state of the HDC_STATUS_TRACKINGS table acts as a proxy for the PASSED_FLAG value
+     * so long as this value is never set more than once.  If updates are only performed through the elite2api (which
+     * should be the case when it is used) then this requirement can be enforced through this class. Nevertheless
+     * NOMIS also enforces this constraint during normal use.</p>
+     *
+     * <p>Given the assumptions above the code below should be self-explanatory.</p>
+     *
+     * @param curfewId The curfew id for which the refused reason is to be set
+     * @param refusedReason The refused reason
+     */
+
+    private void addRefusedReason(long curfewId, String refusedReason) {
+        OptionalLong hdcStatusTrackingFailId = offenderCurfewRepository.findHdcStatusTracking(curfewId, STATUS_TRACKING_CODE_MANUAL_FAIL);
+        val hdcStatusTrackingId = hdcStatusTrackingFailId.orElseGet(() -> createRefusedHdcStatusTracking(curfewId));
         offenderCurfewRepository.createHdcStatusReason(hdcStatusTrackingId, refusedReason);
+    }
+
+    private long createRefusedHdcStatusTracking(long curfewId) {
+        return offenderCurfewRepository.createHdcStatusTracking(curfewId, STATUS_TRACKING_CODE_REFUSED);
     }
 
     private Set<String> agencyIdsFor(final String username) {

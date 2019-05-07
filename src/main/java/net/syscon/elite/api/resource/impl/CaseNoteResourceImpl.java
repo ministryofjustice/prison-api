@@ -1,6 +1,7 @@
 package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.CaseNoteStaffUsageRequest;
+import net.syscon.elite.api.model.CaseNoteUsageByBookingId;
 import net.syscon.elite.api.model.CaseNoteUsageRequest;
 import net.syscon.elite.api.resource.CaseNoteResource;
 import net.syscon.elite.core.RestResource;
@@ -32,10 +33,16 @@ public class CaseNoteResourceImpl implements CaseNoteResource {
 
     @Override
     public GetCaseNoteUsageSummaryResponse getCaseNoteUsageSummary(final List<String> offenderNo, final Integer staffId, final String agencyId, final Integer numMonths, final LocalDate fromDate, final LocalDate toDate, final String type, final String subType) {
-        final var caseNoteUsage = caseNoteService.getCaseNoteUsage(type, subType, offenderNo, staffId, agencyId, fromDate, toDate, ObjectUtils.defaultIfNull(numMonths, ObjectUtils.defaultIfNull(numMonths, 1)));
+        final var caseNoteUsage = caseNoteService.getCaseNoteUsage(type, subType, offenderNo, staffId, agencyId, fromDate, toDate, ObjectUtils.defaultIfNull(numMonths, 1));
 
         return GetCaseNoteUsageSummaryResponse.respond200WithApplicationJson(caseNoteUsage);
     }
+
+    @Override
+    public List<CaseNoteUsageByBookingId> getCaseNoteSummaryByBookingId(final List<Integer> bookingIds, final Integer numMonths, final LocalDate fromDate, final LocalDate toDate, final String type, final String subType) {
+        return caseNoteService.getCaseNoteUsageByBookingId(type, subType, bookingIds, fromDate, toDate, ObjectUtils.defaultIfNull(numMonths, 1));
+    }
+
 
     @Override
     public GetCaseNoteStaffUsageSummaryByPostResponse getCaseNoteStaffUsageSummaryByPost(final CaseNoteStaffUsageRequest request) {

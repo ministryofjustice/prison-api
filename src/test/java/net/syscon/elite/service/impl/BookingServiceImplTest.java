@@ -1,18 +1,10 @@
 package net.syscon.elite.service.impl;
 
 import com.microsoft.applicationinsights.TelemetryClient;
-import net.syscon.elite.api.model.Agency;
-import net.syscon.elite.api.model.Location;
-import net.syscon.elite.api.model.NewAppointment;
-import net.syscon.elite.api.model.ReferenceCode;
-import net.syscon.elite.api.model.ScheduledEvent;
+import net.syscon.elite.api.model.*;
 import net.syscon.elite.repository.BookingRepository;
 import net.syscon.elite.security.AuthenticationFacade;
-import net.syscon.elite.service.AgencyService;
-import net.syscon.elite.service.BookingService;
-import net.syscon.elite.service.EntityNotFoundException;
-import net.syscon.elite.service.LocationService;
-import net.syscon.elite.service.ReferenceDomainService;
+import net.syscon.elite.service.*;
 import net.syscon.elite.service.support.ReferenceDomain;
 import org.junit.Before;
 import org.junit.Test;

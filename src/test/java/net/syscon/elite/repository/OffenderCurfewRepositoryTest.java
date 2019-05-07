@@ -14,7 +14,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
@@ -23,7 +25,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +38,19 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @ContextConfiguration(classes = PersistenceConfigs.class)
 
 public class OffenderCurfewRepositoryTest {
-    private static final String REFUSED_STATUS_CODE = "REFUSED";
+    private static final String STATUS_TRACKING_CODE_REFUSED = "REFUSED";
+    private static final String STATUS_TRACKING_CODE_MANUAL_FAIL = "MAN_CK_FAIL";
+    private static final Set<String> TRACKING_CODES_TO_MATCH = Set.of(STATUS_TRACKING_CODE_REFUSED, STATUS_TRACKING_CODE_MANUAL_FAIL);
+
+    private static final long BOOKING_1_ID = -46;
+    private static final long BOOKIUNG_1_CURFEW_ID = 43L;
+
+    private static final long BOOKING_WITHOUT_CURFEW_ID = -15L;
+
+    private static final long UNKNOWN_BOOKING_ID = 99999L;
+
+    private static final long BOOKING_2_ID = -52L;
+
 
     private static final Set<OffenderCurfew> CURFEWS_LEI = new HashSet<>(Arrays.asList(
             offenderCurfew(1, -1, "2018-01-01", null, null),
@@ -68,7 +81,7 @@ public class OffenderCurfewRepositoryTest {
     private OffenderCurfewRepository repository;
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private NamedParameterJdbcOperations jdbcTemplate;
 
     @Before
     public void init() {
@@ -91,208 +104,239 @@ public class OffenderCurfewRepositoryTest {
         assertThat(repository.offenderCurfews(agencyIds("LEI", "BXI"))).containsAll(union(CURFEWS_LEI, CURFEWS_BXI));
     }
 
-    private static final long CURFEW_ID = 43;
-    private static final long BOOKING_ID = -46;
-    private static final long BOOKING_WITHOUT_CURFEW_ID = -15L;
-
-    @Test
-    public void shouldSetHDCChecksPassed() {
-
-        repository.setHDCChecksPassed(
-                BOOKING_ID,
-                HdcChecks.builder()
-                        .passed(true)
-                        .date(LocalDate.of(2018, 1, 31))
-                        .build()
-        );
-
-        assertCurfewHDCEqualTo(CURFEW_ID, "Y", LocalDateTime.of(2018, 1, 31, 0, 0));
-
-        repository.setHDCChecksPassed(
-                BOOKING_ID,
-                HdcChecks.builder()
-                        .passed(false)
-                        .date(null)
-                        .build()
-        );
-
-        assertCurfewHDCEqualTo(CURFEW_ID, "N", null);
-    }
-
-    @Test
-    public void shouldRejectUnknownBookingIdForSetHDCChecksPassed() {
-        assertThatThrownBy(() ->
-                repository.setHDCChecksPassed(
-                        99999,
-                        HdcChecks.builder()
-                                .passed(true)
-                                .date(LocalDate.of(2018, 1, 31))
-                                .build()
-                )).isInstanceOf(EntityNotFoundException.class);
-    }
-
-    @Test
-    public void shouldSetApprovalStatus() {
-        repository.setApprovalStatusForCurfew(
-                CURFEW_ID,
-                ApprovalStatus.builder()
-                        .approvalStatus("APPROVED")
-                        .date(LocalDate.of(2018, 1, 2))
-                        .build()
-        );
-        assertCurfewApprovalStatusEqualTo(CURFEW_ID, "APPROVED", null, LocalDateTime.of(2018, 1, 2, 0, 0));
-
-        repository.setApprovalStatusForCurfew(
-                CURFEW_ID,
-                ApprovalStatus.builder()
-                        .approvalStatus(null)
-                        .date(null)
-                        .build()
-        );
-        assertCurfewApprovalStatusEqualTo(CURFEW_ID, null, null, null);
-
-    }
-
-    @Test
-    public void shouldRetrieveLatestHDCForOffender() {
-        Optional<HomeDetentionCurfew> hdcOptional = repository.getLatestHomeDetentionCurfew(BOOKING_ID, REFUSED_STATUS_CODE);
-        assertThat(hdcOptional).isPresent();
-    }
-
     @Test
     public void shouldNotFindCurfewForUnknownBookingId() {
-        Optional<HomeDetentionCurfew> hdcOptional = repository.getLatestHomeDetentionCurfew(99999L, REFUSED_STATUS_CODE);
+        val hdcOptional = repository.getLatestHomeDetentionCurfew(UNKNOWN_BOOKING_ID, TRACKING_CODES_TO_MATCH);
         assertThat(hdcOptional).isNotPresent();
     }
 
     @Test
-    public void updatesAreReflectedInGet() {
-        val curfewId = repository.getLatestHomeDetentionCurfewId(BOOKING_ID).orElseThrow();
+    public void shouldNotFindCurfewForBookingThatHasNoCurfew() {
+        val hdcOptional = repository.getLatestHomeDetentionCurfew(BOOKING_WITHOUT_CURFEW_ID, TRACKING_CODES_TO_MATCH);
+        assertThat(hdcOptional).isNotPresent();
+    }
 
+
+    @Test
+    public void shouldFindCurfewForBookingThatHasCurfew() {
+        val hdcOptional = repository.getLatestHomeDetentionCurfew(BOOKING_1_ID, TRACKING_CODES_TO_MATCH);
+        assertThat(hdcOptional).contains(HomeDetentionCurfew.builder().id(BOOKIUNG_1_CURFEW_ID).build());
+    }
+
+    @Test
+    public void shouldAddNewCurfewToBooking() {
+        assertThat(repository.getLatestHomeDetentionCurfew(BOOKING_2_ID, TRACKING_CODES_TO_MATCH)).isEmpty();
+
+        val curfewId = createNewCurfewForBookingId(BOOKING_2_ID);
+        assertThat(repository.getLatestHomeDetentionCurfew(BOOKING_2_ID, TRACKING_CODES_TO_MATCH))
+                .hasValueSatisfying(hdc -> assertThat(hdc.getId()).isEqualTo(curfewId));
+    }
+
+    public long createNewCurfewForBookingId(long bookingId) {
+        return createNewCurfewForBookingId(bookingId, jdbcTemplate);
+    }
+
+    public static long createNewCurfewForBookingId(long bookingId, NamedParameterJdbcOperations jdbcTemplate) {
+        final var keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(
+                "INSERT INTO OFFENDER_CURFEWS (" +
+                        "    OFFENDER_CURFEW_ID, " +
+                        "    OFFENDER_BOOK_ID, " +
+                        "    ELIGIBILITY_DATE " +
+                        ") VALUES (" +
+                        "    OFFENDER_CURFEW_ID.NEXTVAL, " +
+                        "    :bookingId," +
+                        "    sysdate)",
+                new MapSqlParameterSource("bookingId", bookingId),
+                keyHolder,
+                new String[] {"OFFENDER_CURFEW_ID"});
+
+        return keyHolder.getKey().longValue();
+    }
+
+    @Test
+    public void shouldSetHDCChecksPassedToY() {
+
+         val curfewId = createNewCurfewForBookingId(BOOKING_2_ID);
+         assertCurfewHDCChecksPassedEqualTo(curfewId, null, null);
+
+
+         val date = LocalDate.of(2018, 1, 31);
+
+        repository.setHDCChecksPassed(curfewId, HdcChecks.builder().passed(true).date(date).build());
+
+        assertCurfewHDCChecksPassedEqualTo(curfewId, "Y", date);
+    }
+
+    @Test
+    public void shouldSetHDCChecksPassedToN() {
+
+        val curfewId = createNewCurfewForBookingId(BOOKING_2_ID);
+        assertCurfewHDCChecksPassedEqualTo(curfewId, null, null);
+
+
+        val date = LocalDate.of(2018, 1, 31);
+
+        repository.setHDCChecksPassed(curfewId, HdcChecks.builder().passed(false).date(date).build());
+
+        assertCurfewHDCChecksPassedEqualTo(curfewId, "N", date);
+    }
+
+    @Test
+    public void givenCurfewWithHdcCheckPassed_thenShouldRetrieveThatCurfewData() {
+        val curfewId = createNewCurfewForBookingId(BOOKING_2_ID);
+        assertThat(repository.getLatestHomeDetentionCurfew(BOOKING_2_ID, TRACKING_CODES_TO_MATCH))
+                .hasValue(HomeDetentionCurfew.builder().id(curfewId).build());
+
+        val date = LocalDate.of(2018, 1, 31);
+
+        repository.setHDCChecksPassed(curfewId, HdcChecks.builder().passed(true).date(date).build());
+
+        assertThat(repository.getLatestHomeDetentionCurfew(BOOKING_2_ID, TRACKING_CODES_TO_MATCH))
+                .hasValue(HomeDetentionCurfew.builder().id(curfewId).passed(Boolean.TRUE).checksPassedDate(date).build());
+    }
+
+    @Test
+    public void givenCurfewWithHdcCheckNotPassed_thenShouldRetrieveThatCurfewData() {
+        val curfewId = createNewCurfewForBookingId(BOOKING_2_ID);
+        assertThat(repository.getLatestHomeDetentionCurfew(BOOKING_2_ID, TRACKING_CODES_TO_MATCH))
+                .hasValue(HomeDetentionCurfew.builder().id(curfewId).build());
+
+        val date = LocalDate.of(2018, 1, 30);
+
+        repository.setHDCChecksPassed(curfewId, HdcChecks.builder().passed(false).date(date).build());
+
+        assertThat(repository.getLatestHomeDetentionCurfew(BOOKING_2_ID, TRACKING_CODES_TO_MATCH))
+                .hasValue(HomeDetentionCurfew.builder().id(curfewId).passed(Boolean.FALSE).checksPassedDate(date).build());
+    }
+
+    @Test
+    public void shouldRejectUnknownCurfewForSetHDCChecksPassed() {
+        assertThatThrownBy(() ->
+                repository.setHDCChecksPassed(
+                        99999,
+                        HdcChecks.builder().passed(true).date(LocalDate.now()).build()))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage("OFFENDER_CURFEWS record for id 99999 not found.");
+    }
+
+    @Test
+    public void shouldCreateHdcStatusTracking() {
+        val curfewId = createNewCurfewForBookingId(BOOKING_2_ID);
+        var statusTrackingId = repository.createHdcStatusTracking(curfewId, STATUS_TRACKING_CODE_REFUSED);
+        assertCurfewHasStatusTracking(curfewId, statusTrackingId, STATUS_TRACKING_CODE_REFUSED);
+    }
+
+    @Test
+    public void shouldCreateHdcStatusReason() {
+        val curfewId = createNewCurfewForBookingId(BOOKING_2_ID);
+        var hdcStatusTrackingId = repository.createHdcStatusTracking(curfewId, STATUS_TRACKING_CODE_REFUSED);
+        repository.createHdcStatusReason(hdcStatusTrackingId, "XXXX");
+        assertStatusTrackingHasStatusReason(hdcStatusTrackingId, "XXXX");
+    }
+
+    @Test
+    public void shouldFindHdcStatusTracking() {
+        val curfewId = createNewCurfewForBookingId(BOOKING_2_ID);
+        assertThat(repository.findHdcStatusTracking(curfewId, STATUS_TRACKING_CODE_REFUSED)).isEmpty();
+
+        var hdcStatusTrackingId = repository.createHdcStatusTracking(curfewId, STATUS_TRACKING_CODE_REFUSED);
+
+        assertThat(repository.findHdcStatusTracking(curfewId, STATUS_TRACKING_CODE_REFUSED)).hasValue(hdcStatusTrackingId);
+    }
+
+    @Test
+    public void givenHdcChecksSetTrue_thenTriggersShouldFire() {
+        val curfewId = createNewCurfewForBookingId(BOOKING_2_ID);
+        repository.setHDCChecksPassed(curfewId, HdcChecks.builder().passed(true).date(LocalDate.now()).build());
+        OptionalLong man_ck_pass = repository.findHdcStatusTracking(curfewId, "MAN_CK_PASS");
+        assertThat(man_ck_pass).isNotEmpty();
+        assertStatusTrackingHasStatusReason(man_ck_pass.getAsLong(), "MAN_CK");
+
+        OptionalLong eligible = repository.findHdcStatusTracking(curfewId, "ELIGIBLE");
+        assertThat(eligible).isNotEmpty();
+        assertStatusTrackingHasStatusReason(eligible.getAsLong(), "PASS_ALL_CK");
+    }
+
+
+    @Test
+    public void givenHdcChecksSetFalse_thenTriggersShouldFire() {
+        val curfewId = createNewCurfewForBookingId(BOOKING_2_ID);
+        repository.setHDCChecksPassed(curfewId, HdcChecks.builder().passed(false).date(LocalDate.now()).build());
+        OptionalLong man_ck_fail = repository.findHdcStatusTracking(curfewId, "MAN_CK_FAIL");
+        assertThat(man_ck_fail).isNotEmpty();
+
+        OptionalLong ineligible = repository.findHdcStatusTracking(curfewId, "INELIGIBLE");
+        assertThat(ineligible).isNotEmpty();
+        assertStatusTrackingHasStatusReason(ineligible.getAsLong(), "MAN_CK_FAIL");
+    }
+
+    @Test
+    public void shouldSetApprovalStatus() {
+        val curfewId = createNewCurfewForBookingId(BOOKING_2_ID);
+
+        LocalDate date = LocalDate.of(2018, 1, 2);
         repository.setApprovalStatusForCurfew(
                 curfewId,
-                ApprovalStatus
-                        .builder()
-                        .approvalStatus(null)
-                        .date(null)
-                        .build());
-
-        repository.setHDCChecksPassed(
-                BOOKING_ID,
-                HdcChecks
-                        .builder()
-                        .passed(false)
-                        .date(null)
-                        .build());
-
-        assertThat(repository.getLatestHomeDetentionCurfew(BOOKING_ID, REFUSED_STATUS_CODE))
-                .contains(
-                        HomeDetentionCurfew
-                                .builder()
-                                .passed(false)
-                                .build());
-
-        repository.setHDCChecksPassed(
-                BOOKING_ID,
-                HdcChecks
-                        .builder()
-                        .passed(true)
-                        .date(LocalDate.of(2019, 2, 3))
-                        .build());
-
-        repository.setApprovalStatusForCurfew(
-                curfewId,
-                ApprovalStatus
-                        .builder()
+                ApprovalStatus.builder()
                         .approvalStatus("APPROVED")
-                        .date(LocalDate.of(2019, 4, 5))
-                        .build());
-
-
-        assertThat(repository.getLatestHomeDetentionCurfew(BOOKING_ID, REFUSED_STATUS_CODE))
-                .contains(HomeDetentionCurfew
-                        .builder()
-                        .approvalStatus("APPROVED")
-                        .approvalStatusDate(LocalDate.of(2019, 4, 5))
-                        .passed(true)
-                        .checksPassedDate(LocalDate.of(2019, 2, 3))
+                        .date(date)
                         .build()
-                );
+        );
+
+        assertCurfewEqualTo(curfewId, null, null,"APPROVED", date);
     }
 
     @Test
-    public void refusalStatusUpdatesAreReflectedInGet() {
-        val curfewId = repository.getLatestHomeDetentionCurfewId(BOOKING_ID).orElseThrow();
+    public void givenRefusedTrackingStatusAndReason_thenReasonShouldBeRetrieved() {
+        val curfewId = createNewCurfewForBookingId(BOOKING_2_ID);
 
-        repository.setApprovalStatusForCurfew(
-                curfewId,
-                ApprovalStatus
-                        .builder()
-                        .approvalStatus(null)
-                        .date(null)
-                        .build());
+        val trackingId = repository.createHdcStatusTracking(curfewId, STATUS_TRACKING_CODE_REFUSED);
+        repository.createHdcStatusReason(trackingId, "YYY");
 
-        repository.setHDCChecksPassed(
-                BOOKING_ID,
-                HdcChecks
-                        .builder()
-                        .passed(false)
-                        .date(null)
-                        .build());
-
-        assertThat(repository.getLatestHomeDetentionCurfew(BOOKING_ID, REFUSED_STATUS_CODE))
-                .contains(
-                        HomeDetentionCurfew
-                                .builder()
-                                .passed(false)
-                                .build());
-
-        repository.setHDCChecksPassed(
-                BOOKING_ID,
-                HdcChecks
-                        .builder()
-                        .passed(true)
-                        .date(LocalDate.of(2019, 2, 3))
-                        .build());
-
-        repository.setApprovalStatusForCurfew(
-                curfewId,
-                ApprovalStatus
-                        .builder()
-                        .approvalStatus("APPROVED")
-                        .date(LocalDate.of(2019, 4, 5))
-                        .build());
-
-        repository.createHdcStatusReason(repository.createHdcStatusTracking(curfewId, "XXX"), "AAA");
-        repository.createHdcStatusReason(repository.createHdcStatusTracking(curfewId, REFUSED_STATUS_CODE), "BBB");
-        repository.createHdcStatusReason(repository.createHdcStatusTracking(curfewId, "YYY"), "CCC");
-
-
-        assertThat(repository.getLatestHomeDetentionCurfew(BOOKING_ID, REFUSED_STATUS_CODE))
-                .contains(HomeDetentionCurfew
-                        .builder()
-                        .approvalStatus("APPROVED")
-                        .approvalStatusDate(LocalDate.of(2019, 4, 5))
-                        .passed(true)
-                        .checksPassedDate(LocalDate.of(2019, 2, 3))
-                        .refusedReason("BBB")
-                        .build()
-                );
+        assertThat(repository.getLatestHomeDetentionCurfew(BOOKING_2_ID, TRACKING_CODES_TO_MATCH))
+                .contains(HomeDetentionCurfew.builder().id(curfewId).refusedReason("YYY").build());
     }
 
 
-    @Test
-    public void shouldRetrieveLatestHomeDetentionCurfewId() {
-        assertThat(repository.getLatestHomeDetentionCurfewId(BOOKING_ID)).contains(CURFEW_ID);
+    private void assertCurfewHDCChecksPassedEqualTo(final long bookingId, final String passedFlag, final LocalDate assessmentDate) {
+        assertCurfewEqualTo(bookingId, passedFlag, assessmentDate, null, null);
     }
 
-    @Test
-    public void shouldRetriveNothingForBookingWithoutHDC() {
-        assertThat(repository.getLatestHomeDetentionCurfewId(BOOKING_WITHOUT_CURFEW_ID)).isEmpty();
+    private void assertCurfewEqualTo(
+            final long curfewId,
+            final String passedFlag,
+            final LocalDate assessmentDate,
+            final String approvalStatus,
+            final LocalDate decisionDate) {
+        final var results = jdbcTemplate.queryForMap("SELECT PASSED_FLAG, ASSESSMENT_DATE, DECISION_DATE, APPROVAL_STATUS FROM OFFENDER_CURFEWS WHERE OFFENDER_CURFEW_ID = :curfewId", Map.of("curfewId" , curfewId));
+        assertThat(results.get("PASSED_FLAG")).isEqualTo(passedFlag);
+        assertThat(results.get("ASSESSMENT_DATE")).isEqualTo(assessmentDate == null ? null : Timestamp.valueOf(assessmentDate.atStartOfDay()));
+        assertThat(results.get("APPROVAL_STATUS")).isEqualTo(approvalStatus);
+        assertThat(results.get("DECISION_DATE")).isEqualTo(decisionDate == null ? null : Timestamp.valueOf(decisionDate.atStartOfDay()));
     }
+
+    private void assertCurfewHasStatusTracking(long curfewId, long statusTrackingId, String statusCode) {
+        assertThat(jdbcTemplate.queryForObject(
+                        "SELECT STATUS_CODE FROM HDC_STATUS_TRACKINGS WHERE HDC_STATUS_TRACKING_ID = :trackingId AND OFFENDER_CURFEW_ID = :curfewId",
+                        Map.of(
+                                "curfewId", curfewId,
+                                "trackingId", statusTrackingId),
+                        String.class))
+        .isEqualTo(statusCode);
+    }
+
+    private void assertStatusTrackingHasStatusReason(long hdcTrackingId, String statusReasonCode) {
+        assertThat(jdbcTemplate.queryForList(
+                        "SELECT STATUS_REASON_CODE FROM HDC_STATUS_REASONS WHERE HDC_STATUS_TRACKING_ID = :trackingId",
+                        Map.of("trackingId", hdcTrackingId),
+                        String.class))
+        .containsExactly(statusReasonCode);
+    }
+
 
     private static OffenderCurfew offenderCurfew(final long offenderCurfewId, final long offenderBookId, final String assessmentDate, final String approvalStatus, final String ardCrdDate) {
-
         return OffenderCurfew
                 .builder()
                 .offenderCurfewId(offenderCurfewId)
@@ -302,44 +346,6 @@ public class OffenderCurfewRepositoryTest {
                 .ardCrdDate(toLocalDate(ardCrdDate))
                 .build();
     }
-
-    @Test
-    public void shouldCreateHdcStatusTracking() {
-        var id = repository.createHdcStatusTracking(CURFEW_ID, REFUSED_STATUS_CODE);
-        assertCurfewHasStatusTracking(id, REFUSED_STATUS_CODE);
-        cleanUpHdcStatusTrackings(CURFEW_ID);
-    }
-
-    @Test
-    public void shouldCreateHdcStatusReason() {
-        var id = repository.createHdcStatusTracking(CURFEW_ID, REFUSED_STATUS_CODE);
-        repository.createHdcStatusReason(id, "XXXX");
-        assertStatusTrackingHasStatusReason(id, "XXXX");
-
-        cleanUpHdcStatusReasons(CURFEW_ID);
-        cleanUpHdcStatusTrackings(CURFEW_ID);
-    }
-
-    @Test
-    public void shouldUpdateHdcStatusReason() {
-        val hdcStatusTrackingId = repository.createHdcStatusTracking(CURFEW_ID, REFUSED_STATUS_CODE);
-        repository.createHdcStatusReason(hdcStatusTrackingId, "XXXX");
-        assertStatusTrackingHasStatusReason(hdcStatusTrackingId, "XXXX");
-
-        val updated = repository.updateHdcStatusReason(CURFEW_ID, REFUSED_STATUS_CODE,"YYYY");
-        assertThat(updated).isTrue();
-        assertStatusTrackingHasStatusReason(hdcStatusTrackingId, "YYYY");
-
-        cleanUpHdcStatusReasons(CURFEW_ID);
-        cleanUpHdcStatusTrackings(CURFEW_ID);
-    }
-
-    @Test
-    public void shouldNotUpdateHdcStatusReason() {
-        val updated = repository.updateHdcStatusReason(CURFEW_ID, REFUSED_STATUS_CODE,"YYYY");
-        assertThat(updated).isFalse();
-    }
-
 
     private static LocalDate toLocalDate(final String string) {
         if (string == null) return null;
@@ -358,65 +364,4 @@ public class OffenderCurfewRepositoryTest {
         }
         return result;
     }
-
-    private void assertCurfewHDCEqualTo(final long curfewId, final String passedFlag, final LocalDateTime assessmentDate) {
-        assertCurfewEqualTo(curfewId, passedFlag, assessmentDate, null, null, null);
-    }
-
-    private void assertCurfewApprovalStatusEqualTo(
-            final long curfewId,
-            final String approvalStatus,
-            final String refusedReason,
-            final LocalDateTime decisionDate) {
-        assertCurfewEqualTo(curfewId, null, null, approvalStatus, refusedReason, decisionDate);
-    }
-
-    private void assertCurfewEqualTo(
-            final long curfewId,
-            final String passedFlag,
-            final LocalDateTime assessmentDate,
-            final String approvalStatus,
-            final String refusedReason,
-            final LocalDateTime decisionDate) {
-        final var results = jdbcTemplate.queryForMap("SELECT PASSED_FLAG, ASSESSMENT_DATE, DECISION_DATE, APPROVAL_STATUS FROM OFFENDER_CURFEWS WHERE OFFENDER_CURFEW_ID = ?", curfewId);
-        assertThat(results.get("PASSED_FLAG")).isEqualTo(passedFlag);
-        assertThat(results.get("ASSESSMENT_DATE")).isEqualTo(assessmentDate == null ? null : Timestamp.valueOf(assessmentDate));
-        assertThat(results.get("APPROVAL_STATUS")).isEqualTo(approvalStatus);
-        assertThat(results.get("DECISION_DATE")).isEqualTo(decisionDate == null ? null : Timestamp.valueOf(decisionDate));
-    }
-
-    private void assertCurfewHasStatusTracking(long id, String statusCode) {
-        assertThat(
-                jdbcTemplate.queryForObject(
-                        "SELECT STATUS_CODE FROM HDC_STATUS_TRACKINGS WHERE HDC_STATUS_TRACKING_ID = ?", String.class,
-                        id)
-        ).isEqualTo(statusCode);
-    }
-
-    private void assertStatusTrackingHasStatusReason(long hdcTrackingId, String reasonCode) {
-        assertThat(jdbcTemplate
-                .queryForList(
-                    "SELECT STATUS_REASON_CODE FROM HDC_STATUS_REASONS WHERE HDC_STATUS_TRACKING_ID = ?",
-                    hdcTrackingId
-                )
-        ).extracting("STATUS_REASON_CODE")
-                .containsExactly(reasonCode);
-    }
-
-    private void cleanUpHdcStatusTrackings(long curfewId) {
-        jdbcTemplate.update("DELETE FROM HDC_STATUS_TRACKINGS WHERE OFFENDER_CURFEW_ID = ?", curfewId);
-    }
-
-    private void cleanUpHdcStatusReasons(long curfewId) {
-        jdbcTemplate.update(
-                   "DELETE " +
-                        "  FROM HDC_STATUS_REASONS" +
-                        " WHERE HDC_STATUS_TRACKING_ID IN (" +
-                        "    SELECT HDC_STATUS_TRACKING_ID " +
-                        "      FROM HDC_STATUS_TRACKINGS " +
-                        "     WHERE OFFENDER_CURFEW_ID = ?" +
-                        ")",
-                curfewId);
-    }
-
 }

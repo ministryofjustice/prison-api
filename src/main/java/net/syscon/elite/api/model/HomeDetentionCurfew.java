@@ -1,5 +1,6 @@
 package net.syscon.elite.api.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -15,6 +16,10 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 @Data
 public class HomeDetentionCurfew {
+
+    @JsonIgnore
+    private long id;
+
     @ApiModelProperty(value = "HDC Checks passed flag", example = "true")
     private Boolean passed;
 

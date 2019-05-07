@@ -7,6 +7,7 @@ import net.syscon.elite.service.support.OffenderCurfew;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Set;
 
 
@@ -18,7 +19,7 @@ public interface OffenderCurfewRepository {
      */
     Collection<OffenderCurfew> offenderCurfews(Set<String> agencyIds);
 
-    void setHDCChecksPassed(long bookingId, HdcChecks hdcChecks);
+    void setHDCChecksPassed(long curfewId, HdcChecks hdcChecks);
 
     void setApprovalStatusForCurfew(long curfewId, ApprovalStatus approvalStatus);
 
@@ -26,16 +27,7 @@ public interface OffenderCurfewRepository {
 
     void createHdcStatusReason(long hdcStatusTrackingId, String statusReasonCode);
 
-    Optional<HomeDetentionCurfew> getLatestHomeDetentionCurfew(Long bookingId, String statusTrackingCodeToMatch);
+    Optional<HomeDetentionCurfew> getLatestHomeDetentionCurfew(long bookingId, Set<String> statusTrackingCodesToMatch);
 
-    Optional<Long> getLatestHomeDetentionCurfewId(long bookingId);
-
-    /**
-     * Set th hdcStatusReason for the HDC curfew identified by curfewId to hdcStatusReason
-     * @param curfewId
-     * @param hdcStatusTrackingCode The status tracking code to match when searching for a record to update
-     * @param hdcStatusReason
-     * @return true if the HDC curfew already has an entry and it was updated otherwise false
-     */
-    boolean updateHdcStatusReason(Long curfewId, String hdcStatusTrackingCode, String hdcStatusReason);
+    OptionalLong findHdcStatusTracking(long curfewId, String statusTrackingCode);
 }

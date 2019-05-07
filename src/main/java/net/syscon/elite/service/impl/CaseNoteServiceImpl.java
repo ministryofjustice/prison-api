@@ -14,7 +14,6 @@ import net.syscon.elite.service.EntityNotFoundException;
 import net.syscon.elite.service.UserService;
 import net.syscon.elite.service.validation.CaseNoteTypeSubTypeValid;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -23,6 +22,7 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BadRequestException;
 import java.time.LocalDate;
@@ -198,6 +198,13 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 				)
 		);
 		return caseNoteUsage;
+	}
+
+	@Override
+    public List<CaseNoteUsageByBookingId> getCaseNoteUsageByBookingId(final String type, final String subType, @NotEmpty final List<Integer> bookingIds, final LocalDate fromDate, final LocalDate toDate, final int numMonths) {
+		final var deriveDates = new DeriveDates(fromDate, toDate, numMonths);
+
+		return caseNoteRepository.getCaseNoteUsageByBookingId(type, subType, bookingIds, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse());
 	}
 
 	@Override
