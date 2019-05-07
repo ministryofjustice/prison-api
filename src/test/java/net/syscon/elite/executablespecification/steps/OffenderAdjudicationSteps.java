@@ -1,6 +1,5 @@
 package net.syscon.elite.executablespecification.steps;
 
-import com.google.common.base.Joiner;
 import cucumber.api.Format;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +13,10 @@ import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -41,14 +43,18 @@ public class OffenderAdjudicationSteps extends CommonSteps {
         init();
 
         try {
+            var queryParams = new LinkedMultiValueMap<String, String>();
+            params.forEach(queryParams::add);
 
-            final var queryParams = Joiner.on('&').withKeyValueSeparator('=').join(params);
+            URI uri = UriComponentsBuilder.fromPath(API_PREFIX)
+                    .path("offenders/{offenderNumber}/adjudications")
+                    .queryParams(queryParams)
+                    .build(offenderNumber);
 
-            final var responseEntity = restTemplate.exchange(API_PREFIX + "offenders/{offenderNumber}/adjudications?" + queryParams,
+            final var responseEntity = restTemplate.exchange(uri,
                     HttpMethod.GET,
                     createEntity(null, addPaginationHeaders()),
-                    new ParameterizedTypeReference<AdjudicationSearchResponse>() {
-                    }, offenderNumber);
+                    ParameterizedTypeReference.<AdjudicationSearchResponse>forType(AdjudicationSearchResponse.class));
 
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
             AdjudicationSearchResponse body = responseEntity.getBody();
