@@ -69,7 +69,7 @@ public interface OffenderResource {
             @ApiResponse(code = 404, message = "Requested resource not found.", response = ErrorResponse.class),
             @ApiResponse(code = 500, message = "Unrecoverable error occurred whilst processing request.", response = ErrorResponse.class)})
     Response getAdjudicationsByOffenderNo(@ApiParam(value = "offenderNo", required = true) @PathParam("offenderNo") @NotNull String offenderNo,
-                                          @ApiParam(value = "An offence id to allow optionally filtering by type of offence") @QueryParam("offenderId") String offenceId,
+                                          @ApiParam(value = "An offence id to allow optionally filtering by type of offence") @QueryParam("offenceId") String offenceId,
                                           @ApiParam(value = "An agency id to allow optionally filtering by the agency in which the offence occurred") @QueryParam("agencyId") String agencyId,
                                           @ApiParam(value = "Adjudications must have been reported on or after this date (in YYYY-MM-DD format).") @QueryParam("fromDate") LocalDate fromDate,
                                           @ApiParam(value = "Adjudications must have been reported on or before this date (in YYYY-MM-DD format).") @QueryParam("toDate") LocalDate toDate,

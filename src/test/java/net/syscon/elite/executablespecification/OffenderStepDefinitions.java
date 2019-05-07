@@ -12,6 +12,7 @@ import net.syscon.elite.executablespecification.steps.OffenderSteps;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Map;
 
 import static net.syscon.elite.executablespecification.steps.OffenderAdjudicationSteps.AdjudicationRow;
 
@@ -33,7 +34,12 @@ public class OffenderStepDefinitions extends AbstractStepDefinitions {
 
     @When("^I view the adjudications of offender with offender display number of \"([^\"]*)\"$")
     public void viewAdjudicationsFor(final String offenderNumber) {
-        adjudicationSteps.findAdjudications(offenderNumber);
+        adjudicationSteps.findAdjudications(offenderNumber, Map.of());
+    }
+
+    @When("^I view the adjudications of offender with offender display number of \"([^\"]*)\" at \"([^\"]*)\" with charge of type: \"([^\"]*)\"$")
+    public void viewAdjudicationsFor(final String offenderNumber, final String location, final String offence) {
+        adjudicationSteps.findAdjudications(offenderNumber, Map.of("agencyId", location, "offenceId", offence));
     }
 
     @Then("^the adjudication results are:$")
