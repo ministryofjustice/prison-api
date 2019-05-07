@@ -13,9 +13,13 @@ import net.thucydides.core.annotations.Step;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -34,17 +38,23 @@ public class OffenderAdjudicationSteps extends CommonSteps {
     private List<Agency> agencies;
 
     @Step("Perform offender adjudication search")
-    public void findAdjudications(final String offenderNumber) {
+    public void findAdjudications(final String offenderNumber, final Map<String, String> params) {
 
         init();
 
         try {
+            var queryParams = new LinkedMultiValueMap<String, String>();
+            params.forEach(queryParams::add);
 
-            final var responseEntity = restTemplate.exchange(API_PREFIX + "offenders/{offenderNumber}/adjudications",
+            URI uri = UriComponentsBuilder.fromPath(API_PREFIX)
+                    .path("offenders/{offenderNumber}/adjudications")
+                    .queryParams(queryParams)
+                    .build(offenderNumber);
+
+            final var responseEntity = restTemplate.exchange(uri,
                     HttpMethod.GET,
                     createEntity(null, addPaginationHeaders()),
-                    new ParameterizedTypeReference<AdjudicationSearchResponse>() {
-                    }, offenderNumber);
+                    ParameterizedTypeReference.<AdjudicationSearchResponse>forType(AdjudicationSearchResponse.class));
 
             assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
             AdjudicationSearchResponse body = responseEntity.getBody();
