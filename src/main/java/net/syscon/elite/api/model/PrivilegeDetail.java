@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -25,145 +26,30 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@Data
 public class PrivilegeDetail {
-    @JsonIgnore
-    private Map<String, Object> additionalProperties;
-    
+    @ApiModelProperty(required = true, value = "Offender booking identifier.")
     @NotNull
     private Long bookingId;
 
+    @ApiModelProperty(required = true, value = "Effective date of IEP level.")
     @NotNull
     private LocalDate iepDate;
 
+    @ApiModelProperty(value = "Effective date & time of IEP level.")
     private LocalDateTime iepTime;
 
+    @ApiModelProperty(required = true, value = "Identifier of Agency this privilege entry is associated with.")
     @NotBlank
     private String agencyId;
 
+    @ApiModelProperty(required = true, value = "The IEP level (e.g. Basic, Standard or Enhanced).")
     @NotBlank
     private String iepLevel;
 
+    @ApiModelProperty(value = "Further details relating to this privilege entry.")
     private String comments;
 
-    private String userId;
-
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return additionalProperties == null ? new HashMap<>() : additionalProperties;
-    }
-
-    @ApiModelProperty(hidden = true)
-    @JsonAnySetter
-    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
-        this.additionalProperties = additionalProperties;
-    }
-
-    /**
-      * Offender booking identifier.
-      */
-    @ApiModelProperty(required = true, value = "Offender booking identifier.")
-    @JsonProperty("bookingId")
-    public Long getBookingId() {
-        return bookingId;
-    }
-
-    public void setBookingId(final Long bookingId) {
-        this.bookingId = bookingId;
-    }
-
-    /**
-      * Effective date of IEP level.
-      */
-    @ApiModelProperty(required = true, value = "Effective date of IEP level.")
-    @JsonProperty("iepDate")
-    public LocalDate getIepDate() {
-        return iepDate;
-    }
-
-    public void setIepDate(final LocalDate iepDate) {
-        this.iepDate = iepDate;
-    }
-
-    /**
-      * Effective date & time of IEP level.
-      */
-    @ApiModelProperty(value = "Effective date & time of IEP level.")
-    @JsonProperty("iepTime")
-    public LocalDateTime getIepTime() {
-        return iepTime;
-    }
-
-    public void setIepTime(final LocalDateTime iepTime) {
-        this.iepTime = iepTime;
-    }
-
-    /**
-      * Identifier of Agency this privilege entry is associated with.
-      */
-    @ApiModelProperty(required = true, value = "Identifier of Agency this privilege entry is associated with.")
-    @JsonProperty("agencyId")
-    public String getAgencyId() {
-        return agencyId;
-    }
-
-    public void setAgencyId(final String agencyId) {
-        this.agencyId = agencyId;
-    }
-
-    /**
-      * The IEP level (e.g. Basic, Standard or Enhanced).
-      */
-    @ApiModelProperty(required = true, value = "The IEP level (e.g. Basic, Standard or Enhanced).")
-    @JsonProperty("iepLevel")
-    public String getIepLevel() {
-        return iepLevel;
-    }
-
-    public void setIepLevel(final String iepLevel) {
-        this.iepLevel = iepLevel;
-    }
-
-    /**
-      * Further details relating to this privilege entry.
-      */
-    @ApiModelProperty(value = "Further details relating to this privilege entry.")
-    @JsonProperty("comments")
-    public String getComments() {
-        return comments;
-    }
-
-    public void setComments(final String comments) {
-        this.comments = comments;
-    }
-
-    /**
-      * Identifier of user related to this privilege entry.
-      */
     @ApiModelProperty(value = "Identifier of user related to this privilege entry.")
-    @JsonProperty("userId")
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(final String userId) {
-        this.userId = userId;
-    }
-
-    @Override
-    public String toString()  {
-        final var sb = new StringBuilder();
-
-        sb.append("class PrivilegeDetail {\n");
-        
-        sb.append("  bookingId: ").append(bookingId).append("\n");
-        sb.append("  iepDate: ").append(iepDate).append("\n");
-        sb.append("  iepTime: ").append(iepTime).append("\n");
-        sb.append("  agencyId: ").append(agencyId).append("\n");
-        sb.append("  iepLevel: ").append(iepLevel).append("\n");
-        sb.append("  comments: ").append(comments).append("\n");
-        sb.append("  userId: ").append(userId).append("\n");
-        sb.append("}\n");
-
-        return sb.toString();
-    }
+    private String userId;
 }
