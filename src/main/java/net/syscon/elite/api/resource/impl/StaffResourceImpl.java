@@ -3,6 +3,7 @@ package net.syscon.elite.api.resource.impl;
 import net.syscon.elite.api.resource.StaffResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.PageRequest;
+import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.StaffService;
 import net.syscon.elite.service.StaffService.GetStaffRoleRequest;
@@ -81,18 +82,21 @@ public class StaffResourceImpl implements StaffResource {
     }
 
     @Override
+    @ProxyUser
     public AddStaffAccessRoleForApiCaseloadResponse addStaffAccessRoleForApiCaseload(final Long staffId, final String body) {
         final var staffUserRole = staffService.addStaffRole(staffId, apiCaseloadId, body);
         return AddStaffAccessRoleForApiCaseloadResponse.respond201WithApplicationJson(staffUserRole);
     }
 
     @Override
+    @ProxyUser
     public AddStaffAccessRoleResponse addStaffAccessRole(final Long staffId, final String caseload, final String body) {
         final var staffUserRole = staffService.addStaffRole(staffId, caseload, body);
         return AddStaffAccessRoleResponse.respond201WithApplicationJson(staffUserRole);
     }
 
     @Override
+    @ProxyUser
     public RemoveStaffAccessRoleResponse removeStaffAccessRole(final Long staffId, final String caseload, final String roleCode) {
         staffService.removeStaffRole(staffId, caseload, roleCode);
         return RemoveStaffAccessRoleResponse.respond200WithApplicationJson(roleCode);

@@ -4,6 +4,7 @@ import io.jsonwebtoken.lang.Collections;
 import net.syscon.elite.api.model.CategorisationDetail;
 import net.syscon.elite.api.model.CategoryApprovalDetail;
 import net.syscon.elite.api.resource.OffenderAssessmentResource;
+import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.InmateService;
 
@@ -71,12 +72,14 @@ public class OffenderAssessmentResourceImpl implements OffenderAssessmentResourc
     }
 
     @Override
+    @ProxyUser
     public CreateCategorisationResponse createCategorisation(final CategorisationDetail detail) {
         inmateService.createCategorisation(detail.getBookingId(), detail);
         return CreateCategorisationResponse.respond201WithApplicationJson();
     }
 
     @Override
+    @ProxyUser
     public Response approveCategorisation(final CategoryApprovalDetail detail) {
         inmateService.approveCategorisation(detail.getBookingId(), detail);
         return Response.ok()
