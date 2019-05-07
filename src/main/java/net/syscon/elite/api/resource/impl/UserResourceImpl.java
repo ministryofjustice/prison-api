@@ -8,6 +8,7 @@ import net.syscon.elite.api.resource.UserResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.Page;
 import net.syscon.elite.api.support.PageRequest;
+import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.*;
@@ -86,6 +87,7 @@ public class UserResourceImpl implements UserResource {
     }
 
     @Override
+    @ProxyUser
     public RemoveUsersAccessRoleForCaseloadResponse removeUsersAccessRoleForCaseload(final String username, final String caseload, final String roleCode) {
         userService.removeUsersAccessRoleForCaseload( username,  caseload,  roleCode);
         return RemoveUsersAccessRoleForCaseloadResponse.respond200WithApplicationJson();
@@ -101,12 +103,14 @@ public class UserResourceImpl implements UserResource {
     }
 
     @Override
+    @ProxyUser
     public AddAccessRoleResponse addAccessRole(final String username, final String roleCode) {
         final var added = userService.addAccessRole(username, roleCode);
         return added? AddAccessRoleResponse.respond201WithApplicationJson() : AddAccessRoleResponse.respond200WithApplicationJson();
     }
 
     @Override
+    @ProxyUser
     public AddAccessRoleByCaseloadResponse addAccessRoleByCaseload(final String username, final String caseload, final String roleCode) {
         final var added = userService.addAccessRole(username, roleCode, caseload);
         return added? AddAccessRoleByCaseloadResponse.respond201WithApplicationJson() : AddAccessRoleByCaseloadResponse.respond200WithApplicationJson();
@@ -154,6 +158,7 @@ public class UserResourceImpl implements UserResource {
 
     @Override
     @PreAuthorize("#oauth2.hasScope('write')")
+    @ProxyUser
     public UpdateMyActiveCaseLoadResponse updateMyActiveCaseLoad(final CaseLoad caseLoad) {
         try {
             userService.setActiveCaseLoad(authenticationFacade.getCurrentUsername(), caseLoad.getCaseLoadId());
@@ -194,6 +199,7 @@ public class UserResourceImpl implements UserResource {
     }
 
     @Override
+    @ProxyUser
     public AddApiAccessForCaseloadResponse addApiAccessForCaseload(final String caseload) {
         final var caseloadUpdate = userService.addDefaultCaseloadForPrison(caseload);
         if (caseloadUpdate.getNumUsersEnabled() > 0) {

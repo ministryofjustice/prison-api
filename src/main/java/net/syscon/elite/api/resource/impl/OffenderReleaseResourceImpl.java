@@ -6,6 +6,7 @@ import lombok.val;
 import net.syscon.elite.api.model.ApprovalStatus;
 import net.syscon.elite.api.model.HdcChecks;
 import net.syscon.elite.api.resource.OffenderSentenceResource;
+import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.BookingService;
@@ -63,6 +64,7 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     }
 
     @Override
+    @ProxyUser
     public Response setCurfewChecks(final Long bookingId, final HdcChecks hdcChecks) {
         try {
             offenderCurfewService.setHdcChecks(bookingId, hdcChecks);
@@ -74,6 +76,7 @@ public class OffenderReleaseResourceImpl implements OffenderSentenceResource {
     }
 
     @Override
+    @ProxyUser
     public Response setApprovalStatus(final Long bookingId, final ApprovalStatus approvalStatus) {
         try {
             offenderCurfewService.setApprovalStatus(bookingId, approvalStatus);

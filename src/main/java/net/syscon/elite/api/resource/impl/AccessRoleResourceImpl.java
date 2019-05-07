@@ -2,6 +2,7 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.AccessRole;
 import net.syscon.elite.api.resource.AccessRoleResource;
+import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.AccessRoleService;
 
@@ -16,7 +17,6 @@ public class AccessRoleResourceImpl implements AccessRoleResource{
         this.accessRoleService = accessRoleService;
     }
 
-
     @Override
     public GetAccessRolesResponse getAccessRoles(final boolean includeAdmin) {
 
@@ -25,6 +25,7 @@ public class AccessRoleResourceImpl implements AccessRoleResource{
     }
 
     @Override
+    @ProxyUser
     public CreateAccessRoleResponse createAccessRole(final AccessRole newAccessRole) {
         accessRoleService.createAccessRole(newAccessRole);
 
@@ -32,6 +33,7 @@ public class AccessRoleResourceImpl implements AccessRoleResource{
     }
 
     @Override
+    @ProxyUser
     public UpdateAccessRoleResponse updateAccessRole(final AccessRole accessRole) {
         accessRoleService.updateAccessRole(accessRole);
 

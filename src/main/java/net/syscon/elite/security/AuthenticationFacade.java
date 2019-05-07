@@ -2,6 +2,8 @@ package net.syscon.elite.security;
 
 import net.syscon.elite.web.config.AuthAwareAuthenticationToken;
 import org.apache.commons.lang3.RegExUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.MDC;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static net.syscon.util.MdcUtility.PROXY_USER;
 
 @Component
 public class AuthenticationFacade {
@@ -42,7 +46,8 @@ public class AuthenticationFacade {
 
     public boolean isIdentifiedAuthentication() {
         final var auth = getAuthentication();
-        return Optional.ofNullable(auth).
+        return StringUtils.isNotBlank(MDC.get(PROXY_USER))
+            && Optional.ofNullable(auth).
                 filter(OAuth2Authentication.class::isInstance).
                 map(OAuth2Authentication.class::cast).
                 filter(OAuth2Authentication::isAuthenticated).

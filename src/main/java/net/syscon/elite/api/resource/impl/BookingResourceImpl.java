@@ -5,6 +5,7 @@ import net.syscon.elite.api.resource.BookingResource;
 import net.syscon.elite.api.resource.IncidentsResource;
 import net.syscon.elite.api.support.Order;
 import net.syscon.elite.api.support.PageRequest;
+import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.security.AuthenticationFacade;
 import net.syscon.elite.service.*;
@@ -91,6 +92,7 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('BOOKING_CREATE')")
+    @ProxyUser
     public CreateOffenderBookingResponse createOffenderBooking(final NewBooking newBooking) {
         // Step 1.
         // This service supports idempotent request control. First step is to check for existence of a response for
@@ -145,6 +147,7 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     @PreAuthorize("#oauth2.hasScope('write') && hasRole('BOOKING_RECALL')")
+    @ProxyUser
     public RecallOffenderBookingResponse recallOffenderBooking(final RecallBooking recallBooking) {
         final var offenderSummary =
                 bookingMaintenanceService.recallBooking(authenticationFacade.getCurrentUsername(), recallBooking);
@@ -214,6 +217,7 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    @ProxyUser
     public UpdateAttendanceResponse updateAttendance(final String offenderNo, final Long activityId, final UpdateAttendance body) {
         bookingService.updateAttendance(offenderNo, activityId, body);
         return UpdateAttendanceResponse.respond201WithApplicationJson();
@@ -398,6 +402,7 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     @PreAuthorize("#oauth2.hasScope('write')")
+    @ProxyUser
     public CreateBookingCaseNoteResponse createBookingCaseNote(final Long bookingId, final NewCaseNote body) {
         final var caseNote = caseNoteService.createCaseNote(bookingId, body, authenticationFacade.getCurrentUsername());
 
@@ -406,6 +411,7 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     @PreAuthorize("#oauth2.hasScope('write')")
+    @ProxyUser
     public CreateOffenderCaseNoteResponse createOffenderCaseNote(final String offenderNo, final NewCaseNote body) {
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
         final var caseNote = caseNoteService.createCaseNote(latestBookingByOffenderNo.getBookingId(), body, authenticationFacade.getCurrentUsername());
@@ -415,6 +421,7 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     @PreAuthorize("#oauth2.hasScope('write')")
+    @ProxyUser
     public UpdateOffenderCaseNoteResponse updateOffenderCaseNote(final Long bookingId, final Long caseNoteId, final UpdateCaseNote body) {
         final var caseNote = caseNoteService.updateCaseNote(
                 bookingId, caseNoteId, authenticationFacade.getCurrentUsername(), body.getText());
@@ -478,12 +485,14 @@ public class BookingResourceImpl implements BookingResource {
     }
 
     @Override
+    @ProxyUser
     public CreateRelationshipResponse createRelationship(final Long bookingId, final OffenderRelationship relationshipDetail) {
         final var relationship = contactService.createRelationship(bookingId, relationshipDetail);
         return CreateRelationshipResponse.respond201WithApplicationJson(relationship);
     }
 
     @Override
+    @ProxyUser
     public CreateRelationshipByOffenderNoResponse createRelationshipByOffenderNo(final String offenderNo, final OffenderRelationship relationshipDetail) {
         final var relationship = contactService.createRelationshipByOffenderNo(offenderNo, relationshipDetail);
         return CreateRelationshipByOffenderNoResponse.respond201WithApplicationJson(relationship);
@@ -653,6 +662,7 @@ public class BookingResourceImpl implements BookingResource {
 
     @Override
     @PreAuthorize("#oauth2.hasScope('write')")
+    @ProxyUser
     public PostBookingsBookingIdAppointmentsResponse postBookingsBookingIdAppointments(final Long bookingId, final NewAppointment newAppointment) {
         final var createdEvent = bookingService.createBookingAppointment(
                 bookingId, authenticationFacade.getCurrentUsername(), newAppointment);

@@ -14,6 +14,7 @@ public class MdcUtility {
     public static final String REQUEST_DURATION = "duration";
     public static final String RESPONSE_STATUS = "status";
     public static final String SKIP_LOGGING = "skipLogging";
+    public static final String PROXY_USER = "proxy-user";
 
     public String generateCorrelationId() {
         return UUID.randomUUID().toString();

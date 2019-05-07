@@ -2,6 +2,7 @@ package net.syscon.elite.api.resource.impl;
 
 import net.syscon.elite.api.model.bulkappointments.AppointmentsToCreate;
 import net.syscon.elite.api.resource.AppointmentsResource;
+import net.syscon.elite.core.ProxyUser;
 import net.syscon.elite.core.RestResource;
 import net.syscon.elite.service.AppointmentsService;
 
@@ -18,6 +19,7 @@ public class AppointmentsResourceImpl implements AppointmentsResource {
     }
 
     @Override
+    @ProxyUser
     public Response createAppointments(final AppointmentsToCreate createAppointmentsRequest) {
         appointmentsService.createAppointments(createAppointmentsRequest);
         return Response.ok().build();
