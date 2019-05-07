@@ -39,8 +39,12 @@ public class PersistenceConfigs {
     public DataSource dataSource() {
         final RoutingDataSource routingDataSource = new RoutingDataSource();
 
-        final DataSource primaryDataSource = buildDataSource("PrimaryHikariPool", PRIMARY_DATASOURCE_PREFIX, null);
-        final DataSource replicaDataSource = buildDataSource("ReplicaHikariPool", REPLICA_DATASOURCE_PREFIX, PRIMARY_DATASOURCE_PREFIX);
+        final var primaryDataSource = buildDataSource("PrimaryHikariPool", PRIMARY_DATASOURCE_PREFIX);
+        if (primaryDataSource == null) {
+            throw new RuntimeException("No Datasource URL defined");
+        }
+        final var replicaHikariPool = buildDataSource("ReplicaHikariPool", REPLICA_DATASOURCE_PREFIX);
+        final var replicaDataSource = replicaHikariPool != null ? replicaHikariPool : primaryDataSource;
 
         final var targetDataSources = new HashMap<>();
         targetDataSources.put(RoutingDataSource.Route.PRIMARY, primaryDataSource);
@@ -52,35 +56,32 @@ public class PersistenceConfigs {
         return routingDataSource;
     }
 
-    private DataSource buildDataSource(String poolName, String dataSourcePrefix, String dataSourceDefault) {
-        final HikariConfig hikariConfig = new HikariConfig();
-        hikariConfig.setPoolName(poolName);
+    private DataSource buildDataSource(String poolName, String dataSourcePrefix) {
 
-        if (StringUtils.isNotBlank(environment.getProperty(String.format("%s.url", dataSourcePrefix)))) {
-            setDsConfig(dataSourcePrefix, hikariConfig);
+        String url = environment.getProperty(String.format("%s.url", dataSourcePrefix));
+        if (StringUtils.isBlank(url)) {
+            return null;
         } else {
-            setDsConfig(dataSourceDefault, hikariConfig);
-        }
+            final HikariConfig hikariConfig = new HikariConfig();
+            hikariConfig.setPoolName(poolName);
 
-        return new HikariDataSource(hikariConfig);
-    }
+            hikariConfig.setJdbcUrl(url);
+            hikariConfig.setUsername(environment.getProperty(String.format("%s.username", dataSourcePrefix)));
+            hikariConfig.setPassword(environment.getProperty(String.format("%s.password", dataSourcePrefix)));
 
-    private void setDsConfig(String dataSourcePrefix, final HikariConfig hikariConfig) {
-        hikariConfig.setJdbcUrl(environment.getProperty(String.format("%s.url", dataSourcePrefix)));
-        hikariConfig.setUsername(environment.getProperty(String.format("%s.username", dataSourcePrefix)));
-        hikariConfig.setPassword(environment.getProperty(String.format("%s.password", dataSourcePrefix)));
-
-        String maxPoolSize = environment.getProperty(String.format("%s.hikari.maximum-pool-size", dataSourcePrefix));
-        if (StringUtils.isNotBlank(maxPoolSize)) {
-            hikariConfig.setMaximumPoolSize(Integer.valueOf(maxPoolSize));
-        }
-        var connectionTimeout = environment.getProperty(String.format("%s.hikari.connectionTimeout", dataSourcePrefix));
-        if (StringUtils.isNotBlank(connectionTimeout)) {
-            hikariConfig.setConnectionTimeout(Integer.valueOf(connectionTimeout));
-        }
-        var validationTimeout = environment.getProperty(String.format("%s.hikari.validationTimeout", dataSourcePrefix));
-        if (StringUtils.isNotBlank(validationTimeout)) {
-            hikariConfig.setValidationTimeout(Integer.valueOf(validationTimeout));
+            String maxPoolSize = environment.getProperty(String.format("%s.hikari.maximum-pool-size", dataSourcePrefix));
+            if (StringUtils.isNotBlank(maxPoolSize)) {
+                hikariConfig.setMaximumPoolSize(Integer.valueOf(maxPoolSize));
+            }
+            var connectionTimeout = environment.getProperty(String.format("%s.hikari.connectionTimeout", dataSourcePrefix));
+            if (StringUtils.isNotBlank(connectionTimeout)) {
+                hikariConfig.setConnectionTimeout(Integer.valueOf(connectionTimeout));
+            }
+            var validationTimeout = environment.getProperty(String.format("%s.hikari.validationTimeout", dataSourcePrefix));
+            if (StringUtils.isNotBlank(validationTimeout)) {
+                hikariConfig.setValidationTimeout(Integer.valueOf(validationTimeout));
+            }
+            return new HikariDataSource(hikariConfig);
         }
     }
 

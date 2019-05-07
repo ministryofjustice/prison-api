@@ -1,21 +1,11 @@
 spring:
   datasource:
-    continueOnError: true
-    url: jdbc:hsqldb:file:/tmp/elite2.db;sql.syntax_ora=true;get_column_name=false;shutdown=true;sql.nulls_first=false;sql.nulls_order=false
+    url: jdbc:hsqldb:mem:nomis-db;sql.syntax_ora=true;get_column_name=false;shutdown=false;sql.nulls_first=false;sql.nulls_order=false
     username: sa
     password:
 
     hikari:
-      maximum-pool-size: 1
-
-  replica:
-    datasource:
-      url: jdbc:hsqldb:file:/tmp/elite2.db;sql.syntax_ora=true;get_column_name=false;shutdown=true;sql.nulls_first=false;sql.nulls_order=false&readonly=true&files_readonly=true
-      username: sa
-      password:
-
-      hikari:
-        maximum-pool-size: 2
+      maximum-pool-size: 2
 
   flyway:
     enabled: true
