@@ -12,9 +12,11 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.stereotype.Component;
 
 @Aspect
 @Slf4j
+@Component
 public class AuthorisationAspect {
     private final BookingService bookingService;
     private final AgencyService agencyService;

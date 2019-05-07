@@ -23,7 +23,7 @@ import java.util.Optional;
 import static java.util.stream.Collectors.toList;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class ContactServiceImpl implements ContactService {
     private static final String OFFICIAL_CONTACT_TYPE = "O";  //TODO: Allow API to be specified in future work
 
@@ -42,7 +42,6 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     @VerifyBookingAccess
-    @Transactional(readOnly = true)
     public ContactDetail getContacts(final Long bookingId) {
         final var contacts = repository.getOffenderRelationships(bookingId, null);
 
@@ -72,6 +71,7 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     @PreAuthorize("hasRole('CONTACT_CREATE')")
+    @Transactional
     public Contact createRelationshipByOffenderNo(final String offenderNo, final OffenderRelationship relationshipDetail) {
         final var bookingId = bookingService.getBookingIdByOffenderNo(offenderNo);
         return createRelationship(bookingId, relationshipDetail);
@@ -79,6 +79,7 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     @PreAuthorize("hasRole('CONTACT_CREATE')")
+    @Transactional
     public Contact createRelationship(final Long bookingId, final OffenderRelationship relationshipDetail) {
 
         // Check relationship type exists - TODO: Move to validator
