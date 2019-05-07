@@ -2,11 +2,15 @@ package net.syscon.elite.executablespecification.steps;
 
 import net.syscon.elite.api.model.ErrorResponse;
 import net.syscon.elite.api.model.HomeDetentionCurfew;
+import net.syscon.elite.repository.OffenderCurfewRepositoryTest;
 import net.syscon.elite.test.EliteClientException;
 import net.thucydides.core.annotations.Step;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 
@@ -27,23 +31,43 @@ public class CurfewSteps extends CommonSteps {
     private static final BiConsumer<StringBuilder, String> bareValueAppender = StringBuilder::append;
     private static final Map<String, String> EXTRA_HEADERS = Collections.singletonMap("Content-Type", MediaType.APPLICATION_JSON_VALUE);
 
+    @Autowired
+    private NamedParameterJdbcOperations jdbcTemplate;
+
     private HttpStatus httpStatus;
     private ErrorResponse errorResponse;
 
-    private void reset() {
+    private void resetErrors() {
         httpStatus = null;
         errorResponse = null;
     }
 
+    private void reset(String bookingId) {
+        resetErrors();
+        try {
+            OffenderCurfewRepositoryTest.createNewCurfewForBookingId(Long.parseLong(bookingId), jdbcTemplate);
+        } catch (RuntimeException e) {
+            // Some tests make API requests involving bookings that don't exist.  This is deliberate. Their purpose is
+            // to confirm that the API behaves appropriately in these circumstances. When a booking doesn't exist it
+            // isn't possible to add an OFFENDER_CURFEWS record for that booking and the method call above will throw an
+            // exception. This is to be expected and should be ignored.
+        }
+    }
+
     @Step("Update HDC status")
     public void updateHdcStatus(final String bookingId, final String checksPassed, final String dateString) {
-        reset();
+        reset(bookingId);
         putRequest(CURFEW_CHECKS_PASSED_URI, hdcChecksBody(checksPassed, dateString), bookingId);
     }
 
     @Step("Update HDC approval status")
-    public void updateHdcApprovalStatus(final String bookingId, final String approvalStatus, final String refusedReason, final String dateString) {
-        reset();
+    public void updateHdcApprovalStatus(final String bookingId, final String checksPassed, final String approvalStatus, final String refusedReason, final String dateString) {
+        reset(bookingId);
+        if (StringUtils.isNotEmpty(checksPassed)) {
+            putRequest(CURFEW_CHECKS_PASSED_URI, hdcChecksBody(checksPassed, "2019-01-01"), bookingId);
+            verifyHttpStatusCode(200);
+            resetErrors();
+        }
         putRequest(CURFEW_APPROVAL_STATUS_URI, approvalStatusBody(approvalStatus, refusedReason, dateString), bookingId);
     }
 
@@ -59,7 +83,7 @@ public class CurfewSteps extends CommonSteps {
     }
 
     @Step("Verify Latest Home Detention Curfew")
-    public void verfyLatestHomeDetentionCurfew(Long bookingId, Boolean checksPassed, LocalDate checksPassedDate) {
+    public void verifyLatestHomeDetentionCurfew(Long bookingId, Boolean checksPassed, LocalDate checksPassedDate) {
         HomeDetentionCurfew hdc = getHomeDetentionCurfew(bookingId);
 
         assertThat(hdc)
