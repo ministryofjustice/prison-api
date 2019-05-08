@@ -21,7 +21,7 @@ import java.util.Map;
  * Implementation of offender booking maintenance operations.
  */
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class BookingMaintenanceServiceImpl implements BookingMaintenanceService {
     private final AgencyService agencyService;
     private final BookingRepository bookingRepository;
@@ -35,6 +35,7 @@ public class BookingMaintenanceServiceImpl implements BookingMaintenanceService 
     }
 
     @Override
+    @Transactional
     public OffenderSummary createBooking(final String username, @Valid final NewBooking newBooking) {
         // Perform matching or de-duplication checks depending on presence of offenderNo in request.
         //
@@ -71,6 +72,7 @@ public class BookingMaintenanceServiceImpl implements BookingMaintenanceService 
     }
 
     @Override
+    @Transactional
     public OffenderSummary recallBooking(final String username, @Valid final RecallBooking recallBooking) {
         // NB: The new 'Recall Booking' stored procedure performs the following validation:
         //   - verifies that matching offender exists based on offenderNo, lastName, firstName, dateOfBirth and gender.

@@ -150,7 +150,6 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	@Transactional(readOnly = true)
     public boolean isUserAssessibleCaseloadAvailable(final String caseload, final String username) {
 		return userRepository.isUserAssessibleCaseloadAvailable(caseload, username);
 	}

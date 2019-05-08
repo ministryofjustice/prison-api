@@ -10,6 +10,7 @@ import net.syscon.elite.service.IdempotentRequestService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 
@@ -25,6 +26,7 @@ public class IdempotentRequestServiceImpl implements IdempotentRequestService {
     }
 
     @Override
+    @Transactional
     public IdempotentRequestControl getAndSet(final String correlationId) {
         Validate.notBlank(correlationId);
 
@@ -32,6 +34,7 @@ public class IdempotentRequestServiceImpl implements IdempotentRequestService {
     }
 
     @Override
+    @Transactional
     public void updateResponse(final String correlationId, final String responseData, final Integer responseStatus) {
         Validate.notBlank(correlationId);
         Validate.notBlank(responseData);
