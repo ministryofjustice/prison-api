@@ -25,7 +25,7 @@ import static java.lang.String.format;
 import static net.syscon.elite.service.UserService.STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class StaffServiceImpl implements StaffService {
     private final StaffRepository staffRepository;
     private final UserRepository userRepository;
@@ -120,6 +120,7 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
+    @Transactional
     public StaffUserRole addStaffRole(final Long staffId, final String caseload, final String roleCode) {
         final var userDetail = userRepository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION).orElseThrow(EntityNotFoundException.withId(staffId));
 
@@ -142,6 +143,7 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     @PreAuthorize("hasRole('MAINTAIN_ACCESS_ROLES')")
+    @Transactional
     public void removeStaffRole(final Long staffId, final String caseload, final String roleCode) {
         final var userDetail = userRepository.findByStaffIdAndStaffUserType(staffId, STAFF_USER_TYPE_FOR_EXTERNAL_USER_IDENTIFICATION).orElseThrow(EntityNotFoundException.withId(staffId));
 

@@ -37,7 +37,7 @@ import static java.lang.String.format;
 
 @Service
 @Validated
-@Transactional
+@Transactional(readOnly = true)
 @Slf4j
 public class CaseNoteServiceImpl implements CaseNoteService {
 	private static final String AMEND_CASE_NOTE_FORMAT = "%s ...[%s updated the case notes on %s] %s";
@@ -63,7 +63,6 @@ public class CaseNoteServiceImpl implements CaseNoteService {
     }
 
 	@Override
-    @Transactional(readOnly = true)
 	@VerifyBookingAccess
     public Page<CaseNote> getCaseNotes(final Long bookingId, final String query, final LocalDate from, final LocalDate to, final String orderBy, final Order order, final long offset, final long limit) {
         final var orderByBlank = StringUtils.isBlank(orderBy);
@@ -87,7 +86,6 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	}
 
 	@Override
-	@Transactional(readOnly = true)
 	@VerifyBookingAccess
     public CaseNote getCaseNote(final Long bookingId, final Long caseNoteId) {
         final var caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId)
@@ -99,6 +97,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	}
 
 	@Override
+	@Transactional
 	@VerifyBookingAccess
     public CaseNote createCaseNote(final Long bookingId, @NotNull @Valid @CaseNoteTypeSubTypeValid final NewCaseNote caseNote, final String username) {
         final var userDetail = userService.getUserByUsername(username);
@@ -114,6 +113,7 @@ public class CaseNoteServiceImpl implements CaseNoteService {
     }
 
 	@Override
+	@Transactional
 	@VerifyBookingAccess
     public CaseNote updateCaseNote(final Long bookingId, final Long caseNoteId, final String username, @NotBlank(message = "{caseNoteTextBlank}") final String newCaseNoteText) {
         final var caseNote = caseNoteRepository.getCaseNote(bookingId, caseNoteId)
@@ -149,7 +149,6 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	}
 
 	@Override
-	@Transactional(readOnly = true)
 	@VerifyBookingAccess
     public CaseNoteCount getCaseNoteCount(final Long bookingId, final String type, final String subType, final LocalDate fromDate, final LocalDate toDate) {
 		// Validate date range
@@ -170,19 +169,16 @@ public class CaseNoteServiceImpl implements CaseNoteService {
 	}
 
 	@Override
-	@Transactional(readOnly = true)
     public List<ReferenceCode> getCaseNoteTypesByCaseLoadType(final String caseLoadType) {
 		return caseNoteRepository.getCaseNoteTypesByCaseLoadType(caseLoadType);
 	}
 
 	@Override
-	@Transactional(readOnly = true)
     public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(final String caseLoadType) {
 		return caseNoteRepository.getCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType);
 	}
 
 	@Override
-	@Transactional(readOnly = true)
 	public List<ReferenceCode> getUsedCaseNoteTypesWithSubTypes() {
 		return caseNoteRepository.getUsedCaseNoteTypesWithSubTypes();
 	}
