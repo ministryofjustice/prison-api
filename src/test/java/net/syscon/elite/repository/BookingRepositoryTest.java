@@ -394,7 +394,7 @@ public class BookingRepositoryTest {
         assertThat(results)
                 .asList()
                 .containsExactlyInAnyOrder(
-                        new OffenderSentenceTerms(-2L, LocalDate.of(2016, 11, 22), null, 6, null, null, false),
+                        // Terms with start date = 2016-11-22 is ignored as sentence is inactive
                         new OffenderSentenceTerms(-2L, LocalDate.of(2017, 5, 22), 2, null, null, null, false),
                         new OffenderSentenceTerms(-2L, LocalDate.of(2017, 6, 22), null, null, 2, 3, false),
                         new OffenderSentenceTerms(-2L, LocalDate.of(2017, 7, 22), 25, null, null, null, true)
