@@ -81,6 +81,7 @@ public class CacheConfig implements CachingConfigurer {
         config.addCache(config("offenderAssessments", 200, assessmentTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("bookingPhysicalMarks", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("bookingProfileInformation", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
+        config.addCache(config("bookingLanguages", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("bookingPhysicalCharacteristics", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("bookingPhysicalAttributes", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));
         config.addCache(config("offenderIdentifiers", 1000, bookingTimeoutSeconds, MemoryStoreEvictionPolicy.LRU));

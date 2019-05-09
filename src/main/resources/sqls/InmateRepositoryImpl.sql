@@ -8,8 +8,6 @@ FIND_INMATE_DETAIL {
          B.AGY_LOC_ID,
          B.LIVING_UNIT_ID,
          B.ACTIVE_FLAG,
-         pc3.description                RELIGION, -- Deprecated: remove!
-         RC1.DESCRIPTION             AS LANGUAGE,
          (SELECT MAX(OI.OFFENDER_IMAGE_ID)
           FROM OFFENDER_IMAGES OI
           WHERE OI.ACTIVE_FLAG = 'Y'
@@ -21,10 +19,6 @@ FIND_INMATE_DETAIL {
          B.ASSIGNED_STAFF_ID AS ASSIGNED_OFFICER_ID
   FROM OFFENDER_BOOKINGS B
          INNER JOIN OFFENDERS O ON B.OFFENDER_ID = O.OFFENDER_ID
-         LEFT JOIN offender_profile_details opd3 ON opd3.offender_book_id = B.offender_book_id AND opd3.profile_type = 'RELF'-- Deprecated: remove!
-         LEFT JOIN profile_codes pc3 ON pc3.profile_type = opd3.profile_type AND pc3.profile_code = opd3.profile_code        -- Deprecated: remove!
-         LEFT JOIN OFFENDER_LANGUAGES LANG ON LANG.OFFENDER_BOOK_ID = B.OFFENDER_BOOK_ID AND LANG.LANGUAGE_TYPE = 'PREF_SPEAK'
-         LEFT JOIN REFERENCE_CODES RC1 ON LANG.LANGUAGE_CODE = RC1.CODE AND RC1.DOMAIN = 'LANG'
   WHERE B.OFFENDER_BOOK_ID = :bookingId
 }
 
@@ -241,6 +235,16 @@ FIND_PROFILE_INFORMATION_BY_BOOKING {
                                   AND PC.PROFILE_CODE = P.PROFILE_CODE
   WHERE P.OFFENDER_BOOK_ID = :bookingId AND P.PROFILE_CODE IS NOT NULL
   ORDER BY P.LIST_SEQ
+}
+
+FIND_LANGUAGES_BY_BOOKING {
+SELECT OL.LANGUAGE_TYPE AS TYPE,
+       OL.LANGUAGE_CODE AS CODE,
+       RC.DESCRIPTION
+  FROM OFFENDER_LANGUAGES OL JOIN
+       REFERENCE_CODES RC    ON OL.LANGUAGE_CODE = RC.CODE AND
+                                RC.DOMAIN = 'LANG'
+ WHERE OL.OFFENDER_BOOK_ID = :bookingId
 }
 
 GET_OFFENDER_IDENTIFIERS_BY_BOOKING {
