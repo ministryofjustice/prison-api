@@ -34,7 +34,7 @@ import static net.syscon.elite.security.AuthenticationFacade.hasRoles;
 
 @Service
 @Validated
-@Transactional
+@Transactional(readOnly = true)
 public class AppointmentsServiceImpl implements AppointmentsService {
 
     // Maximum of 1000 values in an Oracle 'IN' clause is current hard limit. (See #validateBookingIds below).
@@ -67,8 +67,8 @@ public class AppointmentsServiceImpl implements AppointmentsService {
      * @param appointments Details of the new appointments to be created.
      */
     @PreAuthorize("#oauth2.hasScope('write')")
-
     @Override
+    @Transactional
     public void createAppointments(@NotNull @Valid final AppointmentsToCreate appointments) {
 
         assertThatRequestHasPermission(appointments);
