@@ -161,4 +161,24 @@ public class MovementsRepositoryImpl extends RepositoryBase implements Movements
                 ),
                 OFFENDER_OUT_MAPPER);
     }
+
+    public List<Movement> getTransferMovementsForAgency(List<String> agencies, LocalDateTime from, LocalDateTime to) {
+
+        final var listOfTransferMovements = jdbcTemplate.query (
+             getQuery("GET_MOVEMENTS_BY_AGENCY_AND_TIME_PERIOD"),
+             createParams("agencies", String.join(",", agencies),
+                          "fromDateTime", DateTimeConverter.fromLocalDateTime(from),
+                          "toDateTime", DateTimeConverter.fromLocalDateTime(to)),
+                          MOVEMENT_MAPPER);
+
+        /*
+        List<Movement> listOfTransferMovements = List.of(
+                Movement.builder().movementType("TRN").directionCode("OUT").movementTime(now()).fromAgency("LEI").toAgency("BRM").build(),
+                Movement.builder().movementType("TRN").directionCode("OUT").movementTime(now()).fromAgency("LEI").toAgency("BRM").build(),
+                Movement.builder().movementType("TRN").directionCode("OUT").movementTime(now()).fromAgency("LEI").toAgency("BRM").build()
+                );
+        */
+
+        return listOfTransferMovements;
+    }
 }

@@ -74,4 +74,9 @@ public class MovementResourceImpl implements MovementResource {
     public List<OffenderOut> getOffendersCurrentlyOut(final String agencyId) {
         return movementsService.getOffendersCurrentlyOut(agencyId);
     }
+
+    @Override
+    public List<Movement> getTransfers(final List<String> agencyIds, final LocalDateTime fromDateTime, final LocalDateTime toDateTime) {
+        return movementsService.getTransferMovements(agencyIds, fromDateTime, toDateTime);
+    }
 }
