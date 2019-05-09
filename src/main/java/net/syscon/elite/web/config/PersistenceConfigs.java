@@ -4,7 +4,10 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -15,7 +18,6 @@ import java.util.HashMap;
 @Configuration
 @EnableAspectJAutoProxy
 @EnableTransactionManagement
-@ComponentScan(basePackages = { "net.syscon.elite.repository", "net.syscon.util" })
 public class PersistenceConfigs {
 
     private static final String PRIMARY_DATASOURCE_PREFIX = "spring.datasource";
@@ -51,7 +53,7 @@ public class PersistenceConfigs {
         targetDataSources.put(RoutingDataSource.Route.REPLICA, replicaDataSource);
 
         routingDataSource.setTargetDataSources(targetDataSources);
-        routingDataSource.setDefaultTargetDataSource(replicaDataSource);
+        routingDataSource.setDefaultTargetDataSource(primaryDataSource);
 
         return routingDataSource;
     }
