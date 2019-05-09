@@ -12,7 +12,7 @@ import java.sql.SQLException;
 @Slf4j
 public abstract class AbstractConnectionAspect {
 
-    @Pointcut("execution (* com.zaxxer.hikari.HikariDataSource.getConnection())")
+    @Pointcut("execution (* org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource.getConnection())")
     protected void onNewConnectionPointcut() {
         // No code needed
     }
