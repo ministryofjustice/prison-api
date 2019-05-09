@@ -4,3 +4,4 @@ build
 out
 target
 .idea/workspace.iml
+nomis-db.*

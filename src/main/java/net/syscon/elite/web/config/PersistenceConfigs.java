@@ -41,11 +41,11 @@ public class PersistenceConfigs {
     public DataSource dataSource() {
         final RoutingDataSource routingDataSource = new RoutingDataSource();
 
-        final var primaryDataSource = buildDataSource("PrimaryHikariPool", PRIMARY_DATASOURCE_PREFIX);
+        final var primaryDataSource = buildDataSource("PrimaryHikariPool", PRIMARY_DATASOURCE_PREFIX, false);
         if (primaryDataSource == null) {
             throw new RuntimeException("No Datasource URL defined");
         }
-        final var replicaHikariPool = buildDataSource("ReplicaHikariPool", REPLICA_DATASOURCE_PREFIX);
+        final var replicaHikariPool = buildDataSource("ReplicaHikariPool", REPLICA_DATASOURCE_PREFIX, true);
         final var replicaDataSource = replicaHikariPool != null ? replicaHikariPool : primaryDataSource;
 
         final var targetDataSources = new HashMap<>();
@@ -58,7 +58,7 @@ public class PersistenceConfigs {
         return routingDataSource;
     }
 
-    private DataSource buildDataSource(String poolName, String dataSourcePrefix) {
+    private DataSource buildDataSource(String poolName, String dataSourcePrefix, boolean readonly) {
 
         String url = environment.getProperty(String.format("%s.url", dataSourcePrefix));
         if (StringUtils.isBlank(url)) {
@@ -83,6 +83,8 @@ public class PersistenceConfigs {
             if (StringUtils.isNotBlank(validationTimeout)) {
                 hikariConfig.setValidationTimeout(Integer.valueOf(validationTimeout));
             }
+
+            hikariConfig.setReadOnly(readonly);
             return new HikariDataSource(hikariConfig);
         }
     }
